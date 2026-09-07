@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
+import '../../core/theme/app_spacing.dart';
+import '../../core/theme/app_typography.dart';
 
-/// A single readout: label, value, and an optional unit or qualifier.
-///
-/// Values are set in monospace so figures line up across a row of cards and
-/// do not shift width as they change.
 class StatCard extends StatelessWidget {
   const StatCard({
     required this.label,

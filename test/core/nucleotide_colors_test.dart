@@ -25,8 +25,6 @@ void main() {
     });
 
     test('falls back to the neutral colour for ambiguity and gap codes', () {
-      // Real data contains these constantly; throwing here would make the
-      // sequence view unrenderable rather than merely uncoloured.
       expect(palette.forBase('N'), palette.unknown);
       expect(palette.forBase('-'), palette.unknown);
       expect(palette.forBase('?'), palette.unknown);
@@ -44,8 +42,6 @@ void main() {
     });
 
     test('the light palette differs from the dark one', () {
-      // The dark values are too light to read on paper; if these ever match,
-      // the light theme has silently become an inversion.
       expect(
         NucleotideColors.light.adenine,
         isNot(NucleotideColors.dark.adenine),

@@ -4,15 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'api_client.dart';
 import 'api_exception.dart';
 
-/// Dio-backed [ApiClient].
-///
-/// This is the only file in the app that imports `dio`. Every `DioException`
-/// is converted to an [ApiException] on the way out, so the rest of the
-/// codebase — repositories, blocs, widgets — stays unaware of the transport.
-///
-/// Nothing calls this yet: the app runs against [StubSequenceRepository] until
-/// the FastAPI backend exists. It is built now so that swapping in the real
-/// backend is a repository change, not a networking project.
 final class DioApiClient implements ApiClient {
   DioApiClient({required String baseUrl, required Duration timeout})
       : _dio = Dio(
@@ -36,7 +27,6 @@ final class DioApiClient implements ApiClient {
     );
   }
 
-  /// Test seam: lets a preconfigured or mocked Dio be injected.
   @visibleForTesting
   DioApiClient.withDio(this._dio);
 
@@ -67,7 +57,6 @@ final class DioApiClient implements ApiClient {
       if (data is Map<String, dynamic>) {
         return data;
       }
-      // A 2xx with an unexpected shape is as unusable as an error status.
       throw const UnknownApiException();
     } on DioException catch (error) {
       throw _translate(error);
@@ -89,7 +78,6 @@ final class DioApiClient implements ApiClient {
     };
   }
 
-  /// FastAPI reports errors as `{"detail": "..."}`; surface that when present.
   String? _detailFrom(dynamic data) {
     if (data is Map<String, dynamic>) {
       final dynamic detail = data['detail'];

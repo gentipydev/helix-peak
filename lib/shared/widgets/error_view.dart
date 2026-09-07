@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_spacing.dart';
 
-/// Failure state with a way out.
-///
-/// Feature-agnostic on purpose: every screen that can fail renders this, so
-/// error presentation stays consistent and no screen invents its own.
 class ErrorView extends StatelessWidget {
   const ErrorView({
     required this.message,
@@ -17,8 +13,6 @@ class ErrorView extends StatelessWidget {
   final String message;
   final String title;
 
-  /// When null, no retry affordance is shown — appropriate for failures that
-  /// retrying cannot fix, such as invalid input.
   final VoidCallback? onRetry;
 
   @override

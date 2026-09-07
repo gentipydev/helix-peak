@@ -5,10 +5,6 @@ import 'app_spacing.dart';
 import 'app_typography.dart';
 import 'nucleotide_colors.dart';
 
-/// Assembles [ThemeData] from the token layer.
-///
-/// Both themes are built by the same function from different token sets, so a
-/// component styled once is styled in both. Dark is the default.
 abstract final class AppTheme {
   static ThemeData get dark => _build(
         tokens: AppColorTokens.dark,
@@ -27,9 +23,6 @@ abstract final class AppTheme {
     required NucleotideColors nucleotides,
     required Brightness brightness,
   }) {
-    // Seeding fills in the long tail of Material roles this app never names
-    // directly; the copyWith below pins every role that is actually visible so
-    // the generated tonal palette can't quietly override a design decision.
     final ColorScheme scheme = ColorScheme.fromSeed(
       seedColor: tokens.accent,
       brightness: brightness,
@@ -43,7 +36,6 @@ abstract final class AppTheme {
       surface: tokens.surfaceBase,
       onSurface: tokens.onSurface,
       onSurfaceVariant: tokens.onSurfaceVariant,
-      // The four surface tokens spread across Material's elevation roles.
       surfaceContainerLowest: tokens.surfaceBase,
       surfaceContainerLow: tokens.surfaceRaised,
       surfaceContainer: tokens.surfaceRaised,
@@ -68,8 +60,6 @@ abstract final class AppTheme {
       colorScheme: scheme,
       textTheme: textTheme,
       scaffoldBackgroundColor: tokens.surfaceBase,
-      // Elevation is carried entirely by surface lightness. Nothing in this
-      // app casts a shadow.
       shadowColor: Colors.transparent,
       extensions: <ThemeExtension<dynamic>>[nucleotides],
       appBarTheme: AppBarTheme(

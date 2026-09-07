@@ -1,10 +1,3 @@
-# Static analysis configuration for HelixPeak.
-#
-# The base set comes from flutter_lints; everything below tightens it. The
-# strict-* language flags are the important part: they turn implicit dynamic
-# and implicit downcasts into analysis errors, which is what keeps generated
-# code and hand-written code honest about types.
-
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
@@ -13,8 +6,6 @@ analyzer:
     strict-inference: true
     strict-raw-types: true
   errors:
-    # freezed and json_serializable place annotations on generated targets
-    # that this lint objects to. Nothing actionable, so it is silenced.
     invalid_annotation_target: ignore
   exclude:
     - "**/*.g.dart"

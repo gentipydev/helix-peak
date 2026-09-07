@@ -4,11 +4,6 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 
-/// The HelixPeak wordmark and tagline.
-///
-/// Set in caps with wide tracking. The accent lands on exactly one glyph
-/// group — the restraint is the point; an accent used twice stops being an
-/// accent.
 class Wordmark extends StatelessWidget {
   const Wordmark({super.key});
 

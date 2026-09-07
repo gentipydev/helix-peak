@@ -2,12 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_spacing.dart';
 
-/// Loading treatment for content that is about to arrive.
-///
-/// Skeleton blocks in the shape of the eventual result, rather than a centred
-/// spinner: the layout does not jump when data lands, and the user gets a
-/// preview of what is coming. The pulse is slow enough to read as "working"
-/// rather than "hurrying".
 class LoadingView extends StatefulWidget {
   const LoadingView({required this.label, super.key});
 
@@ -27,8 +21,6 @@ class _LoadingViewState extends State<LoadingView>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // MediaQuery is unavailable in initState, and the setting can change while
-    // the app is running, so the check belongs here.
     if (MediaQuery.disableAnimationsOf(context)) {
       _controller.stop();
       _controller.value = 1;
@@ -75,8 +67,6 @@ class _LoadingViewState extends State<LoadingView>
                 child: child,
               );
             },
-            // Built once and reused across every tick — the pulse only changes
-            // opacity, so there is no reason to rebuild the skeleton itself.
             child: const _SkeletonBody(),
           ),
         ],
@@ -85,7 +75,6 @@ class _LoadingViewState extends State<LoadingView>
   }
 }
 
-/// The shape of the results screen, drawn in blank surfaces.
 class _SkeletonBody extends StatelessWidget {
   const _SkeletonBody();
 

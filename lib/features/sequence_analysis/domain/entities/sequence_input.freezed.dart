@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SequenceInput {
 
- String get bases; SequenceType get sequenceType; String? get fastaHeader;
+ String get rawText;
 /// Create a copy of SequenceInput
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $SequenceInputCopyWith<SequenceInput> get copyWith => _$SequenceInputCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SequenceInput&&(identical(other.bases, bases) || other.bases == bases)&&(identical(other.sequenceType, sequenceType) || other.sequenceType == sequenceType)&&(identical(other.fastaHeader, fastaHeader) || other.fastaHeader == fastaHeader));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SequenceInput&&(identical(other.rawText, rawText) || other.rawText == rawText));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,bases,sequenceType,fastaHeader);
+int get hashCode => Object.hash(runtimeType,rawText);
 
 @override
 String toString() {
-  return 'SequenceInput(bases: $bases, sequenceType: $sequenceType, fastaHeader: $fastaHeader)';
+  return 'SequenceInput(rawText: $rawText)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $SequenceInputCopyWith<$Res>  {
   factory $SequenceInputCopyWith(SequenceInput value, $Res Function(SequenceInput) _then) = _$SequenceInputCopyWithImpl;
 @useResult
 $Res call({
- String bases, SequenceType sequenceType, String? fastaHeader
+ String rawText
 });
 
 
@@ -62,12 +62,10 @@ class _$SequenceInputCopyWithImpl<$Res>
 
 /// Create a copy of SequenceInput
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? bases = null,Object? sequenceType = null,Object? fastaHeader = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? rawText = null,}) {
   return _then(_self.copyWith(
-bases: null == bases ? _self.bases : bases // ignore: cast_nullable_to_non_nullable
-as String,sequenceType: null == sequenceType ? _self.sequenceType : sequenceType // ignore: cast_nullable_to_non_nullable
-as SequenceType,fastaHeader: freezed == fastaHeader ? _self.fastaHeader : fastaHeader // ignore: cast_nullable_to_non_nullable
-as String?,
+rawText: null == rawText ? _self.rawText : rawText // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
@@ -152,10 +150,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String bases,  SequenceType sequenceType,  String? fastaHeader)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String rawText)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SequenceInput() when $default != null:
-return $default(_that.bases,_that.sequenceType,_that.fastaHeader);case _:
+return $default(_that.rawText);case _:
   return orElse();
 
 }
@@ -173,10 +171,10 @@ return $default(_that.bases,_that.sequenceType,_that.fastaHeader);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String bases,  SequenceType sequenceType,  String? fastaHeader)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String rawText)  $default,) {final _that = this;
 switch (_that) {
 case _SequenceInput():
-return $default(_that.bases,_that.sequenceType,_that.fastaHeader);case _:
+return $default(_that.rawText);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -193,10 +191,10 @@ return $default(_that.bases,_that.sequenceType,_that.fastaHeader);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String bases,  SequenceType sequenceType,  String? fastaHeader)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String rawText)?  $default,) {final _that = this;
 switch (_that) {
 case _SequenceInput() when $default != null:
-return $default(_that.bases,_that.sequenceType,_that.fastaHeader);case _:
+return $default(_that.rawText);case _:
   return null;
 
 }
@@ -207,13 +205,11 @@ return $default(_that.bases,_that.sequenceType,_that.fastaHeader);case _:
 /// @nodoc
 
 
-class _SequenceInput extends SequenceInput {
-  const _SequenceInput({required this.bases, required this.sequenceType, this.fastaHeader}): super._();
+class _SequenceInput implements SequenceInput {
+  const _SequenceInput({required this.rawText});
   
 
-@override final  String bases;
-@override final  SequenceType sequenceType;
-@override final  String? fastaHeader;
+@override final  String rawText;
 
 /// Create a copy of SequenceInput
 /// with the given fields replaced by the non-null parameter values.
@@ -225,16 +221,16 @@ _$SequenceInputCopyWith<_SequenceInput> get copyWith => __$SequenceInputCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SequenceInput&&(identical(other.bases, bases) || other.bases == bases)&&(identical(other.sequenceType, sequenceType) || other.sequenceType == sequenceType)&&(identical(other.fastaHeader, fastaHeader) || other.fastaHeader == fastaHeader));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SequenceInput&&(identical(other.rawText, rawText) || other.rawText == rawText));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,bases,sequenceType,fastaHeader);
+int get hashCode => Object.hash(runtimeType,rawText);
 
 @override
 String toString() {
-  return 'SequenceInput(bases: $bases, sequenceType: $sequenceType, fastaHeader: $fastaHeader)';
+  return 'SequenceInput(rawText: $rawText)';
 }
 
 
@@ -245,7 +241,7 @@ abstract mixin class _$SequenceInputCopyWith<$Res> implements $SequenceInputCopy
   factory _$SequenceInputCopyWith(_SequenceInput value, $Res Function(_SequenceInput) _then) = __$SequenceInputCopyWithImpl;
 @override @useResult
 $Res call({
- String bases, SequenceType sequenceType, String? fastaHeader
+ String rawText
 });
 
 
@@ -262,12 +258,10 @@ class __$SequenceInputCopyWithImpl<$Res>
 
 /// Create a copy of SequenceInput
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? bases = null,Object? sequenceType = null,Object? fastaHeader = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? rawText = null,}) {
   return _then(_SequenceInput(
-bases: null == bases ? _self.bases : bases // ignore: cast_nullable_to_non_nullable
-as String,sequenceType: null == sequenceType ? _self.sequenceType : sequenceType // ignore: cast_nullable_to_non_nullable
-as SequenceType,fastaHeader: freezed == fastaHeader ? _self.fastaHeader : fastaHeader // ignore: cast_nullable_to_non_nullable
-as String?,
+rawText: null == rawText ? _self.rawText : rawText // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

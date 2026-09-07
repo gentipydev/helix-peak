@@ -1,15 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-/// Typed access to environment configuration.
-///
-/// Feature code never touches `dotenv` directly, so the set of configurable
-/// values is visible in one place and a rename is a compile error rather than
-/// a silently-null string lookup.
-///
-/// Reads are fail-soft: a missing key falls back to a sane default and warns
-/// in debug builds. The app currently runs against a stub repository and must
-/// stay usable without any backend configured at all.
 abstract final class Env {
   static const String _defaultBaseUrl = 'http://localhost:8000';
   static const int _defaultTimeoutMs = 15000;
