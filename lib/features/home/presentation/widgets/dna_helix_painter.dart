@@ -33,8 +33,7 @@ class DnaHelixPainter extends CustomPainter {
     required this.cytosine,
     required this.transcript,
     required this.background,
-  })  : _clear = background.withValues(alpha: 0),
-        super(repaint: repaint) {
+  }) : super(repaint: repaint) {
     _buildLuts();
   }
 
@@ -55,8 +54,6 @@ class DnaHelixPainter extends CustomPainter {
   final Color transcript;
 
   final Color background;
-
-  final Color _clear;
 
   static const double _widthFraction = 0.40;
 
@@ -103,7 +100,23 @@ class DnaHelixPainter extends CustomPainter {
   static const double _ringWidth = 1.1;
 
   static const double _driftAmplitude = 8;
-  static const double _fadeStop = 0.16;
+
+  /// The top runs into the screen edge, so it only has to stop being visible.
+  static const double _topFadeStop = 0.16;
+
+  /// The bottom runs into the wordmark, which is a different problem: the eye
+  /// follows the duplex down and needs somewhere for it to have gone. A band
+  /// that ends where the artwork ends reads as a crop no matter how smooth it
+  /// is, so the bottom gets a longer runway than the top and spends it going
+  /// dark well before the box does.
+  static const double _bottomFadeStop = 0.28;
+
+  /// The veil is a smoothstep, not a straight ramp. A linear alpha ramp has a
+  /// corner where it leaves zero, and the eye reads that corner as the edge of
+  /// the artwork — the exact thing the fade exists to hide. A smoothstep
+  /// leaves and arrives at zero slope, so neither end announces itself.
+  /// Sampling it this finely keeps the steps under one framebuffer level.
+  static const int _fadeSteps = 12;
 
   static const double _bubbleOpen = 0.26;
 
@@ -172,8 +185,23 @@ class DnaHelixPainter extends CustomPainter {
 
     _project(size, radius, height);
     _sortByDepth(size.height);
+
+    // Culling drops a primitive only when *both* its endpoints are off canvas,
+    // so one that straddles an edge is kept and then drawn in full — a strand
+    // segment with its far end well below the box paints its whole length, far
+    // past _cullMargin, and CustomPaint does not clip. That overspill used to
+    // land on whatever sat underneath: the duplex dissolved into the dark and
+    // then a bright fragment of backbone reappeared across the wordmark.
+    //
+    // The veil cannot chase it, because how far a straddling primitive reaches
+    // is unbounded. Clipping is what actually bounds it. Nothing visible is
+    // lost: the edge fade takes the artwork to background before the boundary,
+    // so the clip only ever bites on what was already faded out.
+    canvas.save();
+    canvas.clipRect(Offset.zero & size);
     _drawPrimitives(canvas);
     _paintEdgeFade(canvas, size);
+    canvas.restore();
   }
 
   void _project(Size size, double radius, double height) {
@@ -416,21 +444,44 @@ class DnaHelixPainter extends CustomPainter {
     if (_fadeSize != size) {
       _fadeSize = size;
 
-      final double band = size.height * _fadeStop;
-      _topFade = Rect.fromLTWH(0, 0, size.width, band);
-      _bottomFade = Rect.fromLTWH(0, size.height - band, size.width, band);
+      _topFade = Rect.fromLTWH(0, 0, size.width, size.height * _topFadeStop);
+      _bottomFade = Rect.fromLTWH(
+        0,
+        size.height * (1 - _bottomFadeStop),
+        size.width,
+        size.height * _bottomFadeStop,
+      );
+
+      final List<Color> colours = <Color>[];
+      final List<double> stops = <double>[];
+
+      for (int i = 0; i <= _fadeSteps; i++) {
+        final double t = i / _fadeSteps;
+        colours.add(background.withValues(alpha: 1 - _smoothstep(t)));
+        stops.add(t * _topFadeStop);
+      }
+
+      // The run between the two bands interpolates clear to clear, so it needs
+      // no stops of its own.
+      for (int i = 0; i <= _fadeSteps; i++) {
+        final double t = i / _fadeSteps;
+        colours.add(background.withValues(alpha: _smoothstep(t)));
+        stops.add(1 - _bottomFadeStop + t * _bottomFadeStop);
+      }
 
       _fadePaint.shader = ui.Gradient.linear(
         Offset.zero,
         Offset(0, size.height),
-        <Color>[background, _clear, _clear, background],
-        <double>[0, _fadeStop, 1 - _fadeStop, 1],
+        colours,
+        stops,
       );
     }
 
     canvas.drawRect(_topFade, _fadePaint);
     canvas.drawRect(_bottomFade, _fadePaint);
   }
+
+  static double _smoothstep(double t) => t * t * (3 - 2 * t);
 
   void _buildLuts() {
     assert(

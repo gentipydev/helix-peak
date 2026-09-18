@@ -1,0 +1,125 @@
+{
+    "gene": "GH1",
+    "location": {
+        "start": 5000,
+        "end": 6636,
+        "strand": 1
+    },
+    "sequence": "AAGGATCCCAAGGCCCAACTCCCCGAACCACTCAGGGTCCTGTGGACAGCTCACCTAGCTGCAATGGCTACAGGTAAGCGCCCCTAAAATCCCTTTGGGCACAATGTGTCCTGAGGGGAGAGGCAGCGACCTGTAGATGGGACGGGGGCACTAACCCTCAGGTTTGGGGCTTCTGAATGTGAGTATCGCCATGTAAGCCCAGTATTTGGCCAATCTCAGAAAGCTCCTGGTCCCTGGAGGGATGGAGAGAGAAAAACAAACAGCTCCTGGAGCAGGGAGAGTGCTGGCCTCTTGCTCTCCGGCTCCCTCTGTTGCCCTCTGGTTTCTCCCCAGGCTCCCGGACGTCCCTGCTCCTGGCTTTTGGCCTGCTCTGCCTGCCCTGGCTTCAAGAGGGCAGTGCCTTCCCAACCATTCCCTTATCCAGGCTTTTTGACAACGCTATGCTCCGCGCCCATCGTCTGCACCAGCTGGCCTTTGACACCTACCAGGAGTTTGTAAGCTCTTGGGGAATGGGTGCGCATCAGGGGTGGCAGGAAGGGGTGACTTTCCCCCGCTGGGAAATAAGAGGAGGAGACTAAGGAGCTCAGGGTTTTTCCCGAAGCGAAAATGCAGGCAGATGAGCACACGCTGAGTGAGGTTCCCAGAAAAGTAACAATGGGAGCTGGTCTCCAGCGTAGACCTTGGTGGGCGGTCCTTCTCCTAGGAAGAAGCCTATATCCCAAAGGAACAGAAGTATTCATTCCTGCAGAACCCCCAGACCTCCCTCTGTTTCTCAGAGTCTATTCCGACACCCTCCAACAGGGAGGAAACACAACAGAAATCCGTGAGTGGATGCCTTCTCCCCAGGCGGGGATGGGGGAGACCTGTAGTCAGAGCCCCCGGGCAGCACAGCCAATGCCCGTCCTTCCCCTGCAGAACCTAGAGCTGCTCCGCATCTCCCTGCTGCTCATCCAGTCGTGGCTGGAGCCCGTGCAGTTCCTCAGGAGTGTCTTCGCCAACAGCCTGGTGTACGGCGCCTCTGACAGCAACGTCTATGACCTCCTAAAGGACCTAGAGGAAGGCATCCAAACGCTGATGGGGGTGAGGGTGGCGCCAGGGGTCCCCAATCCTGGAGCCCCACTGACTTTGAGAGCTGTGTTAGAGAAACACTGCTGCCCTCTTTTTAGCAGTCAGGCCCTGACCCAAGAGAACTCACCTTATTCTTCATTTCCCCTCGTGAATCCTCCAGGCCTTTCTCTACACCCTGAAGGGGAGGGAGGAAAATGAATGAATGAGAAAGGGAGGGAACAGTACCCAAGCGCTTGGCCTCTCCTTCTCTTCCTTCACTTTGCAGAGGCTGGAAGATGGCAGCCCCCGGACTGGGCAGATCTTCAAGCAGACCTACAGCAAGTTCGACACAAACTCACACAACGATGACGCACTACTCAAGAACTACGGGCTGCTCTACTGCTTCAGGAAGGACATGGACAAGGTCGAGACATTCCTGCGCATCGTGCAGTGCCGCTCTGTGGAGGGCAGCTGTGGCTTCTAGCTGCCCGGGTGGCATCCCTGTGACCCCTCCCCAGTGCCTCTCCTGGCCCTGGAAGTTGCCACTCCAGTGCCCACCAGCCTTGTCCTAATAAAATTAAGTTGCATCA",
+    "transcript": {
+        "segments": [
+            {
+                "start": 5000,
+                "end": 5072
+            },
+            {
+                "start": 5333,
+                "end": 5493
+            },
+            {
+                "start": 5703,
+                "end": 5822
+            },
+            {
+                "start": 5915,
+                "end": 6079
+            },
+            {
+                "start": 6333,
+                "end": 6636
+            }
+        ]
+    },
+    "protein": {
+        "product": "somatotropin isoform 1 precursor",
+        "translation": "MATGSRTSLLLAFGLLCLPWLQEGSAFPTIPLSRLFDNAMLRAHRLHQLAFDTYQEFEEAYIPKEQKYSFLQNPQTSLCFSESIPTPSNREETQQKSNLELLRISLLLIQSWLEPVQFLRSVFANSLVYGASDSNVYDLLKDLEEGIQTLMGRLEDGSPRTGQIFKQTYSKFDTNSHNDDALLKNYGLLYCFRKDMDKVETFLRIVQCRSVEGSCGF",
+        "segments": [
+            {
+                "start": 5063,
+                "end": 5072
+            },
+            {
+                "start": 5333,
+                "end": 5493
+            },
+            {
+                "start": 5703,
+                "end": 5822
+            },
+            {
+                "start": 5915,
+                "end": 6079
+            },
+            {
+                "start": 6333,
+                "end": 6530
+            }
+        ]
+    },
+    "exons": [
+        {
+            "start": 5000,
+            "end": 5072,
+            "number": 1
+        },
+        {
+            "start": 5333,
+            "end": 5493,
+            "number": 2
+        },
+        {
+            "start": 5703,
+            "end": 5822,
+            "number": 3
+        },
+        {
+            "start": 5915,
+            "end": 6079,
+            "number": 4
+        },
+        {
+            "start": 6333,
+            "end": 6636,
+            "number": 5
+        }
+    ],
+    "signal_peptide": {
+        "product": null,
+        "segments": [
+            {
+                "start": 5063,
+                "end": 5072
+            },
+            {
+                "start": 5333,
+                "end": 5400
+            }
+        ],
+        "translation": "MATGSRTSLLLAFGLLCLPWLQEGSA"
+    },
+    "proprotein": null,
+    "peptides": [
+        {
+            "product": "Somatotropin",
+            "segments": [
+                {
+                    "start": 5401,
+                    "end": 5493
+                },
+                {
+                    "start": 5703,
+                    "end": 5822
+                },
+                {
+                    "start": 5915,
+                    "end": 6079
+                },
+                {
+                    "start": 6333,
+                    "end": 6527
+                }
+            ],
+            "translation": "FPTIPLSRLFDNAMLRAHRLHQLAFDTYQEFEEAYIPKEQKYSFLQNPQTSLCFSESIPTPSNREETQQKSNLELLRISLLLIQSWLEPVQFLRSVFANSLVYGASDSNVYDLLKDLEEGIQTLMGRLEDGSPRTGQIFKQTYSKFDTNSHNDDALLKNYGLLYCFRKDMDKVETFLRIVQCRSVEGSCGF"
+        }
+    ]
+}

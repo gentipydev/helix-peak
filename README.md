@@ -1,17 +1,148 @@
 # helixpeak
 
-A new Flutter project.
+Molecular biology and DNA sequence analysis, built with Flutter.
 
-## Getting Started
+The app fetches a gene from the [backend](../helix-peak-backend), which reads
+it from NCBI GenBank, and draws it as a grid of squares that morphs through the
+stages of expression — for insulin, 1,431 → 465 → 110 → 82 cells — and then as
+the fold those cells end up in.
 
-This project is a starting point for a Flutter application.
+Twenty proteins ship: insulin, oxytocin, ubiquitin, lysozyme, haemoglobin,
+myoglobin, relaxin, growth hormone, p53 and dystrophin, and the ten added after
+them — vasopressin, glucagon, amyloid precursor protein, CFTR, erythropoietin,
+leptin, TNF-alpha, SOD1, amylase and prion protein. Each carries three baked
+assets: a gene record, an ESM-2 constraint track and a 3D model, and the whole
+walk runs with no backend and no network. They are one row each in `ProteinCatalog`;
+[`tool/`](tool/README.md) is what bakes them, and
+[docs/protein-verification.md](docs/protein-verification.md) is what the second
+ten were checked against before they were added.
 
-A few resources to get you started if this is your first Flutter project:
+The search screen filters those twenty and makes no request: the backend has no
+search endpoint yet, and a field that hung for twenty-five seconds on an
+unreachable host before saying so would be worse than none. A name that is not
+in the catalog is told that plainly.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Running
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+cp .env.example .env    # required: pubspec declares .env as an asset
+flutter pub get
+```
+
+Against the real backend (start it first — see `helix-peak-backend/README.md`):
+
+```bash
+flutter run
+```
+
+Against the bundled fixture, with no backend and no network:
+
+```bash
+flutter run --dart-define=USE_MOCK_DATA=true
+flutter build apk --release --dart-define=USE_MOCK_DATA=true
+flutter build ios --release --dart-define=USE_MOCK_DATA=true
+```
+
+Mock builds carry a `MOCK` ribbon in the top-right corner so an installed build
+cannot be mistaken for live data. `USE_MOCK_DATA=true` in `.env` does the same
+thing for local runs; the `--dart-define` wins over it, and is what a build
+command should use, since `.env` is gitignored.
+
+### What mock mode replaces
+
+Only `ApiClient` — the transport. The data source, `GeneRecordDto` parsing, the
+repository, the use case, the cubit and the error-message translation are the
+same code in both modes; `MockApiClient` answers `GET /gene/{id}/{gene}` from
+`assets/mock/gene_*.json` for the records in the catalog, after a delay so
+the loading state still shows. Any other gene or record 404s with the wording
+the backend uses.
+
+The records are not hand-written: `tool/mock/build_gene_record.py` imports the
+backend's own `extract_gene` and writes what the service would answer, so the
+fixtures cannot drift from the contract they stand in for. Six things the live
+service does not do yet — choosing the transcript where two share a CDS,
+naming a chromosome slice's exons after its mRNA segments, cutting UniProt
+qualifier text out of `/product`, and filling in a connecting peptide, a
+proprotein or a lone chain the record leaves out — are marked in that script and
+will have to land in `genbank_parser.py` before the backend can serve these
+records. Nor can it fetch a chromosome slice, which four of them are.
+
+The conventions every protein has to follow for the walk to draw and describe
+it like the others — and what a search over any protein still needs — are in
+[docs/protein-pipeline-rules.md](docs/protein-pipeline-rules.md).
+
+### Genes too large to draw
+
+The gene page is one screen, and `AnatomyLayout.fit` gives a cell a two-point
+floor, so past about 24,000 bases there is no picture left. Seventeen of the
+twenty records are drawn at full length. Dystrophin (2.1 Mb, 79 exons), APP
+(290 kb, 18 exons) and CFTR (189 kb, 27 exons) arrive with their introns
+shortened and their exons whole, so the transcript and protein pages are the
+real molecule and only the gene page's proportions are scaled. That page says
+so: "Introns are 99.3% of the gene, drawn shortened; exons are to scale".
+
+## Mask & Reveal
+
+On the protein page, tap a residue to mask it and reveal
+the saved ESM-2 scores. The context dims for 300 ms before the panel rises.
+Tap another residue to compare in place; the grid remains scrollable above
+the panel. Drag the sheet between medium and expanded heights, then scroll
+its content to read all scores. The handle and close button remain accessible.
+Pull down, use Close/Back/Escape, or tap the masked residue or empty grid to
+restore the resting view. Comparisons preserve the sheet height and expanded
+ranking preference. [The UI/UX rationale](docs/residue-sheet-ux.md) explains
+the gesture handoff, dismissal behavior, and adaptations for larger text.
+The conservation switch changes the tile fills and keeps the letters visible.
+The information button explains masking and the score scale on demand.
+
+All 20 canonical amino acids are ranked, including the native residue at zero.
+Six appear initially, with the other 14 expandable. Every bar uses the same
+−10-to-0 scale; values beyond either endpoint are clamped visually and retain
+their signed numerical scores. Badges use inverse min-max entropy: high ≥0.8,
+moderate ≥0.4, otherwise tolerant. Reduced motion skips the mask delay and slide.
+
+The constraint asset is bundled and matched against the stage's own letters
+before any of it is drawn, so a track can only ever colour the protein it
+describes. There are no inference requests or model dependencies at runtime.
+Each track carries its own region table — insulin's signal peptide, B chain,
+C-peptide and A chain; dystrophin's twenty-four spectrin repeats — which is
+what names a residue's domain and its bonding partner without the code knowing
+which protein it is looking at.
+
+Generation and independent CPU verification are documented in
+[tool/constraint](tool/constraint/README.md). Insulin's six disulfide cysteines
+rank 1–6 of 110. The measured C-peptide is less constrained than the signal
+peptide; [verification.md](tool/constraint/verification.md) records that
+difference from the originally proposed regional pattern, and what the other
+nineteen proteins measured. No values are adjusted in the UI. A protein added to
+the catalog before its track is baked is marked unscored; its protein page is
+drawn without the conservation toolbar, and a tap there follows the tracer as it
+does on every other page.
+
+## Tests
+
+```bash
+flutter analyze
+flutter test
+python3 tool/check_assets.py     # the baked assets against each other
+```
+
+`test/features/gene_lookup/catalog/` derives the whole walk for every protein
+off the bundled records: every stage, every cell's run, and the one invariant
+the feature rests on — that a scored protein's constraint track sequence is the
+protein page's letters. Those two are baked by different tools, hours apart.
+`check_assets.py` also re-proves every record from its own bytes: the CDS
+translates to the protein, every peptide translates at its own offset (which is
+what keeps a neighbouring gene's features out), and every intron is spliceable.
+
+`test/core/network/mock_api_client_test.dart` holds the fake to the same
+assertions `test/live_backend_check.dart` makes against the real service. The
+opt-in checks are skipped by default:
+
+```bash
+# needs the backend running
+LIVE_BACKEND=http://localhost:8000 flutter test test/live_backend_check.dart
+
+# write PNGs of the rendered screens
+SHOT_DIR=/tmp/shots flutter test test/screen_render_check.dart
+```

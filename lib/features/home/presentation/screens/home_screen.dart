@@ -3,8 +3,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../shared/widgets/primary_button.dart';
 import '../widgets/dna_helix.dart';
+import '../widgets/protein_analyses_cta.dart';
 import '../widgets/wordmark.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -22,9 +22,8 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: AppSpacing.xl),
               const Wordmark(),
               const SizedBox(height: AppSpacing.xxxl),
-              PrimaryButton(
-                label: 'Analyse a sequence',
-                onPressed: () => context.push(RoutePaths.sequenceInput),
+              ProteinAnalysesCta(
+                onPressed: () => context.push(RoutePaths.search),
               ),
               const SizedBox(height: AppSpacing.sm),
             ],

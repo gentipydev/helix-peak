@@ -1,0 +1,116 @@
+{
+    "gene": "INS",
+    "location": {
+        "start": 4986,
+        "end": 6416,
+        "strand": 1
+    },
+    "sequence": "AGCCCTCCAGGACAGGCTGCATCAGAAGAGGCCATCAAGCAGGTCTGTTCCAAGGGCCTTTGCGTCAGGTGGGCTCAGGATTCCAGGGTGGCTGGACCCCAGGCCCCAGCTCTGCAGCAGGGAGGACGTGGCTGGGCTCGTGAAGCATGTGGGGGTGAGCCCAGGGGCCCCAAGGCAGGGCACCTGGCCTTCAGCCTGCCTCAGCCCTGCCTGTCTCCCAGATCACTGTCCTTCTGCCATGGCCCTGTGGATGCGCCTCCTGCCCCTGCTGGCGCTGCTGGCCCTCTGGGGACCTGACCCAGCCGCAGCCTTTGTGAACCAACACCTGTGCGGCTCACACCTGGTGGAAGCTCTCTACCTAGTGTGCGGGGAACGAGGCTTCTTCTACACACCCAAGACCCGCCGGGAGGCAGAGGACCTGCAGGGTGAGCCAACTGCCCATTGCTGCCCCTGGCCGCCCCCAGCCACCCCCTGCTCCTGGCGCTCCCACCCAGCATGGGCAGAAGGGGGCAGGAGGCTGCCACCCAGCAGGGGGTCAGGTGCACTTTTTTAAAAAGAAGTTCTCTTGGTCACGTCCTAAAAGTGACCAGCTCCCTGTGGCCCAGTCAGAATCTCAGCCTGAGGACGGTGTTGGCTTCGGCAGCCCCGAGATACATCAGAGGGTGGGCACGCTCCTCCCTCCACTCGCCCCTCAAACAAATGCCCCGCAGCCCATTTCTCCACCCTCATTTGATGACCGCAGATTCAAGTGTTTTGTTAAGTAAAGTCCTGGGTGACCTGGGGTCACAGGGTGCCCCACGCTGCCTGCCTCTGGGCGAACACCCCATCACGCCCGGAGGAGGGCGTGGCTGCCTGCCTGAGTGGGCCAGACCCCTGTCGCCAGGCCTCACGGCAGCTCCATAGTCAGGAGATGGGGAAGATGCTGGGGACAGGCCCTGGGGAGAAGTACTGGGATCACCTGTTCAGGCTCCCACTGTGACGCTGCCCCGGGGCGGGGGAAGGAGGTGGGACATGTGGGCGTTGGGGCCTGTAGGTCCACACCCAGTGTGGGTGACCCTCCCTCTAACCTGGGTCCAGCCCGGCTGGAGATGGGTGGGAGTGCGACCTAGGGCTGGCGGGCAGGCGGGCACTGTGTCTCCCTGACTGTGTCCTCCTGTGTCCCTCTGCCTCGCCGCTGTTCCGGAACCTGCTCTGCGCGGCACGTCCTGGCAGTGGGGCAGGTGGAGCTGGGCGGGGGCCCTGGTGCAGGCAGCCTGCAGCCCTTGGCCCTGGAGGGGTCCCTGCAGAAGCGTGGCATTGTGGAACAATGCTGTACCAGCATCTGCTCCCTCTACCAGCTGGAGAACTACTGCAACTAGACGCAGCCCGCAGGCAGCCCCACACCCGCCGCCTCCTGCACCGAGAGAGATGGAATAAAGCCCTTGAACCAGC",
+    "transcript": {
+        "segments": [
+            {
+                "start": 4986,
+                "end": 5027
+            },
+            {
+                "start": 5207,
+                "end": 5410
+            },
+            {
+                "start": 6198,
+                "end": 6416
+            }
+        ]
+    },
+    "protein": {
+        "product": "insulin preproprotein",
+        "translation": "MALWMRLLPLLALLALWGPDPAAAFVNQHLCGSHLVEALYLVCGERGFFYTPKTRREAEDLQVGQVELGGGPGAGSLQPLALEGSLQKRGIVEQCCTSICSLYQLENYCN",
+        "segments": [
+            {
+                "start": 5224,
+                "end": 5410
+            },
+            {
+                "start": 6198,
+                "end": 6343
+            }
+        ]
+    },
+    "exons": [
+        {
+            "start": 4986,
+            "end": 5027,
+            "number": 1
+        },
+        {
+            "start": 5207,
+            "end": 5410,
+            "number": 2
+        },
+        {
+            "start": 6198,
+            "end": 6416,
+            "number": 3
+        }
+    ],
+    "signal_peptide": {
+        "product": null,
+        "segments": [
+            {
+                "start": 5224,
+                "end": 5295
+            }
+        ],
+        "translation": "MALWMRLLPLLALLALWGPDPAAA"
+    },
+    "proprotein": {
+        "product": "proinsulin",
+        "segments": [
+            {
+                "start": 5296,
+                "end": 5410
+            },
+            {
+                "start": 6198,
+                "end": 6340
+            }
+        ],
+        "translation": "FVNQHLCGSHLVEALYLVCGERGFFYTPKTRREAEDLQVGQVELGGGPGAGSLQPLALEGSLQKRGIVEQCCTSICSLYQLENYCN"
+    },
+    "peptides": [
+        {
+            "product": "insulin B chain",
+            "segments": [
+                {
+                    "start": 5296,
+                    "end": 5385
+                }
+            ],
+            "translation": "FVNQHLCGSHLVEALYLVCGERGFFYTPKT"
+        },
+        {
+            "product": "C-peptide",
+            "segments": [
+                {
+                    "start": 5392,
+                    "end": 5410
+                },
+                {
+                    "start": 6198,
+                    "end": 6271
+                }
+            ],
+            "translation": "EAEDLQVGQVELGGGPGAGSLQPLALEGSLQ"
+        },
+        {
+            "product": "insulin A chain",
+            "segments": [
+                {
+                    "start": 6278,
+                    "end": 6340
+                }
+            ],
+            "translation": "GIVEQCCTSICSLYQLENYCN"
+        }
+    ]
+}

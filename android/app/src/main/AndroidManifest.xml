@@ -1,8 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The app is a client for the HelixPeak backend, so it needs this in
+         every build type. Flutter's generated debug and profile manifests each
+         declare it for the tooling's own sake, which hides its absence right up
+         until a release build fetches nothing. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:label="helixpeak"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <meta-data
+            android:name="io.flutter.embedding.android.EnableFlutterGPU"
+            android:value="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

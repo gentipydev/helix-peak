@@ -37,7 +37,9 @@ final class ServerApiException extends ApiException {
         final int code when code >= 500 =>
           'The analysis service reported an error. Try again shortly.',
         400 => detail ?? 'The sequence was rejected by the analysis service.',
-        404 => 'The analysis endpoint could not be found.',
+        // The backend answers 404 for "no such record / no such gene" and says
+        // which in `detail`, so passing it through beats a generic line.
+        404 => detail ?? 'That record could not be found.',
         _ => detail ?? 'The analysis service returned an unexpected response.',
       };
 }

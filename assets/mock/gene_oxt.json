@@ -1,0 +1,118 @@
+{
+    "gene": "OXT",
+    "location": {
+        "start": 502,
+        "end": 1399,
+        "strand": 1
+    },
+    "sequence": "ACCAGTCACGGACCCTGGACCCAGCGCACCCGCACCATGGCCGGCCCCAGCCTCGCTTGCTGTCTGCTCGGCCTCCTGGCGCTGACCTCCGCCTGCTACATCCAGAACTGCCCCCTGGGAGGCAAGAGGGCCGCGCCGGACCTCGACGTGCGCAAGGTGAGTCCCCAGCCCTGGTCCCGCGGCGCTCCGGGGAGGGAGGGACCCGCAGCCACAGGGGCGCGCCCCGCTCCGGCCTCGCCTGAGAACTCCAGGAGCTGAGCGGATTTTGACGCCCCGCCCTTGACCGCGGTCGAGGCCCCCACGGCGCCCCAGCGCGTCTCAGCCCCGCTGTCCCGCCCGAACTCCGAACCCCGGACCCCAGCATCCTTGCCCGGCGCACCCCGGCCGGCCTCGCAGGGTCCTCCGAGCGAGTCCCCAGCGCCGCCCCGGCTCCCGCTCACCCCGCCCGTCCCCGCAGTGCCTCCCCTGCGGCCCCGGGGGCAAAGGCCGCTGCTTCGGGCCCAATATCTGCTGCGCGGAAGAGCTGGGCTGCTTCGTGGGCACCGCCGAAGCGCTGCGCTGCCAGGAGGAGAACTACCTGCCGTCGCCCTGCCAGTCCGGCCAGAAGGCGTGCGGGAGCGGGGGCCGCTGCGCGGTCTTGGGCCTCTGCTGCAGCCCGGGTGAGCGGGGCAAGGCGCTCCGGGGCCAGGGGGAGGCGGGCGGGGGTGCGGCCGGGATTCCCCTGACTCCACCTCTTCCTCCAGACGGCTGCCACGCCGACCCTGCCTGCGACGCGGAAGCCACCTTCTCCCAGCGCTGAAACTTGATGGCTCCGAACACCCTCGAAGCGCGCCACTCGCTTCCCCCATAGCCACCCCAGAAATGGTGAAAATAAAATAAAGCAGGTTTTTCTCCTCTA",
+    "transcript": {
+        "segments": [
+            {
+                "start": 502,
+                "end": 657
+            },
+            {
+                "start": 959,
+                "end": 1160
+            },
+            {
+                "start": 1245,
+                "end": 1399
+            }
+        ]
+    },
+    "protein": {
+        "product": "oxytocin-neurophysin 1 preproprotein",
+        "translation": "MAGPSLACCLLGLLALTSACYIQNCPLGGKRAAPDLDVRKCLPCGPGGKGRCFGPNICCAEELGCFVGTAEALRCQEENYLPSPCQSGQKACGSGGRCAVLGLCCSPDGCHADPACDAEATFSQR",
+        "segments": [
+            {
+                "start": 538,
+                "end": 657
+            },
+            {
+                "start": 959,
+                "end": 1160
+            },
+            {
+                "start": 1245,
+                "end": 1300
+            }
+        ]
+    },
+    "exons": [
+        {
+            "number": 1,
+            "start": 502,
+            "end": 657
+        },
+        {
+            "number": 2,
+            "start": 959,
+            "end": 1160
+        },
+        {
+            "number": 3,
+            "start": 1245,
+            "end": 1399
+        }
+    ],
+    "signal_peptide": {
+        "product": null,
+        "segments": [
+            {
+                "start": 538,
+                "end": 594
+            }
+        ],
+        "translation": "MAGPSLACCLLGLLALTSA"
+    },
+    "proprotein": {
+        "product": "oxytocin-neurophysin 1",
+        "segments": [
+            {
+                "start": 595,
+                "end": 657
+            },
+            {
+                "start": 959,
+                "end": 1160
+            },
+            {
+                "start": 1245,
+                "end": 1297
+            }
+        ],
+        "translation": "CYIQNCPLGGKRAAPDLDVRKCLPCGPGGKGRCFGPNICCAEELGCFVGTAEALRCQEENYLPSPCQSGQKACGSGGRCAVLGLCCSPDGCHADPACDAEATFSQR"
+    },
+    "peptides": [
+        {
+            "product": "Oxytocin",
+            "segments": [
+                {
+                    "start": 595,
+                    "end": 621
+                }
+            ],
+            "translation": "CYIQNCPLG"
+        },
+        {
+            "product": "Neurophysin 1",
+            "segments": [
+                {
+                    "start": 631,
+                    "end": 657
+                },
+                {
+                    "start": 959,
+                    "end": 1160
+                },
+                {
+                    "start": 1245,
+                    "end": 1297
+                }
+            ],
+            "translation": "AAPDLDVRKCLPCGPGGKGRCFGPNICCAEELGCFVGTAEALRCQEENYLPSPCQSGQKACGSGGRCAVLGLCCSPDGCHADPACDAEATFSQR"
+        }
+    ]
+}

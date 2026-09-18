@@ -36,7 +36,6 @@ void main() {
     const List<(AppColorTokens, NucleotideColors)> themes =
         <(AppColorTokens, NucleotideColors)>[
       (AppColorTokens.dark, NucleotideColors.dark),
-      (AppColorTokens.light, NucleotideColors.light),
     ];
 
     // The painter deliberately draws _cullMargin past the frame, so packed

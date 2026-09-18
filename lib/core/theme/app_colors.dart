@@ -55,18 +55,26 @@ final class AppColorTokens {
     onError: Color(0xFF2B0906),
   );
 
-  static const AppColorTokens light = AppColorTokens(
-    surfaceBase: Color(0xFFFAFAF8),
-    surfaceRaised: Color(0xFFF2F3F0),
-    surfaceOverlay: Color(0xFFEAECE8),
-    surfaceHigh: Color(0xFFE2E5E0),
-    outline: Color(0xFFCDD2CB),
-    onSurface: Color(0xFF16191C),
-    onSurfaceVariant: Color(0xFF5A6169),
-    accent: Color(0xFF0E9B84),
-    onAccent: Color(0xFFFFFFFF),
-    accentContainer: Color(0xFFCFEDE6),
-    error: Color(0xFFB3261E),
-    onError: Color(0xFFFFFFFF),
+  /// The Protein Analyses flow: [dark]'s ramp, re-placed on a warm dark neutral.
+  ///
+  /// The ground is the change and the surfaces follow it. Each keeps the step
+  /// it had above [dark]'s ground — 1.07, 1.19, 1.35 and 1.60 to one — because
+  /// the count badge and the paginator are drawn in them, and [dark]'s overlay
+  /// left on this ground sits at 1.09:1: a pill all but gone, in a blue nothing
+  /// else on the page is. The inks are [dark]'s, and still clear this ground at
+  /// 14.4, 7.1 and 9.9 to one.
+  static const AppColorTokens warm = AppColorTokens(
+    surfaceBase: Color(0xFF1C1A18),
+    surfaceRaised: Color(0xFF23201E),
+    surfaceOverlay: Color(0xFF2C2825),
+    surfaceHigh: Color(0xFF35312E),
+    outline: Color(0xFF413C38),
+    onSurface: Color(0xFFE6EAF2),
+    onSurfaceVariant: Color(0xFF9BA6BC),
+    accent: Color(0xFF4DD9C0),
+    onAccent: Color(0xFF06231E),
+    accentContainer: Color(0xFF0E3B34),
+    error: Color(0xFFF4726A),
+    onError: Color(0xFF2B0906),
   );
 }

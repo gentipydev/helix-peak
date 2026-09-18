@@ -36,6 +36,10 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Offline ESM scoring environment (model weights use Hugging Face's cache).
+/tool/.esm-venv/
+__pycache__/
+
 # Symbolication related
 app.*.symbols
 

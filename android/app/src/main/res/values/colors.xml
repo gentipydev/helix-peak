@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AppColorTokens.dark.surfaceBase. The app has one theme, so the launch
+         window uses the same ground the first Flutter frame paints. -->
+    <color name="launch_background">#FF0E1116</color>
+</resources>

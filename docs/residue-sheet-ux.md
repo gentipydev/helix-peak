@@ -1,0 +1,35 @@
+The residue panel uses a **nonmodal, draggable bottom sheet**. It supports two tasks: comparing many positions quickly, and spending longer reading one position's alternatives. Dismissal is available throughout, while tapping an exposed residue continues to update the current sheet directly.
+
+The main design choice is how much of the sequence remains available. A residue's meaning depends on its surrounding sequence, so the grid is part of the interaction rather than a disposable background. The existing dimming remains: it teaches masking and identifies the context without blocking taps.
+
+| Approach | Effect on this screen | Decision |
+| --- | --- | --- |
+| Fixed panel | Predictable position, but competes with the grid and runs out of room for 20 scores or larger text. | Replace with a resizable sheet. |
+| Modal sheet | Gives the scores full attention, but a barrier consumes taps intended for other residues and adds a dismiss/reopen step to comparisons. | Avoid for this task. |
+| Nonmodal draggable sheet | Lets readers trade visible context for reading space and change residues without leaving the panel. | Implement. |
+| Persistent tiny preview | Leaves more grid visible, but hides most of the useful result and introduces another state to learn. | Use the lowest extent as a dismissal boundary instead. |
+
+Apple demonstrates medium and large sheet sizes, a grabber, scroll-driven expansion, and interaction with the view behind a nonmodal sheet. These are useful precedents for an inspector that accompanies an interactive canvas. The exact heights below are design choices for this screen, not platform requirements. [Apple: Customize and resize sheets in UIKit](https://developer.apple.com/videos/play/wwdc2021/10063/)
+
+The sheet opens at 62% of the space below the header and conservation control, then snaps to an expanded height of 92%. On a typical portrait phone, the initial state occupies approximately half the screen. It exposes the residue identity, constraint badge, six leading scores, and the disclosure for more scores while leaving several grid rows available. The expanded state prioritizes reading. At short landscape heights, collapsing or closing restores more useful grid space.
+
+Two resting heights make the control predictable. A slow release settles at the nearest height; a decisive handle flick moves in its direction. Pulling sufficiently far down closes the sheet. The 18% minimum is only the closing threshold: the interface never remains parked at a height too small to read. The sheet meets the bottom of the content area and temporarily covers the page dots, keeping molecule navigation out of the reading surface.
+
+Scrolling and resizing share one vertical gesture. Drag upward within the content to enlarge the sheet first; at its maximum height, the same scrollable consumes movement to reveal the remaining content. When reading lower rows, a downward movement scrolls back toward the top before shrinking the sheet. This prevents a normal attempt to reread earlier scores from immediately dismissing the panel. Flutter's `DraggableScrollableSheet` provides this coordination through the scroll controller supplied to its builder; the implementation gives that controller to one `CustomScrollView`. [Flutter: DraggableScrollableSheet](https://api.flutter.dev/flutter/widgets/DraggableScrollableSheet-class.html)
+
+The handle has a separate purpose: it changes the sheet's height regardless of the list's current scroll position. Its visible mark is small, but the drag and tap area is 44 logical pixels tall and spans the center of the top row. A tap toggles the two useful heights. Accessibility increase/decrease actions provide another way to resize. The close button is always available beside it, so nobody has to discover the gesture to return to the sequence.
+
+Residue identity stays pinned with the controls when there is room. On shorter screens or with enlarged text, only the handle and close button remain pinned; the identity joins the scrolling content. This prevents the header from consuming the entire reading viewport. Above 1.5× score text size, labels sit above full-width bars, allowing numeric scores to stay on one line without reducing the requested font size. Bar fractions still use the same fixed −10 to 0 scale. Opening the information note while scrolled brings that explanation into view.
+
+Selection and dismissal follow these rules:
+
+- A first tap retains the existing 300 ms mask beat, then reveals the sheet. This is an explanation of offline masking; there is no loading state.
+- Another residue swaps the identity and scores in place. The chosen height and disclosure preferences survive; the new ranking starts at the top so a previous scroll position cannot hide its best alternatives.
+- The exposed grid keeps its own scrolling and hit testing. Additional bottom scroll space lets every residue move above the sheet. The selected residue is brought into view when enough space remains for a full cell.
+- Close, a downward pull, Back, Escape, the masked residue, and empty grid space can dismiss the panel. Dismissal restores the letters and full grid opacity. Back also cancels a selection during the initial mask beat before navigating away.
+- A fresh residue tap during the closing animation cancels that dismissal. Deferred scroll resets and closing callbacks check the current selection, preventing an older interaction from clearing a newer one.
+- Horizontal drags inside the sheet do not switch molecule stages. Reduced motion skips the masking delay and presentation animations; explicit resize controls settle immediately.
+
+The gesture tests cover resizing from both the handle and content, scrolling at maximum height, reversing the handoff, pull-down dismissal, close/Back/Escape, rapid replacement during closing, and preservation of height and expanded rankings. They also exercise all 110 grid positions with the sheet open, landscape, a small phone with enlarged text, 2× text, and a window resize while a residue is selected. Rendered previews were inspected for medium, expanded/scrolled, landscape, and enlarged-text states.
+
+These are implementation and layout checks, not a claim of usability testing with participants. The remaining product judgment is whether the initial height feels right during repeated comparison on a physical phone. The controls allow both immediate expansion and immediate dismissal, so that height does not trap the reader in either task.

@@ -130,12 +130,45 @@ abstract final class AppTypography {
         color: color,
       );
 
-  static TextStyle statValue(Color color) => TextStyle(
+  /// The note under the tracer's line: the fact its name and size do not give.
+  ///
+  /// Deliberately the smallest type in the app. It is a footnote to the line
+  /// above it and must never compete with the count, so it is set below the
+  /// body scale and carries no weight of its own.
+  static TextStyle anatomyNote(Color color) => TextStyle(
+        fontFamily: sansFamily,
+        fontFamilyFallback: _sansFallback,
+        fontSize: 11,
+        fontWeight: FontWeight.w400,
+        height: 1.35,
+        color: color,
+      );
+
+  /// The one number the anatomy screen is about, set as a badge.
+  ///
+  /// Watching it fall from 1,431 to 82 is still the narrative, but a number is
+  /// what the picture *is about* rather than what the picture *is*: at 44pt it
+  /// was the largest thing on a screen whose subject is a grid of 1,431 cells,
+  /// and it was charging the grid a display line's worth of height to say so.
+  /// Nineteen points of semibold mono in a pill holds the same reading — the
+  /// digits are still the widest thing in the header and still change under the
+  /// reader on every swipe — and hands the difference back to the map.
+  ///
+  /// Mono, and mono for the reason it always was: the count is the one number
+  /// on the screen that changes in place, and a proportional 1 against a
+  /// proportional 4 would make it shuffle sideways while it fell.
+  ///
+  /// Medium rather than semibold because [monoFamily] ships 400 and 500 and
+  /// nothing heavier — a `w600` here would resolve to this same face without
+  /// saying so, and at 19pt on a raised pill Medium is already the weight a
+  /// semibold was being asked for.
+  static TextStyle anatomyCount(Color color) => TextStyle(
         fontFamily: monoFamily,
         fontFamilyFallback: _monoFallback,
-        fontSize: 26,
+        fontSize: 19,
         fontWeight: FontWeight.w500,
-        height: 1.1,
+        height: 1,
+        letterSpacing: -0.3,
         color: color,
       );
 }

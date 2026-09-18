@@ -1,33 +1,36 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../features/sequence_analysis/data/datasources/sequence_remote_data_source.dart';
-import '../../features/sequence_analysis/data/repositories/sequence_repository_impl.dart';
-import '../../features/sequence_analysis/domain/repositories/sequence_repository.dart';
-import '../../features/sequence_analysis/domain/usecases/analyse_sequence.dart';
+import '../../features/gene_lookup/data/datasources/gene_remote_data_source.dart';
+import '../../features/gene_lookup/data/repositories/gene_repository_impl.dart';
+import '../../features/gene_lookup/domain/repositories/gene_repository.dart';
+import '../../features/gene_lookup/domain/usecases/fetch_gene.dart';
 import '../config/env.dart';
 import '../network/api_client.dart';
 import '../network/dio_api_client.dart';
+import '../network/mock_api_client.dart';
 
 List<RepositoryProvider<Object>> buildAppProviders() {
   return <RepositoryProvider<Object>>[
+    // The only line mock mode touches. Everything below is the same object
+    // graph either way, which is what makes the mock build worth trusting:
+    // the data source, the DTO parsing and the repository are not stood in for.
     RepositoryProvider<ApiClient>(
-      create: (BuildContext context) => DioApiClient(
-        baseUrl: Env.apiBaseUrl,
-        timeout: Env.apiTimeout,
-      ),
+      create: (BuildContext context) => Env.useMockData
+          ? MockApiClient()
+          : DioApiClient(baseUrl: Env.apiBaseUrl, timeout: Env.apiTimeout),
     ),
-    RepositoryProvider<SequenceRemoteDataSource>(
+    RepositoryProvider<GeneRemoteDataSource>(
       create: (BuildContext context) =>
-          SequenceRemoteDataSourceImpl(context.read<ApiClient>()),
+          GeneRemoteDataSourceImpl(context.read<ApiClient>()),
     ),
-    RepositoryProvider<SequenceRepository>(
+    RepositoryProvider<GeneRepository>(
       create: (BuildContext context) =>
-          SequenceRepositoryImpl(context.read<SequenceRemoteDataSource>()),
+          GeneRepositoryImpl(context.read<GeneRemoteDataSource>()),
     ),
-    RepositoryProvider<AnalyseSequence>(
+    RepositoryProvider<FetchGene>(
       create: (BuildContext context) =>
-          AnalyseSequence(context.read<SequenceRepository>()),
+          FetchGene(context.read<GeneRepository>()),
     ),
   ];
 }
