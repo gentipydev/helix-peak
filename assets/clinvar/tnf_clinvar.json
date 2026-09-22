@@ -1,0 +1,586 @@
+{
+  "schema_version": 1,
+  "source": "NCBI ClinVar",
+  "gene": "TNF",
+  "accession": "NG_007462",
+  "assembly": "GRCh38",
+  "chromosome": "chr6",
+  "scope": "reference-matched single nucleotide variants in the drawn gene",
+  "start": 4993,
+  "sequence": "AGCAGACGCTCCCTCAGCAAGGACAGCAGAGGACCAGCTAAGAGGGAGAGAAGCAACTACAGACCCCCCCTGAAAACAACCCTCAGACGCCACATCCCCTGACAAGCTGCCAGGCAGGTTCTCTTCCTCTCACATACTGACCCACGGCTCCACCCTCTCTCCCCTGGAAAGGACACCATGAGCACTGAAAGCATGATCCGGGACGTGGAGCTGGCCGAGGAGGCGCTCCCCAAGAAGACAGGGGGGCCCCAGGGCTCCAGGCGGTGCTTGTTCCTCAGCCTCTTCTCCTTCCTGATCGTGGCAGGCGCCACCACGCTCTTCTGCCTGCTGCACTTTGGAGTGATCGGCCCCCAGAGGGAAGAGGTGAGTGCCTGGCCAGCCTTCATCCACTCTCCCACCCAAGGGGAAATGGAGACGCAAGAGAGGGAGAGAGATGGGATGGGTGAAAGATGTGCGCTGATAGGGAGGGATGGAGAGAAAAAAACGTGGAGAAAGACGGGGATGCAGAAAGAGATGTGGCAAGAGATGGGGAAGAGAGAGAGAGAAAGATGGAGAGACAGGATGTCTGGCACATGGAAGGTGCTCACTAAGTGTGTATGGAGTGAATGAATGAATGAATGAATGAACAAGCAGATATATAAATAAGATATGGAGACAGATGTGGGGTGTGAGAAGAGAGATGGGGGAAGAAACAAGTGATATGAATAAAGATGGTGAGACAGAAAGAGCGGGAAATATGACAGCTAAGGAGAGAGATGGGGGAGATAAGGAGAGAAGAAGATAGGGTGTCTGGCACACAGAAGACACTCAGGGAAAGAGCTGTTGAATGCCTGGAAGGTGAATACACAGATGAATGGAGAGAGAAAACCAGACACCTCAGGGCTAAGAGCGCAGGCCAGACAGGCAGCCAGCTGTTCCTCCTTTAAGGGTGACTCCCTCGATGTTAACCATTCTCCTTCTCCCCAACAGTTCCCCAGGGACCTCTCTCTAATCAGCCCTCTGGCCCAGGCAGTCAGTAAGTGTCTCCAAACCTCTTTCCTAATTCTGGGTTTGGGTTTGGGGGTAGGGTTAGTACCGGTATGGAAGCAGTGGGGGAAATTTAAAGTTTTGGTCTTGGGGGAGGATGGATGGAGGTGAAAGTAGGGGGGTATTTTCTAGGAAGTTTAAGGGTCTCAGCTTTTTCTTTTCTCTCTCCTCTTCAGGATCATCTTCTCGAACCCCGAGTGACAAGCCTGTAGCCCATGTTGTAGGTAAGAGCTCTGAGGATGTGTCTTGGAACTTGGAGGGCTAGGATTTGGGGATTGAAGCCCGGCTGATGGTAGGCAGAACTTGGAGACAATGTGAGAAGGACTCGCTGAGCTCAAGGGAAGGGTGGAGGAACAGCACAGGCCTTAGTGGGATACTCAGAACGTCATGGCCAGGTGGGATGTGGGATGACAGACAGAGAGGACAGGAACCGGATGTGGGGTGGGCAGAGCTCGAGGGCCAGGATGTGGAGAGTGAACCGACATGGCCACACTGACTCTCCTCTCCCTCTCTCCCTCCCTCCAGCAAACCCTCAAGCTGAGGGGCAGCTCCAGTGGCTGAACCGCCGGGCCAATGCCCTCCTGGCCAATGGCGTGGAGCTGAGAGATAACCAGCTGGTGGTGCCATCAGAGGGCCTGTACCTCATCTACTCCCAGGTCCTCTTCAAGGGCCAAGGCTGCCCCTCCACCCATGTGCTCCTCACCCACACCATCAGCCGCATCGCCGTCTCCTACCAGACCAAGGTCAACCTCCTCTCTGCCATCAAGAGCCCCTGCCAGAGGGAGACCCCAGAGGGGGCTGAGGCCAAGCCCTGGTATGAGCCCATCTATCTGGGAGGGGTCTTCCAGCTGGAGAAGGGTGACCGACTCAGCGCTGAGATCAATCGGCCCGACTATCTCGACTTTGCCGAGTCTGGGCAGGTCTACTTTGGGATCATTGCCCTGTGAGGAGGACGAACATCCAACCTTCCCAAACGCCTCCCCTGCCCCAATCCCTTTATTACCCCCTCCTTCAGACACCCTCAACCTCTTCTGGCTCAAAAAGAGAATTGGGGGCTTAGGGTCGGAACCCAAGCTTAGAACTTTAAGCAACAAGACCACCACTTCGAAACCTGGGATTCAGGAATGTGTGGCCTGCACAGTGAAGTGCTGGCAACCACTAAGAATTCAAACTGGGGCCTCCAGAACTCACTGGGGCCTACAGCTTTGATCCCTGACATCTGGAATCTGGAGACCAGGGAGCCTTTGGTTCTGGCCAGAATGCTGCAGGACTTGAGAAGACCTCACCTAGAAATTGACACAAGTGGACCTTAGGCCTTCCTCTCTCCAGATGTTTCCAGACTTCCTTGAGACACGGAGCCCAGCCCTCCCCATGGAGCCAGCTCCCTCTATTTATGTTTGCACTTGTGATTATTTATTATTTATTTATTATTTATTTATTTACAGATGAATGTATTTATTTGGGAGACCGGGGTATCCTGGGGGACCCAATGTAGGAGCTGCCTTGGCTCAGACATGTTTTCCGTGAAAACGGAGCTGAACAATAGGCTGTTCCCATGTAGCCCCCTGGCCTCTGTGCCTTCTTTTGATTATGTTTTTTAAAATATTTATCTGATTAAGTTGTCTAAACAATGCTGATTTGGTGACCAACTGTCACTCATTGCTGAGCCTCTGCTCCCCAGGGGAGTTGTGTCTGTAATCGCCCTACTATTCAGTGGCGAGAAATAAAGTTTGCTTAGAAAAGAAA",
+  "protein_sequence": "MSTESMIRDVELAEEALPKKTGGPQGSRRCLFLSLFSFLIVAGATTLFCLLHFGVIGPQREEFPRDLSLISPLAQAVRSSSRTPSDKPVAHVVANPQAEGQLQWLNRRANALLANGVELRDNQLVVPSEGLYLIYSQVLFKGQGCPSTHVLLTHTISRIAVSYQTKVNLLSAIKSPCQRETPEGAEAKPWYEPIYLGGVFQLEKGDRLSAEINRPDYLDFAESGQVYFGIIAL",
+  "complemented": false,
+  "runs": [
+    {
+      "local": 4993,
+      "genomic": 31575565,
+      "step": 1,
+      "length": 2772
+    }
+  ],
+  "retrieved_at": "2026-09-22T12:54:48.517150+00:00",
+  "query": "TNF[gene]",
+  "searched_records": 36,
+  "excluded": {
+    "no_germline_classification": 3,
+    "no_unique_GRCh38_location": 11,
+    "not_a_single_base_substitution": 1,
+    "outside_drawn_gene": 5
+  },
+  "source_batches": [
+    {
+      "file": "batch-0.xml",
+      "sha256": "bee0967b4b961a9fddb381a970295455445e1f2fa457bc3068e72aabd4b7d69f"
+    }
+  ],
+  "traits": {
+    "Increased circulating interleukin 6 concentration": {
+      "medgen": "C4280771"
+    },
+    "Inherited susceptibility to asthma": {
+      "medgen": "C1869116",
+      "omim": "600807",
+      "mondo": "MONDO:0010940"
+    },
+    "Migraine with or without aura, susceptibility to, 1": {
+      "medgen": "C3887485",
+      "symbol": "MA",
+      "omim": "157300",
+      "mondo": "MONDO:0008000"
+    },
+    "TNF receptor binding, altered": {
+      "medgen": "C4016415"
+    }
+  },
+  "variants": [
+    {
+      "variation_id": "1697317",
+      "accession": "VCV001697317.1",
+      "name": "NM_000594.4(TNF):c.17T>A (p.Met6Lys)",
+      "position": 5186,
+      "genomic": 31575758,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": 6,
+      "protein_change": "p.M6K",
+      "coding_change": "c.17T>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-07-19",
+      "last_updated": "2023-12-25",
+      "conditions": [
+        {
+          "accession": "RCV002267699.1",
+          "names": [
+            "Migraine with or without aura, susceptibility to, 1"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-07-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "761640",
+      "accession": "VCV000761640.3",
+      "name": "NM_000594.4(TNF):c.39C>A (p.Ala13=)",
+      "position": 5208,
+      "genomic": 31575780,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 13,
+      "protein_change": "p.A13=",
+      "coding_change": "c.39C>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-07-29",
+      "last_updated": "2024-09-29",
+      "conditions": [
+        {
+          "accession": "RCV000939702.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-07-29"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "784495",
+      "accession": "VCV000784495.3",
+      "name": "NM_000594.4(TNF):c.87G>T (p.Arg29=)",
+      "position": 5256,
+      "genomic": 31575828,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 29,
+      "protein_change": "p.R29=",
+      "coding_change": "c.87G>T",
+      "consequence": "synonymous",
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-08-18",
+      "last_updated": "2024-09-29",
+      "conditions": [
+        {
+          "accession": "RCV000966191.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-08-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2301391",
+      "accession": "VCV002301391.2",
+      "name": "NM_000594.4(TNF):c.121G>T (p.Val41Leu)",
+      "position": 5290,
+      "genomic": 31575862,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 41,
+      "protein_change": "p.V41L",
+      "coding_change": "c.121G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-07-13",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004150261.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-07-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4277959",
+      "accession": "VCV004277959.1",
+      "name": "NM_000594.4(TNF):c.161G>A (p.Gly54Glu)",
+      "position": 5330,
+      "genomic": 31575902,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 54,
+      "protein_change": "p.G54E",
+      "coding_change": "c.161G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-09-10",
+      "last_updated": "2025-10-12",
+      "conditions": [
+        {
+          "accession": "RCV005859542.1",
+          "names": [
+            "Increased circulating interleukin 6 concentration"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-09-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4597303",
+      "accession": "VCV004597303.1",
+      "name": "NM_000594.4(TNF):c.169G>A (p.Gly57Ser)",
+      "position": 5338,
+      "genomic": 31575910,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 57,
+      "protein_change": "p.G57S",
+      "coding_change": "c.169G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-10-17",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV006325995.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4597304",
+      "accession": "VCV004597304.1",
+      "name": "NM_000594.4(TNF):c.196G>A (p.Asp66Asn)",
+      "position": 5971,
+      "genomic": 31576543,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 66,
+      "protein_change": "p.D66N",
+      "coding_change": "c.196G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-11-03",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV006325996.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-11-03"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3892678",
+      "accession": "VCV003892678.1",
+      "name": "NM_000594.4(TNF):c.248C>A (p.Thr83Asn)",
+      "position": 6210,
+      "genomic": 31576782,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 83,
+      "protein_change": "p.T83N",
+      "coding_change": "c.248C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-04-01",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005394083.1",
+          "names": [
+            "Inherited susceptibility to asthma",
+            "Migraine with or without aura, susceptibility to, 1"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-04-01"
+        }
+      ],
+      "collection_methods": [
+        "research"
+      ]
+    },
+    {
+      "variation_id": "781865",
+      "accession": "VCV000781865.24",
+      "name": "NM_000594.4(TNF):c.251C>T (p.Pro84Leu)",
+      "position": 6213,
+      "genomic": 31576785,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 84,
+      "protein_change": "p.P84L",
+      "coding_change": "c.251C>T",
+      "consequence": "missense",
+      "classification": "Benign/Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-04-01",
+      "last_updated": "2026-07-27",
+      "conditions": [
+        {
+          "accession": "RCV000963168.25",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign/Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2026-04-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3180153",
+      "accession": "VCV003180153.1",
+      "name": "NM_000594.4(TNF):c.320G>T (p.Arg107Leu)",
+      "position": 6583,
+      "genomic": 31577155,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 107,
+      "protein_change": "p.R107L",
+      "coding_change": "c.320G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-11-28",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004473054.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-11-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "12386",
+      "accession": "VCV000012386.1",
+      "name": "NM_000594.4(TNF):c.322C>T (p.Arg108Trp)",
+      "position": 6585,
+      "genomic": 31577157,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 108,
+      "protein_change": "p.R108W",
+      "coding_change": "c.322C>T",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "1993-01-21",
+      "last_updated": "2024-10-20",
+      "conditions": [
+        {
+          "accession": "RCV000013187.24",
+          "names": [
+            "TNF receptor binding, altered"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "1993-01-21"
+        }
+      ],
+      "collection_methods": [
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "2480132",
+      "accession": "VCV002480132.2",
+      "name": "NM_000594.4(TNF):c.350T>C (p.Val117Ala)",
+      "position": 6613,
+      "genomic": 31577185,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 117,
+      "protein_change": "p.V117A",
+      "coding_change": "c.350T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-01-31",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004271811.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-01-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "748239",
+      "accession": "VCV000748239.3",
+      "name": "NM_000594.4(TNF):c.354G>A (p.Glu118=)",
+      "position": 6617,
+      "genomic": 31577189,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 118,
+      "protein_change": "p.E118=",
+      "coding_change": "c.354G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-05-24",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000925020.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-05-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "723481",
+      "accession": "VCV000723481.3",
+      "name": "NM_000594.4(TNF):c.477C>T (p.Ile159=)",
+      "position": 6740,
+      "genomic": 31577312,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 159,
+      "protein_change": "p.I159=",
+      "coding_change": "c.477C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-06-28",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000897242.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-06-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "732409",
+      "accession": "VCV000732409.3",
+      "name": "NM_000594.4(TNF):c.489C>T (p.Tyr163=)",
+      "position": 6752,
+      "genomic": 31577324,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 163,
+      "protein_change": "p.Y163=",
+      "coding_change": "c.489C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-08-06",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000907544.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-08-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3327449",
+      "accession": "VCV003327449.1",
+      "name": "NM_000594.4(TNF):c.550G>C (p.Gly184Arg)",
+      "position": 6813,
+      "genomic": 31577385,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 184,
+      "protein_change": "p.G184R",
+      "coding_change": "c.550G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-05-24",
+      "last_updated": "2024-08-11",
+      "conditions": [
+        {
+          "accession": "RCV004680040.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    }
+  ]
+}

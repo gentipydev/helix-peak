@@ -549,11 +549,13 @@ void main() {
       }
     }
 
-    // Dystrophin's 13,993 bases were about twenty-five screens.
+    // Dystrophin's 13,993 bases were about twenty-five screens. Under five
+    // now rather than under four: the bases grew from 21pt to 26pt so that one
+    // of them could be tapped, and the page grew with them.
     final AnatomyStage dystrophin = AnatomyModel.derive(
       _record(ProteinCatalog.dystrophin),
     ).stages[1];
-    expect(AnatomyLayout.heightFor(dystrophin, phone), lessThan(4 * phone.height));
+    expect(AnatomyLayout.heightFor(dystrophin, phone), lessThan(5 * phone.height));
     final TracerStatus folded = TracerReader.resolve(
       model: AnatomyModel.derive(_record(ProteinCatalog.dystrophin)),
       tracer: Tracer(dystrophin.positionAt(dystrophin.blocks[1].start + 6000, 0)),

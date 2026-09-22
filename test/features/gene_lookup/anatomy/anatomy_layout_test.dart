@@ -887,9 +887,10 @@ void main() {
           reason: '$width',
         );
       }
-      // The iPhone 17's width, less the ruler's three digits. Thirteen at a
-      // floor of twenty-five, where twenty-four bought a fourteenth column.
-      expect(layoutAt(402).columns, 13);
+      // The iPhone 17's width, less the ruler's three digits. Eleven at a
+      // floor of thirty, where twenty-five bought thirteen columns: the page
+      // trades two bases a row for a tap target a thumb can land on.
+      expect(layoutAt(402).columns, 11);
     });
 
     test('it reads like text, and grooves and folds nothing', () {
@@ -962,15 +963,16 @@ void main() {
         expect(layout.side, greaterThan(AnatomyLayout.baseSide));
         // Near it, not at it. The fit is a staircase of whole codons, so how
         // close a row can come to the target is bounded by the step and not by
-        // a point: on the smallest phone here the choice is 21.7 or 29.3.
+        // a point: on the smallest phone here the choice is 29.3 or 39.6.
         expect(
           (layout.side - AnatomyLayout.inspectionSide).abs(),
           lessThan(4),
           reason: '$width',
         );
       }
-      // The grooves cost each tile a point rather than each row a codon.
-      expect(codingAt(402).columns, 15);
+      // The grooves cost each tile a point rather than each row a codon: four
+      // codons across at a thirty-point floor, where twenty-five fitted five.
+      expect(codingAt(402).columns, 12);
     });
 
     test('its codons land flush and part across and down as they form', () {

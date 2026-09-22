@@ -1,0 +1,502 @@
+{
+  "schema_version": 1,
+  "source": "NCBI ClinVar",
+  "gene": "UBB",
+  "accession": "NG_023320",
+  "assembly": "GRCh38",
+  "chromosome": "chr17",
+  "scope": "reference-matched single nucleotide variants in the drawn gene",
+  "start": 5039,
+  "sequence": "ATTTAGGGGCGGTTGGCTTTGTTGGGTGAGCTTGTTTGTGTCCCTGTGGGTGGACGTGGTTGGTGATTGGCAGGATCCTGGTATCCGCTAACAGGTACTGGCCCGCAGCCGTAACGACCTTGGGGGGGTGTGAGAGGGGGGAATGGGTGAGGTCAAGGTGGAGGCTTCTTGGGGTTGGGTGGGCCGCTGAGGGGAGGGCGTGGGGGAGGGGAGGGCGAGGTGACGCGGCGCTGGGCCTTTCCGGGACAGTGGGCCTTGTTGACCTGAGGGGGGCGAGGGCGGTTGGCGCGCGCGCGCGTTGACGGAAACTAACGGACGCCTAACCGATCGGCGATTCTGTCGAGTTTACTTCGCGGGGAAGGCGGAAAAGAGGTAGTTTGTGTGGTTTCTGGAAGCCTTTACTTTGGAATCCCAGTGTGAGAAAGGTGCCCCTTCTTGTGTTTCAATGGGATTTTTATTTCGCGAGTCTTGTGGGTTTGGTTTTGTTTTCAGTTTGCCTAACACCGTGCTTAGGTTTGAGGCAGATTGGAGTTCGGTCGGGGGAGTTTGAATATCCGGAACAGTTAGTGGGGAAAGCTGTGGACGCTTGGTAAGAGAGCGCTCTGGATTTTCCGCTGTTGACGTTGAAACCTTGAATGACGAATTTCGTATTAAGTGACTTAGCCTTGTAAAATTGAGGGGAGGCTTGCGGAATATTAACGTATTTAAGGCATTTTGAAGGAATAGTTGCTAATTTTGAAGAATATTAGGTGTAAAAGCAAGAAATACAATGATCCTGAGGTGACACGCTTATGTTTTACTTTTAAACTAGGTCAAAATGCAGATCTTCGTGAAAACCCTTACCGGCAAGACCATCACCCTTGAGGTGGAGCCCAGTGACACCATCGAAAATGTGAAGGCCAAGATCCAGGATAAGGAAGGCATTCCCCCCGACCAGCAGAGGCTCATCTTTGCAGGCAAGCAGCTGGAAGATGGCCGTACTCTTTCTGACTACAACATCCAGAAGGAGTCGACCCTGCACCTGGTCCTGCGTCTGAGAGGTGGTATGCAGATCTTCGTGAAGACCCTGACCGGCAAGACCATCACCCTGGAAGTGGAGCCCAGTGACACCATCGAAAATGTGAAGGCCAAGATCCAGGATAAAGAAGGCATCCCTCCCGACCAGCAGAGGCTCATCTTTGCAGGCAAGCAGCTGGAAGATGGCCGCACTCTTTCTGACTACAACATCCAGAAGGAGTCGACCCTGCACCTGGTCCTGCGTCTGAGAGGTGGTATGCAGATCTTCGTGAAGACCCTGACCGGCAAGACCATCACTCTGGAGGTGGAGCCCAGTGACACCATCGAAAATGTGAAGGCCAAGATCCAAGATAAAGAAGGCATCCCCCCCGACCAGCAGAGGCTCATCTTTGCAGGCAAGCAGCTGGAAGATGGCCGCACTCTTTCTGACTACAACATCCAGAAAGAGTCGACCCTGCACCTGGTCCTGCGCCTGAGGGGTGGCTGTTAATTCTTCAGTCATGGCATTCGCAGTGCCCAGTGATGGCATTACTCTGCACTATAGCCATTTGCCCCAACTTAAGTTTAGAAATTACAAGTTTCAGTAATAGCTGAACCTGTTCAAAATGTTAATAAAGGTTTCGTTGCATGGTA",
+  "protein_sequence": "MQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGGMQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGGMQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGGC",
+  "complemented": false,
+  "runs": [
+    {
+      "local": 5039,
+      "genomic": 16381091,
+      "step": 1,
+      "length": 1650
+    }
+  ],
+  "retrieved_at": "2026-09-22T12:55:18.720786+00:00",
+  "query": "UBB[gene]",
+  "searched_records": 66,
+  "excluded": {
+    "no_germline_classification": 7,
+    "no_unique_GRCh38_location": 28,
+    "not_a_single_base_substitution": 17
+  },
+  "source_batches": [
+    {
+      "file": "batch-0.xml",
+      "sha256": "748838415893df3634516b0c20f9c39727fc29f8433cc77624e96dccdce5ff1e"
+    }
+  ],
+  "traits": {},
+  "variants": [
+    {
+      "variation_id": "762742",
+      "accession": "VCV000762742.3",
+      "name": "NM_018955.4(UBB):c.27C>T (p.Thr9=)",
+      "position": 5882,
+      "genomic": 16381934,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 9,
+      "protein_change": "p.T9=",
+      "coding_change": "c.27C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-08-02",
+      "last_updated": "2024-09-29",
+      "conditions": [
+        {
+          "accession": "RCV000940913.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-08-02"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "716463",
+      "accession": "VCV000716463.4",
+      "name": "NM_018955.4(UBB):c.57C>T (p.Pro19=)",
+      "position": 5912,
+      "genomic": 16381964,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 19,
+      "protein_change": "p.P19=",
+      "coding_change": "c.57C>T",
+      "consequence": "synonymous",
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-12-31",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000889115.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-12-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3375364",
+      "accession": "VCV003375364.1",
+      "name": "NM_018955.4(UBB):c.91C>T (p.Gln31Ter)",
+      "position": 5946,
+      "genomic": 16381998,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 31,
+      "protein_change": "p.Q31*",
+      "coding_change": "c.91C>T",
+      "consequence": "stop gained",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-09-19",
+      "last_updated": "2024-11-19",
+      "conditions": [
+        {
+          "accession": "RCV004782113.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-09-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "718573",
+      "accession": "VCV000718573.4",
+      "name": "NM_018955.4(UBB):c.99G>A (p.Lys33=)",
+      "position": 5954,
+      "genomic": 16382006,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 33,
+      "protein_change": "p.K33=",
+      "coding_change": "c.99G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-12-31",
+      "last_updated": "2024-09-29",
+      "conditions": [
+        {
+          "accession": "RCV000891548.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-12-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3812850",
+      "accession": "VCV003812850.1",
+      "name": "NM_018955.4(UBB):c.230T>C (p.Met77Thr)",
+      "position": 6085,
+      "genomic": 16382137,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 77,
+      "protein_change": "p.M77T",
+      "coding_change": "c.230T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-01-01",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005301633.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-01-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "743021",
+      "accession": "VCV000743021.3",
+      "name": "NM_018955.4(UBB):c.297C>T (p.Ile99=)",
+      "position": 6152,
+      "genomic": 16382204,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 99,
+      "protein_change": "p.I99=",
+      "coding_change": "c.297C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-04-12",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000919339.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-04-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3976707",
+      "accession": "VCV003976707.1",
+      "name": "NM_018955.4(UBB):c.521C>G (p.Thr174Ser)",
+      "position": 6376,
+      "genomic": 16382428,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 174,
+      "protein_change": "p.T174S",
+      "coding_change": "c.521C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-05-06",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005510026.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-05-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4688450",
+      "accession": "VCV004688450.1",
+      "name": "NM_018955.4(UBB):c.525C>T (p.Ile175=)",
+      "position": 6380,
+      "genomic": 16382432,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 175,
+      "protein_change": "p.I175=",
+      "coding_change": "c.525C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-12-09",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006457845.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2332089",
+      "accession": "VCV002332089.2",
+      "name": "NM_018955.4(UBB):c.539C>T (p.Ala180Val)",
+      "position": 6394,
+      "genomic": 16382446,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 180,
+      "protein_change": "p.A180V",
+      "coding_change": "c.539C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-12-02",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004172775.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-12-02"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "728567",
+      "accession": "VCV000728567.4",
+      "name": "NM_018955.4(UBB):c.567C>T (p.Pro189=)",
+      "position": 6422,
+      "genomic": 16382474,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 189,
+      "protein_change": "p.P189=",
+      "coding_change": "c.567C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-12-31",
+      "last_updated": "2024-09-29",
+      "conditions": [
+        {
+          "accession": "RCV000903067.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-12-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "728462",
+      "accession": "VCV000728462.4",
+      "name": "NM_018955.4(UBB):c.585C>T (p.Leu195=)",
+      "position": 6440,
+      "genomic": 16382492,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 195,
+      "protein_change": "p.L195=",
+      "coding_change": "c.585C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-06-29",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000902948.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-06-29"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "709928",
+      "accession": "VCV000709928.3",
+      "name": "NM_018955.4(UBB):c.618C>T (p.Arg206=)",
+      "position": 6473,
+      "genomic": 16382525,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 206,
+      "protein_change": "p.R206=",
+      "coding_change": "c.618C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-04-16",
+      "last_updated": "2024-09-29",
+      "conditions": [
+        {
+          "accession": "RCV000881413.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-04-16"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "720176",
+      "accession": "VCV000720176.5",
+      "name": "NM_018955.4(UBB):c.645A>G (p.Lys215=)",
+      "position": 6500,
+      "genomic": 16382552,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 215,
+      "protein_change": "p.K215=",
+      "coding_change": "c.645A>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2019-12-31",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000893446.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2019-12-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "3976706",
+      "accession": "VCV003976706.1",
+      "name": "NM_018955.4(UBB):c.661C>G (p.Leu221Val)",
+      "position": 6516,
+      "genomic": 16382568,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 221,
+      "protein_change": "p.L221V",
+      "coding_change": "c.661C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-04-13",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005518551.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-04-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    }
+  ]
+}

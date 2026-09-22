@@ -10,6 +10,7 @@ import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/nucleotide_colors.dart';
 import '../../domain/entities/protein_constraint.dart';
+import '../clinvar/clinvar_colors.dart';
 import '../constraint/constraint_colors.dart';
 import '../format.dart';
 import 'anatomy_layout.dart';
@@ -53,6 +54,7 @@ class AnatomyPainter extends CustomPainter {
     this.rulerInk,
     this.junctions = const <int>[],
     this.bridges = const <int, int>{},
+    this.marks = const <int, ClinVarMark>{},
   }) : super(repaint: repaint);
 
   final AnatomyScene scene;
@@ -100,11 +102,26 @@ class AnatomyPainter extends CustomPainter {
   /// ends of a bridge carry the same number.
   final Map<int, int> bridges;
 
+  /// Residues ClinVar has records at, as cell to the mark drawn there. Drawn
+  /// only over the constraint fills: in ESM mode the page is a map of
+  /// evidence, and the observed records belong on it; the chemistry page stays
+  /// a page about chemistry.
+  final Map<int, ClinVarMark> marks;
+
   bool get _constraintAtRest =>
       constraint != null &&
       !scene.isTransition &&
       scene.from.kind == StageKind.protein &&
       scene.from.letters == constraint!.sequence;
+
+  /// Whether the masking scrim should be drawn.
+  ///
+  /// Wider than [_constraintAtRest], which also gates the conservation fills
+  /// and the per-residue semantics and so has to know it is on the protein
+  /// page. The mask is about a selection, not about a track: the screen only
+  /// ever sets [maskedIndex] on a page whose taps mean one cell, and the mRNA
+  /// page is now one of those.
+  bool get _maskAtRest => !scene.isTransition && maskedIndex != null;
 
   /// Enough to make the mix toward the background read as continuous; the
   /// framebuffer holds 8 bits a channel, so more steps would not survive.
@@ -451,9 +468,12 @@ class AnatomyPainter extends CustomPainter {
     _drawJunctions(canvas, t, open);
     _drawLetters(canvas, side, appearance);
     _drawBridges(canvas, size, side, t);
+    if (_constraintAtRest && conservation && marks.isNotEmpty) {
+      _drawMarks(canvas, size, side);
+    }
     _drawTracer(canvas, size, side, t);
 
-    if (_constraintAtRest && maskedIndex != null) {
+    if (_maskAtRest) {
       _drawMask(canvas, size, side, radius);
     }
 
@@ -1213,6 +1233,40 @@ class AnatomyPainter extends CustomPainter {
 
   final Map<(int, int), ui.Paragraph> _bridgeLabels =
       <(int, int), ui.Paragraph>{};
+
+  /// One dot per residue with ClinVar records, in its most severe group's
+  /// colour, at the foot of the tile under its letter. The corners belong to
+  /// the bridge badges, and a corner dot met the badge of the cell below it.
+  /// The masked residue is left alone: it is the sheet's subject, and the mask
+  /// would halve the dot.
+  void _drawMarks(Canvas canvas, Size size, double side) {
+    final AnatomyLayout layout = scene.toLayout;
+    final double radius = math.max(2.5, side * 0.075);
+    for (final MapEntry<int, ClinVarMark> mark in marks.entries) {
+      final int cell = mark.key;
+      if (cell < 0 ||
+          cell >= _count ||
+          cell == maskedIndex ||
+          layout.isHidden(cell)) {
+        continue;
+      }
+      final Rect tile = layout.rectOf(cell);
+      final Offset centre = Offset(
+        tile.center.dx,
+        tile.bottom - radius - 1.5,
+      );
+      if (centre.dy < -radius || centre.dy > size.height + radius) {
+        continue;
+      }
+      ClinVarColors.paintMark(
+        canvas,
+        centre,
+        radius,
+        mark.value.group,
+        halo: background,
+      );
+    }
+  }
 
   /// The joins in a region's DNA, at rest.
   void _drawJunctions(Canvas canvas, double t, double open) {
@@ -2141,7 +2195,13 @@ class AnatomyPainter extends CustomPainter {
               ),
               properties: SemanticsProperties(
                 textDirection: TextDirection.ltr,
-                label: '${p.spoken}, ${p.domain}, ${p.level.label}',
+                label:
+                    '${p.spoken}, ${p.domain}, ${p.level.label}'
+                    '${switch (conservation ? marks[p.index] : null) {
+                      final ClinVarMark mark =>
+                        ', ClinVar ${mark.count} record${mark.count == 1 ? '' : 's'}',
+                      null => '',
+                    }}',
                 button: true,
                 selected: p.index == maskedIndex,
                 onTap: () => onConstraintTapped?.call(p.index),
@@ -2153,7 +2213,9 @@ class AnatomyPainter extends CustomPainter {
   bool shouldRebuildSemantics(covariant AnatomyPainter oldDelegate) =>
       oldDelegate.scene != scene ||
       oldDelegate.constraint != constraint ||
-      oldDelegate.maskedIndex != maskedIndex;
+      oldDelegate.maskedIndex != maskedIndex ||
+      oldDelegate.conservation != conservation ||
+      !mapEquals(oldDelegate.marks, marks);
 
   @override
   bool shouldRepaint(covariant AnatomyPainter old) =>
@@ -2169,6 +2231,7 @@ class AnatomyPainter extends CustomPainter {
       old.anatomy != anatomy ||
       old.constraint != constraint ||
       old.conservation != conservation ||
+      !mapEquals(old.marks, marks) ||
       old.maskedIndex != maskedIndex ||
       old.masking != masking ||
       old.maskAccent != maskAccent ||

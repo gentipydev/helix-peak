@@ -131,6 +131,8 @@ final class ProteinTarget {
     required this.structure,
     this.chain,
     this.scored = true,
+    this.impactScored = true,
+    this.clinvarAvailable = true,
   });
 
   /// URL-safe, and the stem of every asset this target owns.
@@ -178,6 +180,26 @@ final class ProteinTarget {
   /// `check_assets.py` holds the two to each other.
   final bool scored;
 
+  /// Whether an AlphaGenome Variant Impact track has been baked for this gene.
+  ///
+  /// The same kind of state one level down: [scored] is a per-residue track over
+  /// the protein, this is a per-base track over the gene record. Without one the
+  /// nucleotide pages are drawn exactly as they were — a tap moves the tracer
+  /// and no sheet opens — rather than meeting a file that is not there.
+  /// `impact_scored` in `tool/targets.py` says the same, and `check_assets.py`
+  /// holds the two to each other.
+  final bool impactScored;
+
+  /// Whether a ClinVar snapshot has been baked for this gene.
+  ///
+  /// Every gene in the catalog has one. One added before its snapshot is baked
+  /// has not, and the walk says so — "not yet included", once, in the About
+  /// sheet — rather than meeting a file that is not there. False is not a
+  /// negative finding. `clinvar_available` in `tool/targets.py` says the same,
+  /// and `check_assets.py` holds the two to each other.
+  final bool clinvarAvailable;
+  String get clinvarAsset => 'assets/clinvar/${slug}_clinvar.json';
+
   GeneQuery get query => GeneQuery(accession: accession, gene: gene);
 
   String get mockAsset => 'assets/mock/gene_${gene.toLowerCase()}.json';
@@ -189,8 +211,12 @@ final class ProteinTarget {
   /// `flutter_scene_generated/`, and `loadScene` resolves it back by this name.
   String get structureAsset => 'assets/models/$slug.glb';
 
+  /// Where the impact track is, or would be. Read only where [impactScored].
+  String get impactAsset => 'assets/impact/${slug}_avi.json';
+
   @override
-  bool operator ==(Object other) => other is ProteinTarget && other.slug == slug;
+  bool operator ==(Object other) =>
+      other is ProteinTarget && other.slug == slug;
 
   @override
   int get hashCode => slug.hashCode;

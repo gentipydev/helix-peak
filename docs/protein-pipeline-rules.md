@@ -53,6 +53,15 @@ second complement once turned relaxin's residue 1 from M into Y, and an
 independent check script made the same mistake in this review. *Status:
 enforced* (`check_frame` after every remap).
 
+A baked track's `sequence` is not the record's own string. The AVI and ClinVar
+assets list the drawn letters in increasing record position, because every
+reader indexes them `sequence[position - start]`; on a minus-strand record that
+is the record's `sequence` reversed. The AVI bake once copied the record's
+string as stored, and RLN2's and GCG's base sheets read the wrong letter at 74%
+and 73% of bases while every score was still filed correctly; the ClinVar bake
+refused both genes. *Status: enforced* (`check_assets.py`, the catalog ClinVar
+test over every drawn base).
+
 **R2.2 The CDS translates to the record's protein, exactly.** Re-proved after
 clipping and after compression, since both rebuild coordinates. *Status:
 enforced.*
@@ -74,6 +83,39 @@ A gene whose exons alone exceed the budget (titin) has no honest gene page, and
 the bake refuses it. APP (290,221 bases, 18 exons) and CFTR (188,703, 27 exons)
 take dystrophin's treatment: introns at 1:14 and 1:10, "Introns are 98.8%" and
 "96.8% of the gene". *Status: enforced.*
+
+**R2.5 A drawn base has to be findable on the chromosome.** The per-base
+AlphaGenome track is indexed by GRCh38 `chr:pos`, and nothing in the app is:
+every position it holds is an offset inside an `NG_` or `NC_` record, and three
+genes have compressed introns on top of that. The map back is derived, not
+tabulated — each exon is paired with GENCODE v46's MANE Select exon in
+transcript order (by position and strand; TP53's record leaves four of its
+eleven `number` fields null and skips 2, 4 and 9), anchored on the end it shares
+with an intron, with a compressed intron's head running forward from the exon
+before it and its tail back from the exon after it. R1.4 is what makes that
+total: a record clipped to its transcript has no flank to place. R2.4 is what
+makes it honest for a shortened intron: the drawn bases are the intron's own
+first and last, not a middle slice, so every drawn cell is a real base.
+
+The first and last exon's outer ends are left to float, because RefSeqGene and
+GENCODE disagree there — CFTR's first exon is 185 bases to GENCODE's 124, and
+TP53's second is 99 to GENCODE's 102.
+
+*Two facts, not one:* whether the record's coordinates count the same way as the
+chromosome's, and whether its letters are the other strand's. A minus-strand
+record of a minus-strand gene counts up with the chromosome and still reads the
+complement of it. Conflating them read RLN2 and GCG off the wrong strand.
+
+The proof is the reference base the Atlas returns with every score: it must be
+the base the app draws at that cell. INS agrees at 1,431 of 1,431, and at 402 of
+1,431 with the orientation flipped by hand. A record may differ from the primary
+assembly at a few bases — dystrophin does at three, which are exactly the three
+`uniprot_variants` already declared for it — so differences are counted and
+reported rather than forbidden, and a position that differs carries no exact
+score. *Status: enforced* (`tool/impact/bake_impact.py`, `check_assets.py`).
+*Open:* the four `NC_` slices could take their offset from `Source.seq_start`
+directly, and do not, because deriving it the same way for all twenty is what
+makes the derivation worth trusting.
 
 ## 3. What the precursor is cut into
 
@@ -336,6 +378,23 @@ restart keep the old scene.
 - **Transcript chips are one quiet family:** all three use the quiet fill and the
   5′ UTR tint; the grooves and blue letters are what mark the reading frame.
 - **An uncut coding sequence keeps the CDS blue** on the gene page.
+- **A base is a tap target, so it is sized like one.** The transcript's bases
+  went from 21pt pitch to 26 and the opened-DNA page's from 25 to 30 when a tap
+  on one started answering with its scores. Twenty points was the floor for
+  reading a 12pt letter; it is not a floor for hitting one square out of a row
+  of identical squares. `hitTest` walks columns by pitch and gives the mortar to
+  the cell before it, so the whole pitch is the target and the two move
+  together. The gene page is the exception and stays as it was: at 24,000 bases
+  `fit` puts its cells at the two-point floor, where no size of finger picks out
+  one base, so a tap there means the run it lands in — which is what it has
+  always meant. `baseRadius` moved with `baseSide`, because `tileRadiusRatio` is
+  the two of them and every fitted tile in the app is rounded by it.
+  *Status: enforced* (layout tests).
+- **No impact track is a state, not a failure**, exactly as below: a gene
+  without one draws its nucleotide pages as it always did — a tap moves the
+  tracer, no sheet opens — rather than meeting a missing file. All twenty have
+  one, so the state is held by a widget test of an untracked copy of insulin's
+  row. *Status: enforced* (`impact_screen_test.dart`, `check_assets.py`).
 - **No constraint track is a state, not a failure.** A protein that is not
   scored yet (`scored` on both rows) has no track to load; its protein page is
   drawn without the conservation toolbar, and a tap there follows the tracer as
@@ -370,8 +429,13 @@ accepts arbitrary input.
 | ✓ a record with no chain ends at its protein page | catalog test |
 | ✓ every coding role is the size of the bases that answer with it | catalog test |
 | ✓ a constraint track, and its toolbar, exactly where a protein is scored | catalog tests, `check_assets.py` |
+| ✓ every drawn base maps to the chromosome, and the reference agrees | `check_sequence`, `check_assets.py` |
+| ✓ splice boundaries and exons outscore intron interiors | `check_biology`, `check_assets.py`, `gene_impact_test.dart` |
 | ✓ each score is filed under the residue it was measured for (the model prefers the residue that is there over its neighbour's) | `score_protein.py` gate, `verify_cpu.py`, `test_score_protein.py` over every shipped track |
 | ✓ every intron is GT-AG, GC-AG or AT-AC | `check_assets.py` |
+| ✓ a baked track's letters are the page's letters, base for base (R2.1) | `check_assets.py`, catalog ClinVar test |
+| ✓ a ClinVar snapshot exactly where a gene has one, every record re-derived against the record, the AVI map and the CDS | `bake_clinvar.py`, `check_assets.py`, catalog ClinVar test |
+| ✓ no pathogenic or benign wording is grouped as Other | catalog ClinVar test |
 | ✓ every peptide, signal peptide and proprotein translates to its slice | `check_assets.py` |
 | a gap between chains is a cut site or a named peptide | *add to the bake* |
 | each structure chain is a substring of a mature chain | *add to `check_assets.py`* |
@@ -403,6 +467,7 @@ For each hand-written field, the generic source:
 | `Structure` entry and chains | PDB search by UniProt accession (R5.4) |
 | structure `sentence`, `semantics`, `count` | templates over features (R4.5) |
 | ESM-2 constraint track | a server job; about 85 minutes for all twenty offline (dystrophin 45, CFTR 21), windowed past 1,022 residues |
+| AVI impact track | the Atlas's precomputed scores, already generic: GENCODE gives the exons and the reference gates the map, so nothing per-protein is written down (R2.5) |
 
 The backend also has to learn the six things only the fixtures do today (see
 `tool/mock/README.md`): the transcript where two share a CDS, exons from the
@@ -431,3 +496,79 @@ in-frame `TGA` that is not a stop); non-AUG starts; several internal
 propeptides drawn as such, and C-terminal propeptides named as such; multimers
 whose biological unit is not in one entry; a single-exon gene (tested only on a
 modified record); and genes whose exons alone exceed the budget.
+
+
+## 9. ClinVar observed evidence
+
+**R9.1 Observations are separate from predictions.** ClinVar text is quoted
+verbatim — classification, review status, conditions, accession/version,
+snapshot date — and only there may clinical words appear; the copy tests find
+that boundary by the `ClinVarSourced` wrapper. ESM and AVI keep their
+molecular/evolutionary wording. Hue belongs to ClinVar alone: a class colour on
+a dot, never on text, and the models' band meters are drawn in neutral ink. For
+colour only, a record is grouped by its terms, which ClinVar separates with `/`
+and puts after a `;` where they are off the Mendelian axis (CFTR's
+`Pathogenic; drug response`): any pathogenic
+or likely pathogenic term (low penetrance included) and no benign term is P/LP;
+any benign term and no pathogenic one is B/LB; both, or a conflicting label, is
+Conflicting; uncertain significance with neither is VUS; anything else — risk
+alleles, not provided, unfamiliar wording — is Other, drawn as a ring. Risk and
+association terms never promote or demote. Where one mark stands for several
+records, it takes the most severe group: P/LP, Conflicting, VUS, Other, B/LB.
+Conditions are quoted per RCV, under the classification that RCV gives them —
+which is what a combined or conflicting label is made of — with the identifiers
+ClinVar attaches to each (symbol and OMIM shown; MedGen and MONDO kept), baked
+from the same XML. No definition is quoted: MedGen's text is not reliable
+enough (type 2 diabetes carries the WFS1 GeneReviews summary, MODY10 only the
+generic MODY sentence). The evaluation date stays in the snapshot as
+provenance and is not shown.
+
+**R9.2 Exact alleles and the chosen transcript.** ClinVar SNVs must match the
+GRCh38 chromosome, coordinate and reference letter, then be converted to the
+drawn strand. The selected CDS defines precursor residue numbering. At a tapped
+base, only records at that base are shown; at a residue, the scope explicitly
+includes its different DNA bases, each row cited by its own c. change. No
+clinical record is borrowed from a neighbor. A record's AVI is its own exact
+alternative, never the base peak, and its ESM is the score of its own amino
+acid, never the residue's constraint; an estimated base gives no number. Records
+at one residue are listed in transcript order, which on a minus-strand record
+runs against the coordinates. A record in the middle of an intron drawn
+shortened is excluded as intron sequence not drawn, a different fact from lying
+outside the gene.
+
+**R9.3 Coverage and missingness remain visible — once.** An unbaked gene, a
+loading or failed snapshot, and a mapped position with no SNV are different
+states. A sheet names only its position's state in one line ("ClinVar · none at
+Val26 in this snapshot"). Coverage and exclusion counts live in the overview's
+footer and the About sheet, and "not yet included" for a gene without a
+snapshot is said in the About sheet alone — never while a snapshot is loading
+or has failed. No count is described as a patient count or prevalence, and
+absence is never called benign. All twenty genes carry a snapshot since
+2026-09-22; the state stays for a row added without one.
+
+**R9.4 The overview is an inspection, not a validation claim.** One mark per
+record at its real position: along the protein, height is the record's own AVI,
+the band under it is the residue's ESM constraint on the page's ramp, the head
+is its class; records off the protein stand on a drawing of the gene, a second
+titled panel on the same AVI scale. Filtering never moves a mark, and zooming a
+panel to a region (a tap on the ground under it) changes its scale, never a
+position; a zoomed intron drawn shortened is titled by its real length. The
+list groups records by region, every region open, each closable to its heading
+and count from that heading, and builds its rows as they come on screen, since
+dystrophin has thousands. A record's link to its residue or base leaves a way back:
+Back, or the walk header's "← ClinVar", reopens the overview as it was left —
+scroll, open record, filter, regions and zoom. A record's detail may carry one
+line on where each model
+puts the change — against ESM −7.5 (the line published for ESM-1b, a reference
+rather than a calibration) and AVI 20 (the top 1% genome-wide) — or which model
+applies at all, in molecular words and never in a list. No count of agreement
+with ClinVar is shown anywhere: AVI already integrates protein-level evidence,
+AlphaMissense among it, so the two models are not independent votes, and
+submitters may have used computational predictions themselves.
+
+**R9.5 Each fact once.** A sheet shows its own model on its bars and carries
+the other model's number in its ClinVar rows; the two numbers meet only in an
+opened record. What a source is, its scale and its caveats are written once, in
+"About these sources" (the overview's footer and the About sheet), and each
+sheet's info button explains only its own model's scale. *Status: enforced*
+(ClinVar pipeline, entity, widget and walk tests; `check_assets.py`).

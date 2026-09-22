@@ -1,0 +1,4096 @@
+{
+  "schema_version": 1,
+  "source": "NCBI ClinVar",
+  "gene": "LEP",
+  "accession": "NG_007450",
+  "assembly": "GRCh38",
+  "chromosome": "chr7",
+  "scope": "reference-matched single nucleotide variants in the drawn gene",
+  "start": 5001,
+  "sequence": "GTAGGAATCGCAGCGCCAGCGGTTGCAAGGTAAGGCCCCGGCGCGCTCCTTCCTCCTTCTCTGCTGGTCTTTCTTGGCAGGCCACAGGGCCCCACACAACTCTGGATCCCGGGGAAACTGAGTCAGGAGGGATGCAGGGCGGATGGCTTAGTTCTGGACTATGATAGCTTTGTACCGAGTTCTAGCCAGATAGAAGGTTACCGGGAGCTGGGGAGCGTTGGATTTGCTGCTGGGCTGTGCCGGTGCCCAGAAGGCAGGACCTTGCAGAACCAGCCAGGTCCCTGGGAGACTGTCAGACCCACCAACCTGGTGGCATTCGCAGAGCTGAGATGCATTGGAAATTGCCTTGGGCACATCCCCAAAGATCAGGATGTCCCACCCCAGTCTGAAGGAGATAAAGTTGGGGGTAGGAGAGACGCAGATGCAAGTGATCAGTCTCAGTCCCAGACATTGCCTTGCTCTGCGGGTAGGAATTCAGGATTCATTTTCCAGGGAAGTTCCTGACCTCTGAATGAGAGGGGCTGTGTAAGGCCAATGCCTGGGAGGAAGGCAAGGATGAGTAGAGGTGGGGGGAAACAAGTGTCAGGAAGACTCAAAATCTTCCAGAGAAATTGTGCAGGGTCTTACCAGATCTGTCCTCAAAGCCATGCAAATTGCCTTCTTTGCAATGCATACAATGAGGTGTCTCTGGGGGTCAGAACTGGTTATTAGGGAACTTCTAGCCAGGACTGCTAAATACGCGCTGTTGGCCCACCAGGCTCACCTATAGCCTTCCTTCAGTCTGGGCTTGGTTTGGATTTCACTGTGGGTGCCATCGCCTTTACACTCCTGTTTCTATAGTTTAAAGATAGTGGTGCTTTGGGAAAGTGACTCCTTAAATACAGTTAGGTCCAAGTGAGACAAGTGGCCTGGCTGTCATTTCAGAATAGCAGCTTCCAAGAGGTGATTAATTTCTGTTGGAAGGGTGATCTTTGGGGAGGTGGGTGAAGAGCAGAGACTTGGTGGTACCGTTCCAGGAGCACAGGCTCTCTTCCTTTGCAGTGCAGAATGACCTCTGGCAGCCGGAGTTGTGTTTGTTCTGTAGGATTCTGAGGTGGGCCATGGGCAGCTGGAACTGGGGAATTTTGCCAATCTCTTTCATATTAGGATTGTCTGCAGAACCAGATATGGAGGCTTCTAGCAACGTGAGTGCTCCTGTTCTAATGCCCTTAGAAACAAGAAGGCCACACTGATCATTTCTCTCACTTAGGCAGGGAGACAAGGCAAGAGAGAAACAGTGGATGCTTTTAGGTTCTTTCCCTTCCCAAGCAGTTGTGGACATTGGGCTGAGGGGAACATTTCCACATTGGCTAAAGGAGCGTCCTCCTCATATTTTGTACATTTTATACCCAAAATAACTCTTCTTGGTATTTGGGGAAATATTTTCCTCCCCGTCCATTCCAGGAAATGGCTCCAAGTGCCAAGGACAGAGCCAGGGAAGTTGCAATGAATTCCTGCCCGTCAGCCCCAGGCAGATGCCTTGCACGTCTGAGTGGCCCATGCAGAGCGTGGAGGTGGCCGCCACGGAACCTGGGTCAATGTCCCACCCCCGCTTAGATGCCACCAGGGGCGTGGGAGCCAAGGAGAGAAGAGGGGCTCCAGGAAGGTAGAGTCCTTGTGTCTTGTGCATCTGTGAACAGCACTGGTATGATTTAAAGGAAAATTGAGCCAAATTTTCCGGCAGTCAGTTACCCCATCCCCACCGGGGTAGGAGTCTGGCAGCCGCAGCTCCATTCTGGCCAGTCGGCAGAGAGCCTTGAAATTCTTCTTTGTCCACACAGTTGTCTCAGAGAAACAGAGAGGTTGTTTCTGCTTAAAAACAACACACTTGGTGTCTGGGCCCACAGACTCCTTTGCACTTATTCCACGTGTGACAGCCAATGTGCCTCGTTGCTTAGCAGACAGCATGTTACCGTCTTTCCTGCTCAGTTTGTTAGCTCTATGGAATGGAATTTATAATCAATGCCCATACCAACATTTCACTAATATCATAGGAGATTTAGTCTCCATCTGGGTGTACATTACATTTGCTCTGGGGTGCTCCAGGCTGGGGGGTTGCCAAGGAAGAGAAGAGAAACCGCAGAGAAGACGGGAGGGCAGGGCAGGGGTCTCTGAGAAGGGGAGGGGTCCCAGAGTGCAGGAGCAGGAGCCAGGCTCATGAAAGGGGCCACGGGCGGGAGTATCCAGGGACGGCAGTCAAGATGGAGCACAGCTTAGGAAGCTGAAGGGAATCCTGGCCCACCTGGGTGCTAGAGGGCACATAGGAAGTGCAGGAAGCAGACCAAGGTCCCCAAGAGAGGGAGACCTGGACGCTGAAGCATTTTCTGTCTTTATTAAGACAACTCCGTAAGAATTCCTGCTGGGCCAAAGTGAATTCTAGGATGCGACTTTAAGATGGGAGCAAGCGAACCATTGAGGAGGCAGGTTACCCTAGTTAGCCAATGCAGATCGAGAATGGGAAATCTTTCATTTATTCATGCAACAGATATTTAACGAAGCCCTGCCGTGTTCCAGGCCTGTGATAGATGCTGGAACAGGTACAGAGATACAGGTGTCATTAATTGATCAGGGCAACCTCTCCTTCTGAGTCTTGCTGGAGCTTCAGATGCCCCTCACACAGAGCTCGAGGGAGCCTCAACAATTGATCAGAAGTCAGGCACCATGGCTCACGCATATAATCCCAGCACTTTGGGAGGCCAAGGCAGGTGGATCACTGGAGCCCAGGAGTTCCAGATCAGCTGGGGCAACATGGCAAAACCCCATCTCTATTAAAAAAAAAAAAAGTAACTGGATGTGATGGTACACACCTGTAGTCCCAGCTACTTGGGAGGCTGAGAGGTGGGAGAATTGCTTGAGCCCGGGAAGTCGGGGGTCCAGTGAGCCTTGATCACACCACTGCACTCCAGCCTGAGTGACAGAGCAAGACCCTGACACACACACACACACACACACACACACACACACAGATTAGAGCTGAAACAGGAGTAGAAACCTATCTGTATCTCTGATGAGATCAGATCTTTCTGATGAACAGAAAGAATGTAACCCCTGTACTCACACCCTCTCTGCTGGTTACATATGTTAACACGATTTCTCAAATGAGGCTTTTGGTTGCAAATAAGAGAAAATCACTCACGCTGGCCCTGTGTTTTTCAAATTGTTTATTGTGATCAACATTTGAAAAAAGAGCCGAGACTCTCAAGAGTGCATTACCCACGGTAAGGGTGAATTTTACTTCTTGACACTTATTTCTCTTACATGTATCTATCTGTCTCAAATGAAAAATATATTTAGAAAGTTGAAAGCTATCCAAGTGAGTATAAGAAAAGAGTATCTCACCCTGAAGGCTAAGGACAGGGAGGGCCACCAGGCCTCACGAGGACCCAGGAACCACAAAGAAGGCTAGGAAGGAGCACAGGCGGTGACCATACTCTGGCTCAGTGGCTATGTGGGCTCTGGTCTCTCTCAGCTGTTCCATGCATATGAGGCCAAATGTGGCTACCCTAGAGCTTCTGAGCCCTCAACAGAGATGAACTGGACTCTCTGCAGCCCCACTCTAAATTCCTAAGAGAGAAGTTGATTGACCCAATCAGGGTCAGGAGAAGGAAGGGAGGAGGAAAGGGAGGAGAGAAGAGCCTCTTCGTCTCTTGCCTACCACTGGCCAGGCAATTGTAGCCAAGGGGGCTGGAGTGTAAATGCAAACATAGCCATCAAGGGTTGTGTATGTGTGTGTGTGTGTCTGTGTGTGTGTATGTGTGTCTCTTGGGTAGGTTAGATCTCCCAGGAGGTCCCTACTAAACAGACTTAAGCCCGCAAAATTTTAGCTCTCCAGCCTCACACACTCCACCCCTCTACCATATTGAATCTTCCCAAACCAACTATGGCTTTCCCTAACTCCGGAGCTTGGCCTGGAATGCCCTGCTTCCCCTCTTTCCCCTGGGGAACGCCTGTCCTTCAGGCCTCAGTTCACACACTGCCTCCCTTGCAAAGCTCTCCTCCCATCCCCGGAGTCCCTCTTCCCCTTTGTTCTTTGGGTTCTATGCTTCTTCCCTCATAACTCCCACCAGGTTGTGTTAAAATGAGTTGTTCAAGGTCCTGTCTGTTCCACTAGATTCTGAGCAACTTGGAGAACGAAGATCCAAACTTCGCTGCCTTTATTTCCTCCTTTGTTCTTTTCTCATCCCCAAGTCCCTTCCAACTTGGAGTTATGAAGAAAGGAAGGAAGGAAGGGTGGGAGGGAAGAACAGGAGGGGATCCCACAGGAGAATGTGTATAGGGAGAGGACTCAGACTAGCTAAAGCTTTTCCCTCATAATTAATAGCAAATACCATGTTACCTGAATTTAATTCACAGTAGCATACAAAAGACTCGCTTTGTTCTCCCCATTGATGTCATCAGAGGGCTGTGGGCAGGCCTAATCTTGGCTCAGGAGGCCCTCCAGCCTGGATCTAAAGAGCAGCAGATGGGCCAGGCTCGGTGGCTCATGCCTGTAATCCCAGCATTTTGGGAGGCCGAGGCGGGTGGATCACGAGGTCAGGAGTTTGAGACCAGCCTGGCCAAGATGGTGAAGCCTCGTCTCTACTAAAAATACAAAAATTAGCCAGGTGCGGTGGTGGGCGCCTGTATTTCCAGCTACCCGGGAGGCTGAGGAGGCTGAGGCAGGAGAATCGCTTGAACCCGGGAGGCGGAGGTTGCAGTGAGCCGAGGTCACGCCACTGCACTCTAGCCTGGGCAACAGAGCAAGACTCCGTCAAAAAAAAAATAAAAAAATAAAAAAATAAAAAAAATAAAGAGGAGCACACATCTCTGCCCATCCTAACTCCCACTTTGACATTGAGGTCCCCAGGATGGAGGGTCTGCCTCCATCTGCCTTGTCCCCTGCAATGGTGGGAAGGTGATGGAGCTCAAGTCTAGAGGCCACCAGCTTCTTAGGGAGGTAGGAGGTGGAGGGTGGGGTGCGGGCCCTGCACACAACTGCCAAGTGAGGATGGGGGTGGGGTCCACCTGAGGATAAGTAACAGTGAGGCTGGTGCAGAGGACCCAGGTGGAGGTAGACAGCAGAATTTGTGGTGGGGTGGATGGCACATTATATAAGCCTCTCTTGCTGCCCTGTTTACTGAGATTGTTTCATTATCTTTTTTGGCTTTTGTTTTTAAGAGATGGGGTCTTGCTGTGTCACACAGGCTGGAGTGCACTGTGTGATCATACCTCACTGCAGCCTCGACATCCTGGGCTCAGGCAAACCTCCCACCTTGGCCTCCCAAGTAGCTGGGACCACAAGCGTTTGCCACCACACTCAGCTATTTTTATTTTTATTTTTATTTTTTTTAGAGATGGGGTCTTGCTGTGTCGCCCAGGCTGGTCTTGAACTCCTGGGCTCAAGCGATCCTCCTGCCTTGGCCTCCCAAAGCCCTGGGATTATAGGCTGAGCCACCACACCCAGCCACATTTCATCTGTGCAGCTCCAGGGGCTCCACATTCTACTCTTCTCATTTCTTCTCCAGGGTACCCATGGCAAGGGATGAGGGTAGAAGATGGGGCAGCCAGGCCTTGATTAAAGGAGAAGGAAGGCAGCCTGTGGAGAGGGCAGCCCAGGGAGTGCAGAGAGAAGTGGGCCATGAGGGAGACAGCAGAGTGCAGGCTGCGTCCCAAATGAGCATACAGCCCACTGTGAGCCCACCATCTTCCTAGAGACCCCTCTCCTCTCCAGGAGCTGCTTCAGTAGCACTCAGAGGAAAGAATGATGCTGTATCAACATTTCAGCAGCTCATCTTTTAACTCTAAGAAAATGGCAGCTCCTAAATGTTCAAAACTGCTTTGGAAACTTCTGGAGAGAGGTTTTGCAGCTCAGGCAGACAGCTGATCGCGGCCTTTCTTCCACCCCAACCCATGCTCTCCCCATGCTCTCCTGCCACAGCTGCAGCGGGCCCCTGGGTCCTACATTTGCAGCCCTTTGTCTCTGAGCTCAGACTTCCAATTCCAAGCGGCAGCTGGGCAGGCTCACCAGCATGTCCAGCCAGTACTAGGACATCAGCAGGAGCCCAACCACCTCTTTCCAAAATCTCTCCTCATGTCTCTCCTAGTTTCCATCTCCATCCTTCTAGTCAGCCAGGCTGAAAACATTTGCTCCTCAGGGTGCAGAAGGGAAAGCTTTGCCTCCCTTCCTGGTGCTCACTGCCCCTGCGATTCCAGCCCAAGCCCTCCCCGGCTCCTCACCCTGGTGTCAGCTGGAAGCCACCATCTCCTAAACCCACCTGTGTTCTTCCACCTCTGCCAGGGCTGCCCTCTCCTCCACCTTCACAAACTCAATTCCTACCCATTCTCAGGTCCCTTATCAAATGCCATCTCCTCCATGATGCCTCCCTGATTCCCCTGCTGGAAATAATGGTGATAACAGCTAAGGCATTGGGGTTGGCTACGTGCCAGGCAAGGAGTTGGCACTTTACATGCTTTATCTCATTTCAGCCACATAACATCGACAGGTGGCATTATGATTCATATCATCCCCATCTGATAGCCAGGAAAACTGAGTCCCAGAGAGGTTAGCCACTTTCCTAGGGCCCTGTGCTCTGACTCAAGCATAGCTCTGAGGAACTCTAGCATTCATCAGTTTAAGCACCATGACTTTCTTTGCTGAGTCACCCAAGGCATTTCTTCATTTAAATGTTCTTCCTTGGCCAGGCGCAGTGGCTCAGGCCCAATGCGGTGGCTCACGCCTGTAATCTCAACACTTTGGGAGGCCGAGGTGGGCAGATAATCTGAGGTCAGGAGTTCAAGACCAGCCTGGCCAACATGGTGAAACCCCATCTCTACTAAAAATACAAAAAAATGAGGCTGGGCGTGATGACTCACACCTGTAATCCCAGCACTTTGGGAGGCCAAGGCAGGTGGATTACATGAGGTCAGGAGTTCGAGACCAGCCTGGCCAACATGGTGAAATCCTATCTCTATTAAAAATACAAAAAATTAGCCAGGCATGGTGGCAGGCACCTGTAATCCCAGCTACTTGGGAGGCTGAGGCAGGAAAATGGCTTGAACCCGGGAGGTGGAGGTTGCAGTGAGCCAAGGTTGCACCATTGCACTCCAGCCTGGGCAAAAAGAGGGAAACATCGTCTAAAAAAGAAAAAAAAAAAATTAGCCAGGCTGGGTGGTGCATGCCCGTAATTCCAGCTACTCAGGAGGATGAAGCAAGAGAATTGCTTGAACCCAGGAGGCAGAGATTACAGTGAGCTGAGATCACAACACTGCACTCCAGCCTAGGTAAAGAACAAGACTCCATCTCAAAAATAAATAAATAAAAATAAATGTTCTTCCTTGCAATGAAGTTAAATATGTAAATTCTCAAACCAGTTGCTTAAGGGCACAGTTTTGTTCTTTACCTATATTTTTAACAAATATTTTATGTAAGTAGTTGACAAAATCAAATACTGTGTACACTACCGAGGCTTCCCTGGGAAAGCCATCAGCCTCTGCCCCATCCCTTCCCACTCCTGATTCCACTTTCCTGTGTTTCCATATCTTTTTCATGTCTGTTTCTGGCCCACAGTGGGCGATCAATACATGTTAGCCACCAACCATCAAACCTATATTGAGTAATTATGGTATGTCAGGCACTATGCTCAATGAAATTGTATTAGGCTTGTACAAAAGTAATTGTGGTTTTTAAGAGTAATGGCAAAAACGGCAGTTACTTTCGCACCAACTATTTGCTGCCTTGAATTATTCCTCCTCTCCTCATCCCTAAACCCTGCTCCTCCCAGCCATTCTTCCTCCCCTTCTTGGGCCATGGCCAGGCCCCACCCAGGTACTAAGACTCAGGTGAACCAAGGAAGACTTAATGCCCACTCTTTTCTGATGCCCATGTTGGCATGTGTTAAGTCGGTTAGCATTAAGTTTGGCTGCATTTAGCAGAGACCCAAAAGAACAGTGCCTTTTAAAAGGCAGAGGTTATGTCTCTCACACACACCCAGCACAAGTCCAAGACCAGCATGGCATCTCAGCTCCATCAACCTCAGGAACCGAGCTCCTGCAGCTCCCTGCCCTGCAGTTGATAAGGTGAGGTCTTTGTCCTCCTGGTTCAAGATGGTGCTAGAATGTTGGCTACCATATCTATAGTCCAGGCATCAGAATGGAGCAAGGGATGAAAAAGGAAGAGATGAAGGCACACGACAGGTTCCTGAGAGCTGGCACAGGACACTTCTGCTTATATTTCACTGGCCAGAACTTAGTCACATGGTCACACCTAGTTGGGAGACTCTGAGAAGTAAAGTATTTATTCTAGATGGCCATATCCCTACCTAAGACTTGGAGTTTTCTATGACTGGGGAAGAACGGAAGACAAGATATTGGGAAAGACTAGCAGCCTCTACTAAAAGGGTGATCTGTGTTGATGTGCGTGTGTGTGTGATGTTTGTATGAGCATGTGTGTTATGTGTTGTGTGTTGGTGGGGCAGATTCTTGCGAGCACTTTGGTCTCAGATGGACCTGCTACCAGTTCTCTCTGCAGACCCCCATAGGTTTCTCCTAAACCTGGCCTCTCCTATTAGGCAGCCTTACTCAGCGGCAGCTTCTCAGCTCCATGTTTTCAAGGAACCACAATTTATTTCCAGCATCCACTGAAGCATATTATCAGTGGTGATAGAGGGGGCTTGTAAAACTGTTTTTCCACTTAGGTATTAGAGGGTGGCCATTATTTGAGAGTGACTATGACCACAGTTAATCTGGTAATAAATTCTCTTGGGTAGGAGGAAAGGAAAGGATGCTTTAAGGAAGCATCTTGCCAGGAGACACAAAGCTAACAAGAGTGGAGCCTGCAGCTGGAGCCGCAGAGCCTAATCACTACACCCGCCCATCTCTGCTAGGGTTTCATGACTTCGTATCGGGGATTAGCAGTATTTAACTCTGTTGCACAAACATTTGGTGTATTATTCAGGTAACAAGTAGCTAATAGAGGAAGTTTTACTTTTTTAAGACATAAATTTGCCTTTTCCCAAATTACTTGGTACATAGTACTTTTCATGTTTGAAGTTGAGATGTGGGTACAATACCATAGCTTTATTCCAGAGCAGGGTATTTGTTTCCAAATGCCATGTTCCCAGCAGCTGCCCTTGACTGGGAATTGGGGTGTGATTTGGGCTTTTCCTTAAATCCTTGAGGAGCTGGAGGGGTGGGTGGCTCGCACTCCTGCTTTCTGGATCTGAATCCTGACTCTGTCATGGACCTGTTTGACTTTGGGCAAGTTGACTCCTATTCCTGAGCCCCATATTTTTCTCTTCTGTGAAATTCAGATTAAAAAAACATGGCTTTGATCAAACATTATAAATAATATATAGACAGACTGCTTGTTTTTATTGTATTGCCAGAAATGAATCCTACTAATATTGCCATCTATGGACAGAAAATGTATTACCTGTCTTCATCAAGACCCAGACGAGGAAGAACACGAAAAGCGGAGATTAATTTTACTGCCATCTCCAGAACCGTCATCCTAATATTTACTTACATTTTATTATTATTTCAGGCTCATGCACATATACTTAGCATGGATCATTGGCCACAGACTCGCATACATTTAACTTTATTACCTTTTGCCTCATGTATCTCATTAAAATTTTGCTGCTTAATCAAGGATCTGCATATTATTTTAATTTTAGAATTCACAGTTCCAAGACTTTGAAAGTTTCAAGCGTTCTGGGTGAATGTGTTATGCTCTCTCCCGCCACCATGTCTTTATACCCCCTGATTTCTCAGCCACTATGGCAACCACTTTCTACTCTTAGTAGCCCATATTTAGTCCAATCCCCAGCTCAGGAGACACTTCTTCCAGGGAGCCCCCTGTGCCTTCCAGTAGTATCTTGTACCTGCCCTTTTTGCAAAGCTCTTTCCTCCTGGCTTAGAATGGCCCATTGACCTGTTTGTTTCTCCTATTAAACTGTAAGCCACTCGAGGGTAGAGAGCATCTGTTGTTCACCATTGCATCCTCGGTGCTGAGCACTGCGTCTGACATATTATTTAGAAGGTCAGTAAGTGCTAGTGGGATTCAGGCTCCCAGTGGGTGGGAGAGAAAGGACGTAAGGAAGCAAGTGGTAAAGGCCCTCACAGAGTATCAGCAGGCTGGTGTGAGGGAGAAATGCAGAGGATGGGTGAGTAGCATAATCGCTAATGATAGGGTAATGATAGAGCACATTTCACAACACCTTTAAGCCCTTTCACGTGCATCAGATAATTTGATCCTCATAAAAGCCTAGAGATAGATATATTACAGGGATGAAGGTGGAGTATTTTGTGGTTATGTGATATGTTTAAAATTATGCAGTGAGTAAATGACTGGGTTCAAACCAGACCTTAAAAGTCTGTTATCTTTCCCTCGAGCATGCAATGAAGTCTACATCATCCCTACCATGTCCATTTGATCACACCCTGGCCTCACAGCTCTGTGGTCTACAGGATACCTCATGGTGGTTTTATTGACCAGACAATAATCCTCTTTCTAAGGGGATGCATTTCATTAATACATATGTAGATCATGAATTGTCTTTGACTTTGAGGGGATGGTAGCCAGAGCAGAAAGCAAAGCTGATTTTCATCCCCGTCTGGTAATGTGGTTGGTAATGTGAAGATGGGTGTATTCTGAGATACCGGCTCCTTGCAGTGTGTGGTTCCTTCTGTTTTCAGGCCCAAGAAGCCCATCCTGGGAAGGAAAATGCATTGGGGAACCCTGTGCGGATTCTTGTGGCTTTGGCCCTATCTTTTCTATGTCCAAGCTGTGCCCATCCAAAAAGTCCAAGATGACACCAAAACCCTCATCAAGACAATTGTCACCAGGATCAATGACATTTCACACACGGTAAGGAGAGTATGCGGGGACAAAGTAGAACTGCAGCCAGCCCAGCACTGGCTCCTAGTGGCACTGGACCCAGATAGTCCAAGAAACATTTATTGAACGCCTCCTGAATGCCAGGCACCTACTGGAAGCTGAGAAGGATTTGAAAGCACAGGGCTCCACTCTTTCTGGTTGTTTCTTTTGGCCCCTCTGCCTGCTGAGATTCCAGGGGTTAGTGGTTCTAATTCTAAACCACTCCAAGAACATTTGATTTTGCTACATGTTTCCATTTAAAAATCATAGGATTTGGGCTGGGTGTGGTGGCTTGTACCTGTCATCCCAGCACTTTGGGAGGCCAAAGCAGGAGGATCATTCGAGCCCAAGAGTTCGAGACCAGCCTGGGCAGCATAGGGAGACCCCATCTCTACAAAAATAATAAAAAATGTTAGCTGGGCATGGTGGTGTGTACCTGTGGTCCCAGCTAGGGGAGGCTGAGATGGAAGGATCACCTGAGCCTGGGAGGTTGAGGCTGCAGTGGGCCCTGATCATGCCACCGTGCTCCAGCCTGGGTGACAGAGTGAGACCTTGTCTCAAAATAAATAAATAAATAAATAAAAGTCATAGGATTTGATCAGGCATGATGGGTCACATCTGTAAGCCCATTGCTTTAGGAGGCCAAGGTAGGAGGATCAGTTGAGGCCAGGAGTTCAAGACCAGCCTGGGCAACATGGCAAGACCTCTCTCTCTAATTTTTAAAAAAATAAAAATTAAAGATAAGAAAAAAATCATAGGATTCTCATGAGGCCTCACGTGCTTATTTTCAACCTACCAAGGGGAAACCCAGGCCTCAGCGATTAGCTGAGCCACATGCAGGCACAGCCACTGTCTCTTTCCTTCCTGTCCCCTCTGTCCCCACCTTCTGCGCTCGCCTTCCTCCCTGACTTCACTTCCTTGAATCTTAGTGCCTACGACCAGAGGGAGCTGTGAAGTTCCTTGTGTCCCATTGGCAGGAACAAGACCCCCAGAAGCATCTCCTCAGGGCCTCTATCCCATCTCTAGATGTGCTTGTCATTAGGGTTCTTGTAGTTCCAGCTGATCTCTGGCCCTGCCGCTCAAAGATACCCAAAAGAGCGAGTCTACCCTTTTTCACATTCAACCCTCTACTGATTTGCAAATAGCAGTCAGTGCCCACCCTGGTCTTTTCTCTGGGGTCCAGCAGGCCTAGACCTTCAGCCATTTTCCTGATGAGGTCTGTATTTGAAATTAGGAAGATTAAGTTTGAATCTTCACACTTCTGATGTCTGTGAGATCTTCAGCAAGTTCCTTACTGTCTTTAAGCCTTGTTTTCATCATCTGGATAATGGGGATATCACACACTATTCACAAGGTTGTTATGAGGCCTAAATTAGCTAAAGCAATTGAATCCTCCTTACCCCCTGCATGGAGCTCTCTGGAGACTTCCACGTCTCCTGGTCATTGTGGGTGTCTTATGGTAGTCTTGGGCAGTTAGGGAGAAGTTAGGTGTCTGGAAGCAAAGATGGCTCAGAACTAGATAGAGTCTTGGGCATTTTATAGATAAAAACTCTTGTCTCCTTTAAAAATAATAAAAAAAAATTAGCTGGGCATATTAGCCACTCAGCAAGACTGCACGTGATAGATCCCGAGTGCCCCACCTTGGGTGGTGTAATACACAATATCACGGGAGCCCCGGGTAGTAACCACGGAGGTGTCAGCCTCAGTGCTGTGGGCAGATGGATGGGGAGAGCCTCCCGGAACTGGAGTCACTGGAGCAGGGTTGGGGGGCCTCACTGAGGGTACGGCCTTGATCTCTAAGGAGGAGGGACTGCCTGGAAAAGCTGACTGGGAGGGAGGACTCGGCTGGGGGTAGAAGGGACTAGGGAAGGCTGGGGGTGGGGGTGCTTATGGAGGACCTCAGATGCCTGGGGAACAGACTCCACTAAATAAAACATATGAAACCATGGCTGGTTCTTCAGCAGAGGCCATGTAGAGAAAGGAATGACCTAGGAAAGTTGGCCTGGAAGTGGAGGGAAGGATGGTGTGGGAAAAGCAGGAATCTCGGAGACCAGCTTAGAGGCTTGGCAGTCACCTGGGTGCAGGATACAAGGGCCTGAGCCAAAGTGGTGAGGGAGGGTGGAAGGAGGCAGCCCAGAGAATGACCCTCCATGCCCACGGGGAAGGCAGAGGGCTCTGAGAGCGATTCCTCCCACATGCTGAGCACTTGTTCTCCCTCTTCCTCCTGCATAGCAGTCAGTCTCCTCCAAACAGAAAGTCACCGGTTTGGACTTCATTCCTGGGCTCCACCCCATCCTGACCTTATCCAAGATGGACCAGACACTGGCAGTCTACCAACAGATCCTCACCAGTATGCCTTCCAGAAACGTGATCCAAATATCCAACGACCTGGAGAACCTCCGGGATCTTCTTCACGTGCTGGCCTTCTCTAAGAGCTGCCACTTGCCCTGGGCCAGTGGCCTGGAGACCTTGGACAGCCTGGGGGGTGTCCTGGAAGCTTCAGGCTACTCCACAGAGGTGGTGGCCCTGAGCAGGCTGCAGGGGTCTCTGCAGGACATGCTGTGGCAGCTGGACCTCAGCCCTGGGTGCTGAGGCCTTGAAGGTCACTCTTCCTGCAAGGACTACGTTAAGGGAAGGAACTCTGGCTTCCAGGTATCTCCAGGATTGAAGAGCATTGCATGGACACCCCTTATCCAGGACTCTGTCAATTTCCCTGACTCCTCTAAGCCACTCTTCCAAAGGCATAAGACCCTAAGCCTCCTTTTGCTTGAAACCAAAGATATATACACAGGATCCTATTCTCACCAGGAAGGGGGTCCACCCAGCAAAGAGTGGGCTGCATCTGGGATTCCCACCAAGGTCTTCAGCCATCAACAAGAGTTGTCTTGTCCCCTCTTGACCCATCTCCCCCTCACTGAATGCCTCAATGTGACCAGGGGTGATTTCAGAGAGGGCAGAGGGGTAGGCAGAGCCTTTGGATGACCAGAACAAGGTTCCCTCTGAGAATTCCAAGGAGTTCCATGAAGACCACATCCACACACGCAGGAACTCCCAGCAACACAAGCTGGAAGCACATGTTTATTTATTCTGCATTTTATTCTGGATGGATTTGAAGCAAAGCACCAGCTTCTCCAGGCTCTTTGGGGTCAGCCAGGGCCAGGGGTCTCCCTGGAGTGCAGTTTCCAATCCCATAGATGGGTCTGGCTGAGCTGAACCCATTTTGAGTGACTCGAGGGTTGGGTTCATCTGAGCAAGAGCTGGCAAAGGTGGCTCTCCAGTTAGTTCTCTCGTAACTGGTTTCATTTCTACTGTGACTGATGTTACATCACAGTGTTTGCAATGGTGTTGCCCTGAGTGGATCTCCAAGGACCAGGTTATTTTAAAAAGATTTGTTTTGTCAAGTGTCATATGTAGGTGTCTGCACCCAGGGGTGGGGAATGTTTGGGCAGAAGGGAGAAGGATCTAGAATGTGTTTTCTGAATAACATTTGTGTGGTGGGTTCTTTGGAAGGAGTGAGATCATTTTCTTATCTTCTGCAATTGCTTAGGATGTTTTTCATGAAAATAGCTCTTTCAGGGGGGTTGTGAGGCCTGGCCAGGCACCCCCTGGAGAGAAGTTTCTGGCCCTGGCTGACCCCAAAGAGCCTGGAGAAGCTGATGCTTTGCTTCAAATCCATCCAGAATAAAACGCAAAGGGCTGAAAGCCATTTGTTGGGGCAGTGGTAAGCTCTGGCTTTCTCCGACTGCTAGGGAGTGGTCTTTCCTATCATGGAGTGACGGTCCCACACTGGTGACTGCGATCTTCAGAGCAGGGGTCCTTGGTGTGACCCTCTGAATGGTCCAGGGTTGATCACACTCTGGGTTTATTACATGGCAGTGTTCCTATTTGGGGCTTGCATGCCAAATTGTAGTTCTTGTCTGATTGGCTCACCCAAGCAAGGCCAAAATTACCAAAAATCTTGGGGGGTTTTTACTCCAGTGGTGAAGAAAACTCCTTTAGCAGGTGGTCCTGAGACCTGACAAGCACTGCTAGGCGAGTGCCAGGACTCCCCAGGCCAGGCCACCAGGATGGCCCTTCCCACTGGAGGTCACATTCAGGAAGATGAAAGAGGAGGTTTGGGGTCTGCCACCATCCTGCTGCTGTGTTTTTGCTATCACACAGTGGGTGGTGGATCTGTCCAAGGAAACTTGAATCAAAGCAGTTAACTTTAAGACTGAGCACCTGCTTCATGCTCAGCCCTGACTGGTGCTATAGGCTGGAGAAGCTCACCCAATAAACATTAAGATTGAGGCCTGCCCTCAGGGATCTTGCATTCCCAGTGGTCAAACCGCACTCACCCATGTGCCAAGGTGGGGTATTTACCACAGCAGCTGAACAGCCAAATGCATGGTGCAGTTGACAGCAGGTGGGAAATGGTATGAGCTGAGGGGGGCCGTGCCCAGGGGCCCACAGGGAACCCTGCTTGCACTTTGTAACATGTTTACTTTTCAGGGCATCTTAGCTTCTATTATAGCCACATCCCTTTGAAACAAGATAACTGAGAATTTAAAAATAAGAAAATACATAAGACCATAACAGCCAACAGGTGGCAGGACCAGGACTATAGCCCAGGTCCTCTGATACCCAGAGCATTACGTGAGCCAGGTAATGAGGGACTGGAACCAGGGAGACCGAGCGCTTTCTGGAAAAGAGGAGTTTCGAGGTAGAGTTTGAAGGAGGTGAGGGATGTGAATTGCCTGCAGAGAGAAGCCTGTTTTGTTGGAAGGTTTGGTGTGTGGAGATGCAGAGGTAAAAGTGTGAGCAGTGAGTTACAGCGAGAGGCAGAGAAAGAAGAGACAGGAGGGCAAGGGCCATGCTGAAGGGACCTTGAAGGGTAAAGAAGTTTGATATTAAAGGAGTTAAGAGTAGCAAGTTCTAGAGAAGAGGCTGGTGCTGTGGCCAGGGTGAGAGCTGCTCTGGAAAATGTGACCCAGATCCTCACAACCACCTAATCAGGCTGAGGTGTCTTAAGCCTTTTGCTCACAAAACCTGGCACAATGGCTAATTCCCAGAGTGTGAAACTTCCTAAGTATAAATGGTTGTCTGTTTTTGTAACTTAAAAAAAAAAAAAAAAGTTTGGCCGGGTGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGGGAGGCCAAGGTGGGGGGATCACAAGGTCACTAGATGGCGAGCATCCTGGCCAACATGGTGAAACCCCGTCTCTACTAAAAACACAAAAGTTAGCTGAGCGTGGTGGCGGGCGCCTGTAGTCCCAGCCACTCGGGAGGCTGAGACAGGAGAATCGCTTAAACCTGGGAGGCGGAGAGTACAGTGAGCCAAGATCGCGCCACTGCACTCCGGCCTGATGACAGAGCGAGATTCCGTCTTAAAAAAAAAAAAAAAAAAGTTTGTTTTTAAAAAAATCTAAATAAAATAACTTTGCCCCCTGC",
+  "protein_sequence": "MHWGTLCGFLWLWPYLFYVQAVPIQKVQDDTKTLIKTIVTRINDISHTQSVSSKQKVTGLDFIPGLHPILTLSKMDQTLAVYQQILTSMPSRNVIQISNDLENLRDLLHVLAFSKSCHLPWASGLETLDSLGGVLEASGYSTEVVALSRLQGSLQDMLWQLDLSPGC",
+  "complemented": false,
+  "runs": [
+    {
+      "local": 5001,
+      "genomic": 128241278,
+      "step": 1,
+      "length": 16352
+    }
+  ],
+  "retrieved_at": "2026-09-22T12:55:51.325026+00:00",
+  "query": "LEP[gene]",
+  "searched_records": 150,
+  "excluded": {
+    "no_germline_classification": 1,
+    "no_unique_GRCh38_location": 21,
+    "not_a_single_base_substitution": 13
+  },
+  "source_batches": [
+    {
+      "file": "batch-0.xml",
+      "sha256": "a65c382580ed52b27f19b3ae49e597f95c74a6e640f50ef0b7d43af52d9bf32f"
+    },
+    {
+      "file": "batch-1.xml",
+      "sha256": "399e5c77efbd19281a137c24c7644bd99bb8c29d6cc1a8f6773d47f893c98921"
+    }
+  ],
+  "traits": {
+    "Early onset severe obesity": {
+      "medgen": "C4013980"
+    },
+    "Leptin dysfunction": {
+      "medgen": "C4016279"
+    },
+    "Monogenic diabetes": {
+      "medgen": "C3888631",
+      "mondo": "MONDO:0015967"
+    },
+    "Obesity due to congenital leptin deficiency": {
+      "medgen": "C3554224",
+      "symbol": "LEPD",
+      "omim": "614962",
+      "mondo": "MONDO:0013991"
+    }
+  },
+  "variants": [
+    {
+      "variation_id": "358814",
+      "accession": "VCV000358814.8",
+      "name": "NM_000230.3(LEP):c.-39G>A",
+      "position": 5019,
+      "genomic": 128241296,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign/Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2020-12-21",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV001636988.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign/Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2020-12-21"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "909528",
+      "accession": "VCV000909528.4",
+      "name": "NM_000230.3(LEP):c.-14T>G",
+      "position": 15728,
+      "genomic": 128252005,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001160632.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3355207",
+      "accession": "VCV003355207.1",
+      "name": "NM_000230.3(LEP):c.-10G>T",
+      "position": 15732,
+      "genomic": 128252009,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2024-09-13",
+      "last_updated": "2024-10-13",
+      "conditions": [
+        {
+          "accession": "RCV004754118.1",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-09-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3355246",
+      "accession": "VCV003355246.2",
+      "name": "NM_000230.3(LEP):c.6T>C (p.His2=)",
+      "position": 15747,
+      "genomic": 128252024,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 2,
+      "protein_change": "p.H2=",
+      "coding_change": "c.6T>C",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2026-01-24",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV004754121.1",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-05-20"
+        },
+        {
+          "accession": "RCV006479182.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "741430",
+      "accession": "VCV000741430.11",
+      "name": "NM_000230.3(LEP):c.15C>G (p.Thr5=)",
+      "position": 15756,
+      "genomic": 128252033,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 5,
+      "protein_change": "p.T5=",
+      "coding_change": "c.15C>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2024-05-15",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV000917587.7",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-15"
+        },
+        {
+          "accession": "RCV001699470.6",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-07-05"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358815",
+      "accession": "VCV000358815.41",
+      "name": "NM_000230.3(LEP):c.21C>T (p.Cys7=)",
+      "position": 15762,
+      "genomic": 128252039,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 7,
+      "protein_change": "p.C7=",
+      "coding_change": "c.21C>T",
+      "consequence": "synonymous",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2026-03-01",
+      "last_updated": "2026-07-27",
+      "conditions": [
+        {
+          "accession": "RCV000262044.5",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        },
+        {
+          "accession": "RCV000733683.38",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Conflicting classifications of pathogenicity",
+          "review_status": "criteria provided, conflicting classifications",
+          "last_evaluated": "2026-03-01"
+        },
+        {
+          "accession": "RCV003983029.2",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2021-03-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2635971",
+      "accession": "VCV002635971.1",
+      "name": "NM_000230.3(LEP):c.22G>A (p.Gly8Arg)",
+      "position": 15763,
+      "genomic": 128252040,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 8,
+      "protein_change": "p.G8R",
+      "coding_change": "c.22G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-09-26",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003419235.4",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-09-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2095005",
+      "accession": "VCV002095005.4",
+      "name": "NM_000230.3(LEP):c.24A>G (p.Gly8=)",
+      "position": 15765,
+      "genomic": 128252042,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 8,
+      "protein_change": "p.G8=",
+      "coding_change": "c.24A>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-03-04",
+      "last_updated": "2026-02-24",
+      "conditions": [
+        {
+          "accession": "RCV003012118.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-03-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1422020",
+      "accession": "VCV001422020.8",
+      "name": "NM_000230.3(LEP):c.30G>C (p.Leu10Phe)",
+      "position": 15771,
+      "genomic": 128252048,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 10,
+      "protein_change": "p.L10F",
+      "coding_change": "c.30G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2023-09-26",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001919322.8",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-07-28"
+        },
+        {
+          "accession": "RCV003401898.4",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-09-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2026268",
+      "accession": "VCV002026268.4",
+      "name": "NM_000230.3(LEP):c.45T>C (p.Tyr15=)",
+      "position": 15786,
+      "genomic": 128252063,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 15,
+      "protein_change": "p.Y15=",
+      "coding_change": "c.45T>C",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-08-22",
+      "last_updated": "2026-02-24",
+      "conditions": [
+        {
+          "accession": "RCV002871273.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-08-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "910456",
+      "accession": "VCV000910456.11",
+      "name": "NM_000230.3(LEP):c.53A>G (p.Tyr18Cys)",
+      "position": 15794,
+      "genomic": 128252071,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 18,
+      "protein_change": "p.Y18C",
+      "coding_change": "c.53A>G",
+      "consequence": "missense",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2021-08-31",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001162247.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-06-18"
+        },
+        {
+          "accession": "RCV001882513.9",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Conflicting classifications of pathogenicity",
+          "review_status": "criteria provided, conflicting classifications",
+          "last_evaluated": "2021-08-31"
+        },
+        {
+          "accession": "RCV003908414.2",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2022-06-21"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3351741",
+      "accession": "VCV003351741.1",
+      "name": "NM_000230.3(LEP):c.60A>G (p.Gln20=)",
+      "position": 15801,
+      "genomic": 128252078,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 20,
+      "protein_change": "p.Q20=",
+      "coding_change": "c.60A>G",
+      "consequence": "synonymous",
+      "classification": "Uncertain significance",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2024-06-10",
+      "last_updated": "2024-10-13",
+      "conditions": [
+        {
+          "accession": "RCV004753963.1",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-06-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1074122",
+      "accession": "VCV001074122.7",
+      "name": "NM_000230.3(LEP):c.73C>T (p.Gln25Ter)",
+      "position": 15814,
+      "genomic": 128252091,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 25,
+      "protein_change": "p.Q25*",
+      "coding_change": "c.73C>T",
+      "consequence": "stop gained",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2017-11-08",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV001387311.7",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-11-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "778362",
+      "accession": "VCV000778362.14",
+      "name": "NM_000230.3(LEP):c.75A>G (p.Gln25=)",
+      "position": 15816,
+      "genomic": 128252093,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 25,
+      "protein_change": "p.Q25=",
+      "coding_change": "c.75A>G",
+      "consequence": "synonymous",
+      "classification": "Benign/Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-01-15",
+      "last_updated": "2026-09-13",
+      "conditions": [
+        {
+          "accession": "RCV000958991.12",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign/Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2026-01-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "in vitro",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "3353500",
+      "accession": "VCV003353500.1",
+      "name": "NM_000230.3(LEP):c.107A>G (p.Lys36Arg)",
+      "position": 15848,
+      "genomic": 128252125,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 36,
+      "protein_change": "p.K36R",
+      "coding_change": "c.107A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2024-04-30",
+      "last_updated": "2024-10-13",
+      "conditions": [
+        {
+          "accession": "RCV004754052.1",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-04-30"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4528110",
+      "accession": "VCV004528110.1",
+      "name": "NM_000230.3(LEP):c.119C>T (p.Thr40Ile)",
+      "position": 15860,
+      "genomic": 128252137,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 40,
+      "protein_change": "p.T40I",
+      "coding_change": "c.119C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-05-06",
+      "last_updated": "2025-11-15",
+      "conditions": [
+        {
+          "accession": "RCV006250659.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-05-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3042985",
+      "accession": "VCV003042985.2",
+      "name": "NM_000230.3(LEP):c.132C>T (p.Asp44=)",
+      "position": 15873,
+      "genomic": 128252150,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 44,
+      "protein_change": "p.D44=",
+      "coding_change": "c.132C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2019-07-09",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003933831.2",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2019-07-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3052124",
+      "accession": "VCV003052124.2",
+      "name": "NM_000230.3(LEP):c.133A>G (p.Ile45Val)",
+      "position": 15874,
+      "genomic": 128252151,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 45,
+      "protein_change": "p.I45V",
+      "coding_change": "c.133A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2023-12-05",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003969022.2",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2023-12-05"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "910457",
+      "accession": "VCV000910457.5",
+      "name": "NM_000230.3(LEP):c.143C>T (p.Thr48Met)",
+      "position": 15884,
+      "genomic": 128252161,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 48,
+      "protein_change": "p.T48M",
+      "coding_change": "c.143C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001162248.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        },
+        {
+          "accession": "RCV004753220.1",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-02-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1220903",
+      "accession": "VCV001220903.3",
+      "name": "NM_000230.3(LEP):c.145-217G>A",
+      "position": 17910,
+      "genomic": 128254187,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-09-22",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001595465.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-09-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1707063",
+      "accession": "VCV001707063.2",
+      "name": "NM_000230.3(LEP):c.145-209G>T",
+      "position": 17918,
+      "genomic": 128254195,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2020-02-03",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV002285979.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-02-03"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1247016",
+      "accession": "VCV001247016.3",
+      "name": "NM_000230.3(LEP):c.145-152G>A",
+      "position": 17975,
+      "genomic": 128254252,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2019-04-07",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001656362.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2019-04-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "1211617",
+      "accession": "VCV001211617.4",
+      "name": "NM_000230.3(LEP):c.145-116G>C",
+      "position": 18011,
+      "genomic": 128254288,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2019-06-27",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001583426.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2019-06-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "1294302",
+      "accession": "VCV001294302.3",
+      "name": "NM_000230.3(LEP):c.145-107G>A",
+      "position": 18020,
+      "genomic": 128254297,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2019-04-24",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001716158.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2019-04-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "1266247",
+      "accession": "VCV001266247.3",
+      "name": "NM_000230.3(LEP):c.145-50C>T",
+      "position": 18077,
+      "genomic": 128254354,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2019-01-16",
+      "last_updated": "2024-09-29",
+      "conditions": [
+        {
+          "accession": "RCV001675543.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2019-01-16"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "3349372",
+      "accession": "VCV003349372.1",
+      "name": "NM_000230.3(LEP):c.145-9C>G",
+      "position": 18118,
+      "genomic": 128254395,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2024-03-25",
+      "last_updated": "2024-10-13",
+      "conditions": [
+        {
+          "accession": "RCV004753825.1",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-03-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3604081",
+      "accession": "VCV003604081.2",
+      "name": "NM_000230.3(LEP):c.145-5C>G",
+      "position": 18122,
+      "genomic": 128254399,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-08-12",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005060373.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-08-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "724209",
+      "accession": "VCV000724209.11",
+      "name": "NM_000230.3(LEP):c.165G>A (p.Gln55=)",
+      "position": 18147,
+      "genomic": 128254424,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 55,
+      "protein_change": "p.Q55=",
+      "coding_change": "c.165G>A",
+      "consequence": "synonymous",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2025-10-05",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000898084.8",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-05"
+        },
+        {
+          "accession": "RCV001162249.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-04-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3348174",
+      "accession": "VCV003348174.1",
+      "name": "NM_000230.3(LEP):c.171C>A (p.Val57=)",
+      "position": 18153,
+      "genomic": 128254430,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 57,
+      "protein_change": "p.V57=",
+      "coding_change": "c.171C>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2024-04-09",
+      "last_updated": "2024-10-13",
+      "conditions": [
+        {
+          "accession": "RCV004753764.1",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-04-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3047910",
+      "accession": "VCV003047910.2",
+      "name": "NM_000230.3(LEP):c.174C>G (p.Thr58=)",
+      "position": 18156,
+      "genomic": 128254433,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 58,
+      "protein_change": "p.T58=",
+      "coding_change": "c.174C>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2023-04-20",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003937274.2",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2023-04-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2428497",
+      "accession": "VCV002428497.6",
+      "name": "NM_000230.3(LEP):c.175G>A (p.Gly59Ser)",
+      "position": 18157,
+      "genomic": 128254434,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 59,
+      "protein_change": "p.G59S",
+      "coding_change": "c.175G>A",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-01-25",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV003313818.2",
+          "names": [
+            "Leptin dysfunction"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2023-07-14"
+        },
+        {
+          "accession": "RCV003318515.3",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-01-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "in vitro",
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "358817",
+      "accession": "VCV000358817.6",
+      "name": "NM_000230.3(LEP):c.181G>A (p.Asp61Asn)",
+      "position": 18163,
+      "genomic": 128254440,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 61,
+      "protein_change": "p.D61N",
+      "coding_change": "c.181G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000376522.5",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4097322",
+      "accession": "VCV004097322.1",
+      "name": "NM_000230.3(LEP):c.185T>A (p.Phe62Tyr)",
+      "position": 18167,
+      "genomic": 128254444,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": 62,
+      "protein_change": "p.F62Y",
+      "coding_change": "c.185T>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-09-01",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV005654379.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-09-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2428498",
+      "accession": "VCV002428498.6",
+      "name": "NM_000230.3(LEP):c.190C>T (p.Pro64Ser)",
+      "position": 18172,
+      "genomic": 128254449,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 64,
+      "protein_change": "p.P64S",
+      "coding_change": "c.190C>T",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-01-25",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV003313819.2",
+          "names": [
+            "Leptin dysfunction"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2023-07-14"
+        },
+        {
+          "accession": "RCV003318516.3",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-01-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "in vitro",
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "2474043",
+      "accession": "VCV002474043.2",
+      "name": "NM_000230.3(LEP):c.194G>T (p.Gly65Val)",
+      "position": 18176,
+      "genomic": 128254453,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 65,
+      "protein_change": "p.G65V",
+      "coding_change": "c.194G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-01-06",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004264621.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-01-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3044720",
+      "accession": "VCV003044720.2",
+      "name": "NM_000230.3(LEP):c.204C>G (p.Pro68=)",
+      "position": 18186,
+      "genomic": 128254463,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 68,
+      "protein_change": "p.P68=",
+      "coding_change": "c.204C>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2019-09-13",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003941890.2",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2019-09-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3350783",
+      "accession": "VCV003350783.1",
+      "name": "NM_000230.3(LEP):c.206T>C (p.Ile69Thr)",
+      "position": 18188,
+      "genomic": 128254465,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 69,
+      "protein_change": "p.I69T",
+      "coding_change": "c.206T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2024-09-04",
+      "last_updated": "2024-10-13",
+      "conditions": [
+        {
+          "accession": "RCV004753908.1",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-09-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358818",
+      "accession": "VCV000358818.6",
+      "name": "NM_000230.3(LEP):c.212C>A (p.Thr71Asn)",
+      "position": 18194,
+      "genomic": 128254471,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 71,
+      "protein_change": "p.T71N",
+      "coding_change": "c.212C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000346275.5",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3356499",
+      "accession": "VCV003356499.1",
+      "name": "NM_000230.3(LEP):c.213C>G (p.Thr71=)",
+      "position": 18195,
+      "genomic": 128254472,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 71,
+      "protein_change": "p.T71=",
+      "coding_change": "c.213C>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2023-01-27",
+      "last_updated": "2024-10-13",
+      "conditions": [
+        {
+          "accession": "RCV004752566.1",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2023-01-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3346502",
+      "accession": "VCV003346502.1",
+      "name": "NM_000230.3(LEP):c.215T>C (p.Leu72Ser)",
+      "position": 18197,
+      "genomic": 128254474,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 72,
+      "protein_change": "p.L72S",
+      "coding_change": "c.215T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2024-06-12",
+      "last_updated": "2024-10-08",
+      "conditions": [
+        {
+          "accession": "RCV004730458.1",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-06-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3611937",
+      "accession": "VCV003611937.2",
+      "name": "NM_000230.3(LEP):c.219C>G (p.Ser73=)",
+      "position": 18201,
+      "genomic": 128254478,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 73,
+      "protein_change": "p.S73=",
+      "coding_change": "c.219C>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-10-27",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005072592.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3866901",
+      "accession": "VCV003866901.1",
+      "name": "NM_000230.3(LEP):c.221A>T (p.Lys74Met)",
+      "position": 18203,
+      "genomic": 128254480,
+      "ref": "A",
+      "alt": "T",
+      "genomic_ref": "A",
+      "genomic_alt": "T",
+      "residue": 74,
+      "protein_change": "p.K74M",
+      "coding_change": "c.221A>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-12-14",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005362615.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-12-14"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3349375",
+      "accession": "VCV003349375.1",
+      "name": "NM_000230.3(LEP):c.234A>G (p.Thr78=)",
+      "position": 18216,
+      "genomic": 128254493,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 78,
+      "protein_change": "p.T78=",
+      "coding_change": "c.234A>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2024-01-31",
+      "last_updated": "2024-10-13",
+      "conditions": [
+        {
+          "accession": "RCV004753826.1",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-01-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "435745",
+      "accession": "VCV000435745.10",
+      "name": "NM_000230.3(LEP):c.276A>G (p.Arg92=)",
+      "position": 18258,
+      "genomic": 128254535,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 92,
+      "protein_change": "p.R92=",
+      "coding_change": "c.276A>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2024-02-17",
+      "last_updated": "2026-02-24",
+      "conditions": [
+        {
+          "accession": "RCV000501214.6",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-02-07"
+        },
+        {
+          "accession": "RCV003962388.2",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2019-09-04"
+        },
+        {
+          "accession": "RCV005091101.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3353544",
+      "accession": "VCV003353544.1",
+      "name": "NM_000230.3(LEP):c.279C>T (p.Asn93=)",
+      "position": 18261,
+      "genomic": 128254538,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 93,
+      "protein_change": "p.N93=",
+      "coding_change": "c.279C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2023-03-17",
+      "last_updated": "2024-10-13",
+      "conditions": [
+        {
+          "accession": "RCV004754055.1",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2023-03-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358819",
+      "accession": "VCV000358819.18",
+      "name": "NM_000230.3(LEP):c.280G>A (p.Val94Met)",
+      "position": 18262,
+      "genomic": 128254539,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 94,
+      "protein_change": "p.V94M",
+      "coding_change": "c.280G>A",
+      "consequence": "missense",
+      "classification": "Benign/Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-01-24",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV000445399.4",
+          "names": [
+            "Monogenic diabetes"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-01-25"
+        },
+        {
+          "accession": "RCV000947067.13",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign/Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2026-01-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided",
+        "research"
+      ]
+    },
+    {
+      "variation_id": "3349315",
+      "accession": "VCV003349315.1",
+      "name": "NM_000230.3(LEP):c.282G>C (p.Val94=)",
+      "position": 18264,
+      "genomic": 128254541,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 94,
+      "protein_change": "p.V94=",
+      "coding_change": "c.282G>C",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2023-08-07",
+      "last_updated": "2024-10-13",
+      "conditions": [
+        {
+          "accession": "RCV004753822.1",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2023-08-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "162430",
+      "accession": "VCV000162430.2",
+      "name": "NM_000230.3(LEP):c.298G>T (p.Asp100Tyr)",
+      "position": 18280,
+      "genomic": 128254557,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 100,
+      "protein_change": "p.D100Y",
+      "coding_change": "c.298G>T",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2015-01-01",
+      "last_updated": "2023-03-26",
+      "conditions": [
+        {
+          "accession": "RCV000149807.4",
+          "names": [
+            "Leptin dysfunction"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2015-01-01"
+        }
+      ],
+      "collection_methods": [
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "2735087",
+      "accession": "VCV002735087.4",
+      "name": "NM_000230.3(LEP):c.309C>A (p.Asn103Lys)",
+      "position": 18291,
+      "genomic": 128254568,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 103,
+      "protein_change": "p.N103K",
+      "coding_change": "c.309C>A",
+      "consequence": "missense",
+      "classification": "Likely pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-08-19",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003555370.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-08-19"
+        },
+        {
+          "accession": "RCV004753693.1",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-08-02"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "783831",
+      "accession": "VCV000783831.12",
+      "name": "NM_000230.3(LEP):c.309C>T (p.Asn103=)",
+      "position": 18291,
+      "genomic": 128254568,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 103,
+      "protein_change": "p.N103=",
+      "coding_change": "c.309C>T",
+      "consequence": "synonymous",
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-01-25",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV000965438.11",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2026-01-25"
+        },
+        {
+          "accession": "RCV001700955.2",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "13987",
+      "accession": "VCV000013987.2",
+      "name": "NM_000230.3(LEP):c.313C>T (p.Arg105Trp)",
+      "position": 18295,
+      "genomic": 128254572,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 105,
+      "protein_change": "p.R105W",
+      "coding_change": "c.313C>T",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2004-03-30",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000015024.26",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2004-03-30"
+        }
+      ],
+      "collection_methods": [
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "3351642",
+      "accession": "VCV003351642.1",
+      "name": "NM_000230.3(LEP):c.327C>T (p.His109=)",
+      "position": 18309,
+      "genomic": 128254586,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 109,
+      "protein_change": "p.H109=",
+      "coding_change": "c.327C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2021-09-15",
+      "last_updated": "2024-10-13",
+      "conditions": [
+        {
+          "accession": "RCV004753959.1",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2021-09-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2136611",
+      "accession": "VCV002136611.6",
+      "name": "NM_000230.3(LEP):c.328G>A (p.Val110Met)",
+      "position": 18310,
+      "genomic": 128254587,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 110,
+      "protein_change": "p.V110M",
+      "coding_change": "c.328G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2026-01-12",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV003062140.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-12"
+        },
+        {
+          "accession": "RCV003410049.5",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-03-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2986693",
+      "accession": "VCV002986693.4",
+      "name": "NM_000230.3(LEP):c.333G>T (p.Leu111=)",
+      "position": 18315,
+      "genomic": 128254592,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 111,
+      "protein_change": "p.L111=",
+      "coding_change": "c.333G>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-06-05",
+      "last_updated": "2026-09-13",
+      "conditions": [
+        {
+          "accession": "RCV003846348.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-06-05"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "in vitro"
+      ]
+    },
+    {
+      "variation_id": "594218",
+      "accession": "VCV000594218.5",
+      "name": "NM_000230.3(LEP):c.350G>T (p.Cys117Phe)",
+      "position": 18332,
+      "genomic": 128254609,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 117,
+      "protein_change": "p.C117F",
+      "coding_change": "c.350G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2017-09-30",
+      "last_updated": "2025-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000729455.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-09-30"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2634563",
+      "accession": "VCV002634563.3",
+      "name": "NM_000230.3(LEP):c.367A>G (p.Ser123Gly)",
+      "position": 18349,
+      "genomic": 128254626,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 123,
+      "protein_change": "p.S123G",
+      "coding_change": "c.367A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2024-01-02",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003402658.6",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-01-02"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2893938",
+      "accession": "VCV002893938.5",
+      "name": "NM_000230.3(LEP):c.372C>T (p.Gly124=)",
+      "position": 18354,
+      "genomic": 128254631,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 124,
+      "protein_change": "p.G124=",
+      "coding_change": "c.372C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-02-17",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV003725549.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-02-17"
+        },
+        {
+          "accession": "RCV003966618.2",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2021-03-29"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3050910",
+      "accession": "VCV003050910.3",
+      "name": "NM_000230.3(LEP):c.375G>A (p.Leu125=)",
+      "position": 18357,
+      "genomic": 128254634,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 125,
+      "protein_change": "p.L125=",
+      "coding_change": "c.375G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-08-22",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV003957018.2",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2022-01-18"
+        },
+        {
+          "accession": "RCV006479092.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3345315",
+      "accession": "VCV003345315.1",
+      "name": "NM_000230.3(LEP):c.376G>C (p.Glu126Gln)",
+      "position": 18358,
+      "genomic": 128254635,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 126,
+      "protein_change": "p.E126Q",
+      "coding_change": "c.376G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2024-05-14",
+      "last_updated": "2024-10-08",
+      "conditions": [
+        {
+          "accession": "RCV004732141.1",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-05-14"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1901314",
+      "accession": "VCV001901314.5",
+      "name": "NM_000230.3(LEP):c.378G>A (p.Glu126=)",
+      "position": 18360,
+      "genomic": 128254637,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 126,
+      "protein_change": "p.E126=",
+      "coding_change": "c.378G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-11-17",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002576654.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-11-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3609723",
+      "accession": "VCV003609723.1",
+      "name": "NM_000230.3(LEP):c.403C>A (p.Leu135Met)",
+      "position": 18385,
+      "genomic": 128254662,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 135,
+      "protein_change": "p.L135M",
+      "coding_change": "c.403C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-10-24",
+      "last_updated": "2025-02-26",
+      "conditions": [
+        {
+          "accession": "RCV005071866.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3866902",
+      "accession": "VCV003866902.1",
+      "name": "NM_000230.3(LEP):c.428A>G (p.Glu143Gly)",
+      "position": 18410,
+      "genomic": 128254687,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 143,
+      "protein_change": "p.E143G",
+      "coding_change": "c.428A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-02-19",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005362616.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-02-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2132136",
+      "accession": "VCV002132136.6",
+      "name": "NM_000230.3(LEP):c.429G>A (p.Glu143=)",
+      "position": 18411,
+      "genomic": 128254688,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 143,
+      "protein_change": "p.E143=",
+      "coding_change": "c.429G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-11-27",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003055957.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-11-27"
+        },
+        {
+          "accession": "RCV003898710.2",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2020-12-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "911679",
+      "accession": "VCV000911679.4",
+      "name": "NM_000230.3(LEP):c.436G>T (p.Ala146Ser)",
+      "position": 18418,
+      "genomic": 128254695,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 146,
+      "protein_change": "p.A146S",
+      "coding_change": "c.436G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2017-04-27",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001164272.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-04-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3355895",
+      "accession": "VCV003355895.2",
+      "name": "NM_000230.3(LEP):c.441G>A (p.Leu147=)",
+      "position": 18423,
+      "genomic": 128254700,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 147,
+      "protein_change": "p.L147=",
+      "coding_change": "c.441G>A",
+      "consequence": "synonymous",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-11-11",
+      "last_updated": "2025-05-25",
+      "conditions": [
+        {
+          "accession": "RCV005412683.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-11-11"
+        },
+        {
+          "accession": "RCV004752544.1",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2023-05-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "448905",
+      "accession": "VCV000448905.4",
+      "name": "NM_000230.3(LEP):c.461T>C (p.Leu154Pro)",
+      "position": 18443,
+      "genomic": 128254720,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 154,
+      "protein_change": "p.L154P",
+      "coding_change": "c.461T>C",
+      "consequence": "missense",
+      "classification": "Likely pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2017-09-07",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000518717.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-09-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4046892",
+      "accession": "VCV004046892.1",
+      "name": "NM_000230.3(LEP):c.465G>C (p.Gln155His)",
+      "position": 18447,
+      "genomic": 128254724,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 155,
+      "protein_change": "p.Q155H",
+      "coding_change": "c.465G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-06-07",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005597892.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4762148",
+      "accession": "VCV004762148.1",
+      "name": "NM_000230.3(LEP):c.474G>A (p.Leu158=)",
+      "position": 18456,
+      "genomic": 128254733,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 158,
+      "protein_change": "p.L158=",
+      "coding_change": "c.474G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-02-19",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV006585474.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-02-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2172424",
+      "accession": "VCV002172424.6",
+      "name": "NM_000230.3(LEP):c.492C>T (p.Ser164=)",
+      "position": 18474,
+      "genomic": 128254751,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 164,
+      "protein_change": "p.S164=",
+      "coding_change": "c.492C>T",
+      "consequence": "synonymous",
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2026-01-07",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV003097600.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-07"
+        },
+        {
+          "accession": "RCV003936562.2",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2021-01-05"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4821910",
+      "accession": "VCV004821910.3",
+      "name": "NM_000230.3(LEP):c.495T>A (p.Pro165=)",
+      "position": 18477,
+      "genomic": 128254754,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": 165,
+      "protein_change": "p.P165=",
+      "coding_change": "c.495T>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2026-03-01",
+      "last_updated": "2026-07-27",
+      "conditions": [
+        {
+          "accession": "RCV006652172.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-03-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1210010",
+      "accession": "VCV001210010.5",
+      "name": "NM_000230.3(LEP):c.496G>C (p.Gly166Arg)",
+      "position": 18478,
+      "genomic": 128254755,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 166,
+      "protein_change": "p.G166R",
+      "coding_change": "c.496G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2023-04-11",
+      "last_updated": "2024-08-25",
+      "conditions": [
+        {
+          "accession": "RCV001579759.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        },
+        {
+          "accession": "RCV003394151.4",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-04-11"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "3031515",
+      "accession": "VCV003031515.2",
+      "name": "NM_000230.3(LEP):c.*4C>T",
+      "position": 18490,
+      "genomic": 128254767,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2023-12-08",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003897106.2",
+          "names": [
+            "LEP-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2023-12-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "911680",
+      "accession": "VCV000911680.5",
+      "name": "NM_000230.3(LEP):c.*33C>T",
+      "position": 18519,
+      "genomic": 128254796,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2023-08-03",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001164273.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-04-27"
+        },
+        {
+          "accession": "RCV006629239.1",
+          "names": [
+            "Early onset severe obesity"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-08-03"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358820",
+      "accession": "VCV000358820.7",
+      "name": "NM_000230.3(LEP):c.*34G>A",
+      "position": 18520,
+      "genomic": 128254797,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-06-27",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV001554897.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-06-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "911681",
+      "accession": "VCV000911681.4",
+      "name": "NM_000230.3(LEP):c.*57C>T",
+      "position": 18543,
+      "genomic": 128254820,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2017-04-27",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001164274.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-04-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358821",
+      "accession": "VCV000358821.6",
+      "name": "NM_000230.3(LEP):c.*69A>G",
+      "position": 18555,
+      "genomic": 128254832,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000314593.5",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358822",
+      "accession": "VCV000358822.6",
+      "name": "NM_000230.3(LEP):c.*150G>A",
+      "position": 18636,
+      "genomic": 128254913,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": null,
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV004695996.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "1707392",
+      "accession": "VCV001707392.2",
+      "name": "NM_000230.3(LEP):c.*229C>G",
+      "position": 18715,
+      "genomic": 128254992,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-05-13",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV002286308.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-05-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358826",
+      "accession": "VCV000358826.6",
+      "name": "NM_000230.3(LEP):c.*366A>T",
+      "position": 18852,
+      "genomic": 128255129,
+      "ref": "A",
+      "alt": "T",
+      "genomic_ref": "A",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": null,
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV004695997.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "909587",
+      "accession": "VCV000909587.4",
+      "name": "NM_000230.3(LEP):c.*373G>A",
+      "position": 18859,
+      "genomic": 128255136,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001160733.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358827",
+      "accession": "VCV000358827.6",
+      "name": "NM_000230.3(LEP):c.*400G>T",
+      "position": 18886,
+      "genomic": 128255163,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": null,
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV004705426.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "910510",
+      "accession": "VCV000910510.4",
+      "name": "NM_000230.3(LEP):c.*653A>C",
+      "position": 19139,
+      "genomic": 128255416,
+      "ref": "A",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001162345.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "910511",
+      "accession": "VCV000910511.4",
+      "name": "NM_000230.3(LEP):c.*750G>C",
+      "position": 19236,
+      "genomic": 128255513,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001162346.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "910512",
+      "accession": "VCV000910512.4",
+      "name": "NM_000230.3(LEP):c.*781G>C",
+      "position": 19267,
+      "genomic": 128255544,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001162347.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "911752",
+      "accession": "VCV000911752.4",
+      "name": "NM_000230.3(LEP):c.*962T>G",
+      "position": 19448,
+      "genomic": 128255725,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001164391.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358832",
+      "accession": "VCV000358832.6",
+      "name": "NM_000230.3(LEP):c.*1014C>G",
+      "position": 19500,
+      "genomic": 128255777,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000305209.5",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "911753",
+      "accession": "VCV000911753.4",
+      "name": "NM_000230.3(LEP):c.*1124G>A",
+      "position": 19610,
+      "genomic": 128255887,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2017-04-27",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001164392.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-04-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "911754",
+      "accession": "VCV000911754.4",
+      "name": "NM_000230.3(LEP):c.*1185C>T",
+      "position": 19671,
+      "genomic": 128255948,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001164393.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "908787",
+      "accession": "VCV000908787.4",
+      "name": "NM_000230.3(LEP):c.*1318G>C",
+      "position": 19804,
+      "genomic": 128256081,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001159450.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "908788",
+      "accession": "VCV000908788.4",
+      "name": "NM_000230.3(LEP):c.*1369G>T",
+      "position": 19855,
+      "genomic": 128256132,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001159451.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "908789",
+      "accession": "VCV000908789.4",
+      "name": "NM_000230.3(LEP):c.*1422A>T",
+      "position": 19908,
+      "genomic": 128256185,
+      "ref": "A",
+      "alt": "T",
+      "genomic_ref": "A",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001159452.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "909642",
+      "accession": "VCV000909642.4",
+      "name": "NM_000230.3(LEP):c.*1579G>A",
+      "position": 20065,
+      "genomic": 128256342,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001160824.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "909643",
+      "accession": "VCV000909643.4",
+      "name": "NM_000230.3(LEP):c.*1637A>G",
+      "position": 20123,
+      "genomic": 128256400,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001160825.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358837",
+      "accession": "VCV000358837.6",
+      "name": "NM_000230.3(LEP):c.*1640C>T",
+      "position": 20126,
+      "genomic": 128256403,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000386871.5",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358839",
+      "accession": "VCV000358839.6",
+      "name": "NM_000230.3(LEP):c.*1720A>G",
+      "position": 20206,
+      "genomic": 128256483,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": null,
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV004712337.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "910572",
+      "accession": "VCV000910572.4",
+      "name": "NM_000230.3(LEP):c.*1738G>A",
+      "position": 20224,
+      "genomic": 128256501,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001162446.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "910573",
+      "accession": "VCV000910573.4",
+      "name": "NM_000230.3(LEP):c.*1749T>C",
+      "position": 20235,
+      "genomic": 128256512,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001162447.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "910574",
+      "accession": "VCV000910574.4",
+      "name": "NM_000230.3(LEP):c.*1825T>C",
+      "position": 20311,
+      "genomic": 128256588,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001162448.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "911808",
+      "accession": "VCV000911808.4",
+      "name": "NM_000230.3(LEP):c.*1886T>G",
+      "position": 20372,
+      "genomic": 128256649,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001164493.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358841",
+      "accession": "VCV000358841.6",
+      "name": "NM_000230.3(LEP):c.*2053G>A",
+      "position": 20539,
+      "genomic": 128256816,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": null,
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV004695998.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "908851",
+      "accession": "VCV000908851.4",
+      "name": "NM_000230.3(LEP):c.*2110G>T",
+      "position": 20596,
+      "genomic": 128256873,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001159559.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358842",
+      "accession": "VCV000358842.6",
+      "name": "NM_000230.3(LEP):c.*2205G>A",
+      "position": 20691,
+      "genomic": 128256968,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": null,
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV004705427.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "358844",
+      "accession": "VCV000358844.6",
+      "name": "NM_000230.3(LEP):c.*2234G>A",
+      "position": 20720,
+      "genomic": 128256997,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000366894.5",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "909706",
+      "accession": "VCV000909706.4",
+      "name": "NM_000230.3(LEP):c.*2245C>G",
+      "position": 20731,
+      "genomic": 128257008,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001160940.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358845",
+      "accession": "VCV000358845.7",
+      "name": "NM_000230.3(LEP):c.*2253C>A",
+      "position": 20739,
+      "genomic": 128257016,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign/Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000274586.5",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV004707170.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "909707",
+      "accession": "VCV000909707.4",
+      "name": "NM_000230.3(LEP):c.*2263G>A",
+      "position": 20749,
+      "genomic": 128257026,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001160941.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358846",
+      "accession": "VCV000358846.6",
+      "name": "NM_000230.3(LEP):c.*2267A>C",
+      "position": 20753,
+      "genomic": 128257030,
+      "ref": "A",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000374877.5",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358847",
+      "accession": "VCV000358847.6",
+      "name": "NM_000230.3(LEP):c.*2410G>A",
+      "position": 20896,
+      "genomic": 128257173,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000378497.5",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "909708",
+      "accession": "VCV000909708.4",
+      "name": "NM_000230.3(LEP):c.*2437C>T",
+      "position": 20923,
+      "genomic": 128257200,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001160942.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "910630",
+      "accession": "VCV000910630.4",
+      "name": "NM_000230.3(LEP):c.*2503C>T",
+      "position": 20989,
+      "genomic": 128257266,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001162544.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358848",
+      "accession": "VCV000358848.6",
+      "name": "NM_000230.3(LEP):c.*2527G>T",
+      "position": 21013,
+      "genomic": 128257290,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000339862.5",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358849",
+      "accession": "VCV000358849.6",
+      "name": "NM_000230.3(LEP):c.*2579G>A",
+      "position": 21065,
+      "genomic": 128257342,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000378097.5",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358852",
+      "accession": "VCV000358852.6",
+      "name": "NM_000230.3(LEP):c.*2738G>A",
+      "position": 21224,
+      "genomic": 128257501,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000394500.5",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "358853",
+      "accession": "VCV000358853.6",
+      "name": "NM_000230.3(LEP):c.*2799C>T",
+      "position": 21285,
+      "genomic": 128257562,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": null,
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV004695999.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "911852",
+      "accession": "VCV000911852.4",
+      "name": "NM_000230.3(LEP):c.*2800G>A",
+      "position": 21286,
+      "genomic": 128257563,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001164590.4",
+          "names": [
+            "Obesity due to congenital leptin deficiency"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    }
+  ]
+}

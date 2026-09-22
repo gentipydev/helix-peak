@@ -1,0 +1,4 @@
+# The AlphaGenome client, for AVI scores out of the Atlas. Everything else the
+# baker needs is stdlib: it reads the gene records this repo already ships and
+# writes JSON beside them.
+alphagenome>=0.1.0

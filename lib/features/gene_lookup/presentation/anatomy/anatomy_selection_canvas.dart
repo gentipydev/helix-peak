@@ -36,6 +36,7 @@ class AnatomySelectionCanvas extends StatefulWidget {
     required this.returning,
     required this.sourceScrollOffset,
     required this.targetScrollOffset,
+    this.lifted,
     this.onLongPress,
     this.onBaseTapped,
     super.key,
@@ -50,6 +51,15 @@ class AnatomySelectionCanvas extends StatefulWidget {
   final bool returning;
   final double sourceScrollOffset;
   final double targetScrollOffset;
+
+  /// Which base the screen believes is lifted, or null.
+  ///
+  /// The tile is raised and lowered by a tap on the canvas itself, which then
+  /// tells the screen through [onBaseTapped]. This is the other direction, and
+  /// the only thing that uses it is the inspector closing: dismissing the sheet
+  /// puts the base back down, the way dismissing the residue panel puts the
+  /// mask back. A tap is still what raises one.
+  final int? lifted;
 
   /// A long press on the open region: copy its DNA.
   final VoidCallback? onLongPress;
@@ -112,6 +122,18 @@ class _AnatomySelectionCanvasState extends State<AnatomySelectionCanvas>
         unawaited(_groove.forward(from: 0));
       } else {
         _groove.value = 1;
+      }
+    }
+    if (widget.lifted != old.lifted && widget.lifted != _lifted.value) {
+      _lifted.value = widget.lifted;
+      if (widget.lifted == null) {
+        _lift.value = 0;
+      } else if (MediaQuery.disableAnimationsOf(context)) {
+        // A base lifted by the screen — a ClinVar record's link asked for it
+        // by name — rises the way a tapped one does.
+        _lift.value = 1;
+      } else {
+        unawaited(_lift.forward(from: 0));
       }
     }
     if (old.resting && !widget.resting) {

@@ -97,18 +97,30 @@ Future<void> _toStage(WidgetTester tester, int stage) async {
   }
 }
 
-/// Taps the square holding a genomic coordinate.
+/// Taps the square holding a genomic coordinate, scrolling to it first.
+///
+/// The scroll is not incidental: at a 26pt pitch the transcript page is taller
+/// than the phone, so its last codons are below the window until it is brought
+/// to them. A test that tapped blind would be testing the window, not the page.
 Future<void> _tapBase(WidgetTester tester, int stage, int position) async {
   final AnatomyModel model = AnatomyModel.derive(insulin());
-  final Rect rect = tester.getRect(_paintBox());
+  Rect rect = tester.getRect(_paintBox());
   final AnatomyLayout layout = AnatomyLayout.forStage(
     model.stages[stage],
     rect.size,
     rect.size,
   );
-  await tester.tapAt(
-    rect.topLeft + layout.centreOf(model.stages[stage].cellAt(position)),
-  );
+  final Offset centre = layout.centreOf(model.stages[stage].cellAt(position));
+  final double top = rect.top + centre.dy;
+  if (top < 0 || top > _phone.height - 80) {
+    final Finder scroller = find.byType(Scrollable).first;
+    if (scroller.evaluate().isNotEmpty) {
+      await tester.drag(scroller, Offset(0, -(top - _phone.height / 2)));
+      await tester.pumpAndSettle();
+      rect = tester.getRect(_paintBox());
+    }
+  }
+  await tester.tapAt(rect.topLeft + centre);
   await tester.pumpAndSettle();
 }
 

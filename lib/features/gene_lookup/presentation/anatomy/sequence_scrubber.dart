@@ -7,24 +7,31 @@ import '../../../../core/theme/app_typography.dart';
 ///
 /// Dystrophin's protein page is thirteen screens of residues with nothing to
 /// say where a reader is. Dragging the thumb moves through the whole page at
-/// once, and the bubble beside it names where the drag has got to — the row's
-/// own number and, where the page has them, the domain it is in.
+/// once, and where the page names its rows, the bubble beside it names where
+/// the drag has got to — the row's own number and, where the page has them,
+/// the domain it is in.
 class SequenceScrubber extends StatefulWidget {
   const SequenceScrubber({
     required this.controller,
-    required this.labelAt,
+    this.labelAt,
     this.landmarks = const <(double, String)>[],
+    this.minScreens = 1,
     super.key,
   });
 
   /// The page's own scroll.
   final ScrollController controller;
 
-  /// What the row at the top of the view is called at a scroll offset.
-  final String? Function(double offset) labelAt;
+  /// What the row at the top of the view is called at a scroll offset; null
+  /// for a thumb with no bubble.
+  final String? Function(double offset)? labelAt;
 
   /// Named places down the page, as scroll offset and name, in order.
   final List<(double, String)> landmarks;
+
+  /// How many screens long the page has to be before the thumb shows. One is
+  /// any page that scrolls at all.
+  final double minScreens;
 
   /// The strip it takes on the right edge, which is also its hit area.
   static const double width = 28;
@@ -82,7 +89,9 @@ class _SequenceScrubberState extends State<SequenceScrubber> {
         }
         final ScrollPosition position = widget.controller.position;
         if (!position.hasContentDimensions ||
-            position.maxScrollExtent <= 0) {
+            position.maxScrollExtent <= 0 ||
+            position.maxScrollExtent <
+                position.viewportDimension * (widget.minScreens - 1)) {
           return const SizedBox.shrink();
         }
         return LayoutBuilder(
@@ -94,7 +103,7 @@ class _SequenceScrubberState extends State<SequenceScrubber> {
                 travel;
             final double extent =
                 position.maxScrollExtent + position.viewportDimension;
-            final String? label = widget.labelAt(position.pixels);
+            final String? label = widget.labelAt?.call(position.pixels);
             final String? landmark = _landmarkAt(position.pixels);
             final String bubble = <String>[?label, ?landmark].join(' · ');
             return Semantics(

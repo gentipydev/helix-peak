@@ -1,0 +1,3494 @@
+{
+  "schema_version": 1,
+  "source": "NCBI ClinVar",
+  "gene": "LYZ",
+  "accession": "NG_008195",
+  "assembly": "GRCh38",
+  "chromosome": "chr12",
+  "scope": "reference-matched single nucleotide variants in the drawn gene",
+  "start": 5001,
+  "sequence": "AAATACTGGGGCCAGCTCACCCTGGTCAGCCTAGCACTCTGACCTAGCAGTCAACATGAAGGCTCTCATTGTTCTGGGGCTTGTCCTCCTTTCTGTTACGGTCCAGGGCAAGGTCTTTGAAAGGTGTGAGTTGGCCAGAACTCTGAAAAGATTGGGAATGGATGGCTACAGGGGAATCAGCCTAGCAAACTGTAAGTCTACTCTCCATAATTCCAGAGAATTAGCTACGTATGGAACAGACACTAGGAGAGAAGGAAGAAGAAGAAGGGGCTTTGAGTGAATAGATGTTTTATTTCTTTGTGGGTTTGTATACTTACAATGGCTAAAAACATCAGTTTGGTTCTTTATAACCAGAGATACCCGATAAAGGAATACGGGCATGGCAGGGGAAAATTCCATTCTAAGTAAAACAGGACCTGTTGTACTGTTCTAGTGCTAGGAAGTTTGCTGGGTGCCTGAGATTCAATGGCACATGTAAGCTGACTGAAAGATACATTTGAGGACCTGGCAGAGCTCTCTCAAGTCCTTGGTATGTGACTCCAGTTATTTCCCATTTTGAACTTGGGCTCTGAGAGCCTAGAGTGATGCAGTATTTTTCTTGTCTTCAAGTCCCCTGCCGTGATGTGGGATTTTTATTTTTATTTTTATTTTATTTTATTTTATTTTTAAAGACAGTCTCACTGTGTGGCCCAGGCTGGAGTGCAGTGGCATGATCTCAGCTCACTGCAACCTCTGCCTTCTGGGCTCAAGTGATTCTCGTGCTTCAGCCTTCTGAGTAGCTGTGACTACAGGTGTGTACCACCACACCCAGCTAATTTTTTGTATTTTCAGTACAGATGGGGTTTCACCATGTTGGCCAAGCTGGTCTTGAACTCCTGGCCTCAAATGATCTGCCCACCTCAGCCTCCCAAAGTGGTAGGATTACAGGTGTGAACCACTGCACCCAGCCGACATGGGATTTTTAACAGTGATGTTTTTAAAGAATATATTGAATTCCCTACACAAGAGCAGTAGGAACCTAGTTCCCTTCAGTCACTCTTTGTATAGGATCCCAGAAACTCAGCATGAAATGTTTTATTATTTTTATCTACTCTACTTGATTAACTATCTTTCATTTTCTCCCACACAATTCAAGATGTGCCATGAGGAAAAGTTATTTTATAGTTTAGTACATAGTTGTCGATGTAATAATCTCTGTAGTTTTCAGATTGAATTCAGACATTTCCCCTCAATAGCTATTTTTGAATGAATGAGTGAAGGGATGAAATCACGGAATAGTCTTGTTTTCAAGATTCTAACTTGATATCCAAATTCACCTTTAGATATTATAAGAAAATTTCTATCAGAAAATCCTTATGTTTTTCTGATTAAAAAAAGCATTTTTCCATCAGCCTATGTATCTGCTATGAATTTACAAAATCTACTCAACAGCTCTGTTGATTTTTCTGTTCTTGGCTGAATGTTGCCTGAGGGATGGGAGCACGGGAAGGGTAAAAGCAATGGAACAAACATGTATTTTAATATTTTAAAAGTATGTTATATTGTTCGTTGGTGTTACAAGATGATTTGCATTACAAAAGGATTCTCTTACAAGTCCCTTATCTTAACACTAAAGTGCTAAGATATTTTATAAGTAAATCTTTATACTTATAAAACAAATCAGTAAAATAGAAGTAGCTAAGTAGAACTGATTTTGCTATAGAGTATAAGTCACTTAGTGTTGCTGTTTATTACTAAAAATAAGTTCTTTTCAGGGATGTGTTTGGCCAAATGGGAGAGTGGTTACAACACACGAGCTACAAACTACAATGCTGGAGACAGAAGCACTGATTATGGGATATTTCAGATCAATAGCCGCTACTGGTGTAATGATGGCAAAACCCCAGGAGCAGTTAATGCCTGTCATTTATCCTGCAGTGGTAAGACAAGCTAATATTTGACCAATCTGGTTATACTTACAAGAATTGAGACTCAATACAAATGAAAAAGCCTTGAAAGGTTCATGAGGGACCTAGAAAAACTACATCTCAACTTCCAGAAAGTCATTATTATTTTCCTCATAATTCCCTGAGTAAGAAATTAAAGAAGTGGTATCATAAAAGGTTGATGTTTTTTAATATACAGAAGTTTCTGGAATGACCTATTAATTTACTGTCAATGGCCTTACTGATGCTTTGTCCAGAACAATGCCATTGCTCCTGCTTACTTTGGGGAGGTTTTGGGATAATTTAGTTGTATGGTCCTTTTTCAATTGTTTTACTTTTTTTTTTATGAAATGTTCTAAATGTATAGAAAATTAGAGACATTAGTATAATAAACAGCCATATGCCCATTATGCACTTTAAAAGTTGTTAACATTTTGCCATAGTTGCTTCTTCTATGCCTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTGCTGAGAGTTTTTTGTTTGGTTTTGTTTTGTTTTATTTTGAGACAGGGTCTCCCTGTCCCCAGGCTGTAGTGCAGTGGCACCATCACAGCTCACTGCAGCCTCAAGTGATCATCCCACCACAGCCTCCCAAGTAGCTGGGACTACAGGTGTGCACCACCATGCCTGGCAAATTTTTGAAATTTTTAGTACAGGCAAATTCTGTGTTGCCCAGGCTGGTCTTGAACTCCTGAGTTCAAGCAATCTTCCCACCTCAGCCTCCTTAAGTGCTGGAATTACAGGCGTTAGCCACTGTACCTGGCTACTGCTGAGAGACTTTTAAGTGAATTAGGAACATGATGATATTCCATTTCTAAATTCTTTAGTTTACATCTTCAAAAAATACAGTTCCTGTAGAATTATTATTGTAAATAACAAATTAACTTAAGGATTTATTTATTTGGAGTGAAACAAATATTTTACTGAACTCATAAAAATAGAAATACCATGTGGAATCCTCAGTGTCAAAAATATTGCAGAAATCTTGCAAAGTTGATATTATTAAATTGTTAAATATTAAAATTCCCAATAAAGAACATTAATCTTATTTCTAAAATCCAGTTAATTAAAAAAATTTATATTATATAATAATATTTGGTCATTAAATAAAAATTAGAAAATACAAATAAGAAAAATAACACCCATAATCTTACTACCCAGAGGTTTATAACCATGGGTAAATTCTGGTATATATTCTTCCAGAATGTATATCAATCATGTGTATGAATGTTAAATTATATCATACACATATAAACCCACATACAAACATGTAAATACTGTGTGCTTTTGCAAAAATTAAATTGTATTATACACACGGCTTTACAATTTGCTTCTTATCACACAAAATTATTTGCATGTCAGCAAATACAAATCGGTTTTTAATGATCTTTTGCTCCATTTTCCAGATGAGAAAAAAATACAAATCTGTATCATCATTTTAAAAGAATGACTAGAATTTTAATATATGAATATTCTATAATTTACTGATCCAATTGTTACTATTGAGCACTTAGGTTGTTTCCATTTTTCCCTCATAAATTGCTATGAATAGCTTTTTGTATACATCTTTGGGTGCATTTCTTATTTCTTTTGGATAAATTTTCAATAATAGAACTGCTGAGTAAAATATCACTAGGTGTTTTTTTACAGTGTCTAGTGCAAAGAAGACCTTTAATCATTTTGTTAATACTTCCAGAGCTTCCAATGACTTTGGTAAATGAAGAAAAAAATGCTTCATTTCATGCTGAATGGGAGAGAATGAAGAGAGTTTTCCCCAACAATTACACATATATGGACTCATAGAAAATAATATCTTACCATTCTTTCCACAGCCTAACAGAAAAAAGCTGGCTAAACCTAAATTTAAAATAAAATATCTATTAAAGTTTTTATTCCTTACCACCTGTCTTTCAGCTTTGCTGCAAGATAACATCGCTGATGCTGTAGCTTGTGCAAAGAGGGTTGTCCGTGATCCACAAGGCATTAGAGCATGGTATGTTTTAAGTGTTAAAAGGGAAAACTATCTTACTCTACTGTTGATATATACAATGAGAGCAGACTTTTAAAGACCAAAGTATGCTAATGACACCTCAAAATTGCAGCTTTTGGCTTATGCTAAATGATGTATTACCTACATCCTTGAAGAAACAATCTACTTTAACTGATCCAGAATCTTACTCTTTTACTCCTCAATTTATTTTAGGGGATTTCTAGAGTTTTAAGATGCTTCACACTCTATCAGTTCCTTGTCATATCTTGAAATTCTTTTTAGAATAAGTAAGTGTGGGCCGGGCACAGTGGCTCACGCCTGTAATCCCAGCACTTTGGGAGACCGAGGCAGATGGATCACCTGAGGTCAGGAGTTCGAGACCAGCCTGCCTAACATGGCAAAACCCCATCTCCACTAAAAATACAAAAAATTAGCTGGGTGTGGTGGCAGGTGCCTGTAATCCCAGCCACTCGGGAGGCTGAGGCAGGAGACTTGCTTGAACCCGGGAGGTGGAGGTTGCAGAGGATTGCGCCATTGTACTTCAGCCTGGGCGACAGAGTGAGACTCTGTCTCAAATAAATACATAAAAAATAAATGTGGAATTCACTTTGCAGTTGCTGCTGTACAACGCACATTACTCAATCTTTATGTTCGGCATTCTATGCTCTACTGAGAAATTTGGGTAGGAGTGAAGTATTTTGTATACATATCTTCATTTAATAAATAGCAATAGCTGGGTCTATCTTACTATTTTATCTATTGATAAAATATTTTGTTTCCCCAAGGAGTGCGAAGTATGTATATTACAATGAAGATATGTTTTAACCTTTCACCATTTGCTTCATCTTTTTCTACAGGGTGGCATGGAGAAATCGTTGTCAAAACAGAGATGTCCGTCAGTATGTTCAAGGTTGTGGAGTGTAACTCCAGAATTTTCCTTCTTCAGCTCATTTTGTCTCTCTCACATTAAGGGAGTAGGAATTAAGTGAAAGGTCACACTACCATTATTTCCCCTTCAAACAAATAATATTTTTACAGAAGCAGGAGCAAAATATGGCCTTTCTTCTAAGAGATATAATGTTCACTAATGTGGTTATTTTACATTAAGCCTACAACATTTTTCAGTTTGCAAATAGAACTAATACTGGTGAAAATTTACCTAAAACCTTGGTTATCAAATACATCTCCAGTACATTCCGTTCTTTTTTTTTTTGAGACAGTCTCGCTCTGTCGCCCAGGCTGGAGTGCAGTGGCGCAATCTCGGCTCACTGCAACCTCCACCTCCCGGGTTCACGCCATTCTCCTGCCTCAGCCTCCCGAGTAGCTGGGATTACGGGCGCCCGCCACCACGCCCGGCTAATTTTTTGTATTTTTAGTAGAGACAGGGTTTCACCGTGTTAGCCAGGATGGTCTCGATCTCCTGACCTTGTGATCCACCCACCTCGGCCTCCCAAAGTGCTGGGATTACAGGCGTGAGCCACTGCGCCCGGCCACATTCAGTTCTTATCAAAGAAATAACCCAGACTTAATCTTGAATGATACGATTATGCCCAATATTAAGTAAAAAATATAAGAAAAGGTTATCTTAAATAGATCTTAGGCAAAATACCAGCTGATGAAGGCATCTGATGCCTTCATCTGTTCAGTCATCTCCAAAAACAGTAAAAATAACCACTTTTTGTTGGGCAATATGAAATTTTTAAAGGAGTAGAATACCAAATGATAGAAACAGACTGCCTGAATTGAGAATTTTGATTTCTTAAAGTGTGTTTCTTTCTAAATTGCTGTTCCTTAATTTGATTAATTTAATTCATGTATTATGATTAAATCTGAGGCAGATGAGCTTACAAGTATTGAAATAATTACTAATTAATCACAAATGTGAAGTTATGCATGATGTAAAAAATACAAACATTCTAATTAAAGGCTTTGCAACAC",
+  "protein_sequence": "MKALIVLGLVLLSVTVQGKVFERCELARTLKRLGMDGYRGISLANWMCLAKWESGYNTRATNYNAGDRSTDYGIFQINSRYWCNDGKTPGAVNACHLSCSALLQDNIADAVACAKRVVRDPQGIRAWVAWRNRCQNRDVRQYVQGCGV",
+  "complemented": false,
+  "runs": [
+    {
+      "local": 5001,
+      "genomic": 69348354,
+      "step": 1,
+      "length": 5880
+    }
+  ],
+  "retrieved_at": "2026-09-22T12:55:37.333504+00:00",
+  "query": "LYZ[gene]",
+  "searched_records": 118,
+  "excluded": {
+    "no_germline_classification": 5,
+    "no_unique_GRCh38_location": 12,
+    "not_a_single_base_substitution": 8
+  },
+  "source_batches": [
+    {
+      "file": "batch-0.xml",
+      "sha256": "7af344494d77ece220e45412736e3f894f26689d5892e091d45f23fa2379a2fd"
+    },
+    {
+      "file": "batch-1.xml",
+      "sha256": "8de91122f6261877d4fee3ffbd9f3568cb7f17496126bba09523a1b3fa1f14d4"
+    }
+  ],
+  "traits": {
+    "Amyloidosis, hereditary systemic 5": {
+      "medgen": "C5935572",
+      "symbol": "AMYLD5",
+      "omim": "620658",
+      "mondo": "MONDO:0971009"
+    },
+    "Familial visceral amyloidosis, Ostertag type": {
+      "medgen": "C0268389",
+      "symbol": "AMYLD2",
+      "omim": "105200",
+      "mondo": "MONDO:0007099"
+    },
+    "Inborn genetic diseases": {
+      "medgen": "C0950123"
+    }
+  },
+  "variants": [
+    {
+      "variation_id": "310329",
+      "accession": "VCV000310329.7",
+      "name": "NM_000239.3(LYZ):c.-1C>T",
+      "position": 5055,
+      "genomic": 69348408,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2022-03-24",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000313106.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV004708294.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        },
+        {
+          "accession": "RCV006441672.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-03-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "3575246",
+      "accession": "VCV003575246.1",
+      "name": "NM_000239.3(LYZ):c.5A>G (p.Lys2Arg)",
+      "position": 5060,
+      "genomic": 69348413,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 2,
+      "protein_change": "p.K2R",
+      "coding_change": "c.5A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-06-20",
+      "last_updated": "2025-02-01",
+      "conditions": [
+        {
+          "accession": "RCV005011569.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "882898",
+      "accession": "VCV000882898.12",
+      "name": "NM_000239.3(LYZ):c.10C>G (p.Leu4Val)",
+      "position": 5065,
+      "genomic": 69348418,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 4,
+      "protein_change": "p.L4V",
+      "coding_change": "c.10C>G",
+      "consequence": "missense",
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-01-31",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001112969.4",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV002069822.8",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2026-01-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "3575247",
+      "accession": "VCV003575247.1",
+      "name": "NM_000239.3(LYZ):c.10C>T (p.Leu4Phe)",
+      "position": 5065,
+      "genomic": 69348418,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 4,
+      "protein_change": "p.L4F",
+      "coding_change": "c.10C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-05-27",
+      "last_updated": "2025-02-01",
+      "conditions": [
+        {
+          "accession": "RCV005004989.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3541464",
+      "accession": "VCV003541464.1",
+      "name": "NM_000239.3(LYZ):c.40G>A (p.Val14Ile)",
+      "position": 5095,
+      "genomic": 69348448,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 14,
+      "protein_change": "p.V14I",
+      "coding_change": "c.40G>A",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-07-31",
+      "last_updated": "2025-01-19",
+      "conditions": [
+        {
+          "accession": "RCV004990325.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-07-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2319596",
+      "accession": "VCV002319596.3",
+      "name": "NM_000239.3(LYZ):c.40G>T (p.Val14Phe)",
+      "position": 5095,
+      "genomic": 69348448,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 14,
+      "protein_change": "p.V14F",
+      "coding_change": "c.40G>T",
+      "consequence": "missense",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2024-05-06",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV002905718.2",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-10-26"
+        },
+        {
+          "accession": "RCV005002998.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3541462",
+      "accession": "VCV003541462.1",
+      "name": "NM_000239.3(LYZ):c.44C>T (p.Thr15Met)",
+      "position": 5099,
+      "genomic": 69348452,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 15,
+      "protein_change": "p.T15M",
+      "coding_change": "c.44C>T",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-12-02",
+      "last_updated": "2025-01-19",
+      "conditions": [
+        {
+          "accession": "RCV004990323.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-12-02"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3891608",
+      "accession": "VCV003891608.1",
+      "name": "NM_000239.3(LYZ):c.64G>T (p.Glu22Ter)",
+      "position": 5119,
+      "genomic": 69348472,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 22,
+      "protein_change": "p.E22*",
+      "coding_change": "c.64G>T",
+      "consequence": "stop gained",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-04-13",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005398331.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-04-13"
+        }
+      ],
+      "collection_methods": [
+        "research"
+      ]
+    },
+    {
+      "variation_id": "3727535",
+      "accession": "VCV003727535.2",
+      "name": "NM_000239.3(LYZ):c.77T>A (p.Leu26Ter)",
+      "position": 5132,
+      "genomic": 69348485,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": 26,
+      "protein_change": "p.L26*",
+      "coding_change": "c.77T>A",
+      "consequence": "stop gained",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-05-09",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV005196901.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-05-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1609912",
+      "accession": "VCV001609912.8",
+      "name": "NM_000239.3(LYZ):c.90G>C (p.Leu30=)",
+      "position": 5145,
+      "genomic": 69348498,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 30,
+      "protein_change": "p.L30=",
+      "coding_change": "c.90G>C",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-09-27",
+      "last_updated": "2026-02-24",
+      "conditions": [
+        {
+          "accession": "RCV002152781.8",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-09-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3681797",
+      "accession": "VCV003681797.2",
+      "name": "NM_000239.3(LYZ):c.94A>G (p.Arg32Gly)",
+      "position": 5149,
+      "genomic": 69348502,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 32,
+      "protein_change": "p.R32G",
+      "coding_change": "c.94A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-09-18",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005155649.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-09-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2557798",
+      "accession": "VCV002557798.2",
+      "name": "NM_000239.3(LYZ):c.95G>A (p.Arg32Lys)",
+      "position": 5150,
+      "genomic": 69348503,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 32,
+      "protein_change": "p.R32K",
+      "coding_change": "c.95G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-06-06",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003282906.2",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-06-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3575250",
+      "accession": "VCV003575250.1",
+      "name": "NM_000239.3(LYZ):c.107A>G (p.Asp36Gly)",
+      "position": 5162,
+      "genomic": 69348515,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 36,
+      "protein_change": "p.D36G",
+      "coding_change": "c.107A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-05-04",
+      "last_updated": "2025-02-01",
+      "conditions": [
+        {
+          "accession": "RCV005011571.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2056166",
+      "accession": "VCV002056166.4",
+      "name": "NM_000239.3(LYZ):c.136+9A>G",
+      "position": 5200,
+      "genomic": 69348553,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-12-26",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV002938419.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "882899",
+      "accession": "VCV000882899.5",
+      "name": "NM_000239.3(LYZ):c.151A>T (p.Lys51Ter)",
+      "position": 6769,
+      "genomic": 69350122,
+      "ref": "A",
+      "alt": "T",
+      "genomic_ref": "A",
+      "genomic_alt": "T",
+      "residue": 51,
+      "protein_change": "p.K51*",
+      "coding_change": "c.151A>T",
+      "consequence": "stop gained",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2024-04-24",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001112970.4",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-02-26"
+        },
+        {
+          "accession": "RCV005005046.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310330",
+      "accession": "VCV000310330.11",
+      "name": "NM_000239.3(LYZ):c.156G>A (p.Trp52Ter)",
+      "position": 6774,
+      "genomic": 69350127,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 52,
+      "protein_change": "p.W52*",
+      "coding_change": "c.156G>A",
+      "consequence": "stop gained",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2024-10-01",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000367718.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-04-27"
+        },
+        {
+          "accession": "RCV002520834.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-03"
+        },
+        {
+          "accession": "RCV003987504.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-01-17"
+        },
+        {
+          "accession": "RCV004984807.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3575251",
+      "accession": "VCV003575251.1",
+      "name": "NM_000239.3(LYZ):c.156G>T (p.Trp52Cys)",
+      "position": 6774,
+      "genomic": 69350127,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 52,
+      "protein_change": "p.W52C",
+      "coding_change": "c.156G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-03-07",
+      "last_updated": "2025-02-01",
+      "conditions": [
+        {
+          "accession": "RCV005011572.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-03-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1338132",
+      "accession": "VCV001338132.9",
+      "name": "NM_000239.3(LYZ):c.175C>T (p.Arg59Ter)",
+      "position": 6793,
+      "genomic": 69350146,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 59,
+      "protein_change": "p.R59*",
+      "coding_change": "c.175C>T",
+      "consequence": "stop gained",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2024-01-17",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001822730.5",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2024-01-17"
+        },
+        {
+          "accession": "RCV002482370.1",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-01-13"
+        },
+        {
+          "accession": "RCV002542685.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2022-10-12"
+        },
+        {
+          "accession": "RCV005397031.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-12-21"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided",
+        "research"
+      ]
+    },
+    {
+      "variation_id": "3575252",
+      "accession": "VCV003575252.2",
+      "name": "NM_000239.3(LYZ):c.176G>A (p.Arg59Gln)",
+      "position": 6794,
+      "genomic": 69350147,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 59,
+      "protein_change": "p.R59Q",
+      "coding_change": "c.176G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-02-15",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV005011573.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-10"
+        },
+        {
+          "accession": "RCV006484603.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-02-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4101785",
+      "accession": "VCV004101785.1",
+      "name": "NM_000239.3(LYZ):c.178G>A (p.Ala60Thr)",
+      "position": 6796,
+      "genomic": 69350149,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 60,
+      "protein_change": "p.A60T",
+      "coding_change": "c.178G>A",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-08-22",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV005663672.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2862723",
+      "accession": "VCV002862723.4",
+      "name": "NM_000239.3(LYZ):c.188A>G (p.Tyr63Cys)",
+      "position": 6806,
+      "genomic": 69350159,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 63,
+      "protein_change": "p.Y63C",
+      "coding_change": "c.188A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-05-29",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003699974.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-12-19"
+        },
+        {
+          "accession": "RCV005592763.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-05-29"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3714026",
+      "accession": "VCV003714026.2",
+      "name": "NM_000239.3(LYZ):c.198A>T (p.Gly66=)",
+      "position": 6816,
+      "genomic": 69350169,
+      "ref": "A",
+      "alt": "T",
+      "genomic_ref": "A",
+      "genomic_alt": "T",
+      "residue": 66,
+      "protein_change": "p.G66=",
+      "coding_change": "c.198A>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-04-15",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005188857.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "14375",
+      "accession": "VCV000014375.3",
+      "name": "NM_000239.3(LYZ):c.199G>C (p.Asp67His)",
+      "position": 6817,
+      "genomic": 69350170,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 67,
+      "protein_change": "p.D67H",
+      "coding_change": "c.199G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-04-12",
+      "last_updated": "2025-02-01",
+      "conditions": [
+        {
+          "accession": "RCV004555834.2",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "4747018",
+      "accession": "VCV004747018.1",
+      "name": "NM_000239.3(LYZ):c.206G>A (p.Ser69Asn)",
+      "position": 6824,
+      "genomic": 69350177,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 69,
+      "protein_change": "p.S69N",
+      "coding_change": "c.206G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-02-13",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006534166.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-02-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1337976",
+      "accession": "VCV001337976.9",
+      "name": "NM_000239.3(LYZ):c.209C>G (p.Thr70Ser)",
+      "position": 6827,
+      "genomic": 69350180,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 70,
+      "protein_change": "p.T70S",
+      "coding_change": "c.209C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-10-07",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001822574.4",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-06-25"
+        },
+        {
+          "accession": "RCV002503324.1",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-03-30"
+        },
+        {
+          "accession": "RCV003728035.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-01-14"
+        },
+        {
+          "accession": "RCV006362565.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "14374",
+      "accession": "VCV000014374.2",
+      "name": "NM_000239.3(LYZ):c.221T>C (p.Ile74Thr)",
+      "position": 6839,
+      "genomic": 69350192,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 74,
+      "protein_change": "p.I74T",
+      "coding_change": "c.221T>C",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "1993-04-08",
+      "last_updated": "2024-11-25",
+      "conditions": [
+        {
+          "accession": "RCV004555833.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "1993-04-08"
+        }
+      ],
+      "collection_methods": [
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "14377",
+      "accession": "VCV000014377.2",
+      "name": "NM_000239.3(LYZ):c.223T>A (p.Phe75Ile)",
+      "position": 6841,
+      "genomic": 69350194,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": 75,
+      "protein_change": "p.F75I",
+      "coding_change": "c.223T>A",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2003-05-01",
+      "last_updated": "2024-11-25",
+      "conditions": [
+        {
+          "accession": "RCV004555835.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2003-05-01"
+        }
+      ],
+      "collection_methods": [
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "3575253",
+      "accession": "VCV003575253.1",
+      "name": "NM_000239.3(LYZ):c.228G>A (p.Gln76=)",
+      "position": 6846,
+      "genomic": 69350199,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 76,
+      "protein_change": "p.Q76=",
+      "coding_change": "c.228G>A",
+      "consequence": "synonymous",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-02-18",
+      "last_updated": "2025-02-01",
+      "conditions": [
+        {
+          "accession": "RCV005011574.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2142972",
+      "accession": "VCV002142972.6",
+      "name": "NM_000239.3(LYZ):c.230T>C (p.Ile77Thr)",
+      "position": 6848,
+      "genomic": 69350201,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 77,
+      "protein_change": "p.I77T",
+      "coding_change": "c.230T>C",
+      "consequence": "missense",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2024-09-24",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV003076489.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-02-20"
+        },
+        {
+          "accession": "RCV004985130.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-09-24"
+        },
+        {
+          "accession": "RCV005002934.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-03-14"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3669644",
+      "accession": "VCV003669644.2",
+      "name": "NM_000239.3(LYZ):c.233A>G (p.Asn78Ser)",
+      "position": 6851,
+      "genomic": 69350204,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 78,
+      "protein_change": "p.N78S",
+      "coding_change": "c.233A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-02-08",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005144987.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3575254",
+      "accession": "VCV003575254.1",
+      "name": "NM_000239.3(LYZ):c.238C>T (p.Arg80Cys)",
+      "position": 6856,
+      "genomic": 69350209,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 80,
+      "protein_change": "p.R80C",
+      "coding_change": "c.238C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-05-10",
+      "last_updated": "2025-02-01",
+      "conditions": [
+        {
+          "accession": "RCV005005340.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3575255",
+      "accession": "VCV003575255.2",
+      "name": "NM_000239.3(LYZ):c.239G>A (p.Arg80His)",
+      "position": 6857,
+      "genomic": 69350210,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 80,
+      "protein_change": "p.R80H",
+      "coding_change": "c.239G>A",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-08-31",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV005005341.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-30"
+        },
+        {
+          "accession": "RCV005657433.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "14378",
+      "accession": "VCV000014378.5",
+      "name": "NM_000239.3(LYZ):c.244T>A (p.Trp82Arg)",
+      "position": 6862,
+      "genomic": 69350215,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": 82,
+      "protein_change": "p.W82R",
+      "coding_change": "c.244T>A",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-11-17",
+      "last_updated": "2026-09-13",
+      "conditions": [
+        {
+          "accession": "RCV000015454.29",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2006-01-01"
+        },
+        {
+          "accession": "RCV003556025.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-11-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "14376",
+      "accession": "VCV000014376.7",
+      "name": "NM_000239.3(LYZ):c.244T>C (p.Trp82Arg)",
+      "position": 6862,
+      "genomic": 69350215,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 82,
+      "protein_change": "p.W82R",
+      "coding_change": "c.244T>C",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-05-28",
+      "last_updated": "2026-09-13",
+      "conditions": [
+        {
+          "accession": "RCV000015452.29",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2002-03-01"
+        },
+        {
+          "accession": "RCV001509432.14",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-05-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "3681872",
+      "accession": "VCV003681872.2",
+      "name": "NM_000239.3(LYZ):c.246G>A (p.Trp82Ter)",
+      "position": 6864,
+      "genomic": 69350217,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 82,
+      "protein_change": "p.W82*",
+      "coding_change": "c.246G>A",
+      "consequence": "stop gained",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-09-28",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005155724.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-09-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310331",
+      "accession": "VCV000310331.15",
+      "name": "NM_000239.3(LYZ):c.263C>A (p.Thr88Asn)",
+      "position": 6881,
+      "genomic": 69350234,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 88,
+      "protein_change": "p.T88N",
+      "coding_change": "c.263C>A",
+      "consequence": "missense",
+      "classification": "Benign/Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-02-01",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000277779.7",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Benign/Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-03-06"
+        },
+        {
+          "accession": "RCV002056331.8",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign/Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2026-02-01"
+        },
+        {
+          "accession": "RCV006441673.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-02"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided",
+        "research"
+      ]
+    },
+    {
+      "variation_id": "4086044",
+      "accession": "VCV004086044.1",
+      "name": "NM_000239.3(LYZ):c.268G>C (p.Gly90Arg)",
+      "position": 6886,
+      "genomic": 69350239,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 90,
+      "protein_change": "p.G90R",
+      "coding_change": "c.268G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-08-23",
+      "last_updated": "2025-09-27",
+      "conditions": [
+        {
+          "accession": "RCV005641458.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310332",
+      "accession": "VCV000310332.6",
+      "name": "NM_000239.3(LYZ):c.269G>A (p.Gly90Glu)",
+      "position": 6887,
+      "genomic": 69350240,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 90,
+      "protein_change": "p.G90E",
+      "coding_change": "c.269G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2022-03-25",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000332837.6",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2022-03-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "883694",
+      "accession": "VCV000883694.7",
+      "name": "NM_000239.3(LYZ):c.272C>G (p.Ala91Gly)",
+      "position": 6890,
+      "genomic": 69350243,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 91,
+      "protein_change": "p.A91G",
+      "coding_change": "c.272C>G",
+      "consequence": "missense",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2026-02-01",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001114323.4",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV001354703.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-02-01"
+        },
+        {
+          "accession": "RCV005589960.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3575256",
+      "accession": "VCV003575256.1",
+      "name": "NM_000239.3(LYZ):c.281C>G (p.Ala94Gly)",
+      "position": 6899,
+      "genomic": 69350252,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 94,
+      "protein_change": "p.A94G",
+      "coding_change": "c.281C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-04-16",
+      "last_updated": "2025-02-01",
+      "conditions": [
+        {
+          "accession": "RCV005005342.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-16"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2076769",
+      "accession": "VCV002076769.5",
+      "name": "NM_000239.3(LYZ):c.286C>A (p.His96Asn)",
+      "position": 6904,
+      "genomic": 69350257,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 96,
+      "protein_change": "p.H96N",
+      "coding_change": "c.286C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-01-26",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV002972486.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-26"
+        },
+        {
+          "accession": "RCV004065131.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-10-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4780207",
+      "accession": "VCV004780207.1",
+      "name": "NM_000239.3(LYZ):c.301+20G>C",
+      "position": 6939,
+      "genomic": 69350292,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-12-21",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV006590142.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-21"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4688886",
+      "accession": "VCV004688886.1",
+      "name": "NM_000239.3(LYZ):c.307C>G (p.Leu103Val)",
+      "position": 8872,
+      "genomic": 69352225,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 103,
+      "protein_change": "p.L103V",
+      "coding_change": "c.307C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-12-23",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006459427.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4050236",
+      "accession": "VCV004050236.1",
+      "name": "NM_000239.3(LYZ):c.310C>A (p.Gln104Lys)",
+      "position": 8875,
+      "genomic": 69352228,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 104,
+      "protein_change": "p.Q104K",
+      "coding_change": "c.310C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-04-27",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005594104.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-04-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3575258",
+      "accession": "VCV003575258.2",
+      "name": "NM_000239.3(LYZ):c.322G>A (p.Ala108Thr)",
+      "position": 8887,
+      "genomic": 69352240,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 108,
+      "protein_change": "p.A108T",
+      "coding_change": "c.322G>A",
+      "consequence": "missense",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2025-11-26",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV005011576.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-30"
+        },
+        {
+          "accession": "RCV006373393.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-11-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3708963",
+      "accession": "VCV003708963.3",
+      "name": "NM_000239.3(LYZ):c.335C>G (p.Ala112Gly)",
+      "position": 8900,
+      "genomic": 69352253,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 112,
+      "protein_change": "p.A112G",
+      "coding_change": "c.335C>G",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-08-12",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV005190323.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-12"
+        },
+        {
+          "accession": "RCV005365479.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-01-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3541463",
+      "accession": "VCV003541463.1",
+      "name": "NM_000239.3(LYZ):c.347G>A (p.Arg116Lys)",
+      "position": 8912,
+      "genomic": 69352265,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 116,
+      "protein_change": "p.R116K",
+      "coding_change": "c.347G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-10-29",
+      "last_updated": "2025-01-19",
+      "conditions": [
+        {
+          "accession": "RCV004990324.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-29"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2477422",
+      "accession": "VCV002477422.2",
+      "name": "NM_000239.3(LYZ):c.349G>A (p.Val117Ile)",
+      "position": 8914,
+      "genomic": 69352267,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 117,
+      "protein_change": "p.V117I",
+      "coding_change": "c.349G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-01-23",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003191518.2",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-01-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4101784",
+      "accession": "VCV004101784.1",
+      "name": "NM_000239.3(LYZ):c.356G>A (p.Arg119His)",
+      "position": 8921,
+      "genomic": 69352274,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 119,
+      "protein_change": "p.R119H",
+      "coding_change": "c.356G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-08-04",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV005663671.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3575259",
+      "accession": "VCV003575259.1",
+      "name": "NM_000239.3(LYZ):c.381-2A>T",
+      "position": 9798,
+      "genomic": 69353151,
+      "ref": "A",
+      "alt": "T",
+      "genomic_ref": "A",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-01-06",
+      "last_updated": "2025-02-01",
+      "conditions": [
+        {
+          "accession": "RCV005005343.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-01-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3575260",
+      "accession": "VCV003575260.1",
+      "name": "NM_000239.3(LYZ):c.381-1G>A",
+      "position": 9799,
+      "genomic": 69353152,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-01-18",
+      "last_updated": "2025-02-01",
+      "conditions": [
+        {
+          "accession": "RCV005005344.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-01-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2872515",
+      "accession": "VCV002872515.3",
+      "name": "NM_000239.3(LYZ):c.382G>A (p.Val128Met)",
+      "position": 9801,
+      "genomic": 69353154,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 128,
+      "protein_change": "p.V128M",
+      "coding_change": "c.382G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-06-12",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV003706884.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2791068",
+      "accession": "VCV002791068.3",
+      "name": "NM_000239.3(LYZ):c.392G>C (p.Arg131Thr)",
+      "position": 9811,
+      "genomic": 69353164,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 131,
+      "protein_change": "p.R131T",
+      "coding_change": "c.392G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-04-11",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003672255.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-04-11"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3541465",
+      "accession": "VCV003541465.2",
+      "name": "NM_000239.3(LYZ):c.398G>A (p.Arg133His)",
+      "position": 9817,
+      "genomic": 69353170,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 133,
+      "protein_change": "p.R133H",
+      "coding_change": "c.398G>A",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2024-10-20",
+      "last_updated": "2025-02-01",
+      "conditions": [
+        {
+          "accession": "RCV005003830.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-24"
+        },
+        {
+          "accession": "RCV004990326.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2095574",
+      "accession": "VCV002095574.4",
+      "name": "NM_000239.3(LYZ):c.412G>C (p.Asp138His)",
+      "position": 9831,
+      "genomic": 69353184,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 138,
+      "protein_change": "p.D138H",
+      "coding_change": "c.412G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-02-09",
+      "last_updated": "2026-02-24",
+      "conditions": [
+        {
+          "accession": "RCV003013832.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-02-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310333",
+      "accession": "VCV000310333.8",
+      "name": "NM_000239.3(LYZ):c.415G>C (p.Val139Leu)",
+      "position": 9834,
+      "genomic": 69353187,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 139,
+      "protein_change": "p.V139L",
+      "coding_change": "c.415G>C",
+      "consequence": "missense",
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-09-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000373377.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV003736704.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-09-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3575261",
+      "accession": "VCV003575261.1",
+      "name": "NM_000239.3(LYZ):c.416T>C (p.Val139Ala)",
+      "position": 9835,
+      "genomic": 69353188,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 139,
+      "protein_change": "p.V139A",
+      "coding_change": "c.416T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-05-06",
+      "last_updated": "2025-02-01",
+      "conditions": [
+        {
+          "accession": "RCV005005345.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2074121",
+      "accession": "VCV002074121.4",
+      "name": "NM_000239.3(LYZ):c.432A>G (p.Gln144=)",
+      "position": 9851,
+      "genomic": 69353204,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 144,
+      "protein_change": "p.Q144=",
+      "coding_change": "c.432A>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-06-12",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV002982141.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "722403",
+      "accession": "VCV000722403.12",
+      "name": "NM_000239.3(LYZ):c.434G>A (p.Gly145Asp)",
+      "position": 9853,
+      "genomic": 69353206,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 145,
+      "protein_change": "p.G145D",
+      "coding_change": "c.434G>A",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-06-30",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000896036.9",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-30"
+        },
+        {
+          "accession": "RCV001818710.4",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-12-21"
+        },
+        {
+          "accession": "RCV002502620.1",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-07-21"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3575262",
+      "accession": "VCV003575262.1",
+      "name": "NM_000239.3(LYZ):c.442G>A (p.Val148Met)",
+      "position": 9861,
+      "genomic": 69353214,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 148,
+      "protein_change": "p.V148M",
+      "coding_change": "c.442G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-04-09",
+      "last_updated": "2025-02-01",
+      "conditions": [
+        {
+          "accession": "RCV005005346.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 5"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "883695",
+      "accession": "VCV000883695.4",
+      "name": "NM_000239.3(LYZ):c.*122A>G",
+      "position": 9988,
+      "genomic": 69353341,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001114324.4",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310334",
+      "accession": "VCV000310334.6",
+      "name": "NM_000239.3(LYZ):c.*169G>A",
+      "position": 10035,
+      "genomic": 69353388,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000259956.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        },
+        {
+          "accession": "RCV004707027.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "310335",
+      "accession": "VCV000310335.6",
+      "name": "NM_000239.3(LYZ):c.*178C>T",
+      "position": 10044,
+      "genomic": 69353397,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000319896.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        },
+        {
+          "accession": "RCV004708295.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "310336",
+      "accession": "VCV000310336.5",
+      "name": "NM_000239.3(LYZ):c.*191A>G",
+      "position": 10057,
+      "genomic": 69353410,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000374522.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310337",
+      "accession": "VCV000310337.5",
+      "name": "NM_000239.3(LYZ):c.*221C>T",
+      "position": 10087,
+      "genomic": 69353440,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000284483.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310338",
+      "accession": "VCV000310338.5",
+      "name": "NM_000239.3(LYZ):c.*242C>A",
+      "position": 10108,
+      "genomic": 69353461,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000339555.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "881352",
+      "accession": "VCV000881352.4",
+      "name": "NM_000239.3(LYZ):c.*266G>A",
+      "position": 10132,
+      "genomic": 69353485,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001110305.4",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "881353",
+      "accession": "VCV000881353.4",
+      "name": "NM_000239.3(LYZ):c.*266G>C",
+      "position": 10132,
+      "genomic": 69353485,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001110306.4",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "881354",
+      "accession": "VCV000881354.4",
+      "name": "NM_000239.3(LYZ):c.*300C>T",
+      "position": 10166,
+      "genomic": 69353519,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-15",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001110307.4",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "881355",
+      "accession": "VCV000881355.4",
+      "name": "NM_000239.3(LYZ):c.*309G>A",
+      "position": 10175,
+      "genomic": 69353528,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2017-04-27",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001110308.4",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-04-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310341",
+      "accession": "VCV000310341.5",
+      "name": "NM_000239.3(LYZ):c.*330C>T",
+      "position": 10196,
+      "genomic": 69353549,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000345148.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310342",
+      "accession": "VCV000310342.5",
+      "name": "NM_000239.3(LYZ):c.*331G>A",
+      "position": 10197,
+      "genomic": 69353550,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000403702.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "881798",
+      "accession": "VCV000881798.4",
+      "name": "NM_000239.3(LYZ):c.*404G>T",
+      "position": 10270,
+      "genomic": 69353623,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001111056.4",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "881799",
+      "accession": "VCV000881799.4",
+      "name": "NM_000239.3(LYZ):c.*413G>T",
+      "position": 10279,
+      "genomic": 69353632,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001111057.4",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310343",
+      "accession": "VCV000310343.5",
+      "name": "NM_000239.3(LYZ):c.*415G>A",
+      "position": 10281,
+      "genomic": 69353634,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000291243.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310344",
+      "accession": "VCV000310344.6",
+      "name": "NM_000239.3(LYZ):c.*418C>A",
+      "position": 10284,
+      "genomic": 69353637,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000346218.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV004708296.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "881800",
+      "accession": "VCV000881800.4",
+      "name": "NM_000239.3(LYZ):c.*426C>T",
+      "position": 10292,
+      "genomic": 69353645,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001111058.4",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310345",
+      "accession": "VCV000310345.5",
+      "name": "NM_000239.3(LYZ):c.*440T>A",
+      "position": 10306,
+      "genomic": 69353659,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000403304.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310346",
+      "accession": "VCV000310346.5",
+      "name": "NM_000239.3(LYZ):c.*442T>G",
+      "position": 10308,
+      "genomic": 69353661,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000311347.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310347",
+      "accession": "VCV000310347.5",
+      "name": "NM_000239.3(LYZ):c.*461G>A",
+      "position": 10327,
+      "genomic": 69353680,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000370823.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310348",
+      "accession": "VCV000310348.5",
+      "name": "NM_000239.3(LYZ):c.*470C>T",
+      "position": 10336,
+      "genomic": 69353689,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000397181.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310349",
+      "accession": "VCV000310349.6",
+      "name": "NM_000239.3(LYZ):c.*521G>A",
+      "position": 10387,
+      "genomic": 69353740,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000298037.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        },
+        {
+          "accession": "RCV004707028.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "882949",
+      "accession": "VCV000882949.4",
+      "name": "NM_000239.3(LYZ):c.*544C>T",
+      "position": 10410,
+      "genomic": 69353763,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001113042.4",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "882950",
+      "accession": "VCV000882950.4",
+      "name": "NM_000239.3(LYZ):c.*565G>A",
+      "position": 10431,
+      "genomic": 69353784,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001113043.4",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310350",
+      "accession": "VCV000310350.5",
+      "name": "NM_000239.3(LYZ):c.*565G>T",
+      "position": 10431,
+      "genomic": 69353784,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000352961.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "882951",
+      "accession": "VCV000882951.4",
+      "name": "NM_000239.3(LYZ):c.*608T>C",
+      "position": 10474,
+      "genomic": 69353827,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001113044.4",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310351",
+      "accession": "VCV000310351.6",
+      "name": "NM_000239.3(LYZ):c.*655G>T",
+      "position": 10521,
+      "genomic": 69353874,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000263235.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV004708297.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "883743",
+      "accession": "VCV000883743.4",
+      "name": "NM_000239.3(LYZ):c.*771A>G",
+      "position": 10637,
+      "genomic": 69353990,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001114424.4",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310353",
+      "accession": "VCV000310353.5",
+      "name": "NM_000239.3(LYZ):c.*814C>A",
+      "position": 10680,
+      "genomic": 69354033,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000359071.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310354",
+      "accession": "VCV000310354.6",
+      "name": "NM_000239.3(LYZ):c.*835C>T",
+      "position": 10701,
+      "genomic": 69354054,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000264357.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        },
+        {
+          "accession": "RCV004707029.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "883744",
+      "accession": "VCV000883744.4",
+      "name": "NM_000239.3(LYZ):c.*866C>T",
+      "position": 10732,
+      "genomic": 69354085,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-15",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001114425.4",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "310355",
+      "accession": "VCV000310355.6",
+      "name": "NM_000239.3(LYZ):c.*890T>C",
+      "position": 10756,
+      "genomic": 69354109,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000324100.5",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        },
+        {
+          "accession": "RCV004707030.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "883745",
+      "accession": "VCV000883745.4",
+      "name": "NM_000239.3(LYZ):c.*891G>A",
+      "position": 10757,
+      "genomic": 69354110,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001114426.4",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    }
+  ]
+}

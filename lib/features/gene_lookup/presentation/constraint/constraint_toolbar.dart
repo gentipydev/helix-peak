@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/biology/amino_acids.dart';
 import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../domain/entities/gene_clinvar.dart';
+import '../clinvar/clinvar_colors.dart';
 
 import 'constraint_colors.dart';
 
@@ -13,16 +15,22 @@ import 'constraint_colors.dart';
 /// are coloured by chemistry, so the strip is that key — each colour with the
 /// residues it stands for, which is what a reader needs to decode it, rather
 /// than a group name they would have to map back to letters. With it on, the
-/// squares are the constraint scale and the strip is that scale.
+/// squares are the constraint scale and the strip is that scale — and, for a
+/// gene with ClinVar records, the key to the dots they carry, which is also the
+/// way to every record.
 class ConstraintToolbar extends StatelessWidget {
   const ConstraintToolbar({
     required this.conservation,
     required this.onChanged,
+    this.onClinVar,
     super.key,
   });
   static const double height = 48;
   final bool conservation;
   final ValueChanged<bool> onChanged;
+
+  /// Opens every ClinVar record of the gene; null for a gene without them.
+  final VoidCallback? onClinVar;
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +66,10 @@ class ConstraintToolbar extends StatelessWidget {
                           ),
                         ),
                         Text('high', style: theme.textTheme.labelSmall),
+                        if (onClinVar case final VoidCallback open) ...<Widget>[
+                          const SizedBox(width: 4),
+                          _ClinVarKey(onTap: open),
+                        ],
                       ],
                     )
                   : const ChemistryKey(),
@@ -209,6 +221,52 @@ class ConservationToggle extends StatelessWidget {
                       : null,
                 ),
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The dots' key in ESM mode, and the way into every record: three of the
+/// class colours and the source's name, one tap target.
+class _ClinVarKey extends StatelessWidget {
+  const _ClinVarKey({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Semantics(
+      button: true,
+      label: 'ClinVar records',
+      hint: 'Dots mark residues with ClinVar records. Opens all of them.',
+      excludeSemantics: true,
+      child: InkWell(
+        key: const ValueKey<String>('clinvar-key'),
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                for (final ClinVarGroup group in const <ClinVarGroup>[
+                  ClinVarGroup.pathogenic,
+                  ClinVarGroup.uncertain,
+                  ClinVarGroup.benign,
+                ])
+                  Padding(
+                    padding: const EdgeInsets.only(right: 2),
+                    child: ClinVarDot(group: group, size: 7),
+                  ),
+                const SizedBox(width: 4),
+                Text('ClinVar ›', style: theme.textTheme.labelSmall),
+              ],
             ),
           ),
         ),

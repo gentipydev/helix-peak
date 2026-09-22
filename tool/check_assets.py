@@ -68,8 +68,12 @@ def dart_catalog() -> dict[str, dict]:
         modelled = re.search(r"modelled: \((\d+), (\d+)\)", block)
         row["modelled"] = (int(modelled.group(1)), int(modelled.group(2))) if modelled else None
         # Absent means scored, as the Dart constructor's default does.
-        scored = re.search(r"\bscored: (true|false)\b", block)
+        scored = re.search(r"(?<!impact)\bscored: (true|false)\b", block)
         row["scored"] = scored is None or scored.group(1) == "true"
+        tracked = re.search(r"\bimpactScored: (true|false)\b", block)
+        row["impact_scored"] = tracked is None or tracked.group(1) == "true"
+        clinical = re.search(r"\bclinvarAvailable: (true|false)\b", block)
+        row["clinvar_available"] = clinical is None or clinical.group(1) == "true"
         rows[row["slug"]] = row
     return rows
 
@@ -173,8 +177,13 @@ def check(target: Target, catalog: dict[str, dict]) -> None:
 
     mock_path = ROOT / target.mock_asset
     constraint_path = ROOT / target.constraint_asset
+    impact_path = ROOT / target.impact_asset
     model_path = ROOT / target.structure_asset
-    required = (mock_path, constraint_path, model_path) if target.scored else (mock_path, model_path)
+    required = [mock_path, model_path]
+    if target.scored:
+        required.append(constraint_path)
+    if target.impact_scored:
+        required.append(impact_path)
     for path in required:
         if not path.exists():
             fail(f"{where}: missing {path.relative_to(ROOT)}")
@@ -184,8 +193,18 @@ def check(target: Target, catalog: dict[str, dict]) -> None:
             f"{where}: {constraint_path.relative_to(ROOT)} exists, but targets.py says this "
             "protein is not scored"
         )
+    if not target.impact_scored and impact_path.exists():
+        fail(
+            f"{where}: {impact_path.relative_to(ROOT)} exists, but targets.py says this "
+            "gene has no impact track"
+        )
 
+    clinical_path = ROOT / f"assets/clinvar/{target.slug}_clinvar.json"
+    if target.clinvar_available != clinical_path.exists():
+        fail(f"{where}: ClinVar asset availability differs from the table")
     mock = json.loads(mock_path.read_text())
+    if target.clinvar_available and clinical_path.exists():
+        check_clinvar(target, mock, json.loads(clinical_path.read_text()))
 
     if mock["gene"] != target.gene:
         fail(f"{where}: record is for {mock['gene']}, table says {target.gene}")
@@ -196,6 +215,11 @@ def check(target: Target, catalog: dict[str, dict]) -> None:
     check_record(mock, where)
 
     if target.scored and not check_constraint(target, mock, json.loads(constraint_path.read_text())):
+        return
+
+    if target.impact_scored and not check_impact(
+        target, mock, json.loads(impact_path.read_text())
+    ):
         return
 
     nodes = glb_nodes(model_path)
@@ -223,11 +247,186 @@ def check(target: Target, catalog: dict[str, dict]) -> None:
         )
     if row["scored"] != target.scored:
         fail(f"{where}: catalog.dart says scored={row['scored']}, table says {target.scored}")
+    if row["clinvar_available"] != target.clinvar_available:
+        fail(f"{where}: ClinVar availability differs in Dart and Python")
+    if row["impact_scored"] != target.impact_scored:
+        fail(
+            f"{where}: catalog.dart says impactScored={row['impact_scored']}, "
+            f"table says {target.impact_scored}"
+        )
     if set(row["chains"]) != nodes:
         fail(
             f"{where}: catalog.dart paints {sorted(row['chains'])}, "
             f"{model_path.name} holds {sorted(nodes)}"
         )
+
+
+def check_clinvar(target: Target, mock: dict, clinical: dict) -> None:
+    """Independently rederive each allele and codon from the shipped record."""
+    where = target.slug + " ClinVar"
+    impact = json.loads((ROOT / target.impact_asset).read_text())
+    if any(clinical.get(k) != impact[k] for k in
+           ("gene", "accession", "assembly", "chromosome", "start", "sequence", "runs", "complemented")):
+        fail(f"{where}: mapping differs from the gene/AVI track")
+    if clinical.get("protein_sequence") != mock["protein"]["translation"]:
+        fail(f"{where}: protein differs")
+    variants = clinical["variants"]
+    if len({v["variation_id"] for v in variants}) != len(variants):
+        fail(f"{where}: repeated Variation ID")
+    if len(variants) + sum(clinical["excluded"].values()) != clinical["searched_records"]:
+        fail(f"{where}: incomplete search")
+    cds = positions(mock, mock["protein"]["segments"])
+    offsets = {p: i for i, p in enumerate(cds)}
+    dna = bases(mock, cds)
+    complement = str.maketrans("ACGT", "TGCA")
+    for v in variants:
+        local = v["position"]
+        if bases(mock, [local]) != v["ref"] or len(v["alt"]) != 1 or v["alt"] not in "ACGT" or v["alt"] == v["ref"]:
+            fail(f"{where}: reference/allele mismatch {v['variation_id']}")
+        mapped = [r["genomic"] + r["step"] * (local - r["local"]) for r in impact["runs"]
+                  if r["local"] <= local < r["local"] + r["length"]]
+        if mapped != [v["genomic"]]:
+            fail(f"{where}: genomic mismatch {v['variation_id']}")
+        for key in ("ref", "alt"):
+            genomic_base = v[key].translate(complement) if impact["complemented"] else v[key]
+            if genomic_base != v["genomic_" + key]:
+                fail(f"{where}: strand mismatch {v['variation_id']}")
+        offset = offsets.get(local)
+        if offset is not None:
+            codon = dna[offset // 3 * 3:offset // 3 * 3 + 3]
+            ref = translate(codon)
+            alt = translate(codon[:offset % 3] + v["alt"] + codon[offset % 3 + 1:])
+            residue = offset // 3 + 1 if ref != "*" else None
+            expected = f"p.{ref}{residue}{'=' if ref == alt else alt}" if residue else None
+            if v["residue"] != residue or v["protein_change"] != expected:
+                fail(f"{where}: protein mapping mismatch {v['variation_id']}")
+        elif v["residue"] is not None:
+            fail(f"{where}: noncoding variant has a residue")
+        if not v["classification"] or not v["review_status"] or not v["accession"].startswith("VCV"):
+            fail(f"{where}: missing classification provenance")
+    # The identifiers ClinVar gives the conditions it names: every entry names a
+    # condition some record's RCV cites, and nothing is written in its place.
+    named = {n for v in variants for c in v["conditions"] for n in c["names"]}
+    for name, ids in clinical.get("traits", {}).items():
+        if name not in named:
+            fail(f"{where}: identifiers for {name!r}, which no record names")
+        if (not re.fullmatch(r"CN?\d+", ids.get("medgen", ""))
+                or not re.fullmatch(r"(PS)?\d{6}", ids.get("omim", "000000"))
+                or not re.fullmatch(r"MONDO:\d{7}", ids.get("mondo", "MONDO:0000000"))
+                or set(ids) - {"medgen", "symbol", "omim", "mondo"}):
+            fail(f"{where}: malformed identifiers for {name!r}")
+
+
+def check_impact(target: Target, mock: dict, impact: dict) -> bool:
+    """The per-base AVI track against the record it is filed under.
+
+    The bake's own gates are the real ones — every score is checked against the
+    reference base the Atlas returned with it. What is left for here is that the
+    file on disk still belongs to this record: the same letters, the same
+    coordinates, a map that covers all of them, and the biology the feature
+    claims still holding.
+    """
+    where = target.slug
+    for field, mine in (
+        ("gene", target.gene),
+        ("uniprot", target.uniprot),
+        ("accession", target.source.accession),
+        ("assembly", "GRCh38"),
+        ("annotation", "GENCODE v46"),
+        ("scorer", "AVI_SCORE"),
+        ("score_units", "phred"),
+    ):
+        if impact.get(field) != mine:
+            fail(f"{where}: impact track says {field}={impact.get(field)!r}, expected {mine!r}")
+            return False
+
+    # The drawn letters in increasing record position, which is how the app
+    # reads them. The same as the record's own `sequence` except on a
+    # minus-strand record, which stores its letters from the far end (R2.1).
+    loc = mock["location"]
+    if impact["sequence"] != bases(mock, list(range(loc["start"], loc["end"] + 1))):
+        fail(f"{where}: the impact track's sequence is not the record's drawn letters")
+        return False
+    if impact["start"] != mock["location"]["start"]:
+        fail(
+            f"{where}: impact track starts at {impact['start']}, "
+            f"the record at {mock['location']['start']}"
+        )
+        return False
+
+    covered = sum(run["length"] for run in impact["runs"])
+    if covered != len(mock["sequence"]):
+        fail(
+            f"{where}: the coordinate map covers {covered:,} of "
+            f"{len(mock['sequence']):,} drawn bases"
+        )
+        return False
+
+    # Every run has to stay inside the record and inside the chromosome.
+    for run in impact["runs"]:
+        last_local = run["local"] + run["length"] - 1
+        last_genomic = run["genomic"] + run["step"] * (run["length"] - 1)
+        if run["local"] < impact["start"] or last_local > mock["location"]["end"]:
+            fail(f"{where}: a coordinate run leaves the record at {run['local']}")
+            return False
+        if min(run["genomic"], last_genomic) < 1:
+            fail(f"{where}: a coordinate run leaves the chromosome at {run['genomic']}")
+            return False
+
+    start = impact["start"]
+    for local, values in impact["positions"].items():
+        offset = int(local) - start
+        if offset < 0 or offset >= len(impact["sequence"]):
+            fail(f"{where}: a score at {local} is outside the record")
+            return False
+        if len(values) != 3:
+            fail(f"{where}: {len(values)} substitutions at {local}, expected three")
+            return False
+
+    scored = len(impact["positions"])
+    if scored < len(mock["sequence"]) * 0.98:
+        fail(f"{where}: only {scored:,} of {len(mock['sequence']):,} drawn bases are scored")
+        return False
+
+    # The claim the sheet makes, checked on the file rather than on the bake's
+    # report of it: a splice boundary is not a quiet place and an intron
+    # interior is.
+    peak = {int(k): max(v) for k, v in impact["positions"].items()}
+    exons = sorted((e["start"], e["end"]) for e in mock["exons"])
+    exonic = [peak[p] for a, b in exons for p in range(a, b + 1) if p in peak]
+    junction: list[float] = []
+    interior: list[float] = []
+    for (_, a), (b, _) in zip(exons, exons[1:]):
+        low, high = a + 1, b - 1
+        if high < low:
+            continue
+        edge = min(8, (high - low + 1) // 2)
+        for p in range(low, high + 1):
+            if p not in peak:
+                continue
+            (junction if p < low + edge or p > high - edge else interior).append(peak[p])
+    if exonic and interior:
+        if median(exonic) <= median(interior):
+            fail(
+                f"{where}: exons score no higher than intron interiors "
+                f"({median(exonic):.1f} vs {median(interior):.1f})"
+            )
+            return False
+        if junction and median(junction) <= median(interior):
+            fail(
+                f"{where}: splice boundaries score no higher than intron interiors "
+                f"({median(junction):.1f} vs {median(interior):.1f})"
+            )
+            return False
+    return True
+
+
+def median(values: list[float]) -> float:
+    ordered = sorted(values)
+    middle = len(ordered) // 2
+    if len(ordered) % 2:
+        return ordered[middle]
+    return (ordered[middle - 1] + ordered[middle]) / 2
 
 
 def check_constraint(target: Target, mock: dict, constraint: dict) -> bool:
@@ -300,14 +499,21 @@ if __name__ == "__main__":
     total = sum(
         (ROOT / path).stat().st_size
         for t in TARGETS
-        for path in ((t.mock_asset, t.constraint_asset) if t.scored else (t.mock_asset,))
+        for path in (
+            [t.mock_asset]
+            + ([t.constraint_asset] if t.scored else [])
+            + ([t.impact_asset] if t.impact_scored else [])
+            + ([f"assets/clinvar/{t.slug}_clinvar.json"] if t.clinvar_available else [])
+        )
     )
     scenes = sum(
         f.stat().st_size for f in MANIFEST.parent.glob("*.fsceneb")
     )
     scored = sum(1 for t in TARGETS if t.scored)
+    tracked = sum(1 for t in TARGETS if t.impact_scored)
     print(
-        f"{len(TARGETS)} targets check out, {scored} of them scored. "
+        f"{len(TARGETS)} targets check out, {scored} scored and "
+        f"{tracked} with an impact track. "
         f"{total / 1e6:.2f} MB of records and tracks, "
         f"{scenes / 1e6:.2f} MB of compiled scenes."
     )

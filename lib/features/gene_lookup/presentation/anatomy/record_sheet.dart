@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../domain/entities/gene_clinvar.dart';
 import '../../domain/entities/protein_target.dart';
+import '../clinvar/sources_note.dart';
 import '../format.dart';
 import 'anatomy_fasta.dart';
 import 'anatomy_stages.dart';
@@ -14,12 +16,20 @@ import 'anatomy_stages.dart';
 /// ESM-2 track without naming one of them on screen — the accession was only
 /// ever visible in the loading label. A reader checking a number against its
 /// source needs the source, and one who wants the sequence needs it as text.
+///
+/// It is also where the sources are explained, once: what ESM, AVI and ClinVar
+/// each are and every caveat about them, which the sheets no longer repeat,
+/// and — for a gene without a ClinVar snapshot — the one place that says so.
 Future<void> showRecordSheet({
   required BuildContext context,
   required AnatomyModel model,
   required ProteinTarget target,
   required bool scored,
   required ValueChanged<int> onGoToResidue,
+  bool impactScored = false,
+  GeneClinVar? clinvar,
+  bool clinvarFailed = false,
+  VoidCallback? onOpenVariants,
 }) => showModalBottomSheet<void>(
   context: context,
   isScrollControlled: true,
@@ -31,6 +41,10 @@ Future<void> showRecordSheet({
     target: target,
     scored: scored,
     onGoToResidue: onGoToResidue,
+    impactScored: impactScored,
+    clinvar: clinvar,
+    clinvarFailed: clinvarFailed,
+    onOpenVariants: onOpenVariants,
   ),
 );
 
@@ -40,12 +54,22 @@ class _RecordSheet extends StatefulWidget {
     required this.target,
     required this.scored,
     required this.onGoToResidue,
+    required this.impactScored,
+    required this.clinvarFailed,
+    this.clinvar,
+    this.onOpenVariants,
   });
 
   final AnatomyModel model;
   final ProteinTarget target;
   final bool scored;
   final ValueChanged<int> onGoToResidue;
+  final bool impactScored;
+
+  /// The snapshot, where one is loaded and matches the record.
+  final GeneClinVar? clinvar;
+  final bool clinvarFailed;
+  final VoidCallback? onOpenVariants;
 
   @override
   State<_RecordSheet> createState() => _RecordSheetState();
@@ -129,10 +153,29 @@ class _RecordSheetState extends State<_RecordSheet> {
       ),
       if (widget.scored)
         (
-          'Scores',
-          'ESM-2 650M masked marginals, precomputed · constraint min–max '
-              'within this protein',
+          'ESM-2',
+          '650M masked marginals, precomputed · constraint min–max within '
+              'this protein',
         ),
+      if (widget.impactScored)
+        (
+          'AVI',
+          'AlphaGenome Variant Impact, precomputed · GRCh38 · Phred '
+              'calibrated genome-wide',
+        ),
+      (
+        'ClinVar',
+        switch (widget.clinvar) {
+          final GeneClinVar snapshot =>
+            'NCBI snapshot ${snapshot.snapshotDate} · '
+                '${grouped(snapshot.variants.length)} of '
+                '${grouped(snapshot.searchedRecords)} records mapped',
+          null when !target.clinvarAvailable =>
+            'not yet included for ${target.gene}',
+          null when widget.clinvarFailed => 'snapshot unavailable',
+          null => 'snapshot loading',
+        },
+      ),
     ];
 
     final List<(String, String?)> copies = <(String, String?)>[
@@ -188,6 +231,48 @@ class _RecordSheetState extends State<_RecordSheet> {
                   ],
                 ),
               ),
+            if (widget.onOpenVariants case final VoidCallback open)
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: OutlinedButton(
+                  key: const ValueKey<String>('open-variants'),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(0, 40),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    open();
+                  },
+                  child: Text(
+                    'ClinVar records · ${grouped(widget.clinvar?.variants.length ?? 0)} ›',
+                  ),
+                ),
+              ),
+            Theme(
+              // The tile's own dividers would draw a second pair of rules
+              // around what is one quiet block of text.
+              data: theme.copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                key: const ValueKey<String>('about-sources'),
+                tilePadding: EdgeInsets.zero,
+                childrenPadding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                title: Text(
+                  'About these sources',
+                  style: theme.textTheme.labelSmall,
+                ),
+                children: <Widget>[
+                  SourcesNote(
+                    snapshotDate: widget.clinvar?.snapshotDate,
+                    included:
+                        widget.target.clinvarAvailable || widget.clinvar != null,
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: AppSpacing.md),
             Text('Copy as FASTA', style: theme.textTheme.labelSmall),
             const SizedBox(height: AppSpacing.sm),

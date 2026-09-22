@@ -1,0 +1,1776 @@
+{
+  "schema_version": 1,
+  "source": "NCBI ClinVar",
+  "gene": "EPO",
+  "accession": "NG_021471",
+  "assembly": "GRCh38",
+  "chromosome": "chr7",
+  "scope": "reference-matched single nucleotide variants in the drawn gene",
+  "start": 4669,
+  "sequence": "CCTTTCCCAGATAGCACGCTCCGCCAGTCCCAAGGGTGCGCAACCGGCTGCACTCCCCTCCCGCGACCCAGGGCCCGGGAGCAGCCCCCATGACCCACACGCACGTCTGCAGCAGCCCCGCTCACGCCCCGGCGAGCCTCAACCCAGGCGTCCTGCCCCTGCTCTGACCCCGGGTGGCCCCTACCCCTGGCGACCCCTCACGCACACAGCCTCTCCCCCACCCCCACCCGCGCACGCACACATGCAGATAACAGCCCCGACCCCCGGCCAGAGCCGCAGAGTCCCTGGGCCACCCCGGCCGCTCGCTGCGCTGCGCCGCACCGCGCTGTCCTCCCGGAGCCGGACCGGGGCCACCGCGCCCGCTCTGCTCCGACACCGCGCCCCCTGGACAGCCGCCCTCTCCTCCAGGCCCGTGGGGCTGGCCCTGCACCGCCGAGCTTCCCGGGATGAGGGCCCCCGGTGTGGTCACCCGGCGCGCCCCAGGTCGCTGAGGGACCCCGGCCAGGCGCGGAGATGGGGGTGCACGGTGAGTACTCGCGGGCTGGGCGCTCCCGCCCGCCCGGGTCCCTGTTTGAGCGGGGATTTAGCGCCCCGGCTATTGGCCAGGAGGTGGCTGGGTTCAAGGACCGGCGACTTGTCAAGGACCCCGGAAGGGGGAGGGGGGTGGGGCAGCCTCCACGTGCCAGCGGGGACTTGGGGGAGTCCTTGGGGATGGCAAAAACCTGACCTGTGAAGGGGACACAGTTTGGGGGTTGAGGGGAAGAAGGTTTGGGGGTTCTGCTGTGCCAGTGGAGAGGAAGCTGATAAGCTGATAACCTGGGCGCTGGAGCCACCACTTATCTGCCAGAGGGGAAGCCTCTGTCACACCAGGATTGAAGTTTGGCCGGAGAAGTGGATGCTGGTAGCTGGGGGTGGGGTGTGCACACGGCAGCAGGATTGAATGAAGGCCAGGGAGGCAGCACCTGAGTGCTTGCATGGTTGGGGACAGGAAGGACGAGCTGGGGCAGAGACGTGGGGATGAAGGAAGCTGTCCTTCCACAGCCACCCTTCTCCCTCCCCGCCTGACTCTCAGCCTGGCTATCTGTTCTAGAATGTCCTGCCTGGCTGTGGCTTCTCCTGTCCCTGCTGTCGCTCCCTCTGGGCCTCCCAGTCCTGGGCGCCCCACCACGCCTCATCTGTGACAGCCGAGTCCTGGAGAGGTACCTCTTGGAGGCCAAGGAGGCCGAGAATATCACGGTGAGACCCCTTCCCCAGCACATTCCACAGAACTCACGCTCAGGGCTTCAGGGAACTCCTCCCAGATCCAGGAACCTGGCACTTGGTTTGGGGTGGAGTTGGGAAGCTAGACACTGCCCCCCTACATAAGAATAAGTCTGGTGGCCCCAAACCATACCTGGAAACTAGGCAAGGAGCAAAGCCAGCAGATCCTACGGCCTGTGGGCCAGGGCCAGAGCCTTCAGGGACCCTTGACTCCCCGGGCTGTGTGCATTTCAGACGGGCTGTGCTGAACACTGCAGCTTGAATGAGAATATCACTGTCCCAGACACCAAAGTTAATTTCTATGCCTGGAAGAGGATGGAGGTGAGTTCCTTTTTTTTTTTTTTTCCTTTCTTTTGGAGAATCTCATTTGCGAGCCTGATTTTGGATGAAAGGGAGAATGATCGAGGGAAAGGTAAAATGGAGCAGCAGAGATGAGGCTGCCTGGGCGCAGAGGCTCACGTCTATAATCCCAGGCTGAGATGGCCGAGATGGGAGAATTGCTTGAGCCCTGGAGTTTCAGACCAACCTAGGCAGCATAGTGAGATCCCCCATCTCTACAAACATTTAAAAAAATTAGTCAGGTGAGGTGGTGCATGGTGGTAGTCCCAGATATTTGGAAGGCTGAGGCGGGAGGATCGCTTGAGCCCAGGAATTTGAGGCTGCAGTGAGCTGTGATCACACCACTGCACTCCAGCCTCAGTGACAGAGTGAGGCCCTGTCTCAAAAAAGAAAAGAAAAAAGAAAAATAATGAGGGCTGTATGGAATACATTCATTATTCATTCACTCACTCACTCACTCACTCATTCATTCATTCATTCATTCAACAAGTCTTATTGCATACCTTCTGTTTGCTCAGCTTGGTGCTTGGGGCTGCTGAGGGGCAGGAGGGAGAGGGTGACATGGGTCAGCTGACTCCCAGAGTCCACTCCCTGTAGGTCGGGCAGCAGGCCGTAGAAGTCTGGCAGGGCCTGGCCCTGCTGTCGGAAGCTGTCCTGCGGGGCCAGGCCCTGTTGGTCAACTCTTCCCAGCCGTGGGAGCCCCTGCAGCTGCATGTGGATAAAGCCGTCAGTGGCCTTCGCAGCCTCACCACTCTGCTTCGGGCTCTGGGAGCCCAGGTGAGTAGGAGCGGACACTTCTGCTTGCCCTTTCTGTAAGAAGGGGAGAAGGGTCTTGCTAAGGAGTACAGGAACTGTCCGTATTCCTTCCCTTTCTGTGGCACTGCAGCGACCTCCTGTTTTCTCCTTGGCAGAAGGAAGCCATCTCCCCTCCAGATGCGGCCTCAGCTGCTCCACTCCGAACAATCACTGCTGACACTTTCCGCAAACTCTTCCGAGTCTACTCCAATTTCCTCCGGGGAAAGCTGAAGCTGTACACAGGGGAGGCCTGCAGGACAGGGGACAGATGACCAGGTGTGTCCACCTGGGCATATCCACCACCTCCCTCACCAACATTGCTTGTGCCACACCCTCCCCCGCCACTCCTGAACCCCGTCGAGGGGCTCTCAGCTCAGCGCCAGCCTGTCCCATGGACACTCCAGTGCCAGCAATGACATCTCAGGGGCCAGAGGAACTGTCCAGAGAGCAACTCTGAGATCTAAGGATGTCACAGGGCCAACTTGAGGGCCCAGAGCAGGAAGCATTCAGAGAGCAGCTTTAAACTCAGGGACAGAGCCATGCTGGGAAGACGCCTGAGCTCACTCGGCACCCTGCAAAATTTGATGCCAGGACACGCTTTGGAGGCGATTTACCTGTTTTCGCACCTACCATCAGGGACAGGATGACCTGGATAACTTAGGTGGCAAGCTGTGACTTCTCCAGGTCTCACGGGCATGGGCACTCCCTTGGTGGCAAGAGCCCCCTTGACACCGGGGTGGTGGGAACCATGAAGACAGGATGGGGGCTGGCCTCTGGCTCTCATGGGGTCCAAGTTTTGTGTATTCTTCAACCTCATTGACAAGAACTGAAACCACCAA",
+  "protein_sequence": "MGVHECPAWLWLLLSLLSLPLGLPVLGAPPRLICDSRVLERYLLEAKEAENITTGCAEHCSLNENITVPDTKVNFYAWKRMEVGQQAVEVWQGLALLSEAVLRGQALLVNSSQPWEPLQLHVDKAVSGLRSLTTLLRALGAQKEAISPPDAASAAPLRTITADTFRKLFRVYSNFLRGKLKLYTGEACRTGDR",
+  "complemented": false,
+  "runs": [
+    {
+      "local": 4669,
+      "genomic": 100720468,
+      "step": 1,
+      "length": 3233
+    }
+  ],
+  "retrieved_at": "2026-09-22T12:55:27.477398+00:00",
+  "query": "EPO[gene]",
+  "searched_records": 91,
+  "excluded": {
+    "no_germline_classification": 1,
+    "no_unique_GRCh38_location": 22,
+    "not_a_single_base_substitution": 17,
+    "outside_drawn_gene": 1
+  },
+  "source_batches": [
+    {
+      "file": "batch-0.xml",
+      "sha256": "399808009f0826a65e4904033aeba1403f664beeca76344e640db542d0b35d1b"
+    }
+  ],
+  "traits": {
+    "Diamond-Blackfan anemia-like": {
+      "medgen": "C4693556",
+      "symbol": "DBAL",
+      "omim": "617911",
+      "mondo": "MONDO:0060662"
+    }
+  },
+  "variants": [
+    {
+      "variation_id": "2692116",
+      "accession": "VCV002692116.2",
+      "name": "NM_000799.4(EPO):c.-203C>A",
+      "position": 4979,
+      "genomic": 100720778,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-03-04",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003494313.2",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-03-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3353367",
+      "accession": "VCV003353367.1",
+      "name": "NM_000799.4(EPO):c.-136G>A",
+      "position": 5046,
+      "genomic": 100720845,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2024-09-18",
+      "last_updated": "2024-10-13",
+      "conditions": [
+        {
+          "accession": "RCV004756857.1",
+          "names": [
+            "EPO-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-09-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3043637",
+      "accession": "VCV003043637.2",
+      "name": "NM_000799.4(EPO):c.9G>A (p.Val3=)",
+      "position": 5190,
+      "genomic": 100720989,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 3,
+      "protein_change": "p.V3=",
+      "coding_change": "c.9G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2019-06-06",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003936849.2",
+          "names": [
+            "EPO-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2019-06-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "739804",
+      "accession": "VCV000739804.5",
+      "name": "NM_000799.4(EPO):c.13+10C>T",
+      "position": 5204,
+      "genomic": 100721003,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-09-25",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000915810.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-09-25"
+        },
+        {
+          "accession": "RCV003950822.2",
+          "names": [
+            "EPO-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2019-11-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2441272",
+      "accession": "VCV002441272.8",
+      "name": "NM_000799.4(EPO):c.14-1G>C",
+      "position": 5758,
+      "genomic": 100721557,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-11-01",
+      "last_updated": "2026-07-27",
+      "conditions": [
+        {
+          "accession": "RCV003147101.9",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2025-11-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2236168",
+      "accession": "VCV002236168.2",
+      "name": "NM_000799.4(EPO):c.16T>C (p.Cys6Arg)",
+      "position": 5761,
+      "genomic": 100721560,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 6,
+      "protein_change": "p.C6R",
+      "coding_change": "c.16T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-07-09",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004098220.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-07-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2634757",
+      "accession": "VCV002634757.1",
+      "name": "NM_000799.4(EPO):c.19C>T (p.Pro7Ser)",
+      "position": 5764,
+      "genomic": 100721563,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 7,
+      "protein_change": "p.P7S",
+      "coding_change": "c.19C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-07-19",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003402707.4",
+          "names": [
+            "EPO-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-07-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4664894",
+      "accession": "VCV004664894.1",
+      "name": "NM_000799.4(EPO):c.53C>T (p.Ser18Leu)",
+      "position": 5798,
+      "genomic": 100721597,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 18,
+      "protein_change": "p.S18L",
+      "coding_change": "c.53C>T",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-11-20",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV006410661.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-11-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "716882",
+      "accession": "VCV000716882.5",
+      "name": "NM_000799.4(EPO):c.54G>A (p.Ser18=)",
+      "position": 5799,
+      "genomic": 100721598,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 18,
+      "protein_change": "p.S18=",
+      "coding_change": "c.54G>A",
+      "consequence": "synonymous",
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-12-31",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000889593.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-12-31"
+        },
+        {
+          "accession": "RCV004756074.1",
+          "names": [
+            "EPO-related disorder"
+          ],
+          "classification": "Benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-04-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2219620",
+      "accession": "VCV002219620.2",
+      "name": "NM_000799.4(EPO):c.82G>A (p.Ala28Thr)",
+      "position": 5827,
+      "genomic": 100721626,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 28,
+      "protein_change": "p.A28T",
+      "coding_change": "c.82G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-04-21",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004083601.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-04-21"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "782270",
+      "accession": "VCV000782270.23",
+      "name": "NM_000799.4(EPO):c.108C>T (p.Ser36=)",
+      "position": 5853,
+      "genomic": 100721652,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 36,
+      "protein_change": "p.S36=",
+      "coding_change": "c.108C>T",
+      "consequence": "synonymous",
+      "classification": "Benign/Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2024-07-01",
+      "last_updated": "2026-07-27",
+      "conditions": [
+        {
+          "accession": "RCV000963639.23",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign/Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2024-07-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "796251",
+      "accession": "VCV000796251.3",
+      "name": "NM_000799.4(EPO):c.147C>G (p.Ala49=)",
+      "position": 5892,
+      "genomic": 100721691,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 49,
+      "protein_change": "p.A49=",
+      "coding_change": "c.147C>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-12-05",
+      "last_updated": "2024-09-29",
+      "conditions": [
+        {
+          "accession": "RCV000979623.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-12-05"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4018932",
+      "accession": "VCV004018932.1",
+      "name": "NM_000799.4(EPO):c.148G>A (p.Glu50Lys)",
+      "position": 5893,
+      "genomic": 100721692,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 50,
+      "protein_change": "p.E50K",
+      "coding_change": "c.148G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-03-18",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005568128.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-03-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "781763",
+      "accession": "VCV000781763.4",
+      "name": "NM_000799.4(EPO):c.171T>C (p.Ala57=)",
+      "position": 6174,
+      "genomic": 100721973,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 57,
+      "protein_change": "p.A57=",
+      "coding_change": "c.171T>C",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-12-31",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000963042.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-12-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2323206",
+      "accession": "VCV002323206.2",
+      "name": "NM_000799.4(EPO):c.175C>T (p.His59Tyr)",
+      "position": 6178,
+      "genomic": 100721977,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 59,
+      "protein_change": "p.H59Y",
+      "coding_change": "c.175C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-11-07",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004170846.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-11-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "715578",
+      "accession": "VCV000715578.26",
+      "name": "NM_000799.4(EPO):c.208G>A (p.Asp70Asn)",
+      "position": 6211,
+      "genomic": 100722010,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 70,
+      "protein_change": "p.D70N",
+      "coding_change": "c.208G>A",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-02-01",
+      "last_updated": "2026-07-27",
+      "conditions": [
+        {
+          "accession": "RCV000888072.26",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2025-02-01"
+        },
+        {
+          "accession": "RCV003940594.2",
+          "names": [
+            "EPO-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2023-05-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "2495799",
+      "accession": "VCV002495799.2",
+      "name": "NM_000799.4(EPO):c.226T>C (p.Tyr76His)",
+      "position": 6229,
+      "genomic": 100722028,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 76,
+      "protein_change": "p.Y76H",
+      "coding_change": "c.226T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-03-13",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004283319.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-03-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "716909",
+      "accession": "VCV000716909.5",
+      "name": "NM_000799.4(EPO):c.237G>A (p.Lys79=)",
+      "position": 6240,
+      "genomic": 100722039,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 79,
+      "protein_change": "p.K79=",
+      "coding_change": "c.237G>A",
+      "consequence": "synonymous",
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-12-31",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000889625.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-12-31"
+        },
+        {
+          "accession": "RCV004756075.1",
+          "names": [
+            "EPO-related disorder"
+          ],
+          "classification": "Benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-04-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1250657",
+      "accession": "VCV001250657.2",
+      "name": "NM_000799.4(EPO):c.247-136C>T",
+      "position": 6729,
+      "genomic": 100722528,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-05-15",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001652907.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-05-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1241878",
+      "accession": "VCV001241878.3",
+      "name": "NM_000799.4(EPO):c.247-66G>A",
+      "position": 6799,
+      "genomic": 100722598,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2021-05-11",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001647728.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2021-05-11"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "718151",
+      "accession": "VCV000718151.7",
+      "name": "NM_000799.4(EPO):c.250G>A (p.Gly84Arg)",
+      "position": 6868,
+      "genomic": 100722667,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 84,
+      "protein_change": "p.G84R",
+      "coding_change": "c.250G>A",
+      "consequence": "missense",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2024-05-06",
+      "last_updated": "2025-11-02",
+      "conditions": [
+        {
+          "accession": "RCV000891058.7",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Conflicting classifications of pathogenicity",
+          "review_status": "criteria provided, conflicting classifications",
+          "last_evaluated": "2024-05-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "in vitro",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "733903",
+      "accession": "VCV000733903.17",
+      "name": "NM_000799.4(EPO):c.261C>T (p.Ala87=)",
+      "position": 6879,
+      "genomic": 100722678,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 87,
+      "protein_change": "p.A87=",
+      "coding_change": "c.261C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2024-12-01",
+      "last_updated": "2026-07-27",
+      "conditions": [
+        {
+          "accession": "RCV000909265.17",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2024-12-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "3276051",
+      "accession": "VCV003276051.1",
+      "name": "NM_000799.4(EPO):c.262G>A (p.Val88Ile)",
+      "position": 6880,
+      "genomic": 100722679,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 88,
+      "protein_change": "p.V88I",
+      "coding_change": "c.262G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-05-20",
+      "last_updated": "2024-08-11",
+      "conditions": [
+        {
+          "accession": "RCV004620652.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3845561",
+      "accession": "VCV003845561.1",
+      "name": "NM_000799.4(EPO):c.265G>C (p.Glu89Gln)",
+      "position": 6883,
+      "genomic": 100722682,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 89,
+      "protein_change": "p.E89Q",
+      "coding_change": "c.265G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-03-03",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005330446.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-03-03"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2441271",
+      "accession": "VCV002441271.3",
+      "name": "NM_000799.4(EPO):c.286C>G (p.Leu96Val)",
+      "position": 6904,
+      "genomic": 100722703,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 96,
+      "protein_change": "p.L96V",
+      "coding_change": "c.286C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2020-07-30",
+      "last_updated": "2025-09-07",
+      "conditions": [
+        {
+          "accession": "RCV003147100.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-07-30"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4664895",
+      "accession": "VCV004664895.1",
+      "name": "NM_000799.4(EPO):c.293C>T (p.Ser98Leu)",
+      "position": 6911,
+      "genomic": 100722710,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 98,
+      "protein_change": "p.S98L",
+      "coding_change": "c.293C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-11-24",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV006410662.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-11-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4664896",
+      "accession": "VCV004664896.1",
+      "name": "NM_000799.4(EPO):c.316G>A (p.Ala106Thr)",
+      "position": 6934,
+      "genomic": 100722733,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 106,
+      "protein_change": "p.A106T",
+      "coding_change": "c.316G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-12-09",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV006410663.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "773891",
+      "accession": "VCV000773891.29",
+      "name": "NM_000799.4(EPO):c.341C>T (p.Pro114Leu)",
+      "position": 6959,
+      "genomic": 100722758,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 114,
+      "protein_change": "p.P114L",
+      "coding_change": "c.341C>T",
+      "consequence": "missense",
+      "classification": "Benign/Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-09-01",
+      "last_updated": "2026-07-27",
+      "conditions": [
+        {
+          "accession": "RCV000953740.28",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign/Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2025-09-01"
+        },
+        {
+          "accession": "RCV006442194.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-08-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "3036860",
+      "accession": "VCV003036860.2",
+      "name": "NM_000799.4(EPO):c.348G>A (p.Glu116=)",
+      "position": 6966,
+      "genomic": 100722765,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 116,
+      "protein_change": "p.E116=",
+      "coding_change": "c.348G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2024-02-28",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003913844.2",
+          "names": [
+            "EPO-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-02-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3845560",
+      "accession": "VCV003845560.1",
+      "name": "NM_000799.4(EPO):c.389G>T (p.Arg130Leu)",
+      "position": 7007,
+      "genomic": 100722806,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 130,
+      "protein_change": "p.R130L",
+      "coding_change": "c.389G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-02-05",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005330445.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-02-05"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4250115",
+      "accession": "VCV004250115.1",
+      "name": "NM_000799.4(EPO):c.392G>C (p.Ser131Thr)",
+      "position": 7010,
+      "genomic": 100722809,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 131,
+      "protein_change": "p.S131T",
+      "coding_change": "c.392G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-08-02",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV005837065.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-02"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3509540",
+      "accession": "VCV003509540.1",
+      "name": "NM_000799.4(EPO):c.401C>T (p.Thr134Ile)",
+      "position": 7019,
+      "genomic": 100722818,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 134,
+      "protein_change": "p.T134I",
+      "coding_change": "c.401C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-09-08",
+      "last_updated": "2025-01-19",
+      "conditions": [
+        {
+          "accession": "RCV004907410.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-09-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2657763",
+      "accession": "VCV002657763.23",
+      "name": "NM_000799.4(EPO):c.409C>T (p.Arg137Trp)",
+      "position": 7027,
+      "genomic": 100722826,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 137,
+      "protein_change": "p.R137W",
+      "coding_change": "c.409C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-10-01",
+      "last_updated": "2026-07-27",
+      "conditions": [
+        {
+          "accession": "RCV003423678.23",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-10-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3353709",
+      "accession": "VCV003353709.1",
+      "name": "NM_000799.4(EPO):c.410G>A (p.Arg137Gln)",
+      "position": 7028,
+      "genomic": 100722827,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 137,
+      "protein_change": "p.R137Q",
+      "coding_change": "c.410G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2024-08-07",
+      "last_updated": "2024-10-13",
+      "conditions": [
+        {
+          "accession": "RCV004756871.1",
+          "names": [
+            "EPO-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-08-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4018934",
+      "accession": "VCV004018934.1",
+      "name": "NM_000799.4(EPO):c.413C>T (p.Ala138Val)",
+      "position": 7031,
+      "genomic": 100722830,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 138,
+      "protein_change": "p.A138V",
+      "coding_change": "c.413C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-05-20",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005568129.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-05-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "759388",
+      "accession": "VCV000759388.3",
+      "name": "NM_000799.4(EPO):c.427-9C>T",
+      "position": 7170,
+      "genomic": 100722969,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-07-11",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000937201.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-07-11"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3032156",
+      "accession": "VCV003032156.2",
+      "name": "NM_000799.4(EPO):c.439T>C (p.Ser147Pro)",
+      "position": 7191,
+      "genomic": 100722990,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 147,
+      "protein_change": "p.S147P",
+      "coding_change": "c.439T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2024-02-22",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003901849.2",
+          "names": [
+            "EPO-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-02-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4250116",
+      "accession": "VCV004250116.1",
+      "name": "NM_000799.4(EPO):c.442C>T (p.Pro148Ser)",
+      "position": 7194,
+      "genomic": 100722993,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 148,
+      "protein_change": "p.P148S",
+      "coding_change": "c.442C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-08-13",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV005837066.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4018933",
+      "accession": "VCV004018933.1",
+      "name": "NM_000799.4(EPO):c.452C>T (p.Ala151Val)",
+      "position": 7204,
+      "genomic": 100723003,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 151,
+      "protein_change": "p.A151V",
+      "coding_change": "c.452C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-06-06",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005552215.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "783005",
+      "accession": "VCV000783005.6",
+      "name": "NM_000799.4(EPO):c.453G>A (p.Ala151=)",
+      "position": 7205,
+      "genomic": 100723004,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 151,
+      "protein_change": "p.A151=",
+      "coding_change": "c.453G>A",
+      "consequence": "synonymous",
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-09-22",
+      "last_updated": "2026-01-17",
+      "conditions": [
+        {
+          "accession": "RCV000964479.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2019-12-31"
+        },
+        {
+          "accession": "RCV006442362.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-09-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "740707",
+      "accession": "VCV000740707.3",
+      "name": "NM_000799.4(EPO):c.459A>G (p.Ser153=)",
+      "position": 7211,
+      "genomic": 100723010,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 153,
+      "protein_change": "p.S153=",
+      "coding_change": "c.459A>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-04-25",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000916800.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-04-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3276050",
+      "accession": "VCV003276050.1",
+      "name": "NM_000799.4(EPO):c.461C>G (p.Ala154Gly)",
+      "position": 7213,
+      "genomic": 100723012,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 154,
+      "protein_change": "p.A154G",
+      "coding_change": "c.461C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-05-08",
+      "last_updated": "2024-08-11",
+      "conditions": [
+        {
+          "accession": "RCV004620651.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3089786",
+      "accession": "VCV003089786.1",
+      "name": "NM_000799.4(EPO):c.466C>G (p.Pro156Ala)",
+      "position": 7218,
+      "genomic": 100723017,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 156,
+      "protein_change": "p.P156A",
+      "coding_change": "c.466C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-10-10",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004378131.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-10-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3276052",
+      "accession": "VCV003276052.1",
+      "name": "NM_000799.4(EPO):c.479T>C (p.Ile160Thr)",
+      "position": 7231,
+      "genomic": 100723030,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 160,
+      "protein_change": "p.I160T",
+      "coding_change": "c.479T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-06-17",
+      "last_updated": "2024-08-11",
+      "conditions": [
+        {
+          "accession": "RCV004620653.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3388903",
+      "accession": "VCV003388903.13",
+      "name": "NM_000799.4(EPO):c.483T>C (p.Thr161=)",
+      "position": 7235,
+      "genomic": 100723034,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 161,
+      "protein_change": "p.T161=",
+      "coding_change": "c.483T>C",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-10-01",
+      "last_updated": "2026-07-27",
+      "conditions": [
+        {
+          "accession": "RCV004809360.13",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "716910",
+      "accession": "VCV000716910.5",
+      "name": "NM_000799.4(EPO):c.496C>T (p.Arg166Cys)",
+      "position": 7248,
+      "genomic": 100723047,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 166,
+      "protein_change": "p.R166C",
+      "coding_change": "c.496C>T",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-12-31",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000889626.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-12-31"
+        },
+        {
+          "accession": "RCV004756076.1",
+          "names": [
+            "EPO-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-04-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2390635",
+      "accession": "VCV002390635.3",
+      "name": "NM_000799.4(EPO):c.521A>G (p.Asn174Ser)",
+      "position": 7273,
+      "genomic": 100723072,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 174,
+      "protein_change": "p.N174S",
+      "coding_change": "c.521A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-09-27",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004231884.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-09-27"
+        },
+        {
+          "accession": "RCV004756484.1",
+          "names": [
+            "EPO-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-04-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "496595",
+      "accession": "VCV000496595.3",
+      "name": "NM_000799.4(EPO):c.530G>A (p.Arg177Gln)",
+      "position": 7282,
+      "genomic": 100723081,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 177,
+      "protein_change": "p.R177Q",
+      "coding_change": "c.530G>A",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2025-06-23",
+      "last_updated": "2026-02-24",
+      "conditions": [
+        {
+          "accession": "RCV000590853.3",
+          "names": [
+            "Diamond-Blackfan anemia-like"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2025-06-23"
+        }
+      ],
+      "collection_methods": [
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "2366371",
+      "accession": "VCV002366371.2",
+      "name": "NM_000799.4(EPO):c.559G>T (p.Ala187Ser)",
+      "position": 7311,
+      "genomic": 100723110,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 187,
+      "protein_change": "p.A187S",
+      "coding_change": "c.559G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-09-27",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004206771.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-09-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2617264",
+      "accession": "VCV002617264.2",
+      "name": "NM_000799.4(EPO):c.569C>T (p.Thr190Ile)",
+      "position": 7321,
+      "genomic": 100723120,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 190,
+      "protein_change": "p.T190I",
+      "coding_change": "c.569C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-08-08",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004352970.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-08-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    }
+  ]
+}

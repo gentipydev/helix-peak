@@ -144,6 +144,18 @@ class Target:
     # `check_assets.py` fails one that has a track. `scored` in
     # `protein_catalog.dart` says the same thing on the Dart side.
     scored: bool = True
+    # Whether an AlphaGenome Variant Impact track is baked for this gene. It is
+    # the same kind of flag as `scored` one level down: `scored` is a per-residue
+    # ESM-2 track over the protein, this is a per-base AVI track over the gene
+    # record. A row without one draws its nucleotide pages exactly as before —
+    # a tap moves the tracer and no sheet opens — rather than meeting a missing
+    # file. `impact_scored` in `protein_catalog.dart` says the same thing.
+    impact_scored: bool = True
+    # Whether a ClinVar snapshot is bundled for this gene, the same kind of flag
+    # again. All twenty have one; a row added without one sets this False, which
+    # the app draws as "not yet included" rather than as a missing file.
+    # `clinvarAvailable` in `protein_catalog.dart` says the same thing.
+    clinvar_available: bool = True
 
     @property
     def mock_asset(self) -> str:
@@ -156,6 +168,10 @@ class Target:
     @property
     def structure_asset(self) -> str:
         return f"assets/models/{self.slug}.glb"
+
+    @property
+    def impact_asset(self) -> str:
+        return f"assets/impact/{self.slug}_avi.json"
 
 
 def _spectrin() -> tuple[Region, ...]:

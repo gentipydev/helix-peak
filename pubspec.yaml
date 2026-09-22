@@ -37,12 +37,14 @@ flutter:
 
   assets:
     - .env
-    # Ten of each, one per protein in `ProteinCatalog`, named by directory
-    # rather than one line apiece. `assets/models/` is deliberately absent: the
+    # Catalog records, tracks and ClinVar snapshots, named by directory.
+    # `assets/models/` is deliberately absent: the
     # `.glb` files there are build-time sources that `hook/build.dart` compiles
     # into `flutter_scene_generated/`, and that is what ships.
     - assets/mock/
     - assets/constraint/
+    - assets/impact/
+    - assets/clinvar/
     - assets/animations/process.json
     - flutter_scene_generated/
 

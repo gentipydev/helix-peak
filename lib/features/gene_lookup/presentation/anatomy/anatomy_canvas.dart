@@ -7,6 +7,7 @@ import 'package:flutter/semantics.dart';
 import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/nucleotide_colors.dart';
 import '../../domain/entities/protein_constraint.dart';
+import '../clinvar/clinvar_colors.dart';
 import 'anatomy_layout.dart';
 import 'anatomy_painter.dart';
 import 'anatomy_scene.dart';
@@ -30,6 +31,7 @@ class AnatomyCanvas extends StatefulWidget {
     this.maskedIndex,
     this.masking,
     this.bridges = const <int, int>{},
+    this.marks = const <int, ClinVarMark>{},
     super.key,
   });
 
@@ -44,6 +46,9 @@ class AnatomyCanvas extends StatefulWidget {
 
   /// Bonded cysteines on this page, cell to bridge number.
   final Map<int, int> bridges;
+
+  /// Residues with ClinVar records, cell to mark; drawn in ESM mode only.
+  final Map<int, ClinVarMark> marks;
 
   /// What the reader can see of the canvas without scrolling.
   ///
@@ -506,6 +511,7 @@ class _AnatomyCanvasState extends State<AnatomyCanvas>
                         widget.onTapped(stage.positionAt(index), asRun: false),
                     rulerInk: theme.colorScheme.onSurfaceVariant,
                     bridges: widget.bridges,
+                    marks: widget.marks,
                   ),
             willChange: true,
             size: box,

@@ -1,3 +1,7 @@
+import 'dart:math' as math;
+
+import '../domain/entities/gene_impact.dart';
+
 /// Thousands separators for coordinates and lengths, e.g. 8416 -> "8,416".
 ///
 /// `intl` is not a dependency of this project and one call site does not
@@ -47,3 +51,31 @@ String spelledLeading(int value) {
   final String word = spelled(value);
   return word[0].toUpperCase() + word.substring(1);
 }
+
+/// Where a Phred score sits against every SNV in the genome, in the Atlas's
+/// own words: `top 0.071%`, or `bottom 90%`.
+///
+/// Below Phred 10 it is the bottom nine tenths of the genome and says so,
+/// because 'top 87.1%' is not a thing anyone means: the percentile is the share
+/// scoring at least this high, and at the quiet end that reading is worse than
+/// useless.
+String genomeRank(double phred) {
+  if (phred < GeneImpact.middlePhred) {
+    return 'bottom 90%';
+  }
+  final double value = math.pow(10, -phred / 10) * 100;
+  // Enough figures to stay true at both ends: `1.0%` near the middle of the
+  // scale, `0.0032%` out at the tail where every digit is the point.
+  if (value >= 1) {
+    return 'top ${value.toStringAsFixed(1)}%';
+  }
+  if (value >= 0.01) {
+    return 'top ${value.toStringAsFixed(3)}%';
+  }
+  return 'top ${value.toStringAsExponential(1)}%';
+}
+
+/// A log-ratio as the residue panel prints it: `−11.0`, `+0.4`, `0.0`.
+String formatScore(double value) => value == 0
+    ? '0.0'
+    : '${value < 0 ? '\u2212' : '+'}${value.abs().toStringAsFixed(1)}';

@@ -10,8 +10,9 @@ the fold those cells end up in.
 Twenty proteins ship: insulin, oxytocin, ubiquitin, lysozyme, haemoglobin,
 myoglobin, relaxin, growth hormone, p53 and dystrophin, and the ten added after
 them — vasopressin, glucagon, amyloid precursor protein, CFTR, erythropoietin,
-leptin, TNF-alpha, SOD1, amylase and prion protein. Each carries three baked
-assets: a gene record, an ESM-2 constraint track and a 3D model, and the whole
+leptin, TNF-alpha, SOD1, amylase and prion protein. Each carries five baked
+assets: a gene record, an ESM-2 constraint track, an AlphaGenome Variant Impact
+(AVI) track, a ClinVar snapshot and a 3D model. The whole
 walk runs with no backend and no network. They are one row each in `ProteinCatalog`;
 [`tool/`](tool/README.md) is what bakes them, and
 [docs/protein-verification.md](docs/protein-verification.md) is what the second
@@ -96,7 +97,8 @@ The conservation switch changes the tile fills and keeps the letters visible.
 The information button explains masking and the score scale on demand.
 
 All 20 canonical amino acids are ranked, including the native residue at zero.
-Six appear initially, with the other 14 expandable. Every bar uses the same
+Six appear initially, with the rest expandable; a change ClinVar has a record
+for is always shown, marked with its class, however low it ranks. Every bar uses the same
 −10-to-0 scale; values beyond either endpoint are clamped visually and retain
 their signed numerical scores. Badges use inverse min-max entropy: high ≥0.8,
 moderate ≥0.4, otherwise tolerant. Reduced motion skips the mask delay and slide.
@@ -118,6 +120,24 @@ nineteen proteins measured. No values are adjusted in the UI. A protein added to
 the catalog before its track is baked is marked unscored; its protein page is
 drawn without the conservation toolbar, and a tap there follows the tracer as it
 does on every other page.
+
+## Evidence: ESM-2, AVI and ClinVar
+
+Each source has one job and one visual channel. ESM-2 is the protein's fit — the
+residue sheet's bars and, in ESM mode, the grid's fill. AVI is each base's
+predicted molecular impact — the base sheet's bars on the mRNA page and in an
+opened region. ClinVar is what has been reported, and owns colour: a class dot
+on a reported change's bar, on the grid in ESM mode, and on every record's row.
+
+A sheet speaks only for its position: one ClinVar line, then one row per record
+carrying the model its bars do not show. Opening a row is the one place both
+numbers meet, with a single molecular line on where each model puts the change;
+its links go to the record's residue or base. The ClinVar key in ESM mode (and
+the About sheet) opens every record at once: a strip along the protein — each
+record's own AVI as height, standing on ESM constraint, coloured by class — over
+a drawing of the gene for records off the protein, then one list grouped by
+region. Coverage, scales and caveats are written once, in "About these
+sources". The rules are in [docs/protein-pipeline-rules.md](docs/protein-pipeline-rules.md) §9.
 
 ## Tests
 

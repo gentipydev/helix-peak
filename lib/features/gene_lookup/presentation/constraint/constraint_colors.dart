@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/entities/protein_constraint.dart';
-
 abstract final class ConstraintColors {
   // Slate -> sand -> amber, identical for every position and domain.
   //
@@ -17,9 +15,8 @@ abstract final class ConstraintColors {
       ? Color.lerp(tolerant, moderate, value * 2)!
       : Color.lerp(moderate, constrained, (value - 0.5) * 2)!;
 
-  static Color badge(ConstraintLevel level) => switch (level) {
-    ConstraintLevel.high => constrained,
-    ConstraintLevel.middle => moderate,
-    ConstraintLevel.low => tolerant,
-  };
+  // The sheets no longer colour a model's band: its meter is drawn in ink, and
+  // hue there belongs to ClinVar. This ramp is for filling a protein — the
+  // grid in ESM mode and the band under the overview's strip — and nothing
+  // else, so a ClinVar mark can never be read as a step of it.
 }

@@ -4,21 +4,34 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../core/biology/amino_acids.dart';
 import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../domain/entities/gene_clinvar.dart';
+import '../../domain/entities/gene_impact.dart';
 import '../../domain/entities/gene_record.dart';
 import '../../domain/entities/protein_constraint.dart';
 import '../../domain/entities/protein_target.dart';
+import '../../domain/entities/variant_evidence.dart';
+import '../clinvar/clinvar_block.dart';
+import '../clinvar/clinvar_colors.dart';
+import '../clinvar/evidence_row.dart';
+import '../clinvar/evidence_sections.dart';
+import '../clinvar/variants_overview.dart';
 import '../constraint/constraint_panel.dart';
 import '../constraint/constraint_toolbar.dart';
 import '../format.dart';
+import '../inspector/coding_evidence.dart';
+import '../inspector/impact_panel.dart';
+import '../inspector/inspector_sheet.dart';
 import '../structure/structure_view.dart';
 import 'anatomy_address.dart';
 import 'anatomy_canvas.dart';
 import 'anatomy_fasta.dart';
 import 'anatomy_layout.dart';
 import 'anatomy_ruler.dart';
+import 'anatomy_scene.dart';
 import 'anatomy_selection.dart';
 import 'anatomy_selection_canvas.dart';
 import 'anatomy_stages.dart';
@@ -73,12 +86,16 @@ import 'stage_bar.dart';
 /// The header keeps the stage overview above the grid. Other stages replace
 /// that overview with the tracer's details. On the protein page, a tap masks a
 /// residue and opens a nonmodal score panel; its details live there so the
-/// header stays steady while the reader compares positions.
+/// header stays steady while the reader compares positions. The mRNA page and
+/// the opened-DNA page do the same one level down, for a base rather than a
+/// residue, out of the bundled AlphaGenome track.
 class AnatomyScreen extends StatefulWidget {
   const AnatomyScreen({
     required this.record,
     required this.target,
     this.constraint,
+    this.impact,
+    this.clinvar,
     super.key,
   });
 
@@ -92,6 +109,11 @@ class AnatomyScreen extends StatefulWidget {
   final ProteinTarget target;
 
   final ProteinConstraint? constraint;
+
+  /// The per-base impact track, injected by tests the way [constraint] is; the
+  /// screen loads it from the bundle otherwise.
+  final GeneImpact? impact;
+  final GeneClinVar? clinvar;
 
   @override
   State<AnatomyScreen> createState() => _AnatomyScreenState();
@@ -148,6 +170,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                 '${residue == null ? 'stop' : address.residueName(residue)}',
     );
   }
+
   bool _selectionActive = false;
   bool _selectionReturning = false;
   double _geneScrollOffset = 0;
@@ -161,6 +184,9 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   void _selectionChanged(AnimationStatus status) {
     if (mounted && status == AnimationStatus.completed) {
       setState(() {});
+      if (_pendingLift != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _liftPending());
+      }
     }
   }
 
@@ -288,12 +314,28 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   ProteinConstraint? _constraint;
   bool _constraintFailed = false;
   bool _conservation = false;
+  GeneImpact? _impact;
+  GeneClinVar? _clinvar;
+  bool _clinvarFailed = false;
+  int _clinvarGeneration = 0;
   int? _maskedIndex;
   bool _panelVisible = false;
   bool _panelClosing = false;
   bool _visibilityScheduled = false;
   int _dismissGeneration = 0;
   LocalHistoryEntry? _sheetHistory;
+
+  /// The way back to the overview after one of its records sent the reader
+  /// here: Back, or the header's "← ClinVar", reopens it as it was left.
+  LocalHistoryEntry? _returnHistory;
+  bool _overviewOpen = false;
+
+  /// Where the overview was left, for as long as this gene is shown.
+  VariantsOverviewMemory _overviewMemory = VariantsOverviewMemory();
+
+  /// The gene's named pieces, for the overview's gene drawing.
+  List<GeneRun>? _geneRunsMemo;
+  List<GeneRun> get _geneRuns => _geneRunsMemo ??= geneRuns(_model);
   final DraggableScrollableController _sheet = DraggableScrollableController();
   Timer? _reveal;
   Size _canvasViewport = Size.zero;
@@ -325,7 +367,208 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       // staying null already means.
       unawaited(_loadConstraint());
     }
+    if (widget.impact case final GeneImpact data) {
+      _impact = data;
+    } else if (widget.target.impactScored) {
+      unawaited(_loadImpact());
+    }
+    _startClinVar();
     WidgetsBinding.instance.addPostFrameCallback(_prepareStructure);
+  }
+
+  void _startClinVar() {
+    _clinvarGeneration++;
+    _clinvar = widget.clinvar;
+    _clinvarFailed = false;
+    if (_clinvar == null && widget.target.clinvarAvailable) {
+      unawaited(_loadClinVar(_clinvarGeneration));
+    }
+  }
+
+  Future<void> _loadClinVar(int generation) async {
+    try {
+      final GeneClinVar data = await GeneClinVar.load(widget.target);
+      if (mounted && generation == _clinvarGeneration) {
+        setState(() => _clinvar = data);
+      }
+    } on Exception {
+      if (mounted && generation == _clinvarGeneration) {
+        setState(() => _clinvarFailed = true);
+      }
+    } on FlutterError {
+      if (mounted && generation == _clinvarGeneration) {
+        setState(() => _clinvarFailed = true);
+      }
+    }
+  }
+
+  _ClinVarReading? _evidenceMemo;
+
+  /// Every ClinVar record, read against whichever tracks match it — built once
+  /// per combination of loaded tracks, not on every sheet build. Null while
+  /// there is no snapshot, or none that matches the record on screen.
+  List<VariantEvidence>? get _evidence => _evidenceState?.all;
+
+  /// Each residue with records, keyed by precursor index, with its most
+  /// severe group: the dots the protein page draws in ESM mode.
+  Map<int, ClinVarMark> get _residueMarks =>
+      _evidenceState?.marks ?? const <int, ClinVarMark>{};
+
+  _ClinVarReading? get _evidenceState {
+    final GeneClinVar? data = _clinvar;
+    if (data == null) {
+      return null;
+    }
+    final _ClinVarReading? memo = _evidenceMemo;
+    if (memo != null &&
+        identical(memo.snapshot, data) &&
+        identical(memo.impact, _impact) &&
+        identical(memo.constraint, _constraint)) {
+      return memo;
+    }
+    return _evidenceMemo = _ClinVarReading(
+      data,
+      _impact,
+      _constraint,
+      data.matchesRecord(widget.record)
+          ? VariantEvidence.build(
+              data,
+              impact: _impact,
+              constraint: _constraint,
+              nonCoding: nonCodingSections(_model),
+            )
+          : null,
+      reversed: widget.record.strand == -1,
+    );
+  }
+
+  /// The records at a residue or a base, in transcript order.
+  List<VariantEvidence> _evidenceAt({int? residue, int? position}) =>
+      (residue != null
+          ? _evidenceState?.byResidue[residue]
+          : _evidenceState?.byPosition[position]) ??
+      const <VariantEvidence>[];
+
+  /// What a sheet says about ClinVar at a residue or a base, or null for a
+  /// gene with no snapshot — whose About sheet says so, once.
+  Widget? _clinvarBlock({int? residue, int? position, required String scope}) {
+    if (!widget.target.clinvarAvailable && widget.clinvar == null) {
+      return null;
+    }
+    final List<VariantEvidence>? all = _evidence;
+    final List<VariantEvidence> here = _evidenceAt(
+      residue: residue,
+      position: position,
+    );
+    return ClinVarBlock(
+      key: ValueKey<String>('clinvar-${residue ?? 'base'}-${position ?? ''}'),
+      status: all != null
+          ? ClinVarStatus.ready
+          : _clinvarFailed || _clinvar != null
+          ? ClinVarStatus.unavailable
+          : ClinVarStatus.loading,
+      records: here,
+      scope: scope,
+      total: all?.length ?? 0,
+      // Each sheet already shows its own model on its bars; its rows carry the
+      // other one.
+      column: residue != null ? EvidenceColumn.avi : EvidenceColumn.esm,
+      allele: residue == null,
+      place: residue == null,
+      onOpenAll: all == null
+          ? null
+          : () => unawaited(
+              _openVariants(
+                focus: <String>[for (final VariantEvidence e in here) e.variant.id],
+              ),
+            ),
+      onResidue: residue == null ? _goToResidue : null,
+      onBase: residue == null ? null : _goToBase,
+    );
+  }
+
+  /// The most severe group ClinVar records for each change at [records]'
+  /// place, keyed by what the change is — an amino acid or a base — so the
+  /// sheet can mark that change's own bar.
+  static Map<String, ClinVarGroup> _reported(
+    Iterable<VariantEvidence> records,
+    String? Function(VariantEvidence) change,
+  ) {
+    final Map<String, List<ClinVarGroup>> groups =
+        <String, List<ClinVarGroup>>{};
+    for (final VariantEvidence e in records) {
+      if (change(e) case final String key) {
+        (groups[key] ??= <ClinVarGroup>[]).add(e.variant.group);
+      }
+    }
+    return <String, ClinVarGroup>{
+      for (final MapEntry<String, List<ClinVarGroup>> entry in groups.entries)
+        entry.key: ClinVarGroup.mostSevere(entry.value),
+    };
+  }
+
+  /// Every record of the gene, as the overview draws them. The reader goes
+  /// from it to the residue or base a record's link names, and Back — or the
+  /// header's "← ClinVar" — brings them back to it as they left it.
+  Future<void> _openVariants({List<String> focus = const <String>[]}) async {
+    final GeneClinVar? data = _clinvar;
+    final List<VariantEvidence>? all = _evidence;
+    if (data == null || all == null || _overviewOpen) {
+      return;
+    }
+    // The reader is in the list again, however they got there; a way back to
+    // it would lead nowhere new.
+    if (_returnHistory != null) {
+      setState(_removeReturnHistory);
+    }
+    // The route is pushed above the walk's analysis theme, which the app's own
+    // theme would otherwise replace; every theme between here and the
+    // navigator goes with it.
+    final CapturedThemes themes = InheritedTheme.capture(
+      from: context,
+      to: Navigator.of(context).context,
+    );
+    _overviewOpen = true;
+    VariantTarget? target;
+    try {
+      target = await Navigator.of(context).push<VariantTarget>(
+        MaterialPageRoute<VariantTarget>(
+          fullscreenDialog: true,
+          builder: (BuildContext context) => themes.wrap(
+            VariantsOverview(
+              snapshot: data,
+              evidence: all,
+              exons: <(int, int)>[
+                for (final Exon exon in widget.record.exons)
+                  (exon.start, exon.end),
+              ],
+              runs: _geneRuns,
+              reversed: widget.record.strand == -1,
+              constraint: _constraint?.sequence == data.proteinSequence
+                  ? _constraint
+                  : null,
+              focus: focus,
+              memory: _overviewMemory,
+            ),
+          ),
+        ),
+      );
+    } finally {
+      _overviewOpen = false;
+    }
+    if (!mounted || target == null) {
+      return;
+    }
+    // Armed at once, so the header says where Back goes while the walk is
+    // still travelling, and raised above whatever the landing opens once it
+    // has landed.
+    _addReturnHistory();
+    switch (target) {
+      case ResidueTarget(:final int number):
+        _goToResidue(number, landed: _raiseReturnHistory);
+      case BaseTarget(:final int position):
+        _goToBase(position, landed: _raiseReturnHistory);
+    }
   }
 
   /// Gets the fold's one-time renderer work out of the way while the walk is
@@ -369,6 +612,33 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       }
     }
   }
+
+  /// The impact track, loaded the same way and failing the same way: a gene
+  /// without one draws its nucleotide pages exactly as it did before, and a tap
+  /// there follows the tracer. There is no error to show because there is
+  /// nothing the reader asked for that did not arrive.
+  Future<void> _loadImpact() async {
+    try {
+      final GeneImpact data = await GeneImpact.load(widget.target);
+      if (mounted) {
+        setState(() => _impact = data);
+      }
+    } on Exception {
+      // Left null, which is the same state as a gene that has no track.
+    } on FlutterError {
+      // What a missing asset throws, and an `Error` rather than an `Exception`.
+    }
+  }
+
+  /// Whether a tap on [stage] opens the base inspector.
+  ///
+  /// The mRNA page and the opened-DNA page, and not the gene page: at 24,000
+  /// bases `AnatomyLayout.fit` puts a gene cell at its two-point floor, where
+  /// no finger can pick one base out of its neighbours. A tap there means the
+  /// run it lands in, which is what it has always meant, and the strip answers
+  /// with what that whole run scores.
+  bool _supportsImpact(AnatomyStage? stage) =>
+      stage?.kind == StageKind.mrna && _impact != null;
 
   bool _supportsConstraint(AnatomyStage? stage) =>
       stage?.kind == StageKind.protein &&
@@ -423,6 +693,49 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     entry?.remove();
   }
 
+  /// Leaves the way back to the overview on top of the walk's own entries.
+  void _addReturnHistory() {
+    if (_returnHistory != null) {
+      return;
+    }
+    late final LocalHistoryEntry entry;
+    entry = LocalHistoryEntry(
+      impliesAppBarDismissal: false,
+      onRemove: () {
+        if (identical(_returnHistory, entry)) {
+          _returnHistory = null;
+          setState(() {});
+          // Not from inside the navigator's own pop.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              unawaited(_openVariants());
+            }
+          });
+        }
+      },
+    );
+    _returnHistory = entry;
+    ModalRoute.of(context)?.addLocalHistoryEntry(entry);
+    setState(() {});
+  }
+
+  /// Puts the way back above whatever the landing opened — its sheet, an
+  /// intron's DNA — so that one Back undoes the whole jump.
+  void _raiseReturnHistory() {
+    if (!mounted || _returnHistory == null) {
+      return;
+    }
+    _removeReturnHistory();
+    _addReturnHistory();
+  }
+
+  /// Drops the way back without taking it.
+  void _removeReturnHistory() {
+    final LocalHistoryEntry? entry = _returnHistory;
+    _returnHistory = null;
+    entry?.remove();
+  }
+
   void _showPanel(bool still) {
     _panelVisible = true;
     if (still) {
@@ -432,18 +745,22 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     }
   }
 
+  /// Whether something is selected for the sheet to be about.
+  ///
+  /// Two kinds of selection, because the opened-DNA page is drawn by its own
+  /// canvas and lifts a tile where the others mask one.
+  bool get _panelSubject =>
+      _maskedIndex != null || (_liftedBase != null && _selectionActive);
+
   Future<void> _dismissPanel() async {
-    if (_panelClosing || _maskedIndex == null) {
+    if (_panelClosing || !_panelSubject) {
       return;
     }
     _reveal?.cancel();
     _removeSheetHistory();
     final int generation = ++_dismissGeneration;
     if (!_panelVisible || MediaQuery.disableAnimationsOf(context)) {
-      setState(() {
-        _clearMask();
-        _tracer = null;
-      });
+      setState(_clearPanel);
       return;
     }
     _panelClosing = true;
@@ -451,17 +768,38 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     try {
       await _sheetReveal.reverse().orCancel;
       if (mounted && generation == _dismissGeneration) {
-        setState(() {
-          _clearMask();
-          _tracer = null;
-        });
+        setState(_clearPanel);
       }
     } on TickerCanceled {
       // A fresh residue or a page change supersedes the closing animation.
     }
   }
 
-  void _selectResidue(int? position) {
+  /// Puts back what the sheet was drawn over.
+  ///
+  /// The tracer survives an open region. On a masked page it is the cell the
+  /// sheet was about and goes with it, but on the opened-DNA page it is the
+  /// *region* — the thing the gene page selected and this page is a picture of
+  /// — and [AnatomySelectionCanvas] is built around it. Clearing it there left
+  /// that canvas with nothing to draw, which a release build renders as a grey
+  /// rectangle where the bases were.
+  void _clearPanel() {
+    _clearMask();
+    if (_selectionActive) {
+      // The base goes back down with the sheet, as a masked cell does.
+      _liftedBase = null;
+    } else {
+      _tracer = null;
+    }
+  }
+
+  /// Masks the tapped cell and raises the inspector over it.
+  ///
+  /// Shared by the residue panel and the base panel: the 300 ms beat, the swap
+  /// in place while comparing, the Back entry and the scroll that keeps the
+  /// masked cell above the sheet are the same interaction either way. Only what
+  /// the sheet then says differs.
+  void _selectCell(int? position) {
     final AnatomyStage stage = _model.stages[_stage];
     final int index = position == null ? -1 : stage.cellAt(position);
     if (index < 0 || index == _maskedIndex) {
@@ -476,7 +814,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     _dismissGeneration++;
     _panelClosing = false;
     if (wasClosing && _sheet.isAttached) {
-      _sheet.jumpTo(ConstraintPanel.initialSize);
+      _sheet.jumpTo(InspectorSheet.initialSize);
     }
     setState(() {
       _maskedIndex = index;
@@ -501,6 +839,188 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     }
   }
 
+  /// Whichever inspector the page under the sheet calls for, or null.
+  ///
+  /// One sheet at a time, one set of controllers: the residue panel and the
+  /// base panel are never both up, because the pages they belong to are never
+  /// both on screen.
+  Widget? _inspector(double sheetSpace) {
+    if (!_panelVisible) {
+      return null;
+    }
+    final bool pin =
+        sheetSpace * InspectorSheet.initialSize >=
+        240 * MediaQuery.textScalerOf(context).scale(1);
+    final AnatomyStage? stage = _shownStage;
+    if (_maskedIndex case final int index) {
+      if (_supportsConstraint(stage)) {
+        final ResidueConstraint residue = _constraint!.positions[index];
+        return ConstraintPanel(
+          key: const ValueKey<String>('constraint-panel'),
+          residue: residue,
+          observedEvidence: _clinvarBlock(
+            residue: index + 1,
+            scope: '${AminoAcids.abbreviationOf(residue.wildtype)}${residue.number}',
+          ),
+          reported: _reported(
+            _evidenceAt(
+              residue: index + 1,
+            ).where((VariantEvidence e) => e.esm != null),
+            (VariantEvidence e) => e.variant.altResidue,
+          ),
+          length: _constraint!.sequence.length,
+          controller: _sheet,
+          slide: _sheetSlide,
+          pinIdentity: pin,
+          onDismiss: () => unawaited(_dismissPanel()),
+        );
+      }
+      if (_supportsImpact(stage)) {
+        return _basePanel(
+          stage!.positionAt(index),
+          pin,
+          '${stage.label} base ${grouped(index + 1)}',
+        );
+      }
+    }
+    if (_liftedBase case final int cell) {
+      final AnatomySelection? selection = _selection;
+      if (selection != null &&
+          _selectionActive &&
+          cell < selection.stage.count) {
+        return _basePanel(
+          selection.stage.positionAt(cell),
+          pin,
+          '${selection.stage.label} base ${grouped(cell + 1)}',
+        );
+      }
+    }
+    return null;
+  }
+
+  /// The base inspector for a record position, with everything the page already
+  /// knows how to say about that position filled in.
+  Widget? _basePanel(int position, bool pin, String fallback) {
+    final GeneImpact? impact = _impact;
+    final BaseImpact? reading = impact?.at(position);
+    if (impact == null || reading == null) {
+      return null;
+    }
+    final AnatomyAddress address = AnatomyAddress.of(_model);
+    final Role? transcript = _model.transcriptRoleAt(position);
+    final Role? coding = _model.codingRoleAt(position);
+    final String? c = address.cOf(position);
+    final int? codon = address.codonOf(position);
+    final int? residue = codon == null ? null : address.residueOfCodon(codon);
+    // The same facts the tracer line gives, which is what this page has always
+    // answered a tap with; the scores are what is new.
+    final CodingEvidence? evidence = CodingEvidence.at(
+      model: _model,
+      position: position,
+      track: _constraint,
+    );
+    // For a coding base the residue it encodes is named with its constraint
+    // band, and the line opens that residue: the protein's own reading lives
+    // on the protein page, not summarised a second time here.
+    final String note = switch (transcript) {
+      final Role role when role.kind == RoleKind.intron =>
+        address.intronFacts(role) ?? '',
+      _ when codon != null =>
+        'codon $codon · ${address.tripletOf(codon) ?? ''} · '
+            '${residue == null ? 'stop' : address.residueName(residue)}'
+            '${evidence?.constraint == null ? '' : ' · ${evidence!.constraint!.level.label}'}',
+      _ => '',
+    };
+    final String where = c ?? fallback;
+    return ImpactPanel(
+      key: const ValueKey<String>('impact-panel'),
+      impact: reading,
+      observedEvidence: _clinvarBlock(position: position, scope: where),
+      reported: _reported(
+        _evidenceAt(position: position),
+        (VariantEvidence e) => e.variant.alt,
+      ),
+      coding: evidence,
+      onNote: residue == null || _constraint == null
+          ? null
+          : () => _goToResidue(residue),
+      chromosome: impact.chromosome,
+      // The transcript's own number where the base has one, and otherwise the
+      // number the page above is already calling it by. Counting from the
+      // record's first base instead would put a third numbering on screen.
+      address: where,
+      region: coding?.label ?? transcript?.label ?? 'gene',
+      note: note,
+      // The colour the grid draws this cell in, read the same way the painter
+      // reads it: the coding role where there is one, because 5' UTR and CDS
+      // are the distinction worth carrying into the sheet, and the transcript's
+      // exon or intron where there is not.
+      tint:
+          context.anatomyColors.forSlot(
+            CellSlot.forRole(
+              (coding ?? transcript)?.kind,
+              (coding ?? transcript)?.index ?? 0,
+            ),
+          ) ??
+          Theme.of(context).colorScheme.onSurfaceVariant,
+      controller: _sheet,
+      slide: _sheetSlide,
+      pinIdentity: pin,
+      onDismiss: () => unawaited(_dismissPanel()),
+    );
+  }
+
+  /// A base lifted out of an open region, and the inspector over it.
+  ///
+  /// The canvas owns the lift itself — the tile rises, and tapping it again
+  /// sets it back down — so this only has to answer with the scores, on the
+  /// same beat the masked pages use.
+  void _liftBase(int? cell) {
+    final AnatomySelection? selection = _selection;
+    if (cell == null || selection == null || cell >= selection.stage.count) {
+      setState(() => _liftedBase = null);
+      unawaited(_dismissPanel());
+      return;
+    }
+    final bool scored = _impact?.at(selection.stage.positionAt(cell)) != null;
+    final bool comparing = _panelVisible;
+    final bool wasClosing = _panelClosing;
+    final bool still = MediaQuery.disableAnimationsOf(context);
+    _reveal?.cancel();
+    _dismissGeneration++;
+    _panelClosing = false;
+    if (wasClosing && _sheet.isAttached) {
+      _sheet.jumpTo(InspectorSheet.initialSize);
+    }
+    setState(() {
+      _liftedBase = cell;
+      if (!scored) {
+        // A gene with no track, or a base the model has nothing for. The lift
+        // and the header line are what this page has always done, and they are
+        // still what it does.
+        _panelVisible = false;
+        _sheetReveal.value = 0;
+        _removeSheetHistory();
+        return;
+      }
+      _addSheetHistory();
+      if (still || comparing) {
+        _showPanel(still);
+      }
+    });
+    if (scored && (still || comparing)) {
+      _keepMaskedResidueVisible();
+    }
+    if (scored && !still && !comparing) {
+      _reveal = Timer(const Duration(milliseconds: 300), () {
+        if (mounted && _liftedBase == cell) {
+          setState(() => _showPanel(false));
+          _keepMaskedResidueVisible();
+        }
+      });
+    }
+  }
+
   void _keepMaskedResidueVisible({bool animate = true}) {
     if (_visibilityScheduled) {
       return;
@@ -508,15 +1028,23 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     _visibilityScheduled = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _visibilityScheduled = false;
-      final int? index = _maskedIndex;
+      // A masked cell, or a base lifted out of an open region: the same
+      // promise either way, that the thing the sheet is about stays above it.
+      final int? lifted = _selectionActive ? _liftedBase : null;
+      final int? index = _maskedIndex ?? lifted;
       if (!mounted || index == null || !_panelVisible || !_scroll.hasClients) {
         return;
       }
-      final AnatomyLayout layout = AnatomyLayout.forStage(
-        _model.stages[_stage],
-        _canvasViewport,
-        _canvasViewport,
-      );
+      final AnatomyLayout? layout = _maskedIndex != null
+          ? AnatomyLayout.forStage(
+              _model.stages[_stage],
+              _canvasViewport,
+              _canvasViewport,
+            )
+          : _shownLayout();
+      if (layout == null) {
+        return;
+      }
       final double y = layout.centreOf(index).dy + _canvasInset;
       final double visibleHeight =
           _canvasViewport.height + _canvasInset - _panelHeight;
@@ -579,6 +1107,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     _selectionProgress.dispose();
     _reveal?.cancel();
     _removeSheetHistory();
+    _removeReturnHistory();
     _sheet.removeListener(_sheetSizeChanged);
     _sheet.dispose();
     _sheetReveal.dispose();
@@ -590,7 +1119,16 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   @override
   void didUpdateWidget(AnatomyScreen old) {
     super.didUpdateWidget(old);
+    if (old.target != widget.target || old.clinvar != widget.clinvar) {
+      _startClinVar();
+    }
     if (old.record != widget.record) {
+      _evidenceMemo = null;
+      // Another gene: its overview starts fresh, and there is no way back to
+      // this one's.
+      _overviewMemory = VariantsOverviewMemory();
+      _geneRunsMemo = null;
+      _removeReturnHistory();
       _clearSelection();
       _model = AnatomyModel.derive(widget.record, chain: widget.target.chain);
       _stage = 0;
@@ -772,6 +1310,50 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   }
 
   /// A traced cysteine's bridge: its partner ringed beside it, and named.
+  /// Adds what a whole run scores to the gene page's caption.
+  ///
+  /// The gene page cannot inspect one base — at 24,000 bases its cells are two
+  /// points wide — so a tap there means the exon or intron it landed in, and
+  /// what that run is worth is a median and a peak rather than three numbers.
+  /// Both, because a run's interest is usually one or two positions in it and
+  /// the median alone would hide exactly the thing worth opening the region
+  /// for. Where that peak sits is the next question and not this line's: the
+  /// strip has one line to say this in, and the DNA pill is already on it.
+  TracerStatus? _withImpact(TracerStatus? status, AnatomyStage? stage) {
+    final GeneImpact? impact = _impact;
+    if (impact == null ||
+        status == null ||
+        !status.alive ||
+        stage?.kind != StageKind.gene ||
+        status.cell < 0) {
+      return status;
+    }
+    final StageRun run = stage!.runAt(status.cell);
+    if (run.count < 2) {
+      return status;
+    }
+    final ImpactSummary? summary = impact.summaryOf(
+      stage.positionAt(run.start),
+      stage.positionAt(run.start + run.count - 1),
+    );
+    if (summary == null) {
+      return status;
+    }
+    final String line =
+        'AVI median ${summary.median.toStringAsFixed(1)} · '
+        'peak ${summary.peak.toStringAsFixed(1)}';
+    return TracerStatus(
+      alive: status.alive,
+      cell: status.cell,
+      anchorStage: status.anchorStage,
+      anchorCell: status.anchorCell,
+      siblings: status.siblings,
+      line: status.line,
+      note: status.note == null ? line : '${status.note} · $line',
+      fate: status.fate,
+    );
+  }
+
   TracerStatus? _withBridge(TracerStatus? status, AnatomyStage? stage) {
     final ProteinConstraint? track = _constraint;
     if (status == null ||
@@ -782,9 +1364,8 @@ class _AnatomyScreenState extends State<AnatomyScreen>
         status.cell < 0) {
       return status;
     }
-    final int? number = AnatomyAddress.of(
-      _model,
-    ).precursorNumberOf(stage, status.cell);
+    final int? number = AnatomyAddress.of(_model)
+        .precursorNumberOf(stage, status.cell);
     if (number == null || number > track.positions.length) {
       return status;
     }
@@ -851,9 +1432,6 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     ];
   }
 
-  /// A residue asked for from the About sheet, waiting for its page to land.
-  int? _pendingResidue;
-
   void _openAbout() {
     unawaited(
       showRecordSheet(
@@ -862,19 +1440,31 @@ class _AnatomyScreenState extends State<AnatomyScreen>
         target: widget.target,
         scored: _constraint != null,
         onGoToResidue: _goToResidue,
+        impactScored: _impact != null,
+        clinvar: _evidence == null ? null : _clinvar,
+        clinvarFailed: _clinvarFailed || (_clinvar != null && _evidence == null),
+        onOpenVariants: _evidence == null
+            ? null
+            : () => unawaited(_openVariants()),
       ),
     );
   }
 
-  /// Takes the reader to residue [number] of the precursor, and opens it.
-  void _goToResidue(int number) {
-    final int page = _model.stages.indexWhere(
-      (AnatomyStage s) => s.kind == StageKind.protein,
-    );
+  /// What to do once the page the reader was sent to has landed.
+  VoidCallback? _onLanded;
+
+  /// A base to lift once its region's DNA has opened.
+  int? _pendingLift;
+
+  /// What to do once that base has been lifted, or could not be.
+  VoidCallback? _pendingLanded;
+
+  /// Sends the reader to page [page] and runs [then] there — at once if the
+  /// page is already on screen, and otherwise when it has settled.
+  void _goToPage(int page, VoidCallback then) {
     if (page < 0 || !mounted) {
       return;
     }
-    _pendingResidue = number;
     if (_selection != null) {
       setState(() {
         _clearSelection();
@@ -882,31 +1472,71 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       });
     }
     if (_stage == page) {
-      _revealPendingResidue();
+      then();
       return;
     }
+    _onLanded = then;
     final int delta = page - _stage;
     _step(delta);
     // A neighbouring page animates in and settles through [_settled]; any
     // other jump, or any jump with motion reduced, lands at once.
     if (delta.abs() != 1 || MediaQuery.disableAnimationsOf(context)) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => _revealPendingResidue(),
-      );
+      WidgetsBinding.instance.addPostFrameCallback((_) => _land());
     }
   }
 
-  void _revealPendingResidue() {
-    final int? number = _pendingResidue;
-    _pendingResidue = null;
-    if (number == null || !mounted) {
+  void _land() {
+    final VoidCallback? then = _onLanded;
+    _onLanded = null;
+    if (mounted) {
+      then?.call();
+    }
+  }
+
+  /// Takes the reader to residue [number] of the precursor, and opens it.
+  ///
+  /// [landed] runs once the residue's sheet is up.
+  void _goToResidue(int number, {VoidCallback? landed}) => _goToPage(
+    _model.stages.indexWhere((AnatomyStage s) => s.kind == StageKind.protein),
+    () {
+      _revealCell(StageKind.protein, (AnatomyStage stage) => number - 1);
+      landed?.call();
+    },
+  );
+
+  /// Takes the reader to base [position] and opens it: on the mRNA page where
+  /// the transcript has it, and otherwise inside its region's DNA, which is
+  /// the only place an intron's bases are drawn.
+  ///
+  /// [landed] runs once the base's sheet is up, or the region is as close as
+  /// the page can get.
+  void _goToBase(int position, {VoidCallback? landed}) {
+    final int mrna = _model.stages.indexWhere(
+      (AnatomyStage s) => s.kind == StageKind.mrna,
+    );
+    if (mrna >= 0 && _model.stages[mrna].cellAt(position) >= 0) {
+      _goToPage(mrna, () {
+        _revealCell(
+          StageKind.mrna,
+          (AnatomyStage stage) => stage.cellAt(position),
+        );
+        landed?.call();
+      });
+      return;
+    }
+    _goToPage(0, () => _openRegionAt(position, landed: landed));
+  }
+
+  /// Scrolls the page's cell into view and selects it, which opens its sheet.
+  void _revealCell(StageKind kind, int Function(AnatomyStage) cellOf) {
+    if (!mounted) {
       return;
     }
     final AnatomyStage stage = _model.stages[_stage];
-    if (stage.kind != StageKind.protein || number > stage.count) {
+    final int cell = stage.kind == kind ? cellOf(stage) : -1;
+    if (cell < 0 || cell >= stage.count) {
       return;
     }
-    final int cell = number - 1;
     if (_scroll.hasClients && !_canvasViewport.isEmpty) {
       final AnatomyLayout layout = AnatomyLayout.forStage(
         stage,
@@ -921,14 +1551,70 @@ class _AnatomyScreenState extends State<AnatomyScreen>
         ),
       );
     }
-    _select(stage.positionAt(cell));
+    final int position = stage.positionAt(cell);
+    if (_maskedIndex == cell) {
+      // Already the open subject; selecting it again would close it.
+      return;
+    }
+    _select(position);
+  }
+
+  /// Selects the gene region around [position], opens its DNA and, once it
+  /// has opened, lifts that base — the reader asked for this base by name.
+  void _openRegionAt(int position, {VoidCallback? landed}) {
+    if (!mounted || _stage != 0) {
+      landed?.call();
+      return;
+    }
+    setState(() {
+      _clearSelection();
+      _clearMask();
+      _tracer = Tracer(position, asRun: true);
+      _prepareSelection(position);
+    });
+    _pendingLift = position;
+    _pendingLanded = landed;
+    _openSelection();
+  }
+
+  void _liftPending() {
+    final int? position = _pendingLift;
+    final VoidCallback? landed = _pendingLanded;
+    _pendingLift = null;
+    _pendingLanded = null;
+    try {
+      final AnatomySelection? selection = _selection;
+      if (!mounted ||
+          position == null ||
+          selection == null ||
+          !_selectionActive) {
+        return;
+      }
+      // A shortened intron keeps only its ends; a base from its middle is not
+      // drawn, and the open region is as close as the page can get.
+      final int cell = selection.stage.cellAt(position);
+      if (cell < 0) {
+        return;
+      }
+      final AnatomyLayout? layout = _shownLayout();
+      if (layout != null && _scroll.hasClients) {
+        final double y = layout.centreOf(cell).dy + _canvasInset;
+        _scroll.jumpTo(
+          (y - _canvasViewport.height * 0.3).clamp(
+            0.0,
+            _scroll.position.maxScrollExtent,
+          ),
+        );
+      }
+      _liftBase(cell);
+    } finally {
+      landed?.call();
+    }
   }
 
   void _settled(double offset) {
     _restoreScroll(offset);
-    if (_pendingResidue != null) {
-      _revealPendingResidue();
-    }
+    _land();
   }
 
   /// Copies the page's sequence as FASTA, or says why there is none to copy.
@@ -937,7 +1623,8 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     _copy(
       AnatomyFasta.ofStage(_model, widget.target, stage),
       AnatomyFasta.sizeOf(stage),
-      unavailable: 'Introns are drawn shortened here. Copy the mRNA, or a '
+      unavailable:
+          'Introns are drawn shortened here. Copy the mRNA, or a '
           'region from its DNA view.',
     );
   }
@@ -954,13 +1641,16 @@ class _AnatomyScreenState extends State<AnatomyScreen>
         shortened: selection.shortened,
       ),
       AnatomyFasta.sizeOf(selection.stage),
-      unavailable: 'This intron is drawn shortened, so its DNA here is not '
+      unavailable:
+          'This intron is drawn shortened, so its DNA here is not '
           'the intron.',
     );
   }
 
   void _copy(String? fasta, String size, {required String unavailable}) {
-    final ScaffoldMessengerState? messenger = ScaffoldMessenger.maybeOf(context);
+    final ScaffoldMessengerState? messenger = ScaffoldMessenger.maybeOf(
+      context,
+    );
     messenger?.hideCurrentSnackBar();
     if (fasta == null) {
       messenger?.showSnackBar(SnackBar(content: Text(unavailable)));
@@ -968,9 +1658,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     }
     unawaited(Clipboard.setData(ClipboardData(text: fasta)));
     unawaited(HapticFeedback.mediumImpact());
-    messenger?.showSnackBar(
-      SnackBar(content: Text('Copied $size as FASTA')),
-    );
+    messenger?.showSnackBar(SnackBar(content: Text('Copied $size as FASTA')));
   }
 
   void _restoreScroll(double offset) {
@@ -988,8 +1676,9 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   ///
   /// Tapping the same thing twice clears it, so the gesture is its own undo.
   void _select(int? position, {bool asRun = false}) {
-    if (_supportsConstraint(_model.stages[_stage])) {
-      _selectResidue(position);
+    if (_supportsConstraint(_model.stages[_stage]) ||
+        _supportsImpact(_model.stages[_stage])) {
+      _selectCell(position);
       return;
     }
     setState(() {
@@ -1043,29 +1732,39 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     final Color ground = Theme.of(context).colorScheme.surface;
     // Nothing is traced on the fold: there are no squares there to have tapped.
     final Tracer? tracer = structure ? null : _tracer;
-    final TracerStatus? status = _withBridge(
-      tracer == null
-          ? null
-          : TracerReader.resolve(
-              model: _model,
-              tracer: tracer,
-              stageIndex: _stage,
-              // The page as last laid out: where a long region folds depends
-              // on how wide it is drawn, and only the layout knows that.
-              hidden: stage == null || _canvasViewport.isEmpty
-                  ? null
-                  : AnatomyLayout.forStage(
-                      stage,
-                      _canvasViewport,
-                      _canvasViewport,
-                    ).isHidden,
-            ),
+    final TracerStatus? status = _withImpact(
+      _withBridge(
+        tracer == null
+            ? null
+            : TracerReader.resolve(
+                model: _model,
+                tracer: tracer,
+                stageIndex: _stage,
+                // The page as last laid out: where a long region folds depends
+                // on how wide it is drawn, and only the layout knows that.
+                hidden: stage == null || _canvasViewport.isEmpty
+                    ? null
+                    : AnatomyLayout.forStage(
+                        stage,
+                        _canvasViewport,
+                        _canvasViewport,
+                      ).isHidden,
+              ),
+        stage,
+      ),
       stage,
     );
 
     return CallbackShortcuts(
+      // Innermost first. The sheet is over the page, so it goes before the
+      // page does; only with nothing open does Escape leave the open region.
+      // The panel carries this binding too, for when it holds focus, and the
+      // two agree so that it does not matter which one answers.
       bindings: <ShortcutActivator, VoidCallback>{
-        if (_selection != null)
+        if (_panelVisible)
+          const SingleActivator(LogicalKeyboardKey.escape): () =>
+              unawaited(_dismissPanel())
+        else if (_selection != null)
           const SingleActivator(LogicalKeyboardKey.escape): () =>
               unawaited(_returnToGene())
         else if (_maskedIndex != null)
@@ -1086,8 +1785,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                 : _PageChrome.ofStage(stage),
             status: _maskedIndex != null ? null : _liftedStatus ?? status,
             hint: structure ? _foldSource : _selectionHint,
-            onOpenDna:
-                _selection != null && !_selectionActive && _stage == 0
+            onOpenDna: _selection != null && !_selectionActive && _stage == 0
                 ? _openSelection
                 : null,
             textScale: MediaQuery.textScalerOf(context)
@@ -1098,6 +1796,9 @@ class _AnatomyScreenState extends State<AnatomyScreen>
             onWholeGene: _selectionActive
                 ? () => unawaited(_returnToGene())
                 : null,
+            onReturn: _returnHistory == null
+                ? null
+                : () => _returnHistory?.remove(),
             liftedBase: _liftedStatus != null,
           ),
           body: SafeArea(
@@ -1206,11 +1907,9 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                                                 _geneScrollOffset,
                                             targetScrollOffset:
                                                 _detailScrollOffset,
+                                            lifted: _liftedBase,
                                             onLongPress: _copySelection,
-                                            onBaseTapped: (int? cell) =>
-                                                setState(
-                                                  () => _liftedBase = cell,
-                                                ),
+                                            onBaseTapped: _liftBase,
                                           )
                                         else
                                           AnatomyCanvas(
@@ -1226,6 +1925,9 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                                             maskedIndex: _maskedIndex,
                                             masking: _mask,
                                             bridges: _bridgesOn(stage),
+                                            marks: constraintEnabled
+                                                ? _residueMarks
+                                                : const <int, ClinVarMark>{},
                                             onTapped: _select,
                                             onLongPress: _copyPage,
                                             sourceScrollOffset:
@@ -1242,7 +1944,13 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                                               ? (_panelVisible
                                                     ? _panelHeight
                                                     : 0)
-                                              : _paginatorBand,
+                                              // Room for a base near the
+                                              // end to rise above an open
+                                              // sheet, as a residue can.
+                                              : _paginatorBand +
+                                                    (_panelVisible
+                                                        ? _panelHeight
+                                                        : 0),
                                         ),
                                       ],
                                     ),
@@ -1291,6 +1999,9 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                                 conservation: _conservation,
                                 onChanged: (bool value) =>
                                     setState(() => _conservation = value),
+                                onClinVar: _residueMarks.isEmpty
+                                    ? null
+                                    : () => unawaited(_openVariants()),
                               ),
                             ),
                           ),
@@ -1330,13 +2041,15 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                             ),
                           ),
                         ),
-                        if (constraintEnabled &&
-                            _panelVisible &&
-                            _maskedIndex != null)
+                        if (_inspector(sheetSpace) case final Widget panel)
                           Positioned(
                             left: 0,
                             right: 0,
-                            bottom: _paginatorBand + ConstraintToolbar.height,
+                            bottom:
+                                _paginatorBand +
+                                (constraintEnabled
+                                    ? ConstraintToolbar.height
+                                    : 0),
                             top: 0,
                             child: CallbackShortcuts(
                               bindings: <ShortcutActivator, VoidCallback>{
@@ -1349,23 +2062,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                                 autofocus: true,
                                 child: Align(
                                   alignment: Alignment.bottomCenter,
-                                  child: ConstraintPanel(
-                                    key: const ValueKey<String>(
-                                      'constraint-panel',
-                                    ),
-                                    residue:
-                                        _constraint!.positions[_maskedIndex!],
-                                    length: _constraint!.sequence.length,
-                                    controller: _sheet,
-                                    slide: _sheetSlide,
-                                    pinIdentity:
-                                        sheetSpace *
-                                            ConstraintPanel.initialSize >=
-                                        240 *
-                                            MediaQuery.textScalerOf(context)
-                                                .scale(1),
-                                    onDismiss: () => unawaited(_dismissPanel()),
-                                  ),
+                                  child: panel,
                                 ),
                               ),
                             ),
@@ -1394,7 +2091,8 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                                     labels: StageBar.labelsFor(_model),
                                     index: _stage,
                                     locked: _selectionActive,
-                                    onSelect: (int page) => _step(page - _stage),
+                                    onSelect: (int page) =>
+                                        _step(page - _stage),
                                   ),
                                 ),
                               ),
@@ -1412,6 +2110,60 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       ),
     );
   }
+}
+
+/// A gene's ClinVar records read against the tracks that were loaded with
+/// them, and the lookups the walk makes into that reading.
+///
+/// A sheet rebuilds on every frame of a drag, and a gene like dystrophin has
+/// thousands of records, so the records at each residue and each base are
+/// found once here rather than by scanning the whole list per frame.
+final class _ClinVarReading {
+  _ClinVarReading(
+    this.snapshot,
+    this.impact,
+    this.constraint,
+    this.all, {
+    required bool reversed,
+  }) {
+    for (final VariantEvidence e in all ?? const <VariantEvidence>[]) {
+      (byPosition[e.variant.position] ??= <VariantEvidence>[]).add(e);
+      if (e.variant.residue case final int residue) {
+        (byResidue[residue] ??= <VariantEvidence>[]).add(e);
+      }
+    }
+    final int Function(VariantEvidence, VariantEvidence) order =
+        VariantEvidence.transcriptOrder(reversed: reversed);
+    for (final List<VariantEvidence> records in byResidue.values) {
+      records.sort(order);
+    }
+    for (final List<VariantEvidence> records in byPosition.values) {
+      records.sort(order);
+    }
+  }
+
+  final GeneClinVar snapshot;
+  final GeneImpact? impact;
+  final ProteinConstraint? constraint;
+
+  /// Null where the snapshot does not match the record on screen.
+  final List<VariantEvidence>? all;
+
+  /// By precursor residue number, and by record position.
+  final Map<int, List<VariantEvidence>> byResidue =
+      <int, List<VariantEvidence>>{};
+  final Map<int, List<VariantEvidence>> byPosition =
+      <int, List<VariantEvidence>>{};
+
+  /// Each residue with records, keyed by precursor index, with its most
+  /// severe group.
+  late final Map<int, ClinVarMark> marks = <int, ClinVarMark>{
+    for (final MapEntry<int, List<VariantEvidence>> entry in byResidue.entries)
+      entry.key - 1: ClinVarMark(
+        ClinVarGroup.mostSevere(entry.value.map((e) => e.variant.group)),
+        entry.value.length,
+      ),
+  };
 }
 
 /// The four things the header reads off a page.
@@ -1494,6 +2246,7 @@ class _Header extends StatelessWidget implements PreferredSizeWidget {
     this.hint,
     this.onOpenDna,
     this.onWholeGene,
+    this.onReturn,
     this.liftedBase = false,
     this.textScale = 1,
   });
@@ -1512,6 +2265,10 @@ class _Header extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onOpenDna;
   final VoidCallback? onWholeGene;
 
+  /// Back to the ClinVar overview a record's link came from. It stands where
+  /// "Whole gene" would, ahead of it, because Back goes there first.
+  final VoidCallback? onReturn;
+
   /// Whether the status is a base lifted out of an open region.
   final bool liftedBase;
   final double textScale;
@@ -1522,6 +2279,41 @@ class _Header extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize =>
       Size.fromHeight(toolbarHeight + _ContextStrip.height * textScale);
+
+  /// A labelled way back, where the title would be.
+  Widget _back(
+    ThemeData theme,
+    String label,
+    VoidCallback onPressed, {
+    Key? key,
+    String? spoken,
+  }) {
+    final Widget button = TextButton.icon(
+      key: key,
+      onPressed: onPressed,
+      icon: const Icon(Icons.arrow_back_rounded, size: 18),
+      label: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(label, maxLines: 1),
+      ),
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        foregroundColor: theme.colorScheme.onSurface,
+      ),
+    );
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: spoken == null
+          ? button
+          : Semantics(
+              label: spoken,
+              button: true,
+              excludeSemantics: true,
+              onTap: onPressed,
+              child: button,
+            ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1535,25 +2327,19 @@ class _Header extends StatelessWidget implements PreferredSizeWidget {
         // deep link: `/gene` can be opened with nothing to go back to, and at
         // zero the gene symbol was left touching the edge of the screen.
         titleSpacing: AppSpacing.lg,
-        automaticallyImplyLeading: onWholeGene == null,
+        automaticallyImplyLeading: onWholeGene == null && onReturn == null,
         // The strip below reads the whole state aloud as one live region, so the
         // pieces up here would only be a second, stuttering copy of it.
-        title: onWholeGene != null
-            ? Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  onPressed: onWholeGene,
-                  icon: const Icon(Icons.arrow_back_rounded, size: 18),
-                  label: const FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text('Whole gene', maxLines: 1),
-                  ),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    foregroundColor: theme.colorScheme.onSurface,
-                  ),
-                ),
+        title: onReturn != null
+            ? _back(
+                theme,
+                'ClinVar',
+                onReturn!,
+                key: const ValueKey<String>('walk-return-clinvar'),
+                spoken: 'Back to ClinVar records',
               )
+            : onWholeGene != null
+            ? _back(theme, 'Whole gene', onWholeGene!)
             : Semantics(
                 button: true,
                 label: 'About $gene, $name: sources and copy',
@@ -1688,8 +2474,15 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
 
   /// Three lines at their worst, plus the air that makes them three lines
   /// rather than one block: 12pt of line, [_gap], and two 11pt lines of note,
-  /// at the leadings below. About three points spare, which fall at the foot
-  /// of the strip and widen the margin above the grid.
+  /// at the leadings below.
+  ///
+  /// Fifty-two was that sum with three points spare, and it was three points
+  /// short of the truth: the row the line sits in is as tall as its tallest
+  /// child, and where a region is waiting to be opened that is the DNA pill,
+  /// which is set larger than the line it shares. Nothing reached two lines of
+  /// note beside the pill until a tapped run started answering with what it
+  /// scores, and then the strip overflowed by four points. Fifty-six is the
+  /// row at the pill's height rather than the line's, with the same spare.
   static const double height = 52;
 
   /// The prose, and the note under it. Boxed here rather than left to the
@@ -1787,7 +2580,15 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
                     style: AppTypography.anatomyNote(
                       theme.colorScheme.onSurfaceVariant,
                     ).copyWith(fontSize: _noteSize, height: _noteHeight),
-                    maxLines: 2,
+                    // One line beside the DNA pill, two without it. [height]
+                    // buys a line and two notes at the line's own height, and
+                    // the pill is 24 points of tap target on a 16-point line —
+                    // eight points it has been quietly taking out of the second
+                    // note line since it was added. Nothing reached two lines
+                    // there until a tapped run started answering with what it
+                    // scores; this is the strip refusing to overflow rather
+                    // than the header growing to 100 and breaking its budget.
+                    maxLines: onOpenDna == null ? 2 : 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],

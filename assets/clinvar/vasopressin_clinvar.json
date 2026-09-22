@@ -1,0 +1,4990 @@
+{
+  "schema_version": 1,
+  "source": "NCBI ClinVar",
+  "gene": "AVP",
+  "accession": "NG_008663",
+  "assembly": "GRCh38",
+  "chromosome": "chr20",
+  "scope": "reference-matched single nucleotide variants in the drawn gene",
+  "start": 5001,
+  "sequence": "ACAGAGCCACCAAGCAGTGCTGCATACGGGGTCCACCTGTGTGCACCAGGATGCCTGACACCATGCTGCCCGCCTGCTTCCTCGGCCTACTGGCCTTCTCCTCCGCGTGCTACTTCCAGAACTGCCCGAGGGGCGGCAAGAGGGCCATGTCCGACCTGGAGCTGAGACAGGTACTTCCCACTGTGGGCCATCTCAGGGCTGCCATAGCGGGCAGTGCTGACACCCTGGGTCAGGGGCTAGGAAAGAGGGAAGTCATGGGTGGTGGTAGCCTTTAGGGGAAGTTCGGGGGAGGAAGAGGGAGGCATGGCATGGCTGGGCAGAGGAGCCAATGGGGTGGGCCAGAGGGGACCAGGCTTTGGAGGAGGCTGGGAGAGGCTGAAGGCGCTCCTGGTCACTGTCGCCATCCAGACAGGGATGCAGGGAAATGAGGGATGCTTCCCCGGTGACTGGGCTTGGGGCTGGATAGGGAGAACGGGGCATCATGGCCTCCCCTGTGCCCATGGCGTTCTTGCATCTGGACTGGCTGGGGCAGCAGAGGCTCCATCCTACCTAGCATTGGAGGCTTTCCTCATCCAGCCCCAGCCTCCCAGCCACAGGCGCCCAGGCCCCCACACAGAAGATGGCCACTGGTCTGAGCGCGCTTGAGTGGGGCATCCTGTGGGGAAGTTCTGCTGGGAACCTGGCCTAATTCTATAGTGCTGGACGTTTCCTCCATTTCCAGCAGAGCTGAAGGAAATCCAATCACGATGTGCATGCAATTCTGTCCAGGCTCAATGATGAGCCCTTGAGCAAATTAGACCACACCAGGCTCAGCTAAAAGTCTAATGCGCTATCCATTGCGCCAGAGAACCGGCTGTTGAGCAGATGAGAGTGGCCGCTCGGCAACCCCCGCAGCCTCTCTTCCTCCTGCTAGGCTCCTTTAGGGTCCTGAGGCACCTGGGTGTCCGTGCTCGCCTCTAGGTCTCAGGCCCCTGCCACCCACCTGATAGGTCATAGGTGGCTGAGCAGGGGTCAGGGCTCCAGCTGAGGCCGACAAGCTTGGCGGGGGCCAGGGGCAAGGCAAGAGAGGAGACAGGAAATGGGAAGGGCCGGGGTTCTGGATGGGTAGGGCCTCTCCGCATGGTGTAGTGGGGAAGGGGGTGGGCCCGGGCTCAAGCCGCAGCAGGGCGAGGAGGAAGGAGGAAGGGTCTGGAGTGGTGGAGGGTGGGGCAGCTGCAACAGTGGCGCCCACCAGCGATGACCCCGAGGCTCGAGGAAGGGTTCCCCACGCTGTAGTCCACGGGAGACCCGTCCCTAGCTGAGGGTGAGGACGCTGAGGGCTGTCACCGAGAGGTCATCCAAGAAACCAAGGTGCCGAGCAGATCTGGACGCCCCGCCCGTGACCGCGGTCGAGGCCCAGTGGCGCCCGAGCGTGCCTGCAGCCGCAGCCCCGGTGTCCCGCCCGCACTCCGAGCCCTGGACCCCAGCATCCCCGCCTCGCTGCGTTCCCCTCCAACCCCTCGACTCCCGGCTCCCCTCCTCCCGCTCACCCCGCCCGTCCCCGCAGTGCCTCCCCTGCGGCCCCGGGGGCAAAGGCCGCTGCTTCGGGCCCAGCATCTGCTGCGCGGACGAGCTGGGCTGCTTCGTGGGCACGGCTGAGGCGCTGCGCTGCCAGGAGGAGAACTACCTGCCGTCGCCCTGCCAGTCCGGCCAGAAGGCGTGCGGGAGCGGGGGCCGCTGCGCCGCCTTCGGCGTTTGCTGCAACGACGGTGCGCGGCGGGGGCGGGCCTGGGGCTGGGGGGGGCGCAGACCGCTTGGGTGGGGGGGACGCGGGCCTGCGGCGGGGTGGGGGCTGCGTCGGGCCCGGCAGGGAGGGTGTGGGCCCCCCGCACCCCGAGCTGCGCCCGCCCCAGGGCGCCCGTGCTCACACGTCCTCCCGGCAGAGAGCTGCGTGACCGAGCCCGAGTGCCGCGAGGGCTTTCACCGCCGCGCCCGCGCCAGCGACCGGAGCAACGCCACGCAGCTGGACGGGCCGGCCGGGGCCTTGCTGCTGCGGCTGGTGCAGCTGGCCGGGGCGCCCGAGCCCTTCGAGCCCGCCCAGCCCGACGCCTACTGAGCCCCGCGCTCGCCCCACCGGCGCGCTCTTCGCGCCCGCCCCTGCAGCACGGACAATAAACCTCCGCCAATGCA",
+  "protein_sequence": "MPDTMLPACFLGLLAFSSACYFQNCPRGGKRAMSDLELRQCLPCGPGGKGRCFGPSICCADELGCFVGTAEALRCQEENYLPSPCQSGQKACGSGGRCAAFGVCCNDESCVTEPECREGFHRRARASDRSNATQLDGPAGALLLRLVQLAGAPEPFEPAQPDAY",
+  "complemented": true,
+  "runs": [
+    {
+      "local": 5001,
+      "genomic": 3084724,
+      "step": -1,
+      "length": 2169
+    }
+  ],
+  "retrieved_at": "2026-09-22T12:56:01.795938+00:00",
+  "query": "AVP[gene]",
+  "searched_records": 196,
+  "excluded": {
+    "no_germline_classification": 2,
+    "no_unique_GRCh38_location": 30,
+    "not_a_single_base_substitution": 21,
+    "outside_drawn_gene": 2
+  },
+  "source_batches": [
+    {
+      "file": "batch-0.xml",
+      "sha256": "3a4a91e35c8139f5fb4b436463214f8923d29f05070bd2485443b2278254b8e2"
+    },
+    {
+      "file": "batch-1.xml",
+      "sha256": "30e85c1712eb9f730c8685257ed34553c17178fe6afa91551aa0452b638b20b1"
+    }
+  ],
+  "traits": {
+    "Diabetes insipidus, neurohypophyseal, autosomal recessive": {
+      "medgen": "C4016430"
+    },
+    "Inborn genetic diseases": {
+      "medgen": "C0950123"
+    },
+    "Neurohypophyseal diabetes insipidus": {
+      "medgen": "C0342394",
+      "symbol": "CDI",
+      "omim": "125700",
+      "mondo": "MONDO:0007450"
+    }
+  },
+  "variants": [
+    {
+      "variation_id": "3587180",
+      "accession": "VCV003587180.1",
+      "name": "NM_000490.5(AVP):c.9C>A (p.Asp3Glu)",
+      "position": 5059,
+      "genomic": 3084666,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 3,
+      "protein_change": "p.D3E",
+      "coding_change": "c.9C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-02-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005032516.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "12219",
+      "accession": "VCV000012219.3",
+      "name": "NM_000490.5(AVP):c.20C>T (p.Pro7Leu)",
+      "position": 5070,
+      "genomic": 3084655,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 7,
+      "protein_change": "p.P7L",
+      "coding_change": "c.20C>T",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2004-09-01",
+      "last_updated": "2023-03-26",
+      "conditions": [
+        {
+          "accession": "RCV000013003.19",
+          "names": [
+            "Diabetes insipidus, neurohypophyseal, autosomal recessive"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2004-09-01"
+        }
+      ],
+      "collection_methods": [
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "4696384",
+      "accession": "VCV004696384.1",
+      "name": "NM_000490.5(AVP):c.21C>T (p.Pro7=)",
+      "position": 5071,
+      "genomic": 3084654,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 7,
+      "protein_change": "p.P7=",
+      "coding_change": "c.21C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-07-21",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006482071.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-07-21"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587179",
+      "accession": "VCV003587179.1",
+      "name": "NM_000490.5(AVP):c.22G>A (p.Ala8Thr)",
+      "position": 5072,
+      "genomic": 3084653,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 8,
+      "protein_change": "p.A8T",
+      "coding_change": "c.22G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-05-18",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005032515.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3979521",
+      "accession": "VCV003979521.1",
+      "name": "NM_000490.5(AVP):c.23C>T (p.Ala8Val)",
+      "position": 5073,
+      "genomic": 3084652,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 8,
+      "protein_change": "p.A8V",
+      "coding_change": "c.23C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-04-01",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005519011.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-04-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1990217",
+      "accession": "VCV001990217.4",
+      "name": "NM_000490.5(AVP):c.33C>T (p.Leu11=)",
+      "position": 5083,
+      "genomic": 3084642,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 11,
+      "protein_change": "p.L11=",
+      "coding_change": "c.33C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-11-18",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002771224.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-11-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3467751",
+      "accession": "VCV003467751.1",
+      "name": "NM_000490.5(AVP):c.34G>A (p.Gly12Ser)",
+      "position": 5084,
+      "genomic": 3084641,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 12,
+      "protein_change": "p.G12S",
+      "coding_change": "c.34G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-08-12",
+      "last_updated": "2025-01-19",
+      "conditions": [
+        {
+          "accession": "RCV004972095.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-08-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587178",
+      "accession": "VCV003587178.1",
+      "name": "NM_000490.5(AVP):c.49T>C (p.Ser17Pro)",
+      "position": 5099,
+      "genomic": 3084626,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 17,
+      "protein_change": "p.S17P",
+      "coding_change": "c.49T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-03-22",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005026910.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-03-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "739003",
+      "accession": "VCV000739003.7",
+      "name": "NM_000490.5(AVP):c.54C>T (p.Ser18=)",
+      "position": 5104,
+      "genomic": 3084621,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 18,
+      "protein_change": "p.S18=",
+      "coding_change": "c.54C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2024-12-04",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000914944.7",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-12-04"
+        },
+        {
+          "accession": "RCV002505351.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-04-14"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "12206",
+      "accession": "VCV000012206.15",
+      "name": "NM_000490.5(AVP):c.55G>A (p.Ala19Thr)",
+      "position": 5105,
+      "genomic": 3084620,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 19,
+      "protein_change": "p.A19T",
+      "coding_change": "c.55G>A",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-11-02",
+      "last_updated": "2026-09-13",
+      "conditions": [
+        {
+          "accession": "RCV000012990.35",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2024-09-13"
+        },
+        {
+          "accession": "RCV001701565.16",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-11-02"
+        },
+        {
+          "accession": "RCV004755730.1",
+          "names": [
+            "AVP-related disorder"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-09-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "12212",
+      "accession": "VCV000012212.3",
+      "name": "NM_000490.5(AVP):c.56C>T (p.Ala19Val)",
+      "position": 5106,
+      "genomic": 3084619,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 19,
+      "protein_change": "p.A19V",
+      "coding_change": "c.56C>T",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "1998-02-01",
+      "last_updated": "2026-09-13",
+      "conditions": [
+        {
+          "accession": "RCV000012996.33",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "1998-02-01"
+        }
+      ],
+      "collection_methods": [
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "4717534",
+      "accession": "VCV004717534.1",
+      "name": "NM_000490.5(AVP):c.60C>T (p.Cys20=)",
+      "position": 5110,
+      "genomic": 3084615,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 20,
+      "protein_change": "p.C20=",
+      "coding_change": "c.60C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-04-14",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006506841.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-04-14"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "12221",
+      "accession": "VCV000012221.3",
+      "name": "NM_000490.5(AVP):c.61T>C (p.Tyr21His)",
+      "position": 5111,
+      "genomic": 3084614,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 21,
+      "protein_change": "p.Y21H",
+      "coding_change": "c.61T>C",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2004-09-01",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000013005.25",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2004-09-01"
+        }
+      ],
+      "collection_methods": [
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "3587177",
+      "accession": "VCV003587177.1",
+      "name": "NM_000490.5(AVP):c.67C>T (p.Gln23Ter)",
+      "position": 5117,
+      "genomic": 3084608,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 23,
+      "protein_change": "p.Q23*",
+      "coding_change": "c.67C>T",
+      "consequence": "stop gained",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-06-04",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005032514.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587176",
+      "accession": "VCV003587176.1",
+      "name": "NM_000490.5(AVP):c.77C>T (p.Pro26Leu)",
+      "position": 5127,
+      "genomic": 3084598,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 26,
+      "protein_change": "p.P26L",
+      "coding_change": "c.77C>T",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-03-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005026909.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-03-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "591527",
+      "accession": "VCV000591527.1",
+      "name": "NM_000490.5(AVP):c.92G>A (p.Arg31Lys)",
+      "position": 5142,
+      "genomic": 3084583,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 31,
+      "protein_change": "p.R31K",
+      "coding_change": "c.92G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2018-09-16",
+      "last_updated": "2022-04-25",
+      "conditions": [
+        {
+          "accession": "RCV000722706.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2018-09-16"
+        }
+      ],
+      "collection_methods": [
+        "research"
+      ]
+    },
+    {
+      "variation_id": "3644925",
+      "accession": "VCV003644925.2",
+      "name": "NM_000490.5(AVP):c.102C>T (p.Ser34=)",
+      "position": 5152,
+      "genomic": 3084573,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 34,
+      "protein_change": "p.S34=",
+      "coding_change": "c.102C>T",
+      "consequence": "synonymous",
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-09-29",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005121852.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-09-29"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4695623",
+      "accession": "VCV004695623.1",
+      "name": "NM_000490.5(AVP):c.103G>A (p.Asp35Asn)",
+      "position": 5153,
+      "genomic": 3084572,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 35,
+      "protein_change": "p.D35N",
+      "coding_change": "c.103G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-09-09",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006476846.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-09-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2892590",
+      "accession": "VCV002892590.4",
+      "name": "NM_000490.5(AVP):c.105C>G (p.Asp35Glu)",
+      "position": 5155,
+      "genomic": 3084570,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 35,
+      "protein_change": "p.D35E",
+      "coding_change": "c.105C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2024-03-19",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV003725500.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-08-31"
+        },
+        {
+          "accession": "RCV005036984.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-03-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2251568",
+      "accession": "VCV002251568.2",
+      "name": "NM_000490.5(AVP):c.109G>C (p.Glu37Gln)",
+      "position": 5159,
+      "genomic": 3084566,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 37,
+      "protein_change": "p.E37Q",
+      "coding_change": "c.109G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-09-17",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV002772061.2",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-09-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587175",
+      "accession": "VCV003587175.1",
+      "name": "NM_000490.5(AVP):c.113T>A (p.Leu38Gln)",
+      "position": 5163,
+      "genomic": 3084562,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "A",
+      "genomic_alt": "T",
+      "residue": 38,
+      "protein_change": "p.L38Q",
+      "coding_change": "c.113T>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-03-27",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005026908.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-03-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587174",
+      "accession": "VCV003587174.1",
+      "name": "NM_000490.5(AVP):c.115A>G (p.Arg39Gly)",
+      "position": 5165,
+      "genomic": 3084560,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 39,
+      "protein_change": "p.R39G",
+      "coding_change": "c.115A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-06-14",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005026907.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-14"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2302621",
+      "accession": "VCV002302621.3",
+      "name": "NM_000490.5(AVP):c.118C>G (p.Gln40Glu)",
+      "position": 5168,
+      "genomic": 3084557,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 40,
+      "protein_change": "p.Q40E",
+      "coding_change": "c.118C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2024-04-23",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV002855616.2",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-07-20"
+        },
+        {
+          "accession": "RCV005028378.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587173",
+      "accession": "VCV003587173.1",
+      "name": "NM_000490.5(AVP):c.120+1G>A",
+      "position": 5171,
+      "genomic": 3084554,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-01-22",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005032513.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-01-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587172",
+      "accession": "VCV003587172.1",
+      "name": "NM_000490.5(AVP):c.120+12T>G",
+      "position": 5182,
+      "genomic": 3084543,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-02-26",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005026906.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1182116",
+      "accession": "VCV001182116.2",
+      "name": "NM_000490.5(AVP):c.120+252G>A",
+      "position": 5422,
+      "genomic": 3084303,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001539671.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1237385",
+      "accession": "VCV001237385.3",
+      "name": "NM_000490.5(AVP):c.121-286T>C",
+      "position": 6261,
+      "genomic": 3083464,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001635877.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4690526",
+      "accession": "VCV004690526.1",
+      "name": "NM_000490.5(AVP):c.121-17C>T",
+      "position": 6530,
+      "genomic": 3083195,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-09-10",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006485144.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-09-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4778064",
+      "accession": "VCV004778064.1",
+      "name": "NM_000490.5(AVP):c.121-11C>G",
+      "position": 6536,
+      "genomic": 3083189,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-05-07",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV006589487.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-05-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587171",
+      "accession": "VCV003587171.1",
+      "name": "NM_000490.5(AVP):c.121-6C>G",
+      "position": 6541,
+      "genomic": 3083184,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-04-18",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005026905.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587170",
+      "accession": "VCV003587170.1",
+      "name": "NM_000490.5(AVP):c.122G>A (p.Cys41Tyr)",
+      "position": 6548,
+      "genomic": 3083177,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 41,
+      "protein_change": "p.C41Y",
+      "coding_change": "c.122G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-04-15",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005026904.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4707926",
+      "accession": "VCV004707926.1",
+      "name": "NM_000490.5(AVP):c.127C>A (p.Pro43Thr)",
+      "position": 6553,
+      "genomic": 3083172,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 43,
+      "protein_change": "p.P43T",
+      "coding_change": "c.127C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-10-28",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006504679.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1630379",
+      "accession": "VCV001630379.10",
+      "name": "NM_000490.5(AVP):c.127C>G (p.Pro43Ala)",
+      "position": 6553,
+      "genomic": 3083172,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 43,
+      "protein_change": "p.P43A",
+      "coding_change": "c.127C>G",
+      "consequence": "missense",
+      "classification": "Benign/Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-01-27",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV004046537.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-10-26"
+        },
+        {
+          "accession": "RCV002486942.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-04-25"
+        },
+        {
+          "accession": "RCV002127833.8",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587169",
+      "accession": "VCV003587169.1",
+      "name": "NM_000490.5(AVP):c.128C>A (p.Pro43His)",
+      "position": 6554,
+      "genomic": 3083171,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 43,
+      "protein_change": "p.P43H",
+      "coding_change": "c.128C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-05-14",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005026903.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-14"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587168",
+      "accession": "VCV003587168.1",
+      "name": "NM_000490.5(AVP):c.128C>T (p.Pro43Leu)",
+      "position": 6554,
+      "genomic": 3083171,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 43,
+      "protein_change": "p.P43L",
+      "coding_change": "c.128C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-06-11",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005032512.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-11"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "369949",
+      "accession": "VCV000369949.2",
+      "name": "NM_000490.5(AVP):c.131G>T (p.Cys44Phe)",
+      "position": 6557,
+      "genomic": 3083168,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 44,
+      "protein_change": "p.C44F",
+      "coding_change": "c.131G>T",
+      "consequence": "missense",
+      "classification": "Likely pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": null,
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000408826.2",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "713238",
+      "accession": "VCV000713238.5",
+      "name": "NM_000490.5(AVP):c.132C>T (p.Cys44=)",
+      "position": 6558,
+      "genomic": 3083167,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 44,
+      "protein_change": "p.C44=",
+      "coding_change": "c.132C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-10-25",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000885346.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-25"
+        },
+        {
+          "accession": "RCV002507565.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-01-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3979506",
+      "accession": "VCV003979506.1",
+      "name": "NM_000490.5(AVP):c.137C>T (p.Pro46Leu)",
+      "position": 6563,
+      "genomic": 3083162,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 46,
+      "protein_change": "p.P46L",
+      "coding_change": "c.137C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-04-13",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005518996.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-04-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3132416",
+      "accession": "VCV003132416.1",
+      "name": "NM_000490.5(AVP):c.139G>A (p.Gly47Arg)",
+      "position": 6565,
+      "genomic": 3083160,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 47,
+      "protein_change": "p.G47R",
+      "coding_change": "c.139G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-01-23",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004421344.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-01-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2776586",
+      "accession": "VCV002776586.3",
+      "name": "NM_000490.5(AVP):c.140G>A (p.Gly47Glu)",
+      "position": 6566,
+      "genomic": 3083159,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 47,
+      "protein_change": "p.G47E",
+      "coding_change": "c.140G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-08-28",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003664784.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-08-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4715400",
+      "accession": "VCV004715400.1",
+      "name": "NM_000490.5(AVP):c.142G>T (p.Gly48Cys)",
+      "position": 6568,
+      "genomic": 3083157,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 48,
+      "protein_change": "p.G48C",
+      "coding_change": "c.142G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-06-09",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006501572.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "12205",
+      "accession": "VCV000012205.1",
+      "name": "NM_000490.5(AVP):c.143G>T (p.Gly48Val)",
+      "position": 6569,
+      "genomic": 3083156,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 48,
+      "protein_change": "p.G48V",
+      "coding_change": "c.143G>T",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "1996-11-01",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000012989.24",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "1996-11-01"
+        }
+      ],
+      "collection_methods": [
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "724217",
+      "accession": "VCV000724217.13",
+      "name": "NM_000490.5(AVP):c.150C>A (p.Gly50=)",
+      "position": 6576,
+      "genomic": 3083149,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 50,
+      "protein_change": "p.G50=",
+      "coding_change": "c.150C>A",
+      "consequence": "synonymous",
+      "classification": "Benign/Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-01-25",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000898097.9",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2026-01-25"
+        },
+        {
+          "accession": "RCV002495437.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-07-19"
+        },
+        {
+          "accession": "RCV003950506.2",
+          "names": [
+            "AVP-related disorder"
+          ],
+          "classification": "Benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2021-03-21"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "4072436",
+      "accession": "VCV004072436.1",
+      "name": "NM_000490.5(AVP):c.160G>A (p.Gly54Arg)",
+      "position": 6586,
+      "genomic": 3083139,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 54,
+      "protein_change": "p.G54R",
+      "coding_change": "c.160G>A",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-02-03",
+      "last_updated": "2025-08-09",
+      "conditions": [
+        {
+          "accession": "RCV005623669.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-02-03"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "12214",
+      "accession": "VCV000012214.4",
+      "name": "NM_000490.5(AVP):c.160G>C (p.Gly54Arg)",
+      "position": 6586,
+      "genomic": 3083139,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 54,
+      "protein_change": "p.G54R",
+      "coding_change": "c.160G>C",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-01-21",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000012998.17",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "1998-02-01"
+        },
+        {
+          "accession": "RCV004719640.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2025-01-21"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "12213",
+      "accession": "VCV000012213.2",
+      "name": "NM_000490.5(AVP):c.161G>T (p.Gly54Val)",
+      "position": 6587,
+      "genomic": 3083138,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 54,
+      "protein_change": "p.G54V",
+      "coding_change": "c.161G>T",
+      "consequence": "missense",
+      "classification": "Likely pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-07-20",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000012997.23",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "1999-09-01"
+        },
+        {
+          "accession": "RCV004719639.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-07-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "2736933",
+      "accession": "VCV002736933.5",
+      "name": "NM_000490.5(AVP):c.164C>T (p.Pro55Leu)",
+      "position": 6590,
+      "genomic": 3083135,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 55,
+      "protein_change": "p.P55L",
+      "coding_change": "c.164C>T",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-06-11",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003560131.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-06-11"
+        },
+        {
+          "accession": "RCV003929260.3",
+          "names": [
+            "AVP-related disorder"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-02-03"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3360127",
+      "accession": "VCV003360127.1",
+      "name": "NM_000490.5(AVP):c.170T>A (p.Ile57Asn)",
+      "position": 6596,
+      "genomic": 3083129,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "A",
+      "genomic_alt": "T",
+      "residue": 57,
+      "protein_change": "p.I57N",
+      "coding_change": "c.170T>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-06-25",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004762647.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-06-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4081199",
+      "accession": "VCV004081199.1",
+      "name": "NM_000490.5(AVP):c.174C>A (p.Cys58Ter)",
+      "position": 6600,
+      "genomic": 3083125,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 58,
+      "protein_change": "p.C58*",
+      "coding_change": "c.174C>A",
+      "consequence": "stop gained",
+      "classification": "Likely pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-03-27",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005636215.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-03-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3010989",
+      "accession": "VCV003010989.3",
+      "name": "NM_000490.5(AVP):c.174C>T (p.Cys58=)",
+      "position": 6600,
+      "genomic": 3083125,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 58,
+      "protein_change": "p.C58=",
+      "coding_change": "c.174C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-04-15",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003869652.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3723691",
+      "accession": "VCV003723691.2",
+      "name": "NM_000490.5(AVP):c.175T>C (p.Cys59Arg)",
+      "position": 6601,
+      "genomic": 3083124,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 59,
+      "protein_change": "p.C59R",
+      "coding_change": "c.175T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-05-15",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005196035.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3723690",
+      "accession": "VCV003723690.2",
+      "name": "NM_000490.5(AVP):c.176G>A (p.Cys59Tyr)",
+      "position": 6602,
+      "genomic": 3083123,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 59,
+      "protein_change": "p.C59Y",
+      "coding_change": "c.176G>A",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-06-04",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005196034.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3688866",
+      "accession": "VCV003688866.2",
+      "name": "NM_000490.5(AVP):c.178G>A (p.Ala60Thr)",
+      "position": 6604,
+      "genomic": 3083121,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 60,
+      "protein_change": "p.A60T",
+      "coding_change": "c.178G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-09-24",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005170234.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-09-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587167",
+      "accession": "VCV003587167.1",
+      "name": "NM_000490.5(AVP):c.183C>A (p.Asp61Glu)",
+      "position": 6609,
+      "genomic": 3083116,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 61,
+      "protein_change": "p.D61E",
+      "coding_change": "c.183C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-02-23",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005026902.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3766446",
+      "accession": "VCV003766446.2",
+      "name": "NM_000490.5(AVP):c.195C>A (p.Cys65Ter)",
+      "position": 6621,
+      "genomic": 3083104,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 65,
+      "protein_change": "p.C65*",
+      "coding_change": "c.195C>A",
+      "consequence": "stop gained",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": null,
+      "last_updated": "2025-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005234141.2",
+          "names": [
+            "early-onset neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "research"
+      ]
+    },
+    {
+      "variation_id": "3609324",
+      "accession": "VCV003609324.2",
+      "name": "NM_000490.5(AVP):c.195C>T (p.Cys65=)",
+      "position": 6621,
+      "genomic": 3083104,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 65,
+      "protein_change": "p.C65=",
+      "coding_change": "c.195C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-07-23",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005069403.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-07-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587166",
+      "accession": "VCV003587166.1",
+      "name": "NM_000490.5(AVP):c.199G>C (p.Val67Leu)",
+      "position": 6625,
+      "genomic": 3083100,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 67,
+      "protein_change": "p.V67L",
+      "coding_change": "c.199G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-04-15",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005026901.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "12218",
+      "accession": "VCV000012218.1",
+      "name": "NM_000490.5(AVP):c.200T>C (p.Val67Ala)",
+      "position": 6626,
+      "genomic": 3083099,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 67,
+      "protein_change": "p.V67A",
+      "coding_change": "c.200T>C",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2004-01-01",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000013002.23",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2004-01-01"
+        }
+      ],
+      "collection_methods": [
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "2412143",
+      "accession": "VCV002412143.3",
+      "name": "NM_000490.5(AVP):c.202G>C (p.Gly68Arg)",
+      "position": 6628,
+      "genomic": 3083097,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 68,
+      "protein_change": "p.G68R",
+      "coding_change": "c.202G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-04-08",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV002784893.3",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2439449",
+      "accession": "VCV002439449.3",
+      "name": "NM_000490.5(AVP):c.218T>C (p.Leu73Pro)",
+      "position": 6644,
+      "genomic": 3083081,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 73,
+      "protein_change": "p.L73P",
+      "coding_change": "c.218T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-10-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV003143718.4",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-10-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "715748",
+      "accession": "VCV000715748.10",
+      "name": "NM_000490.5(AVP):c.230A>T (p.Glu77Val)",
+      "position": 6656,
+      "genomic": 3083069,
+      "ref": "A",
+      "alt": "T",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": 77,
+      "protein_change": "p.E77V",
+      "coding_change": "c.230A>T",
+      "consequence": "missense",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2026-01-27",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV000888262.11",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Conflicting classifications of pathogenicity",
+          "review_status": "criteria provided, conflicting classifications",
+          "last_evaluated": "2026-01-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3651931",
+      "accession": "VCV003651931.2",
+      "name": "NM_000490.5(AVP):c.237C>G (p.Asn79Lys)",
+      "position": 6663,
+      "genomic": 3083062,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 79,
+      "protein_change": "p.N79K",
+      "coding_change": "c.237C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-05-02",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005133317.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-02"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "754614",
+      "accession": "VCV000754614.4",
+      "name": "NM_000490.5(AVP):c.240C>T (p.Tyr80=)",
+      "position": 6666,
+      "genomic": 3083059,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 80,
+      "protein_change": "p.Y80=",
+      "coding_change": "c.240C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-12-31",
+      "last_updated": "2024-09-29",
+      "conditions": [
+        {
+          "accession": "RCV000931955.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-12-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "746584",
+      "accession": "VCV000746584.9",
+      "name": "NM_000490.5(AVP):c.245C>T (p.Pro82Leu)",
+      "position": 6671,
+      "genomic": 3083054,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 82,
+      "protein_change": "p.P82L",
+      "coding_change": "c.245C>T",
+      "consequence": "missense",
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-06-12",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV000923201.9",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1285212",
+      "accession": "VCV001285212.3",
+      "name": "NM_000490.5(AVP):c.260C>A (p.Ser87Tyr)",
+      "position": 6686,
+      "genomic": 3083039,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 87,
+      "protein_change": "p.S87Y",
+      "coding_change": "c.260C>A",
+      "consequence": "missense",
+      "classification": "Pathogenic/Likely pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": null,
+      "last_updated": "2023-12-25",
+      "conditions": [
+        {
+          "accession": "RCV001702024.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic/Likely pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "12216",
+      "accession": "VCV000012216.5",
+      "name": "NM_000490.5(AVP):c.260C>T (p.Ser87Phe)",
+      "position": 6686,
+      "genomic": 3083039,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 87,
+      "protein_change": "p.S87F",
+      "coding_change": "c.260C>T",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-03-27",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000013000.25",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "1998-11-01"
+        },
+        {
+          "accession": "RCV002513002.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-03-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "12204",
+      "accession": "VCV000012204.1",
+      "name": "NM_000490.5(AVP):c.262G>A (p.Gly88Ser)",
+      "position": 6688,
+      "genomic": 3083037,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 88,
+      "protein_change": "p.G88S",
+      "coding_change": "c.262G>A",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "1991-02-01",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000012988.24",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "1991-02-01"
+        }
+      ],
+      "collection_methods": [
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "3723689",
+      "accession": "VCV003723689.2",
+      "name": "NM_000490.5(AVP):c.262G>C (p.Gly88Arg)",
+      "position": 6688,
+      "genomic": 3083037,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 88,
+      "protein_change": "p.G88R",
+      "coding_change": "c.262G>C",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-03-31",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV005196033.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-03-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1700421",
+      "accession": "VCV001700421.4",
+      "name": "NM_000490.5(AVP):c.262G>T (p.Gly88Cys)",
+      "position": 6688,
+      "genomic": 3083037,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 88,
+      "protein_change": "p.G88C",
+      "coding_change": "c.262G>T",
+      "consequence": "missense",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2024-04-06",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV002274670.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-08-01"
+        },
+        {
+          "accession": "RCV005032212.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3006391",
+      "accession": "VCV003006391.3",
+      "name": "NM_000490.5(AVP):c.264C>T (p.Gly88=)",
+      "position": 6690,
+      "genomic": 3083035,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 88,
+      "protein_change": "p.G88=",
+      "coding_change": "c.264C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-06-12",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV003866542.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1975041",
+      "accession": "VCV001975041.5",
+      "name": "NM_000490.5(AVP):c.265C>G (p.Gln89Glu)",
+      "position": 6691,
+      "genomic": 3083034,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 89,
+      "protein_change": "p.Q89E",
+      "coding_change": "c.265C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-03-27",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV002746410.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-03-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3901384",
+      "accession": "VCV003901384.1",
+      "name": "NM_000490.5(AVP):c.272C>T (p.Ala91Val)",
+      "position": 6698,
+      "genomic": 3083027,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 91,
+      "protein_change": "p.A91V",
+      "coding_change": "c.272C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-12-04",
+      "last_updated": "2025-06-14",
+      "conditions": [
+        {
+          "accession": "RCV005416903.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-12-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4702637",
+      "accession": "VCV004702637.1",
+      "name": "NM_000490.5(AVP):c.273G>C (p.Ala91=)",
+      "position": 6699,
+      "genomic": 3083026,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 91,
+      "protein_change": "p.A91=",
+      "coding_change": "c.273G>C",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2026-01-07",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006488321.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "12217",
+      "accession": "VCV000012217.2",
+      "name": "NM_000490.5(AVP):c.275G>A (p.Cys92Tyr)",
+      "position": 6701,
+      "genomic": 3083024,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 92,
+      "protein_change": "p.C92Y",
+      "coding_change": "c.275G>A",
+      "consequence": "missense",
+      "classification": "Likely pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-09-23",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000013001.23",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "1998-11-01"
+        },
+        {
+          "accession": "RCV003407322.4",
+          "names": [
+            "AVP-related disorder"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-09-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "2804341",
+      "accession": "VCV002804341.3",
+      "name": "NM_000490.5(AVP):c.275G>T (p.Cys92Phe)",
+      "position": 6701,
+      "genomic": 3083024,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 92,
+      "protein_change": "p.C92F",
+      "coding_change": "c.275G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-04-07",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV003684006.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-04-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "12209",
+      "accession": "VCV000012209.1",
+      "name": "NM_000490.5(AVP):c.277G>T (p.Gly93Trp)",
+      "position": 6703,
+      "genomic": 3083022,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 93,
+      "protein_change": "p.G93W",
+      "coding_change": "c.277G>T",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "1995-04-01",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000012993.24",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "1995-04-01"
+        }
+      ],
+      "collection_methods": [
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "3979535",
+      "accession": "VCV003979535.1",
+      "name": "NM_000490.5(AVP):c.284G>A (p.Gly95Glu)",
+      "position": 6710,
+      "genomic": 3083015,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 95,
+      "protein_change": "p.G95E",
+      "coding_change": "c.284G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-05-19",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005519025.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-05-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3723687",
+      "accession": "VCV003723687.2",
+      "name": "NM_000490.5(AVP):c.286G>T (p.Gly96Cys)",
+      "position": 6712,
+      "genomic": 3083013,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 96,
+      "protein_change": "p.G96C",
+      "coding_change": "c.286G>T",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-05-02",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005196031.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-02"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3358364",
+      "accession": "VCV003358364.2",
+      "name": "NM_000490.5(AVP):c.287G>A (p.Gly96Asp)",
+      "position": 6713,
+      "genomic": 3083012,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 96,
+      "protein_change": "p.G96D",
+      "coding_change": "c.287G>A",
+      "consequence": "missense",
+      "classification": "Likely pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-09-06",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV004757063.1",
+          "names": [
+            "AVP-related disorder"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-05-02"
+        },
+        {
+          "accession": "RCV005250356.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-09-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "12211",
+      "accession": "VCV000012211.8",
+      "name": "NM_000490.5(AVP):c.287G>T (p.Gly96Val)",
+      "position": 6713,
+      "genomic": 3083012,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 96,
+      "protein_change": "p.G96V",
+      "coding_change": "c.287G>T",
+      "consequence": "missense",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2026-04-23",
+      "last_updated": "2026-09-13",
+      "conditions": [
+        {
+          "accession": "RCV000012995.25",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Conflicting classifications of pathogenicity",
+          "review_status": "criteria provided, conflicting classifications",
+          "last_evaluated": "2020-09-30"
+        },
+        {
+          "accession": "RCV003556006.6",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Conflicting classifications of pathogenicity",
+          "review_status": "criteria provided, conflicting classifications",
+          "last_evaluated": "2026-04-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "literature only",
+        "research"
+      ]
+    },
+    {
+      "variation_id": "3065457",
+      "accession": "VCV003065457.1",
+      "name": "NM_000490.5(AVP):c.290G>A (p.Arg97His)",
+      "position": 6716,
+      "genomic": 3083009,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 97,
+      "protein_change": "p.R97H",
+      "coding_change": "c.290G>A",
+      "consequence": "missense",
+      "classification": "Likely pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-03-26",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV003990534.3",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-03-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4710565",
+      "accession": "VCV004710565.1",
+      "name": "NM_000490.5(AVP):c.292T>G (p.Cys98Gly)",
+      "position": 6718,
+      "genomic": 3083007,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": 98,
+      "protein_change": "p.C98G",
+      "coding_change": "c.292T>G",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-04-08",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006494755.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-04-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "12208",
+      "accession": "VCV000012208.1",
+      "name": "NM_000490.5(AVP):c.294C>A (p.Cys98Ter)",
+      "position": 6720,
+      "genomic": 3083005,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 98,
+      "protein_change": "p.C98*",
+      "coding_change": "c.294C>A",
+      "consequence": "stop gained",
+      "classification": "Pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2003-12-01",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000012992.24",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2003-12-01"
+        }
+      ],
+      "collection_methods": [
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "3729312",
+      "accession": "VCV003729312.2",
+      "name": "NM_000490.5(AVP):c.303C>T (p.Phe101=)",
+      "position": 6729,
+      "genomic": 3082996,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 101,
+      "protein_change": "p.F101=",
+      "coding_change": "c.303C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-03-14",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV005207111.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-03-14"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4839844",
+      "accession": "VCV004839844.1",
+      "name": "NM_000490.5(AVP):c.314G>A (p.Cys105Tyr)",
+      "position": 6740,
+      "genomic": 3082985,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 105,
+      "protein_change": "p.C105Y",
+      "coding_change": "c.314G>A",
+      "consequence": "missense",
+      "classification": "Likely pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2026-02-19",
+      "last_updated": "2026-05-03",
+      "conditions": [
+        {
+          "accession": "RCV006679275.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-02-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4728798",
+      "accession": "VCV004728798.1",
+      "name": "NM_000490.5(AVP):c.316A>G (p.Asn106Asp)",
+      "position": 6742,
+      "genomic": 3082983,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 106,
+      "protein_change": "p.N106D",
+      "coding_change": "c.316A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2026-01-22",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006529511.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587165",
+      "accession": "VCV003587165.1",
+      "name": "NM_000490.5(AVP):c.318C>G (p.Asn106Lys)",
+      "position": 6744,
+      "genomic": 3082981,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 106,
+      "protein_change": "p.N106K",
+      "coding_change": "c.318C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-03-26",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005032511.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-03-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "725170",
+      "accession": "VCV000725170.12",
+      "name": "NM_000490.5(AVP):c.319G>A (p.Asp107Asn)",
+      "position": 6745,
+      "genomic": 3082980,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 107,
+      "protein_change": "p.D107N",
+      "coding_change": "c.319G>A",
+      "consequence": "missense",
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-01-25",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV000899193.9",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2026-01-25"
+        },
+        {
+          "accession": "RCV003950531.2",
+          "names": [
+            "AVP-related disorder"
+          ],
+          "classification": "Benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2021-03-21"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "2006066",
+      "accession": "VCV002006066.4",
+      "name": "NM_000490.5(AVP):c.321C>G (p.Asp107Glu)",
+      "position": 6747,
+      "genomic": 3082978,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 107,
+      "protein_change": "p.D107E",
+      "coding_change": "c.321C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-10-21",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV002825683.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-21"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3723686",
+      "accession": "VCV003723686.2",
+      "name": "NM_000490.5(AVP):c.322G>T (p.Glu108Ter)",
+      "position": 6748,
+      "genomic": 3082977,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 108,
+      "protein_change": "p.E108*",
+      "coding_change": "c.322G>T",
+      "consequence": "stop gained",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-11-18",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005196030.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-11-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587164",
+      "accession": "VCV003587164.1",
+      "name": "NM_000490.5(AVP):c.322+1G>A",
+      "position": 6749,
+      "genomic": 3082976,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-05-18",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005026900.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "562238",
+      "accession": "VCV000562238.1",
+      "name": "NM_000490.5(AVP):c.322+2T>G",
+      "position": 6750,
+      "genomic": 3082975,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2018-09-16",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000681671.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2018-09-16"
+        }
+      ],
+      "collection_methods": [
+        "research"
+      ]
+    },
+    {
+      "variation_id": "2186055",
+      "accession": "VCV002186055.5",
+      "name": "NM_000490.5(AVP):c.322+4C>A",
+      "position": 6752,
+      "genomic": 3082973,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-04-17",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV002619974.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-04-17"
+        },
+        {
+          "accession": "RCV005034760.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2705624",
+      "accession": "VCV002705624.3",
+      "name": "NM_000490.5(AVP):c.323-12T>G",
+      "position": 6911,
+      "genomic": 3082814,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-12-26",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003575522.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-12-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "424377",
+      "accession": "VCV000424377.2",
+      "name": "NM_000490.5(AVP):c.323A>T (p.Glu108Val)",
+      "position": 6923,
+      "genomic": 3082802,
+      "ref": "A",
+      "alt": "T",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": 108,
+      "protein_change": "p.E108V",
+      "coding_change": "c.323A>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2017-03-24",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000481533.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-03-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3236029",
+      "accession": "VCV003236029.1",
+      "name": "NM_000490.5(AVP):c.328T>A (p.Cys110Ser)",
+      "position": 6928,
+      "genomic": 3082797,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "A",
+      "genomic_alt": "T",
+      "residue": 110,
+      "protein_change": "p.C110S",
+      "coding_change": "c.328T>A",
+      "consequence": "missense",
+      "classification": "Likely pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-10-05",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV004555290.2",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-10-05"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "383370",
+      "accession": "VCV000383370.8",
+      "name": "NM_000490.5(AVP):c.329G>A (p.Cys110Tyr)",
+      "position": 6929,
+      "genomic": 3082796,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 110,
+      "protein_change": "p.C110Y",
+      "coding_change": "c.329G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance/Uncertain risk allele",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-06-11",
+      "last_updated": "2026-09-13",
+      "conditions": [
+        {
+          "accession": "RCV000440799.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2025-06-11"
+        },
+        {
+          "accession": "RCV003884524.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain risk allele",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "research"
+      ]
+    },
+    {
+      "variation_id": "3467739",
+      "accession": "VCV003467739.1",
+      "name": "NM_000490.5(AVP):c.331G>A (p.Val111Met)",
+      "position": 6931,
+      "genomic": 3082794,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 111,
+      "protein_change": "p.V111M",
+      "coding_change": "c.331G>A",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-10-19",
+      "last_updated": "2025-01-19",
+      "conditions": [
+        {
+          "accession": "RCV004972093.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2391881",
+      "accession": "VCV002391881.4",
+      "name": "NM_000490.5(AVP):c.335C>T (p.Thr112Ile)",
+      "position": 6935,
+      "genomic": 3082790,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 112,
+      "protein_change": "p.T112I",
+      "coding_change": "c.335C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-08-31",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV002704669.3",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-31"
+        },
+        {
+          "accession": "RCV005028405.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-01-30"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2742268",
+      "accession": "VCV002742268.4",
+      "name": "NM_000490.5(AVP):c.337G>A (p.Glu113Lys)",
+      "position": 6937,
+      "genomic": 3082788,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 113,
+      "protein_change": "p.E113K",
+      "coding_change": "c.337G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2024-02-06",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV003557915.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-03-20"
+        },
+        {
+          "accession": "RCV005030127.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "12215",
+      "accession": "VCV000012215.1",
+      "name": "NM_000490.5(AVP):c.337G>T (p.Glu113Ter)",
+      "position": 6937,
+      "genomic": 3082788,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 113,
+      "protein_change": "p.E113*",
+      "coding_change": "c.337G>T",
+      "consequence": "stop gained",
+      "classification": "Pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "1998-03-01",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000012999.22",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "1998-03-01"
+        }
+      ],
+      "collection_methods": [
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "3347467",
+      "accession": "VCV003347467.1",
+      "name": "NM_000490.5(AVP):c.346T>C (p.Cys116Arg)",
+      "position": 6946,
+      "genomic": 3082779,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 116,
+      "protein_change": "p.C116R",
+      "coding_change": "c.346T>C",
+      "consequence": "missense",
+      "classification": "Likely pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2024-06-26",
+      "last_updated": "2024-10-08",
+      "conditions": [
+        {
+          "accession": "RCV004730822.1",
+          "names": [
+            "AVP-related disorder"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-06-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "12220",
+      "accession": "VCV000012220.4",
+      "name": "NM_000490.5(AVP):c.346T>G (p.Cys116Gly)",
+      "position": 6946,
+      "genomic": 3082779,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": 116,
+      "protein_change": "p.C116G",
+      "coding_change": "c.346T>G",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2001-07-01",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000013004.17",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2001-07-01"
+        },
+        {
+          "accession": "RCV001701566.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "1699275",
+      "accession": "VCV001699275.3",
+      "name": "NM_000490.5(AVP):c.347G>A (p.Cys116Tyr)",
+      "position": 6947,
+      "genomic": 3082778,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 116,
+      "protein_change": "p.C116Y",
+      "coding_change": "c.347G>A",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-02-02",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV002273132.3",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-02-02"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587163",
+      "accession": "VCV003587163.1",
+      "name": "NM_000490.5(AVP):c.349C>T (p.Arg117Cys)",
+      "position": 6949,
+      "genomic": 3082776,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 117,
+      "protein_change": "p.R117C",
+      "coding_change": "c.349C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-06-07",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005026899.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2334447",
+      "accession": "VCV002334447.2",
+      "name": "NM_000490.5(AVP):c.353A>C (p.Glu118Ala)",
+      "position": 6953,
+      "genomic": 3082772,
+      "ref": "A",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": 118,
+      "protein_change": "p.E118A",
+      "coding_change": "c.353A>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-12-13",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV002941028.2",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-12-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2558973",
+      "accession": "VCV002558973.2",
+      "name": "NM_000490.5(AVP):c.353A>T (p.Glu118Val)",
+      "position": 6953,
+      "genomic": 3082772,
+      "ref": "A",
+      "alt": "T",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": 118,
+      "protein_change": "p.E118V",
+      "coding_change": "c.353A>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-06-07",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003304869.2",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-06-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587162",
+      "accession": "VCV003587162.1",
+      "name": "NM_000490.5(AVP):c.356G>C (p.Gly119Ala)",
+      "position": 6956,
+      "genomic": 3082769,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 119,
+      "protein_change": "p.G119A",
+      "coding_change": "c.356G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-02-23",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005032510.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587161",
+      "accession": "VCV003587161.1",
+      "name": "NM_000490.5(AVP):c.359T>C (p.Phe120Ser)",
+      "position": 6959,
+      "genomic": 3082766,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 120,
+      "protein_change": "p.F120S",
+      "coding_change": "c.359T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-06-04",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005032509.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2047616",
+      "accession": "VCV002047616.5",
+      "name": "NM_000490.5(AVP):c.361C>T (p.His121Tyr)",
+      "position": 6961,
+      "genomic": 3082764,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 121,
+      "protein_change": "p.H121Y",
+      "coding_change": "c.361C>T",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-06-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV002904439.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-12"
+        },
+        {
+          "accession": "RCV005028017.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-02"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "746393",
+      "accession": "VCV000746393.8",
+      "name": "NM_000490.5(AVP):c.363C>T (p.His121=)",
+      "position": 6963,
+      "genomic": 3082762,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 121,
+      "protein_change": "p.H121=",
+      "coding_change": "c.363C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2026-01-26",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV000923001.9",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2085650",
+      "accession": "VCV002085650.5",
+      "name": "NM_000490.5(AVP):c.365G>A (p.Arg122His)",
+      "position": 6965,
+      "genomic": 3082760,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 122,
+      "protein_change": "p.R122H",
+      "coding_change": "c.365G>A",
+      "consequence": "missense",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2025-10-15",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV003005172.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-15"
+        },
+        {
+          "accession": "RCV004686756.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3979513",
+      "accession": "VCV003979513.1",
+      "name": "NM_000490.5(AVP):c.367C>A (p.Arg123Ser)",
+      "position": 6967,
+      "genomic": 3082758,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 123,
+      "protein_change": "p.R123S",
+      "coding_change": "c.367C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-03-22",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005519003.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-03-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3132417",
+      "accession": "VCV003132417.2",
+      "name": "NM_000490.5(AVP):c.368G>A (p.Arg123His)",
+      "position": 6968,
+      "genomic": 3082757,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 123,
+      "protein_change": "p.R123H",
+      "coding_change": "c.368G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-11-20",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV004421345.2",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-11-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587160",
+      "accession": "VCV003587160.1",
+      "name": "NM_000490.5(AVP):c.373C>A (p.Arg125Ser)",
+      "position": 6973,
+      "genomic": 3082752,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 125,
+      "protein_change": "p.R125S",
+      "coding_change": "c.373C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-02-20",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005026898.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2779413",
+      "accession": "VCV002779413.3",
+      "name": "NM_000490.5(AVP):c.379A>G (p.Ser127Gly)",
+      "position": 6979,
+      "genomic": 3082746,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 127,
+      "protein_change": "p.S127G",
+      "coding_change": "c.379A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-10-08",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV003663597.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2905309",
+      "accession": "VCV002905309.3",
+      "name": "NM_000490.5(AVP):c.403C>T (p.Leu135=)",
+      "position": 7003,
+      "genomic": 3082722,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 135,
+      "protein_change": "p.L135=",
+      "coding_change": "c.403C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-07-17",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003731645.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-07-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3132418",
+      "accession": "VCV003132418.1",
+      "name": "NM_000490.5(AVP):c.409G>A (p.Gly137Arg)",
+      "position": 7009,
+      "genomic": 3082716,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 137,
+      "protein_change": "p.G137R",
+      "coding_change": "c.409G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-11-09",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004421346.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-11-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3334013",
+      "accession": "VCV003334013.1",
+      "name": "NM_000490.5(AVP):c.409G>C (p.Gly137Arg)",
+      "position": 7009,
+      "genomic": 3082716,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 137,
+      "protein_change": "p.G137R",
+      "coding_change": "c.409G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-05-26",
+      "last_updated": "2024-08-11",
+      "conditions": [
+        {
+          "accession": "RCV004689009.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3467750",
+      "accession": "VCV003467750.3",
+      "name": "NM_000490.5(AVP):c.409G>T (p.Gly137Trp)",
+      "position": 7009,
+      "genomic": 3082716,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 137,
+      "protein_change": "p.G137W",
+      "coding_change": "c.409G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-06-11",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV004972094.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-08-05"
+        },
+        {
+          "accession": "RCV005038881.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-31"
+        },
+        {
+          "accession": "RCV006617300.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-11"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3132419",
+      "accession": "VCV003132419.1",
+      "name": "NM_000490.5(AVP):c.418G>A (p.Gly140Arg)",
+      "position": 7018,
+      "genomic": 3082707,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 140,
+      "protein_change": "p.G140R",
+      "coding_change": "c.418G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-12-19",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004421347.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-12-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587159",
+      "accession": "VCV003587159.1",
+      "name": "NM_000490.5(AVP):c.421G>A (p.Ala141Thr)",
+      "position": 7021,
+      "genomic": 3082704,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 141,
+      "protein_change": "p.A141T",
+      "coding_change": "c.421G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-02-26",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005026897.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2896713",
+      "accession": "VCV002896713.4",
+      "name": "NM_000490.5(AVP):c.422C>T (p.Ala141Val)",
+      "position": 7022,
+      "genomic": 3082703,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 141,
+      "protein_change": "p.A141V",
+      "coding_change": "c.422C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-06-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV003731069.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-12"
+        },
+        {
+          "accession": "RCV005030233.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2179297",
+      "accession": "VCV002179297.4",
+      "name": "NM_000490.5(AVP):c.433C>A (p.Arg145=)",
+      "position": 7033,
+      "genomic": 3082692,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 145,
+      "protein_change": "p.R145=",
+      "coding_change": "c.433C>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-07-31",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV002615089.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-07-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1929919",
+      "accession": "VCV001929919.5",
+      "name": "NM_000490.5(AVP):c.434G>C (p.Arg145Pro)",
+      "position": 7034,
+      "genomic": 3082691,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 145,
+      "protein_change": "p.R145P",
+      "coding_change": "c.434G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-04-04",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002618790.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-04-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4593697",
+      "accession": "VCV004593697.1",
+      "name": "NM_000490.5(AVP):c.448G>T (p.Ala150Ser)",
+      "position": 7048,
+      "genomic": 3082677,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 150,
+      "protein_change": "p.A150S",
+      "coding_change": "c.448G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-09-26",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV006330322.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-09-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3979527",
+      "accession": "VCV003979527.1",
+      "name": "NM_000490.5(AVP):c.451G>T (p.Gly151Trp)",
+      "position": 7051,
+      "genomic": 3082674,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 151,
+      "protein_change": "p.G151W",
+      "coding_change": "c.451G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-04-28",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005519017.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-04-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4593687",
+      "accession": "VCV004593687.1",
+      "name": "NM_000490.5(AVP):c.454G>A (p.Ala152Thr)",
+      "position": 7054,
+      "genomic": 3082671,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 152,
+      "protein_change": "p.A152T",
+      "coding_change": "c.454G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-10-22",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV006330312.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2815344",
+      "accession": "VCV002815344.3",
+      "name": "NM_000490.5(AVP):c.457C>T (p.Pro153Ser)",
+      "position": 7057,
+      "genomic": 3082668,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 153,
+      "protein_change": "p.P153S",
+      "coding_change": "c.457C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-04-09",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003683391.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2443499",
+      "accession": "VCV002443499.1",
+      "name": "NM_000490.5(AVP):c.458C>T (p.Pro153Leu)",
+      "position": 7058,
+      "genomic": 3082667,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 153,
+      "protein_change": "p.P153L",
+      "coding_change": "c.458C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-09-08",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003152106.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-09-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2554941",
+      "accession": "VCV002554941.2",
+      "name": "NM_000490.5(AVP):c.467T>G (p.Phe156Cys)",
+      "position": 7067,
+      "genomic": 3082658,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": 156,
+      "protein_change": "p.F156C",
+      "coding_change": "c.467T>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-06-01",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003277817.2",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-06-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587158",
+      "accession": "VCV003587158.1",
+      "name": "NM_000490.5(AVP):c.468C>A (p.Phe156Leu)",
+      "position": 7068,
+      "genomic": 3082657,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 156,
+      "protein_change": "p.F156L",
+      "coding_change": "c.468C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-03-29",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005032508.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-03-29"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587157",
+      "accession": "VCV003587157.1",
+      "name": "NM_000490.5(AVP):c.468C>G (p.Phe156Leu)",
+      "position": 7068,
+      "genomic": 3082657,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 156,
+      "protein_change": "p.F156L",
+      "coding_change": "c.468C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-06-22",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005032507.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4593705",
+      "accession": "VCV004593705.1",
+      "name": "NM_000490.5(AVP):c.471G>T (p.Glu157Asp)",
+      "position": 7071,
+      "genomic": 3082654,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 157,
+      "protein_change": "p.E157D",
+      "coding_change": "c.471G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-12-04",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV006330330.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4703260",
+      "accession": "VCV004703260.1",
+      "name": "NM_000490.5(AVP):c.474C>A (p.Pro158=)",
+      "position": 7074,
+      "genomic": 3082651,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 158,
+      "protein_change": "p.P158=",
+      "coding_change": "c.474C>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-03-19",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006498367.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-03-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1992510",
+      "accession": "VCV001992510.4",
+      "name": "NM_000490.5(AVP):c.474C>T (p.Pro158=)",
+      "position": 7074,
+      "genomic": 3082651,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 158,
+      "protein_change": "p.P158=",
+      "coding_change": "c.474C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-05-09",
+      "last_updated": "2026-02-24",
+      "conditions": [
+        {
+          "accession": "RCV002795995.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-05-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2053044",
+      "accession": "VCV002053044.27",
+      "name": "NM_000490.5(AVP):c.475G>A (p.Ala159Thr)",
+      "position": 7075,
+      "genomic": 3082650,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 159,
+      "protein_change": "p.A159T",
+      "coding_change": "c.475G>A",
+      "consequence": "missense",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2025-12-19",
+      "last_updated": "2026-07-27",
+      "conditions": [
+        {
+          "accession": "RCV002937911.2",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-08-18"
+        },
+        {
+          "accession": "RCV002937910.29",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Conflicting classifications of pathogenicity",
+          "review_status": "criteria provided, conflicting classifications",
+          "last_evaluated": "2025-12-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587156",
+      "accession": "VCV003587156.1",
+      "name": "NM_000490.5(AVP):c.476C>A (p.Ala159Asp)",
+      "position": 7076,
+      "genomic": 3082649,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 159,
+      "protein_change": "p.A159D",
+      "coding_change": "c.476C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-05-27",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005032506.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4829304",
+      "accession": "VCV004829304.1",
+      "name": "NM_000490.5(AVP):c.480G>C (p.Gln160His)",
+      "position": 7080,
+      "genomic": 3082645,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 160,
+      "protein_change": "p.Q160H",
+      "coding_change": "c.480G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-12-16",
+      "last_updated": "2026-05-03",
+      "conditions": [
+        {
+          "accession": "RCV006665789.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-16"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3587155",
+      "accession": "VCV003587155.1",
+      "name": "NM_000490.5(AVP):c.485A>G (p.Asp162Gly)",
+      "position": 7085,
+      "genomic": 3082640,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 162,
+      "protein_change": "p.D162G",
+      "coding_change": "c.485A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-03-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005026896.1",
+          "names": [
+            "Neurohypophyseal diabetes insipidus"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-03-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3979530",
+      "accession": "VCV003979530.1",
+      "name": "NM_000490.5(AVP):c.491A>G (p.Tyr164Cys)",
+      "position": 7091,
+      "genomic": 3082634,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 164,
+      "protein_change": "p.Y164C",
+      "coding_change": "c.491A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-05-13",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005519020.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-05-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    }
+  ]
+}

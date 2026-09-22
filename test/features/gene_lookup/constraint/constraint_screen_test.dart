@@ -14,6 +14,7 @@ import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_pain
 import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
 import 'package:helixpeak/features/gene_lookup/presentation/constraint/constraint_panel.dart';
 import 'package:helixpeak/features/gene_lookup/presentation/constraint/constraint_toolbar.dart';
+import 'package:helixpeak/features/gene_lookup/presentation/format.dart';
 
 import '../anatomy/anatomy_fixture.dart';
 
@@ -146,6 +147,8 @@ void main() {
       chains: scored.chains,
       structure: scored.structure,
       scored: false,
+      // Held to the one state under test; the walk's ClinVar is its own.
+      clinvarAvailable: false,
     );
     await tester.binding.setSurfaceSize(const Size(390, 844));
     await tester.pumpWidget(

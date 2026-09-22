@@ -206,40 +206,51 @@ final class AnatomyLayout {
 
   /// Pitch, side and mortar of a base on the transcript page.
   ///
-  /// Twenty points is the floor, not a preference: below it a 12pt letter stops
+  /// Twenty points was the floor for reading — below it a 12pt letter stops
   /// being legible, and a page of bases nobody can read is a page of coloured
-  /// squares. One point of mortar is all that is needed to stop two squares
-  /// reading as one square twice the size.
-  static const double basePitch = 21;
-  static const double baseSide = 20;
+  /// squares. Twenty-five is the floor for *hitting*: a base on this page now
+  /// answers a tap with its own scores, and a target the width of a letter is
+  /// not one a thumb can pick out of a row of identical neighbours. The whole
+  /// pitch is the target — [hitTest] walks columns by pitch and the mortar
+  /// falls to the cell before it — so the two move together.
+  ///
+  /// One point of mortar is all that is needed to stop two squares reading as
+  /// one square twice the size, and it does not grow with them.
+  static const double basePitch = 26;
+  static const double baseSide = 25;
   static const double baseGap = basePitch - baseSide;
 
   /// The smallest a residue tile may be, on every page after the transcript —
   /// see [fit]'s `minCell`.
   ///
-  /// Larger than [basePitch], though a base's twenty points are enough to read
-  /// a letter. A residue page is read by eye in a way the transcript is not:
-  /// the transcript is scanned in threes for its frame, a protein residue by
+  /// A residue page is read by eye in a way the transcript is not: the
+  /// transcript is scanned in threes for its frame, a protein residue by
   /// residue for its chemistry, and at 21pt dystrophin's page read as a dense
   /// field of type. Twenty-eight is about where the short proteins' fitted
   /// tiles already sit (ubiquitin 29, growth hormone 29), so a long protein
   /// looks like the same page with more of it, rather than a smaller one.
+  ///
+  /// It used to be larger than [basePitch] and now sits between it and
+  /// [inspectionSide]. That is not a mistake: the reason those two grew is that
+  /// a tap on them means one cell, and a residue tile has been that size since
+  /// before any of them were tappable.
   static const double residuePitch = 28;
 
   /// How large a base is drawn once a region of the gene is opened into its
   /// DNA — see [inspection].
   ///
-  /// Larger than [baseSide], because a base there is a tap target as well as a
-  /// letter, and at twenty points one is too small to hit reliably. It is the
-  /// floor for a region that is never translated. A coding region has to fit
-  /// whole codons and the grooves between them across, so there it is the
-  /// size a base is brought nearest to.
+  /// Larger than [baseSide], because this is the page a reader opens to work
+  /// through a region base by base — every base of it is drawn, nothing folds —
+  /// and so the page where a tap is most often aimed at one cell in particular.
+  /// It is the floor for a region that is never translated. A coding region has
+  /// to fit whole codons and the grooves between them across, so there it is
+  /// the size a base is brought nearest to.
   ///
   /// The tiles stretch to fill the row, so this moves in columns rather than in
   /// points: a region that is never translated fits one fewer of them across a
-  /// phone at twenty-five than it did at twenty-four, and its bases come out
-  /// about two points larger for it.
-  static const double inspectionSide = 25;
+  /// phone at thirty than it did at twenty-nine, and its bases come out about
+  /// two points larger for it.
+  static const double inspectionSide = 30;
 
   /// The air kept either side of that page's grid, so a base lifted out of it
   /// never runs off the screen.
@@ -264,9 +275,14 @@ final class AnatomyLayout {
   static const int foldHeadBases = 300;
   static const int foldTailBases = 90;
 
-  /// A quarter of the side. Enough that a cell reads as a tile rather than a
-  /// table dell, not so much that a row of them reads as beads.
-  static const double baseRadius = 5;
+  /// Not quite a quarter of the side. Enough that a cell reads as a tile rather
+  /// than a table cell, not so much that a row of them reads as beads.
+  ///
+  /// It is derived from, not independent of, [baseSide]: [tileRadiusRatio] is
+  /// the two of them, and every fitted tile on every page is rounded by that
+  /// ratio. Left at five while the side grew, the ratio would have fallen from
+  /// 0.25 to 0.20 and quietly squared off the whole app.
+  static const double baseRadius = 6;
 
   /// The groove between one codon and the next.
   static const double codonSplit = 4;
