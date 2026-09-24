@@ -6,12 +6,20 @@ come apart — a constraint track baked before a gene record was rebuilt still
 parses, still loads, and quietly stops colouring the page it is for.
 
     python3 tool/check_assets.py
+    python3 tool/check_assets.py --against https://helix-peak-backend.onrender.com
 
 Exits non-zero on the first disagreement, with both sides named.
+
+`--against` checks a fifth copy: the catalog rows the service serves. It reads
+`targets.py` and the Dart source directly rather than going through
+`tool/seed_catalog.py`, so a seeder that writes the wrong thing is caught
+rather than confirmed -- the same reason `tool/constraint/verify_cpu.py`
+re-derives its numbers instead of calling the scorer.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 import re
@@ -22,6 +30,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tool"))
 
 from targets import TARGETS, Target, partition  # noqa: E402
+from impact.check_explanations import validate as validate_explanations  # noqa: E402
 
 CATALOG = ROOT / "lib/features/gene_lookup/domain/entities/protein_catalog.dart"
 MANIFEST = ROOT / "flutter_scene_generated/manifest.json"
@@ -74,8 +83,114 @@ def dart_catalog() -> dict[str, dict]:
         row["impact_scored"] = tracked is None or tracked.group(1) == "true"
         clinical = re.search(r"\bclinvarAvailable: (true|false)\b", block)
         row["clinvar_available"] = clinical is None or clinical.group(1) == "true"
+        explanations = re.search(r"\bimpactExplanationsAvailable: (true|false)\b", block)
+        row["impact_explanations"] = explanations is not None and explanations.group(1) == "true"
+        row["facts"] = {
+            key: int(value)
+            for key, value in re.findall(r"(residues|exons|chains|bridges): (\d+)", block)
+        }
+        row["tints"] = re.findall(r"StructureChain\('(\w+)', ChainTint\.(\w+)\)", block)
+        count = re.search(r"\bcount: (\d+)", block)
+        row["count"] = int(count.group(1)) if count else None
         rows[row["slug"]] = row
     return rows
+
+
+def service_rows(base_url: str) -> dict[str, dict]:
+    """`GET /protein/{slug}` for every target, keyed by slug."""
+    import urllib.error
+    import urllib.request
+
+    found: dict[str, dict] = {}
+    for target in TARGETS:
+        url = f"{base_url.rstrip('/')}/protein/{target.slug}"
+        try:
+            with urllib.request.urlopen(url, timeout=30) as response:
+                found[target.slug] = json.loads(response.read())
+        except urllib.error.HTTPError as exc:
+            fail(f"{target.slug}: {url} returned {exc.code}")
+        except (urllib.error.URLError, OSError, ValueError) as exc:
+            raise SystemExit(f"Could not read {url}: {exc}")
+    return found
+
+
+def check_against(base_url: str, catalog: dict[str, dict]) -> None:
+    """The service's catalog row against the two tables it was seeded from.
+
+    Every field the app reads has to survive the move. A field that quietly
+    arrives null is a protein page that draws one thing less than it used to,
+    and nothing else in the suite would notice.
+    """
+    served = service_rows(base_url)
+    for target in TARGETS:
+        row = served.get(target.slug)
+        if row is None:
+            continue
+        dart = catalog[target.slug]
+        where = f"{target.slug}: served"
+        source = target.source
+
+        expected = {
+            "gene": target.gene,
+            "uniprot": target.uniprot,
+            "accession": source.accession,
+            "transcript_id": source.transcript_id,
+            "protein_id": source.protein_id,
+            "mature_peptides": target.mature_peptides,
+            "display": dart["display"],
+            "summary": dart["summary"],
+            "chain": dart.get("chain"),
+        }
+        for key, want in expected.items():
+            if row.get(key) != want:
+                fail(f"{where} {key} is {row.get(key)!r}, table says {want!r}")
+
+        if row.get("facts") != dart["facts"]:
+            fail(f"{where} facts {row.get('facts')} != catalog {dart['facts']}")
+
+        want_regions = partition(target)
+        if row.get("regions") != want_regions:
+            fail(f"{where} {len(row.get('regions') or [])} regions, "
+                 f"partition() gives {len(want_regions)}")
+
+        want_bonds = [list(pair) for pair in target.disulfides]
+        if row.get("disulfides") != want_bonds:
+            fail(f"{where} disulfides {row.get('disulfides')} != {want_bonds}")
+
+        # The node names are the contract with structure_view.dart, and the
+        # tint order is the order the record lists the mature peptides in.
+        want_chains = [{"node": node, "tint": tint} for node, tint in dart["tints"]]
+        if row.get("chains") != want_chains:
+            fail(f"{where} chains {row.get('chains')} != catalog {want_chains}")
+
+        chrome = row.get("structure") or {}
+        if chrome.get("pdb") != target.structure.pdb:
+            fail(f"{where} pdb {chrome.get('pdb')!r} != {target.structure.pdb!r}")
+        want_modelled = list(dart["modelled"]) if dart["modelled"] else None
+        if chrome.get("modelled") != want_modelled:
+            fail(f"{where} modelled {chrome.get('modelled')} != {want_modelled}")
+        if chrome.get("count") != dart["count"]:
+            fail(f"{where} count {chrome.get('count')} != {dart['count']}")
+        for key in ("label", "unit", "sentence", "semantics"):
+            if not chrome.get(key):
+                fail(f"{where} structure.{key} is empty")
+
+        # The four booleans, as the four states that replaced them. Every one
+        # of the twenty is baked, so a track that is neither ready nor absent
+        # means the seed and the table disagree about what exists.
+        states = row.get("tracks") or {}
+        for kind, baked in (("constraint", target.scored),
+                            ("impact", target.impact_scored),
+                            ("clinvar", target.clinvar_available),
+                            ("impact_explanations", dart["impact_explanations"])):
+            if kind not in states:
+                fail(f"{where} has no {kind} track state")
+            elif states[kind] == "refused" and baked:
+                fail(f"{where} {kind} is refused but the table says it is baked")
+
+    if not problems:
+        print(f"{len(served)} catalog rows on {base_url} agree with targets.py "
+              f"and protein_catalog.dart.")
 
 
 # The standard code, which every protein here uses: no selenocysteine, no
@@ -461,13 +576,43 @@ def check_constraint(target: Target, mock: dict, constraint: dict) -> bool:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Check the baked assets against each other.")
+    parser.add_argument(
+        "--against", metavar="BASE_URL", default=None,
+        help="also check the catalog rows a running service serves",
+    )
+    parser.add_argument(
+        "--offline", action="store_true",
+        help="skip the service check even when --against is given",
+    )
+    arguments = parser.parse_args()
+
     catalog = dart_catalog()
+
+    if arguments.against and not arguments.offline:
+        check_against(arguments.against, catalog)
+        if problems:
+            print(f"{len(problems)} problem(s):", file=sys.stderr)
+            for problem in problems:
+                print(f"  - {problem}", file=sys.stderr)
+            raise SystemExit(1)
+        raise SystemExit(0)
+
     extra = set(catalog) - {t.slug for t in TARGETS}
     if extra:
         fail(f"protein_catalog.dart has rows with no bake: {sorted(extra)}")
 
     for target in TARGETS:
         check(target, catalog)
+        attribution = ROOT / f"assets/impact_explanations/{target.slug}.json"
+        included = catalog.get(target.slug, {}).get("impact_explanations", False)
+        if attribution.exists() != included:
+            fail(f"{target.slug}: attribution asset and catalog availability disagree")
+        elif included:
+            try:
+                validate_explanations((ROOT / target.impact_asset).read_bytes(), json.loads(attribution.read_text()))
+            except (AssertionError, KeyError, TypeError, ValueError) as error:
+                fail(f"{target.slug}: invalid AVI explanations: {error}")
 
     if MANIFEST.exists():
         entries = {e["source"]: e["file"] for e in json.loads(MANIFEST.read_text())["entries"]}
@@ -504,6 +649,7 @@ if __name__ == "__main__":
             + ([t.constraint_asset] if t.scored else [])
             + ([t.impact_asset] if t.impact_scored else [])
             + ([f"assets/clinvar/{t.slug}_clinvar.json"] if t.clinvar_available else [])
+            + ([f"assets/impact_explanations/{t.slug}.json"] if catalog[t.slug]["impact_explanations"] else [])
         )
     )
     scenes = sum(
