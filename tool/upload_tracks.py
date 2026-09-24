@@ -37,6 +37,7 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+SCENES = ROOT / "flutter_scene_generated"
 sys.path.insert(0, str(ROOT / "tool"))
 
 from targets import TARGETS  # noqa: E402
@@ -44,6 +45,25 @@ from impact.check_explanations import validate as validate_explanations  # noqa:
 
 # A year, and immutable: the digest is in the path, so these bytes never change.
 CACHE_CONTROL = "public, max-age=31536000, immutable"
+
+
+def scene_of(target) -> Path | None:
+    """The compiled `.fsceneb` for this protein, off `hook/build.dart`'s manifest.
+
+    Read from the manifest rather than globbed, because the file name carries a
+    content hash the manifest is the only record of -- and because a scene that
+    is on disk but not in the manifest is a leftover from an earlier bake, not
+    something this build would load.
+    """
+    manifest = SCENES / "manifest.json"
+    if not manifest.exists():
+        return None
+    entries = json.loads(manifest.read_text()).get("entries", [])
+    wanted = f"assets/models/{target.slug}"
+    for entry in entries:
+        if entry.get("id") == wanted:
+            return SCENES / entry["file"]
+    return None
 
 
 def asset_of(kind: str, target) -> Path | None:
@@ -184,17 +204,50 @@ def main() -> int:
             print(f"  {target.slug}: REFUSED -- {exc}", file=sys.stderr)
             continue
         digest = hashlib.sha256(payload).hexdigest()
-        planned.append({
+        uploads = [(f"{kind}/{target.slug}.{digest[:12]}.{suffix}",
+                    payload, content_type)]
+        row = {
             "slug": target.slug, "kind": kind, "bucket": bucket,
-            "object_path": f"{kind}/{target.slug}.{digest[:12]}.{suffix}",
+            "object_path": uploads[0][0],
             "bytes": len(payload), "sha256": digest, "format": suffix,
-            "provenance": provenance, "_payload": payload,
-        })
+            "provenance": provenance,
+        }
+        if kind == "structure":
+            scene = scene_of(target)
+            if scene is None or not scene.exists():
+                print(f"  {target.slug}: REFUSED -- no compiled scene; "
+                      f"run the build hook first", file=sys.stderr)
+                continue
+            compiled = scene.read_bytes()
+            scene_digest = hashlib.sha256(compiled).hexdigest()
+            # The row points at what the phone loads. `.fsceneb` is a versioned
+            # container tied to the flutter_scene version, so the `.glb` it was
+            # compiled from goes up beside it and is named here: an upgrade that
+            # invalidates every scene can then re-compile from storage rather
+            # than needing the repo and another PyMOL run.
+            scene_path = f"{kind}/{target.slug}.{scene_digest[:12]}.fsceneb"
+            uploads.append((scene_path, compiled, "application/octet-stream"))
+            row.update({
+                "object_path": scene_path,
+                "bytes": len(compiled),
+                "sha256": scene_digest,
+                "format": "fsceneb",
+                "provenance": {**provenance, "glb": {
+                    "path": uploads[0][0],
+                    "sha256": digest,
+                    "bytes": len(payload),
+                }},
+            })
+        row["_uploads"] = uploads
+        planned.append(row)
 
-    total = sum(row["bytes"] for row in planned)
+    total = sum(len(payload) for row in planned for _, payload, _ in row["_uploads"])
     for row in planned:
-        print(f"  {row['slug']:<16} {row['bytes']:>10,} B  {row['object_path']}")
-    print(f"\n{len(planned)} object(s), {total / 1e6:.2f} MB", file=sys.stderr)
+        for path, payload, _ in row["_uploads"]:
+            print(f"  {row['slug']:<16} {len(payload):>10,} B  {path}")
+    objects = sum(len(row["_uploads"]) for row in planned)
+    print(f"\n{len(planned)} track(s), {objects} object(s), {total / 1e6:.2f} MB",
+          file=sys.stderr)
     if arguments.dry_run:
         return 0
 
@@ -212,13 +265,18 @@ def main() -> int:
         with conn.cursor() as cur:
             for row in planned:
                 old = cur.execute(
-                    "select bucket, object_path from protein_track "
+                    "select object_path, provenance from protein_track "
                     "where slug = %s and kind = %s and state = 'ready'",
                     (row["slug"], row["kind"])).fetchone()
-                storage.put(bucket, row["object_path"], row.pop("_payload"), content_type)
+                uploads = row.pop("_uploads")
+                for path, payload, mime in uploads:
+                    storage.put(bucket, path, payload, mime)
                 cur.execute(_UPSERT, {**row, "provenance": Jsonb(row["provenance"])})
-                if old and old[1] != row["object_path"]:
-                    superseded.append(old[1])
+                if old:
+                    written = {path for path, _, _ in uploads}
+                    # Both of a structure row's objects, where it had two.
+                    stale = [old[0], ((old[1] or {}).get("glb") or {}).get("path")]
+                    superseded.extend(p for p in stale if p and p not in written)
                 print(f"  uploaded {row['slug']}", file=sys.stderr)
         conn.commit()
 

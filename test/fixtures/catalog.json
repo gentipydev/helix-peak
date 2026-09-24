@@ -1,0 +1,465 @@
+{
+  "proteins": [
+    {
+      "slug": "amylase",
+      "display": "Amylase",
+      "gene": "AMY1A",
+      "uniprot": "P0DUB6",
+      "accession": "NC_000001.11",
+      "summary": "The enzyme in saliva that starts breaking starch down into sugar.",
+      "facts": {
+        "residues": 511,
+        "exons": 11,
+        "chains": 1,
+        "bridges": 5
+      },
+      "catalog_order": 18,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "absent"
+      }
+    },
+    {
+      "slug": "app",
+      "display": "Amyloid precursor protein",
+      "gene": "APP",
+      "uniprot": "P05067",
+      "accession": "NG_007376",
+      "summary": "Cut into amyloid-beta, the peptide that builds up in the brain in Alzheimer disease.",
+      "facts": {
+        "residues": 770,
+        "exons": 18,
+        "chains": 1,
+        "bridges": 9
+      },
+      "catalog_order": 12,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "absent"
+      }
+    },
+    {
+      "slug": "cftr",
+      "display": "CFTR",
+      "gene": "CFTR",
+      "uniprot": "P13569",
+      "accession": "NG_016465",
+      "summary": "A chloride channel in lungs and gut. Faults in it cause cystic fibrosis.",
+      "facts": {
+        "residues": 1480,
+        "exons": 27,
+        "chains": 1,
+        "bridges": 0
+      },
+      "catalog_order": 13,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "ready"
+      }
+    },
+    {
+      "slug": "dystrophin",
+      "display": "Dystrophin",
+      "gene": "DMD",
+      "uniprot": "P11532",
+      "accession": "NG_012232",
+      "summary": "The largest human gene: over 2 million bases, 79 exons, 3,685 residues.",
+      "facts": {
+        "residues": 3685,
+        "exons": 79,
+        "chains": 1,
+        "bridges": 0
+      },
+      "catalog_order": 9,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "absent"
+      }
+    },
+    {
+      "slug": "erythropoietin",
+      "display": "Erythropoietin",
+      "gene": "EPO",
+      "uniprot": "P01588",
+      "accession": "NG_021471",
+      "summary": "Made in the kidney. Tells bone marrow to make red blood cells.",
+      "facts": {
+        "residues": 193,
+        "exons": 5,
+        "chains": 1,
+        "bridges": 2
+      },
+      "catalog_order": 14,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "absent"
+      }
+    },
+    {
+      "slug": "glucagon",
+      "display": "Glucagon",
+      "gene": "GCG",
+      "uniprot": "P01275",
+      "accession": "NC_000002.12",
+      "summary": "Raises blood sugar. Its precursor also holds GLP-1 and GLP-2, cut out in the gut.",
+      "facts": {
+        "residues": 180,
+        "exons": 6,
+        "chains": 1,
+        "bridges": 0
+      },
+      "catalog_order": 11,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "absent"
+      }
+    },
+    {
+      "slug": "hemoglobin",
+      "display": "Hemoglobin (beta chain)",
+      "gene": "HBB",
+      "uniprot": "P68871",
+      "accession": "NG_059281",
+      "summary": "Carries oxygen from the lungs. Sickle-cell disease is one base of this gene.",
+      "facts": {
+        "residues": 147,
+        "exons": 3,
+        "chains": 1,
+        "bridges": 0
+      },
+      "catalog_order": 4,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "ready"
+      }
+    },
+    {
+      "slug": "insulin",
+      "display": "Insulin",
+      "gene": "INS",
+      "uniprot": "P01308",
+      "accession": "NG_007114",
+      "summary": "The hormone that clears glucose from the blood.",
+      "facts": {
+        "residues": 110,
+        "exons": 3,
+        "chains": 3,
+        "bridges": 3
+      },
+      "catalog_order": 0,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "ready"
+      }
+    },
+    {
+      "slug": "leptin",
+      "display": "Leptin",
+      "gene": "LEP",
+      "uniprot": "P41159",
+      "accession": "NG_007450",
+      "summary": "Made by fat cells. Tells the brain how much energy the body has stored.",
+      "facts": {
+        "residues": 167,
+        "exons": 3,
+        "chains": 1,
+        "bridges": 1
+      },
+      "catalog_order": 15,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "absent"
+      }
+    },
+    {
+      "slug": "lysozyme",
+      "display": "Lysozyme",
+      "gene": "LYZ",
+      "uniprot": "P61626",
+      "accession": "NG_008195",
+      "summary": "Cuts the cell walls of bacteria. In tears, saliva and milk.",
+      "facts": {
+        "residues": 148,
+        "exons": 4,
+        "chains": 1,
+        "bridges": 4
+      },
+      "catalog_order": 3,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "absent"
+      }
+    },
+    {
+      "slug": "myoglobin",
+      "display": "Myoglobin",
+      "gene": "MB",
+      "uniprot": "P02144",
+      "accession": "NG_007075",
+      "summary": "Holds oxygen in muscle. The first protein whose structure was ever solved.",
+      "facts": {
+        "residues": 154,
+        "exons": 3,
+        "chains": 1,
+        "bridges": 0
+      },
+      "catalog_order": 5,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "absent"
+      }
+    },
+    {
+      "slug": "oxytocin",
+      "display": "Oxytocin",
+      "gene": "OXT",
+      "uniprot": "P01178",
+      "accession": "NC_000020.11",
+      "summary": "Nine residues, cut out of a precursor a hundred and twenty-five long.",
+      "facts": {
+        "residues": 125,
+        "exons": 3,
+        "chains": 2,
+        "bridges": 8
+      },
+      "catalog_order": 1,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "absent"
+      }
+    },
+    {
+      "slug": "p53",
+      "display": "p53",
+      "gene": "TP53",
+      "uniprot": "P04637",
+      "accession": "NG_017013",
+      "summary": "The tumour suppressor. Mutated in about half of all human cancers.",
+      "facts": {
+        "residues": 393,
+        "exons": 11,
+        "chains": 1,
+        "bridges": 0
+      },
+      "catalog_order": 8,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "absent"
+      }
+    },
+    {
+      "slug": "prion",
+      "display": "Prion protein",
+      "gene": "PRNP",
+      "uniprot": "P04156",
+      "accession": "NG_009087",
+      "summary": "Harmless in its normal fold. Misfolded, it causes prion diseases such as CJD.",
+      "facts": {
+        "residues": 253,
+        "exons": 2,
+        "chains": 1,
+        "bridges": 1
+      },
+      "catalog_order": 19,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "absent"
+      }
+    },
+    {
+      "slug": "relaxin",
+      "display": "Relaxin",
+      "gene": "RLN2",
+      "uniprot": "P04090",
+      "accession": "NC_000009.12",
+      "summary": "Softens ligaments in pregnancy. Built like insulin, and cut the same way.",
+      "facts": {
+        "residues": 185,
+        "exons": 2,
+        "chains": 3,
+        "bridges": 3
+      },
+      "catalog_order": 6,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "absent"
+      }
+    },
+    {
+      "slug": "sod1",
+      "display": "SOD1",
+      "gene": "SOD1",
+      "uniprot": "P00441",
+      "accession": "NG_008689",
+      "summary": "Clears superoxide radicals from cells. Mutations in it cause an inherited form of ALS.",
+      "facts": {
+        "residues": 154,
+        "exons": 5,
+        "chains": 1,
+        "bridges": 1
+      },
+      "catalog_order": 17,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "absent"
+      }
+    },
+    {
+      "slug": "somatotropin",
+      "display": "Growth hormone",
+      "gene": "GH1",
+      "uniprot": "P01241",
+      "accession": "NG_011676",
+      "summary": "Somatotropin. Drives growth in childhood and metabolism after it.",
+      "facts": {
+        "residues": 217,
+        "exons": 5,
+        "chains": 1,
+        "bridges": 2
+      },
+      "catalog_order": 7,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "absent"
+      }
+    },
+    {
+      "slug": "tnf",
+      "display": "TNF-alpha",
+      "gene": "TNF",
+      "uniprot": "P01375",
+      "accession": "NG_007462",
+      "summary": "A signal of inflammation, and the target of drugs for arthritis.",
+      "facts": {
+        "residues": 233,
+        "exons": 4,
+        "chains": 2,
+        "bridges": 1
+      },
+      "catalog_order": 16,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "absent"
+      }
+    },
+    {
+      "slug": "ubiquitin",
+      "display": "Ubiquitin",
+      "gene": "UBB",
+      "uniprot": "P0CG47",
+      "accession": "NG_023320",
+      "summary": "Made as three copies in a row, then cut into three identical tags.",
+      "facts": {
+        "residues": 229,
+        "exons": 2,
+        "chains": 3,
+        "bridges": 0
+      },
+      "catalog_order": 2,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "absent"
+      }
+    },
+    {
+      "slug": "vasopressin",
+      "display": "Vasopressin",
+      "gene": "AVP",
+      "uniprot": "P01185",
+      "accession": "NG_008663",
+      "summary": "Tells the kidneys to hold on to water. Cut from a precursor built like oxytocin.",
+      "facts": {
+        "residues": 164,
+        "exons": 3,
+        "chains": 3,
+        "bridges": 8
+      },
+      "catalog_order": 10,
+      "tracks": {
+        "record": "absent",
+        "constraint": "absent",
+        "impact": "absent",
+        "clinvar": "absent",
+        "structure": "absent",
+        "impact_explanations": "absent"
+      }
+    }
+  ],
+  "next": null
+}

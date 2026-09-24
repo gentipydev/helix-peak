@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../gene_lookup/data/repositories/protein_catalog_repository.dart';
 import '../../../gene_lookup/domain/entities/protein_catalog.dart';
 import '../../../gene_lookup/domain/entities/protein_target.dart';
 import '../../../gene_lookup/presentation/format.dart';
@@ -11,11 +13,13 @@ import '../widgets/protein_card.dart';
 
 /// Pick a protein to walk.
 ///
-/// The field searches the proteins this build ships and nothing else. There
-/// is no request behind it — the backend has no search endpoint yet, and one
-/// that hung for twenty-five seconds on an unreachable host before saying so
-/// would be worse than none. So typing filters the list, and a name that is not
-/// on it gets told that plainly and immediately.
+/// The field searches the catalog this build holds and nothing else. There is
+/// no request behind a keystroke, and there is not going to be one: the service
+/// cold-starts in about forty-four seconds, and a field that hung that long
+/// before answering would be worse than none. The catalog itself now comes from
+/// the service and is cached on device, so what is searchable can grow — but
+/// searching it stays instant and offline, and a name that is not on it gets
+/// told that plainly and immediately.
 ///
 /// That is also why the list is the screen's resting state rather than
 /// something the field reveals. A reader who does not already know what they
@@ -32,8 +36,29 @@ class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _controller = TextEditingController();
   String _query = '';
 
+  /// Null where nothing provided one, which is every widget test that pumps
+  /// this screen on its own. The bundled seed answers in its place, so the
+  /// screen is never the thing that needs a service to render.
+  ProteinCatalogRepository? _catalog;
+
+  @override
+  void initState() {
+    super.initState();
+    _catalog = context.read<ProteinCatalogRepository?>();
+    // The refresh was started at app boot and lands whenever it lands. Until
+    // it does, the list is the bundled one; this is what swaps it in.
+    _catalog?.rows.addListener(_refreshed);
+  }
+
+  void _refreshed() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   void dispose() {
+    _catalog?.rows.removeListener(_refreshed);
     _controller.dispose();
     super.dispose();
   }
@@ -47,7 +72,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<ProteinTarget> results = ProteinCatalog.matching(_query);
+    final List<ProteinTarget> results =
+        _catalog?.matching(_query) ?? ProteinCatalog.matching(_query);
+    final int carried = _catalog?.all.length ?? ProteinCatalog.all.length;
 
     return Theme(
       data: AppTheme.analysis,
@@ -108,7 +135,10 @@ class _SearchScreenState extends State<SearchScreen> {
                     const SizedBox(height: AppSpacing.lg),
                     Expanded(
                       child: results.isEmpty
-                          ? _NothingFound(query: _query.trim())
+                          ? _NothingFound(
+                              query: _query.trim(),
+                              carried: carried,
+                            )
                           : ListView.separated(
                               padding: const EdgeInsets.only(
                                 bottom: AppSpacing.xl,
@@ -143,9 +173,13 @@ class _SearchScreenState extends State<SearchScreen> {
 /// Saying so is also the only place the app admits the backend is not there,
 /// which is worth one sentence.
 class _NothingFound extends StatelessWidget {
-  const _NothingFound({required this.query});
+  const _NothingFound({required this.query, required this.carried});
 
   final String query;
+
+  /// How many proteins are actually searchable, which is the bundled twenty
+  /// until the catalog refresh lands and whatever the service holds after.
+  final int carried;
 
   @override
   Widget build(BuildContext context) {
@@ -169,7 +203,7 @@ class _NothingFound extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'This build carries ${spelled(ProteinCatalog.all.length)} proteins '
+              'This build carries ${spelled(carried)} proteins '
               'and does not go looking for others. Searching every gene arrives '
               'with the service behind it.',
               style: theme.textTheme.bodyMedium,

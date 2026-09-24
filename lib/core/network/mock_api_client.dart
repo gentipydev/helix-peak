@@ -4,7 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../../features/gene_lookup/domain/entities/protein_catalog.dart';
+import '../../features/gene_lookup/domain/entities/protein_ranking.dart';
 import '../../features/gene_lookup/domain/entities/protein_target.dart';
+import '../../features/gene_lookup/domain/entities/protein_track.dart';
 import 'api_client.dart';
 import 'api_exception.dart';
 
@@ -31,6 +33,8 @@ final class MockApiClient implements ApiClient {
     r'^/gene/([^/]+)/([^/]+)(/impact-explanations)?$',
   );
 
+  static final RegExp _proteinPath = RegExp(r'^/protein/([^/]+)(/tracks)?$');
+
   final AssetBundle _bundle;
 
   /// How long a call takes before it answers.
@@ -56,6 +60,18 @@ final class MockApiClient implements ApiClient {
     Map<String, dynamic>? query,
   }) async {
     await Future<void>.delayed(latency);
+
+    if (path == '/catalog') {
+      return _catalog(ProteinCatalog.all);
+    }
+    if (path == '/catalog/search') {
+      return _search(query?['q'] as String? ?? '');
+    }
+
+    final RegExpMatch? protein = _proteinPath.firstMatch(path);
+    if (protein != null) {
+      return _protein(protein.group(1)!, tracksOnly: protein.group(2) != null);
+    }
 
     final RegExpMatch? match = _genePath.firstMatch(path);
     if (match == null) {
@@ -104,6 +120,120 @@ final class MockApiClient implements ApiClient {
       detail: 'Method Not Allowed',
     );
   }
+
+  /// `GET /catalog`. One page, because twenty fits in one and the cursor the
+  /// real service pages by is keyed on slug, which this never needs to split.
+  Map<String, dynamic> _catalog(List<ProteinTarget> targets) =>
+      <String, dynamic>{
+        'proteins': <Map<String, dynamic>>[
+          for (final ProteinTarget target in targets) _summary(target),
+        ],
+        'next': null,
+      };
+
+  /// `GET /catalog/search`. `candidates` is empty here for the same reason it
+  /// is empty on the real service: discovery arrives with the resolver.
+  Map<String, dynamic> _search(String query) => <String, dynamic>{
+    'proteins': <Map<String, dynamic>>[
+      for (final ProteinTarget target in rank(ProteinCatalog.all, query))
+        _summary(target),
+    ],
+    'candidates': <Map<String, dynamic>>[],
+  };
+
+  /// `GET /protein/{slug}` and `GET /protein/{slug}/tracks`.
+  Map<String, dynamic> _protein(String slug, {required bool tracksOnly}) {
+    final ProteinTarget? target = ProteinCatalog.bySlug(slug);
+    if (target == null) {
+      // Verbatim from the backend's router.
+      throw ServerApiException(
+        statusCode: 404,
+        detail: "No protein '$slug' in the catalog.",
+      );
+    }
+    if (tracksOnly) {
+      return <String, dynamic>{
+        for (final TrackKind kind in TrackKind.values)
+          kind.wire: <String, dynamic>{
+            'state': _stateOf(target, kind).wire,
+            'reason': null,
+            // Null while the assets are still bundled: nothing asks this
+            // server for a blob, because every track still resolves through
+            // `rootBundle` off the paths on the target itself.
+            'url': null,
+            'format': kind == TrackKind.structure ? 'glb' : 'json',
+            'bytes': null,
+            'sha256': null,
+            'content_encoding': null,
+            'provenance': <String, dynamic>{},
+          },
+      };
+    }
+    return <String, dynamic>{
+      ..._summary(target),
+      'chain': target.chain,
+      'mature_peptides': true,
+      'chains': <Map<String, dynamic>>[
+        for (final StructureChain chain in target.chains)
+          <String, dynamic>{'node': chain.node, 'tint': chain.tint.name},
+      ],
+      'structure': <String, dynamic>{
+        'pdb': target.structure.pdb,
+        'modelled': target.structure.modelled == null
+            ? null
+            : <int>[
+                target.structure.modelled!.$1,
+                target.structure.modelled!.$2,
+              ],
+        'label': target.structure.label,
+        'count': target.structure.count,
+        'unit': target.structure.unit,
+        'sentence': target.structure.sentence,
+        'semantics': target.structure.semantics,
+      },
+    };
+  }
+
+  /// The fields a search card needs. Deliberately not every field the real
+  /// `ProteinDetail` carries: `regions`, `disulfides` and `provenance` are
+  /// derived from the record rather than held on a target, so this server has
+  /// nothing truthful to say about them and says nothing instead.
+  Map<String, dynamic> _summary(ProteinTarget target) => <String, dynamic>{
+    'slug': target.slug,
+    'display': target.display,
+    'gene': target.gene,
+    'uniprot': target.uniprot,
+    'accession': target.accession,
+    'summary': target.summary,
+    'facts': <String, dynamic>{
+      'residues': target.facts.residues,
+      'exons': target.facts.exons,
+      'chains': target.facts.chains,
+      'bridges': target.facts.bridges,
+    },
+    'catalog_order': ProteinCatalog.all.indexOf(target),
+    'tracks': <String, dynamic>{
+      for (final TrackKind kind in TrackKind.values)
+        kind.wire: _stateOf(target, kind).wire,
+    },
+  };
+
+  /// What this build actually bundles. A fixture server that claimed a track
+  /// was absent while the asset sat in the bundle would be answering for a
+  /// different build than the one it is standing in for.
+  TrackState _stateOf(ProteinTarget target, TrackKind kind) => switch (kind) {
+    TrackKind.record => TrackState.ready,
+    TrackKind.constraint => _readyIf(target.scored),
+    TrackKind.impact => _readyIf(target.impactScored),
+    TrackKind.clinvar => _readyIf(target.clinvarAvailable),
+    TrackKind.structure => TrackState.ready,
+    TrackKind.impactExplanations => _readyIf(
+      target.impactExplanationsAvailable,
+    ),
+  };
+
+  static TrackState _readyIf(bool bundled) =>
+      bundled ? TrackState.ready : TrackState.absent;
 
   Future<Map<String, dynamic>> _record(ProteinTarget target) async {
     final String raw = await (_payloads[target.slug] ??= _bundle.loadString(

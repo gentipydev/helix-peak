@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/anatomy_colors.dart';
 import 'gene_query.dart';
+import 'protein_track.dart';
 
 /// Which theme token paints one chain of a baked model.
 ///
@@ -25,6 +26,11 @@ enum ChainTint {
   /// that is already the residue's colour in the palette.
   cysteine;
 
+  /// The tint named on the wire. The names are the enum's own, so a tint the
+  /// service invents later is a bug worth hearing about rather than a colour
+  /// quietly defaulted to something plausible.
+  static ChainTint fromWire(String wire) => ChainTint.values.byName(wire);
+
   Color of(AnatomyColors anatomy) => switch (this) {
     ChainTint.mature1 => anatomy.roleMature1,
     ChainTint.mature2 => anatomy.roleMature2,
@@ -42,6 +48,11 @@ enum ChainTint {
 @immutable
 final class StructureChain {
   const StructureChain(this.node, this.tint);
+
+  factory StructureChain.fromJson(Map<String, dynamic> json) => StructureChain(
+    json['node'] as String,
+    ChainTint.fromWire(json['tint'] as String),
+  );
 
   final String node;
   final ChainTint tint;
@@ -63,6 +74,24 @@ final class StructureChrome {
     required this.semantics,
     this.modelled,
   });
+
+  factory StructureChrome.fromJson(Map<String, dynamic> json) {
+    // A record on this side, a two-element array on the wire: JSON has no
+    // tuples, and widening this to a class would put a name on a pair that
+    // reads fine without one.
+    final List<dynamic>? span = json['modelled'] as List<dynamic>?;
+    return StructureChrome(
+      pdb: json['pdb'] as String,
+      label: json['label'] as String,
+      count: json['count'] as int,
+      unit: json['unit'] as String,
+      sentence: json['sentence'] as String,
+      semantics: json['semantics'] as String,
+      modelled: span == null
+          ? null
+          : (span[0] as int, span[1] as int),
+    );
+  }
 
   /// The PDB entry the model is cut from — `tool/targets.py` bakes it, and
   /// `check_assets.py` holds the two to each other.
@@ -95,6 +124,13 @@ final class ProteinFacts {
     required this.chains,
     required this.bridges,
   });
+
+  factory ProteinFacts.fromJson(Map<String, dynamic> json) => ProteinFacts(
+    residues: json['residues'] as int,
+    exons: json['exons'] as int,
+    chains: json['chains'] as int,
+    bridges: json['bridges'] as int,
+  );
 
   /// Residues in the precursor the record translates.
   final int residues;
@@ -134,7 +170,100 @@ final class ProteinTarget {
     this.impactScored = true,
     this.clinvarAvailable = true,
     this.impactExplanationsAvailable = false,
+    this.tracks = const <TrackKind, TrackRef>{},
   });
+
+  /// One catalog row as the service serves it.
+  ///
+  /// [seed] is the bundled row for the same slug, where this build has one, and
+  /// it settles the four booleans. That is not a transitional hack: until a
+  /// family's blobs are actually in storage the service reports it `absent` for
+  /// every protein, and the bundle is the only honest authority on what this
+  /// build can draw. A protein the bundle has never heard of falls through to
+  /// the track state, which is where all of them end up as each family moves.
+  ///
+  /// A catalog page carries what a search card shows and stops there: no
+  /// `structure`, no `chains`, no `chain`. Those come from the detail route, or
+  /// — for the proteins this build bundles — from [seed], whose fold-page prose
+  /// is hand-written per protein and is not something a list endpoint would
+  /// have served anyway.
+  ///
+  /// Throws [FormatException] where neither has a structure. The service allows
+  /// a row no entry passed the picker for, and the walk's last page is not yet
+  /// written for its absence, so the catalog leaves it out rather than carrying
+  /// a row it cannot draw.
+  factory ProteinTarget.fromJson(
+    Map<String, dynamic> json, {
+    ProteinTarget? seed,
+  }) {
+    final Map<TrackKind, TrackRef> tracks = _tracksFromJson(
+      json['tracks'] as Map<String, dynamic>?,
+    );
+    bool ready(TrackKind kind) =>
+        tracks[kind]?.state == TrackState.ready;
+
+    final Map<String, dynamic>? chrome =
+        json['structure'] as Map<String, dynamic>?;
+    final StructureChrome? structure = chrome == null
+        ? seed?.structure
+        : StructureChrome.fromJson(chrome);
+    if (structure == null) {
+      throw FormatException(
+        'No structure for ${json['slug']}; the fold page has nothing to draw.',
+      );
+    }
+    final List<dynamic>? nodes = json['chains'] as List<dynamic>?;
+
+    return ProteinTarget(
+      slug: json['slug'] as String,
+      display: json['display'] as String,
+      gene: json['gene'] as String,
+      uniprot: json['uniprot'] as String,
+      accession: json['accession'] as String,
+      summary: json['summary'] as String,
+      facts: ProteinFacts.fromJson(json['facts'] as Map<String, dynamic>),
+      // Not `facts.chains`, which is a count. The service lifts this list out
+      // of the same `structure` column the chrome comes from, and omits both
+      // from a catalog page.
+      chains: nodes == null
+          ? (seed?.chains ?? const <StructureChain>[])
+          : <StructureChain>[
+              for (final dynamic node in nodes)
+                StructureChain.fromJson(node as Map<String, dynamic>),
+            ],
+      structure: structure,
+      // Present-and-null is a real answer here — an uncut protein names its
+      // coding sequence, a cut one does not — so absence is what falls back.
+      chain: json.containsKey('chain') ? json['chain'] as String? : seed?.chain,
+      scored: seed?.scored ?? ready(TrackKind.constraint),
+      impactScored: seed?.impactScored ?? ready(TrackKind.impact),
+      clinvarAvailable: seed?.clinvarAvailable ?? ready(TrackKind.clinvar),
+      impactExplanationsAvailable:
+          seed?.impactExplanationsAvailable ??
+          ready(TrackKind.impactExplanations),
+      tracks: tracks,
+    );
+  }
+
+  /// A catalog row carries bare state strings, a track row whole objects. Both
+  /// arrive under `tracks`, and both mean the same thing here.
+  static Map<TrackKind, TrackRef> _tracksFromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return const <TrackKind, TrackRef>{};
+    }
+    final Map<TrackKind, TrackRef> found = <TrackKind, TrackRef>{};
+    for (final MapEntry<String, dynamic> entry in json.entries) {
+      final TrackKind? kind = TrackKind.fromWire(entry.key);
+      if (kind == null) {
+        continue;
+      }
+      final Object? value = entry.value;
+      found[kind] = value is Map<String, dynamic>
+          ? TrackRef.fromJson(value)
+          : TrackRef(state: TrackState.fromWire(value as String?));
+    }
+    return found;
+  }
 
   /// URL-safe, and the stem of every asset this target owns.
   final String slug;
@@ -218,6 +347,24 @@ final class ProteinTarget {
 
   /// Where the impact track is, or would be. Read only where [impactScored].
   String get impactAsset => 'assets/impact/${slug}_avi.json';
+
+  /// What the service says about each family, where it has been asked.
+  ///
+  /// Empty on a bundled row that was never refreshed, which is why the four
+  /// booleans above are still the ones the walk reads: they say what this build
+  /// ships, and this says what the service holds. The two answer the same
+  /// question only once a family's blobs are in storage, and each boolean is
+  /// retired to [state] at that point rather than all four at once.
+  final Map<TrackKind, TrackRef> tracks;
+
+  /// Where [kind] has got to, or [TrackState.absent] where nothing was said.
+  TrackState state(TrackKind kind) =>
+      tracks[kind]?.state ?? TrackState.absent;
+
+  /// The sentence behind a [TrackState.refused], and null for every other
+  /// state. Never a message to show for an absent track — that one is a state
+  /// the walk draws, not a failure it reports.
+  String? reason(TrackKind kind) => tracks[kind]?.reason;
 
   @override
   bool operator ==(Object other) =>

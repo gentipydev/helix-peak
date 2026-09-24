@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/gene_lookup/data/repositories/protein_catalog_repository.dart';
 import '../../features/gene_lookup/domain/entities/protein_catalog.dart';
 import '../../features/gene_lookup/domain/entities/protein_target.dart';
 import '../../features/gene_lookup/domain/usecases/fetch_gene.dart';
@@ -38,16 +39,24 @@ GoRoute _walk(String path) => GoRoute(
 // The cubit is created per visit and starts fetching immediately, so a deep
 // link to a protein behaves the same as picking it off the search screen.
 Widget _walkBody(BuildContext context, GoRouterState state) {
+  // Null where nothing provided one — the bundled seed answers in its place,
+  // so a deep link resolves on the first frame whether or not the catalog
+  // refresh has landed, and whether or not there is a service to refresh from.
+  final ProteinCatalogRepository? catalog =
+      context.read<ProteinCatalogRepository?>();
   final String? slug = state.pathParameters['slug'];
   final ProteinTarget? target = slug == null
-      ? ProteinCatalog.fallback
-      : ProteinCatalog.bySlug(slug);
+      ? (catalog?.fallback ?? ProteinCatalog.fallback)
+      // A slug this build bundles but the served catalog has not caught up to
+      // still opens: the seed is asked second rather than not at all.
+      : (catalog?.bySlug(slug) ?? ProteinCatalog.bySlug(slug));
   if (target == null) {
+    final int carried = catalog?.all.length ?? ProteinCatalog.all.length;
     return Scaffold(
       body: ErrorView(
         title: 'No such protein',
         message:
-            'This build ships ${spelled(ProteinCatalog.all.length)} proteins, '
+            'This build ships ${spelled(carried)} proteins, '
             'and $slug is not one of them.',
         onRetry: () => context.go(RoutePaths.search),
         action: 'Browse proteins',

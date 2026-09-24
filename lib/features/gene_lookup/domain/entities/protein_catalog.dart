@@ -1,11 +1,22 @@
+import 'protein_ranking.dart';
 import 'protein_target.dart';
 
-/// The proteins this build can walk, in the order the search screen lists them.
+/// The proteins this build bundles, in the order the search screen lists them.
 ///
-/// Every one of them ships a gene record and a model, and a constraint track
-/// where it is [ProteinTarget.scored]; nothing here reaches the network. That
-/// is the whole arrangement until the backend is deployed: the search field
-/// filters this list, and a name that is not on it has no answer to give.
+/// This was the whole catalog. It is now the seed: `ProteinCatalogRepository`
+/// starts from these rows and replaces them with what `/catalog` serves, so
+/// what a reader sees comes from the service and what the *bundle* can draw
+/// still comes from here. Three things keep it:
+///
+/// - The walk has to open before any request finishes, and a repository built
+///   already holding these rows answers `bySlug` synchronously — which is what
+///   lets the router stay a plain builder and search stay instant.
+/// - The four booleans on each row say which tracks ship in this build's
+///   assets. The service cannot answer that; it reports every unuploaded family
+///   `absent` for every protein. Each boolean retires as its family moves.
+/// - `tool/check_assets.py` and `tool/seed_catalog.py` read these rows out of
+///   this file as text. They are one half of the gate that proves the service's
+///   catalog and the baked assets still agree.
 ///
 /// The order is not alphabetical. Insulin is first because it is the one the
 /// app was built around, and the first ten run small to large, which is also
@@ -13,9 +24,11 @@ import 'protein_target.dart';
 /// transcription factor, and dystrophin closing them because nothing about it
 /// is ordinary. The ten after dystrophin keep the order they were added in, and
 /// each was checked against its record before it was — see
-/// `docs/protein-verification.md`. The assets are baked by `tool/`, off the
-/// table in `tool/targets.py` — the two are checked against each other by the
-/// tests in `test/features/gene_lookup/catalog/`.
+/// `docs/protein-verification.md`. That sequence travels as `catalog_order` on
+/// every served row, because a list the client no longer holds cannot carry it.
+/// The assets are baked by `tool/`, off the table in `tool/targets.py` — the
+/// two are checked against each other by the tests in
+/// `test/features/gene_lookup/catalog/`.
 abstract final class ProteinCatalog {
   static const ProteinTarget insulin = ProteinTarget(
     slug: 'insulin',
@@ -553,62 +566,10 @@ abstract final class ProteinCatalog {
     return null;
   }
 
-  /// Everything whose name, gene symbol, UniProt accession, RefSeq accession
-  /// or summary contains [query], the closest matches first.
+  /// Everything bundled whose name, gene symbol, UniProt accession, RefSeq
+  /// accession or summary contains [query], the closest matches first.
   ///
-  /// The whole of search, while there is no backend to search with. A blank
-  /// query is every protein rather than none, so the screen opens on the list
-  /// instead of on an empty state the reader has to type their way out of.
-  ///
-  /// Ordered by how the query matched: a protein it names outright, then one
-  /// whose name or identifiers begin with it, then one whose name or
-  /// identifiers contain it, and last one only its summary mentions — so
-  /// "hormone" leads with growth hormone rather than with insulin, whose
-  /// summary happens to say the word. The catalog's order breaks ties.
-  static List<ProteinTarget> matching(String query) {
-    final String needle = query.trim().toLowerCase();
-    if (needle.isEmpty) {
-      return all;
-    }
-    final List<(int, int, ProteinTarget)> found = <(int, int, ProteinTarget)>[
-      for (final (int order, ProteinTarget target) in all.indexed)
-        if (_closeness(target, needle) case final int closeness)
-          (closeness, order, target),
-    ];
-    found.sort(
-      ((int, int, ProteinTarget) a, (int, int, ProteinTarget) b) =>
-          a.$1 != b.$1 ? a.$1.compareTo(b.$1) : a.$2.compareTo(b.$2),
-    );
-    return <ProteinTarget>[
-      for (final (int _, int _, ProteinTarget target) in found) target,
-    ];
-  }
-
-  /// How closely [needle] matches [target], 0 for the closest, or null for
-  /// not at all. See [matching].
-  static int? _closeness(ProteinTarget target, String needle) {
-    final List<String> names = <String>[
-      target.display.toLowerCase(),
-      target.gene.toLowerCase(),
-      target.slug,
-      target.uniprot.toLowerCase(),
-      target.accession.toLowerCase(),
-    ];
-    if (names.contains(needle)) {
-      return 0;
-    }
-    if (names.any((String name) => name.startsWith(needle)) ||
-        names.first
-            .split(RegExp(r'[\s()-]+'))
-            .any((String word) => word.startsWith(needle))) {
-      return 1;
-    }
-    if (names.any((String name) => name.contains(needle))) {
-      return 2;
-    }
-    if (target.summary.toLowerCase().contains(needle)) {
-      return 3;
-    }
-    return null;
-  }
+  /// The ranking itself lives in `protein_ranking.dart` so that this and the
+  /// repository's search cannot drift into two implementations of it.
+  static List<ProteinTarget> matching(String query) => rank(all, query);
 }
