@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../features/gene_lookup/data/datasources/gene_remote_data_source.dart';
 import '../../features/gene_lookup/data/repositories/gene_repository_impl.dart';
+import '../../features/gene_lookup/data/repositories/impact_explanation_repository.dart';
 import '../../features/gene_lookup/domain/repositories/gene_repository.dart';
 import '../../features/gene_lookup/domain/usecases/fetch_gene.dart';
 import '../config/env.dart';
@@ -23,6 +24,10 @@ List<RepositoryProvider<Object>> buildAppProviders() {
     RepositoryProvider<GeneRemoteDataSource>(
       create: (BuildContext context) =>
           GeneRemoteDataSourceImpl(context.read<ApiClient>()),
+    ),
+    RepositoryProvider<ImpactExplanationRepository>(
+      create: (BuildContext context) =>
+          ImpactExplanationRepository(context.read<ApiClient>()),
     ),
     RepositoryProvider<GeneRepository>(
       create: (BuildContext context) =>

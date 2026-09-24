@@ -1,6 +1,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/core/config/env.dart';
+import 'package:helixpeek/core/config/env.dart';
 
 /// Only the `.env` half of [Env.useMockData] is reachable from a test:
 /// `String.fromEnvironment` is resolved at compile time, so the dart-define

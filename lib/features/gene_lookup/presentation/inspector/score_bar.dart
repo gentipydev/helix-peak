@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_typography.dart';
@@ -46,6 +48,13 @@ class ScoreBar extends StatelessWidget {
   /// row never grows a second line to say it. The native row keeps its "WT".
   final Widget? tag;
 
+  /// The columns either side of the bar, which [ScoreScale] keeps clear so
+  /// its ends stand over the bar's: the letter before it, and the tag and the
+  /// number after it.
+  static const double letterColumn = 28;
+  static const double tagColumn = 44;
+  static const double numberColumn = 64;
+
   @override
   Widget build(BuildContext context) {
     final ThemeData base = Theme.of(context);
@@ -63,7 +72,7 @@ class ScoreBar extends StatelessWidget {
     final Widget nativeLabel = Text(
       'WT',
       textAlign: TextAlign.right,
-      style: theme.textTheme.labelSmall?.copyWith(fontSize: 10, height: 1),
+      style: theme.textTheme.labelSmall?.copyWith(fontSize: 11, height: 1),
     );
     final Widget number = Text(
       value,
@@ -130,10 +139,10 @@ class ScoreBar extends StatelessWidget {
               )
             : Row(
                 children: <Widget>[
-                  SizedBox(width: 28, child: letter),
+                  SizedBox(width: letterColumn, child: letter),
                   Expanded(child: bar),
                   SizedBox(
-                    width: 44,
+                    width: tagColumn,
                     child: native
                         ? nativeLabel
                         : tag == null
@@ -143,7 +152,7 @@ class ScoreBar extends StatelessWidget {
                             child: tag,
                           ),
                   ),
-                  SizedBox(width: 64, child: number),
+                  SizedBox(width: numberColumn, child: number),
                 ],
               ),
       ),
@@ -155,3 +164,86 @@ class ScoreBar extends StatelessWidget {
 /// requested type size and the shared visual scale.
 bool stackScoreLabels(BuildContext context) =>
     MediaQuery.textScalerOf(context).scale(13) > 19.5;
+
+/// The scale over a list of [ScoreBar]s: what an empty bar stands for at the
+/// bars' start, and what a full one does at their end.
+///
+/// One row for both sheets, as the bars under it are one row. Its ends are
+/// words — "−10 or lower", "40 or higher" — and on a narrow phone with type
+/// turned up the two can be wider together than the bars they label. They are
+/// then drawn a little smaller, rather than run off the edge or cut short.
+class ScoreScale extends StatelessWidget {
+  const ScoreScale({
+    required this.low,
+    required this.high,
+    required this.style,
+    this.trailing = 0,
+    this.highKey,
+    super.key,
+  });
+
+  /// What an empty bar stands for, and what a full one does.
+  final String low;
+  final String high;
+  final TextStyle? style;
+
+  /// Room the rows below keep after their number — a chevron's — which the
+  /// scale keeps too, so that its ends stay over the bars' ends.
+  final double trailing;
+  final Key? highKey;
+
+  /// The least room between the two ends: enough that they read as two
+  /// ends, not as one phrase, when they are drawn close.
+  static const double _gap = 16;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool stacked = stackScoreLabels(context);
+    final TextStyle effective = DefaultTextStyle.of(context).style.merge(style);
+    final TextScaler scaler = MediaQuery.textScalerOf(context);
+    double width(String text) {
+      final TextPainter painter = TextPainter(
+        text: TextSpan(text: text, style: effective),
+        textDirection: TextDirection.ltr,
+        textScaler: scaler,
+        maxLines: 1,
+      )..layout();
+      final double width = painter.width;
+      painter.dispose();
+      return width;
+    }
+
+    return Row(
+      children: <Widget>[
+        if (!stacked) const SizedBox(width: ScoreBar.letterColumn),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints box) {
+              // The ends at their own size with the room between them, or at
+              // the least room and scaled to fit. A measure a hair out is a
+              // hair of scaling, never an overflow.
+              final double spare = box.maxWidth - width(low) - width(high);
+              return FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(low, style: style, maxLines: 1),
+                    SizedBox(width: math.max(_gap, spare)),
+                    Text(high, key: highKey, style: style, maxLines: 1),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+        SizedBox(
+          width:
+              (stacked ? 0 : ScoreBar.tagColumn + ScoreBar.numberColumn) +
+              trailing,
+        ),
+      ],
+    );
+  }
+}

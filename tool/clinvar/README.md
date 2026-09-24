@@ -8,12 +8,12 @@ the backend has no ClinVar route.
 
 ```sh
 NCBI_EMAIL=you@example.com \
-  ../helix-peak-backend/.venv/bin/python -u tool/clinvar/bake_clinvar.py --target <slug>
+  ../helix-peek-backend/.venv/bin/python -u tool/clinvar/bake_clinvar.py --target <slug>
 # Every row with a snapshot, as the other bakers' --all:
 NCBI_EMAIL=you@example.com \
-  ../helix-peak-backend/.venv/bin/python -u tool/clinvar/bake_clinvar.py --all
+  ../helix-peek-backend/.venv/bin/python -u tool/clinvar/bake_clinvar.py --all
 # Replay exactly the downloaded source without another network request:
-../helix-peak-backend/.venv/bin/python tool/clinvar/bake_clinvar.py --all --replay
+../helix-peek-backend/.venv/bin/python tool/clinvar/bake_clinvar.py --all --replay
 python3 -m unittest discover -s tool/clinvar
 python3 tool/check_assets.py
 ```

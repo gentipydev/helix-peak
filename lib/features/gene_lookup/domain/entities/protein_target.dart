@@ -133,6 +133,7 @@ final class ProteinTarget {
     this.scored = true,
     this.impactScored = true,
     this.clinvarAvailable = true,
+    this.impactExplanationsAvailable = false,
   });
 
   /// URL-safe, and the stem of every asset this target owns.
@@ -189,6 +190,10 @@ final class ProteinTarget {
   /// `impact_scored` in `tool/targets.py` says the same, and `check_assets.py`
   /// holds the two to each other.
   final bool impactScored;
+
+  /// Whether exact-allele AVI contributions are included in this release.
+  final bool impactExplanationsAvailable;
+  String get impactExplanationsAsset => 'assets/impact_explanations/$slug.json';
 
   /// Whether a ClinVar snapshot has been baked for this gene.
   ///

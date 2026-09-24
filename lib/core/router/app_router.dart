@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,6 +12,9 @@ import '../../features/gene_lookup/presentation/screens/gene_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
 import '../../shared/widgets/error_view.dart';
+import 'walk_route.dart';
+
+export 'walk_route.dart' show walkPage, walkRoute;
 
 abstract final class RoutePaths {
   static const String home = '/';
@@ -22,42 +24,6 @@ abstract final class RoutePaths {
   /// The walk for one protein. `/gene` with nothing after it is still the
   /// insulin walk, so every link that predates the catalog keeps working.
   static String geneFor(ProteinTarget target) => '$gene/${target.slug}';
-}
-
-/// The page a walk is shown on.
-///
-/// On iOS a page slides in, and a drag from the left edge normally slides it
-/// back out — which on the walk is exactly the drag a reader makes to go back
-/// a stage, and it threw away their place in the walk. So the walk keeps the
-/// platform's slide and gives up the edge gesture; the back button, Back and
-/// Escape still leave it. Elsewhere it is an ordinary page.
-Page<void> walkPage({
-  required BuildContext context,
-  required LocalKey key,
-  required Widget child,
-}) {
-  final TargetPlatform platform = Theme.of(context).platform;
-  if (platform != TargetPlatform.iOS && platform != TargetPlatform.macOS) {
-    return MaterialPage<void>(key: key, child: child);
-  }
-  return CustomTransitionPage<void>(
-    key: key,
-    child: child,
-    transitionDuration: const Duration(milliseconds: 400),
-    reverseTransitionDuration: const Duration(milliseconds: 400),
-    transitionsBuilder:
-        (
-          BuildContext context,
-          Animation<double> animation,
-          Animation<double> secondaryAnimation,
-          Widget child,
-        ) => CupertinoPageTransition(
-          primaryRouteAnimation: animation,
-          secondaryRouteAnimation: secondaryAnimation,
-          linearTransition: false,
-          child: child,
-        ),
-  );
 }
 
 GoRoute _walk(String path) => GoRoute(
@@ -84,6 +50,8 @@ Widget _walkBody(BuildContext context, GoRouterState state) {
             'This build ships ${spelled(ProteinCatalog.all.length)} proteins, '
             'and $slug is not one of them.',
         onRetry: () => context.go(RoutePaths.search),
+        action: 'Browse proteins',
+        actionIcon: Icons.list_rounded,
       ),
     );
   }
@@ -116,6 +84,8 @@ final GoRouter appRouter = GoRouter(
       title: 'Page not found',
       message: 'No route matches ${state.uri}.',
       onRetry: () => context.go(RoutePaths.home),
+      action: 'Go home',
+      actionIcon: Icons.home_outlined,
     ),
   ),
 );

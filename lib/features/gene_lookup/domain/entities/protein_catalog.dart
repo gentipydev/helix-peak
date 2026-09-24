@@ -19,6 +19,7 @@ import 'protein_target.dart';
 abstract final class ProteinCatalog {
   static const ProteinTarget insulin = ProteinTarget(
     slug: 'insulin',
+    impactExplanationsAvailable: true,
     display: 'Insulin',
     gene: 'INS',
     uniprot: 'P01308',
@@ -44,6 +45,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget hemoglobin = ProteinTarget(
     slug: 'hemoglobin',
+    impactExplanationsAvailable: true,
     display: 'Hemoglobin (beta chain)',
     gene: 'HBB',
     uniprot: 'P68871',
@@ -326,6 +328,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget cftr = ProteinTarget(
     slug: 'cftr',
+    impactExplanationsAvailable: true,
     display: 'CFTR',
     gene: 'CFTR',
     uniprot: 'P13569',
@@ -551,26 +554,61 @@ abstract final class ProteinCatalog {
   }
 
   /// Everything whose name, gene symbol, UniProt accession, RefSeq accession
-  /// or summary contains [query].
+  /// or summary contains [query], the closest matches first.
   ///
   /// The whole of search, while there is no backend to search with. A blank
   /// query is every protein rather than none, so the screen opens on the list
   /// instead of on an empty state the reader has to type their way out of.
+  ///
+  /// Ordered by how the query matched: a protein it names outright, then one
+  /// whose name or identifiers begin with it, then one whose name or
+  /// identifiers contain it, and last one only its summary mentions — so
+  /// "hormone" leads with growth hormone rather than with insulin, whose
+  /// summary happens to say the word. The catalog's order breaks ties.
   static List<ProteinTarget> matching(String query) {
     final String needle = query.trim().toLowerCase();
     if (needle.isEmpty) {
       return all;
     }
-    return all
-        .where(
-          (ProteinTarget target) =>
-              target.display.toLowerCase().contains(needle) ||
-              target.gene.toLowerCase().contains(needle) ||
-              target.slug.contains(needle) ||
-              target.uniprot.toLowerCase().contains(needle) ||
-              target.accession.toLowerCase().contains(needle) ||
-              target.summary.toLowerCase().contains(needle),
-        )
-        .toList();
+    final List<(int, int, ProteinTarget)> found = <(int, int, ProteinTarget)>[
+      for (final (int order, ProteinTarget target) in all.indexed)
+        if (_closeness(target, needle) case final int closeness)
+          (closeness, order, target),
+    ];
+    found.sort(
+      ((int, int, ProteinTarget) a, (int, int, ProteinTarget) b) =>
+          a.$1 != b.$1 ? a.$1.compareTo(b.$1) : a.$2.compareTo(b.$2),
+    );
+    return <ProteinTarget>[
+      for (final (int _, int _, ProteinTarget target) in found) target,
+    ];
+  }
+
+  /// How closely [needle] matches [target], 0 for the closest, or null for
+  /// not at all. See [matching].
+  static int? _closeness(ProteinTarget target, String needle) {
+    final List<String> names = <String>[
+      target.display.toLowerCase(),
+      target.gene.toLowerCase(),
+      target.slug,
+      target.uniprot.toLowerCase(),
+      target.accession.toLowerCase(),
+    ];
+    if (names.contains(needle)) {
+      return 0;
+    }
+    if (names.any((String name) => name.startsWith(needle)) ||
+        names.first
+            .split(RegExp(r'[\s()-]+'))
+            .any((String word) => word.startsWith(needle))) {
+      return 1;
+    }
+    if (names.any((String name) => name.contains(needle))) {
+      return 2;
+    }
+    if (target.summary.toLowerCase().contains(needle)) {
+      return 3;
+    }
+    return null;
   }
 }

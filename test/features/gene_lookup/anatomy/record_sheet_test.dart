@@ -4,17 +4,17 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/core/theme/app_theme.dart';
-import 'package:helixpeak/features/gene_lookup/data/models/gene_record_dto.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_catalog.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_constraint.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_target.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_fasta.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/constraint/constraint_panel.dart';
+import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_fasta.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_panel.dart';
 
 import 'anatomy_fixture.dart';
 
@@ -112,6 +112,26 @@ void main() {
         ],
       );
       expect(fasta, contains('GIVEQCCTSICSLYQLENYCN'));
+    });
+
+    test('a proprotein page copies the proprotein it draws', () {
+      // A proprotein that is not one run of its precursor is the one that
+      // keeps a page of its own; its copy is its own letters, not the
+      // precursor's.
+      final AnatomyModel split = AnatomyModel.derive(
+        insulinWithout(splitProprotein: true),
+      );
+      final AnatomyStage page = split.stages.firstWhere(
+        (AnatomyStage s) => s.kind == StageKind.proprotein,
+      );
+      final List<String> lines = AnatomyFasta.ofStage(
+        split,
+        insulinTarget,
+        page,
+      )!.trim().split('\n');
+      expect(lines.first, contains(' proprotein'));
+      expect(lines.skip(1).join(), page.letters);
+      expect(AnatomyFasta.sizeOf(page), '${page.letters.length} aa');
     });
 
     test('a gene drawn shortened has no sequence to copy', () {

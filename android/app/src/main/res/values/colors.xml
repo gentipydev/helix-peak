@@ -3,4 +3,5 @@
     <!-- AppColorTokens.dark.surfaceBase. The app has one theme, so the launch
          window uses the same ground the first Flutter frame paints. -->
     <color name="launch_background">#FF0E1116</color>
+	<color name="ic_launcher_background">#0E1116</color>
 </resources>

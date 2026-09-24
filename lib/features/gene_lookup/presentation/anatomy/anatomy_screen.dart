@@ -2,9 +2,12 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/biology/amino_acids.dart';
+import '../../../../core/router/rise_route.dart';
+import '../../../../core/router/walk_route.dart';
 import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -97,6 +100,29 @@ class AnatomyScreen extends StatefulWidget {
     this.impact,
     this.clinvar,
     super.key,
+  }) : landing = null,
+       conservation = false,
+       _model = null,
+       _reading = null;
+
+  /// The walk a ClinVar record's link opens, above the list it came from.
+  ///
+  /// It is the same walk, opened on the page that holds [landing] with that
+  /// residue or base already up, and it is a page of its own: Back, or its
+  /// header's "← ClinVar", takes it away and leaves the list exactly as it was
+  /// — and under the list, the walk the reader opened it from, untouched. The
+  /// jump used to drive that walk itself, so closing the list left the reader
+  /// wherever the record had sent them.
+  const AnatomyScreen._landing({
+    required this.record,
+    required this.target,
+    required VariantTarget this.landing,
+    this.constraint,
+    this.impact,
+    this.clinvar,
+    this.conservation = false,
+    this._model,
+    this._reading,
   });
 
   final GeneRecord record;
@@ -115,16 +141,28 @@ class AnatomyScreen extends StatefulWidget {
   final GeneImpact? impact;
   final GeneClinVar? clinvar;
 
+  /// The residue or base this walk was opened on, or null for a walk the
+  /// reader came to by choosing a protein.
+  final VariantTarget? landing;
+
+  /// Whether a landing starts in ESM-2 colours: the walk it came from's
+  /// setting, which is what the jump it replaced carried over.
+  final bool conservation;
+
+  /// The walk's model and its reading of the ClinVar snapshot, handed over so
+  /// a landing neither derives the record nor reads thousands of records again.
+  final AnatomyModel? _model;
+  final _ClinVarReading? _reading;
+
   @override
   State<AnatomyScreen> createState() => _AnatomyScreenState();
 }
 
 class _AnatomyScreenState extends State<AnatomyScreen>
     with TickerProviderStateMixin {
-  late AnatomyModel _model = AnatomyModel.derive(
-    widget.record,
-    chain: widget.target.chain,
-  );
+  late AnatomyModel _model =
+      widget._model ??
+      AnatomyModel.derive(widget.record, chain: widget.target.chain);
 
   int _stage = 0;
   Tracer? _tracer;
@@ -198,8 +236,13 @@ class _AnatomyScreenState extends State<AnatomyScreen>
 
   void _clearSelection() {
     _liftedBase = null;
+    _pendingLift = null;
     _removeSelectionHistory();
     _selectionProgress.stop(canceled: true);
+    // Closed, however it closed. With motion reduced a return skips the
+    // reverse and left this at 1, where the next open's `value = 1` changed
+    // nothing, reported nothing, and never lifted the base it was opened for.
+    _selectionProgress.value = 0;
     _selection = null;
     _selectionActive = false;
     _selectionReturning = false;
@@ -216,11 +259,14 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   }
 
   /// Opens the selected region into its DNA.
-  void _openSelection() {
+  ///
+  /// A landing's [arrival] opens it standing still and as the page itself,
+  /// with no Back of its own: see [_sheetLanded].
+  void _openSelection({bool arrival = false}) {
     if (!mounted || _selection == null || _stage != 0 || _selectionActive) {
       return;
     }
-    if (_selectionHistory == null) {
+    if (_selectionHistory == null && !arrival) {
       late final LocalHistoryEntry entry;
       entry = LocalHistoryEntry(
         impliesAppBarDismissal: false,
@@ -234,13 +280,15 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       _selectionHistory = entry;
       ModalRoute.of(context)?.addLocalHistoryEntry(entry);
     }
-    _geneScrollOffset = _scroll.hasClients ? _scroll.offset : 0;
+    _geneScrollOffset =
+        _geneScrollHold ?? (_scroll.hasClients ? _scroll.offset : 0);
+    _geneScrollHold = null;
     if (_scroll.hasClients) {
       _scroll.jumpTo(0);
     }
     setState(() {
       _selectionActive = true;
-      if (MediaQuery.disableAnimationsOf(context)) {
+      if (arrival || MediaQuery.disableAnimationsOf(context)) {
         _selectionProgress.value = 1;
       } else {
         unawaited(_selectionProgress.forward(from: 0));
@@ -291,10 +339,30 @@ class _AnatomyScreenState extends State<AnatomyScreen>
 
   /// What the strip's second line says about the gene's regions, where it has
   /// something to say that a tracer's fact does not.
+  ///
+  /// With nothing picked, it is also where a page says what a tap on it opens
+  /// — the gene its regions' DNA, a scored protein its residues' ESM-2 sheet,
+  /// the transcript its bases' AVI sheet — once the track behind the sheet is
+  /// there to open, and it goes the moment something is picked. A protein
+  /// whose ESM-2 track failed to load says so here instead.
   String? get _selectionHint {
     final AnatomySelection? selection = _selection;
     if (selection == null) {
-      return _stage == 0 && _tracer == null ? 'Tap a region for its DNA' : null;
+      if (_tracer != null || _maskedIndex != null) {
+        return null;
+      }
+      final AnatomyStage? stage = _stage < _model.stages.length
+          ? _model.stages[_stage]
+          : null;
+      return switch (stage?.kind) {
+        StageKind.gene when _stage == 0 => 'Tap a region for its DNA',
+        StageKind.protein when _constraintFailed => 'ESM-2 scores unavailable',
+        StageKind.protein when _supportsConstraint(stage) =>
+          'Tap a residue for its ESM-2 scores',
+        StageKind.mrna when _supportsImpact(stage) =>
+          'Tap a base for its AVI scores',
+        _ => null,
+      };
     }
     if (_selectionReturning || !_selectionActive || _liftedBase != null) {
       return null;
@@ -325,9 +393,11 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   int _dismissGeneration = 0;
   LocalHistoryEntry? _sheetHistory;
 
-  /// The way back to the overview after one of its records sent the reader
-  /// here: Back, or the header's "← ClinVar", reopens it as it was left.
-  LocalHistoryEntry? _returnHistory;
+  /// Whether the open sheet is the one a landing arrived with. It is the page
+  /// the record's link opened rather than a layer the reader added, so it
+  /// takes no Back of its own — one Back leaves the landing for the list —
+  /// and a residue compared in it keeps it that way.
+  bool _sheetLanded = false;
   bool _overviewOpen = false;
 
   /// Where the overview was left, for as long as this gene is shown.
@@ -358,6 +428,12 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   @override
   void initState() {
     super.initState();
+    _evidenceMemo = widget._reading;
+    if (widget.landing case final VariantTarget landing) {
+      _conservation = widget.conservation;
+      _stage = _pageOf(landing);
+      WidgetsBinding.instance.addPostFrameCallback((_) => _arrive(landing));
+    }
     _sheet.addListener(_sheetSizeChanged);
     if (widget.constraint case final ProteinConstraint data) {
       _constraint = data;
@@ -373,7 +449,10 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       unawaited(_loadImpact());
     }
     _startClinVar();
-    WidgetsBinding.instance.addPostFrameCallback(_prepareStructure);
+    // A landing's walk was warmed by the walk it came from.
+    if (widget.landing == null) {
+      WidgetsBinding.instance.addPostFrameCallback(_prepareStructure);
+    }
   }
 
   void _startClinVar() {
@@ -507,34 +586,41 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     };
   }
 
-  /// Every record of the gene, as the overview draws them. The reader goes
-  /// from it to the residue or base a record's link names, and Back — or the
-  /// header's "← ClinVar" — brings them back to it as they left it.
-  Future<void> _openVariants({List<String> focus = const <String>[]}) async {
+  /// Every record of the gene, as the overview draws them. A record's link
+  /// opens its residue or base as a page above the list — see
+  /// [AnatomyScreen._landing] — so when that page is gone the list, and this
+  /// walk under it, are both exactly as the reader left them.
+  ///
+  /// A landing already has a list, the one under it, so from there this goes
+  /// back to that list carrying [focus] rather than stacking a second one.
+  ///
+  /// [over] is the sheet it was asked for from, which the list rises over and
+  /// then takes away.
+  Future<void> _openVariants({
+    List<String> focus = const <String>[],
+    Route<Object?>? over,
+  }) async {
+    if (widget.landing != null) {
+      // The list is already under the landing: the sheet goes down, and the
+      // landing goes with it.
+      if (over != null && over.isCurrent) {
+        Navigator.of(context).pop();
+      }
+      _leave(focus);
+      return;
+    }
     final GeneClinVar? data = _clinvar;
     final List<VariantEvidence>? all = _evidence;
     if (data == null || all == null || _overviewOpen) {
       return;
     }
-    // The reader is in the list again, however they got there; a way back to
-    // it would lead nowhere new.
-    if (_returnHistory != null) {
-      setState(_removeReturnHistory);
-    }
-    // The route is pushed above the walk's analysis theme, which the app's own
-    // theme would otherwise replace; every theme between here and the
-    // navigator goes with it.
-    final CapturedThemes themes = InheritedTheme.capture(
-      from: context,
-      to: Navigator.of(context).context,
-    );
+    final CapturedThemes themes = _routeThemes();
     _overviewOpen = true;
-    VariantTarget? target;
     try {
-      target = await Navigator.of(context).push<VariantTarget>(
-        MaterialPageRoute<VariantTarget>(
-          fullscreenDialog: true,
-          builder: (BuildContext context) => themes.wrap(
+      await Navigator.of(context).push<void>(
+        riseRoute<void>(
+          context,
+          (BuildContext context) => themes.wrap(
             VariantsOverview(
               snapshot: data,
               evidence: all,
@@ -549,26 +635,64 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                   : null,
               focus: focus,
               memory: _overviewMemory,
+              onOpen: _openLanding,
             ),
           ),
+          over: over,
         ),
       );
     } finally {
       _overviewOpen = false;
     }
-    if (!mounted || target == null) {
+  }
+
+  /// The themes a route pushed from here is drawn in: the walk's analysis
+  /// theme, which the app's own theme would otherwise replace, and every theme
+  /// between here and the navigator with it.
+  CapturedThemes _routeThemes() => InheritedTheme.capture(
+    from: context,
+    to: Navigator.of(context).context,
+  );
+
+  /// Opens [target] as a landing above the overview, and hands the overview
+  /// the records the reader asked for from there, if any.
+  Future<List<String>?> _openLanding(VariantTarget target) {
+    final CapturedThemes themes = _routeThemes();
+    // Taken now: the route's builder can run again long after this, and the
+    // landing is of the walk as it was when the link was followed.
+    final AnatomyScreen landing = AnatomyScreen._landing(
+      record: widget.record,
+      target: widget.target,
+      landing: target,
+      constraint: _constraint,
+      impact: _impact,
+      clinvar: _clinvar,
+      conservation: _conservation,
+      model: _model,
+      reading: _evidenceState,
+    );
+    return Navigator.of(context).push<List<String>>(
+      walkRoute<List<String>>(
+        context,
+        (BuildContext context) => themes.wrap(landing),
+      ),
+    );
+  }
+
+  /// Leaves a landing for the list under it, with [focus] for the list to open
+  /// on, or null — from the header — for the list as it was.
+  ///
+  /// Straight there, whatever the reader has opened since arriving: a plain
+  /// pop would only close the newest of those.
+  void _leave([List<String>? focus]) {
+    // Once on its way out it is no longer current, and a second tap in the
+    // same frame would take the list with it.
+    if (!(ModalRoute.of(context)?.isCurrent ?? false)) {
       return;
     }
-    // Armed at once, so the header says where Back goes while the walk is
-    // still travelling, and raised above whatever the landing opens once it
-    // has landed.
-    _addReturnHistory();
-    switch (target) {
-      case ResidueTarget(:final int number):
-        _goToResidue(number, landed: _raiseReturnHistory);
-      case BaseTarget(:final int position):
-        _goToBase(position, landed: _raiseReturnHistory);
-    }
+    _removeSheetHistory();
+    _removeSelectionHistory();
+    Navigator.of(context).pop<List<String>>(focus);
   }
 
   /// Gets the fold's one-time renderer work out of the way while the walk is
@@ -593,6 +717,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   }
 
   Future<void> _loadConstraint() async {
+    _constraintLoading = true;
     try {
       final ProteinConstraint data = await ProteinConstraint.load(
         widget.target,
@@ -610,6 +735,9 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       if (mounted) {
         setState(() => _constraintFailed = true);
       }
+    } finally {
+      _constraintLoading = false;
+      _arriveWaiting();
     }
   }
 
@@ -618,6 +746,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   /// there follows the tracer. There is no error to show because there is
   /// nothing the reader asked for that did not arrive.
   Future<void> _loadImpact() async {
+    _impactLoading = true;
     try {
       final GeneImpact data = await GeneImpact.load(widget.target);
       if (mounted) {
@@ -627,6 +756,18 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       // Left null, which is the same state as a gene that has no track.
     } on FlutterError {
       // What a missing asset throws, and an `Error` rather than an `Exception`.
+    } finally {
+      _impactLoading = false;
+      _arriveWaiting();
+    }
+  }
+
+  /// Opens what a landing is waiting on a track for, now that the track has
+  /// come — with its sheet — or has failed, when the page traces it instead.
+  void _arriveWaiting() {
+    if (_arrivalWaiting case final VariantTarget waiting when mounted) {
+      _arrivalWaiting = null;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _arrive(waiting));
     }
   }
 
@@ -646,6 +787,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       _constraint != null;
 
   void _clearMask() {
+    _sheetLanded = false;
     _dismissGeneration++;
     _reveal?.cancel();
     _mask.stop();
@@ -670,7 +812,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   }
 
   void _addSheetHistory() {
-    if (_sheetHistory != null) {
+    if (_sheetHistory != null || _sheetLanded) {
       return;
     }
     late final LocalHistoryEntry entry;
@@ -690,49 +832,6 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   void _removeSheetHistory() {
     final LocalHistoryEntry? entry = _sheetHistory;
     _sheetHistory = null;
-    entry?.remove();
-  }
-
-  /// Leaves the way back to the overview on top of the walk's own entries.
-  void _addReturnHistory() {
-    if (_returnHistory != null) {
-      return;
-    }
-    late final LocalHistoryEntry entry;
-    entry = LocalHistoryEntry(
-      impliesAppBarDismissal: false,
-      onRemove: () {
-        if (identical(_returnHistory, entry)) {
-          _returnHistory = null;
-          setState(() {});
-          // Not from inside the navigator's own pop.
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              unawaited(_openVariants());
-            }
-          });
-        }
-      },
-    );
-    _returnHistory = entry;
-    ModalRoute.of(context)?.addLocalHistoryEntry(entry);
-    setState(() {});
-  }
-
-  /// Puts the way back above whatever the landing opened — its sheet, an
-  /// intron's DNA — so that one Back undoes the whole jump.
-  void _raiseReturnHistory() {
-    if (!mounted || _returnHistory == null) {
-      return;
-    }
-    _removeReturnHistory();
-    _addReturnHistory();
-  }
-
-  /// Drops the way back without taking it.
-  void _removeReturnHistory() {
-    final LocalHistoryEntry? entry = _returnHistory;
-    _returnHistory = null;
     entry?.remove();
   }
 
@@ -799,17 +898,22 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   /// in place while comparing, the Back entry and the scroll that keeps the
   /// masked cell above the sheet are the same interaction either way. Only what
   /// the sheet then says differs.
-  void _selectCell(int? position) {
+  ///
+  /// A landing's [arrival] raises the sheet standing still, as the page it
+  /// opened on: see [_sheetLanded].
+  void _selectCell(int? position, {bool arrival = false}) {
     final AnatomyStage stage = _model.stages[_stage];
     final int index = position == null ? -1 : stage.cellAt(position);
     if (index < 0 || index == _maskedIndex) {
       unawaited(_dismissPanel());
       return;
     }
-    unawaited(HapticFeedback.selectionClick());
+    if (!arrival) {
+      unawaited(HapticFeedback.selectionClick());
+    }
     final bool comparing = _panelVisible;
     final bool wasClosing = _panelClosing;
-    final bool still = MediaQuery.disableAnimationsOf(context);
+    final bool still = arrival || MediaQuery.disableAnimationsOf(context);
     _reveal?.cancel();
     _dismissGeneration++;
     _panelClosing = false;
@@ -819,7 +923,11 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     setState(() {
       _maskedIndex = index;
       _tracer = Tracer(position!);
-      _addSheetHistory();
+      if (arrival) {
+        _sheetLanded = true;
+      } else {
+        _addSheetHistory();
+      }
       if (still || comparing) {
         _mask.value = 1;
         _showPanel(still);
@@ -828,7 +936,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       }
     });
     if (still || comparing) {
-      _keepMaskedResidueVisible();
+      _keepMaskedResidueVisible(animate: !arrival);
     } else {
       _reveal = Timer(const Duration(milliseconds: 300), () {
         if (mounted && _maskedIndex == index) {
@@ -935,6 +1043,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     return ImpactPanel(
       key: const ValueKey<String>('impact-panel'),
       impact: reading,
+      explanationTrack: impact.matchesRecord(widget.record) ? impact : null,
       observedEvidence: _clinvarBlock(position: position, scope: where),
       reported: _reported(
         _evidenceAt(position: position),
@@ -949,7 +1058,9 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       // number the page above is already calling it by. Counting from the
       // record's first base instead would put a third numbering on screen.
       address: where,
-      region: coding?.label ?? transcript?.label ?? 'gene',
+      // Written on the sheet, not in a sentence, so without its article:
+      // "signal peptide", "5′ UTR" — as the gene page writes them.
+      region: _written(coding?.label ?? transcript?.label ?? 'gene'),
       note: note,
       // The colour the grid draws this cell in, read the same way the painter
       // reads it: the coding role where there is one, because 5' UTR and CDS
@@ -970,12 +1081,17 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     );
   }
 
+  /// [label] as written on the thing it names rather than in a sentence:
+  /// without its article.
+  static String _written(String label) =>
+      label.toLowerCase().startsWith('the ') ? label.substring(4) : label;
+
   /// A base lifted out of an open region, and the inspector over it.
   ///
   /// The canvas owns the lift itself — the tile rises, and tapping it again
   /// sets it back down — so this only has to answer with the scores, on the
   /// same beat the masked pages use.
-  void _liftBase(int? cell) {
+  void _liftBase(int? cell, {bool arrival = false}) {
     final AnatomySelection? selection = _selection;
     if (cell == null || selection == null || cell >= selection.stage.count) {
       setState(() => _liftedBase = null);
@@ -985,7 +1101,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     final bool scored = _impact?.at(selection.stage.positionAt(cell)) != null;
     final bool comparing = _panelVisible;
     final bool wasClosing = _panelClosing;
-    final bool still = MediaQuery.disableAnimationsOf(context);
+    final bool still = arrival || MediaQuery.disableAnimationsOf(context);
     _reveal?.cancel();
     _dismissGeneration++;
     _panelClosing = false;
@@ -1000,10 +1116,15 @@ class _AnatomyScreenState extends State<AnatomyScreen>
         // still what it does.
         _panelVisible = false;
         _sheetReveal.value = 0;
+        _sheetLanded = false;
         _removeSheetHistory();
         return;
       }
-      _addSheetHistory();
+      if (arrival) {
+        _sheetLanded = true;
+      } else {
+        _addSheetHistory();
+      }
       if (still || comparing) {
         _showPanel(still);
       }
@@ -1101,13 +1222,18 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   /// a dozen real bases, and a translucent thing over data still hides it.
   static const double _paginatorBand = AppSpacing.sm + 48 + AppSpacing.lg;
 
+  /// The fade the stage bar sits on: the band, and a little above it.
+  static const double _fadeBand = _paginatorBand + AppSpacing.md;
+
+  /// How far up from the foot of the screen the stage bar reaches.
+  static const double _stageBarTop = AppSpacing.lg + StageBar.height;
+
   @override
   void dispose() {
     _removeSelectionHistory();
     _selectionProgress.dispose();
     _reveal?.cancel();
     _removeSheetHistory();
-    _removeReturnHistory();
     _sheet.removeListener(_sheetSizeChanged);
     _sheet.dispose();
     _sheetReveal.dispose();
@@ -1124,11 +1250,10 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     }
     if (old.record != widget.record) {
       _evidenceMemo = null;
-      // Another gene: its overview starts fresh, and there is no way back to
-      // this one's.
+      // Another gene: its overview starts fresh.
       _overviewMemory = VariantsOverviewMemory();
       _geneRunsMemo = null;
-      _removeReturnHistory();
+      _onLanded = null;
       _clearSelection();
       _model = AnatomyModel.derive(widget.record, chain: widget.target.chain);
       _stage = 0;
@@ -1159,6 +1284,8 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   }
 
   void _step(int delta) {
+    // A page the reader turns to is theirs: a jump still on its way is let go.
+    _onLanded = null;
     if (_selectionActive) {
       // Leave the inspection through its visible return action, a back gesture,
       // or a right swipe. A sideways slip while scrolling cannot skip mRNA.
@@ -1222,6 +1349,16 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     );
     _layoutMemo = (stage, _canvasViewport, layout);
     return layout;
+  }
+
+  /// Whether the page on screen runs on below [viewport] — the transcript, a
+  /// long gene, a long region's DNA — so that live cells pass under the stage
+  /// bar.
+  bool _scrolls(Size viewport) {
+    final AnatomyStage? stage = _shownStage;
+    return stage != null &&
+        !viewport.isEmpty &&
+        AnatomyLayout.heightFor(stage, viewport) > viewport.height;
   }
 
   /// Whether the page on screen is long enough to want a scrubber: more than
@@ -1445,27 +1582,43 @@ class _AnatomyScreenState extends State<AnatomyScreen>
         clinvarFailed: _clinvarFailed || (_clinvar != null && _evidence == null),
         onOpenVariants: _evidence == null
             ? null
-            : () => unawaited(_openVariants()),
+            : (Route<Object?> sheet) => unawaited(_openVariants(over: sheet)),
       ),
     );
   }
 
-  /// What to do once the page the reader was sent to has landed.
-  VoidCallback? _onLanded;
+  /// A jump waiting for the page it was sent to: that page, and what to do
+  /// there once the canvas has come to rest on it.
+  (int, VoidCallback)? _onLanded;
 
-  /// A base to lift once its region's DNA has opened.
-  int? _pendingLift;
+  /// A base to lift once its region's DNA has opened, and whether it is what a
+  /// landing was opened on (see [_arrive]).
+  (int, bool)? _pendingLift;
 
-  /// What to do once that base has been lifted, or could not be.
-  VoidCallback? _pendingLanded;
+  /// The gene page's scroll offset while one open region gives way to another.
+  /// [_openSelection] reads the offset it returns to off the scroll, which at
+  /// that moment is still the departing region's.
+  double? _geneScrollHold;
+
+  /// A landing's base waiting for the AVI track: without it the page can only
+  /// trace the base, not open its sheet.
+  VariantTarget? _arrivalWaiting;
+  bool _impactLoading = false;
+  bool _constraintLoading = false;
 
   /// Sends the reader to page [page] and runs [then] there — at once if the
-  /// page is already on screen, and otherwise when it has settled.
+  /// page is already on screen, and otherwise when the canvas reports it has
+  /// come to rest on it ([AnatomyCanvas.onSettled]). A newer jump, or the
+  /// reader turning to another page first, drops [then] unrun.
   void _goToPage(int page, VoidCallback then) {
     if (page < 0 || !mounted) {
       return;
     }
+    _onLanded = null;
     if (_selection != null) {
+      if (_selectionActive) {
+        _geneScrollHold = _geneScrollOffset;
+      }
       setState(() {
         _clearSelection();
         _tracer = null;
@@ -1475,60 +1628,104 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       then();
       return;
     }
-    _onLanded = then;
-    final int delta = page - _stage;
-    _step(delta);
-    // A neighbouring page animates in and settles through [_settled]; any
-    // other jump, or any jump with motion reduced, lands at once.
-    if (delta.abs() != 1 || MediaQuery.disableAnimationsOf(context)) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _land());
-    }
+    _step(page - _stage);
+    _onLanded = (page, then);
   }
 
-  void _land() {
-    final VoidCallback? then = _onLanded;
+  /// Runs the waiting jump if the canvas has come to rest on its page.
+  void _land(int stage) {
+    final (int, VoidCallback)? pending = _onLanded;
     _onLanded = null;
-    if (mounted) {
-      then?.call();
+    if (mounted && pending != null && pending.$1 == stage && stage == _stage) {
+      pending.$2();
     }
   }
 
   /// Takes the reader to residue [number] of the precursor, and opens it.
-  ///
-  /// [landed] runs once the residue's sheet is up.
-  void _goToResidue(int number, {VoidCallback? landed}) => _goToPage(
+  void _goToResidue(int number) => _goToPage(
     _model.stages.indexWhere((AnatomyStage s) => s.kind == StageKind.protein),
-    () {
-      _revealCell(StageKind.protein, (AnatomyStage stage) => number - 1);
-      landed?.call();
-    },
+    () => _revealCell(StageKind.protein, (AnatomyStage stage) => number - 1),
   );
 
   /// Takes the reader to base [position] and opens it: on the mRNA page where
   /// the transcript has it, and otherwise inside its region's DNA, which is
   /// the only place an intron's bases are drawn.
-  ///
-  /// [landed] runs once the base's sheet is up, or the region is as close as
-  /// the page can get.
-  void _goToBase(int position, {VoidCallback? landed}) {
+  void _goToBase(int position) {
+    final int mrna = _mrnaHolding(position);
+    if (mrna >= 0) {
+      _goToPage(
+        mrna,
+        () => _revealCell(
+          StageKind.mrna,
+          (AnatomyStage stage) => stage.cellAt(position),
+        ),
+      );
+      return;
+    }
+    _goToPage(0, () => _openRegionAt(position));
+  }
+
+  /// The mRNA page, where it draws [position]; otherwise -1. An intron's base,
+  /// or one outside the transcript, is drawn only in its region's DNA.
+  int _mrnaHolding(int position) {
     final int mrna = _model.stages.indexWhere(
       (AnatomyStage s) => s.kind == StageKind.mrna,
     );
-    if (mrna >= 0 && _model.stages[mrna].cellAt(position) >= 0) {
-      _goToPage(mrna, () {
+    return mrna >= 0 && _model.stages[mrna].cellAt(position) >= 0 ? mrna : -1;
+  }
+
+  /// The page a landing opens on.
+  int _pageOf(VariantTarget target) => math.max(0, switch (target) {
+    ResidueTarget() => _model.stages.indexWhere(
+      (AnatomyStage s) => s.kind == StageKind.protein,
+    ),
+    BaseTarget(:final int position) => _mrnaHolding(position),
+  });
+
+  /// Opens what a landing was opened on, standing still — the route's slide is
+  /// the motion — and as the page it is, not a layer over it: see
+  /// [_sheetLanded].
+  void _arrive(VariantTarget landing) {
+    if (!mounted) {
+      return;
+    }
+    if ((landing is BaseTarget && _impact == null && _impactLoading) ||
+        (landing is ResidueTarget &&
+            _constraint == null &&
+            _constraintLoading)) {
+      _arrivalWaiting = landing;
+      return;
+    }
+    switch (landing) {
+      case ResidueTarget(:final int number):
+        _revealCell(
+          StageKind.protein,
+          (AnatomyStage stage) => number - 1,
+          arrival: true,
+        );
+      case BaseTarget(:final int position)
+          when _model.stages[_stage].kind == StageKind.mrna:
         _revealCell(
           StageKind.mrna,
           (AnatomyStage stage) => stage.cellAt(position),
+          arrival: true,
         );
-        landed?.call();
-      });
-      return;
+      case BaseTarget(:final int position):
+        _openRegionAt(position, arrival: true);
     }
-    _goToPage(0, () => _openRegionAt(position, landed: landed));
   }
 
   /// Scrolls the page's cell into view and selects it, which opens its sheet.
-  void _revealCell(StageKind kind, int Function(AnatomyStage) cellOf) {
+  ///
+  /// Selects and never lets go: a page with no track to open a sheet from
+  /// traces the cell instead, and a second tap on the same codon — which is
+  /// what [_select] would make of it — would have cleared a trace the reader
+  /// was sent to.
+  void _revealCell(
+    StageKind kind,
+    int Function(AnatomyStage) cellOf, {
+    bool arrival = false,
+  }) {
     if (!mounted) {
       return;
     }
@@ -1556,14 +1753,17 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       // Already the open subject; selecting it again would close it.
       return;
     }
-    _select(position);
+    if (_supportsConstraint(stage) || _supportsImpact(stage)) {
+      _selectCell(position, arrival: arrival);
+    } else {
+      setState(() => _tracer = Tracer(position));
+    }
   }
 
   /// Selects the gene region around [position], opens its DNA and, once it
   /// has opened, lifts that base — the reader asked for this base by name.
-  void _openRegionAt(int position, {VoidCallback? landed}) {
+  void _openRegionAt(int position, {bool arrival = false}) {
     if (!mounted || _stage != 0) {
-      landed?.call();
       return;
     }
     setState(() {
@@ -1572,49 +1772,42 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       _tracer = Tracer(position, asRun: true);
       _prepareSelection(position);
     });
-    _pendingLift = position;
-    _pendingLanded = landed;
-    _openSelection();
+    _pendingLift = (position, arrival);
+    _openSelection(arrival: arrival);
   }
 
   void _liftPending() {
-    final int? position = _pendingLift;
-    final VoidCallback? landed = _pendingLanded;
+    final (int, bool)? pending = _pendingLift;
     _pendingLift = null;
-    _pendingLanded = null;
-    try {
-      final AnatomySelection? selection = _selection;
-      if (!mounted ||
-          position == null ||
-          selection == null ||
-          !_selectionActive) {
-        return;
-      }
-      // A shortened intron keeps only its ends; a base from its middle is not
-      // drawn, and the open region is as close as the page can get.
-      final int cell = selection.stage.cellAt(position);
-      if (cell < 0) {
-        return;
-      }
-      final AnatomyLayout? layout = _shownLayout();
-      if (layout != null && _scroll.hasClients) {
-        final double y = layout.centreOf(cell).dy + _canvasInset;
-        _scroll.jumpTo(
-          (y - _canvasViewport.height * 0.3).clamp(
-            0.0,
-            _scroll.position.maxScrollExtent,
-          ),
-        );
-      }
-      _liftBase(cell);
-    } finally {
-      landed?.call();
+    final AnatomySelection? selection = _selection;
+    if (!mounted || pending == null || selection == null || !_selectionActive) {
+      return;
     }
+    final (int position, bool arrival) = pending;
+    // A shortened intron keeps only its ends; a base from its middle is not
+    // drawn, and the open region is as close as the page can get.
+    final int cell = selection.stage.cellAt(position);
+    if (cell < 0) {
+      return;
+    }
+    final AnatomyLayout? layout = _shownLayout();
+    if (layout != null && _scroll.hasClients) {
+      final double y = layout.centreOf(cell).dy + _canvasInset;
+      _scroll.jumpTo(
+        (y - _canvasViewport.height * 0.3).clamp(
+          0.0,
+          _scroll.position.maxScrollExtent,
+        ),
+      );
+    }
+    _liftBase(cell, arrival: arrival);
   }
 
-  void _settled(double offset) {
-    _restoreScroll(offset);
-    _land();
+  void _settled(int stage, double offset) {
+    if (stage == _stage) {
+      _restoreScroll(offset);
+    }
+    _land(stage);
   }
 
   /// Copies the page's sequence as FASTA, or says why there is none to copy.
@@ -1796,9 +1989,11 @@ class _AnatomyScreenState extends State<AnatomyScreen>
             onWholeGene: _selectionActive
                 ? () => unawaited(_returnToGene())
                 : null,
-            onReturn: _returnHistory == null
+            // Only while Back goes to the list: a region the reader opened in
+            // a landing is closed first, and says so.
+            onReturn: widget.landing == null || _selectionHistory != null
                 ? null
-                : () => _returnHistory?.remove(),
+                : _leave,
             liftedBase: _liftedStatus != null,
           ),
           body: SafeArea(
@@ -1823,6 +2018,21 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                     (_sheet.isAttached
                         ? _sheet.size
                         : ConstraintPanel.initialSize);
+                // The box a grid page is drawn in, as the canvas below works
+                // it out.
+                final Size page = Size(
+                  bounds.maxWidth,
+                  math.max(
+                    0,
+                    bounds.maxHeight -
+                        _canvasInset -
+                        _paginatorBand -
+                        (constraintEnabled ? ConstraintToolbar.height : 0),
+                  ),
+                );
+                // A residue page ends at its toolbar; only the others pass
+                // under the stage bar.
+                final bool scrolls = !constraintEnabled && _scrolls(page);
                 return Listener(
                   onPointerDown: (PointerDownEvent event) {
                     _swipeOrigin = event.position;
@@ -1937,7 +2147,8 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                                         // The band again, at the end of the scroll: the
                                         // transcript page runs past the bottom of the screen,
                                         // and its last row has to clear the pill the same way a
-                                        // fitted stage's does. A residue page's scroll already
+                                        // fitted stage's does — and, since it scrolls, the fade
+                                        // above the pill too. A residue page's scroll already
                                         // stops above the band, so it only clears the panel.
                                         SizedBox(
                                           height: constraintEnabled
@@ -1947,7 +2158,9 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                                               // Room for a base near the
                                               // end to rise above an open
                                               // sheet, as a residue can.
-                                              : _paginatorBand +
+                                              : (scrolls
+                                                        ? _fadeBand
+                                                        : _paginatorBand) +
                                                     (_panelVisible
                                                         ? _panelHeight
                                                         : 0),
@@ -1958,20 +2171,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                                 );
                               },
                         ),
-                        if (_scrubs(
-                          Size(
-                            bounds.maxWidth,
-                            math.max(
-                              0,
-                              bounds.maxHeight -
-                                  _canvasInset -
-                                  _paginatorBand -
-                                  (constraintEnabled
-                                      ? ConstraintToolbar.height
-                                      : 0),
-                            ),
-                          ),
-                        ))
+                        if (_scrubs(page))
                           Positioned(
                             right: 0,
                             top: _canvasInset,
@@ -2005,13 +2205,6 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                               ),
                             ),
                           ),
-                        if (_constraintFailed &&
-                            stage?.kind == StageKind.protein)
-                          const Positioned(
-                            top: 0,
-                            left: 16,
-                            child: Text('Constraint scores unavailable'),
-                          ),
                         // The one page that scrolls is the one page the band cannot keep
                         // clear: the transcript is about twice a phone, so at most
                         // offsets there are live bases passing under the pill however
@@ -2020,13 +2213,18 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                         // to sit on, and the edge of a page that continues below the
                         // screen stops pretending to be the end of it. On every fitted
                         // stage it falls on empty background and is invisible.
+                        //
+                        // Where the page does pass under it, it is solid from the
+                        // stage bar's top edge down. Solid only at 0.65 of the way,
+                        // it left the letters behind the stage names a third visible.
                         Positioned(
                           left: 0,
                           right: 0,
                           bottom: 0,
-                          height: _paginatorBand + AppSpacing.md,
+                          height: _fadeBand,
                           child: IgnorePointer(
                             child: DecoratedBox(
+                              key: const ValueKey<String>('stage-bar-fade'),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   begin: Alignment.topCenter,
@@ -2035,7 +2233,13 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                                     ground.withValues(alpha: 0),
                                     ground,
                                   ],
-                                  stops: const <double>[0, 0.65],
+                                  stops: scrolls
+                                      ? const <double>[
+                                          0,
+                                          (_fadeBand - _stageBarTop) /
+                                              _fadeBand,
+                                        ]
+                                      : const <double>[0, 0.65],
                                 ),
                               ),
                             ),
@@ -2265,8 +2469,9 @@ class _Header extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onOpenDna;
   final VoidCallback? onWholeGene;
 
-  /// Back to the ClinVar overview a record's link came from. It stands where
-  /// "Whole gene" would, ahead of it, because Back goes there first.
+  /// Back to the ClinVar overview under a landing. It stands where "Whole gene"
+  /// would, ahead of it, whenever Back goes to the list: the header names
+  /// where Back goes.
   final VoidCallback? onReturn;
 
   /// Whether the status is a base lifted out of an open region.
@@ -2367,6 +2572,8 @@ class _Header extends StatelessWidget implements PreferredSizeWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      // Its own mark, not the name's last letter.
+                      const SizedBox(width: 4),
                       Icon(
                         Icons.info_outline,
                         size: 14,
@@ -2501,6 +2708,11 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
   /// out otherwise. The gap is what makes them two things.
   static const double _gap = 4;
 
+  /// How far in from the right edge a tap opens the selected region's DNA:
+  /// the pill, the gutter beside it and a little to its left, down the whole
+  /// strip.
+  static const double _openDnaReach = 88;
+
   @override
   Size get preferredSize => Size.fromHeight(height * textScale);
 
@@ -2518,83 +2730,124 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
           '${tracer?.line ?? chrome.sentence}'
           '${below == null ? '' : ' $below'}',
       excludeSemantics: true,
+      // The strip is read as one, which folds the pill's own button into it;
+      // the one thing here that can be pressed is offered on it instead.
+      customSemanticsActions: onOpenDna == null
+          ? null
+          : <CustomSemanticsAction, VoidCallback>{
+              const CustomSemanticsAction(label: _OpenDnaAction.spoken):
+                  onOpenDna!,
+            },
       child: SizedBox(
         height: height * textScale,
         width: double.infinity,
-        child: Padding(
-          // Sixteen, not the screen's twenty-four: the block is one line of
-          // prose held to one or two lines, and the eight points either side
-          // are the difference between the longest sentence fitting and being
-          // cut off mid-clause.
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-          // The heights above are reserved, not measured, so a reader who has
-          // turned type up would overflow them. Clamped rather than allowed to
-          // resize the header, because the canvas is sized off what the header
-          // leaves and a header that moves moves the picture.
-          child: MediaQuery.withClampedTextScaling(
-            maxScaleFactor: 1.2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Row(
+        child: Stack(
+          fit: StackFit.expand,
+          children: <Widget>[
+            // A tap beside the pill is a tap on it: the pill is 24 points tall
+            // in a strip of 52, and nothing else here answers a tap. Laid under
+            // the prose, which lets taps through, and under the pill, which
+            // keeps its own.
+            if (onOpenDna != null)
+              Positioned(
+                top: 0,
+                right: 0,
+                bottom: 0,
+                width: _openDnaReach,
+                child: GestureDetector(
+                  key: const ValueKey<String>('open-dna-reach'),
+                  behavior: HitTestBehavior.opaque,
+                  excludeFromSemantics: true,
+                  onTap: onOpenDna,
+                ),
+              ),
+            Padding(
+              // Sixteen, not the screen's twenty-four: the block is one line
+              // of prose held to one or two lines, and the eight points either
+              // side are the difference between the longest sentence fitting
+              // and being cut off mid-clause.
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              // The heights above are reserved, not measured, so a reader who
+              // has turned type up would overflow them. Clamped rather than
+              // allowed to resize the header, because the canvas is sized off
+              // what the header leaves and a header that moves moves the
+              // picture.
+              child: MediaQuery.withClampedTextScaling(
+                maxScaleFactor: 1.2,
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        // While a base is traced its fate replaces the generic
-                        // line. Nothing else on the screen moves — no panel, no
-                        // reflow.
-                        tracer?.line ?? chrome.sentence,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontSize: _lineSize,
-                          height: _lineHeight,
-                          color: tracer == null
-                              ? theme.colorScheme.onSurfaceVariant
-                              : theme.colorScheme.onSurface,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Expanded(
+                          child: IgnorePointer(
+                            child: Text(
+                              // While a base is traced its fate replaces the
+                              // generic line. Nothing else on the screen moves
+                              // — no panel, no reflow.
+                              tracer?.line ?? chrome.sentence,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontSize: _lineSize,
+                                height: _lineHeight,
+                                color: tracer == null
+                                    ? theme.colorScheme.onSurfaceVariant
+                                    : theme.colorScheme.onSurface,
+                              ),
+                              maxLines: tracer == null ? 2 : 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                         ),
-                        maxLines: tracer == null ? 2 : 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                        if (onOpenDna != null)
+                          _OpenDnaAction(
+                            key: const ValueKey<String>('open-dna'),
+                            accent: accent,
+                            // What has just been named. A second region picked
+                            // without letting go of the first keeps the action
+                            // on screen, and it should announce itself again.
+                            flashOn: tracer?.line,
+                            onTap: onOpenDna!,
+                          ),
+                      ],
                     ),
-                    if (onOpenDna != null)
-                      _OpenDnaAction(
-                        key: const ValueKey<String>('open-dna'),
-                        accent: accent,
-                        // What has just been named. A second region picked
-                        // without letting go of the first keeps the action on
-                        // screen, and it should announce itself again.
-                        flashOn: tracer?.line,
-                        onTap: onOpenDna!,
+                    // What the feature is, under what it is called. Only ever
+                    // shown for a selection: with nothing traced the stage's
+                    // own sentence is already the general statement, and a
+                    // second one under it would be two voices saying the same
+                    // thing.
+                    if (below != null) ...<Widget>[
+                      const SizedBox(height: _gap),
+                      IgnorePointer(
+                        child: Text(
+                          below,
+                          style: AppTypography.anatomyNote(
+                            theme.colorScheme.onSurfaceVariant,
+                          ).copyWith(fontSize: _noteSize, height: _noteHeight),
+                          // One line beside the DNA pill, two without it.
+                          // [height] buys a line and two notes at the line's
+                          // own height, and the pill is 24 points of tap target
+                          // on a 16-point line — eight points it has been
+                          // quietly taking out of the second note line since it
+                          // was added. Nothing reached two lines there until a
+                          // tapped run started answering with what it scores;
+                          // this is the strip refusing to overflow rather than
+                          // the header growing to 100 and breaking its budget.
+                          //
+                          // A hint is one line too: it sits under a sentence
+                          // that may itself take two, and the strip does not
+                          // grow.
+                          maxLines: onOpenDna == null && hint == null ? 2 : 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
+                    ],
                   ],
                 ),
-                // What the feature is, under what it is called. Only ever shown
-                // for a selection: with nothing traced the stage's own sentence
-                // is already the general statement, and a second one under it
-                // would be two voices saying the same thing.
-                if (below != null) ...<Widget>[
-                  const SizedBox(height: _gap),
-                  Text(
-                    below,
-                    style: AppTypography.anatomyNote(
-                      theme.colorScheme.onSurfaceVariant,
-                    ).copyWith(fontSize: _noteSize, height: _noteHeight),
-                    // One line beside the DNA pill, two without it. [height]
-                    // buys a line and two notes at the line's own height, and
-                    // the pill is 24 points of tap target on a 16-point line —
-                    // eight points it has been quietly taking out of the second
-                    // note line since it was added. Nothing reached two lines
-                    // there until a tapped run started answering with what it
-                    // scores; this is the strip refusing to overflow rather
-                    // than the header growing to 100 and breaking its budget.
-                    maxLines: onOpenDna == null ? 2 : 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -2636,6 +2889,9 @@ class _OpenDnaAction extends StatefulWidget {
   /// The tint the pill settles at, and the one it arrives on.
   static const double _rest = 0.12;
   static const double _flash = 0.28;
+
+  /// What it is called aloud, here and on the strip that carries it.
+  static const String spoken = 'Open the selected region as DNA';
 
   @override
   State<_OpenDnaAction> createState() => _OpenDnaActionState();
@@ -2690,7 +2946,7 @@ class _OpenDnaActionState extends State<_OpenDnaAction>
     final ThemeData theme = Theme.of(context);
     return Semantics(
       button: true,
-      label: 'Open the selected region as DNA',
+      label: _OpenDnaAction.spoken,
       excludeSemantics: true,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,

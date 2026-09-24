@@ -64,6 +64,13 @@ class SourcesNote extends StatelessWidget {
               'change it overlaps ESM rather than confirming it.',
         ),
         paragraph(
+          'AVI contributions',
+          'Where included, the three largest signed contributions explain '
+              'the exact substitution’s raw AVI score across available genes '
+              'and biosamples. They are not percentages or independent evidence. '
+              'Details stay available offline.',
+        ),
+        paragraph(
           'ClinVar',
           !included
               ? 'Not yet included for this gene.'

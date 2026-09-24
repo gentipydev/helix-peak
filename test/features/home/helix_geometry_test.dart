@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/features/home/presentation/widgets/helix_geometry.dart';
+import 'package:helixpeek/features/home/presentation/widgets/helix_geometry.dart';
 
 double _gap(HelixModel model, int i, int j) {
   final double dx = model.pointCos[i] - model.pointCos[j];

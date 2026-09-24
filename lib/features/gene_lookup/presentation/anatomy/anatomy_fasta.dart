@@ -64,6 +64,28 @@ abstract final class AnatomyFasta {
     );
   }
 
+  /// The proprotein its page draws, numbered as the precursor numbers it.
+  ///
+  /// Its page used to copy the whole precursor under a toast that gave the
+  /// proprotein's length: the reader was told one sequence and handed another.
+  static String? proprotein(AnatomyModel model, ProteinTarget target) {
+    final AnatomyStage? stage = _stage(model, StageKind.proprotein);
+    final AnatomyStage? precursor = _stage(model, StageKind.protein);
+    if (stage == null || stage.count == 0) {
+      return null;
+    }
+    final int first = precursor?.cellAt(stage.positionAt(0)) ?? -1;
+    final int last =
+        precursor?.cellAt(stage.positionAt(stage.count - 1)) ?? -1;
+    final String span = first < 0 || last < 0
+        ? ''
+        : ' precursor ${first + 1}-${last + 1}';
+    return _entry(
+      '${target.gene} ${target.uniprot} proprotein$span',
+      stage.letters,
+    );
+  }
+
   /// Each chain the precursor is cut into, one entry apiece.
   static String? chains(AnatomyModel model, ProteinTarget target) {
     final AnatomyStage? stage = _stage(model, StageKind.maturePeptides);
@@ -127,7 +149,8 @@ abstract final class AnatomyFasta {
   ) => switch (stage.kind) {
     StageKind.gene => gene(model, target),
     StageKind.mrna => mrna(model, target),
-    StageKind.protein || StageKind.proprotein => protein(model, target),
+    StageKind.protein => protein(model, target),
+    StageKind.proprotein => proprotein(model, target),
     StageKind.maturePeptides => chains(model, target),
     StageKind.dna => null,
   };

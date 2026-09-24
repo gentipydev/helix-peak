@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/widgets/app_logo.dart';
 
 class Wordmark extends StatelessWidget {
   const Wordmark({super.key});
@@ -14,20 +15,26 @@ class Wordmark extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        Text.rich(
-          TextSpan(
-            children: <TextSpan>[
-              TextSpan(
-                text: 'HELIX',
-                style: AppTypography.wordmark(theme.colorScheme.onSurface),
-              ),
-              TextSpan(
-                text: 'PEAK',
-                style: AppTypography.wordmark(theme.colorScheme.primary),
-              ),
-            ],
+        const AppLogo(excludeFromSemantics: true),
+        const SizedBox(height: AppSpacing.lg),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text.rich(
+            TextSpan(
+              children: <TextSpan>[
+                TextSpan(
+                  text: 'HELIX',
+                  style: AppTypography.wordmark(theme.colorScheme.onSurface),
+                ),
+                TextSpan(
+                  text: 'PEEK',
+                  style: AppTypography.wordmark(theme.colorScheme.primary),
+                ),
+              ],
+            ),
+            textAlign: TextAlign.center,
+            semanticsLabel: AppConstants.appName,
           ),
-          textAlign: TextAlign.center,
         ),
         const SizedBox(height: AppSpacing.sm),
         Text(

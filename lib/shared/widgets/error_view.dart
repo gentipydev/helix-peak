@@ -7,6 +7,8 @@ class ErrorView extends StatelessWidget {
     required this.message,
     this.onRetry,
     this.title = 'Analysis failed',
+    this.action = 'Try again',
+    this.actionIcon = Icons.refresh_rounded,
     super.key,
   });
 
@@ -14,6 +16,11 @@ class ErrorView extends StatelessWidget {
   final String title;
 
   final VoidCallback? onRetry;
+
+  /// What the button says it does. A button that navigates somewhere else
+  /// says where, rather than promising a second try it will not make.
+  final String action;
+  final IconData actionIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -51,8 +58,8 @@ class ErrorView extends StatelessWidget {
               const SizedBox(height: AppSpacing.xl),
               OutlinedButton.icon(
                 onPressed: onRetry,
-                icon: const Icon(Icons.refresh_rounded, size: 18),
-                label: const Text('Try again'),
+                icon: Icon(actionIcon, size: 18),
+                label: Text(action),
               ),
             ],
           ],

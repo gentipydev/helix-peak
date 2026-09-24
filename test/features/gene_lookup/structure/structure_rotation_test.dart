@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter_scene/scene.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/structure/structure_rotation.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/structure/structure_rotation.dart';
 import 'package:vector_math/vector_math.dart' as vm;
 
 const Size _viewport = Size(390, 600);

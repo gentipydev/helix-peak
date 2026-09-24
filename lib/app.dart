@@ -5,8 +5,8 @@ import 'core/constants/app_constants.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 
-class HelixPeakApp extends StatelessWidget {
-  const HelixPeakApp({super.key});
+class HelixPeekApp extends StatelessWidget {
+  const HelixPeekApp({super.key});
 
   @override
   Widget build(BuildContext context) {

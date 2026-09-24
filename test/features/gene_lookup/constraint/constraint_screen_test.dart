@@ -6,15 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/core/theme/app_theme.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_catalog.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_constraint.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_target.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/constraint/constraint_panel.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/constraint/constraint_toolbar.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/format.dart';
+import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_panel.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_toolbar.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/format.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/inspector/score_bar.dart';
 
 import '../anatomy/anatomy_fixture.dart';
 
@@ -173,7 +174,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(_painter(tester).constraint, isNull);
     expect(find.byType(ConstraintToolbar), findsNothing);
-    expect(find.text('Constraint scores unavailable'), findsNothing);
+    expect(find.text('ESM-2 scores unavailable'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
@@ -527,6 +528,40 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets('the scale says it is clamped at both ends, over the bars', (
+    WidgetTester tester,
+  ) async {
+    // A narrow phone with type turned up is where the two ends meet: there
+    // they are drawn smaller rather than run past the bars.
+    for (final (Size size, double scale) in <(Size, double)>[
+      (const Size(390, 844), 1),
+      (const Size(360, 800), 1.3),
+      (const Size(320, 640), 1.5),
+    ]) {
+      await _open(tester, reduced: true, size: size, textScale: scale);
+      await _tap(tester, 30);
+      await tester.pumpAndSettle();
+      final String at = '$size at $scale';
+      expect(find.text('−10 or lower'), findsOneWidget, reason: at);
+      final Rect bar = tester.getRect(
+        find
+            .descendant(of: find.byType(ScoreBar), matching: find.byType(Stack))
+            .first,
+      );
+      expect(
+        tester.getRect(find.text('−10 or lower')).left,
+        closeTo(bar.left, 1),
+        reason: at,
+      );
+      expect(
+        tester.getRect(find.text('0 or higher')).right,
+        closeTo(bar.right, 1),
+        reason: at,
+      );
+      expect(tester.takeException(), isNull, reason: at);
+    }
+  });
 
   testWidgets('conservation only changes fills; all twenty scores expand', (
     WidgetTester tester,

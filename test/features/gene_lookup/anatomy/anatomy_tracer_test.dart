@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_tracer.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_tracer.dart';
 
 import 'anatomy_fixture.dart';
 
@@ -55,9 +55,9 @@ void main() {
       expect(TracerReader.cutAt(model, const Tracer(4986)), 2);
       expect(
         linesFor(4986)[2],
-        "removed with the 5' UTR · 59 bp",
+        'removed with the 5′ UTR · 59 bp',
       );
-      expect(linesFor(6416)[2], 'removed with the 3\' UTR · 73 bp');
+      expect(linesFor(6416)[2], 'removed with the 3′ UTR · 73 bp');
 
       // The stop codon is spent, not discarded.
       expect(linesFor(6341)[2], 'read as the stop codon · 3 bp');
@@ -212,7 +212,7 @@ void main() {
 
     test('states a fact about what was tapped', () {
       final TracerStatus utr = select(4986);
-      expect(utr.line, startsWith("the 5' UTR"));
+      expect(utr.line, startsWith('the 5′ UTR'));
       expect(utr.note, 'Kozak TCTGCC ATG G');
 
       final TracerStatus intron = select(6000);
@@ -226,7 +226,7 @@ void main() {
 
     test('both halves of a split feature give the same note', () {
       // 4,986 is the 42 bases in exon 1; 5,207 the 17 in exon 2.
-      expect(select(5207).line, startsWith("the 5' UTR"));
+      expect(select(5207).line, startsWith('the 5′ UTR'));
       expect(select(5207).note, select(4986).note);
     });
 

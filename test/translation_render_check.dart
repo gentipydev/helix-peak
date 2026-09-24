@@ -5,11 +5,11 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/core/theme/app_theme.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_catalog.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
 
 import 'features/gene_lookup/anatomy/anatomy_fixture.dart';
 

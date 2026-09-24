@@ -29,7 +29,7 @@ Future<void> showRecordSheet({
   bool impactScored = false,
   GeneClinVar? clinvar,
   bool clinvarFailed = false,
-  VoidCallback? onOpenVariants,
+  ValueChanged<Route<Object?>>? onOpenVariants,
 }) => showModalBottomSheet<void>(
   context: context,
   isScrollControlled: true,
@@ -69,7 +69,10 @@ class _RecordSheet extends StatefulWidget {
   /// The snapshot, where one is loaded and matches the record.
   final GeneClinVar? clinvar;
   final bool clinvarFailed;
-  final VoidCallback? onOpenVariants;
+
+  /// Opens every record over this sheet, which is handed over rather than
+  /// closed first: the list rises over it, and takes it away once covered.
+  final ValueChanged<Route<Object?>>? onOpenVariants;
 
   @override
   State<_RecordSheet> createState() => _RecordSheetState();
@@ -231,7 +234,8 @@ class _RecordSheetState extends State<_RecordSheet> {
                   ],
                 ),
               ),
-            if (widget.onOpenVariants case final VoidCallback open)
+            if (widget.onOpenVariants
+                case final ValueChanged<Route<Object?>> open)
               Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: OutlinedButton(
@@ -242,10 +246,7 @@ class _RecordSheetState extends State<_RecordSheet> {
                       horizontal: AppSpacing.md,
                     ),
                   ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    open();
-                  },
+                  onPressed: () => open(ModalRoute.of(context)!),
                   child: Text(
                     'ClinVar records · ${grouped(widget.clinvar?.variants.length ?? 0)} ›',
                   ),

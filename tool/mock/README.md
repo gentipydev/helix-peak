@@ -3,20 +3,20 @@
 Twenty records, one per protein, each of them exactly what the backend's
 `GET /gene/{id}/{gene}` answers — because the parsing *is* the backend's:
 `build_gene_record.py` imports `app.genbank_parser.extract_gene` from
-`../helix-peak-backend` rather than reimplementing it. A fixture that parses
+`../helix-peek-backend` rather than reimplementing it. A fixture that parses
 through a different parser is a fixture that can drift from the contract it
 stands in for.
 
 ```sh
 NCBI_EMAIL=you@example.com \
-  ../helix-peak-backend/.venv/bin/python tool/mock/build_gene_record.py --target leptin
+  ../helix-peek-backend/.venv/bin/python tool/mock/build_gene_record.py --target leptin
 ```
 
 `--all` rebuilds every record from whatever NCBI serves today, so a new
 protein is baked with `--target`, which leaves the others byte for byte.
 
 The backend's venv, because that is where biopython is. Fetched flat files are
-cached under `$HELIXPEAK_GB_CACHE` (a temp directory by default), which is not
+cached under `$HELIXPEEK_GB_CACHE` (a temp directory by default), which is not
 politeness alone: dystrophin's RefSeqGene is 2.2 Mb of GenBank.
 
 ## The gates

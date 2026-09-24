@@ -1,17 +1,21 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/core/theme/app_theme.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/gene_impact.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_catalog.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_target.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_selection_canvas.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/inspector/impact_panel.dart';
+import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/gene_impact.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_selection_canvas.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/inspector/impact_panel.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/inspector/score_bar.dart';
 
 import '../anatomy/anatomy_fixture.dart';
 
@@ -59,9 +63,13 @@ final ProteinTarget _untracked = ProteinTarget(
 );
 
 /// Opens insulin's mRNA page, which is one swipe from the gene.
+///
+/// With a [constraint], a coding base's codon line opens its residue: the
+/// bundled track is too large to load in a widget test, so it is handed in.
 Future<void> _openTranscript(
   WidgetTester tester, {
   GeneImpact? track,
+  ProteinConstraint? constraint,
   Size size = const Size(390, 844),
 }) async {
   await tester.binding.setSurfaceSize(size);
@@ -73,6 +81,7 @@ Future<void> _openTranscript(
         target: ProteinCatalog.insulin,
         record: insulin(),
         impact: track ?? _track,
+        constraint: constraint,
       ),
     ),
   );
@@ -88,6 +97,25 @@ Future<void> _openTranscript(
 Offset _cell(WidgetTester tester, int index) =>
     tester.getRect(_paintBox).topLeft +
     _painter(tester).scene.fromLayout.centreOf(index);
+
+/// The WCAG contrast ratio between two colours, one to twenty-one.
+double _contrast(Color a, Color b) {
+  final double x = a.computeLuminance();
+  final double y = b.computeLuminance();
+  return (math.max(x, y) + 0.05) / (math.min(x, y) + 0.05);
+}
+
+/// The base sheet's letter tile: its fill, and the ink its letter is set in.
+(Color, Color) _tile(WidgetTester tester) {
+  final Finder tile = find.byKey(const ValueKey<String>('impact-tile'));
+  final Color fill =
+      (tester.widget<Container>(tile).decoration! as BoxDecoration).color!;
+  final Color ink = tester
+      .widget<Text>(find.descendant(of: tile, matching: find.byType(Text)))
+      .style!
+      .color!;
+  return (fill, ink);
+}
 
 /// Taps a cell and waits out the 300 ms masking beat.
 Future<void> _tapCell(WidgetTester tester, int index) async {
@@ -173,6 +201,98 @@ void main() {
       find.byKey(ValueKey<String>('impact-score-${panel.impact.wildtype}')),
       findsNothing,
     );
+  });
+
+  testWidgets('every bar in the sheet is drawn on the one scale', (
+    WidgetTester tester,
+  ) async {
+    await _openTranscript(tester);
+    await _tapCell(tester, 30);
+    final ImpactPanel panel = tester.widget<ImpactPanel>(_panel);
+    // Insulin's substitutions open their explanations, so each row ends in a
+    // chevron — and the reference and the scale keep the chevron's column too.
+    for (final AltScore score in panel.impact.ranked) {
+      expect(
+        find.byKey(ValueKey<String>('impact-explain-${score.base}')),
+        findsOneWidget,
+      );
+    }
+    final List<Rect> tracks = <Rect>[
+      for (final Element bar in find
+          .descendant(of: find.byType(ScoreBar), matching: find.byType(Stack))
+          .evaluate())
+        tester.getRect(find.byElementPredicate((Element e) => e == bar)),
+    ];
+    expect(tracks, hasLength(4), reason: 'three substitutions and the WT');
+    for (final Rect track in tracks) {
+      expect(track.left, tracks.first.left);
+      expect(track.right, tracks.first.right);
+    }
+    // The scale's high end stands over the bars' end.
+    expect(
+      tester
+          .getRect(find.byKey(const ValueKey<String>('impact-scale-end')))
+          .right,
+      closeTo(tracks.first.right, 1),
+    );
+    // And every row is the one height, the reference's included.
+    for (final AltScore score in panel.impact.ranked) {
+      expect(
+        tester
+            .getSize(find.byKey(ValueKey<String>('impact-explain-${score.base}')))
+            .height,
+        44,
+      );
+    }
+    expect(
+      tester.getSize(find.byKey(const ValueKey<String>('impact-reference'))).height,
+      44,
+    );
+  });
+
+  testWidgets('the tile\'s letter reads on every region it is drawn in', (
+    WidgetTester tester,
+  ) async {
+    // The 5′ UTR, the start codon, the B chain, the C-peptide and the 3′ UTR:
+    // pale fills and dark ones, each lettered in whichever ink it carries.
+    // Picked through the canvas's own callback, because an open sheet covers
+    // most of the page a finger would have to reach them on.
+    await _openTranscript(tester);
+    for (final int cell in <int>[5, 59, 150, 300, 420]) {
+      tester
+          .widget<AnatomyCanvas>(find.byType(AnatomyCanvas))
+          .onTapped(_painter(tester).scene.from.positionAt(cell));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 320));
+      await tester.pumpAndSettle();
+      expect(tester.widget<ImpactPanel>(_panel).impact.position,
+          _painter(tester).scene.from.positionAt(cell));
+      final (Color fill, Color ink) = _tile(tester);
+      expect(
+        _contrast(fill, ink),
+        greaterThanOrEqualTo(4.5),
+        reason: 'cell $cell',
+      );
+    }
+  });
+
+  testWidgets('the codon line opens its residue at a finger\'s height', (
+    WidgetTester tester,
+  ) async {
+    await _openTranscript(
+      tester,
+      constraint: ProteinConstraint.fromJson(
+        jsonDecode(
+              File(ProteinCatalog.insulin.constraintAsset).readAsStringSync(),
+            )
+            as Map<String, dynamic>,
+        ProteinCatalog.insulin,
+      ),
+    );
+    await _tapCell(tester, 150);
+    final Finder link = find.byKey(const ValueKey<String>('impact-note-link'));
+    expect(link, findsOneWidget);
+    expect(tester.getSize(link).height, greaterThanOrEqualTo(44));
   });
 
   testWidgets('another base swaps the sheet in place', (
@@ -409,6 +529,18 @@ void main() {
       final ImpactPanel panel = tester.widget<ImpactPanel>(_panel);
       expect(panel.impact.ranked.length, 3);
       expect(panel.chromosome, 'chr11');
+    });
+
+    testWidgets('an intron\'s base is lettered to be read', (
+      WidgetTester tester,
+    ) async {
+      // The intron is drawn near-black, and the ground's own ink met it at
+      // 1.25 to one: the letter was not there.
+      await openDna(tester);
+      await tapBase(tester);
+      expect(tester.widget<ImpactPanel>(_panel).region, contains('intron'));
+      final (Color fill, Color ink) = _tile(tester);
+      expect(_contrast(fill, ink), greaterThanOrEqualTo(4.5));
     });
 
     testWidgets('closing the sheet leaves the bases on screen', (

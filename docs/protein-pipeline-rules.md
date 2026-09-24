@@ -550,14 +550,33 @@ absence is never called benign. All twenty genes carry a snapshot since
 record at its real position: along the protein, height is the record's own AVI,
 the band under it is the residue's ESM constraint on the page's ramp, the head
 is its class; records off the protein stand on a drawing of the gene, a second
-titled panel on the same AVI scale. Filtering never moves a mark, and zooming a
-panel to a region (a tap on the ground under it) changes its scale, never a
-position; a zoomed intron drawn shortened is titled by its real length. The
-list groups records by region, every region open, each closable to its heading
-and count from that heading, and builds its rows as they come on screen, since
-dystrophin has thousands. A record's link to its residue or base leaves a way back:
-Back, or the walk header's "← ClinVar", reopens the overview as it was left —
-scroll, open record, filter, regions and zoom. A record's detail may carry one
+titled panel on the same AVI scale, whose ceiling is set by every record and
+never by a filter or a zoom. The class chips choose which classes are drawn —
+none chosen is all of them, and each tap adds or takes one away — and a class
+left out is removed, marks and stems, while every mark that stays keeps its
+position and height. Zooming a panel — its − and + keys, a pinch, or a tap on
+a region's name under it — changes its scale, never a position; while zoomed, a
+bar under the panel frames the window on the whole and is dragged to move
+along, and a zoomed intron drawn shortened is titled by its real length. Where
+marks are dense, stems are dropped and heads drawn smaller rather than spread
+out. A tapped mark is named under the panels, which stay where they are, on a
+card that keeps one height whatever it holds, and "Show in list ›" opens it. A
+second tap on the mark, or a tap on the plot away from every mark, lets it go;
+heads drawn over one another are stepped through first, the one on top first.
+Each panel also opens on the whole screen from its
+title's full-screen key — the same panel and keys with the screen's room, the
+tapped mark named under it — turned to landscape on a phone, which the rest of
+the app keeps upright; × or Back returns to the list as it was left, with the
+window and mark chosen there, and "Show in list ›" to the record's row. The
+list holds what the panels draw — the classes
+shown, in the windows shown — says so with a way back to all of it, and counts a
+narrowed region as "n of m". It groups records by region, every region open,
+each closable to its heading and count from that heading, and builds its rows as
+they come on screen, since dystrophin has thousands. A record's link opens its
+residue or base above the list, as a walk of its own; Back, or that walk's
+"← ClinVar", returns to the list exactly as it was left, and closing the list
+returns to the walk exactly as it was before the list was opened. A record's
+accession opens the record on ClinVar. A record's detail may carry one
 line on where each model
 puts the change — against ESM −7.5 (the line published for ESM-1b, a reference
 rather than a calibration) and AVI 20 (the top 1% genome-wide) — or which model

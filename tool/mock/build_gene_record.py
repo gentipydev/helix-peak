@@ -2,7 +2,7 @@
 
 Each file is exactly what `GET /gene/{id}/{gene}` answers, because the parsing
 is the backend's own: this imports `app.genbank_parser.extract_gene` from
-`helix-peak-backend` rather than reimplementing it, so a fixture cannot drift
+`helix-peek-backend` rather than reimplementing it, so a fixture cannot drift
 from the contract it stands in for.
 
 Six things happen here that the live service does not do yet, all noted at
@@ -31,7 +31,7 @@ import urllib.request
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tool"))
-sys.path.insert(0, str(ROOT.parent / "helix-peak-backend"))
+sys.path.insert(0, str(ROOT.parent / "helix-peek-backend"))
 
 from targets import GENE_PAGE_BUDGET_BP, TARGETS, Target  # noqa: E402
 
@@ -39,7 +39,7 @@ from Bio import Entrez, SeqIO  # noqa: E402
 from Bio.Seq import Seq  # noqa: E402
 from app.genbank_parser import extract_gene  # noqa: E402
 
-Entrez.tool = "helixpeak-mockbake"
+Entrez.tool = "helixpeek-mockbake"
 Entrez.email = os.environ.get("NCBI_EMAIL", "")
 
 MIN_INTRON_BP = 60
@@ -49,7 +49,7 @@ MIN_INTRON_BP = 60
 
 
 CACHE = Path(
-    os.environ.get("HELIXPEAK_GB_CACHE", Path(tempfile.gettempdir()) / "helixpeak-genbank")
+    os.environ.get("HELIXPEEK_GB_CACHE", Path(tempfile.gettempdir()) / "helixpeek-genbank")
 )
 
 

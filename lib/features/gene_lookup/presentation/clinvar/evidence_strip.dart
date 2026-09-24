@@ -1,5 +1,8 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 
@@ -16,6 +19,10 @@ import 'evidence_sections.dart';
 /// The strip's two drawings: the protein, and the gene around it.
 enum StripPanel { protein, dna }
 
+/// A stretch of a panel in the panel's own units: residues along the protein,
+/// residue r running from r − 1 to r, and bases along the drawn gene, 5′ to 3′.
+typedef StripWindow = (double, double);
+
 /// The whole snapshot at once, with each source on one channel of its own.
 ///
 /// Along the protein, every record with a residue is a lollipop at that
@@ -28,12 +35,15 @@ enum StripPanel { protein, dna }
 /// sit, how high AVI puts them and how constrained the ground under them is,
 /// and draws the connection themselves.
 ///
-/// Every mark keeps its real position whatever is highlighted, so a filter
-/// never moves the picture under the reader's eye. A dense stretch overlaps
-/// rather than spreading out; tapping a region under it zooms that panel to
-/// the region — the same positions at a larger scale — and the list below is
-/// the precise path to each record.
-class EvidenceStrip extends StatelessWidget {
+/// Every mark keeps its real position and height whatever is shown: the
+/// classes left out are simply not drawn, and the scale is set by every record
+/// so leaving some out never moves the rest. A dense stretch overlaps rather
+/// than spreading out. Each panel zooms — its − and + keys, a pinch, or a tap
+/// on a region's name under it — and a zoomed panel carries a bar with the
+/// whole on it and the window framed, which is dragged to move along. The same
+/// positions, at a larger scale; the list below is the precise path to each
+/// record.
+class EvidenceStrip extends StatefulWidget {
   const EvidenceStrip({
     required this.evidence,
     required this.proteinLength,
@@ -44,11 +54,14 @@ class EvidenceStrip extends StatelessWidget {
     this.runs = const <GeneRun>[],
     this.constraint,
     this.reversed = false,
-    this.highlight,
+    this.classes = const <ClinVarGroup>{},
     this.selected = const <String>{},
-    this.proteinZoom,
-    this.dnaZoom,
-    this.onZoom,
+    this.proteinWindow,
+    this.dnaWindow,
+    this.onWindow,
+    this.only,
+    this.onExpand,
+    this.onClose,
     super.key,
   });
 
@@ -66,22 +79,41 @@ class EvidenceStrip extends StatelessWidget {
   /// A minus-strand record, drawn 5′ to 3′ like every other page.
   final bool reversed;
   final ProteinConstraint? constraint;
-  final ClinVarGroup? highlight;
+
+  /// The classes drawn, or none for every class. A class left out is not
+  /// drawn at all — no ring, no stem — and nothing of it can be tapped.
+  final Set<ClinVarGroup> classes;
   final Set<String> selected;
-  final ValueChanged<String> onSelected;
 
-  /// What each panel is zoomed to, by [regionKey] and [runKey]; null for the
-  /// whole protein or the whole gene.
-  final String? proteinZoom;
-  final String? dnaZoom;
+  /// A tapped mark, and which of the heads drawn over one another there it
+  /// is, counting from one: a second tap on it moves on to the next, and
+  /// after the last — or on a head alone — lets it go. A tap on the plot away
+  /// from every mark lets it go too. Letting go is a null id and cycle.
+  final void Function(String? id, (int, int)? cycle) onSelected;
 
-  /// Asks for a panel's zoom to change; null leaves the strip unzoomable.
-  final void Function(StripPanel panel, String? zoom)? onZoom;
+  /// What each panel shows, or null for the whole protein and the whole gene.
+  final StripWindow? proteinWindow;
+  final StripWindow? dnaWindow;
 
-  static String regionKey(ConstraintRegion region) =>
-      '${region.label}@${region.start}';
+  /// Asks for a panel's window to change, null for the whole; without it the
+  /// strip does not zoom.
+  final void Function(StripPanel panel, StripWindow? window)? onWindow;
 
-  static String runKey(GeneRun run) => '${run.label}@${run.start}';
+  /// The one panel drawn, on a page that gives it the whole screen: its
+  /// title, its drawing as tall as the page allows, and the bar's room under
+  /// it whether or not it is zoomed, so a zoom never resizes the drawing.
+  /// Null for both panels, as the overview draws them.
+  final StripPanel? only;
+
+  /// Opens a panel on a page of its own, from a key at the end of its title.
+  final void Function(StripPanel panel)? onExpand;
+
+  /// Closes the page the panel is on, from a key at the start of its title.
+  final VoidCallback? onClose;
+
+  /// The narrowest a panel zooms to: ten residues, twelve bases.
+  static const double leastResidues = 10;
+  static const double leastBases = 12;
 
   /// How many residues apart the zoomed protein's numbers are: every fifth,
   /// or the first of every 10th, 20th, 50th, 100th… that leaves [room] points
@@ -102,42 +134,86 @@ class EvidenceStrip extends StatelessWidget {
     return step;
   }
 
-  ConstraintRegion? get _zoomedRegion => proteinZoom == null
-      ? null
-      : constraint?.regions
-            .where((ConstraintRegion r) => regionKey(r) == proteinZoom)
-            .firstOrNull;
+  /// Whether stems are drawn at [perMark] points of panel for each mark it
+  /// draws. Below two, a stem is most of the ink on the panel and says nothing
+  /// a head's place does not.
+  static bool stems(double perMark) => perMark >= 2;
 
-  GeneRun? get _zoomedRun => dnaZoom == null
-      ? null
-      : runs.where((GeneRun r) => runKey(r) == dnaZoom).firstOrNull;
+  /// How large a head is drawn at [perMark] points of panel for each mark: full
+  /// size while marks have room, smaller as they crowd, so a dense stretch
+  /// stays a shape rather than becoming a slab.
+  static double headRadius(double perMark) => perMark >= 1
+      ? 3.4
+      : perMark >= 0.4
+      ? 2.6
+      : 2.0;
+
+  /// The window a tap on [region]'s name zooms to: two residues either side,
+  /// so the cut site between two chains stays in view from both of them.
+  static StripWindow regionWindow(ConstraintRegion region, int proteinLength) =>
+      _atLeast(
+        region.start - 3.0,
+        region.end + 2.0,
+        leastResidues,
+        proteinLength.toDouble(),
+      );
+
+  /// The window a tap on [run]'s name zooms to: the piece itself.
+  static StripWindow runWindow(
+    GeneRun run, {
+    required int geneStart,
+    required int geneEnd,
+    bool reversed = false,
+  }) {
+    int index(int position) =>
+        reversed ? geneEnd - position : position - geneStart;
+    final int a = index(run.start);
+    final int b = index(run.end);
+    return _atLeast(
+      math.min(a, b).toDouble(),
+      math.max(a, b) + 1.0,
+      leastBases,
+      (geneEnd - geneStart + 1).toDouble(),
+    );
+  }
+
+  double get _geneLength => (geneEnd - geneStart + 1).toDouble();
+
+  /// A panel's whole length, in its own units.
+  StripWindow whole(StripPanel panel) => panel == StripPanel.protein
+      ? (0, proteinLength.toDouble())
+      : (0, _geneLength);
+
+  /// Whether [e]'s class is drawn.
+  bool drawn(VariantEvidence e) =>
+      classes.isEmpty || classes.contains(e.variant.group);
+
+  /// Whether [e] is in its panel's window: always, unless that panel is
+  /// zoomed to a stretch that leaves it out.
+  bool shows(VariantEvidence e) {
+    final StripWindow? window = e.variant.residue != null
+        ? proteinWindow
+        : dnaWindow;
+    if (window == null) {
+      return true;
+    }
+    final double u = coordinate(e);
+    return u >= window.$1 && u <= window.$2;
+  }
+
+  /// Whether the panels draw [e]: its class is shown and its place is in view.
+  /// The list under the strip holds exactly these.
+  bool draws(VariantEvidence e) => drawn(e) && shows(e);
+
+  /// Where [e] sits along its panel.
+  double coordinate(VariantEvidence e) => switch (e.variant.residue) {
+    final int residue => residue - 0.5,
+    null => _index(e.variant.position) + 0.5,
+  };
 
   /// Where a base sits along the gene, 5′ to 3′ whichever strand it is on.
   int _index(int position) =>
       reversed ? geneEnd - position : position - geneStart;
-
-  /// The protein runs from 0 to [proteinLength], residue r from r − 1 to r.
-  (double, double) get _proteinWindow {
-    final double length = proteinLength.toDouble();
-    final ConstraintRegion? region = _zoomedRegion;
-    if (region == null) {
-      return (0, length);
-    }
-    // Two residues either side, so the cut site between two chains stays in
-    // view from both of them.
-    return _atLeast(region.start - 3.0, region.end + 2.0, 10, length);
-  }
-
-  /// The gene runs from 0 to its length, one unit a base.
-  (double, double) get _geneWindow {
-    final double length = (geneEnd - geneStart + 1).toDouble();
-    final GeneRun? run = _zoomedRun;
-    if (run == null) {
-      return (0, length);
-    }
-    final (double from, double to) = _span(run);
-    return _atLeast(from, to, 12, length);
-  }
 
   (double, double) _span(GeneRun run) => _spanOf(run.start, run.end);
 
@@ -147,7 +223,7 @@ class EvidenceStrip extends StatelessWidget {
     return (math.min(a, b).toDouble(), math.max(a, b) + 1.0);
   }
 
-  static (double, double) _atLeast(
+  static StripWindow _atLeast(
     double from,
     double to,
     double least,
@@ -169,21 +245,6 @@ class EvidenceStrip extends StatelessWidget {
       b = length;
     }
     return (math.max(0, a), math.min(length, b));
-  }
-
-  double _coordinate(VariantEvidence e) => switch (e.variant.residue) {
-    final int residue => residue - 0.5,
-    null => _index(e.variant.position) + 0.5,
-  };
-
-  /// Whether [e] is in its panel's window: always, unless that panel is
-  /// zoomed to a stretch that leaves it out.
-  bool shows(VariantEvidence e) {
-    final (double from, double to) = e.variant.residue != null
-        ? _proteinWindow
-        : _geneWindow;
-    final double u = _coordinate(e);
-    return u >= from && u <= to;
   }
 
   /// How many of [at] fall in each of [pieces], counted in one pass rather
@@ -215,50 +276,247 @@ class EvidenceStrip extends StatelessWidget {
     return counts;
   }
 
-  /// The regions a tap on the protein's ground can zoom to: those with a
-  /// record in them.
-  List<ConstraintRegion> get _zoomableRegions {
-    final List<ConstraintRegion> regions =
-        constraint?.regions ?? const <ConstraintRegion>[];
-    final List<int> counts = _tally<ConstraintRegion>(
-      regions,
-      (ConstraintRegion r) => (r.start, r.end),
-      <int>[
-        for (final VariantEvidence e in evidence) ?e.variant.residue,
-      ],
-    );
-    return <ConstraintRegion>[
-      for (int i = 0; i < regions.length; i++)
-        if (counts[i] > 0) regions[i],
-    ];
+  @override
+  State<EvidenceStrip> createState() => _EvidenceStripState();
+}
+
+/// One panel's records that have a place on it: those with an AVI score, in
+/// the classes drawn.
+final class _Records {
+  _Records(Iterable<VariantEvidence> records, double Function(VariantEvidence) at) {
+    for (final VariantEvidence e in records) {
+      if (e.avi case final double avi) {
+        list.add(e);
+        us.add(at(e));
+        avis.add(avi);
+      }
+    }
   }
+
+  final List<VariantEvidence> list = <VariantEvidence>[];
+  final List<double> us = <double>[];
+  final List<double> avis = <double>[];
+}
+
+class _EvidenceStripState extends State<EvidenceStrip> {
+  /// Windows a gesture is moving, not yet handed to the overview. The panels
+  /// follow them without animating, so the picture moves with the finger.
+  final Map<StripPanel, StripWindow> _live = <StripPanel, StripWindow>{};
+
+  /// Where a pinch started: the window, and the place under the fingers.
+  StripWindow? _pinchFrom;
+  double _pinchAt = 0;
+
+  List<VariantEvidence>? _source;
+  Set<ClinVarGroup>? _sourceClasses;
+  List<GeneRun>? _sourceRuns;
+  ProteinConstraint? _sourceConstraint;
+  late _Records _protein;
+  late _Records _dna;
+
+  /// What the strip reads off every record, worked out once for the records,
+  /// classes and pieces it is given rather than on every build: the AVI
+  /// ceiling, whether any record is off the protein, and each panel's records
+  /// and how many of them are drawn.
+  late double _ceiling;
+  late bool _offProtein;
+  final Map<StripPanel, (int, int)> _tallies = <StripPanel, (int, int)>{};
+
+  /// The regions a tap on the protein's ground zooms to: those with a record
+  /// drawn in them, or every region when the classes shown leave none.
+  late List<ConstraintRegion> _zoomableRegions;
 
   /// The pieces of the gene holding a record the DNA panel draws, with how
   /// many they hold.
-  List<(GeneRun, int)> get _heldRuns {
-    final List<int> counts = _tally<GeneRun>(
-      runs,
-      (GeneRun r) => (r.start, r.end),
-      <int>[
-        for (final VariantEvidence e in evidence)
-          if (e.variant.residue == null) e.variant.position,
-      ],
-    );
-    return <(GeneRun, int)>[
-      for (int i = 0; i < runs.length; i++)
-        if (counts[i] > 0) (runs[i], counts[i]),
-    ];
-  }
-
-  List<GeneRun> get _zoomableRuns => <GeneRun>[
-    for (final (GeneRun run, int _) in _heldRuns) run,
-  ];
+  late List<(GeneRun, int)> _heldRuns;
 
   /// What the records off the protein sit in, in transcript order: `5′ UTR ·
   /// introns · 3′ UTR`.
-  String get _dnaKinds {
+  late String _dnaKinds;
+
+  /// Each panel's marks as last placed, and what they were placed for, so a
+  /// rebuild that changes nothing about a panel does not place them again.
+  final Map<StripPanel, (Object, _MarkBatch)> _batches =
+      <StripPanel, (Object, _MarkBatch)>{};
+
+  @override
+  void didUpdateWidget(EvidenceStrip old) {
+    super.didUpdateWidget(old);
+    // A window set from outside — "Show all", or a record revealed outside
+    // it — replaces whatever a gesture was holding.
+    if (old.proteinWindow != widget.proteinWindow) {
+      _live.remove(StripPanel.protein);
+    }
+    if (old.dnaWindow != widget.dnaWindow) {
+      _live.remove(StripPanel.dna);
+    }
+  }
+
+  void _cache() {
+    if (identical(_source, widget.evidence) &&
+        setEquals(_sourceClasses, widget.classes) &&
+        identical(_sourceRuns, widget.runs) &&
+        identical(_sourceConstraint, widget.constraint)) {
+      return;
+    }
+    _source = widget.evidence;
+    _sourceClasses = Set<ClinVarGroup>.of(widget.classes);
+    _sourceRuns = widget.runs;
+    _sourceConstraint = widget.constraint;
+    _protein = _Records(
+      widget.evidence.where(
+        (VariantEvidence e) => e.variant.residue != null && widget.drawn(e),
+      ),
+      widget.coordinate,
+    );
+    _dna = _Records(
+      widget.evidence.where(
+        (VariantEvidence e) => e.variant.residue == null && widget.drawn(e),
+      ),
+      widget.coordinate,
+    );
+    _batches.clear();
+    double highest = 0;
+    // Each panel's records, and those of them in the classes drawn, with an
+    // AVI score or without.
+    int protein = 0;
+    int proteinDrawn = 0;
+    int dnaDrawn = 0;
+    for (final VariantEvidence e in widget.evidence) {
+      highest = math.max(highest, e.avi ?? 0);
+      final bool drawn = widget.drawn(e);
+      if (e.variant.residue != null) {
+        protein++;
+        if (drawn) {
+          proteinDrawn++;
+        }
+      } else if (drawn) {
+        dnaDrawn++;
+      }
+    }
+    _ceiling = math.max(GeneImpact.barCeiling, (highest / 10).ceil() * 10.0);
+    _offProtein = protein < widget.evidence.length;
+    _tallies
+      ..[StripPanel.protein] = (protein, proteinDrawn)
+      ..[StripPanel.dna] = (widget.evidence.length - protein, dnaDrawn);
+    _zoomableRegions = _regionsHeld();
+    _heldRuns = _runsHeld();
+    _dnaKinds = _kindsOffProtein();
+  }
+
+  _Records _records(StripPanel panel) =>
+      panel == StripPanel.protein ? _protein : _dna;
+
+  StripWindow? _committed(StripPanel panel) =>
+      panel == StripPanel.protein ? widget.proteinWindow : widget.dnaWindow;
+
+  StripWindow _window(StripPanel panel) =>
+      _live[panel] ?? _committed(panel) ?? widget.whole(panel);
+
+  bool _zoomed(StripPanel panel) =>
+      _live.containsKey(panel) || _committed(panel) != null;
+
+  double _least(StripPanel panel) => panel == StripPanel.protein
+      ? EvidenceStrip.leastResidues
+      : EvidenceStrip.leastBases;
+
+  /// [from] and [span], moved inside the panel's whole length.
+  StripWindow _within(StripPanel panel, double from, double span) {
+    final double length = widget.whole(panel).$2;
+    final double width = span.clamp(_least(panel), length);
+    final double start = from.clamp(0.0, length - width);
+    return (start, start + width);
+  }
+
+  /// Hands [window] to the overview — null, or anything as wide as the whole,
+  /// meaning the whole.
+  void _commit(StripPanel panel, StripWindow? window) {
+    _live.remove(panel);
+    final StripWindow whole = widget.whole(panel);
+    final StripWindow? next =
+        window == null || window.$2 - window.$1 >= whole.$2 - whole.$1 - 1e-6
+        ? null
+        : window;
+    widget.onWindow?.call(panel, next);
+    setState(() {});
+  }
+
+  /// The selected record's place, when it is on [panel] and in view: what the
+  /// + key zooms in on.
+  double? _focus(StripPanel panel) {
+    if (widget.selected.length != 1) {
+      return null;
+    }
+    final StripWindow window = _window(panel);
+    for (final VariantEvidence e in _records(panel).list) {
+      if (e.variant.id == widget.selected.single) {
+        final double u = widget.coordinate(e);
+        return u >= window.$1 && u <= window.$2 ? u : null;
+      }
+    }
+    return null;
+  }
+
+  bool _canZoomIn(StripPanel panel) {
+    final StripWindow window = _window(panel);
+    return window.$2 - window.$1 > _least(panel) + 1e-6;
+  }
+
+  /// Halves the window, or doubles it for a [factor] of 0.5.
+  void _zoomBy(StripPanel panel, double factor) {
+    final StripWindow window = _window(panel);
+    final double span = (window.$2 - window.$1) / factor;
+    final double centre = _focus(panel) ?? (window.$1 + window.$2) / 2;
+    _commit(panel, _within(panel, centre - span / 2, span));
+  }
+
+  List<ConstraintRegion> _regionsHeld() {
+    final List<ConstraintRegion> regions =
+        widget.constraint?.regions ?? const <ConstraintRegion>[];
+    final List<int> counts = EvidenceStrip._tally<ConstraintRegion>(
+      regions,
+      (ConstraintRegion r) => (r.start, r.end),
+      <int>[for (final VariantEvidence e in _protein.list) ?e.variant.residue],
+    );
+    final List<ConstraintRegion> held = <ConstraintRegion>[
+      for (int i = 0; i < regions.length; i++)
+        if (counts[i] > 0) regions[i],
+    ];
+    return held.isEmpty ? regions : held;
+  }
+
+  List<(GeneRun, int)> _runsHeld() {
+    final List<int> counts = EvidenceStrip._tally<GeneRun>(
+      widget.runs,
+      (GeneRun r) => (r.start, r.end),
+      <int>[for (final VariantEvidence e in _dna.list) e.variant.position],
+    );
+    return <(GeneRun, int)>[
+      for (int i = 0; i < widget.runs.length; i++)
+        if (counts[i] > 0) (widget.runs[i], counts[i]),
+    ];
+  }
+
+  List<GeneRun> get _zoomableRuns {
+    final List<GeneRun> held = <GeneRun>[
+      for (final (GeneRun run, int _) in _heldRuns) run,
+    ];
+    return held.isEmpty ? widget.runs : held;
+  }
+
+  StripWindow _runWindow(GeneRun run) => EvidenceStrip.runWindow(
+    run,
+    geneStart: widget.geneStart,
+    geneEnd: widget.geneEnd,
+    reversed: widget.reversed,
+  );
+
+  static bool _same(StripWindow a, StripWindow b) =>
+      (a.$1 - b.$1).abs() < 1e-6 && (a.$2 - b.$2).abs() < 1e-6;
+
+  String _kindsOffProtein() {
     final List<VariantEvidence> off = <VariantEvidence>[
-      for (final VariantEvidence e in evidence)
+      for (final VariantEvidence e in widget.evidence)
         if (e.variant.residue == null) e,
     ]..sort((VariantEvidence a, VariantEvidence b) => a.order.compareTo(b.order));
     final List<String> labels = <String>[];
@@ -280,69 +538,105 @@ class EvidenceStrip extends StatelessWidget {
     return kinds.join(' · ');
   }
 
-  String get _proteinTitle => switch (_zoomedRegion) {
-    final ConstraintRegion region =>
-      'Protein · ${region.label} ${region.start}–${region.end}',
-    null => 'Protein · residues 1–$proteinLength',
-  };
+  /// A region's own name for a window made from it; otherwise the residues it
+  /// spans.
+  String _proteinTitle(StripWindow? window) {
+    if (window == null) {
+      return 'Protein · residues 1–${widget.proteinLength}';
+    }
+    for (final ConstraintRegion region
+        in widget.constraint?.regions ?? const <ConstraintRegion>[]) {
+      if (_same(EvidenceStrip.regionWindow(region, widget.proteinLength), window)) {
+        return 'Protein · ${region.label} ${region.start}–${region.end}';
+      }
+    }
+    final int from = (window.$1.floor() + 1).clamp(1, widget.proteinLength);
+    final int to = window.$2.ceil().clamp(1, widget.proteinLength);
+    return 'Protein · residues $from–$to of ${widget.proteinLength}';
+  }
 
-  // A shortened intron is titled by its own length, as the gene page gives
-  // it, not by the stand-in the panel draws.
-  String get _dnaTitle => switch (_zoomedRun) {
-    final GeneRun run => 'DNA · ${run.label} · ${grouped(run.lengthBp)} bp',
-    null => 'DNA · $_dnaKinds',
-  };
+  /// A piece's own name for a window made from it, with its real length where
+  /// it is drawn shortened; otherwise the pieces the window spans. Numbers
+  /// along a gene whose introns are drawn shortened would not be the gene's.
+  String _dnaTitle(StripWindow? window) {
+    if (window == null) {
+      return 'DNA · $_dnaKinds';
+    }
+    for (final GeneRun run in widget.runs) {
+      if (_same(_runWindow(run), window)) {
+        return 'DNA · ${run.label} · ${grouped(run.lengthBp)} bp';
+      }
+    }
+    final List<String> spanned = <String>[
+      for (final GeneRun run in widget.runs)
+        if (widget._span(run) case (final double a, final double b)
+            when b > window.$1 && a < window.$2)
+          run.label,
+    ];
+    return switch (spanned) {
+      <String>[] => 'DNA',
+      <String>[final String one] => 'DNA · part of $one',
+      _ => 'DNA · ${spanned.first} to ${spanned.last}',
+    };
+  }
+
+  String _title(StripPanel panel) {
+    final StripWindow? window = _live[panel] ?? _committed(panel);
+    return panel == StripPanel.protein
+        ? _proteinTitle(window)
+        : _dnaTitle(window);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final double ceiling = math.max(
-      GeneImpact.barCeiling,
-      (evidence.fold<double>(0, (double m, e) => math.max(m, e.avi ?? 0)) / 10)
-              .ceil() *
-          10.0,
-    );
+    _cache();
+    final double ceiling = _ceiling;
+    final double labelScale = MediaQuery.textScalerOf(
+      context,
+    ).scale(1).clamp(1.0, 1.3);
+    if (widget.only case final StripPanel only) {
+      // A page of its own: its whole height goes to the AVI area, less the
+      // title, the panel's own labels and the bar's room.
+      return LayoutBuilder(
+        key: const ValueKey<String>('evidence-strip'),
+        builder: (BuildContext context, BoxConstraints bounds) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: _piece(
+            context,
+            only,
+            plot: math.max(
+              0.0,
+              bounds.maxHeight -
+                  _PanelTitle.height -
+                  _Geometry.heightFor(0, labelScale) -
+                  _WindowBar.height,
+            ),
+            ceiling: ceiling,
+            labelScale: labelScale,
+            keepBarRoom: true,
+          ),
+        ),
+      );
+    }
     // One AVI area for both panels, as tall as the screen can spare: 120
     // points on a 740-point phone, never under 96 or over 128.
     final double plot = (MediaQuery.sizeOf(context).height * 0.16).clamp(
       96.0,
       128.0,
     );
-    final double labelScale = MediaQuery.textScalerOf(
-      context,
-    ).scale(1).clamp(1.0, 1.3);
-    final bool offProtein = evidence.any(
-      (VariantEvidence e) => e.variant.residue == null,
-    );
+    final bool offProtein = _offProtein;
     return Column(
       key: const ValueKey<String>('evidence-strip'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        _PanelTitle(
-          panel: StripPanel.protein,
-          text: _proteinTitle,
-          onWhole: _zoomedRegion != null && onZoom != null
-              ? () => onZoom!(StripPanel.protein, null)
-              : null,
-        ),
-        _panel(
-          context,
+        for (final StripPanel panel in <StripPanel>[
           StripPanel.protein,
-          plot: plot,
-          ceiling: ceiling,
-          labelScale: labelScale,
-        ),
-        if (offProtein) ...<Widget>[
-          const SizedBox(height: 8),
-          _PanelTitle(
-            panel: StripPanel.dna,
-            text: _dnaTitle,
-            onWhole: _zoomedRun != null && onZoom != null
-                ? () => onZoom!(StripPanel.dna, null)
-                : null,
-          ),
-          _panel(
+          if (offProtein) StripPanel.dna,
+        ]) ...<Widget>[
+          if (panel == StripPanel.dna) const SizedBox(height: 8),
+          ..._piece(
             context,
-            StripPanel.dna,
+            panel,
             plot: plot,
             ceiling: ceiling,
             labelScale: labelScale,
@@ -350,6 +644,67 @@ class EvidenceStrip extends StatelessWidget {
         ],
       ],
     );
+  }
+
+  /// A panel's title, its drawing, and the bar under it while it is zoomed —
+  /// or, with [keepBarRoom], the bar's room whether or not it is.
+  List<Widget> _piece(
+    BuildContext context,
+    StripPanel panel, {
+    required double plot,
+    required double ceiling,
+    required double labelScale,
+    bool keepBarRoom = false,
+  }) {
+    final void Function(StripPanel)? expand = widget.onExpand;
+    // The whole, with the window on it: only while there is a window, and
+    // under the panel, so it moves nothing the reader was looking at when it
+    // arrives.
+    final Widget? bar = _zoomed(panel) && widget.onWindow != null
+        ? _WindowBar(
+            key: ValueKey<String>('evidence-window-${panel.name}'),
+            panel: panel,
+            whole: widget.whole(panel),
+            window: _window(panel),
+            constraint: panel == StripPanel.protein ? widget.constraint : null,
+            exons: <(double, double)>[
+              if (panel == StripPanel.dna)
+                for (final (int a, int b) in widget.exons) widget._spanOf(a, b),
+            ],
+            onMove: (StripWindow window) =>
+                setState(() => _live[panel] = window),
+            onDone: () => _commit(panel, _window(panel)),
+          )
+        : null;
+    return <Widget>[
+      _PanelTitle(
+        panel: panel,
+        text: _title(panel),
+        onWhole: _zoomed(panel) && widget.onWindow != null
+            ? () => _commit(panel, null)
+            : null,
+        onZoomIn: widget.onWindow != null && _canZoomIn(panel)
+            ? () => _zoomBy(panel, 2)
+            : null,
+        onZoomOut: widget.onWindow != null && _zoomed(panel)
+            ? () => _zoomBy(panel, 0.5)
+            : null,
+        zoomable: widget.onWindow != null,
+        onExpand: expand == null ? null : () => expand(panel),
+        onClose: widget.onClose,
+      ),
+      _panel(
+        context,
+        panel,
+        plot: plot,
+        ceiling: ceiling,
+        labelScale: labelScale,
+      ),
+      if (keepBarRoom)
+        SizedBox(height: _WindowBar.height, child: bar)
+      else
+        ?bar,
+    ];
   }
 
   Widget _panel(
@@ -361,11 +716,10 @@ class EvidenceStrip extends StatelessWidget {
   }) {
     final ThemeData theme = Theme.of(context);
     final bool protein = panel == StripPanel.protein;
-    final (double from, double to) = protein ? _proteinWindow : _geneWindow;
+    final StripWindow target = _window(panel);
     final double height = _Geometry.heightFor(plot, labelScale);
-    final int count = evidence
-        .where((VariantEvidence e) => (e.variant.residue != null) == protein)
-        .length;
+    final _Records records = _records(panel);
+    final (int count, int drawn) = _tallies[panel]!;
     final List<(GeneRun, int)> held = protein
         ? const <(GeneRun, int)>[]
         : _heldRuns;
@@ -373,59 +727,81 @@ class EvidenceStrip extends StatelessWidget {
     // region by its span, as the panel's title then names it, and a name the
     // gene uses twice — the stretch outside the transcript at either end — by
     // which one it is.
+    final List<GeneRun> zoomableRuns = protein ? const <GeneRun>[] : _zoomableRuns;
     String called(int i) {
-      final String label = held[i].$1.label;
-      final int same = held.where(((GeneRun, int) p) => p.$1.label == label).length;
+      final String label = zoomableRuns[i].label;
+      final int same = zoomableRuns
+          .where((GeneRun r) => r.label == label)
+          .length;
       if (same == 1) {
         return label;
       }
-      final int which = held
+      final int which = zoomableRuns
           .take(i + 1)
-          .where(((GeneRun, int) p) => p.$1.label == label)
+          .where((GeneRun r) => r.label == label)
           .length;
       return '$label ($which of $same)';
     }
 
-    final Map<String, String> zoomable = <String, String>{
+    final Map<StripWindow, String> zoomable = <StripWindow, String>{
       if (protein)
         for (final ConstraintRegion region in _zoomableRegions)
-          regionKey(region): '${region.label} ${region.start}–${region.end}'
+          EvidenceStrip.regionWindow(region, widget.proteinLength):
+              '${region.label} ${region.start}–${region.end}'
       else
-        for (int i = 0; i < held.length; i++) runKey(held[i].$1): called(i),
+        for (int i = 0; i < zoomableRuns.length; i++)
+          _runWindow(zoomableRuns[i]): called(i),
     };
     // Everything the painter needs that does not move with the zoom, worked
     // out once per build rather than on every frame of the zoom's motion.
     final List<(double, double)> exonSpans = <(double, double)>[
       if (!protein)
-        for (final (int a, int b) in exons) _spanOf(a, b),
+        for (final (int a, int b) in widget.exons) widget._spanOf(a, b),
     ];
     final List<_Piece> pieces = <_Piece>[
       for (final (GeneRun run, int records) in held)
-        _Piece(run.label, _span(run), records),
+        _Piece(run.label, widget._span(run), records),
     ];
-    final String? zoom = protein ? proteinZoom : dnaZoom;
+    final bool zoomed = _zoomed(panel);
+    final bool live = _live.containsKey(panel);
+    final String wholeName = protein ? 'the whole protein' : 'the whole gene';
     return Semantics(
       container: true,
       label: protein
-          ? '$count ClinVar records on the $proteinLength residues of the '
-                'protein. Heights are each record’s AVI score, the band under '
-                'them is ESM constraint, and colours are ClinVar classes.'
-          : '$count ClinVar records outside the protein, on the gene’s '
-                '$_dnaKinds. Heights are each record’s AVI score and colours '
-                'are ClinVar classes.',
-      value: protein ? _proteinTitle : _dnaTitle,
-      customSemanticsActions: onZoom == null
+          ? '$drawn ClinVar records on the ${widget.proteinLength} residues '
+                'of the protein${drawn == count ? '' : ', of the classes shown'}. '
+                'Heights are each record’s AVI score, with a dashed line at '
+                '20, the top 1% genome-wide; the band under them is ESM '
+                'constraint, and colours are ClinVar classes.'
+          : '$drawn ClinVar records outside the protein, on the gene’s '
+                '$_dnaKinds${drawn == count ? '' : ', of the classes shown'}. '
+                'Heights are each record’s AVI score, with a dashed line at '
+                '20, the top 1% genome-wide, and colours are ClinVar classes.',
+      value: _title(panel),
+      customSemanticsActions: widget.onWindow == null
           ? null
           : <CustomSemanticsAction, VoidCallback>{
-              for (final MapEntry<String, String> entry in zoomable.entries)
-                if (entry.key != zoom)
+              if (_canZoomIn(panel))
+                const CustomSemanticsAction(label: 'Zoom in'): () =>
+                    _zoomBy(panel, 2),
+              if (zoomed) ...<CustomSemanticsAction, VoidCallback>{
+                const CustomSemanticsAction(label: 'Zoom out'): () =>
+                    _zoomBy(panel, 0.5),
+                CustomSemanticsAction(label: 'Show $wholeName'): () =>
+                    _commit(panel, null),
+              },
+              for (final MapEntry<StripWindow, String> entry
+                  in zoomable.entries)
+                if (!_same(entry.key, target))
                   CustomSemanticsAction(label: 'Zoom to ${entry.value}'): () =>
-                      onZoom!(panel, entry.key),
+                      _commit(panel, entry.key),
             },
       excludeSemantics: true,
       child: TweenAnimationBuilder<Offset>(
-        tween: Tween<Offset>(end: Offset(from, to)),
-        duration: MediaQuery.disableAnimationsOf(context)
+        tween: Tween<Offset>(end: Offset(target.$1, target.$2)),
+        // A gesture's window is followed as it moves; only a window chosen by
+        // a key or a tap travels there.
+        duration: live || MediaQuery.disableAnimationsOf(context)
             ? Duration.zero
             : const Duration(milliseconds: 240),
         curve: Curves.easeOutCubic,
@@ -437,48 +813,37 @@ class EvidenceStrip extends StatelessWidget {
                   plot: plot,
                   ceiling: ceiling,
                   window: (window.dx, window.dy),
+                  labelScale: labelScale,
                 );
-                final List<_Mark> marks = <_Mark>[
-                  for (final VariantEvidence e in evidence)
-                    if (e.avi != null &&
-                        (e.variant.residue != null) == protein &&
-                        geometry.visible(_coordinate(e)))
-                      _Mark(
-                        id: e.variant.id,
-                        group: e.variant.group,
-                        at: Offset(
-                          geometry.x(_coordinate(e)),
-                          geometry.y(e.avi!),
-                        ),
-                        base: Offset(
-                          geometry.x(_coordinate(e)),
-                          protein
-                              ? geometry.groundTop
-                              : geometry.geneLine - 3,
-                        ),
-                      ),
-                ];
-                return GestureDetector(
+                final _MarkBatch batch = _batch(panel, records, geometry);
+                return RawGestureDetector(
                   key: ValueKey<String>('evidence-strip-${panel.name}'),
                   behavior: HitTestBehavior.opaque,
-                  onTapUp: (TapUpDetails details) =>
-                      _tap(panel, geometry, marks, details.localPosition),
-                  child: CustomPaint(
-                    size: Size(bounds.maxWidth, height),
-                    painter: _StripPainter(
-                      panel: panel,
-                      geometry: geometry,
-                      marks: marks,
-                      source: evidence,
-                      constraint: constraint,
-                      proteinLength: proteinLength,
-                      zoomed: zoom != null,
-                      exons: exonSpans,
-                      pieces: pieces,
-                      highlight: highlight,
-                      selected: selected,
-                      colors: theme.colorScheme,
-                      labelScale: labelScale,
+                  gestures: _gestures(panel, geometry, batch),
+                  // A layer of its own: the page scrolling moves the picture
+                  // rather than painting thousands of marks again.
+                  child: RepaintBoundary(
+                    child: CustomPaint(
+                      size: Size(bounds.maxWidth, height),
+                      painter: _StripPainter(
+                        panel: panel,
+                        geometry: geometry,
+                        batch: batch,
+                        constraint: widget.constraint,
+                        proteinLength: widget.proteinLength,
+                        zoomed: zoomed,
+                        exons: exonSpans,
+                        pieces: pieces,
+                        colors: theme.colorScheme,
+                        labelScale: labelScale,
+                        empty: records.list.isEmpty
+                            ? (widget.classes.isEmpty
+                                  ? null
+                                  : 'No records of these classes here')
+                            : batch.hits.isEmpty
+                            ? 'No records in this window'
+                            : null,
+                      ),
                     ),
                   ),
                 );
@@ -488,64 +853,257 @@ class EvidenceStrip extends StatelessWidget {
     );
   }
 
+  /// The marks [records] place at [geometry]: heads by class, stems where
+  /// there is room for them, and rings on the selected.
+  _MarkBatch _batch(
+    StripPanel panel,
+    _Records records,
+    _Geometry geometry,
+  ) {
+    final Object key = Object.hash(
+      records,
+      geometry.size,
+      geometry.window,
+      geometry.plot,
+      geometry.ceiling,
+      Object.hashAllUnordered(widget.selected),
+    );
+    final (Object, _MarkBatch)? memo = _batches[panel];
+    if (memo != null && memo.$1 == key) {
+      return memo.$2;
+    }
+    final bool protein = panel == StripPanel.protein;
+    final List<(String, ClinVarGroup, Offset)> hits =
+        <(String, ClinVarGroup, Offset)>[];
+    for (int i = 0; i < records.list.length; i++) {
+      final double u = records.us[i];
+      if (!geometry.visible(u)) {
+        continue;
+      }
+      final VariantEvidence e = records.list[i];
+      hits.add((
+        e.variant.id,
+        e.variant.group,
+        Offset(geometry.x(u), geometry.y(records.avis[i])),
+      ));
+    }
+    final double perMark = geometry.width / math.max(1, hits.length);
+    final bool stems = EvidenceStrip.stems(perMark);
+    final double radius = EvidenceStrip.headRadius(perMark);
+    final Map<ClinVarGroup, List<double>> heads =
+        <ClinVarGroup, List<double>>{};
+    final List<double> stemPoints = <double>[];
+    final List<Offset> rings = <Offset>[];
+    final double ground = protein
+        ? geometry.groundTop
+        : geometry.geneLine - 3;
+    for (final (String id, ClinVarGroup group, Offset at) in hits) {
+      (heads[group] ??= <double>[])
+        ..add(at.dx)
+        ..add(at.dy);
+      if (stems) {
+        stemPoints
+          ..add(at.dx)
+          ..add(ground)
+          ..add(at.dx)
+          ..add(at.dy);
+      }
+      if (widget.selected.contains(id)) {
+        rings.add(at);
+      }
+    }
+    final _MarkBatch batch = _MarkBatch(
+      hits: hits,
+      heads: <ClinVarGroup, Float32List>{
+        for (final MapEntry<ClinVarGroup, List<double>> entry
+            in heads.entries)
+          entry.key: Float32List.fromList(entry.value),
+      },
+      stems: Float32List.fromList(stemPoints),
+      rings: rings,
+      radius: radius,
+      // A halo is what keeps a full-size head legible over its neighbours;
+      // around small ones it would erase more than it separates.
+      halo: radius >= 3.4,
+    );
+    _batches[panel] = (key, batch);
+    return batch;
+  }
+
+  Map<Type, GestureRecognizerFactory> _gestures(
+    StripPanel panel,
+    _Geometry geometry,
+    _MarkBatch batch,
+  ) => <Type, GestureRecognizerFactory>{
+    TapGestureRecognizer:
+        GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+          () => TapGestureRecognizer(debugOwner: this),
+          (TapGestureRecognizer recognizer) => recognizer.onTapUp =
+              (TapUpDetails details) =>
+                  _tap(panel, geometry, batch, details.localPosition),
+        ),
+    if (widget.onWindow != null)
+      _PinchGestureRecognizer:
+          GestureRecognizerFactoryWithHandlers<_PinchGestureRecognizer>(
+            () => _PinchGestureRecognizer(debugOwner: this),
+            (_PinchGestureRecognizer recognizer) => recognizer
+              ..onStart = (ScaleStartDetails details) {
+                _pinchFrom = _window(panel);
+                _pinchAt = geometry.u(details.localFocalPoint.dx);
+              }
+              ..onUpdate = (ScaleUpdateDetails details) {
+                final StripWindow from = _pinchFrom ?? _window(panel);
+                final double span =
+                    (from.$2 - from.$1) /
+                    math.max(1e-3, details.horizontalScale);
+                final double width = span.clamp(
+                  _least(panel),
+                  widget.whole(panel).$2,
+                );
+                // The place that was under the fingers stays under them.
+                final double start =
+                    _pinchAt -
+                    (details.localFocalPoint.dx - geometry.left) /
+                        geometry.width *
+                        width;
+                setState(() => _live[panel] = _within(panel, start, width));
+              }
+              ..onEnd = (ScaleEndDetails details) {
+                _pinchFrom = null;
+                if (_live[panel] case final StripWindow window) {
+                  _commit(panel, window);
+                }
+              },
+          ),
+    // A finger drawn sideways moves a zoomed panel along. On the whole there
+    // is nowhere to move, and the drag is left to anything else that wants it.
+    if (widget.onWindow != null && _zoomed(panel))
+      HorizontalDragGestureRecognizer:
+          GestureRecognizerFactoryWithHandlers<HorizontalDragGestureRecognizer>(
+            () => HorizontalDragGestureRecognizer(debugOwner: this),
+            (HorizontalDragGestureRecognizer recognizer) => recognizer
+              ..onUpdate = (DragUpdateDetails details) {
+                final StripWindow window = _window(panel);
+                final double span = window.$2 - window.$1;
+                setState(
+                  () => _live[panel] = _within(
+                    panel,
+                    window.$1 - details.delta.dx / geometry.width * span,
+                    span,
+                  ),
+                );
+              }
+              ..onEnd = (DragEndDetails details) {
+                if (_live[panel] case final StripWindow window) {
+                  _commit(panel, window);
+                }
+              },
+          ),
+  };
+
   void _tap(
     StripPanel panel,
     _Geometry geometry,
-    List<_Mark> marks,
+    _MarkBatch batch,
     Offset at,
   ) {
-    final List<_Mark> near = <_Mark>[
-      for (final _Mark m in marks)
-        if ((highlight == null || m.group == highlight) &&
-            (m.at - at).distance <= 18)
-          m,
-    ]..sort(
-        (_Mark a, _Mark b) =>
-            (a.at - at).distance.compareTo((b.at - at).distance),
-      );
+    final List<(String, ClinVarGroup, Offset)> near =
+        <(String, ClinVarGroup, Offset)>[
+          for (final (String, ClinVarGroup, Offset) hit in batch.hits)
+            if ((hit.$3 - at).distance <= 18) hit,
+        ]..sort(
+          (
+            (String, ClinVarGroup, Offset) a,
+            (String, ClinVarGroup, Offset) b,
+          ) => (a.$3 - at).distance.compareTo((b.$3 - at).distance),
+        );
     // The ground zooms: to the piece under the finger, or back out again, so
     // the gesture is its own undo. A head resting on the ground — an AVI of
     // zero — is still the head's to answer when the finger is on it.
     if (at.dy >= geometry.groundTop - 2 &&
-        (near.isEmpty || (near.first.at - at).distance > 8)) {
-      final void Function(StripPanel, String?)? zoom = onZoom;
-      if (zoom == null) {
+        (near.isEmpty || (near.first.$3 - at).distance > 8)) {
+      if (widget.onWindow == null) {
         return;
       }
-      if ((panel == StripPanel.protein ? proteinZoom : dnaZoom) != null) {
-        zoom(panel, null);
+      if (_zoomed(panel)) {
+        _commit(panel, null);
         return;
       }
       final double u = geometry.u(at.dx);
-      final String? key = panel == StripPanel.protein
+      final StripWindow? window = panel == StripPanel.protein
           ? _nearest<ConstraintRegion>(
               _zoomableRegions,
               (ConstraintRegion r) => (r.start - 1.0, r.end.toDouble()),
               u,
-              regionKey,
+              (ConstraintRegion r) =>
+                  EvidenceStrip.regionWindow(r, widget.proteinLength),
             )
-          : _nearest<GeneRun>(_zoomableRuns, _span, u, runKey);
-      if (key != null) {
-        zoom(panel, key);
+          : _nearest<GeneRun>(_zoomableRuns, widget._span, u, _runWindow);
+      if (window != null) {
+        _commit(panel, window);
       }
       return;
     }
+    // Away from every mark, the tap lets the selection go.
     if (near.isEmpty) {
+      if (widget.selected.isNotEmpty) {
+        widget.onSelected(null, null);
+      }
       return;
     }
-    // Coincident marks cycle, so a second tap in the same place moves on to
-    // the next record there rather than reselecting the first.
-    final int current = near.indexWhere((_Mark m) => selected.contains(m.id));
-    onSelected(near[(current + 1) % near.length].id);
+    // The mark tapped is the one nearest the finger. Heads drawn over one
+    // another answer one tap between them, top first as they are painted —
+    // the most severe class, and within a class the last drawn — so a place
+    // steps through them in one order wherever the finger lands on it.
+    final double touching = 2 * batch.radius;
+    List<String> pile(Offset head) {
+      final List<(int, ClinVarGroup, String)> heads =
+          <(int, ClinVarGroup, String)>[
+            for (int i = 0; i < batch.hits.length; i++)
+              if ((batch.hits[i].$3 - head).distance <= touching)
+                (i, batch.hits[i].$2, batch.hits[i].$1),
+          ]..sort((
+            (int, ClinVarGroup, String) a,
+            (int, ClinVarGroup, String) b,
+          ) {
+            final int severity = ClinVarGroup.bySeverity
+                .indexOf(a.$2)
+                .compareTo(ClinVarGroup.bySeverity.indexOf(b.$2));
+            return severity != 0 ? severity : b.$1.compareTo(a.$1);
+          });
+      return <String>[for (final (int _, ClinVarGroup _, String id) in heads) id];
+    }
+
+    final Offset tapped = near.first.$3;
+    // A tap on the selected mark, or on a head drawn over it, moves on to the
+    // next of its pile, and after the last lets it go: a head alone is a
+    // pile of one, so a second tap on it is the way to put it down.
+    if (widget.selected.length == 1) {
+      final String current = widget.selected.single;
+      for (final (String id, ClinVarGroup _, Offset head) in batch.hits) {
+        if (id == current && (head - tapped).distance <= touching) {
+          final List<String> heads = pile(head);
+          final int next = heads.indexOf(current) + 1;
+          if (next < heads.length) {
+            widget.onSelected(heads[next], (next + 1, heads.length));
+          } else {
+            widget.onSelected(null, null);
+          }
+          return;
+        }
+      }
+    }
+    final List<String> heads = pile(tapped);
+    widget.onSelected(heads.first, (1, heads.length));
   }
 
   /// The piece under [u], or the nearest one to it: a 42-base UTR is a few
   /// points wide on the whole gene, and a finger near it means it.
-  static String? _nearest<T>(
+  static StripWindow? _nearest<T>(
     List<T> pieces,
     (double, double) Function(T) span,
     double u,
-    String Function(T) key,
+    StripWindow Function(T) window,
   ) {
     T? best;
     double distance = double.infinity;
@@ -561,27 +1119,92 @@ class EvidenceStrip extends StatelessWidget {
         distance = d;
       }
     }
-    return best == null ? null : key(best as T);
+    return best == null ? null : window(best as T);
   }
 }
 
-/// A panel's name, and the way back out of its zoom.
+/// A pinch, and only a pinch: accepted the moment a second finger is down,
+/// and never for one. A single finger's vertical drag is left to the page and
+/// its tap to the marks — a plain scale recognizer would claim a one-finger
+/// drag once it passed the pan slop and take the page's scroll with it.
+class _PinchGestureRecognizer extends ScaleGestureRecognizer {
+  _PinchGestureRecognizer({super.debugOwner});
+
+  @override
+  void addAllowedPointer(PointerDownEvent event) {
+    super.addAllowedPointer(event);
+    if (pointerCount >= 2) {
+      resolve(GestureDisposition.accepted);
+    }
+  }
+
+  @override
+  void resolve(GestureDisposition disposition) {
+    if (disposition == GestureDisposition.accepted && pointerCount < 2) {
+      return;
+    }
+    super.resolve(disposition);
+  }
+}
+
+/// A panel's name, and the keys that zoom it.
 class _PanelTitle extends StatelessWidget {
-  const _PanelTitle({required this.panel, required this.text, this.onWhole});
+  const _PanelTitle({
+    required this.panel,
+    required this.text,
+    required this.zoomable,
+    this.onWhole,
+    this.onZoomIn,
+    this.onZoomOut,
+    this.onExpand,
+    this.onClose,
+  });
 
   final StripPanel panel;
   final String text;
+
+  /// Whether the keys are drawn at all. At either end of the zoom one is
+  /// disabled rather than taken away, so nothing on the row moves.
+  final bool zoomable;
   final VoidCallback? onWhole;
+  final VoidCallback? onZoomIn;
+  final VoidCallback? onZoomOut;
+  final VoidCallback? onExpand;
+  final VoidCallback? onClose;
+
+  static const double height = 44;
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final Color muted = theme.colorScheme.onSurfaceVariant;
+    // Standard density throughout the row: compact takes eight points off
+    // every size asked for, which left these keys 36 tall in a 44-point row.
+    // Thirty-two wide, the width they have always been drawn at: at forty,
+    // three of them cut the zoomed title — the window's residues — short.
+    final ButtonStyle key = IconButton.styleFrom(
+      minimumSize: const Size(32, 44),
+      padding: EdgeInsets.zero,
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      visualDensity: VisualDensity.standard,
+    );
+    final String whole = panel == StripPanel.protein
+        ? 'the whole protein'
+        : 'the whole gene';
     // One height zoomed or not, so the way out never moves the page.
     return SizedBox(
-      height: 36,
+      height: height,
       child: Row(
         children: <Widget>[
+          if (onClose != null)
+            IconButton(
+              key: ValueKey<String>('evidence-close-${panel.name}'),
+              onPressed: onClose,
+              tooltip: 'Close',
+              style: key,
+              iconSize: 20,
+              icon: const Icon(Icons.close_rounded),
+            ),
           Expanded(
             child: Text(
               text,
@@ -600,17 +1223,39 @@ class _PanelTitle extends StatelessWidget {
               key: ValueKey<String>('evidence-whole-${panel.name}'),
               onPressed: onWhole,
               style: TextButton.styleFrom(
-                minimumSize: const Size(0, 36),
+                minimumSize: const Size(0, 44),
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                visualDensity: VisualDensity.compact,
+                visualDensity: VisualDensity.standard,
               ),
-              child: Text(
-                '‹ whole',
-                semanticsLabel: panel == StripPanel.protein
-                    ? 'Show the whole protein'
-                    : 'Show the whole gene',
-              ),
+              child: Text('‹ whole', semanticsLabel: 'Show $whole'),
+            ),
+          if (zoomable) ...<Widget>[
+            IconButton(
+              key: ValueKey<String>('evidence-zoom-out-${panel.name}'),
+              onPressed: onZoomOut,
+              tooltip: 'Zoom out',
+              style: key,
+              iconSize: 20,
+              icon: const Icon(Icons.remove_rounded),
+            ),
+            IconButton(
+              key: ValueKey<String>('evidence-zoom-in-${panel.name}'),
+              onPressed: onZoomIn,
+              tooltip: 'Zoom in',
+              style: key,
+              iconSize: 20,
+              icon: const Icon(Icons.add_rounded),
+            ),
+          ],
+          if (onExpand != null)
+            IconButton(
+              key: ValueKey<String>('evidence-expand-${panel.name}'),
+              onPressed: onExpand,
+              tooltip: 'Full screen',
+              style: key,
+              iconSize: 20,
+              icon: const Icon(Icons.fullscreen_rounded),
             ),
         ],
       ),
@@ -618,22 +1263,207 @@ class _PanelTitle extends StatelessWidget {
   }
 }
 
-@immutable
-final class _Mark {
-  const _Mark({
-    required this.id,
-    required this.group,
-    required this.at,
-    required this.base,
+/// The whole protein or gene, drawn thin, with the zoomed panel's window framed
+/// on it: where the reader is, and the handle for moving along.
+class _WindowBar extends StatelessWidget {
+  const _WindowBar({
+    required this.panel,
+    required this.whole,
+    required this.window,
+    required this.onMove,
+    required this.onDone,
+    this.constraint,
+    this.exons = const <(double, double)>[],
+    super.key,
   });
-  final String id;
-  final ClinVarGroup group;
 
-  /// The head.
-  final Offset at;
+  final StripPanel panel;
+  final StripWindow whole;
+  final StripWindow window;
+  final ProteinConstraint? constraint;
+  final List<(double, double)> exons;
 
-  /// Where the stem meets the ground.
-  final Offset base;
+  /// The window as it moves, and when it has stopped.
+  final ValueChanged<StripWindow> onMove;
+  final VoidCallback onDone;
+
+  static const double height = 32;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colors = Theme.of(context).colorScheme;
+    final double span = window.$2 - window.$1;
+    final double length = whole.$2 - whole.$1;
+    StripWindow at(double from) {
+      final double start = from.clamp(whole.$1, whole.$2 - span);
+      return (start, start + span);
+    }
+
+    final String unit = panel == StripPanel.protein ? 'residues' : 'bases';
+    String spoken(StripWindow w) =>
+        '$unit ${w.$1.floor() + 1}–${w.$2.ceil()} of ${length.round()}';
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints bounds) {
+        const double left = _Geometry.gutter;
+        final double width = math.max(1, bounds.maxWidth - 8 - left);
+        double u(double x) => whole.$1 + (x - left) / width * length;
+        return Semantics(
+          label: panel == StripPanel.protein
+              ? 'Window on the whole protein'
+              : 'Window on the whole gene',
+          value: spoken(window),
+          increasedValue: spoken(at(window.$1 + span / 2)),
+          decreasedValue: spoken(at(window.$1 - span / 2)),
+          onIncrease: () {
+            onMove(at(window.$1 + span / 2));
+            onDone();
+          },
+          onDecrease: () {
+            onMove(at(window.$1 - span / 2));
+            onDone();
+          },
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onHorizontalDragUpdate: (DragUpdateDetails details) =>
+                onMove(at(window.$1 + details.delta.dx / width * length)),
+            onHorizontalDragEnd: (DragEndDetails details) => onDone(),
+            onTapUp: (TapUpDetails details) {
+              onMove(at(u(details.localPosition.dx) - span / 2));
+              onDone();
+            },
+            child: CustomPaint(
+              size: Size(bounds.maxWidth, height),
+              painter: _WindowBarPainter(
+                panel: panel,
+                whole: whole,
+                window: window,
+                constraint: constraint,
+                exons: exons,
+                colors: colors,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _WindowBarPainter extends CustomPainter {
+  _WindowBarPainter({
+    required this.panel,
+    required this.whole,
+    required this.window,
+    required this.constraint,
+    required this.exons,
+    required this.colors,
+  });
+
+  final StripPanel panel;
+  final StripWindow whole;
+  final StripWindow window;
+  final ProteinConstraint? constraint;
+  final List<(double, double)> exons;
+  final ColorScheme colors;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const double left = _Geometry.gutter;
+    final double right = size.width - 8;
+    final double width = math.max(1, right - left);
+    final double length = whole.$2 - whole.$1;
+    double x(double u) => left + (u - whole.$1) / length * width;
+    final double middle = size.height / 2;
+    const double thickness = 8;
+    final Rect bar = Rect.fromLTRB(
+      left,
+      middle - thickness / 2,
+      right,
+      middle + thickness / 2,
+    );
+    if (panel == StripPanel.protein) {
+      final ProteinConstraint? track = constraint;
+      final int residues = length.round();
+      for (int r = 1; r <= residues; r++) {
+        canvas.drawRect(
+          Rect.fromLTRB(x(r - 1.0), bar.top, x(r.toDouble()) + 0.5, bar.bottom),
+          Paint()
+            ..color = track != null && r <= track.positions.length
+                ? ConstraintColors.heat(track.positions[r - 1].conservation)
+                : colors.surfaceContainerHighest,
+        );
+      }
+    } else {
+      canvas.drawLine(
+        Offset(left, middle),
+        Offset(right, middle),
+        Paint()
+          ..color = colors.outlineVariant
+          ..strokeWidth = 1,
+      );
+      for (final (double from, double to) in exons) {
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTRB(
+              x(from),
+              middle - 3,
+              math.max(x(to), x(from) + 1),
+              middle + 3,
+            ),
+            const Radius.circular(1.5),
+          ),
+          Paint()..color = colors.onSurfaceVariant.withValues(alpha: 0.55),
+        );
+      }
+    }
+    // Outside the window, the whole goes quiet; the window itself is framed.
+    final double from = x(window.$1);
+    final double to = math.max(x(window.$2), from + 4);
+    final Paint quiet = Paint()..color = colors.surface.withValues(alpha: 0.6);
+    canvas.drawRect(Rect.fromLTRB(left - 1, 0, from, size.height), quiet);
+    canvas.drawRect(Rect.fromLTRB(to, 0, right + 1, size.height), quiet);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTRB(from, middle - 8, to, middle + 8),
+        const Radius.circular(3),
+      ),
+      Paint()
+        ..color = colors.primary
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_WindowBarPainter old) =>
+      old.window != window ||
+      old.whole != whole ||
+      old.constraint != constraint ||
+      old.colors != colors ||
+      !listEquals(old.exons, exons);
+}
+
+/// A panel's marks, placed: heads by class as flat point lists, stems as flat
+/// line pairs, and each mark's place for a tap to find.
+@immutable
+final class _MarkBatch {
+  const _MarkBatch({
+    required this.hits,
+    required this.heads,
+    required this.stems,
+    required this.rings,
+    required this.radius,
+    required this.halo,
+  });
+
+  final List<(String, ClinVarGroup, Offset)> hits;
+  final Map<ClinVarGroup, Float32List> heads;
+  final Float32List stems;
+
+  /// Where the selected records' heads are.
+  final List<Offset> rings;
+  final double radius;
+  final bool halo;
 }
 
 /// A named piece of the gene with records on it, in gene coordinates.
@@ -653,9 +1483,11 @@ final class _Geometry {
     required this.plot,
     required this.ceiling,
     required this.window,
+    this.labelScale = 1,
   });
 
   final Size size;
+  final double labelScale;
 
   /// The AVI area's height.
   final double plot;
@@ -665,13 +1497,23 @@ final class _Geometry {
   final (double, double) window;
 
   static const double gutter = 30;
-  static const double top = 8;
+
+  /// Room above the AVI area for the axis's name: its line, and half the
+  /// ceiling's number under it. Twenty-two at the reader's own size, and more
+  /// as they turn type up, so the name never sits on the number.
+  static double topFor(double labelScale) =>
+      math.max(22, 5 + labelSize * 1.5 * labelScale);
+  double get top => topFor(labelScale);
   static const double band = 10;
 
-  /// A panel for an AVI area of [plot] points: the area, the ground, and a row
-  /// of names under it.
+  /// The strip's own labels. It was ten, which with the chemistry key and the
+  /// ruler was the smallest type in the app.
+  static const double labelSize = 11;
+
+  /// A panel for an AVI area of [plot] points: the axis's name, the area, the
+  /// ground, and a row of names under it.
   static double heightFor(double plot, double labelScale) =>
-      top + plot + 14 + 10 * labelScale + 6;
+      topFor(labelScale) + plot + 14 + labelSize * labelScale + 6;
 
   double get left => gutter;
   double get right => size.width - 8;
@@ -698,27 +1540,20 @@ class _StripPainter extends CustomPainter {
   _StripPainter({
     required this.panel,
     required this.geometry,
-    required this.marks,
-    required this.source,
+    required this.batch,
     required this.constraint,
     required this.proteinLength,
     required this.zoomed,
     required this.exons,
     required this.pieces,
-    required this.highlight,
-    required this.selected,
     required this.colors,
     required this.labelScale,
+    this.empty,
   });
 
   final StripPanel panel;
   final _Geometry geometry;
-  final List<_Mark> marks;
-
-  /// The records [marks] were placed from. The marks are a new list on every
-  /// build, but the same records under the same geometry are the same marks,
-  /// so this is what a repaint is decided on.
-  final List<VariantEvidence> source;
+  final _MarkBatch batch;
   final ProteinConstraint? constraint;
   final int proteinLength;
   final bool zoomed;
@@ -726,17 +1561,18 @@ class _StripPainter extends CustomPainter {
   /// The gene's exons and named pieces, in the panel's coordinates.
   final List<(double, double)> exons;
   final List<_Piece> pieces;
-  final ClinVarGroup? highlight;
-  final Set<String> selected;
   final ColorScheme colors;
   final double labelScale;
+
+  /// What the plot says when it has no mark to draw, or null.
+  final String? empty;
 
   void _label(
     Canvas canvas,
     String text,
     Offset at, {
     TextAlign align = TextAlign.left,
-    double size = 10,
+    double size = _Geometry.labelSize,
     bool mono = true,
   }) {
     final TextPainter painter = TextPainter(
@@ -761,7 +1597,11 @@ class _StripPainter extends CustomPainter {
     painter.dispose();
   }
 
-  double _measure(String text, {double size = 10, bool mono = false}) {
+  double _measure(
+    String text, {
+    double size = _Geometry.labelSize,
+    bool mono = false,
+  }) {
     final TextPainter painter = TextPainter(
       text: TextSpan(
         text: text,
@@ -793,16 +1633,23 @@ class _StripPainter extends CustomPainter {
     final Paint guide = Paint()
       ..color = colors.outlineVariant
       ..strokeWidth = 1;
+    final double half = _Geometry.labelSize * labelScale / 2;
 
-    // The AVI axis, the same in both panels: the top-1% line, labelled, and
-    // its ceiling. The axis is named at the top of the gutter, under its
-    // ceiling's number.
-    _label(canvas, 'AVI', const Offset(0, _Geometry.top + 12));
-    for (final double value in <double>[GeneImpact.highPhred, g.ceiling]) {
+    // The AVI axis, the same in both panels: its name at the top of the
+    // gutter, the ceiling under it, and the top-1% line, drawn dashed — the
+    // key under the strip says what the dashes are, where no mark can sit on
+    // the words. The gene panel's floor is zero; the protein's is the ESM
+    // band, named below.
+    _label(canvas, 'AVI', const Offset(0, 2));
+    for (final double value in <double>[
+      GeneImpact.highPhred,
+      g.ceiling,
+      if (panel == StripPanel.dna) 0,
+    ]) {
       _label(
         canvas,
         value.toStringAsFixed(0),
-        Offset(g.left - 6, g.y(value) - 5),
+        Offset(g.left - 6, g.y(value) - half),
         align: TextAlign.right,
       );
     }
@@ -814,7 +1661,6 @@ class _StripPainter extends CustomPainter {
         guide,
       );
     }
-
     canvas.save();
     canvas.clipRect(Rect.fromLTRB(g.left, 0, g.right + 1, size.height));
     if (panel == StripPanel.protein) {
@@ -825,6 +1671,18 @@ class _StripPainter extends CustomPainter {
     canvas.restore();
     if (panel == StripPanel.protein) {
       _label(canvas, 'ESM', Offset(0, g.groundTop));
+    }
+    if (empty case final String note) {
+      _label(
+        canvas,
+        note,
+        Offset(
+          (g.left + g.right) / 2,
+          g.top + (g.groundTop - g.top) / 2 - half,
+        ),
+        align: TextAlign.center,
+        mono: false,
+      );
     }
 
     // Heads may reach a little past the plot's edge, never into the gutter's
@@ -978,68 +1836,80 @@ class _StripPainter extends CustomPainter {
     }
   }
 
-  // Context first, faint and hollow, so a highlighted mark is never hidden
-  // under one that is not; then the rest from least to most severe, so the
-  // records that decide a stretch sit on top of it.
+  // Stems first, then the classes from least to most severe, so the records
+  // that decide a stretch sit on top of it; a class's halos go down before its
+  // heads, so a more severe head is never hidden under a milder one.
   void _paintMarks(Canvas canvas) {
-    final Paint stem = Paint()
-      ..color = colors.onSurfaceVariant.withValues(alpha: 0.3)
-      ..strokeWidth = 1;
-    final List<_Mark> ordered = List<_Mark>.of(marks)
-      ..sort(
-        (_Mark a, _Mark b) => ClinVarGroup.bySeverity
-            .indexOf(b.group)
-            .compareTo(ClinVarGroup.bySeverity.indexOf(a.group)),
+    final _MarkBatch b = batch;
+    if (b.stems.isNotEmpty) {
+      canvas.drawRawPoints(
+        ui.PointMode.lines,
+        b.stems,
+        Paint()
+          ..color = colors.onSurfaceVariant.withValues(alpha: 0.3)
+          ..strokeWidth = 1,
       );
-    for (final _Mark m in ordered) {
-      if (highlight != null && m.group != highlight) {
-        canvas.drawCircle(
-          m.at,
-          2.5,
+    }
+    for (final ClinVarGroup group in ClinVarGroup.bySeverity.reversed) {
+      final Float32List? points = b.heads[group];
+      if (points == null || points.isEmpty) {
+        continue;
+      }
+      if (b.halo) {
+        canvas.drawRawPoints(
+          ui.PointMode.points,
+          points,
           Paint()
-            ..color = colors.onSurfaceVariant.withValues(alpha: 0.35)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 1,
+            ..color = colors.surface
+            ..strokeWidth = 2 * (b.radius + 1.2)
+            ..strokeCap = StrokeCap.round,
+        );
+      }
+      if (ClinVarColors.hollow(group)) {
+        final Paint ring = Paint()
+          ..color = ClinVarColors.of(group)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.5;
+        for (int i = 0; i + 1 < points.length; i += 2) {
+          canvas.drawCircle(
+            Offset(points[i], points[i + 1]),
+            b.radius - 0.75,
+            ring,
+          );
+        }
+      } else {
+        canvas.drawRawPoints(
+          ui.PointMode.points,
+          points,
+          Paint()
+            ..color = ClinVarColors.of(group)
+            ..strokeWidth = 2 * b.radius
+            ..strokeCap = StrokeCap.round,
         );
       }
     }
-    for (final _Mark m in ordered) {
-      if (highlight != null && m.group != highlight) {
-        continue;
-      }
-      canvas.drawLine(m.base, m.at, stem);
-    }
-    for (final _Mark m in ordered) {
-      if (highlight != null && m.group != highlight) {
-        continue;
-      }
-      ClinVarColors.paintMark(canvas, m.at, 3.4, m.group, halo: colors.surface);
-    }
-    for (final _Mark m in marks) {
-      if (selected.contains(m.id)) {
-        canvas.drawCircle(
-          m.at,
-          7,
-          Paint()
-            ..color = colors.onSurface
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 1.5,
-        );
-      }
+    for (final Offset at in b.rings) {
+      canvas.drawCircle(
+        at,
+        7,
+        Paint()
+          ..color = colors.onSurface
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.5,
+      );
     }
   }
 
   @override
   bool shouldRepaint(_StripPainter old) =>
+      !identical(old.batch, batch) ||
       old.geometry.size != geometry.size ||
       old.geometry.window != geometry.window ||
       old.geometry.plot != geometry.plot ||
       old.geometry.ceiling != geometry.ceiling ||
-      !identical(old.source, source) ||
       old.constraint != constraint ||
       old.zoomed != zoomed ||
-      old.highlight != highlight ||
-      old.selected != selected ||
       old.colors != colors ||
-      old.labelScale != labelScale;
+      old.labelScale != labelScale ||
+      old.empty != empty;
 }

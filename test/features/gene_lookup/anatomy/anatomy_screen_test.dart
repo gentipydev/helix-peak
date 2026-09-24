@@ -4,16 +4,17 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/core/theme/app_theme.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_catalog.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_constraint.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_layout.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_scene.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/structure/structure_view.dart';
+import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_layout.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_scene.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/stage_bar.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/structure/structure_view.dart';
 
 import 'anatomy_fixture.dart';
 
@@ -454,6 +455,44 @@ void main() {
         expect(find.text('110'), findsOneWidget);
       },
     );
+
+    testWidgets('sits on solid ground over a page that runs on under it', (
+      WidgetTester tester,
+    ) async {
+      await _pumpScreen(tester);
+      final Finder fade = find.byKey(const ValueKey<String>('stage-bar-fade'));
+      List<double> stops() =>
+          ((tester.widget<DecoratedBox>(fade).decoration as BoxDecoration)
+                      .gradient!
+                  as LinearGradient)
+              .stops!;
+
+      // The gene is fitted: the fade falls on empty ground, as it always has.
+      expect(stops(), <double>[0, 0.65]);
+
+      // The transcript runs on below the screen, and its letters pass under
+      // the stage names. The ground is solid from the bar's top edge down.
+      await _swipe(tester, forward: true);
+      await tester.pumpAndSettle();
+      expect(find.text('465'), findsOneWidget);
+      final Rect band = tester.getRect(fade);
+      expect(
+        band.top + band.height * stops()[1],
+        lessThanOrEqualTo(tester.getRect(find.byType(StageBar)).top + 0.01),
+      );
+
+      // And at the foot of the scroll the page's last row still clears it.
+      final ScrollPosition position = tester
+          .widget<Scrollable>(find.byType(Scrollable))
+          .controller!
+          .position;
+      position.jumpTo(position.maxScrollExtent);
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(_paintBox()).bottom,
+        lessThanOrEqualTo(band.top + 0.01),
+      );
+    });
   });
 
   group('the fold', () {

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/features/gene_lookup/data/models/gene_record_dto.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/gene_record.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/gene_record.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
 
 import 'anatomy_fixture.dart';
 
@@ -467,9 +467,9 @@ void main() {
       expect(
         runs.map((StageRun r) => '${r.label} ${r.count}').toList(),
         <String>[
-          "the 5' UTR 42",
+          'the 5′ UTR 42',
           'intron 1 179',
-          "the 5' UTR 17",
+          'the 5′ UTR 17',
           'the signal peptide 72',
           'insulin B chain 90',
           'RR site 6',
@@ -479,7 +479,7 @@ void main() {
           'KR site 6',
           'insulin A chain 63',
           'the stop codon 3',
-          "the 3' UTR 73",
+          'the 3′ UTR 73',
         ],
       );
     });
@@ -515,7 +515,7 @@ void main() {
       // The 5' UTR arrives in two pieces either side of intron 1, and is 59
       // bases in both of them.
       final List<StageRun> utr = model.stages[0].runs
-          .where((StageRun r) => r.label == "the 5' UTR")
+          .where((StageRun r) => r.label == 'the 5′ UTR')
           .toList();
       expect(utr.map((StageRun r) => r.count), <int>[42, 17]);
       expect(utr.every((StageRun r) => r.lengthBp == 59), isTrue);
@@ -539,10 +539,10 @@ void main() {
       };
       expect(formsOf(0), <String, List<String>>{
         // The article always goes: these are written on the thing they name.
-        "the 5' UTR": <String>["5' UTR"],
+        'the 5′ UTR': <String>['5′ UTR'],
         'the signal peptide': <String>['signal peptide'],
         'the stop codon': <String>['stop codon'],
-        "the 3' UTR": <String>["3' UTR"],
+        'the 3′ UTR': <String>['3′ UTR'],
         // The protein's own name may go, but only for room.
         'insulin B chain': <String>['insulin B chain', 'B chain'],
         'insulin A chain': <String>['insulin A chain', 'A chain'],
@@ -566,7 +566,7 @@ void main() {
               r.label: r.writtenForms.toList(),
           };
       expect(writtenOf(0), <String, List<String>>{
-        "the 5' UTR": <String>["5' UTR", "5'UTR", "5'U"],
+        'the 5′ UTR': <String>['5′ UTR', '5′UTR', '5′U'],
         'the signal peptide': <String>[
           'signal peptide',
           'sig. peptide',
@@ -575,7 +575,7 @@ void main() {
         // Punctuation is written whole or not at all: three bases are read off
         // the colours either side of them.
         'the stop codon': <String>['stop codon'],
-        "the 3' UTR": <String>["3' UTR", "3'UTR", "3'U"],
+        'the 3′ UTR': <String>['3′ UTR', '3′UTR', '3′U'],
         // A chain's letter is its name, which is the one place a single
         // character names anything.
         'insulin B chain': <String>['insulin B chain', 'B chain', 'B'],
@@ -627,7 +627,7 @@ void main() {
   group('split features', () {
     final AnatomyStage gene = AnatomyModel.derive(insulin()).stages[0];
 
-    test("the 5' UTR is two runs of one feature", () {
+    test('the 5′ UTR is two runs of one feature', () {
       final List<StageRun> utr = gene.runs
           .where((StageRun r) => r.kind == RoleKind.utr5)
           .toList();

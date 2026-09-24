@@ -1,12 +1,12 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/core/network/api_exception.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/gene_record.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_catalog.dart';
-import 'package:helixpeak/features/gene_lookup/domain/repositories/gene_repository.dart';
-import 'package:helixpeak/features/gene_lookup/domain/usecases/fetch_gene.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/cubit/gene_lookup_cubit.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/cubit/gene_lookup_state.dart';
+import 'package:helixpeek/core/network/api_exception.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/gene_record.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
+import 'package:helixpeek/features/gene_lookup/domain/repositories/gene_repository.dart';
+import 'package:helixpeek/features/gene_lookup/domain/usecases/fetch_gene.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/cubit/gene_lookup_cubit.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/cubit/gene_lookup_state.dart';
 import 'package:mocktail/mocktail.dart';
 
 // FetchGene is a final class and cannot be implemented outside its library, so

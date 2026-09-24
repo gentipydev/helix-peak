@@ -255,14 +255,12 @@ class _Details extends StatelessWidget {
           style: theme.textTheme.titleSmall,
         ),
         const SizedBox(height: 6),
-        Row(
-          children: <Widget>[
-            if (!stackScoreLabels(context)) const SizedBox(width: 28),
-            Text('−10', style: theme.textTheme.labelSmall),
-            const Spacer(),
-            Text('0 or higher', style: theme.textTheme.labelSmall),
-            if (!stackScoreLabels(context)) const SizedBox(width: 108),
-          ],
+        // Clamped at both ends, and said at both: a residue where every change
+        // scores below −10 draws every bar empty.
+        ScoreScale(
+          low: '−10 or lower',
+          high: '0 or higher',
+          style: theme.textTheme.labelSmall,
         ),
         const SizedBox(height: 4),
         for (int k = 0; k < visible.length; k++) ...<Widget>[

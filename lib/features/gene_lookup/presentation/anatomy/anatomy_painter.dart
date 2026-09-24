@@ -1183,7 +1183,10 @@ class AnatomyPainter extends CustomPainter {
       return;
     }
     final AnatomyLayout layout = scene.toLayout;
-    final double radius = math.max(5.5, side * 0.17);
+    // Large enough for an eleven-point numeral, the app's smallest type — the
+    // disc was sized to the tile and on a long protein its number came to
+    // seven points — and larger again on a large tile.
+    final double radius = math.max(11 / 1.25, side * 0.17);
     final Paint fill = Paint()..color = anatomy.aminoCysteine;
     final Paint ring = Paint()
       ..style = PaintingStyle.stroke
@@ -1195,9 +1198,12 @@ class AnatomyPainter extends CustomPainter {
         continue;
       }
       final Rect tile = layout.rectOf(cell);
+      // On the corner, so the disc grows out over the gap between tiles
+      // rather than in over the letter: on the smallest tiles an inset disc
+      // this size covered half a C.
       final Offset centre = Offset(
-        tile.right - radius * 0.35,
-        tile.top + radius * 0.35,
+        tile.right - radius * 0.1,
+        tile.top + radius * 0.1,
       );
       if (centre.dy < -radius || centre.dy > size.height + radius) {
         continue;

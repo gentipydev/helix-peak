@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import 'gene_record.dart';
 import 'protein_target.dart';
 
 /// How a base's strongest substitution reads against every other SNV in the
@@ -34,7 +35,8 @@ final class AltScore {
   /// One scale for every base, and a fixed one, so two positions can be
   /// compared by eye. 40 is the top 0.01% of genome-wide SNVs; past that the
   /// bar is full and the number carries the rest.
-  double get barFraction => phred.clamp(0.0, GeneImpact.barCeiling) / GeneImpact.barCeiling;
+  double get barFraction =>
+      phred.clamp(0.0, GeneImpact.barCeiling) / GeneImpact.barCeiling;
 }
 
 /// What one base of the gene record answers with.
@@ -116,6 +118,7 @@ final class ImpactSummary {
 @immutable
 final class GeneImpact {
   const GeneImpact._(
+    this.target,
     this.gene,
     this.chromosome,
     this.transcript,
@@ -140,6 +143,25 @@ final class GeneImpact {
   static const String bases = 'ACGT';
 
   final String gene;
+  final ProteinTarget target;
+
+  bool matchesRecord(GeneRecord record) {
+    if (gene != record.gene ||
+        start != record.start ||
+        sequence.length != record.sequence.length) {
+      return false;
+    }
+    if (record.strand != -1) return sequence == record.sequence;
+    // Avoid allocating a reversed sequence on every sheet animation frame.
+    for (int i = 0; i < sequence.length; i++) {
+      if (sequence.codeUnitAt(i) !=
+          record.sequence.codeUnitAt(sequence.length - 1 - i)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   final String chromosome;
   final String transcript;
 
@@ -188,10 +210,7 @@ final class GeneImpact {
   /// same reason: a score from a different scorer, a different assembly or a
   /// different annotation build is not comparable with one from this one, and a
   /// page that mixed them would be quietly lying.
-  factory GeneImpact.fromJson(
-    Map<String, dynamic> json,
-    ProteinTarget target,
-  ) {
+  factory GeneImpact.fromJson(Map<String, dynamic> json, ProteinTarget target) {
     if (json['gene'] != target.gene ||
         json['uniprot'] != target.uniprot ||
         json['accession'] != target.accession ||
@@ -257,6 +276,7 @@ final class GeneImpact {
     }
 
     return GeneImpact._(
+      target,
       target.gene,
       json['chromosome'] as String,
       json['transcript'] as String,
@@ -316,7 +336,7 @@ final class GeneImpact {
         genomic: genomic,
         wildtype: wildtype,
         ranked: _rankedAt(index, wildtype),
-        );
+      );
     }
     // Borrowed. The neighbour's own wildtype is what its three scores were
     // measured against, so they are read under that letter and not this one.

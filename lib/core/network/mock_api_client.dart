@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../../features/gene_lookup/domain/entities/protein_catalog.dart';
@@ -26,7 +27,9 @@ final class MockApiClient implements ApiClient {
     this.latency = const Duration(milliseconds: 700),
   }) : _bundle = bundle ?? rootBundle;
 
-  static final RegExp _genePath = RegExp(r'^/gene/([^/]+)/([^/]+)$');
+  static final RegExp _genePath = RegExp(
+    r'^/gene/([^/]+)/([^/]+)(/impact-explanations)?$',
+  );
 
   final AssetBundle _bundle;
 
@@ -74,6 +77,17 @@ final class MockApiClient implements ApiClient {
       );
     }
 
+    if (match.group(3) != null) {
+      if (!target.impactExplanationsAvailable) {
+        throw const ServerApiException(
+          statusCode: 404,
+          detail: 'AVI explanations are not included for this gene.',
+        );
+      }
+      final String raw = await (_payloads[target.impactExplanationsAsset] ??=
+          _bundle.loadString(target.impactExplanationsAsset));
+      return compute(_decode, raw);
+    }
     return _record(target);
   }
 
@@ -97,4 +111,7 @@ final class MockApiClient implements ApiClient {
     ));
     return jsonDecode(raw) as Map<String, dynamic>;
   }
+
+  static Map<String, dynamic> _decode(String raw) =>
+      jsonDecode(raw) as Map<String, dynamic>;
 }

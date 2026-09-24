@@ -3,16 +3,16 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/features/gene_lookup/data/models/gene_record_dto.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/gene_record.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_catalog.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_constraint.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_target.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_layout.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_ruler.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_selection.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_tracer.dart';
+import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/gene_record.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_layout.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_ruler.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_selection.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_tracer.dart';
 
 Map<String, dynamic> _json(String path) =>
     jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
@@ -64,6 +64,27 @@ void main() {
     }
     expect(ProteinCatalog.matching('TP53'), <ProteinTarget>[ProteinCatalog.p53]);
     expect(ProteinCatalog.matching('titin'), isEmpty);
+  });
+
+  test('search leads with what a query names, not with what mentions it', () {
+    // A name the query begins a word of, ahead of a summary that happens to
+    // say it — in catalog order, insulin's summary came first.
+    expect(
+      ProteinCatalog.matching('hormone'),
+      <ProteinTarget>[ProteinCatalog.somatotropin, ProteinCatalog.insulin],
+    );
+    expect(ProteinCatalog.matching('protein'), <ProteinTarget>[
+      ProteinCatalog.app,
+      ProteinCatalog.prion,
+      ProteinCatalog.myoglobin,
+    ]);
+    expect(ProteinCatalog.matching('precursor').first, ProteinCatalog.app);
+    // Among the summaries alone, the catalog's order stands.
+    expect(ProteinCatalog.matching('precursor').skip(1), <ProteinTarget>[
+      ProteinCatalog.oxytocin,
+      ProteinCatalog.vasopressin,
+      ProteinCatalog.glucagon,
+    ]);
   });
 
   group('assets', () {

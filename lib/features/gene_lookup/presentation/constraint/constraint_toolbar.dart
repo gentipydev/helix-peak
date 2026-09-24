@@ -115,9 +115,11 @@ class ChemistryKey extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final AnatomyColors palette = context.anatomyColors;
+    // Eleven, the app's smallest type. At ten it was set in one row and then
+    // scaled down to fit beside the switch — seven points on a small phone.
     final TextStyle label = AppTypography.sequenceSmall(
       theme.colorScheme.onSurfaceVariant,
-    ).copyWith(fontSize: 10, letterSpacing: 0, height: 1);
+    ).copyWith(fontSize: 11, letterSpacing: 0, height: 1);
 
     Widget item(Color colour, String text) => Row(
       mainAxisSize: MainAxisSize.min,
@@ -141,19 +143,25 @@ class ChemistryKey extends StatelessWidget {
           '${_groups.map(((AminoAcidProperty, String, String) g) => '${g.$3} ${g.$2.split('').join(' ')}').join('; ')}; '
           'cut site',
       excludeSemantics: true,
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        alignment: Alignment.centerLeft,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            for (final (AminoAcidProperty property, String codes, String _)
-                in _groups) ...<Widget>[
-              item(palette.forProperty(property), codes),
-              const SizedBox(width: 8),
-            ],
-            item(palette.dibasic, 'cut'),
-          ],
+      // As many rows as the width asks for, rather than one row shrunk; only
+      // type turned up past what the toolbar's height holds scales it down.
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints bounds) => FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: bounds.maxWidth),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 5,
+              children: <Widget>[
+                for (final (AminoAcidProperty property, String codes, String _)
+                    in _groups)
+                  item(palette.forProperty(property), codes),
+                item(palette.dibasic, 'cut'),
+              ],
+            ),
+          ),
         ),
       ),
     );

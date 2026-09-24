@@ -1,8 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_scene.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_scene.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
 
 import 'anatomy_fixture.dart';
 
@@ -203,7 +203,7 @@ void main() {
           gene.slotPair[stage.cellAt(position)] ~/ CellSlot.count;
 
       expect(slotAt(6000), CellSlot.intron, reason: 'intron 2');
-      expect(slotAt(4986), CellSlot.utr5, reason: "the 5' UTR");
+      expect(slotAt(4986), CellSlot.utr5, reason: 'the 5′ UTR');
       expect(slotAt(5224), CellSlot.signalPeptide);
       expect(slotAt(5301), CellSlot.mature1, reason: 'insulin B chain');
       expect(slotAt(5392), CellSlot.mature2, reason: 'C-peptide');

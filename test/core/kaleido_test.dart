@@ -2,8 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/core/theme/anatomy_colors.dart';
-import 'package:helixpeak/core/theme/kaleido.dart';
+import 'package:helixpeek/core/theme/anatomy_colors.dart';
+import 'package:helixpeek/core/theme/kaleido.dart';
 
 double _linear(double c) =>
     c <= 0.04045 ? c / 12.92 : math.pow((c + 0.055) / 1.055, 2.4).toDouble();

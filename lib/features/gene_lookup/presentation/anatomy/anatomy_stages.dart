@@ -290,7 +290,7 @@ final class StageRun {
       return piece;
     }
     return switch (kind) {
-      // The space is all there is to take: "5' UTR" is already an abbreviation.
+      // The space is all there is to take: "5′ UTR" is already an abbreviation.
       RoleKind.utr5 || RoleKind.utr3 => name.replaceAll(' ', ''),
       RoleKind.coding => 'CDS',
       RoleKind.signalPeptide => 'sig. peptide',
@@ -326,7 +326,7 @@ final class StageRun {
     return piece == null ? '' : '${cut(piece.group(1)!)} ${piece.group(2)}';
   }
 
-  /// "5' UTR" is "5'U": which end of the transcript, and the first letter of
+  /// "5′ UTR" is "5′U": which end of the transcript, and the first letter of
   /// what sits there.
   static String _sided(String name) {
     final int space = name.indexOf(' ');
@@ -930,7 +930,7 @@ final class _AnatomyDerivation {
       _set(
         _codingRoles,
         transcript.take(firstCoding),
-        Role(kind: RoleKind.utr5, label: "the 5' UTR", lengthBp: firstCoding),
+        Role(kind: RoleKind.utr5, label: 'the 5′ UTR', lengthBp: firstCoding),
       );
     }
     if (lastCoding >= 0 && lastCoding < transcript.length - 1) {
@@ -939,7 +939,7 @@ final class _AnatomyDerivation {
         transcript.skip(lastCoding + 1),
         Role(
           kind: RoleKind.utr3,
-          label: "the 3' UTR",
+          label: 'the 3′ UTR',
           lengthBp: transcript.length - lastCoding - 1,
         ),
       );

@@ -4,10 +4,10 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/core/theme/app_colors.dart';
-import 'package:helixpeak/core/theme/nucleotide_colors.dart';
-import 'package:helixpeak/features/home/presentation/widgets/dna_helix_painter.dart';
-import 'package:helixpeak/features/home/presentation/widgets/helix_geometry.dart';
+import 'package:helixpeek/core/theme/app_colors.dart';
+import 'package:helixpeek/core/theme/nucleotide_colors.dart';
+import 'package:helixpeek/features/home/presentation/widgets/dna_helix_painter.dart';
+import 'package:helixpeek/features/home/presentation/widgets/helix_geometry.dart';
 
 /// Measures how evenly the helix moves, frame to frame.
 ///

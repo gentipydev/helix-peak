@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/core/network/api_client.dart';
-import 'package:helixpeak/core/network/api_exception.dart';
-import 'package:helixpeak/core/network/mock_api_client.dart';
-import 'package:helixpeak/features/gene_lookup/data/datasources/gene_remote_data_source.dart';
-import 'package:helixpeak/features/gene_lookup/data/repositories/gene_repository_impl.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/gene_record.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_catalog.dart';
-import 'package:helixpeak/features/gene_lookup/domain/usecases/fetch_gene.dart';
+import 'package:helixpeek/core/network/api_client.dart';
+import 'package:helixpeek/core/network/api_exception.dart';
+import 'package:helixpeek/core/network/mock_api_client.dart';
+import 'package:helixpeek/features/gene_lookup/data/datasources/gene_remote_data_source.dart';
+import 'package:helixpeek/features/gene_lookup/data/repositories/gene_repository_impl.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/gene_record.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
+import 'package:helixpeek/features/gene_lookup/domain/usecases/fetch_gene.dart';
 
 /// The assertions below are the ones `test/live_backend_check.dart` makes
 /// against the running service. Holding the fake to the same ones is the whole

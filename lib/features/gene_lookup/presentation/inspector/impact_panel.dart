@@ -1,11 +1,16 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/entities/gene_clinvar.dart';
 import '../../domain/entities/gene_impact.dart';
+import '../../domain/entities/impact_explanations.dart';
 import '../clinvar/clinvar_colors.dart';
 import '../format.dart';
 import 'coding_evidence.dart';
+import 'impact_explanation_view.dart';
 import 'inspector_sheet.dart';
 import 'level_pips.dart';
 import 'score_bar.dart';
@@ -37,6 +42,7 @@ class ImpactPanel extends StatefulWidget {
     this.onNote,
     this.reported = const <String, ClinVarGroup>{},
     this.observedEvidence,
+    this.explanationTrack,
     super.key,
   });
 
@@ -45,6 +51,7 @@ class ImpactPanel extends StatefulWidget {
   static const double maximumSize = InspectorSheet.maximumSize;
 
   final BaseImpact impact;
+  final GeneImpact? explanationTrack;
 
   /// The codon a coding base sits in, for which alternatives keep the amino
   /// acid. Null off the coding sequence.
@@ -92,6 +99,21 @@ class ImpactPanel extends StatefulWidget {
 class _ImpactPanelState extends State<ImpactPanel> {
   final InspectorSheetController _inspector = InspectorSheetController();
   bool _explanation = false;
+  String? _selectedAlt;
+
+  @override
+  void didUpdateWidget(ImpactPanel old) {
+    super.didUpdateWidget(old);
+    if (old.impact.position != widget.impact.position ||
+        old.explanationTrack != widget.explanationTrack) {
+      _selectedAlt = null;
+    }
+  }
+
+  void _selectAlt(String alt) {
+    setState(() => _selectedAlt = _selectedAlt == alt ? null : alt);
+    if (_selectedAlt != null) _inspector.reveal(grow: true);
+  }
 
   void _toggleExplanation() {
     setState(() => _explanation = !_explanation);
@@ -146,6 +168,9 @@ class _ImpactPanelState extends State<ImpactPanel> {
           coding: widget.coding,
           reported: widget.reported,
           observedEvidence: widget.observedEvidence,
+          explanationTrack: widget.explanationTrack,
+          selectedAlt: _selectedAlt,
+          onSelectAlt: _selectAlt,
         ),
       ),
     );
@@ -190,6 +215,7 @@ class _BaseIdentity extends StatelessWidget {
     return Row(
       children: <Widget>[
         Container(
+          key: const ValueKey<String>('impact-tile'),
           width: baseSize,
           height: baseSize,
           alignment: Alignment.center,
@@ -202,7 +228,11 @@ class _BaseIdentity extends StatelessWidget {
             style: TextStyle(
               fontFamily: AppTypography.monoFamily,
               fontSize: 26,
-              color: theme.colorScheme.surface,
+              color: _inkOn(
+                tint,
+                dark: theme.colorScheme.surface,
+                light: context.anatomyColors.tracer,
+              ),
             ),
           ),
         ),
@@ -239,6 +269,22 @@ class _BaseIdentity extends StatelessWidget {
   }
 }
 
+/// The ink a letter reads in on [fill]: [dark] or [light], whichever stands
+/// further from it by contrast ratio.
+///
+/// The gene page's rule for naming its regions (`AnatomyPainter`), and here
+/// for the same fills: the tile is tinted as the grid draws the base's region,
+/// and an intron's near-black took the ground's own ink at 1.25 to one.
+Color _inkOn(Color fill, {required Color dark, required Color light}) {
+  double contrast(Color a, Color b) {
+    final double x = a.computeLuminance();
+    final double y = b.computeLuminance();
+    return (math.max(x, y) + 0.05) / (math.min(x, y) + 0.05);
+  }
+
+  return contrast(fill, dark) >= contrast(fill, light) ? dark : light;
+}
+
 class _Details extends StatelessWidget {
   const _Details({
     required this.impact,
@@ -248,6 +294,9 @@ class _Details extends StatelessWidget {
     this.onNote,
     this.coding,
     this.observedEvidence,
+    this.explanationTrack,
+    this.selectedAlt,
+    required this.onSelectAlt,
     super.key,
   });
 
@@ -258,6 +307,9 @@ class _Details extends StatelessWidget {
   final CodingEvidence? coding;
   final Map<String, ClinVarGroup> reported;
   final Widget? observedEvidence;
+  final GeneImpact? explanationTrack;
+  final String? selectedAlt;
+  final ValueChanged<String> onSelectAlt;
 
   @override
   Widget build(BuildContext context) {
@@ -266,11 +318,42 @@ class _Details extends StatelessWidget {
       textTheme: base.textTheme.apply(fontFamily: AppTypography.sansFamily),
     );
     final Color bar = theme.colorScheme.onSurfaceVariant;
-    final List<String> silent = coding?.synonymousAlternatives ?? const <String>[];
+    final List<String> silent =
+        coding?.synonymousAlternatives ?? const <String>[];
     // An estimate is drawn quieter than a measurement. The number is still
     // there to read, but nothing about it should look as solid as a score that
     // was measured for the base under the finger.
     final double weight = impact.estimated ? 0.55 : 1;
+    final List<ImpactExplanationRequest?> requests =
+        <ImpactExplanationRequest?>[
+          for (final AltScore score in impact.ranked)
+            impact.estimated
+                ? null
+                : ImpactExplanationRequest.forAllele(
+                    explanationTrack,
+                    impact.position,
+                    impact.wildtype,
+                    score.base,
+                  ),
+        ];
+    // A row that opens its explanation ends in a chevron. Where any does, the
+    // scale and the reference keep the same column, so every bar is drawn to
+    // one length on one scale and every number ends in one place.
+    final double disclosure =
+        requests.any((ImpactExplanationRequest? r) => r != null)
+        ? _Substitution.disclosure
+        : 0;
+    // The base that is actually there. It is not a substitution and has no
+    // score of its own, so it carries no bar — an empty track and a dash,
+    // rather than a zero that would read as a measurement.
+    final Widget reference = ScoreBar(
+      label: impact.wildtype,
+      fraction: 0,
+      value: '—',
+      native: true,
+      color: bar,
+      semanticsLabel: '${impact.wildtype}, the reference base, not scored',
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -325,42 +408,48 @@ class _Details extends StatelessWidget {
                 style: theme.textTheme.titleSmall,
               ),
               const SizedBox(height: 6),
-              Row(
-                children: <Widget>[
-                  if (!stackScoreLabels(context)) const SizedBox(width: 28),
-                  Text('0', style: theme.textTheme.labelSmall),
-                  const Spacer(),
-                  Text('40 or higher', style: theme.textTheme.labelSmall),
-                  if (!stackScoreLabels(context)) const SizedBox(width: 108),
-                ],
+              ScoreScale(
+                low: '0',
+                high: '40 or higher',
+                style: theme.textTheme.labelSmall,
+                trailing: disclosure,
+                highKey: const ValueKey<String>('impact-scale-end'),
               ),
               const SizedBox(height: 4),
-              for (final AltScore score in impact.ranked)
-                ScoreBar(
-                  label: score.base,
-                  fraction: score.barFraction,
-                  value: score.phred.toStringAsFixed(1),
-                  native: false,
-                  color: bar,
-                  valueKey: ValueKey<String>('impact-score-${score.base}'),
-                  tag: _tag(score.base, reported[score.base], silent),
-                  semanticsLabel:
-                      '${score.base}, Phred ${score.phred.toStringAsFixed(1)}'
-                      '${silent.contains(score.base) ? ', same amino acid' : ''}'
-                      '${reported[score.base] == null ? '' : ', ClinVar ${reported[score.base]!.label}'}',
+              for (final (int i, AltScore score) in impact.ranked.indexed)
+                _Substitution(
+                  request: requests[i],
+                  selected: selectedAlt == score.base,
+                  onTap: () => onSelectAlt(score.base),
+                  child: ScoreBar(
+                    label: score.base,
+                    fraction: score.barFraction,
+                    value: score.phred.toStringAsFixed(1),
+                    native: false,
+                    color: bar,
+                    valueKey: ValueKey<String>('impact-score-${score.base}'),
+                    tag: _tag(score.base, reported[score.base], silent),
+                    semanticsLabel:
+                        '${score.base}, Phred ${score.phred.toStringAsFixed(1)}'
+                        '${silent.contains(score.base) ? ', same amino acid' : ''}'
+                        '${reported[score.base] == null ? '' : ', ClinVar ${reported[score.base]!.label}'}',
+                  ),
                 ),
-              // The base that is actually there. It is not a substitution and
-              // has no score of its own, so it carries no bar — an empty track
-              // and a dash, rather than a zero that would read as a measurement.
-              ScoreBar(
-                label: impact.wildtype,
-                fraction: 0,
-                value: '—',
-                native: true,
-                color: bar,
-                semanticsLabel:
-                    '${impact.wildtype}, the reference base, not scored',
-              ),
+              if (disclosure > 0)
+                ConstrainedBox(
+                  key: const ValueKey<String>('impact-reference'),
+                  constraints: const BoxConstraints(
+                    minHeight: _Substitution.height,
+                  ),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(child: reference),
+                      SizedBox(width: disclosure),
+                    ],
+                  ),
+                )
+              else
+                reference,
             ],
           ),
         ),
@@ -385,7 +474,73 @@ class _Details extends StatelessWidget {
         if (same)
           const Text(
             '=',
-            style: TextStyle(fontFamily: AppTypography.monoFamily, fontSize: 13),
+            style: TextStyle(
+              fontFamily: AppTypography.monoFamily,
+              fontSize: 13,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _Substitution extends StatelessWidget {
+  const _Substitution({
+    required this.request,
+    required this.selected,
+    required this.onTap,
+    required this.child,
+  });
+  final ImpactExplanationRequest? request;
+  final bool selected;
+  final VoidCallback onTap;
+  final Widget child;
+
+  /// The chevron's column after the row: four points of air and the icon.
+  static const double disclosure = 22;
+
+  /// A row a finger opens.
+  static const double height = 44;
+
+  @override
+  Widget build(BuildContext context) {
+    final r = request;
+    if (r == null) return child;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Semantics(
+          button: true,
+          expanded: selected,
+          label: 'Explain ${r.ref} to ${r.alt} AVI score',
+          child: InkWell(
+            key: ValueKey('impact-explain-${r.alt}'),
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(8),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: height),
+              child: Row(
+                children: <Widget>[
+                  Expanded(child: child),
+                  SizedBox(
+                    width: disclosure,
+                    child: Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: Icon(
+                        selected ? Icons.expand_less : Icons.expand_more,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (selected)
+          ImpactExplanationView(
+            key: ValueKey('explanation-${r.position}-${r.alt}'),
+            request: r,
           ),
       ],
     );
@@ -423,11 +578,13 @@ class _NoteLine extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 40),
-          child: Align(alignment: AlignmentDirectional.centerStart, child: label),
+          constraints: const BoxConstraints(minHeight: 44),
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: label,
+          ),
         ),
       ),
     );
   }
 }
-

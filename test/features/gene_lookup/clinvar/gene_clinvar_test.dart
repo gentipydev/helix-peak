@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/gene_clinvar.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/gene_impact.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_catalog.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_constraint.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/variant_evidence.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/gene_clinvar.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/gene_impact.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/variant_evidence.dart';
 
 import '../anatomy/anatomy_fixture.dart';
 

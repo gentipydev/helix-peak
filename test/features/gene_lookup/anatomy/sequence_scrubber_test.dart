@@ -3,12 +3,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/core/theme/app_theme.dart';
-import 'package:helixpeak/features/gene_lookup/data/models/gene_record_dto.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_catalog.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_constraint.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_target.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
+import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
 
 import 'anatomy_fixture.dart';
 
@@ -57,6 +57,14 @@ void main() {
   setUpAll(loadAppFonts);
 
   final Finder scrubber = find.byKey(const ValueKey<String>('sequence-scrubber'));
+  Color thumb(WidgetTester tester) =>
+      (tester
+                  .widget<DecoratedBox>(
+                    find.byKey(const ValueKey<String>('sequence-scrubber-thumb')),
+                  )
+                  .decoration
+              as BoxDecoration)
+          .color!;
 
   testWidgets('a page of thirteen screens gets a scrubber that names where it is', (
     WidgetTester tester,
@@ -78,9 +86,12 @@ void main() {
     );
     // The bubble: the number of the row at the top, and the repeat it is in.
     expect(find.textContaining(RegExp(r'^\d+ · SR\d+$')), findsOneWidget);
+    expect(thumb(tester), Theme.of(tester.element(scrubber)).colorScheme.primary);
     await drag.up();
     await tester.pump();
     expect(find.textContaining(RegExp(r'^\d+ · SR\d+$')), findsNothing);
+    // At rest it is half there, so a name's last letter under it still shows.
+    expect(thumb(tester).a, lessThan(1));
     expect(tester.takeException(), isNull);
   });
 

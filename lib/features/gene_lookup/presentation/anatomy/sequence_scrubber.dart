@@ -143,16 +143,23 @@ class _SequenceScrubberState extends State<SequenceScrubber> {
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
+                    // Half-seen at rest. The strip lies over the page, and an
+                    // opaque thumb hid whatever the page drew under it — the
+                    // last letter of a name set against the right edge read as
+                    // cut off. In the reader's hand it is the accent, whole.
                     Positioned(
                       right: 4,
                       top: top,
                       width: 8,
                       height: SequenceScrubber._thumb,
                       child: DecoratedBox(
+                        key: const ValueKey<String>('sequence-scrubber-thumb'),
                         decoration: BoxDecoration(
                           color: _dragging
                               ? theme.colorScheme.primary
-                              : theme.colorScheme.onSurfaceVariant,
+                              : theme.colorScheme.onSurfaceVariant.withValues(
+                                  alpha: 0.5,
+                                ),
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),

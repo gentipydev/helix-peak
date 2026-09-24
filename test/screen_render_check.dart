@@ -7,20 +7,21 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/core/theme/app_theme.dart';
-import 'package:helixpeak/features/gene_lookup/data/models/gene_record_dto.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/gene_record.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_catalog.dart';
-import 'package:helixpeak/features/gene_lookup/domain/repositories/gene_repository.dart';
-import 'package:helixpeak/features/gene_lookup/domain/usecases/fetch_gene.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_layout.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/cubit/gene_lookup_cubit.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/screens/gene_screen.dart';
-import 'package:helixpeak/features/home/presentation/screens/home_screen.dart';
+import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/gene_record.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
+import 'package:helixpeek/features/gene_lookup/domain/repositories/gene_repository.dart';
+import 'package:helixpeek/features/gene_lookup/domain/usecases/fetch_gene.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_layout.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/cubit/gene_lookup_cubit.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/screens/gene_screen.dart';
+import 'package:helixpeek/features/home/presentation/screens/home_screen.dart';
+import 'package:helixpeek/shared/widgets/app_logo.dart';
 import 'package:mocktail/mocktail.dart';
 
 // GeneLookupCubit is a final class and cannot be mocked directly, so the screen
@@ -132,6 +133,14 @@ void main() {
       ),
     );
     await tester.pump(const Duration(seconds: 3));
+    // Asset decoding uses the real event loop; finish it before capturing.
+    await tester.runAsync(
+      () => precacheImage(
+        const AssetImage(AppLogo.assetPath),
+        tester.element(find.byType(HomeScreen)),
+      ),
+    );
+    await tester.pump();
     await _capture(tester, 'home');
   });
 

@@ -226,7 +226,7 @@ class _StructureViewState extends State<StructureView> {
       // Flutter GPU is opted into per platform and a headless test never has it
       // at all. One page that cannot draw is not worth taking the other four
       // down with it, so this is reported in place and the walk survives.
-      debugPrint('helixpeak: no Flutter GPU for the structure page ($error)');
+      debugPrint('helixpeek: no Flutter GPU for the structure page ($error)');
       if (mounted) {
         setState(() => _failed = true);
       }
@@ -278,7 +278,7 @@ class _StructureViewState extends State<StructureView> {
         _ready = true;
       });
     } on Object catch (error) {
-      debugPrint('helixpeak: could not load the structure ($error)');
+      debugPrint('helixpeek: could not load the structure ($error)');
       if (mounted) {
         setState(() => _failed = true);
       }

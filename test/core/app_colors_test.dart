@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/core/theme/app_colors.dart';
+import 'package:helixpeek/core/theme/app_colors.dart';
 
 double _contrast(Color a, Color b) {
   final double x = a.computeLuminance();

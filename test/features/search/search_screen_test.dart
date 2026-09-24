@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_catalog.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_target.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/format.dart';
-import 'package:helixpeak/features/search/presentation/screens/search_screen.dart';
-import 'package:helixpeak/features/search/presentation/widgets/protein_card.dart';
+import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/format.dart';
+import 'package:helixpeek/features/search/presentation/screens/search_screen.dart';
+import 'package:helixpeek/features/search/presentation/widgets/protein_card.dart';
 
 /// Tall enough that the lazy list builds the whole catalog at once.
 ///
@@ -127,5 +128,21 @@ void main() {
     );
     expect(ProteinCatalog.matching('p01308'), <ProteinTarget>[ProteinCatalog.insulin]);
     expect(ProteinCatalog.matching('NG_012232'), <ProteinTarget>[ProteinCatalog.dystrophin]);
+  });
+
+  testWidgets('a card gives its summary two lines', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.analysis,
+        home: const SearchScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<Text>(find.text(ProteinCatalog.insulin.summary)).maxLines,
+      2,
+    );
   });
 }

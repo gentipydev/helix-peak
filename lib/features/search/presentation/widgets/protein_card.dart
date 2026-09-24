@@ -6,7 +6,7 @@ import '../../../gene_lookup/domain/entities/protein_target.dart';
 import '../../../gene_lookup/presentation/format.dart';
 
 /// One protein on the search list: what it is called, its gene symbol, the
-/// figures a reader weighs it by, and one line on why they might open it.
+/// figures a reader weighs it by, and up to two lines on why they might open it.
 ///
 /// The symbol is set in the mono face and given the accent, because it is the
 /// thing the reader will have typed to get here and the thing the walk's first
@@ -93,9 +93,12 @@ class ProteinCard extends StatelessWidget {
                         ).copyWith(fontSize: 11, letterSpacing: 0),
                       ),
                       const SizedBox(height: 2),
+                      // Two lines: at one, every summary was cut about forty
+                      // characters in, which was most of what told one
+                      // protein from the next.
                       Text(
                         target.summary,
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           fontSize: 13,

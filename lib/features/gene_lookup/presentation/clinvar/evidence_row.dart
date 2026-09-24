@@ -1,11 +1,15 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/biology/amino_acids.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/entities/gene_clinvar.dart';
 import '../../domain/entities/variant_evidence.dart';
 import '../format.dart';
+import '../inspector/impact_explanation_view.dart';
 import 'clinvar_colors.dart';
 
 /// Which model's number a row carries. A sheet already shows its own model on
@@ -62,6 +66,82 @@ class EvidenceRow extends StatelessWidget {
   final ValueChanged<int>? onResidue;
   final ValueChanged<int>? onBase;
 
+  /// How long a row takes to open or close, where motion is on.
+  static const Duration motion = Duration(milliseconds: 180);
+
+  /// The citation's type, beside the change.
+  static const TextStyle _citation = TextStyle(
+    fontFamily: AppTypography.monoFamily,
+    fontSize: 12,
+  );
+
+  static const double _padding = 8;
+
+  /// How tall a closed row is: exactly this, whatever it cites, so a list of
+  /// thousands can place any row without building the rows above it. Read
+  /// where the rows are built, for their type and the reader's text size.
+  static double closedExtent(BuildContext context) {
+    final (double first, double second) = lines(context);
+    // Summed as the layout sums it — the lines, then the padding round them —
+    // so the two agree to the last bit.
+    return first + second + _padding * 2;
+  }
+
+  /// A closed row's two lines — the change, then what ClinVar calls it — each
+  /// laid out in a box of exactly this height. The overview's readout names
+  /// a tapped mark on the same two lines, so it reads as the row does.
+  static (double, double) lines(BuildContext context) {
+    final TextTheme type = Theme.of(context).textTheme;
+    final DefaultTextStyle inherited = DefaultTextStyle.of(context);
+    final TextHeightBehavior? behavior =
+        inherited.textHeightBehavior ??
+        DefaultTextHeightBehavior.maybeOf(context);
+    final TextScaler scaler = MediaQuery.textScalerOf(context);
+    final bool bold = MediaQuery.boldTextOf(context);
+    final Object key = (
+      type.titleSmall,
+      type.bodySmall,
+      inherited.style,
+      behavior,
+      scaler,
+      bold,
+    );
+    if (_measured case (final Object at, final (double, double) lines)
+        when at == key) {
+      return lines;
+    }
+    // One line of [style] as a Text here would lay it out.
+    double line(TextStyle? style) {
+      TextStyle effective = inherited.style.merge(style);
+      if (bold) {
+        effective = effective.merge(
+          const TextStyle(fontWeight: FontWeight.bold),
+        );
+      }
+      final TextPainter painter = TextPainter(
+        text: TextSpan(text: 'Ag', style: effective),
+        textDirection: TextDirection.ltr,
+        textScaler: scaler,
+        textHeightBehavior: behavior,
+        maxLines: 1,
+      )..layout();
+      final double height = painter.height;
+      painter.dispose();
+      return height;
+    }
+
+    final (double, double) lines = (
+      math.max(line(type.titleSmall), line(_citation)),
+      math.max(line(type.bodySmall), 3 + ReviewStars.size),
+    );
+    _measured = (key, lines);
+    return lines;
+  }
+
+  /// The lines last measured, and what for: every row asks, and almost always
+  /// for the same.
+  static (Object, (double, double))? _measured;
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
@@ -72,14 +152,11 @@ class EvidenceRow extends StatelessWidget {
     // and all; saying the allele again beside it is the same fact twice.
     final bool secondary =
         citation != v.shortLabel && !(allele && v.proteinChange == null);
-    final TextStyle mono = TextStyle(
-      fontFamily: AppTypography.monoFamily,
-      fontSize: 12,
-      color: muted,
-    );
+    final TextStyle mono = _citation.copyWith(color: muted);
     final Duration motion = MediaQuery.disableAnimationsOf(context)
         ? Duration.zero
-        : const Duration(milliseconds: 180);
+        : EvidenceRow.motion;
+    final (double first, double second) = lines(context);
     return Column(
       key: ValueKey<String>('evidence-${v.id}'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -94,7 +171,7 @@ class EvidenceRow extends StatelessWidget {
             onTap: onToggle,
             borderRadius: BorderRadius.circular(10),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.symmetric(vertical: _padding),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -106,39 +183,57 @@ class EvidenceRow extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Wrap(
-                          spacing: 8,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: <Widget>[
-                            Text(v.shortLabel, style: theme.textTheme.titleSmall),
-                            if (secondary) Text(citation, style: mono),
-                          ],
+                        // One line, whatever the change: one too long for it
+                        // is drawn a little smaller rather than broken or cut.
+                        SizedBox(
+                          height: first,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Text(
+                                  v.shortLabel,
+                                  style: theme.textTheme.titleSmall,
+                                ),
+                                if (secondary) ...<Widget>[
+                                  const SizedBox(width: 8),
+                                  Text(citation, style: mono),
+                                ],
+                              ],
+                            ),
+                          ),
                         ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            if (v.stars > 0) ...<Widget>[
-                              Padding(
-                                padding: const EdgeInsets.only(top: 3),
-                                child: ReviewStars(count: v.stars),
-                              ),
-                              const SizedBox(width: 6),
-                            ],
-                            Flexible(
-                              child: ClinVarSourced(
-                                child: Text(
-                                  v.classification,
-                                  maxLines: expanded ? null : 1,
-                                  overflow: expanded
-                                      ? TextOverflow.visible
-                                      : TextOverflow.ellipsis,
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: muted,
+                        // Open, the classification is read whole.
+                        SizedBox(
+                          height: expanded ? null : second,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              if (v.stars > 0) ...<Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 3),
+                                  child: ReviewStars(count: v.stars),
+                                ),
+                                const SizedBox(width: 6),
+                              ],
+                              Flexible(
+                                child: ClinVarSourced(
+                                  child: Text(
+                                    v.classification,
+                                    maxLines: expanded ? null : 1,
+                                    overflow: expanded
+                                        ? TextOverflow.visible
+                                        : TextOverflow.ellipsis,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: muted,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -219,10 +314,7 @@ class _Numbers extends StatelessWidget {
         if (column == EvidenceColumn.both && evidence.esm != null)
           TextSpan(text: '  ', style: unit),
         TextSpan(text: 'AVI ', style: unit),
-        TextSpan(
-          text: evidence.avi?.toStringAsFixed(1) ?? '—',
-          style: style,
-        ),
+        TextSpan(text: evidence.avi?.toStringAsFixed(1) ?? '—', style: style),
       ],
     ];
     if (parts.isEmpty) {
@@ -391,22 +483,45 @@ class EvidenceDetail extends StatelessWidget {
               ),
             ),
           const SizedBox(height: 4),
+          if (evidence.explanation case final request?)
+            ImpactExplanationView(
+              key: ValueKey('evidence-contributions-${v.id}'),
+              request: request,
+            ),
           Wrap(
             spacing: 4,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: <Widget>[
+              // The record itself, on ClinVar, as the Atlas link opens its
+              // change in the Atlas; a device with nowhere to open it gets
+              // the link to paste instead.
               TextButton.icon(
                 key: ValueKey<String>('evidence-copy-${v.id}'),
                 style: _link,
                 onPressed: () async {
+                  try {
+                    if (await launchUrl(
+                      Uri.parse(v.url),
+                      mode: LaunchMode.externalApplication,
+                    )) {
+                      return;
+                    }
+                  } on Exception {
+                    // Copied below instead.
+                  }
                   await Clipboard.setData(ClipboardData(text: v.url));
                   if (context.mounted) {
                     ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-                      SnackBar(content: Text('${v.accession} link copied')),
+                      SnackBar(
+                        content: Text(
+                          '${v.accession} link copied. Open it in your '
+                          'browser.',
+                        ),
+                      ),
                     );
                   }
                 },
-                icon: const Icon(Icons.copy_outlined, size: 14),
+                icon: const Icon(Icons.open_in_new_rounded, size: 14),
                 label: Text(
                   v.accession,
                   style: const TextStyle(
@@ -436,10 +551,14 @@ class EvidenceDetail extends StatelessWidget {
     );
   }
 
+  /// A finger's height, and exactly that: `shrinkWrap` so the theme does
+  /// not pad it to 48, and standard density because compact takes eight
+  /// points off whatever size is asked for.
   static final ButtonStyle _link = TextButton.styleFrom(
-    minimumSize: const Size(0, 40),
+    minimumSize: const Size(0, 44),
     padding: const EdgeInsets.symmetric(horizontal: 8),
-    visualDensity: VisualDensity.compact,
+    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    visualDensity: VisualDensity.standard,
   );
 }
 
@@ -467,6 +586,9 @@ class ReviewStars extends StatelessWidget {
 
   final int count;
 
+  /// A star's size, which the reader's text size does not change.
+  static const double size = 12;
+
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
     child: Row(
@@ -475,7 +597,7 @@ class ReviewStars extends StatelessWidget {
         for (int i = 0; i < count; i++)
           Icon(
             Icons.star_rounded,
-            size: 12,
+            size: size,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
       ],

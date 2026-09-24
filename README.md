@@ -1,8 +1,8 @@
-# helixpeak
+# Helix Peek
 
 Molecular biology and DNA sequence analysis, built with Flutter.
 
-The app fetches a gene from the [backend](../helix-peak-backend), which reads
+The app fetches a gene from the [backend](../helix-peek-backend), which reads
 it from NCBI GenBank, and draws it as a grid of squares that morphs through the
 stages of expression — for insulin, 1,431 → 465 → 110 → 82 cells — and then as
 the fold those cells end up in.
@@ -30,7 +30,7 @@ cp .env.example .env    # required: pubspec declares .env as an asset
 flutter pub get
 ```
 
-Against the real backend (start it first — see `helix-peak-backend/README.md`):
+Against the real backend (start it first — see `helix-peek-backend/README.md`):
 
 ```bash
 flutter run
@@ -123,6 +123,19 @@ does on every other page.
 
 ## Evidence: ESM-2, AVI and ClinVar
 
+Insulin, hemoglobin beta and CFTR also include **AVI contribution details**.
+Tap a substitution row in the base sheet, or expand a ClinVar record, to see
+what contributes most to that exact change's score. “Show contributions” opens
+the three largest signed values, their scope and date, and an Atlas source link.
+The explanations work offline; only opening the external source needs a browser.
+Other genes retain their existing AVI bars. [Data contract and baking](docs/avi-contributions.md).
+
+These new payloads use the mock/live transport seam: bundled JSON in mock mode,
+and `GET /gene/{id}/{gene}/impact-explanations` against the local backend.
+They load on demand, reject mismatched sequences/maps/scores, and offer retry
+without blocking the gene walk. Existing AVI, ESM and ClinVar tracks still load
+from assets.
+
 Each source has one job and one visual channel. ESM-2 is the protein's fit — the
 residue sheet's bars and, in ESM mode, the grid's fill. AVI is each base's
 predicted molecular impact — the base sheet's bars on the mRNA page and in an
@@ -136,8 +149,24 @@ its links go to the record's residue or base. The ClinVar key in ESM mode (and
 the About sheet) opens every record at once: a strip along the protein — each
 record's own AVI as height, standing on ESM constraint, coloured by class — over
 a drawing of the gene for records off the protein, then one list grouped by
-region. Coverage, scales and caveats are written once, in "About these
+region. The class chips choose which classes are drawn, one or several; the −
+and + keys, a pinch or a tap on a region's name zoom a panel, and the list then
+holds what the panels show. A tapped mark is named under the strip. A panel's
+full-screen key opens it alone on the whole screen, turned to landscape on a
+phone (the rest of the app stays upright there); × or Back returns to the list
+with the window and mark chosen there. A record's
+"Residue ›" or "Base ›" opens that residue or base as a page above the list:
+Back returns to the list as it was, and closing the list returns to the walk as
+it was before. Coverage, scales and caveats are written once, in "About these
 sources". The rules are in [docs/protein-pipeline-rules.md](docs/protein-pipeline-rules.md) §9.
+
+## Logo and app icons
+
+The [branding kit](design/branding/README.md) contains the transparent master,
+32–1024 px exports, Flutter density variants and platform launcher icons.
+Use `AppLogo` for in-app branding. Regenerate everything with
+`dart run tool/branding/generate.dart`, then rebuild/reinstall to update the
+installed launcher icon.
 
 ## Tests
 

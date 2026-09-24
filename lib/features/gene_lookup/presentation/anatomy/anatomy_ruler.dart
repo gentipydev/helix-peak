@@ -17,8 +17,9 @@ import 'anatomy_stages.dart';
 /// holding a font metric: the ruler is set in a monospace face, where a label's
 /// width is its length.
 abstract final class AnatomyRuler {
-  /// Point size of a label.
-  static const double fontSize = 9;
+  /// Point size of a label: eleven, the app's smallest type. At nine the
+  /// numbers a reader navigates a page by were the smallest thing on it.
+  static const double fontSize = 11;
 
   /// A monospace advance, as a fraction of [fontSize]. JetBrains Mono's is 600
   /// units to the em.

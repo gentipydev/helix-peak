@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/structure/structure_view.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/structure/structure_view.dart';
 
 /// A box the shape of the one the fold is given on a phone.
 const Size _box = Size(390, 600);

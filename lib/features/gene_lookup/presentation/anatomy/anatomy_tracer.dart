@@ -443,9 +443,13 @@ abstract final class TracerReader {
   }
 
   /// What a fold stands in for, for a base drawn inside one.
+  ///
+  /// "Collapsed" on the page rather than "folded": the Fold is the walk's last
+  /// page, the protein in three dimensions, and a reader told a base was
+  /// folded out of view went looking for it there.
   static const String foldedNote =
-      'Folded out of view, with the middle of a region too long to draw '
-      'whole. The fold says how many bases it holds.';
+      'Collapsed out of view, with the middle of a region too long to draw '
+      'whole. The band says how many bases it holds.';
 
   static String _cutLine(Role? fate) {
     if (fate == null) {

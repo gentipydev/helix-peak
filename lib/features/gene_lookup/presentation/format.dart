@@ -65,14 +65,16 @@ String genomeRank(double phred) {
   }
   final double value = math.pow(10, -phred / 10) * 100;
   // Enough figures to stay true at both ends: `1.0%` near the middle of the
-  // scale, `0.0032%` out at the tail where every digit is the point.
+  // scale, `0.0032%` out at the tail where every digit is the point. Two
+  // significant figures there, written out: the bundled tracks reach Phred 70,
+  // `0.000010%`, and `3.2e-3%` is not how a percentile is read.
   if (value >= 1) {
     return 'top ${value.toStringAsFixed(1)}%';
   }
   if (value >= 0.01) {
     return 'top ${value.toStringAsFixed(3)}%';
   }
-  return 'top ${value.toStringAsExponential(1)}%';
+  return 'top ${value.toStringAsPrecision(2)}%';
 }
 
 /// A log-ratio as the residue panel prints it: `−11.0`, `+0.4`, `0.0`.

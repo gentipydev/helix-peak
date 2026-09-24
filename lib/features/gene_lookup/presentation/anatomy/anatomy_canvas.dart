@@ -38,7 +38,14 @@ class AnatomyCanvas extends StatefulWidget {
   final AnatomyModel model;
   final int stageIndex;
   final double sourceScrollOffset;
-  final ValueChanged<double>? onSettled;
+
+  /// Told the stage the canvas has come to rest on, and where a page scrolled
+  /// before a transition should be put back to — once for every stage it
+  /// arrives at, however it arrived: at the end of a transition, a frame after
+  /// a jump, a reduced-motion step or a first build, or when a transition is
+  /// cut short. A jump waits on this to open what it was sent to, so an
+  /// arrival that went unreported was a jump that never landed.
+  final void Function(int stage, double scrollOffset)? onSettled;
   final ProteinConstraint? constraint;
   final bool conservation;
   final int? maskedIndex;
@@ -186,11 +193,32 @@ class _AnatomyCanvasState extends State<AnatomyCanvas>
   /// by the next swipe cannot settle on top of the one that replaced it.
   int _generation = 0;
 
+  /// Bumped whenever [_settled] names a new stage. The scene is replaced far
+  /// more often than that — a first layout, a rotation — so an arrival is
+  /// reported against this rather than [_generation].
+  int _arrivals = 0;
+
+  /// The last arrival reported, so one arrival is never reported twice.
+  int _reported = -1;
+
   @override
   void initState() {
     super.initState();
     _settled = widget.stageIndex;
     _progress.value = 1;
+    _reportArrival();
+  }
+
+  /// Reports the arrival at [_settled] after this frame, unless the canvas has
+  /// been sent on somewhere else by then.
+  void _reportArrival() {
+    final int arrival = _arrivals;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && arrival == _arrivals && _reported != arrival) {
+        _reported = arrival;
+        widget.onSettled?.call(_settled, 0);
+      }
+    });
   }
 
   @override
@@ -198,7 +226,9 @@ class _AnatomyCanvasState extends State<AnatomyCanvas>
     super.didUpdateWidget(old);
     if (old.model != widget.model) {
       _settled = widget.stageIndex;
+      _arrivals++;
       _rebuild();
+      _reportArrival();
       return;
     }
     if (old.stageIndex != widget.stageIndex) {
@@ -244,7 +274,9 @@ class _AnatomyCanvasState extends State<AnatomyCanvas>
     // says what it is standing still, so nothing is lost but the travel.
     if ((to - from).abs() != 1 || _still || _size.isEmpty) {
       _settled = to;
+      _arrivals++;
       _rebuild();
+      _reportArrival();
       return;
     }
 
@@ -252,6 +284,7 @@ class _AnatomyCanvasState extends State<AnatomyCanvas>
     final int generation = ++_generation;
     _reverse = to < from;
     _settled = to;
+    _arrivals++;
 
     // A changed mind plays the current frame back. Recreating this scene at
     // either endpoint would teleport every codon before reversing direction.
@@ -318,17 +351,26 @@ class _AnatomyCanvasState extends State<AnatomyCanvas>
             ? _scene?.translation?.sourceScrollOffset ?? 0
             : 0;
         _rebuild();
-        widget.onSettled?.call(scrollOffset);
+        if (_reported != _arrivals) {
+          _reported = _arrivals;
+          widget.onSettled?.call(_settled, scrollOffset);
+        }
       }
     });
   }
 
   void _rebuild() {
+    // A transition cut short — by a rotation, or a trace changed under it —
+    // still ends on its stage, and says so.
+    final bool cut = _progress.isAnimating;
     _generation++;
     _reverse = false;
     _progress
       ..stop()
       ..value = 1;
+    if (cut) {
+      _reportArrival();
+    }
     if (!_framed(_settled) || _still) {
       // Nothing to open, or nothing to watch it with. Either way the page is
       // simply already grooved — reduced motion loses the travel here the same

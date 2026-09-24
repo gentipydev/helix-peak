@@ -1,5 +1,23 @@
 cmake_minimum_required(VERSION 3.13)
-project(runner LANGUAGES CXX)
+project(runner LANGUAGES C CXX)
+
+# Embed the window icon so it works from any working directory.
+find_program(GLIB_COMPILE_RESOURCES glib-compile-resources)
+if(NOT GLIB_COMPILE_RESOURCES)
+  message(FATAL_ERROR "glib-compile-resources is required for the app icon")
+endif()
+set(BRANDING_RESOURCES "${CMAKE_CURRENT_BINARY_DIR}/branding-resources.c")
+add_custom_command(
+  OUTPUT "${BRANDING_RESOURCES}"
+  COMMAND "${GLIB_COMPILE_RESOURCES}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/resources/branding.gresource.xml"
+    --sourcedir=${CMAKE_CURRENT_SOURCE_DIR}/resources
+    --target=${BRANDING_RESOURCES}
+    --generate-source
+    --c-name=helix_peek_branding
+  DEPENDS resources/branding.gresource.xml resources/helixpeek.png
+  VERBATIM
+)
 
 # Define the application target. To change its name, change BINARY_NAME in the
 # top-level CMakeLists.txt, not the value here, or `flutter run` will no longer
@@ -9,6 +27,7 @@ project(runner LANGUAGES CXX)
 add_executable(${BINARY_NAME}
   "main.cc"
   "my_application.cc"
+  "${BRANDING_RESOURCES}"
   "${FLUTTER_MANAGED_DIR}/generated_plugin_registrant.cc"
 )
 

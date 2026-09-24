@@ -6,19 +6,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/core/theme/app_theme.dart';
-import 'package:helixpeak/features/gene_lookup/data/models/gene_record_dto.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_catalog.dart';
-import 'package:helixpeak/features/gene_lookup/domain/entities/protein_target.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_layout.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_ruler.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_scene.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_selection.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_selection_canvas.dart';
-import 'package:helixpeak/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_layout.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_ruler.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_scene.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_selection.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_selection_canvas.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
 
 import 'anatomy_fixture.dart';
 
@@ -312,6 +312,50 @@ void main() {
     expect(labelOpacity(), lessThan(1));
     await tester.pump(const Duration(milliseconds: 300));
     expect(labelOpacity(), 1);
+  });
+
+  testWidgets('a screen reader is offered the action on the strip', (
+    tester,
+  ) async {
+    final SemanticsHandle semantics = tester.ensureSemantics();
+    await _screen(tester);
+    _select(tester, 6000);
+    await tester.pump();
+    // The strip is read as one, which folds the pill's own button into it;
+    // the action is offered on the strip instead.
+    const CustomSemanticsAction open = CustomSemanticsAction(
+      label: 'Open the selected region as DNA',
+    );
+    final int id = CustomSemanticsAction.getIdentifier(open);
+    final SemanticsFinder strip = find.semantics.byPredicate(
+      (SemanticsNode node) =>
+          node.getSemanticsData().customSemanticsActionIds?.contains(id) ??
+          false,
+    );
+    expect(strip, findsOne);
+    tester.semantics.customAction(strip, open);
+    await tester.pumpAndSettle();
+    expect(find.byType(AnatomySelectionCanvas), findsOneWidget);
+    // Not `addTearDown`: the framework checks for leaked handles before tear
+    // downs run.
+    semantics.dispose();
+  });
+
+  testWidgets('a tap just beside the pill opens the region too', (
+    tester,
+  ) async {
+    await _screen(tester);
+    _select(tester, 6000);
+    await tester.pump(const Duration(milliseconds: 300));
+    // Under the pill, where the strip's second line runs: the pill is 24
+    // points tall, and a thumb lands where it lands.
+    final Rect pill = tester.getRect(
+      find.byKey(const ValueKey<String>('open-dna')),
+    );
+    await tester.tapAt(pill.bottomCenter + const Offset(0, 16));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.byType(AnatomySelectionCanvas), findsOneWidget);
   });
 
   testWidgets('a second tap lets go, and a new region replaces the old', (

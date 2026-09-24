@@ -1,13 +1,17 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+import '../../../../core/router/landscape_route.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/entities/gene_clinvar.dart';
 import '../../domain/entities/protein_constraint.dart';
 import '../../domain/entities/variant_evidence.dart';
 import '../anatomy/sequence_scrubber.dart';
+import '../constraint/constraint_colors.dart';
 import '../format.dart';
 import 'clinvar_colors.dart';
 import 'evidence_row.dart';
@@ -34,19 +38,24 @@ final class BaseTarget extends VariantTarget {
 
 /// What the overview was showing when it last closed.
 ///
-/// The walk keeps one for as long as it shows a gene, so a reader sent to a
-/// residue by a record's link comes back to the list as they left it: the
-/// same scroll, the record still open, the same filter, regions and zoom.
+/// The walk keeps one for as long as it shows a gene, so the list opens again
+/// as the reader closed it: the same scroll, the record still open, the same
+/// classes, regions and windows. (A record's link no longer closes it — the
+/// residue or base opens above it — so this is only for opening it again.)
 class VariantsOverviewMemory {
   double offset = 0;
   String? open;
-  ClinVarGroup? filter;
+
+  /// The classes shown, or none for every class.
+  Set<ClinVarGroup> classes = const <ClinVarGroup>{};
   Set<String> selected = const <String>{};
 
   /// The regions the reader closed, by section key.
   Set<String> collapsed = const <String>{};
-  String? proteinZoom;
-  String? dnaZoom;
+
+  /// What each panel of the strip shows, or null for the whole.
+  StripWindow? proteinWindow;
+  StripWindow? dnaWindow;
 }
 
 /// Every ClinVar record of a gene, as one picture and one list.
@@ -57,7 +66,8 @@ class VariantsOverviewMemory {
 /// piece is open; its heading closes it down to its count, for a reader
 /// making their way past stretches they have read, and a mark on the strip
 /// opens its own again. A record's row opens its evidence in place, and its
-/// links send the walk to that residue or base, from where Back returns here.
+/// links open that residue or base as a page above this one, from which Back
+/// returns here exactly as it was.
 ///
 /// Coverage and what the sources are live here, at the foot, and in the About
 /// sheet — not in the sheets, which only speak for their own position.
@@ -71,6 +81,7 @@ class VariantsOverview extends StatefulWidget {
     this.reversed = false,
     this.focus = const <String>[],
     this.memory,
+    this.onOpen,
     super.key,
   });
 
@@ -92,6 +103,11 @@ class VariantsOverview extends StatefulWidget {
   /// Where the overview was left last time, which it returns to and keeps up
   /// to date. Without one it starts fresh.
   final VariantsOverviewMemory? memory;
+
+  /// Opens a record's residue or base above the list. It completes when that
+  /// page is gone, with the records the reader asked for from there — which
+  /// the list then opens on — or null. Without it, rows offer no such links.
+  final Future<List<String>?> Function(VariantTarget target)? onOpen;
 
   @override
   State<VariantsOverview> createState() => _VariantsOverviewState();
@@ -129,11 +145,19 @@ class _VariantsOverviewState extends State<VariantsOverview> {
   /// region closing, a record opening — so the thumb is redrawn for it. Only
   /// the thumb listens; the list itself has nothing new to build.
   final ValueNotifier<int> _metrics = ValueNotifier<int>(0);
+
+  /// Bumped when the tapped mark or a window changes, for a panel open on the
+  /// whole screen: its page is built from this state, but the list's own
+  /// rebuilds do not reach it.
+  final ValueNotifier<int> _drawn = ValueNotifier<int>(0);
   late final List<_Section> _sections = _group(widget.evidence);
   late final Map<ClinVarGroup, int> _counts = <ClinVarGroup, int>{
     for (final ClinVarGroup group in ClinVarGroup.values)
       group: widget.evidence.where((e) => e.variant.group == group).length,
   };
+  late final int _unscored = widget.evidence
+      .where((VariantEvidence e) => e.avi == null)
+      .length;
   late final Map<String, VariantEvidence> _byId = <String, VariantEvidence>{
     for (final VariantEvidence e in widget.evidence) e.variant.id: e,
   };
@@ -141,35 +165,32 @@ class _VariantsOverviewState extends State<VariantsOverview> {
     for (final _Section s in _sections)
       for (final VariantEvidence e in s.records) e.variant.id: s.key,
   };
-  ClinVarGroup? _filter;
+  Set<ClinVarGroup> _classes = const <ClinVarGroup>{};
   Set<String> _selected = const <String>{};
+
+  /// Which of the heads drawn over one another at the last tap on the strip
+  /// is the selected one, and of how many.
+  (int, int)? _cycle;
   String? _open;
+
+  /// Rows still closing. Every closed row is one height, which is what lets
+  /// the list place any of thousands without building the rows above it; a
+  /// row that is open, or on its way closed, has a place of its own until it
+  /// is done.
+  final Set<String> _settling = <String>{};
   Set<String> _collapsed = const <String>{};
-  String? _proteinZoom;
-  String? _dnaZoom;
+  StripWindow? _proteinWindow;
+  StripWindow? _dnaWindow;
 
   @override
   void initState() {
     super.initState();
-    _filter = _memory.filter;
+    _classes = Set<ClinVarGroup>.of(_memory.classes);
     _collapsed = Set<String>.of(_memory.collapsed);
-    _proteinZoom = _memory.proteinZoom;
-    _dnaZoom = _memory.dnaZoom;
+    _proteinWindow = _memory.proteinWindow;
+    _dnaWindow = _memory.dnaWindow;
     if (widget.focus.isNotEmpty) {
-      // Sent here for particular records: they are what opens, whatever was
-      // open before, and nothing the reader left behind may hide them.
-      _selected = widget.focus.toSet();
-      _open = widget.focus.length == 1 ? widget.focus.first : null;
-      _collapsed = Set<String>.of(_collapsed)
-        ..removeAll(<String>[for (final String id in widget.focus) ?_sectionOf[id]]);
-      if (_filter != null &&
-          widget.focus.any((String id) => _byId[id]?.variant.group != _filter)) {
-        _filter = null;
-      }
-      _unzoomFor(widget.focus);
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => unawaited(_reveal(widget.focus.first)),
-      );
+      _focusOn(widget.focus);
     } else {
       _selected = _memory.selected;
       _open = _memory.open;
@@ -192,19 +213,126 @@ class _VariantsOverviewState extends State<VariantsOverview> {
     _scroll.removeListener(_rememberOffset);
     _scroll.dispose();
     _metrics.dispose();
+    _drawn.dispose();
     super.dispose();
   }
 
   void _rememberOffset() => _memory.offset = _scroll.offset;
 
+  /// Opens the list on [ids]: sent here for particular records, they are what
+  /// opens, whatever was open before, and nothing the reader left behind may
+  /// hide them.
+  void _focusOn(List<String> ids) {
+    _selected = ids.toSet();
+    _cycle = null;
+    _openRow(ids.length == 1 ? ids.first : null);
+    _collapsed = Set<String>.of(_collapsed)
+      ..removeAll(<String>[for (final String id in ids) ?_sectionOf[id]]);
+    _show(ids);
+    _unzoomFor(ids);
+    _remember();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => unawaited(_reveal(ids.first)),
+    );
+  }
+
+  /// Opens [id]'s row, or none, and lets the row open before it finish
+  /// closing where it is.
+  void _openRow(String? id) {
+    final String? was = _open;
+    _open = id;
+    _settling.remove(id);
+    if (was != null && was != id && !MediaQuery.disableAnimationsOf(context)) {
+      _settling.add(was);
+      _watchSettling();
+    }
+  }
+
+  bool _watching = false;
+
+  /// Looks at the closing rows once the next frame is laid out.
+  void _watchSettling() {
+    if (!_watching) {
+      _watching = true;
+      WidgetsBinding.instance.addPostFrameCallback(_settle);
+    }
+  }
+
+  /// Rows back to a closed row's height, or no longer built, go back among
+  /// the closed rows; the rest are looked at again after the next frame.
+  ///
+  /// By their height rather than their animation's end: an opening cut short
+  /// by a closing stops without ever finishing.
+  void _settle(Duration _) {
+    _watching = false;
+    if (!mounted || _settling.isEmpty) {
+      return;
+    }
+    final List<String> done = <String>[
+      for (final String id in _settling)
+        if (_closedAgain(id)) id,
+    ];
+    if (done.isNotEmpty) {
+      setState(() => _settling.removeAll(done));
+    }
+    if (_settling.isNotEmpty) {
+      _watchSettling();
+    }
+  }
+
+  bool _closedAgain(String id) {
+    final BuildContext? row = _rows[id]?.currentContext;
+    final RenderObject? box = row?.findRenderObject();
+    return row == null ||
+        box is! RenderBox ||
+        !box.hasSize ||
+        box.size.height <= EvidenceRow.closedExtent(row);
+  }
+
+  /// Whether a record's page is open above the list: a second tap on a link
+  /// while it opens would open a second one.
+  bool _opening = false;
+
+  /// Follows a record's link, and opens on whatever the reader asked for from
+  /// the page it opened.
+  Future<void> _follow(VariantTarget target) async {
+    final Future<List<String>?> Function(VariantTarget)? open = widget.onOpen;
+    if (open == null || _opening) {
+      return;
+    }
+    _opening = true;
+    final List<String>? focus;
+    try {
+      focus = await open(target);
+    } finally {
+      _opening = false;
+    }
+    if (mounted && focus != null && focus.isNotEmpty) {
+      setState(() => _focusOn(focus!));
+    }
+  }
+
   void _remember() {
     _memory
       ..open = _open
-      ..filter = _filter
+      ..classes = Set<ClinVarGroup>.of(_classes)
       ..selected = _selected
       ..collapsed = Set<String>.of(_collapsed)
-      ..proteinZoom = _proteinZoom
-      ..dnaZoom = _dnaZoom;
+      ..proteinWindow = _proteinWindow
+      ..dnaWindow = _dnaWindow;
+  }
+
+  /// Adds the classes of [ids] to those shown, where a choice of classes
+  /// would hide them: a record the reader was sent to is shown, and the rest
+  /// of their choice stands.
+  void _show(Iterable<String> ids) {
+    if (_classes.isEmpty) {
+      return;
+    }
+    _classes = <ClinVarGroup>{
+      ..._classes,
+      for (final String id in ids) ?_byId[id]?.variant.group,
+    };
   }
 
   /// Protein regions in precursor order, then the gene's other pieces in
@@ -280,49 +408,72 @@ class _VariantsOverviewState extends State<VariantsOverview> {
     }
   }
 
-  /// Where the top of a row that has not been built would be scrolled to.
+  /// Where the top of a row that has not been built would be scrolled to: its
+  /// section's heading, the closed rows above it at their one height, and
+  /// whatever a row open or closing above it adds.
   double? _estimate(String id) {
     final String? key = _sectionOf[id];
-    final RenderObject? heading = key == null
+    final BuildContext? place = key == null
         ? null
-        : _headings[key]?.currentContext?.findRenderObject();
-    if (heading is! RenderBox || !heading.attached) {
+        : _headings[key]?.currentContext;
+    final RenderObject? heading = place?.findRenderObject();
+    if (place == null || heading is! RenderBox || !heading.attached) {
       return null;
     }
     final _Section section = _sections.firstWhere((_Section s) => s.key == key);
-    final int index = _visible(section).indexWhere(
+    final List<VariantEvidence> records = _visible(section);
+    final int index = records.indexWhere(
       (VariantEvidence e) => e.variant.id == id,
     );
     if (index < 0) {
       return null;
     }
+    final double extent = EvidenceRow.closedExtent(place);
+    double above = index * extent;
+    for (final String loose in <String>{?_open, ..._settling}) {
+      final int at = records.indexWhere(
+        (VariantEvidence e) => e.variant.id == loose,
+      );
+      if (at >= 0 && at < index) {
+        if (_rows[loose]?.currentContext?.findRenderObject()
+            case final RenderBox box when box.hasSize) {
+          above += box.size.height - extent;
+        }
+      }
+    }
     final double top = RenderAbstractViewport.of(
       heading,
     ).getOffsetToReveal(heading, 0).offset;
-    return top + heading.size.height + index * _rowExtent();
+    return top + heading.size.height + above;
   }
 
-  /// The height of a closed row, read off the ones laid out.
-  double _rowExtent() {
-    final List<double> heights = <double>[
-      for (final MapEntry<String, GlobalKey> entry in _rows.entries)
-        if (entry.key != _open)
-          if (entry.value.currentContext?.findRenderObject()
-              case final RenderBox box when box.hasSize)
-            box.size.height,
+  /// A section's records the strip draws: of the classes shown, in the
+  /// panels' windows.
+  List<VariantEvidence> _visible(_Section section) {
+    // Kept for the classes and windows they were read for: every build asks
+    // for every section's, and a long gene has thousands of records.
+    final Object shown = (_classes, _proteinWindow, _dnaWindow);
+    if (_visibleFor != shown) {
+      _visibleFor = shown;
+      _visibleBySection.clear();
+    }
+    if (_visibleBySection[section.key] case final List<VariantEvidence> kept) {
+      return kept;
+    }
+    final EvidenceStrip strip = _strip();
+    return _visibleBySection[section.key] = <VariantEvidence>[
+      for (final VariantEvidence e in section.records)
+        if (strip.draws(e)) e,
     ];
-    return heights.isEmpty
-        ? 56
-        : heights.reduce((double a, double b) => a + b) / heights.length;
   }
 
-  /// A section's records the filter leaves in.
-  List<VariantEvidence> _visible(_Section section) => <VariantEvidence>[
-    for (final VariantEvidence e in section.records)
-      if (_filter == null || e.variant.group == _filter) e,
-  ];
+  Object? _visibleFor;
+  final Map<String, List<VariantEvidence>> _visibleBySection =
+      <String, List<VariantEvidence>>{};
 
-  EvidenceStrip _strip() {
+  /// The strip as the list draws it, or as a page drawing [only] one panel
+  /// on the whole screen, closed by [onClose].
+  EvidenceStrip _strip({StripPanel? only, VoidCallback? onClose}) {
     final GeneClinVar data = widget.snapshot;
     return EvidenceStrip(
       evidence: widget.evidence,
@@ -333,12 +484,15 @@ class _VariantsOverviewState extends State<VariantsOverview> {
       runs: widget.runs,
       reversed: widget.reversed,
       constraint: widget.constraint,
-      highlight: _filter,
+      classes: _classes,
       selected: _selected,
-      proteinZoom: _proteinZoom,
-      dnaZoom: _dnaZoom,
+      proteinWindow: _proteinWindow,
+      dnaWindow: _dnaWindow,
       onSelected: _pick,
-      onZoom: _zoom,
+      onWindow: _zoom,
+      only: only,
+      onExpand: only == null ? _expand : null,
+      onClose: onClose,
     );
   }
 
@@ -352,21 +506,32 @@ class _VariantsOverviewState extends State<VariantsOverview> {
         continue;
       }
       if (e.variant.residue != null) {
-        _proteinZoom = null;
+        _proteinWindow = null;
       } else {
-        _dnaZoom = null;
+        _dnaWindow = null;
       }
     }
   }
 
-  void _pick(String id) {
+  /// A mark tapped on the strip: named under it, which stays where it is —
+  /// the list is not scrolled out from under the reader's finger. Null is the
+  /// mark let go, which leaves the list as it is too.
+  void _pick(String? id, (int, int)? cycle) {
+    setState(() {
+      _selected = id == null ? const <String>{} : <String>{id};
+      _cycle = cycle;
+      _remember();
+    });
+    _drawn.value++;
+  }
+
+  /// Opens [id]'s row and brings it into view.
+  void _showInList(String id) {
     setState(() {
       _selected = <String>{id};
-      _open = id;
-      final ClinVarGroup group = _byId[id]!.variant.group;
-      if (_filter != null && _filter != group) {
-        _filter = null;
-      }
+      _openRow(id);
+      _show(<String>[id]);
+      _unzoomFor(<String>[id]);
       _collapsed = Set<String>.of(_collapsed)..remove(_sectionOf[id]);
       _remember();
     });
@@ -376,8 +541,9 @@ class _VariantsOverviewState extends State<VariantsOverview> {
   }
 
   void _toggleRow(String id) => setState(() {
-    _open = _open == id ? null : id;
+    _openRow(_open == id ? null : id);
     _selected = _open == null ? const <String>{} : <String>{_open!};
+    _cycle = null;
     if (_open case final String open) {
       _unzoomFor(<String>[open]);
     }
@@ -391,21 +557,110 @@ class _VariantsOverviewState extends State<VariantsOverview> {
     _remember();
   });
 
-  void _zoom(StripPanel panel, String? zoom) => setState(() {
-    if (panel == StripPanel.protein) {
-      _proteinZoom = zoom;
-    } else {
-      _dnaZoom = zoom;
+  void _zoom(StripPanel panel, StripWindow? window) {
+    setState(() {
+      if (panel == StripPanel.protein) {
+        _proteinWindow = window;
+      } else {
+        _dnaWindow = window;
+      }
+      _remember();
+    });
+    _drawn.value++;
+  }
+
+  /// Whether a panel is open on the whole screen: a second tap on its key
+  /// while it opens would open a second one.
+  bool _expanding = false;
+
+  /// Opens [panel] on the whole screen, and once that page has closed, the
+  /// record the reader asked to see in the list, if any.
+  Future<void> _expand(StripPanel panel) async {
+    if (_expanding) {
+      return;
+    }
+    _expanding = true;
+    final String? show;
+    try {
+      show = await Navigator.of(context).push<String>(
+        landscapeRoute<String>(
+          context,
+          (BuildContext context, void Function([String? show]) close) =>
+              _page(context, panel, close),
+        ),
+      );
+    } finally {
+      _expanding = false;
+    }
+    if (mounted && show != null) {
+      _showInList(show);
+    }
+  }
+
+  /// [panel] on a page of its own: its keys, its drawing with the screen's
+  /// room for it, and the tapped mark named under it. What the reader does
+  /// there is this list's own state, so the list shows it once the page has
+  /// closed; "Show in list ›" closes it on the record's row.
+  Widget _page(
+    BuildContext context,
+    StripPanel panel,
+    void Function([String? show]) close,
+  ) {
+    final ThemeData base = Theme.of(context);
+    return Theme(
+      data: base.copyWith(
+        textTheme: base.textTheme.apply(fontFamily: AppTypography.sansFamily),
+      ),
+      child: Scaffold(
+        body: SafeArea(
+          minimum: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+          child: ListenableBuilder(
+            listenable: _drawn,
+            builder: (BuildContext context, Widget? _) => Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Expanded(child: _strip(only: panel, onClose: close)),
+                const SizedBox(height: 4),
+                _Readout(
+                  evidence: _selected.length == 1
+                      ? _byId[_selected.single]
+                      : null,
+                  selected: _selected.length,
+                  cycle: _cycle,
+                  onShow: _selected.length == 1
+                      ? () => close(_selected.single)
+                      : null,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Adds [group] to the classes shown, or takes it away; with none left, every
+  /// class is shown again.
+  void _toggleClass(ClinVarGroup group) => setState(() {
+    _classes = _classes.contains(group)
+        ? (Set<ClinVarGroup>.of(_classes)..remove(group))
+        : <ClinVarGroup>{..._classes, group};
+    // A selected record whose class has gone is no longer on the strip.
+    _selected = <String>{
+      for (final String id in _selected)
+        if (_classes.isEmpty || _classes.contains(_byId[id]?.variant.group))
+          id,
+    };
+    if (_selected.isEmpty) {
+      _cycle = null;
     }
     _remember();
   });
 
-  /// The sections the filter leaves something in.
+  /// The sections the strip draws something of.
   List<_Section> get _shown => <_Section>[
     for (final _Section s in _sections)
-      if (_filter == null ||
-          s.records.any((VariantEvidence e) => e.variant.group == _filter))
-        s,
+      if (_visible(s).isNotEmpty) s,
   ];
 
   @override
@@ -469,11 +724,15 @@ class _VariantsOverviewState extends State<VariantsOverview> {
                                     _ClassChip(
                                       group: group,
                                       count: _counts[group]!,
-                                      selected: _filter == group,
-                                      onTap: () => setState(() {
-                                        _filter = _filter == group ? null : group;
-                                        _remember();
-                                      }),
+                                      selected: _classes.contains(group),
+                                      hint: _classes.isEmpty
+                                          ? 'Show only this class'
+                                          : !_classes.contains(group)
+                                          ? 'Also show this class'
+                                          : _classes.length == 1
+                                          ? 'Show every class'
+                                          : 'Stop showing this class',
+                                      onTap: () => _toggleClass(group),
                                     ),
                               ],
                             ),
@@ -485,7 +744,18 @@ class _VariantsOverviewState extends State<VariantsOverview> {
                               )
                             else ...<Widget>[
                               _strip(),
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 8),
+                              _Readout(
+                                evidence: _selected.length == 1
+                                    ? _byId[_selected.single]
+                                    : null,
+                                selected: _selected.length,
+                                cycle: _cycle,
+                                onShow: _selected.length == 1
+                                    ? () => _showInList(_selected.single)
+                                    : null,
+                              ),
+                              const SizedBox(height: 10),
                               Text(
                                 'Height: AVI of each allele · band: ESM · colour: '
                                 'ClinVar categorisation',
@@ -495,6 +765,24 @@ class _VariantsOverviewState extends State<VariantsOverview> {
                                   letterSpacing: 0,
                                 ),
                               ),
+                              const SizedBox(height: 4),
+                              _RampKey(unscored: _unscored),
+                              if (_proteinWindow != null ||
+                                  _dnaWindow != null) ...<Widget>[
+                                const SizedBox(height: 12),
+                                _WindowNote(
+                                  count: shown.fold<int>(
+                                    0,
+                                    (int n, _Section section) =>
+                                        n + _visible(section).length,
+                                  ),
+                                  onAll: () => setState(() {
+                                    _proteinWindow = null;
+                                    _dnaWindow = null;
+                                    _remember();
+                                  }),
+                                ),
+                              ],
                             ],
                           ],
                         ),
@@ -576,14 +864,34 @@ class _VariantsOverviewState extends State<VariantsOverview> {
     final List<VariantEvidence> records = _visible(section);
     final int n = records.length;
     final bool open = !_collapsed.contains(section.key);
+    final int total = section.records.length;
+    // "of" only while the classes shown or a window leave some out, so the
+    // heading never hides how many the region holds.
     final String heading =
         '${section.label}'
         '${switch (section.span) {
           (final int from, final int to) => ' · $from–$to',
           null => '',
-        }} · ${grouped(n)} record${n == 1 ? '' : 's'}';
+        }} · ${n == total ? '${grouped(n)} record${n == 1 ? '' : 's'}' : '${grouped(n)} of ${grouped(total)} records'}';
+    // Every row the same way, wherever it is placed.
+    Widget row(VariantEvidence e) => KeyedSubtree(
+      key: _keyFor(e.variant.id),
+      child: EvidenceRow(
+        evidence: e,
+        column: EvidenceColumn.both,
+        expanded: _open == e.variant.id,
+        onToggle: () => _toggleRow(e.variant.id),
+        onResidue: widget.onOpen == null
+            ? null
+            : (int number) => unawaited(_follow(ResidueTarget(number))),
+        onBase: widget.onOpen == null
+            ? null
+            : (int position) => unawaited(_follow(BaseTarget(position))),
+      ),
+    );
     return <Widget>[
       SliverPadding(
+        key: ValueKey<String>('variants-heading-${section.key}'),
         padding: side,
         sliver: SliverToBoxAdapter(
           child: Padding(
@@ -629,29 +937,78 @@ class _VariantsOverviewState extends State<VariantsOverview> {
         ),
       ),
       if (open)
-        SliverPadding(
-          padding: side,
-          sliver: SliverList.builder(
-            itemCount: records.length,
-            itemBuilder: (BuildContext context, int index) {
-              final VariantEvidence e = records[index];
-              return KeyedSubtree(
-                key: _keyFor(e.variant.id),
-                child: EvidenceRow(
-                  evidence: e,
-                  column: EvidenceColumn.both,
-                  expanded: _open == e.variant.id,
-                  onToggle: () => _toggleRow(e.variant.id),
-                  onResidue: (int number) =>
-                      Navigator.of(context).pop(ResidueTarget(number)),
-                  onBase: (int position) =>
-                      Navigator.of(context).pop(BaseTarget(position)),
-                ),
-              );
-            },
+        for (final (int from, int to, bool loose) in _runs(section, records))
+          SliverPadding(
+            key: ValueKey<String>('variants-rows-${section.key}-$from'),
+            padding: side,
+            // A row open or closing takes what it needs.
+            sliver: loose
+                ? SliverToBoxAdapter(child: row(records[from]))
+                : _ClosedRows(
+                    count: to - from,
+                    row: (int index) => row(records[from + index]),
+                  ),
           ),
-        ),
     ];
+  }
+
+  /// A section's [records] as runs of closed rows, broken around each row
+  /// that is open or still closing: `(from, to, loose)`.
+  List<(int, int, bool)> _runs(
+    _Section section,
+    List<VariantEvidence> records,
+  ) {
+    final List<int> loose =
+        <int>[
+            for (final String id in <String>{?_open, ..._settling})
+              if (_sectionOf[id] == section.key)
+                records.indexWhere((VariantEvidence e) => e.variant.id == id),
+          ]
+          ..removeWhere((int i) => i < 0)
+          ..sort();
+    final List<(int, int, bool)> runs = <(int, int, bool)>[];
+    int from = 0;
+    for (final int at in loose) {
+      if (at > from) {
+        runs.add((from, at, false));
+      }
+      runs.add((at, at + 1, true));
+      from = at + 1;
+    }
+    if (from < records.length) {
+      runs.add((from, records.length, false));
+    }
+    return runs;
+  }
+
+}
+
+/// A run of closed rows, all one height, so each is placed without building
+/// the rows above it; only those near the screen are built, and nothing of a
+/// run that is wholly further down the page than that — a list would still
+/// build its first row, and a long gene has a hundred regions.
+class _ClosedRows extends StatelessWidget {
+  const _ClosedRows({required this.count, required this.row});
+
+  final int count;
+  final Widget Function(int index) row;
+
+  @override
+  Widget build(BuildContext context) {
+    final double extent = EvidenceRow.closedExtent(context);
+    // One list for every layout, so scrolling does not build its rows again.
+    final Widget rows = SliverFixedExtentList.builder(
+      itemExtent: extent,
+      itemCount: count,
+      itemBuilder: (BuildContext context, int index) => row(index),
+    );
+    return SliverLayoutBuilder(
+      builder: (BuildContext context, SliverConstraints constraints) =>
+          constraints.scrollOffset == 0 &&
+              constraints.remainingCacheExtent == 0
+          ? SliverToBoxAdapter(child: SizedBox(height: count * extent))
+          : rows,
+    );
   }
 }
 
@@ -662,12 +1019,17 @@ class _ClassChip extends StatelessWidget {
     required this.group,
     required this.count,
     required this.selected,
+    required this.hint,
     required this.onTap,
   });
 
   final ClinVarGroup group;
   final int count;
   final bool selected;
+
+  /// What a tap does, which depends on the other chips: with none chosen it
+  /// shows only this class, and after that it adds or takes away.
+  final String hint;
   final VoidCallback onTap;
 
   @override
@@ -678,7 +1040,7 @@ class _ClassChip extends StatelessWidget {
       button: true,
       selected: selected,
       label: '${group.label}, $count records',
-      hint: selected ? 'Show all classes' : 'Highlight this class',
+      hint: hint,
       excludeSemantics: true,
       child: Material(
         color: selected ? colour.withValues(alpha: 0.12) : Colors.transparent,
@@ -734,3 +1096,394 @@ String _exclusion(String reason) => switch (reason) {
   'not_a_simple_allele_of_gene' => 'complex records or another gene',
   _ => reason.replaceAll('_', ' '),
 };
+
+/// The mark tapped on the strip, named under it on a card of its own: its
+/// change and AVI, what ClinVar calls it, where it is among the heads drawn
+/// over one another at that spot, and the way to its row. The strip stays
+/// where it is; "Show in list ›" is the way to the record's row, and a second
+/// tap on the mark lets it go.
+///
+/// The card is one height whatever it holds — a record, several, or none — so
+/// the page under the strip never moves when a mark is tapped or let go. Its
+/// first two lines are the list row's own; on a screen wide enough, the way
+/// to the row sits beside them rather than on a line of its own.
+class _Readout extends StatelessWidget {
+  const _Readout({
+    required this.evidence,
+    required this.selected,
+    required this.cycle,
+    required this.onShow,
+  });
+
+  final VariantEvidence? evidence;
+
+  /// How many records are selected: one from a tap, several from a sheet's
+  /// "All ›".
+  final int selected;
+  final (int, int)? cycle;
+  final VoidCallback? onShow;
+
+  /// The narrowest card the way to the row fits beside the two lines on.
+  static const double _wide = 560;
+
+  /// The way to the row's height: a finger's.
+  static const double _action = 44;
+
+  /// Where the lines under the first start: past the dot and its gap.
+  static const double _indent = 20;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colors = theme.colorScheme;
+    final Color muted = colors.onSurfaceVariant;
+    final TextStyle? small = theme.textTheme.bodySmall?.copyWith(color: muted);
+    final VariantEvidence? e = evidence;
+    return Semantics(
+      liveRegion: true,
+      container: true,
+      // Its room is reserved rather than grown into: type turned up past this
+      // point would push the list about every time a mark is tapped.
+      child: MediaQuery.withClampedTextScaling(
+        maxScaleFactor: 1.3,
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints bounds) {
+            final bool wide = bounds.maxWidth >= _wide;
+            final (double first, double second) = EvidenceRow.lines(context);
+            final Widget body;
+            if (e == null) {
+              body = Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12 + _indent),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    selected > 1
+                        ? '${grouped(selected)} records selected, opened in '
+                              'the list'
+                        : 'Tap a mark for its record',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: small,
+                  ),
+                ),
+              );
+            } else {
+              final ClinVarVariant v = e.variant;
+              final String change = v.transcriptChange;
+              final TextStyle number = TextStyle(
+                fontFamily: AppTypography.monoFamily,
+                fontSize: 12,
+                color: colors.onSurface,
+                fontFeatures: const <FontFeature>[
+                  FontFeature.tabularFigures(),
+                ],
+              );
+              // What changed, and the height it is drawn at: the row's first
+              // line, the number where the row puts its numbers.
+              final Widget head = Row(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(right: _indent - 10),
+                    child: ClinVarDot(group: v.group, size: 10),
+                  ),
+                  // One line, whatever the change: one too long for it is
+                  // drawn a little smaller rather than broken or cut.
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Text(v.shortLabel, style: theme.textTheme.titleSmall),
+                          if (change != v.shortLabel) ...<Widget>[
+                            const SizedBox(width: 8),
+                            Text(
+                              change,
+                              style: TextStyle(
+                                fontFamily: AppTypography.monoFamily,
+                                fontSize: 12,
+                                color: muted,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (e.avi case final double avi) ...<Widget>[
+                    const SizedBox(width: 12),
+                    Text.rich(
+                      TextSpan(
+                        children: <InlineSpan>[
+                          TextSpan(
+                            text: 'AVI ',
+                            style: number.copyWith(color: muted),
+                          ),
+                          TextSpan(text: avi.toStringAsFixed(1), style: number),
+                        ],
+                      ),
+                      key: const ValueKey<String>('evidence-readout-avi'),
+                    ),
+                  ],
+                ],
+              );
+              // What ClinVar calls it, whole on a line of its own.
+              final Widget classification = ClinVarSourced(
+                child: Text(
+                  v.classification,
+                  key: const ValueKey<String>('evidence-readout-class'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: small,
+                ),
+              );
+              final Widget? here = switch (cycle) {
+                (final int i, final int n) when n > 1 => Text(
+                  '$i of $n here',
+                  key: const ValueKey<String>('evidence-readout-cycle'),
+                  style: small,
+                ),
+                _ => null,
+              };
+              final Widget show = TextButton(
+                key: const ValueKey<String>('evidence-readout-show'),
+                onPressed: onShow,
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(0, _action),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  // Compact would take eight points off the finger's height.
+                  visualDensity: VisualDensity.standard,
+                ),
+                child: const Text('Show in list ›'),
+              );
+              // The button's own padding is the card's at its right edge; the
+              // lines keep the rest of it, so the number above ends where the
+              // button's words do.
+              body = wide
+                  ? Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: <Widget>[
+                                SizedBox(height: first, child: head),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: _indent),
+                                  child: SizedBox(
+                                    height: second,
+                                    child: Row(
+                                      children: <Widget>[
+                                        Expanded(child: classification),
+                                        if (here != null) ...<Widget>[
+                                          const SizedBox(width: 12),
+                                          here,
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          show,
+                        ],
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 10, 4, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: SizedBox(height: first, child: head),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: _indent,
+                              right: 8,
+                            ),
+                            child: SizedBox(
+                              height: second,
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: classification,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: _action,
+                            child: Row(
+                              children: <Widget>[
+                                const SizedBox(width: _indent),
+                                Expanded(
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: here,
+                                  ),
+                                ),
+                                show,
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+            }
+            return SizedBox(
+              key: const ValueKey<String>('evidence-readout'),
+              // Every state is this height: the record's lines and the way
+              // to its row, laid out as the width allows.
+              height: wide
+                  ? math.max(first + second, _action) + 12
+                  : 10 + first + second + _action,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: colors.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  border: Border.all(color: colors.outline, width: 0.5),
+                ),
+                child: body,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// What the key line names but a reader cannot read off it: the band's ramp,
+/// the protein page's own, low to high; what the dashed line is; and, where
+/// some records have no AVI score and so no height to be drawn at, how many.
+class _RampKey extends StatelessWidget {
+  const _RampKey({required this.unscored});
+
+  final int unscored;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color muted = theme.colorScheme.onSurfaceVariant;
+    final TextStyle? style = theme.textTheme.labelSmall?.copyWith(
+      color: muted,
+      letterSpacing: 0,
+    );
+    return Wrap(
+      key: const ValueKey<String>('variants-ramp'),
+      spacing: 14,
+      runSpacing: 4,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: <Widget>[
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text('ESM low', style: style),
+            Container(
+              width: 48,
+              height: 4,
+              margin: const EdgeInsets.symmetric(horizontal: 6),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(2),
+                gradient: const LinearGradient(
+                  colors: <Color>[
+                    ConstraintColors.tolerant,
+                    ConstraintColors.moderate,
+                    ConstraintColors.constrained,
+                  ],
+                ),
+              ),
+            ),
+            Text('high', style: style),
+          ],
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            CustomPaint(
+              size: const Size(18, 4),
+              painter: _Dashes(theme.colorScheme.outlineVariant),
+            ),
+            const SizedBox(width: 6),
+            Text('AVI 20, top 1% genome-wide', style: style),
+          ],
+        ),
+        if (unscored > 0)
+          Text(
+            '${grouped(unscored)} without AVI, not drawn',
+            key: const ValueKey<String>('variants-unscored'),
+            style: style,
+          ),
+      ],
+    );
+  }
+}
+
+/// The strip's dashed line, for its key.
+class _Dashes extends CustomPainter {
+  const _Dashes(this.colour);
+
+  final Color colour;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint paint = Paint()
+      ..color = colour
+      ..strokeWidth = 1;
+    final double y = size.height / 2;
+    for (double x = 0; x < size.width; x += 6) {
+      canvas.drawLine(
+        Offset(x, y),
+        Offset(x + 3 < size.width ? x + 3 : size.width, y),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_Dashes old) => old.colour != colour;
+}
+
+/// That the list under a zoomed strip holds only what the strip draws, and
+/// the way back to all of it.
+class _WindowNote extends StatelessWidget {
+  const _WindowNote({required this.count, required this.onAll});
+
+  final int count;
+  final VoidCallback onAll;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Row(
+      key: const ValueKey<String>('variants-window-note'),
+      children: <Widget>[
+        Expanded(
+          child: Text(
+            '${grouped(count)} record${count == 1 ? '' : 's'} in view',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+        TextButton(
+          key: const ValueKey<String>('variants-window-all'),
+          onPressed: onAll,
+          style: TextButton.styleFrom(
+            minimumSize: const Size(0, 44),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            visualDensity: VisualDensity.standard,
+          ),
+          child: const Text('Show all'),
+        ),
+      ],
+    );
+  }
+}

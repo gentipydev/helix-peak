@@ -2,9 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/core/theme/anatomy_colors.dart';
-import 'package:helixpeak/core/theme/app_colors.dart';
-import 'package:helixpeak/core/theme/nucleotide_colors.dart';
+import 'package:helixpeek/core/theme/anatomy_colors.dart';
+import 'package:helixpeek/core/theme/app_colors.dart';
+import 'package:helixpeek/core/theme/nucleotide_colors.dart';
 
 /// WCAG relative luminance, spelled out rather than taken from
 /// `Color.computeLuminance` so this file is checking the standard rather than

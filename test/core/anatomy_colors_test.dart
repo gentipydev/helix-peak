@@ -2,9 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeak/core/theme/anatomy_colors.dart';
-import 'package:helixpeak/core/theme/app_colors.dart';
-import 'package:helixpeak/core/theme/nucleotide_colors.dart';
+import 'package:helixpeek/core/theme/anatomy_colors.dart';
+import 'package:helixpeek/core/theme/app_colors.dart';
+import 'package:helixpeek/core/theme/nucleotide_colors.dart';
 
 /// CIE L*, the perceptual lightness the palette is built on.
 double lightness(Color colour) {

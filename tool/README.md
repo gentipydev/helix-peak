@@ -32,12 +32,12 @@ independent.
 
 ```sh
 NCBI_EMAIL=you@example.com \
-  ../helix-peak-backend/.venv/bin/python tool/mock/build_gene_record.py --all
+  ../helix-peek-backend/.venv/bin/python tool/mock/build_gene_record.py --all
 tool/.esm-venv/bin/python -u tool/constraint/score_protein.py --all   # scored rows only
 ALPHAGENOME_API_KEY=... \
   tool/impact/venv/bin/python -u tool/impact/bake_impact.py --all
 NCBI_EMAIL=you@example.com \
-  ../helix-peak-backend/.venv/bin/python -u tool/clinvar/bake_clinvar.py --all
+  ../helix-peek-backend/.venv/bin/python -u tool/clinvar/bake_clinvar.py --all
 tool/structure/venv/bin/python tool/structure/bake.py --all
 python3 tool/check_assets.py
 ```

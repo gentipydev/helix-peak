@@ -1,4 +1,5 @@
 # The AlphaGenome client, for AVI scores out of the Atlas. Everything else the
-# baker needs is stdlib: it reads the gene records this repo already ships and
-# writes JSON beside them.
+# original baker needs is stdlib. The explanation bake also reads the shared
+# local credential file using python-dotenv.
 alphagenome>=0.1.0
+python-dotenv>=1.0.0
