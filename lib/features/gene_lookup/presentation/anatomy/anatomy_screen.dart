@@ -1560,7 +1560,8 @@ class _AnatomyScreenState extends State<AnatomyScreen>
 
   /// Where the fold comes from: `PDB 2OCJ · residues 96–289 of 393`.
   String get _foldSource {
-    final StructureChrome structure = widget.target.structure;
+    final StructureChrome? structure = widget.target.structure;
+    if (structure == null) return '';
     return switch (structure.modelled) {
       (final int from, final int to) =>
         'PDB ${structure.pdb} · residues $from–$to of '
@@ -2431,14 +2432,14 @@ final class _PageChrome {
   /// 238 of 3,685 because that is all anyone has ever solved — so the numbers
   /// and the sentence come from the catalog rather than from here.
   _PageChrome.structure(ProteinTarget target)
-    : label = target.structure.label,
-      count = target.structure.count,
-      unit = target.structure.unit,
-      shortUnit = target.structure.unit == 'residues' ? 'aa' : 'bp',
-      sentence = target.structure.sentence;
+    : label = target.structure?.label ?? 'the fold',
+      count = target.structure?.count,
+      unit = target.structure?.unit ?? '',
+      shortUnit = target.structure?.unit == 'residues' ? 'aa' : 'bp',
+      sentence = target.structure?.sentence ?? '';
 
   final String label;
-  final int count;
+  final int? count;
 
   /// The unit in words, for a screen reader.
   final String unit;
@@ -2643,6 +2644,7 @@ class _CountBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (chrome.count == null) return const SizedBox.shrink();
     final ThemeData theme = Theme.of(context);
 
     return Container(
@@ -2660,7 +2662,7 @@ class _CountBadge extends StatelessWidget {
           // is the part that changes on every swipe and it carries its own
           // weight for that, while the unit is a label on it.
           Text(
-            grouped(chrome.count),
+            grouped(chrome.count!),
             style: AppTypography.anatomyCount(theme.colorScheme.onSurface),
           ),
           const SizedBox(width: 5),
@@ -2755,7 +2757,7 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
     return Semantics(
       liveRegion: true,
       label:
-          '${grouped(chrome.count)} ${chrome.unit}, ${chrome.label}. '
+          '${chrome.count == null ? '' : '${grouped(chrome.count!)} ${chrome.unit}, '}${chrome.label}. '
           '${tracer?.line ?? chrome.sentence}'
           '${below == null ? '' : ' $below'}',
       excludeSemantics: true,

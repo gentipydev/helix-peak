@@ -2,71 +2,34 @@
 
 Molecular biology and DNA sequence analysis, built with Flutter.
 
-The app fetches a gene from the [backend](../helix-peek-backend), which reads
-it from NCBI GenBank, and draws it as a grid of squares that morphs through the
+The app reads stored gene records baked from NCBI GenBank by the
+[backend pipeline](../helix-peek-backend/pipeline/README.md), and draws a grid
+of squares that morphs through the
 stages of expression — for insulin, 1,431 → 465 → 110 → 82 cells — and then as
 the fold those cells end up in.
 
-Twenty proteins ship: insulin, oxytocin, ubiquitin, lysozyme, haemoglobin,
+The curated list contains twenty proteins: insulin, oxytocin, ubiquitin, lysozyme, haemoglobin,
 myoglobin, relaxin, growth hormone, p53 and dystrophin, and the ten added after
 them — vasopressin, glucagon, amyloid precursor protein, CFTR, erythropoietin,
-leptin, TNF-alpha, SOD1, amylase and prion protein. Each carries five baked
-assets: a gene record, an ESM-2 constraint track, an AlphaGenome Variant Impact
-(AVI) track, a ClinVar snapshot and a 3D model. The whole
-walk runs with no backend and no network. They are one row each in `ProteinCatalog`;
+leptin, TNF-alpha, SOD1, amylase and prion protein. Each has five stored tracks: a gene record, an ESM-2 constraint track, an AlphaGenome Variant Impact
+(AVI) track, a ClinVar snapshot and a 3D model. The walk remains available offline once its tracks have been fetched;
 [`helix-peek-backend/pipeline/`](../helix-peek-backend/pipeline/README.md) is what bakes them, and
 [docs/protein-verification.md](docs/protein-verification.md) is what the second
 ten were checked against before they were added.
 
-The search screen filters those twenty and makes no request: the backend has no
-search endpoint yet, and a field that hung for twenty-five seconds on an
-unreachable host before saying so would be worse than none. A name that is not
-in the catalog is told that plainly.
+The search screen filters the cached list locally. Searching beyond that list
+is planned in the on-demand pipeline handoff.
 
 ## Running
 
-```bash
-cp .env.example .env    # required: pubspec declares .env as an asset
-flutter pub get
-```
+Copy `.env.example` to `.env`, then run `flutter run`. `API_BASE_URL` selects
+our deployed backend or a local service. Release builds use the same path.
 
-Against the real backend (start it first — see `helix-peek-backend/README.md`):
-
-```bash
-flutter run
-```
-
-Against the bundled fixture, with no backend and no network:
-
-```bash
-flutter run --dart-define=USE_MOCK_DATA=true
-flutter build apk --release --dart-define=USE_MOCK_DATA=true
-flutter build ios --release --dart-define=USE_MOCK_DATA=true
-```
-
-Mock builds carry a `MOCK` ribbon in the top-right corner so an installed build
-cannot be mistaken for live data. `USE_MOCK_DATA=true` in `.env` does the same
-thing for local runs; the `--dart-define` wins over it, and is what a build
-command should use, since `.env` is gitignored.
-
-### What mock mode replaces
-
-Only `ApiClient` — the transport. The data source, `GeneRecordDto` parsing, the
-repository, the use case, the cubit and the error-message translation are the
-same code in both modes; `MockApiClient` answers `GET /gene/{id}/{gene}` from
-`assets/mock/gene_*.json` for the records in the catalog, after a delay so
-the loading state still shows. Any other gene or record 404s with the wording
-the backend uses.
-
-The records are not hand-written: the backend's `pipeline/mock/build_gene_record.py` imports its
-backend's own `extract_gene` and writes what the service would answer, so the
-fixtures cannot drift from the contract they stand in for. Six things the live
-service does not do yet — choosing the transcript where two share a CDS,
-naming a chromosome slice's exons after its mRNA segments, cutting UniProt
-qualifier text out of `/product`, and filling in a connecting peptide, a
-proprotein or a lone chain the record leaves out — are marked in that script and
-will have to land in `genbank_parser.py` before the backend can serve these
-records. Nor can it fetch a chromosome slice, which four of them are.
+The app ships no protein data. Its catalog comes from `/catalog`; records,
+ESM-2, AVI, ClinVar, folds and contribution details come from Supabase Storage.
+Catalog rows and fetched tracks are cached on device, so proteins already
+walked remain available offline after a restart. A first launch needs a
+connection. Mock mode has been retired; test data lives in `test/fixtures/`.
 
 The conventions every protein has to follow for the walk to draw and describe
 it like the others — and what a search over any protein still needs — are in
@@ -130,11 +93,8 @@ the three largest signed values, their scope and date, and an Atlas source link.
 The explanations work offline; only opening the external source needs a browser.
 Other genes retain their existing AVI bars. [Data contract and baking](docs/avi-contributions.md).
 
-These new payloads use the mock/live transport seam: bundled JSON in mock mode,
-and `GET /gene/{id}/{gene}/impact-explanations` against the local backend.
-They load on demand, reject mismatched sequences/maps/scores, and offer retry
-without blocking the gene walk. Existing AVI, ESM and ClinVar tracks still load
-from assets.
+Contribution details load on demand through the same stored-track client,
+reject mismatched sequences/maps/scores, and offer retry without blocking the walk.
 
 Each source has one job and one visual channel. ESM-2 is the protein's fit — the
 residue sheet's bars and, in ESM mode, the grid's fill. AVI is each base's
@@ -178,16 +138,14 @@ flutter test
 ```
 
 `test/features/gene_lookup/catalog/` derives the whole walk for every protein
-off the bundled records: every stage, every cell's run, and the one invariant
+from the test fixture records: every stage, every cell's run, and the one invariant
 the feature rests on — that a scored protein's constraint track sequence is the
 protein page's letters. Those two are baked by different tools, hours apart.
 `check_assets.py` also re-proves every record from its own bytes: the CDS
 translates to the protein, every peptide translates at its own offset (which is
 what keeps a neighbouring gene's features out), and every intron is spliceable.
 
-`test/core/network/mock_api_client_test.dart` holds the fake to the same
-assertions `test/live_backend_check.dart` makes against the real service. The
-opt-in checks are skipped by default:
+The opt-in live checks fetch every track through the production client:
 
 ```bash
 # needs the backend running

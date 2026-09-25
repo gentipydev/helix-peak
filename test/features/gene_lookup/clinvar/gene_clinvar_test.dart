@@ -4,18 +4,18 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_clinvar.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_impact.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/variant_evidence.dart';
 
+import '../../../support/test_catalog.dart';
 import '../anatomy/anatomy_fixture.dart';
 
 Map<String, dynamic> readJson(String path) =>
     jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
 Map<String, dynamic> snapshotJson() =>
-    readJson(ProteinCatalog.insulin.clinvarAsset);
+    readJson(TestCatalog.insulin.clinvarAsset);
 GeneClinVar snapshot() =>
-    GeneClinVar.fromJson(snapshotJson(), ProteinCatalog.insulin);
+    GeneClinVar.fromJson(snapshotJson(), TestCatalog.insulin);
 
 void main() {
   test(
@@ -76,12 +76,12 @@ void main() {
     () {
       final GeneClinVar data = snapshot();
       final GeneImpact avi = GeneImpact.fromJson(
-        readJson(ProteinCatalog.insulin.impactAsset),
-        ProteinCatalog.insulin,
+        readJson(TestCatalog.insulin.impactAsset),
+        TestCatalog.insulin,
       );
       final ProteinConstraint esm = ProteinConstraint.fromJson(
-        readJson(ProteinCatalog.insulin.constraintAsset),
-        ProteinCatalog.insulin,
+        readJson(TestCatalog.insulin.constraintAsset),
+        TestCatalog.insulin,
       );
       ({String label, int order}) gene(int position) =>
           (label: 'gene', order: position);
@@ -96,7 +96,7 @@ void main() {
         expect(e.avi, e.variant.aviScore(avi.at(e.variant.position)));
       }
       final Map<String, dynamic> changed = readJson(
-        ProteinCatalog.insulin.impactAsset,
+        TestCatalog.insulin.impactAsset,
       );
       ((changed['runs'] as List<dynamic>).first
               as Map<String, dynamic>)['genomic'] =
@@ -104,7 +104,7 @@ void main() {
       expect(
         VariantEvidence.build(
           data,
-          impact: GeneImpact.fromJson(changed, ProteinCatalog.insulin),
+          impact: GeneImpact.fromJson(changed, TestCatalog.insulin),
           constraint: esm,
           nonCoding: gene,
         ).every((e) => e.avi == null),
@@ -118,10 +118,10 @@ void main() {
     () {
       final GeneClinVar data = snapshot();
       final Map<String, dynamic> raw = readJson(
-        ProteinCatalog.insulin.impactAsset,
+        TestCatalog.insulin.impactAsset,
       );
       (raw['positions'] as Map<String, dynamic>).remove('6297');
-      final GeneImpact avi = GeneImpact.fromJson(raw, ProteinCatalog.insulin);
+      final GeneImpact avi = GeneImpact.fromJson(raw, TestCatalog.insulin);
       final List<VariantEvidence> all = VariantEvidence.build(
         data,
         impact: avi,
@@ -182,7 +182,7 @@ void main() {
     final Map<String, dynamic> older = snapshotJson()..remove('traits');
     final ClinVarVariant bare = GeneClinVar.fromJson(
       older,
-      ProteinCatalog.insulin,
+      TestCatalog.insulin,
     ).variants.firstWhere((v) => v.id == '1455986');
     expect(
       bare.conditionsByClass[1].$2.map((ClinVarTrait t) => t.name),
@@ -286,7 +286,7 @@ void main() {
           json['gene'] = 'INS-IGF2';
       }
       expect(
-        () => GeneClinVar.fromJson(json, ProteinCatalog.insulin),
+        () => GeneClinVar.fromJson(json, TestCatalog.insulin),
         throwsFormatException,
       );
     });
@@ -301,7 +301,7 @@ void main() {
     expect(
       GeneClinVar.fromJson(
         json,
-        ProteinCatalog.insulin,
+        TestCatalog.insulin,
       ).matchesRecord(insulin()),
       isFalse,
     );

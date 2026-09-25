@@ -18,12 +18,12 @@ import 'package:helixpeek/features/gene_lookup/data/datasources/gene_remote_data
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
 import 'package:helixpeek/features/gene_lookup/data/repositories/gene_repository_impl.dart';
 import 'package:helixpeek/features/gene_lookup/data/repositories/impact_explanation_repository.dart';
+import 'package:helixpeek/features/gene_lookup/data/repositories/protein_catalog_repository.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_clinvar.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_impact.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_query.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_record.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/impact_explanations.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_track.dart';
@@ -31,6 +31,16 @@ import 'package:helixpeek/features/gene_lookup/domain/usecases/fetch_gene.dart';
 
 void main() {
   final String baseUrl = Platform.environment['LIVE_BACKEND'] ?? '';
+  late ProteinCatalogRepository catalog;
+  setUpAll(() async {
+    if (baseUrl.isEmpty) return;
+    catalog = ProteinCatalogRepository(
+      DioApiClient(baseUrl: baseUrl, timeout: const Duration(seconds: 60)), null,
+    );
+    await catalog.refresh();
+    expect(catalog.status.value, CatalogStatus.ready);
+    expect(catalog.all, hasLength(20));
+  });
 
   /// Every track of every protein, fetched and parsed the way the walk does.
   ///
@@ -44,15 +54,16 @@ void main() {
       markTestSkipped('set LIVE_BACKEND to run against a live backend');
       return;
     }
-    final Directory cache = Directory.systemTemp.createTempSync('helixpeek-live');
-    addTearDown(() => cache.deleteSync(recursive: true));
+    final Directory root = Directory.systemTemp.createTempSync('helixpeek-live');
+    final Directory cache = Directory('${root.path}/tracks')..createSync();
+    addTearDown(() => root.deleteSync(recursive: true));
     final TrackClient tracks = TrackClient(
       DioApiClient(baseUrl: baseUrl, timeout: const Duration(seconds: 30)),
       cache: cache,
     );
 
     int bytes = 0;
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in catalog.all) {
       // The record the walk opens on, read the way the walk reads it. The
       // four slice genes -- oxytocin, relaxin, glucagon, amylase -- are the
       // ones the old /gene route could not fetch at all.
@@ -92,7 +103,7 @@ void main() {
         .whereType<File>()
         .fold(0, (int sum, File f) => sum + f.lengthSync());
     expect(held, greaterThan(30 * 1024 * 1024));
-    await GeneClinVar.load(ProteinCatalog.dystrophin, tracks: tracks);
+    await GeneClinVar.load(catalog.bySlug('dystrophin')!, tracks: tracks);
   }, timeout: const Timeout(Duration(minutes: 10)));
 
   test('AVI explanations use the same validated contract over HTTP', () async {
@@ -100,17 +111,14 @@ void main() {
       markTestSkipped('set LIVE_BACKEND to run against a live backend');
       return;
     }
-    final repository = ImpactExplanationRepository(
+    final tracks = TrackClient(
       DioApiClient(baseUrl: baseUrl, timeout: const Duration(seconds: 30)),
     );
-    for (final target in ProteinCatalog.all.where(
+    final repository = ImpactExplanationRepository(tracks);
+    for (final target in catalog.all.where(
       (t) => t.impactExplanationsAvailable,
     )) {
-      final track = GeneImpact.fromJson(
-        jsonDecode(File(target.impactAsset).readAsStringSync())
-            as Map<String, dynamic>,
-        target,
-      );
+      final track = await GeneImpact.load(target, tracks: tracks);
       final data = await repository.load(track);
       final base = track.at(track.start)!;
       final request = ImpactExplanationRequest.forAllele(
@@ -138,7 +146,7 @@ void main() {
       GeneRepositoryImpl(GeneRemoteDataSourceImpl(client)),
     );
 
-    final GeneRecord record = await fetchGene(ProteinCatalog.insulin.query);
+    final GeneRecord record = await fetchGene(catalog.bySlug('insulin')!.query);
 
     expect(record.gene, 'INS');
     expect(record.start, 4986);

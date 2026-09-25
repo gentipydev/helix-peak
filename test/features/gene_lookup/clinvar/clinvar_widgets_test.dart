@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_clinvar.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/variant_evidence.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/sequence_scrubber.dart';
@@ -18,6 +17,7 @@ import 'package:helixpeek/features/gene_lookup/presentation/clinvar/evidence_str
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/sources_note.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/variants_overview.dart';
 
+import '../../../support/test_catalog.dart';
 import '../anatomy/anatomy_fixture.dart';
 import 'gene_clinvar_test.dart' show snapshot;
 import 'variant_evidence_test.dart' show insulinConstraint, insulinEvidence;
@@ -72,7 +72,7 @@ Future<List<VariantTarget>> _overview(
   final GeneClinVar data = snapshot();
   final List<VariantEvidence> evidence = insulinEvidence();
   final List<GeneRun> runs = geneRuns(
-    AnatomyModel.derive(insulin(), chain: ProteinCatalog.insulin.chain),
+    AnatomyModel.derive(insulin(), chain: TestCatalog.insulin.chain),
   );
   final List<VariantTarget> results = <VariantTarget>[];
   await tester.pumpWidget(

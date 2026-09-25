@@ -5,7 +5,6 @@ import 'package:helixpeek/core/theme/anatomy_colors.dart';
 import 'package:helixpeek/core/theme/app_colors.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/core/theme/nucleotide_colors.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/repositories/gene_repository.dart';
 import 'package:helixpeek/features/gene_lookup/domain/usecases/fetch_gene.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
@@ -14,6 +13,7 @@ import 'package:helixpeek/features/gene_lookup/presentation/cubit/gene_lookup_cu
 import 'package:helixpeek/features/gene_lookup/presentation/screens/gene_screen.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../support/test_catalog.dart';
 import 'anatomy/anatomy_fixture.dart';
 
 // GeneLookupCubit is a final class and cannot be mocked directly, so the screen
@@ -31,7 +31,7 @@ void main() {
         home: BlocProvider<GeneLookupCubit>(
           create: (BuildContext context) =>
               GeneLookupCubit(FetchGene(_MockGeneRepository())),
-          child: const GeneScreen(target: ProteinCatalog.insulin),
+          child: GeneScreen(target: TestCatalog.insulin),
         ),
       ),
     );
@@ -60,7 +60,7 @@ void main() {
         home: BlocProvider<GeneLookupCubit>(
           create: (BuildContext context) =>
               GeneLookupCubit(FetchGene(_MockGeneRepository())),
-          child: const GeneScreen(target: ProteinCatalog.insulin),
+          child: GeneScreen(target: TestCatalog.insulin),
         ),
       ),
     );
@@ -78,7 +78,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.analysis,
-        home: AnatomyScreen(target: ProteinCatalog.insulin, record: insulin()),
+        home: AnatomyScreen(target: TestCatalog.insulin, record: insulin()),
       ),
     );
     await tester.pumpAndSettle();

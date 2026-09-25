@@ -6,12 +6,13 @@ import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart'
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_clinvar.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_impact.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_record.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/variant_evidence.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/evidence_sections.dart';
+
+import '../../../support/test_catalog.dart';
 
 Map<String, dynamic> _json(String path) =>
     jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
@@ -36,7 +37,7 @@ const Set<String> _mendelian = <String>{
 /// screen. A snapshot that fails any of these is not drawn in part: the walk
 /// shows it as unavailable, whole, with nothing on screen to say why.
 void main() {
-  for (final ProteinTarget target in ProteinCatalog.all) {
+  for (final ProteinTarget target in TestCatalog.all) {
     group(target.slug, () {
       test('ships a snapshot exactly where the row says it does', () {
         expect(

@@ -11,7 +11,6 @@ import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart'
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_clinvar.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_impact.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_record.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/variant_evidence.dart';
@@ -22,6 +21,7 @@ import 'package:helixpeek/features/gene_lookup/presentation/clinvar/evidence_sec
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/evidence_strip.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/variants_overview.dart';
 
+import '../../../support/test_catalog.dart';
 import '../anatomy/anatomy_fixture.dart';
 
 Map<String, dynamic> _json(String path) =>
@@ -103,7 +103,7 @@ void _expectOneHeight(WidgetTester tester) {
 /// Dystrophin, the catalog's largest snapshot: thousands of records over a
 /// gene whose introns are drawn shortened.
 void main() {
-  const ProteinTarget dmd = ProteinCatalog.dystrophin;
+  final ProteinTarget dmd = TestCatalog.dystrophin;
   late final GeneRecord record = GeneRecordDto.fromJson(
     _json(dmd.mockAsset),
   ).toEntity();
@@ -433,7 +433,7 @@ void main() {
   });
 
   // The same list for every gene, not only the largest.
-  for (final ProteinTarget target in ProteinCatalog.all) {
+  for (final ProteinTarget target in TestCatalog.all) {
     if (!target.clinvarAvailable) {
       continue;
     }

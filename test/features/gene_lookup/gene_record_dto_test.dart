@@ -7,7 +7,7 @@ import 'package:helixpeek/features/gene_lookup/domain/entities/gene_record.dart'
 
 /// A real `GET /gene/NG_007114/INS` response, saved from the running backend.
 GeneRecord _load() {
-  final String raw = File('assets/mock/gene_ins.json').readAsStringSync();
+  final String raw = File('test/fixtures/mock/gene_ins.json').readAsStringSync();
   final Map<String, dynamic> json = jsonDecode(raw) as Map<String, dynamic>;
   return GeneRecordDto.fromJson(json).toEntity();
 }

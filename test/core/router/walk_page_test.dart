@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/router/app_router.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
 
 import '../../features/gene_lookup/anatomy/anatomy_fixture.dart';
+import '../../support/test_catalog.dart';
 
 /// A home page with a walk pushed over it, on [platform].
 Future<void> _pushWalk(WidgetTester tester, TargetPlatform platform) async {
@@ -26,7 +26,7 @@ Future<void> _pushWalk(WidgetTester tester, TargetPlatform platform) async {
                 context: context,
                 key: const ValueKey<String>('walk'),
                 child: AnatomyScreen(
-                  target: ProteinCatalog.insulin,
+                  target: TestCatalog.insulin,
                   record: insulin(),
                 ),
               ),
@@ -80,7 +80,7 @@ void main() {
                 walkRoute<void>(
                   context,
                   (_) => AnatomyScreen(
-                    target: ProteinCatalog.insulin,
+                    target: TestCatalog.insulin,
                     record: insulin(),
                   ),
                 ),

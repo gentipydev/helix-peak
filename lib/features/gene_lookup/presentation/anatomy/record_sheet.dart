@@ -146,10 +146,10 @@ class _RecordSheetState extends State<_RecordSheet> {
         '${target.uniprot} · ${grouped(target.facts.residues)} aa',
       ),
       if (mature != null) ('Chains', mature.sentence),
-      (
+      if (target.structure != null) (
         'Structure',
-        'PDB ${target.structure.pdb}'
-            '${switch (target.structure.modelled) {
+        'PDB ${target.structure!.pdb}'
+            '${switch (target.structure!.modelled) {
               (final int from, final int to) => ' · residues $from–$to',
               null => '',
             }}',

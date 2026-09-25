@@ -1,21 +1,19 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 
-import '../../../../core/network/api_client.dart';
-import '../../../../core/network/mock_api_client.dart';
+import '../../../../core/network/track_source.dart';
 import '../../domain/entities/gene_impact.dart';
 import '../../domain/entities/impact_explanations.dart';
+import '../../domain/entities/protein_track.dart';
 
-/// The same versioned response and parser for bundled and backend evidence.
+/// Validates stored evidence in an isolate.
 /// Failures are evicted so retry can recover; a live failure never silently
 /// switches to a different local snapshot.
 final class ImpactExplanationRepository {
   ImpactExplanationRepository(this._client);
-  final ApiClient _client;
+  final TrackSource _client;
   final Map<GeneImpact, Future<GeneImpactExplanations>> _loads = {};
-
-  /// Standalone walk previews also work offline, without app-level providers.
-  static final ImpactExplanationRepository bundled =
-      ImpactExplanationRepository(MockApiClient(latency: Duration.zero));
 
   Future<GeneImpactExplanations> load(GeneImpact track) =>
       _loads[track] ??= _load(track)
@@ -25,13 +23,15 @@ final class ImpactExplanationRepository {
           });
 
   Future<GeneImpactExplanations> _load(GeneImpact track) async {
-    final json = await _client.getJson(
-      '/gene/${track.target.accession}/${track.gene}/impact-explanations',
+    final bytes = await _client.read(
+      track.target.slug, TrackKind.impactExplanations,
     );
-    return compute(_parse, (json, track));
+    return compute(_parse, (bytes, track));
   }
 
   static GeneImpactExplanations _parse(
-    (Map<String, dynamic>, GeneImpact) input,
-  ) => GeneImpactExplanations.fromJson(input.$1, input.$2);
+    (Uint8List, GeneImpact) input,
+  ) => GeneImpactExplanations.fromJson(
+    jsonDecode(utf8.decode(input.$1)) as Map<String, dynamic>, input.$2,
+  );
 }

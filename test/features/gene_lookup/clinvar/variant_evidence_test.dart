@@ -3,24 +3,24 @@ import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart'
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_clinvar.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_impact.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_record.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/variant_evidence.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/evidence_sections.dart';
 
+import '../../../support/test_catalog.dart';
 import '../anatomy/anatomy_fixture.dart';
 import 'gene_clinvar_test.dart' show readJson, snapshot;
 
 GeneImpact insulinImpact() => GeneImpact.fromJson(
-  readJson(ProteinCatalog.insulin.impactAsset),
-  ProteinCatalog.insulin,
+  readJson(TestCatalog.insulin.impactAsset),
+  TestCatalog.insulin,
 );
 
 ProteinConstraint insulinConstraint() => ProteinConstraint.fromJson(
-  readJson(ProteinCatalog.insulin.constraintAsset),
-  ProteinCatalog.insulin,
+  readJson(TestCatalog.insulin.constraintAsset),
+  TestCatalog.insulin,
 );
 
 List<VariantEvidence> insulinEvidence({
@@ -31,7 +31,7 @@ List<VariantEvidence> insulinEvidence({
   impact: impact ? insulinImpact() : null,
   constraint: constraint ? insulinConstraint() : null,
   nonCoding: nonCodingSections(
-    AnatomyModel.derive(insulin(), chain: ProteinCatalog.insulin.chain),
+    AnatomyModel.derive(insulin(), chain: TestCatalog.insulin.chain),
   ),
 );
 
@@ -149,7 +149,7 @@ void main() {
   test('a change to the stop codon reads as one, with only AVI to say', () {
     // SOD1's Ter155Ser: the stop codon read through, so no residue to score.
     final VariantEvidence stopLost = evidenceOf(
-      ProteinCatalog.sod1,
+      TestCatalog.sod1,
     ).firstWhere((VariantEvidence e) => e.variant.id == '3335974');
     expect(stopLost.variant.consequence, 'stop lost');
     expect(stopLost.variant.residue, isNull);
@@ -163,7 +163,7 @@ void main() {
     // its highest position: M105L (the codon's first base) reads before M105I
     // (its third).
     final List<VariantEvidence> met105 =
-        evidenceOf(ProteinCatalog.relaxin)
+        evidenceOf(TestCatalog.relaxin)
             .where((VariantEvidence e) => e.variant.residue == 105)
             .toList()
           ..sort(VariantEvidence.transcriptOrder(reversed: true));

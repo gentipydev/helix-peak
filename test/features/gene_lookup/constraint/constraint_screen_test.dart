@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/network/track_source.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_track.dart';
@@ -19,12 +18,13 @@ import 'package:helixpeek/features/gene_lookup/presentation/constraint/constrain
 import 'package:helixpeek/features/gene_lookup/presentation/format.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/inspector/score_bar.dart';
 
+import '../../../support/test_catalog.dart';
 import '../anatomy/anatomy_fixture.dart';
 
 final ProteinConstraint _data = ProteinConstraint.fromJson(
-  jsonDecode(File(ProteinCatalog.insulin.constraintAsset).readAsStringSync())
+  jsonDecode(File(TestCatalog.insulin.constraintAsset).readAsStringSync())
       as Map<String, dynamic>,
-  ProteinCatalog.insulin,
+  TestCatalog.insulin,
 );
 
 Finder get _paintBox => find.byWidgetPredicate(
@@ -68,7 +68,7 @@ Future<void> _open(
             disableAnimations: reduced,
             textScaler: TextScaler.linear(textScale),
           ),
-          child: AnatomyScreen(target: ProteinCatalog.insulin, record: insulin(), constraint: _data),
+          child: AnatomyScreen(target: TestCatalog.insulin, record: insulin(), constraint: _data),
         ),
       ),
     ),
@@ -119,7 +119,7 @@ Future<void> _capture(WidgetTester tester, String name) async {
 class _OnDisk implements TrackSource {
   @override
   Future<Uint8List> read(String slug, TrackKind kind) async =>
-      File(ProteinCatalog.bySlug(slug)!.asset(kind)!).readAsBytes();
+      File(TestCatalog.bySlug(slug)!.asset(kind)!).readAsBytes();
 }
 
 void main() {
@@ -140,7 +140,7 @@ void main() {
     // family out of it; the baked files stay in the repo, and `_OnDisk` is what
     // the twenty other constraint tests do by hand.
     final ProteinConstraint? loaded = await tester.runAsync(
-      () => ProteinConstraint.load(ProteinCatalog.insulin, tracks: _OnDisk()),
+      () => ProteinConstraint.load(TestCatalog.insulin, tracks: _OnDisk()),
     );
     expect(loaded!.positions.length, 110);
     expect(loaded.positions[30].ranked[1].score, -10.253);
@@ -153,7 +153,7 @@ void main() {
     // track is baked is held here rather than by the catalog walk. The slug is
     // insulin's on purpose: a screen that ignored `scored` would find the real
     // track, load it, and draw the toolbar.
-    const ProteinTarget scored = ProteinCatalog.insulin;
+    final ProteinTarget scored = TestCatalog.insulin;
     final ProteinTarget unscored = ProteinTarget(
       slug: scored.slug,
       display: scored.display,

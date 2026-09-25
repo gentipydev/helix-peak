@@ -23,7 +23,7 @@ class ImpactExplanationView extends StatefulWidget {
 }
 
 class _ImpactExplanationViewState extends State<ImpactExplanationView> {
-  late ImpactExplanationRepository _repository;
+  ImpactExplanationRepository? _repository;
   Future<GeneImpactExplanations>? _future;
   bool _details = false;
 
@@ -32,11 +32,10 @@ class _ImpactExplanationViewState extends State<ImpactExplanationView> {
     super.didChangeDependencies();
     final repository =
         widget.repository ??
-        context.read<ImpactExplanationRepository?>() ??
-        ImpactExplanationRepository.bundled;
+        context.read<ImpactExplanationRepository?>();
     if (_future == null || !identical(_repository, repository)) {
       _repository = repository;
-      _future = _repository.load(widget.request.track);
+      _future = _repository?.load(widget.request.track);
     }
   }
 
@@ -47,9 +46,8 @@ class _ImpactExplanationViewState extends State<ImpactExplanationView> {
         old.repository != widget.repository) {
       _repository =
           widget.repository ??
-          context.read<ImpactExplanationRepository?>() ??
-          ImpactExplanationRepository.bundled;
-      _future = _repository.load(widget.request.track);
+          context.read<ImpactExplanationRepository?>();
+      _future = _repository?.load(widget.request.track);
     }
     if (old.request.position != widget.request.position ||
         old.request.alt != widget.request.alt ||
@@ -108,7 +106,7 @@ class _ImpactExplanationViewState extends State<ImpactExplanationView> {
                   key: const ValueKey('impact-contributions-retry'),
                   style: linkStyle,
                   onPressed: () {
-                    final next = _repository.load(widget.request.track);
+                    final next = _repository?.load(widget.request.track);
                     setState(() {
                       _future = next;
                     });

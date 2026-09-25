@@ -7,47 +7,41 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeek/core/network/api_client.dart';
 import 'package:helixpeek/core/network/api_exception.dart';
-import 'package:helixpeek/core/network/mock_api_client.dart';
+import 'package:helixpeek/core/network/track_source.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/data/repositories/impact_explanation_repository.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_impact.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/impact_explanations.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_track.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/evidence_row.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/inspector/impact_explanation_view.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/inspector/impact_panel.dart';
 
+import '../../../support/test_catalog.dart';
 import '../anatomy/anatomy_fixture.dart';
 import '../clinvar/variant_evidence_test.dart' show insulinEvidence;
 
 Map<String, dynamic> _json(String path) =>
     jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
 
-class _Client implements ApiClient {
+class _Client implements TrackSource {
   _Client(this.data, {this.failures = 0});
   final Map<String, dynamic> data;
   int failures;
   int calls = 0;
   @override
-  Future<Map<String, dynamic>> getJson(
-    String path, {
-    Map<String, dynamic>? query,
-  }) async {
+  Future<Uint8List> read(String slug, TrackKind kind) async {
     calls++;
-    expect(path, '/gene/NG_007114/INS/impact-explanations');
+    expect(slug, 'insulin');
+    expect(kind, TrackKind.impactExplanations);
     if (failures-- > 0) {
       throw const ServerApiException(statusCode: 503, detail: 'Unavailable');
     }
-    return data;
+    return Uint8List.fromList(utf8.encode(jsonEncode(data)));
   }
 
-  @override
-  Future<Map<String, dynamic>> postJson(
-    String path, {
-    required Map<String, dynamic> body,
-  }) => throw UnimplementedError();
+
 }
 
 Future<void> _capture(WidgetTester tester, String name) async {
@@ -69,7 +63,7 @@ Future<void> _capture(WidgetTester tester, String name) async {
 }
 
 void main() {
-  const target = ProteinCatalog.insulin;
+  final target = TestCatalog.insulin;
   final track = GeneImpact.fromJson(_json(target.impactAsset), target);
   final request = ImpactExplanationRequest.forAllele(track, 5294, 'C', 'A')!;
   final second = ImpactExplanationRequest.forAllele(track, 5294, 'C', 'T')!;
@@ -119,7 +113,7 @@ void main() {
     'loads once through the mock transport and reuses the parsed contract',
     (tester) async {
       final repository = ImpactExplanationRepository(
-        MockApiClient(latency: Duration.zero),
+        _Client(fixture),
       );
       await tester.runAsync(() async {
         final a = repository.load(track);

@@ -9,7 +9,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_clinvar.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_impact.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
@@ -19,6 +18,7 @@ import 'package:helixpeek/features/gene_lookup/presentation/clinvar/evidence_row
 import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_panel.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/inspector/impact_panel.dart';
 
+import '../../../support/test_catalog.dart';
 import '../anatomy/anatomy_fixture.dart';
 
 Map<String, dynamic> _json(String path) =>
@@ -26,23 +26,23 @@ Map<String, dynamic> _json(String path) =>
 
 ProteinConstraint _constraint(double value) {
   final Map<String, dynamic> json = _json(
-    ProteinCatalog.insulin.constraintAsset,
+    TestCatalog.insulin.constraintAsset,
   );
   ((json['positions'] as List<dynamic>)[25]
           as Map<String, dynamic>)['conservation'] =
       value;
-  return ProteinConstraint.fromJson(json, ProteinCatalog.insulin);
+  return ProteinConstraint.fromJson(json, TestCatalog.insulin);
 }
 
 GeneImpact _impact(double value, {bool borrowed = false}) {
-  final Map<String, dynamic> json = _json(ProteinCatalog.insulin.impactAsset);
+  final Map<String, dynamic> json = _json(TestCatalog.insulin.impactAsset);
   final Map<String, dynamic> positions =
       json['positions'] as Map<String, dynamic>;
   positions['5299'] = <double>[25, 24, 23];
   positions['5300'] = <double>[12, 11, 10];
   positions['5301'] = <double>[value, value, value];
   if (borrowed) positions.remove('5301');
-  return GeneImpact.fromJson(json, ProteinCatalog.insulin);
+  return GeneImpact.fromJson(json, TestCatalog.insulin);
 }
 
 Finder get _panel => find.byType(ImpactPanel);
@@ -76,12 +76,12 @@ Future<void> _open(
           ),
           child: AnatomyScreen(
             record: insulin(),
-            target: ProteinCatalog.insulin,
+            target: TestCatalog.insulin,
             impact: _impact(avi, borrowed: borrowed),
             constraint: _constraint(esm),
             clinvar: GeneClinVar.fromJson(
-              _json(ProteinCatalog.insulin.clinvarAsset),
-              ProteinCatalog.insulin,
+              _json(TestCatalog.insulin.clinvarAsset),
+              TestCatalog.insulin,
             ),
           ),
         ),

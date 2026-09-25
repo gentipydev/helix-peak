@@ -99,25 +99,6 @@ final class TrackRef {
     this.provenance = const <String, dynamic>{},
   });
 
-  /// A state the client knows without asking.
-  ///
-  /// The bundled seed says this about the families it ships a row for: the
-  /// payload is there to be had, and no service has to be reached to find that
-  /// out. It says nothing about *where* — a family that has moved to storage is
-  /// still seeded [TrackState.ready], because the track exists and a walk that
-  /// cannot reach the network has failed to fetch it rather than discovered it
-  /// was never baked. Those are different sentences, and R9.3 is the rule that
-  /// they stay different.
-  const TrackRef.seeded()
-    : state = TrackState.ready,
-      reason = null,
-      url = null,
-      format = null,
-      bytes = null,
-      sha256 = null,
-      contentEncoding = null,
-      provenance = const <String, dynamic>{};
-
   factory TrackRef.fromJson(Map<String, dynamic> json) => TrackRef(
     state: TrackState.fromWire(json['state'] as String?),
     reason: json['reason'] as String?,

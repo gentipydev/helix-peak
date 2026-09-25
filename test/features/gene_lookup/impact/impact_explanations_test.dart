@@ -4,14 +4,15 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_impact.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/impact_explanations.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
+
+import '../../../support/test_catalog.dart';
 
 Map<String, dynamic> readJson(String path) =>
     jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
 
 void main() {
-  const insulin = ProteinCatalog.insulin;
+  final insulin = TestCatalog.insulin;
   final track = GeneImpact.fromJson(readJson(insulin.impactAsset), insulin);
   Map<String, dynamic> fixture() => readJson(insulin.impactExplanationsAsset);
   final request = ImpactExplanationRequest.forAllele(track, 5294, 'C', 'A')!;
@@ -19,7 +20,7 @@ void main() {
   test(
     'every bundled pilot alternative is exact and has a valid attribution',
     () {
-      final pilot = ProteinCatalog.all.where(
+      final pilot = TestCatalog.all.where(
         (t) => t.impactExplanationsAvailable,
       );
       expect(pilot.map((t) => t.gene), unorderedEquals(['INS', 'HBB', 'CFTR']));
@@ -63,7 +64,7 @@ void main() {
   });
 
   test('compressed CFTR coordinate retains exact synonymous attribution', () {
-    final target = ProteinCatalog.all.firstWhere((t) => t.gene == 'CFTR');
+    final target = TestCatalog.all.firstWhere((t) => t.gene == 'CFTR');
     final impact = GeneImpact.fromJson(readJson(target.impactAsset), target);
     final data = GeneImpactExplanations.fromJson(
       readJson(target.impactExplanationsAsset),
@@ -82,7 +83,7 @@ void main() {
     final gap = GeneImpact.fromJson(json, insulin);
     expect(gap.at(5294)!.estimated, isTrue);
     expect(ImpactExplanationRequest.forAllele(gap, 5294, 'C', 'A'), isNull);
-    final target = ProteinCatalog.all.firstWhere((t) => t.gene == 'DMD');
+    final target = TestCatalog.all.firstWhere((t) => t.gene == 'DMD');
     final dmd = GeneImpact.fromJson(readJson(target.impactAsset), target);
     final base = dmd.at(dmd.start)!;
     expect(

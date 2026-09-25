@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_layout.dart';
@@ -16,12 +15,13 @@ import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stag
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/stage_bar.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/structure/structure_view.dart';
 
+import '../../../support/test_catalog.dart';
 import 'anatomy_fixture.dart';
 
 final ProteinConstraint _constraint = ProteinConstraint.fromJson(
-  jsonDecode(File(ProteinCatalog.insulin.constraintAsset).readAsStringSync())
+  jsonDecode(File(TestCatalog.insulin.constraintAsset).readAsStringSync())
       as Map<String, dynamic>,
-  ProteinCatalog.insulin,
+  TestCatalog.insulin,
 );
 
 const Size _phone = Size(390, 844);
@@ -56,7 +56,7 @@ Future<void> _pumpScreen(
       theme: AppTheme.analysis,
       home: MediaQuery(
         data: MediaQueryData(disableAnimations: reduceMotion),
-        child: AnatomyScreen(target: ProteinCatalog.insulin, record: insulin(), constraint: _constraint),
+        child: AnatomyScreen(target: TestCatalog.insulin, record: insulin(), constraint: _constraint),
       ),
     ),
   );
@@ -340,7 +340,7 @@ void main() {
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(
                   builder: (BuildContext context) =>
-                      AnatomyScreen(target: ProteinCatalog.insulin, record: insulin()),
+                      AnatomyScreen(target: TestCatalog.insulin, record: insulin()),
                 ),
               ),
               child: const Text('open'),

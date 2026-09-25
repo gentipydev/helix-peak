@@ -5,7 +5,6 @@ import 'dart:ui';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_record.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_layout.dart';
@@ -13,6 +12,8 @@ import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_rule
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_selection.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_tracer.dart';
+
+import '../../../support/test_catalog.dart';
 
 Map<String, dynamic> _json(String path) =>
     jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
@@ -53,64 +54,51 @@ Set<String> _bundledPaths() {
 void main() {
   test('slugs, genes and asset paths are unique', () {
     expect(
-      ProteinCatalog.all.map((ProteinTarget t) => t.slug).toSet().length,
-      ProteinCatalog.all.length,
+      TestCatalog.all.map((ProteinTarget t) => t.slug).toSet().length,
+      TestCatalog.all.length,
     );
     expect(
-      ProteinCatalog.all.map((ProteinTarget t) => t.gene).toSet().length,
-      ProteinCatalog.all.length,
+      TestCatalog.all.map((ProteinTarget t) => t.gene).toSet().length,
+      TestCatalog.all.length,
     );
-    expect(ProteinCatalog.all, contains(ProteinCatalog.fallback));
-  });
-
-  test('every path the fixture server can be asked for resolves', () {
-    for (final ProteinTarget target in ProteinCatalog.all) {
-      expect(
-        ProteinCatalog.byPath(target.accession, target.gene),
-        target,
-        reason: 'GET /gene/${target.accession}/${target.gene}',
-      );
-      expect(ProteinCatalog.bySlug(target.slug), target);
-    }
-    expect(ProteinCatalog.byPath('NG_007114', 'INS-IGF2'), isNull);
-    expect(ProteinCatalog.bySlug('haemoglobin'), isNull);
+    expect(TestCatalog.all, contains(TestCatalog.fallback));
   });
 
   test('search finds every protein by name and by gene symbol', () {
-    expect(ProteinCatalog.matching(''), ProteinCatalog.all);
-    expect(ProteinCatalog.matching('   '), ProteinCatalog.all);
-    for (final ProteinTarget target in ProteinCatalog.all) {
-      expect(ProteinCatalog.matching(target.gene), contains(target));
-      expect(ProteinCatalog.matching(target.gene.toLowerCase()), contains(target));
-      expect(ProteinCatalog.matching(target.display), contains(target));
+    expect(TestCatalog.matching(''), TestCatalog.all);
+    expect(TestCatalog.matching('   '), TestCatalog.all);
+    for (final ProteinTarget target in TestCatalog.all) {
+      expect(TestCatalog.matching(target.gene), contains(target));
+      expect(TestCatalog.matching(target.gene.toLowerCase()), contains(target));
+      expect(TestCatalog.matching(target.display), contains(target));
     }
-    expect(ProteinCatalog.matching('TP53'), <ProteinTarget>[ProteinCatalog.p53]);
-    expect(ProteinCatalog.matching('titin'), isEmpty);
+    expect(TestCatalog.matching('TP53'), <ProteinTarget>[TestCatalog.p53]);
+    expect(TestCatalog.matching('titin'), isEmpty);
   });
 
   test('search leads with what a query names, not with what mentions it', () {
     // A name the query begins a word of, ahead of a summary that happens to
     // say it — in catalog order, insulin's summary came first.
     expect(
-      ProteinCatalog.matching('hormone'),
-      <ProteinTarget>[ProteinCatalog.somatotropin, ProteinCatalog.insulin],
+      TestCatalog.matching('hormone'),
+      <ProteinTarget>[TestCatalog.somatotropin, TestCatalog.insulin],
     );
-    expect(ProteinCatalog.matching('protein'), <ProteinTarget>[
-      ProteinCatalog.app,
-      ProteinCatalog.prion,
-      ProteinCatalog.myoglobin,
+    expect(TestCatalog.matching('protein'), <ProteinTarget>[
+      TestCatalog.app,
+      TestCatalog.prion,
+      TestCatalog.myoglobin,
     ]);
-    expect(ProteinCatalog.matching('precursor').first, ProteinCatalog.app);
+    expect(TestCatalog.matching('precursor').first, TestCatalog.app);
     // Among the summaries alone, the catalog's order stands.
-    expect(ProteinCatalog.matching('precursor').skip(1), <ProteinTarget>[
-      ProteinCatalog.oxytocin,
-      ProteinCatalog.vasopressin,
-      ProteinCatalog.glucagon,
+    expect(TestCatalog.matching('precursor').skip(1), <ProteinTarget>[
+      TestCatalog.oxytocin,
+      TestCatalog.vasopressin,
+      TestCatalog.glucagon,
     ]);
   });
 
   group('assets', () {
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       test('${target.slug} ships the files it names', () {
         expect(File(target.mockAsset).existsSync(), isTrue, reason: target.mockAsset);
         // A track exactly where the row says the protein is scored. An unscored
@@ -219,16 +207,16 @@ void main() {
 
     // The rule generalised with the catalog: it used to be the literal word
     // 'insulin', and relaxin's peptides are named the same way.
-    expect(forms(ProteinCatalog.relaxin)['Relaxin B chain'], <String>[
+    expect(forms(TestCatalog.relaxin)['Relaxin B chain'], <String>[
       'Relaxin B chain',
       'B chain',
     ]);
     // Three peptides all called 'Ubiquitin' are numbered apart, and share a
     // first word with nothing but a numeral behind it. Dropping it would name
     // nothing at all.
-    expect(forms(ProteinCatalog.ubiquitin)['Ubiquitin 2'], <String>['Ubiquitin 2']);
+    expect(forms(TestCatalog.ubiquitin)['Ubiquitin 2'], <String>['Ubiquitin 2']);
 
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       forms(target).forEach((String label, List<String> written) {
         expect(written, isNotEmpty, reason: '$label in ${target.slug}');
         for (final String form in written) {
@@ -247,7 +235,7 @@ void main() {
     // The page may abbreviate a name to keep it inside the run it names. What
     // it may never do is drop the part that says *which* run: 'intron 2' cut
     // to 'intron' would name the other one just as well.
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       final AnatomyModel model = AnatomyModel.derive(_record(target));
       for (final AnatomyStage stage in model.stages) {
         for (final StageRun run in stage.runs) {
@@ -289,7 +277,7 @@ void main() {
     // A tap on polyubiquitin's trailing cysteine lit its three bases under
     // "the coding sequence · 690 bases": everything the chains, the cut sites
     // and the stop codon did not claim fell back to the role for all of it.
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       final GeneRecord record = _record(target);
       if (record.peptides.isEmpty) {
         continue;
@@ -305,7 +293,7 @@ void main() {
     }
 
     final AnatomyModel ubiquitin = AnatomyModel.derive(
-      _record(ProteinCatalog.ubiquitin),
+      _record(TestCatalog.ubiquitin),
     );
     final Role? tail = ubiquitin.codingRoleAt(6540);
     expect(tail?.kind, RoleKind.trimmed);
@@ -314,7 +302,7 @@ void main() {
 
     // The prion protein's GPI-anchor signal is the same leftover at length:
     // 23 residues after its one chain, cut off before it reaches the membrane.
-    final GeneRecord prion = _record(ProteinCatalog.prion);
+    final GeneRecord prion = _record(TestCatalog.prion);
     final AnatomyModel prionModel = AnatomyModel.derive(prion);
     final Set<Role> trimmed = <Role>{
       for (int p = prion.start; p <= prion.end; p++)
@@ -331,7 +319,7 @@ void main() {
     // SOD1's one peptide is a fragment of the finished enzyme, and CFTR's and
     // TNF's records annotate none. Each walk stops at the protein, where a
     // page after it would have to invent what it shows.
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       final GeneRecord record = _record(target);
       expect(
         AnatomyModel.derive(record).stages.last.kind,
@@ -345,7 +333,7 @@ void main() {
     // A role carries its feature's length so a tap can say it. Where the two
     // came apart a tap said one number and lit another: glucagon's chain was
     // sized with its signal peptide's 60 bases still in it.
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       final GeneRecord record = _record(target);
       final AnatomyModel model = AnatomyModel.derive(record, chain: target.chain);
       // Keyed by identity: every base of one feature holds the same `Role`.
@@ -366,7 +354,7 @@ void main() {
     // protein page that showed its leader. Lysozyme's 18 residues sat unmarked
     // in one grid and were gone on the next page.
     final AnatomyStage lysozyme = AnatomyModel.derive(
-      _record(ProteinCatalog.lysozyme),
+      _record(TestCatalog.lysozyme),
     ).stages.firstWhere((AnatomyStage s) => s.kind == StageKind.protein);
     expect(
       lysozyme.blocks.map((StageBlock b) => b.label).toList(),
@@ -383,22 +371,22 @@ void main() {
     String proproteinOf(ProteinTarget target) => AnatomyModel.derive(
       _record(target),
     ).stages.firstWhere((AnatomyStage s) => s.kind == StageKind.protein).blocks[1].label!;
-    expect(proproteinOf(ProteinCatalog.oxytocin), 'oxytocin-neurophysin 1');
-    expect(proproteinOf(ProteinCatalog.relaxin), 'prorelaxin');
-    expect(proproteinOf(ProteinCatalog.insulin), 'proinsulin');
+    expect(proproteinOf(TestCatalog.oxytocin), 'oxytocin-neurophysin 1');
+    expect(proproteinOf(TestCatalog.relaxin), 'prorelaxin');
+    expect(proproteinOf(TestCatalog.insulin), 'proinsulin');
     // Vasopressin's RefSeqGene names none either. Glucagon's names its own;
     // APP's precursor stops here, and the table names what it becomes.
     expect(
-      proproteinOf(ProteinCatalog.vasopressin),
+      proproteinOf(TestCatalog.vasopressin),
       'vasopressin-neurophysin 2-copeptin',
     );
-    expect(proproteinOf(ProteinCatalog.glucagon), 'pro-glucagon proprotein');
-    expect(proproteinOf(ProteinCatalog.app), 'amyloid-beta precursor protein');
+    expect(proproteinOf(TestCatalog.glucagon), 'pro-glucagon proprotein');
+    expect(proproteinOf(TestCatalog.app), 'amyloid-beta precursor protein');
 
     // Erythropoietin's record names its signal peptide and no chain. The bake
     // fills the chain from UniProt, so the page reads as lysozyme's does.
     final AnatomyStage erythropoietin = AnatomyModel.derive(
-      _record(ProteinCatalog.erythropoietin),
+      _record(TestCatalog.erythropoietin),
     ).stages.firstWhere((AnatomyStage s) => s.kind == StageKind.protein);
     expect(
       erythropoietin.blocks.map((StageBlock b) => b.label).toList(),
@@ -409,7 +397,7 @@ void main() {
       <int>[27, 166],
     );
 
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       final GeneRecord record = _record(target);
       final AnatomyStage protein = AnatomyModel.derive(record).stages
           .firstWhere((AnatomyStage s) => s.kind == StageKind.protein);
@@ -424,7 +412,7 @@ void main() {
   test('an uncut protein names its coding sequence as its chain', () {
     // Every cut precursor's gene page reads the chains it becomes; an uncut
     // one read "coding sequence", because its record has no chain to name.
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       final GeneRecord record = _record(target);
       expect(
         target.chain != null,
@@ -433,10 +421,10 @@ void main() {
       );
     }
 
-    final GeneRecord hbb = _record(ProteinCatalog.hemoglobin);
+    final GeneRecord hbb = _record(TestCatalog.hemoglobin);
     final AnatomyModel model = AnatomyModel.derive(
       hbb,
-      chain: ProteinCatalog.hemoglobin.chain,
+      chain: TestCatalog.hemoglobin.chain,
     );
     final int start = hbb.protein!.segments
         .map((Segment s) => s.start)
@@ -449,7 +437,7 @@ void main() {
 
     // Ignored where the record names chains of its own.
     final AnatomyModel insulin = AnatomyModel.derive(
-      _record(ProteinCatalog.insulin),
+      _record(TestCatalog.insulin),
       chain: 'ignored',
     );
     for (int p = 0; p < 20000; p++) {
@@ -465,36 +453,36 @@ void main() {
     // Every chain with its length, and every cut by its motif. Insulin is cut
     // twice into three; oxytocin once into two.
     expect(
-      captionOf(ProteinCatalog.insulin, StageKind.maturePeptides),
+      captionOf(TestCatalog.insulin, StageKind.maturePeptides),
       'B chain (30) · C-peptide (31) · A chain (21) · cut at RR, KR',
     );
     expect(
-      captionOf(ProteinCatalog.oxytocin, StageKind.maturePeptides),
+      captionOf(TestCatalog.oxytocin, StageKind.maturePeptides),
       'Oxytocin (9) · Neurophysin 1 (94) · cut at GKR',
     );
     // Relaxin is cut as insulin is. Its GenBank record does not annotate the
     // C-peptide, and without it the residues between B and A were one cut.
     expect(
-      captionOf(ProteinCatalog.relaxin, StageKind.maturePeptides),
+      captionOf(TestCatalog.relaxin, StageKind.maturePeptides),
       'B chain (29) · C-peptide (102) · A chain (24) · cut at KR, RKKR',
     );
     // Vasopressin's copeptin comes off at a lone arginine, and the motif says
     // so rather than a word that would call it dibasic.
     expect(
-      captionOf(ProteinCatalog.vasopressin, StageKind.maturePeptides),
+      captionOf(TestCatalog.vasopressin, StageKind.maturePeptides),
       'Arg-vasopressin (9) · Neurophysin 2 (93) · Copeptin (39) · cut at GKR, R',
     );
     expect(
-      captionOf(ProteinCatalog.ubiquitin, StageKind.maturePeptides),
+      captionOf(TestCatalog.ubiquitin, StageKind.maturePeptides),
       '3 × Ubiquitin (76)',
     );
 
     // Dystrophin is not drawn to scale, and its caption has to say so.
     expect(
-      captionOf(ProteinCatalog.dystrophin, StageKind.gene),
+      captionOf(TestCatalog.dystrophin, StageKind.gene),
       '79 exons · 78 introns · introns 99.3% of span, drawn shortened',
     );
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       final GeneRecord record = _record(target);
       final AnatomyModel model = AnatomyModel.derive(record, chain: target.chain);
       final String gene = captionOf(target, StageKind.gene);
@@ -534,7 +522,7 @@ void main() {
       stageIndex: 0,
     );
 
-    final GeneRecord record = _record(ProteinCatalog.dystrophin);
+    final GeneRecord record = _record(TestCatalog.dystrophin);
     final AnatomyModel model = AnatomyModel.derive(record);
     final List<StageRun> introns = model.stages.first.runs
         .where((StageRun r) => r.kind == RoleKind.intron)
@@ -556,7 +544,7 @@ void main() {
     expect(status.note, endsWith('drawn shortened: 985 of 248,401 bp shown'));
 
     // A gene drawn to scale says only what the intron is.
-    final AnatomyModel insulin = AnatomyModel.derive(_record(ProteinCatalog.insulin));
+    final AnatomyModel insulin = AnatomyModel.derive(_record(TestCatalog.insulin));
     final StageRun intron = insulin.stages.first.runs.firstWhere(
       (StageRun r) => r.kind == RoleKind.intron,
     );
@@ -566,7 +554,7 @@ void main() {
 
   test('a long transcript is folded to its ends, and a short one is not', () {
     const Size phone = Size(390, 560);
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       final AnatomyModel model = AnatomyModel.derive(_record(target));
       final AnatomyStage mrna = model.stages.firstWhere(
         (AnatomyStage s) => s.kind == StageKind.mrna,
@@ -596,11 +584,11 @@ void main() {
     // now rather than under four: the bases grew from 21pt to 26pt so that one
     // of them could be tapped, and the page grew with them.
     final AnatomyStage dystrophin = AnatomyModel.derive(
-      _record(ProteinCatalog.dystrophin),
+      _record(TestCatalog.dystrophin),
     ).stages[1];
     expect(AnatomyLayout.heightFor(dystrophin, phone), lessThan(5 * phone.height));
     final TracerStatus folded = TracerReader.resolve(
-      model: AnatomyModel.derive(_record(ProteinCatalog.dystrophin)),
+      model: AnatomyModel.derive(_record(TestCatalog.dystrophin)),
       tracer: Tracer(dystrophin.positionAt(dystrophin.blocks[1].start + 6000, 0)),
       stageIndex: 1,
       hidden: AnatomyLayout.forStage(dystrophin, phone, phone).isHidden,
@@ -610,7 +598,7 @@ void main() {
   });
 
   test('a shortened gene counts itself at its real length', () {
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       final GeneRecord record = _record(target);
       final AnatomyModel model = AnatomyModel.derive(record);
       final AnatomyStage gene = model.stages.first;
@@ -628,7 +616,7 @@ void main() {
       }
     }
     final AnatomyStage dystrophin = AnatomyModel.derive(
-      _record(ProteinCatalog.dystrophin),
+      _record(TestCatalog.dystrophin),
     ).stages.first;
     expect(dystrophin.shownCount, 2092329);
   });
@@ -637,7 +625,7 @@ void main() {
     // The canvas a 390pt phone gives the gene: full width, less header,
     // caption and paginator.
     const Size phone = Size(390, 498);
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       final AnatomyStage gene = AnatomyModel.derive(
         _record(target),
       ).stages.first;
@@ -665,12 +653,12 @@ void main() {
     // Myoglobin's 10,566 bases are past what one screen holds at that height,
     // which is the case that lost every exon's name.
     final AnatomyStage myoglobin = AnatomyModel.derive(
-      _record(ProteinCatalog.myoglobin),
+      _record(TestCatalog.myoglobin),
     ).stages.first;
     expect(AnatomyLayout.heightFor(myoglobin, phone), greaterThan(phone.height));
     expect(
       AnatomyLayout.heightFor(
-        AnatomyModel.derive(_record(ProteinCatalog.insulin)).stages.first,
+        AnatomyModel.derive(_record(TestCatalog.insulin)).stages.first,
         phone,
       ),
       0,
@@ -681,7 +669,7 @@ void main() {
     // A protein page as a 390pt phone gives it, with the conservation toolbar.
     const Size phone = Size(390, 560);
     final Set<String> scrolling = <String>{};
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       final AnatomyModel model = AnatomyModel.derive(_record(target));
       for (final AnatomyStage stage in model.stages) {
         if (stage.kind == StageKind.gene || stage.kind == StageKind.mrna) {
@@ -707,8 +695,8 @@ void main() {
       }
     }
     // 3,685 residues are the case that came out as eight-point squares.
-    expect(scrolling, contains(ProteinCatalog.dystrophin.slug));
-    expect(scrolling, isNot(contains(ProteinCatalog.insulin.slug)));
+    expect(scrolling, contains(TestCatalog.dystrophin.slug));
+    expect(scrolling, isNot(contains(TestCatalog.insulin.slug)));
   });
 
   test('every track is fetched, and none of them ships', () {
@@ -720,14 +708,18 @@ void main() {
     // every one of these names appears in the comments there, explaining why it
     // is gone.
     final Set<String> bundled = _bundledPaths();
-    expect(bundled, contains('assets/mock/'));
-    for (final String gone in <String>[
-      'assets/constraint/',
-      'assets/impact/',
-      'assets/clinvar/',
-      'flutter_scene_generated/',
-    ]) {
-      expect(bundled, isNot(contains(gone)), reason: '$gone is shipping again');
+    expect(bundled, <String>{
+      '.env', 'assets/branding/helix_peek_mark.png', 'assets/animations/process.json',
+    });
+    final files = Directory('assets').listSync(recursive: true).whereType<File>();
+    for (final file in files) {
+      expect(
+        file.path.startsWith('assets/fonts/') ||
+            RegExp(r'^assets/branding/(?:[234]\.0x/)?helix_peek_mark\.png$').hasMatch(file.path) ||
+            file.path == 'assets/animations/process.json',
+        isTrue,
+        reason: 'Unexpected app asset: ${file.path}',
+      );
     }
     expect(
       File('hook/build.dart').readAsStringSync(),
@@ -737,7 +729,7 @@ void main() {
 
     // And every source is still in the repo, because the bake, the uploader
     // and the tests above all read them off it.
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       for (final String path in <String>[
         target.structureAsset,
         target.constraintAsset,
@@ -751,7 +743,7 @@ void main() {
 
   test('every lettered page reads like text, and its ruler clears the screen edge', () {
     const Size phone = Size(390, 560);
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       final AnatomyModel model = AnatomyModel.derive(
         _record(target),
         chain: target.chain,
@@ -786,7 +778,7 @@ void main() {
   });
 
   test('an uncut coding sequence is named and selected exon by exon', () {
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       final GeneRecord record = _record(target);
       final AnatomyModel model = AnatomyModel.derive(record, chain: target.chain);
       final AnatomyStage gene = model.stages.first;
@@ -824,7 +816,7 @@ void main() {
   });
 
   test('a coding feature on the gene says which exons encode it', () {
-    final AnatomyModel insulin = AnatomyModel.derive(_record(ProteinCatalog.insulin));
+    final AnatomyModel insulin = AnatomyModel.derive(_record(TestCatalog.insulin));
     final AnatomyStage gene = insulin.stages.first;
     String exons(String label) => TracerReader.exonsOf(
       insulin,
@@ -838,7 +830,7 @@ void main() {
   });
 
   test('the facts a search card leads with are the assets\' own', () {
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       final GeneRecord record = _record(target);
       final AnatomyModel model = AnatomyModel.derive(record, chain: target.chain);
       final ProteinFacts facts = target.facts;
@@ -869,15 +861,15 @@ void main() {
         (_json(target.constraintAsset)['disulfides'] as List<dynamic>).length,
         reason: target.slug,
       );
-      if (target.structure.modelled case (final int from, final int to)) {
-        expect(to - from + 1, target.structure.count, reason: target.slug);
+      if (target.structure!.modelled case (final int from, final int to)) {
+        expect(to - from + 1, target.structure!.count, reason: target.slug);
         expect(to, lessThanOrEqualTo(facts.residues), reason: target.slug);
       }
     }
   });
 
   test('every gene numbers its exons 1 to N in the order they are read', () {
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       final GeneRecord record = _record(target);
       final AnatomyModel model = AnatomyModel.derive(record, chain: target.chain);
       final AnatomyStage gene = model.stages.first;

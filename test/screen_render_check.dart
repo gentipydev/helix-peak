@@ -10,7 +10,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_record.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/repositories/gene_repository.dart';
 import 'package:helixpeek/features/gene_lookup/domain/usecases/fetch_gene.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
@@ -24,13 +23,15 @@ import 'package:helixpeek/features/home/presentation/screens/home_screen.dart';
 import 'package:helixpeek/shared/widgets/app_logo.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'support/test_catalog.dart';
+
 // GeneLookupCubit is a final class and cannot be mocked directly, so the screen
 // is driven by a real cubit over a stubbed repository.
 class _MockGeneRepository extends Mock implements GeneRepository {}
 
 GeneRecord _insulin() {
   final Map<String, dynamic> json = jsonDecode(
-    File('assets/mock/gene_ins.json').readAsStringSync(),
+    File('test/fixtures/mock/gene_ins.json').readAsStringSync(),
   ) as Map<String, dynamic>;
   return GeneRecordDto.fromJson(json).toEntity();
 }
@@ -106,7 +107,7 @@ Future<void> _tapBase(
 void main() {
   setUpAll(() async {
     // `any()` stands in for a GeneQuery, which mocktail needs a real one of.
-    registerFallbackValue(ProteinCatalog.insulin.query);
+    registerFallbackValue(TestCatalog.insulin.query);
     await _loadFont('SpaceGrotesk', <String>[
       'assets/fonts/SpaceGrotesk-Regular.ttf',
       'assets/fonts/SpaceGrotesk-Medium.ttf',
@@ -158,7 +159,7 @@ void main() {
     ).thenAnswer((_) async => _insulin());
 
     final GeneLookupCubit cubit = GeneLookupCubit(FetchGene(repository));
-    await cubit.load(ProteinCatalog.insulin.query);
+    await cubit.load(TestCatalog.insulin.query);
 
     await tester.binding.setSurfaceSize(const Size(390, 844));
     await tester.pumpWidget(
@@ -168,7 +169,7 @@ void main() {
           debugShowCheckedModeBanner: false,
           home: BlocProvider<GeneLookupCubit>.value(
             value: cubit,
-            child: const GeneScreen(target: ProteinCatalog.insulin),
+            child: GeneScreen(target: TestCatalog.insulin),
           ),
         ),
       ),

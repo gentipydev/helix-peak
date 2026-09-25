@@ -4,12 +4,12 @@ import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_clinvar.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_impact.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_panel.dart';
 
+import '../../../support/test_catalog.dart';
 import '../clinvar/gene_clinvar_test.dart' show readJson;
 
 /// Whether motion is reduced. Pages are reached standing still; the jump under
@@ -87,7 +87,7 @@ void main() {
     // Haemoglobin's walk ends Protein, Fold: the page the fold turns back to
     // is a canvas built fresh, which never animates in and so never used to
     // say it had settled.
-    final ProteinTarget hbb = ProteinCatalog.bySlug('hemoglobin')!;
+    final ProteinTarget hbb = TestCatalog.bySlug('hemoglobin')!;
     await _walk(tester, hbb);
     await tester.tap(_key('stage-Fold'));
     await tester.pumpAndSettle();
@@ -107,7 +107,7 @@ void main() {
   testWidgets('a second jump made before the first lands is the one kept', (
     tester,
   ) async {
-    await _walk(tester, ProteinCatalog.insulin);
+    await _walk(tester, TestCatalog.insulin);
     await tester.tap(_key('stage-mRNA'));
     await tester.pumpAndSettle();
     _still.value = false;

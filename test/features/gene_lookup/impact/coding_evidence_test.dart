@@ -4,12 +4,12 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/biology/genetic_code.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/inspector/coding_evidence.dart';
 
+import '../../../support/test_catalog.dart';
 import '../anatomy/anatomy_fixture.dart';
 
 Map<String, dynamic> _json(String path) =>
@@ -18,8 +18,8 @@ Map<String, dynamic> _json(String path) =>
 void main() {
   final AnatomyModel model = AnatomyModel.derive(insulin());
   final ProteinConstraint track = ProteinConstraint.fromJson(
-    _json(ProteinCatalog.insulin.constraintAsset),
-    ProteinCatalog.insulin,
+    _json(TestCatalog.insulin.constraintAsset),
+    TestCatalog.insulin,
   );
 
   test(
@@ -68,7 +68,7 @@ void main() {
   });
 
   test('every catalog coding base maps through its actual transcript', () {
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       final AnatomyModel gene = AnatomyModel.derive(
         GeneRecordDto.fromJson(_json(target.mockAsset)).toEntity(),
         chain: target.chain,
@@ -116,11 +116,11 @@ void main() {
   test('missing and mismatched tracks never substitute another residue', () {
     final ProteinConstraint other = ProteinConstraint.fromJson(
       _json(
-        ProteinCatalog.all
+        TestCatalog.all
             .firstWhere((ProteinTarget p) => p.gene != 'INS')
             .constraintAsset,
       ),
-      ProteinCatalog.all.firstWhere((ProteinTarget p) => p.gene != 'INS'),
+      TestCatalog.all.firstWhere((ProteinTarget p) => p.gene != 'INS'),
     );
     for (final ProteinConstraint? scores in <ProteinConstraint?>[null, other]) {
       final CodingEvidence evidence = CodingEvidence.at(

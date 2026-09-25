@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -6,8 +7,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'app.dart';
+import 'core/config/env.dart';
 import 'core/di/dependencies.dart';
+import 'core/network/dio_api_client.dart';
 import 'core/router/landscape_route.dart';
+import 'features/gene_lookup/data/repositories/protein_catalog_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,15 +24,19 @@ Future<void> main() async {
   if (view != null) {
     await SystemChrome.setPreferredOrientations(appOrientations(view.display));
   }
-  // `isOptional`: a missing or empty `.env` leaves the loader initialised with
-  // no entries rather than throwing, and Env's own fallbacks take it from
-  // there. A mock build carries its data in the bundle and has nothing to
-  // configure, so it should not die on a file it never reads.
+  // Missing configuration uses Env's development defaults.
   await dotenv.load(isOptional: true);
+  final DioApiClient api = DioApiClient(
+    baseUrl: Env.apiBaseUrl,
+    timeout: Env.apiTimeout,
+  );
+  final ProteinCatalogRepository catalog = ProteinCatalogRepository(api);
+  await catalog.hydrate();
+  unawaited(catalog.refresh());
 
   runApp(
     MultiRepositoryProvider(
-      providers: buildAppProviders(),
+      providers: buildAppProviders(api: api, catalog: catalog),
       child: const HelixPeekApp(),
     ),
   );

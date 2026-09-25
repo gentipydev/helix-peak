@@ -14,8 +14,28 @@
         "bridges": 5
       },
       "catalog_order": 18,
+      "chain": null,
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature1"
+        },
+        {
+          "node": "bonds",
+          "tint": "cysteine"
+        }
+      ],
+      "structure": {
+        "pdb": "1SMD",
+        "modelled": null,
+        "label": "the enzyme",
+        "count": 496,
+        "unit": "residues",
+        "sentence": "Five disulfide bridges. Starch is cut in a cleft between its domains.",
+        "semantics": "The folded salivary amylase, with its five disulfide bridges and the cleft where starch is cut. Its calcium and chloride are not drawn. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",
@@ -37,8 +57,28 @@
         "bridges": 9
       },
       "catalog_order": 12,
+      "chain": "APP",
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature1"
+        },
+        {
+          "node": "bonds",
+          "tint": "cysteine"
+        }
+      ],
+      "structure": {
+        "pdb": "4PWQ",
+        "modelled": null,
+        "label": "the E1 domain",
+        "count": 162,
+        "unit": "residues",
+        "sentence": "No structure exists for all 770 residues. This is its first folded domain.",
+        "semantics": "The E1 domain at the start of APP, held by six disulfide bridges. Amyloid-beta and the rest of the protein are solved only in pieces and are not drawn. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",
@@ -60,8 +100,24 @@
         "bridges": 0
       },
       "catalog_order": 13,
+      "chain": "CFTR",
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature1"
+        }
+      ],
+      "structure": {
+        "pdb": "5UAK",
+        "modelled": null,
+        "label": "the channel",
+        "count": 1480,
+        "unit": "residues",
+        "sentence": "Two halves, each a membrane domain and an ATP-binding domain.",
+        "semantics": "The folded CFTR channel: two halves that each cross the membrane six times and bind ATP. The regulatory region between them is too mobile to resolve and is not drawn. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",
@@ -83,8 +139,27 @@
         "bridges": 0
       },
       "catalog_order": 9,
+      "chain": "dystrophin",
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature1"
+        }
+      ],
+      "structure": {
+        "pdb": "1DXX",
+        "modelled": [
+          9,
+          246
+        ],
+        "label": "the actin grip",
+        "count": 238,
+        "unit": "residues",
+        "sentence": "No structure exists for all 3,685 residues. This is the end that holds actin.",
+        "semantics": "The folded actin-binding end of dystrophin. The other three thousand residues are solved only in fragments, if at all, and are not drawn. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",
@@ -106,8 +181,28 @@
         "bridges": 2
       },
       "catalog_order": 14,
+      "chain": null,
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature1"
+        },
+        {
+          "node": "bonds",
+          "tint": "cysteine"
+        }
+      ],
+      "structure": {
+        "pdb": "1EER",
+        "modelled": null,
+        "label": "the hormone",
+        "count": 166,
+        "unit": "residues",
+        "sentence": "A bundle of four helices, braced by two disulfide bridges.",
+        "semantics": "The folded erythropoietin molecule, a bundle of four helices braced by two disulfide bridges. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",
@@ -129,8 +224,24 @@
         "bridges": 0
       },
       "catalog_order": 11,
+      "chain": "pro-glucagon",
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature1"
+        }
+      ],
+      "structure": {
+        "pdb": "6LMK",
+        "modelled": null,
+        "label": "the hormone",
+        "count": 29,
+        "unit": "residues",
+        "sentence": "One of several hormones cut from proglucagon. No disulfide bridges.",
+        "semantics": "Glucagon, the 29-residue hormone cut from proglucagon, as it sits in its receptor. The other peptides cut from the precursor are not drawn. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",
@@ -152,8 +263,24 @@
         "bridges": 0
       },
       "catalog_order": 4,
+      "chain": "hemoglobin beta chain",
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature1"
+        }
+      ],
+      "structure": {
+        "pdb": "2DN1",
+        "modelled": null,
+        "label": "the subunit",
+        "count": 146,
+        "unit": "residues",
+        "sentence": "One beta chain. Hemoglobin is four: two like this, and two alpha.",
+        "semantics": "The folded beta-globin chain, one of the four chains of a haemoglobin molecule. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",
@@ -175,8 +302,32 @@
         "bridges": 3
       },
       "catalog_order": 0,
+      "chain": null,
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature3"
+        },
+        {
+          "node": "chainB",
+          "tint": "mature1"
+        },
+        {
+          "node": "bonds",
+          "tint": "cysteine"
+        }
+      ],
+      "structure": {
+        "pdb": "3I40",
+        "modelled": null,
+        "label": "the hormone",
+        "count": 51,
+        "unit": "residues",
+        "sentence": "The C-peptide is cut out. Two disulfide bridges join A to B, a third folds A.",
+        "semantics": "The folded insulin molecule: the A and B chains, joined by two disulfide bridges, with a third inside the A chain. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",
@@ -198,8 +349,28 @@
         "bridges": 1
       },
       "catalog_order": 15,
+      "chain": null,
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature1"
+        },
+        {
+          "node": "bonds",
+          "tint": "cysteine"
+        }
+      ],
+      "structure": {
+        "pdb": "1AX8",
+        "modelled": null,
+        "label": "the hormone",
+        "count": 146,
+        "unit": "residues",
+        "sentence": "A bundle of four helices, closed by one disulfide bridge.",
+        "semantics": "The folded leptin molecule, a bundle of four helices with one disulfide bridge. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",
@@ -221,8 +392,28 @@
         "bridges": 4
       },
       "catalog_order": 3,
+      "chain": null,
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature1"
+        },
+        {
+          "node": "bonds",
+          "tint": "cysteine"
+        }
+      ],
+      "structure": {
+        "pdb": "1REX",
+        "modelled": null,
+        "label": "the enzyme",
+        "count": 130,
+        "unit": "residues",
+        "sentence": "Four disulfide bridges brace the cleft a cell wall has to fit into.",
+        "semantics": "The folded lysozyme molecule, with the four disulfide bridges that brace the cleft a cell wall binds in. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",
@@ -244,8 +435,24 @@
         "bridges": 0
       },
       "catalog_order": 5,
+      "chain": "myoglobin",
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature1"
+        }
+      ],
+      "structure": {
+        "pdb": "3RGK",
+        "modelled": null,
+        "label": "the fold",
+        "count": 153,
+        "unit": "residues",
+        "sentence": "Eight helices around one pocket. The globin fold.",
+        "semantics": "The folded myoglobin molecule, eight helices around the pocket that holds its oxygen. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",
@@ -267,8 +474,28 @@
         "bridges": 8
       },
       "catalog_order": 1,
+      "chain": null,
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature1"
+        },
+        {
+          "node": "bonds",
+          "tint": "cysteine"
+        }
+      ],
+      "structure": {
+        "pdb": "7RYC",
+        "modelled": null,
+        "label": "the hormone",
+        "count": 9,
+        "unit": "residues",
+        "sentence": "One bridge closes the ring. Neurophysin, its carrier, is cut away.",
+        "semantics": "The oxytocin nonapeptide, closed into a ring by its single disulfide bridge. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",
@@ -290,8 +517,27 @@
         "bridges": 0
       },
       "catalog_order": 8,
+      "chain": "p53",
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature1"
+        }
+      ],
+      "structure": {
+        "pdb": "2OCJ",
+        "modelled": [
+          96,
+          289
+        ],
+        "label": "the core",
+        "count": 194,
+        "unit": "residues",
+        "sentence": "The part that grips DNA. Most of the rest of p53 is disordered and has no structure.",
+        "semantics": "The folded DNA-binding core of p53. The rest of the protein, mostly disordered, is not drawn. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",
@@ -313,8 +559,28 @@
         "bridges": 1
       },
       "catalog_order": 19,
+      "chain": null,
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature1"
+        },
+        {
+          "node": "bonds",
+          "tint": "cysteine"
+        }
+      ],
+      "structure": {
+        "pdb": "4KML",
+        "modelled": null,
+        "label": "the fold",
+        "count": 109,
+        "unit": "residues",
+        "sentence": "The folded half. The first hundred residues have no fixed shape.",
+        "semantics": "The folded C-terminal half of the prion protein: three helices, a short sheet and one disulfide bridge. The flexible N-terminal half is not drawn. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",
@@ -336,8 +602,32 @@
         "bridges": 3
       },
       "catalog_order": 6,
+      "chain": null,
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature3"
+        },
+        {
+          "node": "chainB",
+          "tint": "mature1"
+        },
+        {
+          "node": "bonds",
+          "tint": "cysteine"
+        }
+      ],
+      "structure": {
+        "pdb": "6RLX",
+        "modelled": null,
+        "label": "the hormone",
+        "count": 53,
+        "unit": "residues",
+        "sentence": "The same architecture as insulin: two chains, three disulfide bridges.",
+        "semantics": "The folded relaxin molecule: the A and B chains, joined by two disulfide bridges, with a third inside the A chain. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",
@@ -359,8 +649,28 @@
         "bridges": 1
       },
       "catalog_order": 17,
+      "chain": "superoxide dismutase",
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature1"
+        },
+        {
+          "node": "bonds",
+          "tint": "cysteine"
+        }
+      ],
+      "structure": {
+        "pdb": "2C9V",
+        "modelled": null,
+        "label": "the subunit",
+        "count": 153,
+        "unit": "residues",
+        "sentence": "One chain. SOD1 works as a pair of these.",
+        "semantics": "One folded SOD1 chain, one of the two identical chains of the active enzyme, with its one disulfide bridge. Its copper and zinc are not drawn. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",
@@ -382,8 +692,28 @@
         "bridges": 2
       },
       "catalog_order": 7,
+      "chain": null,
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature1"
+        },
+        {
+          "node": "bonds",
+          "tint": "cysteine"
+        }
+      ],
+      "structure": {
+        "pdb": "1HGU",
+        "modelled": null,
+        "label": "the hormone",
+        "count": 191,
+        "unit": "residues",
+        "sentence": "A bundle of four helices, pinned by two disulfide bridges.",
+        "semantics": "The folded growth hormone molecule, a bundle of four helices pinned by two disulfide bridges. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",
@@ -405,8 +735,28 @@
         "bridges": 1
       },
       "catalog_order": 16,
+      "chain": null,
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature1"
+        },
+        {
+          "node": "bonds",
+          "tint": "cysteine"
+        }
+      ],
+      "structure": {
+        "pdb": "7JRA",
+        "modelled": null,
+        "label": "the subunit",
+        "count": 157,
+        "unit": "residues",
+        "sentence": "One chain of the soluble form. TNF works as three of these.",
+        "semantics": "One folded chain of soluble TNF, one of the three identical chains of an active TNF trimer, with its one disulfide bridge. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",
@@ -428,8 +778,24 @@
         "bridges": 0
       },
       "catalog_order": 2,
+      "chain": null,
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature1"
+        }
+      ],
+      "structure": {
+        "pdb": "1UBQ",
+        "modelled": null,
+        "label": "the tag",
+        "count": 76,
+        "unit": "residues",
+        "sentence": "One of the three. All three fold into the same tag.",
+        "semantics": "One folded ubiquitin molecule, the tag the precursor is cut into three of. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",
@@ -451,8 +817,28 @@
         "bridges": 8
       },
       "catalog_order": 10,
+      "chain": null,
+      "chains": [
+        {
+          "node": "chainA",
+          "tint": "mature1"
+        },
+        {
+          "node": "bonds",
+          "tint": "cysteine"
+        }
+      ],
+      "structure": {
+        "pdb": "7KH0",
+        "modelled": null,
+        "label": "the hormone",
+        "count": 9,
+        "unit": "residues",
+        "sentence": "One bridge closes the ring. Neurophysin 2 and copeptin are cut away.",
+        "semantics": "The vasopressin nonapeptide, closed into a ring by its single disulfide bridge. Drag to turn it."
+      },
       "tracks": {
-        "record": "absent",
+        "record": "ready",
         "constraint": "ready",
         "impact": "ready",
         "clinvar": "ready",

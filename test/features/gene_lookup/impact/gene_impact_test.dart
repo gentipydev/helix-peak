@@ -3,12 +3,13 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_impact.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
+
+import '../../../support/test_catalog.dart';
 
 Map<String, dynamic> _asset([ProteinTarget? target]) =>
     jsonDecode(
-          File((target ?? ProteinCatalog.insulin).impactAsset).readAsStringSync(),
+          File((target ?? TestCatalog.insulin).impactAsset).readAsStringSync(),
         )
         as Map<String, dynamic>;
 
@@ -31,7 +32,7 @@ void main() {
     late GeneImpact impact;
 
     setUpAll(() {
-      impact = GeneImpact.fromJson(_asset(), ProteinCatalog.insulin);
+      impact = GeneImpact.fromJson(_asset(), TestCatalog.insulin);
     });
 
     test('covers every drawn base of the gene record', () {
@@ -140,7 +141,7 @@ void main() {
     late GeneImpact sparse;
 
     setUpAll(() {
-      sparse = GeneImpact.fromJson(_sparse(), ProteinCatalog.insulin);
+      sparse = GeneImpact.fromJson(_sparse(), TestCatalog.insulin);
     });
 
     test('borrows the nearest scored base and says so', () {
@@ -189,7 +190,7 @@ void main() {
       ]) {
         final Map<String, dynamic> json = _asset()..[key] = 'something else';
         expect(
-          () => GeneImpact.fromJson(json, ProteinCatalog.insulin),
+          () => GeneImpact.fromJson(json, TestCatalog.insulin),
           throwsFormatException,
           reason: key,
         );
@@ -199,14 +200,14 @@ void main() {
     test('is refused when a retuned bucket would be half-applied', () {
       final Map<String, dynamic> json = _asset()..['high_phred'] = 25;
       expect(
-        () => GeneImpact.fromJson(json, ProteinCatalog.insulin),
+        () => GeneImpact.fromJson(json, TestCatalog.insulin),
         throwsFormatException,
       );
     });
 
     test('is refused when it belongs to another gene', () {
       expect(
-        () => GeneImpact.fromJson(_asset(), ProteinCatalog.hemoglobin),
+        () => GeneImpact.fromJson(_asset(), TestCatalog.hemoglobin),
         throwsFormatException,
       );
     });
@@ -216,7 +217,7 @@ void main() {
       final List<dynamic> runs = json['runs'] as List<dynamic>;
       (runs.first as Map<String, dynamic>)['length'] = 12;
       expect(
-        () => GeneImpact.fromJson(json, ProteinCatalog.insulin),
+        () => GeneImpact.fromJson(json, TestCatalog.insulin),
         throwsFormatException,
       );
     });
@@ -227,7 +228,7 @@ void main() {
           json['positions'] as Map<String, dynamic>;
       positions[positions.keys.first] = <double>[1, 2];
       expect(
-        () => GeneImpact.fromJson(json, ProteinCatalog.insulin),
+        () => GeneImpact.fromJson(json, TestCatalog.insulin),
         throwsFormatException,
       );
     });
@@ -236,14 +237,14 @@ void main() {
       final Map<String, dynamic> json = _asset();
       (json['positions'] as Map<String, dynamic>)['999999'] = <double>[1, 2, 3];
       expect(
-        () => GeneImpact.fromJson(json, ProteinCatalog.insulin),
+        () => GeneImpact.fromJson(json, TestCatalog.insulin),
         throwsFormatException,
       );
     });
   });
 
   test('every catalog entry has a track that loads and covers its record', () {
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       if (!target.impactScored) {
         continue;
       }

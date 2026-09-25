@@ -7,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_record.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
@@ -16,6 +15,7 @@ import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_run_
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
 
+import '../../../support/test_catalog.dart';
 import 'anatomy_fixture.dart';
 
 GeneRecord _record(ProteinTarget target) => GeneRecordDto.fromJson(
@@ -171,7 +171,7 @@ void main() {
   ) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));
     addTearDown(() => tester.binding.setSurfaceSize(null));
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       await tester.pumpWidget(
         MaterialApp(
           theme: AppTheme.analysis,
@@ -202,11 +202,11 @@ void main() {
           .viewport;
       await tester.pumpWidget(const SizedBox());
     }
-    expect(phone.length, ProteinCatalog.all.length);
+    expect(phone.length, TestCatalog.all.length);
   });
 
   group('every run of every gene page is named on itself', () {
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       test('${target.slug} on a phone', () {
         _expectEveryRunNamed(target, phone[target.slug]!);
       });
@@ -225,7 +225,7 @@ void main() {
     // and shortening one to fit would put more type on the page than the thing
     // it names. Where the cells are fat enough to hold the whole name — a cut
     // site on a tablet — it is written, as it always was.
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       final (:stage, :layout, :box, :labels) = _plan(
         target,
         const Size(390, 676),
@@ -250,7 +250,7 @@ void main() {
     // eighteen points of row against a thirty-eight point name: it is the run
     // the page used to name in a pill over its neighbour, and the one that has
     // to reach the shortest rung. Nothing wider than it does.
-    final ProteinTarget p53 = ProteinCatalog.all.firstWhere(
+    final ProteinTarget p53 = TestCatalog.all.firstWhere(
       (ProteinTarget t) => t.slug == 'p53',
     );
     final (:stage, :layout, :box, :labels) = _plan(p53, const Size(360, 676));

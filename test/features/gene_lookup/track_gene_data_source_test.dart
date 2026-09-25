@@ -6,8 +6,9 @@ import 'package:helixpeek/core/network/api_exception.dart';
 import 'package:helixpeek/core/network/track_source.dart';
 import 'package:helixpeek/features/gene_lookup/data/datasources/gene_remote_data_source.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_track.dart';
+
+import '../../support/test_catalog.dart';
 
 /// Answers with the record the bake wrote, and remembers what it was asked.
 final class _RecordSource implements TrackSource {
@@ -22,7 +23,7 @@ final class _RecordSource implements TrackSource {
     if (missing) {
       throw TrackApiException(slug: slug, kind: kind.wire, state: 'absent');
     }
-    return File(ProteinCatalog.bySlug(slug)!.mockAsset).readAsBytesSync();
+    return File(TestCatalog.bySlug(slug)!.mockAsset).readAsBytesSync();
   }
 }
 
@@ -31,7 +32,7 @@ void main() {
     final _RecordSource source = _RecordSource();
     final GeneRecordDto record = await TrackGeneDataSource(
       source,
-    ).fetchGene(ProteinCatalog.relaxin.query);
+    ).fetchGene(TestCatalog.relaxin.query);
 
     expect(source.asked, <(String, TrackKind)>[('relaxin', TrackKind.record)]);
     // Relaxin is read from a chromosome slice, which the backend's /gene route
@@ -42,7 +43,7 @@ void main() {
 
   test('every catalog protein parses from its stored record', () async {
     final _RecordSource source = _RecordSource();
-    for (final target in ProteinCatalog.all) {
+    for (final target in TestCatalog.all) {
       final GeneRecordDto record = await TrackGeneDataSource(
         source,
       ).fetchGene(target.query);
@@ -54,7 +55,7 @@ void main() {
     await expectLater(
       TrackGeneDataSource(
         _RecordSource(missing: true),
-      ).fetchGene(ProteinCatalog.oxytocin.query),
+      ).fetchGene(TestCatalog.oxytocin.query),
       throwsA(
         isA<ServerApiException>()
             .having((ServerApiException e) => e.statusCode, 'statusCode', 404)

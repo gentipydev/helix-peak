@@ -4,25 +4,14 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
-/// The last catalog the service served, kept on disk.
-///
-/// Every method answers null or does nothing when the filesystem is not there,
-/// and none of them throws. That is not defensiveness for its own sake: there
-/// is no documents directory under `flutter test`, and the repository is
-/// already correct without a cache — it starts from the bundled seed and
-/// refreshes over the network. The cache only shortens the window in which a
-/// reader sees the twenty bundled rows instead of the served ones.
-///
-/// A payload that fails to parse is discarded the same way a missing one is, so
-/// changing the shape of what is written needs no migration and no version key.
-///
-/// `dart:io` means this does not compile for web. Nothing here targets web
-/// today — `flutter_scene` draws the fold pages — and a conditional import is
-/// the answer on the day something does.
+/// The last complete served catalog. Cache failures never prevent a fetch.
+/// Version 2 includes fold metadata that the old summaries did not carry.
 final class CatalogLocalDataSource {
-  const CatalogLocalDataSource();
+  const CatalogLocalDataSource({this.directory});
 
-  static const String _fileName = 'catalog.json';
+  final Directory? directory;
+
+  static const String _fileName = 'catalog.v2.json';
 
   /// The rows last written, or null where there are none to read.
   Future<List<Map<String, dynamic>>?> read() async {
@@ -51,15 +40,17 @@ final class CatalogLocalDataSource {
     try {
       final File file = await _file();
       await file.parent.create(recursive: true);
-      await file.writeAsString(jsonEncode(proteins));
+      final File pending = File('${file.path}.part');
+      await pending.writeAsString(jsonEncode(proteins), flush: true);
+      await pending.rename(file.path);
     } on Object catch (error) {
       _note('could not write', error);
     }
   }
 
   Future<File> _file() async {
-    final Directory directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}/$_fileName');
+    final Directory root = directory ?? await getApplicationDocumentsDirectory();
+    return File('${root.path}/$_fileName');
   }
 
   void _note(String what, Object error) {

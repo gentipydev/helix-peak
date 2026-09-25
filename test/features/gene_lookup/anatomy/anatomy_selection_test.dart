@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_layout.dart';
@@ -20,6 +19,7 @@ import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_sele
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_selection_canvas.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
 
+import '../../../support/test_catalog.dart';
 import 'anatomy_fixture.dart';
 
 const Key _captureKey = ValueKey<String>('selection-capture');
@@ -70,8 +70,9 @@ Future<void> _screen(
   double width = 390,
   bool reduced = false,
   double textScale = 1,
-  ProteinTarget target = ProteinCatalog.insulin,
+  ProteinTarget? target,
 }) async {
+  target ??= TestCatalog.insulin;
   await tester.binding.setSurfaceSize(Size(width, 844));
   addTearDown(() => tester.binding.setSurfaceSize(null));
   final record = GeneRecordDto.fromJson(
@@ -144,7 +145,7 @@ void main() {
   });
 
   test('all catalog features retain their exact DNA and genomic order', () {
-    for (final ProteinTarget target in ProteinCatalog.all) {
+    for (final ProteinTarget target in TestCatalog.all) {
       final record = GeneRecordDto.fromJson(
         jsonDecode(File(target.mockAsset).readAsStringSync())
             as Map<String, dynamic>,
@@ -405,7 +406,7 @@ void main() {
   testWidgets('long detail scrolls; returning preserves the scrolled gene', (
     tester,
   ) async {
-    await _screen(tester, target: ProteinCatalog.dystrophin);
+    await _screen(tester, target: TestCatalog.dystrophin);
     ScrollPosition scroll() =>
         tester.state<ScrollableState>(find.byType(Scrollable)).position;
     scroll().jumpTo(300);

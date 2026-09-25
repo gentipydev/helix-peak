@@ -9,7 +9,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_record.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
@@ -17,6 +16,7 @@ import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_scre
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_toolbar.dart';
 
+import '../../../support/test_catalog.dart';
 import '../anatomy/anatomy_fixture.dart';
 
 const Size _phone = Size(390, 844);
@@ -151,7 +151,7 @@ void main() {
   // too wide and every judgement about whether one fits worthless.
   setUpAll(loadAppFonts);
 
-  for (final ProteinTarget target in ProteinCatalog.all) {
+  for (final ProteinTarget target in TestCatalog.all) {
     testWidgets('${target.slug} walks every page without throwing', (
       WidgetTester tester,
     ) async {

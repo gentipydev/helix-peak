@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
@@ -16,6 +15,7 @@ import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_scre
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_panel.dart';
 
+import '../../../support/test_catalog.dart';
 import 'anatomy_fixture.dart';
 
 AnatomyPainter _painter(WidgetTester tester) =>
@@ -33,8 +33,9 @@ String? _clipboard;
 
 Future<void> _screen(
   WidgetTester tester, {
-  ProteinTarget target = ProteinCatalog.insulin,
+  ProteinTarget? target,
 }) async {
+  target ??= TestCatalog.insulin;
   await tester.binding.setSurfaceSize(const Size(390, 844));
   addTearDown(() => tester.binding.setSurfaceSize(null));
   tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
@@ -79,7 +80,7 @@ void main() {
 
   group('FASTA', () {
     final AnatomyModel model = AnatomyModel.derive(insulin());
-    const ProteinTarget insulinTarget = ProteinCatalog.insulin;
+    final ProteinTarget insulinTarget = TestCatalog.insulin;
 
     test('the precursor, headed and wrapped at sixty', () {
       final String fasta = AnatomyFasta.protein(model, insulinTarget)!;
@@ -138,12 +139,12 @@ void main() {
       final AnatomyModel dystrophin = AnatomyModel.derive(
         GeneRecordDto.fromJson(
           jsonDecode(
-                File(ProteinCatalog.dystrophin.mockAsset).readAsStringSync(),
+                File(TestCatalog.dystrophin.mockAsset).readAsStringSync(),
               )
               as Map<String, dynamic>,
         ).toEntity(),
       );
-      expect(AnatomyFasta.gene(dystrophin, ProteinCatalog.dystrophin), isNull);
+      expect(AnatomyFasta.gene(dystrophin, TestCatalog.dystrophin), isNull);
       expect(
         AnatomyFasta.gene(model, insulinTarget)!.split('\n').first,
         '>INS NG_007114:4986-6416(+) gene 1431 bp',
@@ -173,7 +174,7 @@ void main() {
     testWidgets('a partial structure says which residues it covers', (
       WidgetTester tester,
     ) async {
-      await _screen(tester, target: ProteinCatalog.p53);
+      await _screen(tester, target: TestCatalog.p53);
       await tester.tap(find.text('TP53'));
       await tester.pumpAndSettle();
       expect(find.text('PDB 2OCJ · residues 96–289'), findsOneWidget);
@@ -267,7 +268,7 @@ void main() {
     testWidgets('on a gene drawn shortened, says why there is nothing', (
       WidgetTester tester,
     ) async {
-      await _screen(tester, target: ProteinCatalog.dystrophin);
+      await _screen(tester, target: TestCatalog.dystrophin);
       await tester.longPress(find.byType(AnatomyCanvas));
       await tester.pumpAndSettle();
       expect(_clipboard, isNull);

@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_impact.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_track.dart';
@@ -18,12 +17,13 @@ import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_sele
 import 'package:helixpeek/features/gene_lookup/presentation/inspector/impact_panel.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/inspector/score_bar.dart';
 
+import '../../../support/test_catalog.dart';
 import '../anatomy/anatomy_fixture.dart';
 
 final GeneImpact _track = GeneImpact.fromJson(
-  jsonDecode(File(ProteinCatalog.insulin.impactAsset).readAsStringSync())
+  jsonDecode(File(TestCatalog.insulin.impactAsset).readAsStringSync())
       as Map<String, dynamic>,
-  ProteinCatalog.insulin,
+  TestCatalog.insulin,
 );
 
 Finder get _paintBox => find.byWidgetPredicate(
@@ -47,16 +47,16 @@ Finder get _coordinate =>
 /// walk. The slug stays insulin's on purpose: a screen that ignored the flag
 /// would find the real track and load it anyway.
 final ProteinTarget _untracked = ProteinTarget(
-  slug: ProteinCatalog.insulin.slug,
-  display: ProteinCatalog.insulin.display,
-  gene: ProteinCatalog.insulin.gene,
-  uniprot: ProteinCatalog.insulin.uniprot,
-  accession: ProteinCatalog.insulin.accession,
-  summary: ProteinCatalog.insulin.summary,
-  facts: ProteinCatalog.insulin.facts,
-  chains: ProteinCatalog.insulin.chains,
-  structure: ProteinCatalog.insulin.structure,
-  chain: ProteinCatalog.insulin.chain,
+  slug: TestCatalog.insulin.slug,
+  display: TestCatalog.insulin.display,
+  gene: TestCatalog.insulin.gene,
+  uniprot: TestCatalog.insulin.uniprot,
+  accession: TestCatalog.insulin.accession,
+  summary: TestCatalog.insulin.summary,
+  facts: TestCatalog.insulin.facts,
+  chains: TestCatalog.insulin.chains,
+  structure: TestCatalog.insulin.structure,
+  chain: TestCatalog.insulin.chain,
   // No impact track, which is now a family the tracks map does not call ready
   // rather than an `impactScored: false` the seed settled. No ClinVar either: a
   // snapshot is placed through the impact track's coordinate map, so a gene
@@ -80,7 +80,7 @@ Future<void> _openTranscript(
       theme: AppTheme.analysis,
       debugShowCheckedModeBanner: false,
       home: AnatomyScreen(
-        target: ProteinCatalog.insulin,
+        target: TestCatalog.insulin,
         record: insulin(),
         impact: track ?? _track,
         constraint: constraint,
@@ -285,10 +285,10 @@ void main() {
       tester,
       constraint: ProteinConstraint.fromJson(
         jsonDecode(
-              File(ProteinCatalog.insulin.constraintAsset).readAsStringSync(),
+              File(TestCatalog.insulin.constraintAsset).readAsStringSync(),
             )
             as Map<String, dynamic>,
-        ProteinCatalog.insulin,
+        TestCatalog.insulin,
       ),
     );
     await _tapCell(tester, 150);
@@ -351,7 +351,7 @@ void main() {
     // A track with holes in it. The shipped ones have none, so this state is
     // only reachable on purpose — which is exactly why it is worth a test.
     final Map<String, dynamic> json =
-        jsonDecode(File(ProteinCatalog.insulin.impactAsset).readAsStringSync())
+        jsonDecode(File(TestCatalog.insulin.impactAsset).readAsStringSync())
             as Map<String, dynamic>;
     final Map<String, dynamic> positions =
         json['positions'] as Map<String, dynamic>;
@@ -362,7 +362,7 @@ void main() {
     };
     await _openTranscript(
       tester,
-      track: GeneImpact.fromJson(json, ProteinCatalog.insulin),
+      track: GeneImpact.fromJson(json, TestCatalog.insulin),
     );
 
     bool sawEstimate = false;
@@ -420,7 +420,7 @@ void main() {
         theme: AppTheme.analysis,
         debugShowCheckedModeBanner: false,
         home: AnatomyScreen(
-          target: ProteinCatalog.insulin,
+          target: TestCatalog.insulin,
           record: insulin(),
           impact: _track,
         ),
@@ -452,7 +452,7 @@ void main() {
         home: MediaQuery(
           data: const MediaQueryData(disableAnimations: true),
           child: AnatomyScreen(
-            target: ProteinCatalog.insulin,
+            target: TestCatalog.insulin,
             record: insulin(),
             impact: _track,
           ),
@@ -497,7 +497,7 @@ void main() {
           theme: AppTheme.analysis,
           debugShowCheckedModeBanner: false,
           home: AnatomyScreen(
-            target: ProteinCatalog.insulin,
+            target: TestCatalog.insulin,
             record: insulin(),
             impact: _track,
           ),

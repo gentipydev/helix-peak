@@ -8,7 +8,7 @@ import 'package:helixpeek/features/gene_lookup/domain/entities/gene_record.dart'
 
 /// The parsed NG_007114 payload the widget tests already use.
 Map<String, dynamic> insulinJson() =>
-    jsonDecode(File('assets/mock/gene_ins.json').readAsStringSync())
+    jsonDecode(File('test/fixtures/mock/gene_ins.json').readAsStringSync())
         as Map<String, dynamic>;
 
 GeneRecord insulin() => GeneRecordDto.fromJson(insulinJson()).toEntity();

@@ -1,30 +1,14 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/network/api_client.dart';
-import '../../../../core/network/api_exception.dart';
-import '../../domain/entities/protein_catalog.dart';
 import '../../domain/entities/protein_ranking.dart';
 import '../../domain/entities/protein_target.dart';
 import '../datasources/catalog_local_data_source.dart';
 
-/// The proteins the app can walk, from the service, cached on device.
-///
-/// **It answers synchronously and it always answers.** It is constructed
-/// already holding [ProteinCatalog.all], so [bySlug], [byPath], [matching] and
-/// [fallback] never return nothing-because-loading and never need an `await`.
-/// That is the whole reason this is a plain object rather than a cubit: the
-/// router builds `appRouter` as a top-level global outside any widget tree and
-/// resolves a slug inside a `Widget` builder, and the search screen ranks
-/// inside `build` on every keystroke. Neither can take an async boundary, and
-/// with a seeded list neither has to.
-///
-/// [load] then replaces the rows, cache first and network second. A reader who
-/// never waits for it sees the twenty bundled proteins, which is what the app
-/// showed before there was a service at all.
-///
-/// The rows are what changes, so [rows] is the [Listenable] and this is not
-/// one. A `RepositoryProvider` holding a `Listenable` is a mistake `provider`
-/// asserts on by name, and rightly: it would not rebuild anything that read it.
+enum CatalogStatus { loading, ready, failed }
+
+/// The served catalog, cached on device. Rows and status notify independently;
+/// the repository itself stays a plain object for RepositoryProvider.
 final class ProteinCatalogRepository {
   ProteinCatalogRepository(
     this._api, [
@@ -47,7 +31,13 @@ final class ProteinCatalogRepository {
   final CatalogLocalDataSource? _cache;
 
   final ValueNotifier<List<ProteinTarget>> _rows =
-      ValueNotifier<List<ProteinTarget>>(ProteinCatalog.all);
+      ValueNotifier<List<ProteinTarget>>(<ProteinTarget>[]);
+  final ValueNotifier<CatalogStatus> _status =
+      ValueNotifier<CatalogStatus>(CatalogStatus.loading);
+  final Map<String, ProteinTarget> _details = <String, ProteinTarget>{};
+
+  static const String fallbackSlug = 'insulin';
+  ValueListenable<CatalogStatus> get status => _status;
 
   /// Every protein, in reading order.
   List<ProteinTarget> get all => _rows.value;
@@ -55,13 +45,22 @@ final class ProteinCatalogRepository {
   /// Fires when a refresh replaces the rows, and not otherwise.
   ValueListenable<List<ProteinTarget>> get rows => _rows;
 
-  void dispose() => _rows.dispose();
+  void dispose() {
+    _rows.dispose();
+    _status.dispose();
+  }
 
-  /// The one the home screen's chevron leads to, and what `/gene` with no slug
-  /// means. Insulin by name, so that reordering the catalog cannot move it, and
-  /// the bundled row if the service has somehow stopped serving it.
-  ProteinTarget get fallback =>
-      bySlug(ProteinCatalog.fallback.slug) ?? ProteinCatalog.fallback;
+  Future<ProteinTarget> protein(String slug) async {
+    final ProteinTarget? held = bySlug(slug);
+    if (held != null) {
+      return held;
+    }
+    final ProteinTarget target = ProteinTarget.fromJson(
+      await _api.getJson('/protein/${Uri.encodeComponent(slug)}'),
+    );
+    _details[slug] = target;
+    return target;
+  }
 
   ProteinTarget? bySlug(String slug) {
     for (final ProteinTarget target in _rows.value) {
@@ -69,29 +68,23 @@ final class ProteinCatalogRepository {
         return target;
       }
     }
-    return null;
-  }
-
-  /// The target a `/gene/{accession}/{gene}` path is asking for, or null.
-  ProteinTarget? byPath(String accession, String gene) {
-    for (final ProteinTarget target in _rows.value) {
-      if (target.accession == accession && target.gene == gene) {
-        return target;
-      }
-    }
-    return null;
+    return _details[slug];
   }
 
   /// Search, ranked exactly as it was when the catalog was a const list.
   List<ProteinTarget> matching(String query) => rank(_rows.value, query);
 
-  /// The cached rows, then the served ones. Safe to call more than once.
-  Future<void> load() async {
-    final List<Map<String, dynamic>>? cached = await _cache?.read();
-    if (cached != null) {
-      _adopt(cached);
+  /// Restore the last complete catalog before the first frame.
+  Future<void> hydrate() async {
+    try {
+      final List<Map<String, dynamic>>? cached = await _cache?.read();
+      if (cached != null) {
+        _adopt(cached);
+        _status.value = CatalogStatus.ready;
+      }
+    } on Object catch (error) {
+      _note('could not hydrate', error);
     }
-    await refresh();
   }
 
   /// Re-reads `/catalog` and keeps what comes back.
@@ -101,14 +94,14 @@ final class ProteinCatalogRepository {
   /// backend has to mean the reader keeps the catalog they had — never an empty
   /// screen, and never "no such protein".
   Future<void> refresh() async {
+    _status.value = CatalogStatus.loading;
     try {
       final List<Map<String, dynamic>> served = await _page();
-      if (served.isEmpty) {
-        return;
-      }
       _adopt(served);
+      _status.value = CatalogStatus.ready;
       await _cache?.write(served);
-    } on ApiException catch (error) {
+    } on Object catch (error) {
+      _status.value = CatalogStatus.failed;
       _note('kept the rows it had', error);
     }
   }
@@ -124,11 +117,8 @@ final class ProteinCatalogRepository {
           'cursor': ?cursor,
         },
       );
-      for (final Object? row in body['proteins'] as List<dynamic>? ??
-          <dynamic>[]) {
-        if (row is Map<String, dynamic>) {
-          found.add(row);
-        }
+      for (final Object? row in body['proteins'] as List<dynamic>) {
+        found.add(row as Map<String, dynamic>);
       }
       final String? next = body['next'] as String?;
       if (next == null || next == cursor) {
@@ -149,26 +139,11 @@ final class ProteinCatalogRepository {
   void _adopt(List<Map<String, dynamic>> rows) {
     final List<Map<String, dynamic>> ordered = <Map<String, dynamic>>[...rows]
       ..sort(_byReadingOrder);
-    final List<ProteinTarget> found = <ProteinTarget>[];
-    for (final Map<String, dynamic> row in ordered) {
-      try {
-        found.add(
-          ProteinTarget.fromJson(
-            row,
-            seed: ProteinCatalog.bySlug(row['slug'] as String? ?? ''),
-          ),
-        );
-      } on Object catch (error) {
-        // A row the walk cannot draw is left out rather than carried. Today
-        // that is only a protein with no structure; the fold page has no
-        // rendering for its absence yet.
-        _note('left out ${row['slug']}', error);
-      }
-    }
-    if (found.isEmpty) {
-      return;
-    }
-    _rows.value = found;
+    // Parse the whole page before replacing a usable catalog or its cache.
+    _rows.value = <ProteinTarget>[
+      for (final Map<String, dynamic> row in ordered)
+        ProteinTarget.fromJson(row),
+    ];
   }
 
   static int _byReadingOrder(

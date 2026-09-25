@@ -6,12 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
 
 import 'features/gene_lookup/anatomy/anatomy_fixture.dart';
+import 'support/test_catalog.dart';
 
 // TRANSLATION_SHOT_DIR=/tmp/translation flutter test test/translation_render_check.dart
 // Captures the actual screen at a fixed cadence, suitable for a filmstrip or GIF.
@@ -31,7 +31,7 @@ void main() {
           child: MaterialApp(
             theme: AppTheme.analysis,
             debugShowCheckedModeBanner: false,
-            home: AnatomyScreen(target: ProteinCatalog.insulin, record: insulin()),
+            home: AnatomyScreen(target: TestCatalog.insulin, record: insulin()),
           ),
         ),
       );

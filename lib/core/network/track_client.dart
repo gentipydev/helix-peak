@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../features/gene_lookup/domain/entities/protein_track.dart';
@@ -12,8 +12,7 @@ import 'api_exception.dart';
 import 'dio_api_client.dart';
 import 'track_source.dart';
 
-/// Fetches track payloads, from storage or from the bundle, and keeps what it
-/// fetched.
+/// Fetches track payloads from storage and keeps their rows and bytes.
 ///
 /// Not an [ApiClient] call. [DioApiClient] is JSON-only and rejects a non-`Map`
 /// body, and these payloads are bytes: a 9.5 MB ClinVar snapshot that must
@@ -34,21 +33,15 @@ final class TrackClient implements TrackSource {
   TrackClient(
     this._api, {
     Dio? dio,
-    AssetBundle? bundle,
     Directory? cache,
     this.budget = _defaultBudget,
   }) : _dio = dio ?? Dio(_options),
-       _bundle = bundle ?? rootBundle,
        _given = cache;
 
   /// Roughly two hundred megabytes: five times the 41 MB the twenty proteins
   /// come to, so a reader who walks all of them keeps all of them, and a
   /// catalog that grows past that loses the oldest rather than the device.
   static const int _defaultBudget = 200 * 1024 * 1024;
-
-  /// A prefix, deliberately not a parsed [Uri]: `asset://assets/clinvar/x.json`
-  /// parses with `assets` as the *host*, which would have to be glued back on.
-  static const String _assetPrefix = 'asset://';
 
   static BaseOptions get _options => BaseOptions(
     // Connecting is held to the patience a JSON call gets. Receiving is not:
@@ -61,7 +54,6 @@ final class TrackClient implements TrackSource {
 
   final ApiClient _api;
   final Dio _dio;
-  final AssetBundle _bundle;
 
   /// Where to cache, for a caller that knows — a test with a temp directory.
   /// Null asks the platform, which is what the app does.
@@ -99,20 +91,59 @@ final class TrackClient implements TrackSource {
         reason: ref.reason,
       );
     }
-    if (url.startsWith(_assetPrefix)) {
-      final ByteData data = await _bundle.load(
-        url.substring(_assetPrefix.length),
-      );
-      return data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-    }
     return _fetch(url, ref.sha256);
   }
 
   /// Read by the same function the catalog rows are read with, so a family this
   /// calls ready and a family the catalog called ready cannot come to mean two
   /// different things.
-  Future<Map<TrackKind, TrackRef>> _fetchRows(String slug) async =>
-      tracksFromJson(await _api.getJson('/protein/$slug/tracks'));
+  Future<Map<TrackKind, TrackRef>> _fetchRows(String slug) async {
+    Map<String, dynamic> body;
+    try {
+      body = await _api.getJson('/protein/${Uri.encodeComponent(slug)}/tracks');
+    } on Object catch (error) {
+      // An authoritative client error (including a removed protein) must not
+      // be hidden by yesterday's rows. Only service/transport failures fall back.
+      if (error is ServerApiException &&
+          error.statusCode != null && error.statusCode! < 500) {
+        rethrow;
+      }
+      final File? file = await _rowFile(slug);
+      try {
+        if (file != null && await file.exists()) {
+          final Map<TrackKind, TrackRef> cached = tracksFromJson(
+            jsonDecode(await file.readAsString()) as Map<String, dynamic>,
+          );
+          // Do not memoise an offline answer: the next read tries the service.
+          unawaited(_rows.remove(slug));
+          return cached;
+        }
+      } on Object catch (cacheError) {
+        _note('could not read track rows', cacheError);
+      }
+      rethrow;
+    }
+    final Map<TrackKind, TrackRef> parsed = tracksFromJson(body);
+    final File? file = await _rowFile(slug);
+    if (file != null) {
+      try {
+        await file.parent.create(recursive: true);
+        final File pending = File('${file.path}.part');
+        await pending.writeAsString(jsonEncode(body), flush: true);
+        await pending.rename(file.path);
+      } on Object catch (error) {
+        _note('could not cache track rows', error);
+      }
+    }
+    return parsed;
+  }
+
+  Future<File?> _rowFile(String slug) async {
+    final Directory? directory = await (_cacheDirectory ??= _open());
+    return directory == null ? null : File(
+      '${directory.parent.path}/track_rows/${Uri.encodeComponent(slug)}.json',
+    );
+  }
 
   /// The cached bytes if they are there, and the network's if they are not.
   ///

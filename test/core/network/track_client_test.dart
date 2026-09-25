@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/network/api_client.dart';
 import 'package:helixpeek/core/network/api_exception.dart';
@@ -91,23 +90,6 @@ class _Adapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
-class _Bundle extends CachingAssetBundle {
-  _Bundle(this.files);
-
-  final Map<String, List<int>> files;
-  final List<String> asked = <String>[];
-
-  @override
-  Future<ByteData> load(String key) async {
-    asked.add(key);
-    final List<int>? bytes = files[key];
-    if (bytes == null) {
-      throw FlutterError('Unable to load asset: $key');
-    }
-    return ByteData.sublistView(Uint8List.fromList(bytes));
-  }
-}
-
 const String _url =
     'https://cdn.example/tracks/constraint/insulin.9527916f760d.json';
 
@@ -116,17 +98,19 @@ List<int> _payload(String gene) => utf8.encode('{"gene":"$gene"}');
 void main() {
   late Directory cache;
 
-  setUp(() => cache = Directory.systemTemp.createTempSync('helixpeek-tracks'));
+  setUp(() {
+    final root = Directory.systemTemp.createTempSync('helixpeek-tracks');
+    cache = Directory('${root.path}/tracks')..createSync();
+  });
   tearDown(() {
     if (cache.existsSync()) {
-      cache.deleteSync(recursive: true);
+      cache.parent.deleteSync(recursive: true);
     }
   });
 
   TrackClient client(
     _Api api, {
     _Adapter? adapter,
-    _Bundle? bundle,
     int budget = 200 * 1024 * 1024,
   }) {
     final Dio dio = Dio();
@@ -136,38 +120,43 @@ void main() {
     return TrackClient(
       api,
       dio: dio,
-      bundle: bundle ?? _Bundle(<String, List<int>>{}),
       cache: cache,
       budget: budget,
     );
   }
 
-  test('an asset:// track is read from the bundle and nothing is fetched', () async {
-    final _Bundle bundle = _Bundle(<String, List<int>>{
-      'assets/clinvar/insulin_clinvar.json': _payload('INS'),
-    });
-    final _Adapter adapter = _Adapter(const <String, List<int>>{});
-    final TrackClient tracks = client(
-      _Api(
-        _tracks(<String, Map<String, dynamic>>{
-          'clinvar': _row(
-            url: 'asset://assets/clinvar/insulin_clinvar.json',
-            sha256: null,
-          ),
-        }),
-      ),
-      adapter: adapter,
-      bundle: bundle,
-    );
 
-    expect(
-      utf8.decode(await tracks.read('insulin', TrackKind.clinvar)),
-      '{"gene":"INS"}',
-    );
-    expect(bundle.asked, <String>['assets/clinvar/insulin_clinvar.json']);
-    expect(adapter.fetched, isEmpty);
-    // Nothing on disk: a bundle read is already the cheapest read there is.
-    expect(cache.listSync(), isEmpty);
+  test('persisted rows find cached bytes after restart, without memoising fallback', () async {
+    final body = _tracks({'constraint': _row()});
+    final first = client(_Api(body), adapter: _Adapter({_url: _payload('INS')}));
+    expect(await first.read('insulin', TrackKind.constraint), _payload('INS'));
+    expect(File('${cache.parent.path}/track_rows/insulin.json').existsSync(), isTrue);
+    for (final error in <ApiException>[
+      const NetworkApiException(), const TimeoutApiException(),
+      const UnknownApiException(), const ServerApiException(statusCode: 503),
+    ]) {
+      final api = _Api(body, error: error);
+      final adapter = _Adapter({});
+      final restarted = client(api, adapter: adapter);
+      expect(await restarted.read('insulin', TrackKind.constraint), _payload('INS'));
+      expect(await restarted.read('insulin', TrackKind.constraint), _payload('INS'));
+      expect(api.asked, hasLength(2));
+      api.error = null;
+      await restarted.tracksOf('insulin');
+      await restarted.tracksOf('insulin');
+      expect(api.asked, hasLength(3));
+    }
+  });
+
+  test('persisted rows never mask a 404 or another 4xx', () async {
+    final body = _tracks({'constraint': _row()});
+    await client(_Api(body)).tracksOf('insulin');
+    for (final code in [400, 401, 404, 429]) {
+      final restarted = client(_Api(body, error: ServerApiException(statusCode: code)));
+      await expectLater(restarted.tracksOf('insulin'), throwsA(
+        isA<ServerApiException>().having((e) => e.statusCode, 'code', code),
+      ));
+    }
   });
 
   test('a ready track is fetched once and then read from the cache', () async {

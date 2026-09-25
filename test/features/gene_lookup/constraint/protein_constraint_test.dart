@@ -2,18 +2,19 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 
+import '../../../support/test_catalog.dart';
+
 Map<String, dynamic> _asset() =>
-    jsonDecode(File(ProteinCatalog.insulin.constraintAsset).readAsStringSync())
+    jsonDecode(File(TestCatalog.insulin.constraintAsset).readAsStringSync())
         as Map<String, dynamic>;
 
 void main() {
   test('bundled scores pass the precursor and six-cysteine gate', () {
-    final ProteinConstraint data = ProteinConstraint.fromJson(_asset(), ProteinCatalog.insulin);
-    expect(File(ProteinCatalog.insulin.constraintAsset).lengthSync(), lessThan(100000));
+    final ProteinConstraint data = ProteinConstraint.fromJson(_asset(), TestCatalog.insulin);
+    expect(File(TestCatalog.insulin.constraintAsset).lengthSync(), lessThan(100000));
     expect(data.positions.length, 110);
     final List<ResidueConstraint> ranked = data.positions.toList()
       ..sort(
@@ -52,7 +53,7 @@ void main() {
   });
 
   test('residues are cited by precursor number, then by chain', () {
-    final ProteinConstraint data = ProteinConstraint.fromJson(_asset(), ProteinCatalog.insulin);
+    final ProteinConstraint data = ProteinConstraint.fromJson(_asset(), TestCatalog.insulin);
     // The precursor number leads everywhere; a released chain adds its own,
     // and nothing removed with a cut has one.
     for (final (int, String, int, String) expected
@@ -103,7 +104,7 @@ void main() {
   });
 
   test('notes follow measured constraint and distinguish C-peptide', () {
-    final ProteinConstraint data = ProteinConstraint.fromJson(_asset(), ProteinCatalog.insulin);
+    final ProteinConstraint data = ProteinConstraint.fromJson(_asset(), TestCatalog.insulin);
     final ResidueConstraint high = data.positions[30];
     final ResidueConstraint middle = data.positions.firstWhere(
       (ResidueConstraint p) => p.level == ConstraintLevel.middle,
@@ -129,7 +130,7 @@ void main() {
         ]) {
       final Map<String, dynamic> json = _asset();
       corrupt(json);
-      expect(() => ProteinConstraint.fromJson(json, ProteinCatalog.insulin), throwsFormatException);
+      expect(() => ProteinConstraint.fromJson(json, TestCatalog.insulin), throwsFormatException);
     }
   });
 
@@ -144,18 +145,18 @@ void main() {
       for (final (ProteinTarget, int, String) expected
           in <(ProteinTarget, int, String)>[
             // One chain after a leader: the precursor number, then the mature.
-            (ProteinCatalog.prion, 179, 'Cys179 · mature 157'),
-            (ProteinCatalog.sod1, 5, 'Ala5 · mature 4'),
-            (ProteinCatalog.hemoglobin, 7, 'Glu7 · mature 6'),
-            (ProteinCatalog.myoglobin, 65, 'His65 · mature 64'),
+            (TestCatalog.prion, 179, 'Cys179 · mature 157'),
+            (TestCatalog.sod1, 5, 'Ala5 · mature 4'),
+            (TestCatalog.hemoglobin, 7, 'Glu7 · mature 6'),
+            (TestCatalog.myoglobin, 65, 'His65 · mature 64'),
             // A domain is not a numbering of its own.
-            (ProteinCatalog.p53, 175, 'Arg175'),
-            (ProteinCatalog.p53, 248, 'Arg248'),
-            (ProteinCatalog.dystrophin, 15, 'Asp15'),
-            (ProteinCatalog.cftr, 508, 'Phe508'),
+            (TestCatalog.p53, 175, 'Arg175'),
+            (TestCatalog.p53, 248, 'Arg248'),
+            (TestCatalog.dystrophin, 15, 'Asp15'),
+            (TestCatalog.cftr, 508, 'Phe508'),
             // A precursor cut into pieces numbers each piece.
-            (ProteinCatalog.ubiquitin, 124, 'Lys124 · U2 48'),
-            (ProteinCatalog.insulin, 96, 'Cys96 · A7'),
+            (TestCatalog.ubiquitin, 124, 'Lys124 · U2 48'),
+            (TestCatalog.insulin, 96, 'Cys96 · A7'),
           ]) {
         expect(
           track(expected.$1).positions[expected.$2 - 1].title,
@@ -164,13 +165,13 @@ void main() {
         );
       }
       expect(
-        track(ProteinCatalog.prion).positions[178].bondPartner,
+        track(TestCatalog.prion).positions[178].bondPartner,
         'Cys214 (mature 192)',
       );
     });
 
     test('every disulfide names its partner by precursor number', () {
-      for (final ProteinTarget target in ProteinCatalog.all) {
+      for (final ProteinTarget target in TestCatalog.all) {
         final Map<String, dynamic> json =
             jsonDecode(File(target.constraintAsset).readAsStringSync())
                 as Map<String, dynamic>;

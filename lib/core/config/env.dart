@@ -19,21 +19,6 @@ abstract final class Env {
     return Duration(milliseconds: parsed);
   }
 
-  /// Whether to serve the bundled fixture instead of calling the backend.
-  ///
-  /// `--dart-define=USE_MOCK_DATA=true` wins over the `.env` key of the same
-  /// name, because `.env` is gitignored: a release build has to be able to flip
-  /// modes from the build command, without a hand-edited file to forget about.
-  ///
-  /// Absent from both, this is false — live is and stays the default.
-  static bool get useMockData {
-    const String defined = String.fromEnvironment('USE_MOCK_DATA');
-    final String? value = defined.isNotEmpty
-        ? defined
-        : _read('USE_MOCK_DATA');
-    return value == '1' || value?.toLowerCase() == 'true';
-  }
-
   static String? _read(String key) {
     // `dotenv.env` throws NotInitializedError before `load()` has run, and
     // `load(isOptional: true)` can leave the map empty rather than absent. Both

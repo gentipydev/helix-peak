@@ -2,12 +2,13 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/network/api_exception.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_record.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/repositories/gene_repository.dart';
 import 'package:helixpeek/features/gene_lookup/domain/usecases/fetch_gene.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/cubit/gene_lookup_cubit.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/cubit/gene_lookup_state.dart';
 import 'package:mocktail/mocktail.dart';
+
+import '../../support/test_catalog.dart';
 
 // FetchGene is a final class and cannot be implemented outside its library, so
 // the mock goes one layer down at the repository port.
@@ -26,7 +27,7 @@ void main() {
   late _MockGeneRepository repository;
 
   // `any()` stands in for a GeneQuery, which mocktail needs a real one of.
-  setUpAll(() => registerFallbackValue(ProteinCatalog.insulin.query));
+  setUpAll(() => registerFallbackValue(TestCatalog.insulin.query));
 
   setUp(() => repository = _MockGeneRepository());
 
@@ -49,7 +50,7 @@ void main() {
       'emits [loading, success] when the fetch succeeds',
       setUp: stubSuccess,
       build: buildCubit,
-      act: (GeneLookupCubit cubit) => cubit.load(ProteinCatalog.insulin.query),
+      act: (GeneLookupCubit cubit) => cubit.load(TestCatalog.insulin.query),
       expect: () => <Matcher>[
         isA<GeneLookupLoading>(),
         isA<GeneLookupSuccess>().having(
@@ -64,10 +65,10 @@ void main() {
       'asks the repository for the query it was given',
       setUp: stubSuccess,
       build: buildCubit,
-      act: (GeneLookupCubit cubit) => cubit.load(ProteinCatalog.insulin.query),
+      act: (GeneLookupCubit cubit) => cubit.load(TestCatalog.insulin.query),
       verify: (_) {
         verify(
-          () => repository.fetchGene(ProteinCatalog.insulin.query),
+          () => repository.fetchGene(TestCatalog.insulin.query),
         ).called(1);
       },
     );
@@ -78,7 +79,7 @@ void main() {
         const ServerApiException(statusCode: 404, detail: 'No gene found.'),
       ),
       build: buildCubit,
-      act: (GeneLookupCubit cubit) => cubit.load(ProteinCatalog.insulin.query),
+      act: (GeneLookupCubit cubit) => cubit.load(TestCatalog.insulin.query),
       expect: () => <Matcher>[
         isA<GeneLookupLoading>(),
         isA<GeneLookupFailure>().having(
@@ -93,7 +94,7 @@ void main() {
       'falls back to a generic message for an unexpected error',
       setUp: () => stubFailure(StateError('boom')),
       build: buildCubit,
-      act: (GeneLookupCubit cubit) => cubit.load(ProteinCatalog.insulin.query),
+      act: (GeneLookupCubit cubit) => cubit.load(TestCatalog.insulin.query),
       expect: () => <Matcher>[
         isA<GeneLookupLoading>(),
         isA<GeneLookupFailure>().having(
@@ -109,12 +110,12 @@ void main() {
       setUp: stubSuccess,
       build: buildCubit,
       act: (GeneLookupCubit cubit) async {
-        await cubit.load(ProteinCatalog.insulin.query);
+        await cubit.load(TestCatalog.insulin.query);
         await cubit.retry();
       },
       verify: (_) {
         verify(
-          () => repository.fetchGene(ProteinCatalog.insulin.query),
+          () => repository.fetchGene(TestCatalog.insulin.query),
         ).called(2);
       },
     );

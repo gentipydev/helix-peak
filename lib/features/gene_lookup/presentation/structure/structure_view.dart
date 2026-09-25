@@ -493,7 +493,8 @@ class _StructureViewState extends State<StructureView> {
               fit: StackFit.expand,
               children: <Widget>[
                 Semantics(
-                  label: widget.target.structure.semantics,
+                  label: widget.target.structure?.semantics ??
+                      'The folded ${widget.target.display}.',
                   // Ungated on purpose: `_load` has already warmed the
                   // pipelines, so the view can draw on its first frame. Gating
                   // it again would put a restarted pulse back in between.

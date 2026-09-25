@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
 
+import '../../../support/test_catalog.dart';
 import 'anatomy_fixture.dart';
 
 Future<void> _walkTo(
@@ -69,7 +69,7 @@ void main() {
   testWidgets('a page of thirteen screens gets a scrubber that names where it is', (
     WidgetTester tester,
   ) async {
-    await _walkTo(tester, ProteinCatalog.dystrophin, stage: 2);
+    await _walkTo(tester, TestCatalog.dystrophin, stage: 2);
     expect(find.text('3,685'), findsOneWidget);
     expect(scrubber, findsOneWidget);
 
@@ -98,7 +98,7 @@ void main() {
   testWidgets('a page that fits a screen or two has none', (
     WidgetTester tester,
   ) async {
-    await _walkTo(tester, ProteinCatalog.insulin, stage: 2);
+    await _walkTo(tester, TestCatalog.insulin, stage: 2);
     expect(find.text('110'), findsOneWidget);
     expect(scrubber, findsNothing);
   });
