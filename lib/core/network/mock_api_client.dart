@@ -213,9 +213,8 @@ final class MockApiClient implements ApiClient {
   /// here and gone from the bundle would have this server promising a track it
   /// cannot serve, and a family in the bundle and missing here would take a
   /// page off the mock build for no reason. Phase 4a took `constraint` and
-  /// `impact` off it.
+  /// `impact` off it, and Phase 4b took `clinvar`.
   static const Set<TrackKind> _bundled = <TrackKind>{
-    TrackKind.clinvar,
     TrackKind.structure,
     TrackKind.impactExplanations,
   };

@@ -475,8 +475,15 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   }
 
   Future<void> _loadClinVar(int generation) async {
+    final TrackSource? tracks = _tracks;
+    if (tracks == null) {
+      return;
+    }
     try {
-      final GeneClinVar data = await GeneClinVar.load(widget.target);
+      final GeneClinVar data = await GeneClinVar.load(
+        widget.target,
+        tracks: tracks,
+      );
       if (mounted && generation == _clinvarGeneration) {
         setState(() => _clinvar = data);
       }

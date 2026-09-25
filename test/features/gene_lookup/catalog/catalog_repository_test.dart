@@ -39,14 +39,15 @@ List<Map<String, dynamic>> _rows() => <Map<String, dynamic>>[
 
 /// The captured page with [kinds] knocked back to `absent` on every row: the
 /// service before that family was uploaded, or after a bake was withdrawn.
-Map<String, dynamic> _withoutTracks(String kind, [String? also]) {
+Map<String, dynamic> _withoutTracks(String kind, [String? also, String? third]) {
   final Map<String, dynamic> page = _fixture();
   for (final Object? row in page['proteins'] as List<dynamic>) {
     final Map<String, dynamic> tracks =
         (row! as Map<String, dynamic>)['tracks'] as Map<String, dynamic>;
-    tracks[kind] = 'absent';
-    if (also != null) {
-      tracks[also] = 'absent';
+    for (final String? gone in <String?>[kind, also, third]) {
+      if (gone != null) {
+        tracks[gone] = 'absent';
+      }
     }
   }
   return page;
@@ -149,10 +150,13 @@ void main() {
       expect(got.state(TrackKind.constraint), TrackState.ready, reason: got.slug);
       expect(got.scored, isTrue, reason: got.slug);
       expect(got.impactScored, isTrue, reason: got.slug);
+      expect(got.clinvarAvailable, isTrue, reason: got.slug);
     }
 
     final ProteinCatalogRepository silent = _repository(
-      _Client(<Map<String, dynamic>>[_withoutTracks('constraint', 'impact')]),
+      _Client(<Map<String, dynamic>>[
+        _withoutTracks('constraint', 'impact', 'clinvar'),
+      ]),
     );
     await silent.refresh();
     final ProteinTarget insulin = silent.bySlug('insulin')!;
@@ -161,26 +165,29 @@ void main() {
     // toolbar, and a tap that follows the tracer. Not an error.
     expect(insulin.scored, isFalse);
     expect(insulin.impactScored, isFalse);
+    // And the About sheet is where "not yet included for INS" gets said, once.
+    expect(insulin.clinvarAvailable, isFalse);
   });
 
   test('a family still bundled is drawn even where the service says absent',
       () async {
-    // The other half of the retirement, and the half that has not happened.
-    // Until ClinVar's blobs are what the walk reads, the bundled seed is the
-    // only honest authority on whether this build has a snapshot — deriving
-    // `clinvarAvailable` from an `absent` row would take the marks off all
-    // twenty at once, which is the trap Phase 4b has to walk past deliberately.
+    // What is left of the shim, and why it is still here. Exact-allele AVI
+    // contributions ship in this build's assets and are served by the fixture
+    // server from there, so the bundled seed is the only honest authority on
+    // whether this build has them — deriving the flag from an `absent` row
+    // would take the contributions off the three genes that do have them.
     final ProteinCatalogRepository catalog = _repository(
-      _Client(<Map<String, dynamic>>[
-        _withoutTracks('clinvar', 'impact_explanations'),
-      ]),
+      _Client(<Map<String, dynamic>>[_withoutTracks('impact_explanations')]),
     );
     await catalog.refresh();
 
     for (final ProteinTarget want in ProteinCatalog.all) {
       final ProteinTarget got = catalog.bySlug(want.slug)!;
-      expect(got.state(TrackKind.clinvar), TrackState.absent, reason: want.slug);
-      expect(got.clinvarAvailable, want.clinvarAvailable, reason: want.slug);
+      expect(
+        got.state(TrackKind.impactExplanations),
+        TrackState.absent,
+        reason: want.slug,
+      );
       expect(
         got.impactExplanationsAvailable,
         want.impactExplanationsAvailable,
@@ -493,16 +500,30 @@ void main() {
     expect(catalog.all, ProteinCatalog.all);
     expect(catalog.bySlug('insulin')!.structure.pdb, '3I40');
     expect(catalog.bySlug('p53')!.structure.modelled, (96, 289));
-    // The fixture server answers for the build it stands in for, where every
-    // bundled family is there to be read.
+    // The fixture server answers for the build it stands in for, and that
+    // build no longer carries three of the four families. A mock build draws
+    // those pages without their tracks, which is what having no bytes and no
+    // socket honestly looks like — the alternative was a server promising a
+    // track it could not hand over.
     expect(
-      catalog.bySlug('insulin')!.state(TrackKind.clinvar),
+      catalog.bySlug('insulin')!.state(TrackKind.impactExplanations),
       TrackState.ready,
     );
     expect(
       catalog.bySlug('p53')!.state(TrackKind.impactExplanations),
       TrackState.absent,
     );
+    for (final TrackKind gone in <TrackKind>[
+      TrackKind.constraint,
+      TrackKind.impact,
+      TrackKind.clinvar,
+    ]) {
+      expect(
+        catalog.bySlug('insulin')!.state(gone),
+        TrackState.absent,
+        reason: gone.wire,
+      );
+    }
   });
 
   test('the fixture server answers the detail and track routes', () async {
@@ -520,6 +541,20 @@ void main() {
       tracks.keys.toSet(),
       <String>{for (final TrackKind k in TrackKind.values) k.wire},
     );
+    // A ready track names bytes a reader can actually get. `asset://` is the
+    // one thing this server does that the real one does not, and it is what
+    // keeps a mock build off the socket while still going through the whole of
+    // `TrackClient`.
+    final Map<String, dynamic> explanations =
+        tracks['impact_explanations']! as Map<String, dynamic>;
+    expect(explanations['state'], 'ready');
+    expect(explanations['url'], 'asset://assets/impact_explanations/cftr.json');
+    // And a family that has left the bundle promises nothing.
+    for (final String gone in <String>['constraint', 'impact', 'clinvar']) {
+      final Map<String, dynamic> row = tracks[gone]! as Map<String, dynamic>;
+      expect(row['state'], 'absent', reason: gone);
+      expect(row['url'], isNull, reason: gone);
+    }
 
     final Map<String, dynamic> found = await server.getJson(
       '/catalog/search',

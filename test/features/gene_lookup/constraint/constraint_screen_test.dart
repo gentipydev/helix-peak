@@ -164,12 +164,11 @@ void main() {
       facts: scored.facts,
       chains: scored.chains,
       structure: scored.structure,
-      // No constraint track. That used to be `scored: false`; it is now a
-      // family the tracks map does not call ready, which is the same claim
+      // No constraint track, and no ClinVar either: this page is held to the
+      // one state under test. That used to be two booleans; it is now the
+      // families the tracks map does not call ready, which is the same claim
       // made where the service can also make it.
       tracks: const <TrackKind, TrackRef>{},
-      // Held to the one state under test; the walk's ClinVar is its own.
-      clinvarAvailable: false,
     );
     await tester.binding.setSurfaceSize(const Size(390, 844));
     await tester.pumpWidget(

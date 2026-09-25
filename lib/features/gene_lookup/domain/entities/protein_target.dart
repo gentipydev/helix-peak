@@ -166,7 +166,6 @@ final class ProteinTarget {
     required this.chains,
     required this.structure,
     this.chain,
-    this.clinvarAvailable = true,
     this.impactExplanationsAvailable = false,
     this.tracks = const <TrackKind, TrackRef>{},
   });
@@ -231,7 +230,6 @@ final class ProteinTarget {
       // Present-and-null is a real answer here — an uncut protein names its
       // coding sequence, a cut one does not — so absence is what falls back.
       chain: json.containsKey('chain') ? json['chain'] as String? : seed?.chain,
-      clinvarAvailable: seed?.clinvarAvailable ?? _ready(tracks, TrackKind.clinvar),
       impactExplanationsAvailable:
           seed?.impactExplanationsAvailable ??
           _ready(tracks, TrackKind.impactExplanations),
@@ -311,10 +309,16 @@ final class ProteinTarget {
   ///
   /// Every gene in the catalog has one. One added before its snapshot is baked
   /// has not, and the walk says so — "not yet included", once, in the About
-  /// sheet — rather than meeting a file that is not there. False is not a
+  /// sheet — rather than meeting a snapshot that is not there. False is not a
   /// negative finding. `clinvar_available` in `tool/targets.py` says the same,
   /// and `check_assets.py` holds the two to each other.
-  final bool clinvarAvailable;
+  ///
+  /// Retired into the track state by Phase 4b, and the sentence above is why
+  /// that had to wait for the snapshots to actually move: this stays true for a
+  /// gene whose snapshot did not arrive, so the About sheet says "snapshot
+  /// unavailable" rather than "not yet included for DMD" about a gene with
+  /// 9.5 MB of records sitting in storage.
+  bool get clinvarAvailable => state(TrackKind.clinvar) == TrackState.ready;
   String get clinvarAsset => 'assets/clinvar/${slug}_clinvar.json';
 
   GeneQuery get query => GeneQuery(accession: accession, gene: gene);

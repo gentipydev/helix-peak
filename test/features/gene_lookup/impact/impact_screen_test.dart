@@ -58,11 +58,10 @@ final ProteinTarget _untracked = ProteinTarget(
   structure: ProteinCatalog.insulin.structure,
   chain: ProteinCatalog.insulin.chain,
   // No impact track, which is now a family the tracks map does not call ready
-  // rather than an `impactScored: false` the seed settled.
+  // rather than an `impactScored: false` the seed settled. No ClinVar either: a
+  // snapshot is placed through the impact track's coordinate map, so a gene
+  // without the track has none to place.
   tracks: const <TrackKind, TrackRef>{},
-  // A snapshot is placed through the impact track's coordinate map, so a gene
-  // without the track has none either.
-  clinvarAvailable: false,
 );
 
 /// Opens insulin's mRNA page, which is one swipe from the gene.

@@ -1,13 +1,14 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 
 import '../../../../core/biology/amino_acids.dart';
 import '../../../../core/biology/genetic_code.dart';
+import '../../../../core/network/track_source.dart';
 import 'gene_impact.dart';
 import 'gene_record.dart';
 import 'protein_target.dart';
+import 'protein_track.dart';
 
 /// Colors/grouping never replace the verbatim submitted classification.
 /// Conflicting and unfamiliar classifications must never become pathogenic.
@@ -507,22 +508,23 @@ final class GeneClinVar {
       );
 
   /// Read as bytes and parsed off the UI isolate: a large gene's snapshot runs
-  /// to megabytes, and decoding it in a frame stalls the walk. Bytes rather
-  /// than a string, because the bundle caches every string it loads for the
-  /// life of the app.
+  /// to megabytes, and decoding it in a frame stalls the walk.
+  ///
+  /// Dystrophin's is 9,563,683 bytes, 40.7% of the whole ClinVar corpus on its
+  /// own against a median of 142,576 — so this is the family to measure with
+  /// DMD and never with the average. It crosses the wire in about 572 KB, which
+  /// the CDN's gzip does and no code here has to.
   static Future<GeneClinVar> load(
     ProteinTarget target, {
-    AssetBundle? bundle,
-  }) async {
-    final ByteData bytes = await (bundle ?? rootBundle).load(
-      target.clinvarAsset,
-    );
-    return compute(_decode, (bytes, target));
-  }
+    required TrackSource tracks,
+  }) async => compute(
+    _decode,
+    (await tracks.read(target.slug, TrackKind.clinvar), target),
+  );
 
-  static GeneClinVar _decode((ByteData, ProteinTarget) file) {
-    final (ByteData bytes, ProteinTarget target) = file;
-    final Object? json = jsonDecode(utf8.decode(Uint8List.sublistView(bytes)));
+  static GeneClinVar _decode((Uint8List, ProteinTarget) file) {
+    final (Uint8List bytes, ProteinTarget target) = file;
+    final Object? json = jsonDecode(utf8.decode(bytes));
     if (json is! Map<String, dynamic>) {
       throw FormatException('Malformed ClinVar snapshot for ${target.slug}');
     }

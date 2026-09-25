@@ -119,12 +119,9 @@ def dart_catalog() -> dict[str, dict]:
         row["impact_scored"] = "impact" in kinds
         row["clinvar_available"] = "clinvar" in kinds
         row["impact_explanations"] = "impactExplanations" in kinds
-        # The two that have not retired into the map yet are still fields, and
-        # have to agree with it. A row whose boolean and whose map disagree is
-        # a row the walk and this gate would read differently.
-        clinical = re.search(r"\bclinvarAvailable: (true|false)\b", block)
-        if (clinical is None or clinical.group(1) == "true") != row["clinvar_available"]:
-            fail(f"{row['slug']}: clinvarAvailable and the seeded tracks disagree")
+        # The one that has not retired into the map yet is still a field, and
+        # has to agree with it. A row whose boolean and whose map disagree is a
+        # row the walk and this gate would read differently.
         explanations = re.search(r"\bimpactExplanationsAvailable: (true|false)\b", block)
         stated = explanations is not None and explanations.group(1) == "true"
         if stated != row["impact_explanations"]:
