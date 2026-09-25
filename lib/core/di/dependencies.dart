@@ -50,9 +50,11 @@ List<RepositoryProvider<Object>> buildAppProviders() {
         return catalog;
       },
     ),
+    // The gene record is a stored track, read through the same source as
+    // every other one: storage on a live build, the bundle on a mock one.
     RepositoryProvider<GeneRemoteDataSource>(
       create: (BuildContext context) =>
-          GeneRemoteDataSourceImpl(context.read<ApiClient>()),
+          TrackGeneDataSource(context.read<TrackSource>()),
     ),
     RepositoryProvider<ImpactExplanationRepository>(
       create: (BuildContext context) =>

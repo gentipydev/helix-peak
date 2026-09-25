@@ -42,6 +42,7 @@ sys.path.insert(0, str(ROOT / "tool"))
 
 from targets import TARGETS  # noqa: E402
 from impact.check_explanations import validate as validate_explanations  # noqa: E402
+import check_assets  # noqa: E402
 
 # A year, and immutable: the digest is in the path, so these bytes never change.
 CACHE_CONTROL = "public, max-age=31536000, immutable"
@@ -68,6 +69,8 @@ def scene_of(target) -> Path | None:
 
 def asset_of(kind: str, target) -> Path | None:
     """The local file for this kind, or None where this protein has none."""
+    if kind == "record":
+        return ROOT / target.mock_asset
     if kind == "impact_explanations":
         return ROOT / f"assets/impact_explanations/{target.slug}.json"
     if kind == "constraint":
@@ -97,6 +100,23 @@ def validate(kind: str, target, payload: bytes) -> dict:
     data = json.loads(payload)
     if not isinstance(data, dict):
         raise ValueError("payload is not an object")
+
+    if kind == "record":
+        if data.get("gene") != target.gene:
+            raise ValueError(f"gene is {data.get('gene')!r}, expected {target.gene!r}")
+        # The offline checker's own gate, so a record that would fail
+        # `check_assets.py` never becomes a row that says ready: the CDS
+        # translates to the protein, every peptide to its slice, and every
+        # intron is a known splice class.
+        before = len(check_assets.problems)
+        check_assets.check_record(data, target.slug)
+        found = check_assets.problems[before:]
+        if found:
+            raise ValueError("; ".join(found))
+        return {"source": "NCBI Entrez", "accession": target.source.accession,
+                "protein_id": target.source.protein_id,
+                "transcript_id": target.source.transcript_id,
+                "built_by": "tool/mock/build_gene_record.py"}
 
     if kind == "impact_explanations":
         impact = (ROOT / target.impact_asset).read_bytes()
@@ -179,7 +199,7 @@ on conflict (slug, kind) do update set
 def main() -> int:
     parser = argparse.ArgumentParser(description="Upload baked tracks to Supabase.")
     parser.add_argument("--kind", required=True, choices=[
-        "impact_explanations", "constraint", "impact", "clinvar", "structure"])
+        "record", "impact_explanations", "constraint", "impact", "clinvar", "structure"])
     parser.add_argument("--target", action="append", default=None)
     parser.add_argument("--dry-run", action="store_true")
     arguments = parser.parse_args()

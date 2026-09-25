@@ -15,10 +15,12 @@ import 'package:helixpeek/core/network/api_exception.dart';
 import 'package:helixpeek/core/network/dio_api_client.dart';
 import 'package:helixpeek/core/network/track_client.dart';
 import 'package:helixpeek/features/gene_lookup/data/datasources/gene_remote_data_source.dart';
+import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
 import 'package:helixpeek/features/gene_lookup/data/repositories/gene_repository_impl.dart';
 import 'package:helixpeek/features/gene_lookup/data/repositories/impact_explanation_repository.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_clinvar.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_impact.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/gene_query.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_record.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/impact_explanations.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
@@ -51,6 +53,14 @@ void main() {
 
     int bytes = 0;
     for (final ProteinTarget target in ProteinCatalog.all) {
+      // The record the walk opens on, read the way the walk reads it. The
+      // four slice genes -- oxytocin, relaxin, glucagon, amylase -- are the
+      // ones the old /gene route could not fetch at all.
+      final GeneRecordDto record = await TrackGeneDataSource(
+        tracks,
+      ).fetchGene(target.query);
+      expect(record.toEntity().gene, target.gene, reason: target.slug);
+
       final ProteinConstraint constraint = await ProteinConstraint.load(
         target,
         tracks: tracks,
@@ -153,7 +163,9 @@ void main() {
     );
 
     await expectLater(
-      source.fetchGene(accession: 'NG_007114', gene: 'BRCA1'),
+      source.fetchGene(
+        const GeneQuery(slug: 'brca1', accession: 'NG_007114', gene: 'BRCA1'),
+      ),
       throwsA(
         isA<ServerApiException>()
             .having((ServerApiException e) => e.statusCode, 'statusCode', 404)

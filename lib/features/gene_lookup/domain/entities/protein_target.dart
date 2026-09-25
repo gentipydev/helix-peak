@@ -321,7 +321,8 @@ final class ProteinTarget {
   bool get clinvarAvailable => state(TrackKind.clinvar) == TrackState.ready;
   String get clinvarAsset => 'assets/clinvar/${slug}_clinvar.json';
 
-  GeneQuery get query => GeneQuery(accession: accession, gene: gene);
+  GeneQuery get query =>
+      GeneQuery(slug: slug, accession: accession, gene: gene);
 
   String get mockAsset => 'assets/mock/gene_${gene.toLowerCase()}.json';
 

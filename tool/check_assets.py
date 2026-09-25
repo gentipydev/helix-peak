@@ -201,6 +201,38 @@ def check_scenes(base_url: str) -> None:
             fail(f"{target.slug}: the served container has no node named {sorted(missing)}")
 
 
+def check_records(base_url: str) -> None:
+    """The gene record the service names, against the one the bake wrote.
+
+    The walk reads its record from storage since Phase 2 of HANDOFF-ONDEMAND.md,
+    so what is served has to be the file every offline check above was run on,
+    byte for byte: the bake's gates held for those bytes and no others.
+    """
+    import urllib.error
+    import urllib.request
+
+    for target in TARGETS:
+        url = f"{base_url.rstrip('/')}/protein/{target.slug}/tracks"
+        try:
+            with urllib.request.urlopen(url, timeout=30) as response:
+                tracks = json.loads(response.read())
+        except (urllib.error.URLError, OSError, ValueError) as exc:
+            raise SystemExit(f"Could not read {url}: {exc}")
+        row = tracks.get("record") or {}
+        if row.get("state") != "ready" or not row.get("url"):
+            fail(f"{target.slug}: the service has no record to fetch ({row.get('state')})")
+            continue
+        try:
+            with urllib.request.urlopen(row["url"], timeout=60) as response:
+                blob = response.read()
+        except (urllib.error.URLError, OSError) as exc:
+            raise SystemExit(f"Could not read {row['url']}: {exc}")
+        if hashlib.sha256(blob).hexdigest() != row.get("sha256"):
+            fail(f"{target.slug}: the record does not match the sha256 the row carries")
+        if blob != (ROOT / target.mock_asset).read_bytes():
+            fail(f"{target.slug}: the served record is not {target.mock_asset}")
+
+
 def check_against(base_url: str, catalog: dict[str, dict]) -> None:
     """The service's catalog row against the two tables it was seeded from.
 
@@ -679,6 +711,7 @@ if __name__ == "__main__":
     if arguments.against and not arguments.offline:
         check_against(arguments.against, catalog)
         check_scenes(arguments.against)
+        check_records(arguments.against)
         if problems:
             print(f"{len(problems)} problem(s):", file=sys.stderr)
             for problem in problems:

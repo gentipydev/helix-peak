@@ -4,6 +4,7 @@ import 'package:helixpeek/core/network/api_exception.dart';
 import 'package:helixpeek/core/network/mock_api_client.dart';
 import 'package:helixpeek/features/gene_lookup/data/datasources/gene_remote_data_source.dart';
 import 'package:helixpeek/features/gene_lookup/data/repositories/gene_repository_impl.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/gene_query.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_record.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/usecases/fetch_gene.dart';
@@ -57,7 +58,9 @@ void main() {
       final GeneRemoteDataSource source = GeneRemoteDataSourceImpl(client);
 
       await expectLater(
-        source.fetchGene(accession: 'NG_007114', gene: 'BRCA1'),
+        source.fetchGene(
+        const GeneQuery(slug: 'brca1', accession: 'NG_007114', gene: 'BRCA1'),
+      ),
         throwsA(
           isA<ServerApiException>()
               .having((ServerApiException e) => e.statusCode, 'statusCode', 404)

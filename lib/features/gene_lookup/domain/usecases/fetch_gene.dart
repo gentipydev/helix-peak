@@ -7,6 +7,5 @@ final class FetchGene {
 
   final GeneRepository _repository;
 
-  Future<GeneRecord> call(GeneQuery query) =>
-      _repository.fetchGene(accession: query.accession, gene: query.gene);
+  Future<GeneRecord> call(GeneQuery query) => _repository.fetchGene(query);
 }

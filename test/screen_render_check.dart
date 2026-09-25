@@ -105,6 +105,8 @@ Future<void> _tapBase(
 
 void main() {
   setUpAll(() async {
+    // `any()` stands in for a GeneQuery, which mocktail needs a real one of.
+    registerFallbackValue(ProteinCatalog.insulin.query);
     await _loadFont('SpaceGrotesk', <String>[
       'assets/fonts/SpaceGrotesk-Regular.ttf',
       'assets/fonts/SpaceGrotesk-Medium.ttf',
@@ -152,10 +154,7 @@ void main() {
 
     final _MockGeneRepository repository = _MockGeneRepository();
     when(
-      () => repository.fetchGene(
-        accession: any(named: 'accession'),
-        gene: any(named: 'gene'),
-      ),
+      () => repository.fetchGene(any()),
     ).thenAnswer((_) async => _insulin());
 
     final GeneLookupCubit cubit = GeneLookupCubit(FetchGene(repository));

@@ -25,25 +25,22 @@ const GeneRecord _record = GeneRecord(
 void main() {
   late _MockGeneRepository repository;
 
+  // `any()` stands in for a GeneQuery, which mocktail needs a real one of.
+  setUpAll(() => registerFallbackValue(ProteinCatalog.insulin.query));
+
   setUp(() => repository = _MockGeneRepository());
 
   GeneLookupCubit buildCubit() => GeneLookupCubit(FetchGene(repository));
 
   void stubSuccess() {
     when(
-      () => repository.fetchGene(
-        accession: any(named: 'accession'),
-        gene: any(named: 'gene'),
-      ),
+      () => repository.fetchGene(any()),
     ).thenAnswer((_) async => _record);
   }
 
   void stubFailure(Object error) {
     when(
-      () => repository.fetchGene(
-        accession: any(named: 'accession'),
-        gene: any(named: 'gene'),
-      ),
+      () => repository.fetchGene(any()),
     ).thenThrow(error);
   }
 
@@ -70,7 +67,7 @@ void main() {
       act: (GeneLookupCubit cubit) => cubit.load(ProteinCatalog.insulin.query),
       verify: (_) {
         verify(
-          () => repository.fetchGene(accession: 'NG_007114', gene: 'INS'),
+          () => repository.fetchGene(ProteinCatalog.insulin.query),
         ).called(1);
       },
     );
@@ -117,7 +114,7 @@ void main() {
       },
       verify: (_) {
         verify(
-          () => repository.fetchGene(accession: 'NG_007114', gene: 'INS'),
+          () => repository.fetchGene(ProteinCatalog.insulin.query),
         ).called(2);
       },
     );
@@ -128,10 +125,7 @@ void main() {
       act: (GeneLookupCubit cubit) => cubit.retry(),
       expect: () => <Matcher>[],
       verify: (_) => verifyNever(
-        () => repository.fetchGene(
-          accession: any(named: 'accession'),
-          gene: any(named: 'gene'),
-        ),
+        () => repository.fetchGene(any()),
       ),
     );
   });

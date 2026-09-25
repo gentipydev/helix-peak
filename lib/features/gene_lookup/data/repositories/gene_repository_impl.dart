@@ -1,3 +1,4 @@
+import '../../domain/entities/gene_query.dart';
 import '../../domain/entities/gene_record.dart';
 import '../../domain/repositories/gene_repository.dart';
 import '../datasources/gene_remote_data_source.dart';
@@ -9,14 +10,8 @@ final class GeneRepositoryImpl implements GeneRepository {
   final GeneRemoteDataSource _remoteDataSource;
 
   @override
-  Future<GeneRecord> fetchGene({
-    required String accession,
-    required String gene,
-  }) async {
-    final GeneRecordDto dto = await _remoteDataSource.fetchGene(
-      accession: accession,
-      gene: gene,
-    );
+  Future<GeneRecord> fetchGene(GeneQuery query) async {
+    final GeneRecordDto dto = await _remoteDataSource.fetchGene(query);
     return dto.toEntity();
   }
 }
