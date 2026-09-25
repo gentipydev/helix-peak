@@ -43,12 +43,15 @@ flutter:
     - .env
     - assets/branding/helix_peek_mark.png
     # Catalog records, tracks and ClinVar snapshots, named by directory.
-    # `assets/models/` is deliberately absent: the
+    #
+    # `assets/constraint/` and `assets/impact/` are deliberately absent: those
+    # two families are fetched from Supabase Storage and cached on disk by
+    # `TrackClient`. The files stay in the repo — the catalog tests read them
+    # off it, and `tool/upload_tracks.py` uploads them from there — they just
+    # do not ship. `assets/models/` is absent for a different reason: the
     # `.glb` files there are build-time sources that `hook/build.dart` compiles
     # into `flutter_scene_generated/`, and that is what ships.
     - assets/mock/
-    - assets/constraint/
-    - assets/impact/
     - assets/impact_explanations/
     - assets/clinvar/
     - assets/animations/process.json

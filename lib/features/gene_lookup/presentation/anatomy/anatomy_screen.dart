@@ -4,8 +4,10 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/biology/amino_acids.dart';
+import '../../../../core/network/track_source.dart';
 import '../../../../core/router/rise_route.dart';
 import '../../../../core/router/walk_route.dart';
 import '../../../../core/theme/anatomy_colors.dart';
@@ -425,9 +427,17 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     end: Offset.zero,
   ).animate(CurvedAnimation(parent: _sheetReveal, curve: Curves.easeOutCubic));
 
+  /// Where this page's tracks come from, and null where nothing provided one.
+  ///
+  /// Null is every widget test that pumps a page on its own, and it means the
+  /// same thing null has always meant here: whatever was not handed in is not
+  /// coming. A screen with no source is a screen that was given its tracks.
+  TrackSource? _tracks;
+
   @override
   void initState() {
     super.initState();
+    _tracks = context.read<TrackSource?>();
     _evidenceMemo = widget._reading;
     if (widget.landing case final VariantTarget landing) {
       _conservation = widget.conservation;
@@ -470,11 +480,10 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       if (mounted && generation == _clinvarGeneration) {
         setState(() => _clinvar = data);
       }
-    } on Exception {
-      if (mounted && generation == _clinvarGeneration) {
-        setState(() => _clinvarFailed = true);
-      }
-    } on FlutterError {
+    } on Object {
+      // See `_loadConstraint`: every way this can fail has to reach
+      // `_clinvarFailed`, which is what makes the About sheet say "snapshot
+      // unavailable" rather than "not yet included for DMD".
       if (mounted && generation == _clinvarGeneration) {
         setState(() => _clinvarFailed = true);
       }
@@ -717,21 +726,26 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   }
 
   Future<void> _loadConstraint() async {
+    final TrackSource? tracks = _tracks;
+    if (tracks == null) {
+      return;
+    }
     _constraintLoading = true;
     try {
       final ProteinConstraint data = await ProteinConstraint.load(
         widget.target,
+        tracks: tracks,
       );
       if (mounted) {
         setState(() => _constraint = data);
       }
-    } on Exception {
-      if (mounted) {
-        setState(() => _constraintFailed = true);
-      }
-    } on FlutterError {
-      // What a missing asset throws. It is an `Error`, not an `Exception`, and
-      // uncaught it hid the toolbar without saying why.
+    } on Object {
+      // `Object`, not `Exception`: a missing bundle asset throws a
+      // `FlutterError` and a payload that is not the JSON object it claimed
+      // throws a `TypeError`, both of which are `Error`s. Off the network there
+      // are more ways still — an HTML error page, a truncated body — and every
+      // one of them has to land here rather than leave the toolbar hidden with
+      // nothing said about why.
       if (mounted) {
         setState(() => _constraintFailed = true);
       }
@@ -746,16 +760,24 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   /// there follows the tracer. There is no error to show because there is
   /// nothing the reader asked for that did not arrive.
   Future<void> _loadImpact() async {
+    final TrackSource? tracks = _tracks;
+    if (tracks == null) {
+      return;
+    }
     _impactLoading = true;
     try {
-      final GeneImpact data = await GeneImpact.load(widget.target);
+      final GeneImpact data = await GeneImpact.load(
+        widget.target,
+        tracks: tracks,
+      );
       if (mounted) {
         setState(() => _impact = data);
       }
-    } on Exception {
-      // Left null, which is the same state as a gene that has no track.
-    } on FlutterError {
-      // What a missing asset throws, and an `Error` rather than an `Exception`.
+    } on Object {
+      // Left null, which is the same state as a gene that has no track — and
+      // the About sheet is where the two stop looking alike: it names AVI as a
+      // source only where the track arrived, so a gene that has one and could
+      // not fetch it is not credited with it. See `_openAbout`.
     } finally {
       _impactLoading = false;
       _arriveWaiting();

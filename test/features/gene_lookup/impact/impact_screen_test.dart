@@ -10,6 +10,7 @@ import 'package:helixpeek/features/gene_lookup/domain/entities/gene_impact.dart'
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_track.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
@@ -56,7 +57,9 @@ final ProteinTarget _untracked = ProteinTarget(
   chains: ProteinCatalog.insulin.chains,
   structure: ProteinCatalog.insulin.structure,
   chain: ProteinCatalog.insulin.chain,
-  impactScored: false,
+  // No impact track, which is now a family the tracks map does not call ready
+  // rather than an `impactScored: false` the seed settled.
+  tracks: const <TrackKind, TrackRef>{},
   // A snapshot is placed through the impact track's coordinate map, so a gene
   // without the track has none either.
   clinvarAvailable: false,

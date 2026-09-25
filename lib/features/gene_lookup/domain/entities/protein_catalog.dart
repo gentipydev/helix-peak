@@ -1,5 +1,6 @@
 import 'protein_ranking.dart';
 import 'protein_target.dart';
+import 'protein_track.dart';
 
 /// The proteins this build bundles, in the order the search screen lists them.
 ///
@@ -11,9 +12,12 @@ import 'protein_target.dart';
 /// - The walk has to open before any request finishes, and a repository built
 ///   already holding these rows answers `bySlug` synchronously — which is what
 ///   lets the router stay a plain builder and search stay instant.
-/// - The four booleans on each row say which tracks ship in this build's
-///   assets. The service cannot answer that; it reports every unuploaded family
-///   `absent` for every protein. Each boolean retires as its family moves.
+/// - The `tracks` map on each row says which families this build can draw for
+///   that protein. It is not a claim about the bundle: a family that has moved
+///   to storage is still seeded ready, because the track exists and a device
+///   that cannot reach it has failed to fetch it rather than found it unbaked.
+///   The four booleans the rows used to carry are retiring into this map, one
+///   family at a time as that family moves.
 /// - `tool/check_assets.py` and `tool/seed_catalog.py` read these rows out of
 ///   this file as text. They are one half of the gate that proves the service's
 ///   catalog and the baked assets still agree.
@@ -29,9 +33,29 @@ import 'protein_target.dart';
 /// The assets are baked by `tool/`, off the table in `tool/targets.py` — the
 /// two are checked against each other by the tests in
 /// `test/features/gene_lookup/catalog/`.
+/// What the twenty are seeded with.
+///
+/// Every one of them has all four data families and a record. Stated rather
+/// than left empty: the booleans that used to say it are being retired into
+/// [ProteinTarget.state], and a row that said nothing would read as a protein
+/// with no tracks at all — which is the one thing none of these twenty is.
+const Map<TrackKind, TrackRef> _seeded = <TrackKind, TrackRef>{
+  TrackKind.constraint: TrackRef.seeded(),
+  TrackKind.impact: TrackRef.seeded(),
+  TrackKind.clinvar: TrackRef.seeded(),
+  TrackKind.structure: TrackRef.seeded(),
+};
+
+/// The three genes the exact-allele AVI pilot covers.
+const Map<TrackKind, TrackRef> _seededWithExplanations = <TrackKind, TrackRef>{
+  ..._seeded,
+  TrackKind.impactExplanations: TrackRef.seeded(),
+};
+
 abstract final class ProteinCatalog {
   static const ProteinTarget insulin = ProteinTarget(
     slug: 'insulin',
+    tracks: _seededWithExplanations,
     impactExplanationsAvailable: true,
     display: 'Insulin',
     gene: 'INS',
@@ -58,6 +82,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget hemoglobin = ProteinTarget(
     slug: 'hemoglobin',
+    tracks: _seededWithExplanations,
     impactExplanationsAvailable: true,
     display: 'Hemoglobin (beta chain)',
     gene: 'HBB',
@@ -81,6 +106,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget myoglobin = ProteinTarget(
     slug: 'myoglobin',
+    tracks: _seeded,
     display: 'Myoglobin',
     gene: 'MB',
     uniprot: 'P02144',
@@ -103,6 +129,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget p53 = ProteinTarget(
     slug: 'p53',
+    tracks: _seeded,
     display: 'p53',
     gene: 'TP53',
     uniprot: 'P04637',
@@ -126,6 +153,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget lysozyme = ProteinTarget(
     slug: 'lysozyme',
+    tracks: _seeded,
     display: 'Lysozyme',
     gene: 'LYZ',
     uniprot: 'P61626',
@@ -150,6 +178,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget relaxin = ProteinTarget(
     slug: 'relaxin',
+    tracks: _seeded,
     display: 'Relaxin',
     gene: 'RLN2',
     uniprot: 'P04090',
@@ -175,6 +204,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget oxytocin = ProteinTarget(
     slug: 'oxytocin',
+    tracks: _seeded,
     display: 'Oxytocin',
     gene: 'OXT',
     uniprot: 'P01178',
@@ -199,6 +229,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget somatotropin = ProteinTarget(
     slug: 'somatotropin',
+    tracks: _seeded,
     display: 'Growth hormone',
     gene: 'GH1',
     uniprot: 'P01241',
@@ -223,6 +254,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget ubiquitin = ProteinTarget(
     slug: 'ubiquitin',
+    tracks: _seeded,
     display: 'Ubiquitin',
     gene: 'UBB',
     uniprot: 'P0CG47',
@@ -244,6 +276,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget dystrophin = ProteinTarget(
     slug: 'dystrophin',
+    tracks: _seeded,
     display: 'Dystrophin',
     gene: 'DMD',
     uniprot: 'P11532',
@@ -268,6 +301,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget vasopressin = ProteinTarget(
     slug: 'vasopressin',
+    tracks: _seeded,
     display: 'Vasopressin',
     gene: 'AVP',
     uniprot: 'P01185',
@@ -292,6 +326,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget glucagon = ProteinTarget(
     slug: 'glucagon',
+    tracks: _seeded,
     display: 'Glucagon',
     gene: 'GCG',
     uniprot: 'P01275',
@@ -315,6 +350,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget app = ProteinTarget(
     slug: 'app',
+    tracks: _seeded,
     display: 'Amyloid precursor protein',
     gene: 'APP',
     uniprot: 'P05067',
@@ -341,6 +377,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget cftr = ProteinTarget(
     slug: 'cftr',
+    tracks: _seededWithExplanations,
     impactExplanationsAvailable: true,
     display: 'CFTR',
     gene: 'CFTR',
@@ -365,6 +402,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget erythropoietin = ProteinTarget(
     slug: 'erythropoietin',
+    tracks: _seeded,
     display: 'Erythropoietin',
     gene: 'EPO',
     uniprot: 'P01588',
@@ -389,6 +427,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget leptin = ProteinTarget(
     slug: 'leptin',
+    tracks: _seeded,
     display: 'Leptin',
     gene: 'LEP',
     uniprot: 'P41159',
@@ -413,6 +452,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget tnf = ProteinTarget(
     slug: 'tnf',
+    tracks: _seeded,
     display: 'TNF-alpha',
     gene: 'TNF',
     uniprot: 'P01375',
@@ -443,6 +483,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget sod1 = ProteinTarget(
     slug: 'sod1',
+    tracks: _seeded,
     display: 'SOD1',
     gene: 'SOD1',
     uniprot: 'P00441',
@@ -469,6 +510,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget amylase = ProteinTarget(
     slug: 'amylase',
+    tracks: _seeded,
     display: 'Amylase',
     gene: 'AMY1A',
     uniprot: 'P0DUB6',
@@ -494,6 +536,7 @@ abstract final class ProteinCatalog {
 
   static const ProteinTarget prion = ProteinTarget(
     slug: 'prion',
+    tracks: _seeded,
     display: 'Prion protein',
     gene: 'PRNP',
     uniprot: 'P04156',

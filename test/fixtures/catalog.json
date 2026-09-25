@@ -16,10 +16,10 @@
       "catalog_order": 18,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "absent"
       }
     },
@@ -39,10 +39,10 @@
       "catalog_order": 12,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "absent"
       }
     },
@@ -62,10 +62,10 @@
       "catalog_order": 13,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "ready"
       }
     },
@@ -85,10 +85,10 @@
       "catalog_order": 9,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "absent"
       }
     },
@@ -108,10 +108,10 @@
       "catalog_order": 14,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "absent"
       }
     },
@@ -131,10 +131,10 @@
       "catalog_order": 11,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "absent"
       }
     },
@@ -154,10 +154,10 @@
       "catalog_order": 4,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "ready"
       }
     },
@@ -177,10 +177,10 @@
       "catalog_order": 0,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "ready"
       }
     },
@@ -200,10 +200,10 @@
       "catalog_order": 15,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "absent"
       }
     },
@@ -223,10 +223,10 @@
       "catalog_order": 3,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "absent"
       }
     },
@@ -246,10 +246,10 @@
       "catalog_order": 5,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "absent"
       }
     },
@@ -269,10 +269,10 @@
       "catalog_order": 1,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "absent"
       }
     },
@@ -292,10 +292,10 @@
       "catalog_order": 8,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "absent"
       }
     },
@@ -315,10 +315,10 @@
       "catalog_order": 19,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "absent"
       }
     },
@@ -338,10 +338,10 @@
       "catalog_order": 6,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "absent"
       }
     },
@@ -361,10 +361,10 @@
       "catalog_order": 17,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "absent"
       }
     },
@@ -384,10 +384,10 @@
       "catalog_order": 7,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "absent"
       }
     },
@@ -407,10 +407,10 @@
       "catalog_order": 16,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "absent"
       }
     },
@@ -430,10 +430,10 @@
       "catalog_order": 2,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "absent"
       }
     },
@@ -453,10 +453,10 @@
       "catalog_order": 10,
       "tracks": {
         "record": "absent",
-        "constraint": "absent",
-        "impact": "absent",
-        "clinvar": "absent",
-        "structure": "absent",
+        "constraint": "ready",
+        "impact": "ready",
+        "clinvar": "ready",
+        "structure": "ready",
         "impact_explanations": "absent"
       }
     }

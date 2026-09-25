@@ -166,8 +166,6 @@ final class ProteinTarget {
     required this.chains,
     required this.structure,
     this.chain,
-    this.scored = true,
-    this.impactScored = true,
     this.clinvarAvailable = true,
     this.impactExplanationsAvailable = false,
     this.tracks = const <TrackKind, TrackRef>{},
@@ -196,11 +194,9 @@ final class ProteinTarget {
     Map<String, dynamic> json, {
     ProteinTarget? seed,
   }) {
-    final Map<TrackKind, TrackRef> tracks = _tracksFromJson(
+    final Map<TrackKind, TrackRef> tracks = tracksFromJson(
       json['tracks'] as Map<String, dynamic>?,
     );
-    bool ready(TrackKind kind) =>
-        tracks[kind]?.state == TrackState.ready;
 
     final Map<String, dynamic>? chrome =
         json['structure'] as Map<String, dynamic>?;
@@ -235,35 +231,16 @@ final class ProteinTarget {
       // Present-and-null is a real answer here — an uncut protein names its
       // coding sequence, a cut one does not — so absence is what falls back.
       chain: json.containsKey('chain') ? json['chain'] as String? : seed?.chain,
-      scored: seed?.scored ?? ready(TrackKind.constraint),
-      impactScored: seed?.impactScored ?? ready(TrackKind.impact),
-      clinvarAvailable: seed?.clinvarAvailable ?? ready(TrackKind.clinvar),
+      clinvarAvailable: seed?.clinvarAvailable ?? _ready(tracks, TrackKind.clinvar),
       impactExplanationsAvailable:
           seed?.impactExplanationsAvailable ??
-          ready(TrackKind.impactExplanations),
+          _ready(tracks, TrackKind.impactExplanations),
       tracks: tracks,
     );
   }
 
-  /// A catalog row carries bare state strings, a track row whole objects. Both
-  /// arrive under `tracks`, and both mean the same thing here.
-  static Map<TrackKind, TrackRef> _tracksFromJson(Map<String, dynamic>? json) {
-    if (json == null) {
-      return const <TrackKind, TrackRef>{};
-    }
-    final Map<TrackKind, TrackRef> found = <TrackKind, TrackRef>{};
-    for (final MapEntry<String, dynamic> entry in json.entries) {
-      final TrackKind? kind = TrackKind.fromWire(entry.key);
-      if (kind == null) {
-        continue;
-      }
-      final Object? value = entry.value;
-      found[kind] = value is Map<String, dynamic>
-          ? TrackRef.fromJson(value)
-          : TrackRef(state: TrackState.fromWire(value as String?));
-    }
-    return found;
-  }
+  static bool _ready(Map<TrackKind, TrackRef> tracks, TrackKind kind) =>
+      tracks[kind]?.state == TrackState.ready;
 
   /// URL-safe, and the stem of every asset this target owns.
   final String slug;
@@ -305,20 +282,26 @@ final class ProteinTarget {
   /// Every protein in the catalog is. One added before its track is baked is
   /// not, and that is a state the walk draws — the protein page without its
   /// conservation toolbar, a tap following the tracer as on every other page —
-  /// and not a file that failed to load, so nothing asks for [constraintAsset]
+  /// and not a track that failed to arrive, so nothing asks for the payload
   /// where this is false. `scored` in `tool/targets.py` says the same, and
   /// `check_assets.py` holds the two to each other.
-  final bool scored;
+  ///
+  /// This was a boolean the bundled seed settled, and is now the state the
+  /// service reports — the retirement Phase 4a was for. It says the track
+  /// exists, not that it is on this device: a fetch that fails leaves this
+  /// true, and the page reports a track it could not get rather than a protein
+  /// nobody scored.
+  bool get scored => state(TrackKind.constraint) == TrackState.ready;
 
   /// Whether an AlphaGenome Variant Impact track has been baked for this gene.
   ///
   /// The same kind of state one level down: [scored] is a per-residue track over
   /// the protein, this is a per-base track over the gene record. Without one the
   /// nucleotide pages are drawn exactly as they were — a tap moves the tracer
-  /// and no sheet opens — rather than meeting a file that is not there.
+  /// and no sheet opens — rather than meeting a track that is not there.
   /// `impact_scored` in `tool/targets.py` says the same, and `check_assets.py`
   /// holds the two to each other.
-  final bool impactScored;
+  bool get impactScored => state(TrackKind.impact) == TrackState.ready;
 
   /// Whether exact-allele AVI contributions are included in this release.
   final bool impactExplanationsAvailable;
@@ -347,6 +330,28 @@ final class ProteinTarget {
 
   /// Where the impact track is, or would be. Read only where [impactScored].
   String get impactAsset => 'assets/impact/${slug}_avi.json';
+
+  /// The bundled path for [kind], or null where this build has none.
+  ///
+  /// One switch rather than six call sites guessing: the fixture server needs
+  /// the mapping to answer `/protein/{slug}/tracks` with something a reader can
+  /// fetch, and the getters above are the only record of what each family is
+  /// called on disk. A family that has moved to storage still has its getter —
+  /// the repo keeps the files, and the catalog tests read them off it — so this
+  /// answers where the *bundle* would hold it and says nothing about whether it
+  /// does.
+  ///
+  /// Null for [TrackKind.structure]: what ships is a `.fsceneb` compiled into
+  /// `flutter_scene_generated/` under a name carrying a content hash, and no
+  /// interpolation of a slug produces it.
+  String? asset(TrackKind kind) => switch (kind) {
+    TrackKind.record => mockAsset,
+    TrackKind.constraint => constraintAsset,
+    TrackKind.impact => impactAsset,
+    TrackKind.clinvar => clinvarAsset,
+    TrackKind.impactExplanations => impactExplanationsAsset,
+    TrackKind.structure => null,
+  };
 
   /// What the service says about each family, where it has been asked.
   ///

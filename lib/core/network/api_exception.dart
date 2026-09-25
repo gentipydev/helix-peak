@@ -51,3 +51,38 @@ final class UnknownApiException extends ApiException {
   @override
   String get userMessage => 'Something went wrong during analysis.';
 }
+
+/// A track the service named but the client has no way to fetch.
+///
+/// Not a [ServerApiException]: the service answered, and what it answered is
+/// that this family is not ready for this protein. The walk draws that as a
+/// track it does not have — a protein page without its conservation toolbar,
+/// a nucleotide page whose taps move the tracer — rather than as an error, so
+/// [userMessage] is the one line here no screen is expected to reach for.
+@immutable
+final class TrackApiException extends ApiException {
+  const TrackApiException({
+    required this.slug,
+    required this.kind,
+    required this.state,
+    this.reason,
+  });
+
+  final String slug;
+
+  /// The family, as the service names it: `constraint`, `clinvar`, `structure`.
+  final String kind;
+
+  /// `absent`, `pending` or `refused`, and never `ready`.
+  final String state;
+
+  /// The sentence a refusal carries, and null for every other state.
+  final String? reason;
+
+  @override
+  String get userMessage =>
+      reason ?? 'That track is not included for this protein.';
+
+  @override
+  String toString() => 'TrackApiException($slug/$kind is $state)';
+}

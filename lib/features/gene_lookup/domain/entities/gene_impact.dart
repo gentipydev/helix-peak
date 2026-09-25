@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 
+import '../../../../core/network/track_source.dart';
 import 'gene_record.dart';
 import 'protein_target.dart';
+import 'protein_track.dart';
 
 /// How a base's strongest substitution reads against every other SNV in the
 /// genome. The boundaries are AlphaGenome's own calibration, not this app's
@@ -195,14 +196,29 @@ final class GeneImpact {
   /// How many bases carry a score.
   int get length => _keys.length;
 
+  /// Read as bytes and parsed off the UI isolate, the way a ClinVar snapshot
+  /// already is.
+  ///
+  /// This parsed on the thread drawing the walk until Phase 4a. The small
+  /// bundled tracks hid it; the family runs to 628 KB for dystrophin and builds
+  /// three typed arrays and a run table on the way past, which is a stutter
+  /// exactly where the reader is swiping between nucleotide pages.
   static Future<GeneImpact> load(
     ProteinTarget target, {
-    AssetBundle? bundle,
-  }) async => GeneImpact.fromJson(
-    jsonDecode(await (bundle ?? rootBundle).loadString(target.impactAsset))
-        as Map<String, dynamic>,
-    target,
+    required TrackSource tracks,
+  }) async => compute(
+    _decode,
+    (await tracks.read(target.slug, TrackKind.impact), target),
   );
+
+  static GeneImpact _decode((Uint8List, ProteinTarget) payload) {
+    final (Uint8List bytes, ProteinTarget target) = payload;
+    final Object? json = jsonDecode(utf8.decode(bytes));
+    if (json is! Map<String, dynamic>) {
+      throw FormatException('Malformed impact track for ${target.slug}');
+    }
+    return GeneImpact.fromJson(json, target);
+  }
 
   /// Parses one baked track, refusing anything it cannot vouch for.
   ///

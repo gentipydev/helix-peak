@@ -14,6 +14,8 @@ import '../config/env.dart';
 import '../network/api_client.dart';
 import '../network/dio_api_client.dart';
 import '../network/mock_api_client.dart';
+import '../network/track_client.dart';
+import '../network/track_source.dart';
 
 List<RepositoryProvider<Object>> buildAppProviders() {
   return <RepositoryProvider<Object>>[
@@ -27,6 +29,13 @@ List<RepositoryProvider<Object>> buildAppProviders() {
     ),
     RepositoryProvider<CatalogLocalDataSource>(
       create: (BuildContext context) => const CatalogLocalDataSource(),
+    ),
+    // Where the walk's tracks come from. The same object either way: in mock
+    // mode the fixture server answers `/protein/{slug}/tracks` with `asset://`
+    // URLs, so the read path is the production one and the socket is the only
+    // thing missing.
+    RepositoryProvider<TrackSource>(
+      create: (BuildContext context) => TrackClient(context.read<ApiClient>()),
     ),
     // Built already holding the bundled twenty, so the router and the search
     // screen can read it synchronously on the first frame. The refresh it

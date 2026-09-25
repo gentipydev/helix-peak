@@ -99,8 +99,16 @@ final class TrackRef {
     this.provenance = const <String, dynamic>{},
   });
 
-  /// A state the client knows without asking, for a family this build bundles.
-  const TrackRef.bundled()
+  /// A state the client knows without asking.
+  ///
+  /// The bundled seed says this about the families it ships a row for: the
+  /// payload is there to be had, and no service has to be reached to find that
+  /// out. It says nothing about *where* — a family that has moved to storage is
+  /// still seeded [TrackState.ready], because the track exists and a walk that
+  /// cannot reach the network has failed to fetch it rather than discovered it
+  /// was never baked. Those are different sentences, and R9.3 is the rule that
+  /// they stay different.
+  const TrackRef.seeded()
     : state = TrackState.ready,
       reason = null,
       url = null,
@@ -144,4 +152,29 @@ final class TrackRef {
   /// to coexist here indefinitely, so the About sheet has to read this rather
   /// than name a model in a string constant.
   final Map<String, dynamic> provenance;
+}
+
+/// Every family named in one `tracks` object, and nothing the client cannot
+/// classify.
+///
+/// A catalog row carries bare state strings and a track row whole objects.
+/// Both arrive under this shape and both mean the same thing here, which is
+/// why one function reads them: the catalog answer and the per-protein answer
+/// must not be able to disagree about what `ready` is.
+Map<TrackKind, TrackRef> tracksFromJson(Map<String, dynamic>? json) {
+  if (json == null) {
+    return const <TrackKind, TrackRef>{};
+  }
+  final Map<TrackKind, TrackRef> found = <TrackKind, TrackRef>{};
+  for (final MapEntry<String, dynamic> entry in json.entries) {
+    final TrackKind? kind = TrackKind.fromWire(entry.key);
+    if (kind == null) {
+      continue;
+    }
+    final Object? value = entry.value;
+    found[kind] = value is Map<String, dynamic>
+        ? TrackRef.fromJson(value)
+        : TrackRef(state: TrackState.fromWire(value as String?));
+  }
+  return found;
 }

@@ -6,10 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:helixpeek/core/network/track_source.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_catalog.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
+import 'package:helixpeek/features/gene_lookup/domain/entities/protein_track.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_panel.dart';
@@ -110,6 +112,16 @@ Future<void> _capture(WidgetTester tester, String name) async {
   });
 }
 
+/// The baked tracks as the repo keeps them, which is where they live now that
+/// they are not in the bundle. `flutter test` runs with the package root as its
+/// working directory, so these paths resolve exactly as they do for the twenty
+/// other tests that read them.
+class _OnDisk implements TrackSource {
+  @override
+  Future<Uint8List> read(String slug, TrackKind kind) async =>
+      File(ProteinCatalog.bySlug(slug)!.asset(kind)!).readAsBytes();
+}
+
 void main() {
   WidgetController.hitTestWarningShouldBeFatal = true;
   setUpAll(() async {
@@ -119,11 +131,16 @@ void main() {
     await icons.load();
   });
 
-  testWidgets('loads the shipped scores through the local asset bundle', (
+  testWidgets('loads the shipped scores through a track source', (
     WidgetTester tester,
   ) async {
+    // Through `load`, not `fromJson`: this is the one test that covers the
+    // bytes-to-entity path — the source, the UTF-8 decode and the parse on the
+    // other isolate. It read the bundle until Phase 4a took the constraint
+    // family out of it; the baked files stay in the repo, and `_OnDisk` is what
+    // the twenty other constraint tests do by hand.
     final ProteinConstraint? loaded = await tester.runAsync(
-      () => ProteinConstraint.load(ProteinCatalog.insulin),
+      () => ProteinConstraint.load(ProteinCatalog.insulin, tracks: _OnDisk()),
     );
     expect(loaded!.positions.length, 110);
     expect(loaded.positions[30].ranked[1].score, -10.253);
@@ -147,7 +164,10 @@ void main() {
       facts: scored.facts,
       chains: scored.chains,
       structure: scored.structure,
-      scored: false,
+      // No constraint track. That used to be `scored: false`; it is now a
+      // family the tracks map does not call ready, which is the same claim
+      // made where the service can also make it.
+      tracks: const <TrackKind, TrackRef>{},
       // Held to the one state under test; the walk's ClinVar is its own.
       clinvarAvailable: false,
     );

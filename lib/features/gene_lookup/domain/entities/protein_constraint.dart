@@ -1,10 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 
 import '../../../../core/biology/amino_acids.dart';
+import '../../../../core/network/track_source.dart';
 import 'protein_target.dart';
+import 'protein_track.dart';
 
 enum ConstraintLevel {
   high('highly constrained'),
@@ -214,14 +215,33 @@ final class ProteinConstraint {
         (p.number, other),
   ];
 
+  /// Read as bytes and parsed off the UI isolate.
+  ///
+  /// Bytes rather than a string for the reason [GeneClinVar.load] gives — the
+  /// bundle caches every string it loads for the life of the app — and off the
+  /// isolate because dystrophin's track is 1.1 MB, the largest in the family and
+  /// two frames' worth of `jsonDecode` on the thread drawing the walk.
+  ///
+  /// [tracks] is required rather than defaulted, and that is the point of Phase
+  /// 4a: a track has a place it comes from, the walk knows which, and a loader
+  /// that quietly fell back to the bundle would go on working right up until the
+  /// asset was not there.
   static Future<ProteinConstraint> load(
     ProteinTarget target, {
-    AssetBundle? bundle,
-  }) async => ProteinConstraint.fromJson(
-    jsonDecode(await (bundle ?? rootBundle).loadString(target.constraintAsset))
-        as Map<String, dynamic>,
-    target,
+    required TrackSource tracks,
+  }) async => compute(
+    _decode,
+    (await tracks.read(target.slug, TrackKind.constraint), target),
   );
+
+  static ProteinConstraint _decode((Uint8List, ProteinTarget) payload) {
+    final (Uint8List bytes, ProteinTarget target) = payload;
+    final Object? json = jsonDecode(utf8.decode(bytes));
+    if (json is! Map<String, dynamic>) {
+      throw FormatException('Malformed constraint track for ${target.slug}');
+    }
+    return ProteinConstraint.fromJson(json, target);
+  }
 
   /// Parses one baked track, refusing anything it cannot vouch for.
   ///

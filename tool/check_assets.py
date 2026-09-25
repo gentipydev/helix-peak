@@ -55,6 +55,31 @@ def glb_nodes(path: Path) -> set[str]:
     return {n["name"] for n in document.get("nodes", []) if n.get("name")}
 
 
+def seed_tracks(text: str) -> dict[str, set[str]]:
+    """The `const Map<TrackKind, TrackRef>` maps the rows point `tracks:` at.
+
+    Phase 4a retired `scored` and `impactScored` out of the rows and into these
+    maps, so this is where those two facts now live. Spreads are followed --
+    `_seededWithExplanations` is `_seeded` plus one kind -- and a spread of
+    something not yet read is an error rather than a silently smaller set.
+    """
+    maps: dict[str, set[str]] = {}
+    for name, body in re.findall(
+        r"const Map<TrackKind, TrackRef> (\w+) = <TrackKind, TrackRef>\{(.*?)\n\};",
+        text,
+        re.S,
+    ):
+        kinds = set(re.findall(r"TrackKind\.(\w+):", body))
+        for spread in re.findall(r"\.\.\.(\w+)", body):
+            if spread not in maps:
+                raise SystemExit(f"{CATALOG.name}: {name} spreads unknown {spread}")
+            kinds |= maps[spread]
+        maps[name] = kinds
+    if not maps:
+        raise SystemExit(f"{CATALOG.name} has no seeded track maps to read")
+    return maps
+
+
 def dart_catalog() -> dict[str, dict]:
     """The `const ProteinTarget` rows, read off the Dart source.
 
@@ -64,6 +89,7 @@ def dart_catalog() -> dict[str, dict]:
     This only has to read the handful of fields both sides claim to know.
     """
     text = CATALOG.read_text()
+    seeds = seed_tracks(text)
     rows: dict[str, dict] = {}
     for block in re.findall(r"ProteinTarget\((.*?)\n  \);", text, re.S):
         row = {
@@ -76,15 +102,33 @@ def dart_catalog() -> dict[str, dict]:
         row["chains"] = chains
         modelled = re.search(r"modelled: \((\d+), (\d+)\)", block)
         row["modelled"] = (int(modelled.group(1)), int(modelled.group(2))) if modelled else None
-        # Absent means scored, as the Dart constructor's default does.
-        scored = re.search(r"(?<!impact)\bscored: (true|false)\b", block)
-        row["scored"] = scored is None or scored.group(1) == "true"
-        tracked = re.search(r"\bimpactScored: (true|false)\b", block)
-        row["impact_scored"] = tracked is None or tracked.group(1) == "true"
+        # Which families the row is seeded with. This replaced four booleans
+        # the rows never actually stated -- every one of them relied on the
+        # constructor default, so the comparisons below were True against True
+        # for all twenty and could not have caught anything.
+        named = re.search(r"\btracks: (\w+)\b", block)
+        if named is None:
+            fail(f"{row['slug']}: the row seeds no tracks map")
+            kinds: set[str] = set()
+        elif named.group(1) not in seeds:
+            fail(f"{row['slug']}: seeds {named.group(1)}, which is not a track map")
+            kinds = set()
+        else:
+            kinds = seeds[named.group(1)]
+        row["scored"] = "constraint" in kinds
+        row["impact_scored"] = "impact" in kinds
+        row["clinvar_available"] = "clinvar" in kinds
+        row["impact_explanations"] = "impactExplanations" in kinds
+        # The two that have not retired into the map yet are still fields, and
+        # have to agree with it. A row whose boolean and whose map disagree is
+        # a row the walk and this gate would read differently.
         clinical = re.search(r"\bclinvarAvailable: (true|false)\b", block)
-        row["clinvar_available"] = clinical is None or clinical.group(1) == "true"
+        if (clinical is None or clinical.group(1) == "true") != row["clinvar_available"]:
+            fail(f"{row['slug']}: clinvarAvailable and the seeded tracks disagree")
         explanations = re.search(r"\bimpactExplanationsAvailable: (true|false)\b", block)
-        row["impact_explanations"] = explanations is not None and explanations.group(1) == "true"
+        stated = explanations is not None and explanations.group(1) == "true"
+        if stated != row["impact_explanations"]:
+            fail(f"{row['slug']}: impactExplanationsAvailable and the seeded tracks disagree")
         row["facts"] = {
             key: int(value)
             for key, value in re.findall(r"(residues|exons|chains|bridges): (\d+)", block)

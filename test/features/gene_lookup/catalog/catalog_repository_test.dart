@@ -19,9 +19,15 @@ import 'package:helixpeek/features/search/presentation/widgets/protein_card.dart
 /// Captured from the deployed service, and kept in the shape it arrived in.
 ///
 /// It matters that this is a real response rather than one written to suit the
-/// client: the rows come back ordered by slug, every blob track says `absent`
-/// because nothing has been uploaded yet, and both of those are things the
-/// client has to get right rather than things it would have thought to fake.
+/// client: the rows come back ordered by slug rather than in reading order, and
+/// `record` is `absent` for all twenty because a GenBank record is fetched live
+/// and is never a blob. Both are things the client has to get right rather than
+/// things it would have thought to fake.
+///
+/// Re-captured after the four families were uploaded, so the blob tracks now say
+/// `ready`. The rows `absent` is tested against below are made by editing a copy
+/// of this one, which is the honest way round: a fixture frozen before an upload
+/// would keep passing a test about a service that has moved on.
 Map<String, dynamic> _fixture() =>
     jsonDecode(File('test/fixtures/catalog.json').readAsStringSync())
         as Map<String, dynamic>;
@@ -30,6 +36,21 @@ List<Map<String, dynamic>> _rows() => <Map<String, dynamic>>[
   for (final Object? row in _fixture()['proteins'] as List<dynamic>)
     row! as Map<String, dynamic>,
 ];
+
+/// The captured page with [kinds] knocked back to `absent` on every row: the
+/// service before that family was uploaded, or after a bake was withdrawn.
+Map<String, dynamic> _withoutTracks(String kind, [String? also]) {
+  final Map<String, dynamic> page = _fixture();
+  for (final Object? row in page['proteins'] as List<dynamic>) {
+    final Map<String, dynamic> tracks =
+        (row! as Map<String, dynamic>)['tracks'] as Map<String, dynamic>;
+    tracks[kind] = 'absent';
+    if (also != null) {
+      tracks[also] = 'absent';
+    }
+  }
+  return page;
+}
 
 /// Serves prepared pages, then fails the way the service fails.
 class _Client implements ApiClient {
@@ -115,26 +136,50 @@ void main() {
     }
   });
 
-  test('a bundled track the service calls absent is still drawn', () async {
-    // The whole reason the four booleans are still fields. Every blob track is
-    // `absent` on the service until its family is uploaded, and deriving
-    // `scored` from that state would take the conservation colour, the ClinVar
-    // marks and the AVI track off all twenty proteins at once.
+  test('a family that has moved answers from the state the service reports',
+      () async {
+    // Phase 4a retired `scored` and `impactScored` into the track states, so
+    // these two are now the service's word and not the bundle's.
     final ProteinCatalogRepository catalog = _repository(
       _Client(<Map<String, dynamic>>[_fixture()]),
     );
     await catalog.refresh();
 
-    final ProteinTarget insulin = catalog.bySlug('insulin')!;
+    for (final ProteinTarget got in catalog.all) {
+      expect(got.state(TrackKind.constraint), TrackState.ready, reason: got.slug);
+      expect(got.scored, isTrue, reason: got.slug);
+      expect(got.impactScored, isTrue, reason: got.slug);
+    }
+
+    final ProteinCatalogRepository silent = _repository(
+      _Client(<Map<String, dynamic>>[_withoutTracks('constraint', 'impact')]),
+    );
+    await silent.refresh();
+    final ProteinTarget insulin = silent.bySlug('insulin')!;
     expect(insulin.state(TrackKind.constraint), TrackState.absent);
-    expect(insulin.scored, isTrue);
-    expect(insulin.impactScored, isTrue);
-    expect(insulin.clinvarAvailable, isTrue);
+    // The page then draws what it draws for a protein nobody has scored: no
+    // toolbar, and a tap that follows the tracer. Not an error.
+    expect(insulin.scored, isFalse);
+    expect(insulin.impactScored, isFalse);
+  });
+
+  test('a family still bundled is drawn even where the service says absent',
+      () async {
+    // The other half of the retirement, and the half that has not happened.
+    // Until ClinVar's blobs are what the walk reads, the bundled seed is the
+    // only honest authority on whether this build has a snapshot — deriving
+    // `clinvarAvailable` from an `absent` row would take the marks off all
+    // twenty at once, which is the trap Phase 4b has to walk past deliberately.
+    final ProteinCatalogRepository catalog = _repository(
+      _Client(<Map<String, dynamic>>[
+        _withoutTracks('clinvar', 'impact_explanations'),
+      ]),
+    );
+    await catalog.refresh();
 
     for (final ProteinTarget want in ProteinCatalog.all) {
       final ProteinTarget got = catalog.bySlug(want.slug)!;
-      expect(got.scored, want.scored, reason: want.slug);
-      expect(got.impactScored, want.impactScored, reason: want.slug);
+      expect(got.state(TrackKind.clinvar), TrackState.absent, reason: want.slug);
       expect(got.clinvarAvailable, want.clinvarAvailable, reason: want.slug);
       expect(
         got.impactExplanationsAvailable,

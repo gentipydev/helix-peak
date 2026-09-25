@@ -153,20 +153,7 @@ final class MockApiClient implements ApiClient {
     }
     if (tracksOnly) {
       return <String, dynamic>{
-        for (final TrackKind kind in TrackKind.values)
-          kind.wire: <String, dynamic>{
-            'state': _stateOf(target, kind).wire,
-            'reason': null,
-            // Null while the assets are still bundled: nothing asks this
-            // server for a blob, because every track still resolves through
-            // `rootBundle` off the paths on the target itself.
-            'url': null,
-            'format': kind == TrackKind.structure ? 'glb' : 'json',
-            'bytes': null,
-            'sha256': null,
-            'content_encoding': null,
-            'provenance': <String, dynamic>{},
-          },
+        for (final TrackKind kind in TrackKind.values) kind.wire: _track(target, kind),
       };
     }
     return <String, dynamic>{
@@ -218,22 +205,56 @@ final class MockApiClient implements ApiClient {
     },
   };
 
-  /// What this build actually bundles. A fixture server that claimed a track
-  /// was absent while the asset sat in the bundle would be answering for a
-  /// different build than the one it is standing in for.
-  TrackState _stateOf(ProteinTarget target, TrackKind kind) => switch (kind) {
-    TrackKind.record => TrackState.ready,
-    TrackKind.constraint => _readyIf(target.scored),
-    TrackKind.impact => _readyIf(target.impactScored),
-    TrackKind.clinvar => _readyIf(target.clinvarAvailable),
-    TrackKind.structure => TrackState.ready,
-    TrackKind.impactExplanations => _readyIf(
-      target.impactExplanationsAvailable,
-    ),
+  /// The families this build still carries, and therefore the only ones this
+  /// server can hand a reader bytes for.
+  ///
+  /// It follows the `assets:` block in `pubspec.yaml` by hand, because nothing
+  /// can read that block at runtime. Both directions matter: a family named
+  /// here and gone from the bundle would have this server promising a track it
+  /// cannot serve, and a family in the bundle and missing here would take a
+  /// page off the mock build for no reason. Phase 4a took `constraint` and
+  /// `impact` off it.
+  static const Set<TrackKind> _bundled = <TrackKind>{
+    TrackKind.clinvar,
+    TrackKind.structure,
+    TrackKind.impactExplanations,
   };
 
-  static TrackState _readyIf(bool bundled) =>
-      bundled ? TrackState.ready : TrackState.absent;
+  /// One track row, as the real service would serve it.
+  Map<String, dynamic> _track(ProteinTarget target, TrackKind kind) {
+    final TrackState state = _stateOf(target, kind);
+    final String? asset = state == TrackState.ready ? target.asset(kind) : null;
+    return <String, dynamic>{
+      'state': state.wire,
+      'reason': null,
+      // `asset://` rather than an https URL, and the one thing about this
+      // server that is not a copy of the real one. `TrackClient` resolves the
+      // prefix through `rootBundle`, so a mock build fetches nothing over a
+      // socket and still goes through the whole of the production read path.
+      'url': asset == null ? null : 'asset://$asset',
+      'format': kind == TrackKind.structure ? 'fsceneb' : 'json',
+      'bytes': null,
+      // No digest, so nothing is cached to disk. A bundle read is already the
+      // cheapest read there is, and a cache of it would only be a second copy.
+      'sha256': null,
+      'content_encoding': null,
+      'provenance': <String, dynamic>{},
+    };
+  }
+
+  /// What this build actually bundles. A fixture server that claimed a track
+  /// was ready while the asset had left the bundle would be answering for a
+  /// different build than the one it is standing in for.
+  TrackState _stateOf(ProteinTarget target, TrackKind kind) => switch (kind) {
+    // Twenty records ship under `assets/mock/`, and this server serves them
+    // from there through the `/gene` route rather than as a blob — which is
+    // also what the real service does, from NCBI.
+    TrackKind.record => TrackState.ready,
+    _ =>
+      _bundled.contains(kind) && target.state(kind) == TrackState.ready
+          ? TrackState.ready
+          : TrackState.absent,
+  };
 
   Future<Map<String, dynamic>> _record(ProteinTarget target) async {
     final String raw = await (_payloads[target.slug] ??= _bundle.loadString(
