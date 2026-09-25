@@ -18,9 +18,10 @@ import 'protein_track.dart';
 ///   that cannot reach it has failed to fetch it rather than found it unbaked.
 ///   The four booleans the rows used to carry are retiring into this map, one
 ///   family at a time as that family moves.
-/// - `tool/check_assets.py` and `tool/seed_catalog.py` read these rows out of
-///   this file as text. They are one half of the gate that proves the service's
-///   catalog and the baked assets still agree.
+/// - The backend's `pipeline/curated/catalog.json` holds the same rows since
+///   Phase 3, extracted from this file once; `check_assets.py` and
+///   `seed_catalog.py` read that file, and nothing reads this one as text any
+///   more. Phase 4 of HANDOFF-ONDEMAND.md deletes these rows.
 ///
 /// The order is not alphabetical. Insulin is first because it is the one the
 /// app was built around, and the first ten run small to large, which is also
@@ -30,9 +31,9 @@ import 'protein_track.dart';
 /// each was checked against its record before it was — see
 /// `docs/protein-verification.md`. That sequence travels as `catalog_order` on
 /// every served row, because a list the client no longer holds cannot carry it.
-/// The assets are baked by `tool/`, off the table in `tool/targets.py` — the
-/// two are checked against each other by the tests in
-/// `test/features/gene_lookup/catalog/`.
+/// The tracks are baked by the backend's `pipeline/`, off the table in
+/// `pipeline/targets.py` — the two are checked against each other by the tests
+/// in `test/features/gene_lookup/catalog/`.
 /// What the twenty are seeded with.
 ///
 /// Every one of them has all four data families and a record. Stated rather

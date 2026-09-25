@@ -41,7 +41,7 @@ enum ChainTint {
 
 /// One named node of a baked `.glb`, and how to paint it.
 ///
-/// The names are the contract with the bake in `tool/structure/`: renaming a
+/// The names are the contract with the bake in `pipeline/structure/`: renaming a
 /// node there takes its colour off here. A model has a `chainA`, may have a
 /// `chainB`, and has a `bonds` node only where the entry has disulfides the
 /// page is about.
@@ -93,7 +93,7 @@ final class StructureChrome {
     );
   }
 
-  /// The PDB entry the model is cut from — `tool/targets.py` bakes it, and
+  /// The PDB entry the model is cut from — `pipeline/targets.py` bakes it, and
   /// `check_assets.py` holds the two to each other.
   final String pdb;
 
@@ -281,7 +281,7 @@ final class ProteinTarget {
   /// not, and that is a state the walk draws — the protein page without its
   /// conservation toolbar, a tap following the tracer as on every other page —
   /// and not a track that failed to arrive, so nothing asks for the payload
-  /// where this is false. `scored` in `tool/targets.py` says the same, and
+  /// where this is false. `scored` in `pipeline/targets.py` says the same, and
   /// `check_assets.py` holds the two to each other.
   ///
   /// This was a boolean the bundled seed settled, and is now the state the
@@ -297,7 +297,7 @@ final class ProteinTarget {
   /// the protein, this is a per-base track over the gene record. Without one the
   /// nucleotide pages are drawn exactly as they were — a tap moves the tracer
   /// and no sheet opens — rather than meeting a track that is not there.
-  /// `impact_scored` in `tool/targets.py` says the same, and `check_assets.py`
+  /// `impact_scored` in `pipeline/targets.py` says the same, and `check_assets.py`
   /// holds the two to each other.
   bool get impactScored => state(TrackKind.impact) == TrackState.ready;
 
@@ -310,7 +310,7 @@ final class ProteinTarget {
   /// Every gene in the catalog has one. One added before its snapshot is baked
   /// has not, and the walk says so — "not yet included", once, in the About
   /// sheet — rather than meeting a snapshot that is not there. False is not a
-  /// negative finding. `clinvar_available` in `tool/targets.py` says the same,
+  /// negative finding. `clinvar_available` in `pipeline/targets.py` says the same,
   /// and `check_assets.py` holds the two to each other.
   ///
   /// Retired into the track state by Phase 4b, and the sentence above is why
@@ -335,7 +335,7 @@ final class ProteinTarget {
   /// `flutter_scene_generated/`, which is what `loadScene` resolved by this
   /// name. Phase 5 fetches that container from storage instead, so nothing on
   /// the device reads this path any more. It is still the truth about where the
-  /// bake put the model: `tool/upload_tracks.py` validates and records the
+  /// bake put the model: `pipeline/upload_tracks.py` validates and records the
   /// provenance of these bytes, `check_assets.py` reads the node names out of
   /// them, and the catalog tests check they are on disk.
   String get structureAsset => 'assets/models/$slug.glb';

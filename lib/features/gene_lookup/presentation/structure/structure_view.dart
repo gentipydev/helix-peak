@@ -32,7 +32,7 @@ import 'structure_rotation.dart';
 /// without them; see [ProteinTarget.chains].
 ///
 /// The geometry is crystallographic, one entry per protein, chosen and baked by
-/// `tool/structure/`: human insulin is RCSB `3I40`, X-ray at 1.85 A. Not the
+/// `pipeline/structure/`: human insulin is RCSB `3I40`, X-ray at 1.85 A. Not the
 /// AlphaFold model of the gene's own translation product, which predicts the
 /// full 110-residue preproprotein at a mean pLDDT of 52.9 with half its
 /// residues below 50 — that is the *third* page's molecule anyway, and it is

@@ -14,7 +14,7 @@ leptin, TNF-alpha, SOD1, amylase and prion protein. Each carries five baked
 assets: a gene record, an ESM-2 constraint track, an AlphaGenome Variant Impact
 (AVI) track, a ClinVar snapshot and a 3D model. The whole
 walk runs with no backend and no network. They are one row each in `ProteinCatalog`;
-[`tool/`](tool/README.md) is what bakes them, and
+[`helix-peek-backend/pipeline/`](../helix-peek-backend/pipeline/README.md) is what bakes them, and
 [docs/protein-verification.md](docs/protein-verification.md) is what the second
 ten were checked against before they were added.
 
@@ -58,7 +58,7 @@ same code in both modes; `MockApiClient` answers `GET /gene/{id}/{gene}` from
 the loading state still shows. Any other gene or record 404s with the wording
 the backend uses.
 
-The records are not hand-written: `tool/mock/build_gene_record.py` imports the
+The records are not hand-written: the backend's `pipeline/mock/build_gene_record.py` imports its
 backend's own `extract_gene` and writes what the service would answer, so the
 fixtures cannot drift from the contract they stand in for. Six things the live
 service does not do yet — choosing the transcript where two share a CDS,
@@ -112,9 +112,9 @@ what names a residue's domain and its bonding partner without the code knowing
 which protein it is looking at.
 
 Generation and independent CPU verification are documented in
-[tool/constraint](tool/constraint/README.md). Insulin's six disulfide cysteines
+[pipeline/constraint](../helix-peek-backend/pipeline/constraint/README.md). Insulin's six disulfide cysteines
 rank 1–6 of 110. The measured C-peptide is less constrained than the signal
-peptide; [verification.md](tool/constraint/verification.md) records that
+peptide; [verification.md](../helix-peek-backend/pipeline/constraint/verification.md) records that
 difference from the originally proposed regional pattern, and what the other
 nineteen proteins measured. No values are adjusted in the UI. A protein added to
 the catalog before its track is baked is marked unscored; its protein page is
@@ -173,7 +173,8 @@ installed launcher icon.
 ```bash
 flutter analyze
 flutter test
-python3 tool/check_assets.py     # the baked assets against each other
+(cd ../helix-peek-backend && python3 pipeline/fetch_tracks.py && python3 pipeline/check_assets.py)
+                                 # the stored tracks against each other
 ```
 
 `test/features/gene_lookup/catalog/` derives the whole walk for every protein

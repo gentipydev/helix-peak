@@ -124,7 +124,7 @@ void main() {
         expect(
           File(target.structureAsset).existsSync(),
           isTrue,
-          reason: '${target.structureAsset} — run tool/structure/bake.py',
+          reason: '${target.structureAsset} — run pipeline/structure/bake.py',
         );
       });
 

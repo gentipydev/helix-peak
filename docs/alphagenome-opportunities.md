@@ -19,9 +19,9 @@ The existing walk remains search → gene → mRNA → protein → mature chains
 | ClinVar | Exact-allele records, expandable detail, overview, return navigation | Add attribution to the already selected allele |
 | Mature chains / structure | Processing annotations and baked molecular scenes | AlphaGenome does not provide the protein processing or folding outputs needed to replace these |
 
-The assets are substantive biological fixtures, not invented example scores. `tool/impact/bake_impact.py` already queries Atlas, maps GRCh38 to the app's record coordinates, complements alleles where needed, and stores three AVI values per scored base. It requests only `AVI_SCORE`, so the explanatory information is currently discarded at the source.
+The assets are substantive biological fixtures, not invented example scores. `helix-peek-backend/pipeline/impact/bake_impact.py` already queries Atlas, maps GRCh38 to the app's record coordinates, complements alleles where needed, and stores three AVI values per scored base. It requests only `AVI_SCORE`, so the explanatory information is currently discarded at the source.
 
-Key implementation references: [impact bake](../tool/impact/bake_impact.py), [GeneImpact](../lib/features/gene_lookup/domain/entities/gene_impact.dart), [ImpactPanel](../lib/features/gene_lookup/presentation/inspector/impact_panel.dart), [EvidenceDetail](../lib/features/gene_lookup/presentation/clinvar/evidence_row.dart), and [pipeline rules](protein-pipeline-rules.md).
+Key implementation references: [impact bake](../../helix-peek-backend/pipeline/impact/bake_impact.py), [GeneImpact](../lib/features/gene_lookup/domain/entities/gene_impact.dart), [ImpactPanel](../lib/features/gene_lookup/presentation/inspector/impact_panel.dart), [EvidenceDetail](../lib/features/gene_lookup/presentation/clinvar/evidence_row.dart), and [pipeline rules](protein-pipeline-rules.md).
 
 **What AlphaGenome supplies directly**
 
@@ -154,4 +154,4 @@ A gene name alone is not a sufficient bundle identity. Search must resolve a spe
 
 Meaningful acceptance checks: a changed allele changes its explanation; negative attribution signs survive serialization; missing evidence never becomes zero; the INS overlapping-gene example stays correctly scoped; minus-strand variants round-trip to the same genomic allele; DMD reference mismatches have no exact explanation; compressed gaps never become fabricated contiguous model input; a manifest cannot mix sequence/evidence versions; offline launch and all existing navigation continue to work.
 
-Validation performed for this analysis: `python3 tool/check_assets.py` passed for all 20 targets; live Atlas metadata and the three documented lookups succeeded; bundled/live AVI scores match at stored precision. No Flutter UI changes, backend deployment, or full sequence-prediction benchmark was performed. The strongest supported next step is attribution in existing details; the later visual features still require their own data and interaction validation.
+Validation performed for this analysis: `python3 tool/check_assets.py` (now `helix-peek-backend/pipeline/check_assets.py`) passed for all 20 targets; live Atlas metadata and the three documented lookups succeeded; bundled/live AVI scores match at stored precision. No Flutter UI changes, backend deployment, or full sequence-prediction benchmark was performed. The strongest supported next step is attribution in existing details; the later visual features still require their own data and interaction validation.

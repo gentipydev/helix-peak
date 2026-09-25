@@ -404,7 +404,7 @@ one protein:
   extension", as R3.6 names such residues on the gene page.
 
 What each track measured, and why the gate changed, is in
-[tool/constraint/verification.md](../tool/constraint/verification.md).
+[pipeline/constraint/verification.md](../../helix-peek-backend/pipeline/constraint/verification.md).
 
 ## Gene page labels, 2026-09-18
 

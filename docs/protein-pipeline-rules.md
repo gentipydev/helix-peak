@@ -112,7 +112,7 @@ the base the app draws at that cell. INS agrees at 1,431 of 1,431, and at 402 of
 assembly at a few bases — dystrophin does at three, which are exactly the three
 `uniprot_variants` already declared for it — so differences are counted and
 reported rather than forbidden, and a position that differs carries no exact
-score. *Status: enforced* (`tool/impact/bake_impact.py`, `check_assets.py`).
+score. *Status: enforced* (`pipeline/impact/bake_impact.py`, `check_assets.py`).
 *Open:* the four `NC_` slices could take their offset from `Source.seq_start`
 directly, and do not, because deriving it the same way for all twenty is what
 makes the derivation worth trusting.
@@ -470,7 +470,7 @@ For each hand-written field, the generic source:
 | AVI impact track | the Atlas's precomputed scores, already generic: GENCODE gives the exons and the reference gates the map, so nothing per-protein is written down (R2.5) |
 
 The backend also has to learn the six things only the fixtures do today (see
-`tool/mock/README.md`): the transcript where two share a CDS, exons from the
+`helix-peek-backend/pipeline/mock/README.md`): the transcript where two share a CDS, exons from the
 transcript, cleaning `/product`, unannotated connecting peptides, unannotated
 proproteins, and a lone chain behind a signal peptide. It cannot yet fetch a
 chromosome slice at all, which four records are.

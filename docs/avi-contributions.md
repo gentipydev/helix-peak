@@ -29,11 +29,11 @@ gene, tissue, splice junction or clinical consequence from these attributions.
 **Bake and validation**
 
 ```sh
-tool/impact/venv/bin/python tool/impact/bake_explanations.py
+pipeline/impact/venv/bin/python pipeline/impact/bake_explanations.py
 # Or one gene:
-tool/impact/venv/bin/python tool/impact/bake_explanations.py --target insulin
-python3 tool/check_assets.py
-python3 -m unittest discover -s tool/impact -p 'test_explanations.py'
+pipeline/impact/venv/bin/python pipeline/impact/bake_explanations.py --target insulin
+python3 pipeline/check_assets.py
+.venv/bin/python -m pytest pipeline/impact
 flutter test test/features/gene_lookup/impact/
 ```
 
@@ -45,7 +45,7 @@ returned reference and alternate against the existing mapped allele, and
 requires AVI to match the bundled score at its saved precision. It refuses a
 changed score rather than silently mixing score releases.
 
-Full responses are retained in ignored `tool/impact/attribution_raw/<impact-sha256>/`
+Full responses are retained in ignored `pipeline/impact/attribution_raw/<impact-sha256>/` (in `helix-peek-backend`)
 checkpoints. Successful windows resume on rerun. Atlas release identity is not
 provided here: the payload explicitly records a null release, generation date
 and client version, rather than inventing a pinned server version. Clear the
@@ -76,7 +76,7 @@ performed. Zero contributions are omitted, not replaced with fabricated values.
 
 `GeneImpactExplanations.fromJson` validates identity, coordinates, complete
 coverage, all alternative scores, feature indices, finite signed values and the
-source URL before exposing any explanation. `tool/check_assets.py` additionally
+source URL before exposing any explanation. `pipeline/check_assets.py` additionally
 checks the source file digest and catalog availability. The shared repository
 parses off the UI thread, caches successful loads per impact track, and evicts
 failed loads for retry.

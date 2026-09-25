@@ -55,7 +55,7 @@ final class ConstraintRegion {
   final int end;
 
   /// What a position's second number is counted from, or 1 where it has none.
-  /// The bake decides — see `partition` in `tool/targets.py`: each piece of a
+  /// The bake decides — see `partition` in `pipeline/targets.py`: each piece of a
   /// precursor cut into several counts from its own start, one chain counts
   /// from its first residue after a removed leader, and nothing else does.
   final int origin;
@@ -377,7 +377,7 @@ final class ProteinConstraint {
         // says so, instead of throwing a type error from three frames down.
         throw FormatException(
           'Malformed region in ${target.slug}: $r. Re-run '
-          'tool/constraint/score_protein.py --metadata-only.',
+          'pipeline/constraint/score_protein.py --metadata-only.',
         );
       }
       final ConstraintRegion region = ConstraintRegion(

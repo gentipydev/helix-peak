@@ -10,7 +10,7 @@ void main(List<String> args) async {
     // back by its `.glb` source path. Phase 5 fetches the same containers from
     // storage instead, so nothing is compiled at build time and nothing is
     // bundled. The `.glb` sources stay in the repo — they are what the bake
-    // produces and what `tool/upload_tracks.py` records the provenance of —
+    // produces and what the backend's `pipeline/upload_tracks.py` records the provenance of —
     // and restoring this one line is how to regenerate them locally if a
     // flutter_scene upgrade ever needs the containers rebuilt.
     //

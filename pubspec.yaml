@@ -50,7 +50,7 @@ flutter:
     # the `.fsceneb` containers the bake compiled, which is why
     # `flutter_scene_generated/` has gone with them and `hook/build.dart` no
     # longer writes it. The files all stay in the repo — the catalog tests read
-    # them off it, and `tool/upload_tracks.py` uploads them from there — they
+    # them off it, and the backend's `pipeline/upload_tracks.py` uploads them — they
     # just do not ship. ClinVar alone was 23.5 MB of the 41.9 this bundle used
     # to carry, and 9.5 MB of that was dystrophin.
     - assets/mock/
