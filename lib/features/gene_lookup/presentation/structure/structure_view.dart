@@ -2,12 +2,16 @@ import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_scene/fscene.dart';
 import 'package:flutter_scene/scene.dart';
 import 'package:vector_math/vector_math.dart' as vm;
 
+import '../../../../core/network/track_source.dart';
 import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/protein_target.dart';
+import '../../domain/entities/protein_track.dart';
 import 'structure_loading_view.dart';
 import 'structure_rotation.dart';
 
@@ -107,8 +111,19 @@ class StructureView extends StatefulWidget {
   ///
   /// Calling it again returns the same future. A failure is not kept, so the
   /// next call, or the page itself, tries again.
-  static Future<void> prepare(BuildContext context, ProteinTarget target) =>
-      _prepareWith(Theme.of(context).extension<AnatomyColors>()!, target);
+  static Future<void> prepare(BuildContext context, ProteinTarget target) {
+    final TrackSource? tracks = context.read<TrackSource?>();
+    if (tracks == null) {
+      // Nothing provided a source, so there is no model to warm and no page
+      // that could draw one. Every widget test is here.
+      return Future<void>.value();
+    }
+    return _prepareWith(
+      Theme.of(context).extension<AnatomyColors>()!,
+      target,
+      tracks,
+    );
+  }
 
   /// Keyed by protein: most of what warming buys — the shader library, the
   /// lighting environment, the render pipelines — is shared and paid once
@@ -120,8 +135,12 @@ class StructureView extends StatefulWidget {
   /// within a few frames and has no wait to show a pulse for.
   static final Set<String> _warmed = <String>{};
 
-  static Future<void> _prepareWith(AnatomyColors anatomy, ProteinTarget target) {
-    return _preparing[target.slug] ??= _warm(anatomy, target)
+  static Future<void> _prepareWith(
+    AnatomyColors anatomy,
+    ProteinTarget target,
+    TrackSource tracks,
+  ) {
+    return _preparing[target.slug] ??= _warm(anatomy, target, tracks)
         .then((_) {
           _warmed.add(target.slug);
         })
@@ -131,18 +150,33 @@ class StructureView extends StatefulWidget {
         });
   }
 
-  static Future<void> _warm(AnatomyColors anatomy, ProteinTarget target) async {
+  static Future<void> _warm(
+    AnatomyColors anatomy,
+    ProteinTarget target,
+    TrackSource tracks,
+  ) async {
     // A scene of its own, dropped as soon as it has been drawn: all that is
     // wanted from it is what drawing it leaves in the caches.
     final Scene scene = Scene();
     // The pulse too, so that its first frame on the page is not a blank one
     // spent reading the asset.
     await StructureLoadingView.preload();
-    await _StructureViewState._build(scene, anatomy, target);
+    await _StructureViewState._build(scene, anatomy, target, tracks);
   }
 
   @override
   State<StructureView> createState() => _StructureViewState();
+}
+
+/// Which of the two things that can stop this page happened.
+enum _StructureTrouble {
+  /// No Flutter GPU here. A fact about the device, and the same for every
+  /// protein and every launch.
+  renderer,
+
+  /// The model did not arrive, or arrived and did not match the row that named
+  /// it. A fact about this protein, this time.
+  model,
 }
 
 class _StructureViewState extends State<StructureView> {
@@ -159,7 +193,15 @@ class _StructureViewState extends State<StructureView> {
   Node? _molecule;
   PerspectiveCamera? _camera;
   bool _ready = false;
-  bool _failed = false;
+
+  /// Why the page has nothing to draw, or null while it still might.
+  ///
+  /// One flag would do if there were one reason, and until the model came off
+  /// the network there was: a device with no Flutter GPU. Now a fetch can fail
+  /// too, and the sentence written for the first — "3D rendering is not
+  /// available here" — is a claim about the *device* that would be false. The
+  /// two are told apart so the page can say which happened.
+  _StructureTrouble? _trouble;
 
   /// Whether the reader has turned the model yet. Until they have, a line
   /// under it says that they can.
@@ -228,7 +270,7 @@ class _StructureViewState extends State<StructureView> {
       // down with it, so this is reported in place and the walk survives.
       debugPrint('helixpeek: no Flutter GPU for the structure page ($error)');
       if (mounted) {
-        setState(() => _failed = true);
+        setState(() => _trouble = _StructureTrouble.renderer);
       }
       return;
     }
@@ -258,7 +300,12 @@ class _StructureViewState extends State<StructureView> {
 
       final AnatomyColors anatomy = Theme.of(context)
           .extension<AnatomyColors>()!;
-      await StructureView._prepareWith(anatomy, widget.target);
+      final TrackSource? tracks = context.read<TrackSource?>();
+      if (tracks == null) {
+        // No source, so no model. Not a renderer that cannot draw.
+        throw StateError('No track source for ${widget.target.slug}');
+      }
+      await StructureView._prepareWith(anatomy, widget.target, tracks);
       if (!mounted) {
         return;
       }
@@ -266,6 +313,7 @@ class _StructureViewState extends State<StructureView> {
         scene,
         anatomy,
         widget.target,
+        tracks,
       );
       if (!mounted) {
         return;
@@ -278,9 +326,13 @@ class _StructureViewState extends State<StructureView> {
         _ready = true;
       });
     } on Object catch (error) {
+      // The renderer is there — `Scene()` was built above — so whatever went
+      // wrong is the model: a fetch that failed, a container this build of
+      // flutter_scene cannot read, or a bake whose nodes the catalog does not
+      // name.
       debugPrint('helixpeek: could not load the structure ($error)');
       if (mounted) {
-        setState(() => _failed = true);
+        setState(() => _trouble = _StructureTrouble.model);
       }
     }
   }
@@ -294,12 +346,20 @@ class _StructureViewState extends State<StructureView> {
     Scene scene,
     AnatomyColors anatomy,
     ProteinTarget target,
+    TrackSource tracks,
   ) async {
     await Scene.initializeStaticResources();
     if (!Scene.isReadyToRender) {
       throw StateError('The 3D renderer did not initialize');
     }
-    final Node molecule = await loadScene(target.structureAsset);
+    // The `.fsceneb` the bake compiled, fetched rather than compiled into the
+    // bundle by `hook/build.dart`. No glTF is imported on the device: the
+    // container is already the realized form, and the `.glb` it came from is
+    // kept in storage only so a flutter_scene upgrade — which invalidates every
+    // `.fsceneb` — can re-compile without the repo and another PyMOL run.
+    final Node molecule = await loadFscenebBytesAsync(
+      await tracks.read(target.slug, TrackKind.structure),
+    );
     for (final StructureChain chain in target.chains) {
       _paint(molecule, target, chain.node, chain.tint.of(anatomy));
     }
@@ -324,18 +384,25 @@ class _StructureViewState extends State<StructureView> {
   /// The nodes are named in the `.glb` by the bake, which is what lets the
   /// colour live here in the theme rather than baked into vertices where it
   /// could never answer to a token. A name the model does not have means the
-  /// bake and the catalog have come apart, so the assert names both halves.
+  /// bake and the catalog have come apart, and the page says so rather than
+  /// drawing what is left.
   static void _paint(
     Node root,
     ProteinTarget target,
     String name,
     Color colour,
   ) {
-    final Node? node = _find(root, name);
-    assert(node != null, '${target.structureAsset} has no node named "$name"');
-    final Mesh? mesh = node?.mesh;
+    final Mesh? mesh = _find(root, name)?.mesh;
     if (mesh == null) {
-      return;
+      // Thrown, where this used to assert. An assert is right while the model
+      // is compiled into the build from a file beside the catalog, because the
+      // two can only come apart at build time and the assert fires. A fetched
+      // container can be from an older bake than the row that named it, and in
+      // release the assert is gone — so the page would draw an unpainted grey
+      // molecule and say nothing. It says so instead.
+      throw StateError(
+        'The model for ${target.slug} has no node named "$name".',
+      );
     }
     for (final MeshPrimitive primitive in mesh.primitives) {
       primitive.material = PhysicallyBasedMaterial()
@@ -402,15 +469,19 @@ class _StructureViewState extends State<StructureView> {
     return SizedBox(
       width: widget.viewport.width,
       height: widget.viewport.height,
-      child: _failed
+      child: _trouble != null
           ? Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.screenPadding,
                 ),
                 child: Text(
-                  'The structure needs 3D rendering, which is not available '
-                  'here.',
+                  switch (_trouble!) {
+                    _StructureTrouble.renderer =>
+                      'The structure needs 3D rendering, which is not '
+                          'available here.',
+                    _StructureTrouble.model => 'The model could not be loaded.',
+                  },
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium,
                 ),

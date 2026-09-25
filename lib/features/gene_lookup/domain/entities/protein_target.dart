@@ -328,8 +328,15 @@ final class ProteinTarget {
   /// Where the track is, or would be. Read only where [scored].
   String get constraintAsset => 'assets/constraint/${slug}_esm_constraint.json';
 
-  /// The bake's own path, not a shipped one: `hook/build.dart` compiles it into
-  /// `flutter_scene_generated/`, and `loadScene` resolves it back by this name.
+  /// The bake's own path, and never a shipped one.
+  ///
+  /// `hook/build.dart` used to compile this into a `.fsceneb` under
+  /// `flutter_scene_generated/`, which is what `loadScene` resolved by this
+  /// name. Phase 5 fetches that container from storage instead, so nothing on
+  /// the device reads this path any more. It is still the truth about where the
+  /// bake put the model: `tool/upload_tracks.py` validates and records the
+  /// provenance of these bytes, `check_assets.py` reads the node names out of
+  /// them, and the catalog tests check they are on disk.
   String get structureAsset => 'assets/models/$slug.glb';
 
   /// Where the impact track is, or would be. Read only where [impactScored].

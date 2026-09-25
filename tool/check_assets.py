@@ -20,6 +20,7 @@ re-derives its numbers instead of calling the scorer.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -33,7 +34,6 @@ from targets import TARGETS, Target, partition  # noqa: E402
 from impact.check_explanations import validate as validate_explanations  # noqa: E402
 
 CATALOG = ROOT / "lib/features/gene_lookup/domain/entities/protein_catalog.dart"
-MANIFEST = ROOT / "flutter_scene_generated/manifest.json"
 
 problems: list[str] = []
 
@@ -153,6 +153,52 @@ def service_rows(base_url: str) -> dict[str, dict]:
         except (urllib.error.URLError, OSError, ValueError) as exc:
             raise SystemExit(f"Could not read {url}: {exc}")
     return found
+
+
+def check_scenes(base_url: str) -> None:
+    """The container the service names, against the node names the app paints.
+
+    This is `structure_view.dart`'s `_paint` contract, and it is the one thing
+    the offline suite can no longer see: the `.glb` on disk proves what the bake
+    made, not what was compiled and uploaded from it. A container whose nodes
+    were renamed or dropped draws an unpainted molecule on a phone -- since
+    Phase 5, one that throws rather than draws -- and nothing else would notice.
+
+    Names are looked for as raw bytes. `.fsceneb` is a binary container and this
+    is deliberately not a parser: a substring miss is a real miss, and a hit is
+    the name being in there somewhere, which is as much as a grep can promise
+    and enough to catch a bake that renamed a chain.
+    """
+    import urllib.error
+    import urllib.request
+
+    for target in TARGETS:
+        url = f"{base_url.rstrip('/')}/protein/{target.slug}/tracks"
+        try:
+            with urllib.request.urlopen(url, timeout=30) as response:
+                tracks = json.loads(response.read())
+        except (urllib.error.URLError, OSError, ValueError) as exc:
+            raise SystemExit(f"Could not read {url}: {exc}")
+        row = tracks.get("structure") or {}
+        if row.get("state") != "ready" or not row.get("url"):
+            fail(f"{target.slug}: the service has no structure to fetch ({row.get('state')})")
+            continue
+        if row.get("format") != "fsceneb":
+            fail(f"{target.slug}: structure format is {row.get('format')!r}, not 'fsceneb'")
+        try:
+            with urllib.request.urlopen(row["url"], timeout=60) as response:
+                blob = response.read()
+        except (urllib.error.URLError, OSError) as exc:
+            raise SystemExit(f"Could not read {row['url']}: {exc}")
+        digest = hashlib.sha256(blob).hexdigest()
+        if digest != row.get("sha256"):
+            fail(f"{target.slug}: the container does not match the sha256 the row carries")
+        wanted = {c.node for c in target.structure.chains} | (
+            {"bonds"} if target.structure.bonds else set()
+        )
+        missing = {n for n in wanted if n.encode() not in blob}
+        if missing:
+            fail(f"{target.slug}: the served container has no node named {sorted(missing)}")
 
 
 def check_against(base_url: str, catalog: dict[str, dict]) -> None:
@@ -632,6 +678,7 @@ if __name__ == "__main__":
 
     if arguments.against and not arguments.offline:
         check_against(arguments.against, catalog)
+        check_scenes(arguments.against)
         if problems:
             print(f"{len(problems)} problem(s):", file=sys.stderr)
             for problem in problems:
@@ -655,26 +702,13 @@ if __name__ == "__main__":
             except (AssertionError, KeyError, TypeError, ValueError) as error:
                 fail(f"{target.slug}: invalid AVI explanations: {error}")
 
-    if MANIFEST.exists():
-        entries = {e["source"]: e["file"] for e in json.loads(MANIFEST.read_text())["entries"]}
-        for target in TARGETS:
-            compiled = entries.get(target.structure_asset)
-            if compiled is None:
-                fail(f"{target.slug}: no compiled scene; build the app to run the hook")
-                continue
-            # The `.fsceneb` is what actually ships, and it is what `_paint`
-            # looks node names up in. Checking the `.glb` alone would miss a
-            # compile that dropped or renamed one, which is a blank fold on a
-            # phone and nothing anywhere else.
-            blob = (MANIFEST.parent / compiled).read_bytes()
-            wanted = {c.node for c in target.structure.chains} | (
-                {"bonds"} if target.structure.bonds else set()
-            )
-            missing = {n for n in wanted if n.encode() not in blob}
-            if missing:
-                fail(f"{target.slug}: {compiled} has no node named {sorted(missing)}")
-    else:
-        fail("flutter_scene_generated/manifest.json is missing; build the app once")
+    # The compiled `.fsceneb` used to be checked here, out of
+    # flutter_scene_generated/, because that was what shipped. Phase 5 fetches
+    # it from storage instead and hook/build.dart no longer writes it, so there
+    # is nothing local to open -- the same check now runs against the container
+    # the service actually names, under --against. What stays offline is the
+    # `.glb`: check() reads its node names and holds them to the catalog's, and
+    # that is the bake's half of the contract.
 
     if problems:
         print(f"{len(problems)} problem(s):", file=sys.stderr)
@@ -693,14 +727,15 @@ if __name__ == "__main__":
             + ([f"assets/impact_explanations/{t.slug}.json"] if catalog[t.slug]["impact_explanations"] else [])
         )
     )
-    scenes = sum(
-        f.stat().st_size for f in MANIFEST.parent.glob("*.fsceneb")
-    )
+    # The models, as the bake left them. Not what a phone downloads -- the
+    # `.fsceneb` compiled from each of these is about 29% of its size, and it
+    # lives in storage now rather than anywhere this script can measure.
+    models = sum((ROOT / t.structure_asset).stat().st_size for t in TARGETS)
     scored = sum(1 for t in TARGETS if t.scored)
     tracked = sum(1 for t in TARGETS if t.impact_scored)
     print(
         f"{len(TARGETS)} targets check out, {scored} scored and "
         f"{tracked} with an impact track. "
         f"{total / 1e6:.2f} MB of records and tracks, "
-        f"{scenes / 1e6:.2f} MB of compiled scenes."
+        f"{models / 1e6:.2f} MB of baked models. None of it ships."
     )

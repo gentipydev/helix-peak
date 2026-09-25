@@ -44,19 +44,18 @@ flutter:
     - assets/branding/helix_peek_mark.png
     # Catalog records, tracks and ClinVar snapshots, named by directory.
     #
-    # `assets/constraint/`, `assets/impact/` and `assets/clinvar/` are
-    # deliberately absent: those three families are fetched from Supabase
-    # Storage and cached on disk by `TrackClient`. The files stay in the repo —
-    # the catalog tests read them off it, and `tool/upload_tracks.py` uploads
-    # them from there — they just do not ship. ClinVar was 23.5 MB of the 41.9
-    # this bundle used to carry, and 9.5 MB of that was dystrophin alone.
-    # `assets/models/` is absent for a different reason: the `.glb` files there
-    # are build-time sources that `hook/build.dart` compiles into
-    # `flutter_scene_generated/`, and that is what ships.
+    # All four track families are absent on purpose. `assets/constraint/`,
+    # `assets/impact/` and `assets/clinvar/` are fetched from Supabase Storage
+    # and cached on disk by `TrackClient`; the folds are fetched the same way as
+    # the `.fsceneb` containers the bake compiled, which is why
+    # `flutter_scene_generated/` has gone with them and `hook/build.dart` no
+    # longer writes it. The files all stay in the repo — the catalog tests read
+    # them off it, and `tool/upload_tracks.py` uploads them from there — they
+    # just do not ship. ClinVar alone was 23.5 MB of the 41.9 this bundle used
+    # to carry, and 9.5 MB of that was dystrophin.
     - assets/mock/
     - assets/impact_explanations/
     - assets/animations/process.json
-    - flutter_scene_generated/
 
   fonts:
     - family: SpaceGrotesk

@@ -213,9 +213,10 @@ final class MockApiClient implements ApiClient {
   /// here and gone from the bundle would have this server promising a track it
   /// cannot serve, and a family in the bundle and missing here would take a
   /// page off the mock build for no reason. Phase 4a took `constraint` and
-  /// `impact` off it, and Phase 4b took `clinvar`.
+  /// `impact` off it, 4b took `clinvar`, and 5 took `structure` — which was
+  /// never addressable by a slug anyway, since what shipped was a `.fsceneb`
+  /// under a name carrying a content hash.
   static const Set<TrackKind> _bundled = <TrackKind>{
-    TrackKind.structure,
     TrackKind.impactExplanations,
   };
 

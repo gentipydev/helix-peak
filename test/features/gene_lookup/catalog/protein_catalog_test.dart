@@ -28,6 +28,28 @@ GeneRecord _record(ProteinTarget target) =>
 /// A bake that produced a record the derivation cannot walk, a constraint track
 /// a residue longer than the protein it describes, or a model the build hook
 /// never saw, all fail here rather than as a blank page on a phone.
+/// The paths `flutter: assets:` actually lists, and not the comments among
+/// them. The list is contiguous, so it ends at the first line that is neither
+/// an entry nor a comment.
+Set<String> _bundledPaths() {
+  final List<String> lines = File('pubspec.yaml').readAsLinesSync();
+  final int assets = lines.indexWhere((String line) => line.trim() == 'assets:');
+  expect(assets, isNot(-1), reason: 'pubspec.yaml has no assets list');
+  final RegExp entry = RegExp(r'^    - (.+)$');
+  final Set<String> found = <String>{};
+  for (final String line in lines.skip(assets + 1)) {
+    if (line.trim().startsWith('#')) {
+      continue;
+    }
+    final RegExpMatch? match = entry.firstMatch(line);
+    if (match == null) {
+      break;
+    }
+    found.add(match.group(1)!);
+  }
+  return found;
+}
+
 void main() {
   test('slugs, genes and asset paths are unique', () {
     expect(
@@ -689,23 +711,41 @@ void main() {
     expect(scrolling, isNot(contains(ProteinCatalog.insulin.slug)));
   });
 
-  test('every model has been compiled into the shipped scene bundle', () {
-    final Map<String, dynamic> manifest = _json(
-      'flutter_scene_generated/manifest.json',
+  test('every track is fetched, and none of them ships', () {
+    // This replaced a test that read `flutter_scene_generated/manifest.json`
+    // and held every model to a compiled scene. Nothing compiles them now: all
+    // four families are fetched from storage, and the one way to undo that
+    // silently is to put a directory back under `flutter: assets:`. So the
+    // bundle's own list is what is checked, rather than the prose around it —
+    // every one of these names appears in the comments there, explaining why it
+    // is gone.
+    final Set<String> bundled = _bundledPaths();
+    expect(bundled, contains('assets/mock/'));
+    for (final String gone in <String>[
+      'assets/constraint/',
+      'assets/impact/',
+      'assets/clinvar/',
+      'flutter_scene_generated/',
+    ]) {
+      expect(bundled, isNot(contains(gone)), reason: '$gone is shipping again');
+    }
+    expect(
+      File('hook/build.dart').readAsStringSync(),
+      isNot(contains('buildScenes(')),
+      reason: 'the build hook is compiling the folds into the bundle again',
     );
-    final Set<String> sources = <String>{
-      for (final dynamic entry in manifest['entries'] as List<dynamic>)
-        (entry as Map<String, dynamic>)['source'] as String,
-    };
+
+    // And every source is still in the repo, because the bake, the uploader
+    // and the tests above all read them off it.
     for (final ProteinTarget target in ProteinCatalog.all) {
-      expect(
-        sources,
-        contains(target.structureAsset),
-        reason:
-            '${target.slug} has no compiled scene. The build hook discovers '
-            '.glb files under assets/, so this means the app has not been '
-            'built since the model was baked.',
-      );
+      for (final String path in <String>[
+        target.structureAsset,
+        target.constraintAsset,
+        target.impactAsset,
+        target.clinvarAsset,
+      ]) {
+        expect(File(path).existsSync(), isTrue, reason: path);
+      }
     }
   });
 
