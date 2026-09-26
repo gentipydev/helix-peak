@@ -61,5 +61,7 @@ extension FixtureAssets on ProteinTarget {
     TrackKind.clinvar => clinvarAsset,
     TrackKind.impactExplanations => impactExplanationsAsset,
     TrackKind.structure => structureAsset,
+    TrackKind.folding || TrackKind.structureAr || TrackKind.trafficking ||
+        TrackKind.locus || TrackKind.audio => null,
   };
 }

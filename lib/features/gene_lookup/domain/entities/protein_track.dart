@@ -10,7 +10,12 @@
 /// `material.dart` so [ChainTint] can name a colour; nothing here needs to.
 library;
 
-/// The six families a protein can carry, named as the service names them.
+/// The families a protein can carry, named as the service names them.
+///
+/// The walk reads the first six. The last five belong to the lab's features and
+/// were added together so that no later session reopens this file. Each
+/// arrives on the service with its own migration, and until then no row names
+/// it. A kind the walk never asks for changes nothing it draws.
 enum TrackKind {
   /// The GenBank record the walk opens on.
   record('record'),
@@ -28,7 +33,22 @@ enum TrackKind {
   structure('structure'),
 
   /// Exact-allele AVI contributions, a pilot over three genes.
-  impactExplanations('impact_explanations');
+  impactExplanations('impact_explanations'),
+
+  /// The staged folding path the lab's morph plays (feature 7).
+  folding('folding'),
+
+  /// The fold as USDZ, with its true size in its provenance, for AR (feature 9).
+  structureAr('structure_ar'),
+
+  /// Where in the cell the protein is sent, read from its features (feature 3).
+  trafficking('trafficking'),
+
+  /// The gene's neighbourhood on its chromosome (feature 4).
+  locus('locus'),
+
+  /// The gene as sound (feature 10).
+  audio('audio');
 
   const TrackKind(this.wire);
 
