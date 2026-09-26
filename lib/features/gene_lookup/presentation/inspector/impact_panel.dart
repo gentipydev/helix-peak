@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/inspector/inspector_sheet.dart';
+import '../../../../shared/inspector/level_pips.dart';
+import '../../../../shared/inspector/score_bar.dart';
 import '../../domain/entities/gene_clinvar.dart';
 import '../../domain/entities/gene_impact.dart';
 import '../../domain/entities/impact_explanations.dart';
@@ -11,9 +14,6 @@ import '../clinvar/clinvar_colors.dart';
 import '../format.dart';
 import 'coding_evidence.dart';
 import 'impact_explanation_view.dart';
-import 'inspector_sheet.dart';
-import 'level_pips.dart';
-import 'score_bar.dart';
 
 /// What one base of the gene answers with, in the sheet the residue panel uses.
 ///

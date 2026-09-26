@@ -10,10 +10,10 @@ import 'package:vector_math/vector_math.dart' as vm;
 import '../../../../core/network/track_source.dart';
 import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../shared/structure/structure_loading_view.dart';
+import '../../../../shared/structure/structure_rotation.dart';
 import '../../domain/entities/protein_target.dart';
 import '../../domain/entities/protein_track.dart';
-import 'structure_loading_view.dart';
-import 'structure_rotation.dart';
 
 /// What the chain folds into, once the grid has run out of things to say.
 ///

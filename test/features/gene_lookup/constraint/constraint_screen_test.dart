@@ -16,7 +16,7 @@ import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_scre
 import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_panel.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_toolbar.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/format.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/inspector/score_bar.dart';
+import 'package:helixpeek/shared/inspector/score_bar.dart';
 
 import '../../../support/test_catalog.dart';
 import '../anatomy/anatomy_fixture.dart';

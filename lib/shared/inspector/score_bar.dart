@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_typography.dart';
+import '../../core/theme/app_typography.dart';
 
 /// One row of a score list: the thing being scored, a bar, and its number.
 ///

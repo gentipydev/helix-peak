@@ -5,14 +5,14 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../core/biology/amino_acids.dart';
 import '../../../../core/theme/anatomy_colors.dart';
+import '../../../../shared/anatomy/anatomy_motion.dart';
 import 'anatomy_layout.dart';
-import 'anatomy_motion.dart';
 import 'anatomy_stages.dart';
 import 'anatomy_translation.dart';
 
 // The motion constants moved out so the layout could reach them too, but
 // this is still where the scene's readers expect to find them.
-export 'anatomy_motion.dart';
+export '../../../../shared/anatomy/anatomy_motion.dart';
 
 /// Colour slots the painter mixes toward the background.
 ///

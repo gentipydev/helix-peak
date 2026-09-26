@@ -13,6 +13,8 @@ import '../../../../core/router/walk_route.dart';
 import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/anatomy/sequence_scrubber.dart';
+import '../../../../shared/inspector/inspector_sheet.dart';
 import '../../domain/entities/gene_clinvar.dart';
 import '../../domain/entities/gene_impact.dart';
 import '../../domain/entities/gene_record.dart';
@@ -29,7 +31,6 @@ import '../constraint/constraint_toolbar.dart';
 import '../format.dart';
 import '../inspector/coding_evidence.dart';
 import '../inspector/impact_panel.dart';
-import '../inspector/inspector_sheet.dart';
 import '../structure/structure_view.dart';
 import 'anatomy_address.dart';
 import 'anatomy_canvas.dart';
@@ -42,7 +43,6 @@ import 'anatomy_selection_canvas.dart';
 import 'anatomy_stages.dart';
 import 'anatomy_tracer.dart';
 import 'record_sheet.dart';
-import 'sequence_scrubber.dart';
 import 'stage_bar.dart';
 
 /// One grid of squares, drawn as whatever the stage is actually about.

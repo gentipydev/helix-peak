@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_colors.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_clinvar.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/clinvar_colors.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_colors.dart';
+import 'package:helixpeek/shared/constraint/constraint_colors.dart';
 
 /// Linear-light sRGB, the space the dichromacy matrices work in.
 List<double> _linear(Color c) => <double>[

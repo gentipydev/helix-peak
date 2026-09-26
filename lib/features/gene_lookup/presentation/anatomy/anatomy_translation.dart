@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 import 'dart:ui';
 
+import '../../../../shared/anatomy/anatomy_motion.dart';
 import 'anatomy_layout.dart';
-import 'anatomy_motion.dart';
 
 /// A translation has two spatial steps: fold each triplet where it can still
 /// be read, then move the resulting residues into the protein layout.

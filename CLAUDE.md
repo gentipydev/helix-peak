@@ -70,8 +70,10 @@ Git: commit the session's own changes locally. Never push, in any form.
 
 - `lib/core/`: biology tables, `.env` config, DI, network, router, theme. It is
   not feature-free yet: `di/`, `router/` and `network/` import `gene_lookup`.
-- `lib/shared/widgets/`: the shared layer (`AppLogo`, `ErrorView`,
-  `LoadingView`). Promoted widgets go here.
+- `lib/shared/widgets/`: the app chrome (`AppLogo`, `ErrorView`,
+  `LoadingView`). Nothing promoted goes here.
+- `lib/shared/<area>/`: promoted code, in the sub-folder it had in the walk.
+  `presentation/<area>/<file>.dart` becomes `lib/shared/<area>/<file>.dart`.
 - `lib/features/gene_lookup/`: **the walk**. It has `data/`, `domain/` and
   `presentation/` (`anatomy/`, `clinvar/`, `constraint/`, `inspector/`,
   `structure/`, `cubit/`, `screens/`).

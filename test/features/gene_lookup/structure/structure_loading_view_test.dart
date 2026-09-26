@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/structure/structure_loading_view.dart';
+import 'package:helixpeek/shared/structure/structure_loading_view.dart';
 import 'package:lottie/lottie.dart';
 
 const Key _captureKey = ValueKey<String>('loading-capture');

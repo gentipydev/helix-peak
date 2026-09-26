@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/constraint/constraint_colors.dart';
 import '../../domain/entities/gene_clinvar.dart';
 import '../../domain/entities/gene_impact.dart';
 import '../../domain/entities/protein_constraint.dart';
 import '../../domain/entities/variant_evidence.dart';
-import '../constraint/constraint_colors.dart';
 import '../format.dart';
 import 'clinvar_colors.dart';
 import 'evidence_sections.dart';

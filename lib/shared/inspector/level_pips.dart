@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_typography.dart';
+import '../../core/theme/app_typography.dart';
 
 /// Three pips and a word: how far up its own three bands a model's reading is.
 ///

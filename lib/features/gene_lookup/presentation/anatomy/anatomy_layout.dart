@@ -3,7 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 
-import 'anatomy_motion.dart';
+import '../../../../shared/anatomy/anatomy_motion.dart';
 import 'anatomy_ruler.dart';
 import 'anatomy_stages.dart';
 
