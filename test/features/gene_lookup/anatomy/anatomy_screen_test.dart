@@ -9,11 +9,11 @@ import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constrain
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/structure/structure_view.dart';
 import 'package:helixpeek/shared/anatomy/anatomy_layout.dart';
 import 'package:helixpeek/shared/anatomy/anatomy_scene.dart';
 import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
 import 'package:helixpeek/shared/anatomy/stage_bar.dart';
+import 'package:helixpeek/shared/structure/structure_view.dart';
 
 import '../../../support/test_catalog.dart';
 import 'anatomy_fixture.dart';

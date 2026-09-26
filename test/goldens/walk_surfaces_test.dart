@@ -17,10 +17,10 @@ import 'package:helixpeek/features/gene_lookup/presentation/clinvar/variants_ove
 import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_panel.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_toolbar.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/inspector/impact_panel.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/structure/structure_view.dart';
 import 'package:helixpeek/shared/anatomy/anatomy_layout.dart';
 import 'package:helixpeek/shared/anatomy/anatomy_scene.dart';
 import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/shared/structure/structure_view.dart';
 
 import '../features/gene_lookup/anatomy/anatomy_fixture.dart';
 import '../support/test_catalog.dart';
