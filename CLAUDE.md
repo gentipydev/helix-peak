@@ -78,8 +78,9 @@ Git: commit the session's own changes locally. Never push, in any form.
 - `lib/features/gene_lookup/`: **the walk**. It has `data/`, `domain/` and
   `presentation/` (`anatomy/`, `clinvar/`, `constraint/`, `inspector/`,
   `structure/`, `cubit/`, `screens/`).
-- `lib/features/lab/`: new flows (not created yet). `home/` and `search/`
-  hold the home screen and the catalog list.
+- `lib/features/lab/`: new flows, built only with the lab flag on (see "The
+  lab" below). `home/` and `search/` hold the home screen and the catalog
+  list.
 
 `test/architecture_test.dart` holds that layering to the import lines: `lab/`
 never imports the walk's screens or cubit, `core/` and `shared/` import no
@@ -94,6 +95,27 @@ comes from `flutter/foundation.dart`. There is one existing violation:
 name a colour. Don't copy it. Colours come from the theme (`AppColorTokens`,
 `context.nucleotideColors`, `context.anatomyColors`), never from a raw hex.
 The walk is drawn in `AppTheme.analysis`; home uses `AppTheme.dark`.
+
+## The lab (`LAB_ENABLED`)
+
+Everything under `lib/features/lab/` sits behind one build-time switch:
+`LAB_ENABLED=true` in `.env`, read as `Env.labEnabled`. The file is bundled
+when the app is built, so a build without the line ships none of the lab: no
+`/lab` route and no Lab row on the home screen. Off is the default, and
+`.env.example` says so. A lab flow merges early behind the flag instead of
+rotting on a branch, which is what keeps the shared layer from diverging.
+
+- `lib/app.dart` hands `labRoutes` to `buildAppRouter(extra: ...)`, so core
+  names no lab file. With the flag off the app uses `appRouter` itself.
+- One `ShellRoute` holds every lab route under `LabScope`
+  (`lab_scope.dart`), which gives the lab its own `TrackClient` (folder
+  `lab/tracks`, 100 MB budget) so exploring can never evict a walk track.
+  Below it, `TrackSource` and `FetchGene` read through that client, and the
+  lab wears `AppTheme.analysis`. The walk's routes are not below it.
+- The index at `/lab` lists `labFeatures` in `lab_routes.dart`, one entry per
+  flow as it arrives.
+- Tests switch it on with `dotenv.loadFromString(envString: 'LAB_ENABLED=true')`
+  and off with `dotenv.clean()`.
 
 ## State
 

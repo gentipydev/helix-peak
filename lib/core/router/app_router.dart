@@ -24,6 +24,10 @@ abstract final class RoutePaths {
   static const String search = '/search';
   static const String gene = '/gene';
 
+  /// The lab's index. Its routes are built only when `Env.labEnabled` is on,
+  /// and are handed to [buildAppRouter] by the app rather than named here.
+  static const String lab = '/lab';
+
   /// The walk for one protein. `/gene` with nothing after it is still the
   /// insulin walk, so every link that predates the catalog keeps working.
   static String geneFor(ProteinTarget target) => '$gene/${target.slug}';
@@ -134,30 +138,39 @@ class _WalkLoaderState extends State<_WalkLoader> {
   }
 }
 
-final GoRouter appRouter = GoRouter(
-  initialLocation: RoutePaths.home,
-  debugLogDiagnostics: kDebugMode,
-  routes: <RouteBase>[
-    GoRoute(
-      path: RoutePaths.home,
-      builder: (BuildContext context, GoRouterState state) =>
-          const HomeScreen(),
-    ),
-    GoRoute(
-      path: RoutePaths.search,
-      builder: (BuildContext context, GoRouterState state) =>
-          const SearchScreen(),
-    ),
-    _walk('${RoutePaths.gene}/:slug'),
-    _walk(RoutePaths.gene),
-  ],
-  errorBuilder: (BuildContext context, GoRouterState state) => Scaffold(
-    body: ErrorView(
-      title: 'Page not found',
-      message: 'No route matches ${state.uri}.',
-      onRetry: () => context.go(RoutePaths.home),
-      action: 'Go home',
-      actionIcon: Icons.home_outlined,
-    ),
-  ),
-);
+/// The app's routes, with [extra] spread in after the walk's own.
+///
+/// [extra] is how the lab's routes arrive: `lib/app.dart` hands them over, so
+/// that core names no feature it did not already name (the architecture
+/// test's `layers` rule). Empty, this is [appRouter] exactly.
+GoRouter buildAppRouter({List<RouteBase> extra = const <RouteBase>[]}) =>
+    GoRouter(
+      initialLocation: RoutePaths.home,
+      debugLogDiagnostics: kDebugMode,
+      routes: <RouteBase>[
+        GoRoute(
+          path: RoutePaths.home,
+          builder: (BuildContext context, GoRouterState state) =>
+              const HomeScreen(),
+        ),
+        GoRoute(
+          path: RoutePaths.search,
+          builder: (BuildContext context, GoRouterState state) =>
+              const SearchScreen(),
+        ),
+        _walk('${RoutePaths.gene}/:slug'),
+        _walk(RoutePaths.gene),
+        ...extra,
+      ],
+      errorBuilder: (BuildContext context, GoRouterState state) => Scaffold(
+        body: ErrorView(
+          title: 'Page not found',
+          message: 'No route matches ${state.uri}.',
+          onRetry: () => context.go(RoutePaths.home),
+          action: 'Go home',
+          actionIcon: Icons.home_outlined,
+        ),
+      ),
+    );
+
+final GoRouter appRouter = buildAppRouter();

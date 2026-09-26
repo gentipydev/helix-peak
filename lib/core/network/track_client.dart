@@ -35,6 +35,7 @@ final class TrackClient implements TrackSource {
     Dio? dio,
     Directory? cache,
     this.budget = _defaultBudget,
+    this.folder = 'tracks',
   }) : _dio = dio ?? Dio(_options),
        _given = cache;
 
@@ -62,6 +63,14 @@ final class TrackClient implements TrackSource {
   /// How much of the disk the cache may hold before the least recently read
   /// files start going.
   final int budget;
+
+  /// Where under the application cache directory the payloads go, when no
+  /// cache directory is given. The rows go beside it, in `track_rows/`.
+  ///
+  /// The walk's client keeps `tracks`. A second client named something else,
+  /// such as the lab's `lab/tracks`, has its own files, its own rows and its
+  /// own [budget], so nothing it reads can evict a track the walk holds.
+  final String folder;
 
   final Map<String, Future<Map<TrackKind, TrackRef>>> _rows =
       <String, Future<Map<TrackKind, TrackRef>>>{};
@@ -205,7 +214,7 @@ final class TrackClient implements TrackSource {
     try {
       final Directory directory =
           _given ??
-          Directory('${(await getApplicationCacheDirectory()).path}/tracks');
+          Directory('${(await getApplicationCacheDirectory()).path}/$folder');
       return await directory.create(recursive: true);
     } on Object catch (error) {
       _note('has nowhere to cache', error);

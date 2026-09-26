@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/config/env.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../widgets/dna_helix.dart';
@@ -25,6 +26,13 @@ class HomeScreen extends StatelessWidget {
               ProteinAnalysesCta(
                 onPressed: () => context.push(RoutePaths.search),
               ),
+              // Only in a build with the lab switched on. Without it the
+              // column is exactly what it was.
+              if (Env.labEnabled)
+                ProteinAnalysesCta(
+                  label: 'Lab',
+                  onPressed: () => context.push(RoutePaths.lab),
+                ),
               const SizedBox(height: AppSpacing.sm),
             ],
           ),

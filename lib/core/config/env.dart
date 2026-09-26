@@ -19,6 +19,16 @@ abstract final class Env {
     return Duration(milliseconds: parsed);
   }
 
+  /// Whether this build carries the lab: `/lab`, its entry on the home screen,
+  /// and every flow under `lib/features/lab/`.
+  ///
+  /// Off unless `.env` says `LAB_ENABLED=true`. The file is bundled when the
+  /// app is built, so this is a build-time switch: a release built without the
+  /// line ships none of the lab's half-built flows, and the lab's work can
+  /// still merge early rather than rot on a branch. Missing is not a mistake
+  /// here, so it falls back to off without the warning the other keys give.
+  static bool get labEnabled => _read('LAB_ENABLED') == 'true';
+
   static String? _read(String key) {
     // `dotenv.env` throws NotInitializedError before `load()` has run, and
     // `load(isOptional: true)` can leave the map empty rather than absent. Both

@@ -2,15 +2,27 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 
-/// The home screen's one action: go and pick a protein to walk.
+/// The home screen's action: go and pick a protein to walk.
 ///
-/// Deliberately unfilled. The screen offers exactly one thing to do, so the row
-/// does not need a solid slab to announce itself — a line of accent type and a
-/// chevron are enough, and they leave the wordmark as the loudest thing here.
+/// Deliberately unfilled. The screen offers almost nothing else to do, so the
+/// row does not need a solid slab to announce itself — a line of accent type
+/// and a chevron are enough, and they leave the wordmark as the loudest thing
+/// here. A build with the lab switched on shows a second one beside it,
+/// carrying its own [label].
 class ProteinAnalysesCta extends StatelessWidget {
-  const ProteinAnalysesCta({required this.onPressed, super.key});
+  const ProteinAnalysesCta({
+    required this.onPressed,
+    this.label = defaultLabel,
+    super.key,
+  });
+
+  /// What the walk's entry has always said.
+  static const String defaultLabel = 'Protein Analyses';
 
   final VoidCallback? onPressed;
+
+  /// The words on the row. Defaults to the walk's entry.
+  final String label;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +44,7 @@ class ProteinAnalysesCta extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Text(
-            'Protein Analyses',
+            label,
             style: theme.textTheme.titleSmall?.copyWith(color: accent),
           ),
           const SizedBox(width: AppSpacing.xs),
