@@ -103,12 +103,11 @@ The three findings that matter most:
 
 Consequences for the playbook and the session prompts:
 
-- **Session 07 (playbook 0.4, "Promote tier 1")** should be given the eight
-  files below, not the appendix's nine. Its clause "if any file cannot move
-  without a logic change, leave it" would catch the four, but only after it
-  tried.
+- **Session 07 (playbook 0.4)** has been rewritten (2026-09-26) to move the
+  eight files below and then carry out route R, in five steps.
 - **Session 11 (playbook 1.1)** reads "the promoted `anatomy_motion.dart` and
-  `anatomy_scene.dart`". Motion is in tier 1. Scene needs R1–R4.
+  `anatomy_scene.dart`". Motion moves in session 07's step 1 and scene in its
+  step 5.
 - **Session 24 (playbook AR.2)** says `StructureView` "embeds as-is" because
   the audit puts it in tier 2.
   - An import of it from `lib/features/lab/ar/` breaks rule 3.
@@ -338,7 +337,7 @@ line has to change in the first session that moves anything.
 
 Tier 1 does not include the engine. There are two routes to it.
 
-**Route R (recommended): move the record down instead of splitting the
+**Route R (chosen): move the record down instead of splitting the
 engine.**
 
 - **R1.** Move `gene_record.dart` to `lib/core/biology/gene_record.dart`.
@@ -375,8 +374,7 @@ Why R:
 What R changes conceptually: `GeneRecord` stops being a `gene_lookup` domain
 entity and becomes core biology. Rule 3's crossing point is unaffected, since
 `lab/` could import the record from either place. The only change is that
-`shared/` can now name it. **This is your decision.** Tier 1 doesn't depend on
-it.
+`shared/` can now name it. **Decided on 2026-09-26: route R.**
 
 **Route S (the alternative): split the engine instead.**
 
@@ -422,9 +420,9 @@ steps prove themselves differently:
 - R3 changes 22 walk tests, which is more than one review should carry
   alongside anything else.
 
-Run R1–R4 as four sessions, in that order, each with the zero-diff proof. Per
-"extract on demand", run them when a lab session first needs the engine, or
-before the rework if it will touch `anatomy_layout.dart`.
+Session 07 runs R1–R4 as its steps 2–5, in that order, after tier 1. Each step
+commits on its own with the zero-diff proof. Running them before the rework
+keeps `anatomy_layout.dart` out of the "both in flight" case.
 
 Two things not to do:
 
