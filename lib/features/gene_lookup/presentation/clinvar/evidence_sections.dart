@@ -1,4 +1,4 @@
-import '../anatomy/anatomy_stages.dart';
+import '../../../../shared/anatomy/anatomy_stages.dart';
 
 /// Names the piece of the gene a record off the protein sits in, the way the
 /// gene page names it, and where that is along the transcript.

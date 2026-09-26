@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
 
 import 'features/gene_lookup/anatomy/anatomy_fixture.dart';
 import 'support/test_catalog.dart';

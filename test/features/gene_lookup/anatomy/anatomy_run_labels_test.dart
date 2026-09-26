@@ -10,10 +10,10 @@ import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart'
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_layout.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_run_labels.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/shared/anatomy/anatomy_layout.dart';
+import 'package:helixpeek/shared/anatomy/anatomy_run_labels.dart';
+import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
 
 import '../../../support/test_catalog.dart';
 import 'anatomy_fixture.dart';

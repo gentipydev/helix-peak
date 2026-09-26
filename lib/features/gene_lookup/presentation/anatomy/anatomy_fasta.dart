@@ -1,5 +1,5 @@
+import '../../../../shared/anatomy/anatomy_stages.dart';
 import '../../domain/entities/protein_target.dart';
-import 'anatomy_stages.dart';
 
 /// A page's sequence as FASTA, the way a reader takes it into BLAST, an
 /// aligner or a primer tool.

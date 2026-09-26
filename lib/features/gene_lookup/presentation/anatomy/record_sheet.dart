@@ -3,12 +3,12 @@ import 'package:flutter/services.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/anatomy/anatomy_stages.dart';
 import '../../domain/entities/gene_clinvar.dart';
 import '../../domain/entities/protein_target.dart';
 import '../clinvar/sources_note.dart';
 import '../format.dart';
 import 'anatomy_fasta.dart';
-import 'anatomy_stages.dart';
 
 /// Where everything on the walk comes from, and the ways to take it elsewhere.
 ///

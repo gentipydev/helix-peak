@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_typography.dart';
+import '../../core/theme/app_typography.dart';
 import 'anatomy_layout.dart';
 import 'anatomy_stages.dart';
 

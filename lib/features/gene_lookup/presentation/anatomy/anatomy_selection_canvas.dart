@@ -8,12 +8,12 @@ import 'package:flutter/semantics.dart';
 import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/nucleotide_colors.dart';
+import '../../../../shared/anatomy/anatomy_layout.dart';
+import '../../../../shared/anatomy/anatomy_stages.dart';
 import 'anatomy_canvas.dart';
-import 'anatomy_layout.dart';
 import 'anatomy_painter.dart';
 import 'anatomy_scene.dart';
 import 'anatomy_selection.dart';
-import 'anatomy_stages.dart';
 import 'anatomy_tracer.dart';
 
 /// Uses the same painter and glyphs as the transcript page, on tiles large

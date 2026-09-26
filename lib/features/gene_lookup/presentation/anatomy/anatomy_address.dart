@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/biology/amino_acids.dart';
+import '../../../../shared/anatomy/anatomy_stages.dart';
 import '../format.dart';
-import 'anatomy_stages.dart';
 
 /// Where a base or residue of one gene is, in the coordinates a reader already
 /// uses: coding-DNA numbering, codons, precursor residues, exons.

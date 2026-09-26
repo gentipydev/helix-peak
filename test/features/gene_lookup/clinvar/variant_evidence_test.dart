@@ -6,8 +6,8 @@ import 'package:helixpeek/features/gene_lookup/domain/entities/gene_impact.dart'
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/variant_evidence.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/evidence_sections.dart';
+import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
 
 import '../../../support/test_catalog.dart';
 import '../anatomy/anatomy_fixture.dart';

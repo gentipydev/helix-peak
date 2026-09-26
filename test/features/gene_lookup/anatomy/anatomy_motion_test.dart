@@ -1,9 +1,9 @@
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_layout.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_scene.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/shared/anatomy/anatomy_layout.dart';
+import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
 
 import 'anatomy_fixture.dart';
 

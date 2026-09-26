@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 
-import 'anatomy_stages.dart';
+import '../../../../shared/anatomy/anatomy_stages.dart';
 
 /// All pieces of one feature, kept in the gene's existing 5′ to 3′ order.
 /// This is a DNA inspection, so neither transcription nor a second reverse

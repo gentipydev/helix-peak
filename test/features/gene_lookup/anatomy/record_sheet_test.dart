@@ -12,8 +12,8 @@ import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canv
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_fasta.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_panel.dart';
+import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
 
 import '../../../support/test_catalog.dart';
 import 'anatomy_fixture.dart';

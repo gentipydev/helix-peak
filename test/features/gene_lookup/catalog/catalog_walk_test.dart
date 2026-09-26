@@ -13,8 +13,8 @@ import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constrain
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_toolbar.dart';
+import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
 
 import '../../../support/test_catalog.dart';
 import '../anatomy/anatomy_fixture.dart';

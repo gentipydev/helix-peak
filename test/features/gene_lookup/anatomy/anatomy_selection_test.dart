@@ -10,14 +10,14 @@ import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_layout.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_ruler.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_scene.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_selection.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_selection_canvas.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/shared/anatomy/anatomy_layout.dart';
+import 'package:helixpeek/shared/anatomy/anatomy_ruler.dart';
+import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
 
 import '../../../support/test_catalog.dart';
 import 'anatomy_fixture.dart';

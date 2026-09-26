@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 
-import '../../../../core/biology/gene_record.dart';
+import '../../core/biology/gene_record.dart';
 import '../format.dart';
 
 /// What a base or residue is, biologically.

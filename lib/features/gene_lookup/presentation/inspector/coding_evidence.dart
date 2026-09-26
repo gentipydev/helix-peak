@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/biology/genetic_code.dart';
+import '../../../../shared/anatomy/anatomy_stages.dart';
 import '../../domain/entities/gene_impact.dart';
 import '../../domain/entities/protein_constraint.dart';
 import '../anatomy/anatomy_address.dart';
-import '../anatomy/anatomy_stages.dart';
 
 /// The transcript joins a specific base to a precursor residue. Genomic
 /// arithmetic cannot do this across introns or on a reverse-strand record.

@@ -11,13 +11,13 @@ import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart'
 import 'package:helixpeek/features/gene_lookup/domain/repositories/gene_repository.dart';
 import 'package:helixpeek/features/gene_lookup/domain/usecases/fetch_gene.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_layout.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_stages.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/cubit/gene_lookup_cubit.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/screens/gene_screen.dart';
 import 'package:helixpeek/features/home/presentation/screens/home_screen.dart';
+import 'package:helixpeek/shared/anatomy/anatomy_layout.dart';
+import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
 import 'package:helixpeek/shared/widgets/app_logo.dart';
 import 'package:mocktail/mocktail.dart';
 
