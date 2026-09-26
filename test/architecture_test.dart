@@ -32,7 +32,6 @@ const Map<String, Set<String>> knownBreaches = <String, Set<String>>{
     // The composition root: dependency injection wires the walk's data layer.
     'lib/core/di/dependencies.dart -> lib/features/gene_lookup/data/datasources/gene_remote_data_source.dart',
     'lib/core/di/dependencies.dart -> lib/features/gene_lookup/data/repositories/gene_repository_impl.dart',
-    'lib/core/di/dependencies.dart -> lib/features/gene_lookup/data/repositories/impact_explanation_repository.dart',
     'lib/core/di/dependencies.dart -> lib/features/gene_lookup/data/repositories/protein_catalog_repository.dart',
     'lib/core/di/dependencies.dart -> lib/features/gene_lookup/domain/repositories/gene_repository.dart',
     'lib/core/di/dependencies.dart -> lib/features/gene_lookup/domain/usecases/fetch_gene.dart',

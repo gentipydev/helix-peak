@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
-import '../../../../core/catalog/protein_track.dart';
-import '../../../../core/network/track_source.dart';
-import '../../domain/entities/gene_impact.dart';
-import '../../domain/entities/impact_explanations.dart';
+import '../catalog/protein_track.dart';
+import '../network/track_source.dart';
+import 'gene_impact.dart';
+import 'impact_explanations.dart';
 
 /// Validates stored evidence in an isolate.
 /// Failures are evicted so retry can recover; a live failure never silently

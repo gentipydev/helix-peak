@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/biology/amino_acids.dart';
+import '../../../../core/evidence/gene_clinvar.dart';
 import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/constraint/constraint_colors.dart';
-import '../../domain/entities/gene_clinvar.dart';
 
 import '../clinvar/clinvar_colors.dart';
 

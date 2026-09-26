@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../features/gene_lookup/data/datasources/gene_remote_data_source.dart';
 import '../../features/gene_lookup/data/repositories/gene_repository_impl.dart';
-import '../../features/gene_lookup/data/repositories/impact_explanation_repository.dart';
 import '../../features/gene_lookup/data/repositories/protein_catalog_repository.dart';
 import '../../features/gene_lookup/domain/repositories/gene_repository.dart';
 import '../../features/gene_lookup/domain/usecases/fetch_gene.dart';
+import '../evidence/impact_explanation_repository.dart';
 import '../network/api_client.dart';
 import '../network/track_client.dart';
 import '../network/track_source.dart';

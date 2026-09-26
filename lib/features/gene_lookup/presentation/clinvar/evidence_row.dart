@@ -5,9 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/biology/amino_acids.dart';
+import '../../../../core/evidence/gene_clinvar.dart';
+import '../../../../core/evidence/variant_evidence.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../domain/entities/gene_clinvar.dart';
-import '../../domain/entities/variant_evidence.dart';
 import '../format.dart';
 import '../inspector/impact_explanation_view.dart';
 import 'clinvar_colors.dart';

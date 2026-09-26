@@ -6,13 +6,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 
+import '../../../../core/evidence/gene_clinvar.dart';
+import '../../../../core/evidence/gene_impact.dart';
+import '../../../../core/evidence/protein_constraint.dart';
+import '../../../../core/evidence/variant_evidence.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/clinvar/evidence_sections.dart';
 import '../../../../shared/constraint/constraint_colors.dart';
-import '../../domain/entities/gene_clinvar.dart';
-import '../../domain/entities/gene_impact.dart';
-import '../../domain/entities/protein_constraint.dart';
-import '../../domain/entities/variant_evidence.dart';
 import '../format.dart';
 import 'clinvar_colors.dart';
 

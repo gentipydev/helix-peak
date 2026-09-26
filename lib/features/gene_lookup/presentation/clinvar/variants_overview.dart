@@ -4,15 +4,15 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+import '../../../../core/evidence/gene_clinvar.dart';
+import '../../../../core/evidence/protein_constraint.dart';
+import '../../../../core/evidence/variant_evidence.dart';
 import '../../../../core/router/landscape_route.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/anatomy/sequence_scrubber.dart';
 import '../../../../shared/clinvar/evidence_sections.dart';
 import '../../../../shared/constraint/constraint_colors.dart';
-import '../../domain/entities/gene_clinvar.dart';
-import '../../domain/entities/protein_constraint.dart';
-import '../../domain/entities/variant_evidence.dart';
 import '../format.dart';
 import 'clinvar_colors.dart';
 import 'evidence_row.dart';

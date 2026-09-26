@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/evidence/impact_explanation_repository.dart';
+import '../../../../core/evidence/impact_explanations.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../data/repositories/impact_explanation_repository.dart';
-import '../../domain/entities/impact_explanations.dart';
 
 /// Shared by a selected substitution and a ClinVar record's exact allele.
 /// Loading begins only when the containing detail opens.

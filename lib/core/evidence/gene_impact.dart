@@ -3,10 +3,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 
-import '../../../../core/biology/gene_record.dart';
-import '../../../../core/catalog/protein_target.dart';
-import '../../../../core/catalog/protein_track.dart';
-import '../../../../core/network/track_source.dart';
+import '../biology/gene_record.dart';
+import '../catalog/protein_target.dart';
+import '../catalog/protein_track.dart';
+import '../network/track_source.dart';
 
 /// How a base's strongest substitution reads against every other SNV in the
 /// genome. The boundaries are AlphaGenome's own calibration, not this app's

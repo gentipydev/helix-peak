@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import '../domain/entities/gene_impact.dart';
+import '../../../core/evidence/gene_impact.dart';
 
 export '../../../shared/format.dart';
 

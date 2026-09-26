@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/evidence/variant_evidence.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../domain/entities/variant_evidence.dart';
 
 /// What each source is, and every caveat the walk has to make about them —
 /// written once.

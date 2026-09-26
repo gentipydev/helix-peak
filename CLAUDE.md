@@ -70,7 +70,10 @@ Git: commit the session's own changes locally. Never push, in any form.
 
 - `lib/core/`: biology tables and `GeneRecord`, the parsed GenBank record
   (`biology/`); `ProteinTarget`, `ProteinTrack` and `GeneQuery`
-  (`catalog/`); `.env` config, DI, network, router, theme. It is not
+  (`catalog/`); the evidence tracks as entities (`GeneClinVar`,
+  `ProteinConstraint`, `GeneImpact`, `ImpactExplanations`, `VariantEvidence`)
+  and `ImpactExplanationRepository` (`evidence/`); `.env` config, DI,
+  network, router, theme. It is not
   feature-free yet: `di/` and `router/` import `gene_lookup`.
 - `lib/shared/widgets/`: the app chrome (`AppLogo`, `ErrorView`,
   `LoadingView`). Nothing promoted goes here.

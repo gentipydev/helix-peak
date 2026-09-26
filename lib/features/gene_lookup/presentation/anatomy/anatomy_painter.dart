@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 
+import '../../../../core/evidence/protein_constraint.dart';
 import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/nucleotide_colors.dart';
@@ -17,7 +18,6 @@ import '../../../../shared/anatomy/anatomy_stages.dart';
 import '../../../../shared/anatomy/anatomy_tracer.dart';
 import '../../../../shared/anatomy/anatomy_translation.dart';
 import '../../../../shared/constraint/constraint_colors.dart';
-import '../../domain/entities/protein_constraint.dart';
 import '../clinvar/clinvar_colors.dart';
 import '../format.dart';
 

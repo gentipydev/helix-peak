@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/catalog/protein_target.dart';
+import '../../../../core/evidence/gene_clinvar.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/anatomy/anatomy_stages.dart';
-import '../../domain/entities/gene_clinvar.dart';
 import '../clinvar/sources_note.dart';
 import '../format.dart';
 import 'anatomy_fasta.dart';
