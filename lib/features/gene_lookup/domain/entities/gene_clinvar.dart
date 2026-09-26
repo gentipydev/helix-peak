@@ -5,10 +5,10 @@ import 'package:flutter/foundation.dart';
 import '../../../../core/biology/amino_acids.dart';
 import '../../../../core/biology/gene_record.dart';
 import '../../../../core/biology/genetic_code.dart';
+import '../../../../core/catalog/protein_target.dart';
+import '../../../../core/catalog/protein_track.dart';
 import '../../../../core/network/track_source.dart';
 import 'gene_impact.dart';
-import 'protein_target.dart';
-import 'protein_track.dart';
 
 /// Colors/grouping never replace the verbatim submitted classification.
 /// Conflicting and unfamiliar classifications must never become pathogenic.

@@ -4,10 +4,10 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:helixpeek/core/catalog/protein_track.dart';
 import 'package:helixpeek/core/network/api_client.dart';
 import 'package:helixpeek/core/network/api_exception.dart';
 import 'package:helixpeek/core/network/track_client.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_track.dart';
 
 /// One `/protein/{slug}/tracks` answer, in the shape the service serves.
 Map<String, dynamic> _row({

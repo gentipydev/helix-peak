@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/catalog/gene_query.dart';
+import '../../../../core/catalog/protein_track.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/network/track_source.dart';
-import '../../domain/entities/gene_query.dart';
-import '../../domain/entities/protein_track.dart';
 import '../models/gene_record_dto.dart';
 
 abstract interface class GeneRemoteDataSource {

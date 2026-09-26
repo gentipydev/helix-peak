@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/catalog/protein_target.dart';
 import '../../../../core/network/api_client.dart';
 import '../../domain/entities/protein_ranking.dart';
-import '../../domain/entities/protein_target.dart';
 import '../datasources/catalog_local_data_source.dart';
 
 enum CatalogStatus { loading, ready, failed }

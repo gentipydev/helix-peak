@@ -69,8 +69,9 @@ Git: commit the session's own changes locally. Never push, in any form.
 ## Where code lives
 
 - `lib/core/`: biology tables and `GeneRecord`, the parsed GenBank record
-  (`biology/`), `.env` config, DI, network, router, theme. It is not
-  feature-free yet: `di/`, `router/` and `network/` import `gene_lookup`.
+  (`biology/`); `ProteinTarget`, `ProteinTrack` and `GeneQuery`
+  (`catalog/`); `.env` config, DI, network, router, theme. It is not
+  feature-free yet: `di/` and `router/` import `gene_lookup`.
 - `lib/shared/widgets/`: the app chrome (`AppLogo`, `ErrorView`,
   `LoadingView`). Nothing promoted goes here.
 - `lib/shared/<area>/`: promoted code, in the sub-folder it had in the walk.
@@ -91,7 +92,7 @@ never by adding one.
 
 Domain code must not import `package:flutter/material.dart`; `@immutable`
 comes from `flutter/foundation.dart`. There is one existing violation:
-`domain/entities/protein_target.dart` imports material so that `ChainTint` can
+`lib/core/catalog/protein_target.dart` imports material so that `ChainTint` can
 name a colour. Don't copy it. Colours come from the theme (`AppColorTokens`,
 `context.nucleotideColors`, `context.anatomyColors`), never from a raw hex.
 The walk is drawn in `AppTheme.analysis`; home uses `AppTheme.dark`.

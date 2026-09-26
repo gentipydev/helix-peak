@@ -2,11 +2,11 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:helixpeek/core/catalog/protein_track.dart';
 import 'package:helixpeek/core/network/api_exception.dart';
 import 'package:helixpeek/core/network/track_source.dart';
 import 'package:helixpeek/features/gene_lookup/data/datasources/gene_remote_data_source.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_track.dart';
 
 import '../../support/test_catalog.dart';
 

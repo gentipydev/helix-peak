@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 
 import '../../../../core/biology/gene_record.dart';
+import '../../../../core/catalog/gene_query.dart';
 import '../../../../core/network/api_exception.dart';
-import '../../domain/entities/gene_query.dart';
 import '../../domain/usecases/fetch_gene.dart';
 import 'gene_lookup_state.dart';
 

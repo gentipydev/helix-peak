@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/biology/gene_record.dart';
+import '../../../../core/catalog/protein_target.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/widgets/error_view.dart';
 import '../../../../shared/widgets/loading_view.dart';
-import '../../domain/entities/protein_target.dart';
 import '../anatomy/anatomy_screen.dart';
 import '../cubit/gene_lookup_cubit.dart';
 import '../cubit/gene_lookup_state.dart';

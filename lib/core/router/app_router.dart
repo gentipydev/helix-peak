@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/gene_lookup/data/repositories/protein_catalog_repository.dart';
-import '../../features/gene_lookup/domain/entities/protein_target.dart';
 import '../../features/gene_lookup/domain/usecases/fetch_gene.dart';
 import '../../features/gene_lookup/presentation/cubit/gene_lookup_cubit.dart';
 import '../../features/gene_lookup/presentation/screens/gene_screen.dart';
@@ -14,6 +13,7 @@ import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
 import '../../shared/widgets/error_view.dart';
 import '../../shared/widgets/loading_view.dart';
+import '../catalog/protein_target.dart';
 import '../network/api_exception.dart';
 import 'walk_route.dart';
 

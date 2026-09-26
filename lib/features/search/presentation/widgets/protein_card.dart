@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/catalog/protein_target.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/format.dart';
-import '../../../gene_lookup/domain/entities/protein_target.dart';
 
 /// One protein on the search list: what it is called, its gene symbol, the
 /// figures a reader weighs it by, and up to two lines on why they might open it.

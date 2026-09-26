@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/biology/amino_acids.dart';
+import '../../../../core/catalog/protein_target.dart';
+import '../../../../core/catalog/protein_track.dart';
 import '../../../../core/network/track_source.dart';
-import 'protein_target.dart';
-import 'protein_track.dart';
 
 enum ConstraintLevel {
   high('highly constrained'),

@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:helixpeek/core/catalog/protein_target.dart';
+import 'package:helixpeek/core/catalog/protein_track.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_ranking.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_track.dart';
 
 abstract final class TestCatalog {
   static final List<ProteinTarget> all = _load();

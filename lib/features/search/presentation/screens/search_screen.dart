@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/catalog/protein_target.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -9,7 +10,6 @@ import '../../../../shared/format.dart';
 import '../../../../shared/widgets/error_view.dart';
 import '../../../../shared/widgets/loading_view.dart';
 import '../../../gene_lookup/data/repositories/protein_catalog_repository.dart';
-import '../../../gene_lookup/domain/entities/protein_target.dart';
 import '../widgets/protein_card.dart';
 
 /// Search the cached curated list. Refreshing the list never blocks typing.

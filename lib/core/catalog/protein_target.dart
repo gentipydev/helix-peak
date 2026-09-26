@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/anatomy_colors.dart';
+import '../theme/anatomy_colors.dart';
 import 'gene_query.dart';
 import 'protein_track.dart';
 

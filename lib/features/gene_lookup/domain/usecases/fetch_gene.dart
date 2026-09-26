@@ -1,5 +1,5 @@
 import '../../../../core/biology/gene_record.dart';
-import '../entities/gene_query.dart';
+import '../../../../core/catalog/gene_query.dart';
 import '../repositories/gene_repository.dart';
 
 final class FetchGene {

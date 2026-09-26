@@ -7,7 +7,7 @@
 /// two copies of it.
 library;
 
-import 'protein_target.dart';
+import '../../../../core/catalog/protein_target.dart';
 
 /// Everything in [targets] whose name, gene symbol, UniProt accession, RefSeq
 /// accession or summary contains [query], the closest matches first.

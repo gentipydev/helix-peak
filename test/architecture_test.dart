@@ -36,12 +36,8 @@ const Map<String, Set<String>> knownBreaches = <String, Set<String>>{
     'lib/core/di/dependencies.dart -> lib/features/gene_lookup/data/repositories/protein_catalog_repository.dart',
     'lib/core/di/dependencies.dart -> lib/features/gene_lookup/domain/repositories/gene_repository.dart',
     'lib/core/di/dependencies.dart -> lib/features/gene_lookup/domain/usecases/fetch_gene.dart',
-    // The network layer names the walk's track kinds.
-    'lib/core/network/track_client.dart -> lib/features/gene_lookup/domain/entities/protein_track.dart',
-    'lib/core/network/track_source.dart -> lib/features/gene_lookup/domain/entities/protein_track.dart',
     // The router builds every feature's screen, and the walk's cubit.
     'lib/core/router/app_router.dart -> lib/features/gene_lookup/data/repositories/protein_catalog_repository.dart',
-    'lib/core/router/app_router.dart -> lib/features/gene_lookup/domain/entities/protein_target.dart',
     'lib/core/router/app_router.dart -> lib/features/gene_lookup/domain/usecases/fetch_gene.dart',
     'lib/core/router/app_router.dart -> lib/features/gene_lookup/presentation/cubit/gene_lookup_cubit.dart',
     'lib/core/router/app_router.dart -> lib/features/gene_lookup/presentation/screens/gene_screen.dart',

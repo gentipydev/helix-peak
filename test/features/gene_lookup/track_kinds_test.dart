@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_track.dart';
+import 'package:helixpeek/core/catalog/protein_track.dart';
 
 /// What lets the service serve a new kind of track without touching the walk
 /// or breaking an app already installed: `tracksFromJson` skips a key

@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import '../../features/gene_lookup/domain/entities/protein_track.dart';
+import '../catalog/protein_track.dart';
 
 /// Reads a track by protein and family, without exposing storage paths to UI.
 /// Production reads cached Storage bytes; tests inject a file source.

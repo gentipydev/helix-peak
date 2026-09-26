@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:helixpeek/core/catalog/protein_track.dart';
 import 'package:helixpeek/core/network/api_client.dart';
 import 'package:helixpeek/core/network/track_client.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_track.dart';
 
 /// `getApplicationCacheDirectory`, answered with a temp directory: the only
 /// way to see where a client with no `cache` given puts its files.

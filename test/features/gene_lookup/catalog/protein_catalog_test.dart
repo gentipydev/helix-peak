@@ -4,9 +4,9 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/biology/gene_record.dart';
+import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/protein_constraint.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 import 'package:helixpeek/shared/anatomy/anatomy_layout.dart';
 import 'package:helixpeek/shared/anatomy/anatomy_ruler.dart';
 import 'package:helixpeek/shared/anatomy/anatomy_selection.dart';

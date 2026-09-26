@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/gene_impact.dart';
 import 'package:helixpeek/features/gene_lookup/domain/entities/impact_explanations.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.dart';
 
 import '../../../support/test_catalog.dart';
 
