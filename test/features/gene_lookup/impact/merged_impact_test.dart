@@ -10,13 +10,13 @@ import 'package:helixpeek/core/evidence/gene_clinvar.dart';
 import 'package:helixpeek/core/evidence/gene_impact.dart';
 import 'package:helixpeek/core/evidence/protein_constraint.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_selection_canvas.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/clinvar_block.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/clinvar/evidence_row.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_panel.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/inspector/impact_panel.dart';
+import 'package:helixpeek/shared/anatomy/anatomy_painter.dart';
+import 'package:helixpeek/shared/clinvar/evidence_row.dart';
 
 import '../../../support/test_catalog.dart';
 import '../anatomy/anatomy_fixture.dart';

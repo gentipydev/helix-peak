@@ -10,9 +10,9 @@ import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_fasta.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_panel.dart';
+import 'package:helixpeek/shared/anatomy/anatomy_painter.dart';
 import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
 
 import '../../../support/test_catalog.dart';

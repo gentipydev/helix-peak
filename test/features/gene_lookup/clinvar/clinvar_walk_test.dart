@@ -7,16 +7,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/evidence/gene_clinvar.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_selection_canvas.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/clinvar_block.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/clinvar/clinvar_colors.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/evidence_strip.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/variants_overview.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_panel.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/inspector/impact_panel.dart';
+import 'package:helixpeek/shared/anatomy/anatomy_painter.dart';
 import 'package:helixpeek/shared/anatomy/stage_bar.dart';
+import 'package:helixpeek/shared/clinvar/clinvar_colors.dart';
 
 import '../../../support/test_catalog.dart';
 import '../anatomy/anatomy_fixture.dart';

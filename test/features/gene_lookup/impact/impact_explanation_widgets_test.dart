@@ -14,9 +14,9 @@ import 'package:helixpeek/core/evidence/impact_explanations.dart';
 import 'package:helixpeek/core/network/api_exception.dart';
 import 'package:helixpeek/core/network/track_source.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/clinvar/evidence_row.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/inspector/impact_explanation_view.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/inspector/impact_panel.dart';
+import 'package:helixpeek/shared/clinvar/evidence_row.dart';
+import 'package:helixpeek/shared/inspector/impact_explanation_view.dart';
 
 import '../../../support/test_catalog.dart';
 import '../anatomy/anatomy_fixture.dart';

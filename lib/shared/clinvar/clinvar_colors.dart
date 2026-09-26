@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/evidence/gene_clinvar.dart';
+import '../../core/evidence/gene_clinvar.dart';
 
 /// The only hues on the walk that mean "observed".
 ///

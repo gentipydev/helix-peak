@@ -15,10 +15,10 @@ import 'package:helixpeek/core/evidence/variant_evidence.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/clinvar_block.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/clinvar/evidence_row.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/evidence_strip.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/variants_overview.dart';
 import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/shared/clinvar/evidence_row.dart';
 import 'package:helixpeek/shared/clinvar/evidence_sections.dart';
 
 import '../../../support/test_catalog.dart';

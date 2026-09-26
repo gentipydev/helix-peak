@@ -8,11 +8,11 @@ import '../../../../core/evidence/protein_constraint.dart';
 import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/nucleotide_colors.dart';
 import '../../../../shared/anatomy/anatomy_layout.dart';
+import '../../../../shared/anatomy/anatomy_painter.dart';
 import '../../../../shared/anatomy/anatomy_scene.dart';
 import '../../../../shared/anatomy/anatomy_stages.dart';
 import '../../../../shared/anatomy/anatomy_tracer.dart';
-import '../clinvar/clinvar_colors.dart';
-import 'anatomy_painter.dart';
+import '../../../../shared/clinvar/clinvar_colors.dart';
 
 /// The grid itself: one `CustomPaint`, one animation, two gestures.
 class AnatomyCanvas extends StatefulWidget {

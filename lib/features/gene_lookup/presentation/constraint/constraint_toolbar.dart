@@ -4,9 +4,9 @@ import '../../../../core/biology/amino_acids.dart';
 import '../../../../core/evidence/gene_clinvar.dart';
 import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../shared/constraint/constraint_colors.dart';
+import '../../../../shared/clinvar/clinvar_colors.dart';
 
-import '../clinvar/clinvar_colors.dart';
+import '../../../../shared/constraint/constraint_colors.dart';
 
 /// The strip under a scored protein page: what its colours mean, and the switch
 /// between chemistry and ESM-2 constraint.

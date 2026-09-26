@@ -6,8 +6,8 @@ import '../../../../core/evidence/gene_clinvar.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/anatomy/anatomy_stages.dart';
+import '../../../../shared/clinvar/sources_note.dart';
 import '../../../../shared/format.dart';
-import '../clinvar/sources_note.dart';
 import 'anatomy_fasta.dart';
 
 /// Where everything on the walk comes from, and the ways to take it elsewhere.

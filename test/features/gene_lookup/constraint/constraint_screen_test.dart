@@ -11,10 +11,10 @@ import 'package:helixpeek/core/catalog/protein_track.dart';
 import 'package:helixpeek/core/evidence/protein_constraint.dart';
 import 'package:helixpeek/core/network/track_source.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_painter.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_panel.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_toolbar.dart';
+import 'package:helixpeek/shared/anatomy/anatomy_painter.dart';
 import 'package:helixpeek/shared/format.dart';
 import 'package:helixpeek/shared/inspector/score_bar.dart';
 
