@@ -12,14 +12,14 @@ import '../../../../core/theme/nucleotide_colors.dart';
 import '../../../../shared/anatomy/anatomy_layout.dart';
 import '../../../../shared/anatomy/anatomy_ruler.dart';
 import '../../../../shared/anatomy/anatomy_run_labels.dart';
+import '../../../../shared/anatomy/anatomy_scene.dart';
 import '../../../../shared/anatomy/anatomy_stages.dart';
+import '../../../../shared/anatomy/anatomy_tracer.dart';
 import '../../../../shared/anatomy/anatomy_translation.dart';
 import '../../../../shared/constraint/constraint_colors.dart';
 import '../../domain/entities/protein_constraint.dart';
 import '../clinvar/clinvar_colors.dart';
 import '../format.dart';
-import 'anatomy_scene.dart';
-import 'anatomy_tracer.dart';
 
 /// Draws one stage, or one transition between two, as a single grid of squares.
 ///

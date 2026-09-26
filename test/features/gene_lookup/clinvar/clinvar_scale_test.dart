@@ -16,10 +16,10 @@ import 'package:helixpeek/features/gene_lookup/domain/entities/protein_target.da
 import 'package:helixpeek/features/gene_lookup/domain/entities/variant_evidence.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/clinvar_block.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/evidence_row.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/clinvar/evidence_sections.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/evidence_strip.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/variants_overview.dart';
 import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/shared/clinvar/evidence_sections.dart';
 
 import '../../../support/test_catalog.dart';
 import '../anatomy/anatomy_fixture.dart';

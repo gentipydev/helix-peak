@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 
-import '../../../../core/biology/amino_acids.dart';
-import '../../../../shared/anatomy/anatomy_stages.dart';
+import '../../core/biology/amino_acids.dart';
 import '../format.dart';
 import 'anatomy_address.dart';
+import 'anatomy_stages.dart';
 
 /// A place in the gene the user has tapped, followed through the whole journey.
 ///

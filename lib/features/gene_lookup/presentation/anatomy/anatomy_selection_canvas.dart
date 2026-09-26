@@ -9,12 +9,12 @@ import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/nucleotide_colors.dart';
 import '../../../../shared/anatomy/anatomy_layout.dart';
+import '../../../../shared/anatomy/anatomy_scene.dart';
+import '../../../../shared/anatomy/anatomy_selection.dart';
 import '../../../../shared/anatomy/anatomy_stages.dart';
+import '../../../../shared/anatomy/anatomy_tracer.dart';
 import 'anatomy_canvas.dart';
 import 'anatomy_painter.dart';
-import 'anatomy_scene.dart';
-import 'anatomy_selection.dart';
-import 'anatomy_tracer.dart';
 
 /// Uses the same painter and glyphs as the transcript page, on tiles large
 /// enough to tap — see [AnatomyLayout.inspection].

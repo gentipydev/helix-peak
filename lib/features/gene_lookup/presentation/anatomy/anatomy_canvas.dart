@@ -7,12 +7,12 @@ import 'package:flutter/semantics.dart';
 import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/nucleotide_colors.dart';
 import '../../../../shared/anatomy/anatomy_layout.dart';
+import '../../../../shared/anatomy/anatomy_scene.dart';
 import '../../../../shared/anatomy/anatomy_stages.dart';
+import '../../../../shared/anatomy/anatomy_tracer.dart';
 import '../../domain/entities/protein_constraint.dart';
 import '../clinvar/clinvar_colors.dart';
 import 'anatomy_painter.dart';
-import 'anatomy_scene.dart';
-import 'anatomy_tracer.dart';
 
 /// The grid itself: one `CustomPaint`, one animation, two gestures.
 class AnatomyCanvas extends StatefulWidget {

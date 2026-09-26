@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../shared/anatomy/anatomy_stages.dart';
+import '../../core/theme/app_spacing.dart';
+import 'anatomy_stages.dart';
 
 /// Where you are in the walk, and every other place you can go from here.
 ///
