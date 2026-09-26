@@ -48,11 +48,7 @@ const Map<String, Set<String>> knownBreaches = <String, Set<String>>{
     'lib/core/router/app_router.dart -> lib/features/home/presentation/screens/home_screen.dart',
     'lib/core/router/app_router.dart -> lib/features/search/presentation/screens/search_screen.dart',
   },
-  'features': <String>{
-    // The catalog list formats its figures with the walk's number formats.
-    'lib/features/search/presentation/screens/search_screen.dart -> lib/features/gene_lookup/presentation/format.dart',
-    'lib/features/search/presentation/widgets/protein_card.dart -> lib/features/gene_lookup/presentation/format.dart',
-  },
+  'features': <String>{},
 };
 
 /// One `import` or `export` of a file under `lib/`, by a file under `lib/`.
