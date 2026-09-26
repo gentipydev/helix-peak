@@ -78,6 +78,13 @@ Git: commit the session's own changes locally. Never push, in any form.
 - `lib/features/lab/`: new flows (not created yet). `home/` and `search/`
   hold the home screen and the catalog list.
 
+`test/architecture_test.dart` holds that layering to the import lines: `lab/`
+never imports the walk's screens or cubit, `core/` and `shared/` import no
+feature, and no feature imports another's `presentation/` (domain entities are
+the crossing point). The imports that already broke it are listed in its
+`knownBreaches`. The list may only shrink: close an entry by moving code,
+never by adding one.
+
 Domain code must not import `package:flutter/material.dart`; `@immutable`
 comes from `flutter/foundation.dart`. There is one existing violation:
 `domain/entities/protein_target.dart` imports material so that `ChainTint` can
