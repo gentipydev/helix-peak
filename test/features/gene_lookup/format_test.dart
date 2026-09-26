@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/format.dart';
+import 'package:helixpeek/shared/format.dart';
 
 void main() {
   test('a genome rank is written out, never in exponent notation', () {

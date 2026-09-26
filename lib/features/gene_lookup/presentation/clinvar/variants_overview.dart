@@ -13,7 +13,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/anatomy/sequence_scrubber.dart';
 import '../../../../shared/clinvar/evidence_sections.dart';
 import '../../../../shared/constraint/constraint_colors.dart';
-import '../format.dart';
+import '../../../../shared/format.dart';
 import 'clinvar_colors.dart';
 import 'evidence_row.dart';
 import 'evidence_strip.dart';

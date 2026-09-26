@@ -13,7 +13,7 @@ import '../../../../core/evidence/variant_evidence.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/clinvar/evidence_sections.dart';
 import '../../../../shared/constraint/constraint_colors.dart';
-import '../format.dart';
+import '../../../../shared/format.dart';
 import 'clinvar_colors.dart';
 
 /// The strip's two drawings: the protein, and the gene around it.

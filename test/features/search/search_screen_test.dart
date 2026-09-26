@@ -4,9 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/network/api_exception.dart';
 import 'package:helixpeek/features/gene_lookup/data/repositories/protein_catalog_repository.dart';
-import 'package:helixpeek/features/gene_lookup/presentation/format.dart';
 import 'package:helixpeek/features/search/presentation/screens/search_screen.dart';
 import 'package:helixpeek/features/search/presentation/widgets/protein_card.dart';
+import 'package:helixpeek/shared/format.dart';
 
 import '../../support/catalog_api.dart';
 import '../../support/test_catalog.dart';

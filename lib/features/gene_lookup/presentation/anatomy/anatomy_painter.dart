@@ -18,8 +18,8 @@ import '../../../../shared/anatomy/anatomy_stages.dart';
 import '../../../../shared/anatomy/anatomy_tracer.dart';
 import '../../../../shared/anatomy/anatomy_translation.dart';
 import '../../../../shared/constraint/constraint_colors.dart';
+import '../../../../shared/format.dart';
 import '../clinvar/clinvar_colors.dart';
-import '../format.dart';
 
 /// Draws one stage, or one transition between two, as a single grid of squares.
 ///

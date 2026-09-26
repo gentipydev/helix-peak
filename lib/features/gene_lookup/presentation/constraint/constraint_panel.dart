@@ -4,11 +4,11 @@ import '../../../../core/evidence/gene_clinvar.dart';
 import '../../../../core/evidence/protein_constraint.dart';
 import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/format.dart';
 import '../../../../shared/inspector/inspector_sheet.dart';
 import '../../../../shared/inspector/level_pips.dart';
 import '../../../../shared/inspector/score_bar.dart';
 import '../clinvar/clinvar_colors.dart';
-import '../format.dart';
 
 /// A nonmodal sheet: the exposed grid remains interactive at every height.
 ///

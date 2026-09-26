@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/evidence/variant_evidence.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../format.dart';
+import '../../../../shared/format.dart';
 import 'evidence_row.dart';
 
 /// Whether a sheet has ClinVar records to show, or why not.
