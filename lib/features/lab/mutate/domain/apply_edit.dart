@@ -142,12 +142,57 @@ final class EditOutcome {
 /// never patched from the strings the record came with. A peptide keeps the
 /// residues whose codons begin inside it; one the edited protein no longer
 /// reaches is gone.
+///
+/// An edit that touches a base [EditEligibility] rules out is refused with an
+/// [ArgumentError] carrying [Ineligible.reason], never made quietly.
 GeneRecord applyEdit(GeneRecord record, SequenceEdit edit) =>
     _Edited(record, edit).record;
 
-/// What [edit] does to [record]'s product.
+/// What [edit] does to [record]'s product. Refuses what [applyEdit] refuses.
 EditOutcome classify(GeneRecord record, SequenceEdit edit) =>
     _Edited(record, edit).outcome;
+
+// ------------------------------------------------------------- eligibility
+
+/// Whether a record position can be edited at all.
+///
+/// DMD, APP and CFTR arrive with their introns shortened (R2.4): each keeps
+/// its own first and last bases and loses its middle. A drawn base there is
+/// real, but the record does not say where the middle was cut out, so its
+/// neighbours cannot be taken as contiguous with it and no base of the intron
+/// can be placed on the chromosome (R2.5). An edit there would be to no real
+/// sequence. Exons are never shortened, so they stay editable in every record.
+///
+/// An edit touches the bases it replaces or removes; an insertion touches the
+/// base it goes in front of.
+sealed class EditEligibility {
+  const EditEligibility();
+
+  factory EditEligibility.of(GeneRecord record, int position) {
+    RangeError.checkValueInInterval(
+      position,
+      record.start,
+      record.end,
+      'position',
+    );
+    final int offset = _Axis.of(record).offset(position);
+    return _shortenedIntrons(record)
+            .any((_Span intron) => intron.from <= offset && offset <= intron.to)
+        ? const Ineligible(_shortenedReason)
+        : const Eligible();
+  }
+}
+
+final class Eligible extends EditEligibility {
+  const Eligible();
+}
+
+final class Ineligible extends EditEligibility {
+  const Ineligible(this.reason);
+
+  /// One sentence, ready to show as it is, like a refused track's reason.
+  final String reason;
+}
 
 // --------------------------------------------------------------- internals
 
@@ -201,7 +246,7 @@ final class _Change {
       'position',
     );
     final int at = _Axis.of(record).offset(edit.position);
-    return switch (edit) {
+    final _Change change = switch (edit) {
       Substitution(:final String newBase) => _Change(
         at,
         1,
@@ -223,6 +268,12 @@ final class _Change {
         '',
       ),
     };
+    final int last = at + math.max<int>(change.removed, 1) - 1;
+    if (_shortenedIntrons(record)
+        .any((_Span intron) => intron.from <= last && at <= intron.to)) {
+      throw ArgumentError.value(edit.position, 'position', _shortenedReason);
+    }
+    return change;
   }
 
   final int at;
@@ -725,5 +776,39 @@ List<int>? _realIntrons(List<int>? real, List<_Span> exons, _Change change) {
           hidden
               .sublist(kept[k].$1, kept[k + 1].$1)
               .fold<int>(0, (int sum, int bp) => sum + bp),
+  ];
+}
+
+/// Why a base in a shortened intron cannot be edited, in the words the walk
+/// uses when it will not copy one.
+const String _shortenedReason =
+    'This intron is drawn shortened, so an edit here cannot be placed on '
+    'the chromosome.';
+
+/// The introns [record] draws shortened, as offsets.
+///
+/// An intron is shortened where its real length is more than it draws. Where
+/// the record says its introns were shortened but not by how much, every one
+/// of them is taken to be.
+List<_Span> _shortenedIntrons(GeneRecord record) {
+  if (!record.isIntronCompressed) {
+    return const <_Span>[];
+  }
+  final _Axis axis = _Axis.of(record);
+  final List<_Span> exons = <_Span>[
+    for (final Segment segment in _exonsOf(
+      record.transcript,
+      record.exons,
+      Segment(start: record.start, end: record.end),
+    ))
+      axis.span(segment),
+  ]..sort((_Span a, _Span b) => a.from.compareTo(b.from));
+  final List<int>? real = record.realIntronBp;
+  final bool measured = real != null && real.length == exons.length - 1;
+  return <_Span>[
+    for (int i = 0; i + 1 < exons.length; i++)
+      if (exons[i + 1].from - exons[i].to - 1 case final int drawn
+          when drawn > 0 && (!measured || real[i] > drawn))
+        (from: exons[i].to + 1, to: exons[i + 1].from - 1),
   ];
 }

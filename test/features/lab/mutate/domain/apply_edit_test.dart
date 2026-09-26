@@ -645,4 +645,59 @@ void main() {
       );
     });
   });
+
+  group('EditEligibility, on CFTR, whose introns are drawn shortened', () {
+    // Intron 1 is drawn at 19365-21723, 2,359 of its 24,105 bases, and exon 2
+    // is 21724-21834, whole.
+    final GeneRecord cftr = _gene('cftr');
+    const String reason =
+        'This intron is drawn shortened, so an edit here cannot be placed on '
+        'the chromosome.';
+
+    test('a position inside a shortened intron is ineligible', () {
+      for (final int position in <int>[19365, 20000, 21723]) {
+        final EditEligibility eligibility = EditEligibility.of(cftr, position);
+        expect(eligibility, isA<Ineligible>(), reason: '$position');
+        expect((eligibility as Ineligible).reason, reason);
+      }
+    });
+
+    test('an exon position in the same record is eligible', () {
+      for (final int position in <int>[21724, 21800, 21834]) {
+        expect(
+          EditEligibility.of(cftr, position),
+          isA<Eligible>(),
+          reason: '$position',
+        );
+      }
+      final String base = _baseAt(cftr, 21800) == 'A' ? 'C' : 'A';
+      final GeneRecord edited = applyEdit(cftr, Substitution(21800, base));
+      expect(_baseAt(edited, 21800), base);
+    });
+
+    test('an edit that touches one is refused, not made', () {
+      final Matcher refused = throwsA(
+        isA<ArgumentError>().having(
+          (ArgumentError e) => e.message,
+          'message',
+          reason,
+        ),
+      );
+      for (final SequenceEdit edit in const <SequenceEdit>[
+        Substitution(20000, 'A'),
+        Insertion(20000, 'A'),
+        // From the end of exon 2 into intron 2.
+        Deletion(21830, 10),
+      ]) {
+        expect(() => applyEdit(cftr, edit), refused);
+        expect(() => classify(cftr, edit), refused);
+      }
+    });
+
+    test('a record drawn whole is eligible everywhere', () {
+      for (final int position in <int>[4986, 5100, 5800, 6416]) {
+        expect(EditEligibility.of(insulin, position), isA<Eligible>());
+      }
+    });
+  });
 }
