@@ -1,0 +1,7 @@
+# The goldens container (tool/goldens/) runs these from a Windows checkout,
+# where core.autocrlf would otherwise hand bash a CRLF script.
+*.sh text eol=lf
+Dockerfile text eol=lf
+
+# Goldens are compared pixel for pixel; git never converts them.
+*.png binary

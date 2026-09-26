@@ -1,9 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,7 +21,8 @@ import 'package:helixpeek/features/home/presentation/screens/home_screen.dart';
 import 'package:helixpeek/shared/widgets/app_logo.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'support/test_catalog.dart';
+import '../support/test_catalog.dart';
+import 'golden.dart';
 
 // GeneLookupCubit is a final class and cannot be mocked directly, so the screen
 // is driven by a real cubit over a stubbed repository.
@@ -48,27 +47,8 @@ Future<void> _loadFont(String family, List<String> paths) async {
   await loader.load();
 }
 
-Future<void> _capture(WidgetTester tester, String name) async {
-  final RenderRepaintBoundary boundary = tester.firstRenderObject(
-    find.byType(RepaintBoundary),
-  ) as RenderRepaintBoundary;
-
-  // Both of these resolve on the real event loop, which the fake clock inside
-  // testWidgets never pumps. Awaited directly they hang until the whole test
-  // times out — the file still lands, ten minutes late, and the run is marked
-  // failed. runAsync hands them a loop that actually turns.
-  final ByteData? bytes = await tester.runAsync<ByteData>(() async {
-    final ui.Image image = await boundary.toImage(pixelRatio: 2);
-    final ByteData? data = await image.toByteData(
-      format: ui.ImageByteFormat.png,
-    );
-    image.dispose();
-    return data!;
-  });
-
-  File('${Platform.environment['SHOT_DIR']}/$name.png')
-      .writeAsBytesSync(bytes!.buffer.asUint8List());
-}
+Future<void> _capture(WidgetTester tester, String name) =>
+    expectScreen(tester, 'screens/$name.png');
 
 Future<void> _swipe(WidgetTester tester, {required bool forward}) async {
   final Rect screen = tester.getRect(find.byType(AnatomyScreen));
@@ -117,11 +97,16 @@ void main() {
       'assets/fonts/JetBrainsMono-Regular.ttf',
       'assets/fonts/JetBrainsMono-Medium.ttf',
     ]);
+    // Without it every icon is the same empty box, and a golden cannot tell
+    // one icon from another.
+    await (FontLoader('MaterialIcons')
+          ..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf')))
+        .load();
   });
 
   testWidgets('home screen', (WidgetTester tester) async {
-    if ((Platform.environment['SHOT_DIR'] ?? '').isEmpty) {
-      markTestSkipped('set SHOT_DIR to capture the screens');
+    if (goldenSkip case final String reason) {
+      markTestSkipped(reason);
       return;
     }
 
@@ -148,8 +133,8 @@ void main() {
   });
 
   testWidgets('anatomy screen', (WidgetTester tester) async {
-    if ((Platform.environment['SHOT_DIR'] ?? '').isEmpty) {
-      markTestSkipped('set SHOT_DIR to capture the screens');
+    if (goldenSkip case final String reason) {
+      markTestSkipped(reason);
       return;
     }
 

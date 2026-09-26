@@ -32,13 +32,13 @@ suite. Done means all of these:
 - `git diff -M --stat` shows moved files as renames, not rewrites.
 
 **An edited walk test is a failure, not a fix.** A walk test is any test
-committed before the session began under `test/features/gene_lookup/` or
-`test/core/`, along with the `test/support/` helpers and `test/fixtures/` files
-those tests read. A session may change exactly one thing in them: an `import`
+committed before the session began under `test/features/gene_lookup/`,
+`test/core/` or `test/goldens/`, along with the `test/support/` helpers and
+`test/fixtures/` files those tests read. A session may change exactly one thing in them: an `import`
 line that follows a file the session moved. Anything else is an edit: an
 expectation, finder, key, type name, pump duration, surface size, text scale or
-fixture; a loosened matcher; a `skip`; a deleted test; and, once goldens land,
-a regenerated golden. If a refactor needs any of these, it has changed
+fixture; a loosened matcher; a `skip`; a deleted test; and a regenerated
+golden (`test/goldens/**/*.png`). If a refactor needs any of these, it has changed
 behaviour. Revert the step, name the test and the assertion that failed, and
 say what the walk now does differently. Walk behaviour changes only when the
 user asks for it by name. The tests read internals (`AnatomyPainter`'s `scene`,
@@ -46,9 +46,12 @@ user asks for it by name. The tests read internals (`AnatomyPainter`'s `scene`,
 `ValueKey`s), so a rename or reshaped field that a test names falls under this
 rule too: list it for its own session and make the test edit there, with the
 user's approval. Adding a test is always allowed. Before committing,
-`git diff -M -U0 --diff-filter=MRD <start> -- test/features/gene_lookup test/core test/support | grep -E '^[+-]' | grep -vE '^(\+\+\+|---) |^[+-]import '`
-must print nothing and `git diff --quiet <start> -- test/fixtures` must exit 0,
-where `<start>` is the commit the session began from.
+`git diff -M -U0 --diff-filter=MRD <start> -- test/features/gene_lookup test/core test/support test/goldens | grep -E '^[+-]' | grep -vE '^(\+\+\+|---) |^[+-]import '`
+must print nothing, and `git diff --quiet <start> -- test/fixtures` and
+`git diff --quiet --diff-filter=MRD <start> -- 'test/goldens/**/*.png'` must
+exit 0 (the first command cannot see a PNG change: git prints "Binary files
+differ" for it, with no `+` or `-` line), where `<start>` is the commit the
+session began from.
 
 Git: commit the session's own changes locally. Never push, in any form.
 
@@ -178,11 +181,22 @@ dart run build_runner build    # after editing gene_record_dto.dart
 **Opt-in checks** skip unless their variable is set; run `*_check.dart` by path.
 - `LIVE_BACKEND=http://localhost:8000 flutter test test/live_backend_check.dart`
   fetches and parses every track through the production client.
-- `SHOT_DIR=<dir> flutter test test/screen_render_check.dart` writes PNGs (the
-  catalog walk, ClinVar, constraint and impact tests do too). Also:
+- `SHOT_DIR=<dir> flutter test test/goldens` writes PNGs (the catalog walk,
+  ClinVar, constraint and impact tests do too). Also:
   `TRANSLATION_SHOT_DIR`, `SELECTION_SHOT_DIR`, `HELIX_OUT`, `HELIX_MOTION=1`.
 
-**Render baseline: not built yet.** Nothing calls `matchesGoldenFile`; the
-`SHOT_DIR` writers save PNGs and compare nothing. Until goldens are committed,
-the zero-diff proof can't be run and no session can claim it. When they land,
-put their command and the environment they must be generated in here.
+**Render baseline: `tool/goldens/goldens.sh`** (Git Bash, with Docker running).
+It runs `flutter test` in the one environment the goldens are made and checked
+in: `tool/goldens/Dockerfile`, Ubuntu 24.04 pinned by digest, Flutter 3.47.5,
+x86-64. The zero-diff proof is `tool/goldens/goldens.sh test/goldens`; the
+whole suite, as CI runs it, is `tool/goldens/goldens.sh`. A native
+`flutter test` skips the 32 golden tests with that reason, because text is
+rasterised by the host and a native Windows run differs at every glyph edge.
+A failed golden leaves its diff in `test/goldens/failures/`. Regenerating is
+session 99's job alone: `docs/goldens.md` has the environment, the commands
+and the rules.
+
+Natively on Windows, `protein_catalog_test.dart`'s "every track is fetched,
+and none of them ships" fails before any session touches it: it compares
+`File.path` against `/`-separated literals, and Windows lists
+`assets\animations\process.json`. It passes in the container.

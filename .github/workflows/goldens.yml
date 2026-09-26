@@ -1,0 +1,28 @@
+# The test suite, goldens included, in the one environment the goldens were
+# made in: tool/goldens/Dockerfile. docs/goldens.md explains the pinning.
+name: goldens
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    # x86-64 Linux, the architecture the goldens were made on. The container
+    # pins the rest: the OS, Flutter and its engine, and the fonts.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: flutter test in the golden container
+        run: bash tool/goldens/goldens.sh --reporter expanded
+
+      - name: keep the diff of every golden that failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-failures
+          path: test/goldens/failures/
+          if-no-files-found: ignore
