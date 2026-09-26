@@ -31,6 +31,25 @@ suite. Done means all of these:
 - The render baseline diffs to zero. Never regenerate it to make a session pass.
 - `git diff -M --stat` shows moved files as renames, not rewrites.
 
+**An edited walk test is a failure, not a fix.** A walk test is any test
+committed before the session began under `test/features/gene_lookup/` or
+`test/core/`, along with the `test/support/` helpers and `test/fixtures/` files
+those tests read. A session may change exactly one thing in them: an `import`
+line that follows a file the session moved. Anything else is an edit: an
+expectation, finder, key, type name, pump duration, surface size, text scale or
+fixture; a loosened matcher; a `skip`; a deleted test; and, once goldens land,
+a regenerated golden. If a refactor needs any of these, it has changed
+behaviour. Revert the step, name the test and the assertion that failed, and
+say what the walk now does differently. Walk behaviour changes only when the
+user asks for it by name. The tests read internals (`AnatomyPainter`'s `scene`,
+`maskedIndex`, `groove` and `tracer`, panel and strip fields, over 40
+`ValueKey`s), so a rename or reshaped field that a test names falls under this
+rule too: list it for its own session and make the test edit there, with the
+user's approval. Adding a test is always allowed. Before committing,
+`git diff -M -U0 --diff-filter=MRD <start> -- test/features/gene_lookup test/core test/support | grep -E '^[+-]' | grep -vE '^(\+\+\+|---) |^[+-]import '`
+must print nothing and `git diff --quiet <start> -- test/fixtures` must exit 0,
+where `<start>` is the commit the session began from.
+
 Git: commit the session's own changes locally. Never push, in any form.
 
 ## Extraction discipline
