@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/biology/amino_acids.dart';
+import '../../../../core/biology/gene_record.dart';
 import '../../../../core/network/track_source.dart';
 import '../../../../core/router/rise_route.dart';
 import '../../../../core/router/walk_route.dart';
@@ -17,7 +18,6 @@ import '../../../../shared/anatomy/sequence_scrubber.dart';
 import '../../../../shared/inspector/inspector_sheet.dart';
 import '../../domain/entities/gene_clinvar.dart';
 import '../../domain/entities/gene_impact.dart';
-import '../../domain/entities/gene_record.dart';
 import '../../domain/entities/protein_constraint.dart';
 import '../../domain/entities/protein_target.dart';
 import '../../domain/entities/variant_evidence.dart';

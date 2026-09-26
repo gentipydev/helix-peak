@@ -1,7 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:helixpeek/core/biology/gene_record.dart';
 import 'package:helixpeek/core/network/api_exception.dart';
-import 'package:helixpeek/features/gene_lookup/domain/entities/gene_record.dart';
 import 'package:helixpeek/features/gene_lookup/domain/repositories/gene_repository.dart';
 import 'package:helixpeek/features/gene_lookup/domain/usecases/fetch_gene.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/cubit/gene_lookup_cubit.dart';

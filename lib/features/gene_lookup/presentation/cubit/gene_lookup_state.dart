@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/biology/gene_record.dart';
 import '../../domain/entities/gene_query.dart';
-import '../../domain/entities/gene_record.dart';
 
 @immutable
 sealed class GeneLookupState {

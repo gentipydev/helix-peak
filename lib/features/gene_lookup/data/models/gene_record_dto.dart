@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
-import '../../domain/entities/gene_record.dart';
+import '../../../../core/biology/gene_record.dart';
 
 part 'gene_record_dto.g.dart';
 

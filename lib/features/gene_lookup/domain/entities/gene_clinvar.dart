@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/biology/amino_acids.dart';
+import '../../../../core/biology/gene_record.dart';
 import '../../../../core/biology/genetic_code.dart';
 import '../../../../core/network/track_source.dart';
 import 'gene_impact.dart';
-import 'gene_record.dart';
 import 'protein_target.dart';
 import 'protein_track.dart';
 

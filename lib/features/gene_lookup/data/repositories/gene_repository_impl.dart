@@ -1,5 +1,5 @@
+import '../../../../core/biology/gene_record.dart';
 import '../../domain/entities/gene_query.dart';
-import '../../domain/entities/gene_record.dart';
 import '../../domain/repositories/gene_repository.dart';
 import '../datasources/gene_remote_data_source.dart';
 import '../models/gene_record_dto.dart';

@@ -68,8 +68,9 @@ Git: commit the session's own changes locally. Never push, in any form.
 
 ## Where code lives
 
-- `lib/core/`: biology tables, `.env` config, DI, network, router, theme. It is
-  not feature-free yet: `di/`, `router/` and `network/` import `gene_lookup`.
+- `lib/core/`: biology tables and `GeneRecord`, the parsed GenBank record
+  (`biology/`), `.env` config, DI, network, router, theme. It is not
+  feature-free yet: `di/`, `router/` and `network/` import `gene_lookup`.
 - `lib/shared/widgets/`: the app chrome (`AppLogo`, `ErrorView`,
   `LoadingView`). Nothing promoted goes here.
 - `lib/shared/<area>/`: promoted code, in the sub-folder it had in the walk.

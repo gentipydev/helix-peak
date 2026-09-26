@@ -3,8 +3,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/biology/gene_record.dart';
 import '../../../../core/network/track_source.dart';
-import 'gene_record.dart';
 import 'protein_target.dart';
 import 'protein_track.dart';
 
