@@ -9,12 +9,8 @@ import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
 import 'package:helixpeek/features/lab/ribosome/domain/one_cycle.dart';
 import 'package:helixpeek/features/lab/ribosome/domain/translation_timeline.dart';
-import 'package:helixpeek/features/lab/ribosome/presentation/ribosome_screen.dart';
 import 'package:helixpeek/features/lab/ribosome/presentation/translation_painter.dart';
 import 'package:helixpeek/shared/motion/animation_timeline.dart';
-import 'package:helixpeek/shared/motion/transport_bar.dart';
-
-import '../../../../support/test_catalog.dart';
 
 GeneRecord _gene(String gene) => GeneRecordDto.fromJson(
   jsonDecode(File('test/fixtures/mock/gene_$gene.json').readAsStringSync())
@@ -104,40 +100,5 @@ void main() {
         'Codon 2, alanine. 2 of 110 residues made.',
       );
     });
-  });
-
-  testWidgets('the screen steps through one cycle with the transport bar', (
-    WidgetTester tester,
-  ) async {
-    await tester.binding.setSurfaceSize(const Size(390, 844));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.analysis,
-        home: RibosomeScreen(target: TestCatalog.insulin, record: insulin),
-      ),
-    );
-    await tester.pump();
-    expect(find.byType(TransportBar), findsOneWidget);
-    expect(find.text('Codon 2 · decoding'), findsOneWidget);
-
-    for (final String next in <String>[
-      'Codon 2 · peptide bond',
-      'Codon 2 · translocation',
-      'Codon 2 · tRNA exit',
-    ]) {
-      await tester.tap(find.byTooltip('Step forward'));
-      await tester.pump();
-      expect(find.text(next), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    }
-
-    await tester.tap(find.byTooltip('Play'));
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 5));
-    expect(tester.takeException(), isNull);
-    await tester.tap(find.byTooltip('Reset'));
-    await tester.pump();
-    expect(find.text('Codon 2 · decoding'), findsOneWidget);
   });
 }

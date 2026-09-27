@@ -208,6 +208,23 @@ final class TranslationTimeline extends AnimationTimeline<TranslationState> {
     required this.signalPeptideLength,
   }) : assert(protein.isNotEmpty, 'a coding sequence to translate');
 
+  /// A timeline over letters given directly, for a test that needs a shape
+  /// no record in the catalog has.
+  @visibleForTesting
+  TranslationTimeline.raw({
+    required String mrna,
+    required int cdsStart,
+    required String protein,
+    List<int> junctions = const <int>[],
+    int signalPeptideLength = 0,
+  }) : this._(
+         mrna: mrna,
+         cdsStart: cdsStart,
+         protein: protein,
+         junctions: junctions,
+         signalPeptideLength: signalPeptideLength,
+       );
+
   /// [record] must make a protein and have an mRNA the walk draws.
   factory TranslationTimeline(GeneRecord record, {String? chain}) =>
       TranslationTimeline.of(AnatomyModel.derive(record, chain: chain));

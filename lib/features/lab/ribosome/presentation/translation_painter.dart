@@ -436,7 +436,7 @@ class TranslationPainter extends CustomPainter {
         canvas,
         '+${grouped(hidden)}',
         inks.quiet,
-        end.translate(0, -16),
+        end.translate(-40, 0),
         10,
       );
     }
@@ -662,14 +662,14 @@ final class _Frame {
   /// The spacing of residues out of the tunnel.
   static const double step = 17;
 
-  /// The trailing chain's path: out of the tunnel's mouth, along the top,
-  /// down the right edge and back along the bottom.
+  /// The trailing chain's path: out of the tunnel's mouth, along the top and
+  /// down the right edge, stopping short of the mRNA so the chain never lies
+  /// over a base. What does not fit is counted.
   late final List<Offset> _trail = <Offset>[
     tunnelExit,
     tunnelExit.translate(0, -26),
     Offset(size.width - 18, tunnelExit.dy - 26),
-    Offset(size.width - 18, size.height - 18),
-    Offset(18, size.height - 18),
+    Offset(size.width - 18, mrnaY - TranslationPainter.tile - 24),
   ];
 
   /// How many residues the trailing path holds.

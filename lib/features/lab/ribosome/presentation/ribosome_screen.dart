@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import '../../../../core/biology/gene_record.dart';
 import '../../../../core/catalog/protein_target.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../shared/anatomy/sequence_scrubber.dart';
+import '../../../../shared/format.dart';
 import '../../../../shared/motion/timeline_controller.dart';
 import '../../../../shared/motion/transport_bar.dart';
 import '../../presentation/lab_protein_picker.dart';
 import '../../presentation/lab_record.dart';
-import '../domain/one_cycle.dart';
+import '../domain/caption_generator.dart';
+import '../domain/director.dart';
 import '../domain/translation_timeline.dart';
 import 'translation_painter.dart';
 
@@ -32,12 +35,22 @@ class RibosomeRoute extends StatelessWidget {
   }
 }
 
-/// One elongation cycle, stepped through with the shared transport bar.
+/// The whole coding sequence translated, from the cap to the stop codon.
+///
+/// Played on the shared transport bar, paced by the [TranslationDirector]
+/// (slow where something happens once, fast in between) beside a cell-time
+/// readout that never warps, and scrubbed with the walk's own
+/// [SequenceScrubber] as a minimap of the mRNA, its landmarks the timeline's
+/// own events. A caption, built from the record by the [CaptionGenerator],
+/// says what is happening; where none can be built, none is shown.
 class RibosomeScreen extends StatefulWidget {
   const RibosomeScreen({required this.target, required this.record, super.key});
 
   final ProteinTarget target;
   final GeneRecord record;
+
+  /// How long one beat takes at speed 1, where the director plays slowly.
+  static const Duration beat = Duration(milliseconds: 1200);
 
   @override
   State<RibosomeScreen> createState() => _RibosomeScreenState();
@@ -46,7 +59,8 @@ class RibosomeScreen extends StatefulWidget {
 class _RibosomeScreenState extends State<RibosomeScreen>
     with SingleTickerProviderStateMixin {
   TranslationTimeline? _translation;
-  OneCycle? _cycle;
+  TranslationDirector? _director;
+  CaptionGenerator? _captions;
   TimelineController? _controller;
 
   @override
@@ -57,16 +71,16 @@ class _RibosomeScreenState extends State<RibosomeScreen>
         widget.record,
         chain: widget.target.chain,
       );
-      if (translation.protein.length >= 2) {
-        final OneCycle cycle = OneCycle(translation, codon: 2);
-        _translation = translation;
-        _cycle = cycle;
-        _controller = TimelineController(
-          vsync: this,
-          timeline: cycle,
-          beat: const Duration(seconds: 4),
-        );
-      }
+      final TranslationDirector director = TranslationDirector(translation);
+      _translation = translation;
+      _director = director;
+      _captions = CaptionGenerator(translation, widget.record);
+      _controller = TimelineController(
+        vsync: this,
+        timeline: translation,
+        beat: RibosomeScreen.beat,
+        speedCurve: director.curve,
+      );
     } on ArgumentError {
       // A record with no mRNA page to translate: said below, not thrown.
     }
@@ -78,15 +92,30 @@ class _RibosomeScreenState extends State<RibosomeScreen>
     super.dispose();
   }
 
+  /// The minimap's landmarks: the moments the timeline itself names.
+  static List<(double, String)> _landmarks(TranslationTimeline translation) {
+    final List<(double, String)> marks = <(double, String)>[
+      (translation.beatStart(TranslationTimeline.scanBeats), 'Start codon'),
+      for (final ({int junction, double t}) passed in translation.ejcKnockoff)
+        (passed.t, 'Exon junction'),
+      if (translation.firstExit case final double exit)
+        (exit, 'First residue out'),
+      if (translation.srpWindow case (final double opens, _))
+        (opens, 'Signal peptide out'),
+      (translation.beatStart(translation.firstTerminationBeat), 'Stop codon'),
+    ];
+    return marks
+      ..sort(((double, String) a, (double, String) b) => a.$1.compareTo(b.$1));
+  }
+
   @override
   Widget build(BuildContext context) {
     final TranslationTimeline? translation = _translation;
-    final OneCycle? cycle = _cycle;
     final TimelineController? controller = _controller;
     return Scaffold(
       appBar: AppBar(title: Text('Ribosome · ${widget.target.display}')),
       body: SafeArea(
-        child: translation == null || cycle == null || controller == null
+        child: translation == null || controller == null
             ? Center(
                 child: Padding(
                   padding: const EdgeInsets.all(AppSpacing.screenPadding),
@@ -98,41 +127,113 @@ class _RibosomeScreenState extends State<RibosomeScreen>
                   ),
                 ),
               )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  Expanded(
-                    child: AnimatedBuilder(
-                      animation: controller,
-                      builder: (BuildContext context, Widget? painted) =>
-                          Semantics(
-                            label: TranslationPainter.describe(
-                              translation,
-                              cycle.stateAt(controller.t),
-                            ),
-                            child: painted,
-                          ),
-                      child: RepaintBoundary(
-                        child: CustomPaint(
-                          key: const ValueKey<String>('ribosome-canvas'),
-                          size: Size.infinite,
-                          painter: TranslationPainter(
-                            timeline: translation,
-                            at: () => cycle.fullT(controller.t),
-                            inks: TranslationInks.of(context),
-                            repaint: controller,
-                          ),
-                        ),
+            : _playing(context, translation, controller),
+      ),
+    );
+  }
+
+  Widget _playing(
+    BuildContext context,
+    TranslationTimeline translation,
+    TimelineController controller,
+  ) {
+    final ThemeData theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Expanded(
+                child: AnimatedBuilder(
+                  animation: controller,
+                  builder: (BuildContext context, Widget? painted) => Semantics(
+                    label: TranslationPainter.describe(
+                      translation,
+                      translation.stateAt(controller.t),
+                    ),
+                    child: painted,
+                  ),
+                  child: RepaintBoundary(
+                    child: CustomPaint(
+                      key: const ValueKey<String>('ribosome-canvas'),
+                      size: Size.infinite,
+                      painter: TranslationPainter(
+                        timeline: translation,
+                        at: () => controller.t,
+                        inks: TranslationInks.of(context),
+                        repaint: controller,
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                    child: TransportBar(controller: controller),
+                ),
+              ),
+              SizedBox(
+                width: SequenceScrubber.width,
+                child: TimelineScrubber(
+                  controller: controller,
+                  landmarks: _landmarks(translation),
+                  labelAt: (double t) {
+                    final TranslationState s = translation.stateAt(t);
+                    return s.codon <= translation.protein.length
+                        ? 'Codon ${grouped(s.codon)}'
+                        : 'Stop codon';
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+        AnimatedBuilder(
+          animation: controller,
+          builder: (BuildContext context, _) {
+            final TranslationState state = translation.stateAt(controller.t);
+            final String? caption = _captions!.captionFor(state);
+            final TranslationDirector director = _director!;
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screenPadding,
+                AppSpacing.sm,
+                AppSpacing.screenPadding,
+                0,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  SizedBox(
+                    height: 64,
+                    child: caption == null
+                        ? null
+                        : Text(
+                            caption,
+                            key: const ValueKey<String>('ribosome-caption'),
+                            style: theme.textTheme.bodyMedium,
+                            maxLines: 3,
+                            overflow: TextOverflow.fade,
+                          ),
+                  ),
+                  Text(
+                    'In a cell: '
+                    '${director.cellSeconds(state).toStringAsFixed(1)} s of '
+                    '${director.cellTotal.toStringAsFixed(1)} s, at '
+                    '${TranslationDirector.residuesPerSecond} residues a '
+                    'second',
+                    key: const ValueKey<String>('ribosome-cell-time'),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
-      ),
+            );
+          },
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+          child: TransportBar(controller: controller),
+        ),
+      ],
     );
   }
 }
