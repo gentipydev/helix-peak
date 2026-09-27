@@ -1,0 +1,74 @@
+{
+  "slug": "glucagon",
+  "gene": "GCG",
+  "uniprot": "P01275",
+  "pdb": "6LMK",
+  "schema_version": 1,
+  "frame": {
+    "space": "the stored structure model: centred, longest axis 1.0",
+    "glb_sha256": "f967a9f345fa36414e4bcbb106ee5d4a05348fd0f6a2b1f3b38f81a3521035de",
+    "centre_angstrom": [
+      120.168198,
+      64.479365,
+      107.248974
+    ],
+    "length_angstrom": 33.159798,
+    "method": "the structure bake's own export origin and normalisation, re-run and matched to the stored model vertex for vertex",
+    "matched_within": 2e-06,
+    "bounds": {
+      "min": [
+        -0.464244,
+        -0.5,
+        -0.094089
+      ],
+      "max": [
+        0.464244,
+        0.5,
+        0.094089
+      ]
+    }
+  },
+  "secondary_structure": "HELIX and SHEET records of 6LMK",
+  "chains": [
+    {
+      "node": "chainA",
+      "pdb_chain": "E",
+      "offset": 52,
+      "first": 53,
+      "last": 81,
+      "entry_differs": [],
+      "residues": [
+        {"n": 53, "aa": "H", "state": "ordered", "ss": "coil", "ca": [-0.45878, 0.49556, 0.01885]},
+        {"n": 54, "aa": "S", "state": "ordered", "ss": "helix", "ca": [-0.39681, 0.4303, -0.05124]},
+        {"n": 55, "aa": "Q", "state": "ordered", "ss": "helix", "ca": [-0.28807, 0.46025, -0.03359]},
+        {"n": 56, "aa": "G", "state": "ordered", "ss": "helix", "ca": [-0.29919, 0.41923, 0.07193]},
+        {"n": 57, "aa": "T", "state": "ordered", "ss": "helix", "ca": [-0.34992, 0.32713, 0.02609]},
+        {"n": 58, "aa": "F", "state": "ordered", "ss": "helix", "ca": [-0.28508, 0.30442, -0.06595]},
+        {"n": 59, "aa": "T", "state": "ordered", "ss": "helix", "ca": [-0.18791, 0.30165, -0.00591]},
+        {"n": 60, "aa": "S", "state": "ordered", "ss": "helix", "ca": [-0.24464, 0.24058, 0.07199]},
+        {"n": 61, "aa": "D", "state": "ordered", "ss": "helix", "ca": [-0.2529, 0.16317, -0.01218]},
+        {"n": 62, "aa": "Y", "state": "ordered", "ss": "helix", "ca": [-0.14904, 0.18597, -0.05522]},
+        {"n": 63, "aa": "S", "state": "ordered", "ss": "helix", "ca": [-0.10899, 0.15843, 0.04843]},
+        {"n": 64, "aa": "K", "state": "ordered", "ss": "helix", "ca": [-0.1757, 0.0676, 0.07141]},
+        {"n": 65, "aa": "Y", "state": "ordered", "ss": "helix", "ca": [-0.14476, 0.02674, -0.03055]},
+        {"n": 66, "aa": "L", "state": "ordered", "ss": "helix", "ca": [-0.0339, 0.05219, -0.02428]},
+        {"n": 67, "aa": "D", "state": "ordered", "ss": "helix", "ca": [-0.01306, -0.00601, 0.07156]},
+        {"n": 68, "aa": "S", "state": "ordered", "ss": "helix", "ca": [-0.0653, -0.09721, 0.02603]},
+        {"n": 69, "aa": "R", "state": "ordered", "ss": "helix", "ca": [0.00566, -0.08412, -0.06257]},
+        {"n": 70, "aa": "R", "state": "ordered", "ss": "helix", "ca": [0.09158, -0.08632, 0.01264]},
+        {"n": 71, "aa": "A", "state": "ordered", "ss": "helix", "ca": [0.05108, -0.17697, 0.07]},
+        {"n": 72, "aa": "Q", "state": "ordered", "ss": "helix", "ca": [0.04417, -0.24009, -0.02524]},
+        {"n": 73, "aa": "D", "state": "ordered", "ss": "helix", "ca": [0.14734, -0.19787, -0.05118]},
+        {"n": 74, "aa": "F", "state": "ordered", "ss": "helix", "ca": [0.18338, -0.22809, 0.05281]},
+        {"n": 75, "aa": "V", "state": "ordered", "ss": "helix", "ca": [0.15087, -0.3368, 0.03836]},
+        {"n": 76, "aa": "Q", "state": "ordered", "ss": "helix", "ca": [0.19867, -0.33391, -0.06607]},
+        {"n": 77, "aa": "W", "state": "ordered", "ss": "helix", "ca": [0.29966, -0.30707, -0.01906]},
+        {"n": 78, "aa": "L", "state": "ordered", "ss": "helix", "ca": [0.29568, -0.39697, 0.05154]},
+        {"n": 79, "aa": "M", "state": "ordered", "ss": "helix", "ca": [0.24972, -0.45692, -0.03417]},
+        {"n": 80, "aa": "N", "state": "ordered", "ss": "helix", "ca": [0.35337, -0.44977, -0.08287]},
+        {"n": 81, "aa": "T", "state": "ordered", "ss": "helix", "ca": [0.4354, -0.40713, -0.01429]}
+      ]
+    }
+  ],
+  "built_by": "pipeline/folding/bake_folding.py"
+}

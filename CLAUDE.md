@@ -141,6 +141,17 @@ rotting on a branch, which is what keeps the shared layer from diverging.
   and events. No Rive asset exists, so there is no Rive dependency. The route
   is inferred and the screen says so. Nothing names a tissue, and nothing
   reaches the nucleus yet.
+- `folding/` plays a chain folding in four staged steps (hydrophobic
+  collapse, helices coil, strands pair, bridges snap shut) from the `folding`
+  track: each chain's CA trace and secondary structure, residue by residue,
+  in the stored structure model's frame (`pipeline/folding` in the backend).
+  It paints, through the fold page's own camera (`structureCamera` on the
+  model's bounds, which the track carries), so its last frame lands on the
+  fold that page draws; `docs/folding-renderer.md` says why it paints though
+  flutter_scene can build meshes at runtime. Every step says it is an
+  illustration, not a simulation. Residues the track calls disordered hang
+  loose and never settle; absent ones are not drawn. The bridges are the
+  catalog's pairs, read from the constraint track, in the `bonds` colour.
 - Tests switch it on with `dotenv.loadFromString(envString: 'LAB_ENABLED=true')`
   and off with `dotenv.clean()`.
 

@@ -5,6 +5,7 @@ import '../../core/config/env.dart';
 import '../../core/router/app_router.dart';
 import 'ar/presentation/ar_screen.dart';
 import 'crispr/presentation/crispr_screen.dart';
+import 'folding/presentation/fold_screen.dart';
 import 'lab_scope.dart';
 import 'mutate/presentation/mutate_screen.dart';
 import 'presentation/lab_index_screen.dart';
@@ -58,6 +59,13 @@ const List<LabFeature> labFeatures = <LabFeature>[
         'its sequence features lay out.',
     path: '${RoutePaths.lab}/trafficking',
   ),
+  LabFeature(
+    title: 'Folding',
+    summary:
+        'Watch a chain fold in four steps into the structure its last page '
+        'draws. An illustration, not a simulation.',
+    path: '${RoutePaths.lab}/folding',
+  ),
 ];
 
 /// Every route under [RoutePaths.lab], whatever the flag says. One shell
@@ -108,6 +116,12 @@ List<RouteBase> buildLabRoutes() => <RouteBase>[
             title: 'Where it goes',
             lead: 'Pick a protein to follow through the cell.',
             screen: (String slug) => CellSceneRoute(slug: slug),
+          ),
+          _picked(
+            'folding',
+            title: 'Folding',
+            lead: 'Pick a protein to watch its chain fold.',
+            screen: (String slug) => FoldRoute(slug: slug),
           ),
         ],
       ),

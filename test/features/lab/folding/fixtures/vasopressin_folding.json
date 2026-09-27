@@ -1,0 +1,54 @@
+{
+  "slug": "vasopressin",
+  "gene": "AVP",
+  "uniprot": "P01185",
+  "pdb": "7KH0",
+  "schema_version": 1,
+  "frame": {
+    "space": "the stored structure model: centred, longest axis 1.0",
+    "glb_sha256": "5ef08e7a1843a33db7bd79d35d7c075714266987e559ead73449d12fb904db4a",
+    "centre_angstrom": [
+      118.259709,
+      109.627369,
+      66.304419
+    ],
+    "length_angstrom": 15.341072,
+    "method": "the structure bake's own export origin and normalisation, re-run and matched to the stored model vertex for vertex",
+    "matched_within": 2.7e-06,
+    "bounds": {
+      "min": [
+        -0.5,
+        -0.155258,
+        -0.378402
+      ],
+      "max": [
+        0.5,
+        0.155258,
+        0.378402
+      ]
+    }
+  },
+  "secondary_structure": "HELIX and SHEET records of 7KH0",
+  "chains": [
+    {
+      "node": "chainA",
+      "pdb_chain": "L",
+      "offset": 19,
+      "first": 20,
+      "last": 28,
+      "entry_differs": [],
+      "residues": [
+        {"n": 20, "aa": "C", "state": "ordered", "ss": "coil", "ca": [-0.09991, 0.03518, 0.13693]},
+        {"n": 21, "aa": "Y", "state": "ordered", "ss": "coil", "ca": [-0.21868, -0.06873, 0.33046]},
+        {"n": 22, "aa": "F", "state": "ordered", "ss": "coil", "ca": [-0.44519, -0.04976, 0.22408]},
+        {"n": 23, "aa": "Q", "state": "ordered", "ss": "coil", "ca": [-0.38868, -0.00752, -0.01587]},
+        {"n": 24, "aa": "N", "state": "ordered", "ss": "coil", "ca": [-0.22467, -0.11507, -0.16879]},
+        {"n": 25, "aa": "C", "state": "ordered", "ss": "coil", "ca": [-0.00318, -0.02108, -0.10198]},
+        {"n": 26, "aa": "P", "state": "ordered", "ss": "coil", "ca": [0.10757, 0.10766, -0.28717]},
+        {"n": 27, "aa": "R", "state": "ordered", "ss": "coil", "ca": [0.28774, -0.06012, -0.33319]},
+        {"n": 28, "aa": "G", "state": "ordered", "ss": "coil", "ca": [0.46224, 0.11679, -0.33892]}
+      ]
+    }
+  ],
+  "built_by": "pipeline/folding/bake_folding.py"
+}

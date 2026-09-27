@@ -1,0 +1,54 @@
+{
+  "slug": "oxytocin",
+  "gene": "OXT",
+  "uniprot": "P01178",
+  "pdb": "7RYC",
+  "schema_version": 1,
+  "frame": {
+    "space": "the stored structure model: centred, longest axis 1.0",
+    "glb_sha256": "a2198a625e24e7cb06457df614f13b46bb6c99fdd2df5cfd1e84a419356dfd64",
+    "centre_angstrom": [
+      142.587319,
+      120.444765,
+      101.656528
+    ],
+    "length_angstrom": 16.593887,
+    "method": "the structure bake's own export origin and normalisation, re-run and matched to the stored model vertex for vertex",
+    "matched_within": 2.8e-06,
+    "bounds": {
+      "min": [
+        -0.5,
+        -0.17321,
+        -0.368945
+      ],
+      "max": [
+        0.5,
+        0.17321,
+        0.368945
+      ]
+    }
+  },
+  "secondary_structure": "HELIX and SHEET records of 7RYC",
+  "chains": [
+    {
+      "node": "chainA",
+      "pdb_chain": "L",
+      "offset": 19,
+      "first": 20,
+      "last": 28,
+      "entry_differs": [],
+      "residues": [
+        {"n": 20, "aa": "C", "state": "ordered", "ss": "coil", "ca": [-0.11398, 0.11234, 0.13032]},
+        {"n": 21, "aa": "Y", "state": "ordered", "ss": "coil", "ca": [-0.243, 0.10355, 0.32388]},
+        {"n": 22, "aa": "I", "state": "ordered", "ss": "coil", "ca": [-0.45326, 0.11054, 0.22957]},
+        {"n": 23, "aa": "Q", "state": "ordered", "ss": "coil", "ca": [-0.39095, 0.007, 0.03564]},
+        {"n": 24, "aa": "N", "state": "ordered", "ss": "coil", "ca": [-0.22396, -0.13714, -0.0251]},
+        {"n": 25, "aa": "C", "state": "ordered", "ss": "coil", "ca": [-0.03377, -0.01644, -0.07428]},
+        {"n": 26, "aa": "P", "state": "ordered", "ss": "coil", "ca": [0.06482, -0.01144, -0.28465]},
+        {"n": 27, "aa": "L", "state": "ordered", "ss": "coil", "ca": [0.26074, -0.1275, -0.32539]},
+        {"n": 28, "aa": "G", "state": "ordered", "ss": "coil", "ca": [0.46461, -0.01855, -0.32606]}
+      ]
+    }
+  ],
+  "built_by": "pipeline/folding/bake_folding.py"
+}
