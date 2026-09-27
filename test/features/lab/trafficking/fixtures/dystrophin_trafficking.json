@@ -1,0 +1,45 @@
+{
+  "slug": "dystrophin",
+  "gene": "DMD",
+  "uniprot": "P11532",
+  "residues": 3685,
+  "source": "UniProtKB",
+  "release": "2026_03",
+  "release_date": "2026-09-02",
+  "retrieved": "2026-09-27",
+  "entry_version": 273,
+  "sequence_version": 4,
+  "schema_version": 1,
+  "transmembrane": [],
+  "gpi_anchor": null,
+  "location": [
+    {
+      "molecule": null,
+      "location": "Cell membrane, sarcolemma",
+      "topology": "Peripheral membrane protein",
+      "orientation": "Cytoplasmic side",
+      "evidence": [
+        "ECO:0000250"
+      ]
+    },
+    {
+      "molecule": null,
+      "location": "Cytoplasm, cytoskeleton",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000250"
+      ]
+    },
+    {
+      "molecule": null,
+      "location": "Postsynaptic cell membrane",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000250"
+      ]
+    }
+  ],
+  "built_by": "pipeline/trafficking/bake_trafficking.py"
+}

@@ -1,0 +1,27 @@
+{
+  "slug": "myoglobin",
+  "gene": "MB",
+  "uniprot": "P02144",
+  "residues": 154,
+  "source": "UniProtKB",
+  "release": "2026_03",
+  "release_date": "2026-09-02",
+  "retrieved": "2026-09-27",
+  "entry_version": 218,
+  "sequence_version": 2,
+  "schema_version": 1,
+  "transmembrane": [],
+  "gpi_anchor": null,
+  "location": [
+    {
+      "molecule": null,
+      "location": "Cytoplasm, sarcoplasm",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    }
+  ],
+  "built_by": "pipeline/trafficking/bake_trafficking.py"
+}

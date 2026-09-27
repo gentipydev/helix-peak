@@ -1,0 +1,165 @@
+{
+  "slug": "p53",
+  "gene": "TP53",
+  "uniprot": "P04637",
+  "residues": 393,
+  "source": "UniProtKB",
+  "release": "2026_03",
+  "release_date": "2026-09-02",
+  "retrieved": "2026-09-27",
+  "entry_version": 315,
+  "sequence_version": 4,
+  "schema_version": 1,
+  "transmembrane": [],
+  "gpi_anchor": null,
+  "location": [
+    {
+      "molecule": null,
+      "location": "Cytoplasm",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": null,
+      "location": "Nucleus",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": null,
+      "location": "Nucleus, PML body",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": null,
+      "location": "Endoplasmic reticulum",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": null,
+      "location": "Mitochondrion matrix",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": null,
+      "location": "Cytoplasm, cytoskeleton, microtubule organizing center, centrosome",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": "Isoform 1",
+      "location": "Nucleus",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": "Isoform 1",
+      "location": "Cytoplasm",
+      "topology": null,
+      "orientation": null,
+      "evidence": []
+    },
+    {
+      "molecule": "Isoform 2",
+      "location": "Nucleus",
+      "topology": null,
+      "orientation": null,
+      "evidence": []
+    },
+    {
+      "molecule": "Isoform 2",
+      "location": "Cytoplasm",
+      "topology": null,
+      "orientation": null,
+      "evidence": []
+    },
+    {
+      "molecule": "Isoform 3",
+      "location": "Nucleus",
+      "topology": null,
+      "orientation": null,
+      "evidence": []
+    },
+    {
+      "molecule": "Isoform 3",
+      "location": "Cytoplasm",
+      "topology": null,
+      "orientation": null,
+      "evidence": []
+    },
+    {
+      "molecule": "Isoform 4",
+      "location": "Nucleus",
+      "topology": null,
+      "orientation": null,
+      "evidence": []
+    },
+    {
+      "molecule": "Isoform 4",
+      "location": "Cytoplasm",
+      "topology": null,
+      "orientation": null,
+      "evidence": []
+    },
+    {
+      "molecule": "Isoform 7",
+      "location": "Nucleus",
+      "topology": null,
+      "orientation": null,
+      "evidence": []
+    },
+    {
+      "molecule": "Isoform 7",
+      "location": "Cytoplasm",
+      "topology": null,
+      "orientation": null,
+      "evidence": []
+    },
+    {
+      "molecule": "Isoform 8",
+      "location": "Nucleus",
+      "topology": null,
+      "orientation": null,
+      "evidence": []
+    },
+    {
+      "molecule": "Isoform 8",
+      "location": "Cytoplasm",
+      "topology": null,
+      "orientation": null,
+      "evidence": []
+    },
+    {
+      "molecule": "Isoform 9",
+      "location": "Cytoplasm",
+      "topology": null,
+      "orientation": null,
+      "evidence": []
+    }
+  ],
+  "built_by": "pipeline/trafficking/bake_trafficking.py"
+}

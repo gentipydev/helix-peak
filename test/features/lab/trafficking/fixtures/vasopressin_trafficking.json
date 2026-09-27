@@ -1,0 +1,63 @@
+{
+  "slug": "vasopressin",
+  "gene": "AVP",
+  "uniprot": "P01185",
+  "residues": 164,
+  "source": "UniProtKB",
+  "release": "2026_03",
+  "release_date": "2026-09-02",
+  "retrieved": "2026-09-27",
+  "entry_version": 238,
+  "sequence_version": 2,
+  "schema_version": 1,
+  "transmembrane": [],
+  "gpi_anchor": null,
+  "location": [
+    {
+      "molecule": null,
+      "location": "Cytoplasmic vesicle, secretory vesicle",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000250"
+      ]
+    },
+    {
+      "molecule": "Arg-vasopressin",
+      "location": "Secreted",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": "Arg-vasopressin",
+      "location": "Cytoplasmic vesicle, secretory vesicle",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000250"
+      ]
+    },
+    {
+      "molecule": "Neurophysin 2",
+      "location": "Secreted",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000250"
+      ]
+    },
+    {
+      "molecule": "Neurophysin 2",
+      "location": "Cytoplasmic vesicle, secretory vesicle",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000250"
+      ]
+    }
+  ],
+  "built_by": "pipeline/trafficking/bake_trafficking.py"
+}

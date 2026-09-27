@@ -1,0 +1,173 @@
+{
+  "slug": "app",
+  "gene": "APP",
+  "uniprot": "P05067",
+  "residues": 770,
+  "source": "UniProtKB",
+  "release": "2026_03",
+  "release_date": "2026-09-02",
+  "retrieved": "2026-09-27",
+  "entry_version": 320,
+  "sequence_version": 3,
+  "schema_version": 1,
+  "transmembrane": [
+    {
+      "start": 702,
+      "end": 722,
+      "description": "Helical",
+      "evidence": [
+        "ECO:0000305"
+      ]
+    }
+  ],
+  "gpi_anchor": null,
+  "location": [
+    {
+      "molecule": null,
+      "location": "Cell membrane",
+      "topology": "Single-pass type I membrane protein",
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269",
+        "ECO:0000305"
+      ]
+    },
+    {
+      "molecule": null,
+      "location": "Membrane",
+      "topology": "Single-pass type I membrane protein",
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269",
+        "ECO:0000305"
+      ]
+    },
+    {
+      "molecule": null,
+      "location": "Perikaryon",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": null,
+      "location": "Cell projection, growth cone",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": null,
+      "location": "Membrane, clathrin-coated pit",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": null,
+      "location": "Early endosome",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": null,
+      "location": "Cytoplasmic vesicle",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": "C83",
+      "location": "Endoplasmic reticulum",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": "C83",
+      "location": "Golgi apparatus",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": "C83",
+      "location": "Early endosome",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": "C99",
+      "location": "Early endosome",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": "Soluble APP-beta",
+      "location": "Secreted",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": "Amyloid-beta protein 40",
+      "location": "Cell surface",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": "Amyloid-beta protein 42",
+      "location": "Cell surface",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": "Gamma-secretase C-terminal fragment 59",
+      "location": "Nucleus",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": "Gamma-secretase C-terminal fragment 59",
+      "location": "Cytoplasm",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    }
+  ],
+  "built_by": "pipeline/trafficking/bake_trafficking.py"
+}

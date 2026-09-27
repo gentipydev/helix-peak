@@ -1,0 +1,17 @@
+{
+  "slug": "hemoglobin",
+  "gene": "HBB",
+  "uniprot": "P68871",
+  "residues": 147,
+  "source": "UniProtKB",
+  "release": "2026_03",
+  "release_date": "2026-09-02",
+  "retrieved": "2026-09-27",
+  "entry_version": 219,
+  "sequence_version": 2,
+  "schema_version": 1,
+  "transmembrane": [],
+  "gpi_anchor": null,
+  "location": [],
+  "built_by": "pipeline/trafficking/bake_trafficking.py"
+}

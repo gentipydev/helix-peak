@@ -1,0 +1,44 @@
+{
+  "slug": "prion",
+  "gene": "PRNP",
+  "uniprot": "P04156",
+  "residues": 253,
+  "source": "UniProtKB",
+  "release": "2026_03",
+  "release_date": "2026-09-02",
+  "retrieved": "2026-09-27",
+  "entry_version": 282,
+  "sequence_version": 1,
+  "schema_version": 1,
+  "transmembrane": [],
+  "gpi_anchor": {
+    "site": 230,
+    "residue": "GPI-anchor amidated serine",
+    "signal": {
+      "start": 231,
+      "end": 253
+    },
+    "evidence": [
+      "ECO:0000250"
+    ]
+  },
+  "location": [
+    {
+      "molecule": null,
+      "location": "Cell membrane",
+      "topology": "Lipid-anchor, GPI-anchor",
+      "orientation": null,
+      "evidence": []
+    },
+    {
+      "molecule": null,
+      "location": "Golgi apparatus",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000250"
+      ]
+    }
+  ],
+  "built_by": "pipeline/trafficking/bake_trafficking.py"
+}

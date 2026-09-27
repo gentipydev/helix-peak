@@ -132,6 +132,15 @@ rotting on a branch, which is what keeps the shared layer from diverging.
   `structure_ar` track's `.glb`: the fold at 1 Å to 1 cm, its size read from
   the row's provenance (`pipeline/structure_ar` in the backend). iOS says
   room view is Android only until its AR Quick Look half is built on a Mac.
+- `trafficking/` derives a protein's route through the cell
+  (`TraffickingRoute`) from its constraint track's region table and, where
+  the `trafficking` track is ready, UniProt's transmembrane spans
+  (`pipeline/trafficking` in the backend). Without them the route stops at
+  unknown and the screen says why. One `CustomPainter` cell draws every
+  protein on the shared transport bar, with captions built from the regions
+  and events. No Rive asset exists, so there is no Rive dependency. The route
+  is inferred and the screen says so. Nothing names a tissue, and nothing
+  reaches the nucleus yet.
 - Tests switch it on with `dotenv.loadFromString(envString: 'LAB_ENABLED=true')`
   and off with `dotenv.clean()`.
 

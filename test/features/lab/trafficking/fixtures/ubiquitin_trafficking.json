@@ -1,0 +1,45 @@
+{
+  "slug": "ubiquitin",
+  "gene": "UBB",
+  "uniprot": "P0CG47",
+  "residues": 229,
+  "source": "UniProtKB",
+  "release": "2026_03",
+  "release_date": "2026-09-02",
+  "retrieved": "2026-09-27",
+  "entry_version": 134,
+  "sequence_version": 1,
+  "schema_version": 1,
+  "transmembrane": [],
+  "gpi_anchor": null,
+  "location": [
+    {
+      "molecule": "Ubiquitin",
+      "location": "Cytoplasm",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000250"
+      ]
+    },
+    {
+      "molecule": "Ubiquitin",
+      "location": "Nucleus",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000250"
+      ]
+    },
+    {
+      "molecule": "Ubiquitin",
+      "location": "Mitochondrion outer membrane",
+      "topology": "Peripheral membrane protein",
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    }
+  ],
+  "built_by": "pipeline/trafficking/bake_trafficking.py"
+}

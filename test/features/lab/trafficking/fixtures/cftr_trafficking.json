@@ -1,0 +1,170 @@
+{
+  "slug": "cftr",
+  "gene": "CFTR",
+  "uniprot": "P13569",
+  "residues": 1480,
+  "source": "UniProtKB",
+  "release": "2026_03",
+  "release_date": "2026-09-02",
+  "retrieved": "2026-09-27",
+  "entry_version": 286,
+  "sequence_version": 3,
+  "schema_version": 1,
+  "transmembrane": [
+    {
+      "start": 78,
+      "end": 98,
+      "description": "Helical; Name=1",
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "start": 123,
+      "end": 146,
+      "description": "Helical; Name=2",
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "start": 196,
+      "end": 216,
+      "description": "Helical; Name=3",
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "start": 223,
+      "end": 243,
+      "description": "Helical; Name=4",
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "start": 299,
+      "end": 319,
+      "description": "Helical; Name=5",
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "start": 340,
+      "end": 358,
+      "description": "Helical; Name=6",
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "start": 859,
+      "end": 879,
+      "description": "Helical; Name=7",
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "start": 919,
+      "end": 939,
+      "description": "Discontinuously helical; Name=8",
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "start": 991,
+      "end": 1011,
+      "description": "Helical; Name=9",
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "start": 1014,
+      "end": 1034,
+      "description": "Helical; Name=10",
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "start": 1096,
+      "end": 1116,
+      "description": "Helical; Name=11",
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "start": 1131,
+      "end": 1151,
+      "description": "Helical; Name=12",
+      "evidence": [
+        "ECO:0000269"
+      ]
+    }
+  ],
+  "gpi_anchor": null,
+  "location": [
+    {
+      "molecule": null,
+      "location": "Apical cell membrane",
+      "topology": "Multi-pass membrane protein",
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": null,
+      "location": "Early endosome membrane",
+      "topology": "Multi-pass membrane protein",
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": null,
+      "location": "Cell membrane",
+      "topology": "Multi-pass membrane protein",
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269",
+        "ECO:0000305"
+      ]
+    },
+    {
+      "molecule": null,
+      "location": "Recycling endosome membrane",
+      "topology": "Multi-pass membrane protein",
+      "orientation": null,
+      "evidence": [
+        "ECO:0000305"
+      ]
+    },
+    {
+      "molecule": null,
+      "location": "Endoplasmic reticulum membrane",
+      "topology": "Multi-pass membrane protein",
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": null,
+      "location": "Nucleus",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000250"
+      ]
+    }
+  ],
+  "built_by": "pipeline/trafficking/bake_trafficking.py"
+}

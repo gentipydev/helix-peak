@@ -12,6 +12,7 @@ import 'presentation/lab_protein_picker.dart';
 import 'ribosome/presentation/ribosome_screen.dart';
 import 'sickle/domain/sickle_story.dart';
 import 'sickle/presentation/sickle_screen.dart';
+import 'trafficking/presentation/cell_scene_screen.dart';
 
 /// The lab's routes, or none: the lab is built only where [Env.labEnabled]
 /// says so. `lib/app.dart` spreads these into the app's router.
@@ -49,6 +50,13 @@ const List<LabFeature> labFeatures = <LabFeature>[
         'what no base editor can write.',
     path: '${RoutePaths.lab}/sickle',
     subject: sickleGene,
+  ),
+  LabFeature(
+    title: 'Where it goes',
+    summary:
+        'Follow a protein from the ribosome through the cell, along the route '
+        'its sequence features lay out.',
+    path: '${RoutePaths.lab}/trafficking',
   ),
 ];
 
@@ -94,6 +102,12 @@ List<RouteBase> buildLabRoutes() => <RouteBase>[
             path: 'sickle',
             builder: (BuildContext context, GoRouterState state) =>
                 const SickleRoute(),
+          ),
+          _picked(
+            'trafficking',
+            title: 'Where it goes',
+            lead: 'Pick a protein to follow through the cell.',
+            screen: (String slug) => CellSceneRoute(slug: slug),
           ),
         ],
       ),

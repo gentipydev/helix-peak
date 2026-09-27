@@ -1,0 +1,25 @@
+{
+  "slug": "lysozyme",
+  "gene": "LYZ",
+  "uniprot": "P61626",
+  "residues": 148,
+  "source": "UniProtKB",
+  "release": "2026_03",
+  "release_date": "2026-09-02",
+  "retrieved": "2026-09-27",
+  "entry_version": 205,
+  "sequence_version": 1,
+  "schema_version": 1,
+  "transmembrane": [],
+  "gpi_anchor": null,
+  "location": [
+    {
+      "molecule": null,
+      "location": "Secreted",
+      "topology": null,
+      "orientation": null,
+      "evidence": []
+    }
+  ],
+  "built_by": "pipeline/trafficking/bake_trafficking.py"
+}

@@ -1,0 +1,66 @@
+{
+  "slug": "tnf",
+  "gene": "TNF",
+  "uniprot": "P01375",
+  "residues": 233,
+  "source": "UniProtKB",
+  "release": "2026_03",
+  "release_date": "2026-09-02",
+  "retrieved": "2026-09-27",
+  "entry_version": 283,
+  "sequence_version": 1,
+  "schema_version": 1,
+  "transmembrane": [
+    {
+      "start": 36,
+      "end": 56,
+      "description": "Helical; Signal-anchor for type II membrane protein",
+      "evidence": [
+        "ECO:0000255"
+      ]
+    }
+  ],
+  "gpi_anchor": null,
+  "location": [
+    {
+      "molecule": null,
+      "location": "Cell membrane",
+      "topology": "Single-pass type II membrane protein",
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": "Tumor necrosis factor, membrane form",
+      "location": "Membrane",
+      "topology": "Single-pass type II membrane protein",
+      "orientation": null,
+      "evidence": []
+    },
+    {
+      "molecule": "Tumor necrosis factor, soluble form",
+      "location": "Secreted",
+      "topology": null,
+      "orientation": null,
+      "evidence": [
+        "ECO:0000269"
+      ]
+    },
+    {
+      "molecule": "C-domain 1",
+      "location": "Secreted",
+      "topology": null,
+      "orientation": null,
+      "evidence": []
+    },
+    {
+      "molecule": "C-domain 2",
+      "location": "Secreted",
+      "topology": null,
+      "orientation": null,
+      "evidence": []
+    }
+  ],
+  "built_by": "pipeline/trafficking/bake_trafficking.py"
+}
