@@ -103,6 +103,33 @@ final class TrackClient implements TrackSource {
     return _fetch(url, ref.sha256);
   }
 
+  /// The payload this client already holds for [kind] of [slug], or null
+  /// where it holds none. Read from the cache alone: the rows it last wrote
+  /// for the protein and the file they name, and never the network, so a
+  /// flow that must work offline can ask what it can use.
+  Future<Uint8List?> held(String slug, TrackKind kind) async {
+    final File? rows = await _rowFile(slug);
+    if (rows == null) {
+      return null;
+    }
+    try {
+      if (!rows.existsSync()) {
+        return null;
+      }
+      final TrackRef? ref = tracksFromJson(
+        jsonDecode(await rows.readAsString()) as Map<String, dynamic>,
+      )[kind];
+      if (ref == null || ref.state != TrackState.ready) {
+        return null;
+      }
+      final File? file = await _cacheFile(ref.sha256);
+      return file == null ? null : await _readCached(file);
+    } on Object catch (error) {
+      _note('could not read what it holds', error);
+      return null;
+    }
+  }
+
   /// Read by the same function the catalog rows are read with, so a family this
   /// calls ready and a family the catalog called ready cannot come to mean two
   /// different things.

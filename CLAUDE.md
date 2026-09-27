@@ -213,6 +213,23 @@ rotting on a branch, which is what keeps the shared layer from diverging.
   in words, a paused note is a live region, and the about sheet
   (`ListenAbout`, on `SourcesNote`) says the mapping is arbitrary, channel by
   channel. Without a ready `audio` row the protein is off and the gene plays.
+- `challenges/` is the daily puzzle at `/lab/challenges`, whose subject is
+  the day. `PuzzleGenerator` makes four rounds on the phone from the date and
+  the catalog, never the backend: each round draws from its own `SeededDraw`
+  (seeded with the day and the round's name, the catalog sorted by slug), so
+  every phone makes the same puzzle, and one day's is pinned in a test. Whose
+  fold is this (the shared `StructureView`); which residue differs (two
+  stretches in the walk's residue colours, the change a held ClinVar missense
+  record quoted inside `ClinVarSourced`, or one made for the puzzle and said
+  to be); put a walk in order; eight codons against a 45 s clock, twice that
+  with a screen reader on. A round picks its protein by the date first and
+  only then asks what the lab's cache holds of it (`TrackClient.held`, which
+  reads the cache alone); where the fold or the sequence is not held, the same
+  protein is asked about from its catalog row (`IdentifyRound`). No text says
+  a variant causes anything. Days and streaks stay on the phone
+  (`lab/challenges/days.json`), a day is played once, and the share card is
+  a square a round and a square a codon with `helixpeek://open/lab/challenges`,
+  drawn the poster's way and shared through `systemShareSheet`.
 - Tests switch it on with `dotenv.loadFromString(envString: 'LAB_ENABLED=true')`
   and off with `dotenv.clean()`.
 

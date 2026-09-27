@@ -22,9 +22,9 @@ final class LabFeature {
   /// Where the row goes, under `/lab`.
   final String path;
 
-  /// The gene this flow is fixed to, where it is about one gene rather than
-  /// asking the reader to pick one. Null for every flow that picks, which is
-  /// all of them but the story.
+  /// What this flow is fixed to, where it does not ask the reader to pick a
+  /// protein: a gene for the story, an assembly for oxygen, the day for the
+  /// daily challenge. Null for every flow that picks.
   final String? subject;
 }
 

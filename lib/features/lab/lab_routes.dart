@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/config/env.dart';
 import '../../core/router/app_router.dart';
 import 'ar/presentation/ar_screen.dart';
+import 'challenges/presentation/challenge_screen.dart';
 import 'crispr/presentation/crispr_screen.dart';
 import 'folding/presentation/fold_screen.dart';
 import 'lab_scope.dart';
@@ -101,6 +102,14 @@ const List<LabFeature> labFeatures = <LabFeature>[
         'in chords, and splice the introns out.',
     path: '${RoutePaths.lab}/listen',
   ),
+  LabFeature(
+    title: ChallengeRoute.title,
+    summary:
+        'Four questions a day, the same for everyone: a fold to name, a '
+        'residue to spot, a walk to order and codons against the clock.',
+    path: '${RoutePaths.lab}/challenges',
+    subject: 'Today',
+  ),
 ];
 
 /// Every route under [RoutePaths.lab], whatever the flag says. One shell
@@ -182,6 +191,13 @@ List<RouteBase> buildLabRoutes() => <RouteBase>[
             title: 'Listen',
             lead: 'Pick a protein to hear it, residue by residue.',
             screen: (String slug) => ListenRoute(slug: slug),
+          ),
+          // Its subject is the day: the date picks the proteins, not the
+          // reader. A shared result links straight here.
+          GoRoute(
+            path: 'challenges',
+            builder: (BuildContext context, GoRouterState state) =>
+                const ChallengeRoute(),
           ),
         ],
       ),
