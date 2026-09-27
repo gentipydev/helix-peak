@@ -98,13 +98,32 @@ void main() {
     expect(find.text('Nothing in the lab yet.'), findsNothing);
   });
 
-  testWidgets('each feature on the index is a route that picks a protein', (
+  testWidgets('each feature that picks a protein is a route that does', (
     WidgetTester tester,
   ) async {
-    for (final LabFeature feature in labFeatures) {
+    final Iterable<LabFeature> picking = labFeatures.where(
+      (LabFeature feature) => feature.subject == null,
+    );
+    expect(picking, isNotEmpty);
+    for (final LabFeature feature in picking) {
       await hostLab(tester, feature.path);
       expect(find.byType(LabProteinPicker), findsOneWidget, reason: feature.path);
       expect(find.text('Insulin'), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+    }
+  });
+
+  testWidgets('a feature with a subject of its own opens on it instead', (
+    WidgetTester tester,
+  ) async {
+    final Iterable<LabFeature> named = labFeatures.where(
+      (LabFeature feature) => feature.subject != null,
+    );
+    expect(named, isNotEmpty);
+    for (final LabFeature feature in named) {
+      await hostLab(tester, feature.path);
+      expect(find.byType(LabProteinPicker), findsNothing, reason: feature.path);
+      expect(find.text(feature.title), findsWidgets, reason: feature.path);
       await tester.pumpWidget(const SizedBox.shrink());
     }
   });

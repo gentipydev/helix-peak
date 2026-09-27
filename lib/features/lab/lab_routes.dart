@@ -10,6 +10,8 @@ import 'mutate/presentation/mutate_screen.dart';
 import 'presentation/lab_index_screen.dart';
 import 'presentation/lab_protein_picker.dart';
 import 'ribosome/presentation/ribosome_screen.dart';
+import 'sickle/domain/sickle_story.dart';
+import 'sickle/presentation/sickle_screen.dart';
 
 /// The lab's routes, or none: the lab is built only where [Env.labEnabled]
 /// says so. `lib/app.dart` spreads these into the app's router.
@@ -39,6 +41,14 @@ const List<LabFeature> labFeatures = <LabFeature>[
         'Find where a nuclease can cut a gene, and choose what the cell does '
         'with the break.',
     path: '${RoutePaths.lab}/crispr',
+  ),
+  LabFeature(
+    title: 'The sickle cell story',
+    summary:
+        'Three chapters about one base: what the approved therapy edits, and '
+        'what no base editor can write.',
+    path: '${RoutePaths.lab}/sickle',
+    subject: sickleGene,
   ),
 ];
 
@@ -77,6 +87,13 @@ List<RouteBase> buildLabRoutes() => <RouteBase>[
             title: 'CRISPR',
             lead: 'Pick a protein to look for guides in its gene.',
             screen: (String slug) => CrisprRoute(slug: slug),
+          ),
+          // The one flow that does not ask which protein: a story names its
+          // own subject, and this one is about the gene [sickleGene].
+          GoRoute(
+            path: 'sickle',
+            builder: (BuildContext context, GoRouterState state) =>
+                const SickleRoute(),
           ),
         ],
       ),

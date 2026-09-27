@@ -10,6 +10,7 @@ final class LabFeature {
     required this.title,
     required this.summary,
     required this.path,
+    this.subject,
   });
 
   /// The name on the row.
@@ -20,6 +21,11 @@ final class LabFeature {
 
   /// Where the row goes, under `/lab`.
   final String path;
+
+  /// The gene this flow is fixed to, where it is about one gene rather than
+  /// asking the reader to pick one. Null for every flow that picks, which is
+  /// all of them but the story.
+  final String? subject;
 }
 
 /// `/lab`: the flows the lab holds, one row each, in the order they arrived.
@@ -61,7 +67,19 @@ class LabIndexScreen extends StatelessWidget {
                     ),
                     title: Text(feature.title),
                     subtitle: Text(feature.summary),
-                    trailing: const Icon(Icons.chevron_right_rounded),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        if (feature.subject case final String gene)
+                          Text(
+                            gene,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        const Icon(Icons.chevron_right_rounded),
+                      ],
+                    ),
                     onTap: () => context.push(feature.path),
                   );
                 },

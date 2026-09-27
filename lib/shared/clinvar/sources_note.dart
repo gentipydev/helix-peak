@@ -1,7 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/evidence/variant_evidence.dart';
 import '../../core/theme/app_typography.dart';
+
+/// One source a note writes about: what it is, in a sentence, and where to
+/// read it.
+@immutable
+final class SourceEntry {
+  const SourceEntry({required this.name, required this.text, this.uri});
+
+  /// The lead the paragraph opens with.
+  final String name;
+
+  /// What the source is, and what it does and does not say.
+  final String text;
+
+  /// Where to read it. A note draws a link only where there is one.
+  final Uri? uri;
+}
+
+/// Opens a link outside the app; false where nothing could.
+typedef SourceOpener = Future<bool> Function(Uri uri);
+
+Future<bool> _openOutside(Uri uri) =>
+    launchUrl(uri, mode: LaunchMode.externalApplication);
 
 /// What each source is, and every caveat the walk has to make about them —
 /// written once.
@@ -11,7 +34,13 @@ import '../../core/theme/app_typography.dart';
 /// info button explains its own model's scale and nothing else, and this is
 /// the one place the rest is said: the overview's footer and the About sheet.
 class SourcesNote extends StatelessWidget {
-  const SourcesNote({this.snapshotDate, this.included = true, super.key});
+  const SourcesNote({
+    this.snapshotDate,
+    this.included = true,
+    this.sources,
+    this.open = _openOutside,
+    super.key,
+  });
 
   /// The ClinVar snapshot's date, once one has loaded.
   final String? snapshotDate;
@@ -20,6 +49,19 @@ class SourcesNote extends StatelessWidget {
   /// one that failed, is included and simply has no date to give yet: "not
   /// yet included" is a different state and says something else (R9.3).
   final bool included;
+
+  /// The sources to write about, or null for the walk's own four — the models
+  /// it draws and the snapshot it quotes, which is what this note has always
+  /// been.
+  ///
+  /// A flow that rests on something else says so with its own list. The
+  /// sickle story's chapters each carry the papers their mechanism comes
+  /// from, since a claim and the place it is answered for belong on the same
+  /// screen.
+  final List<SourceEntry>? sources;
+
+  /// How a source's link is opened. Nothing in the walk's own four has one.
+  final SourceOpener open;
 
   @override
   Widget build(BuildContext context) {
@@ -31,18 +73,50 @@ class SourcesNote extends StatelessWidget {
       color: theme.colorScheme.onSurface,
       fontWeight: FontWeight.w500,
     );
-    Widget paragraph(String name, String text) => Padding(
+    Widget paragraph(String name, String text, {Uri? uri}) => Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Text.rich(
-        TextSpan(
-          children: <InlineSpan>[
-            TextSpan(text: '$name  ', style: lead),
-            TextSpan(text: text),
-          ],
-        ),
-        style: body,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text.rich(
+            TextSpan(
+              children: <InlineSpan>[
+                TextSpan(text: '$name  ', style: lead),
+                TextSpan(text: text),
+              ],
+            ),
+            style: body,
+          ),
+          if (uri != null)
+            InkWell(
+              key: ValueKey<String>('source-link-$name'),
+              onTap: () => open(uri),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 2, bottom: 2),
+                child: Text(
+                  uri.toString(),
+                  style: body?.copyWith(
+                    color: theme.colorScheme.primary,
+                    decoration: TextDecoration.underline,
+                    decorationColor: theme.colorScheme.primary,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
+    final List<SourceEntry>? given = sources;
+    if (given != null) {
+      return Column(
+        key: const ValueKey<String>('sources-note'),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          for (final SourceEntry source in given)
+            paragraph(source.name, source.text, uri: source.uri),
+        ],
+      );
+    }
     return Column(
       key: const ValueKey<String>('sources-note'),
       crossAxisAlignment: CrossAxisAlignment.start,
