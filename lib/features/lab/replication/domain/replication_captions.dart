@@ -89,11 +89,12 @@ final class ReplicationCaptions {
 
   // -------------------------------------------------------------- fidelity
 
-  /// What each level of checking is called on its button.
+  /// What each level of checking is called on its button: short enough for
+  /// three to share a phone's width. Each keeps the one before it.
   static String nameOf(Fidelity fidelity) => switch (fidelity) {
     Fidelity.polymerase => 'Polymerase',
-    Fidelity.proofreading => '+ Proofreading',
-    Fidelity.repair => '+ Mismatch repair',
+    Fidelity.proofreading => '+ Proofread',
+    Fidelity.repair => '+ Repair',
   };
 
   /// Its error rate, in the orders of magnitude given for it.

@@ -11,6 +11,7 @@ import 'mutate/presentation/mutate_screen.dart';
 import 'oxygen/presentation/oxygen_screen.dart';
 import 'presentation/lab_index_screen.dart';
 import 'presentation/lab_protein_picker.dart';
+import 'replication/presentation/replication_screen.dart';
 import 'ribosome/presentation/ribosome_screen.dart';
 import 'sickle/domain/sickle_story.dart';
 import 'sickle/presentation/sickle_screen.dart';
@@ -75,6 +76,14 @@ const List<LabFeature> labFeatures = <LabFeature>[
     path: '${RoutePaths.lab}/oxygen',
     subject: 'HBA1 + HBB',
   ),
+  LabFeature(
+    title: 'Replication',
+    summary:
+        'A gene’s double helix unzips and copies itself: one strand in one '
+        'piece, the other backwards in fragments. Switch its proofreading off '
+        'and watch errors get through.',
+    path: '${RoutePaths.lab}/replication',
+  ),
 ];
 
 /// Every route under [RoutePaths.lab], whatever the flag says. One shell
@@ -138,6 +147,12 @@ List<RouteBase> buildLabRoutes() => <RouteBase>[
             path: 'oxygen',
             builder: (BuildContext context, GoRouterState state) =>
                 const OxygenRoute(),
+          ),
+          _picked(
+            'replication',
+            title: 'Replication',
+            lead: 'Pick a protein to watch its gene copied.',
+            screen: (String slug) => ReplicationRoute(slug: slug),
           ),
         ],
       ),

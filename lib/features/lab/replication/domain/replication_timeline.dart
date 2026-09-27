@@ -136,6 +136,10 @@ class ReplicationTimeline extends AnimationTimeline<ReplicationFrame> {
   @override
   List<PhaseMark> get phases => _phases;
 
+  /// What the transport bar calls [phase].
+  static String nameOf(ReplicationPhase phase) =>
+      _phases.firstWhere((PhaseMark m) => m.captionKey == phase.name).name;
+
   /// The chapter [t] is in.
   static ReplicationPhase chapterAt(double t) {
     final double b = t.clamp(0.0, 1.0) * _total;

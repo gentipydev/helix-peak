@@ -165,6 +165,22 @@ rotting on a branch, which is what keeps the shared layer from diverging.
   labelled reference. pH (through L, the Bohr effect), fetal hemoglobin (a
   lower L) and the one-site contrast (myoglobin's own structure track) each
   change the model, curve and animation together.
+- `replication/` copies a protein's record from a bubble at its middle
+  (`ReplicationPlan`): each fork's leading strand in one piece from a primer
+  at the origin, and its lagging strand backwards in Okazaki fragments of 100
+  to 200 bases, each from a ten-base primer, extended until it meets the piece
+  before, replaces its primer and is sealed. Lengths are drawn from a
+  generator seeded with the record's letters; records whose introns arrive
+  shortened are refused. It plays in three views: the fork base by base on the
+  record's own helix, unzipped by the shared geometry (`lib/shared/helix/`,
+  `HelixModel.unzip` and `bases`); the fork at the scale of fragments, where
+  the lagging template's loop, the trombone, fits whole; and the record as one
+  bar. A proofreading set piece (a wobble transition on the leading strand)
+  plays out as the fidelity toggle says: polymerase alone, plus proofreading,
+  plus mismatch repair, at the orders of magnitude given for each.
+  `ErrorTally` draws a thousand copies' errors at the polymerase's rate; each
+  level's survivors are among the level before's, and each opens on the
+  mutate screen as a `Substitution` (`MutateCubit.applying`).
 - Tests switch it on with `dotenv.loadFromString(envString: 'LAB_ENABLED=true')`
   and off with `dotenv.clean()`.
 
