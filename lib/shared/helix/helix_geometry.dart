@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import '../anatomy/anatomy_layout.dart';
+
 abstract final class HelixPalette {
   static const int adenine = 0;
   static const int thymine = 1;
@@ -40,8 +42,10 @@ final class HelixModel {
     this.pitch = defaultPitch,
     this.rungCount = defaultRungCount,
     this.sampleCount = defaultSampleCount,
+    this.unzip = 0,
   })  : assert(rungCount > 1, 'a helix needs base pairs'),
         assert(sampleCount > 1, 'a strand needs at least one segment'),
+        assert(unzip >= 0 && unzip <= 1, 'unzip runs from 0 to 1'),
         pointCount = 3 * sampleCount + rungPointStride * rungCount,
         primitiveCount =
             3 * (sampleCount - 1) + rungPrimitiveStride * rungCount {
@@ -55,6 +59,35 @@ final class HelixModel {
   final int rungCount;
 
   final int sampleCount;
+
+  /// How far the duplex is unzipped, from 0 to 1.
+  ///
+  /// At 0, the default, the tables are the double helix the home screen
+  /// draws, exactly. At 1 the two strands have resolved into two flat
+  /// antiparallel rows, drawn the way the anatomy grid draws a sequence:
+  ///
+  /// - the twist is gone and so is the depth. Every point's `sin` is 0 and
+  ///   its `cos` is [rowCos], across the axis in units of [radius]; the axis
+  ///   is not touched, so every point keeps its [pointAxial];
+  /// - each strand is a straight row with its backbone along the row's outer
+  ///   edge, strand A at negative `cos` and strand B at positive;
+  /// - each base is one tile of its row: its half-rung runs from the backbone
+  ///   across the row, [rowTileSide] long, the grid's tile at the grid's
+  ///   mortar ([AnatomyLayout.tileGapRatio]) against the rung pitch, so the
+  ///   tiles are square where the axis is drawn at [pitch] and the width at
+  ///   [radius];
+  /// - the rows are parted by one row of the grid: the pairs have let go, and
+  ///   each base still faces the place its partner was;
+  /// - antiparallel: B's row holds each of A's partners, facing it, and read
+  ///   5' to 3' it runs the other way. Which end is 5' is the caller's to say.
+  ///   The transcript track lies along B's backbone, the strand it was read
+  ///   from.
+  ///
+  /// In between, every point moves in a straight line from its place in the
+  /// helix to its place in the rows, eased by [unzipped], which a caller
+  /// unzipping one stretch at a time uses to move each point exactly as a
+  /// model built at that value would.
+  final double unzip;
 
   static const double defaultRadius = 90;
 
@@ -95,6 +128,19 @@ final class HelixModel {
   static const int rungPrimitiveStride = 2 * rungSegments + 3;
 
   static const double staticRotationTurns = 0.13;
+
+  /// One row of the grid across the axis, in units of [radius]: the rung
+  /// pitch along the axis, so a tile is as wide as it is long.
+  double get rowPitch => pitch / basePairsPerTurn / radius;
+
+  /// The side of one tile of an unzipped row, in units of [radius]: the rung
+  /// pitch less the anatomy grid's mortar.
+  double get rowTileSide => rowPitch * (1 - AnatomyLayout.tileGapRatio);
+
+  /// Where each row's backbone runs once unzipped, in units of [radius]:
+  /// strand A's at minus this, strand B's at plus. It is the row's outer
+  /// edge, a pitch out from the axis and half a tile further.
+  double get rowBackbone => rowPitch + rowTileSide / 2;
 
   /// Places a polymerase in the upper half with its transcript running down
   /// behind it, so the still frame reduced motion falls back to still shows
@@ -172,6 +218,11 @@ final class HelixModel {
   late final Float32List pointWander = Float32List(pointCount);
 
   late final Uint8List pointRole = Uint8List(pointCount);
+
+  /// Where each point's `cos` goes once the duplex is fully unzipped: its
+  /// place across the axis in the flat rows, in units of [radius]. Its `sin`
+  /// goes to 0. See [unzip].
+  late final Float32List rowCos = Float32List(pointCount);
 
   late final Int32List primStart = Int32List(primitiveCount);
 
@@ -271,6 +322,49 @@ final class HelixModel {
 
     _buildPrimitives(strandStride, rungBase, rnaBase, track);
     _buildProfiles();
+    _buildRows(strandStride, rungBase, rnaBase);
+
+    // Nothing at all happens at 0: the helix above is the model.
+    if (unzip > 0) {
+      for (int i = 0; i < pointCount; i++) {
+        pointCos[i] = unzipped(pointCos[i], rowCos[i], unzip);
+        pointSin[i] = unzipped(pointSin[i], 0, unzip);
+      }
+    }
+  }
+
+  /// A point's place at [unzip], from its place in the helix, [zipped], to
+  /// its place in the rows, [row]: a straight line, eased so it leaves and
+  /// arrives at rest, landing on each end exactly.
+  static double unzipped(double zipped, double row, double unzip) {
+    final double t = unzip.clamp(0.0, 1.0);
+    final double eased = t * t * (3 - 2 * t);
+    return eased <= 0
+        ? zipped
+        : (eased >= 1 ? row : zipped + (row - zipped) * eased);
+  }
+
+  void _buildRows(int strandStride, int rungBase, int rnaBase) {
+    final double backbone = rowBackbone;
+    final double side = rowTileSide;
+
+    for (int i = 0; i < sampleCount; i++) {
+      rowCos[i] = -backbone;
+      rowCos[strandStride + i] = backbone;
+      rowCos[rnaBase + i] = backbone;
+    }
+
+    // Strand A's half of a rung runs from A's backbone in across its row;
+    // strand B's from the inner edge of B's row out to B's backbone, the way
+    // the helix walks its far half.
+    for (int r = 0; r < rungCount; r++) {
+      final int a = rungBase + rungPointStride * r;
+      for (int k = 0; k <= rungSegments; k++) {
+        final double t = k / rungSegments;
+        rowCos[a + k] = -backbone + side * t;
+        rowCos[a + rungSegments + 1 + k] = backbone - side + side * t;
+      }
+    }
   }
 
   void _buildPrimitives(
