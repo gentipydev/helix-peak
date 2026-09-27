@@ -7,6 +7,7 @@ import '../../../shared/anatomy/anatomy_layout.dart';
 import '../../../shared/anatomy/anatomy_painter.dart';
 import '../../../shared/anatomy/anatomy_scene.dart';
 import '../../../shared/anatomy/anatomy_stages.dart';
+import '../../../shared/anatomy/anatomy_tracer.dart';
 import '../../../shared/clinvar/clinvar_colors.dart';
 
 /// One scene of the shared anatomy, drawn by the walk's own painter.
@@ -32,6 +33,7 @@ class LabAnatomyView extends StatefulWidget {
     this.junctions = const <int>[],
     this.breaks = const <int>[],
     this.onSettled,
+    this.tracer,
     super.key,
   });
 
@@ -60,6 +62,11 @@ class LabAnatomyView extends StatefulWidget {
 
   /// Told when a transition has landed (or at once, for a resting scene).
   final VoidCallback? onSettled;
+
+  /// A base the walk's own ring marks, as the walk marks a traced one: a box
+  /// round a residue, an outline round a codon on the transcript. Null, as
+  /// every flow but Listen leaves it, draws no ring.
+  final Tracer? tracer;
 
   @override
   State<LabAnatomyView> createState() => _LabAnatomyViewState();
@@ -196,7 +203,7 @@ class _LabAnatomyViewState extends State<LabAnatomyView>
               progress: _progress,
               groove: _groove,
               reverse: false,
-              tracer: null,
+              tracer: widget.tracer,
               status: null,
               inertTracer: null,
               background: theme.colorScheme.surface,

@@ -7,6 +7,7 @@ import 'ar/presentation/ar_screen.dart';
 import 'crispr/presentation/crispr_screen.dart';
 import 'folding/presentation/fold_screen.dart';
 import 'lab_scope.dart';
+import 'listen/presentation/listen_screen.dart';
 import 'mutate/presentation/mutate_screen.dart';
 import 'oxygen/presentation/oxygen_screen.dart';
 import 'presentation/lab_index_screen.dart';
@@ -92,6 +93,14 @@ const List<LabFeature> labFeatures = <LabFeature>[
         'it is read in, to its band on its chromosome.',
     path: '${RoutePaths.lab}/zoom',
   ),
+  LabFeature(
+    title: 'Listen',
+    summary:
+        'Hear a protein a note a residue: pitch from how water-fearing it is, '
+        'sound from its fold, loudness from how conserved. Then hear its gene '
+        'in chords, and splice the introns out.',
+    path: '${RoutePaths.lab}/listen',
+  ),
 ];
 
 /// Every route under [RoutePaths.lab], whatever the flag says. One shell
@@ -167,6 +176,12 @@ List<RouteBase> buildLabRoutes() => <RouteBase>[
             title: 'Zoom',
             lead: 'Pick a protein to zoom from a body down to its gene.',
             screen: (String slug) => ZoomRoute(slug: slug),
+          ),
+          _picked(
+            'listen',
+            title: 'Listen',
+            lead: 'Pick a protein to hear it, residue by residue.',
+            screen: (String slug) => ListenRoute(slug: slug),
           ),
         ],
       ),

@@ -195,6 +195,24 @@ rotting on a branch, which is what keeps the shared layer from diverging.
   precursor that has one and the caption says so. Every other level is
   illustration. At the gene, the record's first bases on the shared helix,
   and a button that opens the walk at `/gene/<slug>`.
+- `listen/` plays a protein as sound over the walk's own grid. The protein is
+  the `audio` track (`pipeline/audio` in the backend): an `.m4a`, one note a
+  residue (pitch hydropathy, timbre the fold's secondary structure, loudness
+  conservation, a tick at a residue with a ClinVar record), whose timing map
+  rides in a `uuid` box after the audio (`AudioTrack.mapOf`); the file's edit
+  list skips the AAC priming, so position zero is the first note. DNA mode is
+  made on the phone from the record (`DnaScore`, `DnaVoice`): a three-note
+  chord a codon (A plays A, C C, G G, T E; first base lowest) and a 5 ms
+  grain an intron base, from start codon to stop, over the gene page; spliced,
+  the codons alone over the transcript page, reached by the walk's own
+  splicing. The playhead is the walk's tracer ring (`LabAnatomyView.tracer`),
+  moved only by the position the player reports (`ListenPlayer.positions`,
+  `noteAt`): nothing in Listen keeps time. Playback is just_audio behind
+  `ListenPlayer`; tests use a fake that reports positions by hand. The mapping
+  is announced (`SemanticsService.sendAnnouncement`), the piece is described
+  in words, a paused note is a live region, and the about sheet
+  (`ListenAbout`, on `SourcesNote`) says the mapping is arbitrary, channel by
+  channel. Without a ready `audio` row the protein is off and the gene plays.
 - Tests switch it on with `dotenv.loadFromString(envString: 'LAB_ENABLED=true')`
   and off with `dotenv.clean()`.
 
