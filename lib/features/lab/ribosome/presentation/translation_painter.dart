@@ -389,7 +389,7 @@ class TranslationPainter extends CustomPainter {
     }
     final double lift = f.lift(s);
     const double capacity = TranslationTimeline.tunnelCapacity + 0.0;
-    final int shown = math.min(trailing, f.trailCapacity);
+    final int shown = f.shownPast(trailing);
     // Newest first: it sits at the centre, and each older residue is a step
     // further along.
     int drawn = 0;
@@ -400,9 +400,7 @@ class TranslationPainter extends CustomPainter {
         hidden = r + 1;
         break;
       }
-      final Offset at = depth < capacity
-          ? f.inTunnel(depth).translate(0, -lift)
-          : f.trail(depth - capacity).translate(0, -lift);
+      final Offset at = f.chainAt(depth, lift);
       _beads[2 * drawn] = at.dx;
       _beads[2 * drawn + 1] = at.dy;
       drawn++;
@@ -441,6 +439,29 @@ class TranslationPainter extends CustomPainter {
       );
     }
   }
+
+  /// Where each residue of [s]'s chain is drawn on a canvas of [size], by
+  /// residue number from 0 at the N terminus: exactly where [paint] puts it,
+  /// or null for a residue too far along the trailing chain to be drawn.
+  static List<Offset?> chainPositions(
+    Size size,
+    TranslationState s, {
+    int trailing = 48,
+  }) {
+    final _Frame f = _Frame(size, s.ribosome);
+    final double lift = f.lift(s);
+    final int shown = f.shownPast(trailing);
+    return <Offset?>[
+      for (int r = 0; r < s.residues; r++)
+        if (s.depthOf(r) > TranslationTimeline.tunnelCapacity + shown)
+          null
+        else
+          f.chainAt(s.depthOf(r), lift),
+    ];
+  }
+
+  /// The radius [paint] draws a residue [depth] along the chain at.
+  static double radiusAt(double depth) => _radiusAt(depth);
 
   /// Whole for the two newest residues and for every residue out of the
   /// tunnel, a bead for the rest.
@@ -671,6 +692,17 @@ final class _Frame {
     Offset(size.width - 18, tunnelExit.dy - 26),
     Offset(size.width - 18, mrnaY - TranslationPainter.tile - 24),
   ];
+
+  /// How many residues past the tunnel are drawn, at most [trailing].
+  int shownPast(int trailing) => math.min(trailing, trailCapacity);
+
+  /// Residue [depth] along the chain: in the tunnel, or out along the trail,
+  /// with the large subunit [lift]ed off.
+  Offset chainAt(double depth, double lift) =>
+      (depth < TranslationTimeline.tunnelCapacity
+              ? inTunnel(depth)
+              : trail(depth - TranslationTimeline.tunnelCapacity))
+          .translate(0, -lift);
 
   /// How many residues the trailing path holds.
   int get trailCapacity {

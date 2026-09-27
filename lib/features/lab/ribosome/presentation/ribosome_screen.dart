@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/biology/gene_record.dart';
 import '../../../../core/catalog/protein_target.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../shared/anatomy/anatomy_stages.dart';
 import '../../../../shared/anatomy/sequence_scrubber.dart';
 import '../../../../shared/format.dart';
 import '../../../../shared/motion/timeline_controller.dart';
@@ -12,6 +13,7 @@ import '../../presentation/lab_record.dart';
 import '../domain/caption_generator.dart';
 import '../domain/director.dart';
 import '../domain/translation_timeline.dart';
+import 'translation_ending.dart';
 import 'translation_painter.dart';
 
 /// `/lab/ribosome/<slug>`: one protein's record, fetched through the lab's
@@ -35,7 +37,8 @@ class RibosomeRoute extends StatelessWidget {
   }
 }
 
-/// The whole coding sequence translated, from the cap to the stop codon.
+/// The whole coding sequence translated, from the cap to the stop codon, and
+/// then the protein it made, on the walk's own page ([TranslationEnding]).
 ///
 /// Played on the shared transport bar, paced by the [TranslationDirector]
 /// (slow where something happens once, fast in between) beside a cell-time
@@ -59,6 +62,7 @@ class RibosomeScreen extends StatefulWidget {
 class _RibosomeScreenState extends State<RibosomeScreen>
     with SingleTickerProviderStateMixin {
   TranslationTimeline? _translation;
+  AnatomyModel? _model;
   TranslationDirector? _director;
   CaptionGenerator? _captions;
   TimelineController? _controller;
@@ -73,6 +77,7 @@ class _RibosomeScreenState extends State<RibosomeScreen>
       );
       final TranslationDirector director = TranslationDirector(translation);
       _translation = translation;
+      _model = AnatomyModel.derive(widget.record, chain: widget.target.chain);
       _director = director;
       _captions = CaptionGenerator(translation, widget.record);
       _controller = TimelineController(
@@ -142,47 +147,63 @@ class _RibosomeScreenState extends State<RibosomeScreen>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         Expanded(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Expanded(
-                child: AnimatedBuilder(
-                  animation: controller,
-                  builder: (BuildContext context, Widget? painted) => Semantics(
-                    label: TranslationPainter.describe(
-                      translation,
-                      translation.stateAt(controller.t),
-                    ),
-                    child: painted,
-                  ),
-                  child: RepaintBoundary(
-                    child: CustomPaint(
-                      key: const ValueKey<String>('ribosome-canvas'),
-                      size: Size.infinite,
-                      painter: TranslationPainter(
-                        timeline: translation,
-                        at: () => controller.t,
-                        inks: TranslationInks.of(context),
-                        repaint: controller,
+          child: AnimatedBuilder(
+            animation: controller,
+            builder: (BuildContext context, Widget? playing) =>
+                controller.t >= 1 && _model != null
+                ? TranslationEnding(
+                    key: const ValueKey<String>('ribosome-ending'),
+                    timeline: translation,
+                    model: _model!,
+                    target: widget.target,
+                    onReplay: () => controller
+                      ..reset()
+                      ..play(),
+                  )
+                : playing!,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Expanded(
+                  child: AnimatedBuilder(
+                    animation: controller,
+                    builder: (BuildContext context, Widget? painted) =>
+                        Semantics(
+                          label: TranslationPainter.describe(
+                            translation,
+                            translation.stateAt(controller.t),
+                          ),
+                          child: painted,
+                        ),
+                    child: RepaintBoundary(
+                      child: CustomPaint(
+                        key: const ValueKey<String>('ribosome-canvas'),
+                        size: Size.infinite,
+                        painter: TranslationPainter(
+                          timeline: translation,
+                          at: () => controller.t,
+                          inks: TranslationInks.of(context),
+                          repaint: controller,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              SizedBox(
-                width: SequenceScrubber.width,
-                child: TimelineScrubber(
-                  controller: controller,
-                  landmarks: _landmarks(translation),
-                  labelAt: (double t) {
-                    final TranslationState s = translation.stateAt(t);
-                    return s.codon <= translation.protein.length
-                        ? 'Codon ${grouped(s.codon)}'
-                        : 'Stop codon';
-                  },
+                SizedBox(
+                  width: SequenceScrubber.width,
+                  child: TimelineScrubber(
+                    controller: controller,
+                    landmarks: _landmarks(translation),
+                    labelAt: (double t) {
+                      final TranslationState s = translation.stateAt(t);
+                      return s.codon <= translation.protein.length
+                          ? 'Codon ${grouped(s.codon)}'
+                          : 'Stop codon';
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         AnimatedBuilder(
@@ -202,14 +223,14 @@ class _RibosomeScreenState extends State<RibosomeScreen>
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
                   SizedBox(
-                    height: 64,
+                    height: 88,
                     child: caption == null
                         ? null
                         : Text(
                             caption,
                             key: const ValueKey<String>('ribosome-caption'),
                             style: theme.textTheme.bodyMedium,
-                            maxLines: 3,
+                            maxLines: 4,
                             overflow: TextOverflow.fade,
                           ),
                   ),

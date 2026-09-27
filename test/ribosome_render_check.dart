@@ -11,10 +11,14 @@ import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
 import 'package:helixpeek/features/lab/ribosome/domain/one_cycle.dart';
 import 'package:helixpeek/features/lab/ribosome/domain/translation_timeline.dart';
+import 'package:helixpeek/features/lab/ribosome/presentation/ribosome_screen.dart';
+import 'package:helixpeek/features/lab/ribosome/presentation/translation_ending.dart';
 import 'package:helixpeek/features/lab/ribosome/presentation/translation_painter.dart';
 import 'package:helixpeek/shared/motion/animation_timeline.dart';
+import 'package:helixpeek/shared/motion/transport_bar.dart';
 
 import 'features/gene_lookup/anatomy/anatomy_fixture.dart';
+import 'support/test_catalog.dart';
 
 // RIBOSOME_SHOT_DIR=<dir> flutter test test/ribosome_render_check.dart
 //
@@ -145,6 +149,52 @@ void main() {
         });
       }
     }
+  });
+
+  testWidgets('the ending: the chain flying home, and the page it lands on', (
+    WidgetTester tester,
+  ) async {
+    if (directory.isEmpty) {
+      markTestSkipped('Set RIBOSOME_SHOT_DIR to write the frames.');
+      return;
+    }
+    Directory(directory).createSync(recursive: true);
+    const Key boundary = ValueKey<String>('ribosome-ending-capture');
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(
+      RepaintBoundary(
+        key: boundary,
+        child: MaterialApp(
+          theme: AppTheme.analysis,
+          debugShowCheckedModeBanner: false,
+          home: RibosomeScreen(target: TestCatalog.insulin, record: insulin()),
+        ),
+      ),
+    );
+    await tester.pump();
+    tester.widget<TransportBar>(find.byType(TransportBar)).controller.seek(1);
+    await tester.pump();
+    Future<void> capture(String name) async {
+      final RenderRepaintBoundary render = tester.renderObject(
+        find.byKey(boundary),
+      );
+      await tester.runAsync(() async {
+        final ui.Image image = await render.toImage(pixelRatio: 2);
+        final ByteData data = (await image.toByteData(
+          format: ui.ImageByteFormat.png,
+        ))!;
+        image.dispose();
+        File('$directory/ending-$name.png')
+            .writeAsBytesSync(data.buffer.asUint8List());
+      });
+    }
+
+    await tester.pump(TranslationEnding.flight * 0.35);
+    await capture('flight');
+    await tester.pump(TranslationEnding.flight);
+    await tester.pump();
+    await capture('landed');
   });
 }
 
