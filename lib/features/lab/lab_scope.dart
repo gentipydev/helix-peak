@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../core/evidence/impact_explanation_repository.dart';
 import '../../core/network/api_client.dart';
 import '../../core/network/track_client.dart';
 import '../../core/network/track_source.dart';
@@ -15,7 +16,8 @@ import '../gene_lookup/domain/usecases/fetch_gene.dart';
 /// The walk's 200 MB budget was sized as five times what the twenty proteins
 /// come to, and a lab sharing it could evict a walk track while exploring,
 /// which is a walk regression with no walk code changed. Below this point
-/// [TrackSource] and [FetchGene] are provided again over the lab's client, so a
+/// [TrackSource], [FetchGene] and [ImpactExplanationRepository] are provided
+/// again over the lab's client, so a
 /// lab screen, or a shared widget one embeds, reads through the lab's cache
 /// without knowing it. The walk's own routes are not below this point and keep
 /// theirs.
@@ -63,5 +65,11 @@ List<RepositoryProvider<Object>> labProviders() => <RepositoryProvider<Object>>[
     create: (BuildContext context) => FetchGene(
       GeneRepositoryImpl(TrackGeneDataSource(context.read<TrackSource>())),
     ),
+  ),
+  // The shared evidence rows fetch a record's explanation through this when
+  // they open; in the lab that is the lab's cache too.
+  RepositoryProvider<ImpactExplanationRepository>(
+    create: (BuildContext context) =>
+        ImpactExplanationRepository(context.read<TrackSource>()),
   ),
 ];

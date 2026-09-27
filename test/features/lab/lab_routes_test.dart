@@ -2,13 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:helixpeek/core/network/api_client.dart';
 import 'package:helixpeek/core/network/track_client.dart';
 import 'package:helixpeek/core/network/track_source.dart';
+import 'package:helixpeek/core/router/app_router.dart';
+import 'package:helixpeek/features/gene_lookup/data/repositories/protein_catalog_repository.dart';
 import 'package:helixpeek/features/gene_lookup/domain/usecases/fetch_gene.dart';
 import 'package:helixpeek/features/lab/lab_routes.dart';
 import 'package:helixpeek/features/lab/lab_scope.dart';
+import 'package:helixpeek/features/lab/mutate/presentation/mutate_screen.dart';
 import 'package:helixpeek/features/lab/presentation/lab_index_screen.dart';
+import 'package:helixpeek/features/lab/presentation/lab_protein_picker.dart';
 
 import '../../support/catalog_api.dart';
 
@@ -92,4 +97,47 @@ void main() {
     expect(find.text('The second.'), findsOneWidget);
     expect(find.text('Nothing in the lab yet.'), findsNothing);
   });
+
+  testWidgets('each feature on the index is a route that picks a protein', (
+    WidgetTester tester,
+  ) async {
+    for (final LabFeature feature in labFeatures) {
+      await hostLab(tester, feature.path);
+      expect(find.byType(LabProteinPicker), findsOneWidget, reason: feature.path);
+      expect(find.text('Insulin'), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+    }
+  });
+
+  testWidgets('/lab/mutate/<slug> opens the mutate screen for that protein', (
+    WidgetTester tester,
+  ) async {
+    await hostLab(tester, '/lab/mutate/insulin');
+    expect(find.byType(MutateScreen), findsOneWidget);
+    expect(find.text('Mutate · Insulin'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+}
+
+/// The lab's routes under a real router, over the app's catalog.
+Future<GoRouter> hostLab(WidgetTester tester, String path) async {
+  final CatalogApi api = CatalogApi();
+  final ProteinCatalogRepository catalog = ProteinCatalogRepository(api, null);
+  addTearDown(catalog.dispose);
+  await catalog.refresh();
+  final GoRouter router = buildAppRouter(extra: buildLabRoutes());
+  addTearDown(router.dispose);
+  await tester.pumpWidget(
+    MultiRepositoryProvider(
+      providers: <RepositoryProvider<Object>>[
+        RepositoryProvider<ApiClient>.value(value: api),
+        RepositoryProvider<ProteinCatalogRepository>.value(value: catalog),
+      ],
+      child: MaterialApp.router(routerConfig: router),
+    ),
+  );
+  router.go(path);
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 400));
+  return router;
 }
