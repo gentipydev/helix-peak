@@ -152,6 +152,16 @@ rotting on a branch, which is what keeps the shared layer from diverging.
   illustration, not a simulation. Residues the track calls disordered hang
   loose and never settle; absent ones are not drawn. The bridges are the
   catalog's pairs, read from the constraint track, in the `bonds` colour.
+- `oxygen/` is a story of its own subject, `/lab/oxygen`: the hemoglobin
+  tetramer, an assembly the backend keeps outside the catalog
+  (`/assembly/{slug}/tracks`, `pipeline/assemblies`), tense and relaxed in
+  one frame. The MWC model (`domain/mwc.dart`, tested before any widget:
+  sigmoid for four sites, a hyperbola for one) drives it: each oxygen binds,
+  and the molecule settles to the R share MWC gives that many bound. The
+  curve draws itself with its point marked; a Hill curve is only a fitted,
+  labelled reference. pH (through L, the Bohr effect), fetal hemoglobin (a
+  lower L) and the one-site contrast (myoglobin's own structure track) each
+  change the model, curve and animation together.
 - Tests switch it on with `dotenv.loadFromString(envString: 'LAB_ENABLED=true')`
   and off with `dotenv.clean()`.
 

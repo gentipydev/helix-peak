@@ -8,6 +8,7 @@ import 'crispr/presentation/crispr_screen.dart';
 import 'folding/presentation/fold_screen.dart';
 import 'lab_scope.dart';
 import 'mutate/presentation/mutate_screen.dart';
+import 'oxygen/presentation/oxygen_screen.dart';
 import 'presentation/lab_index_screen.dart';
 import 'presentation/lab_protein_picker.dart';
 import 'ribosome/presentation/ribosome_screen.dart';
@@ -66,6 +67,14 @@ const List<LabFeature> labFeatures = <LabFeature>[
         'draws. An illustration, not a simulation.',
     path: '${RoutePaths.lab}/folding',
   ),
+  LabFeature(
+    title: OxygenRoute.title,
+    summary:
+        'Four sites fill with oxygen one at a time, and the molecule tips from '
+        'tense to relaxed, as the MWC model explains it.',
+    path: '${RoutePaths.lab}/oxygen',
+    subject: 'HBA1 + HBB',
+  ),
 ];
 
 /// Every route under [RoutePaths.lab], whatever the flag says. One shell
@@ -122,6 +131,13 @@ List<RouteBase> buildLabRoutes() => <RouteBase>[
             title: 'Folding',
             lead: 'Pick a protein to watch its chain fold.',
             screen: (String slug) => FoldRoute(slug: slug),
+          ),
+          // A story of its own subject, as the sickle story is: the assembly
+          // the backend's own table names, not a protein picked from twenty.
+          GoRoute(
+            path: 'oxygen',
+            builder: (BuildContext context, GoRouterState state) =>
+                const OxygenRoute(),
           ),
         ],
       ),
