@@ -10,7 +10,9 @@ import '../../../../shared/motion/timeline_controller.dart';
 import '../../../../shared/motion/transport_bar.dart';
 import '../../presentation/lab_protein_picker.dart';
 import '../../presentation/lab_record.dart';
+import '../../share/frame_renderer.dart';
 import '../../share/share_action.dart';
+import '../../share/share_clip_button.dart';
 import '../domain/caption_generator.dart';
 import '../domain/director.dart';
 import '../domain/translation_timeline.dart';
@@ -56,6 +58,10 @@ class RibosomeScreen extends StatefulWidget {
   /// How long one beat takes at speed 1, where the director plays slowly.
   static const Duration beat = Duration(milliseconds: 1200);
 
+  /// How long one beat takes in a shared clip, before the clip is held to
+  /// its five to fifteen seconds.
+  static const Duration clipBeat = Duration(milliseconds: 120);
+
   @override
   State<RibosomeScreen> createState() => _RibosomeScreenState();
 }
@@ -98,6 +104,21 @@ class _RibosomeScreenState extends State<RibosomeScreen>
     super.dispose();
   }
 
+  /// The translation as a clip: the screen's own painter, paced by the same
+  /// director, so a clip lingers where the screen does.
+  static FramePainter _clip(
+    BuildContext context,
+    TranslationTimeline translation,
+    TranslationDirector director,
+  ) {
+    final TranslationInks inks = TranslationInks.of(context);
+    return (double wall) => TranslationPainter(
+      timeline: translation,
+      at: () => director.curve.tAt(wall),
+      inks: inks,
+    );
+  }
+
   /// The minimap's landmarks: the moments the timeline itself names.
   static List<(double, String)> _landmarks(TranslationTimeline translation) {
     final List<(double, String)> marks = <(double, String)>[
@@ -122,6 +143,15 @@ class _RibosomeScreenState extends State<RibosomeScreen>
       appBar: AppBar(
         title: Text('Ribosome · ${widget.target.display}'),
         actions: <Widget>[
+          if ((translation, _director) case (
+            final TranslationTimeline translation,
+            final TranslationDirector director,
+          ))
+            ShareClipButton(
+              target: widget.target,
+              painter: _clip(context, translation, director),
+              duration: RibosomeScreen.clipBeat * translation.beats,
+            ),
           if (_model case final AnatomyModel model)
             SharePosterButton(target: widget.target, model: model),
         ],

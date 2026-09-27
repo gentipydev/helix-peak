@@ -122,6 +122,12 @@ rotting on a branch, which is what keeps the shared layer from diverging.
   and makes a poster (`PosterBuilder`) whose link,
   `helixpeek://open/gene/<slug>`, is the scheme `AndroidManifest.xml` and
   `Info.plist` register. Flutter hands the path to the router.
+- Clips (`VideoEncoder`) are Android only: MediaCodec and MediaMuxer in
+  `android/.../VideoEncoderChannel.kt`, on channel
+  `helixpeak/share/video_encoder`, one frame per call. iOS shares posters
+  only until the AVAssetWriter half is written and run on a Mac
+  (`docs/video-encoding-spike.md`). An export keeps the screen on and is
+  cancelled, its file deleted, if the app is paused.
 - Tests switch it on with `dotenv.loadFromString(envString: 'LAB_ENABLED=true')`
   and off with `dotenv.clean()`.
 
