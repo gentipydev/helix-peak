@@ -20,6 +20,16 @@ abstract final class HelixPalette {
   static int complementOf(int base) => base ^ 1;
 
   static bool isPurine(int base) => (base & 1) == 0;
+
+  /// The slot a base letter is drawn in: `A`, `T`, `G` or `C`, in either
+  /// case. Anything else is not a base this palette can draw.
+  static int ofBase(String base) => switch (base) {
+        'A' || 'a' => adenine,
+        'T' || 't' => thymine,
+        'G' || 'g' => guanine,
+        'C' || 'c' => cytosine,
+        _ => throw ArgumentError.value(base, 'base', 'not A, C, G or T'),
+      };
 }
 
 abstract final class HelixPrimitiveKind {
@@ -43,9 +53,18 @@ final class HelixModel {
     this.rungCount = defaultRungCount,
     this.sampleCount = defaultSampleCount,
     this.unzip = 0,
+    this.bases,
   })  : assert(rungCount > 1, 'a helix needs base pairs'),
         assert(sampleCount > 1, 'a strand needs at least one segment'),
         assert(unzip >= 0 && unzip <= 1, 'unzip runs from 0 to 1'),
+        assert(
+          bases == null || bases.length == rungCount,
+          'one base for every rung',
+        ),
+        assert(
+          bases == null || bases.every((int b) => b < HelixPalette.firstLit),
+          'a rung carries a base slot',
+        ),
         pointCount = 3 * sampleCount + rungPointStride * rungCount,
         primitiveCount =
             3 * (sampleCount - 1) + rungPrimitiveStride * rungCount {
@@ -88,6 +107,16 @@ final class HelixModel {
   /// unzipping one stretch at a time uses to move each point exactly as a
   /// model built at that value would.
   final double unzip;
+
+  /// Strand A's base at each rung, as a [HelixPalette] base slot, in rung
+  /// order along the axis; strand B carries the complements.
+  ///
+  /// Null, the default, is the model's own pseudo-random track: a helix drawn
+  /// to look like DNA rather than to be a gene, which is the home screen's.
+  /// A caller drawing a real sequence passes its bases, and each rung is
+  /// coloured and split, purine reaching further than pyrimidine, by its own
+  /// pair. Which end of the track is 5' is the caller's to say.
+  final Uint8List? bases;
 
   static const double defaultRadius = 90;
 
@@ -476,6 +505,9 @@ final class HelixModel {
   }
 
   Uint8List _baseTrack() {
+    if (bases case final Uint8List given) {
+      return given;
+    }
     final Uint8List track = Uint8List(rungCount);
     int state = 20240516;
     for (int r = 0; r < rungCount; r++) {
