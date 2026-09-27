@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/nucleotide_colors.dart';
+import '../../../../shared/helix/helix_geometry.dart';
 import 'dna_helix_painter.dart';
-import 'helix_geometry.dart';
 
 class DnaHelix extends StatefulWidget {
   const DnaHelix({

@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_colors.dart';
 import 'package:helixpeek/core/theme/nucleotide_colors.dart';
 import 'package:helixpeek/features/home/presentation/widgets/dna_helix_painter.dart';
-import 'package:helixpeek/features/home/presentation/widgets/helix_geometry.dart';
+import 'package:helixpeek/shared/helix/helix_geometry.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

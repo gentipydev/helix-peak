@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_colors.dart';
 import 'package:helixpeek/core/theme/nucleotide_colors.dart';
 import 'package:helixpeek/features/home/presentation/widgets/dna_helix_painter.dart';
-import 'package:helixpeek/features/home/presentation/widgets/helix_geometry.dart';
+import 'package:helixpeek/shared/helix/helix_geometry.dart';
 
 /// The home helix, held to what it drew before its geometry left the home
 /// screen for the shared layer.

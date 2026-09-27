@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-import 'helix_geometry.dart';
+import '../../../../shared/helix/helix_geometry.dart';
 
 /// Draws the duplex back to front onto a flat, opaque ground.
 ///

@@ -79,6 +79,9 @@ Git: commit the session's own changes locally. Never push, in any form.
   `LoadingView`). Nothing promoted goes here.
 - `lib/shared/<area>/`: promoted code, in the sub-folder it had in the walk.
   `presentation/<area>/<file>.dart` becomes `lib/shared/<area>/<file>.dart`.
+- `lib/shared/helix/`: the home screen's double helix as geometry
+  (`HelixModel`), promoted out of `lib/features/home/` for the lab's
+  replication flow. The home screen's widget and painter stay in home.
 - `lib/features/gene_lookup/`: **the walk**. It has `data/`, `domain/` and
   `presentation/` (`anatomy/`, `clinvar/`, `constraint/`, `inspector/`,
   `structure/`, `cubit/`, `screens/`).
