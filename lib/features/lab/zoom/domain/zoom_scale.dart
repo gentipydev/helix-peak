@@ -16,7 +16,8 @@ enum ZoomLevel { body, organ, tissue, cell, nucleus, chromosome, gene }
 /// Each level snaps at the width it is drawn at.
 ///
 /// The widths are what things measure, not per protein: a body is about 1.7
-/// metres tall, a cell tens of micrometres across, a nucleus a few. The one
+/// metres tall, a slice of tissue under a microscope half a millimetre
+/// across, a cell tens of micrometres and its nucleus about ten. The one
 /// level that differs by protein is the chromosome, drawn at the length it
 /// condenses to when a cell divides, which follows its base pairs.
 @immutable
@@ -37,15 +38,22 @@ final class ZoomScale {
   /// DNA stretched out.
   static const double condensation = 1e4;
 
+  /// How wide the view is at the gene: 12 nm, a few turns of the helix.
+  static const double geneWidth = 1.2e-8;
+
+  /// How many of the gene's base pairs the view at its level holds, with a
+  /// base pair's width kept clear at each end.
+  static final int helixBases = (geneWidth / basePairMetres).floor() - 2;
+
   /// How wide the view is at [level], in metres.
   static double widthOf(ZoomLevel level, LocusTrack track) => switch (level) {
     ZoomLevel.body => 2.2,
     ZoomLevel.organ => 0.3,
-    ZoomLevel.tissue => 3e-3,
-    ZoomLevel.cell => 5e-5,
+    ZoomLevel.tissue => 5e-4,
+    ZoomLevel.cell => 4e-5,
     ZoomLevel.nucleus => 1.5e-5,
     ZoomLevel.chromosome => 1.5 * condensedLength(track),
-    ZoomLevel.gene => 4e-8,
+    ZoomLevel.gene => geneWidth,
   };
 
   /// How long [track]'s chromosome is condensed for division, in metres.

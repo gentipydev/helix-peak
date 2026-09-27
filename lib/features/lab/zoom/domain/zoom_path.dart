@@ -14,6 +14,7 @@ final class Anucleate {
     required this.mature,
     required this.precursor,
     required this.place,
+    required this.size,
   });
 
   /// What the cell is, grown: `mature red blood cells`.
@@ -24,6 +25,9 @@ final class Anucleate {
 
   /// Where that one is found: `the bone marrow`.
   final String place;
+
+  /// How wide the grown cell is, in metres.
+  final double size;
 }
 
 /// The Atlas's single cell types that have no nucleus, by its own name for
@@ -34,11 +38,13 @@ const Map<String, Anucleate> anucleateCellTypes = <String, Anucleate>{
     mature: 'mature red blood cells',
     precursor: 'erythroblasts',
     place: 'the bone marrow',
+    size: 7.5e-6,
   ),
   'Platelets': Anucleate(
     mature: 'platelets',
     precursor: 'megakaryocytes',
     place: 'the bone marrow',
+    size: 2.5e-6,
   ),
 };
 
@@ -52,16 +58,20 @@ final class ZoomPath {
 
   factory ZoomPath.of(LocusTrack track) {
     final String? cellType = track.cellType.first;
+    final String? tissue = track.tissue.first;
     return ZoomPath(
-      tissue: track.tissue.first,
+      tissue: tissue?.replaceFirst(_sample, ''),
       cellType: cellType,
       anucleate: cellType == null ? null : anucleateCellTypes[cellType],
     );
   }
 
-  /// The tissue the Atlas finds the RNA highest in, or null where the gene is
-  /// read in every tissue alike.
+  /// The tissue the Atlas finds the RNA highest in, by its name without the
+  /// sample number some carry (`stomach 1`), or null where no tissue stands
+  /// out.
   final String? tissue;
+
+  static final RegExp _sample = RegExp(r'\s+\d+$');
 
   /// The kind of cell it finds it highest in, or null where there is none.
   final String? cellType;

@@ -16,6 +16,7 @@ import 'ribosome/presentation/ribosome_screen.dart';
 import 'sickle/domain/sickle_story.dart';
 import 'sickle/presentation/sickle_screen.dart';
 import 'trafficking/presentation/cell_scene_screen.dart';
+import 'zoom/presentation/zoom_screen.dart';
 
 /// The lab's routes, or none: the lab is built only where [Env.labEnabled]
 /// says so. `lib/app.dart` spreads these into the app's router.
@@ -83,6 +84,13 @@ const List<LabFeature> labFeatures = <LabFeature>[
         'piece, the other backwards in fragments. Switch its proofreading off '
         'and watch errors get through.',
     path: '${RoutePaths.lab}/replication',
+  ),
+  LabFeature(
+    title: 'Zoom',
+    summary:
+        'Pinch from a whole body down to one gene: through the organ and cells '
+        'it is read in, to its band on its chromosome.',
+    path: '${RoutePaths.lab}/zoom',
   ),
 ];
 
@@ -153,6 +161,12 @@ List<RouteBase> buildLabRoutes() => <RouteBase>[
             title: 'Replication',
             lead: 'Pick a protein to watch its gene copied.',
             screen: (String slug) => ReplicationRoute(slug: slug),
+          ),
+          _picked(
+            'zoom',
+            title: 'Zoom',
+            lead: 'Pick a protein to zoom from a body down to its gene.',
+            screen: (String slug) => ZoomRoute(slug: slug),
           ),
         ],
       ),

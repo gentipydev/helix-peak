@@ -167,6 +167,34 @@ void main() {
         <String>[TestCatalog.hemoglobin.slug],
       );
     });
+
+    test('draws a grown cell with no nucleus at its own size', () {
+      expect(
+        anucleateCellTypes['Erythrocytes']!.size,
+        inInclusiveRange(7e-6, 8e-6),
+      );
+      expect(
+        anucleateCellTypes['Platelets']!.size,
+        inInclusiveRange(2e-6, 3e-6),
+      );
+    });
+
+    test('names a tissue without the sample number the Atlas gives some', () {
+      final Map<String, dynamic> json = locusJson(TestCatalog.lysozyme);
+      final Map<String, dynamic> tissue =
+          (json['expression'] as Map<String, dynamic>)['tissue']
+              as Map<String, dynamic>;
+      final List<dynamic> specific = tissue['specific'] as List<dynamic>;
+      // The Atlas's own third, `stomach 1`, put first.
+      specific.insert(0, specific.removeAt(2));
+      final LocusTrack track = LocusTrack.fromJson(json, TestCatalog.lysozyme);
+      expect(track.tissue.first, 'stomach 1');
+      expect(ZoomPath.of(track).tissue, 'stomach');
+      expect(
+        ZoomCaptions(track).captionOf(ZoomLevel.organ),
+        startsWith('The stomach, '),
+      );
+    });
   });
 
   group('the captions', () {
@@ -204,7 +232,7 @@ void main() {
         final LocusTrack track = locusOf(t);
         final String chromosome = ZoomCaptions(track)
             .captionOf(ZoomLevel.chromosome);
-        expect(chromosome, contains('far too small to see'), reason: t.slug);
+        expect(chromosome, contains('too small to see'), reason: t.slug);
         // A band is a stain pattern, seen at low resolution.
         expect(chromosome, contains('of stain'));
         expect(chromosome, contains('at low resolution'));
@@ -225,6 +253,49 @@ void main() {
         ZoomCaptions(locusOf(TestCatalog.insulin)).captionOf(ZoomLevel.cell),
         isNot(contains('no nucleus')),
       );
+    });
+
+    test('say where the Atlas detects the RNA where no one tissue stands '
+        'out, as its distribution reads', () {
+      final ZoomCaptions dystrophin = ZoomCaptions(
+        locusOf(TestCatalog.dystrophin),
+      );
+      expect(
+        locusOf(TestCatalog.dystrophin).tissue.distribution,
+        'Detected in many',
+      );
+      expect(
+        dystrophin.captionOf(ZoomLevel.body),
+        contains('in many of the tissues it measured'),
+      );
+      expect(dystrophin.captionOf(ZoomLevel.body), isNot(contains('every')));
+      final ZoomCaptions p53 = ZoomCaptions(locusOf(TestCatalog.p53));
+      expect(
+        p53.captionOf(ZoomLevel.body),
+        contains('in every tissue it measured'),
+      );
+      expect(
+        p53.captionOf(ZoomLevel.cell),
+        contains('in many of the kinds of cell it measured'),
+      );
+    });
+
+    test('name the organ as the Atlas writes it, mid-sentence', () {
+      expect(
+        ZoomCaptions(locusOf(TestCatalog.hemoglobin))
+            .captionOf(ZoomLevel.organ),
+        startsWith('The bone marrow, '),
+      );
+    });
+
+    test('say how many of the gene’s bases the helix draws', () {
+      expect(ZoomScale.helixBases, 33);
+      for (final ProteinTarget t in TestCatalog.all) {
+        expect(
+          ZoomCaptions(locusOf(t)).captionOf(ZoomLevel.gene),
+          contains('Drawn here are its first ${ZoomScale.helixBases},'),
+        );
+      }
     });
 
     test('name their sources, with the Atlas version and licence', () {

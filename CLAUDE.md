@@ -181,6 +181,20 @@ rotting on a branch, which is what keeps the shared layer from diverging.
   `ErrorTally` draws a thousand copies' errors at the polymerase's rate; each
   level's survivors are among the level before's, and each opens on the
   mutate screen as a `Substitution` (`MutateCubit.applying`).
+- `zoom/` pinches from a body down to one protein's gene. Body, organ,
+  tissue, cell, nucleus, chromosome and gene sit on one value whose
+  logarithm is the view's width (`ZoomScale`), with a snap point and a chip
+  for each and a scale bar from metres to nanometres. Each level is a layer
+  drawn in metres, crossfaded into the next as the view zooms about the
+  place the next one lies. The chromosome is the `locus` track's
+  (`pipeline/locus` in the backend): its cytoBand bands, with the gene's band
+  marked and named, never the gene, and a caption that says the gene is too
+  small to see there. The organ and the cell are the Human Protein Atlas's
+  reading, carried in the same track. Where the Atlas's cell type has no
+  nucleus (`anucleateCellTypes`: red cells, platelets), the zoom lands in the
+  precursor that has one and the caption says so. Every other level is
+  illustration. At the gene, the record's first bases on the shared helix,
+  and a button that opens the walk at `/gene/<slug>`.
 - Tests switch it on with `dotenv.loadFromString(envString: 'LAB_ENABLED=true')`
   and off with `dotenv.clean()`.
 

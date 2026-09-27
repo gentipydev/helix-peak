@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import '../../../../shared/format.dart';
 import 'locus_track.dart';
 import 'zoom_path.dart';
@@ -17,12 +19,12 @@ final class ZoomCaptions {
     ZoomLevel.body => _body(),
     ZoomLevel.organ => _organ(),
     ZoomLevel.tissue =>
-      'A slice of tissue a few millimetres across: cells packed side by side, '
+      'A slice of tissue half a millimetre across: cells packed side by side, '
           'each tens of micrometres wide.',
     ZoomLevel.cell => _cell(),
     ZoomLevel.nucleus =>
-      'Its nucleus, a few micrometres across. It holds 46 chromosomes: about '
-          '2 metres of DNA.',
+      'Its nucleus, about ten micrometres across. It holds 46 chromosomes, '
+          'about 2 metres of DNA, each in a territory of its own.',
     ZoomLevel.chromosome => _chromosome(),
     ZoomLevel.gene => _gene(),
   };
@@ -37,8 +39,8 @@ final class ZoomCaptions {
     final String? tissue = path.tissue;
     return tissue == null
         ? 'A body, about 1.7 metres tall. The Human Protein Atlas finds this '
-              'gene’s RNA in every tissue it measured, and no one organ stands '
-              'out.'
+              'gene’s RNA ${_found(track.tissue, 'tissue', 'tissues')}, and '
+              'no one tissue stands out.'
         : 'A body, about 1.7 metres tall. The Human Protein Atlas finds this '
               'gene’s RNA highest in the $tissue.';
   }
@@ -46,8 +48,8 @@ final class ZoomCaptions {
   String _organ() {
     final String? tissue = path.tissue;
     if (tissue == null) {
-      return 'An organ, some centimetres across. The gene is read in all of '
-          'them, so this one stands for any.';
+      return 'An organ, seen at the scale of centimetres. No one tissue stands '
+          'out for this gene, so this one stands for any it is read in.';
     }
     final String reading = switch (track.tissue.specificity) {
       'Tissue enriched' =>
@@ -63,8 +65,7 @@ final class ZoomCaptions {
       _ =>
         'The Atlas reads it here as ${track.tissue.specificity.toLowerCase()}.',
     };
-    return 'The ${tissue[0].toUpperCase()}${tissue.substring(1)}, some '
-        'centimetres across. $reading';
+    return 'The $tissue, seen at the scale of centimetres. $reading';
   }
 
   String _cell() {
@@ -74,12 +75,13 @@ final class ZoomCaptions {
       return 'The Atlas finds this gene’s RNA highest in '
           '${_lower(cellType)}. But ${anucleate.mature} have no nucleus, so no '
           'gene is read in them: the zoom lands instead in one of the '
-          '${anucleate.precursor} of ${anucleate.place} they grow from, which '
+          '${anucleate.precursor} of ${anucleate.place} they come from, which '
           'still has its nucleus.';
     }
     return cellType == null
-        ? 'One cell, tens of micrometres across. The gene is read in most '
-              'kinds of cell alike.'
+        ? 'One cell, tens of micrometres across. The Atlas finds this gene’s '
+              'RNA ${_found(track.cellType, 'kind of cell', 'kinds of cell')}, '
+              'and no one kind stands out.'
         : 'One cell, tens of micrometres across. Among the body’s kinds of '
               'cell, the Atlas finds this gene’s RNA highest in '
               '${_lower(cellType)}.';
@@ -96,16 +98,30 @@ final class ZoomCaptions {
         'pairs, drawn condensed as it is when a cell divides and stained with '
         'Giemsa. The gene lies in $where seen down a microscope at low '
         'resolution. The gene itself, ${grouped(track.geneLengthBp)} base '
-        'pairs, is far too small to see at this scale.';
+        'pairs, is too small to see at this scale.';
   }
 
   String _gene() {
     final double stretched = ZoomScale.stretchedLength(track.geneLengthBp);
+    final int shown = math.min(ZoomScale.helixBases, track.geneLengthBp);
     return 'The gene, ${grouped(track.geneLengthBp)} base pairs. Stretched '
         'out, its DNA would run about ${lengthLabel(_round2(stretched))}; the '
-        'double helix is 2 nm wide, a base pair 0.34 nm thick. Its walk begins '
-        'at the gene page.';
+        'double helix is 2 nm wide, a base pair 0.34 nm thick. Drawn here are '
+        'its first $shown, as its record reads them. Its walk begins at the '
+        'gene page.';
   }
+
+  /// Where the Atlas detects the RNA, as its distribution says: of every
+  /// [one] it measured, many or some of its [many], or none.
+  static String _found(AtlasReading reading, String one, String many) =>
+      switch (reading.distribution) {
+        'Detected in all' => 'in every $one it measured',
+        'Detected in many' => 'in many of the $many it measured',
+        'Detected in some' => 'in some of the $many it measured',
+        'Detected in single' => 'in a single $one',
+        'Not detected' => 'in none of the $many it measured',
+        _ => 'in the $many it measured',
+      };
 
   static String _lower(String name) =>
       name.isEmpty ? name : '${name[0].toLowerCase()}${name.substring(1)}';
