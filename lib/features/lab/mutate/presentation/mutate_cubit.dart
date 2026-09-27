@@ -131,11 +131,19 @@ class MutateCubit extends Cubit<MutateState> {
     required this.target,
     required this._fetchGene,
     required this._tracks,
+    this.applying,
   }) : super(const MutateLoading());
 
   final ProteinTarget target;
   final FetchGene _fetchGene;
   final TrackSource _tracks;
+
+  /// An edit to make as soon as the record lands, or null to open on the
+  /// record as it is, which is what a reader picking a base themselves gets.
+  ///
+  /// The CRISPR flow hands over the repair it chose, so that a repair is read
+  /// on this screen exactly the way an edit made here by hand is read.
+  final SequenceEdit? applying;
 
   Future<void> load() async {
     emit(const MutateLoading());
@@ -159,6 +167,9 @@ class MutateCubit extends Cubit<MutateState> {
             : ClinVarLoad.absent,
       ),
     );
+    if (applying case final SequenceEdit edit) {
+      apply(edit);
+    }
     if (target.clinvarAvailable) {
       unawaited(_loadClinVar(model));
     }

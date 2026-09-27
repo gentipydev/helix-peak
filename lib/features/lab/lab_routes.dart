@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/config/env.dart';
 import '../../core/router/app_router.dart';
 import 'ar/presentation/ar_screen.dart';
+import 'crispr/presentation/crispr_screen.dart';
 import 'lab_scope.dart';
 import 'mutate/presentation/mutate_screen.dart';
 import 'presentation/lab_index_screen.dart';
@@ -31,6 +32,13 @@ const List<LabFeature> labFeatures = <LabFeature>[
     title: 'In your room',
     summary: 'A fold at its real size, one ångström to one centimetre.',
     path: '${RoutePaths.lab}/ar',
+  ),
+  LabFeature(
+    title: 'CRISPR',
+    summary:
+        'Find where a nuclease can cut a gene, and choose what the cell does '
+        'with the break.',
+    path: '${RoutePaths.lab}/crispr',
   ),
 ];
 
@@ -63,6 +71,12 @@ List<RouteBase> buildLabRoutes() => <RouteBase>[
             title: 'In your room',
             lead: 'Pick a protein to stand its fold in the room.',
             screen: (String slug) => ArRoute(slug: slug),
+          ),
+          _picked(
+            'crispr',
+            title: 'CRISPR',
+            lead: 'Pick a protein to look for guides in its gene.',
+            screen: (String slug) => CrisprRoute(slug: slug),
           ),
         ],
       ),

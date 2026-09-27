@@ -53,6 +53,7 @@ class AnatomyPainter extends CustomPainter {
     this.onConstraintTapped,
     this.rulerInk,
     this.junctions = const <int>[],
+    this.breaks = const <int>[],
     this.bridges = const <int, int>{},
     this.marks = const <int, ClinVarMark>{},
   }) : super(repaint: repaint);
@@ -97,6 +98,11 @@ class AnatomyPainter extends CustomPainter {
   /// Cells of a region's DNA that open a new piece: an intron was cut out of
   /// the gene just before each, and a bar in the mortar says so.
   final List<int> junctions;
+
+  /// Cells with the helix cut immediately 5' of them: a break between two
+  /// bases, drawn in the mortar before the cell. Empty for a page where
+  /// nothing is cut, which is every page of the walk.
+  final List<int> breaks;
 
   /// Cysteines in a disulfide on this page, as cell to bridge number: the two
   /// ends of a bridge carry the same number.
@@ -466,6 +472,7 @@ class AnatomyPainter extends CustomPainter {
     _drawBlockLabels(canvas, t);
     _drawRulers(canvas, size, t, open);
     _drawJunctions(canvas, t, open);
+    _drawBreaks(canvas, t, open);
     _drawLetters(canvas, side, appearance);
     _drawBridges(canvas, size, side, t);
     if (_constraintAtRest && conservation && marks.isNotEmpty) {
@@ -1293,6 +1300,44 @@ class AnatomyPainter extends CustomPainter {
         Offset(x, tile.top + 1),
         Offset(x, tile.bottom - 1),
         _linePaint,
+      );
+    }
+  }
+
+  /// Where something has cut the helix between two bases, at rest.
+  ///
+  /// In the mortar before the cell, as a junction bar is, and deliberately not
+  /// the same mark: a junction is a place two pieces were joined and a break
+  /// is a place one piece was cut, and a page can carry both. This one runs
+  /// the whole row and past each end of it, under a barb.
+  void _drawBreaks(Canvas canvas, double t, double open) {
+    if (breaks.isEmpty || scene.isTransition || maskAccent == null) {
+      return;
+    }
+    final AnatomyLayout layout = scene.toLayout.opened(open);
+    final double overhang = math.max(2, layout.cell * 0.12);
+    _linePaint
+      ..color = maskAccent!
+      ..strokeWidth = 2;
+    _fillPaint.color = maskAccent!;
+    for (final int cell in breaks) {
+      if (cell <= 0 || cell >= scene.to.count) {
+        continue;
+      }
+      final Rect tile = layout.rectOf(cell);
+      final double x = tile.left - math.max(1.5, layout.gap / 2 + 1);
+      canvas.drawLine(
+        Offset(x, tile.top - overhang),
+        Offset(x, tile.bottom + overhang),
+        _linePaint,
+      );
+      canvas.drawPath(
+        Path()
+          ..moveTo(x - overhang, tile.top - overhang)
+          ..lineTo(x + overhang, tile.top - overhang)
+          ..lineTo(x, tile.top)
+          ..close(),
+        _fillPaint,
       );
     }
   }
@@ -2243,5 +2288,6 @@ class AnatomyPainter extends CustomPainter {
       old.maskAccent != maskAccent ||
       old.rulerInk != rulerInk ||
       !listEquals(old.junctions, junctions) ||
+      !listEquals(old.breaks, breaks) ||
       !mapEquals(old.bridges, bridges);
 }

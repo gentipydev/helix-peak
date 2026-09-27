@@ -107,7 +107,7 @@ final class Guide {
   /// own strand (see [SequenceEdit]), so a base an editor writes on an
   /// antisense guide's strand is written here as the base that pairs with it.
   String asRecordWrites(String base) =>
-      strand == GuideStrand.sense ? base : _complement(base);
+      strand == GuideStrand.sense ? base : complementOf(base);
 
   @override
   String toString() =>
@@ -235,7 +235,8 @@ abstract final class GuideFinder {
 bool _isBase(String base) =>
     base == 'A' || base == 'C' || base == 'G' || base == 'T';
 
-String _complement(String base) => switch (base) {
+/// The base that pairs with [base] on the other strand.
+String complementOf(String base) => switch (base) {
   'A' => 'T',
   'C' => 'G',
   'G' => 'C',
@@ -246,7 +247,7 @@ String _complement(String base) => switch (base) {
 String _reverseComplement(String bases) {
   final StringBuffer other = StringBuffer();
   for (int i = bases.length - 1; i >= 0; i--) {
-    other.write(_complement(bases[i]));
+    other.write(complementOf(bases[i]));
   }
   return other.toString();
 }

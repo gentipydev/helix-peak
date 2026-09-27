@@ -30,6 +30,7 @@ class LabAnatomyView extends StatefulWidget {
     this.marks = const <int, ClinVarMark>{},
     this.bridges = const <int, int>{},
     this.junctions = const <int>[],
+    this.breaks = const <int>[],
     this.onSettled,
     super.key,
   });
@@ -53,6 +54,9 @@ class LabAnatomyView extends StatefulWidget {
   final Map<int, ClinVarMark> marks;
   final Map<int, int> bridges;
   final List<int> junctions;
+
+  /// Cells with the helix cut immediately 5' of them.
+  final List<int> breaks;
 
   /// Told when a transition has landed (or at once, for a resting scene).
   final VoidCallback? onSettled;
@@ -205,6 +209,7 @@ class _LabAnatomyViewState extends State<LabAnatomyView>
               maskAccent: theme.colorScheme.primary,
               rulerInk: theme.colorScheme.onSurfaceVariant,
               junctions: widget.junctions,
+              breaks: widget.breaks,
               bridges: widget.bridges,
               marks: widget.marks,
             ),

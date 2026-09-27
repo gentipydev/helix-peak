@@ -144,6 +144,18 @@ class _MutateBodyState extends State<_MutateBody>
   MutateCubit get _cubit => context.read<MutateCubit>();
 
   @override
+  void initState() {
+    super.initState();
+    // An edit already made when the screen opens — a repair chosen in another
+    // flow — opens on what it did, which is where making one here lands.
+    if (widget.state.applied != null) {
+      _view = _mrnaOf(widget.state.shown) >= 0
+          ? MutateView.mrna
+          : MutateView.protein;
+    }
+  }
+
+  @override
   void didUpdateWidget(_MutateBody old) {
     super.didUpdateWidget(old);
     if (!identical(old.state.shown, widget.state.shown) &&

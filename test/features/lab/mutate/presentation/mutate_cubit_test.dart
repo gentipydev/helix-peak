@@ -131,4 +131,38 @@ void main() {
           : ClinVarLoad.absent,
     );
   });
+
+  group('an edit handed over from another flow', () {
+    test('nothing is applied unless one is given', () async {
+      final MutateCubit cubit = _cubit('insulin');
+      addTearDown(cubit.close);
+      expect(cubit.applying, isNull);
+      await cubit.load();
+      expect((cubit.state as MutateReady).applied, isNull);
+    });
+
+    test('one given is made as soon as the record lands', () async {
+      final FixtureTrackSource tracks = FixtureTrackSource();
+      final MutateCubit cubit = MutateCubit(
+        target: TestCatalog.bySlug('insulin')!,
+        fetchGene: FetchGene(GeneRepositoryImpl(TrackGeneDataSource(tracks))),
+        tracks: tracks,
+        applying: const Substitution(5368, 'C'),
+      );
+      addTearDown(cubit.close);
+      await cubit.load();
+
+      final MutateReady ready = cubit.state as MutateReady;
+      expect(ready.applied, isNotNull);
+      expect(ready.applied!.edit.position, 5368);
+      expect(ready.applied!.outcome.kind, EditOutcomeKind.missense);
+      expect(ready.original.protein!.translation[48], 'F');
+      expect(ready.applied!.record.protein!.translation[48], 'L');
+
+      // And the ClinVar snapshot still arrives over the top of it.
+      final MutateReady settled = await _settled(cubit);
+      expect(settled.applied, isNotNull);
+      expect(settled.clinvar, ClinVarLoad.ready);
+    });
+  });
 }
