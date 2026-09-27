@@ -10,6 +10,7 @@ import '../../../../shared/motion/timeline_controller.dart';
 import '../../../../shared/motion/transport_bar.dart';
 import '../../presentation/lab_protein_picker.dart';
 import '../../presentation/lab_record.dart';
+import '../../share/share_action.dart';
 import '../domain/caption_generator.dart';
 import '../domain/director.dart';
 import '../domain/translation_timeline.dart';
@@ -118,7 +119,13 @@ class _RibosomeScreenState extends State<RibosomeScreen>
     final TranslationTimeline? translation = _translation;
     final TimelineController? controller = _controller;
     return Scaffold(
-      appBar: AppBar(title: Text('Ribosome · ${widget.target.display}')),
+      appBar: AppBar(
+        title: Text('Ribosome · ${widget.target.display}'),
+        actions: <Widget>[
+          if (_model case final AnatomyModel model)
+            SharePosterButton(target: widget.target, model: model),
+        ],
+      ),
       body: SafeArea(
         child: translation == null || controller == null
             ? Center(

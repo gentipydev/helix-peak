@@ -118,6 +118,10 @@ rotting on a branch, which is what keeps the shared layer from diverging.
   lab wears `AppTheme.analysis`. The walk's routes are not below it.
 - The index at `/lab` lists `labFeatures` in `lab_routes.dart`, one entry per
   flow as it arrives.
+- `share/` draws a flow's frames offscreen, one at a time (`FrameRenderer`),
+  and makes a poster (`PosterBuilder`) whose link,
+  `helixpeek://open/gene/<slug>`, is the scheme `AndroidManifest.xml` and
+  `Info.plist` register. Flutter hands the path to the router.
 - Tests switch it on with `dotenv.loadFromString(envString: 'LAB_ENABLED=true')`
   and off with `dotenv.clean()`.
 
