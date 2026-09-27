@@ -130,10 +130,10 @@ class _MutateBodyState extends State<_MutateBody>
     vsync: this,
     duration: const Duration(milliseconds: 220),
   );
-  late final Animation<Offset> _slideIn =
-      Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(
-        CurvedAnimation(parent: _slide, curve: Curves.easeOutCubic),
-      );
+  late final Animation<Offset> _slideIn = Tween<Offset>(
+    begin: const Offset(0, 1),
+    end: Offset.zero,
+  ).animate(CurvedAnimation(parent: _slide, curve: Curves.easeOutCubic));
 
   /// The scene is rebuilt only when what it draws changes: a transition that
   /// is handed a new scene plays again from its start.
@@ -324,8 +324,7 @@ class _MutateBodyState extends State<_MutateBody>
       );
     }
     final String before = original.record.protein?.translation ?? '';
-    final bool destroyed =
-        applied.outcome.kind == EditOutcomeKind.mrnaDegraded;
+    final bool destroyed = applied.outcome.kind == EditOutcomeKind.mrnaDegraded;
     return editRipple(
       before: original,
       after: applied.model,
@@ -497,8 +496,11 @@ class _MutateBodyState extends State<_MutateBody>
                       duration: reduced
                           ? Duration.zero
                           : const Duration(milliseconds: 1400),
-                      builder: (BuildContext context, double value, Widget? c) =>
-                          Opacity(opacity: value, child: c),
+                      builder: (
+                        BuildContext context,
+                        double value,
+                        Widget? c,
+                      ) => Opacity(opacity: value, child: c),
                       child: canvas,
                     );
                   }

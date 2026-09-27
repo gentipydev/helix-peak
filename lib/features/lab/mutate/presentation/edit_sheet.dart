@@ -84,10 +84,7 @@ class _EditSheetState extends State<EditSheet> {
       closeKey: const ValueKey<String>('mutate-sheet-close'),
       identity: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-        child: _BaseIdentity(
-          model: state.model,
-          position: widget.position,
-        ),
+        child: _BaseIdentity(model: state.model, position: widget.position),
       ),
       details: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
@@ -97,8 +94,10 @@ class _EditSheetState extends State<EditSheet> {
                 position: widget.position,
                 refusal: widget.refusal,
                 onEdit: widget.onEdit,
-                records: _records(state.recordsAt(widget.position),
-                    heading: 'ClinVar records at this base'),
+                records: _records(
+                  state.recordsAt(widget.position),
+                  heading: 'ClinVar records at this base',
+                ),
               )
             : _Made(
                 applied: applied,

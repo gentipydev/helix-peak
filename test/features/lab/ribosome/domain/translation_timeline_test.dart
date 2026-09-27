@@ -21,8 +21,7 @@ List<double> _samples(TranslationTimeline timeline, {int perBeat = 12}) =>
     <double>[
       ...timeline.boundaries,
       for (int b = 0; b < timeline.beats; b++)
-        for (int i = 1; i < perBeat; i++)
-          timeline.beatStart(b + i / perBeat),
+        for (int i = 1; i < perBeat; i++) timeline.beatStart(b + i / perBeat),
     ]..sort();
 
 void main() {
@@ -40,25 +39,30 @@ void main() {
   };
 
   group('insulin', () {
-    test('reads 110 residues off an mRNA whose junctions are at 42 and 246', () {
-      expect(ins.protein.length, 110);
-      expect(ins.junctions, <int>[42, 246]);
-      expect(ins.mrna.substring(ins.cdsStart, ins.cdsStart + 3), 'ATG');
-      expect(
-        GeneticCode.translate(
-          ins.mrna.substring(ins.stopCodonStart, ins.stopCodonStart + 3),
-        ),
-        '*',
-      );
-      expect(ins.protein, insulin.protein!.translation);
-    });
+    test(
+      'reads 110 residues off an mRNA whose junctions are at 42 and 246',
+      () {
+        expect(ins.protein.length, 110);
+        expect(ins.junctions, <int>[42, 246]);
+        expect(ins.mrna.substring(ins.cdsStart, ins.cdsStart + 3), 'ATG');
+        expect(
+          GeneticCode.translate(
+            ins.mrna.substring(ins.stopCodonStart, ins.stopCodonStart + 3),
+          ),
+          '*',
+        );
+        expect(ins.protein, insulin.protein!.translation);
+      },
+    );
 
     test('has 3 beats of scanning, 1 of joining, 1 a codon and 3 to end', () {
       expect(ins.beats, 3 + 1 + (110 - 1) + 3);
       expect(ins.phases.first.captionKey, 'scanning');
       expect(ins.phaseAt(ins.beatStart(3))!.captionKey, 'joining');
-      expect(ins.phaseAt(ins.beatStart(ins.beats - 3))!.captionKey,
-          'releaseFactor');
+      expect(
+        ins.phaseAt(ins.beatStart(ins.beats - 3))!.captionKey,
+        'releaseFactor',
+      );
     });
 
     test('clips its initiator methionine: residue 2 is alanine', () {
@@ -172,7 +176,10 @@ void main() {
 
     test('derives its events from its own record', () {
       expect(rln2.initiatorMetClipped, rln2.protein[1] == 'P');
-      expect(rln2.signalPeptideLength, relaxin.signalPeptide!.translation.length);
+      expect(
+        rln2.signalPeptideLength,
+        relaxin.signalPeptide!.translation.length,
+      );
       expect(rln2.srpWindow, isNotNull);
       final int limit = 347 - nmdThresholdBp - 1 - rln2.cdsStart;
       expect(rln2.nmdThresholdCodon, limit ~/ 3 + 1);
@@ -214,18 +221,24 @@ void main() {
           }
         });
 
-        test('lets the N terminus out first, and every residue out by the end',
-            () {
-          for (final double t in ts) {
-            final TranslationState s = timeline.stateAt(t);
-            for (int r = 1; r < s.residues; r++) {
-              if (!s.inTunnel(r)) {
-                expect(s.inTunnel(r - 1), isFalse, reason: 't $t, residue $r');
+        test(
+          'lets the N terminus out first, and every residue out by the end',
+          () {
+            for (final double t in ts) {
+              final TranslationState s = timeline.stateAt(t);
+              for (int r = 1; r < s.residues; r++) {
+                if (!s.inTunnel(r)) {
+                  expect(
+                    s.inTunnel(r - 1),
+                    isFalse,
+                    reason: 't $t, residue $r',
+                  );
+                }
               }
             }
-          }
-          expect(timeline.stateAt(1).inTunnelCount, 0);
-        });
+            expect(timeline.stateAt(1).inTunnelCount, 0);
+          },
+        );
 
         test('only ever moves the ribosome 3′', () {
           double last = -1;
@@ -248,7 +261,9 @@ void main() {
           ];
           expect(
             marks.length,
-            2 + 4 * timeline.elongationBeats + TranslationTimeline.terminationBeats,
+            2 +
+                4 * timeline.elongationBeats +
+                TranslationTimeline.terminationBeats,
           );
           for (int codon = 2; codon <= timeline.protein.length; codon++) {
             final int beat = timeline.beatOfCodon(codon);
@@ -267,7 +282,16 @@ void main() {
             );
           }
           // Inside a codon beat, each state belongs to exactly one slice.
-          for (final double u in <double>[0, 0.2, 0.35, 0.5, 0.55, 0.7, 0.85, 0.99]) {
+          for (final double u in <double>[
+            0,
+            0.2,
+            0.35,
+            0.5,
+            0.55,
+            0.7,
+            0.85,
+            0.99,
+          ]) {
             final TranslationState s = timeline.stateAt(
               timeline.beatStart(timeline.beatOfCodon(2) + u),
             );
@@ -288,7 +312,10 @@ void main() {
 
         test('never names the protein it translates', () {
           for (final PhaseMark mark in timeline.phases) {
-            expect(mark.name.toLowerCase(), isNot(contains(name.split(',').first)));
+            expect(
+              mark.name.toLowerCase(),
+              isNot(contains(name.split(',').first)),
+            );
           }
         });
       });

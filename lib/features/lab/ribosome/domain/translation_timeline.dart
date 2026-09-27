@@ -290,57 +290,51 @@ final class TranslationTimeline extends AnimationTimeline<TranslationState> {
   int get beats => firstTerminationBeat + terminationBeats;
 
   @override
-  late final List<PhaseMark> phases = List<PhaseMark>.unmodifiable(
-    <PhaseMark>[
-      const PhaseMark(
-        name: 'Scanning the 5′ UTR',
-        t: 0,
-        captionKey: 'scanning',
+  late final List<PhaseMark> phases = List<PhaseMark>.unmodifiable(<PhaseMark>[
+    const PhaseMark(name: 'Scanning the 5′ UTR', t: 0, captionKey: 'scanning'),
+    PhaseMark(
+      name: 'The large subunit joins',
+      t: beatStart(scanBeats),
+      captionKey: 'joining',
+    ),
+    for (int codon = 2; codon <= protein.length; codon++) ...<PhaseMark>[
+      PhaseMark(
+        name: 'Codon ${grouped(codon)} · decoding',
+        t: beatStart(beatOfCodon(codon)),
+        captionKey: 'decoding',
       ),
       PhaseMark(
-        name: 'The large subunit joins',
-        t: beatStart(scanBeats),
-        captionKey: 'joining',
-      ),
-      for (int codon = 2; codon <= protein.length; codon++) ...<PhaseMark>[
-        PhaseMark(
-          name: 'Codon ${grouped(codon)} · decoding',
-          t: beatStart(beatOfCodon(codon)),
-          captionKey: 'decoding',
-        ),
-        PhaseMark(
-          name: 'Codon ${grouped(codon)} · peptide bond',
-          t: beatStart(beatOfCodon(codon) + bondStart),
-          captionKey: 'peptideBond',
-        ),
-        PhaseMark(
-          name: 'Codon ${grouped(codon)} · translocation',
-          t: beatStart(beatOfCodon(codon) + bondEnd),
-          captionKey: 'translocation',
-        ),
-        PhaseMark(
-          name: 'Codon ${grouped(codon)} · tRNA exit',
-          t: beatStart(beatOfCodon(codon) + translocationEnd),
-          captionKey: 'trnaExit',
-        ),
-      ],
-      PhaseMark(
-        name: 'Stop codon · release factor',
-        t: beatStart(firstTerminationBeat),
-        captionKey: 'releaseFactor',
+        name: 'Codon ${grouped(codon)} · peptide bond',
+        t: beatStart(beatOfCodon(codon) + bondStart),
+        captionKey: 'peptideBond',
       ),
       PhaseMark(
-        name: 'The chain is released',
-        t: beatStart(firstTerminationBeat + 1),
-        captionKey: 'release',
+        name: 'Codon ${grouped(codon)} · translocation',
+        t: beatStart(beatOfCodon(codon) + bondEnd),
+        captionKey: 'translocation',
       ),
       PhaseMark(
-        name: 'The subunits part',
-        t: beatStart(firstTerminationBeat + 2),
-        captionKey: 'dissociation',
+        name: 'Codon ${grouped(codon)} · tRNA exit',
+        t: beatStart(beatOfCodon(codon) + translocationEnd),
+        captionKey: 'trnaExit',
       ),
     ],
-  );
+    PhaseMark(
+      name: 'Stop codon · release factor',
+      t: beatStart(firstTerminationBeat),
+      captionKey: 'releaseFactor',
+    ),
+    PhaseMark(
+      name: 'The chain is released',
+      t: beatStart(firstTerminationBeat + 1),
+      captionKey: 'release',
+    ),
+    PhaseMark(
+      name: 'The subunits part',
+      t: beatStart(firstTerminationBeat + 2),
+      captionKey: 'dissociation',
+    ),
+  ]);
 
   /// Where the peptide bond begins: decoding ends there.
   static const double bondStart = decodingEnd;
@@ -404,7 +398,12 @@ final class TranslationTimeline extends AnimationTimeline<TranslationState> {
     if (_before(u, bondEnd)) {
       return TranslationState(
         phase: TranslationPhase.peptideBond,
-        phaseProgress: AnimationTimeline.slice(u, bondStart, bondEnd, eased: false),
+        phaseProgress: AnimationTimeline.slice(
+          u,
+          bondStart,
+          bondEnd,
+          eased: false,
+        ),
         codon: codon,
         ribosome: base,
         smallSubunit: 1,
@@ -418,7 +417,11 @@ final class TranslationTimeline extends AnimationTimeline<TranslationState> {
       );
     }
     if (_before(u, translocationEnd)) {
-      final double moved = AnimationTimeline.slice(u, bondEnd, translocationEnd);
+      final double moved = AnimationTimeline.slice(
+        u,
+        bondEnd,
+        translocationEnd,
+      );
       final bool crossed = u >= (bondEnd + translocationEnd) / 2;
       return TranslationState(
         phase: TranslationPhase.translocation,
@@ -572,12 +575,14 @@ final class TranslationTimeline extends AnimationTimeline<TranslationState> {
   /// off. A junction past the stop codon is never reached, and so never
   /// cleared, and is left out.
   late final List<({int junction, double t})> ejcKnockoff =
-      List<({int junction, double t})>.unmodifiable(<({int junction, double t})>[
-        for (final int junction in junctions)
-          if (_firstT((TranslationState s) => s.ribosome >= junction)
-              case final double at)
-            (junction: junction, t: at),
-      ]);
+      List<({int junction, double t})>.unmodifiable(
+        <({int junction, double t})>[
+          for (final int junction in junctions)
+            if (_firstT((TranslationState s) => s.ribosome >= junction)
+                case final double at)
+              (junction: junction, t: at),
+        ],
+      );
 
   /// The last codon at which a stop would sit more than [nmdThresholdBp]
   /// bases upstream of the final exon-exon junction, so that

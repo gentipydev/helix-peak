@@ -96,11 +96,7 @@ class LabProteinPicker extends StatelessWidget {
 /// both are handled the way the walk's router handles them, by asking the
 /// repository for the one protein.
 class LabTargetLoader extends StatefulWidget {
-  const LabTargetLoader({
-    required this.slug,
-    required this.builder,
-    super.key,
-  });
+  const LabTargetLoader({required this.slug, required this.builder, super.key});
 
   final String slug;
   final Widget Function(BuildContext context, ProteinTarget target) builder;

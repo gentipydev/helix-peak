@@ -75,10 +75,7 @@ AnatomyScene editRipple({
   assert(from >= 0, 'the original record makes a protein');
   final AnatomyStage source = before.stages[from];
   final AnatomyStage? destination = to < 0 ? null : after.stages[to];
-  final Size canvas = canvasFor(<AnatomyStage>[
-    source,
-    ?destination,
-  ], viewport);
+  final Size canvas = canvasFor(<AnatomyStage>[source, ?destination], viewport);
   final AnatomyScene was = AnatomyScene.resting(
     model: before,
     index: from,
