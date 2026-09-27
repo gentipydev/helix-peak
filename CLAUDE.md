@@ -128,6 +128,10 @@ rotting on a branch, which is what keeps the shared layer from diverging.
   only until the AVAssetWriter half is written and run on a Mac
   (`docs/video-encoding-spike.md`). An export keeps the screen on and is
   cancelled, its file deleted, if the app is paused.
+- `ar/` embeds `StructureView` and, on Android, opens Scene Viewer on the
+  `structure_ar` track's `.glb`: the fold at 1 Å to 1 cm, its size read from
+  the row's provenance (`pipeline/structure_ar` in the backend). iOS says
+  room view is Android only until its AR Quick Look half is built on a Mac.
 - Tests switch it on with `dotenv.loadFromString(envString: 'LAB_ENABLED=true')`
   and off with `dotenv.clean()`.
 

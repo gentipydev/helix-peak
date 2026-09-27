@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/config/env.dart';
 import '../../core/router/app_router.dart';
+import 'ar/presentation/ar_screen.dart';
 import 'lab_scope.dart';
 import 'mutate/presentation/mutate_screen.dart';
 import 'presentation/lab_index_screen.dart';
@@ -25,6 +26,11 @@ const List<LabFeature> labFeatures = <LabFeature>[
     title: 'The ribosome',
     summary: 'Watch a protein’s own mRNA read into its chain, codon by codon.',
     path: '${RoutePaths.lab}/ribosome',
+  ),
+  LabFeature(
+    title: 'In your room',
+    summary: 'A fold at its real size, one ångström to one centimetre.',
+    path: '${RoutePaths.lab}/ar',
   ),
 ];
 
@@ -51,6 +57,12 @@ List<RouteBase> buildLabRoutes() => <RouteBase>[
             title: 'The ribosome',
             lead: 'Pick a protein to watch its mRNA translated.',
             screen: (String slug) => RibosomeRoute(slug: slug),
+          ),
+          _picked(
+            'ar',
+            title: 'In your room',
+            lead: 'Pick a protein to stand its fold in the room.',
+            screen: (String slug) => ArRoute(slug: slug),
           ),
         ],
       ),
