@@ -15,8 +15,14 @@ import '../../../../support/test_catalog.dart';
 Map<String, dynamic> _json(String path) =>
     jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
 
-ProteinConstraint _constraint(ProteinTarget target) =>
-    ProteinConstraint.fromJson(_json(target.constraintAsset), target);
+/// Parsed once each: dystrophin's track alone is 1.1 MB.
+final Map<String, ProteinConstraint> _constraints =
+    <String, ProteinConstraint>{};
+
+ProteinConstraint _constraint(ProteinTarget target) => _constraints.putIfAbsent(
+  target.slug,
+  () => ProteinConstraint.fromJson(_json(target.constraintAsset), target),
+);
 
 GeneRecord _record(ProteinTarget target) =>
     GeneRecordDto.fromJson(_json(target.mockAsset)).toEntity();

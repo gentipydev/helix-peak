@@ -70,6 +70,19 @@ Future<void> _next(WidgetTester tester) async {
   await tester.tap(find.byKey(const ValueKey<String>('sickle-next')));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 1500));
+  // Chapter one shows nothing of ClinVar, so [_host] cannot see whether the
+  // snapshot has arrived and may stop waiting before it does. The chapters
+  // after it say "Reading ClinVar…" until it has: wait that out, in real time.
+  await tester.runAsync(() async {
+    for (int i = 0; i < 200; i++) {
+      if (find.text('Reading ClinVar…').evaluate().isEmpty) {
+        break;
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      await tester.pump();
+    }
+  });
+  await tester.pump();
 }
 
 /// The chapter's own scroll view: the first in the tree, above whatever the
