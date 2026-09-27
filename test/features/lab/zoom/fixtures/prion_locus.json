@@ -1,0 +1,228 @@
+{
+  "slug": "prion",
+  "gene": "PRNP",
+  "uniprot": "P04156",
+  "assembly": "GRCh38",
+  "genome": "hg38",
+  "chromosome": "20",
+  "sequence": "NC_000020.11",
+  "length": 64444167,
+  "span": {
+    "start": 4686456,
+    "end": 4701588,
+    "strand": 1
+  },
+  "transcript": {
+    "refseq": "NM_000311.5",
+    "ensembl": "ENST00000379440.9"
+  },
+  "band": {
+    "names": [
+      "p13"
+    ],
+    "start": 1,
+    "end": 5100000
+  },
+  "locus": "20p13",
+  "bands": [
+    {
+      "name": "p13",
+      "start": 1,
+      "end": 5100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p12.3",
+      "start": 5100001,
+      "end": 9200000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p12.2",
+      "start": 9200001,
+      "end": 12000000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p12.1",
+      "start": 12000001,
+      "end": 17900000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p11.23",
+      "start": 17900001,
+      "end": 21300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p11.22",
+      "start": 21300001,
+      "end": 22300000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "p11.21",
+      "start": 22300001,
+      "end": 25700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p11.1",
+      "start": 25700001,
+      "end": 28100000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.1",
+      "start": 28100001,
+      "end": 30400000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.21",
+      "start": 30400001,
+      "end": 33500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q11.22",
+      "start": 33500001,
+      "end": 35800000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q11.23",
+      "start": 35800001,
+      "end": 39000000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q12",
+      "start": 39000001,
+      "end": 43100000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q13.11",
+      "start": 43100001,
+      "end": 43500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q13.12",
+      "start": 43500001,
+      "end": 47800000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q13.13",
+      "start": 47800001,
+      "end": 51200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q13.2",
+      "start": 51200001,
+      "end": 56400000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q13.31",
+      "start": 56400001,
+      "end": 57800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q13.32",
+      "start": 57800001,
+      "end": 59700000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q13.33",
+      "start": 59700001,
+      "end": 64444167,
+      "stain": "gneg"
+    }
+  ],
+  "expression": {
+    "ensembl_gene": "ENSG00000171867",
+    "tissue": {
+      "specificity": "Tissue enhanced",
+      "distribution": "Detected in all",
+      "specific": [
+        {
+          "name": "choroid plexus",
+          "ntpm": 480.4
+        }
+      ]
+    },
+    "cell_type": {
+      "specificity": "Cell type enhanced",
+      "distribution": "Detected in all",
+      "specific": [
+        {
+          "name": "Ocular epithelial cells",
+          "ncpm": 461.4
+        },
+        {
+          "name": "Kupffer cells",
+          "ncpm": 447.9
+        },
+        {
+          "name": "Epididymal basal cells",
+          "ncpm": 383.5
+        },
+        {
+          "name": "Retinal pigment epithelial cells",
+          "ncpm": 379.4
+        },
+        {
+          "name": "Schwann cells",
+          "ncpm": 369.2
+        },
+        {
+          "name": "Basal keratinocytes",
+          "ncpm": 343.1
+        }
+      ]
+    }
+  },
+  "sources": {
+    "cytoband": {
+      "table": "cytoBand",
+      "genome": "hg38",
+      "updated": "2022-10-28T15:06:46",
+      "rows": 1549,
+      "sha256": "50366db9b20881ddcd5679fefa6f8ee5eeb920ce61a7889e0ee0c52853b034c7",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=cytoBand"
+    },
+    "chrom_alias": {
+      "table": "chromAlias",
+      "genome": "hg38",
+      "updated": "2023-01-24T12:46:47",
+      "rows": 2129,
+      "sha256": "df04264a4bcb6dc6b5a6334b42d09270abc894ac2ebbd8ca68a51a12b7076f02",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=chromAlias"
+    },
+    "mane": {
+      "release": "v1.5"
+    },
+    "uniprot": {
+      "release": "2026_03",
+      "release_date": "2026-09-02",
+      "entry_version": 282
+    },
+    "hpa": {
+      "version": "25.1",
+      "release_date": "2026-05-25",
+      "ensembl": "109",
+      "licence": "CC BY 4.0",
+      "url": "https://www.proteinatlas.org/ENSG00000171867.json"
+    }
+  },
+  "retrieved": "2026-09-27",
+  "schema_version": 1,
+  "built_by": "pipeline/locus/bake_locus.py"
+}

@@ -1,0 +1,222 @@
+{
+  "slug": "p53",
+  "gene": "TP53",
+  "uniprot": "P04637",
+  "assembly": "GRCh38",
+  "genome": "hg38",
+  "chromosome": "17",
+  "sequence": "NC_000017.11",
+  "length": 83257441,
+  "span": {
+    "start": 7668421,
+    "end": 7687490,
+    "strand": -1
+  },
+  "transcript": {
+    "refseq": "NM_000546.6",
+    "ensembl": "ENST00000269305.9"
+  },
+  "band": {
+    "names": [
+      "p13.1"
+    ],
+    "start": 6500001,
+    "end": 10800000
+  },
+  "locus": "17p13.1",
+  "bands": [
+    {
+      "name": "p13.3",
+      "start": 1,
+      "end": 3400000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p13.2",
+      "start": 3400001,
+      "end": 6500000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "p13.1",
+      "start": 6500001,
+      "end": 10800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p12",
+      "start": 10800001,
+      "end": 16100000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p11.2",
+      "start": 16100001,
+      "end": 22700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p11.1",
+      "start": 22700001,
+      "end": 25100000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.1",
+      "start": 25100001,
+      "end": 27400000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.2",
+      "start": 27400001,
+      "end": 33500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q12",
+      "start": 33500001,
+      "end": 39800000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q21.1",
+      "start": 39800001,
+      "end": 40200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.2",
+      "start": 40200001,
+      "end": 42800000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q21.31",
+      "start": 42800001,
+      "end": 46800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.32",
+      "start": 46800001,
+      "end": 49300000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q21.33",
+      "start": 49300001,
+      "end": 52100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q22",
+      "start": 52100001,
+      "end": 59500000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q23.1",
+      "start": 59500001,
+      "end": 60200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q23.2",
+      "start": 60200001,
+      "end": 63100000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q23.3",
+      "start": 63100001,
+      "end": 64600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q24.1",
+      "start": 64600001,
+      "end": 66200000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q24.2",
+      "start": 66200001,
+      "end": 69100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q24.3",
+      "start": 69100001,
+      "end": 72900000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q25.1",
+      "start": 72900001,
+      "end": 76800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q25.2",
+      "start": 76800001,
+      "end": 77200000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q25.3",
+      "start": 77200001,
+      "end": 83257441,
+      "stain": "gneg"
+    }
+  ],
+  "expression": {
+    "ensembl_gene": "ENSG00000141510",
+    "tissue": {
+      "specificity": "Low tissue specificity",
+      "distribution": "Detected in all",
+      "specific": []
+    },
+    "cell_type": {
+      "specificity": "Low cell type specificity",
+      "distribution": "Detected in many",
+      "specific": []
+    }
+  },
+  "sources": {
+    "cytoband": {
+      "table": "cytoBand",
+      "genome": "hg38",
+      "updated": "2022-10-28T15:06:46",
+      "rows": 1549,
+      "sha256": "50366db9b20881ddcd5679fefa6f8ee5eeb920ce61a7889e0ee0c52853b034c7",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=cytoBand"
+    },
+    "chrom_alias": {
+      "table": "chromAlias",
+      "genome": "hg38",
+      "updated": "2023-01-24T12:46:47",
+      "rows": 2129,
+      "sha256": "df04264a4bcb6dc6b5a6334b42d09270abc894ac2ebbd8ca68a51a12b7076f02",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=chromAlias"
+    },
+    "mane": {
+      "release": "v1.5"
+    },
+    "uniprot": {
+      "release": "2026_03",
+      "release_date": "2026-09-02",
+      "entry_version": 315
+    },
+    "hpa": {
+      "version": "25.1",
+      "release_date": "2026-05-25",
+      "ensembl": "109",
+      "licence": "CC BY 4.0",
+      "url": "https://www.proteinatlas.org/ENSG00000141510.json"
+    }
+  },
+  "retrieved": "2026-09-27",
+  "schema_version": 1,
+  "built_by": "pipeline/locus/bake_locus.py"
+}

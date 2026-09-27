@@ -1,0 +1,196 @@
+{
+  "slug": "myoglobin",
+  "gene": "MB",
+  "uniprot": "P02144",
+  "assembly": "GRCh38",
+  "genome": "hg38",
+  "chromosome": "22",
+  "sequence": "NC_000022.11",
+  "length": 50818468,
+  "span": {
+    "start": 35606764,
+    "end": 35617329,
+    "strand": -1
+  },
+  "transcript": {
+    "refseq": "NM_005368.3",
+    "ensembl": "ENST00000397326.7"
+  },
+  "band": {
+    "names": [
+      "q12.3"
+    ],
+    "start": 31800001,
+    "end": 37200000
+  },
+  "locus": "22q12.3",
+  "bands": [
+    {
+      "name": "p13",
+      "start": 1,
+      "end": 4300000,
+      "stain": "gvar"
+    },
+    {
+      "name": "p12",
+      "start": 4300001,
+      "end": 9400000,
+      "stain": "stalk"
+    },
+    {
+      "name": "p11.2",
+      "start": 9400001,
+      "end": 13700000,
+      "stain": "gvar"
+    },
+    {
+      "name": "p11.1",
+      "start": 13700001,
+      "end": 15000000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.1",
+      "start": 15000001,
+      "end": 17400000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.21",
+      "start": 17400001,
+      "end": 21700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q11.22",
+      "start": 21700001,
+      "end": 23100000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q11.23",
+      "start": 23100001,
+      "end": 25500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q12.1",
+      "start": 25500001,
+      "end": 29200000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q12.2",
+      "start": 29200001,
+      "end": 31800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q12.3",
+      "start": 31800001,
+      "end": 37200000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q13.1",
+      "start": 37200001,
+      "end": 40600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q13.2",
+      "start": 40600001,
+      "end": 43800000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q13.31",
+      "start": 43800001,
+      "end": 48100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q13.32",
+      "start": 48100001,
+      "end": 49100000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q13.33",
+      "start": 49100001,
+      "end": 50818468,
+      "stain": "gneg"
+    }
+  ],
+  "expression": {
+    "ensembl_gene": "ENSG00000198125",
+    "tissue": {
+      "specificity": "Group enriched",
+      "distribution": "Detected in many",
+      "specific": [
+        {
+          "name": "skeletal muscle",
+          "ntpm": 38156.8
+        },
+        {
+          "name": "tongue",
+          "ntpm": 27139.2
+        },
+        {
+          "name": "heart muscle",
+          "ntpm": 14050.6
+        }
+      ]
+    },
+    "cell_type": {
+      "specificity": "Group enriched",
+      "distribution": "Detected in many",
+      "specific": [
+        {
+          "name": "Thymic myoid cells",
+          "ncpm": 1472.5
+        },
+        {
+          "name": "Myonuclei",
+          "ncpm": 613.9
+        }
+      ]
+    }
+  },
+  "sources": {
+    "cytoband": {
+      "table": "cytoBand",
+      "genome": "hg38",
+      "updated": "2022-10-28T15:06:46",
+      "rows": 1549,
+      "sha256": "50366db9b20881ddcd5679fefa6f8ee5eeb920ce61a7889e0ee0c52853b034c7",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=cytoBand"
+    },
+    "chrom_alias": {
+      "table": "chromAlias",
+      "genome": "hg38",
+      "updated": "2023-01-24T12:46:47",
+      "rows": 2129,
+      "sha256": "df04264a4bcb6dc6b5a6334b42d09270abc894ac2ebbd8ca68a51a12b7076f02",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=chromAlias"
+    },
+    "mane": {
+      "release": "v1.5"
+    },
+    "uniprot": {
+      "release": "2026_03",
+      "release_date": "2026-09-02",
+      "entry_version": 218
+    },
+    "hpa": {
+      "version": "25.1",
+      "release_date": "2026-05-25",
+      "ensembl": "109",
+      "licence": "CC BY 4.0",
+      "url": "https://www.proteinatlas.org/ENSG00000198125.json"
+    }
+  },
+  "retrieved": "2026-09-27",
+  "schema_version": 1,
+  "built_by": "pipeline/locus/bake_locus.py"
+}

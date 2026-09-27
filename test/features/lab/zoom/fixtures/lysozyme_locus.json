@@ -1,0 +1,378 @@
+{
+  "slug": "lysozyme",
+  "gene": "LYZ",
+  "uniprot": "P61626",
+  "assembly": "GRCh38",
+  "genome": "hg38",
+  "chromosome": "12",
+  "sequence": "NC_000012.12",
+  "length": 133275309,
+  "span": {
+    "start": 69348381,
+    "end": 69354234,
+    "strand": 1
+  },
+  "transcript": {
+    "refseq": "NM_000239.3",
+    "ensembl": "ENST00000261267.7"
+  },
+  "band": {
+    "names": [
+      "q15"
+    ],
+    "start": 67300001,
+    "end": 71100000
+  },
+  "locus": "12q15",
+  "bands": [
+    {
+      "name": "p13.33",
+      "start": 1,
+      "end": 3200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p13.32",
+      "start": 3200001,
+      "end": 5300000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "p13.31",
+      "start": 5300001,
+      "end": 10000000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p13.2",
+      "start": 10000001,
+      "end": 12600000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p13.1",
+      "start": 12600001,
+      "end": 14600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p12.3",
+      "start": 14600001,
+      "end": 19800000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "p12.2",
+      "start": 19800001,
+      "end": 21100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p12.1",
+      "start": 21100001,
+      "end": 26300000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "p11.23",
+      "start": 26300001,
+      "end": 27600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p11.22",
+      "start": 27600001,
+      "end": 30500000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "p11.21",
+      "start": 30500001,
+      "end": 33200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p11.1",
+      "start": 33200001,
+      "end": 35500000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11",
+      "start": 35500001,
+      "end": 37800000,
+      "stain": "acen"
+    },
+    {
+      "name": "q12",
+      "start": 37800001,
+      "end": 46000000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q13.11",
+      "start": 46000001,
+      "end": 48700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q13.12",
+      "start": 48700001,
+      "end": 51100000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q13.13",
+      "start": 51100001,
+      "end": 54500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q13.2",
+      "start": 54500001,
+      "end": 56200000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q13.3",
+      "start": 56200001,
+      "end": 57700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q14.1",
+      "start": 57700001,
+      "end": 62700000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q14.2",
+      "start": 62700001,
+      "end": 64700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q14.3",
+      "start": 64700001,
+      "end": 67300000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q15",
+      "start": 67300001,
+      "end": 71100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.1",
+      "start": 71100001,
+      "end": 75300000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q21.2",
+      "start": 75300001,
+      "end": 79900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.31",
+      "start": 79900001,
+      "end": 86300000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q21.32",
+      "start": 86300001,
+      "end": 88600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.33",
+      "start": 88600001,
+      "end": 92200000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q22",
+      "start": 92200001,
+      "end": 95800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q23.1",
+      "start": 95800001,
+      "end": 101200000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q23.2",
+      "start": 101200001,
+      "end": 103500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q23.3",
+      "start": 103500001,
+      "end": 108600000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q24.11",
+      "start": 108600001,
+      "end": 111300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q24.12",
+      "start": 111300001,
+      "end": 111900000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q24.13",
+      "start": 111900001,
+      "end": 113900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q24.21",
+      "start": 113900001,
+      "end": 116400000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q24.22",
+      "start": 116400001,
+      "end": 117700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q24.23",
+      "start": 117700001,
+      "end": 120300000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q24.31",
+      "start": 120300001,
+      "end": 125400000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q24.32",
+      "start": 125400001,
+      "end": 128700000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q24.33",
+      "start": 128700001,
+      "end": 133275309,
+      "stain": "gneg"
+    }
+  ],
+  "expression": {
+    "ensembl_gene": "ENSG00000090382",
+    "tissue": {
+      "specificity": "Tissue enhanced",
+      "distribution": "Detected in all",
+      "specific": [
+        {
+          "name": "salivary gland",
+          "ntpm": 21193.7
+        },
+        {
+          "name": "bone marrow",
+          "ntpm": 9984.7
+        },
+        {
+          "name": "stomach 1",
+          "ntpm": 8449.1
+        }
+      ]
+    },
+    "cell_type": {
+      "specificity": "Cell type enhanced",
+      "distribution": "Detected in many",
+      "specific": [
+        {
+          "name": "Lacrimal acinar cells",
+          "ncpm": 57295.4
+        },
+        {
+          "name": "Monocyte progenitors",
+          "ncpm": 20027.1
+        },
+        {
+          "name": "Breast lactating cells",
+          "ncpm": 12440.3
+        },
+        {
+          "name": "Mucous neck cells",
+          "ncpm": 10561.1
+        },
+        {
+          "name": "Submucosal glandular cells",
+          "ncpm": 8175.1
+        },
+        {
+          "name": "monocytes",
+          "ncpm": 6373.8
+        },
+        {
+          "name": "cDC",
+          "ncpm": 4982.0
+        },
+        {
+          "name": "Paneth cells",
+          "ncpm": 4749.2
+        },
+        {
+          "name": "Salivary acinar cells",
+          "ncpm": 4181.0
+        },
+        {
+          "name": "Foveolar cells",
+          "ncpm": 3967.9
+        }
+      ]
+    }
+  },
+  "sources": {
+    "cytoband": {
+      "table": "cytoBand",
+      "genome": "hg38",
+      "updated": "2022-10-28T15:06:46",
+      "rows": 1549,
+      "sha256": "50366db9b20881ddcd5679fefa6f8ee5eeb920ce61a7889e0ee0c52853b034c7",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=cytoBand"
+    },
+    "chrom_alias": {
+      "table": "chromAlias",
+      "genome": "hg38",
+      "updated": "2023-01-24T12:46:47",
+      "rows": 2129,
+      "sha256": "df04264a4bcb6dc6b5a6334b42d09270abc894ac2ebbd8ca68a51a12b7076f02",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=chromAlias"
+    },
+    "mane": {
+      "release": "v1.5"
+    },
+    "uniprot": {
+      "release": "2026_03",
+      "release_date": "2026-09-02",
+      "entry_version": 205
+    },
+    "hpa": {
+      "version": "25.1",
+      "release_date": "2026-05-25",
+      "ensembl": "109",
+      "licence": "CC BY 4.0",
+      "url": "https://www.proteinatlas.org/ENSG00000090382.json"
+    }
+  },
+  "retrieved": "2026-09-27",
+  "schema_version": 1,
+  "built_by": "pipeline/locus/bake_locus.py"
+}

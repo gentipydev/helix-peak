@@ -1,0 +1,380 @@
+{
+  "slug": "tnf",
+  "gene": "TNF",
+  "uniprot": "P01375",
+  "assembly": "GRCh38",
+  "genome": "hg38",
+  "chromosome": "6",
+  "sequence": "NC_000006.12",
+  "length": 170805979,
+  "span": {
+    "start": 31575565,
+    "end": 31578336,
+    "strand": 1
+  },
+  "transcript": {
+    "refseq": "NM_000594.4",
+    "ensembl": "ENST00000449264.3"
+  },
+  "band": {
+    "names": [
+      "p21.33"
+    ],
+    "start": 30500001,
+    "end": 32100000
+  },
+  "locus": "6p21.33",
+  "bands": [
+    {
+      "name": "p25.3",
+      "start": 1,
+      "end": 2300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p25.2",
+      "start": 2300001,
+      "end": 4200000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "p25.1",
+      "start": 4200001,
+      "end": 7100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p24.3",
+      "start": 7100001,
+      "end": 10600000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "p24.2",
+      "start": 10600001,
+      "end": 11600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p24.1",
+      "start": 11600001,
+      "end": 13400000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "p23",
+      "start": 13400001,
+      "end": 15200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p22.3",
+      "start": 15200001,
+      "end": 25200000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p22.2",
+      "start": 25200001,
+      "end": 27100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p22.1",
+      "start": 27100001,
+      "end": 30500000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "p21.33",
+      "start": 30500001,
+      "end": 32100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p21.32",
+      "start": 32100001,
+      "end": 33500000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "p21.31",
+      "start": 33500001,
+      "end": 36600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p21.2",
+      "start": 36600001,
+      "end": 40500000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "p21.1",
+      "start": 40500001,
+      "end": 46200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p12.3",
+      "start": 46200001,
+      "end": 51800000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "p12.2",
+      "start": 51800001,
+      "end": 53000000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p12.1",
+      "start": 53000001,
+      "end": 57200000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "p11.2",
+      "start": 57200001,
+      "end": 58500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p11.1",
+      "start": 58500001,
+      "end": 59800000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.1",
+      "start": 59800001,
+      "end": 62600000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.2",
+      "start": 62600001,
+      "end": 62700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q12",
+      "start": 62700001,
+      "end": 69200000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q13",
+      "start": 69200001,
+      "end": 75200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q14.1",
+      "start": 75200001,
+      "end": 83200000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q14.2",
+      "start": 83200001,
+      "end": 84200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q14.3",
+      "start": 84200001,
+      "end": 87300000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q15",
+      "start": 87300001,
+      "end": 92500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q16.1",
+      "start": 92500001,
+      "end": 98900000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q16.2",
+      "start": 98900001,
+      "end": 100000000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q16.3",
+      "start": 100000001,
+      "end": 105000000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q21",
+      "start": 105000001,
+      "end": 114200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q22.1",
+      "start": 114200001,
+      "end": 117900000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q22.2",
+      "start": 117900001,
+      "end": 118100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q22.31",
+      "start": 118100001,
+      "end": 125800000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q22.32",
+      "start": 125800001,
+      "end": 126800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q22.33",
+      "start": 126800001,
+      "end": 130000000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q23.1",
+      "start": 130000001,
+      "end": 130900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q23.2",
+      "start": 130900001,
+      "end": 134700000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q23.3",
+      "start": 134700001,
+      "end": 138300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q24.1",
+      "start": 138300001,
+      "end": 142200000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q24.2",
+      "start": 142200001,
+      "end": 145100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q24.3",
+      "start": 145100001,
+      "end": 148500000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q25.1",
+      "start": 148500001,
+      "end": 152100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q25.2",
+      "start": 152100001,
+      "end": 155200000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q25.3",
+      "start": 155200001,
+      "end": 160600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q26",
+      "start": 160600001,
+      "end": 164100000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q27",
+      "start": 164100001,
+      "end": 170805979,
+      "stain": "gneg"
+    }
+  ],
+  "expression": {
+    "ensembl_gene": "ENSG00000232810",
+    "tissue": {
+      "specificity": "Tissue enhanced",
+      "distribution": "Detected in some",
+      "specific": [
+        {
+          "name": "bone marrow",
+          "ntpm": 19.9
+        },
+        {
+          "name": "lymphoid tissue",
+          "ntpm": 6.1
+        }
+      ]
+    },
+    "cell_type": {
+      "specificity": "Cell type enriched",
+      "distribution": "Detected in some",
+      "specific": [
+        {
+          "name": "Microglia",
+          "ncpm": 7.8
+        }
+      ]
+    }
+  },
+  "sources": {
+    "cytoband": {
+      "table": "cytoBand",
+      "genome": "hg38",
+      "updated": "2022-10-28T15:06:46",
+      "rows": 1549,
+      "sha256": "50366db9b20881ddcd5679fefa6f8ee5eeb920ce61a7889e0ee0c52853b034c7",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=cytoBand"
+    },
+    "chrom_alias": {
+      "table": "chromAlias",
+      "genome": "hg38",
+      "updated": "2023-01-24T12:46:47",
+      "rows": 2129,
+      "sha256": "df04264a4bcb6dc6b5a6334b42d09270abc894ac2ebbd8ca68a51a12b7076f02",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=chromAlias"
+    },
+    "mane": {
+      "release": "v1.5"
+    },
+    "uniprot": {
+      "release": "2026_03",
+      "release_date": "2026-09-02",
+      "entry_version": 283
+    },
+    "hpa": {
+      "version": "25.1",
+      "release_date": "2026-05-25",
+      "ensembl": "109",
+      "licence": "CC BY 4.0",
+      "url": "https://www.proteinatlas.org/ENSG00000232810.json"
+    }
+  },
+  "retrieved": "2026-09-27",
+  "schema_version": 1,
+  "built_by": "pipeline/locus/bake_locus.py"
+}

@@ -1,0 +1,184 @@
+{
+  "slug": "sod1",
+  "gene": "SOD1",
+  "uniprot": "P00441",
+  "assembly": "GRCh38",
+  "genome": "hg38",
+  "chromosome": "21",
+  "sequence": "NC_000021.9",
+  "length": 46709983,
+  "span": {
+    "start": 31659693,
+    "end": 31668931,
+    "strand": 1
+  },
+  "transcript": {
+    "refseq": "NM_000454.5",
+    "ensembl": "ENST00000270142.11"
+  },
+  "band": {
+    "names": [
+      "q22.11"
+    ],
+    "start": 30200001,
+    "end": 34400000
+  },
+  "locus": "21q22.11",
+  "bands": [
+    {
+      "name": "p13",
+      "start": 1,
+      "end": 3100000,
+      "stain": "gvar"
+    },
+    {
+      "name": "p12",
+      "start": 3100001,
+      "end": 7000000,
+      "stain": "stalk"
+    },
+    {
+      "name": "p11.2",
+      "start": 7000001,
+      "end": 10900000,
+      "stain": "gvar"
+    },
+    {
+      "name": "p11.1",
+      "start": 10900001,
+      "end": 12000000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.1",
+      "start": 12000001,
+      "end": 13000000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.2",
+      "start": 13000001,
+      "end": 15000000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.1",
+      "start": 15000001,
+      "end": 22600000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q21.2",
+      "start": 22600001,
+      "end": 25500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.3",
+      "start": 25500001,
+      "end": 30200000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q22.11",
+      "start": 30200001,
+      "end": 34400000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q22.12",
+      "start": 34400001,
+      "end": 36400000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q22.13",
+      "start": 36400001,
+      "end": 38300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q22.2",
+      "start": 38300001,
+      "end": 41200000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q22.3",
+      "start": 41200001,
+      "end": 46709983,
+      "stain": "gneg"
+    }
+  ],
+  "expression": {
+    "ensembl_gene": "ENSG00000142168",
+    "tissue": {
+      "specificity": "Tissue enhanced",
+      "distribution": "Detected in all",
+      "specific": [
+        {
+          "name": "liver",
+          "ntpm": 1537.1
+        }
+      ]
+    },
+    "cell_type": {
+      "specificity": "Cell type enhanced",
+      "distribution": "Detected in all",
+      "specific": [
+        {
+          "name": "Hepatocytes",
+          "ncpm": 3764.4
+        },
+        {
+          "name": "Gastric progenitor cells",
+          "ncpm": 1937.9
+        },
+        {
+          "name": "Oocytes",
+          "ncpm": 1662.4
+        },
+        {
+          "name": "Late spermatids",
+          "ncpm": 1476.3
+        }
+      ]
+    }
+  },
+  "sources": {
+    "cytoband": {
+      "table": "cytoBand",
+      "genome": "hg38",
+      "updated": "2022-10-28T15:06:46",
+      "rows": 1549,
+      "sha256": "50366db9b20881ddcd5679fefa6f8ee5eeb920ce61a7889e0ee0c52853b034c7",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=cytoBand"
+    },
+    "chrom_alias": {
+      "table": "chromAlias",
+      "genome": "hg38",
+      "updated": "2023-01-24T12:46:47",
+      "rows": 2129,
+      "sha256": "df04264a4bcb6dc6b5a6334b42d09270abc894ac2ebbd8ca68a51a12b7076f02",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=chromAlias"
+    },
+    "mane": {
+      "release": "v1.5"
+    },
+    "uniprot": {
+      "release": "2026_03",
+      "release_date": "2026-09-02",
+      "entry_version": 279
+    },
+    "hpa": {
+      "version": "25.1",
+      "release_date": "2026-05-25",
+      "ensembl": "109",
+      "licence": "CC BY 4.0",
+      "url": "https://www.proteinatlas.org/ENSG00000142168.json"
+    }
+  },
+  "retrieved": "2026-09-27",
+  "schema_version": 1,
+  "built_by": "pipeline/locus/bake_locus.py"
+}

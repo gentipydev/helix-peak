@@ -1,0 +1,380 @@
+{
+  "slug": "erythropoietin",
+  "gene": "EPO",
+  "uniprot": "P01588",
+  "assembly": "GRCh38",
+  "genome": "hg38",
+  "chromosome": "7",
+  "sequence": "NC_000007.14",
+  "length": 159345973,
+  "span": {
+    "start": 100720468,
+    "end": 100723700,
+    "strand": 1
+  },
+  "transcript": {
+    "refseq": "NM_000799.4",
+    "ensembl": "ENST00000252723.3"
+  },
+  "band": {
+    "names": [
+      "q22.1"
+    ],
+    "start": 98400001,
+    "end": 104200000
+  },
+  "locus": "7q22.1",
+  "bands": [
+    {
+      "name": "p22.3",
+      "start": 1,
+      "end": 2800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p22.2",
+      "start": 2800001,
+      "end": 4500000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "p22.1",
+      "start": 4500001,
+      "end": 7200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p21.3",
+      "start": 7200001,
+      "end": 13700000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "p21.2",
+      "start": 13700001,
+      "end": 16500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p21.1",
+      "start": 16500001,
+      "end": 20900000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "p15.3",
+      "start": 20900001,
+      "end": 25500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p15.2",
+      "start": 25500001,
+      "end": 27900000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "p15.1",
+      "start": 27900001,
+      "end": 28800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p14.3",
+      "start": 28800001,
+      "end": 34900000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p14.2",
+      "start": 34900001,
+      "end": 37100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p14.1",
+      "start": 37100001,
+      "end": 43300000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p13",
+      "start": 43300001,
+      "end": 45400000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p12.3",
+      "start": 45400001,
+      "end": 49000000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p12.2",
+      "start": 49000001,
+      "end": 50500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p12.1",
+      "start": 50500001,
+      "end": 53900000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p11.2",
+      "start": 53900001,
+      "end": 58100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p11.1",
+      "start": 58100001,
+      "end": 60100000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.1",
+      "start": 60100001,
+      "end": 62100000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.21",
+      "start": 62100001,
+      "end": 67500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q11.22",
+      "start": 67500001,
+      "end": 72700000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q11.23",
+      "start": 72700001,
+      "end": 77900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.11",
+      "start": 77900001,
+      "end": 86700000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q21.12",
+      "start": 86700001,
+      "end": 88500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.13",
+      "start": 88500001,
+      "end": 91500000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q21.2",
+      "start": 91500001,
+      "end": 93300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.3",
+      "start": 93300001,
+      "end": 98400000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q22.1",
+      "start": 98400001,
+      "end": 104200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q22.2",
+      "start": 104200001,
+      "end": 104900000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q22.3",
+      "start": 104900001,
+      "end": 107800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q31.1",
+      "start": 107800001,
+      "end": 115000000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q31.2",
+      "start": 115000001,
+      "end": 117700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q31.31",
+      "start": 117700001,
+      "end": 121400000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q31.32",
+      "start": 121400001,
+      "end": 124100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q31.33",
+      "start": 124100001,
+      "end": 127500000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q32.1",
+      "start": 127500001,
+      "end": 129600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q32.2",
+      "start": 129600001,
+      "end": 130800000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q32.3",
+      "start": 130800001,
+      "end": 132900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q33",
+      "start": 132900001,
+      "end": 138500000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q34",
+      "start": 138500001,
+      "end": 143400000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q35",
+      "start": 143400001,
+      "end": 148200000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q36.1",
+      "start": 148200001,
+      "end": 152800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q36.2",
+      "start": 152800001,
+      "end": 155200000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q36.3",
+      "start": 155200001,
+      "end": 159345973,
+      "stain": "gneg"
+    }
+  ],
+  "expression": {
+    "ensembl_gene": "ENSG00000130427",
+    "tissue": {
+      "specificity": "Tissue enriched",
+      "distribution": "Detected in some",
+      "specific": [
+        {
+          "name": "liver",
+          "ntpm": 34.4
+        }
+      ]
+    },
+    "cell_type": {
+      "specificity": "Cell type enhanced",
+      "distribution": "Detected in some",
+      "specific": [
+        {
+          "name": "Pancreatic acinar cells",
+          "ncpm": 21.6
+        },
+        {
+          "name": "Extravillous trophoblasts",
+          "ncpm": 18.4
+        },
+        {
+          "name": "Hepatocytes",
+          "ncpm": 6.8
+        },
+        {
+          "name": "Hepatic stellate cells",
+          "ncpm": 6.5
+        },
+        {
+          "name": "Migrating cytotrophoblasts",
+          "ncpm": 3.6
+        },
+        {
+          "name": "Cytotrophoblasts",
+          "ncpm": 3.2
+        },
+        {
+          "name": "Syncytiotrophoblasts",
+          "ncpm": 3.1
+        },
+        {
+          "name": "Undifferentiated spermatogonia",
+          "ncpm": 2.5
+        }
+      ]
+    }
+  },
+  "sources": {
+    "cytoband": {
+      "table": "cytoBand",
+      "genome": "hg38",
+      "updated": "2022-10-28T15:06:46",
+      "rows": 1549,
+      "sha256": "50366db9b20881ddcd5679fefa6f8ee5eeb920ce61a7889e0ee0c52853b034c7",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=cytoBand"
+    },
+    "chrom_alias": {
+      "table": "chromAlias",
+      "genome": "hg38",
+      "updated": "2023-01-24T12:46:47",
+      "rows": 2129,
+      "sha256": "df04264a4bcb6dc6b5a6334b42d09270abc894ac2ebbd8ca68a51a12b7076f02",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=chromAlias"
+    },
+    "mane": {
+      "release": "v1.5"
+    },
+    "uniprot": {
+      "release": "2026_03",
+      "release_date": "2026-09-02",
+      "entry_version": 229
+    },
+    "hpa": {
+      "version": "25.1",
+      "release_date": "2026-05-25",
+      "ensembl": "109",
+      "licence": "CC BY 4.0",
+      "url": "https://www.proteinatlas.org/ENSG00000130427.json"
+    }
+  },
+  "retrieved": "2026-09-27",
+  "schema_version": 1,
+  "built_by": "pipeline/locus/bake_locus.py"
+}

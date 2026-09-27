@@ -1,0 +1,366 @@
+{
+  "slug": "relaxin",
+  "gene": "RLN2",
+  "uniprot": "P04090",
+  "assembly": "GRCh38",
+  "genome": "hg38",
+  "chromosome": "9",
+  "sequence": "NC_000009.12",
+  "length": 138394717,
+  "span": {
+    "start": 5299864,
+    "end": 5304716,
+    "strand": -1
+  },
+  "transcript": {
+    "refseq": "NM_134441.3",
+    "ensembl": "ENST00000381627.4"
+  },
+  "band": {
+    "names": [
+      "p24.1"
+    ],
+    "start": 4600001,
+    "end": 9000000
+  },
+  "locus": "9p24.1",
+  "bands": [
+    {
+      "name": "p24.3",
+      "start": 1,
+      "end": 2200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p24.2",
+      "start": 2200001,
+      "end": 4600000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "p24.1",
+      "start": 4600001,
+      "end": 9000000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p23",
+      "start": 9000001,
+      "end": 14200000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p22.3",
+      "start": 14200001,
+      "end": 16600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p22.2",
+      "start": 16600001,
+      "end": 18500000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "p22.1",
+      "start": 18500001,
+      "end": 19900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p21.3",
+      "start": 19900001,
+      "end": 25600000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "p21.2",
+      "start": 25600001,
+      "end": 28000000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p21.1",
+      "start": 28000001,
+      "end": 33200000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "p13.3",
+      "start": 33200001,
+      "end": 36300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p13.2",
+      "start": 36300001,
+      "end": 37900000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "p13.1",
+      "start": 37900001,
+      "end": 39000000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p12",
+      "start": 39000001,
+      "end": 40000000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "p11.2",
+      "start": 40000001,
+      "end": 42200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p11.1",
+      "start": 42200001,
+      "end": 43000000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11",
+      "start": 43000001,
+      "end": 45500000,
+      "stain": "acen"
+    },
+    {
+      "name": "q12",
+      "start": 45500001,
+      "end": 61500000,
+      "stain": "gvar"
+    },
+    {
+      "name": "q13",
+      "start": 61500001,
+      "end": 65000000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.11",
+      "start": 65000001,
+      "end": 69300000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q21.12",
+      "start": 69300001,
+      "end": 71300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.13",
+      "start": 71300001,
+      "end": 76600000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q21.2",
+      "start": 76600001,
+      "end": 78500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.31",
+      "start": 78500001,
+      "end": 81500000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q21.32",
+      "start": 81500001,
+      "end": 84300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.33",
+      "start": 84300001,
+      "end": 87800000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q22.1",
+      "start": 87800001,
+      "end": 89200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q22.2",
+      "start": 89200001,
+      "end": 91200000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q22.31",
+      "start": 91200001,
+      "end": 93900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q22.32",
+      "start": 93900001,
+      "end": 96500000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q22.33",
+      "start": 96500001,
+      "end": 99800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q31.1",
+      "start": 99800001,
+      "end": 105400000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q31.2",
+      "start": 105400001,
+      "end": 108500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q31.3",
+      "start": 108500001,
+      "end": 112100000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q32",
+      "start": 112100001,
+      "end": 114900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q33.1",
+      "start": 114900001,
+      "end": 119800000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q33.2",
+      "start": 119800001,
+      "end": 123100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q33.3",
+      "start": 123100001,
+      "end": 127500000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q34.11",
+      "start": 127500001,
+      "end": 130600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q34.12",
+      "start": 130600001,
+      "end": 131100000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q34.13",
+      "start": 131100001,
+      "end": 133100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q34.2",
+      "start": 133100001,
+      "end": 134500000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q34.3",
+      "start": 134500001,
+      "end": 138394717,
+      "stain": "gneg"
+    }
+  ],
+  "expression": {
+    "ensembl_gene": "ENSG00000107014",
+    "tissue": {
+      "specificity": "Tissue enhanced",
+      "distribution": "Detected in some",
+      "specific": [
+        {
+          "name": "fallopian tube",
+          "ntpm": 4.8
+        }
+      ]
+    },
+    "cell_type": {
+      "specificity": "Cell type enhanced",
+      "distribution": "Detected in many",
+      "specific": [
+        {
+          "name": "Oocytes",
+          "ncpm": 59.9
+        },
+        {
+          "name": "Late primary spermatocytes",
+          "ncpm": 29.5
+        },
+        {
+          "name": "Epididymal efferent duct ciliated cells",
+          "ncpm": 16.8
+        },
+        {
+          "name": "Syncytiotrophoblasts",
+          "ncpm": 15.6
+        },
+        {
+          "name": "Megakaryocytes",
+          "ncpm": 12.4
+        },
+        {
+          "name": "Fallopian tube ciliated cells",
+          "ncpm": 9.3
+        }
+      ]
+    }
+  },
+  "sources": {
+    "cytoband": {
+      "table": "cytoBand",
+      "genome": "hg38",
+      "updated": "2022-10-28T15:06:46",
+      "rows": 1549,
+      "sha256": "50366db9b20881ddcd5679fefa6f8ee5eeb920ce61a7889e0ee0c52853b034c7",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=cytoBand"
+    },
+    "chrom_alias": {
+      "table": "chromAlias",
+      "genome": "hg38",
+      "updated": "2023-01-24T12:46:47",
+      "rows": 2129,
+      "sha256": "df04264a4bcb6dc6b5a6334b42d09270abc894ac2ebbd8ca68a51a12b7076f02",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=chromAlias"
+    },
+    "mane": {
+      "release": "v1.5"
+    },
+    "uniprot": {
+      "release": "2026_03",
+      "release_date": "2026-09-02",
+      "entry_version": 223
+    },
+    "hpa": {
+      "version": "25.1",
+      "release_date": "2026-05-25",
+      "ensembl": "109",
+      "licence": "CC BY 4.0",
+      "url": "https://www.proteinatlas.org/ENSG00000107014.json"
+    }
+  },
+  "retrieved": "2026-09-27",
+  "schema_version": 1,
+  "built_by": "pipeline/locus/bake_locus.py"
+}
