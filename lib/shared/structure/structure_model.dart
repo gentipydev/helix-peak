@@ -27,6 +27,14 @@ import '../../core/theme/anatomy_colors.dart';
 /// of the sides.
 const double structureFramingMargin = 1.35;
 
+/// The camera the fold page frames a model with, given the model's bounds.
+///
+/// Named so that anything drawn in the model's own frame is seen through the
+/// same lens: the lab's fold animation projects its CA trace through it, and
+/// its last frame lands where the page draws the fold.
+PerspectiveCamera structureCamera(vm.Aabb3 bounds) =>
+    PerspectiveCamera.framing(bounds, margin: structureFramingMargin);
+
 /// Loads the molecule into [scene], paints and frames it, and compiles what
 /// its first frame needs.
 ///
@@ -58,7 +66,7 @@ Future<(Node, PerspectiveCamera)> buildStructureModel(
   final vm.Aabb3? bounds = molecule.combinedWorldBounds;
   final PerspectiveCamera camera = bounds == null
       ? PerspectiveCamera()
-      : PerspectiveCamera.framing(bounds, margin: structureFramingMargin);
+      : structureCamera(bounds);
 
   // Compile the pipelines the first frame needs before the SceneView is
   // mounted, rather than letting it warm up behind a loadingBuilder: that
