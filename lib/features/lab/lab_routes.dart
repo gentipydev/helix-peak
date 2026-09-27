@@ -7,6 +7,7 @@ import 'lab_scope.dart';
 import 'mutate/presentation/mutate_screen.dart';
 import 'presentation/lab_index_screen.dart';
 import 'presentation/lab_protein_picker.dart';
+import 'ribosome/presentation/ribosome_screen.dart';
 
 /// The lab's routes, or none: the lab is built only where [Env.labEnabled]
 /// says so. `lib/app.dart` spreads these into the app's router.
@@ -19,6 +20,11 @@ const List<LabFeature> labFeatures = <LabFeature>[
     title: 'Mutate it yourself',
     summary: 'Change one base of a gene and watch what it does to the protein.',
     path: '${RoutePaths.lab}/mutate',
+  ),
+  LabFeature(
+    title: 'The ribosome',
+    summary: 'Watch a protein’s own mRNA read into its chain, codon by codon.',
+    path: '${RoutePaths.lab}/ribosome',
   ),
 ];
 
@@ -39,6 +45,12 @@ List<RouteBase> buildLabRoutes() => <RouteBase>[
             title: 'Mutate',
             lead: 'Pick a protein, then a base of its gene to change.',
             screen: (String slug) => MutateRoute(slug: slug),
+          ),
+          _picked(
+            'ribosome',
+            title: 'The ribosome',
+            lead: 'Pick a protein to watch its mRNA translated.',
+            screen: (String slug) => RibosomeRoute(slug: slug),
           ),
         ],
       ),
