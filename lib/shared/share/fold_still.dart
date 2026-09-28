@@ -4,11 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_scene/scene.dart';
 
-import '../../../core/catalog/protein_target.dart';
-import '../../../core/network/track_source.dart';
-import '../../../core/theme/anatomy_colors.dart';
-import '../../../shared/structure/structure_model.dart';
-import '../../../shared/structure/structure_rotation.dart';
+import '../../core/catalog/protein_target.dart';
+import '../../core/network/track_source.dart';
+import '../../core/theme/anatomy_colors.dart';
+import '../structure/structure_model.dart';
+import '../structure/structure_rotation.dart';
 
 /// The fold as one still image, [width] by [height] pixels, or null where it
 /// cannot be drawn.

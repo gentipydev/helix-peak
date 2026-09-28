@@ -4,14 +4,14 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-import '../../../core/catalog/protein_target.dart';
-import '../../../core/theme/anatomy_colors.dart';
-import '../../../core/theme/nucleotide_colors.dart';
-import '../../../shared/anatomy/anatomy_layout.dart';
-import '../../../shared/anatomy/anatomy_painter.dart';
-import '../../../shared/anatomy/anatomy_scene.dart';
-import '../../../shared/anatomy/anatomy_stages.dart';
-import '../../../shared/format.dart';
+import '../../core/catalog/protein_target.dart';
+import '../../core/theme/anatomy_colors.dart';
+import '../../core/theme/nucleotide_colors.dart';
+import '../anatomy/anatomy_layout.dart';
+import '../anatomy/anatomy_painter.dart';
+import '../anatomy/anatomy_scene.dart';
+import '../anatomy/anatomy_stages.dart';
+import '../format.dart';
 import 'gene_link.dart';
 
 /// One protein as a single high-resolution PNG: its fold, a slice of its

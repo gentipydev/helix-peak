@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
-import 'package:helixpeek/features/lab/share/share_clip_button.dart';
-import 'package:helixpeek/features/lab/share/video_encoder.dart';
+import 'package:helixpeek/shared/share/share_clip_button.dart';
+import 'package:helixpeek/shared/share/video_encoder.dart';
 
-import '../../../support/test_catalog.dart';
+import '../../support/test_catalog.dart';
 
 class _Solid extends CustomPainter {
   _Solid(this.t);

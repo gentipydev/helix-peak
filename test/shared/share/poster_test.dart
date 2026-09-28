@@ -19,16 +19,16 @@ import 'package:helixpeek/features/gene_lookup/data/repositories/protein_catalog
 import 'package:helixpeek/features/gene_lookup/domain/repositories/gene_repository.dart';
 import 'package:helixpeek/features/gene_lookup/domain/usecases/fetch_gene.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/screens/gene_screen.dart';
-import 'package:helixpeek/features/lab/share/fold_still.dart';
-import 'package:helixpeek/features/lab/share/gene_link.dart';
-import 'package:helixpeek/features/lab/share/poster_builder.dart';
-import 'package:helixpeek/features/lab/share/share_action.dart';
 import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/shared/share/fold_still.dart';
+import 'package:helixpeek/shared/share/gene_link.dart';
+import 'package:helixpeek/shared/share/poster_builder.dart';
+import 'package:helixpeek/shared/share/share_action.dart';
 import 'package:image/image.dart' as img;
 
-import '../../../support/catalog_api.dart';
-import '../../../support/fixture_track_source.dart';
-import '../../../support/test_catalog.dart';
+import '../../support/catalog_api.dart';
+import '../../support/fixture_track_source.dart';
+import '../../support/test_catalog.dart';
 
 GeneRecord _gene(String gene) => GeneRecordDto.fromJson(
   jsonDecode(File('test/fixtures/mock/gene_$gene.json').readAsStringSync())

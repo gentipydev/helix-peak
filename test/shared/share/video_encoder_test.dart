@@ -5,8 +5,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeek/features/lab/share/frame_renderer.dart';
-import 'package:helixpeek/features/lab/share/video_encoder.dart';
+import 'package:helixpeek/shared/share/frame_renderer.dart';
+import 'package:helixpeek/shared/share/video_encoder.dart';
 
 class _Solid extends CustomPainter {
   _Solid(this.t);

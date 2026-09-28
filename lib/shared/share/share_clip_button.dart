@@ -5,8 +5,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../../core/catalog/protein_target.dart';
-import '../../../core/theme/app_spacing.dart';
+import '../../core/catalog/protein_target.dart';
+import '../../core/theme/app_spacing.dart';
 import 'frame_renderer.dart';
 import 'gene_link.dart';
 import 'share_action.dart';

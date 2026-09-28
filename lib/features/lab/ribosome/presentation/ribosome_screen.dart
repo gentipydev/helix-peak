@@ -10,11 +10,11 @@ import '../../../../shared/ribosome/director.dart';
 import '../../../../shared/ribosome/translation_painter.dart';
 import '../../../../shared/ribosome/translation_player.dart';
 import '../../../../shared/ribosome/translation_timeline.dart';
+import '../../../../shared/share/frame_renderer.dart';
+import '../../../../shared/share/share_action.dart';
+import '../../../../shared/share/share_clip_button.dart';
 import '../../presentation/lab_protein_picker.dart';
 import '../../presentation/lab_record.dart';
-import '../../share/frame_renderer.dart';
-import '../../share/share_action.dart';
-import '../../share/share_clip_button.dart';
 import 'translation_ending.dart';
 
 /// `/lab/ribosome/<slug>`: one protein's record, fetched through the lab's

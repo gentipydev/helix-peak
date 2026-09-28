@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import '../../../../core/router/app_router.dart';
-import '../../share/gene_link.dart';
+import '../../../../shared/share/gene_link.dart';
 import '../domain/daily_puzzle.dart';
 import 'challenge_ledger.dart';
 

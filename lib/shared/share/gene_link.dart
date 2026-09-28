@@ -1,5 +1,5 @@
-import '../../../core/catalog/protein_target.dart';
-import '../../../core/router/app_router.dart';
+import '../../core/catalog/protein_target.dart';
+import '../../core/router/app_router.dart';
 
 /// The app's own URL scheme, registered in `AndroidManifest.xml` and
 /// `Info.plist`.

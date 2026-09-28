@@ -88,6 +88,17 @@ Git: commit the session's own changes locally. Never push, in any form.
   player (`TranslationPlayer`) and the chain's flight into the protein page
   (`TranslationFlightPainter`), promoted out of the lab's ribosome for the
   walk. The NMD threshold they share with mutate is `lib/core/biology/nmd.dart`.
+- `lib/shared/share/`: sharing, promoted out of the lab for the walk.
+  - It draws a flow's frames offscreen, one at a time (`FrameRenderer`),
+    and makes a poster (`PosterBuilder`) whose link,
+    `helixpeek://open/gene/<slug>`, is the scheme `AndroidManifest.xml` and
+    `Info.plist` register. Flutter hands the path to the router.
+  - Clips (`VideoEncoder`) are made on Android and iOS, on channel
+    `helixpeak/share/video_encoder`, one frame per call: MediaCodec and
+    MediaMuxer in `android/.../VideoEncoderChannel.kt`, and AVAssetWriter in
+    `ios/Runner/VideoEncoderChannel.swift` (`docs/video-encoding-spike.md`).
+    Other platforms share posters only. An export keeps the screen on and is
+    cancelled, its file deleted, if the app is paused.
 - `lib/features/gene_lookup/`: **the walk**. It has `data/`, `domain/` and
   `presentation/` (`anatomy/`, `clinvar/`, `constraint/`, `inspector/`,
   `structure/`, `cubit/`, `screens/`). The mRNA page, untouched, offers
@@ -136,16 +147,6 @@ rotting on a branch, which is what keeps the shared layer from diverging.
   lab wears `AppTheme.analysis`. The walk's routes are not below it.
 - The index at `/lab` lists `labFeatures` in `lab_routes.dart`, one entry per
   flow as it arrives.
-- `share/` draws a flow's frames offscreen, one at a time (`FrameRenderer`),
-  and makes a poster (`PosterBuilder`) whose link,
-  `helixpeek://open/gene/<slug>`, is the scheme `AndroidManifest.xml` and
-  `Info.plist` register. Flutter hands the path to the router.
-- Clips (`VideoEncoder`) are made on Android and iOS, on channel
-  `helixpeak/share/video_encoder`, one frame per call: MediaCodec and
-  MediaMuxer in `android/.../VideoEncoderChannel.kt`, and AVAssetWriter in
-  `ios/Runner/VideoEncoderChannel.swift` (`docs/video-encoding-spike.md`).
-  Other platforms share posters only. An export keeps the screen on and is
-  cancelled, its file deleted, if the app is paused.
 - `ar/` embeds `StructureView` and, on Android, opens Scene Viewer on the
   `structure_ar` track's `.glb`: the fold at 1 Å to 1 cm, its size read from
   the row's provenance (`pipeline/structure_ar` in the backend). iOS says

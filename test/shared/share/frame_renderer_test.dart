@@ -11,9 +11,9 @@ import 'package:helixpeek/core/theme/anatomy_colors.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/core/theme/nucleotide_colors.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
-import 'package:helixpeek/features/lab/share/frame_renderer.dart';
 import 'package:helixpeek/shared/ribosome/translation_painter.dart';
 import 'package:helixpeek/shared/ribosome/translation_timeline.dart';
+import 'package:helixpeek/shared/share/frame_renderer.dart';
 
 /// A picture that depends on `t` alone: a colour sweep and a moving disc.
 class _Sweep extends CustomPainter {

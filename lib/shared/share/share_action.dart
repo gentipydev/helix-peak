@@ -7,10 +7,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../../core/catalog/protein_target.dart';
-import '../../../core/network/track_source.dart';
-import '../../../core/theme/anatomy_colors.dart';
-import '../../../shared/anatomy/anatomy_stages.dart';
+import '../../core/catalog/protein_target.dart';
+import '../../core/network/track_source.dart';
+import '../../core/theme/anatomy_colors.dart';
+import '../anatomy/anatomy_stages.dart';
 import 'fold_still.dart';
 import 'gene_link.dart';
 import 'poster_builder.dart';
