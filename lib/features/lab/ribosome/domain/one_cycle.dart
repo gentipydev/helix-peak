@@ -1,5 +1,5 @@
 import '../../../../shared/motion/animation_timeline.dart';
-import 'translation_timeline.dart';
+import '../../../../shared/ribosome/translation_timeline.dart';
 
 /// One elongation cycle of a [TranslationTimeline], on its own: the beat in
 /// which [codon] is read, stretched over `t` from 0 to 1.

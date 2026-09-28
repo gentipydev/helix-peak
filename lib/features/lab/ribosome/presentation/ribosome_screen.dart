@@ -8,16 +8,16 @@ import '../../../../shared/anatomy/sequence_scrubber.dart';
 import '../../../../shared/format.dart';
 import '../../../../shared/motion/timeline_controller.dart';
 import '../../../../shared/motion/transport_bar.dart';
+import '../../../../shared/ribosome/caption_generator.dart';
+import '../../../../shared/ribosome/director.dart';
+import '../../../../shared/ribosome/translation_painter.dart';
+import '../../../../shared/ribosome/translation_timeline.dart';
 import '../../presentation/lab_protein_picker.dart';
 import '../../presentation/lab_record.dart';
 import '../../share/frame_renderer.dart';
 import '../../share/share_action.dart';
 import '../../share/share_clip_button.dart';
-import '../domain/caption_generator.dart';
-import '../domain/director.dart';
-import '../domain/translation_timeline.dart';
 import 'translation_ending.dart';
-import 'translation_painter.dart';
 
 /// `/lab/ribosome/<slug>`: one protein's record, fetched through the lab's
 /// own tracks, translated.

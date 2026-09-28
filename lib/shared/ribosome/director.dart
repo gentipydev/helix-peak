@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import '../../../../shared/motion/animation_timeline.dart';
+import '../motion/animation_timeline.dart';
 import 'translation_timeline.dart';
 
 /// How a translation is paced on screen, and how long it takes in a cell.

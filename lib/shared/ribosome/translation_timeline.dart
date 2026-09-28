@@ -2,11 +2,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 
-import '../../../../core/biology/gene_record.dart';
-import '../../../../shared/anatomy/anatomy_stages.dart';
-import '../../../../shared/format.dart';
-import '../../../../shared/motion/animation_timeline.dart';
-import '../../mutate/domain/apply_edit.dart';
+import '../../core/biology/gene_record.dart';
+import '../../core/biology/nmd.dart';
+import '../anatomy/anatomy_stages.dart';
+import '../format.dart';
+import '../motion/animation_timeline.dart';
 
 /// What happens during one stretch of translation.
 enum TranslationPhase {

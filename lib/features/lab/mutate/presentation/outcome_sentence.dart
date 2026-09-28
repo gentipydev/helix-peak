@@ -1,5 +1,6 @@
 import '../../../../core/biology/amino_acids.dart';
 import '../../../../core/biology/gene_record.dart';
+import '../../../../core/biology/nmd.dart';
 import '../../../../shared/format.dart';
 import '../domain/apply_edit.dart';
 

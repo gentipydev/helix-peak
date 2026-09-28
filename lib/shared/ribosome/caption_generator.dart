@@ -1,6 +1,6 @@
-import '../../../../core/biology/amino_acids.dart';
-import '../../../../core/biology/gene_record.dart';
-import '../../../../shared/format.dart';
+import '../../core/biology/amino_acids.dart';
+import '../../core/biology/gene_record.dart';
+import '../format.dart';
 import 'translation_timeline.dart';
 
 /// One sentence for each moment of a translation, built from the record.

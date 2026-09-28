@@ -4,12 +4,12 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/biology/amino_acids.dart';
-import '../../../../core/theme/anatomy_colors.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../../../core/theme/nucleotide_colors.dart';
-import '../../../../shared/format.dart';
-import '../domain/translation_timeline.dart';
+import '../../core/biology/amino_acids.dart';
+import '../../core/theme/anatomy_colors.dart';
+import '../../core/theme/app_typography.dart';
+import '../../core/theme/nucleotide_colors.dart';
+import '../format.dart';
+import 'translation_timeline.dart';
 
 /// The colours a translation is drawn in, every one from the theme: the
 /// walk's nucleotide and amino palettes, and the scheme's own surfaces.

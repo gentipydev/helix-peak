@@ -17,9 +17,9 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/anatomy/anatomy_layout.dart';
 import '../../../../shared/anatomy/anatomy_scene.dart';
 import '../../../../shared/anatomy/anatomy_stages.dart';
+import '../../../../shared/ribosome/translation_painter.dart';
+import '../../../../shared/ribosome/translation_timeline.dart';
 import '../../presentation/lab_anatomy_view.dart';
-import '../domain/translation_timeline.dart';
-import 'translation_painter.dart';
 
 /// Where translation ends: the released chain flies into its places on the
 /// protein page, which is then the walk's own.

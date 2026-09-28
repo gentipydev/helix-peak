@@ -10,12 +10,12 @@ import 'package:helixpeek/core/biology/gene_record.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
 import 'package:helixpeek/features/lab/ribosome/domain/one_cycle.dart';
-import 'package:helixpeek/features/lab/ribosome/domain/translation_timeline.dart';
 import 'package:helixpeek/features/lab/ribosome/presentation/ribosome_screen.dart';
 import 'package:helixpeek/features/lab/ribosome/presentation/translation_ending.dart';
-import 'package:helixpeek/features/lab/ribosome/presentation/translation_painter.dart';
 import 'package:helixpeek/shared/motion/animation_timeline.dart';
 import 'package:helixpeek/shared/motion/transport_bar.dart';
+import 'package:helixpeek/shared/ribosome/translation_painter.dart';
+import 'package:helixpeek/shared/ribosome/translation_timeline.dart';
 
 import 'features/gene_lookup/anatomy/anatomy_fixture.dart';
 import 'support/test_catalog.dart';

@@ -4,11 +4,12 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/biology/gene_record.dart';
 import 'package:helixpeek/core/biology/genetic_code.dart';
+import 'package:helixpeek/core/biology/nmd.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
 import 'package:helixpeek/features/lab/mutate/domain/apply_edit.dart';
-import 'package:helixpeek/features/lab/ribosome/domain/translation_timeline.dart';
 import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
 import 'package:helixpeek/shared/motion/animation_timeline.dart';
+import 'package:helixpeek/shared/ribosome/translation_timeline.dart';
 
 GeneRecord _gene(String gene) => GeneRecordDto.fromJson(
   jsonDecode(File('test/fixtures/mock/gene_$gene.json').readAsStringSync())
