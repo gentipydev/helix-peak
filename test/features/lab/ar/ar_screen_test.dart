@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/catalog/protein_track.dart';
+import 'package:helixpeek/core/network/api_exception.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/lab/ar/domain/room_scale.dart';
 import 'package:helixpeek/features/lab/ar/presentation/ar_screen.dart';
@@ -31,8 +32,9 @@ Map<String, dynamic> _roomRow({String state = 'ready'}) => <String, dynamic>{
   },
 };
 
-/// Insulin from the catalog fixture, with or without a room-size model.
-ProteinTarget _insulin({Map<String, dynamic>? room}) {
+/// Insulin as the catalog serves it: each family's state, and no URL or
+/// provenance, so nothing here can be read off it but whether it is ready.
+ProteinTarget _insulin({String? room}) {
   final Map<String, dynamic> catalog = jsonDecode(
     File('test/fixtures/catalog.json').readAsStringSync(),
   ) as Map<String, dynamic>;
@@ -48,12 +50,16 @@ ProteinTarget _insulin({Map<String, dynamic>? room}) {
   return ProteinTarget.fromJson(row);
 }
 
+/// `/protein/insulin/tracks`, with or without a room-size row.
+TrackRows _rows({Map<String, dynamic>? room}) =>
+    (String slug) async => tracksFromJson(<String, dynamic>{
+      'structure_ar': ?room,
+    });
+
 void main() {
   group('RoomScale', () {
     test('reads the size and the .glb beside the USDZ', () {
-      final RoomScale scale = RoomScale.of(
-        _insulin(room: _roomRow()).tracks[TrackKind.structureAr],
-      )!;
+      final RoomScale scale = RoomScale.of(TrackRef.fromJson(_roomRow()))!;
       expect(scale.box, <double>[24.31, 18.66, 20.33]);
       expect(scale.longestAngstroms, 24.31);
       expect(
@@ -65,7 +71,7 @@ void main() {
 
     test('opens Scene Viewer on it, at its own size, AR where it can be', () {
       final Uri viewer = RoomScale.of(
-        _insulin(room: _roomRow()).tracks[TrackKind.structureAr],
+        TrackRef.fromJson(_roomRow()),
       )!.sceneViewer(title: 'Insulin');
       expect(viewer.host, 'arvr.google.com');
       expect(viewer.path, '/scene-viewer/1.2');
@@ -82,16 +88,15 @@ void main() {
     test('is nothing without a ready row that says what it needs', () {
       expect(RoomScale.of(null), isNull);
       expect(
-        RoomScale.of(
-          _insulin(room: _roomRow(state: 'pending'))
-              .tracks[TrackKind.structureAr],
-        ),
+        RoomScale.of(TrackRef.fromJson(_roomRow(state: 'pending'))),
         isNull,
       );
       final Map<String, dynamic> noGlb = _roomRow();
       (noGlb['provenance'] as Map<String, dynamic>).remove('glb');
+      expect(RoomScale.of(TrackRef.fromJson(noGlb)), isNull);
+      // The catalog's word alone: ready, with nowhere to fetch from.
       expect(
-        RoomScale.of(_insulin(room: noGlb).tracks[TrackKind.structureAr]),
+        RoomScale.of(_insulin(room: 'ready').tracks[TrackKind.structureAr]),
         isNull,
       );
     });
@@ -100,7 +105,7 @@ void main() {
   group('ArScreen', () {
     Future<List<Uri>> host(
       WidgetTester tester, {
-      required ProteinTarget target,
+      required TrackRows rows,
       required TargetPlatform platform,
       bool opens = true,
     }) async {
@@ -109,7 +114,8 @@ void main() {
         MaterialApp(
           theme: AppTheme.analysis,
           home: ArScreen(
-            target: target,
+            target: _insulin(room: 'ready'),
+            rows: rows,
             platform: platform,
             open: (Uri uri) async {
               opened.add(uri);
@@ -127,7 +133,7 @@ void main() {
     ) async {
       final List<Uri> opened = await host(
         tester,
-        target: _insulin(room: _roomRow()),
+        rows: _rows(room: _roomRow()),
         platform: TargetPlatform.android,
       );
       expect(find.byType(StructureView), findsOneWidget);
@@ -146,7 +152,7 @@ void main() {
     ) async {
       await host(
         tester,
-        target: _insulin(room: _roomRow()),
+        rows: _rows(room: _roomRow()),
         platform: TargetPlatform.android,
         opens: false,
       );
@@ -161,7 +167,7 @@ void main() {
     ) async {
       await host(
         tester,
-        target: _insulin(room: _roomRow()),
+        rows: _rows(room: _roomRow()),
         platform: TargetPlatform.iOS,
       );
       expect(find.byType(StructureView), findsOneWidget);
@@ -173,7 +179,7 @@ void main() {
     testWidgets('with no room-size model yet: the fold, and why not', (
       WidgetTester tester,
     ) async {
-      await host(tester, target: _insulin(), platform: TargetPlatform.android);
+      await host(tester, rows: _rows(), platform: TargetPlatform.android);
       expect(find.byType(StructureView), findsOneWidget);
       expect(find.byKey(const ValueKey<String>('room-scale')), findsNothing);
       expect(find.byType(FilledButton), findsNothing);
@@ -181,6 +187,23 @@ void main() {
         find.text('The room-size model of Insulin is not published yet.'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('when its row cannot be read: the failure, not "not published"', (
+      WidgetTester tester,
+    ) async {
+      await host(
+        tester,
+        rows: (String slug) async => throw const NetworkApiException(),
+        platform: TargetPlatform.android,
+      );
+      expect(find.byType(StructureView), findsOneWidget);
+      expect(find.byType(FilledButton), findsNothing);
+      expect(
+        find.text(const NetworkApiException().userMessage),
+        findsOneWidget,
+      );
+      expect(find.textContaining('not published'), findsNothing);
     });
   });
 }
