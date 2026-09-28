@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_scene/scene.dart';
 
@@ -10,7 +12,6 @@ import '../../core/catalog/protein_track.dart';
 import '../../core/network/track_source.dart';
 import '../../core/theme/anatomy_colors.dart';
 import '../../core/theme/app_spacing.dart';
-import '../folding/fold_captions.dart';
 import '../folding/fold_geometry.dart';
 import '../folding/fold_timeline.dart';
 import '../folding/folding_track.dart';
@@ -96,7 +97,8 @@ import 'structure_rotation.dart';
 /// gives it, the backbone as wide as the model's ribbon, each bridge along
 /// the model's rods. There the model takes over, the fold fading off it,
 /// and the page is the page it always was. It plays each time the page is
-/// opened, with no controls: a line under it names the step and what moves.
+/// opened, with no controls and no words on the page; a screen reader hears
+/// each step's name as it starts.
 ///
 /// Reduced motion, or a protein whose `folding` track is not ready or does
 /// not load, opens on the model, as the page did before.
@@ -291,10 +293,9 @@ class _StructureViewState extends State<StructureView>
   /// The fold while it plays and fades, then null.
   FoldMorph? _morph;
   TimelineController? _playback;
-  FoldCaptions? _captions;
   AnimationController? _fading;
 
-  /// The step the line under the fold names, or null once the model has it.
+  /// The step last announced, or null once the model has it.
   FoldStep? _step;
 
   /// Seconds of the page's own clock, which keep the loose residues moving.
@@ -436,7 +437,6 @@ class _StructureViewState extends State<StructureView>
         if (!mounted) {
           return;
         }
-        _captions = FoldCaptions(fold);
         _playback = TimelineController(
           vsync: this,
           timeline: timeline,
@@ -454,6 +454,9 @@ class _StructureViewState extends State<StructureView>
         _ready = true;
       });
       _playback?.play();
+      if (morph != null) {
+        _announce();
+      }
     } on Object catch (error) {
       // The renderer is there — `Scene()` was built above — so whatever went
       // wrong is the model: a fetch that failed, a container this build of
@@ -478,11 +481,29 @@ class _StructureViewState extends State<StructureView>
     final TimelineController playback = _playback!;
     final FoldStep step = FoldTimeline.stepAt(playback.t);
     if (_fading == null && step != _step) {
-      setState(() => _step = step);
+      _step = step;
+      _announce();
     }
     if (playback.atEnd && _fading == null) {
       _handOver();
     }
+  }
+
+  /// Tells a screen reader the step the fold is on, by its name: nothing is
+  /// written on the page, where each step is over before a line of text
+  /// could be read.
+  void _announce() {
+    final String? name = _playback?.phase?.name;
+    if (!mounted || name == null) {
+      return;
+    }
+    unawaited(
+      SemanticsService.sendAnnouncement(
+        View.of(context),
+        name,
+        TextDirection.ltr,
+      ),
+    );
   }
 
   /// The fold is on the model now: the model shows under it, and the fold
@@ -622,45 +643,6 @@ class _StructureViewState extends State<StructureView>
                           textAlign: TextAlign.center,
                           style: theme.textTheme.labelSmall,
                         ),
-                      ),
-                    ),
-                  ),
-                ),
-                // While the fold plays, the step it is on. Set on the foot of
-                // the box the page asked for rather than of the one it was
-                // given: the walk lays the view out to its full height, and
-                // the foot of that lies under the stage bar.
-                Positioned(
-                  left: AppSpacing.lg,
-                  right: AppSpacing.lg,
-                  top: 0,
-                  height: math.max(0, widget.viewport.height - AppSpacing.sm),
-                  child: IgnorePointer(
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      // One line out, then the next in: never the two
-                      // over each other.
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        switchInCurve: const Interval(0.5, 1),
-                        switchOutCurve: const Interval(0.5, 1),
-                        child: switch (_step) {
-                          final FoldStep step => Semantics(
-                            key: ValueKey<FoldStep>(step),
-                            liveRegion: true,
-                            child: Text(
-                              _captions!.captionOf(step),
-                              key: const ValueKey<String>('fold-caption'),
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ),
-                          null => const SizedBox.shrink(),
-                        },
                       ),
                     ),
                   ),

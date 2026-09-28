@@ -98,8 +98,9 @@ Git: commit the session's own changes locally. Never push, in any form.
   its ribbon as measured by each helix and strand residue. `FoldMesh` makes
   it geometry: beads that melt into the model's ribbon, and rods that grow
   along the model's. `StructureView(folds: true)` draws it in its own scene
-  (`lib/shared/structure/fold_morph.dart`), plays it each time the page opens
-  with a line under it naming the step, and hands over to the model;
+  (`lib/shared/structure/fold_morph.dart`), plays it each time the page opens,
+  with no words on the page (a screen reader hears each step's name), and
+  hands over to the model;
   `folds` defaults to false, the finished fold, for the lab's screens. The
   scene holds the model with z negated, and so does the fold
   (`docs/folding-renderer.md`). Reduced motion, or no ready track, opens on
