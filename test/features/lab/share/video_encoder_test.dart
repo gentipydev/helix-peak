@@ -179,12 +179,14 @@ void main() {
     expect(directory.listSync(), isEmpty);
   });
 
-  test('iOS makes no clips: nothing is drawn and nothing is asked', () async {
-    final EncodeResult result = await VideoEncoder(platform: TargetPlatform.iOS)
-        .encode(frames(10), 30);
+  test('a desktop makes no clips: nothing is drawn and nothing is asked', () async {
+    final EncodeResult result = await VideoEncoder(
+      platform: TargetPlatform.windows,
+    ).encode(frames(10), 30);
     expect((result as EncodeFailure).reason, EncodeFailureReason.unsupported);
     expect(result.message, contains('poster'));
-    expect(VideoEncoder(platform: TargetPlatform.iOS).isSupported, isFalse);
+    expect(VideoEncoder(platform: TargetPlatform.windows).isSupported, isFalse);
+    expect(VideoEncoder(platform: TargetPlatform.iOS).isSupported, isTrue);
     expect(android.isSupported, isTrue);
     expect(platform.calls, isEmpty);
     expect(drawn, 0);

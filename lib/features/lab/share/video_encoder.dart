@@ -17,9 +17,8 @@ abstract final class ClipFormat {
 
 /// Why a clip was not made.
 enum EncodeFailureReason {
-  /// This platform makes no clips. Android does; iOS waits for its
-  /// AVAssetWriter half to be written and run on a Mac, and the poster is
-  /// offered there instead.
+  /// This platform makes no clips: only Android and iOS do, and the poster
+  /// is offered everywhere else instead.
   unsupported,
 
   /// The device has no encoder that takes the format.
@@ -67,8 +66,9 @@ final class EncodeFailure extends EncodeResult {
 /// Encodes a stream of frames to MP4 through the platform, one frame at a
 /// time.
 ///
-/// Android only: MediaCodec and MediaMuxer, in `VideoEncoderChannel.kt`, the
-/// recipe `docs/video-encoding-spike.md` measured. No ffmpeg: ffmpeg-kit was
+/// Android and iOS: MediaCodec and MediaMuxer in `VideoEncoderChannel.kt`, the
+/// recipe `docs/video-encoding-spike.md` measured, and AVAssetWriter in
+/// `ios/Runner/VideoEncoderChannel.swift`, on the same channel. No ffmpeg: ffmpeg-kit was
 /// retired in January 2025 and its Flutter packages are discontinued.
 ///
 /// The clip is never held. Each frame is read back, sent, disposed, and only
@@ -96,7 +96,11 @@ final class VideoEncoder {
 
   /// Whether this platform makes clips at all.
   bool get isSupported =>
-      !kIsWeb && (platform ?? defaultTargetPlatform) == TargetPlatform.android;
+      !kIsWeb &&
+      switch (platform ?? defaultTargetPlatform) {
+        TargetPlatform.android || TargetPlatform.iOS => true,
+        _ => false,
+      };
 
   /// [frames] at [fps] as an MP4 named [fileName] in the app's cache.
   ///
@@ -113,7 +117,7 @@ final class VideoEncoder {
     if (!isSupported) {
       return const EncodeFailure(
         EncodeFailureReason.unsupported,
-        'Clips can only be made on Android for now. Share a poster instead.',
+        'Clips can only be made on Android and iOS. Share a poster instead.',
       );
     }
     if (fps < 1 || fps > 60) {

@@ -45,7 +45,7 @@ Future<void> systemShareFile({
 /// carries the protein's name and its link, as a poster does, so a clip
 /// seen on its own still says what it is.
 ///
-/// Where clips cannot be made — everywhere but Android, for now — the button
+/// Where clips cannot be made — everywhere but Android and iOS — the button
 /// is not there at all, and the poster beside it is the way to share.
 class ShareClipButton extends StatefulWidget {
   const ShareClipButton({

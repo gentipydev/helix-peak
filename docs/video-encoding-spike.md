@@ -8,7 +8,7 @@ deleted.
 | Platform | Answer | Evidence |
 |---|---|---|
 | Android | **Works.** MediaCodec plus MediaMuxer, no third-party package. | Measured on one device, below. |
-| iOS | **Not run.** Unknown. | This machine is Windows: no macOS, no Xcode. Nothing here says anything about iOS. |
+| iOS | **Works on the simulator.** AVAssetWriter, no third-party package. | Run 2026-09-28 on the iOS simulator, below. Not yet on a phone. |
 
 So the go/no-go is half answered. Before session 22 is designed, pick one:
 run the iOS half on a Mac (the checks it must make are at the end), ship clips
@@ -146,3 +146,31 @@ run suggests to check:
   colour, as the Android test did.
 - The same ten-frame test, the same 150-frame timing, and the same background
   check: iOS suspends a backgrounded app sooner than Android throttles it.
+
+## iOS: what ran (2026-09-28)
+
+`ios/Runner/VideoEncoderChannel.swift`, the design above: the same channel and
+calls as Android, on a background task queue. `AVAssetWriter` to MP4 (H.264
+High, auto level), fed from an `AVAssetWriterInputPixelBufferAdaptor` pool of
+`kCVPixelFormatType_32BGRA` buffers. RGBA becomes BGRA with
+`vImagePermuteChannels_ARGB8888`, written through the buffer's own
+`bytesPerRow`. The writer does the BGRA to YCbCr conversion itself, through the
+BT.709 matrix the output settings tag (`AVVideoColorPropertiesKey`). Each
+frame's time is `frame / fps`.
+
+A throwaway entry point (since deleted) drove `VideoEncoder` in a debug build
+on the iPhone 17 simulator (iOS 26, on an Apple-silicon Mac). The MP4s were
+copied out and decoded by a separate `AVAssetReader` script on the Mac.
+
+| Run | Decoded back |
+|---|---|
+| 10 frames of solid `#1E88E5` (30, 136, 229), 1080×1920, 30 fps | 3,862 bytes; H.264, 1080×1920, 0.333 s; 10 frames at 0 … 0.3 s; primaries, transfer and matrix ITU-R 709, limited range; (30, 135, 229) at the centre, first and last frame |
+| 150 frames, one hue per frame | 258,648 bytes; 150 frames at 0 … 4.967 s, 5.0 s; first frame (254, 1, 0), last (254, 0, 10), the 357.6° hue it was given |
+
+The 150 frames took 1.46 s end to end, about 10 ms a frame, but that is the
+Mac's hardware under the simulator and says nothing about a phone.
+
+Still open, and needing a phone: the timing, and the background check. The
+Dart side cancels on `AppLifecycleState.paused` on every platform, so a clip
+sent Home is stopped and deleted either way; what a phone does in the
+moment before is not measured.

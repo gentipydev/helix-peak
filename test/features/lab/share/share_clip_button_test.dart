@@ -122,11 +122,16 @@ void main() {
     await tester.pump();
   }
 
-  testWidgets('on iOS there is no clip to offer, only the poster', (
+  testWidgets('where clips cannot be made there is only the poster', (
     WidgetTester tester,
   ) async {
-    await host(tester, TargetPlatform.iOS);
+    await host(tester, TargetPlatform.windows);
     expect(find.byTooltip('Share a clip'), findsNothing);
+  });
+
+  testWidgets('on iOS there is a clip to offer', (WidgetTester tester) async {
+    await host(tester, TargetPlatform.iOS);
+    expect(find.byTooltip('Share a clip'), findsOneWidget);
   });
 
   testWidgets('on Android it makes the clip and shares the MP4', (
