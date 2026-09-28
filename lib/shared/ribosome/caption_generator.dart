@@ -44,8 +44,8 @@ final class CaptionGenerator {
 
   String _joining() {
     final int start = timeline.cdsStart;
-    final String? minus3 = start >= 3 ? timeline.mrna[start - 3] : null;
-    final String plus4 = timeline.mrna[start + 3];
+    final String? minus3 = start >= 3 ? timeline.rna[start - 3] : null;
+    final String plus4 = timeline.rna[start + 3];
     return minus3 == null
         ? 'The large subunit joins at the start codon, with $plus4 at +4.'
         : 'The large subunit joins at the start codon. Around it, the Kozak '
@@ -54,7 +54,7 @@ final class CaptionGenerator {
 
   String _stopCodon() {
     final int stop = timeline.stopCodonStart;
-    final String codon = timeline.mrna.substring(stop, stop + 3);
+    final String codon = timeline.rna.substring(stop, stop + 3);
     return 'The stop codon $codon reaches the A site. No tRNA reads it; a '
         'release factor does.';
   }
@@ -124,7 +124,7 @@ final class CaptionGenerator {
       return null;
     }
     final int start = timeline.cdsStart + 3 * (codon - 1);
-    final String triplet = timeline.mrna.substring(start, start + 3);
+    final String triplet = timeline.rna.substring(start, start + 3);
     final String residue = AminoAcids.nameOf(timeline.protein[codon - 1])
         .toLowerCase();
     return switch (state.phase) {

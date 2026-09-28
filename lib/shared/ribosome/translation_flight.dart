@@ -7,6 +7,7 @@ import '../../core/theme/anatomy_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../anatomy/anatomy_layout.dart';
 import '../anatomy/anatomy_motion.dart';
+import 'molecular_material.dart';
 import 'translation_painter.dart';
 
 /// The chain flying from where translation left it into its cells.
@@ -24,6 +25,7 @@ class TranslationFlightPainter extends CustomPainter {
     required this.progress,
     required this.anatomy,
     required this.ground,
+    this.startRadius = TranslationPainter.residueRadius,
   }) : _from = _startsOf(starts, letters.length),
        _to = _endsOf(layout, letters.length);
 
@@ -35,6 +37,7 @@ class TranslationFlightPainter extends CustomPainter {
   final double progress;
   final AnatomyColors anatomy;
   final Color ground;
+  final double startRadius;
 
   final Float32List _from;
   final Float32List _to;
@@ -86,10 +89,14 @@ class TranslationFlightPainter extends CustomPainter {
         continue;
       }
       final String residue = letters[i];
-      final double radius =
-          TranslationPainter.residueRadius +
-          (side / 2 - TranslationPainter.residueRadius) * local;
-      _fill.color = anatomy.forResidue(residue);
+      final double radius = startRadius + (side / 2 - startRadius) * local;
+      _fill
+        ..color = Colors.white
+        ..shader = MolecularMaterial.residueShader(
+          Rect.fromCircle(center: at, radius: radius),
+          anatomy.forResidue(residue),
+          depth: 1 - local,
+        );
       canvas.drawRRect(
         RRect.fromRectAndRadius(
           Rect.fromCircle(center: at, radius: radius),
@@ -97,6 +104,7 @@ class TranslationFlightPainter extends CustomPainter {
         ),
         _fill,
       );
+      _fill.shader = null;
       if (radius >= 6) {
         final ui.Paragraph glyph = _glyphs.putIfAbsent(
           (residue, radius.round()),
@@ -126,7 +134,8 @@ class TranslationFlightPainter extends CustomPainter {
       old.progress != progress ||
       old.layout != layout ||
       old.letters != letters ||
-      old.anatomy != anatomy;
+      old.anatomy != anatomy ||
+      old.startRadius != startRadius;
 }
 
 /// How far residue [u] of the chain (0 at the N terminus, 1 at the C) has

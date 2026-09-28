@@ -291,6 +291,9 @@ final class TranslationTimeline extends AnimationTimeline<TranslationState> {
   /// The mRNA, 5′ to 3′, as the walk's mRNA page letters it.
   final String mrna;
 
+  /// RNA lettering for the translation view; GenBank coordinates stay intact.
+  late final String rna = mrna.replaceAll('T', 'U');
+
   /// Where the start codon begins in [mrna].
   final int cdsStart;
 

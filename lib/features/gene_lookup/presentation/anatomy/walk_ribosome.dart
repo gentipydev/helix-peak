@@ -67,6 +67,7 @@ final class WalkRibosome {
   /// Where each residue sets off from, once translation has ended; null while
   /// it plays.
   List<Offset?>? _starts;
+  double _startRadius = TranslationPainter.residueRadius;
 
   /// Whether translation has ended and the chain is on its way to its cells.
   bool get flying => _starts != null;
@@ -75,6 +76,9 @@ final class WalkRibosome {
   /// by [offset] into the frame of the page it lands on.
   void setOff(Offset offset) {
     final Size size = canvasKey.currentContext?.size ?? Size.zero;
+    _startRadius =
+        TranslationPainter.residueRadius *
+        TranslationPainter.viewportScale(size);
     _starts = <Offset?>[
       for (final Offset? at in TranslationPainter.chainPositions(
         size,
@@ -105,6 +109,7 @@ final class WalkRibosome {
           layout: layout,
           letters: stage.letters,
           progress: flight.value,
+          startRadius: _startRadius,
           anatomy: context.anatomyColors,
           ground: Theme.of(context).colorScheme.surface,
         ),

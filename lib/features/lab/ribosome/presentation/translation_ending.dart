@@ -152,6 +152,9 @@ class _TranslationEndingState extends State<TranslationEnding>
                                 ),
                                 letters: stage.letters,
                                 progress: _flight.value,
+                                startRadius:
+                                    TranslationPainter.residueRadius *
+                                    TranslationPainter.viewportScale(viewport),
                                 anatomy: context.anatomyColors,
                                 ground: theme.colorScheme.surface,
                               ),

@@ -111,7 +111,7 @@ void main() {
       expect(
         captions,
         contains(
-          'The stop codon TAG reaches the A site. No tRNA reads it; a release '
+          'The stop codon UAG reaches the A site. No tRNA reads it; a release '
           'factor does.',
         ),
       );
