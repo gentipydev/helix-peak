@@ -6,7 +6,6 @@ import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../shared/anatomy/anatomy_layout.dart';
 import '../../../../shared/anatomy/anatomy_stages.dart';
 import '../../../../shared/motion/timeline_controller.dart';
-import '../../../../shared/ribosome/caption_generator.dart';
 import '../../../../shared/ribosome/director.dart';
 import '../../../../shared/ribosome/translation_flight.dart';
 import '../../../../shared/ribosome/translation_painter.dart';
@@ -25,7 +24,6 @@ final class WalkRibosome {
   WalkRibosome._({
     required this.timeline,
     required this.director,
-    required this.captions,
     required this.controller,
     required this.flight,
   });
@@ -40,7 +38,6 @@ final class WalkRibosome {
     return WalkRibosome._(
       timeline: timeline,
       director: director,
-      captions: CaptionGenerator(timeline, model.record),
       controller: TimelineController(
         vsync: vsync,
         timeline: timeline,
@@ -56,7 +53,6 @@ final class WalkRibosome {
 
   final TranslationTimeline timeline;
   final TranslationDirector director;
-  final CaptionGenerator captions;
   final TimelineController controller;
 
   /// The chain's flight into the protein page's cells.

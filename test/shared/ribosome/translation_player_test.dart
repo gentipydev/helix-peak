@@ -9,7 +9,6 @@ import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart'
 import 'package:helixpeek/shared/anatomy/sequence_scrubber.dart';
 import 'package:helixpeek/shared/motion/timeline_controller.dart';
 import 'package:helixpeek/shared/motion/transport_bar.dart';
-import 'package:helixpeek/shared/ribosome/caption_generator.dart';
 import 'package:helixpeek/shared/ribosome/director.dart';
 import 'package:helixpeek/shared/ribosome/translation_player.dart';
 import 'package:helixpeek/shared/ribosome/translation_timeline.dart';
@@ -45,8 +44,6 @@ Future<void> _host(WidgetTester tester, String slug, String gene) async {
         body: SafeArea(
           child: TranslationPlayer(
             translation: translation,
-            director: director,
-            captions: CaptionGenerator(translation, record),
             controller: controller,
           ),
         ),
@@ -68,16 +65,31 @@ void main() {
     expect(find.byType(TransportBar), findsOneWidget);
     expect(find.byType(SequenceScrubber), findsOneWidget);
     expect(find.text('Scanning the 5′ UTR'), findsOneWidget);
-    expect(_text(tester, 'ribosome-caption'), contains('59 bases'));
+    // Only the phase's name is written under the canvas: no sentence, no
+    // cell clock.
     expect(
-      _text(tester, 'ribosome-cell-time'),
-      'In a cell: 0.0 s of 19.5 s, at 5.6 residues a second',
+      find.byKey(const ValueKey<String>('ribosome-caption')),
+      findsNothing,
+    );
+    expect(
+      find.byKey(const ValueKey<String>('ribosome-cell-time')),
+      findsNothing,
     );
 
     await tester.tap(find.byTooltip('Step forward'));
     await tester.pump();
     expect(find.text('The large subunit joins'), findsOneWidget);
-    expect(_text(tester, 'ribosome-caption'), contains('Kozak'));
+
+    // A codon is named by its number alone, through all four of its stops.
+    for (int stop = 0; stop < 4; stop++) {
+      await tester.tap(find.byTooltip('Step forward'));
+      await tester.pump();
+      expect(_text(tester, 'transport-phase'), 'Codon 2', reason: 'stop $stop');
+    }
+    await tester.tap(find.byTooltip('Step forward'));
+    await tester.pump();
+    expect(_text(tester, 'transport-phase'), 'Codon 3');
+    expect(find.textContaining('·'), findsNothing);
 
     await tester.tap(find.byTooltip('Play'));
     await tester.pump();
@@ -87,10 +99,7 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.tap(find.byTooltip('Pause'));
     await tester.pump();
-    expect(
-      _text(tester, 'ribosome-cell-time'),
-      isNot(startsWith('In a cell: 0.0')),
-    );
+    expect(_text(tester, 'transport-phase'), startsWith('Codon '));
   });
 
   testWidgets('a long protein plays too: dystrophin', (

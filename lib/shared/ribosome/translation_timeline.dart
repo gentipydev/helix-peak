@@ -332,22 +332,22 @@ final class TranslationTimeline extends AnimationTimeline<TranslationState> {
     ),
     for (int codon = 2; codon <= protein.length; codon++) ...<PhaseMark>[
       PhaseMark(
-        name: 'Codon ${grouped(codon)} · decoding',
+        name: 'Codon ${grouped(codon)}',
         t: beatStart(beatOfCodon(codon)),
         captionKey: 'decoding',
       ),
       PhaseMark(
-        name: 'Codon ${grouped(codon)} · peptide bond',
+        name: 'Codon ${grouped(codon)}',
         t: beatStart(beatOfCodon(codon) + bondStart),
         captionKey: 'peptideBond',
       ),
       PhaseMark(
-        name: 'Codon ${grouped(codon)} · translocation',
+        name: 'Codon ${grouped(codon)}',
         t: beatStart(beatOfCodon(codon) + bondEnd),
         captionKey: 'translocation',
       ),
       PhaseMark(
-        name: 'Codon ${grouped(codon)} · tRNA exit',
+        name: 'Codon ${grouped(codon)}',
         t: beatStart(beatOfCodon(codon) + translocationEnd),
         captionKey: 'trnaExit',
       ),

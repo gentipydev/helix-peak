@@ -2294,8 +2294,6 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                                       ),
                                       child: TranslationPlayer(
                                         translation: ribosome.timeline,
-                                        director: ribosome.director,
-                                        captions: ribosome.captions,
                                         controller: ribosome.controller,
                                         canvasKey: ribosome.canvasKey,
                                       ),

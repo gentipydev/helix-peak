@@ -8,6 +8,7 @@ import 'package:helixpeek/core/biology/nmd.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
 import 'package:helixpeek/features/lab/mutate/domain/apply_edit.dart';
 import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/shared/format.dart';
 import 'package:helixpeek/shared/motion/animation_timeline.dart';
 import 'package:helixpeek/shared/ribosome/translation_timeline.dart';
 
@@ -274,6 +275,8 @@ void main() {
                 marks[first + i].t,
                 closeTo(timeline.beatStart(beat + slices[i]), 1e-15),
               );
+              // Named by the codon's number alone, at every slice.
+              expect(marks[first + i].name, 'Codon ${grouped(codon)}');
             }
             // The four slices cover the beat and nothing else: the next mark
             // is the next beat's start.

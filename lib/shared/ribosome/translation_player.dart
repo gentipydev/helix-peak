@@ -5,35 +5,27 @@ import '../anatomy/sequence_scrubber.dart';
 import '../format.dart';
 import '../motion/timeline_controller.dart';
 import '../motion/transport_bar.dart';
-import 'caption_generator.dart';
-import 'director.dart';
 import 'translation_painter.dart';
 import 'translation_timeline.dart';
 
 /// The whole coding sequence translated, from the cap to the stop codon.
 ///
-/// Played on the shared transport bar, paced by the [TranslationDirector]
-/// (slow where something happens once, fast in between) beside a cell-time
-/// readout that never warps, and scrubbed with the walk's own
-/// [SequenceScrubber] as a minimap of the mRNA, its landmarks the timeline's
-/// own events. A caption, built from the record by the [CaptionGenerator],
-/// says what is happening; where none can be built, none is shown.
+/// Played on the shared transport bar, under the name of the phase on screen,
+/// at the pace the caller's [controller] sets, and scrubbed with the walk's
+/// own [SequenceScrubber] as a minimap of the mRNA, its landmarks the
+/// timeline's own events.
 ///
 /// The caller owns the [controller]. At t = 1 the last frame stands, for the
 /// caller to move on from.
 class TranslationPlayer extends StatelessWidget {
   const TranslationPlayer({
     required this.translation,
-    required this.director,
-    required this.captions,
     required this.controller,
     this.canvasKey = const ValueKey<String>('ribosome-canvas'),
     super.key,
   });
 
   final TranslationTimeline translation;
-  final TranslationDirector director;
-  final CaptionGenerator captions;
   final TimelineController controller;
 
   /// The canvas's key. A caller that needs the canvas's box passes a
@@ -61,7 +53,6 @@ class TranslationPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
@@ -109,49 +100,6 @@ class TranslationPlayer extends StatelessWidget {
               ),
             ],
           ),
-        ),
-        AnimatedBuilder(
-          animation: controller,
-          builder: (BuildContext context, _) {
-            final TranslationState state = translation.stateAt(controller.t);
-            final String? caption = captions.captionFor(state);
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.screenPadding,
-                AppSpacing.sm,
-                AppSpacing.screenPadding,
-                0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  SizedBox(
-                    height: 88,
-                    child: caption == null
-                        ? null
-                        : Text(
-                            caption,
-                            key: const ValueKey<String>('ribosome-caption'),
-                            style: theme.textTheme.bodyMedium,
-                            maxLines: 4,
-                            overflow: TextOverflow.fade,
-                          ),
-                  ),
-                  Text(
-                    'In a cell: '
-                    '${director.cellSeconds(state).toStringAsFixed(1)} s of '
-                    '${director.cellTotal.toStringAsFixed(1)} s, at '
-                    '${TranslationDirector.residuesPerSecond} residues a '
-                    'second',
-                    key: const ValueKey<String>('ribosome-cell-time'),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
         ),
         Padding(
           padding: const EdgeInsets.only(bottom: AppSpacing.sm),
