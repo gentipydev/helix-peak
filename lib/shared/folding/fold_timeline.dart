@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 
-import '../../../../shared/motion/animation_timeline.dart';
+import '../motion/animation_timeline.dart';
 import 'fold_geometry.dart';
 import 'folding_track.dart';
 

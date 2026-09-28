@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
-import 'package:helixpeek/features/lab/folding/domain/fold_captions.dart';
-import 'package:helixpeek/features/lab/folding/domain/fold_timeline.dart';
+import 'package:helixpeek/shared/folding/fold_captions.dart';
+import 'package:helixpeek/shared/folding/fold_timeline.dart';
 
-import '../../../../support/test_catalog.dart';
-import '../../trafficking/trafficking_fixtures.dart' show namesAProtein;
-import '../folding_fixtures.dart';
+import '../../features/lab/trafficking/trafficking_fixtures.dart' show namesAProtein;
+import '../../support/test_catalog.dart';
+import 'folding_fixtures.dart';
 
 void main() {
   FoldCaptions captionsOf(String slug) =>

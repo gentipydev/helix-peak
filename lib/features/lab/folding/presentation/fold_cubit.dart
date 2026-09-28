@@ -5,8 +5,8 @@ import '../../../../core/catalog/protein_track.dart';
 import '../../../../core/evidence/protein_constraint.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/network/track_source.dart';
-import '../domain/fold_geometry.dart';
-import '../domain/folding_track.dart';
+import '../../../../shared/folding/fold_geometry.dart';
+import '../../../../shared/folding/folding_track.dart';
 
 sealed class FoldState {
   const FoldState();

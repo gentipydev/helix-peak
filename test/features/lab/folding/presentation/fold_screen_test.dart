@@ -3,13 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/catalog/protein_track.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
-import 'package:helixpeek/features/lab/folding/domain/fold_captions.dart';
-import 'package:helixpeek/features/lab/folding/domain/fold_timeline.dart';
 import 'package:helixpeek/features/lab/folding/presentation/fold_screen.dart';
+import 'package:helixpeek/shared/folding/fold_captions.dart';
+import 'package:helixpeek/shared/folding/fold_timeline.dart';
 import 'package:helixpeek/shared/structure/structure_view.dart';
 
+import '../../../../shared/folding/folding_fixtures.dart';
 import '../../../../support/test_catalog.dart';
-import '../folding_fixtures.dart';
 
 Future<void> _host(
   WidgetTester tester,

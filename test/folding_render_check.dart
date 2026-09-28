@@ -7,10 +7,10 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
-import 'package:helixpeek/features/lab/folding/domain/fold_timeline.dart';
 import 'package:helixpeek/features/lab/folding/presentation/fold_painter.dart';
+import 'package:helixpeek/shared/folding/fold_timeline.dart';
 
-import 'features/lab/folding/folding_fixtures.dart';
+import 'shared/folding/folding_fixtures.dart';
 
 // FOLD_SHOT_DIR=<dir> flutter test test/folding_render_check.dart
 //

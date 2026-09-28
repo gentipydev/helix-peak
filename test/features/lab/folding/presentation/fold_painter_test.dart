@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
-import 'package:helixpeek/features/lab/folding/domain/fold_geometry.dart';
-import 'package:helixpeek/features/lab/folding/domain/fold_timeline.dart';
-import 'package:helixpeek/features/lab/folding/domain/folding_track.dart';
 import 'package:helixpeek/features/lab/folding/presentation/fold_painter.dart';
+import 'package:helixpeek/shared/folding/fold_geometry.dart';
+import 'package:helixpeek/shared/folding/fold_timeline.dart';
+import 'package:helixpeek/shared/folding/folding_track.dart';
 import 'package:helixpeek/shared/structure/structure_model.dart';
 import 'package:vector_math/vector_math.dart' as vm;
 
+import '../../../../shared/folding/folding_fixtures.dart';
 import '../../../../support/test_catalog.dart';
-import '../folding_fixtures.dart';
 
 void main() {
   const Size box = Size(390, 520);

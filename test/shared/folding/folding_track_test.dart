@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
-import 'package:helixpeek/features/lab/folding/domain/folding_track.dart';
+import 'package:helixpeek/shared/folding/folding_track.dart';
 
-import '../../../../support/test_catalog.dart';
-import '../folding_fixtures.dart';
+import '../../support/test_catalog.dart';
+import 'folding_fixtures.dart';
 
 void main() {
   test('every protein’s track parses, one chain per node of its fold', () {

@@ -2,8 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_track.dart';
 import 'package:helixpeek/features/lab/folding/presentation/fold_cubit.dart';
 
+import '../../../../shared/folding/folding_fixtures.dart';
 import '../../../../support/test_catalog.dart';
-import '../folding_fixtures.dart';
 
 void main() {
   test('a ready track is the fold, with the catalog’s bridges', () async {

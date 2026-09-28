@@ -1,5 +1,5 @@
-import '../../../../core/biology/amino_acids.dart';
-import '../../../../shared/format.dart';
+import '../../core/biology/amino_acids.dart';
+import '../format.dart';
 import 'fold_geometry.dart';
 import 'fold_timeline.dart';
 import 'folding_track.dart';

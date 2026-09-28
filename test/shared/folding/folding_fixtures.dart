@@ -6,15 +6,15 @@ import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/catalog/protein_track.dart';
 import 'package:helixpeek/core/evidence/protein_constraint.dart';
 import 'package:helixpeek/core/network/track_source.dart';
-import 'package:helixpeek/features/lab/folding/domain/fold_geometry.dart';
-import 'package:helixpeek/features/lab/folding/domain/folding_track.dart';
+import 'package:helixpeek/shared/folding/fold_geometry.dart';
+import 'package:helixpeek/shared/folding/folding_track.dart';
 
-import '../../../support/test_catalog.dart';
+import '../../support/test_catalog.dart';
 
 /// The twenty `folding` payloads `pipeline/folding/` baked, kept beside these
 /// tests rather than in `test/fixtures/`, which belongs to the walk.
 String foldingAsset(ProteinTarget target) =>
-    'test/features/lab/folding/fixtures/${target.slug}_folding.json';
+    'test/shared/folding/fixtures/${target.slug}_folding.json';
 
 Map<String, dynamic> readJson(String path) =>
     jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;

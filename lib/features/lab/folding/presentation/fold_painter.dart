@@ -8,11 +8,11 @@ import 'package:vector_math/vector_math.dart' as vm;
 import '../../../../core/biology/amino_acids.dart';
 import '../../../../core/catalog/protein_target.dart';
 import '../../../../core/theme/anatomy_colors.dart';
+import '../../../../shared/folding/fold_geometry.dart';
+import '../../../../shared/folding/fold_timeline.dart';
+import '../../../../shared/folding/folding_track.dart';
 import '../../../../shared/format.dart';
 import '../../../../shared/structure/structure_model.dart';
-import '../domain/fold_geometry.dart';
-import '../domain/fold_timeline.dart';
-import '../domain/folding_track.dart';
 
 /// The colours a fold is drawn in: its chains' own, as the fold page paints
 /// them, and its bridges in the colour that page gives its `bonds` node.

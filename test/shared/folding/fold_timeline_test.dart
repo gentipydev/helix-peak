@@ -2,13 +2,13 @@ import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
-import 'package:helixpeek/features/lab/folding/domain/fold_geometry.dart';
-import 'package:helixpeek/features/lab/folding/domain/fold_timeline.dart';
-import 'package:helixpeek/features/lab/folding/domain/folding_track.dart';
+import 'package:helixpeek/shared/folding/fold_geometry.dart';
+import 'package:helixpeek/shared/folding/fold_timeline.dart';
+import 'package:helixpeek/shared/folding/folding_track.dart';
 import 'package:helixpeek/shared/motion/animation_timeline.dart';
 
-import '../../../../support/test_catalog.dart';
-import '../folding_fixtures.dart';
+import '../../support/test_catalog.dart';
+import 'folding_fixtures.dart';
 
 void main() {
   FoldTimeline timelineOf(String slug) =>
