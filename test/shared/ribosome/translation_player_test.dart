@@ -6,26 +6,50 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/biology/gene_record.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
-import 'package:helixpeek/features/lab/ribosome/presentation/ribosome_screen.dart';
 import 'package:helixpeek/shared/anatomy/sequence_scrubber.dart';
+import 'package:helixpeek/shared/motion/timeline_controller.dart';
 import 'package:helixpeek/shared/motion/transport_bar.dart';
+import 'package:helixpeek/shared/ribosome/caption_generator.dart';
+import 'package:helixpeek/shared/ribosome/director.dart';
+import 'package:helixpeek/shared/ribosome/translation_player.dart';
+import 'package:helixpeek/shared/ribosome/translation_timeline.dart';
 
-import '../../../../support/test_catalog.dart';
+import '../../support/test_catalog.dart';
 
 GeneRecord _gene(String gene) => GeneRecordDto.fromJson(
   jsonDecode(File('test/fixtures/mock/gene_$gene.json').readAsStringSync())
       as Map<String, dynamic>,
 ).toEntity();
 
+/// The player on its own, with the clock a caller would give it.
 Future<void> _host(WidgetTester tester, String slug, String gene) async {
   await tester.binding.setSurfaceSize(const Size(390, 844));
   addTearDown(() => tester.binding.setSurfaceSize(null));
+  final GeneRecord record = _gene(gene);
+  final TranslationTimeline translation = TranslationTimeline(
+    record,
+    chain: TestCatalog.bySlug(slug)!.chain,
+  );
+  final TranslationDirector director = TranslationDirector(translation);
+  final TimelineController controller = TimelineController(
+    vsync: tester,
+    timeline: translation,
+    beat: TranslationPlayer.beat,
+    speedCurve: director.curve,
+  );
+  addTearDown(controller.dispose);
   await tester.pumpWidget(
     MaterialApp(
       theme: AppTheme.analysis,
-      home: RibosomeScreen(
-        target: TestCatalog.bySlug(slug)!,
-        record: _gene(gene),
+      home: Scaffold(
+        body: SafeArea(
+          child: TranslationPlayer(
+            translation: translation,
+            director: director,
+            captions: CaptionGenerator(translation, record),
+            controller: controller,
+          ),
+        ),
       ),
     ),
   );

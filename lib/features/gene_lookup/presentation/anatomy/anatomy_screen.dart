@@ -35,6 +35,8 @@ import '../../../../shared/format.dart';
 import '../../../../shared/inspector/inspector_sheet.dart';
 import '../../../../shared/ribosome/translation_player.dart';
 import '../../../../shared/ribosome/translation_timeline.dart';
+import '../../../../shared/share/share_action.dart';
+import '../../../../shared/share/share_clip_button.dart';
 import '../../../../shared/structure/structure_view.dart';
 import '../clinvar/clinvar_block.dart';
 import '../clinvar/variants_overview.dart';
@@ -2182,6 +2184,17 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                 ? _openSelection
                 : null,
             onRibosome: _offersRibosome ? _openRibosome : null,
+            shares: switch (_ribosome) {
+              final WalkRibosome ribosome => <Widget>[
+                ShareClipButton(
+                  target: widget.target,
+                  painter: ribosome.clip(context),
+                  duration: ribosome.clipDuration,
+                ),
+                SharePosterButton(target: widget.target, model: _model),
+              ],
+              null => const <Widget>[],
+            },
             textScale: MediaQuery.textScalerOf(context)
                 .scale(1)
                 .clamp(1.0, 1.2),
@@ -2691,6 +2704,7 @@ class _Header extends StatelessWidget implements PreferredSizeWidget {
     this.hint,
     this.onOpenDna,
     this.onRibosome,
+    this.shares = const <Widget>[],
     this.onWholeGene,
     this.onReturn,
     this.liftedBase = false,
@@ -2710,6 +2724,10 @@ class _Header extends StatelessWidget implements PreferredSizeWidget {
   final String? hint;
   final VoidCallback? onOpenDna;
   final VoidCallback? onRibosome;
+
+  /// The ribosome's clip and the protein's poster, while the ribosome is up;
+  /// empty everywhere else.
+  final List<Widget> shares;
   final VoidCallback? onWholeGene;
 
   /// Back to the ClinVar overview under a landing. It stands where "Whole gene"
@@ -2827,6 +2845,7 @@ class _Header extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
         actions: <Widget>[
+          ...shares,
           // Centred, because `AppBar` stretches its actions to the toolbar's full
           // height and a pill drawn 44 points tall is not a badge any more.
           ExcludeSemantics(

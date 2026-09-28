@@ -12,6 +12,7 @@ import '../../../../shared/ribosome/translation_flight.dart';
 import '../../../../shared/ribosome/translation_painter.dart';
 import '../../../../shared/ribosome/translation_player.dart';
 import '../../../../shared/ribosome/translation_timeline.dart';
+import '../../../../shared/share/frame_renderer.dart';
 
 /// The ribosome as the walk plays it from the transcript page: the record's
 /// whole translation on the shared [TranslationPlayer], and then the chain it
@@ -60,6 +61,24 @@ final class WalkRibosome {
 
   /// The chain's flight into the protein page's cells.
   final AnimationController flight;
+
+  /// How long one beat takes in a shared clip, before the clip is held to
+  /// its five to fifteen seconds.
+  static const Duration clipBeat = Duration(milliseconds: 120);
+
+  /// How long the clip of the whole translation runs, before it is held.
+  Duration get clipDuration => clipBeat * timeline.beats;
+
+  /// The translation as a clip: the player's own painter, paced by the same
+  /// director, so a clip lingers where the player does.
+  FramePainter clip(BuildContext context) {
+    final TranslationInks inks = TranslationInks.of(context);
+    return (double wall) => TranslationPainter(
+      timeline: timeline,
+      at: () => director.curve.tAt(wall),
+      inks: inks,
+    );
+  }
 
   /// The player's canvas, so the chain sets off from where it was drawn.
   final GlobalKey canvasKey = GlobalKey();

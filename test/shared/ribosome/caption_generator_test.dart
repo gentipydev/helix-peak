@@ -9,7 +9,7 @@ import 'package:helixpeek/shared/ribosome/caption_generator.dart';
 import 'package:helixpeek/shared/ribosome/director.dart';
 import 'package:helixpeek/shared/ribosome/translation_timeline.dart';
 
-import '../../../../support/test_catalog.dart';
+import '../../support/test_catalog.dart';
 
 GeneRecord _gene(String gene) => GeneRecordDto.fromJson(
   jsonDecode(File('test/fixtures/mock/gene_$gene.json').readAsStringSync())

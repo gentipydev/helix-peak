@@ -19,15 +19,14 @@ import 'translation_timeline.dart';
 /// own events. A caption, built from the record by the [CaptionGenerator],
 /// says what is happening; where none can be built, none is shown.
 ///
-/// The caller owns the [controller], and says with [ending] what takes the
-/// canvas's place once translation is over.
+/// The caller owns the [controller]. At t = 1 the last frame stands, for the
+/// caller to move on from.
 class TranslationPlayer extends StatelessWidget {
   const TranslationPlayer({
     required this.translation,
     required this.director,
     required this.captions,
     required this.controller,
-    this.ending,
     this.canvasKey = const ValueKey<String>('ribosome-canvas'),
     super.key,
   });
@@ -36,10 +35,6 @@ class TranslationPlayer extends StatelessWidget {
   final TranslationDirector director;
   final CaptionGenerator captions;
   final TimelineController controller;
-
-  /// Drawn in place of the canvas and its minimap once `t` reaches 1, or null
-  /// to leave the last frame standing.
-  final WidgetBuilder? ending;
 
   /// The canvas's key. A caller that needs the canvas's box passes a
   /// [GlobalKey].
@@ -71,55 +66,48 @@ class TranslationPlayer extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         Expanded(
-          child: AnimatedBuilder(
-            animation: controller,
-            builder: (BuildContext context, Widget? playing) =>
-                controller.t >= 1 && ending != null
-                ? ending!(context)
-                : playing!,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Expanded(
-                  child: AnimatedBuilder(
-                    animation: controller,
-                    builder: (BuildContext context, Widget? painted) =>
-                        Semantics(
-                          label: TranslationPainter.describe(
-                            translation,
-                            translation.stateAt(controller.t),
-                          ),
-                          child: painted,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Expanded(
+                child: AnimatedBuilder(
+                  animation: controller,
+                  builder: (BuildContext context, Widget? painted) =>
+                      Semantics(
+                        label: TranslationPainter.describe(
+                          translation,
+                          translation.stateAt(controller.t),
                         ),
-                    child: RepaintBoundary(
-                      child: CustomPaint(
-                        key: canvasKey,
-                        size: Size.infinite,
-                        painter: TranslationPainter(
-                          timeline: translation,
-                          at: () => controller.t,
-                          inks: TranslationInks.of(context),
-                          repaint: controller,
-                        ),
+                        child: painted,
+                      ),
+                  child: RepaintBoundary(
+                    child: CustomPaint(
+                      key: canvasKey,
+                      size: Size.infinite,
+                      painter: TranslationPainter(
+                        timeline: translation,
+                        at: () => controller.t,
+                        inks: TranslationInks.of(context),
+                        repaint: controller,
                       ),
                     ),
                   ),
                 ),
-                SizedBox(
-                  width: SequenceScrubber.width,
-                  child: TimelineScrubber(
-                    controller: controller,
-                    landmarks: _landmarks(translation),
-                    labelAt: (double t) {
-                      final TranslationState s = translation.stateAt(t);
-                      return s.codon <= translation.protein.length
-                          ? 'Codon ${grouped(s.codon)}'
-                          : 'Stop codon';
-                    },
-                  ),
+              ),
+              SizedBox(
+                width: SequenceScrubber.width,
+                child: TimelineScrubber(
+                  controller: controller,
+                  landmarks: _landmarks(translation),
+                  labelAt: (double t) {
+                    final TranslationState s = translation.stateAt(t);
+                    return s.codon <= translation.protein.length
+                        ? 'Codon ${grouped(s.codon)}'
+                        : 'Stop codon';
+                  },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
         AnimatedBuilder(

@@ -14,7 +14,6 @@ import 'oxygen/presentation/oxygen_screen.dart';
 import 'presentation/lab_index_screen.dart';
 import 'presentation/lab_protein_picker.dart';
 import 'replication/presentation/replication_screen.dart';
-import 'ribosome/presentation/ribosome_screen.dart';
 import 'sickle/domain/sickle_story.dart';
 import 'sickle/presentation/sickle_screen.dart';
 import 'trafficking/presentation/cell_scene_screen.dart';
@@ -31,11 +30,6 @@ const List<LabFeature> labFeatures = <LabFeature>[
     title: 'Mutate it yourself',
     summary: 'Change one base of a gene and watch what it does to the protein.',
     path: '${RoutePaths.lab}/mutate',
-  ),
-  LabFeature(
-    title: 'The ribosome',
-    summary: 'Watch a protein’s own mRNA read into its chain, codon by codon.',
-    path: '${RoutePaths.lab}/ribosome',
   ),
   LabFeature(
     title: 'In your room',
@@ -129,12 +123,6 @@ List<RouteBase> buildLabRoutes() => <RouteBase>[
             title: 'Mutate',
             lead: 'Pick a protein, then a base of its gene to change.',
             screen: (String slug) => MutateRoute(slug: slug),
-          ),
-          _picked(
-            'ribosome',
-            title: 'The ribosome',
-            lead: 'Pick a protein to watch its mRNA translated.',
-            screen: (String slug) => RibosomeRoute(slug: slug),
           ),
           _picked(
             'ar',

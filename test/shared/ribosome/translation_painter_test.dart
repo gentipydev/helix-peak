@@ -7,8 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/biology/gene_record.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
-import 'package:helixpeek/features/lab/ribosome/domain/one_cycle.dart';
-import 'package:helixpeek/shared/motion/animation_timeline.dart';
 import 'package:helixpeek/shared/ribosome/translation_painter.dart';
 import 'package:helixpeek/shared/ribosome/translation_timeline.dart';
 
@@ -20,34 +18,6 @@ GeneRecord _gene(String gene) => GeneRecordDto.fromJson(
 void main() {
   final GeneRecord insulin = _gene('ins');
   final TranslationTimeline translation = TranslationTimeline(insulin);
-
-  group('one elongation cycle', () {
-    final OneCycle cycle = OneCycle(translation, codon: 2);
-
-    test('is the four slices of one codon’s beat', () {
-      expect(cycle.phases.map((PhaseMark m) => m.captionKey), <String>[
-        'decoding',
-        'peptideBond',
-        'translocation',
-        'trnaExit',
-      ]);
-      expect(cycle.phases.map((PhaseMark m) => m.t), <Matcher>[
-        closeTo(0, 1e-9),
-        closeTo(0.35, 1e-9),
-        closeTo(0.55, 1e-9),
-        closeTo(0.85, 1e-9),
-      ]);
-    });
-
-    test('shows the whole translation’s own state at each moment', () {
-      for (final double t in <double>[0, 0.2, 0.4, 0.6, 0.9, 1]) {
-        expect(cycle.stateAt(t), translation.stateAt(cycle.fullT(t)));
-      }
-      expect(cycle.stateAt(0).residues, 1);
-      expect(cycle.stateAt(0.99).residues, 2);
-      expect(cycle.stateAt(0.99).p!.codon, 2);
-    });
-  });
 
   group('the painter', () {
     void paintAt(TranslationTimeline timeline, double t, Size size) {
@@ -94,9 +64,12 @@ void main() {
         'The small subunit is scanning the 5 prime UTR. 0 of 110 residues '
         'made.',
       );
-      final OneCycle cycle = OneCycle(translation, codon: 2);
+      // Late in the beat that reads codon 2.
+      final TranslationState codon2 = translation.stateAt(
+        translation.beatStart(translation.beatOfCodon(2) + 0.99),
+      );
       expect(
-        TranslationPainter.describe(translation, cycle.stateAt(0.99)),
+        TranslationPainter.describe(translation, codon2),
         'Codon 2, alanine. 2 of 110 residues made.',
       );
     });
