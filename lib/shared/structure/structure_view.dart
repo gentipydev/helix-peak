@@ -6,9 +6,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_scene/scene.dart';
 
 import '../../core/catalog/protein_target.dart';
+import '../../core/catalog/protein_track.dart';
 import '../../core/network/track_source.dart';
 import '../../core/theme/anatomy_colors.dart';
 import '../../core/theme/app_spacing.dart';
+import '../folding/fold_captions.dart';
+import '../folding/fold_geometry.dart';
+import '../folding/fold_timeline.dart';
+import '../folding/folding_track.dart';
+import '../motion/timeline_controller.dart';
+import 'fold_morph.dart';
 import 'structure_loading_view.dart';
 import 'structure_model.dart';
 import 'structure_rotation.dart';
@@ -78,11 +85,27 @@ import 'structure_rotation.dart';
 /// The bands cost the picture nothing, because the picture is still the whole
 /// box: the square is a place to put a finger, not a frame around the molecule,
 /// and the camera's framing never learns it is there.
+///
+/// ## The fold, folding
+///
+/// With [folds], the page opens on the chain rather than on the fold, and
+/// folds it: a [FoldTimeline] in four steps (the hydrophobic collapse, the
+/// helices coiling, the strands pairing, the bridges snapping shut), drawn by
+/// a [FoldMorph] in this same scene, under this camera and in the model's own
+/// material. Its last frame is the model: every residue on the CA the entry
+/// gives it, the backbone as wide as the model's ribbon, each bridge along
+/// the model's rods. There the model takes over, the fold fading off it,
+/// and the page is the page it always was. It plays each time the page is
+/// opened, with no controls: a line under it names the step and what moves.
+///
+/// Reduced motion, or a protein whose `folding` track is not ready or does
+/// not load, opens on the model, as the page did before.
 class StructureView extends StatefulWidget {
   const StructureView({
     required this.viewport,
     required this.target,
     this.legend = const <(Color, String)>[],
+    this.folds = false,
     super.key,
   });
 
@@ -95,6 +118,16 @@ class StructureView extends StatefulWidget {
   /// What each colour on the model is, in the words of the page before it:
   /// the chains the reader just saw as squares, and the bridges between them.
   final List<(Color, String)> legend;
+
+  /// Whether the page opens by folding the chain into the model. The walk's
+  /// fold page does; a Lab screen that shows the finished fold does not.
+  final bool folds;
+
+  /// How long one beat of the fold takes: twelve beats, nine seconds.
+  static const Duration foldBeat = Duration(milliseconds: 750);
+
+  /// How long the fold takes to fade off the model once it is on it.
+  static const Duration handover = Duration(milliseconds: 500);
 
   /// Does the one-time part of drawing the fold ahead of the page.
   ///
@@ -118,6 +151,7 @@ class StructureView extends StatefulWidget {
     }
     return _prepareWith(
       Theme.of(context).extension<AnatomyColors>()!,
+      Theme.of(context).colorScheme.onSurfaceVariant,
       target,
       tracks,
     );
@@ -135,10 +169,11 @@ class StructureView extends StatefulWidget {
 
   static Future<void> _prepareWith(
     AnatomyColors anatomy,
+    Color loose,
     ProteinTarget target,
     TrackSource tracks,
   ) {
-    return _preparing[target.slug] ??= _warm(anatomy, target, tracks)
+    return _preparing[target.slug] ??= _warm(anatomy, loose, target, tracks)
         .then((_) {
           _warmed.add(target.slug);
         })
@@ -150,6 +185,7 @@ class StructureView extends StatefulWidget {
 
   static Future<void> _warm(
     AnatomyColors anatomy,
+    Color loose,
     ProteinTarget target,
     TrackSource tracks,
   ) async {
@@ -159,7 +195,63 @@ class StructureView extends StatefulWidget {
     // The pulse too, so that its first frame on the page is not a blank one
     // spent reading the asset.
     await StructureLoadingView.preload();
-    await buildStructureModel(scene, anatomy, target, tracks);
+    final (Node _, PerspectiveCamera camera) = await buildStructureModel(
+      scene,
+      anatomy,
+      target,
+      tracks,
+    );
+    // The fold the page opens with, drawn once whole and once fading off,
+    // so that neither costs the page a pipeline on its first frame.
+    final FoldGeometry? fold = await _foldOf(target, tracks);
+    if (fold != null) {
+      final FoldMorph morph = FoldMorph(
+        FoldTimeline(fold),
+        FoldMorph.paletteOf(anatomy, loose, target),
+      );
+      scene.add(morph.node);
+      final List<RenderView> views = <RenderView>[RenderView(camera: camera)];
+      await scene.warmUp(views);
+      morph.opacity = 0.5;
+      await scene.warmUp(views);
+    }
+  }
+
+  /// Each protein's fold, read once and kept: the page opens on it every
+  /// time, and the walk reads it pages ahead, in [prepare].
+  static final Map<String, Future<FoldGeometry?>> _folds =
+      <String, Future<FoldGeometry?>>{};
+
+  /// [target]'s fold, or null where there is none to play: a `folding`
+  /// track the row does not say is ready, or one that did not load, which
+  /// is tried again next time.
+  static Future<FoldGeometry?> _foldOf(
+    ProteinTarget target,
+    TrackSource tracks,
+  ) => _folds[target.slug] ??= _readFold(target, tracks).then((
+    FoldGeometry? fold,
+  ) {
+    if (fold == null) {
+      _folds.remove(target.slug);
+    }
+    return fold;
+  });
+
+  static Future<FoldGeometry?> _readFold(
+    ProteinTarget target,
+    TrackSource tracks,
+  ) async {
+    if (target.state(TrackKind.folding) != TrackState.ready) {
+      return null;
+    }
+    try {
+      return FoldGeometry.of(await FoldingTrack.load(target, tracks: tracks));
+    } on Object catch (error) {
+      // The page opens on the model instead, as it did before there was a
+      // fold to play.
+      debugPrint('helixpeek: no fold for ${target.slug} ($error)');
+      return null;
+    }
   }
 
   @override
@@ -177,7 +269,8 @@ enum _StructureTrouble {
   model,
 }
 
-class _StructureViewState extends State<StructureView> {
+class _StructureViewState extends State<StructureView>
+    with TickerProviderStateMixin {
   /// Built in [_load] and not here.
   ///
   /// Constructing a [Scene] reaches straight for the GPU context, so a field
@@ -191,6 +284,21 @@ class _StructureViewState extends State<StructureView> {
   Node? _molecule;
   PerspectiveCamera? _camera;
   bool _ready = false;
+
+  /// What the turn is applied to: the molecule, and the fold while it plays.
+  Node? _root;
+
+  /// The fold while it plays and fades, then null.
+  FoldMorph? _morph;
+  TimelineController? _playback;
+  FoldCaptions? _captions;
+  AnimationController? _fading;
+
+  /// The step the line under the fold names, or null once the model has it.
+  FoldStep? _step;
+
+  /// Seconds of the page's own clock, which keep the loose residues moving.
+  double _idle = 0;
 
   /// Why the page has nothing to draw, or null while it still might.
   ///
@@ -283,27 +391,69 @@ class _StructureViewState extends State<StructureView> {
 
       final AnatomyColors anatomy = Theme.of(context)
           .extension<AnatomyColors>()!;
+      final Color loose = Theme.of(context).colorScheme.onSurfaceVariant;
       final TrackSource? tracks = context.read<TrackSource?>();
       if (tracks == null) {
         // No source, so no model. Not a renderer that cannot draw.
         throw StateError('No track source for ${widget.target.slug}');
       }
-      await StructureView._prepareWith(anatomy, widget.target, tracks);
+      await StructureView._prepareWith(anatomy, loose, widget.target, tracks);
       if (!mounted) {
         return;
       }
+      final Node root = Node(name: 'structure');
+      scene.add(root);
       final (Node molecule, PerspectiveCamera camera) =
-          await buildStructureModel(scene, anatomy, widget.target, tracks);
+          await buildStructureModel(
+            scene,
+            anatomy,
+            widget.target,
+            tracks,
+            parent: root,
+          );
       if (!mounted) {
         return;
       }
 
+      // The fold, where there is one to play: in the model's place, with the
+      // model hidden under it until it lands there.
+      final FoldGeometry? fold = widget.folds && !_reducedMotion
+          ? await StructureView._foldOf(widget.target, tracks)
+          : null;
+      if (!mounted) {
+        return;
+      }
+      FoldMorph? morph;
+      if (fold != null) {
+        final FoldTimeline timeline = FoldTimeline(fold);
+        morph = FoldMorph(
+          timeline,
+          FoldMorph.paletteOf(anatomy, loose, widget.target),
+        );
+        root.add(morph.node);
+        molecule.visible = false;
+        await scene.warmUp(<RenderView>[RenderView(camera: camera)]);
+        if (!mounted) {
+          return;
+        }
+        _captions = FoldCaptions(fold);
+        _playback = TimelineController(
+          vsync: this,
+          timeline: timeline,
+          beat: StructureView.foldBeat,
+        )..addListener(_played);
+      }
+
       setState(() {
         _scene = scene;
+        _root = root;
         _molecule = molecule;
         _camera = camera;
+        _morph = morph;
+        _step = morph == null ? null : FoldStep.collapse;
         _ready = true;
       });
+      _playback?.play();
     } on Object catch (error) {
       // The renderer is there — `Scene()` was built above — so whatever went
       // wrong is the model: a fetch that failed, a container this build of
@@ -316,11 +466,58 @@ class _StructureViewState extends State<StructureView> {
     }
   }
 
+  @override
+  void dispose() {
+    _playback?.dispose();
+    _fading?.dispose();
+    super.dispose();
+  }
+
+  /// Names each step as the fold reaches it, and hands over at the end.
+  void _played() {
+    final TimelineController playback = _playback!;
+    final FoldStep step = FoldTimeline.stepAt(playback.t);
+    if (_fading == null && step != _step) {
+      setState(() => _step = step);
+    }
+    if (playback.atEnd && _fading == null) {
+      _handOver();
+    }
+  }
+
+  /// The fold is on the model now: the model shows under it, and the fold
+  /// fades off it, leaving the model the page has always drawn.
+  void _handOver() {
+    _molecule?.visible = true;
+    _fading =
+        AnimationController(vsync: this, duration: StructureView.handover)
+          ..addListener(() => _morph?.opacity = 1 - _fading!.value)
+          ..addStatusListener((AnimationStatus status) {
+            if (status != AnimationStatus.completed || !mounted) {
+              return;
+            }
+            final FoldMorph? morph = _morph;
+            if (morph != null) {
+              _root?.remove(morph.node);
+            }
+            setState(() {
+              _morph = null;
+              _step = null;
+            });
+          })
+          ..forward();
+  }
+
   void _apply() {
-    _molecule?.rotation = _rotation.value;
+    _root?.rotation = _rotation.value;
   }
 
   void _tick(Duration elapsed, double deltaSeconds) {
+    final FoldMorph? morph = _morph;
+    if (morph != null) {
+      _idle += deltaSeconds;
+      morph.update(_playback!.t, idle: _idle);
+    }
     if (_reducedMotion) {
       return;
     }
@@ -425,6 +622,45 @@ class _StructureViewState extends State<StructureView> {
                           textAlign: TextAlign.center,
                           style: theme.textTheme.labelSmall,
                         ),
+                      ),
+                    ),
+                  ),
+                ),
+                // While the fold plays, the step it is on. Set on the foot of
+                // the box the page asked for rather than of the one it was
+                // given: the walk lays the view out to its full height, and
+                // the foot of that lies under the stage bar.
+                Positioned(
+                  left: AppSpacing.lg,
+                  right: AppSpacing.lg,
+                  top: 0,
+                  height: math.max(0, widget.viewport.height - AppSpacing.sm),
+                  child: IgnorePointer(
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      // One line out, then the next in: never the two
+                      // over each other.
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        switchInCurve: const Interval(0.5, 1),
+                        switchOutCurve: const Interval(0.5, 1),
+                        child: switch (_step) {
+                          final FoldStep step => Semantics(
+                            key: ValueKey<FoldStep>(step),
+                            liveRegion: true,
+                            child: Text(
+                              _captions!.captionOf(step),
+                              key: const ValueKey<String>('fold-caption'),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                          null => const SizedBox.shrink(),
+                        },
                       ),
                     ),
                   ),

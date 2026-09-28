@@ -89,6 +89,21 @@ Git: commit the session's own changes locally. Never push, in any form.
   (`TranslationFlightPainter`): the walk's ribosome. The lab had it first and
   no longer has one. The NMD threshold it shares with mutate is
   `lib/core/biology/nmd.dart`.
+- `lib/shared/folding/`: a chain folding, promoted out of the lab for the
+  walk's fold page, which the lab no longer has. `FoldTimeline` tells it in
+  four steps (hydrophobic collapse, helices coil, strands pair, bridges snap
+  shut) from the `folding` track (`pipeline/folding` in the backend): each
+  chain's CA trace and secondary structure in the stored model's frame, and,
+  since schema 2, the model's bridges atom by atom, its cartoon's sizes and
+  its ribbon as measured by each helix and strand residue. `FoldMesh` makes
+  it geometry: beads that melt into the model's ribbon, and rods that grow
+  along the model's. `StructureView(folds: true)` draws it in its own scene
+  (`lib/shared/structure/fold_morph.dart`), plays it each time the page opens
+  with a line under it naming the step, and hands over to the model;
+  `folds` defaults to false, the finished fold, for the lab's screens. The
+  scene holds the model with z negated, and so does the fold
+  (`docs/folding-renderer.md`). Reduced motion, or no ready track, opens on
+  the model.
 - `lib/shared/share/`: sharing, promoted out of the lab for the walk.
   - It draws a flow's frames offscreen, one at a time (`FrameRenderer`),
     and makes a poster (`PosterBuilder`) whose link,
@@ -163,17 +178,6 @@ rotting on a branch, which is what keeps the shared layer from diverging.
   and events. No Rive asset exists, so there is no Rive dependency. The route
   is inferred and the screen says so. Nothing names a tissue, and nothing
   reaches the nucleus yet.
-- `folding/` plays a chain folding in four staged steps (hydrophobic
-  collapse, helices coil, strands pair, bridges snap shut) from the `folding`
-  track: each chain's CA trace and secondary structure, residue by residue,
-  in the stored structure model's frame (`pipeline/folding` in the backend).
-  It paints, through the fold page's own camera (`structureCamera` on the
-  model's bounds, which the track carries), so its last frame lands on the
-  fold that page draws; `docs/folding-renderer.md` says why it paints though
-  flutter_scene can build meshes at runtime. Every step says it is an
-  illustration, not a simulation. Residues the track calls disordered hang
-  loose and never settle; absent ones are not drawn. The bridges are the
-  catalog's pairs, read from the constraint track, in the `bonds` colour.
 - `oxygen/` is a story of its own subject, `/lab/oxygen`: the hemoglobin
   tetramer, an assembly the backend keeps outside the catalog
   (`/assembly/{slug}/tracks`, `pipeline/assemblies`), tense and relaxed in

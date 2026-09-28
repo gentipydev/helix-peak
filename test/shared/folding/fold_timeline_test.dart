@@ -14,6 +14,12 @@ void main() {
   FoldTimeline timelineOf(String slug) =>
       FoldTimeline(geometryOf(target(slug)));
 
+  double distance3(ModelPoint a, ModelPoint b) => math.sqrt(
+    (a.$1 - b.$1) * (a.$1 - b.$1) +
+        (a.$2 - b.$2) * (a.$2 - b.$2) +
+        (a.$3 - b.$3) * (a.$3 - b.$3),
+  );
+
   double distance(List<double> p, int i, ModelPoint c) => math.sqrt(
     math.pow(p[3 * i] - c.$1, 2) +
         math.pow(p[3 * i + 1] - c.$2, 2) +
@@ -176,18 +182,34 @@ void main() {
     expect(b, isNot(a));
   });
 
-  test('bridges are the catalog’s pairs whose cysteines have a place', () {
+  test('bridges are the model’s, in precursor order', () {
     expect(geometryOf(target('insulin')).bridgeNumbers, <(int, int)>[
       (31, 96),
       (43, 109),
       (95, 100),
     ]);
-    // APP's other bridges are in domains its entry does not hold.
-    expect(
-      geometryOf(target('app')).bridges.length,
-      lessThan(bridgesOf(target('app')).length),
-    );
+    // APP's other bridges are in domains its entry does not hold: the six
+    // are the E1 domain's, which its model draws.
+    expect(geometryOf(target('app')).bridges, hasLength(6));
     expect(geometryOf(target('hemoglobin')).bridges, isEmpty);
+    // A model that draws no bridges has none to close.
+    expect(geometryOf(target('glucagon')).bridges, isEmpty);
+  });
+
+  test('each bridge runs through the atoms the model’s rods do', () {
+    final FoldGeometry insulin = geometryOf(target('insulin'));
+    for (int b = 0; b < insulin.bridges.length; b++) {
+      final (int i, int j) = insulin.bridges[b];
+      final List<ModelPoint> path = insulin.bridgePaths[b];
+      expect(path, hasLength(6));
+      expect(insulin.drawn[i].letter, 'C');
+      expect(insulin.drawn[j].letter, 'C');
+      // CA to CA, through each cysteine's CB and SG.
+      expect(distance3(path.first, insulin.drawn[i].ca!), lessThan(1e-4));
+      expect(distance3(path.last, insulin.drawn[j].ca!), lessThan(1e-4));
+      final double sulfurs = distance3(path[2], path[3]) / insulin.unit;
+      expect(sulfurs, closeTo(2.05, 0.1));
+    }
   });
 
   test('the collapse brings the water-avoiding residues furthest in', () {

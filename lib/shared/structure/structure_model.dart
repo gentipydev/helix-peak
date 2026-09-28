@@ -35,8 +35,8 @@ const double structureFramingMargin = 1.35;
 PerspectiveCamera structureCamera(vm.Aabb3 bounds) =>
     PerspectiveCamera.framing(bounds, margin: structureFramingMargin);
 
-/// Loads the molecule into [scene], paints and frames it, and compiles what
-/// its first frame needs.
+/// Loads the molecule into [scene], under [parent] where one is given, paints
+/// and frames it, and compiles what its first frame needs.
 ///
 /// [StructureView.prepare] runs this into a scene it then drops, so that
 /// when the page runs it for real everything expensive is already cached.
@@ -44,8 +44,9 @@ Future<(Node, PerspectiveCamera)> buildStructureModel(
   Scene scene,
   AnatomyColors anatomy,
   ProteinTarget target,
-  TrackSource tracks,
-) async {
+  TrackSource tracks, {
+  Node? parent,
+}) async {
   await Scene.initializeStaticResources();
   if (!Scene.isReadyToRender) {
     throw StateError('The 3D renderer did not initialize');
@@ -62,7 +63,11 @@ Future<(Node, PerspectiveCamera)> buildStructureModel(
     _paint(molecule, target, chain.node, chain.tint.of(anatomy));
   }
 
-  scene.add(molecule);
+  if (parent == null) {
+    scene.add(molecule);
+  } else {
+    parent.add(molecule);
+  }
   final vm.Aabb3? bounds = molecule.combinedWorldBounds;
   final PerspectiveCamera camera = bounds == null
       ? PerspectiveCamera()
@@ -96,14 +101,24 @@ void _paint(Node root, ProteinTarget target, String name, Color colour) {
     throw StateError('The model for ${target.slug} has no node named "$name".');
   }
   for (final MeshPrimitive primitive in mesh.primitives) {
-    primitive.material = PhysicallyBasedMaterial()
-      ..baseColorFactor = _linear(colour)
+    primitive.material = structureMaterial(colour);
+  }
+}
+
+/// The material every part of a fold is drawn in, the model's and the fold
+/// animation's alike, so that the one hands over to the other unseen.
+PhysicallyBasedMaterial structureMaterial(Color colour) =>
+    structureMaterialOf(linearColour(colour));
+
+/// [structureMaterial] with its base colour already linear: white, for a
+/// mesh whose own vertex or instance colours are the colour.
+PhysicallyBasedMaterial structureMaterialOf(vm.Vector4 linear) =>
+    PhysicallyBasedMaterial()
+      ..baseColorFactor = linear
       // Protein illustration convention: matte, so the form is read from
       // shading rather than from highlights sliding over it as it turns.
       ..metallicFactor = 0
       ..roughnessFactor = 0.65;
-  }
-}
 
 /// The importer is free to nest what it loads, so the node is looked for
 /// rather than indexed.
@@ -121,7 +136,7 @@ Node? _find(Node node, String name) {
 }
 
 /// sRGB to linear, per the glTF specification's `baseColorFactor`.
-vm.Vector4 _linear(Color colour) {
+vm.Vector4 linearColour(Color colour) {
   double channel(double v) =>
       v <= 0.04045 ? v / 12.92 : math.pow((v + 0.055) / 1.055, 2.4).toDouble();
   return vm.Vector4(channel(colour.r), channel(colour.g), channel(colour.b), 1);

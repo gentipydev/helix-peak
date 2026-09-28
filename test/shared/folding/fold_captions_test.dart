@@ -3,7 +3,8 @@ import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/shared/folding/fold_captions.dart';
 import 'package:helixpeek/shared/folding/fold_timeline.dart';
 
-import '../../features/lab/trafficking/trafficking_fixtures.dart' show namesAProtein;
+import '../../features/lab/trafficking/trafficking_fixtures.dart'
+    show namesAProtein;
 import '../../support/test_catalog.dart';
 import 'folding_fixtures.dart';
 
@@ -11,62 +12,54 @@ void main() {
   FoldCaptions captionsOf(String slug) =>
       FoldCaptions(geometryOf(target(slug)));
 
-  test(
-    'it says it is an illustration, not a simulation, and what is measured',
-    () {
-      final String note = captionsOf('prion').illustration;
-      expect(note, startsWith('An illustration, not a simulation.'));
-      expect(note, contains('4KML'));
-    },
-  );
-
-  test('the prion’s loose residues are counted, not named', () {
-    expect(
-      captionsOf('prion').looseNote,
-      '98 residues have no fixed shape and stay loose throughout: the '
-      'experiment that solved this structure never placed them.',
-    );
-    expect(captionsOf('lysozyme').looseNote, isNull);
-  });
-
-  test('each step says what moves, counted off the track', () {
-    final FoldCaptions prion = captionsOf('prion');
-    expect(
-      prion.captionOf(FoldStep.bridges),
-      startsWith('One disulfide bridge snaps shut: Cys179–Cys214.'),
-    );
-    expect(prion.captionOf(FoldStep.helices), contains('71 residues'));
+  test('each step is named with what it moves, counted off the track', () {
     final FoldCaptions insulin = captionsOf('insulin');
     expect(
-      insulin.captionOf(FoldStep.bridges),
-      startsWith('Three disulfide bridges snap shut:'),
+      insulin.captionOf(FoldStep.collapse),
+      'Hydrophobic collapse · 22 of 51 residues hydrophobic '
+      '(Kyte\u2060–\u2060Doolittle\u00a0>\u00a00)',
     );
+    expect(insulin.captionOf(FoldStep.helices), 'Helices · 3 (30 residues)');
+    expect(insulin.captionOf(FoldStep.strands), 'Strands · none');
     expect(
-      insulin.captionOf(FoldStep.strands),
-      startsWith('No residue of this fold sits in a strand'),
+      insulin.captionOf(FoldStep.bridges),
+      'Disulfides · Cys31–Cys96, Cys43–Cys109, Cys95–Cys100',
     );
   });
 
-  test('a fold with nothing to pair, or to bridge, says so', () {
-    final FoldCaptions hemoglobin = captionsOf('hemoglobin');
+  test('past three bridges, the rest are counted', () {
     expect(
-      hemoglobin.captionOf(FoldStep.bridges),
-      startsWith('No disulfide bridge holds this fold'),
+      captionsOf('app').captionOf(FoldStep.bridges),
+      'Disulfides · Cys38–Cys62, Cys73–Cys117, Cys98–Cys105 +3',
     );
+  });
+
+  test('a fold with nothing to coil, pair or bridge says none', () {
+    expect(captionsOf('oxytocin').captionOf(FoldStep.helices), 'Helices · none');
     expect(
-      captionsOf('oxytocin').captionOf(FoldStep.helices),
-      'No residue of this fold sits in a helix, so nothing coils.',
+      captionsOf('hemoglobin').captionOf(FoldStep.bridges),
+      'Disulfides · none',
+    );
+  });
+
+  test('what the entry never placed is left to the header', () {
+    // 98 of the prion's residues have no place; the header's range says so,
+    // and no caption says it again.
+    final FoldCaptions prion = captionsOf('prion');
+    for (final FoldStep step in FoldStep.values) {
+      expect(prion.captionOf(step), isNot(contains('98')));
+    }
+    expect(
+      prion.captionOf(FoldStep.collapse),
+      contains('of 109 residues'),
     );
   });
 
   test('no caption names a protein', () {
     for (final ProteinTarget protein in TestCatalog.all) {
       final FoldCaptions captions = captionsOf(protein.slug);
-      for (final String text in <String>[
-        for (final FoldStep step in FoldStep.values) captions.captionOf(step),
-        captions.illustration,
-        ?captions.looseNote,
-      ]) {
+      for (final FoldStep step in FoldStep.values) {
+        final String text = captions.captionOf(step);
         expect(namesAProtein(text), isFalse, reason: '${protein.slug}: $text');
       }
     }

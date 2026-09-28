@@ -1,65 +1,88 @@
-# Folding: can flutter_scene 0.23 build meshes at runtime?
+# Folding: drawn in the fold page's own scene
 
-The fold animation (feature 7) morphs a chain from an extended strand into
-the fold the walk's last page draws. The walk's fold is a baked mesh: a
-`.fsceneb` compiled from the `.glb` the backend's structure bake made, which
-cannot morph. So the question, asked before any renderer code: can
-flutter_scene 0.23 build meshes on the device, or does the morph need a
-projected-coordinate painter?
+The walk's fold page opens on the chain and folds it, in the four steps the
+Lab used to play (hydrophobic collapse, helices coil, strands pair, bridges
+snap shut), then hands over to the model the page has always drawn. The steps
+are `FoldTimeline` (`lib/shared/folding/`), unchanged from the Lab: a pure
+function of time, twelve beats of 750 ms, whose last frame puts every ordered
+residue on the CA the `folding` track gives it. This note is about how that
+is drawn.
 
-## Answer: yes
+## The answer changed: flutter_scene, not a painter
 
-flutter_scene 0.23.0 (`pubspec.lock`) builds and rebuilds meshes at runtime.
-From the package's own source (`flutter_scene-0.23.0/lib/src/`):
+The Lab drew the fold with a `CustomPainter` projecting the CA trace through
+the page's camera, and this note used to say why: nothing drawn by
+flutter_scene can be tested without a GPU, the lab's timelines paint, and a
+painter is cheap. On a page of its own that held. Ending on the model is a
+different job. A painted line crossfading into a lit, tone-mapped ribbon is
+two kinds of picture, and the reader sees the switch however exact the
+geometry is.
 
-- `geometry/mesh_geometry.dart:51`: `MeshGeometry`, "a triangle mesh built at
-  runtime from vertex attribute arrays". `MeshGeometry.fromArrays` takes
-  positions, normals, texture coordinates, colours and indices;
-  `GeometryBuilder` (`:996`) assembles one incrementally.
-- The same file: `GeometryStorage.updatable` makes a geometry mutable in place,
-  `updatePositions` (`:351`), `updateNormals` and the rest replace one attribute
-  when the vertex count holds, and `rebuild` replaces everything.
-- `geometry/swept_geometry.dart:235`: `TubeGeometry`, a round cross-section
-  swept along a `ScenePath`, and `RibbonGeometry`, a flat strip, each with
-  `updatePath` (`:290`, `:91`) to follow a path that moves.
-- `geometry/polyline_geometry.dart`: `PolylineGeometry`, a thick camera-facing
-  line, regenerated each frame by `updateForCamera` (`:244`).
-- `geometry/morphed_geometry.dart`: glTF morph targets, blended on the GPU.
-- `instanced_mesh.dart:19`: `InstancedMesh`, one mesh drawn many times with
-  per-instance transforms.
+So the fold is drawn in the model's own `Scene` (`FoldMorph`,
+`lib/shared/structure/fold_morph.dart`): the same camera (`structureCamera`),
+the same image-based lighting and tone mapping, and the same material
+(`structureMaterial`: matte, metallic 0, roughness 0.65). What it becomes is
+already the same kind of thing, and the handover is the model showing under
+it while it fades off in half a second.
 
-So a tube through the CA trace, rebuilt every frame and drawn in the same
-scene and under the same camera as `StructureView`, is possible.
+flutter_scene 0.23 builds the meshes at runtime, as this note found before:
+`MeshGeometry.fromArrays` with `GeometryStorage.updatable` takes new positions
+and normals each frame into the same buffers, and `InstancedMesh` draws the
+beads and the bridge rods with a transform and a colour each.
 
-## What the morph is drawn with anyway: a projected-coordinate painter
+## What is drawn, and why each is exact at the end
 
-Recommended, and built:
+`FoldMesh` (`lib/shared/folding/fold_mesh.dart`) is the geometry, pure Dart and
+tested without a GPU; `FoldMorph` only uploads it.
 
-1. **Nothing here can prove a flutter_scene morph.** There is no Flutter GPU
-   in `flutter test` or in the golden container: `StructureView` draws its
-   "3D rendering is not available here" line in every test. A morph drawn by
-   flutter_scene would have its domain tested and its pixels never, and it
-   could not be looked at on a device in this session either. A painter is
-   drawn by the suite and can be checked frame by frame.
-2. **The lab's timelines paint.** The ribosome and the cell scene are
-   `CustomPainter`s under the shared `TransportBar`, and `share/`'s
-   `FrameRenderer` makes a flow's frames by painting them offscreen. A painted
-   morph plays, scrubs and shares like them.
-3. **Cost.** CFTR, the longest chain, is 1,480 residues. Projected segments
-   are a few thousand line draws a frame; a swept tube over the same trace is
-   on the order of a hundred thousand vertices rebuilt on the CPU every frame.
-4. **Exactness does not need the GPU.** flutter_scene's camera is plain
-   vector math. `PerspectiveCamera.framing` (`camera.dart:262`) places the
-   camera from a model's bounds and the page's margin, and
-   `Camera.worldToScreen` (`camera.dart:106`) maps a world point through the
-   very projection `SceneView` renders with. The painter builds the camera the
-   fold page builds, `structureFramingMargin` included, and projects each CA
-   through it, so the morph's last frame lands where the page draws the fold.
-   The one input the painter lacks is the stored model's bounds, which the
-   page reads off the loaded model; the `folding` track carries them in its
-   frame for this (`pipeline/folding` in the backend).
+- **Residues are beads** on a thin thread, as big as the unfolded chain leaves
+  room for (0.42 of the middle gap between neighbours, 0.7 to 1.4 A), so a
+  long chain stays beads rather than running into a worm. Water-avoiding ones
+  take the grid's property colour as the chain collapses round them.
+- **The backbone is a swept tube**, a Catmull-Rom spline through the residues,
+  8 rings a residue (6 past 200 residues, 4 past 600), 8 vertices a ring. As
+  each residue settles its bead melts into it, and its ring turns into the
+  model's shape for it: an oval for a helix, a slab with an arrowhead for a
+  strand, a thin loop, or the tube a peptide with no secondary structure is
+  drawn as. The sizes are PyMOL's own settings, carried by the track
+  (`cartoon`).
+- **It ends on the model's ribbon, not beside it.** A CA trace alone twists a
+  helix's ribbon 25 to 40 degrees off PyMOL's at its ends, and PyMOL flattens
+  a sheet up to 3.3 A from its CA atoms. The track carries the ribbon as
+  measured on the stored model for each helix and strand residue (`ribbon`:
+  where it passes, and which way it lies), and the tube ends on it: a median
+  of under a degree off PyMOL's, 99% within 16.
+- **Bridges grow along the model's rods.** The track carries each bridge's CA,
+  CB, SG, SG, CB and CA, the atoms the structure bake built its rods through,
+  and each half grows from its CA to the middle of the S-S bond. Closed, they
+  are the rods.
+- **Residues the entry never placed** stay loose beads to the end, and fade
+  with the handover: the model does not draw them.
 
-What would change the answer: a device-side need for lighting and shading
-the painter cannot fake, or a morph that has to share one scene with the fold
-itself. Either would be a flutter_scene `TubeGeometry` over the same timeline,
-since the timeline is renderer-free.
+## The frame: z is turned round
+
+The `.fsceneb` compiler bakes a glTF into flutter_scene's native frame by
+negating z (`GltfCoordinatePolicy.bakeNative`) and rewinding its triangles. The
+track is in the glTF's frame, so everything drawn from it negates z too, and
+winds its own triangles as flutter_scene's swept geometry does (round each
+ring with `binormal = tangent × normal`). Without it the fold ends on the
+model's mirror image. The Lab's painter did not negate z, so its last frame
+was, by the same reasoning, the page's fold mirrored.
+
+## Cost
+
+Rebuilding the mesh each frame costs, on the development Mac, 0.14 ms for
+insulin (3,152 vertices) and 0.95 ms for CFTR (47,336 vertices, 1,480
+residues). The pipelines the fold needs, opaque and fading, are compiled by
+`StructureView.prepare` while the walk is at rest, pages before the fold.
+
+## What is tested where
+
+- `FoldMesh`, in `test/shared/folding/fold_mesh_test.dart`: a fixed topology,
+  the last frame on the model's ribbon and as wide and thick as its cartoon,
+  the beads gone and the rods the model's.
+- `FoldMorph` and the handover need Flutter GPU, which `flutter test` and the
+  golden container do not have: the page there says it needs 3D rendering, as
+  it always has. They were checked on the iOS simulator frame by frame
+  (insulin, lysozyme, the prion, oxytocin and CFTR), with the fold's last
+  frame and the model's first compared across the handover.

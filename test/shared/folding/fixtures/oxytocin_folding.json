@@ -3,18 +3,18 @@
   "gene": "OXT",
   "uniprot": "P01178",
   "pdb": "7RYC",
-  "schema_version": 1,
+  "schema_version": 2,
   "frame": {
     "space": "the stored structure model: centred, longest axis 1.0",
     "glb_sha256": "a2198a625e24e7cb06457df614f13b46bb6c99fdd2df5cfd1e84a419356dfd64",
     "centre_angstrom": [
       142.587319,
       120.444765,
-      101.656528
+      101.656517
     ],
     "length_angstrom": 16.593887,
     "method": "the structure bake's own export origin and normalisation, re-run and matched to the stored model vertex for vertex",
-    "matched_within": 2.8e-06,
+    "matched_within": 1.5e-08,
     "bounds": {
       "min": [
         -0.5,
@@ -29,6 +29,20 @@
     }
   },
   "secondary_structure": "HELIX and SHEET records of 7RYC",
+  "cartoon": {
+    "representation": "tube",
+    "loop_radius": 0.2,
+    "helix": {
+      "half_width": 1.35,
+      "half_thickness": 0.25
+    },
+    "strand": {
+      "half_width": 1.4,
+      "half_thickness": 0.4
+    },
+    "tube_radius": 0.6,
+    "rod_radius": 0.5
+  },
   "chains": [
     {
       "node": "chainA",
@@ -46,7 +60,47 @@
         {"n": 25, "aa": "C", "state": "ordered", "ss": "coil", "ca": [-0.03377, -0.01644, -0.07428]},
         {"n": 26, "aa": "P", "state": "ordered", "ss": "coil", "ca": [0.06482, -0.01144, -0.28465]},
         {"n": 27, "aa": "L", "state": "ordered", "ss": "coil", "ca": [0.26074, -0.1275, -0.32539]},
-        {"n": 28, "aa": "G", "state": "ordered", "ss": "coil", "ca": [0.46461, -0.01855, -0.32606]}
+        {"n": 28, "aa": "G", "state": "ordered", "ss": "coil", "ca": [0.46461, -0.01855, -0.32605]}
+      ]
+    }
+  ],
+  "bridges": [
+    {
+      "a": 20,
+      "a_node": "chainA",
+      "b": 25,
+      "b_node": "chainA",
+      "path": [
+        [
+          -0.11398,
+          0.11234,
+          0.13032
+        ],
+        [
+          -0.03304,
+          0.14308,
+          0.16449
+        ],
+        [
+          0.05868,
+          0.08987,
+          0.13815
+        ],
+        [
+          0.06693,
+          0.09035,
+          0.01618
+        ],
+        [
+          0.03644,
+          -0.01023,
+          -0.01335
+        ],
+        [
+          -0.03377,
+          -0.01644,
+          -0.07428
+        ]
       ]
     }
   ],

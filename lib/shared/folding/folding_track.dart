@@ -41,6 +41,8 @@ final class FoldResidue {
     required this.place,
     this.shape,
     this.ca,
+    this.ribbonAt,
+    this.ribbonAcross,
   });
 
   /// Its position in the precursor, the walk's numbering.
@@ -56,6 +58,14 @@ final class FoldResidue {
 
   /// Only for an ordered residue: its CA in the finished fold.
   final ModelPoint? ca;
+
+  /// Only for a helix or strand residue, where the model's ribbon was
+  /// measured: where the ribbon passes it, and which way the ribbon lies
+  /// across there (a direction, of no particular sign). A helix's runs
+  /// within a fraction of an angstrom of its CA; a strand's, flattened into
+  /// its sheet, up to three angstroms off.
+  final ModelPoint? ribbonAt;
+  final ModelPoint? ribbonAcross;
 
   bool get isOrdered => place == FoldPlace.ordered;
 }
@@ -73,12 +83,105 @@ final class FoldChain {
   final List<FoldResidue> residues;
 }
 
+/// What the model draws its chains as.
+enum FoldRepresentation {
+  /// Helices as ovals, strands as arrows, the rest as a thin loop.
+  cartoon,
+
+  /// One round tube down the whole chain: a peptide with no helix or strand.
+  tube;
+
+  static FoldRepresentation fromWire(String wire) =>
+      FoldRepresentation.values.byName(wire);
+}
+
+/// The shapes the model's chains are drawn with, in angstroms: PyMOL's own
+/// settings, which the track carries so that a fold drawn from it ends as
+/// wide and as thick as the model it hands over to.
+@immutable
+final class FoldCartoon {
+  const FoldCartoon({
+    required this.representation,
+    required this.loopRadius,
+    required this.helixHalfWidth,
+    required this.helixHalfThickness,
+    required this.strandHalfWidth,
+    required this.strandHalfThickness,
+    required this.tubeRadius,
+    required this.rodRadius,
+  });
+
+  /// PyMOL 3.1.0's cartoon, and the structure bake's tube and rods: what a
+  /// schema-1 track, which does not say, was drawn with.
+  static const FoldCartoon pymol = FoldCartoon(
+    representation: FoldRepresentation.cartoon,
+    loopRadius: 0.2,
+    helixHalfWidth: 1.35,
+    helixHalfThickness: 0.25,
+    strandHalfWidth: 1.4,
+    strandHalfThickness: 0.4,
+    tubeRadius: 0.6,
+    rodRadius: 0.5,
+  );
+
+  factory FoldCartoon.fromJson(Map<String, dynamic> json) {
+    double half(String shape, String key) =>
+        ((json[shape] as Map<String, dynamic>)[key] as num).toDouble();
+    return FoldCartoon(
+      representation: FoldRepresentation.fromWire(
+        json['representation'] as String,
+      ),
+      loopRadius: (json['loop_radius'] as num).toDouble(),
+      helixHalfWidth: half('helix', 'half_width'),
+      helixHalfThickness: half('helix', 'half_thickness'),
+      strandHalfWidth: half('strand', 'half_width'),
+      strandHalfThickness: half('strand', 'half_thickness'),
+      tubeRadius: (json['tube_radius'] as num).toDouble(),
+      rodRadius: (json['rod_radius'] as num).toDouble(),
+    );
+  }
+
+  final FoldRepresentation representation;
+  final double loopRadius;
+  final double helixHalfWidth;
+  final double helixHalfThickness;
+  final double strandHalfWidth;
+  final double strandHalfThickness;
+  final double tubeRadius;
+
+  /// A bridge's rods.
+  final double rodRadius;
+}
+
+/// One disulfide the model draws, as the atoms its rods run through.
+@immutable
+final class FoldBridge {
+  const FoldBridge({
+    required this.a,
+    required this.aNode,
+    required this.b,
+    required this.bNode,
+    required this.path,
+  });
+
+  /// Its two cysteines, in precursor numbering, the lower first, and the
+  /// chain each is in.
+  final int a;
+  final String aNode;
+  final int b;
+  final String bNode;
+
+  /// CA, CB and SG of [a], then SG, CB and CA of [b], in the model's frame.
+  final List<ModelPoint> path;
+}
+
 /// The `folding` track: each chain of a fold as its CA trace, residue by
 /// residue, in the stored structure model's own frame.
 ///
 /// Baked by `pipeline/folding/` in the backend from the entry the fold page's
 /// model was cut from, and placed in that model's frame: the last frame of a
-/// fold animation drawn from it lands on the fold the page draws.
+/// fold animation drawn from it lands on the fold the page draws. Since
+/// schema 2 it also carries the model's bridges and the cartoon's sizes.
 @immutable
 final class FoldingTrack {
   const FoldingTrack({
@@ -87,6 +190,8 @@ final class FoldingTrack {
     required this.boundsMin,
     required this.boundsMax,
     required this.angstromsPerUnit,
+    this.cartoon = FoldCartoon.pymol,
+    this.bridges = const <FoldBridge>[],
   });
 
   /// Parses one payload, refusing one that names another protein, a chain
@@ -129,12 +234,22 @@ final class FoldingTrack {
     if (chains.isEmpty) {
       throw FormatException('A folding track for ${target.slug} with no chain');
     }
+    final Map<String, dynamic>? cartoon =
+        json['cartoon'] as Map<String, dynamic>?;
     return FoldingTrack(
       pdb: json['pdb'] as String? ?? '',
       chains: List<FoldChain>.unmodifiable(chains),
       boundsMin: _point(bounds['min'], target),
       boundsMax: _point(bounds['max'], target),
       angstromsPerUnit: length.toDouble(),
+      cartoon: cartoon == null
+          ? FoldCartoon.pymol
+          : FoldCartoon.fromJson(cartoon),
+      bridges: List<FoldBridge>.unmodifiable(<FoldBridge>[
+        for (final dynamic raw
+            in json['bridges'] as List<dynamic>? ?? <dynamic>[])
+          _bridge(raw as Map<String, dynamic>, target, chains),
+      ]),
     );
   }
 
@@ -164,6 +279,63 @@ final class FoldingTrack {
   /// How many angstroms one model unit is, so that a length measured on a
   /// molecule (3.8 A from one CA to the next) can be drawn in its frame.
   final double angstromsPerUnit;
+
+  /// What the model draws its chains with.
+  final FoldCartoon cartoon;
+
+  /// The model's disulfides, in precursor order. None for a model that draws
+  /// none, and for a schema-1 track, which does not say.
+  final List<FoldBridge> bridges;
+
+  /// A bridge whose ends are not two ordered cysteines of the chains is
+  /// refused: the model's rods start and end on them.
+  static FoldBridge _bridge(
+    Map<String, dynamic> json,
+    ProteinTarget target,
+    List<FoldChain> chains,
+  ) {
+    FoldResidue? residue(String? node, Object? number) {
+      for (final FoldChain chain in chains) {
+        if (chain.node != node) {
+          continue;
+        }
+        for (final FoldResidue r in chain.residues) {
+          if (r.number == number) {
+            return r;
+          }
+        }
+      }
+      return null;
+    }
+
+    final String? aNode = json['a_node'] as String?;
+    final String? bNode = json['b_node'] as String?;
+    final Object? a = json['a'];
+    final Object? b = json['b'];
+    final List<dynamic>? path = json['path'] as List<dynamic>?;
+    final List<FoldResidue?> ends = <FoldResidue?>[
+      residue(aNode, a),
+      residue(bNode, b),
+    ];
+    if (a is! int ||
+        b is! int ||
+        path == null ||
+        path.length != 6 ||
+        ends.any(
+          (FoldResidue? r) => r == null || !r.isOrdered || r.letter != 'C',
+        )) {
+      throw FormatException('A malformed bridge in ${target.slug}: $json');
+    }
+    return FoldBridge(
+      a: a,
+      aNode: aNode!,
+      b: b,
+      bNode: bNode!,
+      path: List<ModelPoint>.unmodifiable(<ModelPoint>[
+        for (final Object? point in path) _point(point, target),
+      ]),
+    );
+  }
 
   static List<FoldResidue> _residues(
     Map<String, dynamic> chain,
@@ -203,6 +375,12 @@ final class FoldingTrack {
           'An ordered residue of ${target.slug} with no place: $number',
         );
       }
+      final List<dynamic>? ribbon = residue['ribbon'] as List<dynamic>?;
+      if (ribbon != null && ribbon.length != 6) {
+        throw FormatException(
+          'A malformed ribbon in ${target.slug} at $number: $ribbon',
+        );
+      }
       out.add(
         FoldResidue(
           number: number,
@@ -210,6 +388,10 @@ final class FoldingTrack {
           place: kind,
           shape: FoldShape.fromWire(shape),
           ca: _point(ca, target),
+          ribbonAt: ribbon == null ? null : _point(ribbon.sublist(0, 3), target),
+          ribbonAcross: ribbon == null
+              ? null
+              : _point(ribbon.sublist(3), target),
         ),
       );
     }

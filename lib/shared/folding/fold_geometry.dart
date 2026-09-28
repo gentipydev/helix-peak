@@ -80,15 +80,12 @@ final class FoldGeometry {
     required this.loose,
     required this.bridges,
     required this.bridgeNumbers,
+    required this.bridgePaths,
   });
 
-  /// The shapes of [track]'s chains. [bridges] are the catalog's disulfide
-  /// pairs, in precursor numbering; a pair is drawn where both of its
-  /// cysteines have a place in the fold.
-  factory FoldGeometry.of(
-    FoldingTrack track, {
-    List<(int, int)> bridges = const <(int, int)>[],
-  }) {
+  /// The shapes of [track]'s chains, and the bridges its model draws, in
+  /// precursor order.
+  factory FoldGeometry.of(FoldingTrack track) {
     final List<FoldResidue> drawn = <FoldResidue>[];
     final List<(int, int)> runs = <(int, int)>[];
     for (final FoldChain chain in track.chains) {
@@ -231,19 +228,26 @@ final class FoldGeometry {
         ..[3 * i + 2] = centre.$3 + (unfolded[3 * i + 2] - centre.$3) * fit;
     }
 
-    // The bridges whose cysteines both have a place, and the hold that keeps
-    // each pair, and its neighbours, a little apart until it closes.
+    // The model's bridges, and the hold that keeps each pair, and its
+    // neighbours, a little apart until it closes.
     final List<(int, int)> drawnBridges = <(int, int)>[];
     final List<(int, int)> numbers = <(int, int)>[];
+    final List<List<ModelPoint>> paths = <List<ModelPoint>>[];
     final Float64List hold = Float64List(3 * n);
-    for (final (int a, int b) in bridges) {
-      final int? i = _orderedIndex(track, runs, drawn, a);
-      final int? j = _orderedIndex(track, runs, drawn, b);
+    final List<FoldBridge> inOrder = List<FoldBridge>.of(track.bridges)
+      ..sort(
+        (FoldBridge x, FoldBridge y) =>
+            x.a != y.a ? x.a.compareTo(y.a) : x.b.compareTo(y.b),
+      );
+    for (final FoldBridge bridge in inOrder) {
+      final int? i = _orderedIndex(track, runs, drawn, bridge.aNode, bridge.a);
+      final int? j = _orderedIndex(track, runs, drawn, bridge.bNode, bridge.b);
       if (i == null || j == null) {
         continue;
       }
       drawnBridges.add((i, j));
-      numbers.add((a, b));
+      numbers.add((bridge.a, bridge.b));
+      paths.add(bridge.path);
       for (final (int from, int to) in <(int, int)>[(i, j), (j, i)]) {
         final double dx = folded[3 * from] - folded[3 * to];
         final double dy = folded[3 * from + 1] - folded[3 * to + 1];
@@ -284,6 +288,7 @@ final class FoldGeometry {
       loose: List<LooseRun>.unmodifiable(loose),
       bridges: List<(int, int)>.unmodifiable(drawnBridges),
       bridgeNumbers: List<(int, int)>.unmodifiable(numbers),
+      bridgePaths: List<List<ModelPoint>>.unmodifiable(paths),
     );
   }
 
@@ -323,10 +328,13 @@ final class FoldGeometry {
 
   final List<LooseRun> loose;
 
-  /// Each drawn bridge, as the drawn indices of its two cysteines, and the
-  /// same pair in precursor numbering.
+  /// Each drawn bridge, as the drawn indices of its two cysteines, the same
+  /// pair in precursor numbering, and the atoms its rods run through: CA, CB
+  /// and SG of the first, then SG, CB and CA of the second, as the model
+  /// draws them.
   final List<(int, int)> bridges;
   final List<(int, int)> bridgeNumbers;
+  final List<List<ModelPoint>> bridgePaths;
 
   int get length => drawn.length;
 
@@ -357,9 +365,14 @@ final class FoldGeometry {
     FoldingTrack track,
     List<(int, int)> runs,
     List<FoldResidue> drawn,
+    String node,
     int number,
   ) {
-    for (final (int start, int end) in runs) {
+    for (int c = 0; c < runs.length; c++) {
+      if (track.chains[c].node != node) {
+        continue;
+      }
+      final (int start, int end) = runs[c];
       for (int i = start; i < end; i++) {
         if (drawn[i].number == number && drawn[i].isOrdered) {
           return i;

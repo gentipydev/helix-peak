@@ -18,10 +18,17 @@ final class FoldFrame {
     required this.positions,
     required this.closure,
     required this.emphasis,
+    this.coil = 0,
+    this.pair = 0,
   });
 
   final double t;
   final FoldStep step;
+
+  /// How far the helices have coiled, and the strands and loops settled:
+  /// each 0 until its step starts and 1 once it is over.
+  final double coil;
+  final double pair;
 
   /// Where each drawn residue is, three doubles apiece in the model's frame,
   /// in [FoldGeometry.drawn]'s order.
@@ -151,6 +158,8 @@ class FoldTimeline extends AnimationTimeline<FoldFrame> {
       closure: Float64List(g.bridges.length)
         ..fillRange(0, g.bridges.length, snap),
       emphasis: collapse * (1 - coil),
+      coil: coil,
+      pair: pair,
     );
   }
 

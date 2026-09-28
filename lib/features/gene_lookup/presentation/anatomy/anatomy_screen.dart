@@ -2324,6 +2324,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                                       viewport: viewport,
                                       target: widget.target,
                                       legend: _foldLegend(context),
+                                      folds: true,
                                     ),
                                   );
                                 }

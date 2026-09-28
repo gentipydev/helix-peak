@@ -106,4 +106,48 @@ void main() {
       throwsFormatException,
     );
   });
+
+  test('schema 2 carries the cartoon the model is drawn with', () {
+    final FoldCartoon insulin = foldingOf(target('insulin')).cartoon;
+    expect(insulin.representation, FoldRepresentation.cartoon);
+    expect(insulin.helixHalfWidth, 1.35);
+    expect(insulin.helixHalfThickness, 0.25);
+    expect(insulin.strandHalfWidth, 1.4);
+    expect(insulin.strandHalfThickness, 0.4);
+    expect(insulin.loopRadius, 0.2);
+    expect(insulin.rodRadius, 0.5);
+    expect(
+      foldingOf(target('oxytocin')).cartoon.representation,
+      FoldRepresentation.tube,
+    );
+  });
+
+  test('schema 2 carries the model’s bridges, atom by atom', () {
+    final List<FoldBridge> bridges = foldingOf(target('insulin')).bridges;
+    expect(bridges, hasLength(3));
+    final FoldBridge a7b7 = bridges.singleWhere((FoldBridge b) => b.a == 31);
+    expect((a7b7.aNode, a7b7.b, a7b7.bNode), ('chainB', 96, 'chainA'));
+    expect(a7b7.path, hasLength(6));
+    expect(foldingOf(target('glucagon')).bridges, isEmpty);
+  });
+
+  test('a schema-1 track reads as PyMOL’s cartoon, with no bridges', () {
+    final Map<String, dynamic> json = readJson(foldingAsset(target('insulin')))
+      ..remove('cartoon')
+      ..remove('bridges')
+      ..['schema_version'] = 1;
+    final FoldingTrack track = FoldingTrack.fromJson(json, target('insulin'));
+    expect(track.cartoon, same(FoldCartoon.pymol));
+    expect(track.bridges, isEmpty);
+  });
+
+  test('a bridge that is not two placed cysteines is refused', () {
+    final Map<String, dynamic> json = readJson(foldingAsset(target('insulin')));
+    ((json['bridges'] as List<dynamic>).first as Map<String, dynamic>)['a'] =
+        97;
+    expect(
+      () => FoldingTrack.fromJson(json, target('insulin')),
+      throwsFormatException,
+    );
+  });
 }

@@ -6,7 +6,6 @@ import '../../core/router/app_router.dart';
 import 'ar/presentation/ar_screen.dart';
 import 'challenges/presentation/challenge_screen.dart';
 import 'crispr/presentation/crispr_screen.dart';
-import 'folding/presentation/fold_screen.dart';
 import 'lab_scope.dart';
 import 'listen/presentation/listen_screen.dart';
 import 'mutate/presentation/mutate_screen.dart';
@@ -57,13 +56,6 @@ const List<LabFeature> labFeatures = <LabFeature>[
         'Follow a protein from the ribosome through the cell, along the route '
         'its sequence features lay out.',
     path: '${RoutePaths.lab}/trafficking',
-  ),
-  LabFeature(
-    title: 'Folding',
-    summary:
-        'Watch a chain fold in four steps into the structure its last page '
-        'draws. An illustration, not a simulation.',
-    path: '${RoutePaths.lab}/folding',
   ),
   LabFeature(
     title: OxygenRoute.title,
@@ -148,12 +140,6 @@ List<RouteBase> buildLabRoutes() => <RouteBase>[
             title: 'Where it goes',
             lead: 'Pick a protein to follow through the cell.',
             screen: (String slug) => CellSceneRoute(slug: slug),
-          ),
-          _picked(
-            'folding',
-            title: 'Folding',
-            lead: 'Pick a protein to watch its chain fold.',
-            screen: (String slug) => FoldRoute(slug: slug),
           ),
           // A story of its own subject, as the sickle story is: the assembly
           // the backend's own table names, not a protein picked from twenty.
