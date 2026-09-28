@@ -17,6 +17,7 @@ class StageBar extends StatelessWidget {
     required this.index,
     required this.onSelect,
     this.locked = false,
+    this.reselectable = false,
     super.key,
   });
 
@@ -31,6 +32,11 @@ class StageBar extends StatelessWidget {
   /// Whether the walk is holding a region's DNA open. Every stage but the gene
   /// is then out of reach until the reader returns to it.
   final bool locked;
+
+  /// Whether a tap on the page on screen is reported too. Off, it is not: the
+  /// reader is already there. On, it is for a page with something standing
+  /// over it, which the tap puts away.
+  final bool reselectable;
 
   static const double height = 48;
 
@@ -69,7 +75,7 @@ class StageBar extends StatelessWidget {
               color: i == index ? colors.onSurface : colors.onSurfaceVariant,
               accent: colors.primary,
               onTap: () {
-                if (i == index) {
+                if (i == index && !reselectable) {
                   return;
                 }
                 onSelect(i);

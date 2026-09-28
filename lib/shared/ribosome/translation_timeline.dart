@@ -230,17 +230,15 @@ final class TranslationTimeline extends AnimationTimeline<TranslationState> {
       TranslationTimeline.of(AnatomyModel.derive(record, chain: chain));
 
   factory TranslationTimeline.of(AnatomyModel model) {
-    final AnatomyStage? transcript = model.stages
-        .where((AnatomyStage s) => s.kind == StageKind.mrna)
-        .firstOrNull;
-    final String? protein = model.record.protein?.translation;
-    if (transcript == null || protein == null || protein.isEmpty) {
+    if (!translatable(model)) {
       throw ArgumentError.value(
         model.record.gene,
         'record',
         'has no mRNA and coding sequence to translate',
       );
     }
+    final AnatomyStage transcript = _transcriptOf(model)!;
+    final String protein = model.record.protein!.translation;
     final StageBlock coding = transcript.blocks.firstWhere(
       (StageBlock b) => b.framed,
     );
@@ -257,6 +255,21 @@ final class TranslationTimeline extends AnimationTimeline<TranslationState> {
       signalPeptideLength: model.record.signalPeptide?.translation.length ?? 0,
     );
   }
+
+  /// Whether [model] has what [TranslationTimeline.of] translates: an mRNA
+  /// page with a coding block on it, and the protein that block makes.
+  static bool translatable(AnatomyModel model) {
+    final AnatomyStage? transcript = _transcriptOf(model);
+    final String? protein = model.record.protein?.translation;
+    return transcript != null &&
+        protein != null &&
+        protein.isNotEmpty &&
+        transcript.blocks.any((StageBlock b) => b.framed);
+  }
+
+  static AnatomyStage? _transcriptOf(AnatomyModel model) => model.stages
+      .where((AnatomyStage s) => s.kind == StageKind.mrna)
+      .firstOrNull;
 
   static const int scanBeats = 3;
   static const int joinBeats = 1;

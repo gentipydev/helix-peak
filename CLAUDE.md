@@ -83,9 +83,20 @@ Git: commit the session's own changes locally. Never push, in any form.
 - `lib/shared/helix/`: the home screen's double helix as geometry
   (`HelixModel`), promoted out of `lib/features/home/` for the lab's
   replication flow. The home screen's widget and painter stay in home.
+- `lib/shared/ribosome/`: translation on the ribosome (`TranslationTimeline`,
+  `TranslationDirector`, `CaptionGenerator`, `TranslationPainter`), its
+  player (`TranslationPlayer`) and the chain's flight into the protein page
+  (`TranslationFlightPainter`), promoted out of the lab's ribosome for the
+  walk. The NMD threshold they share with mutate is `lib/core/biology/nmd.dart`.
 - `lib/features/gene_lookup/`: **the walk**. It has `data/`, `domain/` and
   `presentation/` (`anatomy/`, `clinvar/`, `constraint/`, `inspector/`,
-  `structure/`, `cubit/`, `screens/`).
+  `structure/`, `cubit/`, `screens/`). The mRNA page, untouched, offers
+  "Ribosome ›" in its header: the translation plays over the page on the
+  shared player, under the walk's header and stage bar, and at the stop codon
+  the chain flies into the protein page, which the walk turns to under it
+  (`anatomy/walk_ribosome.dart`). A swipe back or the mRNA stage puts it away;
+  forward is the stop codon. Without it the swipe plays the walk's own
+  translation, as it always has.
 - `lib/features/lab/`: new flows, built only with the lab flag on (see "The
   lab" below). `home/` and `search/` hold the home screen and the search:
   the curated list, and below it every reviewed human protein, which can be

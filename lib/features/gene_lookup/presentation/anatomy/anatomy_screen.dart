@@ -33,6 +33,8 @@ import '../../../../shared/clinvar/evidence_row.dart';
 import '../../../../shared/clinvar/evidence_sections.dart';
 import '../../../../shared/format.dart';
 import '../../../../shared/inspector/inspector_sheet.dart';
+import '../../../../shared/ribosome/translation_player.dart';
+import '../../../../shared/ribosome/translation_timeline.dart';
 import '../../../../shared/structure/structure_view.dart';
 import '../clinvar/clinvar_block.dart';
 import '../clinvar/variants_overview.dart';
@@ -44,6 +46,7 @@ import 'anatomy_canvas.dart';
 import 'anatomy_fasta.dart';
 import 'anatomy_selection_canvas.dart';
 import 'record_sheet.dart';
+import 'walk_ribosome.dart';
 
 /// One grid of squares, drawn as whatever the stage is actually about.
 ///
@@ -168,6 +171,14 @@ class _AnatomyScreenState extends State<AnatomyScreen>
 
   int _stage = 0;
   Tracer? _tracer;
+
+  /// The ribosome, while it plays translation over the transcript page or its
+  /// chain flies into the protein page; null otherwise.
+  WalkRibosome? _ribosome;
+  LocalHistoryEntry? _ribosomeHistory;
+
+  /// Whether the record makes a protein the ribosome can play.
+  bool? _translatableMemo;
 
   AnatomySelection? _selection;
   LocalHistoryEntry? _selectionHistory;
@@ -350,7 +361,9 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   String? get _selectionHint {
     final AnatomySelection? selection = _selection;
     if (selection == null) {
-      if (_tracer != null || _maskedIndex != null) {
+      if (_tracer != null ||
+          _maskedIndex != null ||
+          (_ribosome != null && !_ribosome!.flying)) {
         return null;
       }
       final AnatomyStage? stage = _stage < _model.stages.length
@@ -1263,6 +1276,8 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     _selectionProgress.dispose();
     _reveal?.cancel();
     _removeSheetHistory();
+    _removeRibosomeHistory();
+    _ribosome?.dispose();
     _sheet.removeListener(_sheetSizeChanged);
     _sheet.dispose();
     _sheetReveal.dispose();
@@ -1284,6 +1299,8 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       _geneRunsMemo = null;
       _onLanded = null;
       _clearSelection();
+      _releaseRibosome();
+      _translatableMemo = null;
       _model = AnatomyModel.derive(widget.record, chain: widget.target.chain);
       _stage = 0;
       _tracer = null;
@@ -1315,6 +1332,21 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   void _step(int delta) {
     // A page the reader turns to is theirs: a jump still on its way is let go.
     _onLanded = null;
+    // The ribosome stands over the transcript page until its chain has landed.
+    // Back puts it away, onto the transcript; forward is the stop codon, and
+    // the chain's flight into the protein page.
+    if (_ribosome case final WalkRibosome ribosome) {
+      if (!ribosome.flying) {
+        if (delta > 0) {
+          ribosome.controller.seek(1);
+        } else {
+          setState(_releaseRibosome);
+        }
+        return;
+      }
+      // A turn during the flight lands the chain first.
+      setState(_releaseRibosome);
+    }
     if (_selectionActive) {
       // Leave the inspection through its visible return action, a back gesture,
       // or a right swipe. A sideways slip while scrolling cannot skip mRNA.
@@ -1349,6 +1381,144 @@ class _AnatomyScreenState extends State<AnatomyScreen>
         }
       }
     });
+  }
+
+  /// A tap on the stage bar. Over the ribosome, the transcript's own name puts
+  /// it away, the protein's is the stop codon, and any other goes straight to
+  /// its page.
+  void _turnTo(int page) {
+    if (_ribosome case final WalkRibosome ribosome when !ribosome.flying) {
+      if (page == _proteinPage) {
+        ribosome.controller.seek(1);
+        return;
+      }
+      setState(_releaseRibosome);
+      if (page == _stage) {
+        return;
+      }
+    }
+    _step(page - _stage);
+  }
+
+  int get _proteinPage =>
+      _model.stages.indexWhere((AnatomyStage s) => s.kind == StageKind.protein);
+
+  /// Whether the strip offers the ribosome: on the transcript page with
+  /// nothing picked, as its hint is, for a record that makes a protein.
+  bool get _offersRibosome =>
+      _ribosome == null &&
+      _stage < _model.stages.length &&
+      _model.stages[_stage].kind == StageKind.mrna &&
+      _selection == null &&
+      _tracer == null &&
+      _maskedIndex == null &&
+      (_translatableMemo ??= TranslationTimeline.translatable(_model));
+
+  /// Plays the record's translation over the transcript page, from the cap to
+  /// the stop codon, and then lands its chain on the protein page.
+  void _openRibosome() {
+    if (_ribosome != null) {
+      return;
+    }
+    final WalkRibosome ribosome;
+    try {
+      ribosome = WalkRibosome(vsync: this, model: _model);
+    } on ArgumentError {
+      return;
+    }
+    // Put away, the ribosome leaves the transcript at its top, where a page
+    // turned to always starts.
+    if (_scroll.hasClients && _scroll.offset != 0) {
+      _scroll.jumpTo(0);
+    }
+    ribosome.controller.addListener(_ribosomeMoved);
+    setState(() {
+      _clearSelection();
+      _clearMask();
+      _ribosome = ribosome;
+    });
+    _addRibosomeHistory();
+    ribosome.controller.play();
+  }
+
+  void _ribosomeMoved() {
+    final WalkRibosome? ribosome = _ribosome;
+    if (ribosome == null || ribosome.flying || ribosome.controller.t < 1) {
+      return;
+    }
+    // After the frame that draws the chain where translation left it, so it
+    // sets off from there.
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _landRibosome(ribosome),
+    );
+    WidgetsBinding.instance.ensureVisualUpdate();
+  }
+
+  /// The stop codon read: the walk turns to the protein page, and the chain
+  /// flies into its cells from where the player drew it last.
+  void _landRibosome(WalkRibosome ribosome) {
+    if (!mounted || !identical(_ribosome, ribosome) || ribosome.flying) {
+      return;
+    }
+    final int protein = _proteinPage;
+    if (protein < 0) {
+      setState(_releaseRibosome);
+      return;
+    }
+    // The player stands where the canvas does, less the hair above the canvas.
+    ribosome.setOff(const Offset(0, -_canvasInset));
+    unawaited(HapticFeedback.selectionClick());
+    setState(() => _stage = protein);
+    if (MediaQuery.disableAnimationsOf(context)) {
+      setState(_releaseRibosome);
+      return;
+    }
+    ribosome.flight.forward().whenCompleteOrCancel(() {
+      if (mounted && identical(_ribosome, ribosome)) {
+        setState(_releaseRibosome);
+      }
+    });
+  }
+
+  /// Lets go of the ribosome. The page under it is drawn again, at rest, by a
+  /// canvas mounted fresh on it.
+  void _releaseRibosome() {
+    final WalkRibosome? ribosome = _ribosome;
+    if (ribosome == null) {
+      return;
+    }
+    _ribosome = null;
+    _removeRibosomeHistory();
+    ribosome.controller
+      ..removeListener(_ribosomeMoved)
+      ..pause();
+    ribosome.flight.stop();
+    // Its player listens until the frame that takes it away.
+    WidgetsBinding.instance.addPostFrameCallback((_) => ribosome.dispose());
+  }
+
+  /// Back puts the ribosome away before it leaves the walk, as it does a sheet.
+  void _addRibosomeHistory() {
+    late final LocalHistoryEntry entry;
+    entry = LocalHistoryEntry(
+      impliesAppBarDismissal: false,
+      onRemove: () {
+        if (identical(_ribosomeHistory, entry)) {
+          _ribosomeHistory = null;
+          if (mounted) {
+            setState(_releaseRibosome);
+          }
+        }
+      },
+    );
+    _ribosomeHistory = entry;
+    ModalRoute.of(context)?.addLocalHistoryEntry(entry);
+  }
+
+  void _removeRibosomeHistory() {
+    final LocalHistoryEntry? entry = _ribosomeHistory;
+    _ribosomeHistory = null;
+    entry?.remove();
   }
 
   /// The stage whose cells are on screen: an open region's DNA, or the page.
@@ -2011,6 +2181,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
             onOpenDna: _selection != null && !_selectionActive && _stage == 0
                 ? _openSelection
                 : null,
+            onRibosome: _offersRibosome ? _openRibosome : null,
             textScale: MediaQuery.textScalerOf(context)
                 .scale(1)
                 .clamp(1.0, 1.2),
@@ -2097,6 +2268,46 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                                   ),
                                 );
                                 _canvasViewport = viewport;
+                                if (_ribosome
+                                    case final WalkRibosome ribosome) {
+                                  // Playing, the ribosome takes the page down
+                                  // to the band the stage bar floats in.
+                                  // Landing, its chain flies into the page's
+                                  // own box, where the canvas takes over.
+                                  if (!ribosome.flying) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: _paginatorBand,
+                                      ),
+                                      child: TranslationPlayer(
+                                        translation: ribosome.timeline,
+                                        director: ribosome.director,
+                                        captions: ribosome.captions,
+                                        controller: ribosome.controller,
+                                        canvasKey: ribosome.canvasKey,
+                                      ),
+                                    );
+                                  }
+                                  if (stage != null) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(
+                                        top: _canvasInset,
+                                      ),
+                                      child: Align(
+                                        alignment: Alignment.topLeft,
+                                        child: SizedBox.fromSize(
+                                          size: viewport,
+                                          child: ClipRect(
+                                            child: ribosome.flightInto(
+                                              stage,
+                                              viewport,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                }
                                 if (structure) {
                                   return Padding(
                                     padding: const EdgeInsets.only(
@@ -2201,7 +2412,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                                 );
                               },
                         ),
-                        if (_scrubs(page))
+                        if (_ribosome == null && _scrubs(page))
                           Positioned(
                             right: 0,
                             top: _canvasInset,
@@ -2325,8 +2536,8 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                                     labels: StageBar.labelsFor(_model),
                                     index: _stage,
                                     locked: _selectionActive,
-                                    onSelect: (int page) =>
-                                        _step(page - _stage),
+                                    reselectable: _ribosome != null,
+                                    onSelect: _turnTo,
                                   ),
                                 ),
                               ),
@@ -2479,6 +2690,7 @@ class _Header extends StatelessWidget implements PreferredSizeWidget {
     this.onAbout,
     this.hint,
     this.onOpenDna,
+    this.onRibosome,
     this.onWholeGene,
     this.onReturn,
     this.liftedBase = false,
@@ -2497,6 +2709,7 @@ class _Header extends StatelessWidget implements PreferredSizeWidget {
   final TracerStatus? status;
   final String? hint;
   final VoidCallback? onOpenDna;
+  final VoidCallback? onRibosome;
   final VoidCallback? onWholeGene;
 
   /// Back to the ClinVar overview under a landing. It stands where "Whole gene"
@@ -2629,6 +2842,7 @@ class _Header extends StatelessWidget implements PreferredSizeWidget {
           // under its name — until a base is lifted, which has one.
           showNote: onWholeGene == null || liftedBase,
           onOpenDna: onOpenDna,
+          onRibosome: onRibosome,
           textScale: textScale,
         ),
       ),
@@ -2694,6 +2908,7 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
     this.hint,
     this.showNote = true,
     this.onOpenDna,
+    this.onRibosome,
     this.textScale = 1,
   });
 
@@ -2708,6 +2923,11 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
   /// Opens the selected region into its DNA, or null where nothing is waiting
   /// to be opened.
   final VoidCallback? onOpenDna;
+
+  /// Plays the transcript's translation on the ribosome, or null where there
+  /// is nothing to play. Never offered beside [onOpenDna]: that is the gene
+  /// page's, and this the transcript's.
+  final VoidCallback? onRibosome;
   final double textScale;
 
   /// Three lines at their worst, plus the air that makes them three lines
@@ -2739,8 +2959,8 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
   /// out otherwise. The gap is what makes them two things.
   static const double _gap = 4;
 
-  /// How far in from the right edge a tap opens the selected region's DNA:
-  /// the pill, the gutter beside it and a little to its left, down the whole
+  /// How far in from the right edge a tap presses the strip's action: the
+  /// pill, the gutter beside it and a little to its left, down the whole
   /// strip.
   static const double _openDnaReach = 88;
 
@@ -2753,6 +2973,12 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
     final TracerStatus? tracer = status;
     final String? below = hint ?? (showNote ? tracer?.note : null);
     final Color accent = theme.colorScheme.primary;
+    // The one thing the strip offers to be pressed, where it offers one.
+    final (VoidCallback, String)? action = switch ((onOpenDna, onRibosome)) {
+      (final VoidCallback open, _) => (open, _StripAction.openDna),
+      (null, final VoidCallback play) => (play, _StripAction.playRibosome),
+      (null, null) => null,
+    };
 
     return Semantics(
       liveRegion: true,
@@ -2763,11 +2989,10 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
       excludeSemantics: true,
       // The strip is read as one, which folds the pill's own button into it;
       // the one thing here that can be pressed is offered on it instead.
-      customSemanticsActions: onOpenDna == null
+      customSemanticsActions: action == null
           ? null
           : <CustomSemanticsAction, VoidCallback>{
-              const CustomSemanticsAction(label: _OpenDnaAction.spoken):
-                  onOpenDna!,
+              CustomSemanticsAction(label: action.$2): action.$1,
             },
       child: SizedBox(
         height: height * textScale,
@@ -2779,17 +3004,21 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
             // in a strip of 52, and nothing else here answers a tap. Laid under
             // the prose, which lets taps through, and under the pill, which
             // keeps its own.
-            if (onOpenDna != null)
+            if (action != null)
               Positioned(
                 top: 0,
                 right: 0,
                 bottom: 0,
                 width: _openDnaReach,
                 child: GestureDetector(
-                  key: const ValueKey<String>('open-dna-reach'),
+                  key: ValueKey<String>(
+                    onOpenDna != null
+                        ? 'open-dna-reach'
+                        : 'open-ribosome-reach',
+                  ),
                   behavior: HitTestBehavior.opaque,
                   excludeFromSemantics: true,
-                  onTap: onOpenDna,
+                  onTap: action.$1,
                 ),
               ),
             Padding(
@@ -2832,14 +3061,24 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
                           ),
                         ),
                         if (onOpenDna != null)
-                          _OpenDnaAction(
+                          _StripAction(
                             key: const ValueKey<String>('open-dna'),
+                            label: 'DNA \u203a',
+                            spoken: _StripAction.openDna,
                             accent: accent,
                             // What has just been named. A second region picked
                             // without letting go of the first keeps the action
                             // on screen, and it should announce itself again.
                             flashOn: tracer?.line,
                             onTap: onOpenDna!,
+                          )
+                        else if (onRibosome != null)
+                          _StripAction(
+                            key: const ValueKey<String>('open-ribosome'),
+                            label: 'Ribosome \u203a',
+                            spoken: _StripAction.playRibosome,
+                            accent: accent,
+                            onTap: onRibosome!,
                           ),
                       ],
                     ),
@@ -2869,7 +3108,7 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
                           // A hint is one line too: it sits under a sentence
                           // that may itself take two, and the strip does not
                           // grow.
-                          maxLines: onOpenDna == null && hint == null ? 2 : 1,
+                          maxLines: action == null && hint == null ? 2 : 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -2885,7 +3124,8 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-/// The one action the strip carries: open the selected region as DNA.
+/// The one action the strip carries: open the selected region as DNA on the
+/// gene page, or play the transcript's translation on its own page.
 ///
 /// A pill rather than bare type. The strip is prose and a filled control would
 /// outweigh a sentence — but this is the only thing on the page waiting to be
@@ -2896,14 +3136,20 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
 /// It announces itself once, on the highlight it lands in: the tint fades back
 /// as the label arrives from the right. One flash, no loop — a control that
 /// keeps moving in a fixed header is a control that has to be read past.
-class _OpenDnaAction extends StatefulWidget {
-  const _OpenDnaAction({
+class _StripAction extends StatefulWidget {
+  const _StripAction({
+    required this.label,
+    required this.spoken,
     required this.accent,
     required this.onTap,
     this.flashOn,
     super.key,
   });
 
+  /// What the pill says, and what it is called aloud, here and on the strip
+  /// that carries it.
+  final String label;
+  final String spoken;
   final Color accent;
   final VoidCallback onTap;
 
@@ -2921,14 +3167,14 @@ class _OpenDnaAction extends StatefulWidget {
   static const double _rest = 0.12;
   static const double _flash = 0.28;
 
-  /// What it is called aloud, here and on the strip that carries it.
-  static const String spoken = 'Open the selected region as DNA';
+  static const String openDna = 'Open the selected region as DNA';
+  static const String playRibosome = 'Play the translation on the ribosome';
 
   @override
-  State<_OpenDnaAction> createState() => _OpenDnaActionState();
+  State<_StripAction> createState() => _StripActionState();
 }
 
-class _OpenDnaActionState extends State<_OpenDnaAction>
+class _StripActionState extends State<_StripAction>
     with SingleTickerProviderStateMixin {
   late final AnimationController _arrival = AnimationController(
     vsync: this,
@@ -2951,7 +3197,7 @@ class _OpenDnaActionState extends State<_OpenDnaAction>
   }
 
   @override
-  void didUpdateWidget(_OpenDnaAction old) {
+  void didUpdateWidget(_StripAction old) {
     super.didUpdateWidget(old);
     if (old.flashOn != widget.flashOn) {
       _flash();
@@ -2977,7 +3223,7 @@ class _OpenDnaActionState extends State<_OpenDnaAction>
     final ThemeData theme = Theme.of(context);
     return Semantics(
       button: true,
-      label: _OpenDnaAction.spoken,
+      label: widget.spoken,
       excludeSemantics: true,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -2999,15 +3245,15 @@ class _OpenDnaActionState extends State<_OpenDnaAction>
                     decoration: BoxDecoration(
                       color: widget.accent.withValues(
                         alpha:
-                            _OpenDnaAction._flash +
-                            (_OpenDnaAction._rest - _OpenDnaAction._flash) * t,
+                            _StripAction._flash +
+                            (_StripAction._rest - _StripAction._flash) * t,
                       ),
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: _OpenDnaAction._padX,
-                        vertical: _OpenDnaAction._padY,
+                        horizontal: _StripAction._padX,
+                        vertical: _StripAction._padY,
                       ),
                       child: Opacity(
                         opacity: t,
@@ -3020,9 +3266,9 @@ class _OpenDnaActionState extends State<_OpenDnaAction>
                   );
                 },
                 child: Text(
-                  'DNA \u203a',
+                  widget.label,
                   style: theme.textTheme.labelLarge?.copyWith(
-                    fontSize: _OpenDnaAction._size,
+                    fontSize: _StripAction._size,
                     height: 1,
                     color: widget.accent,
                   ),
