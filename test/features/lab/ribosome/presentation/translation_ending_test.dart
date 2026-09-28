@@ -16,6 +16,7 @@ import 'package:helixpeek/features/lab/ribosome/presentation/translation_ending.
 import 'package:helixpeek/shared/anatomy/anatomy_motion.dart';
 import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
 import 'package:helixpeek/shared/motion/transport_bar.dart';
+import 'package:helixpeek/shared/ribosome/translation_flight.dart';
 
 import '../../../../support/catalog_api.dart';
 import '../../../../support/fixture_track_source.dart';

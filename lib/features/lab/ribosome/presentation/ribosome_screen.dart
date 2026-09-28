@@ -4,13 +4,11 @@ import '../../../../core/biology/gene_record.dart';
 import '../../../../core/catalog/protein_target.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/anatomy/anatomy_stages.dart';
-import '../../../../shared/anatomy/sequence_scrubber.dart';
-import '../../../../shared/format.dart';
 import '../../../../shared/motion/timeline_controller.dart';
-import '../../../../shared/motion/transport_bar.dart';
 import '../../../../shared/ribosome/caption_generator.dart';
 import '../../../../shared/ribosome/director.dart';
 import '../../../../shared/ribosome/translation_painter.dart';
+import '../../../../shared/ribosome/translation_player.dart';
 import '../../../../shared/ribosome/translation_timeline.dart';
 import '../../presentation/lab_protein_picker.dart';
 import '../../presentation/lab_record.dart';
@@ -43,12 +41,8 @@ class RibosomeRoute extends StatelessWidget {
 /// The whole coding sequence translated, from the cap to the stop codon, and
 /// then the protein it made, on the walk's own page ([TranslationEnding]).
 ///
-/// Played on the shared transport bar, paced by the [TranslationDirector]
-/// (slow where something happens once, fast in between) beside a cell-time
-/// readout that never warps, and scrubbed with the walk's own
-/// [SequenceScrubber] as a minimap of the mRNA, its landmarks the timeline's
-/// own events. A caption, built from the record by the [CaptionGenerator],
-/// says what is happening; where none can be built, none is shown.
+/// Played by the shared [TranslationPlayer], the walk's own from its mRNA
+/// page; the ending is the lab's.
 class RibosomeScreen extends StatefulWidget {
   const RibosomeScreen({required this.target, required this.record, super.key});
 
@@ -56,7 +50,7 @@ class RibosomeScreen extends StatefulWidget {
   final GeneRecord record;
 
   /// How long one beat takes at speed 1, where the director plays slowly.
-  static const Duration beat = Duration(milliseconds: 1200);
+  static const Duration beat = TranslationPlayer.beat;
 
   /// How long one beat takes in a shared clip, before the clip is held to
   /// its five to fifteen seconds.
@@ -119,22 +113,6 @@ class _RibosomeScreenState extends State<RibosomeScreen>
     );
   }
 
-  /// The minimap's landmarks: the moments the timeline itself names.
-  static List<(double, String)> _landmarks(TranslationTimeline translation) {
-    final List<(double, String)> marks = <(double, String)>[
-      (translation.beatStart(TranslationTimeline.scanBeats), 'Start codon'),
-      for (final ({int junction, double t}) passed in translation.ejcKnockoff)
-        (passed.t, 'Exon junction'),
-      if (translation.firstExit case final double exit)
-        (exit, 'First residue out'),
-      if (translation.srpWindow case (final double opens, _))
-        (opens, 'Signal peptide out'),
-      (translation.beatStart(translation.firstTerminationBeat), 'Stop codon'),
-    ];
-    return marks
-      ..sort(((double, String) a, (double, String) b) => a.$1.compareTo(b.$1));
-  }
-
   @override
   Widget build(BuildContext context) {
     final TranslationTimeline? translation = _translation;
@@ -169,129 +147,26 @@ class _RibosomeScreenState extends State<RibosomeScreen>
                   ),
                 ),
               )
-            : _playing(context, translation, controller),
+            : TranslationPlayer(
+                translation: translation,
+                director: _director!,
+                captions: _captions!,
+                controller: controller,
+                ending: switch (_model) {
+                  final AnatomyModel model =>
+                    (BuildContext context) => TranslationEnding(
+                      key: const ValueKey<String>('ribosome-ending'),
+                      timeline: translation,
+                      model: model,
+                      target: widget.target,
+                      onReplay: () => controller
+                        ..reset()
+                        ..play(),
+                    ),
+                  null => null,
+                },
+              ),
       ),
-    );
-  }
-
-  Widget _playing(
-    BuildContext context,
-    TranslationTimeline translation,
-    TimelineController controller,
-  ) {
-    final ThemeData theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Expanded(
-          child: AnimatedBuilder(
-            animation: controller,
-            builder: (BuildContext context, Widget? playing) =>
-                controller.t >= 1 && _model != null
-                ? TranslationEnding(
-                    key: const ValueKey<String>('ribosome-ending'),
-                    timeline: translation,
-                    model: _model!,
-                    target: widget.target,
-                    onReplay: () => controller
-                      ..reset()
-                      ..play(),
-                  )
-                : playing!,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Expanded(
-                  child: AnimatedBuilder(
-                    animation: controller,
-                    builder: (BuildContext context, Widget? painted) =>
-                        Semantics(
-                          label: TranslationPainter.describe(
-                            translation,
-                            translation.stateAt(controller.t),
-                          ),
-                          child: painted,
-                        ),
-                    child: RepaintBoundary(
-                      child: CustomPaint(
-                        key: const ValueKey<String>('ribosome-canvas'),
-                        size: Size.infinite,
-                        painter: TranslationPainter(
-                          timeline: translation,
-                          at: () => controller.t,
-                          inks: TranslationInks.of(context),
-                          repaint: controller,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: SequenceScrubber.width,
-                  child: TimelineScrubber(
-                    controller: controller,
-                    landmarks: _landmarks(translation),
-                    labelAt: (double t) {
-                      final TranslationState s = translation.stateAt(t);
-                      return s.codon <= translation.protein.length
-                          ? 'Codon ${grouped(s.codon)}'
-                          : 'Stop codon';
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        AnimatedBuilder(
-          animation: controller,
-          builder: (BuildContext context, _) {
-            final TranslationState state = translation.stateAt(controller.t);
-            final String? caption = _captions!.captionFor(state);
-            final TranslationDirector director = _director!;
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.screenPadding,
-                AppSpacing.sm,
-                AppSpacing.screenPadding,
-                0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  SizedBox(
-                    height: 88,
-                    child: caption == null
-                        ? null
-                        : Text(
-                            caption,
-                            key: const ValueKey<String>('ribosome-caption'),
-                            style: theme.textTheme.bodyMedium,
-                            maxLines: 4,
-                            overflow: TextOverflow.fade,
-                          ),
-                  ),
-                  Text(
-                    'In a cell: '
-                    '${director.cellSeconds(state).toStringAsFixed(1)} s of '
-                    '${director.cellTotal.toStringAsFixed(1)} s, at '
-                    '${TranslationDirector.residuesPerSecond} residues a '
-                    'second',
-                    key: const ValueKey<String>('ribosome-cell-time'),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-          child: TransportBar(controller: controller),
-        ),
-      ],
     );
   }
 }
