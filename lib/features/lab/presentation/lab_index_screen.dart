@@ -38,7 +38,15 @@ class LabIndexScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Lab')),
+      // The index is the first page in the lab's shell navigator, so AppBar
+      // finds nothing to pop there and draws no arrow; the router can still
+      // pop back to whatever pushed /lab.
+      appBar: AppBar(
+        leading: GoRouter.maybeOf(context)?.canPop() ?? false
+            ? BackButton(onPressed: () => context.pop())
+            : null,
+        title: const Text('Lab'),
+      ),
       body: SafeArea(
         child: features.isEmpty
             ? Center(
