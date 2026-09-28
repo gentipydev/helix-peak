@@ -24,6 +24,7 @@ final class _Frame {
   double get cx => width / 2;
   double get mrnaY => height - 90;
   double get lift => (1 - state.largeSubunit) * 48;
+  double get drop => (1 - state.smallSubunit) * 40;
   static const double p = TranslationPainter.pitch;
 
   double xOf(num i) => cx + (i - (state.ribosome + 1)) * p;

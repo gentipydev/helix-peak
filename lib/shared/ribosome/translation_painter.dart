@@ -191,7 +191,7 @@ class TranslationPainter extends CustomPainter {
     if (s.smallSubunit > 0) {
       _small.draw(
         canvas,
-        f.smallSubunit.shift(Offset(0, (1 - s.smallSubunit) * 40)),
+        f.smallSubunit.shift(Offset(0, f.drop)),
         s.smallSubunit,
       );
     }
@@ -620,11 +620,13 @@ class TranslationPainter extends CustomPainter {
           11,
         );
       }
+      // Each subunit's name stands just off its silhouette, clear of the
+      // bumps along its edge, and travels with it as it arrives and parts.
       _label(
         canvas,
         '60S',
         inks.quiet.withValues(alpha: s.largeSubunit * 0.8),
-        Offset(f.largeSubunit.right - 19, f.largeSubunit.top + 23 - f.lift),
+        f.largeSubunit.topRight.translate(-16, 16 - f.lift),
         9,
       );
     }
@@ -633,7 +635,7 @@ class TranslationPainter extends CustomPainter {
         canvas,
         '40S',
         inks.quiet.withValues(alpha: s.smallSubunit * 0.8),
-        Offset(f.smallSubunit.right - 24, f.mrnaY + 60),
+        f.smallSubunit.bottomRight.translate(-4, 8 + f.drop),
         9,
       );
     }
