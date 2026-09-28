@@ -104,12 +104,13 @@ Git: commit the session's own changes locally. Never push, in any form.
   `presentation/` (`anatomy/`, `clinvar/`, `constraint/`, `inspector/`,
   `structure/`, `cubit/`, `screens/`). The mRNA page, untouched, offers
   "Ribosome ›" in its header: the translation plays over the page on the
-  shared player, under the walk's header and stage bar, and at the stop codon
-  the chain flies into the protein page, which the walk turns to under it
+  shared player, under the walk's header, and at the stop codon the chain
+  flies into the protein page, which the walk turns to under it
   (`anatomy/walk_ribosome.dart`). While it is up, the header shares it as a
-  clip and the protein as a poster (`lib/shared/share/`). A swipe back or the
-  mRNA stage puts it away; forward is the stop codon. Without it the swipe
-  plays the walk's own translation, as it always has.
+  clip and the protein as a poster (`lib/shared/share/`), and the stage bar
+  stands down, its band given to the player's controls: no swipe turns a page
+  until the chain has landed, and Back puts it away onto the transcript.
+  Without it the swipe plays the walk's own translation, as it always has.
 - `lib/features/lab/`: new flows, built only with the lab flag on (see "The
   lab" below). `home/` and `search/` hold the home screen and the search:
   the curated list, and below it every reviewed human protein, which can be

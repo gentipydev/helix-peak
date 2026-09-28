@@ -1324,6 +1324,11 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   }
 
   void _finishSwipe(DragEndDetails details) {
+    // The ribosome turns no page until its chain has landed: a swipe mid-play
+    // cut straight to the chain's flight. Back is the way out of it.
+    if (_ribosome != null) {
+      return;
+    }
     if (!_verticalSwipe &&
         _swipeTravel.dx.abs() >= 48 &&
         _swipeTravel.dx.abs() > _swipeTravel.dy.abs() * 1.5) {
@@ -1383,23 +1388,6 @@ class _AnatomyScreenState extends State<AnatomyScreen>
         }
       }
     });
-  }
-
-  /// A tap on the stage bar. Over the ribosome, the transcript's own name puts
-  /// it away, the protein's is the stop codon, and any other goes straight to
-  /// its page.
-  void _turnTo(int page) {
-    if (_ribosome case final WalkRibosome ribosome when !ribosome.flying) {
-      if (page == _proteinPage) {
-        ribosome.controller.seek(1);
-        return;
-      }
-      setState(_releaseRibosome);
-      if (page == _stage) {
-        return;
-      }
-    }
-    _step(page - _stage);
   }
 
   int get _proteinPage =>
@@ -2125,6 +2113,8 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     final AnatomyStage? stage = structure ? null : _model.stages[_stage];
     final bool constraintEnabled = _supportsConstraint(stage);
     final Color ground = Theme.of(context).colorScheme.surface;
+    // The ribosome's player is up, over the transcript, until the stop codon.
+    final bool playing = _ribosome != null && !_ribosome!.flying;
     // Nothing is traced on the fold: there are no squares there to have tapped.
     final Tracer? tracer = structure ? null : _tracer;
     final TracerStatus? status = _withImpact(
@@ -2284,13 +2274,18 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                                 if (_ribosome
                                     case final WalkRibosome ribosome) {
                                   // Playing, the ribosome takes the page down
-                                  // to the band the stage bar floats in.
-                                  // Landing, its chain flies into the page's
-                                  // own box, where the canvas takes over.
+                                  // to the foot: the stage bar stands down
+                                  // until its chain has landed, and the
+                                  // player's controls take its place, ending
+                                  // AppSpacing.lg off the foot as the bar
+                                  // does (the player keeps AppSpacing.sm
+                                  // under them itself). Landing, its chain
+                                  // flies into the page's own box, where the
+                                  // canvas takes over.
                                   if (!ribosome.flying) {
                                     return Padding(
                                       padding: const EdgeInsets.only(
-                                        bottom: _paginatorBand,
+                                        bottom: AppSpacing.lg - AppSpacing.sm,
                                       ),
                                       child: TranslationPlayer(
                                         translation: ribosome.timeline,
@@ -2469,34 +2464,38 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                         // Where the page does pass under it, it is solid from the
                         // stage bar's top edge down. Solid only at 0.65 of the way,
                         // it left the letters behind the stage names a third visible.
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          height: _fadeBand,
-                          child: IgnorePointer(
-                            child: DecoratedBox(
-                              key: const ValueKey<String>('stage-bar-fade'),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: <Color>[
-                                    ground.withValues(alpha: 0),
-                                    ground,
-                                  ],
-                                  stops: scrolls
-                                      ? const <double>[
-                                          0,
-                                          (_fadeBand - _stageBarTop) /
-                                              _fadeBand,
-                                        ]
-                                      : const <double>[0, 0.65],
+                        //
+                        // Under the ribosome's player there is no bar to sit on, and
+                        // the player's own controls fill the band it would veil.
+                        if (!playing)
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            height: _fadeBand,
+                            child: IgnorePointer(
+                              child: DecoratedBox(
+                                key: const ValueKey<String>('stage-bar-fade'),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: <Color>[
+                                      ground.withValues(alpha: 0),
+                                      ground,
+                                    ],
+                                    stops: scrolls
+                                        ? const <double>[
+                                            0,
+                                            (_fadeBand - _stageBarTop) /
+                                                _fadeBand,
+                                          ]
+                                        : const <double>[0, 0.65],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
                         if (_inspector(sheetSpace) case final Widget panel)
                           Positioned(
                             left: 0,
@@ -2523,38 +2522,42 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                               ),
                             ),
                           ),
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: AppSpacing.lg,
-                          child: SizedBox(
-                            height: StageBar.height,
-                            child: Center(
-                              child: Semantics(
-                                container: true,
-                                label: _selectionActive
-                                    ? 'DNA detail on page 1 of $_pageCount. '
-                                          'Return to the whole gene to continue.'
-                                    : 'Page ${_stage + 1} of $_pageCount',
-                                onIncrease:
-                                    !_selectionActive && _stage < _pageCount - 1
-                                    ? () => _step(1)
-                                    : null,
-                                onDecrease: _stage > 0 ? () => _step(-1) : null,
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: StageBar(
-                                    labels: StageBar.labelsFor(_model),
-                                    index: _stage,
-                                    locked: _selectionActive,
-                                    reselectable: _ribosome != null,
-                                    onSelect: _turnTo,
+                        // The stage bar, and the page turns it offers a screen
+                        // reader, stand down while the ribosome is up: no page
+                        // turns under it until its chain has landed.
+                        if (_ribosome == null)
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: AppSpacing.lg,
+                            child: SizedBox(
+                              height: StageBar.height,
+                              child: Center(
+                                child: Semantics(
+                                  container: true,
+                                  label: _selectionActive
+                                      ? 'DNA detail on page 1 of $_pageCount. '
+                                            'Return to the whole gene to continue.'
+                                      : 'Page ${_stage + 1} of $_pageCount',
+                                  onIncrease:
+                                      !_selectionActive && _stage < _pageCount - 1
+                                      ? () => _step(1)
+                                      : null,
+                                  onDecrease: _stage > 0 ? () => _step(-1) : null,
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: StageBar(
+                                      labels: StageBar.labelsFor(_model),
+                                      index: _stage,
+                                      locked: _selectionActive,
+                                      onSelect: (int page) =>
+                                          _step(page - _stage),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
                       ],
                     ),
                   ),

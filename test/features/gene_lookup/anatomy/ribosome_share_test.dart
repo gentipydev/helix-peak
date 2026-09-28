@@ -102,7 +102,7 @@ void main() {
     ) async {
       await _transcript(tester);
       await _play(tester);
-      await _swipe(tester, forward: false);
+      await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       expect(_pill, findsOneWidget);
       expect(_clip, findsNothing);

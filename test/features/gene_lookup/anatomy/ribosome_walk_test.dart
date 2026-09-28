@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/evidence/protein_constraint.dart';
+import 'package:helixpeek/core/theme/app_spacing.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
@@ -19,7 +20,6 @@ import 'package:helixpeek/shared/motion/transport_bar.dart';
 import 'package:helixpeek/shared/ribosome/translation_flight.dart';
 import 'package:helixpeek/shared/ribosome/translation_player.dart';
 import 'package:helixpeek/shared/ribosome/translation_timeline.dart';
-import 'package:helixpeek/shared/structure/structure_view.dart';
 
 import '../../../support/test_catalog.dart';
 import 'anatomy_fixture.dart';
@@ -179,27 +179,32 @@ void main() {
   });
 
   group('the ribosome', () {
-    testWidgets('plays over the transcript, under the header and stage bar', (
-      WidgetTester tester,
-    ) async {
-      await _playing(tester);
+    testWidgets(
+      'plays over the transcript, under the header, with no stage bar',
+      (WidgetTester tester) async {
+        await _playing(tester);
 
-      expect(find.byType(TranslationPlayer), findsOneWidget);
-      expect(find.byType(TransportBar), findsOneWidget);
-      expect(find.byType(AnatomyCanvas), findsNothing);
-      expect(_controller(tester).isPlaying, isTrue);
-      // The walk's own chrome stays: the transcript's header and the bar,
-      // still on the transcript.
-      expect(find.text('465'), findsOneWidget);
-      expect(_page(tester), _mrna);
-      expect(_pill, findsNothing);
-      // The player ends above the stage bar.
-      expect(
-        tester.getRect(find.byType(TransportBar)).bottom,
-        lessThanOrEqualTo(tester.getRect(find.byType(StageBar)).top),
-      );
-      await _stop(tester);
-    });
+        expect(find.byType(TranslationPlayer), findsOneWidget);
+        expect(find.byType(TransportBar), findsOneWidget);
+        expect(find.byType(AnatomyCanvas), findsNothing);
+        expect(_controller(tester).isPlaying, isTrue);
+        // The walk's header stays, still on the transcript.
+        expect(find.text('465'), findsOneWidget);
+        expect(_pill, findsNothing);
+        // The stage bar and its fade stand down, and the player's controls
+        // take the bar's place, as far off the foot as the bar stands.
+        expect(find.byType(StageBar), findsNothing);
+        expect(
+          find.byKey(const ValueKey<String>('stage-bar-fade')),
+          findsNothing,
+        );
+        expect(
+          tester.getRect(find.byType(TransportBar)).bottom,
+          tester.getRect(find.byType(AnatomyScreen)).bottom - AppSpacing.lg,
+        );
+        await _stop(tester);
+      },
+    );
 
     testWidgets('lands its chain on the protein page at the stop codon', (
       WidgetTester tester,
@@ -209,10 +214,11 @@ void main() {
       await tester.pump();
       await tester.pump();
 
-      // The walk turns to the protein page under the flight.
+      // The walk turns to the protein page under the flight, with the stage
+      // bar still standing down.
       expect(_flight, findsOneWidget);
       expect(find.byType(TranslationPlayer), findsNothing);
-      expect(_page(tester), _protein);
+      expect(find.byType(StageBar), findsNothing);
       expect(find.text('110'), findsOneWidget);
       expect(find.byType(ConstraintToolbar), findsOneWidget);
       final TranslationFlightPainter flight =
@@ -223,8 +229,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // Where the chain landed is where the page rests, and it rests there
-      // without the walk's own translation.
+      // without the walk's own translation. The stage bar is back, on it.
       expect(_flight, findsNothing);
+      expect(_page(tester), _protein);
       final AnatomyPainter painter = _painter(tester);
       expect(painter.scene.fromIndex, _protein);
       expect(painter.scene.toIndex, _protein);
@@ -259,31 +266,57 @@ void main() {
       expect(_pill, findsOneWidget);
     }
 
-    Future<void> expectLanded(WidgetTester tester) async {
-      await tester.pump();
-      await tester.pump();
-      expect(_flight, findsOneWidget);
-      await tester.pumpAndSettle();
-      expect(_flight, findsNothing);
-      expect(_page(tester), _protein);
-      expect(_painter(tester).scene.toIndex, _protein);
-    }
-
-    testWidgets('back, by a swipe, puts it away onto the transcript', (
+    testWidgets('a swipe turns no page, either way', (
       WidgetTester tester,
     ) async {
       await _playing(tester);
-      await _swipe(tester, forward: false);
-      await expectTranscript(tester);
+      final Offset centre = tester.getCenter(find.byType(TranslationPlayer));
+      for (final bool forward in <bool>[false, true]) {
+        await tester.dragFrom(centre, Offset(forward ? -160 : 160, 0));
+        await tester.pump();
+
+        expect(find.byType(TranslationPlayer), findsOneWidget);
+        expect(_controller(tester).isPlaying, isTrue);
+        expect(_controller(tester).t, lessThan(1));
+        expect(_flight, findsNothing);
+        expect(find.byType(StageBar), findsNothing);
+        expect(find.text('465'), findsOneWidget);
+      }
+      await _stop(tester);
     });
 
-    testWidgets('back, by the transcript\'s own name, puts it away', (
-      WidgetTester tester,
-    ) async {
-      await _playing(tester);
-      await tester.tap(find.byKey(const ValueKey<String>('stage-mRNA')));
-      await expectTranscript(tester);
-    });
+    testWidgets(
+      'back, by the header\'s arrow, puts it away and stays in the walk',
+      (WidgetTester tester) async {
+        // Opened over another page, as search opens it, so that the header
+        // has its arrow.
+        await tester.binding.setSurfaceSize(_phone);
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.analysis,
+            initialRoute: '/walk',
+            routes: <String, WidgetBuilder>{
+              '/': (BuildContext context) => const SizedBox.shrink(),
+              '/walk': (BuildContext context) => AnatomyScreen(
+                target: TestCatalog.insulin,
+                record: insulin(),
+                constraint: _constraint,
+              ),
+            },
+          ),
+        );
+        await tester.pumpAndSettle();
+        await _swipe(tester, forward: true);
+        await tester.pumpAndSettle();
+        await tester.tap(_pill);
+        await tester.pump();
+        expect(find.byType(TranslationPlayer), findsOneWidget);
+
+        await tester.tap(find.byType(BackButton));
+        await expectTranscript(tester);
+        expect(find.byType(AnatomyScreen), findsOneWidget);
+      },
+    );
 
     testWidgets('back, by the system, puts it away and stays in the walk', (
       WidgetTester tester,
@@ -294,43 +327,7 @@ void main() {
       expect(find.byType(AnatomyScreen), findsOneWidget);
     });
 
-    testWidgets('forward, by a swipe, is the stop codon and the flight', (
-      WidgetTester tester,
-    ) async {
-      await _playing(tester);
-      await _swipe(tester, forward: true);
-      await expectLanded(tester);
-    });
-
-    testWidgets('forward, by the protein\'s name, is the stop codon', (
-      WidgetTester tester,
-    ) async {
-      await _playing(tester);
-      await tester.tap(find.byKey(const ValueKey<String>('stage-Protein')));
-      await expectLanded(tester);
-    });
-
-    testWidgets('any other page is gone to straight', (
-      WidgetTester tester,
-    ) async {
-      await _playing(tester);
-      await tester.tap(find.byKey(const ValueKey<String>('stage-Gene')));
-      await tester.pumpAndSettle();
-      expect(find.byType(TranslationPlayer), findsNothing);
-      expect(_page(tester), 0);
-      expect(_painter(tester).scene.isTransition, isFalse);
-
-      await _swipe(tester, forward: true);
-      await tester.pumpAndSettle();
-      await tester.tap(_pill);
-      await tester.pump();
-      await tester.tap(find.byKey(const ValueKey<String>('stage-Fold')));
-      await tester.pumpAndSettle();
-      expect(find.byType(TranslationPlayer), findsNothing);
-      expect(find.byType(StructureView), findsOneWidget);
-    });
-
-    testWidgets('a turn during the flight lands the chain first', (
+    testWidgets('a swipe during the flight leaves the chain to land', (
       WidgetTester tester,
     ) async {
       await _playing(tester);
@@ -340,10 +337,14 @@ void main() {
       expect(_flight, findsOneWidget);
 
       await _swipe(tester, forward: false);
+      expect(_flight, findsOneWidget);
+      expect(find.byType(StageBar), findsNothing);
+
       await tester.pumpAndSettle();
       expect(_flight, findsNothing);
-      expect(_page(tester), _mrna);
-      expect(_painter(tester).scene.toIndex, _mrna);
+      expect(_page(tester), _protein);
+      expect(_painter(tester).scene.toIndex, _protein);
+      expect(_painter(tester).scene.isTransition, isFalse);
     });
   });
 }
