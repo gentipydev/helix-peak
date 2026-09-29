@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:isolate';
 import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
@@ -12,11 +13,12 @@ import '../../core/catalog/protein_track.dart';
 import '../../core/network/track_source.dart';
 import '../../core/theme/anatomy_colors.dart';
 import '../../core/theme/app_spacing.dart';
+import '../folding/fold_bonds.dart';
 import '../folding/fold_geometry.dart';
+import '../folding/fold_skin.dart';
 import '../folding/fold_timeline.dart';
 import '../folding/folding_track.dart';
 import '../motion/timeline_controller.dart';
-import 'fold_handover.dart';
 import 'fold_morph.dart';
 import 'structure_loading_view.dart';
 import 'structure_model.dart';
@@ -94,12 +96,12 @@ import 'structure_scene_view.dart';
 /// With [folds], the page opens on the chain rather than on the fold, and
 /// folds it: a [FoldTimeline] in four steps (the hydrophobic collapse, the
 /// helices coiling, the strands pairing, the bridges snapping shut), drawn by
-/// a [FoldMorph] in this same scene, under this camera and in the model's own
-/// material. Once the bridges close, independently rendered images of the
-/// fold and the stored model blend over the last part of the timeline.
-/// The final model's geometry and shading remain unchanged. It plays each
-/// time the page is opened, with no controls and no words on the page; a
-/// screen reader hears each step's name as it starts.
+/// a [FoldMorph] in this same scene, under this camera: the model's own mesh,
+/// copied and carried by the chain, grows from a thread into each residue's
+/// place, so that once the bridges close the fold is the model, float for
+/// float, and the page swaps the untouched model back in without a pixel
+/// changing. It plays each time the page is opened, with no controls and no
+/// words on the page; a screen reader hears each step's name as it starts.
 ///
 /// Reduced motion, or a protein whose `folding` track is not ready or does
 /// not load, opens on the model, as the page did before.
@@ -195,24 +197,66 @@ class StructureView extends StatefulWidget {
     // The pulse too, so that its first frame on the page is not a blank one
     // spent reading the asset.
     await StructureLoadingView.preload();
-    final (Node _, PerspectiveCamera camera) = await buildStructureModel(
+    final (Node molecule, PerspectiveCamera camera) = await buildStructureModel(
       scene,
       anatomy,
       target,
       tracks,
     );
-    // Both surfaces stay opaque, including during the image handover.
     final FoldGeometry? fold = await _foldOf(target, tracks);
-    if (fold != null) {
+    final FoldBinding? binding = fold == null
+        ? null
+        : await _bindingOf(target, fold, molecule);
+    if (fold != null && binding != null) {
       final FoldMorph morph = FoldMorph(
         FoldTimeline(fold),
         FoldMorph.paletteOf(anatomy, loose, target),
+        binding,
       );
       scene.add(morph.node);
       final List<RenderView> views = <RenderView>[
         RenderView(camera: camera, layerMask: StructureSceneView.foldLayer),
       ];
       await scene.warmUp(views);
+    }
+  }
+
+  /// Each protein's model bound to its fold, once: which stretch of chain
+  /// each vertex of the model rides as the chain folds.
+  static final Map<String, Future<FoldBinding?>> _bindings =
+      <String, Future<FoldBinding?>>{};
+
+  /// [target]'s model, [molecule], bound to [fold], or null where the model
+  /// cannot be: the page then opens on the model, as it does with no fold.
+  static Future<FoldBinding?> _bindingOf(
+    ProteinTarget target,
+    FoldGeometry fold,
+    Node molecule,
+  ) => _bindings[target.slug] ??= _bind(target, fold, molecule);
+
+  static Future<FoldBinding?> _bind(
+    ProteinTarget target,
+    FoldGeometry fold,
+    Node molecule,
+  ) async {
+    try {
+      final List<SkinMesh> meshes = storedMeshesOf(molecule, target);
+      // Pure arithmetic over a few thousand rings: off the page's thread.
+      return await Isolate.run(() {
+        final SkinMesh? bonds = meshes
+            .where((SkinMesh mesh) => mesh.node == 'bonds')
+            .firstOrNull;
+        if ((bonds == null) != fold.bridges.isEmpty) {
+          throw StateError('The model and the fold disagree about bridges');
+        }
+        return FoldBinding(
+          SkinBinding.bind(fold, meshes),
+          bonds == null ? null : BondsBinding.bind(fold, bonds),
+        );
+      });
+    } on Object catch (error) {
+      debugPrint('helixpeek: no fold for ${target.slug}\'s model ($error)');
+      return null;
     }
   }
 
@@ -399,31 +443,36 @@ class _StructureViewState extends State<StructureView>
       }
       final Node root = Node(name: 'structure');
       scene.add(root);
-      final (Node _, PerspectiveCamera camera) = await buildStructureModel(
-        scene,
-        anatomy,
-        widget.target,
-        tracks,
-        parent: root,
-      );
+      final (Node molecule, PerspectiveCamera camera) =
+          await buildStructureModel(
+            scene,
+            anatomy,
+            widget.target,
+            tracks,
+            parent: root,
+          );
       if (!mounted) {
         return;
       }
 
-      // Each surface occupies its own render layer. The view blends their
-      // completed images only after the last ordered movement has finished.
+      // The fold has a render layer of its own, the model another: the page
+      // draws the fold until it ends, and the model from then on.
       final FoldGeometry? fold = widget.folds && !_reducedMotion
           ? await StructureView._foldOf(widget.target, tracks)
           : null;
+      final FoldBinding? binding = fold == null
+          ? null
+          : await StructureView._bindingOf(widget.target, fold, molecule);
       if (!mounted) {
         return;
       }
       FoldMorph? morph;
-      if (fold != null) {
+      if (fold != null && binding != null) {
         final FoldTimeline timeline = FoldTimeline(fold);
         morph = FoldMorph(
           timeline,
           FoldMorph.paletteOf(anatomy, loose, widget.target),
+          binding,
         );
         root.add(morph.node);
         await scene.warmUp(<RenderView>[
@@ -499,8 +548,8 @@ class _StructureViewState extends State<StructureView>
     );
   }
 
-  /// The image handover is complete. Discard only the animated geometry;
-  /// the original stored model has not been altered.
+  /// The fold is the model now, float for float: drop the copy and draw the
+  /// model itself, which nothing has touched.
   void _handOver() {
     _root?.remove(_morph!.node);
     setState(() {
@@ -576,8 +625,9 @@ class _StructureViewState extends State<StructureView>
                   child: StructureSceneView(
                     scene: _scene!,
                     camera: _camera!,
-                    handover: () =>
-                        _morph == null ? 1 : foldHandoverAt(_playback!.t),
+                    layerMask: () => _morph == null
+                        ? StructureSceneView.modelLayer
+                        : StructureSceneView.foldLayer,
                     onTick: _tick,
                   ),
                 ),

@@ -7,7 +7,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart' hide Material;
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderRepaintBoundary;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_scene/scene.dart';
@@ -16,10 +16,11 @@ import 'package:helixpeek/core/catalog/protein_track.dart';
 import 'package:helixpeek/core/network/track_source.dart';
 import 'package:helixpeek/core/theme/anatomy_colors.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/shared/folding/fold_bonds.dart';
 import 'package:helixpeek/shared/folding/fold_geometry.dart';
+import 'package:helixpeek/shared/folding/fold_skin.dart';
 import 'package:helixpeek/shared/folding/fold_timeline.dart';
 import 'package:helixpeek/shared/folding/folding_track.dart';
-import 'package:helixpeek/shared/structure/fold_handover.dart';
 import 'package:helixpeek/shared/structure/fold_morph.dart';
 import 'package:helixpeek/shared/structure/structure_model.dart';
 import 'package:helixpeek/shared/structure/structure_scene_view.dart';
@@ -65,6 +66,13 @@ class _ReviewState extends State<_Review> {
   Widget _view = const SizedBox.expand();
   String _label = 'Preparing';
 
+  /// The whole fold every twentieth of the way, and its last fifth closely:
+  /// the same moments the baseline of the blended handover was taken at.
+  static final List<double> times = <double>[
+    for (int i = 0; i < 16; i++) i / 20,
+    for (int i = 0; i <= 16; i++) 0.8 + i * 0.0125,
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -103,9 +111,9 @@ class _ReviewState extends State<_Review> {
       for (final String slug in <String>[
         'insulin',
         'lysozyme',
-        'p53',
-        'vasopressin',
+        'somatotropin',
         'prion',
+        'tnf',
         'cftr',
       ]) {
         final ProteinTarget target = ProteinTarget.fromJson(
@@ -117,7 +125,7 @@ class _ReviewState extends State<_Review> {
         final Node root = Node(name: 'review');
         scene.add(root);
         final (
-          Node model,
+          Node molecule,
           PerspectiveCamera camera,
         ) = await buildStructureModel(
           scene,
@@ -129,66 +137,73 @@ class _ReviewState extends State<_Review> {
         final FoldGeometry geometry = FoldGeometry.of(
           await FoldingTrack.load(target, tracks: _source),
         );
+        final Stopwatch binding = Stopwatch()..start();
+        final List<SkinMesh> meshes = storedMeshesOf(molecule, target);
+        final SkinMesh? bonds = meshes
+            .where((SkinMesh mesh) => mesh.node == 'bonds')
+            .firstOrNull;
         final FoldMorph fold = FoldMorph(
           FoldTimeline(geometry),
           FoldMorph.paletteOf(anatomy, loose, target),
+          FoldBinding(
+            SkinBinding.bind(geometry, meshes),
+            bonds == null ? null : BondsBinding.bind(geometry, bonds),
+          ),
         );
+        binding.stop();
         root.add(fold.node);
         root.rotation = vm.Quaternion.axisAngle(vm.Vector3(0, 1, 0), 1.35);
-        fold.update(1);
+
+        // What a frame of the fold costs on the CPU, played through once.
+        final Stopwatch cost = Stopwatch();
+        double worst = 0;
+        for (int frame = 0; frame <= 540; frame++) {
+          final int before = cost.elapsedMicroseconds;
+          cost.start();
+          fold.update(frame / 540);
+          cost.stop();
+          final double took = (cost.elapsedMicroseconds - before) / 1000;
+          if (took > worst) {
+            worst = took;
+          }
+        }
+        debugPrint(
+          'FOLD_REVIEW $slug binding ${binding.elapsedMilliseconds} ms; '
+          'update mean ${(cost.elapsedMicroseconds / 541 / 1000).toStringAsFixed(3)} ms, '
+          'worst ${worst.toStringAsFixed(3)} ms',
+        );
+
+        fold.update(0);
         await scene.warmUp(<RenderView>[
-          RenderView(camera: camera, layerMask: 2),
+          RenderView(camera: camera, layerMask: StructureSceneView.foldLayer),
         ]);
-        double t = FoldTimeline.bridgesClosedAt;
+        double t = 0;
+        int layer = StructureSceneView.foldLayer;
         setState(() {
           _label = slug;
           _view = StructureSceneView(
             key: ValueKey<String>(slug),
             scene: scene,
             camera: camera,
-            handover: () => foldHandoverAt(t),
+            layerMask: () => layer,
             onTick: (_, _) => fold.update(t),
           );
         });
-        for (int frame = 0; frame <= 20; frame++) {
-          t =
-              FoldTimeline.bridgesClosedAt +
-              (1 - FoldTimeline.bridgesClosedAt) * frame / 20;
-          await _save(out, '$slug-new-${frame.toString().padLeft(2, '0')}');
+        for (final double at in times) {
+          t = at;
+          await _save(
+            out,
+            '$slug-t${(at * 10000).round().toString().padLeft(5, '0')}',
+          );
         }
-        // An independent render of only the stored model, without the fold
-        // or the handover view, must match the new final frame pixel for pixel.
+        // The page's own switch at the end: the same view, the model's layer.
+        layer = StructureSceneView.modelLayer;
+        await _save(out, '$slug-model');
+        // And an independent render of only the stored model.
         fold.node.visible = false;
         setState(() => _view = CustomPaint(painter: _Direct(scene, camera)));
         await _save(out, '$slug-reference');
-        fold.node.visible = true;
-        fold.update(1);
-        for (int frame = 0; frame <= 20; frame++) {
-          final double opacity = 1 - frame / 20;
-          for (final Node node in fold.node.children) {
-            final List<Material> materials = <Material>[
-              for (final MeshPrimitive primitive
-                  in node.mesh?.primitives ?? <MeshPrimitive>[])
-                primitive.material,
-              for (final InstancedMeshComponent component
-                  in node.getComponents<InstancedMeshComponent>())
-                component.instancedMesh.material,
-            ];
-            for (final Material surface in materials) {
-              final PhysicallyBasedMaterial material =
-                  surface as PhysicallyBasedMaterial;
-              material.alphaMode = opacity < 1
-                  ? AlphaMode.blend
-                  : AlphaMode.opaque;
-              material.baseColorFactor = vm.Vector4(1, 1, 1, opacity);
-            }
-          }
-          fold.node.visible = frame < 20;
-          setState(() => _view = CustomPaint(painter: _Direct(scene, camera)));
-          await _save(out, '$slug-overlap-${frame.toString().padLeft(2, '0')}');
-        }
         debugPrint('FOLD_REVIEW completed $slug');
-        model.visible = true;
       }
       debugPrint('FOLD_REVIEW output ${out.path}');
       final ProteinTarget insulin = ProteinTarget.fromJson(

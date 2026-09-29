@@ -276,6 +276,26 @@ void main() {
     },
   );
 
+  test('the fold finishes after the bridges close, gently at both ends', () {
+    expect(FoldTimeline.finishAt(0), 0);
+    expect(FoldTimeline.finishAt(FoldTimeline.bridgesClosedAt), 0);
+    expect(FoldTimeline.finishAt(1), 1);
+    expect(FoldTimeline.finishAt(2), 1);
+    double previous = 0;
+    for (int frame = 0; frame <= 540; frame++) {
+      final double p = FoldTimeline.finishAt(frame / 540);
+      expect(p, inInclusiveRange(previous, 1));
+      previous = p;
+    }
+    // A frame at either end moves it by next to nothing.
+    const double frame = 1 / 540;
+    expect(
+      FoldTimeline.finishAt(FoldTimeline.bridgesClosedAt + frame),
+      lessThan(0.001),
+    );
+    expect(1 - FoldTimeline.finishAt(1 - frame), lessThan(0.001));
+  });
+
   test('the same moment is the same frame', () {
     final FoldTimeline timeline = timelineOf('insulin');
     expect(timeline.stateAt(0.4).positions, timeline.stateAt(0.4).positions);

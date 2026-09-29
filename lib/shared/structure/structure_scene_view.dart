@@ -1,25 +1,24 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_scene/scene.dart';
 
-import 'fold_handover.dart';
-
-/// A single clock and camera for the fold and the unchanged stored model.
-/// Only the handover needs two renders; before and after it, draw one view.
+/// A single clock and camera for the fold and the unchanged stored model,
+/// drawing one of them at a time: the fold while it plays, the model after.
+/// The fold ends as the model's own mesh, so the switch changes no pixel.
 class StructureSceneView extends StatefulWidget {
   const StructureSceneView({
     required this.scene,
     required this.camera,
-    required this.handover,
+    required this.layerMask,
     required this.onTick,
     super.key,
   });
 
   final Scene scene;
   final Camera camera;
-  final double Function() handover;
+
+  /// Which layers to draw this frame.
+  final int Function() layerMask;
   final SceneTickCallback onTick;
 
   static const int modelLayer = 1;
@@ -34,7 +33,6 @@ class _StructureSceneViewState extends State<StructureSceneView>
   late final Ticker _ticker;
   final ValueNotifier<int> _frame = ValueNotifier<int>(0);
   Duration? _previous;
-  RenderTexture? _fold;
 
   @override
   void initState() {
@@ -56,81 +54,18 @@ class _StructureSceneViewState extends State<StructureSceneView>
     _previous = null;
   }
 
-  void _releaseTargets() {
-    _fold?.dispose();
-    _fold = null;
-  }
-
   void _paint(Canvas canvas, Size size, double pixelRatio) {
     if (size.isEmpty) {
       return;
     }
-    final double p = widget.handover();
-    final Rect bounds = Offset.zero & size;
-    if (p <= 0 || p >= 1) {
-      _releaseTargets();
-      widget.scene.renderViews(
-        <RenderView>[
-          RenderView(
-            camera: widget.camera,
-            layerMask: p <= 0
-                ? StructureSceneView.foldLayer
-                : StructureSceneView.modelLayer,
-          ),
-        ],
-        canvas,
-        region: bounds,
-        pixelRatio: pixelRatio,
-      );
-      return;
-    }
-
-    final int width = (size.width * pixelRatio).ceil();
-    final int height = (size.height * pixelRatio).ceil();
-    _fold ??= RenderTexture(width: width, height: height);
-    _fold!.resize(width, height);
-    // One scene submission prepares both views with the same camera, turn,
-    // lighting and tick, but independent color and depth attachments.
-    // Record the model's normal screen render as GPU drawing commands,
-    // reusing the scene's screen buffers. No CPU image readback is needed.
-    final ui.PictureRecorder recorder = ui.PictureRecorder();
     widget.scene.renderViews(
       <RenderView>[
-        RenderView(
-          camera: widget.camera,
-          layerMask: StructureSceneView.foldLayer,
-          target: _fold,
-        ),
-        RenderView(
-          camera: widget.camera,
-          layerMask: StructureSceneView.modelLayer,
-        ),
+        RenderView(camera: widget.camera, layerMask: widget.layerMask()),
       ],
-      Canvas(recorder),
-      region: bounds,
+      canvas,
+      region: Offset.zero & size,
       pixelRatio: pixelRatio,
     );
-    final ui.Image fold = _fold!.texture!.asImage();
-    final ui.Picture model = recorder.endRecording();
-    final Rect source = Rect.fromLTWH(
-      0,
-      0,
-      width.toDouble(),
-      height.toDouble(),
-    );
-    final Paint paint = Paint()..filterQuality = widget.scene.filterQuality;
-    try {
-      paintFoldHandover(
-        canvas,
-        bounds,
-        progress: p,
-        paintFold: () => canvas.drawImageRect(fold, source, bounds, paint),
-        paintModel: () => canvas.drawPicture(model),
-      );
-    } finally {
-      fold.dispose();
-      model.dispose();
-    }
   }
 
   @override
@@ -147,7 +82,6 @@ class _StructureSceneViewState extends State<StructureSceneView>
   void dispose() {
     _ticker.dispose();
     _frame.dispose();
-    _releaseTargets();
     super.dispose();
   }
 }

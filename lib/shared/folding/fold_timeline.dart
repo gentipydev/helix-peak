@@ -88,6 +88,19 @@ class FoldTimeline extends AnimationTimeline<FoldFrame> {
   @override
   FoldFrame stateAt(double t) => frameAt(t);
 
+  /// How far the fold has finished once its last ordered movement is over:
+  /// 0 until the bridges have closed, 1 at the end, with no speed and no
+  /// acceleration at either (a quintic smoothstep). The residues the model
+  /// never places shrink away by it, and the model's marks across a gap grow
+  /// in by it.
+  static double finishAt(double t) {
+    final double u = ((t - bridgesClosedAt) / (1 - bridgesClosedAt)).clamp(
+      0.0,
+      1.0,
+    );
+    return u * u * u * (10 + u * (-15 + 6 * u));
+  }
+
   /// The step [t] is in.
   static FoldStep stepAt(double t) =>
       FoldStep.values[(t.clamp(0.0, 1.0) * FoldStep.values.length)

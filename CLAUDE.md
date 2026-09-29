@@ -95,16 +95,21 @@ Git: commit the session's own changes locally. Never push, in any form.
   shut) from the `folding` track (`pipeline/folding` in the backend): each
   chain's CA trace and secondary structure in the stored model's frame, and,
   since schema 2, the model's bridges atom by atom, its cartoon's sizes and
-  its ribbon as measured by each helix and strand residue. `FoldMesh` makes
-  it geometry: beads that melt into the model's ribbon, and rods that grow
-  along the model's. `StructureView(folds: true)` draws it in its own scene
+  its ribbon as measured by each helix and strand residue. The ribbon it
+  folds is the model's own mesh: `FoldSkin` binds each chain node of the
+  loaded model to the chain ring by ring (PyMOL's strips give every vertex its
+  ring) and carries it as the chain folds, each residue growing from a thread;
+  `FoldBonds` grows the model's own rods. `FoldMesh` draws what the model does
+  not: beads that melt, and threads for residues the entry never placed,
+  which shrink away. `StructureView(folds: true)` draws it in its own scene
   (`lib/shared/structure/fold_morph.dart`), plays it each time the page opens,
   with no words on the page (a screen reader hears each step's name), and
-  hands over to the model;
+  swaps the untouched model in at the end, which changes no pixel: once the
+  bridges close, the fold is the model float for float;
   `folds` defaults to false, the finished fold, for the lab's screens. The
   scene holds the model with z negated, and so does the fold
-  (`docs/folding-renderer.md`). Reduced motion, or no ready track, opens on
-  the model.
+  (`docs/folding-renderer.md`). Reduced motion, no ready track, or a model the
+  fold cannot be bound to, opens on the model.
 - `lib/shared/share/`: sharing, promoted out of the lab for the walk.
   - It draws a flow's frames offscreen, one at a time (`FrameRenderer`),
     and makes a poster (`PosterBuilder`) whose link,

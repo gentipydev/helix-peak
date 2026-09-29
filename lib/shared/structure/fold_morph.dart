@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_scene/scene.dart';
 import 'package:vector_math/vector_math.dart' as vm;
@@ -7,21 +5,71 @@ import 'package:vector_math/vector_math.dart' as vm;
 import '../../core/biology/amino_acids.dart';
 import '../../core/catalog/protein_target.dart';
 import '../../core/theme/anatomy_colors.dart';
+import '../folding/fold_bonds.dart';
 import '../folding/fold_mesh.dart';
+import '../folding/fold_skin.dart';
 import '../folding/fold_timeline.dart';
 import 'structure_model.dart';
 import 'structure_scene_view.dart';
 
+/// Everything the fold's scene needs of the stored model to fold it: a copy
+/// of each chain's mesh and of the bridges', bound to the chain.
+final class FoldBinding {
+  const FoldBinding(this.skin, this.bonds);
+
+  final SkinBinding skin;
+
+  /// Null for a model that draws no bridges.
+  final BondsBinding? bonds;
+}
+
 /// The fold animation as nodes of the fold page's own scene.
 ///
-/// Drawn in the scene, under the camera, the lights and the material the
-/// model is drawn with ([structureMaterial]), so that when it ends on the
-/// model it is already the same kind of thing: shading, framing and turn all
-/// carry across. [FoldMesh] says where everything is; this puts it on the
-/// GPU, in buffers updated in place.
+/// Drawn in the scene, under the camera and the lights the model is drawn
+/// with, and for the most part out of the model's own mesh: a copy of each
+/// of its nodes, in that node's material ([structureMaterial]), carried by
+/// the chain as it folds ([FoldSkin], [FoldBonds]). What the model does not
+/// draw — the beads, and the residues the entry never placed — [FoldMesh]
+/// says where it is. By the time the bridges have closed, the copies are the
+/// stored model float for float, so when the page swaps the model back in,
+/// no pixel changes.
 final class FoldMorph {
-  FoldMorph(FoldTimeline timeline, FoldPalette palette)
-    : mesh = FoldMesh(timeline, palette) {
+  FoldMorph(FoldTimeline timeline, FoldPalette palette, FoldBinding binding)
+    : mesh = FoldMesh(timeline, palette),
+      skin = FoldSkin(binding.skin, timeline.geometry),
+      bonds = binding.bonds == null
+          ? null
+          : FoldBonds(binding.bonds!, timeline.geometry) {
+    for (final SkinChain chain in skin.chains) {
+      final MeshGeometry geometry = MeshGeometry.fromArrays(
+        positions: chain.positions,
+        normals: chain.normals,
+        indices: chain.binding.indices,
+        storage: GeometryStorage.updatable,
+      );
+      _chains.add(geometry);
+      node.add(
+        Node(
+          name: 'fold ${chain.binding.node}',
+          mesh: Mesh(geometry, _material(palette, chain.binding.node)),
+        ),
+      );
+    }
+    final FoldBonds? rods = bonds;
+    if (rods != null) {
+      _bonds = MeshGeometry.fromArrays(
+        positions: rods.positions,
+        normals: rods.normals,
+        indices: rods.binding.indices,
+        storage: GeometryStorage.updatable,
+      );
+      node.add(
+        Node(
+          name: 'fold bonds',
+          mesh: Mesh(_bonds!, structureMaterialOf(_linear(palette.bridge))),
+        ),
+      );
+    }
     for (final FoldTube tube in mesh.tubes) {
       final MeshGeometry geometry = MeshGeometry.fromArrays(
         positions: tube.positions,
@@ -31,7 +79,7 @@ final class FoldMorph {
         storage: GeometryStorage.updatable,
       );
       _tubes.add(geometry);
-      node.add(Node(name: 'fold chain', mesh: Mesh(geometry, _surface)));
+      node.add(Node(name: 'fold thread', mesh: Mesh(geometry, _surface)));
     }
     _spheres = InstancedMesh(
       geometry: SphereGeometry(radius: 1, segments: 24, rings: 16),
@@ -40,33 +88,16 @@ final class FoldMorph {
     for (int s = 0; s < mesh.sphereCount; s++) {
       _spheres.addInstance(_hidden);
     }
-    _rods = InstancedMesh(
-      geometry: CylinderGeometry(
-        bottomRadius: 1,
-        topRadius: 1,
-        height: 1,
-        radialSegments: 16,
-      ),
-      material: _bonds,
+    node.add(
+      Node(name: 'fold beads')..addComponent(InstancedMeshComponent(_spheres)),
     );
-    for (int r = 0; r < mesh.rodCount; r++) {
-      _rods.addInstance(_hidden);
-    }
-    node
-      ..add(
-        Node(name: 'fold beads')
-          ..addComponent(InstancedMeshComponent(_spheres)),
-      )
-      ..add(
-        Node(name: 'fold bridges')..addComponent(InstancedMeshComponent(_rods)),
-      );
-    // Layers are per node, not inherited. Keep every animated primitive
-    // separate from the stored model's depth buffer during the handover.
+    // Layers are per node, not inherited: the fold has a layer of its own,
+    // which the page draws until the model takes over.
     node.layers = StructureSceneView.foldLayer;
     for (final Node child in node.children) {
       child.layers = StructureSceneView.foldLayer;
     }
-    _push();
+    _push(force: true);
   }
 
   /// The colours [target] is drawn in on the fold page, linear: its chains
@@ -100,34 +131,59 @@ final class FoldMorph {
   }
 
   final FoldMesh mesh;
+  final FoldSkin skin;
+  final FoldBonds? bonds;
 
   /// Everything the fold draws, under one node.
   final Node node = Node(name: 'fold');
 
+  final List<MeshGeometry> _chains = <MeshGeometry>[];
+  MeshGeometry? _bonds;
   final List<MeshGeometry> _tubes = <MeshGeometry>[];
   late final InstancedMesh _spheres;
-  late final InstancedMesh _rods;
 
   // A base of one, so that the vertex and instance colours are the colour,
   // as the model's base colour is.
   final PhysicallyBasedMaterial _surface = structureMaterialOf(_one());
   final PhysicallyBasedMaterial _beads = structureMaterialOf(_one());
-  final PhysicallyBasedMaterial _bonds = structureMaterialOf(_one());
 
   static vm.Vector4 _one() => vm.Vector4(1, 1, 1, 1);
+
+  static vm.Vector4 _linear(LinearColour colour) =>
+      vm.Vector4(colour.$1, colour.$2, colour.$3, 1);
+
+  /// The material the model gives node [name]: the same colour, so the
+  /// copy shades exactly as the node it becomes.
+  static PhysicallyBasedMaterial _material(FoldPalette palette, String name) =>
+      structureMaterialOf(_linear(palette.chains[name] ?? palette.loose));
 
   static final vm.Matrix4 _hidden = vm.Matrix4.zero();
   final vm.Matrix4 _scratch = vm.Matrix4.zero();
   final vm.Vector4 _colour = vm.Vector4.zero();
-  static final vm.Vector3 _up = vm.Vector3(0, 1, 0);
 
   /// Moves the fold to [t], with loose residues moved on by [idle] seconds.
   void update(double t, {double idle = 0}) {
     mesh.update(t, idle: idle);
+    skin.update(mesh.frame, mesh.backbone);
+    bonds?.update(mesh.frame, mesh.backbone);
     _push();
   }
 
-  void _push() {
+  void _push({bool force = false}) {
+    for (int i = 0; i < _chains.length; i++) {
+      final SkinChain chain = skin.chains[i];
+      if (force || chain.changed) {
+        _chains[i]
+          ..updatePositions(chain.positions)
+          ..updateNormals(chain.normals);
+      }
+    }
+    final FoldBonds? rods = bonds;
+    if (rods != null && (force || rods.changed)) {
+      _bonds!
+        ..updatePositions(rods.positions)
+        ..updateNormals(rods.normals);
+    }
     for (int i = 0; i < _tubes.length; i++) {
       _tubes[i]
         ..updatePositions(mesh.tubes[i].positions)
@@ -158,48 +214,6 @@ final class FoldMorph {
             mesh.sphereColours[4 * s],
             mesh.sphereColours[4 * s + 1],
             mesh.sphereColours[4 * s + 2],
-            1,
-          ),
-        );
-    }
-    final vm.Vector3 from = vm.Vector3.zero();
-    final vm.Vector3 to = vm.Vector3.zero();
-    for (int r = 0; r < mesh.rodCount; r++) {
-      final double radius = mesh.rodRadii[r];
-      from.setValues(
-        mesh.rodFrom[3 * r],
-        mesh.rodFrom[3 * r + 1],
-        mesh.rodFrom[3 * r + 2],
-      );
-      to.setValues(
-        mesh.rodTo[3 * r],
-        mesh.rodTo[3 * r + 1],
-        mesh.rodTo[3 * r + 2],
-      );
-      final vm.Vector3 along = to - from;
-      final double length = along.length;
-      if (radius <= 0 || length <= 1e-9) {
-        _rods.setInstanceTransform(r, _hidden);
-        continue;
-      }
-      // The unit cylinder stands on Y, centred: turned onto the rod, and
-      // stretched to its length.
-      final vm.Quaternion turn = along.normalized().dot(_up) < -0.999999
-          ? vm.Quaternion.axisAngle(vm.Vector3(1, 0, 0), math.pi)
-          : vm.Quaternion.fromTwoVectors(_up, along.normalized());
-      _scratch.setFromTranslationRotationScale(
-        (from + to)..scale(0.5),
-        turn,
-        vm.Vector3(radius, length, radius),
-      );
-      _rods
-        ..setInstanceTransform(r, _scratch)
-        ..setInstanceColor(
-          r,
-          _colour..setValues(
-            mesh.palette.bridge.$1,
-            mesh.palette.bridge.$2,
-            mesh.palette.bridge.$3,
             1,
           ),
         );

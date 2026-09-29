@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_scene/fscene.dart';
@@ -9,6 +10,7 @@ import '../../core/catalog/protein_target.dart';
 import '../../core/catalog/protein_track.dart';
 import '../../core/network/track_source.dart';
 import '../../core/theme/anatomy_colors.dart';
+import '../folding/fold_skin.dart';
 
 /// How far back of a snug fit the camera sits.
 ///
@@ -103,6 +105,47 @@ void _paint(Node root, ProteinTarget target, String name, Color colour) {
   for (final MeshPrimitive primitive in mesh.primitives) {
     primitive.material = structureMaterial(colour);
   }
+}
+
+/// Each of [target]'s nodes in [molecule] as its vertices and triangles, in
+/// the frame the molecule is drawn in: what the fold animation copies, and
+/// carries to the end, where the copy is the node itself.
+///
+/// Throws if a node carries no normals, or is placed by a transform of its
+/// own: the copy has to land on the node vertex for vertex.
+List<SkinMesh> storedMeshesOf(Node molecule, ProteinTarget target) =>
+    <SkinMesh>[
+      for (final StructureChain chain in target.chains)
+        _storedMesh(molecule, target, chain.node),
+    ];
+
+SkinMesh _storedMesh(Node molecule, ProteinTarget target, String name) {
+  final Node? node = _find(molecule, name);
+  if (node == null) {
+    throw StateError('The model for ${target.slug} has no node named "$name".');
+  }
+  for (Node? n = node; n != null; n = n.parent) {
+    if (!n.localTransform.isIdentity()) {
+      throw StateError(
+        'The ${target.slug} model places "${n.name}" by a transform',
+      );
+    }
+    if (identical(n, molecule)) {
+      break;
+    }
+  }
+  final MeshData data = node.extractMeshData();
+  final Float32List? normals = data.normals;
+  final List<int>? indices = data.indices;
+  if (normals == null || indices == null) {
+    throw StateError('The ${target.slug} model\'s "$name" has no normals');
+  }
+  return SkinMesh(
+    node: name,
+    positions: data.positions,
+    normals: normals,
+    indices: Uint32List.fromList(indices),
+  );
 }
 
 /// The material every part of a fold is drawn in, the model's and the fold
