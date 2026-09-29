@@ -12,12 +12,15 @@ import UIKit
 /// buffers from its pixel-buffer adaptor's pool, BT.709 tagged on the stream.
 /// No third-party encoder.
 ///
-/// | Call       | Arguments                          | Returns                    |
-/// |------------|------------------------------------|----------------------------|
-/// | `begin`    | width, height, fps, fileName       | session, path, codec       |
-/// | `addFrame` | session, rgba (tightly packed)     | nothing                    |
-/// | `finish`   | session                            | path of the finished MP4   |
-/// | `cancel`   | session                            | nothing; the file is gone  |
+/// | Call       | Arguments                            | Returns                    |
+/// |------------|--------------------------------------|----------------------------|
+/// | `begin`    | width, height, fps, fileName, format | session, path, codec       |
+/// | `addFrame` | session, rgba (tightly packed)       | nothing                    |
+/// | `finish`   | session                              | path of the finished MP4   |
+/// | `cancel`   | session                              | nothing; the file is gone  |
+///
+/// Frames arrive as `rgba` only: the NV12 that Android takes from `Nv12Packer`
+/// is not sent here, and a session asked for it is refused as `bad_args`.
 ///
 /// The handler runs on a background task queue: serial, so one session's calls
 /// stay in order, and never on the platform thread. A session keeps the screen
@@ -92,13 +95,14 @@ final class VideoEncoderChannel {
     let height = args["height"] as? Int ?? 0
     let fps = args["fps"] as? Int ?? 0
     let fileName = args["fileName"] as? String ?? ""
+    let format = args["format"] as? String ?? "rgba"
     // 4:2:0 chroma is one sample per 2x2 block, so both sides must be even.
     if width <= 0 || height <= 0 || width % 2 != 0 || height % 2 != 0 || fps <= 0
-      || fileName.isEmpty || fileName.contains("/")
+      || fileName.isEmpty || fileName.contains("/") || format != "rgba"
     {
       result(FlutterError(
         code: "bad_args",
-        message: "Cannot encode \(width)x\(height) at \(fps) fps to \"\(fileName)\".",
+        message: "Cannot encode \(format) \(width)x\(height) at \(fps) fps to \"\(fileName)\".",
         details: nil))
       return
     }

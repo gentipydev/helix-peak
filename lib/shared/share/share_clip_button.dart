@@ -9,6 +9,7 @@ import '../../core/catalog/protein_target.dart';
 import '../../core/theme/app_spacing.dart';
 import 'frame_renderer.dart';
 import 'gene_link.dart';
+import 'nv12_packer.dart';
 import 'share_action.dart';
 import 'video_encoder.dart';
 
@@ -66,7 +67,8 @@ class ShareClipButton extends StatefulWidget {
   /// How long the clip runs: [ClipFormat.shortest] to [ClipFormat.longest].
   final Duration duration;
 
-  /// Null for the platform's own.
+  /// Null for the platform's own, packing frames as NV12 where the platform
+  /// takes them ([Nv12Packer.forPlatform]).
   final VideoEncoder? encoder;
   final FileShare shareFile;
 
@@ -81,7 +83,8 @@ class ShareClipButton extends StatefulWidget {
 }
 
 class _ShareClipButtonState extends State<ShareClipButton> {
-  late final VideoEncoder _encoder = widget.encoder ?? VideoEncoder();
+  late final VideoEncoder _encoder =
+      widget.encoder ?? VideoEncoder(nv12: Nv12Packer.forPlatform);
   bool _working = false;
 
   int get _frames {
@@ -152,7 +155,16 @@ class _ShareClipButtonState extends State<ShareClipButton> {
     }
 
     switch (result) {
-      case EncodeSuccess(:final File file):
+      case EncodeSuccess(:final File file, :final String? timing):
+        // Only a build made to time clips has this; it is read off the phone.
+        if (timing != null) {
+          messenger?.showSnackBar(
+            SnackBar(
+              content: Text(timing),
+              duration: const Duration(seconds: 30),
+            ),
+          );
+        }
         try {
           await widget.shareFile(
             file: file,

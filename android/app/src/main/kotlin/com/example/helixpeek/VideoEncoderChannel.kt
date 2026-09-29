@@ -13,6 +13,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.StandardMethodCodec
 import java.io.File
+import java.nio.Buffer
 import java.nio.ByteBuffer
 
 /**
@@ -24,12 +25,15 @@ import java.nio.ByteBuffer
  * MediaMuxer to MP4, BT.709 limited range tagged on the stream. No third-party
  * encoder.
  *
- * | Call       | Arguments                          | Returns                    |
- * |------------|------------------------------------|----------------------------|
- * | `begin`    | width, height, fps, fileName       | session, path, codec       |
- * | `addFrame` | session, rgba (tightly packed)     | nothing                    |
- * | `finish`   | session                            | path of the finished MP4   |
- * | `cancel`   | session                            | nothing; the file is gone  |
+ * | Call       | Arguments                               | Returns                    |
+ * |------------|-----------------------------------------|----------------------------|
+ * | `begin`    | width, height, fps, fileName, format    | session, path, codec       |
+ * | `addFrame` | session, and rgba or nv12 as `format`   | nothing                    |
+ * | `finish`   | session                                 | path of the finished MP4   |
+ * | `cancel`   | session                                 | nothing; the file is gone  |
+ *
+ * A session's frames are all `rgba` (tightly packed, converted here) or all
+ * `nv12` (packed on the GPU by `Nv12Packer`, only copied here).
  *
  * The handler runs on a background task queue: serial, so one session's calls
  * stay in order, and never on the platform thread. A session keeps the screen
@@ -73,12 +77,16 @@ class VideoEncoderChannel(
                 "begin" -> begin(call, result)
                 "addFrame" -> {
                     val session = sessionOf(call, result) ?: return
-                    val rgba = call.argument<ByteArray>("rgba")
-                    if (rgba == null || rgba.size != session.width * session.height * 4) {
-                        result.error("bad_args", "A frame is not ${session.width}x${session.height} RGBA.", null)
+                    val frame = call.argument<ByteArray>(session.frameFormat)
+                    if (frame == null || frame.size != session.frameSize) {
+                        result.error(
+                            "bad_args",
+                            "A frame is not ${session.width}x${session.height} ${session.frameFormat}.",
+                            null,
+                        )
                         return
                     }
-                    session.addFrame(rgba)
+                    session.addFrame(frame)
                     result.success(null)
                 }
                 "finish" -> {
@@ -109,10 +117,16 @@ class VideoEncoderChannel(
         val height = call.argument<Int>("height") ?: 0
         val fps = call.argument<Int>("fps") ?: 0
         val fileName = call.argument<String>("fileName") ?: ""
+        val frameFormat = call.argument<String>("format") ?: RGBA
         // 4:2:0 chroma is one sample per 2x2 block, so both sides must be even.
         if (width <= 0 || height <= 0 || width % 2 != 0 || height % 2 != 0 || fps <= 0 ||
-            fileName.isEmpty() || fileName.contains('/')) {
-            result.error("bad_args", "Cannot encode ${width}x$height at $fps fps to \"$fileName\".", null)
+            fileName.isEmpty() || fileName.contains('/') ||
+            (frameFormat != RGBA && frameFormat != NV12)) {
+            result.error(
+                "bad_args",
+                "Cannot encode $frameFormat ${width}x$height at $fps fps to \"$fileName\".",
+                null,
+            )
             return
         }
         val format = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height).apply {
@@ -134,7 +148,7 @@ class VideoEncoderChannel(
         }
         val file = File(activity.cacheDir, fileName)
         file.delete()
-        val session = Session(nextSession++, width, height, fps, file, format, codecName)
+        val session = Session(nextSession++, width, height, fps, file, format, codecName, frameFormat)
         sessions[session.id] = session
         keepScreenOn(true)
         result.success(mapOf("session" to session.id, "path" to file.path, "codec" to codecName))
@@ -166,7 +180,12 @@ class VideoEncoderChannel(
         val file: File,
         format: MediaFormat,
         codecName: String,
+        /** How every frame of the session arrives: [RGBA] or [NV12]. */
+        val frameFormat: String,
     ) {
+        /** The bytes one frame takes in [frameFormat]. */
+        val frameSize = if (frameFormat == NV12) width * height * 3 / 2 else width * height * 4
+
         private val codec: MediaCodec = MediaCodec.createByCodecName(codecName)
         private val muxer = MediaMuxer(file.path, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
         private val info = MediaCodec.BufferInfo()
@@ -186,14 +205,14 @@ class VideoEncoderChannel(
             }
         }
 
-        fun addFrame(rgba: ByteArray) {
+        fun addFrame(frame: ByteArray) {
             val index = inputIndex()
             // Read the capacity before taking the Image: asking for the buffer
             // afterwards would invalidate the Image.
             val capacity = codec.getInputBuffer(index)!!.capacity()
             val image = codec.getInputImage(index)
                 ?: throw IllegalStateException("The encoder gave no input image.")
-            writeYuv(rgba, image)
+            if (frameFormat == NV12) writeNv12(frame, image) else writeYuv(frame, image)
             // Each frame carries its own time, frame * 1e6 / fps µs, not its
             // arrival time: rendering is slower than real time.
             codec.queueInputBuffer(
@@ -338,10 +357,94 @@ class VideoEncoderChannel(
                 }
             }
         }
+
+        /**
+         * NV12, packed on the GPU by `Nv12Packer`, into the encoder's own YUV
+         * 4:2:0 layout. The colour is already converted, so this only copies.
+         *
+         * - In: width x height of luma, rows packed, then width x height/2 of
+         *   chroma, Cb and Cr interleaved, one pair per 2x2 block.
+         * - Out: as in [writeYuv], every write goes through the planes' own
+         *   pixelStride and rowStride. Luma is copied a row at a time, and so
+         *   is chroma where the codec gave semi-planar U then V (the spike's
+         *   encoder did): the U plane's buffer then runs through the V bytes
+         *   between its own samples. Any other layout, V first or planar, is
+         *   written a sample at a time.
+         */
+        private fun writeNv12(nv12: ByteArray, image: Image) {
+            val y = image.planes[0]
+            val u = image.planes[1]
+            val v = image.planes[2]
+            val yBuffer: ByteBuffer = y.buffer
+            if (y.pixelStride == 1) {
+                for (row in 0 until height) {
+                    // Through Buffer: ByteBuffer.position(Int) returning a
+                    // ByteBuffer is missing from older Androids.
+                    (yBuffer as Buffer).position(row * y.rowStride)
+                    yBuffer.put(nv12, row * width, width)
+                }
+            } else {
+                for (row in 0 until height) {
+                    for (col in 0 until width) {
+                        yBuffer.put(row * y.rowStride + col * y.pixelStride, nv12[row * width + col])
+                    }
+                }
+            }
+            val chroma = width * height
+            val rows = height / 2
+            val uBuffer: ByteBuffer = u.buffer
+            val vBuffer: ByteBuffer = v.buffer
+            if (u.pixelStride == 2 && v.pixelStride == 2 && u.rowStride == v.rowStride &&
+                interleavedUThenV(uBuffer, vBuffer)
+            ) {
+                for (row in 0 until rows) {
+                    val from = chroma + row * width
+                    (uBuffer as Buffer).position(row * u.rowStride)
+                    if (row < rows - 1) {
+                        uBuffer.put(nv12, from, width)
+                    } else {
+                        // U's buffer ends on its own last sample; the V after
+                        // it is reached through V's.
+                        uBuffer.put(nv12, from, width - 1)
+                        vBuffer.put(row * v.rowStride + (width / 2 - 1) * v.pixelStride, nv12[from + width - 1])
+                    }
+                }
+            } else {
+                for (row in 0 until rows) {
+                    for (col in 0 until width / 2) {
+                        val from = chroma + row * width + col * 2
+                        uBuffer.put(row * u.rowStride + col * u.pixelStride, nv12[from])
+                        vBuffer.put(row * v.rowStride + col * v.pixelStride, nv12[from + 1])
+                    }
+                }
+            }
+        }
+
+        /**
+         * Whether V's first byte is the byte after U's first: chroma stored
+         * U, V, U, V. Two values are written through U and read back through
+         * V, and V's own byte is put back.
+         */
+        private fun interleavedUThenV(u: ByteBuffer, v: ByteBuffer): Boolean {
+            if (u.limit() < 2 || v.limit() < 1) return false
+            val kept = v.get(0)
+            u.put(1, 0x55.toByte())
+            val first = v.get(0) == 0x55.toByte()
+            u.put(1, 0x2A.toByte())
+            val second = v.get(0) == 0x2A.toByte()
+            v.put(0, kept)
+            return first && second
+        }
     }
 
     companion object {
         const val NAME = "helixpeak/share/video_encoder"
         private const val TIMEOUT_US = 10_000L
+
+        /** Frames as Flutter's `rawRgba`, converted to YUV here. */
+        const val RGBA = "rgba"
+
+        /** Frames already NV12, packed on the GPU by `Nv12Packer`. */
+        const val NV12 = "nv12"
     }
 }

@@ -174,3 +174,34 @@ Still open, and needing a phone: the timing, and the background check. The
 Dart side cancels on `AppLifecycleState.paused` on every platform, so a clip
 sent Home is stopped and deleted either way; what a phone does in the
 moment before is not measured.
+
+## Follow-up: NV12 on the GPU (2026-09-29)
+
+The timings above put 55 of the 64 ms a frame in the Kotlin RGBA-to-YUV loop
+and in moving 8.3 MB across the channel. On Android, frames now cross as
+NV12 instead:
+
+- `shaders/nv12_pack.frag` packs a drawn frame into a (W/4) x (3H/2) image,
+  four bytes a pixel, which reads back as one NV12 frame: luma, then Cb and
+  Cr interleaved. It uses the integer coefficients above, so its bytes are
+  the Kotlin loop's. It is drawn with `BlendMode.src`, because the alpha
+  byte carries data too.
+- `Nv12Packer` checks the shader once per launch against `nv12Reference`, the
+  same formula in Dart, on an 8x4 frame whose pixels all differ. A device
+  where they disagree (orientation, precision, a format that drops a byte)
+  keeps the RGBA path.
+- `writeNv12` in `VideoEncoderChannel.kt` copies luma a row at a time
+  through the plane's `rowStride`. Chroma is copied a row at a time too when
+  the codec is semi-planar with U first, which it tests by writing through U
+  and reading back through V; any other layout takes a sample at a time.
+- The Dart side draws and reads back frame n + 1 while the platform encodes
+  frame n, with at most one call in flight.
+
+iOS stays on RGBA. There, `Picture.toImage` renders in the layer's format,
+which is `BGRA10_XR` on a wide-gamut iPhone (`FLTEnableWideGamut` is unset,
+and it defaults to on), and vImage already does the swizzle quickly.
+
+To time it, build `flutter build apk --profile --dart-define=CLIP_TIMING=true`.
+Each finished clip then shows its time per frame, step by step, in a
+snackbar and in the log. Add `--dart-define=CLIP_NV12=false` for the same
+build on RGBA. The measurements are still to be taken on a phone.

@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/shared/share/frame_renderer.dart';
+import 'package:helixpeek/shared/share/nv12_packer.dart';
 import 'package:helixpeek/shared/share/video_encoder.dart';
 
 class _Solid extends CustomPainter {
@@ -31,7 +33,17 @@ class _FakeEncoder {
   final Directory directory;
   final List<String> calls = <String>[];
   final List<int> frameBytes = <int>[];
+
+  /// The format `begin` was asked for, and the key each frame came under.
+  String? format;
+  final List<String> frameKeys = <String>[];
   File? partial;
+
+  /// How long each `addFrame` holds the platform, and the most that were
+  /// ever being taken at once.
+  Duration hold = Duration.zero;
+  int _taking = 0;
+  int mostAtOnce = 0;
 
   /// Runs after each `addFrame` the platform takes, with how many it has.
   FutureOr<void> Function(int frames)? afterFrame;
@@ -49,6 +61,7 @@ class _FakeEncoder {
         (call.arguments as Map<Object?, Object?>?) ?? <Object?, Object?>{};
     switch (call.method) {
       case 'begin':
+        format = args['format'] as String?;
         partial = File('${directory.path}/${args['fileName']}')
           ..writeAsBytesSync(<int>[0, 0, 0, 24]);
         return <String, Object>{
@@ -58,8 +71,18 @@ class _FakeEncoder {
         };
       case 'addFrame':
         expect(args['session'], 7);
-        frameBytes.add((args['rgba']! as Uint8List).length);
-        await afterFrame?.call(frameBytes.length);
+        final String key = args.containsKey('nv12') ? 'nv12' : 'rgba';
+        frameKeys.add(key);
+        frameBytes.add((args[key]! as Uint8List).length);
+        mostAtOnce = math.max(mostAtOnce, ++_taking);
+        try {
+          if (hold > Duration.zero) {
+            await Future<void>.delayed(hold);
+          }
+          await afterFrame?.call(frameBytes.length);
+        } finally {
+          _taking--;
+        }
         return null;
       case 'finish':
         return partial!.path;
@@ -242,4 +265,66 @@ void main() {
     final EncodeResult rate = await android.encode(frames(3), 0);
     expect((rate as EncodeFailure).reason, EncodeFailureReason.invalidFrames);
   });
+
+  group('NV12', () {
+    // Stands in for the GPU: the right number of bytes, and a count of asks.
+    int asked = 0;
+    Future<Nv12Pack?> packer() async {
+      asked++;
+      return (ui.Image frame) async =>
+          Uint8List(frame.width * frame.height * 3 ~/ 2);
+    }
+
+    setUp(() => asked = 0);
+
+    test('where a packer is given, frames cross as NV12', () async {
+      final EncodeResult result = await VideoEncoder(
+        platform: TargetPlatform.android,
+        nv12: packer,
+      ).encode(frames(6), 30);
+      expect(result, isA<EncodeSuccess>());
+      expect(platform.format, 'nv12');
+      expect(platform.frameKeys, List<String>.filled(6, 'nv12'));
+      expect(platform.frameBytes, List<int>.filled(6, 16 * 16 * 3 ~/ 2));
+      expect(asked, 1, reason: 'asked once, when the first frame is in');
+    });
+
+    test('RGBA without a packer, and when the packer declines', () async {
+      await android.encode(frames(3), 30);
+      expect(platform.format, 'rgba');
+      expect(platform.frameKeys, List<String>.filled(3, 'rgba'));
+
+      platform.frameKeys.clear();
+      await VideoEncoder(
+        platform: TargetPlatform.android,
+        nv12: () async => null,
+      ).encode(frames(3), 30);
+      expect(platform.format, 'rgba');
+      expect(platform.frameKeys, List<String>.filled(3, 'rgba'));
+    });
+
+    test('a width NV12 cannot pack is sent as RGBA, unasked', () async {
+      await VideoEncoder(
+        platform: TargetPlatform.android,
+        nv12: packer,
+      ).encode(frames(3, size: const Size(18, 16)), 30);
+      expect(platform.format, 'rgba');
+      expect(platform.frameBytes, List<int>.filled(3, 18 * 16 * 4));
+      expect(asked, 0);
+    });
+  });
+
+  test(
+    'the next frame is drawn while one is encoded, and never two are sent',
+    () async {
+      platform.hold = const Duration(milliseconds: 150);
+      final List<int> drawnWhileTaking = <int>[];
+      platform.afterFrame = (int frames) => drawnWhileTaking.add(drawn);
+      final EncodeResult result = await android.encode(frames(4), 30);
+      expect(result, isA<EncodeSuccess>());
+      expect(platform.mostAtOnce, 1);
+      // Frame n + 1 is drawn while frame n is taken; frame n + 2 waits.
+      expect(drawnWhileTaking, <int>[2, 3, 4, 4]);
+    },
+  );
 }

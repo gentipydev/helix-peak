@@ -48,6 +48,10 @@ flutter:
     #
     - assets/animations/process.json
 
+  # A clip frame to NV12 on the GPU (`Nv12Packer`).
+  shaders:
+    - shaders/nv12_pack.frag
+
   fonts:
     - family: SpaceGrotesk
       fonts:

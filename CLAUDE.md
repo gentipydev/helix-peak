@@ -120,7 +120,15 @@ Git: commit the session's own changes locally. Never push, in any form.
     MediaMuxer in `android/.../VideoEncoderChannel.kt`, and AVAssetWriter in
     `ios/Runner/VideoEncoderChannel.swift` (`docs/video-encoding-spike.md`).
     Other platforms share nothing. An export keeps the screen on and is
-    cancelled, its file deleted, if the app is paused.
+    cancelled, its file deleted, if the app is paused. The next frame is
+    drawn while the platform encodes the last, never more than one sent.
+  - On Android a frame crosses as NV12, packed on the GPU (`Nv12Packer`,
+    `shaders/nv12_pack.frag`) with the Kotlin loop's own integer BT.709
+    coefficients, so Kotlin only copies rows. Each launch packs a small
+    frame and compares it with `nv12Reference` first; where they differ, and
+    on iOS, frames cross as RGBA. `--dart-define=CLIP_TIMING=true` builds
+    report each clip's time per step (a snackbar, and the log), and
+    `CLIP_NV12=false` forces RGBA to time the two against each other.
 - `lib/features/gene_lookup/`: **the walk**. It has `data/`, `domain/` and
   `presentation/` (`anatomy/`, `clinvar/`, `constraint/`, `inspector/`,
   `structure/`, `cubit/`, `screens/`). The mRNA page, untouched, offers
