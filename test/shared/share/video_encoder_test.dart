@@ -184,7 +184,7 @@ void main() {
       platform: TargetPlatform.windows,
     ).encode(frames(10), 30);
     expect((result as EncodeFailure).reason, EncodeFailureReason.unsupported);
-    expect(result.message, contains('poster'));
+    expect(result.message, contains('Android and iOS'));
     expect(VideoEncoder(platform: TargetPlatform.windows).isSupported, isFalse);
     expect(VideoEncoder(platform: TargetPlatform.iOS).isSupported, isTrue);
     expect(android.isSupported, isTrue);

@@ -35,7 +35,6 @@ import '../../../../shared/format.dart';
 import '../../../../shared/inspector/inspector_sheet.dart';
 import '../../../../shared/ribosome/translation_player.dart';
 import '../../../../shared/ribosome/translation_timeline.dart';
-import '../../../../shared/share/share_action.dart';
 import '../../../../shared/share/share_clip_button.dart';
 import '../../../../shared/structure/structure_view.dart';
 import '../clinvar/clinvar_block.dart';
@@ -2181,7 +2180,6 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                   painter: ribosome.clip(context),
                   duration: ribosome.clipDuration,
                 ),
-                SharePosterButton(target: widget.target, model: _model),
               ],
               null => const <Widget>[],
             },
@@ -2727,8 +2725,7 @@ class _Header extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onOpenDna;
   final VoidCallback? onRibosome;
 
-  /// The ribosome's clip and the protein's poster, while the ribosome is up;
-  /// empty everywhere else.
+  /// The ribosome's clip, while the ribosome is up; empty everywhere else.
   final List<Widget> shares;
   final VoidCallback? onWholeGene;
 

@@ -11,7 +11,6 @@ import 'package:helixpeek/features/gene_lookup/presentation/anatomy/walk_ribosom
 import 'package:helixpeek/shared/motion/timeline_controller.dart';
 import 'package:helixpeek/shared/ribosome/translation_player.dart';
 import 'package:helixpeek/shared/ribosome/translation_timeline.dart';
-import 'package:helixpeek/shared/share/share_action.dart';
 import 'package:helixpeek/shared/share/share_clip_button.dart';
 
 import '../../../support/test_catalog.dart';
@@ -24,7 +23,6 @@ final ProteinConstraint _constraint = ProteinConstraint.fromJson(
 );
 
 final Finder _clip = find.byKey(const ValueKey<String>('share-clip'));
-final Finder _poster = find.byKey(const ValueKey<String>('share-poster'));
 final Finder _pill = find.byKey(const ValueKey<String>('open-ribosome'));
 
 /// The transcript page, as the walk opens onto it.
@@ -64,19 +62,17 @@ TimelineController _controller(WidgetTester tester) =>
 
 void main() {
   group('while the ribosome is up, the header shares', () {
-    testWidgets('its clip and the protein’s poster, and nowhere else', (
+    testWidgets('its clip, and nowhere else', (
       WidgetTester tester,
     ) async {
       await _transcript(tester);
       expect(_clip, findsNothing);
-      expect(_poster, findsNothing);
 
       await _play(tester);
       expect(_clip, findsOneWidget);
-      expect(_poster, findsOneWidget);
       // Up in the header, beside the count, where the lab had them.
       final Rect count = tester.getRect(find.text('465'));
-      for (final Finder share in <Finder>[_clip, _poster]) {
+      for (final Finder share in <Finder>[_clip]) {
         final Rect rect = tester.getRect(share);
         expect(rect.bottom, lessThanOrEqualTo(count.bottom + 16));
         expect(rect.right, lessThanOrEqualTo(count.left));
@@ -91,10 +87,8 @@ void main() {
         findsOneWidget,
       );
       expect(_clip, findsOneWidget);
-      expect(_poster, findsOneWidget);
       await tester.pumpAndSettle();
       expect(_clip, findsNothing);
-      expect(_poster, findsNothing);
     });
 
     testWidgets('and stops sharing once it is put away', (
@@ -106,7 +100,6 @@ void main() {
       await tester.pumpAndSettle();
       expect(_pill, findsOneWidget);
       expect(_clip, findsNothing);
-      expect(_poster, findsNothing);
     });
 
     testWidgets('a clip of the whole translation, paced by its director', (
@@ -128,22 +121,6 @@ void main() {
         clip.painter(wall).paint(Canvas(recorder), clip.size);
         recorder.endRecording().dispose();
       }
-      _controller(tester).pause();
-    });
-
-    testWidgets('a poster of the walk’s own protein', (
-      WidgetTester tester,
-    ) async {
-      await _transcript(tester);
-      await _play(tester);
-      final SharePosterButton poster = tester.widget<SharePosterButton>(
-        find.byType(SharePosterButton),
-      );
-      expect(poster.target, TestCatalog.insulin);
-      expect(
-        poster.model.record.protein!.translation,
-        insulin().protein!.translation,
-      );
       _controller(tester).pause();
     });
   });

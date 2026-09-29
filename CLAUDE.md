@@ -111,15 +111,15 @@ Git: commit the session's own changes locally. Never push, in any form.
   (`docs/folding-renderer.md`). Reduced motion, no ready track, or a model the
   fold cannot be bound to, opens on the model.
 - `lib/shared/share/`: sharing, promoted out of the lab for the walk.
-  - It draws a flow's frames offscreen, one at a time (`FrameRenderer`),
-    and makes a poster (`PosterBuilder`) whose link,
-    `helixpeek://open/gene/<slug>`, is the scheme `AndroidManifest.xml` and
-    `Info.plist` register. Flutter hands the path to the router.
+  - It draws a flow's frames offscreen, one at a time (`FrameRenderer`).
+    Each frame carries the protein's link, `helixpeek://open/gene/<slug>`
+    (`geneLink`), the scheme `AndroidManifest.xml` and `Info.plist`
+    register. Flutter hands the path to the router.
   - Clips (`VideoEncoder`) are made on Android and iOS, on channel
     `helixpeak/share/video_encoder`, one frame per call: MediaCodec and
     MediaMuxer in `android/.../VideoEncoderChannel.kt`, and AVAssetWriter in
     `ios/Runner/VideoEncoderChannel.swift` (`docs/video-encoding-spike.md`).
-    Other platforms share posters only. An export keeps the screen on and is
+    Other platforms share nothing. An export keeps the screen on and is
     cancelled, its file deleted, if the app is paused.
 - `lib/features/gene_lookup/`: **the walk**. It has `data/`, `domain/` and
   `presentation/` (`anatomy/`, `clinvar/`, `constraint/`, `inspector/`,
@@ -128,7 +128,7 @@ Git: commit the session's own changes locally. Never push, in any form.
   shared player, under the walk's header, and at the stop codon the chain
   flies into the protein page, which the walk turns to under it
   (`anatomy/walk_ribosome.dart`). While it is up, the header shares it as a
-  clip and the protein as a poster (`lib/shared/share/`), and the stage bar
+  clip (`lib/shared/share/`), and the stage bar
   stands down, its band given to the player's controls: no swipe turns a page
   until the chain has landed, and Back puts it away onto the transcript.
   Without it the swipe plays the walk's own translation, as it always has.
@@ -258,7 +258,7 @@ rotting on a branch, which is what keeps the shared layer from diverging.
   a variant causes anything. Days and streaks stay on the phone
   (`lab/challenges/days.json`), a day is played once, and the share card is
   a square a round and a square a codon with `helixpeek://open/lab/challenges`,
-  drawn the poster's way and shared through `systemShareSheet`.
+  recorded on a canvas, encoded as PNG and shared through `systemShareSheet`.
 - Tests switch it on with `dotenv.loadFromString(envString: 'LAB_ENABLED=true')`
   and off with `dotenv.clean()`.
 

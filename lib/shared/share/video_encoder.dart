@@ -17,8 +17,7 @@ abstract final class ClipFormat {
 
 /// Why a clip was not made.
 enum EncodeFailureReason {
-  /// This platform makes no clips: only Android and iOS do, and the poster
-  /// is offered everywhere else instead.
+  /// This platform makes no clips: only Android and iOS do.
   unsupported,
 
   /// The device has no encoder that takes the format.
@@ -117,7 +116,7 @@ final class VideoEncoder {
     if (!isSupported) {
       return const EncodeFailure(
         EncodeFailureReason.unsupported,
-        'Clips can only be made on Android and iOS. Share a poster instead.',
+        'Clips can only be made on Android and iOS.',
       );
     }
     if (fps < 1 || fps > 60) {
@@ -279,7 +278,7 @@ final class VideoEncoder {
       return abandon(
         const EncodeFailure(
           EncodeFailureReason.unsupported,
-          'This build cannot make clips. Share a poster instead.',
+          'This build cannot make clips.',
         ),
       );
     } on PlatformException catch (error) {
@@ -287,8 +286,7 @@ final class VideoEncoder {
         error.code == 'unsupported'
             ? const EncodeFailure(
                 EncodeFailureReason.noEncoder,
-                'This phone has no video encoder for a clip this size. '
-                'Share a poster instead.',
+                'This phone has no video encoder for a clip this size.',
               )
             : EncodeFailure(
                 EncodeFailureReason.encoderError,

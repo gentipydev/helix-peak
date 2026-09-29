@@ -29,9 +29,8 @@ String shareText(DailyPuzzle puzzle, DayResult result) {
       '${challengeLink()}';
 }
 
-/// The same result as a card: the poster's own way of making a picture (a
-/// canvas recorded, drawn once to an image, and encoded as PNG), in the lab's
-/// theme, square, so feeds show it whole.
+/// The same result as a card: a canvas recorded, drawn once to an image and
+/// encoded as PNG, in the lab's theme, square, so feeds show it whole.
 Future<Uint8List> shareCard({
   required ThemeData theme,
   required DailyPuzzle puzzle,

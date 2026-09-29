@@ -42,11 +42,11 @@ Future<void> systemShareFile({
 ///
 /// [painter] is given how far through the clip a frame is, 0 to 1; how that
 /// maps onto the flow's own timeline is the caller's to say. Each frame also
-/// carries the protein's name and its link, as a poster does, so a clip
-/// seen on its own still says what it is.
+/// carries the protein's name and its link, so a clip seen on its own still
+/// says what it is.
 ///
 /// Where clips cannot be made — everywhere but Android and iOS — the button
-/// is not there at all, and the poster beside it is the way to share.
+/// is not there at all.
 class ShareClipButton extends StatefulWidget {
   const ShareClipButton({
     required this.target,

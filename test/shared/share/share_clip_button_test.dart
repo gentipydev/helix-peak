@@ -122,7 +122,7 @@ void main() {
     await tester.pump();
   }
 
-  testWidgets('where clips cannot be made there is only the poster', (
+  testWidgets('where clips cannot be made there is no clip to offer', (
     WidgetTester tester,
   ) async {
     await host(tester, TargetPlatform.windows);

@@ -5,7 +5,7 @@ import '../../core/router/app_router.dart';
 /// `Info.plist`.
 const String geneLinkScheme = 'helixpeek';
 
-/// The link a shared poster carries back to one protein's walk.
+/// The link a shared clip carries back to one protein's walk.
 ///
 /// `helixpeek://open/gene/<slug>`: the scheme opens the app, and Flutter hands
 /// the router the path, which is the walk's own ([RoutePaths.geneFor]). A

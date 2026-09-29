@@ -33,7 +33,7 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <!-- helixpeek://open/gene/<slug>, the link a shared poster
+            <!-- helixpeek://open/gene/<slug>, the link a shared clip
                  carries: Flutter hands the path to the router. -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
