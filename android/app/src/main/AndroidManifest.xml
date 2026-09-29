@@ -4,6 +4,14 @@
          declare it for the tooling's own sake, which hides its absence right up
          until a release build fetches nothing. -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- A clip goes on being made while the app is away: a foreground service
+         (media processing from Android 15, a short service on 14) with its
+         progress in a notification, and a wake lock so a locked screen does
+         not stop it. ClipExportService.kt. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROCESSING"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
         android:label="Helix Peek"
@@ -42,6 +50,10 @@
                 <data android:scheme="helixpeek" android:host="open"/>
             </intent-filter>
         </activity>
+        <service
+            android:name=".ClipExportService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProcessing|shortService"/>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

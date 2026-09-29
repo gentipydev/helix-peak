@@ -40,6 +40,18 @@ enum EncodeFailureReason {
   encoderError,
 }
 
+/// What becomes of a clip when the reader leaves the app.
+enum ClipAway {
+  /// It is stopped, its partial file deleted, and
+  /// [EncodeFailureReason.interrupted] returned: nothing keeps the app
+  /// working in the background.
+  stops,
+
+  /// It goes on: the platform keeps the app working (on Android a foreground
+  /// service, `ClipExportService.kt`), so a pause changes nothing.
+  goesOn,
+}
+
 /// What [VideoEncoder.encode] made of a clip. It never throws.
 sealed class EncodeResult {
   const EncodeResult();
@@ -90,11 +102,11 @@ const bool _timed = bool.fromEnvironment('CLIP_TIMING');
 /// (`Nv12Packer`) and cross as 3.1 MB, and the platform side only copies
 /// rows. Otherwise they cross as RGBA and the platform converts them.
 ///
-/// Export is a foreground job. The spike found that with the phone locked it
-/// made no progress at all, and sent Home it crawled at a fifth of the speed.
-/// So the native side keeps the screen on for the length of a session, and
-/// when the app is paused the export is cancelled, its partial file deleted,
-/// and [EncodeFailureReason.interrupted] returned for the UI to offer a retry.
+/// Left alone, export is a foreground job. The spike found that with the phone
+/// locked it made no progress at all, and sent Home it crawled at a fifth of
+/// the speed. So unless the platform keeps the app working ([ClipAway]), when
+/// the app is paused the export is cancelled, its partial file deleted, and
+/// [EncodeFailureReason.interrupted] returned for the UI to offer a retry.
 final class VideoEncoder {
   VideoEncoder({MethodChannel? channel, this.platform, this.nv12})
     : _channel = channel ?? defaultChannel;
@@ -125,13 +137,15 @@ final class VideoEncoder {
   ///
   /// [onFrame] is told how many frames have been encoded, after each one.
   /// When [cancel] completes, the export stops at the next frame and comes
-  /// back as [EncodeFailureReason.cancelled].
+  /// back as [EncodeFailureReason.cancelled]. [away] says what a pause of the
+  /// app does to it.
   Future<EncodeResult> encode(
     Stream<ui.Image> frames,
     int fps, {
     String fileName = 'clip.mp4',
     ValueChanged<int>? onFrame,
     Future<void>? cancel,
+    ClipAway away = ClipAway.stops,
   }) async {
     if (!isSupported) {
       return const EncodeFailure(
@@ -149,7 +163,11 @@ final class VideoEncoder {
     bool paused = false;
     bool cancelled = false;
     final AppLifecycleListener lifecycle = AppLifecycleListener(
-      onPause: () => paused = true,
+      onPause: () {
+        if (away == ClipAway.stops) {
+          paused = true;
+        }
+      },
     );
     unawaited(cancel?.then((_) => cancelled = true));
     int? session;

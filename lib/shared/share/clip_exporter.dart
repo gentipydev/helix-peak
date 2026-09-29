@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import '../../core/catalog/protein_target.dart';
+import 'clip_keep_alive.dart';
 import 'frame_renderer.dart';
 import 'gene_link.dart';
 import 'nv12_packer.dart';
@@ -39,6 +40,7 @@ final class ClipJob {
     this.file,
     this.failure,
     this.timing,
+    this.away = ClipAway.stops,
   });
 
   final ProteinTarget target;
@@ -58,6 +60,9 @@ final class ClipJob {
   /// ([EncodeSuccess.timing]); null in any other.
   final String? timing;
 
+  /// What becomes of it if the reader leaves the app while it is made.
+  final ClipAway away;
+
   /// Whether frames are still to come.
   bool get underway =>
       status == ClipStatus.making || status == ClipStatus.paused;
@@ -70,6 +75,7 @@ final class ClipJob {
     File? file,
     EncodeFailure? failure,
     String? timing,
+    ClipAway? away,
   }) => ClipJob(
     target: target,
     total: total,
@@ -78,6 +84,7 @@ final class ClipJob {
     file: file ?? this.file,
     failure: failure ?? this.failure,
     timing: timing ?? this.timing,
+    away: away ?? this.away,
   );
 }
 
@@ -92,16 +99,24 @@ final class ClipJob {
 ///
 /// Before each frame it gives way to the app's own ([giveWayToFrames]), so a
 /// clip in the making does not stutter the page the reader is on.
+///
+/// Where the platform can keep the app working while it is away
+/// ([ClipKeepAlive]: Android), the clip goes on behind other apps and a locked
+/// screen, with its progress in a notification; elsewhere leaving the app
+/// stops it.
 class ClipExporter {
   ClipExporter({
     VideoEncoder? encoder,
     this.shareFile = systemShareFile,
     Future<void> Function()? pace,
+    ClipKeepAlive? keepAlive,
   }) : encoder = encoder ?? VideoEncoder(nv12: Nv12Packer.forPlatform),
+       keepAlive = keepAlive ?? ClipKeepAlive(),
        _pace = pace ?? giveWayToFrames;
 
   final VideoEncoder encoder;
   final FileShare shareFile;
+  final ClipKeepAlive keepAlive;
   final Future<void> Function() _pace;
 
   final ValueNotifier<ClipJob?> _job = ValueNotifier<ClipJob?>(null);
@@ -117,6 +132,9 @@ class ClipExporter {
   Completer<void>? _cancel;
   int _watchers = 0;
   bool _disposed = false;
+
+  /// Whether the platform, not the reader, stopped the clip being made.
+  bool _stoppedByPlatform = false;
 
   /// Whether a sheet is showing the clip, so its end needs no other word.
   bool get watched => _watchers > 0;
@@ -213,9 +231,27 @@ class ClipExporter {
 
   Future<void> _make(_ClipRequest request) async {
     final int total = frameCount(request.duration, request.fps);
+    final String title = request.target.gene;
     final Completer<void> cancel = Completer<void>();
     _cancel = cancel;
+    _stoppedByPlatform = false;
     _job.value = ClipJob(target: request.target, total: total);
+    final ClipAway away = await keepAlive.begin(
+      title: title,
+      total: total,
+      onCancel: this.cancel,
+      onStopped: () {
+        _stoppedByPlatform = true;
+        this.cancel();
+      },
+    );
+    if (_disposed) {
+      unawaited(keepAlive.end(title: title, ready: false));
+      return;
+    }
+    if (_job.value case final ClipJob job) {
+      _job.value = job._with(away: away);
+    }
     final FrameRenderer renderer = FrameRenderer(
       painter: (double t) =>
           _Titled(request.painter(t), request.target, request.theme),
@@ -234,12 +270,15 @@ class ClipExporter {
         if (!_disposed && job != null && job.underway) {
           _job.value = job._with(done: done);
         }
+        keepAlive.progress(title: title, done: done, total: total);
       },
       cancel: cancel.future,
+      away: away,
     );
     if (identical(_cancel, cancel)) {
       _cancel = null;
     }
+    unawaited(keepAlive.end(title: title, ready: result is EncodeSuccess));
     if (_disposed) {
       return;
     }
@@ -252,6 +291,16 @@ class ClipExporter {
           done: total,
           file: file,
           timing: timing,
+        );
+      case EncodeFailure(reason: EncodeFailureReason.cancelled)
+          when _stoppedByPlatform:
+        _job.value = job._with(
+          status: ClipStatus.failed,
+          failure: const EncodeFailure(
+            EncodeFailureReason.interrupted,
+            'The phone stopped the clip while the app was away. Try again '
+            'with the app open.',
+          ),
         );
       case EncodeFailure(reason: EncodeFailureReason.cancelled):
         _job.value = null;

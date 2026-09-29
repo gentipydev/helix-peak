@@ -185,6 +185,40 @@ void main() {
     expect(drawn, lessThanOrEqualTo(5), reason: 'the rest are never drawn');
   });
 
+  test('where the app is kept working, a pause changes nothing', () async {
+    platform.afterFrame = (int frames) {
+      if (frames == 3) {
+        for (final AppLifecycleState state in <AppLifecycleState>[
+          AppLifecycleState.inactive,
+          AppLifecycleState.hidden,
+          AppLifecycleState.paused,
+        ]) {
+          binding.handleAppLifecycleStateChanged(state);
+        }
+      }
+    };
+    binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    addTearDown(() {
+      for (final AppLifecycleState state in <AppLifecycleState>[
+        AppLifecycleState.hidden,
+        AppLifecycleState.inactive,
+        AppLifecycleState.resumed,
+      ]) {
+        binding.handleAppLifecycleStateChanged(state);
+      }
+    });
+
+    final EncodeResult result = await android.encode(
+      frames(8),
+      30,
+      away: ClipAway.goesOn,
+    );
+
+    expect(result, isA<EncodeSuccess>());
+    expect(platform.calls.where((String c) => c == 'addFrame'), hasLength(8));
+    expect(platform.calls, isNot(contains('cancel')));
+  });
+
   test('the reader can stop it, and no file is left', () async {
     final Completer<void> cancel = Completer<void>();
     platform.afterFrame = (int frames) {

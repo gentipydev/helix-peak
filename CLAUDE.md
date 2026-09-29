@@ -119,9 +119,15 @@ Git: commit the session's own changes locally. Never push, in any form.
     `helixpeak/share/video_encoder`, one frame per call: MediaCodec and
     MediaMuxer in `android/.../VideoEncoderChannel.kt`, and AVAssetWriter in
     `ios/Runner/VideoEncoderChannel.swift` (`docs/video-encoding-spike.md`).
-    Other platforms share nothing. An export keeps the screen on and is
-    cancelled, its file deleted, if the app is paused. The next frame is
-    drawn while the platform encodes the last, never more than one sent.
+    Other platforms share nothing. The next frame is drawn while the
+    platform encodes the last, never more than one sent. On Android a clip
+    goes on while the app is away: `ClipKeepAlive` (channel
+    `helixpeak/share/clip_keepalive`) starts `ClipExportService.kt`, a
+    foreground service (`mediaProcessing` from Android 15, `shortService` on
+    14) with a wake lock and the clip's progress in a notification, which
+    can stop it. Swiping the app out of Recents ends it, with its engine.
+    Where nothing keeps it going, an export keeps the screen on and is
+    cancelled, its file deleted, if the app is paused.
   - On Android a frame crosses as NV12, packed on the GPU (`Nv12Packer`,
     `shaders/nv12_pack.frag`) with the Kotlin loop's own integer BT.709
     coefficients, so Kotlin only copies rows. Each launch packs a small

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/shared/share/clip_exporter.dart';
+import 'package:helixpeek/shared/share/clip_keep_alive.dart';
 import 'package:helixpeek/shared/share/video_encoder.dart';
 
 import '../../support/test_catalog.dart';
@@ -177,6 +179,121 @@ void main() {
     await until(() => clips.job.value?.status == ClipStatus.ready);
     expect(clips.retry(), isFalse, reason: 'only a failed clip is retried');
     clips.dispose();
+  });
+
+  group('kept going outside the app', () {
+    const MethodChannel keepAlive = ClipKeepAlive.defaultChannel;
+    late List<MethodCall> kept;
+    String answer = 'goes_on';
+
+    setUp(() {
+      kept = <MethodCall>[];
+      answer = 'goes_on';
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(keepAlive, (
+        MethodCall call,
+      ) async {
+        kept.add(call);
+        return call.method == 'begin' ? answer : null;
+      });
+    });
+
+    tearDown(
+      () => binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        keepAlive,
+        null,
+      ),
+    );
+
+    /// What the platform says to the app, as the service would.
+    Future<void> platformSays(String method) =>
+        binding.defaultBinaryMessenger.handlePlatformMessage(
+          keepAlive.name,
+          keepAlive.codec.encodeMethodCall(MethodCall(method)),
+          (ByteData? _) {},
+        );
+
+    test('the platform is asked to keep it going, told how far it has got, '
+        'and told when it is made', () async {
+      final ClipExporter clips = exporter();
+      start(clips);
+      await until(() => clips.job.value?.status == ClipStatus.ready);
+      await until(() => kept.any((MethodCall c) => c.method == 'end'));
+
+      expect(kept.first.method, 'begin');
+      expect(kept.first.arguments, <String, Object>{
+        'title': 'INS',
+        'total': 10,
+      });
+      expect(clips.job.value!.away, ClipAway.goesOn);
+      final List<MethodCall> progress = <MethodCall>[
+        for (final MethodCall c in kept)
+          if (c.method == 'progress') c,
+      ];
+      expect(progress, isNotEmpty);
+      expect(
+        (progress.last.arguments as Map<Object?, Object?>)['done'],
+        10,
+        reason: 'the last frame is always said',
+      );
+      expect(
+        progress.length,
+        lessThan(10),
+        reason: 'not every frame: at most one in a quarter second',
+      );
+      final Map<Object?, Object?> end =
+          kept.last.arguments as Map<Object?, Object?>;
+      expect(kept.last.method, 'end');
+      expect(end['ready'], isTrue);
+      expect(end['title'], 'INS');
+      clips.dispose();
+    });
+
+    test('where the platform will not, leaving the app stops it', () async {
+      answer = 'stops';
+      final ClipExporter clips = exporter();
+      start(clips);
+      await until(() => clips.job.value?.away == ClipAway.stops);
+      expect(clips.job.value!.away, ClipAway.stops);
+      await until(() => clips.job.value?.status == ClipStatus.ready);
+      clips.dispose();
+    });
+
+    test('stopped from its notification, the clip goes', () async {
+      final ClipExporter clips = exporter();
+      afterFrame = (int frames) {
+        if (frames == 2) {
+          unawaited(platformSays('cancel'));
+        }
+      };
+      start(clips);
+      await until(() => clips.job.value == null);
+      expect(clips.job.value, isNull);
+      expect(calls, contains('cancel'));
+      await until(() => kept.any((MethodCall c) => c.method == 'end'));
+      expect((kept.last.arguments as Map<Object?, Object?>)['ready'], isFalse);
+      clips.dispose();
+    });
+
+    test(
+      'stopped by the platform, the clip fails and can be tried again',
+      () async {
+        final ClipExporter clips = exporter();
+        afterFrame = (int frames) {
+          if (frames == 2) {
+            unawaited(platformSays('stopped'));
+          }
+        };
+        start(clips);
+        await until(() => clips.job.value?.status == ClipStatus.failed);
+        final EncodeFailure failure = clips.job.value!.failure!;
+        expect(failure.reason, EncodeFailureReason.interrupted);
+        expect(failure.message, contains('Try again'));
+        afterFrame = null;
+        expect(clips.retry(), isTrue);
+        await until(() => clips.job.value?.status == ClipStatus.ready);
+        clips.dispose();
+      },
+    );
   });
 
   test('a sheet watching the clip is counted', () {

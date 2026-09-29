@@ -254,7 +254,7 @@ void main() {
   testWidgets('a clip of another protein being made is shown, not doubled', (
     WidgetTester tester,
   ) async {
-    await host(
+    final ClipExporter exporter = await host(
       tester,
       TargetPlatform.android,
       targets: <ProteinTarget>[TestCatalog.insulin, TestCatalog.hemoglobin],
@@ -271,8 +271,10 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.text('INS · Insulin'), findsOneWidget);
-    expect(calls.where((String c) => c == 'begin'), hasLength(1));
+    expect(exporter.job.value!.target, TestCatalog.insulin);
     await settle(tester, () => find.text('Clip ready').evaluate().isNotEmpty);
+    // Only the one clip was ever begun.
+    expect(calls.where((String c) => c == 'begin'), hasLength(1));
   });
 
   testWidgets('it can be stopped from the sheet', (WidgetTester tester) async {

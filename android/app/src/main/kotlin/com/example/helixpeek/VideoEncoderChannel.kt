@@ -1,13 +1,12 @@
 package com.example.helixpeek
 
-import android.app.Activity
+import android.content.Context
 import android.media.Image
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaCodecList
 import android.media.MediaFormat
 import android.media.MediaMuxer
-import android.view.WindowManager
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -36,16 +35,16 @@ import java.nio.ByteBuffer
  * `nv12` (packed on the GPU by `Nv12Packer`, only copied here).
  *
  * The handler runs on a background task queue: serial, so one session's calls
- * stay in order, and never on the platform thread. A session keeps the screen
- * on from `begin` to `finish` or `cancel`, because the spike found an export
- * with the screen off made no progress at all.
+ * stay in order, and never on the platform thread. The spike found an export
+ * with the screen off made no progress at all; [ClipExportService] keeps the
+ * process in the foreground and the CPU awake while a clip is made.
  *
  * Failures come back as error codes: `unsupported` where no encoder takes the
  * format, `bad_args` for a call the Dart side should never make, and
  * `encode_failed` for anything the codec or muxer throws.
  */
 class VideoEncoderChannel(
-    private val activity: Activity,
+    private val context: Context,
     messenger: BinaryMessenger,
 ) : MethodChannel.MethodCallHandler {
 
@@ -68,7 +67,6 @@ class VideoEncoderChannel(
             session.cancel()
         }
         sessions.clear()
-        keepScreenOn(false)
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -92,14 +90,12 @@ class VideoEncoderChannel(
                 "finish" -> {
                     val session = sessionOf(call, result) ?: return
                     sessions.remove(session.id)
-                    keepScreenOn(sessions.isNotEmpty())
                     session.finish()
                     result.success(session.file.path)
                 }
                 "cancel" -> {
                     val id = call.argument<Int>("session")
                     sessions.remove(id)?.cancel()
-                    keepScreenOn(sessions.isNotEmpty())
                     result.success(null)
                 }
                 else -> result.notImplemented()
@@ -107,7 +103,6 @@ class VideoEncoderChannel(
         } catch (error: Throwable) {
             // A codec that fails mid-session is not left holding the hardware.
             call.argument<Int>("session")?.let { sessions.remove(it)?.cancel() }
-            keepScreenOn(sessions.isNotEmpty())
             result.error("encode_failed", error.message ?: error.toString(), null)
         }
     }
@@ -146,11 +141,10 @@ class VideoEncoderChannel(
             result.error("unsupported", "This device has no H.264 encoder for ${width}x$height at $fps fps.", null)
             return
         }
-        val file = File(activity.cacheDir, fileName)
+        val file = File(context.cacheDir, fileName)
         file.delete()
         val session = Session(nextSession++, width, height, fps, file, format, codecName, frameFormat)
         sessions[session.id] = session
-        keepScreenOn(true)
         result.success(mapOf("session" to session.id, "path" to file.path, "codec" to codecName))
     }
 
@@ -160,16 +154,6 @@ class VideoEncoderChannel(
             result.error("bad_args", "No encoding session ${call.argument<Int>("session")}.", null)
         }
         return session
-    }
-
-    private fun keepScreenOn(on: Boolean) {
-        activity.runOnUiThread {
-            if (on) {
-                activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            } else {
-                activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            }
-        }
     }
 
     private class Session(
