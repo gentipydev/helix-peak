@@ -68,6 +68,10 @@ class FoldTimeline extends AnimationTimeline<FoldFrame> {
   /// Each step is this many beats long.
   static const int beatsPerStep = 3;
 
+  /// The last ordered movement finishes here; the remainder lets the
+  /// illustration hand over to the stored surface without a separate pause.
+  static const double bridgesClosedAt = 0.9125;
+
   @override
   int get beats => FoldStep.values.length * beatsPerStep;
 
@@ -99,7 +103,7 @@ class FoldTimeline extends AnimationTimeline<FoldFrame> {
     final double coil = AnimationTimeline.slice(at, 0.25, 0.5);
     final double pair = AnimationTimeline.slice(at, 0.5, 0.75);
     // The bridges close quickly, in the middle of their step: a snap.
-    final double snap = AnimationTimeline.slice(at, 0.8375, 0.9125);
+    final double snap = AnimationTimeline.slice(at, 0.8375, bridgesClosedAt);
 
     final FoldGeometry g = geometry;
     final Float64List p = Float64List(3 * g.length);

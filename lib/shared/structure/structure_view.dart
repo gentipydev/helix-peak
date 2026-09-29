@@ -16,10 +16,12 @@ import '../folding/fold_geometry.dart';
 import '../folding/fold_timeline.dart';
 import '../folding/folding_track.dart';
 import '../motion/timeline_controller.dart';
+import 'fold_handover.dart';
 import 'fold_morph.dart';
 import 'structure_loading_view.dart';
 import 'structure_model.dart';
 import 'structure_rotation.dart';
+import 'structure_scene_view.dart';
 
 /// What the chain folds into, once the grid has run out of things to say.
 ///
@@ -93,12 +95,11 @@ import 'structure_rotation.dart';
 /// folds it: a [FoldTimeline] in four steps (the hydrophobic collapse, the
 /// helices coiling, the strands pairing, the bridges snapping shut), drawn by
 /// a [FoldMorph] in this same scene, under this camera and in the model's own
-/// material. Its last frame is the model: every residue on the CA the entry
-/// gives it, the backbone as wide as the model's ribbon, each bridge along
-/// the model's rods. There the model takes over, the fold fading off it,
-/// and the page is the page it always was. It plays each time the page is
-/// opened, with no controls and no words on the page; a screen reader hears
-/// each step's name as it starts.
+/// material. Once the bridges close, independently rendered images of the
+/// fold and the stored model blend over the last part of the timeline.
+/// The final model's geometry and shading remain unchanged. It plays each
+/// time the page is opened, with no controls and no words on the page; a
+/// screen reader hears each step's name as it starts.
 ///
 /// Reduced motion, or a protein whose `folding` track is not ready or does
 /// not load, opens on the model, as the page did before.
@@ -127,9 +128,6 @@ class StructureView extends StatefulWidget {
 
   /// How long one beat of the fold takes: twelve beats, nine seconds.
   static const Duration foldBeat = Duration(milliseconds: 750);
-
-  /// How long the fold takes to fade off the model once it is on it.
-  static const Duration handover = Duration(milliseconds: 500);
 
   /// Does the one-time part of drawing the fold ahead of the page.
   ///
@@ -203,8 +201,7 @@ class StructureView extends StatefulWidget {
       target,
       tracks,
     );
-    // The fold the page opens with, drawn once whole and once fading off,
-    // so that neither costs the page a pipeline on its first frame.
+    // Both surfaces stay opaque, including during the image handover.
     final FoldGeometry? fold = await _foldOf(target, tracks);
     if (fold != null) {
       final FoldMorph morph = FoldMorph(
@@ -212,9 +209,9 @@ class StructureView extends StatefulWidget {
         FoldMorph.paletteOf(anatomy, loose, target),
       );
       scene.add(morph.node);
-      final List<RenderView> views = <RenderView>[RenderView(camera: camera)];
-      await scene.warmUp(views);
-      morph.opacity = 0.5;
+      final List<RenderView> views = <RenderView>[
+        RenderView(camera: camera, layerMask: StructureSceneView.foldLayer),
+      ];
       await scene.warmUp(views);
     }
   }
@@ -283,7 +280,6 @@ class _StructureViewState extends State<StructureView>
   /// covers the scene itself as well.
   Scene? _scene;
 
-  Node? _molecule;
   PerspectiveCamera? _camera;
   bool _ready = false;
 
@@ -293,7 +289,6 @@ class _StructureViewState extends State<StructureView>
   /// The fold while it plays and fades, then null.
   FoldMorph? _morph;
   TimelineController? _playback;
-  AnimationController? _fading;
 
   /// The step last announced, or null once the model has it.
   FoldStep? _step;
@@ -404,20 +399,19 @@ class _StructureViewState extends State<StructureView>
       }
       final Node root = Node(name: 'structure');
       scene.add(root);
-      final (Node molecule, PerspectiveCamera camera) =
-          await buildStructureModel(
-            scene,
-            anatomy,
-            widget.target,
-            tracks,
-            parent: root,
-          );
+      final (Node _, PerspectiveCamera camera) = await buildStructureModel(
+        scene,
+        anatomy,
+        widget.target,
+        tracks,
+        parent: root,
+      );
       if (!mounted) {
         return;
       }
 
-      // The fold, where there is one to play: in the model's place, with the
-      // model hidden under it until it lands there.
+      // Each surface occupies its own render layer. The view blends their
+      // completed images only after the last ordered movement has finished.
       final FoldGeometry? fold = widget.folds && !_reducedMotion
           ? await StructureView._foldOf(widget.target, tracks)
           : null;
@@ -432,8 +426,9 @@ class _StructureViewState extends State<StructureView>
           FoldMorph.paletteOf(anatomy, loose, widget.target),
         );
         root.add(morph.node);
-        molecule.visible = false;
-        await scene.warmUp(<RenderView>[RenderView(camera: camera)]);
+        await scene.warmUp(<RenderView>[
+          RenderView(camera: camera, layerMask: StructureSceneView.foldLayer),
+        ]);
         if (!mounted) {
           return;
         }
@@ -447,7 +442,6 @@ class _StructureViewState extends State<StructureView>
       setState(() {
         _scene = scene;
         _root = root;
-        _molecule = molecule;
         _camera = camera;
         _morph = morph;
         _step = morph == null ? null : FoldStep.collapse;
@@ -472,7 +466,6 @@ class _StructureViewState extends State<StructureView>
   @override
   void dispose() {
     _playback?.dispose();
-    _fading?.dispose();
     super.dispose();
   }
 
@@ -480,11 +473,11 @@ class _StructureViewState extends State<StructureView>
   void _played() {
     final TimelineController playback = _playback!;
     final FoldStep step = FoldTimeline.stepAt(playback.t);
-    if (_fading == null && step != _step) {
+    if (_morph != null && step != _step) {
       _step = step;
       _announce();
     }
-    if (playback.atEnd && _fading == null) {
+    if (playback.atEnd && _morph != null) {
       _handOver();
     }
   }
@@ -506,27 +499,14 @@ class _StructureViewState extends State<StructureView>
     );
   }
 
-  /// The fold is on the model now: the model shows under it, and the fold
-  /// fades off it, leaving the model the page has always drawn.
+  /// The image handover is complete. Discard only the animated geometry;
+  /// the original stored model has not been altered.
   void _handOver() {
-    _molecule?.visible = true;
-    _fading =
-        AnimationController(vsync: this, duration: StructureView.handover)
-          ..addListener(() => _morph?.opacity = 1 - _fading!.value)
-          ..addStatusListener((AnimationStatus status) {
-            if (status != AnimationStatus.completed || !mounted) {
-              return;
-            }
-            final FoldMorph? morph = _morph;
-            if (morph != null) {
-              _root?.remove(morph.node);
-            }
-            setState(() {
-              _morph = null;
-              _step = null;
-            });
-          })
-          ..forward();
+    _root?.remove(_morph!.node);
+    setState(() {
+      _morph = null;
+      _step = null;
+    });
   }
 
   void _apply() {
@@ -593,7 +573,13 @@ class _StructureViewState extends State<StructureView>
                   // Ungated on purpose: `_load` has already warmed the
                   // pipelines, so the view can draw on its first frame. Gating
                   // it again would put a restarted pulse back in between.
-                  child: SceneView(_scene!, camera: _camera, onTick: _tick),
+                  child: StructureSceneView(
+                    scene: _scene!,
+                    camera: _camera!,
+                    handover: () =>
+                        _morph == null ? 1 : foldHandoverAt(_playback!.t),
+                    onTick: _tick,
+                  ),
                 ),
                 if (widget.legend.length > 1)
                   Positioned(

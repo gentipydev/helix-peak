@@ -354,6 +354,7 @@ final class FoldMesh {
     final FoldGeometry g = geometry;
     final int m = tube.end - tube.start;
     final double thread = threadRadius * g.unit;
+    final double held = frame.closure.isEmpty ? 0 : 1 - frame.closure.first;
 
     // The points the tube runs through: each residue's CA, until it
     // settles onto where the model's ribbon was measured to pass it. A
@@ -387,7 +388,12 @@ final class FoldMesh {
                             _native[3 * (i + 1) + a]) /
                         4
                   : here)
-            : (a == 0 ? on.$1 : (a == 1 ? on.$2 : -on.$3));
+            : (a == 0 ? on.$1 : (a == 1 ? on.$2 : -on.$3)) +
+                  // The measured ribbon is a rest position. Carry it with
+                  // its CA while the bridge still holds that residue apart.
+                  // Otherwise helices lock early and the beads/rods move
+                  // independently of the backbone during the last step.
+                  g.hold[3 * i + a] * held * (a == 2 ? -1 : 1);
         c[3 * k + a] = here + s * (there - here);
       }
       width[k] = thread + (_finalWidth[i] - thread) * s;

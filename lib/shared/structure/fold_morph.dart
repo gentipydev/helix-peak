@@ -10,6 +10,7 @@ import '../../core/theme/anatomy_colors.dart';
 import '../folding/fold_mesh.dart';
 import '../folding/fold_timeline.dart';
 import 'structure_model.dart';
+import 'structure_scene_view.dart';
 
 /// The fold animation as nodes of the fold page's own scene.
 ///
@@ -52,8 +53,19 @@ final class FoldMorph {
       _rods.addInstance(_hidden);
     }
     node
-      ..add(Node(name: 'fold beads')..addComponent(InstancedMeshComponent(_spheres)))
-      ..add(Node(name: 'fold bridges')..addComponent(InstancedMeshComponent(_rods)));
+      ..add(
+        Node(name: 'fold beads')
+          ..addComponent(InstancedMeshComponent(_spheres)),
+      )
+      ..add(
+        Node(name: 'fold bridges')..addComponent(InstancedMeshComponent(_rods)),
+      );
+    // Layers are per node, not inherited. Keep every animated primitive
+    // separate from the stored model's depth buffer during the handover.
+    node.layers = StructureSceneView.foldLayer;
+    for (final Node child in node.children) {
+      child.layers = StructureSceneView.foldLayer;
+    }
     _push();
   }
 
@@ -109,28 +121,10 @@ final class FoldMorph {
   final vm.Vector4 _colour = vm.Vector4.zero();
   static final vm.Vector3 _up = vm.Vector3(0, 1, 0);
 
-  double _opacity = 1;
-
   /// Moves the fold to [t], with loose residues moved on by [idle] seconds.
   void update(double t, {double idle = 0}) {
     mesh.update(t, idle: idle);
     _push();
-  }
-
-  /// How much of the fold shows: 1 until it hands over to the model, and
-  /// down to 0 as it does.
-  double get opacity => _opacity;
-  set opacity(double value) {
-    _opacity = value.clamp(0.0, 1.0);
-    for (final PhysicallyBasedMaterial material in <PhysicallyBasedMaterial>[
-      _surface,
-      _beads,
-      _bonds,
-    ]) {
-      material
-        ..alphaMode = _opacity < 1 ? AlphaMode.blend : AlphaMode.opaque
-        ..baseColorFactor = vm.Vector4(1, 1, 1, _opacity);
-    }
   }
 
   void _push() {
@@ -177,7 +171,11 @@ final class FoldMorph {
         mesh.rodFrom[3 * r + 1],
         mesh.rodFrom[3 * r + 2],
       );
-      to.setValues(mesh.rodTo[3 * r], mesh.rodTo[3 * r + 1], mesh.rodTo[3 * r + 2]);
+      to.setValues(
+        mesh.rodTo[3 * r],
+        mesh.rodTo[3 * r + 1],
+        mesh.rodTo[3 * r + 2],
+      );
       final vm.Vector3 along = to - from;
       final double length = along.length;
       if (radius <= 0 || length <= 1e-9) {

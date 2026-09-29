@@ -214,6 +214,41 @@ void main() {
     expect(mesh.sphereRadii[b], 0);
   });
 
+  test('the ribbon follows its held cysteine all the way through closure', () {
+    final FoldMesh mesh = meshOf('insulin');
+    final FoldGeometry g = mesh.geometry;
+    int checked = 0;
+    for (final double t in <double>[0.8, 0.86, 0.89, 0.91, 1]) {
+      mesh.update(t);
+      final FoldFrame frame = mesh.timeline.stateAt(t);
+      for (final FoldTube tube in mesh.tubes) {
+        for (int i = tube.start; i < tube.end; i++) {
+          final ModelPoint? at = g.drawn[i].ribbonAt;
+          if (at == null) {
+            continue;
+          }
+          final List<double> centre = ringCentre(
+            tube,
+            (i - tube.start) * mesh.samples,
+          );
+          final List<double> rest = <double>[at.$1, at.$2, -at.$3];
+          for (int a = 0; a < 3; a++) {
+            final double offset =
+                (frame.positions[3 * i + a] - g.folded[3 * i + a]) *
+                (a == 2 ? -1 : 1);
+            expect(
+              centre[a],
+              closeTo(rest[a] + offset, 1e-6),
+              reason: '$i axis $a at $t',
+            );
+            if (offset.abs() > 1e-5) checked++;
+          }
+        }
+      }
+    }
+    expect(checked, greaterThan(0));
+  });
+
   test('closed, a bridge is the model’s rods: CA, CB, SG and across', () {
     final FoldMesh mesh = meshOf('insulin');
     final FoldGeometry g = mesh.geometry;
