@@ -57,15 +57,21 @@ final class FrameRenderer {
   static double tOf(int frame, int count) =>
       count <= 1 ? 0 : frame / (count - 1);
 
-  /// Every frame in order, rendered on demand.
+  /// Every frame in order from frame [from], rendered on demand.
+  ///
+  /// A frame is a pure function of its `t`, so frames drawn again from
+  /// [from] are the frames drawn the first time.
   ///
   /// The stream is single-subscription. A consumer that pauses — an
   /// `await for` does, for as long as its body runs — holds the next frame
   /// back until it resumes. One that cancels stops the rendering, and no
   /// frame is left undisposed.
-  Stream<ui.Image> frames() {
+  Stream<ui.Image> frames({int from = 0}) {
     if (count < 1) {
       throw ArgumentError.value(count, 'count', 'must be at least 1');
+    }
+    if (from < 0 || from >= count) {
+      throw RangeError.range(from, 0, count - 1, 'from');
     }
     if (width < 1 || height < 1) {
       throw ArgumentError.value(size, 'size', 'must be at least one pixel');
@@ -85,7 +91,7 @@ final class FrameRenderer {
 
     Future<void> run() async {
       try {
-        for (int i = 0; i < count; i++) {
+        for (int i = from; i < count; i++) {
           while (out.isPaused && !cancelled) {
             await (resumed ??= Completer<void>()).future;
           }

@@ -118,6 +118,9 @@ class _ClipSheetState extends State<ClipSheet> {
         final String? where = switch (job.status) {
           ClipStatus.making when job.away == ClipAway.goesOn =>
             'It goes on while you use the app, or another one.',
+          ClipStatus.making when job.away == ClipAway.pauses =>
+            'It goes on while you use the app, and waits while you are '
+                'away from it.',
           ClipStatus.making =>
             'It goes on while you use the app. Leaving Helix Peek stops it.',
           ClipStatus.paused => 'It goes on when you come back.',

@@ -258,6 +258,54 @@ void main() {
       clips.dispose();
     });
 
+    test('where the platform pauses it with the app, the clip says so and '
+        'goes on when the app is back', () async {
+      answer = 'pauses';
+      binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      final ClipExporter clips = exporter();
+      final List<ClipStatus> statuses = <ClipStatus>[];
+      clips.job.addListener(() {
+        final ClipStatus? now = clips.job.value?.status;
+        if (now != null && (statuses.isEmpty || statuses.last != now)) {
+          statuses.add(now);
+        }
+      });
+      afterFrame = (int frames) {
+        if (frames != 3) {
+          return;
+        }
+        for (final AppLifecycleState state in <AppLifecycleState>[
+          AppLifecycleState.inactive,
+          AppLifecycleState.hidden,
+          AppLifecycleState.paused,
+        ]) {
+          binding.handleAppLifecycleStateChanged(state);
+        }
+        unawaited(
+          Future<void>.delayed(const Duration(milliseconds: 100), () {
+            for (final AppLifecycleState state in <AppLifecycleState>[
+              AppLifecycleState.hidden,
+              AppLifecycleState.inactive,
+              AppLifecycleState.resumed,
+            ]) {
+              binding.handleAppLifecycleStateChanged(state);
+            }
+          }),
+        );
+      };
+      start(clips);
+      await until(() => clips.job.value?.status == ClipStatus.ready);
+      expect(clips.job.value!.away, ClipAway.pauses);
+      expect(statuses, <ClipStatus>[
+        ClipStatus.making,
+        ClipStatus.paused,
+        ClipStatus.making,
+        ClipStatus.ready,
+      ]);
+      expect(calls, contains('pause'));
+      clips.dispose();
+    });
+
     test('stopped from its notification, the clip goes', () async {
       final ClipExporter clips = exporter();
       afterFrame = (int frames) {

@@ -126,8 +126,14 @@ Git: commit the session's own changes locally. Never push, in any form.
     foreground service (`mediaProcessing` from Android 15, `shortService` on
     14) with a wake lock and the clip's progress in a notification, which
     can stop it. Swiping the app out of Recents ends it, with its engine.
-    Where nothing keeps it going, an export keeps the screen on and is
-    cancelled, its file deleted, if the app is paused.
+    On iOS nothing may draw in the background (Flutter parks `toImage`, and
+    no iPhone offers background GPU), so a clip pauses with the app: as the
+    app leaves, `VideoEncoderChannel.swift` finishes the part it is writing,
+    the next frame starts another, and `finish` joins the parts without
+    encoding again. Frames of a part that could not be finished are drawn
+    again (`FrameRenderer.frames(from:)`). Where nothing keeps it going or
+    pauses it, an export is cancelled, its file deleted, if the app is
+    paused.
   - On Android a frame crosses as NV12, packed on the GPU (`Nv12Packer`,
     `shaders/nv12_pack.frag`) with the Kotlin loop's own integer BT.709
     coefficients, so Kotlin only copies rows. Each launch packs a small

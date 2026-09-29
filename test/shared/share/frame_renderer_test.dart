@@ -213,6 +213,58 @@ void main() {
       throwsArgumentError,
     );
   });
+
+  group('drawn again', () {
+    FrameRenderer renderer({Future<void> Function()? pace}) => FrameRenderer(
+      painter: _Sweep.new,
+      count: 5,
+      size: const Size(16, 16),
+      pace: pace,
+    );
+
+    Future<List<Uint8List>> bytes(Stream<ui.Image> frames) async {
+      final List<Uint8List> out = <Uint8List>[];
+      await for (final ui.Image frame in frames) {
+        out.add((await frame.toByteData())!.buffer.asUint8List());
+        frame.dispose();
+      }
+      return out;
+    }
+
+    test(
+      'from a frame, the frames are the ones drawn the first time',
+      () async {
+        final List<Uint8List> all = await bytes(renderer().frames());
+        final List<Uint8List> again = await bytes(renderer().frames(from: 2));
+        expect(again, hasLength(3));
+        for (int i = 0; i < 3; i++) {
+          expect(_same(again[i], all[i + 2]), isTrue, reason: 'frame ${i + 2}');
+        }
+      },
+    );
+
+    test('a frame outside the clip is refused', () {
+      expect(() => renderer().frames(from: 5), throwsRangeError);
+      expect(() => renderer().frames(from: -1), throwsRangeError);
+    });
+
+    test('the pace is waited on before every frame', () async {
+      int paced = 0;
+      int drawnWhilePacing = 0;
+      final List<Uint8List> frames = await bytes(
+        renderer(
+          pace: () async {
+            paced++;
+            await Future<void>.delayed(const Duration(milliseconds: 5));
+            drawnWhilePacing = paced;
+          },
+        ).frames(),
+      );
+      expect(frames, hasLength(5));
+      expect(paced, 5);
+      expect(drawnWhilePacing, 5);
+    });
+  });
 }
 
 bool _same(Uint8List a, Uint8List b) {

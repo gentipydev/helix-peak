@@ -8,10 +8,12 @@ import 'video_encoder.dart';
 /// Keeps a clip going while the app is away, where the platform can: on
 /// Android a foreground service with the clip's progress in a notification
 /// and a wake lock (`ClipExportService.kt`), on channel
-/// `helixpeak/share/clip_keepalive`.
+/// `helixpeak/share/clip_keepalive`. On iOS nothing may draw in the
+/// background, so the answer there is that the clip pauses with the app
+/// (`ios/Runner/ClipKeepAliveChannel.swift`).
 ///
-/// Where nothing answers on the other side (iOS, a desktop, a test), [begin]
-/// says [ClipAway.stops] and the rest does nothing.
+/// Where nothing answers on the other side (a desktop, a test), [begin] says
+/// [ClipAway.stops] and the rest does nothing.
 final class ClipKeepAlive {
   ClipKeepAlive({MethodChannel? channel})
     : _channel = channel ?? defaultChannel;
@@ -53,7 +55,11 @@ final class ClipKeepAlive {
         'begin',
         <String, Object>{'title': title, 'total': total},
       );
-      return kept == 'goes_on' ? ClipAway.goesOn : ClipAway.stops;
+      return switch (kept) {
+        'goes_on' => ClipAway.goesOn,
+        'pauses' => ClipAway.pauses,
+        _ => ClipAway.stops,
+      };
     } on MissingPluginException {
       return ClipAway.stops;
     } on PlatformException catch (error) {

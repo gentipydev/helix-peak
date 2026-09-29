@@ -205,3 +205,32 @@ To time it, build `flutter build apk --profile --dart-define=CLIP_TIMING=true`.
 Each finished clip then shows its time per frame, step by step, in a
 snackbar and in the log. Add `--dart-define=CLIP_NV12=false` for the same
 build on RGBA. The measurements are still to be taken on a phone.
+
+## Follow-up: iOS pauses a clip in parts (2026-09-29)
+
+On iOS a clip cannot go on in the background. When the app leaves, Flutter's
+engine turns the GPU off (`FlutterEngine.mm`, `setIsGpuDisabled:YES`) and
+`Picture.toImage` waits until the app is back (`StoreTaskForGPU`). Apple
+offers background GPU time only to M3 and later iPads, through iOS 26's
+`BGContinuedProcessingTask`, and never to an iPhone. A writer left open
+across the background fails too. So a clip pauses with the app:
+
+- As the app stops being in front (`inactive`), the Dart side calls
+  `pause`. `VideoEncoderChannel.swift` finishes the part it is writing,
+  inside a background task, and answers how many frames the finished parts
+  hold. No frame is sent, and no clip begun or finished, until the app is
+  back. The next frame starts a new part.
+- `finish` joins the parts with an `AVMutableComposition` and a passthrough
+  `AVAssetExportSession`, so nothing is encoded again; every part starts on
+  a keyframe. A composition track does not keep its asset alive, so the
+  parts' assets are held until the export is done. Without that, the insert
+  fails with -11800 (-12780).
+- A part that cannot be finished is dropped. Its frames are drawn again
+  from `FrameRenderer.frames(from:)`; a frame is a pure function of `t`, so
+  they are the same frames.
+
+Checked on the iPhone 17 Pro simulator (iOS 26.5) through the channel: 10 +
+10 + 5 frames of a hue ramp, paused twice, decoded on the Mac as 25 frames
+exactly 1/30 s apart, one format description, and the ramp in order across
+both joins. Still to check on an iPhone: finishing a part as a real app
+resigns active, and how long the join takes at 1080x1920.

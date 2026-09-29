@@ -48,6 +48,10 @@ class _FakeEncoder {
   /// Runs after each `addFrame` the platform takes, with how many it has.
   FutureOr<void> Function(int frames)? afterFrame;
 
+  /// What `pause` says it kept, given how many frames it has taken; null
+  /// keeps them all.
+  int Function(int taken)? keptOnPause;
+
   /// What `begin`, `addFrame` or `finish` should throw, by call name.
   final Map<String, PlatformException> failures = <String, PlatformException>{};
 
@@ -84,6 +88,8 @@ class _FakeEncoder {
           _taking--;
         }
         return null;
+      case 'pause':
+        return keptOnPause?.call(frameBytes.length) ?? frameBytes.length;
       case 'finish':
         return partial!.path;
       case 'cancel':
@@ -217,6 +223,111 @@ void main() {
     expect(result, isA<EncodeSuccess>());
     expect(platform.calls.where((String c) => c == 'addFrame'), hasLength(8));
     expect(platform.calls, isNot(contains('cancel')));
+  });
+
+  group('paused with the app', () {
+    const List<AppLifecycleState> leaving = <AppLifecycleState>[
+      AppLifecycleState.inactive,
+      AppLifecycleState.hidden,
+      AppLifecycleState.paused,
+    ];
+    const List<AppLifecycleState> back = <AppLifecycleState>[
+      AppLifecycleState.hidden,
+      AppLifecycleState.inactive,
+      AppLifecycleState.resumed,
+    ];
+    late int takenWhenLeft;
+    late int takenWhenBack;
+
+    setUp(() {
+      binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      takenWhenLeft = -1;
+      takenWhenBack = -1;
+      // The app leaves as the third frame is taken, and is back a moment on.
+      platform.afterFrame = (int frames) {
+        if (frames != 3) {
+          return;
+        }
+        leaving.forEach(binding.handleAppLifecycleStateChanged);
+        takenWhenLeft = platform.frameBytes.length;
+        unawaited(
+          Future<void>.delayed(const Duration(milliseconds: 150), () {
+            takenWhenBack = platform.frameBytes.length;
+            back.forEach(binding.handleAppLifecycleStateChanged);
+          }),
+        );
+      };
+    });
+
+    test('it holds its frames while the app is away, and goes on when it '
+        'is back', () async {
+      final List<bool> away = <bool>[];
+      final EncodeResult result = await android.encode(
+        frames(8),
+        30,
+        away: ClipAway.pauses,
+        onAway: away.add,
+      );
+      expect(result, isA<EncodeSuccess>());
+      expect(away, <bool>[true, false]);
+      expect(platform.calls.where((String c) => c == 'pause'), hasLength(1));
+      expect(takenWhenBack, takenWhenLeft, reason: 'nothing sent while away');
+      expect(platform.frameBytes, hasLength(8));
+      expect(platform.calls.last, 'finish');
+      expect(platform.calls, isNot(contains('cancel')));
+    });
+
+    test('a part lost as the app left is drawn again', () async {
+      // Of the three frames taken, only the first was in a finished part.
+      platform.keptOnPause = (int taken) => 1;
+      final List<double> drawnAt = <double>[];
+      FrameRenderer renderer() => FrameRenderer(
+        painter: (double t) {
+          drawnAt.add(t);
+          return _Solid(t);
+        },
+        count: 8,
+        size: const Size(16, 16),
+      );
+      final List<int> progress = <int>[];
+      final EncodeResult result = await android.encode(
+        renderer().frames(),
+        30,
+        away: ClipAway.pauses,
+        redraw: (int from) => renderer().frames(from: from),
+        onFrame: progress.add,
+      );
+      expect(result, isA<EncodeSuccess>());
+      // Frames 1 and 2 again, then the rest: eight frames kept, ten sent.
+      expect(platform.frameBytes, hasLength(10));
+      for (final int frame in <int>[1, 2]) {
+        expect(
+          drawnAt.where((double t) => t == FrameRenderer.tOf(frame, 8)),
+          hasLength(2),
+          reason: 'frame $frame drawn twice',
+        );
+      }
+      expect(progress, containsAllInOrder(<int>[3, 1, 8]));
+      expect(progress.last, 8);
+    });
+
+    test(
+      'without a way to draw it again, a lost part stops the clip',
+      () async {
+        platform.keptOnPause = (int taken) => 1;
+        final EncodeResult result = await android.encode(
+          frames(8),
+          30,
+          away: ClipAway.pauses,
+        );
+        expect(
+          (result as EncodeFailure).reason,
+          EncodeFailureReason.interrupted,
+        );
+        expect(platform.calls, contains('cancel'));
+        expect(directory.listSync(), isEmpty);
+      },
+    );
   });
 
   test('the reader can stop it, and no file is left', () async {

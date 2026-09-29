@@ -50,6 +50,12 @@ enum ClipAway {
   /// It goes on: the platform keeps the app working (on Android a foreground
   /// service, `ClipExportService.kt`), so a pause changes nothing.
   goesOn,
+
+  /// It pauses with the app and goes on when the app is back (iOS, where
+  /// nothing may draw in the background). The platform finishes the part it
+  /// was writing as the app leaves and starts another with the next frame,
+  /// and joins the parts when the clip is finished.
+  pauses,
 }
 
 /// What [VideoEncoder.encode] made of a clip. It never throws.
@@ -137,8 +143,13 @@ final class VideoEncoder {
   ///
   /// [onFrame] is told how many frames have been encoded, after each one.
   /// When [cancel] completes, the export stops at the next frame and comes
-  /// back as [EncodeFailureReason.cancelled]. [away] says what a pause of the
+  /// back as [EncodeFailureReason.cancelled]. [away] says what leaving the
   /// app does to it.
+  ///
+  /// Where it pauses with the app ([ClipAway.pauses]), [onAway] hears it
+  /// pause (true) and go on (false). A part the platform could not finish as
+  /// the app left is lost with its frames; they are drawn again from
+  /// [redraw], and without it the clip is [EncodeFailureReason.interrupted].
   Future<EncodeResult> encode(
     Stream<ui.Image> frames,
     int fps, {
@@ -146,6 +157,8 @@ final class VideoEncoder {
     ValueChanged<int>? onFrame,
     Future<void>? cancel,
     ClipAway away = ClipAway.stops,
+    Stream<ui.Image> Function(int from)? redraw,
+    ValueChanged<bool>? onAway,
   }) async {
     if (!isSupported) {
       return const EncodeFailure(
@@ -162,14 +175,6 @@ final class VideoEncoder {
 
     bool paused = false;
     bool cancelled = false;
-    final AppLifecycleListener lifecycle = AppLifecycleListener(
-      onPause: () {
-        if (away == ClipAway.stops) {
-          paused = true;
-        }
-      },
-    );
-    unawaited(cancel?.then((_) => cancelled = true));
     int? session;
     String? path;
     int? width;
@@ -178,9 +183,51 @@ final class VideoEncoder {
     // How frames cross: 'nv12' where [pack] packs them, otherwise 'rgba'.
     String format = 'rgba';
     int encoded = 0;
+    // Frames handed to the platform, which is also the next frame's index.
+    int handed = 0;
     // The frame the platform is encoding while the next one is drawn.
     Future<void>? sending;
+    // While the app is away and the clip pauses with it: done when it is back.
+    Completer<void>? held;
+    // The platform finishing the part it was writing as the app left, and
+    // answering how many frames its finished parts hold.
+    Future<int?>? parting;
     final _Timing? timing = _timed ? _Timing() : null;
+
+    final AppLifecycleListener lifecycle = AppLifecycleListener(
+      onPause: () {
+        if (away == ClipAway.stops) {
+          paused = true;
+        }
+      },
+      onStateChange: (AppLifecycleState state) {
+        if (away != ClipAway.pauses) {
+          return;
+        }
+        if (state != AppLifecycleState.resumed) {
+          if (held != null) {
+            return;
+          }
+          held = Completer<void>();
+          // Now, not at the next frame: by then the app may be in the
+          // background, where a part can no longer be finished.
+          if (session case final int open) {
+            final Future<int?> call = _channel.invokeMethod<int>(
+              'pause',
+              <String, Object>{'session': open},
+            );
+            unawaited(call.then<void>((_) {}, onError: (Object _) {}));
+            parting = call;
+          }
+          onAway?.call(true);
+        } else if (held case final Completer<void> back) {
+          held = null;
+          back.complete();
+          onAway?.call(false);
+        }
+      },
+    );
+    unawaited(cancel?.then((_) => cancelled = true));
 
     // Waits for the frame in flight to be taken, and counts it.
     Future<void> sent() async {
@@ -191,6 +238,27 @@ final class VideoEncoder {
       sending = null;
       await inFlight;
       onFrame?.call(++encoded);
+    }
+
+    // Waits while the app is away, or until the clip is stopped.
+    Future<void> whileAway() async {
+      final Completer<void>? back = held;
+      if (back == null) {
+        return;
+      }
+      await Future.any(<Future<void>>[back.future, ?cancel]);
+    }
+
+    // Once the app is back: the frame to draw again from, where the part it
+    // left in was lost; null where every frame handed over is kept.
+    Future<int?> lostFrom() async {
+      final Future<int?>? pending = parting;
+      if (pending == null) {
+        return null;
+      }
+      parting = null;
+      final int? kept = await pending;
+      return kept != null && kept < handed ? kept : null;
     }
 
     Future<EncodeFailure> abandon(EncodeFailure failure) async {
@@ -246,94 +314,132 @@ final class VideoEncoder {
         : null;
 
     try {
-      await for (final ui.Image frame in frames) {
-        timing?.lap('draw');
-        final Uint8List bytes;
-        try {
+      Stream<ui.Image> source = frames;
+      while (true) {
+        // Where to draw again from, when a part was lost as the app left.
+        int? from;
+        await for (final ui.Image frame in source) {
+          timing?.lap('draw');
+          final Uint8List bytes;
+          try {
+            if (stopped() case final EncodeFailure why) {
+              return await abandon(why);
+            }
+            if (width == null) {
+              width = frame.width;
+              height = frame.height;
+              if (width.isOdd || height.isOdd) {
+                return await abandon(
+                  EncodeFailure(
+                    EncodeFailureReason.invalidFrames,
+                    'A clip cannot be ${frame.width}×${frame.height}: both '
+                    'sides must be even.',
+                  ),
+                );
+              }
+              pack = width % 4 == 0 ? await nv12?.call() : null;
+              format = pack == null ? 'rgba' : 'nv12';
+              // A clip is begun in front, as a part is finished there.
+              await whileAway();
+              if (stopped() case final EncodeFailure why) {
+                return await abandon(why);
+              }
+              final Map<Object?, Object?>? begun = await _channel
+                  .invokeMapMethod<Object?, Object?>('begin', <String, Object>{
+                    'width': width,
+                    'height': height,
+                    'fps': fps,
+                    'fileName': fileName,
+                    'format': format,
+                  });
+              session = begun?['session'] as int?;
+              path = begun?['path'] as String?;
+              if (session == null || path == null) {
+                return await abandon(
+                  const EncodeFailure(
+                    EncodeFailureReason.encoderError,
+                    'The encoder did not start.',
+                  ),
+                );
+              }
+              timing?.lap('begin');
+            } else if (frame.width != width || frame.height != height) {
+              return await abandon(
+                const EncodeFailure(
+                  EncodeFailureReason.invalidFrames,
+                  'The frames changed size part way through the clip.',
+                ),
+              );
+            }
+            if (pack case final Nv12Pack packing) {
+              bytes = await packing(frame);
+            } else {
+              final ByteData? rgba = await frame.toByteData();
+              if (rgba == null) {
+                return await abandon(
+                  const EncodeFailure(
+                    EncodeFailureReason.encoderError,
+                    'A frame could not be read back.',
+                  ),
+                );
+              }
+              bytes = rgba.buffer.asUint8List(
+                rgba.offsetInBytes,
+                rgba.lengthInBytes,
+              );
+            }
+            timing?.lap('read back');
+          } finally {
+            frame.dispose();
+          }
+          await sent();
+          timing?.lap('wait for the encoder');
+          if (held != null) {
+            await whileAway();
+            if (stopped() case final EncodeFailure why) {
+              return await abandon(why);
+            }
+            from = await lostFrom();
+            if (from != null) {
+              break;
+            }
+          }
           if (stopped() case final EncodeFailure why) {
             return await abandon(why);
           }
-          if (width == null) {
-            width = frame.width;
-            height = frame.height;
-            if (width.isOdd || height.isOdd) {
-              return await abandon(
-                EncodeFailure(
-                  EncodeFailureReason.invalidFrames,
-                  'A clip cannot be ${frame.width}×${frame.height}: both '
-                  'sides must be even.',
-                ),
-              );
-            }
-            pack = width % 4 == 0 ? await nv12?.call() : null;
-            format = pack == null ? 'rgba' : 'nv12';
-            final Map<Object?, Object?>? begun = await _channel
-                .invokeMapMethod<Object?, Object?>('begin', <String, Object>{
-                  'width': width,
-                  'height': height,
-                  'fps': fps,
-                  'fileName': fileName,
-                  'format': format,
-                });
-            session = begun?['session'] as int?;
-            path = begun?['path'] as String?;
-            if (session == null || path == null) {
-              return await abandon(
-                const EncodeFailure(
-                  EncodeFailureReason.encoderError,
-                  'The encoder did not start.',
-                ),
-              );
-            }
-            timing?.lap('begin');
-          } else if (frame.width != width || frame.height != height) {
-            return await abandon(
-              const EncodeFailure(
-                EncodeFailureReason.invalidFrames,
-                'The frames changed size part way through the clip.',
-              ),
-            );
-          }
-          if (pack case final Nv12Pack packing) {
-            bytes = await packing(frame);
-          } else {
-            final ByteData? rgba = await frame.toByteData();
-            if (rgba == null) {
-              return await abandon(
-                const EncodeFailure(
-                  EncodeFailureReason.encoderError,
-                  'A frame could not be read back.',
-                ),
-              );
-            }
-            bytes = rgba.buffer.asUint8List(
-              rgba.offsetInBytes,
-              rgba.lengthInBytes,
-            );
-          }
-          timing?.lap('read back');
-        } finally {
-          frame.dispose();
+          final Future<void> call = _channel.invokeMethod<void>(
+            'addFrame',
+            <String, Object>{'session': session!, format: bytes},
+          );
+          // Handled from here on, so a failure while the next frame is drawn
+          // is not reported as uncaught; `sent` still hears of it.
+          unawaited(call.then<void>((_) {}, onError: (Object _) {}));
+          sending = call;
+          handed++;
+          timing?.lap('send');
         }
-        await sent();
-        timing?.lap('wait for the encoder');
-        if (stopped() case final EncodeFailure why) {
-          return await abandon(why);
+        if (from == null) {
+          // Every frame is handed over. The clip is finished in front, and
+          // only once the part the app last left in is known to be kept.
+          await sent();
+          await whileAway();
+          if (stopped() case final EncodeFailure why) {
+            return await abandon(why);
+          }
+          from = await lostFrom();
+          if (from == null) {
+            break;
+          }
         }
-        final Future<void> call = _channel.invokeMethod<void>(
-          'addFrame',
-          <String, Object>{
-            'session': session!,
-            format: bytes,
-          },
-        );
-        // Handled from here on, so a failure while the next frame is drawn is
-        // not reported as uncaught; `sent` still hears of it.
-        unawaited(call.then<void>((_) {}, onError: (Object _) {}));
-        sending = call;
-        timing?.lap('send');
+        final Stream<ui.Image> Function(int from)? again = redraw;
+        if (again == null) {
+          return await abandon(interrupted);
+        }
+        handed = from;
+        encoded = from;
+        onFrame?.call(encoded);
+        source = again(from);
       }
-      await sent();
 
       final int? open = session;
       if (open == null) {

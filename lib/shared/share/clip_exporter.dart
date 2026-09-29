@@ -102,8 +102,8 @@ final class ClipJob {
 ///
 /// Where the platform can keep the app working while it is away
 /// ([ClipKeepAlive]: Android), the clip goes on behind other apps and a locked
-/// screen, with its progress in a notification; elsewhere leaving the app
-/// stops it.
+/// screen, with its progress in a notification. On iOS it pauses with the app
+/// and goes on when the app is back; elsewhere leaving the app stops it.
 class ClipExporter {
   ClipExporter({
     VideoEncoder? encoder,
@@ -274,6 +274,15 @@ class ClipExporter {
       },
       cancel: cancel.future,
       away: away,
+      redraw: (int from) => renderer.frames(from: from),
+      onAway: (bool isAway) {
+        final ClipJob? job = _job.value;
+        if (!_disposed && job != null && job.underway) {
+          _job.value = job._with(
+            status: isAway ? ClipStatus.paused : ClipStatus.making,
+          );
+        }
+      },
     );
     if (identical(_cancel, cancel)) {
       _cancel = null;

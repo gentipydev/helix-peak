@@ -11,11 +11,15 @@ import UIKit
   }
 
   private var videoEncoder: VideoEncoderChannel?
+  private var clipKeepAlive: ClipKeepAliveChannel?
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "VideoEncoderChannel") {
       videoEncoder = VideoEncoderChannel(messenger: registrar.messenger())
+    }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "ClipKeepAliveChannel") {
+      clipKeepAlive = ClipKeepAliveChannel(messenger: registrar.messenger())
     }
   }
 }
