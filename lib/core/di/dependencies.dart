@@ -6,6 +6,7 @@ import '../../features/gene_lookup/data/repositories/gene_repository_impl.dart';
 import '../../features/gene_lookup/data/repositories/protein_catalog_repository.dart';
 import '../../features/gene_lookup/domain/repositories/gene_repository.dart';
 import '../../features/gene_lookup/domain/usecases/fetch_gene.dart';
+import '../../shared/share/clip_exporter.dart';
 import '../catalog/protein_resolver.dart';
 import '../evidence/impact_explanation_repository.dart';
 import '../network/api_client.dart';
@@ -41,6 +42,12 @@ List<RepositoryProvider<Object>> buildAppProviders({
     RepositoryProvider<FetchGene>(
       create: (BuildContext context) =>
           FetchGene(context.read<GeneRepository>()),
+    ),
+    // One clip at a time for the whole app, so that it outlives the page
+    // that asked for it.
+    RepositoryProvider<ClipExporter>(
+      create: (BuildContext context) => ClipExporter(),
+      dispose: (ClipExporter exporter) => exporter.dispose(),
     ),
   ];
 }

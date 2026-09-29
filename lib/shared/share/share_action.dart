@@ -38,6 +38,30 @@ Future<void> systemShareSheet({
   );
 }
 
+/// Hands one finished file to whatever shares it.
+typedef FileShare = Future<void> Function({
+  required File file,
+  required String mimeType,
+  required String text,
+  Rect? origin,
+});
+
+/// A file already on disk, to the platform's own share sheet.
+Future<void> systemShareFile({
+  required File file,
+  required String mimeType,
+  required String text,
+  Rect? origin,
+}) async {
+  await SharePlus.instance.share(
+    ShareParams(
+      files: <XFile>[XFile(file.path, mimeType: mimeType)],
+      text: text,
+      sharePositionOrigin: origin,
+    ),
+  );
+}
+
 /// The words that go with a shared clip: the protein's name and its link.
 String posterText(ProteinTarget target) =>
     '${target.display} in Helix Peek: ${geneLink(target)}';

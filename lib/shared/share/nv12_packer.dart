@@ -41,9 +41,7 @@ final class Nv12Packer {
   /// so that the two paths can be timed against each other on one phone.
   static Future<Nv12Pack?> forPlatform() async {
     const bool enabled = bool.fromEnvironment('CLIP_NV12', defaultValue: true);
-    if (!enabled ||
-        kIsWeb ||
-        defaultTargetPlatform != TargetPlatform.android) {
+    if (!enabled || kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
       return null;
     }
     return (await shared())?.pack;
@@ -172,7 +170,8 @@ Uint8List nv12Reference(Uint8List rgba, int width, int height) {
     for (int x = 0; x < width; x++) {
       final int i = (y * width + x) * 4;
       out[y * width + x] =
-          16 + ((47 * rgba[i] + 157 * rgba[i + 1] + 16 * rgba[i + 2] + 128) >> 8);
+          16 +
+          ((47 * rgba[i] + 157 * rgba[i + 1] + 16 * rgba[i + 2] + 128) >> 8);
     }
   }
   final int chroma = width * height;

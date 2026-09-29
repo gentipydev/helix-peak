@@ -58,7 +58,11 @@ void main() {
       // Black on the left block, white on the right: the luma follows each
       // pixel and each block has its own chroma pair.
       final Uint8List nv12 = nv12Reference(
-        _rgba(4, 2, (int x, _) => x < 2 ? <int>[0, 0, 0] : <int>[255, 255, 255]),
+        _rgba(
+          4,
+          2,
+          (int x, _) => x < 2 ? <int>[0, 0, 0] : <int>[255, 255, 255],
+        ),
         4,
         2,
       );
@@ -70,7 +74,11 @@ void main() {
     test('a block\'s chroma is its rounded mean, not one corner', () {
       // Red in one corner of four: r = (255 + 2) >> 2 = 64.
       final Uint8List nv12 = nv12Reference(
-        _rgba(2, 2, (int x, int y) => x + y == 0 ? <int>[255, 0, 0] : <int>[0, 0, 0]),
+        _rgba(
+          2,
+          2,
+          (int x, int y) => x + y == 0 ? <int>[255, 0, 0] : <int>[0, 0, 0],
+        ),
         2,
         2,
       );
@@ -93,10 +101,7 @@ void main() {
       final ui.Image frame = await _image(16, 6, at);
       final ByteData rgba = (await frame.toByteData())!;
       final Uint8List packed = await packer!.pack(frame);
-      expect(
-        packed,
-        nv12Reference(rgba.buffer.asUint8List(), 16, 6),
-      );
+      expect(packed, nv12Reference(rgba.buffer.asUint8List(), 16, 6));
       frame.dispose();
       packer.dispose();
     });

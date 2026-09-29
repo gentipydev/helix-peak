@@ -1,50 +1,30 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/catalog/protein_target.dart';
-import '../../core/theme/app_spacing.dart';
+import 'clip_exporter.dart';
+import 'clip_sheet.dart';
 import 'frame_renderer.dart';
-import 'gene_link.dart';
 import 'nv12_packer.dart';
 import 'share_action.dart';
 import 'video_encoder.dart';
 
-/// Hands one finished file to whatever shares it.
-typedef FileShare = Future<void> Function({
-  required File file,
-  required String mimeType,
-  required String text,
-  Rect? origin,
-});
-
-/// A file already on disk, to the platform's own share sheet.
-Future<void> systemShareFile({
-  required File file,
-  required String mimeType,
-  required String text,
-  Rect? origin,
-}) async {
-  await SharePlus.instance.share(
-    ShareParams(
-      files: <XFile>[XFile(file.path, mimeType: mimeType)],
-      text: text,
-      sharePositionOrigin: origin,
-    ),
-  );
-}
-
-/// Makes a flow into a clip and shares it: [painter] drawn offscreen at
-/// every frame of [duration] ([FrameRenderer]), encoded to MP4
-/// ([VideoEncoder]) and handed to the platform share sheet.
+/// Makes a flow into a clip: [painter] drawn offscreen at every frame of
+/// [duration] and encoded to MP4, as a job the whole app carries
+/// ([ClipExporter]), shown in a sheet ([showClipSheet]) and shared from there.
 ///
 /// [painter] is given how far through the clip a frame is, 0 to 1; how that
 /// maps onto the flow's own timeline is the caller's to say. Each frame also
 /// carries the protein's name and its link, so a clip seen on its own still
 /// says what it is.
+///
+/// The clip goes on after the sheet is put away and after this button is
+/// gone. While this protein's clip is being made the button wears its
+/// progress as a ring, and a tap shows the sheet again. While another
+/// protein's clip is being made, a tap shows that one's sheet instead of
+/// starting a second.
 ///
 /// Where clips cannot be made — everywhere but Android and iOS — the button
 /// is not there at all.
@@ -53,6 +33,7 @@ class ShareClipButton extends StatefulWidget {
     required this.target,
     required this.painter,
     required this.duration,
+    this.exporter,
     this.encoder,
     this.shareFile = systemShareFile,
     this.size = const Size(360, 640),
@@ -66,6 +47,10 @@ class ShareClipButton extends StatefulWidget {
 
   /// How long the clip runs: [ClipFormat.shortest] to [ClipFormat.longest].
   final Duration duration;
+
+  /// Null for the app's own, the [ClipExporter] above; where there is none,
+  /// the button makes its own from [encoder] and [shareFile].
+  final ClipExporter? exporter;
 
   /// Null for the platform's own, packing frames as NV12 where the platform
   /// takes them ([Nv12Packer.forPlatform]).
@@ -83,222 +68,88 @@ class ShareClipButton extends StatefulWidget {
 }
 
 class _ShareClipButtonState extends State<ShareClipButton> {
-  late final VideoEncoder _encoder =
-      widget.encoder ?? VideoEncoder(nv12: Nv12Packer.forPlatform);
-  bool _working = false;
+  /// The button's own exporter, made only where no other is to be had.
+  ClipExporter? _own;
 
-  int get _frames {
-    final Duration clamped = widget.duration < ClipFormat.shortest
-        ? ClipFormat.shortest
-        : widget.duration > ClipFormat.longest
-        ? ClipFormat.longest
-        : widget.duration;
-    return (clamped.inMilliseconds * widget.fps / 1000).round();
+  ClipExporter _exporterOf(BuildContext context) =>
+      widget.exporter ??
+      context.watch<ClipExporter?>() ??
+      (_own ??= ClipExporter(
+        encoder: widget.encoder ?? VideoEncoder(nv12: Nv12Packer.forPlatform),
+        shareFile: widget.shareFile,
+      ));
+
+  @override
+  void dispose() {
+    _own?.dispose();
+    super.dispose();
   }
 
-  Future<void> _export() async {
-    final ThemeData theme = Theme.of(context);
-    final ScaffoldMessengerState? messenger = ScaffoldMessenger.maybeOf(
-      context,
-    );
-    final RenderBox? box = context.findRenderObject() as RenderBox?;
-    final Rect? origin = box == null
-        ? null
-        : box.localToGlobal(Offset.zero) & box.size;
-    final int total = _frames;
-    final ValueNotifier<int> done = ValueNotifier<int>(0);
-    final Completer<void> cancel = Completer<void>();
-    setState(() => _working = true);
-
-    // The dialog goes on the root navigator, so it is taken off the root
-    // navigator too. The lab's routes sit in a shell with a navigator of its
-    // own, and popping the nearest one closed the flow's page and left the
-    // dialog standing over the picker.
-    final NavigatorState navigator = Navigator.of(context, rootNavigator: true);
-    unawaited(
-      showDialog<void>(
-        context: context,
-        useRootNavigator: true,
-        barrierDismissible: false,
-        builder: (BuildContext context) => _ExportDialog(
-          done: done,
-          total: total,
-          onCancel: () {
-            if (!cancel.isCompleted) {
-              cancel.complete();
-            }
-          },
-        ),
-      ),
-    );
-
-    final FrameRenderer renderer = FrameRenderer(
-      painter: (double t) => _Titled(widget.painter(t), widget.target, theme),
-      count: total,
-      size: widget.size,
-      pixelRatio: widget.pixelRatio,
-      background: theme.colorScheme.surface,
-    );
-    final EncodeResult result = await _encoder.encode(
-      renderer.frames(),
-      widget.fps,
-      fileName: '${widget.target.slug}-helix-peek.mp4',
-      onFrame: (int n) => done.value = n,
-      cancel: cancel.future,
-    );
-    if (navigator.mounted) {
-      navigator.pop();
+  void _open(ClipExporter exporter) {
+    final ClipJob? job = exporter.job.value;
+    final bool another = job != null && job.target.slug != widget.target.slug;
+    // A clip of this protein, or one of another still being made, is shown;
+    // otherwise this protein's is started.
+    if (job == null || (another && !job.underway)) {
+      exporter.start(
+        target: widget.target,
+        painter: widget.painter,
+        duration: widget.duration,
+        theme: Theme.of(context),
+        size: widget.size,
+        pixelRatio: widget.pixelRatio,
+        fps: widget.fps,
+      );
     }
-    done.dispose();
-    if (mounted) {
-      setState(() => _working = false);
-    }
-
-    switch (result) {
-      case EncodeSuccess(:final File file, :final String? timing):
-        // Only a build made to time clips has this; it is read off the phone.
-        if (timing != null) {
-          messenger?.showSnackBar(
-            SnackBar(
-              content: Text(timing),
-              duration: const Duration(seconds: 30),
-            ),
-          );
-        }
-        try {
-          await widget.shareFile(
-            file: file,
-            mimeType: 'video/mp4',
-            text: posterText(widget.target),
-            origin: origin,
-          );
-        } on Object catch (error) {
-          debugPrint('helixpeek: could not share a clip ($error)');
-          messenger?.showSnackBar(
-            const SnackBar(content: Text('The clip could not be shared.')),
-          );
-        }
-      case EncodeFailure(reason: EncodeFailureReason.cancelled):
-        break;
-      case EncodeFailure(:final EncodeFailureReason reason, :final message):
-        messenger?.showSnackBar(
-          SnackBar(
-            content: Text(message),
-            action: reason == EncodeFailureReason.interrupted && mounted
-                ? SnackBarAction(label: 'Try again', onPressed: _export)
-                : null,
-          ),
-        );
-    }
+    unawaited(showClipSheet(context, exporter));
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_encoder.isSupported) {
+    final ClipExporter exporter = _exporterOf(context);
+    if (!exporter.isSupported) {
       return const SizedBox.shrink();
     }
-    return IconButton(
-      key: const ValueKey<String>('share-clip'),
-      tooltip: 'Share a clip',
-      onPressed: _working ? null : _export,
-      icon: const Icon(Icons.movie_outlined),
+    return ValueListenableBuilder<ClipJob?>(
+      valueListenable: exporter.job,
+      builder: (BuildContext context, ClipJob? job, _) => IconButton(
+        key: const ValueKey<String>('share-clip'),
+        tooltip: 'Share a clip',
+        onPressed: () => _open(exporter),
+        icon:
+            job != null && job.underway && job.target.slug == widget.target.slug
+            ? _Ring(progress: job.progress)
+            : const Icon(Icons.movie_outlined),
+      ),
     );
   }
 }
 
-/// Frames counted as they are encoded, and a way to stop.
-class _ExportDialog extends StatelessWidget {
-  const _ExportDialog({
-    required this.done,
-    required this.total,
-    required this.onCancel,
-  });
+/// The clip's icon inside a ring of its progress. The ring is drawn around
+/// the icon without taking room of its own, so the button keeps its size.
+class _Ring extends StatelessWidget {
+  const _Ring({required this.progress});
 
-  final ValueNotifier<int> done;
-  final int total;
-  final VoidCallback onCancel;
+  final double progress;
 
   @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    return AlertDialog(
-      title: const Text('Making a clip'),
-      content: ValueListenableBuilder<int>(
-        valueListenable: done,
-        builder: (BuildContext context, int n, _) => Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            LinearProgressIndicator(value: total == 0 ? null : n / total),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              'Frame $n of $total. Keep the app open until it is done.',
-              key: const ValueKey<String>('clip-progress'),
-              style: theme.textTheme.bodySmall,
-            ),
-          ],
+  Widget build(BuildContext context) => Stack(
+    clipBehavior: Clip.none,
+    alignment: Alignment.center,
+    children: <Widget>[
+      const Icon(Icons.movie_outlined),
+      Positioned(
+        left: -6,
+        top: -6,
+        right: -6,
+        bottom: -6,
+        child: CircularProgressIndicator(
+          key: const ValueKey<String>('share-clip-progress'),
+          value: progress,
+          strokeWidth: 2,
+          semanticsLabel: 'Making a clip',
         ),
       ),
-      actions: <Widget>[
-        TextButton(onPressed: onCancel, child: const Text('Cancel')),
-      ],
-    );
-  }
-}
-
-/// One frame of a clip with the protein's name above it and its link below.
-class _Titled extends CustomPainter {
-  _Titled(this.inner, this.target, this.theme);
-
-  final CustomPainter inner;
-  final ProteinTarget target;
-  final ThemeData theme;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    inner.paint(canvas, size);
-    final ColorScheme scheme = theme.colorScheme;
-    _line(
-      canvas,
-      size,
-      target.display,
-      (theme.textTheme.titleLarge ?? const TextStyle()).copyWith(
-        color: scheme.onSurface,
-      ),
-      top: 24,
-    );
-    _line(
-      canvas,
-      size,
-      geneLink(target).toString(),
-      (theme.textTheme.bodySmall ?? const TextStyle()).copyWith(
-        fontFamily: 'JetBrainsMono',
-        color: scheme.primary,
-      ),
-      bottom: 24,
-    );
-  }
-
-  static void _line(
-    Canvas canvas,
-    Size size,
-    String text,
-    TextStyle style, {
-    double? top,
-    double? bottom,
-  }) {
-    final TextPainter painter = TextPainter(
-      text: TextSpan(text: text, style: style),
-      textDirection: TextDirection.ltr,
-      maxLines: 1,
-      ellipsis: '…',
-    )..layout(maxWidth: math.max(0, size.width - 48));
-    final double y = top ?? size.height - bottom! - painter.height;
-    painter
-      ..paint(canvas, Offset((size.width - painter.width) / 2, y))
-      ..dispose();
-  }
-
-  @override
-  bool shouldRepaint(_Titled old) => true;
+    ],
+  );
 }

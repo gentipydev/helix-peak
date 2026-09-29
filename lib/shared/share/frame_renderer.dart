@@ -27,6 +27,7 @@ final class FrameRenderer {
     required this.size,
     this.pixelRatio = 1,
     this.background,
+    this.pace,
   });
 
   final FramePainter painter;
@@ -43,6 +44,10 @@ final class FrameRenderer {
   /// What each frame is filled with before the painter draws, or nothing,
   /// which leaves it transparent.
   final Color? background;
+
+  /// Waited on before each frame is drawn, so that a caller can keep the
+  /// drawing out of the way of other work; null draws straight away.
+  final Future<void> Function()? pace;
 
   int get width => (size.width * pixelRatio).round();
 
@@ -84,6 +89,10 @@ final class FrameRenderer {
           while (out.isPaused && !cancelled) {
             await (resumed ??= Completer<void>()).future;
           }
+          if (cancelled) {
+            return;
+          }
+          await pace?.call();
           if (cancelled) {
             return;
           }

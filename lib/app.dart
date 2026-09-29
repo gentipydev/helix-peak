@@ -5,6 +5,7 @@ import 'core/constants/app_constants.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/lab/lab_routes.dart';
+import 'shared/share/clip_sheet.dart';
 
 class HelixPeekApp extends StatelessWidget {
   const HelixPeekApp({super.key});
@@ -17,6 +18,9 @@ class HelixPeekApp extends StatelessWidget {
       routerConfig: _router,
       theme: AppTheme.dark,
       themeMode: ThemeMode.dark,
+      // A clip that ends while no sheet shows it is said on any screen.
+      builder: (BuildContext context, Widget? child) =>
+          ClipReadyListener(child: child ?? const SizedBox.shrink()),
     );
   }
 

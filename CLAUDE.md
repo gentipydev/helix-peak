@@ -127,8 +127,16 @@ Git: commit the session's own changes locally. Never push, in any form.
     coefficients, so Kotlin only copies rows. Each launch packs a small
     frame and compares it with `nv12Reference` first; where they differ, and
     on iOS, frames cross as RGBA. `--dart-define=CLIP_TIMING=true` builds
-    report each clip's time per step (a snackbar, and the log), and
+    report each clip's time per step (the clip's sheet, and the log), and
     `CLIP_NV12=false` forces RGBA to time the two against each other.
+  - A clip is a job of the whole app (`ClipExporter`, provided in
+    `core/di/dependencies.dart`), one at a time, so it outlives the page that
+    asked for it. `ShareClipButton` starts it and shows it in a sheet
+    (`showClipSheet`) that can be put away while it goes on; the button then
+    wears its progress as a ring. A made clip waits for Share. One that ends
+    while no sheet shows it is said in a snackbar on any screen
+    (`ClipReadyListener`, in `MaterialApp.builder`). Between frames the job
+    gives way to the app's own (`ClipExporter.giveWayToFrames`).
 - `lib/features/gene_lookup/`: **the walk**. It has `data/`, `domain/` and
   `presentation/` (`anatomy/`, `clinvar/`, `constraint/`, `inspector/`,
   `structure/`, `cubit/`, `screens/`). The mRNA page, untouched, offers
