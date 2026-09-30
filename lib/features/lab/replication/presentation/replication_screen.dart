@@ -1,366 +1,389 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:math' as math;
 
-import '../../../../core/biology/gene_record.dart';
-import '../../../../core/catalog/protein_target.dart';
-import '../../../../core/network/track_source.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../shared/format.dart';
+import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../../../core/theme/nucleotide_colors.dart';
+import '../../../../shared/anatomy/sequence_scrubber.dart';
 import '../../../../shared/motion/timeline_controller.dart';
 import '../../../../shared/motion/transport_bar.dart';
-import '../../../gene_lookup/domain/usecases/fetch_gene.dart';
-import '../../mutate/domain/apply_edit.dart';
-import '../../mutate/presentation/mutate_cubit.dart';
-import '../../mutate/presentation/mutate_screen.dart';
-import '../../presentation/lab_protein_picker.dart';
-import '../../presentation/lab_record.dart';
-import '../domain/fidelity.dart';
-import '../domain/replication_captions.dart';
-import '../domain/replication_plan.dart';
-import '../domain/replication_timeline.dart';
-import 'replication_painters.dart';
+import '../domain/replication_tour.dart';
+import 'replication_molecules.dart';
+import 'replication_scene.dart';
 
-/// `/lab/replication/<slug>`: one protein's gene, copied.
-class ReplicationRoute extends StatelessWidget {
-  const ReplicationRoute({required this.slug, super.key});
-
-  final String slug;
-
-  @override
-  Widget build(BuildContext context) => LabTargetLoader(
-    slug: slug,
-    builder: (BuildContext context, ProteinTarget target) => LabRecordView(
-      target: target,
-      title: ReplicationScreen.titleOf(target),
-      builder: (BuildContext context, GeneRecord record) {
-        final String? refused = ReplicationPlan.refusal(record);
-        if (refused == null) {
-          return ReplicationScreen(
-            key: ValueKey<String>(target.slug),
-            target: target,
-            plan: ReplicationPlan.of(record),
-          );
-        }
-        return Scaffold(
-          appBar: AppBar(title: Text(ReplicationScreen.titleOf(target))),
-          body: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.screenPadding),
-              child: Text(
-                refused,
-                key: const ValueKey<String>('replication-refused'),
-                style: Theme.of(context).textTheme.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        );
-      },
-    ),
-  );
-}
-
-/// A gene copying itself, on the shared transport bar.
-///
-/// Three views of one timeline. At the top the fork base by base, on the
-/// record's own helix as the shared geometry unzips it; below it the fork at
-/// the scale of fragments, where the lagging strand's loop fits whole; and
-/// the whole record as one bar, the bubble growing along it. The reader
-/// chooses how much of the cell's error checking is on: the proofreading set
-/// piece plays out as they choose, and the errors a thousand copies keep at
-/// that level are listed. Each one opens on the mutate screen, as an edit to
-/// the record, so what it does to the protein is read the way an edit made by
-/// hand is.
+/// A local, immediately playable view of genome replication. No catalog, gene
+/// record or network request is needed to enter the animation.
 class ReplicationScreen extends StatefulWidget {
-  const ReplicationScreen({
-    required this.target,
-    required this.plan,
-    super.key,
-  });
+  const ReplicationScreen({super.key});
 
-  final ProteinTarget target;
-  final ReplicationPlan plan;
-
-  /// How long one beat takes at speed 1: thirty beats, half a minute.
-  static const Duration beat = Duration(milliseconds: 1000);
-
-  static String titleOf(ProteinTarget target) =>
-      'Replication · ${target.display}';
+  static const Duration beat = Duration(seconds: 1);
 
   @override
   State<ReplicationScreen> createState() => _ReplicationScreenState();
 }
 
 class _ReplicationScreenState extends State<ReplicationScreen>
-    with TickerProviderStateMixin {
-  late final ReplicationTimeline _timeline = ReplicationTimeline(widget.plan);
-  late final ReplicationCaptions _captions = ReplicationCaptions(widget.plan);
-  late final ErrorTally _tally = ErrorTally.of(widget.plan);
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+  static const ReplicationTimeline _timeline = ReplicationTimeline();
   late final TimelineController _controller = TimelineController(
     vsync: this,
     timeline: _timeline,
     beat: ReplicationScreen.beat,
   );
-  final HelixWindow _window = HelixWindow();
-
-  /// Everything on, to start: the reader switches layers off to watch errors
-  /// get through.
-  Fidelity _fidelity = Fidelity.repair;
+  final ReplicationMolecules _molecules = ReplicationMolecules();
+  bool _labels = true;
+  bool _followCamera = true;
+  bool _resumeOnForeground = false;
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _controller.reducedMotion = MediaQuery.disableAnimationsOf(context);
+      if (!_controller.reducedMotion) _controller.play();
+    });
   }
 
-  /// The errors that get through at the level chosen, the copy drawn first
-  /// where the set piece's wrong base stays in it.
-  List<(String, Substitution)> get _survivors {
-    final ReplicationPlan plan = widget.plan;
-    return <(String, Substitution)>[
-      if (_fidelity == Fidelity.polymerase)
-        (
-          'The copy drawn above',
-          Substitution(plan.positionOf(plan.setPieceSite), plan.setPieceWrong),
-        ),
-      for (final CopyingError e in _tally.survivors(_fidelity))
-        ('Copy ${grouped(e.copy)}', e.editOf(plan)),
-    ];
-  }
-
-  Future<void> _open(Substitution edit) async {
-    final ProteinTarget target = widget.target;
-    final FetchGene fetchGene = context.read<FetchGene>();
-    final TrackSource tracks = context.read<TrackSource>();
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) => BlocProvider<MutateCubit>(
-          create: (BuildContext context) => MutateCubit(
-            target: target,
-            fetchGene: fetchGene,
-            tracks: tracks,
-            applying: edit,
-          )..load(),
-          child: MutateScreen(target: target),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _showErrors() async {
-    final List<(String, Substitution)> errors = _survivors;
-    final GeneRecord record = widget.plan.record;
-    final Substitution? chosen = await showModalBottomSheet<Substitution>(
-      context: context,
-      showDragHandle: true,
-      isScrollControlled: true,
-      builder: (BuildContext context) => SafeArea(
-        child: SizedBox(
-          height: MediaQuery.sizeOf(context).height * 0.6,
-          child: ListView.builder(
-            key: const ValueKey<String>('replication-error-list'),
-            itemCount: errors.length + 1,
-            itemBuilder: (BuildContext context, int index) {
-              if (index == 0) {
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.screenPadding,
-                    0,
-                    AppSpacing.screenPadding,
-                    AppSpacing.sm,
-                  ),
-                  child: Text(
-                    'Errors that got through. Each opens as an edit to the '
-                    'record, where you can see what it does.',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                );
-              }
-              final (String copy, Substitution edit) = errors[index - 1];
-              final String was = widget.plan.baseAt(
-                record.strand == -1
-                    ? record.end - edit.position
-                    : edit.position - record.start,
-              );
-              return ListTile(
-                key: ValueKey<String>('replication-error-${index - 1}'),
-                title: Text(
-                  '$copy · base ${grouped(edit.position)}: '
-                  '$was → ${edit.newBase}',
-                ),
-                subtitle: Text(outcomeLabel(classify(record, edit))),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => Navigator.of(context).pop(edit),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-    if (chosen != null && mounted) {
-      await _open(chosen);
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (_resumeOnForeground) _controller.play();
+      _resumeOnForeground = false;
+    } else if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused) {
+      _resumeOnForeground = _resumeOnForeground || _controller.isPlaying;
+      _controller.pause();
     }
   }
 
-  void _choose(Fidelity fidelity) {
-    setState(() => _fidelity = fidelity);
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _controller.dispose();
+    _molecules.dispose();
+    super.dispose();
+  }
+
+  Future<void> _showScience() async {
+    final bool resume = _controller.isPlaying;
+    _controller.pause();
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (BuildContext context) => const _ScienceSheet(),
+    );
+    if (mounted && resume && !_controller.reducedMotion) _controller.play();
   }
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final ReplicationInks inks = ReplicationInks.of(context);
-    final TextStyle labels =
-        theme.textTheme.labelSmall ?? const TextStyle(fontSize: 11);
-    final TextStyle? note = theme.textTheme.bodySmall?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
-    );
-    final int through = _survivors.length;
+    final ColorScheme colors = theme.colorScheme;
+    final double textScale = MediaQuery.textScalerOf(context).scale(14) / 14;
     return Scaffold(
-      appBar: AppBar(title: Text(ReplicationScreen.titleOf(widget.target))),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+      appBar: AppBar(
+        toolbarHeight: math.max(kToolbarHeight, 44 * textScale),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Expanded(
-              child: AnimatedBuilder(
-                animation: _controller,
-                builder: (BuildContext context, Widget? views) => Semantics(
-                  label: describe(
-                    widget.plan,
-                    _timeline.stateAt(_controller.t),
-                  ),
-                  child: views,
-                ),
-                child: ExcludeSemantics(
+            const Text(
+              'Replication',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              'Human DNA · 200 bp',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall,
+            ),
+          ],
+        ),
+        actions: <Widget>[
+          IconButton(
+            tooltip: _labels ? 'Hide molecule labels' : 'Show molecule labels',
+            onPressed: () => setState(() => _labels = !_labels),
+            icon: Icon(
+              _labels ? Icons.label_outline_rounded : Icons.label_off_outlined,
+            ),
+          ),
+          IconButton(
+            tooltip: 'About this replication model',
+            onPressed: _showScience,
+            icon: const Icon(Icons.info_outline_rounded),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        top: false,
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            // Let the scene take the space recovered from the old header,
+            // horizontal slider and long captions. Small screens still scroll.
+            final double canvasHeight = math.max(
+              320,
+              constraints.maxHeight - 164 - math.max(0, textScale - 1) * 140,
+            );
+            return SingleChildScrollView(
+              key: const ValueKey<String>('replication-scroll'),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 620),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
-                      Expanded(
-                        flex: 11,
-                        child: RepaintBoundary(
-                          child: CustomPaint(
-                            key: const ValueKey<String>('replication-bases'),
-                            size: Size.infinite,
-                            painter: ForkBasePainter(
-                              plan: widget.plan,
-                              timeline: _timeline,
-                              at: () => _controller.t,
-                              fidelity: _fidelity,
-                              inks: inks,
-                              window: _window,
-                              labels: labels,
-                              repaint: _controller,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 8,
-                        child: RepaintBoundary(
-                          child: CustomPaint(
-                            key: const ValueKey<String>('replication-loop'),
-                            size: Size.infinite,
-                            painter: ForkLoopPainter(
-                              plan: widget.plan,
-                              timeline: _timeline,
-                              at: () => _controller.t,
-                              fidelity: _fidelity,
-                              inks: inks,
-                              labels: labels,
-                              repaint: _controller,
-                            ),
-                          ),
-                        ),
-                      ),
                       SizedBox(
-                        height: 22,
-                        child: RepaintBoundary(
-                          child: CustomPaint(
-                            key: const ValueKey<String>('replication-record'),
-                            size: Size.infinite,
-                            painter: GeneBarPainter(
-                              plan: widget.plan,
-                              timeline: _timeline,
-                              at: () => _controller.t,
-                              inks: inks,
-                              repaint: _controller,
+                        height: canvasHeight,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            Expanded(
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: <Widget>[
+                                  AnimatedBuilder(
+                                    animation: _controller,
+                                    builder:
+                                        (BuildContext context, Widget? child) =>
+                                            Semantics(
+                                              label: _timeline
+                                                  .stateAt(_controller.t)
+                                                  .description,
+                                              image: true,
+                                              child: child,
+                                            ),
+                                    child: RepaintBoundary(
+                                      child: CustomPaint(
+                                        key: const ValueKey<String>(
+                                          'replication-canvas',
+                                        ),
+                                        size: Size.infinite,
+                                        painter: ReplicationScene(
+                                          timeline: _timeline,
+                                          at: () => _controller.t,
+                                          molecules: _molecules,
+                                          ground: colors.surface,
+                                          ink: colors.onSurface,
+                                          quiet: colors.onSurfaceVariant,
+                                          bases: context.nucleotideColors,
+                                          showLabels: _labels,
+                                          followCamera: _followCamera,
+                                          reducedMotion:
+                                              MediaQuery.disableAnimationsOf(
+                                                context,
+                                              ),
+                                          repaint: _controller,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 0,
+                                    left: 4,
+                                    child: TextButton.icon(
+                                      onPressed: () => setState(
+                                        () => _followCamera = !_followCamera,
+                                      ),
+                                      icon: Icon(
+                                        _followCamera
+                                            ? Icons.zoom_out_map_rounded
+                                            : Icons.center_focus_strong_rounded,
+                                        size: 16,
+                                      ),
+                                      label: Text(
+                                        _followCamera
+                                            ? 'Whole fork'
+                                            : 'Follow steps',
+                                      ),
+                                      style: TextButton.styleFrom(
+                                        backgroundColor: colors.surface
+                                            .withValues(alpha: 0.92),
+                                        foregroundColor:
+                                            colors.onSurfaceVariant,
+                                        textStyle: theme.textTheme.labelSmall,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                            SizedBox(
+                              width: SequenceScrubber.width,
+                              child: TimelineScrubber(
+                                key: const ValueKey<String>('replication-seek'),
+                                controller: _controller,
+                                landmarks: <(double, String)>[
+                                  for (final mark in _timeline.phases)
+                                    (mark.t, mark.name),
+                                ],
+                                labelAt: (double t) =>
+                                    '${(t * _timeline.beats).round()} / ${_timeline.beats} s',
+                              ),
+                            ),
+                          ],
                         ),
                       ),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 6),
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 16,
+                          runSpacing: 6,
+                          children: <Widget>[
+                            _Legend('Parental', ReplicationPalette.parental),
+                            _Legend('New DNA', ReplicationPalette.daughter),
+                            _Legend('RNA', ReplicationPalette.rna),
+                          ],
+                        ),
+                      ),
+                      AnimatedBuilder(
+                        animation: _controller,
+                        builder: (BuildContext context, Widget? child) =>
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 0, 20, 6),
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  minHeight: 42 * textScale,
+                                ),
+                                child: Text(
+                                  _timeline.stateAt(_controller.t).caption,
+                                  key: const ValueKey<String>(
+                                    'replication-caption',
+                                  ),
+                                  style: theme.textTheme.bodyMedium,
+                                ),
+                              ),
+                            ),
+                      ),
+                      TransportBar(
+                        controller: _controller,
+                        speeds: const <double>[0.25, 0.5, 1, 1.5, 2],
+                      ),
+                      const SizedBox(height: 4),
                     ],
                   ),
                 ),
               ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _Legend extends StatelessWidget {
+  const _Legend(this.label, this.color);
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: <Widget>[
+      Container(
+        width: 13,
+        height: 3,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(2),
+        ),
+      ),
+      const SizedBox(width: 6),
+      Flexible(
+        child: Text(label, style: Theme.of(context).textTheme.bodySmall),
+      ),
+    ],
+  );
+}
+
+class _ScienceSheet extends StatelessWidget {
+  const _ScienceSheet();
+
+  @override
+  Widget build(BuildContext context) {
+    final TextTheme text = Theme.of(context).textTheme;
+    Widget paragraph(String title, String body) => Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(title, style: text.titleSmall),
+          const SizedBox(height: 6),
+          Text(body, style: text.bodyMedium),
+        ],
+      ),
+    );
+    return SafeArea(
+      child: SizedBox(
+        height: MediaQuery.sizeOf(context).height * 0.8,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+          children: <Widget>[
+            Text('Inside a replication fork', style: text.titleLarge),
+            const SizedBox(height: 22),
+            paragraph(
+              'A small window into the whole genome',
+              'Human chromosomes are copied from many origins during S phase. '
+                  'Two forks leave each active origin. Here we join one established '
+                  'fork and follow two 100-nucleotide Okazaki fragments in a '
+                  '200-base-pair stretch. The sequence is illustrative; it is not '
+                  'a particular gene or a measured genomic locus.',
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.screenPadding,
-                AppSpacing.sm,
-                AppSpacing.screenPadding,
-                0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  SizedBox(
-                    height: 128,
-                    child: AnimatedBuilder(
-                      animation: _controller,
-                      builder: (BuildContext context, _) => Text(
-                        _captions.captionOf(
-                          _timeline.stateAt(_controller.t),
-                          _fidelity,
-                        ),
-                        key: const ValueKey<String>('replication-caption'),
-                        style: theme.textTheme.bodyMedium,
-                        maxLines: 6,
-                        overflow: TextOverflow.fade,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  SegmentedButton<Fidelity>(
-                    key: const ValueKey<String>('replication-fidelity'),
-                    showSelectedIcon: false,
-                    segments: <ButtonSegment<Fidelity>>[
-                      for (final Fidelity f in Fidelity.values)
-                        ButtonSegment<Fidelity>(
-                          value: f,
-                          label: Text(ReplicationCaptions.nameOf(f)),
-                        ),
-                    ],
-                    selected: <Fidelity>{_fidelity},
-                    onSelectionChanged: (Set<Fidelity> chosen) =>
-                        _choose(chosen.single),
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    '${ReplicationCaptions.rateOf(_fidelity)} '
-                    '${_captions.perCopy(_fidelity)} '
-                    '${_captions.tallyOf(_tally, _fidelity)}',
-                    key: const ValueKey<String>('replication-tally'),
-                    style: note,
-                  ),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: TextButton(
-                      key: const ValueKey<String>('replication-errors'),
-                      onPressed: through == 0 ? null : _showErrors,
-                      child: Text(
-                        through == 0
-                            ? 'No error got through'
-                            : 'Open an error that got through',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            paragraph(
+              'The human machinery',
+              'CMG helicase opens DNA while topoisomerase relieves twist ahead. '
+                  'RPA is the human single-strand binding protein (SSB). It protects '
+                  'exposed templates. Pol ε extends the leading strand; primase–Pol α '
+                  'starts each lagging fragment with RNA '
+                  'and a short DNA extension. RFC loads the PCNA sliding clamp '
+                  'so Pol δ can continue synthesis. Each polymerase adds to a '
+                  '3′ end: both new strands grow 5′ → 3′.',
             ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-              child: TransportBar(controller: _controller),
+            paragraph(
+              'From fragments to a continuous strand',
+              'This view shows a short-flap route: Pol δ displaces the earlier '
+                  'primer as it synthesizes DNA, FEN1 cleaves the flap, and DNA '
+                  'ligase I seals the nick. RNase H2 and DNA2 can also help process '
+                  'primers in cells. The newest primer remains until the next '
+                  'fragment reaches it, beyond this window.',
+            ),
+            paragraph(
+              'Reading the animation',
+              'Grey backbones are parental DNA, green is new DNA, and amber '
+                  'marks RNA. Base colours follow the rest of the app. The scene '
+                  'samples bases and enlarges and separates the proteins to expose '
+                  'their work. Shapes, spacing and motion are illustrative. '
+                  'The camera visits processes that occur together at the fork. '
+                  'Playback takes 2 min 40 s at 1×; this is a teaching sequence, '
+                  'not a cellular clock. Chromatin, origin assembly, proofreading '
+                  'and most accessory factors are outside this view.',
+            ),
+            Text('Research & structures', style: text.titleSmall),
+            const SizedBox(height: 8),
+            const _SourceLink(
+              'Human replisome · cryo-EM structure',
+              'Jones et al., 2021 · PDB 7PFO',
+              'https://www.rcsb.org/structure/7PFO',
+            ),
+            const _SourceLink(
+              'How primase is positioned at the fork',
+              'Jones et al., 2023 · Molecular Cell',
+              'https://doi.org/10.1016/j.molcel.2023.06.035',
+            ),
+            const _SourceLink(
+              'Human Okazaki-fragment maturation',
+              'Raducanu et al., 2022 · Nature Communications',
+              'https://doi.org/10.1038/s41467-022-34751-2',
+            ),
+            const _SourceLink(
+              'How PCNA coordinates DNA ligase I',
+              'Blair et al., 2022 · Nature Communications',
+              'https://doi.org/10.1038/s41467-022-35475-z',
             ),
           ],
         ),
@@ -369,40 +392,30 @@ class _ReplicationScreenState extends State<ReplicationScreen>
   }
 }
 
-/// What the views show at [frame], for a screen reader.
-String describe(ReplicationPlan plan, ReplicationFrame frame) {
-  final double travel = frame.travel;
-  final int copied = <int>[
-    (plan.rightFork(travel).floor() - plan.origin + 1).clamp(
-      0,
-      plan.length - plan.origin,
-    ),
-    (plan.origin - plan.leftFork(travel).ceil()).clamp(0, plan.origin),
-  ].reduce((int a, int b) => a + b);
-  return 'A replication fork, drawn three ways. '
-      '${grouped(copied)} of ${grouped(plan.length)} base pairs unwound. '
-      '${ReplicationTimeline.nameOf(frame.phase)}.';
-}
+class _SourceLink extends StatelessWidget {
+  const _SourceLink(this.title, this.subtitle, this.url);
+  final String title;
+  final String subtitle;
+  final String url;
 
-/// What an edit does, in a few words.
-String outcomeLabel(EditOutcome outcome) {
-  final int? codon = outcome.codonIndex;
-  return switch (outcome.kind) {
-    EditOutcomeKind.synonymous =>
-      'Silent: residue ${grouped(codon ?? 0)} is '
-          'unchanged',
-    EditOutcomeKind.missense =>
-      'Residue ${grouped(codon ?? 0)}: '
-          '${outcome.oldResidue} to ${outcome.newResidue}',
-    EditOutcomeKind.nonsense => 'A stop at residue ${grouped(codon ?? 0)}',
-    EditOutcomeKind.mrnaDegraded =>
-      'A stop at residue ${grouped(codon ?? 0)}, early enough that the mRNA '
-          'is destroyed',
-    EditOutcomeKind.stopLoss => 'The stop codon is lost',
-    EditOutcomeKind.spliceSite => 'At a splice site',
-    EditOutcomeKind.intronic => 'In an intron',
-    EditOutcomeKind.utr => 'In an untranslated end',
-    EditOutcomeKind.frameshift => 'The reading frame shifts',
-    EditOutcomeKind.inFrameIndel => 'Residues gained or lost',
-  };
+  @override
+  Widget build(BuildContext context) => ListTile(
+    contentPadding: EdgeInsets.zero,
+    title: Text(title, style: Theme.of(context).textTheme.bodyMedium),
+    subtitle: Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+    trailing: const Icon(Icons.open_in_new_rounded, size: 17),
+    onTap: () async {
+      bool opened = false;
+      try {
+        opened = await launchUrl(Uri.parse(url));
+      } catch (_) {
+        // An unsupported platform should leave the readable reference in place.
+      }
+      if (!opened && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not open the source. $url')),
+        );
+      }
+    },
+  );
 }

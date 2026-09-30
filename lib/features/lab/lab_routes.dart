@@ -68,10 +68,10 @@ const List<LabFeature> labFeatures = <LabFeature>[
   LabFeature(
     title: 'Replication',
     summary:
-        'A gene’s double helix unzips and copies itself: one strand in one '
-        'piece, the other backwards in fragments. Switch its proofreading off '
-        'and watch errors get through.',
+        'Inside a human replication fork: watch the enzymes open DNA, '
+        'copy both strands and join the fragments, slowed down to see each step.',
     path: '${RoutePaths.lab}/replication',
+    subject: 'Human genome',
   ),
   LabFeature(
     title: 'Zoom',
@@ -148,11 +148,18 @@ List<RouteBase> buildLabRoutes() => <RouteBase>[
             builder: (BuildContext context, GoRouterState state) =>
                 const OxygenRoute(),
           ),
-          _picked(
-            'replication',
-            title: 'Replication',
-            lead: 'Pick a protein to watch its gene copied.',
-            screen: (String slug) => ReplicationRoute(slug: slug),
+          GoRoute(
+            path: 'replication',
+            builder: (BuildContext context, GoRouterState state) =>
+                const ReplicationScreen(),
+            routes: <RouteBase>[
+              // Old saved links now open the same genome demonstration.
+              GoRoute(
+                path: ':slug',
+                redirect: (BuildContext context, GoRouterState state) =>
+                    '${RoutePaths.lab}/replication',
+              ),
+            ],
           ),
           _picked(
             'zoom',

@@ -1,356 +1,266 @@
-import 'dart:ui' show ClipOp;
-
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeek/core/catalog/protein_target.dart';
-import 'package:helixpeek/core/network/track_source.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
-import 'package:helixpeek/features/gene_lookup/data/datasources/gene_remote_data_source.dart';
-import 'package:helixpeek/features/gene_lookup/data/repositories/gene_repository_impl.dart';
-import 'package:helixpeek/features/gene_lookup/data/repositories/protein_catalog_repository.dart';
-import 'package:helixpeek/features/gene_lookup/domain/usecases/fetch_gene.dart';
-import 'package:helixpeek/features/lab/mutate/domain/apply_edit.dart';
-import 'package:helixpeek/features/lab/mutate/presentation/mutate_cubit.dart';
-import 'package:helixpeek/features/lab/mutate/presentation/mutate_screen.dart';
-import 'package:helixpeek/features/lab/replication/domain/fidelity.dart';
-import 'package:helixpeek/features/lab/replication/domain/replication_captions.dart';
-import 'package:helixpeek/features/lab/replication/domain/replication_plan.dart';
-import 'package:helixpeek/features/lab/replication/domain/replication_timeline.dart';
-import 'package:helixpeek/features/lab/replication/presentation/replication_painters.dart';
+import 'package:helixpeek/features/lab/presentation/lab_protein_picker.dart';
+import 'package:helixpeek/features/lab/replication/domain/replication_tour.dart';
+import 'package:helixpeek/features/lab/replication/presentation/replication_scene.dart';
 import 'package:helixpeek/features/lab/replication/presentation/replication_screen.dart';
-import 'package:helixpeek/shared/motion/animation_timeline.dart';
 import 'package:helixpeek/shared/motion/timeline_controller.dart';
 import 'package:helixpeek/shared/motion/transport_bar.dart';
 
-import '../../../../support/catalog_api.dart';
-import '../../../../support/fixture_track_source.dart';
-import '../../../../support/test_catalog.dart';
-import '../replication_fixtures.dart';
+import '../../../gene_lookup/anatomy/anatomy_fixture.dart';
+import '../../lab_routes_test.dart';
 
-Future<void> _host(WidgetTester tester, ProteinTarget target) async {
-  final TrackSource tracks = FixtureTrackSource();
-  await tester.binding.setSurfaceSize(const Size(390, 844));
+TimelineController controllerOf(WidgetTester tester) =>
+    tester.widget<TransportBar>(find.byType(TransportBar)).controller;
+
+Future<void> host(
+  WidgetTester tester, {
+  Size size = const Size(390, 844),
+  double textScale = 1,
+  bool reducedMotion = false,
+  EdgeInsets safeInsets = EdgeInsets.zero,
+}) async {
+  await tester.binding.setSurfaceSize(size);
   addTearDown(() => tester.binding.setSurfaceSize(null));
   await tester.pumpWidget(
-    MultiRepositoryProvider(
-      providers: <RepositoryProvider<Object>>[
-        RepositoryProvider<TrackSource>.value(value: tracks),
-        RepositoryProvider<FetchGene>.value(
-          value: FetchGene(GeneRepositoryImpl(TrackGeneDataSource(tracks))),
+    MaterialApp(
+      theme: AppTheme.analysis,
+      builder: (BuildContext context, Widget? child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          textScaler: TextScaler.linear(textScale),
+          disableAnimations: reducedMotion,
+          padding: safeInsets,
+          viewPadding: safeInsets,
         ),
-      ],
-      child: MaterialApp(
-        theme: AppTheme.analysis,
-        home: ReplicationScreen(target: target, plan: planOf(target)),
+        child: child!,
       ),
+      home: const ReplicationScreen(),
     ),
   );
   await tester.pump();
 }
 
-String _text(WidgetTester tester, String key) =>
-    tester.widget<Text>(find.byKey(ValueKey<String>(key))).data!;
-
-TimelineController _controller(WidgetTester tester) =>
-    tester.widget<TransportBar>(find.byType(TransportBar)).controller;
-
 void main() {
-  testWidgets('one screen serves every record that can be copied, a caption '
-      'for every chapter', (WidgetTester tester) async {
-    for (final ProteinTarget target in copyable) {
-      await _host(tester, target);
-      final ReplicationPlan plan = planOf(target);
-      final ReplicationTimeline timeline = ReplicationTimeline(plan);
-      final ReplicationCaptions captions = ReplicationCaptions(plan);
-      expect(find.text(ReplicationScreen.titleOf(target)), findsOneWidget);
-      for (final String key in <String>[
-        'replication-bases',
-        'replication-loop',
-        'replication-record',
-      ]) {
-        expect(find.byKey(ValueKey<String>(key)), findsOneWidget);
-      }
-      for (final PhaseMark mark in timeline.phases) {
-        if (mark.t > 0) {
-          await tester.tap(find.byTooltip('Step forward'));
-          await tester.pump();
-        }
-        expect(
-          _text(tester, 'replication-caption'),
-          captions.captionOf(timeline.stateAt(mark.t), Fidelity.repair),
-          reason: '${target.slug}, ${mark.name}',
-        );
-      }
+  setUpAll(loadAppFonts);
+
+  testWidgets('opens and plays locally without a catalog or a gene', (
+    WidgetTester tester,
+  ) async {
+    await host(tester);
+    expect(find.text('Replication'), findsOneWidget);
+    expect(find.text('Human DNA · 200 bp'), findsOneWidget);
+    expect(find.byType(LabProteinPicker), findsNothing);
+    expect(controllerOf(tester).isPlaying, isTrue);
+    await tester.pump(const Duration(seconds: 3));
+    expect(controllerOf(tester).t, closeTo(3 / 160, 0.001));
+    controllerOf(tester).pause();
+    final double paused = controllerOf(tester).t;
+    await tester.pump(const Duration(seconds: 2));
+    expect(controllerOf(tester).t, paused);
+  });
+
+  testWidgets('direct and old gene links open the genome animation', (
+    WidgetTester tester,
+  ) async {
+    for (final String path in <String>[
+      '/lab/replication',
+      '/lab/replication/insulin',
+    ]) {
+      final router = await hostLab(tester, path);
+      expect(find.byType(ReplicationScreen), findsOneWidget);
+      expect(find.byType(LabProteinPicker), findsNothing);
+      expect(
+        router.routeInformationProvider.value.uri.path,
+        '/lab/replication',
+      );
       await tester.pumpWidget(const SizedBox.shrink());
     }
   });
 
-  testWidgets('the proofreading chapter plays what the reader chose', (
-    WidgetTester tester,
-  ) async {
-    final ProteinTarget insulin = TestCatalog.insulin;
-    await _host(tester, insulin);
-    final ReplicationPlan plan = planOf(insulin);
-    final ReplicationCaptions captions = ReplicationCaptions(plan);
-    _controller(tester).seek(
-      ReplicationTimeline(plan).phases
-          .firstWhere((PhaseMark m) => m.captionKey == 'proofreading')
-          .t,
-    );
-    await tester.pump();
-    expect(
-      _text(tester, 'replication-caption'),
-      captions.proofreading(Fidelity.repair),
-    );
-    await tester.tap(
-      find.text(ReplicationCaptions.nameOf(Fidelity.polymerase)),
-    );
-    await tester.pump();
-    expect(
-      _text(tester, 'replication-caption'),
-      captions.proofreading(Fidelity.polymerase),
-    );
-    expect(_text(tester, 'replication-caption'), contains('stays'));
-    // The site's base follows the choice too.
-    final ReplicationFrame after = ReplicationTimeline(plan).stateAt(0.7);
-    expect(siteBaseAt(plan, after, Fidelity.polymerase), plan.setPieceWrong);
-    expect(
-      siteBaseAt(plan, after, Fidelity.proofreading),
-      plan.baseAt(plan.setPieceSite),
-    );
-  });
-
-  testWidgets('says how many errors got through, at each level', (
-    WidgetTester tester,
-  ) async {
-    final ProteinTarget insulin = TestCatalog.insulin;
-    await _host(tester, insulin);
-    final ReplicationPlan plan = planOf(insulin);
-    final ReplicationCaptions captions = ReplicationCaptions(plan);
-    final ErrorTally tally = ErrorTally.of(plan);
-    for (final Fidelity f in Fidelity.values) {
-      await tester.tap(find.text(ReplicationCaptions.nameOf(f)));
-      await tester.pump();
-      expect(
-        _text(tester, 'replication-tally'),
-        allOf(
-          contains(ReplicationCaptions.rateOf(f)),
-          contains(captions.tallyOf(tally, f)),
-        ),
-      );
-      final TextButton open = tester.widget<TextButton>(
-        find.byKey(const ValueKey<String>('replication-errors')),
-      );
-      // With the polymerase alone the copy drawn keeps its wrong base too.
-      final bool any =
-          f == Fidelity.polymerase || tally.survivors(f).isNotEmpty;
-      expect(open.onPressed != null, any, reason: f.name);
-    }
-  });
-
-  testWidgets('an error that got through opens on the mutate screen, made', (
-    WidgetTester tester,
-  ) async {
-    final ProteinTarget insulin = TestCatalog.insulin;
-    await _host(tester, insulin);
-    final ReplicationPlan plan = planOf(insulin);
-    await tester.tap(
-      find.text(ReplicationCaptions.nameOf(Fidelity.polymerase)),
-    );
-    await tester.pump();
-    await tester.tap(find.byKey(const ValueKey<String>('replication-errors')));
-    await tester.pumpAndSettle();
-    expect(
-      find.byKey(const ValueKey<String>('replication-error-list')),
-      findsOneWidget,
-    );
-    // The first is the copy drawn above, with the set piece's wrong base.
-    expect(find.textContaining('The copy drawn above'), findsOneWidget);
-
-    // The mutate screen reads the record from disk again, through the lab's
-    // own cache: real async, as the CRISPR hand-off is tested.
-    late final MutateCubit cubit;
-    await tester.runAsync(() async {
-      await tester.tap(
-        find.byKey(const ValueKey<String>('replication-error-0')),
-      );
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
-      expect(find.byType(MutateScreen), findsOneWidget);
-      expect(find.text('Mutate · ${insulin.display}'), findsOneWidget);
-      cubit = BlocProvider.of<MutateCubit>(
-        tester.element(find.byType(MutateScreen)),
-      );
-      for (int i = 0; i < 200; i++) {
-        if (cubit.state case final MutateReady ready
-            when ready.clinvar != ClinVarLoad.loading) {
-          break;
-        }
-        await Future<void>.delayed(const Duration(milliseconds: 20));
-      }
-    });
-    await tester.pump();
-    final MutateReady ready = cubit.state as MutateReady;
-    expect(ready.applied, isNotNull, reason: 'the error arrived as an edit');
-    final Substitution edit = ready.applied!.edit as Substitution;
-    expect(edit.position, plan.positionOf(plan.setPieceSite));
-    expect(edit.newBase, plan.setPieceWrong);
-    await tester.pump(const Duration(seconds: 3));
-  });
-
   testWidgets(
-    'a record whose introns arrive shortened is refused, saying why',
+    'seeking and stepping give the caption for each biological phase',
     (WidgetTester tester) async {
-      final TrackSource tracks = FixtureTrackSource();
-      final ProteinCatalogRepository catalog = ProteinCatalogRepository(
-        CatalogApi(),
-        null,
-      );
-      addTearDown(catalog.dispose);
-      await tester.runAsync(catalog.refresh);
-      await tester.pumpWidget(
-        MultiRepositoryProvider(
-          providers: <RepositoryProvider<Object>>[
-            RepositoryProvider<TrackSource>.value(value: tracks),
-            RepositoryProvider<FetchGene>.value(
-              value: FetchGene(GeneRepositoryImpl(TrackGeneDataSource(tracks))),
-            ),
-            RepositoryProvider<ProteinCatalogRepository>.value(value: catalog),
-          ],
-          child: MaterialApp(
-            theme: AppTheme.analysis,
-            home: ReplicationRoute(slug: TestCatalog.dystrophin.slug),
-          ),
-        ),
-      );
-      await tester.runAsync(() async {
-        for (int i = 0; i < 100; i++) {
-          await tester.pump();
-          if (find
-              .byKey(const ValueKey<String>('replication-refused'))
-              .evaluate()
-              .isNotEmpty) {
-            break;
-          }
-          await Future<void>.delayed(const Duration(milliseconds: 20));
-        }
-      });
-      expect(
-        _text(tester, 'replication-refused'),
-        ReplicationPlan.refusal(recordOf(TestCatalog.dystrophin)),
-      );
+      await host(tester);
+      final TimelineController c = controllerOf(tester)..reset();
+      for (final ReplicationChapter stage in ReplicationChapter.values) {
+        c.seek(stage.second / 160);
+        await tester.pump();
+        final Text caption = tester.widget(
+          find.byKey(const ValueKey<String>('replication-caption')),
+        );
+        expect(caption.data, ReplicationMoment(stage.second).caption);
+        expect(find.text(stage.title), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      }
+      c.reset();
+      c.stepToNextPhase();
+      expect(c.t, 4 / 160);
+      c.stepToPreviousPhase();
+      expect(c.t, 0);
+      c.seek(1);
+      c.play();
+      expect(c.atEnd, isFalse);
     },
   );
 
-  group('the lagging strand is drawn with its loop, never flat', () {
-    test(
-      'at the scale of bases: up from the fork, down into the polymerase',
-      () {
-        final ReplicationPlan plan = planOf(TestCatalog.insulin);
-        final ReplicationTimeline timeline = ReplicationTimeline(plan);
-        final ReplicationFrame frame = timeline.stateAt(0.36);
-        expect(frame.phase, ReplicationPhase.lagging);
-        final (NewPiece, double)? lagging = laggingAt(plan, frame.travel);
-        expect(lagging, isNotNull, reason: 'a fragment is in hand');
-        final double fork = plan.rightFork(frame.travel);
-        final double q = lagging!.$2;
-        expect(fork - q, greaterThan(20), reason: 'the loop holds bases');
-        const double pitch = 10;
-        const double row = 100;
-        final LaggingLoop loop = LaggingLoop(
-          fork: fork,
-          polymerase: q,
-          rightX: 300,
-          pitch: pitch,
-          rowY: row,
-        );
-        // The polymerase is at the fork, not where its base would lie flat.
-        expect(loop.polymeraseAt.dx, 300 - 3 * pitch);
-        // Every base between it and the fork is lifted off the row: the loop.
-        for (double b = q + 1; b < fork - 1; b += 1) {
-          expect(
-            loop.placeOf(b, across: 0).dy,
-            lessThan(row - pitch / 2),
-            reason: 'base $b lies flat',
-          );
-        }
-        // Beyond the polymerase the template lies flat, running away from it.
-        expect(loop.placeOf(q - 5, across: 0).dy, row);
-        expect(
-          loop.placeOf(q - 5, across: 0).dx,
-          lessThan(loop.placeOf(q - 1, across: 0).dx),
-        );
-        // The fragment pairs on the loop's inside, a row in from its template.
-        for (final double b in <double>[q, q + 3, fork - 3]) {
-          final (Offset tile, _) = loop.pairedWith(b);
-          expect(
-            (tile - loop.placeOf(b, across: 0)).distance,
-            closeTo(pitch, 1e-6),
-          );
-        }
-      },
-    );
-
-    testWidgets('at the scale of fragments: a loop taller than the rows', (
-      WidgetTester tester,
-    ) async {
-      final ReplicationPlan plan = planOf(TestCatalog.insulin);
-      final ReplicationTimeline timeline = ReplicationTimeline(plan);
-      late final ReplicationInks inks;
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.analysis,
-          home: Builder(
-            builder: (BuildContext context) {
-              inks = ReplicationInks.of(context);
-              return const SizedBox.shrink();
-            },
-          ),
-        ),
-      );
-      final _PathsCanvas canvas = _PathsCanvas();
-      const Size size = Size(390, 150);
-      ForkLoopPainter(
-        plan: plan,
-        timeline: timeline,
-        at: () => 0.36,
-        fidelity: Fidelity.repair,
-        inks: inks,
-        labels: const TextStyle(fontSize: 11),
-      ).paint(canvas, size);
-      final double rowA = size.height * 0.8 - 10;
-      expect(
-        canvas.paths.where(
-          (Rect r) => r.height > 40 && (r.bottom - rowA).abs() < 8,
-        ),
-        isNotEmpty,
-        reason: 'no loop stands on the lagging row',
-      );
-    });
+  testWidgets('reduced motion opens on a still and supports phase stepping', (
+    WidgetTester tester,
+  ) async {
+    await host(tester, reducedMotion: true);
+    final TimelineController c = controllerOf(tester);
+    expect(c.isPlaying, isFalse);
+    expect(c.reducedMotion, isTrue);
+    c.stepToNextPhase();
+    await tester.pump();
+    expect(c.phase?.name, ReplicationChapter.helicase.title);
   });
-}
 
-/// Records where paths are drawn; anything else is let through.
-final class _PathsCanvas implements Canvas {
-  final List<Rect> paths = <Rect>[];
+  testWidgets('the side scrubber seeks without scrolling the scene', (
+    WidgetTester tester,
+  ) async {
+    await host(tester, size: const Size(320, 568));
+    final TimelineController c = controllerOf(tester);
+    final Finder canvas = find.byKey(
+      const ValueKey<String>('replication-canvas'),
+    );
+    final Offset scenePosition = tester.getTopLeft(canvas);
+    final Finder scrubber = find.byKey(
+      const ValueKey<String>('sequence-scrubber'),
+    );
+    final Rect track = tester.getRect(scrubber);
+    final TestGesture drag = await tester.startGesture(
+      Offset(track.center.dx, track.top + 20),
+    );
+    await drag.moveTo(Offset(track.center.dx, track.bottom - 20));
+    await tester.pump();
+    expect(c.isPlaying, isFalse);
+    expect(c.t, 1);
+    expect(find.textContaining('160 / 160 s'), findsOneWidget);
+    expect(tester.getTopLeft(canvas), scenePosition);
+    await drag.moveTo(Offset(track.center.dx, track.top + 20));
+    await drag.up();
+    await tester.pump();
+    expect(c.t, 0);
+    expect(tester.getTopLeft(canvas), scenePosition);
+    expect(tester.takeException(), isNull);
+  });
 
-  @override
-  void drawPath(Path path, Paint paint) => paths.add(path.getBounds());
+  testWidgets(
+    'whole fork and close-ups share the same paused synthesis state',
+    (WidgetTester tester) async {
+      await host(tester);
+      final TimelineController c = controllerOf(tester)
+        ..pause()
+        ..seek(129 / 160);
+      await tester.pump();
+      ReplicationScene scene() =>
+          tester
+                  .widget<CustomPaint>(
+                    find.byKey(const ValueKey<String>('replication-canvas')),
+                  )
+                  .painter!
+              as ReplicationScene;
+      final ReplicationMoment moment = scene().timeline.stateAt(scene().at());
+      expect(scene().followCamera, isTrue);
+      await tester.tap(find.text('Whole fork'));
+      await tester.pump();
+      expect(scene().followCamera, isFalse);
+      expect(scene().timeline.stateAt(scene().at()), moment);
+      await tester.tap(find.text('Follow steps'));
+      await tester.pump();
+      expect(scene().followCamera, isTrue);
+      expect(c.isPlaying, isFalse);
+      expect(scene().timeline.stateAt(scene().at()), moment);
+      await tester.tap(find.byTooltip('Hide molecule labels'));
+      await tester.pump();
+      expect(scene().showLabels, isFalse);
+      expect(scene().timeline.stateAt(scene().at()), moment);
+    },
+  );
 
-  @override
-  void save() {}
+  testWidgets(
+    'phone safe areas leave playback controls visible in every phase',
+    (WidgetTester tester) async {
+      const Size phone = Size(390, 844);
+      const EdgeInsets insets = EdgeInsets.only(top: 59, bottom: 34);
+      await host(tester, size: phone, safeInsets: insets);
+      final TimelineController c = controllerOf(tester)..pause();
+      for (final ReplicationChapter chapter in ReplicationChapter.values) {
+        c.seek((chapter.second + 3) / 160);
+        await tester.pump();
+        for (final String tooltip in <String>[
+          'Reset',
+          'Step back',
+          'Play',
+          'Step forward',
+          'Playback speed',
+        ]) {
+          final Finder control = find.byTooltip(tooltip);
+          expect(
+            control.hitTestable(),
+            findsOneWidget,
+            reason: '${chapter.title} / $tooltip',
+          );
+          expect(
+            tester.getRect(control).bottom,
+            lessThanOrEqualTo(phone.height - insets.bottom),
+            reason: '${chapter.title} / $tooltip',
+          );
+        }
+        expect(tester.takeException(), isNull);
+      }
+    },
+  );
 
-  @override
-  void restore() {}
+  testWidgets('backgrounding pauses and resumes only active playback', (
+    WidgetTester tester,
+  ) async {
+    await host(tester);
+    final TimelineController c = controllerOf(tester);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    expect(c.isPlaying, isFalse);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    expect(c.isPlaying, isTrue);
+    c.pause();
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    expect(c.isPlaying, isFalse);
+  });
 
-  @override
-  void clipRect(
-    Rect rect, {
-    ClipOp clipOp = ClipOp.intersect,
-    bool doAntiAlias = true,
-  }) {}
+  testWidgets('the science sheet pauses and resumes the animation', (
+    WidgetTester tester,
+  ) async {
+    await host(tester);
+    await tester.tap(find.byTooltip('About this replication model'));
+    await tester.pumpAndSettle();
+    expect(controllerOf(tester).isPlaying, isFalse);
+    expect(find.text('Inside a replication fork'), findsOneWidget);
+    Navigator.of(tester.element(find.text('Inside a replication fork'))).pop();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(controllerOf(tester).isPlaying, isTrue);
+  });
 
-  @override
-  dynamic noSuchMethod(Invocation invocation) => null;
+  testWidgets(
+    'short, narrow and enlarged-text layouts keep controls reachable',
+    (WidgetTester tester) async {
+      for (final (Size size, double textScale) in <(Size, double)>[
+        (const Size(320, 568), 1),
+        (const Size(844, 390), 1),
+        (const Size(390, 844), 2),
+        (const Size(320, 568), 3.2),
+      ]) {
+        await host(tester, size: size, textScale: textScale);
+        controllerOf(tester).pause();
+        await tester.ensureVisible(find.byTooltip('Step forward'));
+        await tester.pump();
+        await tester.tap(find.byTooltip('Step forward'));
+        await tester.pump();
+        expect(tester.takeException(), isNull, reason: '$size / $textScale');
+        await tester.pumpWidget(const SizedBox.shrink());
+      }
+    },
+  );
 }
