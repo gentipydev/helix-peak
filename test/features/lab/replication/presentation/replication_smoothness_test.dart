@@ -28,6 +28,8 @@ void main() {
     return <String, (Offset, double)>{
       for (final StagedItem item in stage.items)
         'item:${item.key}': (camera.project(item.centre), item.opacity),
+      for (final StagedRing ring in stage.rings)
+        'ring:${ring.key}': (camera.project(ring.centre), ring.opacity),
       for (final StagedLabel label in stage.labels)
         'label:${label.key}': (label.target ?? label.at, label.opacity),
       for (final StagedArrow arrow in stage.arrows)

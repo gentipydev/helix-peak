@@ -11,6 +11,7 @@ import 'replication_camera.dart';
 import 'replication_geometry.dart';
 import 'replication_inks.dart';
 import 'replication_molecules.dart';
+import 'replication_rings.dart';
 import 'replication_staging.dart';
 
 class ReplicationScene extends CustomPainter {
@@ -95,10 +96,21 @@ class ReplicationScene extends CustomPainter {
     canvas.scale(camera.zoom);
     canvas.translate(-camera.centre.dx, -camera.centre.dy);
     _ambience(canvas, g);
+    // Rings go round the DNA: their far halves first, their near halves
+    // over it and over the enzymes they carry.
+    _rings(canvas, stage, near: false);
     _parent(canvas, g);
     _daughter(canvas, g, leading: true);
     _daughter(canvas, g, leading: false);
     _stage(canvas, g, stage);
+    _rings(canvas, stage, near: true);
+    _traces(canvas, g, stage);
+    for (final StagedFlap flap in stage.flaps) {
+      _flap(canvas, flap);
+    }
+    for (final StagedNick nick in stage.nicks) {
+      _nick(canvas, nick);
+    }
     canvas.restore();
     // Words live in screen space, so magnifying an enzyme does not magnify
     // its name.
@@ -308,8 +320,6 @@ class ReplicationScene extends CustomPainter {
             angle: item.angle,
             opacity: item.opacity,
           );
-        case StagedClamp():
-          _clamp(canvas, item.centre, item.opacity);
         case StagedGlow():
           _activeSite(
             canvas,
@@ -318,48 +328,181 @@ class ReplicationScene extends CustomPainter {
             inks[item.ink],
             item.opacity,
           );
+        case StagedRing():
         case StagedTrace():
-          _backbonePath(
-            canvas,
-            _trace(
-              g.frame.fork + item.from,
-              g.frame.fork + item.to,
-              (double i) => g.template(i, leading: item.leading),
-            ),
-            inks.parental,
-          );
+          break;
       }
-    }
-    for (final StagedFlap flap in stage.flaps) {
-      _flap(canvas, flap);
-    }
-    for (final StagedNick nick in stage.nicks) {
-      _nick(canvas, nick);
     }
   }
 
-  void _clamp(Canvas canvas, Offset p, double opacity) {
+  /// Templates that pass outside a protein, drawn again over it.
+  void _traces(Canvas canvas, ReplicationGeometry g, ReplicationStaging stage) {
+    for (final StagedItem item in stage.items) {
+      if (item is StagedTrace) {
+        _backbonePath(
+          canvas,
+          _trace(
+            g.frame.fork + item.from,
+            g.frame.fork + item.to,
+            (double i) => g.template(i, leading: item.leading),
+          ),
+          inks.parental,
+        );
+      }
+    }
+  }
+
+  static List<Color> _tints(Color base, List<double> steps) => <Color>[
+    for (final double step in steps)
+      step >= 0
+          ? Color.lerp(base, Colors.white, step)!
+          : Color.lerp(base, Colors.black, -step)!,
+  ];
+
+  ProteinRing _ring(StagedRing ring) {
+    switch (ring.kind) {
+      case RingKind.pcna:
+        // Three subunits of two domains each, one tint per subunit, and the
+        // hole a little wider than the duplex it holds at a tilt.
+        return ProteinRing(
+          centre: ring.centre,
+          radius: 20,
+          thickness: 7,
+          height: 10,
+          angles: ringAngles(
+            count: 6,
+            groups: 3,
+            rotation: ring.rotation,
+            open: ring.open,
+          ),
+          extents: ringExtents(count: 6, groups: 3),
+          colors: _tints(inks.clamp, const <double>[
+            0.16,
+            0.16,
+            0,
+            0,
+            -0.2,
+            -0.2,
+          ]),
+          opacity: ring.opacity,
+        );
+      case RingKind.mcmN:
+      case RingKind.mcmC:
+        final bool motor = ring.kind == RingKind.mcmC;
+        return ProteinRing(
+          centre: ring.centre,
+          radius: motor ? 23 : 21,
+          thickness: motor ? 10 : 9,
+          height: motor ? 12 : 10,
+          tilt: 0.4,
+          round: 40,
+          shine: 0.04,
+          angles: ringAngles(count: 6),
+          extents: ringExtents(count: 6, seam: 0.018),
+          // MCM2–7: six subunits in tints of the helicase's colour.
+          colors: _tints(inks.helicase, const <double>[
+            0.14,
+            0,
+            -0.16,
+            0.08,
+            -0.06,
+            -0.2,
+          ]),
+          window: true,
+          glow: motor
+              ? <double>[
+                  for (int j = 0; j < 6; j++)
+                    0.9 *
+                        math
+                            .pow(
+                              math.max(
+                                0,
+                                math.cos(
+                                  ring.atp * math.pi * 2 - j * math.pi / 3,
+                                ),
+                              ),
+                              6,
+                            )
+                            .toDouble(),
+                ]
+              : const <double>[],
+          opacity: ring.opacity,
+        );
+      case RingKind.rfc:
+        return ProteinRing(
+          centre: ring.centre,
+          radius: 13,
+          thickness: 5.5,
+          height: 8,
+          angles: ringAngles(
+            count: 5,
+            rotation: ring.rotation,
+            open: ring.open,
+          ),
+          extents: ringExtents(count: 5),
+          colors: _tints(inks.rfc, const <double>[
+            0.14,
+            0.05,
+            -0.05,
+            -0.14,
+            0.02,
+          ]),
+          opacity: ring.opacity,
+        );
+    }
+  }
+
+  void _rings(Canvas canvas, ReplicationStaging stage, {required bool near}) {
+    for (final StagedRing ring in stage.rings) {
+      if (ring.opacity <= 0) continue;
+      final bool turned = ring.axis.abs() > 1e-4;
+      if (turned) {
+        canvas.save();
+        canvas.translate(ring.centre.dx, ring.centre.dy);
+        canvas.rotate(ring.axis);
+        canvas.translate(-ring.centre.dx, -ring.centre.dy);
+      }
+      _ring(ring).draw(canvas, near: near);
+      if (near && ring.kind == RingKind.mcmN) {
+        _cmgPartners(canvas, ring);
+      }
+      if (turned) canvas.restore();
+    }
+  }
+
+  /// Cdc45 and GINS, bound on the MCM ring's side, complete CMG.
+  void _cmgPartners(Canvas canvas, StagedRing ring) {
+    final double opacity = ring.opacity * ring.partners;
     if (opacity <= 0) return;
-    final Rect rect = Rect.fromCenter(center: p, width: 36, height: 11);
-    canvas.drawOval(
-      rect,
-      _line
-        ..strokeWidth = 5
-        ..color = Color.lerp(
-          inks.clamp,
-          Colors.black,
-          0.4,
-        )!.withValues(alpha: opacity),
+    final Offset c = ring.centre;
+    if (opacity < 1) {
+      canvas.saveLayer(
+        Rect.fromCenter(
+          center: c + const Offset(-40, 8),
+          width: 64,
+          height: 80,
+        ),
+        Paint()..color = Colors.black.withValues(alpha: opacity),
+      );
+    }
+    // Cdc45 below, the four-subunit GINS above, both on the ring's side.
+    molecules.draw(
+      canvas,
+      c + const Offset(-39, 22),
+      const Size(27, 25),
+      Color.lerp(inks.helicase, Colors.black, 0.08)!,
+      seed: 46,
+      channel: false,
     );
-    canvas.drawArc(
-      rect,
-      math.pi,
-      math.pi,
-      false,
-      _line
-        ..strokeWidth = 3
-        ..color = inks.clamp.withValues(alpha: opacity),
+    molecules.draw(
+      canvas,
+      c + const Offset(-40, -6),
+      const Size(25, 21),
+      Color.lerp(inks.helicase, Colors.white, 0.1)!,
+      seed: 53,
+      channel: false,
     );
+    if (opacity < 1) canvas.restore();
   }
 
   void _activeSite(

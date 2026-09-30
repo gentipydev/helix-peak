@@ -44,9 +44,39 @@ final class StagedMolecule extends StagedItem {
   final double angle;
 }
 
-/// PCNA, the sliding clamp, around the new duplex.
-final class StagedClamp extends StagedItem {
-  const StagedClamp(super.key, super.centre, super.opacity);
+/// Which ring of domains a [StagedRing] is.
+enum RingKind { pcna, mcmN, mcmC, rfc }
+
+/// A ring of protein domains around the DNA: PCNA, a tier of the CMG
+/// helicase's MCM2–7 motor, or RFC, the clamp loader, on top of PCNA.
+final class StagedRing extends StagedItem {
+  const StagedRing(
+    String key,
+    this.kind,
+    Offset centre, {
+    this.rotation = 0,
+    this.open = 0,
+    this.axis = 0,
+    this.atp = 0,
+    this.partners = 1,
+    double opacity = 1,
+  }) : super(key, centre, opacity);
+  final RingKind kind;
+
+  /// Turn about the DNA, radians, as the ring slides along the helix.
+  final double rotation;
+
+  /// How far one subunit interface is held open, radians.
+  final double open;
+
+  /// The DNA's direction through the ring, radians from vertical.
+  final double axis;
+
+  /// Where the wave of ATP hydrolysis is around the ring, in turns.
+  final double atp;
+
+  /// How present the CMG's Cdc45 and GINS are.
+  final double partners;
 }
 
 /// The soft light of a working active site.
@@ -147,6 +177,9 @@ class ReplicationStaging {
   final bool reducedMotion;
 
   final List<StagedItem> items = <StagedItem>[];
+
+  /// Rings, drawn in two halves: behind the DNA and in front of it.
+  final List<StagedRing> rings = <StagedRing>[];
   final List<StagedLabel> labels = <StagedLabel>[];
   final List<StagedArrow> arrows = <StagedArrow>[];
   final List<StagedFlap> flaps = <StagedFlap>[];
@@ -202,9 +235,13 @@ class ReplicationStaging {
       centre: site + Offset(-25 * (1 - arrival + departure), 0),
       opacity: arrival * (1 - departure),
       working: arrival * (1 - _eased(_s, end - 0.6, end)),
-      // RFC loads PCNA at the primer end as Pol α finishes.
+      // RFC brings PCNA to the primer end as Pol α finishes.
       clamp:
-          _eased(_s, ReplicationFrame.primedAt(k) + 10, handoff - 0.5) *
+          _eased(
+            _s,
+            ReplicationFrame.primedAt(k) + 9,
+            ReplicationFrame.primedAt(k) + 10,
+          ) *
           (1 - departure),
     );
   }
@@ -245,39 +282,28 @@ class ReplicationStaging {
         seed: 18,
       ),
     );
-    // The pore follows the leading template. The excluded lagging template
-    // passes outside the helicase's right edge, not through the ring.
+    // CMG: the MCM2–7 motor's two tiers encircle the leading template, the
+    // N-terminal tier leading. Its six ATPase sites fire in turn as it
+    // unwinds, one sweep of the ring every eight nucleotides. The excluded
+    // lagging template passes outside the ring.
+    final double atp = _f.fork / 8;
+    rings
+      ..add(
+        StagedRing('cmg-c', RingKind.mcmC, Offset(164, forkY + 17), atp: atp),
+      )
+      ..add(StagedRing('cmg-n', RingKind.mcmN, Offset(164, forkY + 5)));
     items.add(
-      StagedMolecule(
-        'helicase',
-        SceneInk.helicase,
-        Offset(164, forkY + 9),
-        const Size(79, 81),
-        seed: 37,
+      const StagedTrace(
+        'lagging-past-helicase',
+        leading: false,
+        from: -25,
+        to: 0,
       ),
     );
-    items
-      ..add(
-        const StagedTrace(
-          'leading-through-helicase',
-          leading: true,
-          from: -17,
-          to: 15,
-        ),
-      )
-      ..add(
-        const StagedTrace(
-          'lagging-past-helicase',
-          leading: false,
-          from: -25,
-          to: 0,
-        ),
-      );
 
     final Offset leading = g.leadingEnzyme;
-    items
-      ..add(StagedClamp('pcna-leading', leading + const Offset(0, 25), 1))
-      ..add(
+    rings.add(_pcna('pcna-leading', _f.leadingTip - 16, leading: true));
+    items.add(
         StagedMolecule(
           'pol-epsilon',
           SceneInk.polymerase,
@@ -286,8 +312,10 @@ class ReplicationStaging {
           seed: 7,
           angle: -0.18,
         ),
-      )
-      ..add(StagedGlow('pol-epsilon-site', leading, SceneInk.newDna, _pulse, 1));
+      );
+    items.add(
+      StagedGlow('pol-epsilon-site', leading, SceneInk.newDna, _pulse, 1),
+    );
 
     final List<_Enzyme> primases = <_Enzyme>[_primase(0), _primase(1)];
     final List<_Enzyme> deltas = <_Enzyme>[_delta(0), _delta(1)];
@@ -343,11 +371,7 @@ class ReplicationStaging {
     }
     for (int k = 0; k < 2; k++) {
       final _Enzyme d = deltas[k];
-      if (d.clamp > 0) {
-        items.add(
-          StagedClamp('pcna-$k', d.site + const Offset(0, -24), d.clamp),
-        );
-      }
+      _loadClamp(k, d);
       if (d.opacity > 0) {
         items
           ..add(
@@ -395,6 +419,77 @@ class ReplicationStaging {
           const Size(69, 63),
           seed: 92,
           opacity: ligase.opacity,
+        ),
+      );
+    }
+  }
+
+  /// PCNA on the new duplex [index]: it turns once per helical turn as it
+  /// slides, so it stops when synthesis stops.
+  StagedRing _pcna(
+    String key,
+    double index, {
+    required bool leading,
+    double open = 0,
+    double turn = 0,
+    Offset offset = Offset.zero,
+    double opacity = 1,
+  }) {
+    final Offset at = g.centre(index, leading: leading);
+    final Offset along =
+        g.centre(index + 1, leading: leading) -
+        g.centre(index - 1, leading: leading);
+    return StagedRing(
+      key,
+      RingKind.pcna,
+      at + offset,
+      rotation: turn - index * math.pi * 2 / 38,
+      open: open,
+      axis: math.atan2(along.dx, -along.dy),
+      opacity: opacity,
+    );
+  }
+
+  /// RFC brings PCNA, held open, to the primer end Pol α has made, closes it
+  /// around the DNA and leaves; the clamp then travels with Pol δ.
+  void _loadClamp(int k, _Enzyme delta) {
+    final double start = ReplicationFrame.primedAt(k);
+    final double arrive = _eased(_s, start + 9, start + 10);
+    final double close = _eased(_s, start + 10.2, start + 11.2);
+    final double leave = _eased(_s, start + 11.6, start + 12.6);
+    final double present = delta.clamp;
+    if (present <= 0) {
+      return;
+    }
+    // The clamp sits on the new duplex just behind the primer end; loaded
+    // with its open interface facing the DNA it arrives beside.
+    final double index = _laggingTip(k) + 16;
+    final double loadedAt =
+        ReplicationFrame(start + 10).tipOf(k) + 16;
+    final Offset approach = Offset(26 * (1 - arrive), -12 * (1 - arrive));
+    rings.add(
+      _pcna(
+        'pcna-$k',
+        index,
+        leading: false,
+        open: 1.1 * (1 - close),
+        turn: math.pi + loadedAt * math.pi * 2 / 38,
+        offset: approach,
+        opacity: present,
+      ),
+    );
+    final double rfc = arrive * (1 - leave);
+    if (rfc > 0) {
+      rings.add(
+        StagedRing(
+          'rfc-$k',
+          RingKind.rfc,
+          g.centre(index, leading: false) +
+              approach +
+              Offset(20 * leave, -14 - 10 * leave),
+          rotation: math.pi,
+          open: 1.2,
+          opacity: rfc,
         ),
       );
     }
@@ -632,8 +727,8 @@ class ReplicationStaging {
       'overview-pcna',
       'PCNA',
       p(lead + const Offset(-80, 29)),
-      p(lead + const Offset(-14, 26)),
-      SceneInk.quiet,
+      p(g.centre(_f.leadingTip - 16, leading: true) + const Offset(-14, 0)),
+      SceneInk.clamp,
       o,
     );
     final _Enzyme primase = _primase(k);
@@ -823,12 +918,16 @@ class ReplicationStaging {
           SceneInk.rna,
           _primerShown(k),
         );
+        final Offset clamp = g.centre(_laggingTip(k) + 16, leading: false);
+        label('PCNA', const Offset(255, 192), clamp, SceneInk.clamp, delta.clamp);
+        final double start = ReplicationFrame.primedAt(k);
         label(
-          'PCNA',
-          const Offset(255, 192),
-          site + const Offset(0, -24),
-          SceneInk.quiet,
-          delta.clamp,
+          'RFC',
+          const Offset(255, 150),
+          clamp + const Offset(0, -16),
+          SceneInk.rfc,
+          _eased(_s, start + 9, start + 10) *
+              (1 - _eased(_s, start + 11.2, start + 12)),
         );
         direction(site, leading: false);
       case ReplicationChapter.leading:
@@ -841,8 +940,8 @@ class ReplicationStaging {
         label(
           'PCNA',
           const Offset(236, 430),
-          g.leadingEnzyme + const Offset(0, 25),
-          SceneInk.quiet,
+          g.centre(_f.leadingTip - 16, leading: true),
+          SceneInk.clamp,
         );
         direction(g.leadingEnzyme, leading: true);
       case ReplicationChapter.lagging:

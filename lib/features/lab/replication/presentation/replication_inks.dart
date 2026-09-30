@@ -16,6 +16,7 @@ enum SceneInk {
   primase,
   rpa,
   clamp,
+  rfc,
   nuclease,
   ligase,
   topoisomerase,
@@ -43,6 +44,7 @@ class ReplicationInks {
     required this.primase,
     required this.rpa,
     required this.clamp,
+    required this.rfc,
     required this.nuclease,
     required this.ligase,
     required this.topoisomerase,
@@ -77,6 +79,7 @@ class ReplicationInks {
       primase: mix(anatomy.roleUtr5, grey, 0.25),
       rpa: mix(anatomy.roleSignal, grey, 0.2),
       clamp: mix(mix(anatomy.roleMature1, anatomy.roleUtr5, 0.55), grey, 0.3),
+      rfc: mix(mix(grey, anatomy.roleUtr3, 0.25), scheme.onSurfaceVariant, 0.1),
       nuclease: mix(anatomy.roleStopCodon, grey, 0.45),
       ligase: mix(anatomy.roleMature2, scheme.onSurfaceVariant, 0.35),
       topoisomerase: mix(anatomy.roleUtr3, scheme.onSurfaceVariant, 0.35),
@@ -94,6 +97,7 @@ class ReplicationInks {
   final Color primase;
   final Color rpa;
   final Color clamp;
+  final Color rfc;
   final Color nuclease;
   final Color ligase;
   final Color topoisomerase;
@@ -109,6 +113,7 @@ class ReplicationInks {
     SceneInk.primase => primase,
     SceneInk.rpa => rpa,
     SceneInk.clamp => clamp,
+    SceneInk.rfc => rfc,
     SceneInk.nuclease => nuclease,
     SceneInk.ligase => ligase,
     SceneInk.topoisomerase => topoisomerase,
@@ -126,6 +131,7 @@ class ReplicationInks {
     primase,
     rpa,
     clamp,
+    rfc,
     nuclease,
     ligase,
     topoisomerase,
