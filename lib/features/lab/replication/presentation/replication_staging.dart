@@ -79,6 +79,28 @@ final class StagedRing extends StagedItem {
   final double partners;
 }
 
+/// Topoisomerase II, and how far through its cycle it is: [gate] opens the
+/// cut G-segment, [sites] lights the tyrosines that hold its ends.
+final class StagedTopo extends StagedItem {
+  const StagedTopo(
+    String key,
+    Offset centre, {
+    this.gate = 0,
+    this.sites = 0,
+    double opacity = 1,
+  }) : super(key, centre, opacity);
+  final double gate;
+  final double sites;
+}
+
+/// A duplex seen end-on: the T-segment topoisomerase II passes through the
+/// G-segment. [turn] spins its strands as it goes.
+final class StagedDuplexEnd extends StagedItem {
+  const StagedDuplexEnd(String key, Offset centre, this.turn, double opacity)
+    : super(key, centre, opacity);
+  final double turn;
+}
+
 /// The soft light of a working active site.
 final class StagedGlow extends StagedItem {
   const StagedGlow(super.key, super.centre, this.ink, this.pulse, super.opacity);
@@ -272,16 +294,30 @@ class ReplicationStaging {
 
   void _machinery() {
     final double forkY = g.forkY;
-    // Topoisomerase lies on duplex DNA ahead of the fork.
+    // Topoisomerase II waits on the duplex ahead of the fork. It captures a
+    // crossing duplex in its N-gate, cuts the duplex it holds, passes the
+    // captured one through into its C-gate and releases it.
+    final Offset topo = _topoCentre;
     items.add(
-      StagedMolecule(
+      StagedTopo(
         'topoisomerase',
-        SceneInk.topoisomerase,
-        Offset(180, forkY - 108),
-        const Size(51, 46),
-        seed: 18,
+        topo,
+        gate: _f.topoGate,
+        sites: _f.topoSites,
       ),
     );
+    final double carried = _f.transportShown;
+    if (carried > 0) {
+      final double t = _f.transport;
+      final double x = t <= 1
+          ? -72 + 48 * t
+          : t <= 2
+          ? -24 + 48 * (t - 1)
+          : 24 + 48 * (t - 2);
+      items.add(
+        StagedDuplexEnd('t-segment', topo + Offset(x, 0), t * math.pi, carried),
+      );
+    }
     // CMG: the MCM2–7 motor's two tiers encircle the leading template, the
     // N-terminal tier leading. Its six ATPase sites fire in turn as it
     // unwinds, one sweep of the ring every eight nucleotides. The excluded
@@ -495,6 +531,8 @@ class ReplicationStaging {
     }
   }
 
+  Offset get _topoCentre => Offset(180, g.yOf(_f.topoIndex));
+
   Offset get _fen1Centre =>
       g.centre(_laggingTip(1), leading: false) + const Offset(-33, 24);
 
@@ -701,9 +739,9 @@ class ReplicationStaging {
 
     _callout(
       'overview-topoisomerase',
-      'Topoisomerase',
+      'Topoisomerase II',
       p(Offset(16, forkY - 133)),
-      p(Offset(153, forkY - 109)),
+      p(_topoCentre + const Offset(-30, -1)),
       SceneInk.topoisomerase,
       o,
     );
@@ -886,10 +924,17 @@ class ReplicationStaging {
         );
       case ReplicationChapter.topoisomerase:
         label(
-          'Topoisomerase',
+          'Topoisomerase II',
           below,
-          Offset(162, g.forkY - 96),
+          _topoCentre + const Offset(-20, 16),
           SceneInk.topoisomerase,
+        );
+        label(
+          'Overwound DNA',
+          above,
+          g.template(_f.fork + 22, leading: false),
+          SceneInk.quiet,
+          _f.overwinding / 0.7,
         );
       case ReplicationChapter.primase:
       case ReplicationChapter.nextPrimer:

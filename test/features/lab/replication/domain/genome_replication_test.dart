@@ -114,4 +114,26 @@ void main() {
       }
     },
   );
+
+  test(
+    'topoisomerase II passes a duplex only through a cut, open gate, then '
+    'the DNA ahead relaxes',
+    () {
+      double peak = 0;
+      for (double seconds = 0; seconds <= 12; seconds += 0.01) {
+        final ReplicationFrame f = ReplicationFrame(seconds);
+        // Crossing the G-segment: halfway from the N-gate to the C-gate.
+        if (f.transport > 1.3 && f.transport < 1.7) {
+          expect(f.topoCut, greaterThan(0.95), reason: '$seconds');
+          expect(f.topoGate, greaterThan(0.95), reason: '$seconds');
+        }
+        if (f.overwinding < peak - 1e-9) {
+          expect(f.transport, greaterThanOrEqualTo(2), reason: '$seconds');
+        }
+        peak = f.overwinding > peak ? f.overwinding : peak;
+      }
+      expect(const ReplicationFrame(8.5).overwinding, 0);
+      expect(const ReplicationFrame(8.5).topoCut, 0);
+    },
+  );
 }

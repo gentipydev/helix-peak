@@ -20,6 +20,7 @@ enum SceneInk {
   nuclease,
   ligase,
   topoisomerase,
+  activeSite,
 }
 
 /// The replication scene's colours, each taken from the theme.
@@ -48,6 +49,7 @@ class ReplicationInks {
     required this.nuclease,
     required this.ligase,
     required this.topoisomerase,
+    required this.activeSite,
   });
 
   factory ReplicationInks.of(BuildContext context) {
@@ -83,6 +85,7 @@ class ReplicationInks {
       nuclease: mix(anatomy.roleStopCodon, grey, 0.45),
       ligase: mix(anatomy.roleMature2, scheme.onSurfaceVariant, 0.35),
       topoisomerase: mix(anatomy.roleUtr3, scheme.onSurfaceVariant, 0.35),
+      activeSite: mix(anatomy.roleStopCodon, scheme.onSurface, 0.15),
     );
   }
 
@@ -102,6 +105,10 @@ class ReplicationInks {
   final Color ligase;
   final Color topoisomerase;
 
+  /// Catalytic residues that make and hold a cut, as topoisomerase II's
+  /// tyrosines do.
+  final Color activeSite;
+
   Color operator [](SceneInk ink) => switch (ink) {
     SceneInk.ink => this.ink,
     SceneInk.quiet => quiet,
@@ -117,6 +124,7 @@ class ReplicationInks {
     SceneInk.nuclease => nuclease,
     SceneInk.ligase => ligase,
     SceneInk.topoisomerase => topoisomerase,
+    SceneInk.activeSite => activeSite,
   };
 
   List<Color> get _all => <Color>[
@@ -135,6 +143,7 @@ class ReplicationInks {
     nuclease,
     ligase,
     topoisomerase,
+    activeSite,
   ];
 
   @override

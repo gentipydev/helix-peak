@@ -55,7 +55,12 @@ class ReplicationMoment {
     ReplicationChapter.binding =>
       'RPA, the human SSB, holds exposed single strands open.',
     ReplicationChapter.topoisomerase =>
-      'Topoisomerase relieves twisting ahead of the opening fork.',
+      frame.seconds < 6
+          ? 'Unwinding overwinds the DNA ahead: it is wound tighter and tighter.'
+          : frame.seconds < 7
+          ? 'Topoisomerase II cuts both strands, like a nuclease, and passes '
+                'another duplex through.'
+          : 'It reseals the break, like a ligase, and the DNA ahead relaxes.',
     ReplicationChapter.primase || ReplicationChapter.nextPrimer =>
       frame.seconds - (chapter == ReplicationChapter.primase ? 8 : 50) < 4
           ? 'Primase builds a short RNA start for the next DNA fragment.'

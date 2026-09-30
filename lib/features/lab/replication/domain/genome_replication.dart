@@ -181,6 +181,51 @@ class ReplicationFrame {
     return (length: flapCut, taken: eased(seconds, cut, cut + 0.8));
   }
 
+  // Topoisomerase II ahead of the fork. Unwinding overwinds the DNA ahead;
+  // topo II captures a crossing duplex (the T-segment), cuts the duplex it
+  // is bound to (the G-segment) with its active-site tyrosines, passes the
+  // T-segment through the break and reseals it, and the helix relaxes.
+
+  /// Nucleotides between the fork and topoisomerase II while it waits.
+  static const double topoAhead = 60;
+
+  /// How much tighter than relaxed the DNA ahead of the fork is wound.
+  double get overwinding =>
+      0.7 * eased(seconds, 0.5, 5.2) * (1 - eased(seconds, 7, 7.9));
+
+  /// How firmly topo II holds the DNA it cuts: while it does, it moves with
+  /// that DNA rather than staying a fixed distance ahead of the fork.
+  double get topoEngaged =>
+      eased(seconds, 5.4, 5.8) * (1 - eased(seconds, 7.8, 8.2));
+
+  /// Where on the DNA topo II sits.
+  double get topoIndex {
+    final double waiting = fork + topoAhead;
+    final double bound = _fork.at(5.8) + topoAhead;
+    return waiting + (bound - waiting) * topoEngaged;
+  }
+
+  /// The G-segment's strands, cut (1) or whole (0).
+  double get topoCut => eased(seconds, 6, 6.3) * (1 - eased(seconds, 7.05, 7.3));
+
+  /// How far the DNA gate has opened the cut G-segment.
+  double get topoGate =>
+      eased(seconds, 6.1, 6.4) * (1 - eased(seconds, 7, 7.25));
+
+  /// The active-site tyrosines at work, holding the cut ends.
+  double get topoSites =>
+      eased(seconds, 5.95, 6.2) * (1 - eased(seconds, 7.2, 7.5));
+
+  /// The T-segment's way through: 0 arriving, 1 captured in the N-gate,
+  /// 2 through the break into the C-gate, 3 released.
+  double get transport =>
+      eased(seconds, 5.2, 5.9) +
+      eased(seconds, 6.35, 6.95) +
+      eased(seconds, 7.3, 7.8);
+
+  double get transportShown =>
+      eased(seconds, 5.2, 5.7) * (1 - eased(seconds, 7.35, 7.8));
+
   double get sealing => eased(seconds, 102, 110);
   bool get sealed => sealing >= 1;
 

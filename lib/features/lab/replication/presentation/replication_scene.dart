@@ -149,17 +149,34 @@ class ReplicationScene extends CustomPainter {
   void _parent(Canvas canvas, ReplicationGeometry g) {
     final double fork = g.frame.fork;
     final double top = fork + (g.forkY - g.top) / ReplicationGeometry.pitch + 2;
-    // Each half-turn is one smooth tube. Painting a shadow on every tiny
-    // segment made serrated edges when the camera moved close.
+    // Each half-turn is one smooth tube, ending where the strands pass from
+    // front to back: every multiple of π in the helix's phase, which comes
+    // round sooner where the DNA is overwound. Painting a shadow on every
+    // tiny segment made serrated edges when the camera moved close.
+    final double cut = g.frame.topoCut;
     final List<(Path, double)> paths = <(Path, double)>[];
-    for (double start = fork; start < top; start += 19) {
-      final double end = math.min(top, start + 19);
-      final bool frontLeading = ((start - fork) / 19).round().isEven;
-      for (final bool leading in <bool>[false, true]) {
-        paths.add((
-          _trace(start, end, (double i) => g.template(i, leading: leading)),
-          leading == frontLeading ? 1 : 0.6,
-        ));
+    for (final bool leading in <bool>[false, true]) {
+      // Topoisomerase II's cut, while it holds a strand open.
+      final double at = g.parentalCut(leading: leading);
+      final List<(double, double)> spans = cut > 0
+          ? <(double, double)>[(fork, at - 1.2 * cut), (at + 1.2 * cut, top)]
+          : <(double, double)>[(fork, top)];
+      for (final (double from, double to) in spans) {
+        double start = from;
+        while (start < to - 1e-6) {
+          final int half = (g.parentalPhase(start) / math.pi + 1e-9).floor();
+          final double end = math.min(
+            to,
+            g.parentalIndexAt((half + 1) * math.pi),
+          );
+          if (end > start) {
+            paths.add((
+              _trace(start, end, (double i) => g.template(i, leading: leading)),
+              leading == half.isEven ? 1 : 0.6,
+            ));
+          }
+          start = math.max(end, start + 1e-3);
+        }
       }
     }
     for (final double depth in <double>[0.6, 1]) {
@@ -170,12 +187,15 @@ class ReplicationScene extends CustomPainter {
       }
     }
     for (double i = (fork / 5).ceil() * 5; i <= top; i += 5) {
+      // Base pairs at the cut part as the gate opens.
+      final double near = (i - g.frame.topoIndex).abs();
       _rung(
         canvas,
         g.template(i, leading: true),
         g.template(i, leading: false),
         inks.parental,
         inks.parental,
+        opacity: 1 - cut * (1 - ReplicationGeometry.ease((near - 2) / 2)),
       );
     }
   }
@@ -276,10 +296,12 @@ class ReplicationScene extends CustomPainter {
     Color aColor,
     Color bColor, {
     double grown = 1,
+    double opacity = 1,
   }) {
     final double distance = (b - a).distance;
     // Where two strands cross in projection, a rung has no length to show.
-    final double shown = ReplicationGeometry.ease((distance - 2) / 4);
+    final double shown =
+        opacity * ReplicationGeometry.ease((distance - 2) / 4);
     if (shown <= 0) return;
     final Offset direction = (b - a) / distance;
     final double half = math.max(0, distance / 2 - 1.1);
@@ -328,11 +350,65 @@ class ReplicationScene extends CustomPainter {
             inks[item.ink],
             item.opacity,
           );
+        case StagedTopo():
+          molecules.topo.draw(
+            canvas,
+            item.centre,
+            upper: Color.lerp(inks.topoisomerase, Colors.white, 0.12)!,
+            lower: Color.lerp(inks.topoisomerase, Colors.black, 0.1)!,
+            site: inks.activeSite,
+            gate: item.gate,
+            sites: item.sites,
+            opacity: item.opacity,
+          );
+        case StagedDuplexEnd():
+          _duplexEnd(canvas, item.centre, item.turn, item.opacity);
         case StagedRing():
         case StagedTrace():
           break;
       }
     }
+  }
+
+  /// A duplex seen end-on: its backbones as a ring, the two strands as beads
+  /// half a turn apart, a base pair between them.
+  void _duplexEnd(Canvas canvas, Offset centre, double turn, double opacity) {
+    if (opacity <= 0) return;
+    canvas.drawCircle(
+      centre + const Offset(1.5, 1.5),
+      12.5,
+      _fill..color = Colors.black.withValues(alpha: 0.35 * opacity),
+    );
+    canvas.drawCircle(
+      centre,
+      11,
+      _fill
+        ..color = Color.lerp(
+          inks.parental,
+          inks.ground,
+          0.7,
+        )!.withValues(alpha: opacity),
+    );
+    final Offset spoke = Offset(math.cos(turn), math.sin(turn)) * 9;
+    _rod(canvas, centre - spoke, centre + spoke, inks.parental, opacity: opacity);
+    canvas.drawCircle(
+      centre,
+      11,
+      _line
+        ..strokeWidth = 2.9
+        ..color = inks.parental.withValues(alpha: opacity),
+    );
+    canvas.drawArc(
+      Rect.fromCircle(center: centre - const Offset(0.6, 0.6), radius: 11),
+      math.pi * 1.05,
+      math.pi * 0.6,
+      false,
+      _line
+        ..strokeWidth = 0.7
+        ..color = Colors.white.withValues(alpha: 0.22 * opacity),
+    );
+    _sphere(canvas, centre - spoke, 2.4, inks.parental, opacity: opacity);
+    _sphere(canvas, centre + spoke, 2.4, inks.parental, opacity: opacity);
   }
 
   /// Templates that pass outside a protein, drawn again over it.

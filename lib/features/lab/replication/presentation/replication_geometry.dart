@@ -115,12 +115,64 @@ class ReplicationGeometry {
     return best;
   }
 
+  // Ahead of the fork the parental duplex winds tighter as the helicase
+  // overwinds it: up to 45 nt ahead in full, easing to none at 60, where
+  // topoisomerase II waits.
+  static double _wound(double ahead) {
+    if (ahead <= 45) {
+      return ahead;
+    }
+    if (ahead >= 60) {
+      return 52.5;
+    }
+    final double v = (ahead - 45) / 15;
+    return 45 + 15 * (v - v * v * v + v * v * v * v / 2);
+  }
+
+  /// The parental helix's phase at [index], 0 at the fork: each multiple of
+  /// π is where its strands pass from front to back.
+  double parentalPhase(double index) {
+    final double ahead = index - frame.fork;
+    return (ahead + frame.overwinding * _wound(ahead)) * math.pi * 2 / 38;
+  }
+
+  /// The index ahead of the fork where the parental phase reaches [phase].
+  double parentalIndexAt(double phase) {
+    double low = frame.fork;
+    double high = frame.fork + 38 * phase / (math.pi * 2) + 1;
+    for (int k = 0; k < 40; k++) {
+      final double middle = (low + high) / 2;
+      if (parentalPhase(middle) < phase) {
+        low = middle;
+      } else {
+        high = middle;
+      }
+    }
+    return (low + high) / 2;
+  }
+
+  /// Where topo II cuts each parental strand: four nucleotides apart, as
+  /// its two tyrosines do.
+  double parentalCut({required bool leading}) =>
+      frame.topoIndex + (leading ? 2 : -2);
+
+  /// How far topo II's opened gate holds a strand's cut ends apart: each
+  /// end moves away from the cut, and the duplex further off stays put.
+  double _gateShift(double index, {required bool leading}) {
+    final double open = frame.topoGate;
+    if (open <= 0) {
+      return 0;
+    }
+    final double from = index - parentalCut(leading: leading);
+    return (from >= 0 ? -1 : 1) * 6 * open * (1 - ease(from.abs() / 10));
+  }
+
   Offset template(double index, {required bool leading}) {
     if (index >= frame.fork) {
-      final double angle = (index - frame.fork) * math.pi * 2 / 38;
+      final double angle = parentalPhase(index);
       return Offset(
         180 + (leading ? -1 : 1) * 12 * math.cos(angle),
-        yOf(index),
+        yOf(index) + _gateShift(index, leading: leading),
       );
     }
     final Offset axis = centre(index, leading: leading);

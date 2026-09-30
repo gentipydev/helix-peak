@@ -3,12 +3,16 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
+import 'replication_topo.dart';
+
 /// The same lit, folded surface language as the Ribosome cutaway. Pictures are
 /// recorded once per screen and reused while DNA and active sites move.
 /// These are illustrative envelopes, not atom coordinates or PDB surfaces.
 class ReplicationMolecules {
   final Map<(Color, int, bool), ui.Picture> _pictures =
       <(Color, int, bool), ui.Picture>{};
+
+  final TopoisomerasePictures topo = TopoisomerasePictures();
 
   void draw(
     Canvas canvas,
@@ -45,13 +49,13 @@ class ReplicationMolecules {
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final Canvas canvas = Canvas(recorder);
     final math.Random random = math.Random(seed);
-    Path shell = _lobe(Offset.zero, 46, random, points: 18);
+    Path shell = lobe(Offset.zero, 46, random, points: 18);
     for (int i = 0; i < 16; i++) {
       final double a = i * math.pi / 8;
       shell = Path.combine(
         PathOperation.union,
         shell,
-        _lobe(Offset(math.cos(a), math.sin(a)) * 40, 8, random),
+        lobe(Offset(math.cos(a), math.sin(a)) * 40, 8, random),
       );
     }
     // An open longitudinal cut face exposes the DNA through the enzyme.
@@ -66,6 +70,20 @@ class ReplicationMolecules {
     if (channel) {
       shell = Path.combine(PathOperation.difference, shell, pore);
     }
+    paintFolded(canvas, shell, color, random, pore: channel ? pore : null);
+    return recorder.endRecording();
+  }
+
+  /// Paints [shell] in the lit, folded surface every replication protein
+  /// wears: a shadow, a gradient lit from the top left, rounded lobes with
+  /// faint ridges, and the rim of a cut face along [pore].
+  static void paintFolded(
+    Canvas canvas,
+    Path shell,
+    Color color,
+    math.Random random, {
+    Path? pore,
+  }) {
     canvas.drawShadow(shell, Colors.black.withValues(alpha: 0.65), 5, true);
     canvas.drawPath(
       shell,
@@ -91,7 +109,7 @@ class ReplicationMolecules {
           0.08 + random.nextDouble() * 0.22,
         )!;
         canvas.drawPath(
-          _lobe(at, radius, random),
+          lobe(at, radius, random),
           Paint()
             ..shader = ui.Gradient.radial(
               at - Offset(radius * 0.3, radius * 0.4),
@@ -126,7 +144,7 @@ class ReplicationMolecules {
         }
       }
     }
-    if (channel) {
+    if (pore != null) {
       canvas.drawPath(
         pore,
         Paint()
@@ -143,10 +161,9 @@ class ReplicationMolecules {
       );
     }
     canvas.restore();
-    return recorder.endRecording();
   }
 
-  static Path _lobe(
+  static Path lobe(
     Offset centre,
     double radius,
     math.Random random, {
@@ -176,5 +193,6 @@ class ReplicationMolecules {
       picture.dispose();
     }
     _pictures.clear();
+    topo.dispose();
   }
 }

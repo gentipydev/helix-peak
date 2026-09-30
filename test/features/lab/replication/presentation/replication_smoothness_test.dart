@@ -91,11 +91,17 @@ void main() {
       for (final bool leading in <bool>[true, false]) {
         double worst = 0;
         double where = 0;
+        final double cut = g.parentalCut(leading: leading);
+        final double gap = 1.2 * g.frame.topoCut + 0.15;
         for (
           double i = g.frame.fork - 300;
-          i < g.frame.fork + 40;
+          i < g.frame.fork + 150;
           i += 0.1
         ) {
+          // Topoisomerase II's cut is a deliberate break, not a kink.
+          if (g.frame.topoCut > 0 && (i - cut).abs() < gap + 0.1) {
+            continue;
+          }
           final double step =
               (g.template(i + 0.1, leading: leading) -
                       g.template(i, leading: leading))

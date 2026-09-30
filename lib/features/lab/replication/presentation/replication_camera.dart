@@ -42,8 +42,8 @@ class ReplicationCamera {
       2.8,
     ),
     ReplicationChapter.topoisomerase => ReplicationCamera(
-      Offset(180, g.forkY - 108),
-      2.8,
+      Offset(180, g.yOf(g.frame.topoIndex)),
+      2.4,
     ),
     ReplicationChapter.primase || ReplicationChapter.polymerase =>
       ReplicationCamera(g.centre(g.frame.tipOf(0), leading: false), 2.5),
