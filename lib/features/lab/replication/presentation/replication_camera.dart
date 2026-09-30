@@ -74,12 +74,28 @@ class ReplicationCamera {
     ),
   };
 
+  /// Where the camera is at [moment]. [blend] eases between the whole fork
+  /// (0) and the guided close-ups (1) when the reader switches between them.
   static ReplicationCamera at(
     ReplicationMoment moment, {
     bool follow = true,
+    double blend = 1,
     bool reducedMotion = false,
   }) {
-    if (!follow) return overview;
+    if (!follow || blend <= 0) return overview;
+    final ReplicationCamera guided = _guided(moment, reducedMotion);
+    if (blend >= 1) return guided;
+    final double eased = blend * blend * (3 - 2 * blend);
+    return ReplicationCamera(
+      Offset.lerp(overview.centre, guided.centre, eased)!,
+      lerpDouble(overview.zoom, guided.zoom, eased)!,
+    );
+  }
+
+  static ReplicationCamera _guided(
+    ReplicationMoment moment,
+    bool reducedMotion,
+  ) {
     final ReplicationGeometry g = ReplicationGeometry(moment.frame);
     final ReplicationChapter chapter = moment.chapter;
     final ReplicationCamera from = forChapter(chapter, g);

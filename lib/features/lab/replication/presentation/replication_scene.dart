@@ -4,37 +4,24 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/theme/nucleotide_colors.dart';
 import '../../../../shared/ribosome/molecular_material.dart';
 import '../domain/genome_replication.dart';
 import '../domain/replication_tour.dart';
 import 'replication_camera.dart';
 import 'replication_geometry.dart';
+import 'replication_inks.dart';
 import 'replication_molecules.dart';
-
-abstract final class ReplicationPalette {
-  static const Color parental = Color(0xFF96A6BA);
-  static const Color daughter = Color(0xFF92C6B1);
-  static const Color rna = Color(0xFFD5AC76);
-  static const Color helicase = Color(0xFF698D86);
-  static const Color polymerase = Color(0xFF8499B5);
-  static const Color primase = Color(0xFFB29974);
-  static const Color rpa = Color(0xFFAA94BB);
-  static const Color nuclease = Color(0xFFBE8F87);
-  static const Color ligase = Color(0xFFB3A1BC);
-}
+import 'replication_staging.dart';
 
 class ReplicationScene extends CustomPainter {
   ReplicationScene({
     required this.timeline,
     required this.at,
     required this.molecules,
-    required this.ground,
-    required this.ink,
-    required this.quiet,
-    required this.bases,
+    required this.inks,
     this.showLabels = true,
     this.followCamera = true,
+    this.followBlend,
     this.reducedMotion = false,
     super.repaint,
   });
@@ -42,12 +29,13 @@ class ReplicationScene extends CustomPainter {
   final ReplicationTimeline timeline;
   final double Function() at;
   final ReplicationMolecules molecules;
-  final Color ground;
-  final Color ink;
-  final Color quiet;
-  final NucleotideColors bases;
+  final ReplicationInks inks;
   final bool showLabels;
   final bool followCamera;
+
+  /// How far the camera is between the whole fork (0) and the guided
+  /// close-ups (1) while the reader switches; [followCamera] when absent.
+  final double Function()? followBlend;
   final bool reducedMotion;
   final Map<(String, Color, double), TextPainter> _textCache =
       <(String, Color, double), TextPainter>{};
@@ -65,7 +53,7 @@ class ReplicationScene extends CustomPainter {
     final ReplicationFrame frame = moment.frame;
     final ReplicationCamera camera = ReplicationCamera.at(
       moment,
-      follow: followCamera,
+      blend: followBlend?.call() ?? (followCamera ? 1 : 0),
       reducedMotion: reducedMotion,
     );
     final double scale = math.min(size.width / 360, size.height / 600);
@@ -86,6 +74,13 @@ class ReplicationScene extends CustomPainter {
       top: camera.centre.dy + (crop.top - 300) / camera.zoom,
       bottom: camera.centre.dy + (crop.bottom - 300) / camera.zoom,
     );
+    final ReplicationStaging stage = ReplicationStaging(
+      moment,
+      g,
+      camera,
+      showLabels: showLabels,
+      reducedMotion: reducedMotion,
+    );
     canvas.save();
     canvas.clipRect(Offset.zero & size);
     canvas.translate(
@@ -103,47 +98,51 @@ class ReplicationScene extends CustomPainter {
     _parent(canvas, g);
     _daughter(canvas, g, leading: true);
     _daughter(canvas, g, leading: false);
-    _proteins(canvas, g, frame);
-    if (frame.stage == ReplicationStage.replace && frame.replacedBases < 10) {
-      _flap(canvas, g, frame);
-    }
-    if (frame.hasNick || frame.sealed) _nick(canvas, g, frame);
+    _stage(canvas, g, stage);
     canvas.restore();
-    if (camera.zoom == 1) {
-      _directions(canvas, g, frame);
-      if (showLabels) _labels(canvas, g, frame);
-    } else {
-      _closeUpLabels(canvas, g, moment, camera);
+    // Words live in screen space, so magnifying an enzyme does not magnify
+    // its name.
+    for (final StagedArrow arrow in stage.arrows) {
+      _arrow(
+        canvas,
+        arrow.from,
+        arrow.to,
+        inks[arrow.ink].withValues(alpha: arrow.opacity),
+      );
+    }
+    for (final StagedLabel label in stage.labels) {
+      _label(canvas, label);
     }
     canvas.restore();
   }
 
   void _ambience(Canvas canvas, ReplicationGeometry g) {
     // A restrained pool of light, on the same warm ground as the Ribosome.
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(180, g.forkY + 60),
-        width: 320,
-        height: 330,
-      ),
+    // It ends where its gradient does, so it has no rim to shimmer as the
+    // camera moves.
+    final Offset centre = Offset(180, g.forkY + 60);
+    canvas.drawCircle(
+      centre,
+      190,
       _fill
-        ..shader = ui.Gradient.radial(Offset(180, g.forkY + 60), 190, <Color>[
-          ReplicationPalette.helicase.withValues(alpha: 0.07),
-          ground.withValues(alpha: 0),
+        ..color = Colors.black
+        ..shader = ui.Gradient.radial(centre, 190, <Color>[
+          inks.helicase.withValues(alpha: 0.07),
+          inks.ground.withValues(alpha: 0),
         ]),
     );
     _fill.shader = null;
   }
 
   void _parent(Canvas canvas, ReplicationGeometry g) {
-    final double top =
-        g.frame.fork + (g.forkY - g.top) / ReplicationGeometry.pitch;
+    final double fork = g.frame.fork;
+    final double top = fork + (g.forkY - g.top) / ReplicationGeometry.pitch + 2;
     // Each half-turn is one smooth tube. Painting a shadow on every tiny
     // segment made serrated edges when the camera moved close.
     final List<(Path, double)> paths = <(Path, double)>[];
-    for (double start = g.frame.fork; start < top; start += 19) {
+    for (double start = fork; start < top; start += 19) {
       final double end = math.min(top, start + 19);
-      final bool frontLeading = ((start - g.frame.fork) / 19).round().isEven;
+      final bool frontLeading = ((start - fork) / 19).round().isEven;
       for (final bool leading in <bool>[false, true]) {
         paths.add((
           _trace(start, end, (double i) => g.template(i, leading: leading)),
@@ -154,22 +153,17 @@ class ReplicationScene extends CustomPainter {
     for (final double depth in <double>[0.6, 1]) {
       for (final (Path path, double shade) in paths) {
         if (shade == depth) {
-          _backbonePath(
-            canvas,
-            path,
-            ReplicationPalette.parental,
-            depth: shade,
-          );
+          _backbonePath(canvas, path, inks.parental, depth: shade);
         }
       }
     }
-    for (double i = (g.frame.fork / 5).ceil() * 5; i <= top; i += 5) {
-      _pair(
+    for (double i = (fork / 5).ceil() * 5; i <= top; i += 5) {
+      _rung(
         canvas,
         g.template(i, leading: true),
         g.template(i, leading: false),
-        GenomeReplication.templateAt(i.toInt()),
-        parental: true,
+        inks.parental,
+        inks.parental,
       );
     }
   }
@@ -179,266 +173,183 @@ class ReplicationScene extends CustomPainter {
     ReplicationGeometry g, {
     required bool leading,
   }) {
-    DaughterBase made(int index) =>
-        leading ? g.frame.leadingAt(index) : g.frame.laggingAt(index);
+    final ReplicationFrame f = g.frame;
+    final double first = g.firstVisible - 2;
+    final double fork = f.fork;
     _backbonePath(
       canvas,
-      _trace(
-        g.firstVisible - 1,
-        g.frame.fork,
-        (double i) => g.template(i, leading: leading),
-      ),
-      ReplicationPalette.parental,
+      _trace(first, fork, (double i) => g.template(i, leading: leading)),
+      inks.parental,
     );
-    Path? daughter;
-    DaughterBase material = DaughterBase.absent;
-    void finish() {
-      if (daughter != null) {
-        _backbonePath(
-          canvas,
-          daughter!,
-          material == DaughterBase.rna
-              ? ReplicationPalette.rna
-              : ReplicationPalette.daughter,
-        );
-        daughter = null;
-      }
-    }
 
-    for (double i = g.firstVisible - 1; i < g.frame.fork; i += 0.6) {
-      final DaughterBase current = made(i.floor());
-      final double junction = 99.5 - g.frame.replacedBases;
-      final bool nick =
-          !leading &&
-          !g.frame.sealed &&
-          i >= junction - 1.6 &&
-          i <= junction + 1.6;
-      final bool previousJoin =
-          !leading && g.frame.seconds < 50 && i.abs() < 1.3;
-      if (current == DaughterBase.absent ||
-          made((i + 0.6).ceil()) == DaughterBase.absent ||
-          nick ||
-          previousJoin) {
-        finish();
-        continue;
+    // The new strand: each piece between its exact ends, with a break where
+    // two pieces are not yet joined. RNA is drawn over DNA where they meet.
+    Offset newStrand(double i) => g.daughter(i, leading: leading);
+    final List<DaughterPiece> pieces = g.piecesOn(leading: leading);
+    final List<PieceJunction> joins = f.junctions(leading: leading);
+    final List<(double, double)> rna = <(double, double)>[];
+    for (int k = 0; k < pieces.length; k++) {
+      final DaughterPiece piece = pieces[k];
+      double low = math.max(piece.from, first);
+      double high = math.min(piece.to, fork);
+      if (k > 0 && k - 1 < joins.length) {
+        low = math.max(low, _breakEdge(joins[k - 1], upper: true));
       }
-      if (current != material) finish();
-      material = current;
-      final Offset a = g.daughter(i, leading: leading);
-      final Offset b = g.daughter(i + 0.6, leading: leading);
-      daughter ??= Path()..moveTo(a.dx, a.dy);
-      daughter!.lineTo(b.dx, b.dy);
-    }
-    finish();
-
-    for (int i = (g.firstVisible / 5).floor() * 5; i < g.frame.fork; i += 5) {
-      final Offset template = g.template(i.toDouble(), leading: leading);
-      final DaughterBase type = made(i);
-      final String base = leading
-          ? GenomeReplication.templateAt(i)
-          : GenomeReplication.complement(GenomeReplication.templateAt(i));
-      if (type != DaughterBase.absent) {
-        final Offset daughter = g.daughter(i.toDouble(), leading: leading);
-        _pair(canvas, template, daughter, base, rna: type == DaughterBase.rna);
+      if (k < joins.length) {
+        high = math.min(high, _breakEdge(joins[k], upper: false));
+      }
+      if (high <= low) continue;
+      final double rnaLow = piece.hasRna ? math.max(low, piece.rnaFrom) : high;
+      final double rnaHigh = piece.hasRna ? math.min(high, piece.rnaTo) : low;
+      if (rnaHigh > rnaLow) {
+        rna.add((rnaLow, rnaHigh));
+        if (rnaLow > low) {
+          _backbonePath(canvas, _trace(low, rnaLow, newStrand), inks.newDna);
+        }
+        if (high > rnaHigh) {
+          _backbonePath(canvas, _trace(rnaHigh, high, newStrand), inks.newDna);
+        }
       } else {
-        final Offset end = template + Offset(leading ? 7 : -7, 0);
-        _rod(canvas, template, end, bases.forBase(base), width: 2.8);
-        _sphere(canvas, template, 2, ReplicationPalette.parental);
+        _backbonePath(canvas, _trace(low, high, newStrand), inks.newDna);
+      }
+    }
+    for (final (double low, double high) in rna) {
+      _backbonePath(canvas, _trace(low, high, newStrand), inks.rna);
+    }
+
+    for (int i = (first / 5).floor() * 5; i < fork; i += 5) {
+      final double index = i.toDouble();
+      final Offset template = g.template(index, leading: leading);
+      final double grown = g.presence(index, leading: leading);
+      if (grown <= 0) {
+        // A bare template base reaches towards its future partner. Near the
+        // fork it still spans the parental pair's half, and shortens away
+        // from it smoothly.
+        final double reach =
+            10.9 - 3.9 * ReplicationGeometry.ease((fork - index) / 4);
+        _rod(
+          canvas,
+          template,
+          template + Offset(leading ? reach : -reach, 0),
+          inks.parental,
+        );
+        _sphere(canvas, template, 2, inks.parental);
+      } else {
+        _rung(
+          canvas,
+          template,
+          g.daughter(index, leading: leading),
+          inks.parental,
+          Color.lerp(inks.newDna, inks.rna, g.rna(index, leading: leading))!,
+          grown: grown,
+        );
       }
     }
   }
 
-  void _pair(
+  /// Where a strand stops short of a junction: the whole gap while the next
+  /// piece is still coming, then a nick that ligase closes.
+  static double _breakEdge(PieceJunction join, {required bool upper}) {
+    final double width = math.max(join.gap, 1.2 * (1 - join.sealed));
+    final double centre = (join.lower + join.upper) / 2;
+    return upper ? centre + width / 2 : centre - width / 2;
+  }
+
+  /// A base pair from [a] to [b], each half in its strand's colour. A new
+  /// half ([grown] below 1) grows out from its backbone towards the middle.
+  void _rung(
     Canvas canvas,
     Offset a,
     Offset b,
-    String base, {
-    bool parental = false,
-    bool rna = false,
+    Color aColor,
+    Color bColor, {
+    double grown = 1,
   }) {
-    if ((a - b).distance < 4) return;
-    final Offset middle = (a + b) / 2;
-    final Offset gap = (b - a) / (a - b).distance * 1.1;
-    _rod(canvas, a, middle - gap, bases.forBase(base), width: 2.8);
+    final double distance = (b - a).distance;
+    // Where two strands cross in projection, a rung has no length to show.
+    final double shown = ReplicationGeometry.ease((distance - 2) / 4);
+    if (shown <= 0) return;
+    final Offset direction = (b - a) / distance;
+    final double half = math.max(0, distance / 2 - 1.1);
+    final double stub = math.min(7, half);
     _rod(
       canvas,
-      middle + gap,
-      b,
-      rna
-          ? ReplicationPalette.rna
-          : bases.forBase(GenomeReplication.complement(base)),
-      width: 2.8,
+      a,
+      a + direction * (stub + (half - stub) * grown),
+      aColor,
+      opacity: shown,
     );
-    canvas.drawLine(
-      middle - gap,
-      middle + gap,
-      _line
-        ..strokeWidth = 0.7
-        ..color = quiet.withValues(alpha: 0.45),
-    );
-    _sphere(canvas, a, 2.2, ReplicationPalette.parental);
-    _sphere(
-      canvas,
-      b,
-      2.2,
-      parental
-          ? ReplicationPalette.parental
-          : rna
-          ? ReplicationPalette.rna
-          : ReplicationPalette.daughter,
-    );
+    if (grown > 0) {
+      _rod(canvas, b, b - direction * half * grown, bColor, opacity: shown);
+      final Offset middle = (a + b) / 2;
+      canvas.drawLine(
+        middle - direction * 1.1,
+        middle + direction * 1.1,
+        _line
+          ..strokeWidth = 0.7
+          ..color = inks.quiet.withValues(alpha: 0.45 * grown * shown),
+      );
+      _sphere(canvas, b, 2.2, bColor, opacity: grown * shown);
+    }
+    _sphere(canvas, a, 2 + 0.2 * grown, aColor, opacity: shown);
   }
 
-  void _proteins(Canvas canvas, ReplicationGeometry g, ReplicationFrame f) {
-    // Topoisomerase lies on duplex DNA ahead of the fork.
-    molecules.draw(
-      canvas,
-      Offset(180, g.forkY - 108),
-      const Size(51, 46),
-      ReplicationPalette.primase,
-      seed: 18,
-    );
-
-    // The pore follows the leading template. The excluded lagging template
-    // passes outside the helicase's right edge, not through the ring.
-    molecules.draw(
-      canvas,
-      Offset(164, g.forkY + 9),
-      const Size(79, 81),
-      ReplicationPalette.helicase,
-      seed: 37,
-    );
-    // The leading template threads the open pore; the other exits outside it.
-    _backbonePath(
-      canvas,
-      _trace(
-        f.fork - 17,
-        f.fork + 15,
-        (double i) => g.template(i, leading: true),
-      ),
-      ReplicationPalette.parental,
-    );
-    _backbonePath(
-      canvas,
-      _trace(f.fork - 25, f.fork, (double i) => g.template(i, leading: false)),
-      ReplicationPalette.parental,
-    );
-
-    final Offset leading = g.leadingEnzyme;
-    _clamp(canvas, leading + const Offset(0, 25));
-    molecules.draw(
-      canvas,
-      leading,
-      const Size(77, 77),
-      ReplicationPalette.polymerase,
-      seed: 7,
-      angle: -0.18,
-    );
-    _activeSite(canvas, leading, f.seconds);
-
-    for (int i = 15; i < f.fork - 24; i += 26) {
-      if (f.laggingAt(i) != DaughterBase.absent) continue;
-      final Offset p = g.template(i.toDouble(), leading: false);
-      // Avoid occluding the enzyme's working site as it takes over from RPA.
-      final Offset active = f.priming ? g.primase : g.laggingEnzyme;
-      if ((p - active).distance < 34) continue;
-      molecules.draw(
-        canvas,
-        p + const Offset(5, 0),
-        const Size(23, 27),
-        ReplicationPalette.rpa,
-        channel: false,
-        seed: 61,
-      );
+  void _stage(Canvas canvas, ReplicationGeometry g, ReplicationStaging stage) {
+    for (final StagedItem item in stage.items) {
+      switch (item) {
+        case StagedMolecule():
+          molecules.draw(
+            canvas,
+            item.centre,
+            item.size,
+            inks[item.ink],
+            seed: item.seed,
+            channel: item.channel,
+            angle: item.angle,
+            opacity: item.opacity,
+          );
+        case StagedClamp():
+          _clamp(canvas, item.centre, item.opacity);
+        case StagedGlow():
+          _activeSite(
+            canvas,
+            item.centre,
+            item.pulse,
+            inks[item.ink],
+            item.opacity,
+          );
+        case StagedTrace():
+          _backbonePath(
+            canvas,
+            _trace(
+              g.frame.fork + item.from,
+              g.frame.fork + item.to,
+              (double i) => g.template(i, leading: item.leading),
+            ),
+            inks.parental,
+          );
+      }
     }
-
-    final double handoff = f.activeFragment == 0 ? 20 : 62;
-    final bool handingOff = f.seconds >= handoff && f.seconds < handoff + 2;
-    if (f.priming || handingOff) {
-      final double elapsed = f.seconds - (f.activeFragment == 0 ? 8 : 50);
-      final double arrival = ReplicationFrame.progress(elapsed, 0, 0.9);
-      final double departure = ReplicationFrame.progress(
-        f.seconds,
-        handoff,
-        handoff + 2,
-      );
-      final Offset centre =
-          (handingOff
-              ? g.centre((f.activeFragment + 1) * 100 - 30, leading: false)
-              : g.primase) +
-          Offset(24 * (1 - arrival + departure), -13 * (1 - arrival));
-      molecules.draw(
-        canvas,
-        centre,
-        const Size(65, 64),
-        ReplicationPalette.primase,
-        seed: 28,
-        opacity: arrival * (1 - departure),
-      );
-      _activeSite(canvas, centre, f.seconds, color: ReplicationPalette.rna);
-      if (elapsed > 10) _clamp(canvas, centre + const Offset(0, -24));
+    for (final StagedFlap flap in stage.flaps) {
+      _flap(canvas, flap);
     }
-    final double deltaEnd = f.activeFragment == 0 ? 46 : 100;
-    final bool deltaLeaving = f.seconds >= deltaEnd && f.seconds < deltaEnd + 2;
-    if (f.deltaActive || deltaLeaving) {
-      final double arrival = ReplicationFrame.progress(
-        f.seconds,
-        handoff,
-        handoff + 2,
-      );
-      final double departure = ReplicationFrame.progress(
-        f.seconds,
-        deltaEnd,
-        deltaEnd + 2,
-      );
-      final Offset delta =
-          g.laggingEnzyme + Offset(-25 * (1 - arrival + departure), 0);
-      _clamp(canvas, g.laggingEnzyme + const Offset(0, -24));
-      molecules.draw(
-        canvas,
-        delta,
-        const Size(77, 72),
-        ReplicationPalette.polymerase,
-        seed: 42,
-        angle: 0.13,
-        opacity: arrival * (1 - departure),
-      );
-      if (f.deltaActive) _activeSite(canvas, delta, f.seconds);
-    }
-    if (f.stage == ReplicationStage.replace) {
-      final Offset delta = g.laggingEnzyme;
-      molecules.draw(
-        canvas,
-        delta + const Offset(-33, 24),
-        const Size(40, 39),
-        ReplicationPalette.nuclease,
-        seed: 83,
-        channel: false,
-      );
-    }
-    if (f.stage == ReplicationStage.seal || (f.sealed && f.seconds < 114)) {
-      final double entry = ReplicationFrame.progress(f.seconds, 102, 104);
-      final double exit = ReplicationFrame.progress(f.seconds, 110, 114);
-      final Offset centre =
-          g.centre(89.5, leading: false) + Offset(35 * (1 - entry + exit), 0);
-      molecules.draw(
-        canvas,
-        centre,
-        const Size(69, 63),
-        ReplicationPalette.ligase,
-        seed: 92,
-        opacity: entry * (1 - exit),
-      );
+    for (final StagedNick nick in stage.nicks) {
+      _nick(canvas, nick);
     }
   }
 
-  void _clamp(Canvas canvas, Offset p) {
+  void _clamp(Canvas canvas, Offset p, double opacity) {
+    if (opacity <= 0) return;
     final Rect rect = Rect.fromCenter(center: p, width: 36, height: 11);
     canvas.drawOval(
       rect,
       _line
         ..strokeWidth = 5
-        ..color = const Color(0xFF4C655E),
+        ..color = Color.lerp(
+          inks.clamp,
+          Colors.black,
+          0.4,
+        )!.withValues(alpha: opacity),
     );
     canvas.drawArc(
       rect,
@@ -447,408 +358,108 @@ class ReplicationScene extends CustomPainter {
       false,
       _line
         ..strokeWidth = 3
-        ..color = ReplicationPalette.daughter,
+        ..color = inks.clamp.withValues(alpha: opacity),
     );
   }
 
   void _activeSite(
     Canvas canvas,
     Offset p,
-    double seconds, {
-    Color color = ReplicationPalette.daughter,
-  }) {
-    final double pulse = 0.5 + 0.5 * math.sin(seconds * 2.4);
+    double pulse,
+    Color color,
+    double opacity,
+  ) {
+    if (opacity <= 0) return;
     canvas.drawCircle(
       p,
       12,
       _fill
+        ..color = Colors.black
         ..shader = ui.Gradient.radial(p, 12, <Color>[
-          color.withValues(alpha: 0.1 + pulse * 0.08),
+          color.withValues(alpha: (0.1 + pulse * 0.08) * opacity),
           color.withValues(alpha: 0),
         ]),
     );
     _fill.shader = null;
   }
 
-  void _flap(Canvas canvas, ReplicationGeometry g, ReplicationFrame f) {
-    final Offset site = g.daughter(100 - f.replacedBases, leading: false);
-    final Path flap = Path()
-      ..moveTo(site.dx, site.dy)
-      ..cubicTo(
-        site.dx - 12,
-        site.dy + 9,
-        site.dx - 25,
-        site.dy - 7,
-        site.dx - 32,
-        site.dy + 9,
-      );
-    canvas.drawPath(
-      flap,
+  /// Displaced RNA peels away from the template towards FEN1 as a short,
+  /// loose single strand.
+  void _flap(Canvas canvas, StagedFlap flap) {
+    if (flap.length <= 0 || flap.opacity <= 0) return;
+    final Offset toward = flap.towards - flap.base;
+    final double reach = toward.distance;
+    if (reach < 0.01) return;
+    final Offset along = toward / reach;
+    final Offset across = Offset(-along.dy, along.dx);
+    final double length = math.min(reach * 0.8, flap.length * 3.2);
+    final Offset tip = flap.base + along * length + across * length * 0.18;
+    final Offset bend =
+        flap.base + along * length * 0.45 - across * length * 0.22;
+    _backbonePath(
+      canvas,
+      Path()
+        ..moveTo(flap.base.dx, flap.base.dy)
+        ..quadraticBezierTo(bend.dx, bend.dy, tip.dx, tip.dy),
+      inks.rna,
+      opacity: flap.opacity,
+    );
+    _sphere(canvas, tip, 1.9, inks.rna, opacity: flap.opacity);
+  }
+
+  void _nick(Canvas canvas, StagedNick nick) {
+    canvas.drawCircle(
+      nick.centre,
+      7 + 5 * nick.sealed,
       _line
-        ..strokeWidth = 2.4
-        ..color = ReplicationPalette.rna,
+        ..strokeWidth = 1.2 + 0.3 * nick.sealed
+        ..color = Color.lerp(
+          inks.quiet,
+          inks.newDna,
+          nick.sealed,
+        )!.withValues(alpha: nick.opacity * (1 - 0.4 * nick.sealed)),
     );
   }
 
-  void _nick(Canvas canvas, ReplicationGeometry g, ReplicationFrame f) {
-    final Offset p = g.nick;
-    if (!f.sealed) {
-      canvas.drawCircle(
-        p,
-        7,
+  Color _labelColor(SceneInk ink) => switch (ink) {
+    SceneInk.ink ||
+    SceneInk.quiet ||
+    SceneInk.newDna ||
+    SceneInk.rna => inks[ink],
+    // Proteins are muted; their names are lifted towards the text colour so
+    // they stay legible on the dark ground.
+    _ => Color.lerp(inks[ink], inks.ink, 0.35)!,
+  };
+
+  void _label(Canvas canvas, StagedLabel label) {
+    final Color color = _labelColor(label.ink);
+    final Offset? target = label.target;
+    if (target != null) {
+      final Offset start = label.at + const Offset(19, 17);
+      canvas.drawPath(
+        Path()
+          ..moveTo(start.dx, start.dy)
+          ..lineTo(start.dx, start.dy + 5)
+          ..lineTo(target.dx, target.dy),
         _line
-          ..strokeWidth = 1.2
-          ..color = ReplicationPalette.rna,
+          ..strokeWidth = 0.8
+          ..color = color.withValues(alpha: 0.45 * label.opacity),
       );
-    } else {
-      final double fade = 1 - ReplicationFrame.progress(f.seconds, 111, 116);
       canvas.drawCircle(
-        p,
-        8 + 8 * (1 - fade),
-        _line
-          ..strokeWidth = 1.5
-          ..color = ReplicationPalette.daughter.withValues(alpha: fade),
+        target,
+        1.5,
+        _fill..color = color.withValues(alpha: label.opacity),
       );
     }
-  }
-
-  void _directions(Canvas canvas, ReplicationGeometry g, ReplicationFrame f) {
-    _arrow(
-      canvas,
-      const Offset(78, 577),
-      const Offset(78, 562),
-      ReplicationPalette.daughter,
-    );
-    _arrow(
-      canvas,
-      const Offset(281, 562),
-      const Offset(281, 577),
-      ReplicationPalette.daughter,
-    );
-    if (showLabels) {
-      _text(
-        canvas,
-        'Leading strand',
-        const Offset(78, 583),
-        size: 12.5,
-        color: ink,
-      );
-      _text(
-        canvas,
-        'Lagging strand',
-        const Offset(281, 583),
-        size: 12.5,
-        color: ink,
-      );
-      _text(canvas, '5′ → 3′', const Offset(78, 548), size: 10, color: quiet);
-      _text(canvas, '5′ → 3′', const Offset(281, 548), size: 10, color: quiet);
-      _text(canvas, 'Parental DNA', const Offset(180, 4), size: 13, color: ink);
-      _text(canvas, '5′', const Offset(154, 25), size: 10, color: quiet);
-      _text(canvas, '3′', const Offset(205, 25), size: 10, color: quiet);
-    }
-    // Physical direction of travel; these arrows sit beside the working tips.
-    final Offset lead = g.leadingEnzyme;
-    _arrow(
-      canvas,
-      lead + const Offset(-43, 12),
-      lead + const Offset(-43, -9),
-      ReplicationPalette.daughter,
-    );
-    if (f.deltaActive) {
-      final Offset lag = g.laggingEnzyme;
-      _arrow(
-        canvas,
-        lag + const Offset(44, -10),
-        lag + const Offset(44, 11),
-        ReplicationPalette.daughter,
-      );
-    }
-  }
-
-  void _labels(Canvas canvas, ReplicationGeometry g, ReplicationFrame f) {
-    _callout(
-      canvas,
-      'Topoisomerase',
-      Offset(16, g.forkY - 133),
-      Offset(153, g.forkY - 109),
-      color: ReplicationPalette.rna,
-    );
-    _callout(
-      canvas,
-      'CMG helicase',
-      Offset(230, g.forkY - 48),
-      Offset(193, g.forkY - 11),
-      color: ReplicationPalette.daughter,
-    );
-    final Offset leading = g.leadingEnzyme;
     _text(
       canvas,
-      'Pol ε',
-      leading + const Offset(-9, -54),
-      size: 13,
-      color: ink,
+      label.text,
+      label.at,
+      color: color,
+      size: label.size,
+      centred: label.centred,
+      opacity: label.opacity,
     );
-    _callout(
-      canvas,
-      'PCNA',
-      leading + const Offset(-80, 29),
-      leading + const Offset(-14, 26),
-      color: quiet,
-    );
-
-    if (f.priming) {
-      final Offset p = g.primase;
-      _callout(
-        canvas,
-        'Primase · Pol α',
-        Offset(156, p.dy + 44),
-        p + const Offset(-20, 18),
-        color: ReplicationPalette.rna,
-      );
-    } else if (f.deltaActive) {
-      final Offset p = g.laggingEnzyme;
-      _text(
-        canvas,
-        'Pol δ',
-        Offset(p.dx - 60, math.min(510, p.dy - 22)),
-        size: 13,
-        color: ink,
-      );
-    }
-    if (f.stage == ReplicationStage.unwind) {
-      final Offset rpa = g.template(41, leading: false);
-      _callout(
-        canvas,
-        'RPA',
-        Offset(208, rpa.dy - 21),
-        rpa,
-        color: ReplicationPalette.rpa,
-      );
-    }
-    if (f.seconds >= 20 && f.seconds < 88) {
-      final Offset primer = g.daughter(95, leading: false);
-      _callout(
-        canvas,
-        'RNA primer',
-        Offset(155, primer.dy - 22),
-        primer,
-        color: ReplicationPalette.rna,
-      );
-    }
-    if (f.stage == ReplicationStage.replace) {
-      _text(
-        canvas,
-        'FEN1',
-        g.laggingEnzyme + const Offset(-48, 49),
-        color: ReplicationPalette.nuclease,
-        size: 12,
-      );
-    }
-    if (f.stage == ReplicationStage.seal) {
-      _callout(
-        canvas,
-        'DNA ligase I',
-        Offset(144, g.nick.dy - 36),
-        g.centre(89.5, leading: false) - const Offset(25, 13),
-        color: ReplicationPalette.ligase,
-      );
-    }
-    if (f.stage == ReplicationStage.continueFork) {
-      _text(
-        canvas,
-        'Joined DNA',
-        const Offset(230, 471),
-        color: ReplicationPalette.daughter,
-        size: 12,
-      );
-      _text(
-        canvas,
-        'One old + one new',
-        const Offset(180, 519),
-        size: 11,
-        color: quiet,
-      );
-    }
-  }
-
-  // Labels live in screen space, so magnifying an enzyme does not magnify its
-  // name or leave the overview's unrelated callouts crossing the close-up.
-  void _closeUpLabels(
-    Canvas canvas,
-    ReplicationGeometry g,
-    ReplicationMoment moment,
-    ReplicationCamera camera,
-  ) {
-    final ReplicationFrame f = moment.frame;
-    void label(String text, Offset at, Offset target, Color color) {
-      final Offset projected = camera.project(target);
-      if (!showLabels ||
-          !const Rect.fromLTWH(16, 45, 328, 520).contains(projected)) {
-        return;
-      }
-      _callout(canvas, text, at, projected, color: color);
-    }
-
-    void direction(Offset site, {required bool leading}) {
-      final Offset p = camera.project(site) + const Offset(112, 0);
-      if (!const Rect.fromLTWH(20, 80, 300, 410).contains(p)) return;
-      _arrow(
-        canvas,
-        p + Offset(0, leading ? 24 : -24),
-        p + Offset(0, leading ? -24 : 24),
-        ReplicationPalette.daughter,
-      );
-      if (showLabels) {
-        _text(
-          canvas,
-          '5′ → 3′',
-          p + const Offset(0, 34),
-          color: quiet,
-          size: 11,
-        );
-      }
-    }
-
-    const Offset below = Offset(24, 450);
-    const Offset above = Offset(24, 112);
-    switch (moment.chapter) {
-      case ReplicationChapter.overview:
-      case ReplicationChapter.result:
-        break;
-      case ReplicationChapter.helicase:
-        label(
-          'CMG helicase',
-          const Offset(220, 452),
-          Offset(191, g.forkY + 30),
-          ReplicationPalette.daughter,
-        );
-        label(
-          'Parental DNA',
-          const Offset(225, 80),
-          g.template(f.fork + 30, leading: false),
-          quiet,
-        );
-      case ReplicationChapter.binding:
-        label(
-          'RPA · human SSB',
-          below,
-          g.template(67, leading: false) + const Offset(5, 8),
-          ReplicationPalette.rpa,
-        );
-        label('Exposed template', above, g.template(85, leading: false), quiet);
-      case ReplicationChapter.topoisomerase:
-        label(
-          'Topoisomerase',
-          below,
-          Offset(162, g.forkY - 96),
-          ReplicationPalette.rna,
-        );
-      case ReplicationChapter.primase:
-      case ReplicationChapter.nextPrimer:
-      case ReplicationChapter.polymerase:
-        final int fragment = moment.chapter == ReplicationChapter.nextPrimer
-            ? 1
-            : 0;
-        final Offset site = g.centre(f.tipOf(fragment), leading: false);
-        final bool delta = f.seconds >= (fragment == 0 ? 20 : 62);
-        label(
-          delta ? 'Pol δ' : 'Primase · Pol α',
-          below,
-          site + const Offset(-20, 16),
-          delta ? ink : ReplicationPalette.rna,
-        );
-        final double primer = fragment == 0 ? 95 : 195;
-        if (f.laggingAt(primer.toInt()) == DaughterBase.rna) {
-          label(
-            'RNA primer',
-            const Offset(218, 112),
-            g.daughter(primer, leading: false),
-            ReplicationPalette.rna,
-          );
-        }
-        if (delta) {
-          label(
-            'PCNA',
-            const Offset(255, 192),
-            site + const Offset(0, -24),
-            quiet,
-          );
-        }
-        direction(site, leading: false);
-      case ReplicationChapter.leading:
-        label('Pol ε', below, g.leadingEnzyme + const Offset(-22, 14), ink);
-        label(
-          'PCNA',
-          const Offset(236, 430),
-          g.leadingEnzyme + const Offset(0, 25),
-          quiet,
-        );
-        direction(g.leadingEnzyme, leading: true);
-      case ReplicationChapter.lagging:
-      case ReplicationChapter.fragments:
-        final int fragment = moment.chapter == ReplicationChapter.lagging
-            ? 0
-            : 1;
-        final Offset site = g.centre(f.tipOf(fragment), leading: false);
-        if (f.deltaActive) {
-          label('Pol δ', below, site + const Offset(-20, 14), ink);
-        }
-        label(
-          'Okazaki fragment',
-          above,
-          g.daughter(f.tipOf(fragment) + 38, leading: false),
-          ReplicationPalette.daughter,
-        );
-        if (f.deltaActive) direction(site, leading: false);
-      case ReplicationChapter.replacement:
-        label('Pol δ', above, g.laggingEnzyme + const Offset(-20, -12), ink);
-        label(
-          'FEN1',
-          below,
-          g.laggingEnzyme + const Offset(-33, 24),
-          ReplicationPalette.nuclease,
-        );
-        label(
-          f.hasNick ? 'RNA replaced' : 'RNA flap',
-          const Offset(242, 430),
-          g.daughter(100 - f.replacedBases, leading: false),
-          ReplicationPalette.rna,
-        );
-      case ReplicationChapter.ligase:
-        label(
-          'DNA ligase I',
-          below,
-          g.centre(89.5, leading: false) + const Offset(-20, 12),
-          ReplicationPalette.ligase,
-        );
-        label(
-          f.sealed ? 'Joined backbone' : 'Nick',
-          above,
-          g.nick,
-          f.sealed ? ReplicationPalette.daughter : ReplicationPalette.rna,
-        );
-    }
-  }
-
-  void _callout(
-    Canvas canvas,
-    String label,
-    Offset at,
-    Offset to, {
-    required Color color,
-  }) {
-    _text(canvas, label, at, color: color, size: 12, centred: false);
-    final Offset start = at + const Offset(19, 17);
-    canvas.drawPath(
-      Path()
-        ..moveTo(start.dx, start.dy)
-        ..lineTo(start.dx, start.dy + 5)
-        ..lineTo(to.dx, to.dy),
-      _line
-        ..strokeWidth = 0.8
-        ..color = color.withValues(alpha: 0.45),
-    );
-    canvas.drawCircle(to, 1.5, _fill..color = color);
   }
 
   void _text(
@@ -858,6 +469,7 @@ class ReplicationScene extends CustomPainter {
     required Color color,
     double size = 12,
     bool centred = true,
+    double opacity = 1,
   }) {
     final TextPainter painter = _textCache.putIfAbsent(
       (text, color, size),
@@ -880,9 +492,25 @@ class ReplicationScene extends CustomPainter {
         textDirection: TextDirection.ltr,
       )..layout(),
     );
-    painter.paint(canvas, at - Offset(centred ? painter.width / 2 : 0, 0));
+    final Offset origin = at - Offset(centred ? painter.width / 2 : 0, 0);
+    if (opacity >= 1) {
+      painter.paint(canvas, origin);
+      return;
+    }
+    canvas.saveLayer(
+      (origin & painter.size).inflate(2),
+      Paint()..color = Colors.black.withValues(alpha: opacity),
+    );
+    painter.paint(canvas, origin);
+    canvas.restore();
   }
 
+  static const double _lattice = 0.5;
+
+  /// A path through [pointAt] from [start] to [end], sampled at fixed
+  /// positions on the DNA (every half nucleotide) plus the exact ends. The
+  /// samples move with the molecule, never with the camera, so a strand's
+  /// outline cannot shimmer as the view pans or a strand grows.
   static Path _trace(
     double start,
     double end,
@@ -890,7 +518,11 @@ class ReplicationScene extends CustomPainter {
   ) {
     final Offset startPoint = pointAt(start);
     final Path path = Path()..moveTo(startPoint.dx, startPoint.dy);
-    for (double i = start + 0.6; i < end; i += 0.6) {
+    for (
+      double i = (start / _lattice).floorToDouble() * _lattice + _lattice;
+      i < end;
+      i += _lattice
+    ) {
       final Offset p = pointAt(i);
       path.lineTo(p.dx, p.dy);
     }
@@ -904,25 +536,32 @@ class ReplicationScene extends CustomPainter {
     Path path,
     Color color, {
     double depth = 1,
+    double opacity = 1,
   }) {
+    canvas.save();
+    canvas.translate(1, 1);
     canvas.drawPath(
-      path.shift(const Offset(1, 1)),
+      path,
       _line
         ..strokeWidth = 4
-        ..color = Colors.black.withValues(alpha: 0.3),
+        ..color = Colors.black.withValues(alpha: 0.3 * opacity),
     );
+    canvas.restore();
     canvas.drawPath(
       path,
       _line
         ..strokeWidth = 2.9
-        ..color = color.withValues(alpha: depth),
+        ..color = color.withValues(alpha: depth * opacity),
     );
+    canvas.save();
+    canvas.translate(-0.6, 0);
     canvas.drawPath(
-      path.shift(const Offset(-0.6, 0)),
+      path,
       _line
         ..strokeWidth = 0.7
-        ..color = Colors.white.withValues(alpha: 0.19 * depth),
+        ..color = Colors.white.withValues(alpha: 0.19 * depth * opacity),
     );
+    canvas.restore();
   }
 
   void _rod(
@@ -930,35 +569,46 @@ class ReplicationScene extends CustomPainter {
     Offset a,
     Offset b,
     Color color, {
-    double width = 3,
+    double width = 2.8,
+    double opacity = 1,
   }) {
     canvas.drawLine(
       a,
       b,
       _line
         ..strokeWidth = width
-        ..color = color,
+        ..color = color.withValues(alpha: opacity),
     );
     canvas.drawLine(
       a - const Offset(0, 0.6),
       b - const Offset(0, 0.6),
       _line
         ..strokeWidth = 0.6
-        ..color = Colors.white.withValues(alpha: 0.2),
+        ..color = Colors.white.withValues(alpha: 0.2 * opacity),
     );
   }
 
-  void _sphere(Canvas canvas, Offset at, double radius, Color color) {
+  void _sphere(
+    Canvas canvas,
+    Offset at,
+    double radius,
+    Color color, {
+    double opacity = 1,
+  }) {
+    if (opacity <= 0) return;
     final Rect bounds = Rect.fromCircle(center: at, radius: radius);
     canvas.drawCircle(
       at,
       radius,
-      _fill..shader = MolecularMaterial.residueShader(bounds, color),
+      _fill
+        ..color = Colors.black.withValues(alpha: opacity)
+        ..shader = MolecularMaterial.residueShader(bounds, color),
     );
     _fill.shader = null;
   }
 
   void _arrow(Canvas canvas, Offset from, Offset to, Color color) {
+    if (color.a <= 0) return;
     final Offset direction = (to - from) / (to - from).distance;
     final Offset normal = Offset(-direction.dy, direction.dx);
     canvas.drawLine(
@@ -985,12 +635,10 @@ class ReplicationScene extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant ReplicationScene oldDelegate) =>
-      oldDelegate.ground != ground ||
-      oldDelegate.ink != ink ||
-      oldDelegate.quiet != quiet ||
-      oldDelegate.bases != bases ||
+      oldDelegate.inks != inks ||
       oldDelegate.showLabels != showLabels ||
       oldDelegate.followCamera != followCamera ||
+      oldDelegate.followBlend != followBlend ||
       oldDelegate.reducedMotion != reducedMotion ||
       oldDelegate.molecules != molecules ||
       oldDelegate.timeline != timeline ||

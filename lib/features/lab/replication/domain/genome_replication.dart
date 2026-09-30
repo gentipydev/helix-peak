@@ -1,8 +1,12 @@
 import 'package:flutter/foundation.dart';
 
+import 'monotone_curve.dart';
+
 /// One established human fork, with two 100-nt Okazaki fragments in view.
 /// Coordinates increase in the direction of fork travel. A leading daughter
 /// grows towards larger indices; a lagging daughter grows towards smaller ones.
+/// Base i spans i − 0.5 to i + 0.5, and every end below is exact: a strand
+/// grows, and a primer is replaced, continuously, never a whole base at once.
 /// This illustrative sequence is not a gene or a reference-genome locus.
 abstract final class GenomeReplication {
   static const int windowBases = 200;
@@ -47,6 +51,51 @@ enum ReplicationStage {
 
 enum DaughterBase { absent, rna, dna }
 
+/// One piece of new strand paired with a template, between exact ends
+/// ([from] below [to]). Its growing 3′ end is [from] on the lagging template
+/// and [to] on the leading one; [rnaFrom] to [rnaTo] is its RNA, if any.
+@immutable
+class DaughterPiece {
+  const DaughterPiece({
+    required this.from,
+    required this.to,
+    required this.threePrimeAtFrom,
+    this.rnaFrom = 0,
+    this.rnaTo = 0,
+    this.replaced = 0,
+  });
+
+  final double from;
+  final double to;
+  final bool threePrimeAtFrom;
+  final double rnaFrom;
+  final double rnaTo;
+
+  /// How much of the piece, from its 3′ end, took over bases that another
+  /// piece had already paired: those were never missing.
+  final double replaced;
+
+  double get length => to - from;
+  double get threePrime => threePrimeAtFrom ? from : to;
+  bool get hasRna => rnaTo > rnaFrom;
+
+  /// How far [index] lies inside the piece from its growing end.
+  double fromThreePrime(double index) =>
+      threePrimeAtFrom ? index - from : to - index;
+}
+
+/// Two neighbouring pieces on one template: the upper end of the one below,
+/// the lower end of the one above, and how far the break is sealed.
+@immutable
+class PieceJunction {
+  const PieceJunction(this.lower, this.upper, this.sealed);
+  final double lower;
+  final double upper;
+  final double sealed;
+
+  double get gap => upper - lower;
+}
+
 @immutable
 class ReplicationFrame {
   const ReplicationFrame(this.seconds);
@@ -59,50 +108,168 @@ class ReplicationFrame {
   static double progress(double time, double start, double end) =>
       ((time - start) / (end - start)).clamp(0.0, 1.0);
 
+  /// [progress] that starts and finishes at rest.
+  static double eased(double time, double start, double end) {
+    final double v = progress(time, start, end);
+    return v * v * (3 - 2 * v);
+  }
+
+  // Two nucleotides a second until both fragments are primed, then slower,
+  // turning the corner smoothly.
+  static final MonotoneCurve _fork = MonotoneCurve(
+    const <(double, double)>[(0, 110), (40, 190), (50, 210), (120, 240)],
+    startSlope: 2,
+  );
+
+  // RNA (10 nt), Pol alpha DNA (20 nt), then Pol delta (70 nt), starting
+  // from rest and slowing to a stop at the earlier fragment.
+  static final MonotoneCurve _synthesis = MonotoneCurve(
+    const <(double, double)>[(0, 0), (4, 10), (12, 30), (38, 100)],
+    startSlope: 0,
+    endSlope: 0,
+  );
+
   /// The camera begins at an already active fork; origin firing occurs outside
   /// this window. Travel continues while each lagging fragment is synthesized.
-  double get fork => seconds < 50
-      ? 110 + 100 * progress(seconds, 0, 50)
-      : 210 + 30 * progress(seconds, 50, 120);
+  double get fork => _fork.at(seconds);
 
   double get leadingTip => fork - GenomeReplication.leadingTrail;
 
-  /// RNA (10 nt), Pol alpha DNA (20 nt), then Pol delta (70 nt).
-  double lengthOf(int fragment) {
-    final double start = fragment == 0 ? 8 : 50;
-    final double elapsed = seconds - start;
-    return 10 * progress(elapsed, 0, 4) +
-        20 * progress(elapsed, 4, 12) +
-        70 * progress(elapsed, 12, 38);
+  static double primedAt(int fragment) => fragment == 0 ? 8 : 50;
+
+  /// Nucleotides laid down on [fragment]: RNA, then Pol alpha, then Pol delta.
+  double lengthOf(int fragment) =>
+      _synthesis.at(seconds - primedAt(fragment));
+
+  /// The growing 3′ end of [fragment]; its 5′ end is fixed at
+  /// `(fragment + 1) * 100 - 0.5`.
+  double tipOf(int fragment) =>
+      (fragment + 1) * GenomeReplication.fragmentBases - 0.5 -
+      lengthOf(fragment);
+
+  /// Replacing the earlier fragment's primer takes three strokes: Pol delta
+  /// displaces a third of it into a flap and pauses while FEN1 cuts it off.
+  static const double flapCut = GenomeReplication.rnaBases / 3;
+  static const double replaceStart = 88;
+  static const double strokeSeconds = 4;
+
+  double get replacedBases {
+    if (seconds <= replaceStart) {
+      return 0;
+    }
+    final double strokes = (seconds - replaceStart) / strokeSeconds;
+    if (strokes >= 3) {
+      return GenomeReplication.rnaBases.toDouble();
+    }
+    final int k = strokes.floor();
+    final double v = strokes - k;
+    return flapCut * (k + v * v * (3 - 2 * v));
   }
 
-  double tipOf(int fragment) => (fragment + 1) * 100 - lengthOf(fragment);
+  /// Stroke [k] (0 to 2) of primer replacement: the RNA it has displaced
+  /// into a flap, in nt, and once FEN1 has cut it, how far it has been taken
+  /// up. Null before the stroke starts and after the cut flap has gone.
+  ({double length, double taken})? flapOf(int k) {
+    final double start = replaceStart + strokeSeconds * k;
+    final double cut = start + strokeSeconds;
+    if (seconds <= start || seconds >= cut + 0.8) {
+      return null;
+    }
+    if (seconds < cut) {
+      return (length: flapCut * eased(seconds, start, cut), taken: 0);
+    }
+    return (length: flapCut, taken: eased(seconds, cut, cut + 0.8));
+  }
 
-  /// The later fragment extends across the earlier one's RNA-DNA primer.
-  /// Pol delta displaces RNA as DNA is added, and FEN1 cleaves the flap.
-  double get replacedBases => 10 * progress(seconds, 88, 100);
-  double get sealing => progress(seconds, 102, 110);
+  double get sealing => eased(seconds, 102, 110);
   bool get sealed => sealing >= 1;
 
+  /// Fragment 0 meets the offscreen fragment below it; that nick closes once
+  /// the camera has moved on.
+  double get earlierJoin => eased(seconds, 48, 51);
+
+  /// The daughter pieces on one template, in index order.
+  List<DaughterPiece> pieces({required bool leading}) {
+    if (leading) {
+      return <DaughterPiece>[
+        DaughterPiece(from: -1e6, to: leadingTip, threePrimeAtFrom: false),
+      ];
+    }
+    final double front = 99.5 - replacedBases;
+    final List<DaughterPiece> pieces = <DaughterPiece>[
+      const DaughterPiece(from: -1e6, to: -0.5, threePrimeAtFrom: true),
+    ];
+    final double tip0 = tipOf(0);
+    if (tip0 < 99.5) {
+      pieces.add(
+        DaughterPiece(
+          from: tip0,
+          to: front,
+          threePrimeAtFrom: true,
+          rnaFrom: tip0 > 89.5 ? tip0 : 89.5,
+          rnaTo: front,
+        ),
+      );
+    }
+    final double tip1 = tipOf(1);
+    if (tip1 < 199.5) {
+      pieces.add(
+        DaughterPiece(
+          // Once it reaches fragment 0, its end is the displacement front.
+          from: tip1 > 99.5 ? tip1 : front,
+          to: 199.5,
+          threePrimeAtFrom: true,
+          rnaFrom: tip1 > 189.5 ? tip1 : 189.5,
+          rnaTo: 199.5,
+          replaced: replacedBases,
+        ),
+      );
+    }
+    return pieces;
+  }
+
+  /// Where neighbouring lagging pieces meet or face each other.
+  List<PieceJunction> junctions({required bool leading}) {
+    if (leading) {
+      return const <PieceJunction>[];
+    }
+    final List<DaughterPiece> list = pieces(leading: false);
+    return <PieceJunction>[
+      for (int k = 1; k < list.length; k++)
+        PieceJunction(
+          list[k - 1].to,
+          list[k].from,
+          k == 1 ? earlierJoin : sealing,
+        ),
+    ];
+  }
+
+  DaughterBase _baseOn(int index, List<DaughterPiece> list) {
+    final double low = index - 0.5;
+    final double high = index + 0.5;
+    for (final DaughterPiece piece in list) {
+      if (low >= piece.from - 1e-9 && high <= piece.to + 1e-9) {
+        return piece.hasRna &&
+                low >= piece.rnaFrom - 1e-9 &&
+                high <= piece.rnaTo + 1e-9
+            ? DaughterBase.rna
+            : DaughterBase.dna;
+      }
+    }
+    return DaughterBase.absent;
+  }
+
+  /// What the whole base at [index] is on the lagging daughter, if it is
+  /// there yet.
   DaughterBase laggingAt(int index) {
-    if (index < 0) return DaughterBase.dna; // Earlier, offscreen fragment.
-    if (index >= GenomeReplication.windowBases) return DaughterBase.absent;
-    final int fragment = index ~/ 100;
-    final int fromFivePrime = (fragment + 1) * 100 - 1 - index;
-    if (fromFivePrime >= lengthOf(fragment).floor()) {
+    if (index >= GenomeReplication.windowBases) {
       return DaughterBase.absent;
     }
-    if (fromFivePrime < GenomeReplication.rnaBases) {
-      if (fragment == 0 && fromFivePrime < replacedBases.floor()) {
-        return DaughterBase.dna;
-      }
-      return DaughterBase.rna;
-    }
-    return DaughterBase.dna;
+    return _baseOn(index, pieces(leading: false));
   }
 
   DaughterBase leadingAt(int index) =>
-      index < leadingTip.floor() ? DaughterBase.dna : DaughterBase.absent;
+      _baseOn(index, pieces(leading: true));
 
   /// The nick is between bases 89 and 90 after the first RNA primer is gone.
   bool get hasNick => replacedBases >= 10 && !sealed;
@@ -113,7 +280,7 @@ class ReplicationFrame {
   bool get deltaActive =>
       (seconds >= 20 && seconds < 46) || (seconds >= 62 && seconds < 100);
   double get deltaTip =>
-      seconds >= 88 ? 100 - replacedBases : tipOf(activeFragment);
+      seconds >= replaceStart ? 99.5 - replacedBases : tipOf(activeFragment);
 
   @override
   bool operator ==(Object other) =>

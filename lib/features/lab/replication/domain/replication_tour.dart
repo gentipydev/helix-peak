@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../shared/motion/animation_timeline.dart';
 import 'genome_replication.dart';
+import 'monotone_curve.dart';
 
 /// A guided view of processes that run together at an established fork.
 /// The first clock is playback time; the second is the existing synthesis
@@ -36,22 +37,15 @@ class ReplicationMoment {
     (ReplicationChapter chapter) => seconds >= chapter.second,
   );
 
-  ReplicationFrame get frame {
-    final ReplicationChapter start = chapter;
-    final ReplicationChapter? end =
-        start.index + 1 < ReplicationChapter.values.length
-        ? ReplicationChapter.values[start.index + 1]
-        : null;
-    final double fraction = ReplicationFrame.progress(
-      seconds,
-      start.second,
-      end?.second ?? ReplicationTimeline.durationSeconds.toDouble(),
-    );
-    return ReplicationFrame(
-      start.modelSecond +
-          ((end?.modelSecond ?? 120) - start.modelSecond) * fraction,
-    );
-  }
+  // Each chapter starts exactly on its model second; between them the model
+  // clock changes speed smoothly instead of lurching at the boundary.
+  static final MonotoneCurve _clock = MonotoneCurve(<(double, double)>[
+    for (final ReplicationChapter chapter in ReplicationChapter.values)
+      (chapter.second, chapter.modelSecond),
+    (ReplicationTimeline.durationSeconds.toDouble(), 120),
+  ]);
+
+  ReplicationFrame get frame => ReplicationFrame(_clock.at(seconds));
 
   String get caption => switch (chapter) {
     ReplicationChapter.overview =>

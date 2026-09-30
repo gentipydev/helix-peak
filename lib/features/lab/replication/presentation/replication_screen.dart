@@ -3,11 +3,11 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../../core/theme/nucleotide_colors.dart';
 import '../../../../shared/anatomy/sequence_scrubber.dart';
 import '../../../../shared/motion/timeline_controller.dart';
 import '../../../../shared/motion/transport_bar.dart';
 import '../domain/replication_tour.dart';
+import 'replication_inks.dart';
 import 'replication_molecules.dart';
 import 'replication_scene.dart';
 
@@ -23,17 +23,34 @@ class ReplicationScreen extends StatefulWidget {
 }
 
 class _ReplicationScreenState extends State<ReplicationScreen>
-    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   static const ReplicationTimeline _timeline = ReplicationTimeline();
   late final TimelineController _controller = TimelineController(
     vsync: this,
     timeline: _timeline,
     beat: ReplicationScreen.beat,
   );
+  // Switching between the whole fork and the guided close-ups glides rather
+  // than cuts; with reduced motion it cuts.
+  late final AnimationController _follow = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 500),
+    value: 1,
+  );
   final ReplicationMolecules _molecules = ReplicationMolecules();
   bool _labels = true;
   bool _followCamera = true;
   bool _resumeOnForeground = false;
+
+  void _toggleFollow() {
+    setState(() => _followCamera = !_followCamera);
+    final double target = _followCamera ? 1 : 0;
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _follow.value = target;
+    } else {
+      _follow.animateTo(target, curve: Curves.linear);
+    }
+  }
 
   @override
   void initState() {
@@ -62,6 +79,7 @@ class _ReplicationScreenState extends State<ReplicationScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
+    _follow.dispose();
     _molecules.dispose();
     super.dispose();
   }
@@ -82,6 +100,7 @@ class _ReplicationScreenState extends State<ReplicationScreen>
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colors = theme.colorScheme;
+    final ReplicationInks inks = ReplicationInks.of(context);
     final double textScale = MediaQuery.textScalerOf(context).scale(14) / 14;
     return Scaffold(
       appBar: AppBar(
@@ -166,17 +185,17 @@ class _ReplicationScreenState extends State<ReplicationScreen>
                                           timeline: _timeline,
                                           at: () => _controller.t,
                                           molecules: _molecules,
-                                          ground: colors.surface,
-                                          ink: colors.onSurface,
-                                          quiet: colors.onSurfaceVariant,
-                                          bases: context.nucleotideColors,
+                                          inks: inks,
                                           showLabels: _labels,
                                           followCamera: _followCamera,
+                                          followBlend: () => _follow.value,
                                           reducedMotion:
                                               MediaQuery.disableAnimationsOf(
                                                 context,
                                               ),
-                                          repaint: _controller,
+                                          repaint: Listenable.merge(
+                                            <Listenable>[_controller, _follow],
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -185,9 +204,7 @@ class _ReplicationScreenState extends State<ReplicationScreen>
                                     top: 0,
                                     left: 4,
                                     child: TextButton.icon(
-                                      onPressed: () => setState(
-                                        () => _followCamera = !_followCamera,
-                                      ),
+                                      onPressed: _toggleFollow,
                                       icon: Icon(
                                         _followCamera
                                             ? Icons.zoom_out_map_rounded
@@ -227,16 +244,16 @@ class _ReplicationScreenState extends State<ReplicationScreen>
                           ],
                         ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 6),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
                         child: Wrap(
                           alignment: WrapAlignment.center,
                           spacing: 16,
                           runSpacing: 6,
                           children: <Widget>[
-                            _Legend('Parental', ReplicationPalette.parental),
-                            _Legend('New DNA', ReplicationPalette.daughter),
-                            _Legend('RNA', ReplicationPalette.rna),
+                            _Legend('Parental', inks.parental),
+                            _Legend('New DNA', inks.newDna),
+                            _Legend('RNA', inks.rna),
                           ],
                         ),
                       ),
