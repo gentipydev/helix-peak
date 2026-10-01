@@ -24,13 +24,25 @@ class ReplicationGeometry {
   double get forkY => 170;
   double get firstVisible => frame.fork - (bottom - forkY) / pitch;
 
+  /// The first index drawn for the upper fork. Below the origin, the lower
+  /// fork is this half turned about it.
+  double get firstDrawn =>
+      math.max(firstVisible, GenomeReplication.origin);
+
+  /// How far [index] is from both forks, eased over [reach] nucleotides: 0
+  /// at a fork, 1 well inside the bubble. The lower fork's factor is 1
+  /// everywhere the tour looks, so a single fork is drawn as before.
+  double _inside(double index, double reach) =>
+      ease((frame.fork - index) / reach) *
+      ease((index - frame.lowerFork) / reach);
+
   static double ease(double t) {
     final double v = t.clamp(0.0, 1.0);
     return v * v * (3 - 2 * v);
   }
 
   Offset centre(double index, {required bool leading}) {
-    final double opened = ease((frame.fork - index) / 58);
+    final double opened = _inside(index, 58);
     return Offset(180 + (leading ? -1 : 1) * (12 + 91 * opened), yOf(index));
   }
 
@@ -87,33 +99,68 @@ class ReplicationGeometry {
       final double pastFivePrime = piece.threePrimeAtFrom
           ? index - piece.to
           : piece.from - index;
-      if (inside < -0.5 || pastFivePrime > 0) {
+      if (pastFivePrime > 0) {
+        continue;
+      }
+      final double width = frame.growIn;
+      if (inside < -0.5 * width) {
         continue;
       }
       final double grown = inside >= 0 && inside < piece.replaced
           ? 1.0
-          : (inside - piece.replaced + 0.5).clamp(0.0, 1.0);
+          : ((inside - piece.replaced + 0.5 * width) / width).clamp(0.0, 1.0);
       best = math.max(best, grown);
     }
     return best;
   }
 
-  /// How much the new base at [index] is RNA rather than DNA, blended over
-  /// half a nucleotide either side of an RNA run's ends, so a base changes
-  /// colour smoothly as a displacement front passes it.
+  /// How much the new base at [index] is RNA rather than DNA. A base is the
+  /// material its place in the strand makes it from its first moment; only
+  /// where Pol δ displaces a primer does RNA give way to DNA gradually, over
+  /// a width that opens from nothing as the front moves off.
   double rna(double index, {required bool leading}) {
+    final List<DaughterPiece> list = piecesOn(leading: leading);
+    final double half = frame.growIn / 2;
     double best = 0;
-    for (final DaughterPiece piece in piecesOn(leading: leading)) {
-      if (piece.hasRna) {
-        final double inside = math.min(
-          index - piece.rnaFrom,
-          piece.rnaTo - index,
-        );
-        best = math.max(best, (inside + 0.5).clamp(0.0, 1.0));
+    for (int k = 0; k < list.length; k++) {
+      final DaughterPiece piece = list[k];
+      if (!piece.hasRna) {
+        continue;
       }
+      final bool joinedBelow = k > 0 && piece.from - list[k - 1].to < 1e-3;
+      final bool joinedAbove =
+          k + 1 < list.length && list[k + 1].from - piece.to < 1e-3;
+      final double softBelow = joinedBelow && piece.rnaFrom <= piece.from + 1e-6
+          ? math.min(half, list[k - 1].replaced)
+          : 0;
+      final double softAbove = joinedAbove && piece.rnaTo >= piece.to - 1e-6
+          ? math.min(half, list[k + 1].replaced)
+          : 0;
+      // This piece's bases, the one still growing in at its free 3′ end, and
+      // the blend across a displacement front.
+      final double low =
+          piece.from -
+          (piece.threePrimeAtFrom && !joinedBelow ? half : softBelow);
+      final double high =
+          piece.to +
+          (!piece.threePrimeAtFrom && !joinedAbove ? half : softAbove);
+      if (index < low || index > high) {
+        continue;
+      }
+      best = math.max(
+        best,
+        math.min(
+          _side(index - piece.rnaFrom, softBelow),
+          _side(piece.rnaTo - index, softAbove),
+        ),
+      );
     }
     return best;
   }
+
+  static double _side(double inside, double soft) => soft <= 1e-9
+      ? (inside >= 0 ? 1.0 : 0.0)
+      : ((inside + soft) / (soft * 2)).clamp(0.0, 1.0);
 
   // Ahead of the fork the parental duplex winds tighter as the helicase
   // overwinds it: up to 45 nt ahead in full, easing to none at 60, where
@@ -176,10 +223,9 @@ class ReplicationGeometry {
       );
     }
     final Offset axis = centre(index, leading: leading);
-    final double gap = frame.fork - index;
     final double wound = paired(index, leading: leading);
     final double twist = 1 + wound * (math.cos(index * math.pi * 2 / 38) - 1);
-    final double spread = 12 * ease(gap / 18);
+    final double spread = 12 * _inside(index, 18);
     return axis + Offset((leading ? -1 : 1) * spread * twist, 0);
   }
 

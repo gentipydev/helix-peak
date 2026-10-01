@@ -59,9 +59,9 @@ void main() {
         for (final ReplicationChapter chapter in ReplicationChapter.values)
           chapter.name:
               chapter.second + (chapter == ReplicationChapter.overview ? 0 : 3),
-        'loading': 51.4,
-        'handoff': 54,
-        'joined': 149,
+        'loading': 99.4,
+        'handoff': 102,
+        'joined': 197,
       }.entries) {
         c.seek(moment.value / ReplicationTimeline.durationSeconds);
         await tester.pump();

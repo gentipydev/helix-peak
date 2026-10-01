@@ -100,7 +100,7 @@ void main() {
   test(
     'seeking is deterministic, bounded, and each phase has a distinct state',
     () {
-      expect(timeline.beats, 160);
+      expect(timeline.beats, ReplicationTimeline.durationSeconds);
       expect(timeline.stateAt(-1), timeline.stateAt(0));
       expect(timeline.stateAt(2), timeline.stateAt(1));
       for (final ReplicationChapter stage in ReplicationChapter.values) {
@@ -136,4 +136,76 @@ void main() {
       expect(const ReplicationFrame(8.5).topoCut, 0);
     },
   );
+
+  test('an origin fires into two forks that mirror each other', () {
+    const double origin = GenomeReplication.origin;
+    // Until it fires, the origin is closed and nothing is copied.
+    for (final double seconds in <double>[-60, -45, -36]) {
+      final ReplicationFrame f = ReplicationFrame(seconds);
+      expect(f.fork, origin, reason: '$seconds');
+      expect(f.pieces(leading: true), isEmpty, reason: '$seconds');
+      expect(f.pieces(leading: false), isEmpty, reason: '$seconds');
+    }
+    double last = origin;
+    for (double seconds = -60; seconds <= 120; seconds += 0.25) {
+      final ReplicationFrame f = ReplicationFrame(seconds);
+      expect(f.fork, greaterThanOrEqualTo(last), reason: '$seconds');
+      expect(f.lowerFork, origin * 2 - f.fork);
+      last = f.fork;
+      // Below the origin, each template carries the other fork's pieces
+      // from the other template, turned about the origin.
+      for (final bool leading in <bool>[true, false]) {
+        for (final DaughterPiece piece in f.pieces(leading: leading)) {
+          if (piece.to <= origin) {
+            expect(
+              f
+                  .pieces(leading: !leading)
+                  .any(
+                    (DaughterPiece other) =>
+                        (other.from - (origin * 2 - piece.to)).abs() < 1e-9 &&
+                        (other.to - (origin * 2 - piece.from)).abs() < 1e-9,
+                  ),
+              isTrue,
+              reason: '$seconds',
+            );
+          }
+        }
+      }
+    }
+  });
+
+  test(
+    'the bubble hands the tour its fork: fragment −1 done, primers placed',
+    () {
+      const ReplicationFrame start = ReplicationFrame(0);
+      expect(start.fork, 110);
+      expect(start.leadingTip, 74);
+      // The leading strand is DNA from the origin up: the other fork's first
+      // fragment has replaced its primer.
+      for (int i = -95; i < 74; i += 7) {
+        expect(start.leadingAt(i), DaughterBase.dna, reason: '$i');
+      }
+      // Fragment −1 reaches the origin and keeps its own primer until
+      // fragment 0 comes back to it.
+      expect(start.laggingAt(-5), DaughterBase.rna);
+      expect(start.laggingAt(-20), DaughterBase.dna);
+      expect(start.laggingAt(-90), DaughterBase.dna);
+      expect(start.laggingAt(5), DaughterBase.absent);
+      // Fragment 0 has replaced fragment −1's primer before the tour's
+      // replacement chapter.
+      const ReplicationFrame later = ReplicationFrame(60);
+      for (int i = -10; i < 0; i++) {
+        expect(later.laggingAt(i), DaughterBase.dna, reason: '$i');
+      }
+    },
+  );
+
+  test('an A/T-rich origin: two hydrogen bonds a pair, G/C flanks three', () {
+    const int origin = -95;
+    for (int i = origin - 12; i <= origin + 12; i++) {
+      expect(GenomeReplication.hydrogenBonds(i), 2, reason: '$i');
+    }
+    expect(GenomeReplication.hydrogenBonds(origin + 20), 3);
+    expect(GenomeReplication.hydrogenBonds(origin - 20), 3);
+  });
 }

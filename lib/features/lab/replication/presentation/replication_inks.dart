@@ -21,6 +21,8 @@ enum SceneInk {
   ligase,
   topoisomerase,
   activeSite,
+  orc,
+  cdt1,
 }
 
 /// The replication scene's colours, each taken from the theme.
@@ -50,6 +52,8 @@ class ReplicationInks {
     required this.ligase,
     required this.topoisomerase,
     required this.activeSite,
+    required this.orc,
+    required this.cdt1,
   });
 
   factory ReplicationInks.of(BuildContext context) {
@@ -86,6 +90,8 @@ class ReplicationInks {
       ligase: mix(anatomy.roleMature2, scheme.onSurfaceVariant, 0.35),
       topoisomerase: mix(anatomy.roleUtr3, scheme.onSurfaceVariant, 0.35),
       activeSite: mix(anatomy.roleStopCodon, scheme.onSurface, 0.15),
+      orc: mix(anatomy.dibasic, grey, 0.45),
+      cdt1: mix(anatomy.roleMature1, grey, 0.55),
     );
   }
 
@@ -109,6 +115,10 @@ class ReplicationInks {
   /// tyrosines do.
   final Color activeSite;
 
+  /// The origin recognition complex, and Cdc6 in a lighter tint of it.
+  final Color orc;
+  final Color cdt1;
+
   Color operator [](SceneInk ink) => switch (ink) {
     SceneInk.ink => this.ink,
     SceneInk.quiet => quiet,
@@ -125,6 +135,8 @@ class ReplicationInks {
     SceneInk.ligase => ligase,
     SceneInk.topoisomerase => topoisomerase,
     SceneInk.activeSite => activeSite,
+    SceneInk.orc => orc,
+    SceneInk.cdt1 => cdt1,
   };
 
   List<Color> get _all => <Color>[
@@ -144,6 +156,8 @@ class ReplicationInks {
     ligase,
     topoisomerase,
     activeSite,
+    orc,
+    cdt1,
   ];
 
   @override

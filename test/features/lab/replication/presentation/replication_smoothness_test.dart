@@ -188,11 +188,22 @@ void main() {
             lessThan(0.1),
             reason: '${frame / fps} s, base $i',
           );
+          // Colour shows only where a base is: hold what is seen of each.
+          double rna(ReplicationGeometry g) =>
+              g.presence(index, leading: leading) *
+              g.rna(index, leading: leading);
+          double dna(ReplicationGeometry g) =>
+              g.presence(index, leading: leading) *
+              (1 - g.rna(index, leading: leading));
           expect(
-            (b.rna(index, leading: leading) - a.rna(index, leading: leading))
-                .abs(),
+            (rna(b) - rna(a)).abs(),
             lessThan(0.1),
-            reason: '${frame / fps} s, base $i',
+            reason: '${frame / fps} s, RNA at base $i',
+          );
+          expect(
+            (dna(b) - dna(a)).abs(),
+            lessThan(0.1),
+            reason: '${frame / fps} s, DNA at base $i',
           );
         }
       }

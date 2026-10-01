@@ -53,7 +53,10 @@ void main() {
     expect(find.byType(LabProteinPicker), findsNothing);
     expect(controllerOf(tester).isPlaying, isTrue);
     await tester.pump(const Duration(seconds: 3));
-    expect(controllerOf(tester).t, closeTo(3 / 160, 0.001));
+    expect(
+      controllerOf(tester).t,
+      closeTo(3 / ReplicationTimeline.durationSeconds, 0.001),
+    );
     controllerOf(tester).pause();
     final double paused = controllerOf(tester).t;
     await tester.pump(const Duration(seconds: 2));
@@ -84,7 +87,7 @@ void main() {
       await host(tester);
       final TimelineController c = controllerOf(tester)..reset();
       for (final ReplicationChapter stage in ReplicationChapter.values) {
-        c.seek(stage.second / 160);
+        c.seek(stage.second / ReplicationTimeline.durationSeconds);
         await tester.pump();
         final Text caption = tester.widget(
           find.byKey(const ValueKey<String>('replication-caption')),
@@ -95,7 +98,11 @@ void main() {
       }
       c.reset();
       c.stepToNextPhase();
-      expect(c.t, 4 / 160);
+      expect(
+        c.t,
+        ReplicationChapter.licensing.second /
+            ReplicationTimeline.durationSeconds,
+      );
       c.stepToPreviousPhase();
       expect(c.t, 0);
       c.seek(1);
@@ -113,7 +120,7 @@ void main() {
     expect(c.reducedMotion, isTrue);
     c.stepToNextPhase();
     await tester.pump();
-    expect(c.phase?.name, ReplicationChapter.helicase.title);
+    expect(c.phase?.name, ReplicationChapter.licensing.title);
   });
 
   testWidgets('the side scrubber seeks without scrolling the scene', (
@@ -136,7 +143,7 @@ void main() {
     await tester.pump();
     expect(c.isPlaying, isFalse);
     expect(c.t, 1);
-    expect(find.textContaining('160 / 160 s'), findsOneWidget);
+    expect(find.textContaining('212 / 212 s'), findsOneWidget);
     expect(tester.getTopLeft(canvas), scenePosition);
     await drag.moveTo(Offset(track.center.dx, track.top + 20));
     await drag.up();
@@ -152,7 +159,7 @@ void main() {
       await host(tester);
       final TimelineController c = controllerOf(tester)
         ..pause()
-        ..seek(129 / 160);
+        ..seek(177 / ReplicationTimeline.durationSeconds);
       await tester.pump();
       ReplicationScene scene() =>
           tester
@@ -187,7 +194,7 @@ void main() {
       await host(tester, size: phone, safeInsets: insets);
       final TimelineController c = controllerOf(tester)..pause();
       for (final ReplicationChapter chapter in ReplicationChapter.values) {
-        c.seek((chapter.second + 3) / 160);
+        c.seek((chapter.second + 3) / ReplicationTimeline.durationSeconds);
         await tester.pump();
         for (final String tooltip in <String>[
           'Reset',

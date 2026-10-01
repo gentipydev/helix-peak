@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:helixpeek/features/lab/replication/domain/genome_replication.dart';
 import 'package:helixpeek/features/lab/replication/domain/replication_tour.dart';
 import 'package:helixpeek/features/lab/replication/presentation/replication_camera.dart';
 import 'package:helixpeek/features/lab/replication/presentation/replication_geometry.dart';
@@ -13,7 +14,12 @@ void main() {
         final ReplicationMoment moment = ReplicationMoment(chapter.second);
         final ReplicationCamera camera = ReplicationCamera.at(moment);
         final ReplicationGeometry g = ReplicationGeometry(moment.frame);
+        final Offset origin = Offset(180, g.yOf(GenomeReplication.origin));
         final Offset target = switch (chapter) {
+          ReplicationChapter.origin ||
+          ReplicationChapter.licensing ||
+          ReplicationChapter.firing ||
+          ReplicationChapter.bubble => origin,
           ReplicationChapter.overview ||
           ReplicationChapter.result => const Offset(180, 300),
           ReplicationChapter.helicase => Offset(164, g.forkY + 9),
@@ -41,12 +47,18 @@ void main() {
           isTrue,
           reason: chapter.name,
         );
+        // The fork's close-ups are magnified; the origin is seen whole.
         expect(
           camera.zoom,
-          chapter == ReplicationChapter.overview ||
-                  chapter == ReplicationChapter.result
-              ? 1
-              : greaterThan(2),
+          switch (chapter) {
+            ReplicationChapter.overview || ReplicationChapter.result => 1,
+            ReplicationChapter.origin ||
+            ReplicationChapter.licensing ||
+            ReplicationChapter.firing ||
+            ReplicationChapter.bubble => inInclusiveRange(1.3, 1.8),
+            _ => greaterThan(2),
+          },
+          reason: chapter.name,
         );
       }
     },
@@ -80,16 +92,24 @@ void main() {
   });
 
   test('extension stays in frame and seeking reproduces the same camera', () {
-    for (double second = 0; second <= 160; second += 0.1) {
+    for (
+      double second = 0;
+      second <= ReplicationTimeline.durationSeconds;
+      second += 0.1
+    ) {
       final ReplicationMoment moment = ReplicationMoment(second);
       final ReplicationCamera camera = ReplicationCamera.at(moment);
-      ReplicationCamera.at(const ReplicationMoment(160));
+      ReplicationCamera.at(
+        ReplicationMoment(ReplicationTimeline.durationSeconds.toDouble()),
+      );
       ReplicationCamera.at(const ReplicationMoment(0));
       final ReplicationCamera repeated = ReplicationCamera.at(moment);
       expect(repeated.centre, camera.centre);
       expect(repeated.zoom, camera.zoom);
       expect(camera.centre.dx.isFinite && camera.centre.dy.isFinite, isTrue);
-      expect(camera.zoom, inInclusiveRange(1 - 1e-9, 3 + 1e-9));
+      // Pulled back to the whole bubble at the start and the end; never
+      // closer than three times.
+      expect(camera.zoom, inInclusiveRange(0.36 - 1e-9, 3 + 1e-9));
       final ReplicationChapter chapter = moment.chapter;
       if (chapter == ReplicationChapter.lagging ||
           chapter == ReplicationChapter.fragments) {
@@ -110,7 +130,8 @@ void main() {
   test(
     'reduced motion holds the chapter view and whole fork overrides the tour',
     () {
-      const ReplicationMoment moment = ReplicationMoment(23);
+      // Late in the binding chapter, as the camera leaves for topo II.
+      const ReplicationMoment moment = ReplicationMoment(67);
       final ReplicationCamera held = ReplicationCamera.at(
         moment,
         reducedMotion: true,

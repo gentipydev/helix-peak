@@ -4,23 +4,28 @@ import '../../../../shared/motion/animation_timeline.dart';
 import 'genome_replication.dart';
 import 'monotone_curve.dart';
 
-/// A guided view of processes that run together at an established fork.
-/// The first clock is playback time; the second is the existing synthesis
-/// model's time. Extra time at the opening lets each machine be seen clearly.
+/// A guided view of replication: an origin firing into two forks, then the
+/// processes that run together at the upper fork. The first clock is
+/// playback time; the second is the synthesis model's time, negative before
+/// the tour joins the upper fork. Extra time lets each machine be seen.
 enum ReplicationChapter {
-  overview('Replication fork', 0, 0),
-  helicase('Helicase', 4, 0.8),
-  binding('Strand-binding proteins', 14, 3.2),
-  topoisomerase('Topoisomerase', 24, 5.6),
-  primase('Primase', 34, 8),
-  polymerase('DNA polymerase', 44, 12),
-  leading('Leading strand', 58, 24),
-  lagging('Lagging strand', 70, 32),
-  nextPrimer('Next primer', 88, 50),
-  fragments('Okazaki fragments', 100, 62),
-  replacement('Replacing primers', 126, 88),
-  ligase('DNA ligase', 140, 102),
-  result('Final result', 152, 114);
+  origin('Origin', 0, -60),
+  licensing('Pre-replication complex', 8, -52),
+  firing('Origin firing', 20, -40),
+  bubble('Two forks', 30, -30),
+  overview('Replication fork', 44, 0),
+  helicase('Helicase', 48, 0.8),
+  binding('Strand-binding proteins', 58, 3.2),
+  topoisomerase('Topoisomerase', 68, 5.6),
+  primase('Primase', 82, 8),
+  polymerase('DNA polymerase', 92, 12),
+  leading('Leading strand', 106, 24),
+  lagging('Lagging strand', 118, 32),
+  nextPrimer('Next primer', 136, 50),
+  fragments('Okazaki fragments', 148, 62),
+  replacement('Replacing primers', 174, 88),
+  ligase('DNA ligase', 188, 102),
+  result('Final result', 200, 114);
 
   const ReplicationChapter(this.title, this.second, this.modelSecond);
   final String title;
@@ -48,12 +53,34 @@ class ReplicationMoment {
   ReplicationFrame get frame => ReplicationFrame(_clock.at(seconds));
 
   String get caption => switch (chapter) {
+    ReplicationChapter.origin =>
+      'A/T-rich DNA opens first: an A·T pair has two hydrogen bonds, a G·C '
+          'pair three.',
+    ReplicationChapter.licensing =>
+      frame.seconds < -47.5
+          ? 'In G1, ORC and Cdc6 bind the origin; Cdt1 brings MCM2–7 rings.'
+          : 'Two MCM2–7 rings close round the DNA head to head: the '
+                'pre-replication complex.',
+    ReplicationChapter.firing =>
+      frame.seconds < -36
+          ? 'In S phase, kinases add Cdc45 and GINS to each MCM ring, making '
+                'two CMG helicases.'
+          : 'The A/T-rich DNA melts first. Each CMG closes round one strand, '
+                'and they pass each other.',
+    ReplicationChapter.bubble =>
+      frame.seconds < -16
+          ? 'Two forks leave the origin in opposite directions: replication '
+                'is bidirectional.'
+          : 'Each fork’s leading strand starts at the origin, and its lagging '
+                'strand ends there.',
     ReplicationChapter.overview =>
       'One fork, two new strands. Follow the machinery at work.',
     ReplicationChapter.helicase =>
-      'CMG helicase separates the two parental strands.',
+      'CMG, powered by ATP, separates the parental strands; the DNA ahead '
+          'winds tighter.',
     ReplicationChapter.binding =>
-      'RPA, the human SSB, holds exposed single strands open.',
+      'RPA, the human SSB, stops single strands reannealing and shields them '
+          'from nucleases.',
     ReplicationChapter.topoisomerase =>
       frame.seconds < 6
           ? 'Unwinding overwinds the DNA ahead: it is wound tighter and tighter.'
@@ -63,24 +90,29 @@ class ReplicationMoment {
           : 'It reseals the break, like a ligase, and the DNA ahead relaxes.',
     ReplicationChapter.primase || ReplicationChapter.nextPrimer =>
       frame.seconds - (chapter == ReplicationChapter.primase ? 8 : 50) < 4
-          ? 'Primase builds a short RNA start for the next DNA fragment.'
-          : 'Pol α adds DNA to the RNA primer, then hands it to Pol δ.',
+          ? 'Primase makes a short RNA primer: DNA polymerases can only '
+                'extend an existing 3′ end.'
+          : 'Pol α adds DNA to the RNA primer, then hands it on.',
     ReplicationChapter.polymerase =>
       frame.seconds < 20
-          ? 'Pol α extends the primer; Pol δ takes over with PCNA.'
-          : 'PCNA holds Pol δ around DNA as the fragment grows.',
+          ? 'RFC opens the PCNA ring and closes it round the primer end; '
+                'Pol δ takes over.'
+          : 'PCNA holds Pol δ on the DNA as the fragment grows.',
     ReplicationChapter.leading =>
       'Pol ε copies continuously towards the fork, adding at the 3′ end.',
     ReplicationChapter.lagging =>
-      'Pol δ builds a short fragment away from the fork, still 5′ → 3′.',
+      frame.seconds < 46
+          ? 'Pol δ builds a short fragment away from the fork, still 5′ → 3′.'
+          : 'Pol δ reaches the previous fragment’s RNA primer.',
     ReplicationChapter.fragments =>
       'The next Okazaki fragment grows back towards the earlier primer.',
     ReplicationChapter.replacement =>
-      'Pol δ replaces RNA with DNA. FEN1 cuts away the displaced primer.',
+      'Pol δ displaces the RNA primer into a flap; FEN1 cuts the flap away.',
     ReplicationChapter.ligase =>
       'DNA ligase seals the remaining nick in the new backbone.',
     ReplicationChapter.result =>
-      'Each duplex has one old and one new strand. The fork continues.',
+      'Each duplex has one old and one new strand. Both forks move on, away '
+          'from the origin.',
   };
 
   String get description => '${chapter.title}. $caption';
@@ -96,7 +128,7 @@ class ReplicationMoment {
 class ReplicationTimeline extends AnimationTimeline<ReplicationMoment> {
   const ReplicationTimeline();
 
-  static const int durationSeconds = 160;
+  static const int durationSeconds = 212;
 
   @override
   int get beats => durationSeconds;

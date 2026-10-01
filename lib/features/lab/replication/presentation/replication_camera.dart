@@ -28,11 +28,45 @@ class ReplicationCamera {
   Offset project(Offset point) =>
       const Offset(180, 300) + (point - centre) * zoom;
 
+  /// Centred on the origin, as close as the bubble with both forks allows.
+  static ReplicationCamera bubble(ReplicationGeometry g) {
+    final double span =
+        (g.frame.fork - g.frame.lowerFork) * ReplicationGeometry.pitch;
+    return ReplicationCamera(
+      Offset(180, g.yOf(GenomeReplication.origin)),
+      (560 / (span + 230)).clamp(0.36, 1.6),
+    );
+  }
+
   static ReplicationCamera forChapter(
     ReplicationChapter chapter,
-    ReplicationGeometry g,
-  ) => switch (chapter) {
-    ReplicationChapter.overview || ReplicationChapter.result => overview,
+    ReplicationGeometry g, {
+    double seconds = 0,
+  }) => switch (chapter) {
+    ReplicationChapter.origin => ReplicationCamera(
+      Offset(180, g.yOf(GenomeReplication.origin)),
+      1.7,
+    ),
+    ReplicationChapter.licensing => ReplicationCamera(
+      Offset(180, g.yOf(GenomeReplication.origin) - 14),
+      1.35,
+    ),
+    ReplicationChapter.firing => ReplicationCamera(
+      Offset(180, g.yOf(GenomeReplication.origin)),
+      1.5,
+    ),
+    ReplicationChapter.bubble => bubble(g),
+    ReplicationChapter.overview => overview,
+    // The last view pulls back from the fork to the whole bubble.
+    ReplicationChapter.result => _between(
+      overview,
+      bubble(g),
+      ReplicationFrame.eased(
+        seconds,
+        chapter.second + 2,
+        chapter.second + 9,
+      ),
+    ),
     ReplicationChapter.helicase => ReplicationCamera(
       Offset(174, g.forkY + 10),
       2.35,
@@ -98,7 +132,11 @@ class ReplicationCamera {
   ) {
     final ReplicationGeometry g = ReplicationGeometry(moment.frame);
     final ReplicationChapter chapter = moment.chapter;
-    final ReplicationCamera from = forChapter(chapter, g);
+    final ReplicationCamera from = forChapter(
+      chapter,
+      g,
+      seconds: reducedMotion ? chapter.second : moment.seconds,
+    );
     if (reducedMotion || chapter == ReplicationChapter.values.last) return from;
     final ReplicationChapter next =
         ReplicationChapter.values[chapter.index + 1];
@@ -108,11 +146,26 @@ class ReplicationCamera {
       next.second,
     );
     if (t == 0) return from;
-    final ReplicationCamera to = forChapter(next, g);
+    final ReplicationCamera to = forChapter(
+      next,
+      g,
+      seconds: moment.seconds,
+    );
     final double eased = t * t * t * (10 + t * (-15 + t * 6));
     return ReplicationCamera(
       Offset.lerp(from.centre, to.centre, eased)!,
       lerpDouble(from.zoom, to.zoom, eased)!,
     );
   }
+
+  static ReplicationCamera _between(
+    ReplicationCamera a,
+    ReplicationCamera b,
+    double t,
+  ) => t <= 0
+      ? a
+      : ReplicationCamera(
+          Offset.lerp(a.centre, b.centre, t)!,
+          lerpDouble(a.zoom, b.zoom, t)!,
+        );
 }

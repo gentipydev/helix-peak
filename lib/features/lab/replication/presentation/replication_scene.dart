@@ -68,16 +68,26 @@ class ReplicationScene extends CustomPainter {
     final Rect crop = Rect.lerp(
       const Rect.fromLTWH(0, 27, 360, 523),
       viewport,
-      ((camera.zoom - 1) / 0.4).clamp(0.0, 1.0),
+      ((camera.zoom - 1).abs() / 0.4).clamp(0.0, 1.0),
     )!;
     final ReplicationGeometry g = ReplicationGeometry(
       frame,
       top: camera.centre.dy + (crop.top - 300) / camera.zoom,
       bottom: camera.centre.dy + (crop.bottom - 300) / camera.zoom,
     );
+    // Below the origin the lower fork is the upper one turned about it:
+    // stage for both halves, draw the upper half, and draw it again turned.
+    final double originY = g.yOf(GenomeReplication.origin);
+    final bool lower = originY < g.bottom + 30;
     final ReplicationStaging stage = ReplicationStaging(
       moment,
-      g,
+      lower
+          ? ReplicationGeometry(
+              frame,
+              top: math.min(g.top, originY * 2 - g.bottom),
+              bottom: math.max(g.bottom, originY * 2 - g.top),
+            )
+          : g,
       camera,
       showLabels: showLabels,
       reducedMotion: reducedMotion,
@@ -95,22 +105,28 @@ class ReplicationScene extends CustomPainter {
     canvas.translate(180, 300);
     canvas.scale(camera.zoom);
     canvas.translate(-camera.centre.dx, -camera.centre.dy);
-    _ambience(canvas, g);
-    // Rings go round the DNA: their far halves first, their near halves
-    // over it and over the enzymes they carry.
-    _rings(canvas, stage, near: false);
-    _parent(canvas, g);
-    _daughter(canvas, g, leading: true);
-    _daughter(canvas, g, leading: false);
-    _stage(canvas, g, stage);
-    _rings(canvas, stage, near: true);
-    _traces(canvas, g, stage);
-    for (final StagedFlap flap in stage.flaps) {
-      _flap(canvas, flap);
+    for (final StagedItem item in stage.shared) {
+      if (item is StagedBand) _band(canvas, item);
     }
-    for (final StagedNick nick in stage.nicks) {
-      _nick(canvas, nick);
+    if (lower) {
+      canvas.save();
+      canvas.translate(180, originY);
+      canvas.rotate(math.pi);
+      canvas.translate(-180, -originY);
+      _turned = true;
+      _half(
+        canvas,
+        ReplicationGeometry(
+          frame,
+          top: originY * 2 - g.bottom,
+          bottom: originY * 2 - g.top,
+        ),
+        stage,
+      );
+      _turned = false;
+      canvas.restore();
     }
+    _half(canvas, g, stage, origin: true);
     canvas.restore();
     // Words live in screen space, so magnifying an enzyme does not magnify
     // its name.
@@ -125,6 +141,76 @@ class ReplicationScene extends CustomPainter {
     for (final StagedLabel label in stage.labels) {
       _label(canvas, label);
     }
+    canvas.restore();
+  }
+
+  /// Whether this pass draws the lower fork, turned about the origin: its
+  /// light must still fall from the top left.
+  bool _turned = false;
+
+  /// One fork's half of the scene. Rings go round the DNA: their far halves
+  /// first, their near halves over it and over the enzymes they carry. The
+  /// upper pass also draws what belongs to the [origin] itself.
+  void _half(
+    Canvas canvas,
+    ReplicationGeometry g,
+    ReplicationStaging stage, {
+    bool origin = false,
+  }) {
+    final List<StagedRing> rings = <StagedRing>[
+      if (origin)
+        for (final StagedItem item in stage.shared)
+          if (item is StagedRing) item,
+      ...stage.rings,
+    ];
+    _ambience(canvas, g);
+    _rings(canvas, rings, near: false);
+    _parent(canvas, g);
+    _daughter(canvas, g, leading: true);
+    _daughter(canvas, g, leading: false);
+    _stage(canvas, g, stage);
+    _rings(canvas, rings, near: true);
+    _traces(canvas, g, stage);
+    for (final StagedFlap flap in stage.flaps) {
+      _flap(canvas, flap);
+    }
+    for (final StagedNick nick in stage.nicks) {
+      _nick(canvas, nick);
+    }
+  }
+
+  /// The origin's A/T-rich stretch, softly lit behind the duplex.
+  void _band(Canvas canvas, StagedBand band) {
+    if (band.opacity <= 0) return;
+    final double half = band.length / 2 * ReplicationGeometry.pitch;
+    final RRect shape = RRect.fromRectAndRadius(
+      Rect.fromCenter(center: band.centre, width: 46, height: half * 2 + 20),
+      const Radius.circular(23),
+    );
+    canvas.drawRRect(
+      shape,
+      _fill..color = inks.quiet.withValues(alpha: 0.1 * band.opacity),
+    );
+    canvas.drawRRect(
+      shape,
+      _line
+        ..strokeWidth = 0.8
+        ..color = inks.quiet.withValues(alpha: 0.25 * band.opacity),
+    );
+  }
+
+  /// Draws [paint] with the canvas turned back upright about [at] in the
+  /// lower fork's pass, so a lit shape keeps its light from the top left.
+  void _upright(Canvas canvas, Offset at, void Function() paint) {
+    if (!_turned) {
+      paint();
+      return;
+    }
+    canvas.save();
+    canvas.translate(at.dx, at.dy);
+    canvas.rotate(math.pi);
+    canvas.translate(-at.dx, -at.dy);
+    paint();
     canvas.restore();
   }
 
@@ -186,6 +272,7 @@ class ReplicationScene extends CustomPainter {
         }
       }
     }
+    final double origin = g.frame.originShown;
     for (double i = (fork / 5).ceil() * 5; i <= top; i += 5) {
       // Base pairs at the cut part as the gate opens.
       final double near = (i - g.frame.topoIndex).abs();
@@ -196,6 +283,8 @@ class ReplicationScene extends CustomPainter {
         inks.parental,
         inks.parental,
         opacity: 1 - cut * (1 - ReplicationGeometry.ease((near - 2) / 2)),
+        bonds: GenomeReplication.hydrogenBonds(i.round()),
+        bondsShown: origin,
       );
     }
   }
@@ -206,7 +295,11 @@ class ReplicationScene extends CustomPainter {
     required bool leading,
   }) {
     final ReplicationFrame f = g.frame;
-    final double first = g.firstVisible - 2;
+    // Below the origin is the lower fork's, drawn by its own turned pass.
+    final double first = math.max(
+      g.firstVisible - 2,
+      GenomeReplication.origin,
+    );
     final double fork = f.fork;
     _backbonePath(
       canvas,
@@ -289,6 +382,8 @@ class ReplicationScene extends CustomPainter {
 
   /// A base pair from [a] to [b], each half in its strand's colour. A new
   /// half ([grown] below 1) grows out from its backbone towards the middle.
+  /// At the origin the gap between the halves widens to show the pair's
+  /// hydrogen bonds, two lines for A·T and three for G·C.
   void _rung(
     Canvas canvas,
     Offset a,
@@ -297,6 +392,8 @@ class ReplicationScene extends CustomPainter {
     Color bColor, {
     double grown = 1,
     double opacity = 1,
+    int bonds = 2,
+    double bondsShown = 0,
   }) {
     final double distance = (b - a).distance;
     // Where two strands cross in projection, a rung has no length to show.
@@ -304,7 +401,8 @@ class ReplicationScene extends CustomPainter {
         opacity * ReplicationGeometry.ease((distance - 2) / 4);
     if (shown <= 0) return;
     final Offset direction = (b - a) / distance;
-    final double half = math.max(0, distance / 2 - 1.1);
+    final double gap = 1.1 + 2.6 * bondsShown;
+    final double half = math.max(0, distance / 2 - gap);
     final double stub = math.min(7, half);
     _rod(
       canvas,
@@ -316,13 +414,31 @@ class ReplicationScene extends CustomPainter {
     if (grown > 0) {
       _rod(canvas, b, b - direction * half * grown, bColor, opacity: shown);
       final Offset middle = (a + b) / 2;
+      final double reach = math.min(gap, distance / 2);
       canvas.drawLine(
-        middle - direction * 1.1,
-        middle + direction * 1.1,
+        middle - direction * reach,
+        middle + direction * reach,
         _line
           ..strokeWidth = 0.7
-          ..color = inks.quiet.withValues(alpha: 0.45 * grown * shown),
+          ..color = inks.quiet.withValues(
+            alpha: 0.45 * grown * shown * (1 - bondsShown),
+          ),
       );
+      if (bondsShown > 0) {
+        final Offset across = Offset(-direction.dy, direction.dx);
+        for (int k = 0; k < bonds; k++) {
+          final Offset shift = across * ((k - (bonds - 1) / 2) * 1.25);
+          canvas.drawLine(
+            middle - direction * reach * 0.8 + shift,
+            middle + direction * reach * 0.8 + shift,
+            _line
+              ..strokeWidth = 0.6
+              ..color = inks.ink.withValues(
+                alpha: 0.7 * grown * shown * bondsShown,
+              ),
+          );
+        }
+      }
       _sphere(canvas, b, 2.2, bColor, opacity: grown * shown);
     }
     _sphere(canvas, a, 2 + 0.2 * grown, aColor, opacity: shown);
@@ -339,7 +455,7 @@ class ReplicationScene extends CustomPainter {
             inks[item.ink],
             seed: item.seed,
             channel: item.channel,
-            angle: item.angle,
+            angle: item.angle + (_turned ? math.pi : 0),
             opacity: item.opacity,
           );
         case StagedGlow():
@@ -351,20 +467,29 @@ class ReplicationScene extends CustomPainter {
             item.opacity,
           );
         case StagedTopo():
-          molecules.topo.draw(
+          _upright(
             canvas,
             item.centre,
-            upper: Color.lerp(inks.topoisomerase, Colors.white, 0.12)!,
-            lower: Color.lerp(inks.topoisomerase, Colors.black, 0.1)!,
-            site: inks.activeSite,
-            gate: item.gate,
-            sites: item.sites,
-            opacity: item.opacity,
+            () => molecules.topo.draw(
+              canvas,
+              item.centre,
+              upper: Color.lerp(inks.topoisomerase, Colors.white, 0.12)!,
+              lower: Color.lerp(inks.topoisomerase, Colors.black, 0.1)!,
+              site: inks.activeSite,
+              gate: item.gate,
+              sites: item.sites,
+              opacity: item.opacity,
+            ),
           );
         case StagedDuplexEnd():
-          _duplexEnd(canvas, item.centre, item.turn, item.opacity);
+          _upright(
+            canvas,
+            item.centre,
+            () => _duplexEnd(canvas, item.centre, item.turn, item.opacity),
+          );
         case StagedRing():
         case StagedTrace():
+        case StagedBand():
           break;
       }
     }
@@ -415,11 +540,17 @@ class ReplicationScene extends CustomPainter {
   void _traces(Canvas canvas, ReplicationGeometry g, ReplicationStaging stage) {
     for (final StagedItem item in stage.items) {
       if (item is StagedTrace) {
+        final double from = math.max(
+          g.frame.fork + item.from,
+          GenomeReplication.origin,
+        );
+        final double to = g.frame.fork + item.to;
+        if (to <= from) continue;
         _backbonePath(
           canvas,
           _trace(
-            g.frame.fork + item.from,
-            g.frame.fork + item.to,
+            from,
+            to,
             (double i) => g.template(i, leading: item.leading),
           ),
           inks.parental,
@@ -473,7 +604,7 @@ class ReplicationScene extends CustomPainter {
           tilt: 0.4,
           round: 40,
           shine: 0.04,
-          angles: ringAngles(count: 6),
+          angles: ringAngles(count: 6, open: ring.open),
           extents: ringExtents(count: 6, seam: 0.018),
           // MCM2–7: six subunits in tints of the helicase's colour.
           colors: _tints(inks.helicase, const <double>[
@@ -504,6 +635,27 @@ class ReplicationScene extends CustomPainter {
               : const <double>[],
           opacity: ring.opacity,
         );
+      case RingKind.orc:
+      case RingKind.cdc6:
+        // ORC1–5 wrap the DNA as an open crescent; Cdc6 closes the gap.
+        final List<double> angles = ringAngles(
+          count: 6,
+          rotation: math.pi / 2,
+        );
+        final List<(double, double)> extents = ringExtents(count: 6);
+        final bool orc = ring.kind == RingKind.orc;
+        return ProteinRing(
+          centre: ring.centre,
+          radius: 20,
+          thickness: 8,
+          height: 12,
+          angles: orc ? angles.sublist(0, 5) : <double>[angles[5]],
+          extents: orc ? extents.sublist(0, 5) : <(double, double)>[extents[5]],
+          colors: orc
+              ? _tints(inks.orc, const <double>[0.1, -0.05, 0.04, -0.12, 0])
+              : <Color>[Color.lerp(inks.orc, Colors.white, 0.22)!],
+          opacity: ring.opacity,
+        );
       case RingKind.rfc:
         return ProteinRing(
           centre: ring.centre,
@@ -528,21 +680,24 @@ class ReplicationScene extends CustomPainter {
     }
   }
 
-  void _rings(Canvas canvas, ReplicationStaging stage, {required bool near}) {
-    for (final StagedRing ring in stage.rings) {
+  void _rings(Canvas canvas, List<StagedRing> rings, {required bool near}) {
+    for (final StagedRing ring in rings) {
       if (ring.opacity <= 0) continue;
-      final bool turned = ring.axis.abs() > 1e-4;
+      // Rings are seen a little from above in both forks' halves: in the
+      // lower fork's pass each is turned back upright about its centre.
+      final double turn = ring.axis + (_turned ? math.pi : 0);
+      final bool turned = turn.abs() > 1e-4;
       if (turned) {
         canvas.save();
         canvas.translate(ring.centre.dx, ring.centre.dy);
-        canvas.rotate(ring.axis);
+        canvas.rotate(turn);
         canvas.translate(-ring.centre.dx, -ring.centre.dy);
       }
       _ring(ring).draw(canvas, near: near);
+      if (turned) canvas.restore();
       if (near && ring.kind == RingKind.mcmN) {
         _cmgPartners(canvas, ring);
       }
-      if (turned) canvas.restore();
     }
   }
 
@@ -569,6 +724,7 @@ class ReplicationScene extends CustomPainter {
       Color.lerp(inks.helicase, Colors.black, 0.08)!,
       seed: 46,
       channel: false,
+      angle: _turned ? math.pi : 0,
     );
     molecules.draw(
       canvas,
@@ -577,6 +733,7 @@ class ReplicationScene extends CustomPainter {
       Color.lerp(inks.helicase, Colors.white, 0.1)!,
       seed: 53,
       channel: false,
+      angle: _turned ? math.pi : 0,
     );
     if (opacity < 1) canvas.restore();
   }
@@ -757,8 +914,9 @@ class ReplicationScene extends CustomPainter {
     double depth = 1,
     double opacity = 1,
   }) {
+    final double light = _turned ? -1 : 1;
     canvas.save();
-    canvas.translate(1, 1);
+    canvas.translate(light, light);
     canvas.drawPath(
       path,
       _line
@@ -773,7 +931,7 @@ class ReplicationScene extends CustomPainter {
         ..color = color.withValues(alpha: depth * opacity),
     );
     canvas.save();
-    canvas.translate(-0.6, 0);
+    canvas.translate(-0.6 * light, 0);
     canvas.drawPath(
       path,
       _line
@@ -798,9 +956,10 @@ class ReplicationScene extends CustomPainter {
         ..strokeWidth = width
         ..color = color.withValues(alpha: opacity),
     );
+    final Offset lift = Offset(0, _turned ? -0.6 : 0.6);
     canvas.drawLine(
-      a - const Offset(0, 0.6),
-      b - const Offset(0, 0.6),
+      a - lift,
+      b - lift,
       _line
         ..strokeWidth = 0.6
         ..color = Colors.white.withValues(alpha: 0.2 * opacity),
@@ -816,13 +975,15 @@ class ReplicationScene extends CustomPainter {
   }) {
     if (opacity <= 0) return;
     final Rect bounds = Rect.fromCircle(center: at, radius: radius);
-    canvas.drawCircle(
-      at,
-      radius,
-      _fill
-        ..color = Colors.black.withValues(alpha: opacity)
-        ..shader = MolecularMaterial.residueShader(bounds, color),
-    );
+    _upright(canvas, at, () {
+      canvas.drawCircle(
+        at,
+        radius,
+        _fill
+          ..color = Colors.black.withValues(alpha: opacity)
+          ..shader = MolecularMaterial.residueShader(bounds, color),
+      );
+    });
     _fill.shader = null;
   }
 
