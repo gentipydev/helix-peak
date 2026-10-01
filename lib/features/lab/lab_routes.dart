@@ -68,8 +68,8 @@ const List<LabFeature> labFeatures = <LabFeature>[
   LabFeature(
     title: 'Replication',
     summary:
-        'Inside a human replication fork: watch the enzymes open DNA, '
-        'copy both strands and join the fragments, slowed down to see each step.',
+        'From an origin to two forks: watch human enzymes open DNA, copy both '
+        'strands and join the fragments, slowed down to see each step.',
     path: '${RoutePaths.lab}/replication',
     subject: 'Human genome',
   ),

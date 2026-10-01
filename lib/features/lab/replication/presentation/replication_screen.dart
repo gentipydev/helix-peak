@@ -341,51 +341,112 @@ class _ScienceSheet extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
           children: <Widget>[
-            Text('Inside a replication fork', style: text.titleLarge),
+            Text('From an origin to two forks', style: text.titleLarge),
             const SizedBox(height: 22),
             paragraph(
-              'A small window into the whole genome',
-              'Human chromosomes are copied from many origins during S phase. '
-                  'Two forks leave each active origin. Here we join one established '
-                  'fork and follow two 100-nucleotide Okazaki fragments in a '
-                  '200-base-pair stretch. The sequence is illustrative; it is not '
-                  'a particular gene or a measured genomic locus.',
+              'Where replication starts',
+              'Human chromosomes are copied from many origins in S phase. '
+                  'In G1, ORC and Cdc6 bind an origin and, with Cdt1, load two '
+                  'MCM2–7 rings head to head around the duplex: the '
+                  'pre-replication complex. In S phase, the kinases DDK and CDK '
+                  'add Cdc45 and GINS to each ring, making two CMG helicases. '
+                  'The DNA melts first where it is A/T-rich: an A·T pair has two '
+                  'hydrogen bonds and a G·C pair three, and A/T steps stack less '
+                  'tightly. Human origins share no consensus sequence; this one '
+                  'is drawn A/T-rich to show where melting starts.',
+            ),
+            paragraph(
+              'Two forks',
+              'The two CMGs pass each other and move apart, so one origin '
+                  'makes two forks that copy in opposite directions. Each '
+                  'fork’s leading strand starts at the origin and its lagging '
+                  'strand ends there: each fork’s first Okazaki fragment '
+                  'replaces the other fork’s leading primer. The animation then '
+                  'follows the upper fork through two 100-nucleotide fragments. '
+                  'The lower fork is drawn as its mirror image; in cells the two '
+                  'move independently. The sequence is illustrative, not a '
+                  'particular gene or a measured genomic locus.',
             ),
             paragraph(
               'The human machinery',
-              'CMG helicase opens DNA while topoisomerase relieves twist ahead. '
-                  'RPA is the human single-strand binding protein (SSB). It protects '
-                  'exposed templates. Pol ε extends the leading strand; primase–Pol α '
-                  'starts each lagging fragment with RNA '
-                  'and a short DNA extension. RFC loads the PCNA sliding clamp '
-                  'so Pol δ can continue synthesis. Each polymerase adds to a '
-                  '3′ end: both new strands grow 5′ → 3′.',
+              'CMG unwinds the DNA by ATP hydrolysis in its MCM2–7 ring; the '
+                  'animation lights its six ATPase sites in turn. RPA, the human '
+                  'single-strand binding protein, coats exposed single strands, '
+                  'which keeps them from reannealing and protects them from '
+                  'nucleases. Primase lays a short RNA primer because DNA '
+                  'polymerases cannot start a chain: they only extend an existing '
+                  '3′ end. Pol α adds a short DNA stretch; RFC opens the PCNA '
+                  'ring, a homotrimer, and closes it round the primer end. Pol ε '
+                  'extends the leading strand and Pol δ the lagging fragments, '
+                  'each on PCNA. Both new strands grow 5′ → 3′.',
+            ),
+            paragraph(
+              'Supercoiling',
+              'Unwinding overwinds the DNA ahead of each fork into positive '
+                  'supercoils. Topoisomerase II, a dimer, captures a crossing '
+                  'duplex, cuts the duplex it holds through both strands with two '
+                  'tyrosines that stay bound to the cut ends, passes the captured '
+                  'duplex through the break and reseals it, using ATP. Type I '
+                  'topoisomerase (TOP1) relieves the same strain by nicking one '
+                  'strand and letting the DNA swivel. Both act ahead of human '
+                  'forks.',
             ),
             paragraph(
               'From fragments to a continuous strand',
               'This view shows a short-flap route: Pol δ displaces the earlier '
-                  'primer as it synthesizes DNA, FEN1 cleaves the flap, and DNA '
+                  'primer as it synthesizes DNA, FEN1 cleaves each flap, and DNA '
                   'ligase I seals the nick. RNase H2 and DNA2 can also help process '
                   'primers in cells. The newest primer remains until the next '
                   'fragment reaches it, beyond this window.',
             ),
             paragraph(
               'Reading the animation',
-              'Grey backbones are parental DNA, green is new DNA, and amber '
-                  'marks RNA. Base colours follow the rest of the app. The scene '
-                  'samples bases and enlarges and separates the proteins to expose '
-                  'their work. Shapes, spacing and motion are illustrative. '
-                  'The camera visits processes that occur together at the fork. '
-                  'Playback takes 2 min 40 s at 1×; this is a teaching sequence, '
-                  'not a cellular clock. Chromatin, origin assembly, proofreading '
-                  'and most accessory factors are outside this view.',
+              'Grey is parental DNA, teal new DNA and amber RNA; each strand’s '
+                  'bases wear its colour, so which strand is old or new reads at '
+                  'a glance. At the origin, the lines between paired bases count '
+                  'their hydrogen bonds. The scene samples bases and enlarges and '
+                  'separates the proteins to expose their work. Shapes, spacing '
+                  'and motion are illustrative. The camera visits processes that '
+                  'occur together. Playback takes 3 min 32 s at 1×; this is a '
+                  'teaching sequence, not a cellular clock. Chromatin, '
+                  'proofreading and most accessory factors are outside this view.',
             ),
             Text('Research & structures', style: text.titleSmall),
             const SizedBox(height: 8),
             const _SourceLink(
+              'Human origins share no consensus sequence',
+              'Prioleau & MacAlpine, 2016 · Genes & Development',
+              'https://doi.org/10.1101/gad.285114.116',
+            ),
+            const _SourceLink(
+              'MCM2–7 loaded as a double hexamer',
+              'Remus et al., 2009 · Cell',
+              'https://doi.org/10.1016/j.cell.2009.10.015',
+            ),
+            const _SourceLink(
+              'How CMG helicase is activated',
+              'Douglas et al., 2018 · Nature',
+              'https://doi.org/10.1038/nature25787',
+            ),
+            const _SourceLink(
               'Human replisome · cryo-EM structure',
               'Jones et al., 2021 · PDB 7PFO',
               'https://www.rcsb.org/structure/7PFO',
+            ),
+            const _SourceLink(
+              'Human PCNA, the sliding clamp',
+              'Gulbis et al., 1996 · PDB 1AXC',
+              'https://www.rcsb.org/structure/1AXC',
+            ),
+            const _SourceLink(
+              'Human topoisomerase II cutting DNA',
+              'Wu et al., 2011 · PDB 3QX3',
+              'https://www.rcsb.org/structure/3QX3',
+            ),
+            const _SourceLink(
+              'Topoisomerase IIα relaxes positive supercoils',
+              'McClendon et al., 2005 · J Biol Chem',
+              'https://doi.org/10.1074/jbc.M503320200',
             ),
             const _SourceLink(
               'How primase is positioned at the fork',

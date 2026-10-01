@@ -222,22 +222,23 @@ rotting on a branch, which is what keeps the shared layer from diverging.
   labelled reference. pH (through L, the Bohr effect), fetal hemoglobin (a
   lower L) and the one-site contrast (myoglobin's own structure track) each
   change the model, curve and animation together.
-- `replication/` copies a protein's record from a bubble at its middle
-  (`ReplicationPlan`): each fork's leading strand in one piece from a primer
-  at the origin, and its lagging strand backwards in Okazaki fragments of 100
-  to 200 bases, each from a ten-base primer, extended until it meets the piece
-  before, replaces its primer and is sealed. Lengths are drawn from a
-  generator seeded with the record's letters; records whose introns arrive
-  shortened are refused. It plays in three views: the fork base by base on the
-  record's own helix, unzipped by the shared geometry (`lib/shared/helix/`,
-  `HelixModel.unzip` and `bases`); the fork at the scale of fragments, where
-  the lagging template's loop, the trombone, fits whole; and the record as one
-  bar. A proofreading set piece (a wobble transition on the leading strand)
-  plays out as the fidelity toggle says: polymerase alone, plus proofreading,
-  plus mismatch repair, at the orders of magnitude given for each.
-  `ErrorTally` draws a thousand copies' errors at the polymerase's rate; each
-  level's survivors are among the level before's, and each opens on the
-  mutate screen as a `Substitution` (`MutateCubit.applying`).
+- `replication/` is a story of its own subject, `/lab/replication` (old
+  `/lab/replication/<slug>` links redirect): no record and no track. A 212 s
+  guided tour (`ReplicationTimeline`, chapters in `replication_tour.dart`) on
+  an illustrative sequence (`GenomeReplication`): an A/T-rich origin licensed
+  by ORC, Cdc6 and Cdt1 with an MCM2–7 double hexamer, fired into two CMGs and
+  a bubble, then the upper fork through two Okazaki fragments, topoisomerase
+  II, primer replacement and ligation, ending on the whole bubble. The lower
+  fork is the upper one turned 180° about the origin: the model mirrors its
+  pieces onto the other template (`ReplicationFrame.pieces`), and the painter
+  draws a turned pass. Everything on screen is a continuous function of time:
+  exact strand ends (`DaughterPiece`), staged as keyed values
+  (`ReplicationStaging`), and `replication_smoothness_test` walks the tour at
+  60 fps and fails on any jump, pop or kink. One colour per strand, from theme
+  tokens (`ReplicationInks`): grey parental, teal new DNA, amber RNA. Rings
+  (`replication_rings.dart`: PCNA, MCM2–7, RFC, ORC) are drawn in two halves
+  round the DNA; topoisomerase II has its own drawing (`replication_topo.dart`).
+  `docs/design/replication-fork.md` has the design and its sources.
 - `zoom/` pinches from a body down to one protein's gene. Body, organ,
   tissue, cell, nucleus, chromosome and gene sit on one value whose
   logarithm is the view's width (`ZoomScale`), with a snap point and a chip

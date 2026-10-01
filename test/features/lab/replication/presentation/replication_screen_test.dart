@@ -243,8 +243,10 @@ void main() {
     await tester.tap(find.byTooltip('About this replication model'));
     await tester.pumpAndSettle();
     expect(controllerOf(tester).isPlaying, isFalse);
-    expect(find.text('Inside a replication fork'), findsOneWidget);
-    Navigator.of(tester.element(find.text('Inside a replication fork'))).pop();
+    expect(find.text('From an origin to two forks'), findsOneWidget);
+    Navigator.of(
+      tester.element(find.text('From an origin to two forks')),
+    ).pop();
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
     expect(controllerOf(tester).isPlaying, isTrue);
