@@ -3,13 +3,13 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_typography.dart';
-import 'package:helixpeek/features/lab/replication/domain/genome_replication.dart';
-import 'package:helixpeek/features/lab/replication/domain/replication_tour.dart';
-import 'package:helixpeek/features/lab/replication/presentation/replication_camera.dart';
-import 'package:helixpeek/features/lab/replication/presentation/replication_geometry.dart';
-import 'package:helixpeek/features/lab/replication/presentation/replication_staging.dart';
+import 'package:helixpeek/features/replication/domain/genome_replication.dart';
+import 'package:helixpeek/features/replication/domain/replication_tour.dart';
+import 'package:helixpeek/features/replication/presentation/replication_camera.dart';
+import 'package:helixpeek/features/replication/presentation/replication_geometry.dart';
+import 'package:helixpeek/features/replication/presentation/replication_staging.dart';
 
-import '../../../gene_lookup/anatomy/anatomy_fixture.dart';
+import '../../gene_lookup/anatomy/anatomy_fixture.dart';
 
 /// A close-up's words must be readable wherever the camera is: none may lie
 /// on the DNA, on a protein, on other words or off the frame. The scene is a

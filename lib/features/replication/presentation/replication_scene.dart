@@ -3,8 +3,8 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_typography.dart';
-import '../../../../shared/ribosome/molecular_material.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../shared/ribosome/molecular_material.dart';
 import '../domain/genome_replication.dart';
 import '../domain/replication_tour.dart';
 import 'replication_camera.dart';

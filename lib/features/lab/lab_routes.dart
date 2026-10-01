@@ -12,7 +12,6 @@ import 'mutate/presentation/mutate_screen.dart';
 import 'oxygen/presentation/oxygen_screen.dart';
 import 'presentation/lab_index_screen.dart';
 import 'presentation/lab_protein_picker.dart';
-import 'replication/presentation/replication_screen.dart';
 import 'sickle/domain/sickle_story.dart';
 import 'sickle/presentation/sickle_screen.dart';
 import 'trafficking/presentation/cell_scene_screen.dart';
@@ -64,14 +63,6 @@ const List<LabFeature> labFeatures = <LabFeature>[
         'tense to relaxed, as the MWC model explains it.',
     path: '${RoutePaths.lab}/oxygen',
     subject: 'HBA1 + HBB',
-  ),
-  LabFeature(
-    title: 'Replication',
-    summary:
-        'From an origin to two forks: watch human enzymes open DNA, copy both '
-        'strands and join the fragments, slowed down to see each step.',
-    path: '${RoutePaths.lab}/replication',
-    subject: 'Human genome',
   ),
   LabFeature(
     title: 'Zoom',
@@ -147,19 +138,6 @@ List<RouteBase> buildLabRoutes() => <RouteBase>[
             path: 'oxygen',
             builder: (BuildContext context, GoRouterState state) =>
                 const OxygenRoute(),
-          ),
-          GoRoute(
-            path: 'replication',
-            builder: (BuildContext context, GoRouterState state) =>
-                const ReplicationScreen(),
-            routes: <RouteBase>[
-              // Old saved links now open the same genome demonstration.
-              GoRoute(
-                path: ':slug',
-                redirect: (BuildContext context, GoRouterState state) =>
-                    '${RoutePaths.lab}/replication',
-              ),
-            ],
           ),
           _picked(
             'zoom',

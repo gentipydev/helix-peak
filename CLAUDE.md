@@ -165,7 +165,8 @@ Git: commit the session's own changes locally. Never push, in any form.
   the curated list, and below it every reviewed human protein, which can be
   built on demand (its own cubits, `ProteinSuggestionsCubit` and
   `ProteinBuildCubit`). Search is not the walk; it reaches the walk only by
-  opening `/gene/<slug>`.
+  opening `/gene/<slug>`. `replication/` holds the replication tour, in
+  every build (see "Replication" below).
 
 `test/architecture_test.dart` holds that layering to the import lines: `lab/`
 never imports the walk's screens or cubit, `core/` and `shared/` import no
@@ -181,6 +182,29 @@ name a colour. Don't copy it. Colours come from the theme (`AppColorTokens`,
 `context.nucleotideColors`, `context.anatomyColors`), never from a raw hex.
 The walk is drawn in `AppTheme.analysis`; home uses `AppTheme.dark`.
 
+## Replication (`lib/features/replication/`)
+
+A story of its own subject at `/replication`, the home screen's DNA
+Replication row, in every build: no record and no track. It began in the lab
+and left it; links from then (`/lab/replication`, `/lab/replication/<slug>`)
+redirect. `replication_routes.dart` wraps it in `AppTheme.analysis`, which the
+lab's shell used to give it. A 212 s guided tour (`ReplicationTimeline`,
+chapters in `replication_tour.dart`) on an illustrative sequence
+(`GenomeReplication`): an A/T-rich origin licensed
+by ORC, Cdc6 and Cdt1 with an MCM2–7 double hexamer, fired into two CMGs and
+a bubble, then the upper fork through two Okazaki fragments, topoisomerase
+II, primer replacement and ligation, ending on the whole bubble. The lower
+fork is the upper one turned 180° about the origin: the model mirrors its
+pieces onto the other template (`ReplicationFrame.pieces`), and the painter
+draws a turned pass. Everything on screen is a continuous function of time:
+exact strand ends (`DaughterPiece`), staged as keyed values
+(`ReplicationStaging`), and `replication_smoothness_test` walks the tour at
+60 fps and fails on any jump, pop or kink. One colour per strand, from theme
+tokens (`ReplicationInks`): grey parental, teal new DNA, amber RNA. Rings
+(`replication_rings.dart`: PCNA, MCM2–7, RFC, ORC) are drawn in two halves
+round the DNA; topoisomerase II has its own drawing (`replication_topo.dart`).
+`docs/design/replication-fork.md` has the design and its sources.
+
 ## The lab (`LAB_ENABLED`)
 
 Everything under `lib/features/lab/` sits behind one build-time switch:
@@ -190,8 +214,9 @@ when the app is built, so a build without the line ships none of the lab: no
 `.env.example` says so. A lab flow merges early behind the flag instead of
 rotting on a branch, which is what keeps the shared layer from diverging.
 
-- `lib/app.dart` hands `labRoutes` to `buildAppRouter(extra: ...)`, so core
-  names no lab file. With the flag off the app uses `appRouter` itself.
+- `lib/app.dart` hands `replicationRoutes` and `labRoutes` to
+  `buildAppRouter(extra: ...)`, so core names no file of either. With the flag
+  off `labRoutes` is empty; `appRouter` itself is the walk's routes alone.
 - One `ShellRoute` holds every lab route under `LabScope`
   (`lab_scope.dart`), which gives the lab its own `TrackClient` (folder
   `lab/tracks`, 100 MB budget) so exploring can never evict a walk track.
@@ -222,23 +247,6 @@ rotting on a branch, which is what keeps the shared layer from diverging.
   labelled reference. pH (through L, the Bohr effect), fetal hemoglobin (a
   lower L) and the one-site contrast (myoglobin's own structure track) each
   change the model, curve and animation together.
-- `replication/` is a story of its own subject, `/lab/replication` (old
-  `/lab/replication/<slug>` links redirect): no record and no track. A 212 s
-  guided tour (`ReplicationTimeline`, chapters in `replication_tour.dart`) on
-  an illustrative sequence (`GenomeReplication`): an A/T-rich origin licensed
-  by ORC, Cdc6 and Cdt1 with an MCM2–7 double hexamer, fired into two CMGs and
-  a bubble, then the upper fork through two Okazaki fragments, topoisomerase
-  II, primer replacement and ligation, ending on the whole bubble. The lower
-  fork is the upper one turned 180° about the origin: the model mirrors its
-  pieces onto the other template (`ReplicationFrame.pieces`), and the painter
-  draws a turned pass. Everything on screen is a continuous function of time:
-  exact strand ends (`DaughterPiece`), staged as keyed values
-  (`ReplicationStaging`), and `replication_smoothness_test` walks the tour at
-  60 fps and fails on any jump, pop or kink. One colour per strand, from theme
-  tokens (`ReplicationInks`): grey parental, teal new DNA, amber RNA. Rings
-  (`replication_rings.dart`: PCNA, MCM2–7, RFC, ORC) are drawn in two halves
-  round the DNA; topoisomerase II has its own drawing (`replication_topo.dart`).
-  `docs/design/replication-fork.md` has the design and its sources.
 - `zoom/` pinches from a body down to one protein's gene. Body, organ,
   tissue, cell, nucleus, chromosome and gene sit on one value whose
   logarithm is the view's width (`ZoomScale`), with a snap point and a chip

@@ -26,8 +26,11 @@ class HomeScreen extends StatelessWidget {
               ProteinAnalysesCta(
                 onPressed: () => context.push(RoutePaths.search),
               ),
-              // Only in a build with the lab switched on. Without it the
-              // column is exactly what it was.
+              ProteinAnalysesCta(
+                label: 'DNA Replication',
+                onPressed: () => context.push(RoutePaths.replication),
+              ),
+              // Only in a build with the lab switched on.
               if (Env.labEnabled)
                 ProteinAnalysesCta(
                   label: 'Lab',

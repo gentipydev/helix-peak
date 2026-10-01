@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:helixpeek/core/router/app_router.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/features/lab/lab_routes.dart';
 import 'package:helixpeek/features/lab/presentation/lab_protein_picker.dart';
-import 'package:helixpeek/features/lab/replication/domain/replication_tour.dart';
-import 'package:helixpeek/features/lab/replication/presentation/replication_scene.dart';
-import 'package:helixpeek/features/lab/replication/presentation/replication_screen.dart';
+import 'package:helixpeek/features/replication/domain/replication_tour.dart';
+import 'package:helixpeek/features/replication/presentation/replication_scene.dart';
+import 'package:helixpeek/features/replication/presentation/replication_screen.dart';
+import 'package:helixpeek/features/replication/replication_routes.dart';
 import 'package:helixpeek/shared/motion/timeline_controller.dart';
 import 'package:helixpeek/shared/motion/transport_bar.dart';
 
-import '../../../gene_lookup/anatomy/anatomy_fixture.dart';
-import '../../lab_routes_test.dart';
+import '../../gene_lookup/anatomy/anatomy_fixture.dart';
 
 TimelineController controllerOf(WidgetTester tester) =>
     tester.widget<TransportBar>(find.byType(TransportBar)).controller;
@@ -63,22 +66,35 @@ void main() {
     expect(controllerOf(tester).t, paused);
   });
 
-  testWidgets('direct and old gene links open the genome animation', (
+  testWidgets('its own route and old lab links open the genome animation', (
     WidgetTester tester,
   ) async {
+    final GoRouter router = buildAppRouter(
+      extra: <RouteBase>[...replicationRoutes, ...buildLabRoutes()],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
     for (final String path in <String>[
+      RoutePaths.replication,
       '/lab/replication',
       '/lab/replication/insulin',
     ]) {
-      final router = await hostLab(tester, path);
-      expect(find.byType(ReplicationScreen), findsOneWidget);
-      expect(find.byType(LabProteinPicker), findsNothing);
+      router.go(path);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      final Finder screen = find.byType(ReplicationScreen);
+      expect(screen, findsOneWidget, reason: path);
       expect(
         router.routeInformationProvider.value.uri.path,
-        '/lab/replication',
+        RoutePaths.replication,
       );
-      await tester.pumpWidget(const SizedBox.shrink());
+      // Out of the lab's shell, it still wears the walk's theme.
+      expect(
+        Theme.of(tester.element(screen)).scaffoldBackgroundColor,
+        AppTheme.analysis.scaffoldBackgroundColor,
+      );
     }
+    await tester.pumpWidget(const SizedBox.shrink());
   });
 
   testWidgets(

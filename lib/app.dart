@@ -5,6 +5,7 @@ import 'core/constants/app_constants.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/lab/lab_routes.dart';
+import 'features/replication/replication_routes.dart';
 import 'shared/share/clip_sheet.dart';
 
 class HelixPeekApp extends StatelessWidget {
@@ -26,10 +27,9 @@ class HelixPeekApp extends StatelessWidget {
 
 }
 
-/// The walk's [appRouter] itself, unless this build carries the lab: then the
-/// same routes with the lab's spread in after them. The lab's routes are
-/// handed over here, at the root, so that core never names the lab.
-final GoRouter _router = _withLab(labRoutes);
-
-GoRouter _withLab(List<RouteBase> lab) =>
-    lab.isEmpty ? appRouter : buildAppRouter(extra: lab);
+/// The walk's routes with replication's spread in after them, and the lab's
+/// too when this build carries it. Both are handed over here, at the root, so
+/// that core never names a feature for them.
+final GoRouter _router = buildAppRouter(
+  extra: <RouteBase>[...replicationRoutes, ...labRoutes],
+);

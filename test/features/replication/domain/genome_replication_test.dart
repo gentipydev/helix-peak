@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeek/features/lab/replication/domain/genome_replication.dart';
-import 'package:helixpeek/features/lab/replication/domain/replication_tour.dart';
+import 'package:helixpeek/features/replication/domain/genome_replication.dart';
+import 'package:helixpeek/features/replication/domain/replication_tour.dart';
 
 void main() {
   const ReplicationTimeline timeline = ReplicationTimeline();

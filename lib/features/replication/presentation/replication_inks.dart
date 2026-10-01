@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/anatomy_colors.dart';
-import '../../../../core/theme/nucleotide_colors.dart';
+import '../../../core/theme/anatomy_colors.dart';
+import '../../../core/theme/nucleotide_colors.dart';
 
 /// What a drawn part of the replication scene is coloured as.
 enum SceneInk {

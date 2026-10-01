@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../../../../shared/motion/animation_timeline.dart';
+import '../../../shared/motion/animation_timeline.dart';
 import 'genome_replication.dart';
 import 'monotone_curve.dart';
 

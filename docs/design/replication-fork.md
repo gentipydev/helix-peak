@@ -4,9 +4,10 @@
 
 ## Experience
 
-LAB → Replication opens an animation immediately. There is no protein picker,
-record download or gene-specific error list. Old `/lab/replication/<slug>` links
-redirect to this view. The subject is a human origin firing and one of its two
+Home → DNA Replication opens an animation immediately, in every build. There is
+no protein picker, record download or gene-specific error list. Links from when
+it was a lab flow, `/lab/replication` and `/lab/replication/<slug>`, redirect to
+this view at `/replication`. The subject is a human origin firing and one of its two
 forks followed through an illustrative 200-base-pair stretch with two
 100-nucleotide Okazaki fragments.
 

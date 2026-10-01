@@ -1,10 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeek/features/lab/replication/domain/genome_replication.dart';
-import 'package:helixpeek/features/lab/replication/domain/replication_tour.dart';
-import 'package:helixpeek/features/lab/replication/presentation/replication_camera.dart';
-import 'package:helixpeek/features/lab/replication/presentation/replication_geometry.dart';
+import 'package:helixpeek/features/replication/domain/genome_replication.dart';
+import 'package:helixpeek/features/replication/domain/replication_tour.dart';
+import 'package:helixpeek/features/replication/presentation/replication_camera.dart';
+import 'package:helixpeek/features/replication/presentation/replication_geometry.dart';
 
 void main() {
   test(

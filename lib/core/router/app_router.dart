@@ -28,6 +28,10 @@ abstract final class RoutePaths {
   /// and are handed to [buildAppRouter] by the app rather than named here.
   static const String lab = '/lab';
 
+  /// The replication tour, in every build. Like the lab's, its routes are
+  /// handed to [buildAppRouter] by the app.
+  static const String replication = '/replication';
+
   /// The walk for one protein. `/gene` with nothing after it is still the
   /// insulin walk, so every link that predates the catalog keeps working.
   static String geneFor(ProteinTarget target) => '$gene/${target.slug}';

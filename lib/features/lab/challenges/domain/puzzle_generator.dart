@@ -3,9 +3,9 @@ import 'dart:math' as math;
 import '../../../../core/biology/genetic_code.dart';
 import '../../../../core/catalog/protein_target.dart';
 import '../../../../shared/format.dart';
-import '../../replication/domain/seeded_draw.dart';
 import 'challenge_materials.dart';
 import 'daily_puzzle.dart';
+import 'seeded_draw.dart';
 
 /// Makes a day's puzzle on the phone: the same for every reader of that day,
 /// from the date and the catalog, and never a call to the backend.

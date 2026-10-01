@@ -3,9 +3,9 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../../shared/anatomy/sequence_scrubber.dart';
-import '../../../../shared/motion/timeline_controller.dart';
-import '../../../../shared/motion/transport_bar.dart';
+import '../../../shared/anatomy/sequence_scrubber.dart';
+import '../../../shared/motion/timeline_controller.dart';
+import '../../../shared/motion/transport_bar.dart';
 import '../domain/replication_tour.dart';
 import 'replication_inks.dart';
 import 'replication_molecules.dart';

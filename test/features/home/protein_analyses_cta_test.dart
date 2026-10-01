@@ -37,25 +37,30 @@ void main() {
     expect(pressed, 1);
   });
 
-  testWidgets('home offers one entry in a build without the lab', (
+  testWidgets('home offers the walk and replication in a build without the lab', (
     WidgetTester tester,
   ) async {
     dotenv.clean();
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
     await tester.pump();
-    expect(find.byType(ProteinAnalysesCta), findsOneWidget);
+    expect(find.byType(ProteinAnalysesCta), findsNWidgets(2));
     expect(find.text('Protein Analyses'), findsOneWidget);
+    expect(find.text('DNA Replication'), findsOneWidget);
     expect(find.text('Lab'), findsNothing);
   });
 
-  testWidgets('home offers the lab beside it in a build that carries it', (
+  testWidgets('home offers the lab below them in a build that carries it', (
     WidgetTester tester,
   ) async {
     dotenv.loadFromString(envString: 'LAB_ENABLED=true');
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
     await tester.pump();
-    expect(find.byType(ProteinAnalysesCta), findsNWidgets(2));
-    expect(find.text('Protein Analyses'), findsOneWidget);
-    expect(find.text('Lab'), findsOneWidget);
+    expect(find.byType(ProteinAnalysesCta), findsNWidgets(3));
+    final List<double> rows = <double>[
+      for (final String label in <String>['Protein Analyses', 'DNA Replication', 'Lab'])
+        tester.getCenter(find.text(label)).dy,
+    ];
+    expect(rows[0], lessThan(rows[1]));
+    expect(rows[1], lessThan(rows[2]));
   });
 }

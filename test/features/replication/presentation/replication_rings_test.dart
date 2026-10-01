@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:helixpeek/features/lab/replication/presentation/replication_rings.dart';
+import 'package:helixpeek/features/replication/presentation/replication_rings.dart';
 
 /// A ring protein drawn alone, its far half then its near half as the scene
 /// draws them round the DNA, and read back pixel by pixel.

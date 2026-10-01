@@ -6,8 +6,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
-import 'package:helixpeek/features/lab/replication/domain/replication_tour.dart';
-import 'package:helixpeek/features/lab/replication/presentation/replication_screen.dart';
+import 'package:helixpeek/features/replication/domain/replication_tour.dart';
+import 'package:helixpeek/features/replication/presentation/replication_screen.dart';
 import 'package:helixpeek/shared/motion/timeline_controller.dart';
 import 'package:helixpeek/shared/motion/transport_bar.dart';
 
