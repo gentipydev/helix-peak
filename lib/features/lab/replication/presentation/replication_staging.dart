@@ -59,6 +59,7 @@ final class StagedRing extends StagedItem {
     this.open = 0,
     this.axis = 0,
     this.atp = 0,
+    this.firing = 0,
     this.partners = 1,
     double opacity = 1,
   }) : super(key, centre, opacity);
@@ -75,6 +76,9 @@ final class StagedRing extends StagedItem {
 
   /// Where the wave of ATP hydrolysis is around the ring, in turns.
   final double atp;
+
+  /// How hard the ATPase sites work, 0 to 1: they rest when the fork stops.
+  final double firing;
 
   /// How present the CMG's Cdc45 and GINS are.
   final double partners;
@@ -264,9 +268,19 @@ class ReplicationStaging {
       centre:
           Offset(180 - 16 * _f.cmgOnStrand, g.yOf(index)) +
           const Offset(-44, 26) * (1 - _f.mcmArrive),
-      opacity: _f.mcmArrive,
+      // Solid early in its slide in, so it is never long see-through.
+      opacity: _eased(_s, -49.5, -49.05),
       open: 1.1 * (1 - _f.mcmClosed),
     );
+  }
+
+  /// How hard the CMG's ATPase sites work: with the fork's speed, so they
+  /// rest before the origin fires and slow as the fork does.
+  double get _firing {
+    final double speed =
+        (ReplicationFrame(_s + 0.1).fork - ReplicationFrame(_s - 0.1).fork) /
+        0.2;
+    return ReplicationGeometry.ease(speed / 1.2);
   }
 
   /// Primase–Pol α on lagging fragment [k] (−1, 0 or 1): it arrives as its
@@ -432,20 +446,23 @@ class ReplicationStaging {
           _f.originShown,
         ),
       )
+      // Each ring is solid soon after it starts to slide in, and goes only
+      // at the end of its slide out, so it is never long see-through.
       ..addAll(<StagedRing>[
         if (_f.orc > 0)
           StagedRing(
             'orc',
             RingKind.orc,
             Offset(180 + 40 * (1 - _f.orc), g.yOf(_origin + 34)),
-            opacity: _f.orc,
+            opacity:
+                _eased(_s, -51.5, -51.05) * (1 - _eased(_s, -40.95, -40.5)),
           ),
         if (_f.cdc6 > 0)
           StagedRing(
             'cdc6',
             RingKind.cdc6,
             Offset(180 + 30 * (1 - _f.cdc6), g.yOf(_origin + 34)),
-            opacity: _f.cdc6 * _f.orc,
+            opacity: _eased(_s, -50, -49.55) * (1 - _eased(_s, -40.95, -40.5)),
           ),
       ]);
 
@@ -491,6 +508,7 @@ class ReplicationStaging {
             cmg.centre + const Offset(0, 6),
             open: cmg.open,
             atp: _f.fork / 8,
+            firing: _firing,
             opacity: cmg.opacity,
           ),
         )
@@ -534,7 +552,7 @@ class ReplicationStaging {
           'pcna-leading',
           _f.leadingTip - 16,
           leading: true,
-          opacity: epsilon.clamp,
+          opacity: _eased(_s, -25, -24.1),
         ),
       );
     }
@@ -748,6 +766,11 @@ class ReplicationStaging {
     final double index = _laggingTip(k) + 16;
     final double loadedAt = ReplicationFrame(arrived).tipOf(k) + 16;
     final Offset approach = Offset(26 * (1 - arriving), -12 * (1 - arriving));
+    // Both rings are solid soon after they start to slide in and go only at
+    // the end of their slide out, so neither is long see-through. The fast
+    // bubble act gives a fade more model time for the same time on screen.
+    final double fade = k < 0 ? 0.9 : 0.45;
+    final double gone = _deltaEnd(k) + 2;
     rings.add(
       _pcna(
         'pcna-$k',
@@ -756,11 +779,12 @@ class ReplicationStaging {
         open: 1.1 * (1 - closing),
         turn: math.pi + loadedAt * math.pi * 2 / 38,
         offset: approach,
-        opacity: present,
+        opacity:
+            _eased(_s, arrive, arrive + fade) *
+            (1 - _eased(_s, gone - fade, gone)),
       ),
     );
-    final double rfc = arriving * (1 - leaving);
-    if (rfc > 0) {
+    if (arriving * (1 - leaving) > 0) {
       rings.add(
         StagedRing(
           'rfc-$k',
@@ -770,7 +794,9 @@ class ReplicationStaging {
               Offset(20 * leaving, -14 - 10 * leaving),
           rotation: math.pi,
           open: 1.2,
-          opacity: rfc,
+          opacity:
+              _eased(_s, arrive, arrive + fade) *
+              (1 - _eased(_s, left - fade, left)),
         ),
       );
     }
@@ -1361,15 +1387,23 @@ class ReplicationStaging {
           _primerShown(k),
         );
         final Offset clamp = g.centre(_laggingTip(k) + 16, leading: false);
-        label('PCNA', const Offset(255, 192), clamp, SceneInk.clamp, delta.clamp);
         final double start = ReplicationFrame.primedAt(k);
+        // Named where they land, once they have: the rings slide in under
+        // these words.
+        final double landed = _eased(_s, start + 9.75, start + 10.2);
+        label(
+          'PCNA',
+          const Offset(255, 192),
+          clamp,
+          SceneInk.clamp,
+          delta.clamp * landed,
+        );
         label(
           'RFC',
           const Offset(255, 150),
           clamp + const Offset(0, -16),
           SceneInk.rfc,
-          _eased(_s, start + 9, start + 10) *
-              (1 - _eased(_s, start + 11.2, start + 12)),
+          landed * (1 - _eased(_s, start + 11.2, start + 12)),
         );
         // Near the fork the template runs down to the right of the primer.
         // The direction shows once synthesis is under way.

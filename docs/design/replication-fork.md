@@ -90,8 +90,8 @@ the lagging template exits outside it. Pol ε remains close behind.
 [Jones et al., 2021, core human replisome, PDB 7PFO](https://www.rcsb.org/structure/7PFO)
 
 CMG's six ATPase sites hydrolyse ATP as it unwinds. The C-terminal tier lights
-them in turn, one sweep per eight nucleotides unwound, so the wave stops when
-the fork stops.
+them in turn, one sweep per eight nucleotides unwound, and the light follows
+the fork's speed: it rests before the origin fires and dims as the fork slows.
 
 ### Single-strand protection
 
@@ -170,9 +170,16 @@ requires a later fragment outside this example.
   apart for normal vision and through protan, deutan and tritan simulation.
   Proteins are muted, one hue family each; multi-chain proteins (PCNA, MCM2–7,
   topo II, ORC with Cdc6, RFC) show their chains as tints of that hue.
-- Rings (PCNA, MCM2–7, RFC, ORC) are drawn in two halves, the far half before
-  the DNA and the near half after it, so the DNA threads the hole. Other
-  proteins are folded envelopes with cut faces exposing the DNA inside.
+- Rings (PCNA, MCM2–7, RFC, ORC with Cdc6) are drawn in two halves, the far
+  half before the DNA and the near half after it, so the DNA threads the hole.
+  They are closed and solid: each subunit a rounded block with square ends,
+  over a recessed core that floors the seams between them. Walls are lit as a
+  cylinder from the upper left, with a lit top edge and a darker base; the
+  strand inside is seen entering the hole and leaving below. An open ring
+  (RFC, PCNA and MCM2–7 as they are loaded) is its closed layout pressed into
+  the rest of the circle, so the gap opens at one interface and no subunit
+  overlaps another. Other proteins are folded envelopes with cut faces
+  exposing the DNA inside.
 - At the origin, the lines between paired bases count their hydrogen bonds.
 - Words never lie on the DNA, a protein or other words. A label's line
   leaves it on the side facing what it names, so it never crosses the
@@ -198,10 +205,22 @@ animation cannot flicker:
   (RPA, clamps, enzymes, flaps, nicks, labels) eases in and out.
 - The chapter clock, fork travel and synthesis are monotone cubics, so speeds
   never jump at a chapter boundary or a polymerase handover.
+- A ring looks the same from every side: a subunit passing from its back
+  half to its front keeps its shading, its edges and its details, which are
+  fixed to the subunit and fade with the way they face. Rims are sampled at
+  fixed shares of each subunit; parts are painted back to front, and stacked
+  rings lowest first. A ring is see-through only for the first moments of
+  its slide in and the last of its slide out.
 
 `ReplicationStaging` stages every element as keyed, continuous values, and
 `replication_smoothness_test` walks the whole tour at 60 fps and fails on any
-jump, pop, kink or camera jolt.
+jump, pop, kink or camera jolt. `replication_rings_test` draws each ring
+alone, swept through a turn, an opening and its ATP wave in steps of a
+fortieth of a pixel, averaged from 8 × 8 samples a pixel so a rasterizer's
+quarter-step antialiasing cannot pass for a pop, and fails if any pixel
+changes by more than smooth motion can. It also fails if a ring draws
+outside its own outline or if its walls, faces or seams let the background
+through.
 
 ## Deliberate simplifications
 

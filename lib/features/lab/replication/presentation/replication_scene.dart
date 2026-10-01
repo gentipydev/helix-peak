@@ -582,7 +582,7 @@ class ReplicationScene extends CustomPainter {
             rotation: ring.rotation,
             open: ring.open,
           ),
-          extents: ringExtents(count: 6, groups: 3),
+          extents: ringExtents(count: 6, groups: 3, open: ring.open),
           colors: _tints(inks.clamp, const <double>[
             0.16,
             0.16,
@@ -602,10 +602,10 @@ class ReplicationScene extends CustomPainter {
           thickness: motor ? 10 : 9,
           height: motor ? 12 : 10,
           tilt: 0.4,
-          round: 40,
+          round: 10,
           shine: 0.04,
           angles: ringAngles(count: 6, open: ring.open),
-          extents: ringExtents(count: 6, seam: 0.018),
+          extents: ringExtents(count: 6, seam: 0.018, open: ring.open),
           // MCM2–7: six subunits in tints of the helicase's colour.
           colors: _tints(inks.helicase, const <double>[
             0.14,
@@ -615,11 +615,11 @@ class ReplicationScene extends CustomPainter {
             -0.06,
             -0.2,
           ]),
-          window: true,
           glow: motor
               ? <double>[
                   for (int j = 0; j < 6; j++)
                     0.9 *
+                        ring.firing *
                         math
                             .pow(
                               math.max(
@@ -667,7 +667,7 @@ class ReplicationScene extends CustomPainter {
             rotation: ring.rotation,
             open: ring.open,
           ),
-          extents: ringExtents(count: 5),
+          extents: ringExtents(count: 5, open: ring.open),
           colors: _tints(inks.rfc, const <double>[
             0.14,
             0.05,
@@ -681,7 +681,18 @@ class ReplicationScene extends CustomPainter {
   }
 
   void _rings(Canvas canvas, List<StagedRing> rings, {required bool near}) {
-    for (final StagedRing ring in rings) {
+    // The lowest on the screen first: a ring stacked on another along the
+    // DNA, as MCM2–7's tiers and RFC on PCNA are, covers its top face. The
+    // turned pass mirrors heights.
+    final List<(int, StagedRing)> ordered = <(int, StagedRing)>[
+      for (int k = 0; k < rings.length; k++) (k, rings[k]),
+    ]..sort(((int, StagedRing) p, (int, StagedRing) q) {
+        final int byHeight = _turned
+            ? p.$2.centre.dy.compareTo(q.$2.centre.dy)
+            : q.$2.centre.dy.compareTo(p.$2.centre.dy);
+        return byHeight != 0 ? byHeight : p.$1.compareTo(q.$1);
+      });
+    for (final (int _, StagedRing ring) in ordered) {
       if (ring.opacity <= 0) continue;
       // Rings are seen a little from above in both forks' halves: in the
       // lower fork's pass each is turned back upright about its centre.
