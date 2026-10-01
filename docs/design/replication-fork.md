@@ -174,6 +174,9 @@ requires a later fragment outside this example.
   the DNA and the near half after it, so the DNA threads the hole. Other
   proteins are folded envelopes with cut faces exposing the DNA inside.
 - At the origin, the lines between paired bases count their hydrogen bonds.
+- Words never lie on the DNA, a protein or other words. A label's line
+  leaves it on the side facing what it names, so it never crosses the
+  label. Two names that share a place take turns rather than overlap.
 - Labels can be hidden. The information sheet explains the model and links
   primary structures and experimental research.
 
@@ -227,7 +230,10 @@ topoisomerase II's order (the T-segment only crosses a cut, open gate).
 Widget checks cover navigation, autoplay, pause, phase seeking, replay, reduced
 motion, lifecycle changes, the research sheet, the side scrubber and small or
 enlarged-text layouts. Camera checks cover working-site visibility, continuity,
-tracking and the whole-fork override.
+tracking and the whole-fork override. `replication_labels_test` stages the tour
+every quarter second on a tall and a narrow phone, measures each close-up label
+in the app's font, and fails if it lies on DNA, a protein, other words or off
+the frame.
 
 To capture the real screen at 390 and 320 logical pixels:
 

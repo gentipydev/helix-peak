@@ -811,11 +811,17 @@ class ReplicationScene extends CustomPainter {
     final Color color = _labelColor(label.ink);
     final Offset? target = label.target;
     if (target != null) {
-      final Offset start = label.at + const Offset(19, 17);
+      // The line leaves from the side of the words that faces what they
+      // name, so it never crosses them; it slides round as a target passes
+      // the words' height.
+      final double below = ReplicationGeometry.ease(
+        (target.dy - label.at.dy + 10) / 34,
+      );
+      final Offset start = label.at + Offset(19, -3 + 20 * below);
       canvas.drawPath(
         Path()
           ..moveTo(start.dx, start.dy)
-          ..lineTo(start.dx, start.dy + 5)
+          ..lineTo(start.dx, start.dy - 5 + 10 * below)
           ..lineTo(target.dx, target.dy),
         _line
           ..strokeWidth = 0.8
