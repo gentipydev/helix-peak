@@ -200,9 +200,11 @@ draws a turned pass. Everything on screen is a continuous function of time:
 exact strand ends (`DaughterPiece`), staged as keyed values
 (`ReplicationStaging`), and `replication_smoothness_test` walks the tour at
 60 fps and fails on any jump, pop or kink. One colour per strand, from theme
-tokens (`ReplicationInks`): grey parental, teal new DNA, amber RNA. Rings
-(`replication_rings.dart`: PCNA, MCM2–7, RFC, ORC) are drawn in two halves
-round the DNA; topoisomerase II has its own drawing (`replication_topo.dart`).
+tokens (`ReplicationInks`): grey parental, teal new DNA, amber RNA. The DNA
+and the rings (`replication_rings.dart`: PCNA, MCM2–7, RFC, ORC) are drawn
+flat, the rings in two halves round the DNA; the other proteins are lit,
+folded envelopes, and topoisomerase II has its own (`replication_topo.dart`).
+A label's line must land on what it names (`replication_targets_test`).
 `docs/design/replication-fork.md` has the design and its sources.
 
 ## The lab (`LAB_ENABLED`)

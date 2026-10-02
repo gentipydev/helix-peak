@@ -46,7 +46,8 @@ Each camera move takes the previous chapter's last 2.5 seconds, with smooth
 acceleration and deceleration. Initiation is seen whole (1.35× to 1.7×, then
 zoomed out to fit the bubble); the fork's close-ups run from 2.15× to 3×.
 Labels keep their size, name only the relevant structures, fade out as the
-camera starts to move and fade in as it arrives.
+camera starts to move and fade in as it arrives. In the close-ups each machine
+is named with what it is on a second, smaller line.
 
 These are views of concurrent processes. The tour does not imply that
 topoisomerase starts only after helicase or RPA. The final chapter shows the
@@ -91,8 +92,9 @@ the lagging template exits outside it. Pol ε remains close behind.
 [Jones et al., 2021, core human replisome, PDB 7PFO](https://www.rcsb.org/structure/7PFO)
 
 CMG's six ATPase sites hydrolyse ATP as it unwinds. The C-terminal tier lights
-them in turn, one sweep per eight nucleotides unwound, and the light follows
-the fork's speed: it rests before the origin fires and dims as the fork slows.
+them in turn, one sweep per eight nucleotides unwound, each subunit warming
+as its site fires, and the wave follows the fork's speed: it rests before the
+origin fires and fades as the fork slows.
 
 ### Single-strand protection
 
@@ -113,8 +115,8 @@ synthesis proceeds away from it. Both add to a growing 3′ end.
 [human primase–replisome structure, PDB 8B9D](https://www.rcsb.org/structure/8B9D)
 
 PCNA is drawn after its structure: a homotrimer ring of two-domain subunits,
-one tint per subunit, the helices lining its hole seen through it, held at a
-tilt around the new duplex behind each polymerase. It turns once per helical
+told apart by its seams, held at a tilt around the new duplex behind each
+polymerase. It turns once per helical
 turn as it slides. [Gulbis et al., 1996, PDB 1AXC](https://www.rcsb.org/structure/1AXC)
 
 The model chooses 10 RNA nucleotides and 20 Pol α DNA nucleotides per primer.
@@ -164,27 +166,39 @@ requires a later fragment outside this example.
 
 ## Visual language
 
-- The same warm dark ground and lit molecular material as Protein Analysis →
-  Ribosome. Colours come from theme tokens (`ReplicationInks`).
+- The same warm dark ground as Protein Analysis → Ribosome. The DNA and the
+  ring proteins are drawn flat, with no gradient, highlight, shadow or
+  texture. The other proteins keep the lit, folded material of the Ribosome
+  cutaway. Colours come from theme tokens (`ReplicationInks`).
 - One colour per strand: grey parental, teal new DNA, amber RNA; each strand's
   bases and phosphate beads wear its colour. The three stay at least 20 ΔE00
   apart for normal vision and through protan, deutan and tritan simulation.
-  Proteins are muted, one hue family each; multi-chain proteins (PCNA, MCM2–7,
-  topo II, ORC with Cdc6, RFC) show their chains as tints of that hue.
+  Proteins are muted, one hue family each. A ring is one colour, its chains
+  told apart by its seams; Cdc6 is a lighter tint of ORC. Topo II shows its
+  two chains as tints of its hue, and Cdc45 and GINS are tints of the CMG's.
 - Rings (PCNA, MCM2–7, RFC, ORC with Cdc6) are drawn in two halves, the far
   half before the DNA and the near half after it, so the DNA threads the hole.
   They are closed and solid: each subunit a rounded block with square ends,
-  over a recessed core that floors the seams between them. Walls are lit as a
-  cylinder from the upper left, with a lit top edge and a darker base; the
-  strand inside is seen entering the hole and leaving below. An open ring
-  (RFC, PCNA and MCM2–7 as they are loaded) is its closed layout pressed into
-  the rest of the circle, so the gap opens at one interface and no subunit
-  overlaps another. Other proteins are folded envelopes with cut faces
-  exposing the DNA inside.
-- At the origin, the lines between paired bases count their hydrogen bonds.
+  over a recessed core that floors the seams between them. The top face is
+  the ring's colour, the walls and square ends one darker step
+  (`ReplicationInks.sideOf`), and the edges and the core in the seams a
+  further step (`edgeOf`). The strand inside is seen entering the hole and
+  leaving below. An open ring (RFC, PCNA and MCM2–7 as they are loaded) is its
+  closed layout pressed into the rest of the circle, so the gap opens at one
+  interface and no subunit overlaps another. Other proteins are lit, folded
+  envelopes with cut faces exposing the DNA inside.
+- The two bases of a pair end square at a gap, bridged by the pair's hydrogen
+  bonds: two thin lines for A·T, three for G·C. They come with the close-ups,
+  form as a new base docks and break as the fork reaches the pair. At the
+  origin the gap widens, so they are easy to count.
+- Both strands of the parental helix are one colour. Where the front strand
+  crosses the back one, a band of the ground shows the crossing.
 - Words never lie on the DNA, a protein or other words. A label's line
-  leaves it on the side facing what it names, so it never crosses the
-  label. Two names that share a place take turns rather than overlap.
+  leaves the words on the side facing what it names and lands on it, riding
+  with it as it slides in and out. It never crosses other words or another
+  line, nor passes over a protein other than the one what it names lies in.
+  Direction arrows lie on nothing. Two names that share a place take turns
+  rather than overlap.
 - Labels can be hidden. The information sheet explains the model and links
   primary structures and experimental research.
 
@@ -207,11 +221,11 @@ animation cannot flicker:
 - The chapter clock, fork travel and synthesis are monotone cubics, so speeds
   never jump at a chapter boundary or a polymerase handover.
 - A ring looks the same from every side: a subunit passing from its back
-  half to its front keeps its shading, its edges and its details, which are
-  fixed to the subunit and fade with the way they face. Rims are sampled at
-  fixed shares of each subunit; parts are painted back to front, and stacked
-  rings lowest first. A ring is see-through only for the first moments of
-  its slide in and the last of its slide out.
+  half to its front keeps its colours and its edges. The corner at a square
+  end fades in as the end turns to face the viewer, drawn alike in both
+  halves. Rims are sampled at fixed shares of each subunit; parts are painted
+  back to front, and stacked rings lowest first. A ring is see-through only
+  for the first moments of its slide in and the last of its slide out.
 
 `ReplicationStaging` stages every element as keyed, continuous values, and
 `replication_smoothness_test` walks the whole tour at 60 fps and fails on any
@@ -251,9 +265,14 @@ Widget checks cover navigation, autoplay, pause, phase seeking, replay, reduced
 motion, lifecycle changes, the research sheet, the side scrubber and small or
 enlarged-text layouts. Camera checks cover working-site visibility, continuity,
 tracking and the whole-fork override. `replication_labels_test` stages the tour
-every quarter second on a tall and a narrow phone, measures each close-up label
-in the app's font, and fails if it lies on DNA, a protein, other words or off
-the frame.
+every quarter second on a tall and a narrow phone and measures each close-up
+label, name and note, in the app's font. It fails if a label lies on DNA, a
+protein, other words or off the frame; if its line crosses other words or
+another line, or passes over a protein other than the one what it names lies
+in; or if a direction arrow lies on a protein or the DNA.
+`replication_targets_test` draws the scene every half second with its labels
+off and what each label names in a marker colour, and fails if a line does
+not land on it.
 
 To capture the real screen at 390 and 320 logical pixels:
 
