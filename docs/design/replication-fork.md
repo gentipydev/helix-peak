@@ -84,6 +84,13 @@ the origin and replaces the other fork's leading primer. The lower fork is drawn
 as the upper fork turned 180° about the origin, which is exactly the double
 hexamer's two-fold symmetry; in cells the forks move independently.
 
+Replication rebuilt from purified yeast proteins starts leading strands
+differently: there is no dedicated leading primer. Pol δ extends each fork's
+first lagging-strand primer back across the origin until it reaches the other
+fork's CMG, where Pol ε takes over. It has not been shown in human cells, so
+the animation keeps the origin primers and the information sheet says so.
+[Aria & Yeeles, 2019](https://doi.org/10.1016/j.molcel.2018.10.019)
+
 ### Human replisome architecture
 
 Human cryo-EM resolves CMG associated with Pol ε and fork protection factors.
@@ -92,9 +99,11 @@ the lagging template exits outside it. Pol ε remains close behind.
 [Jones et al., 2021, core human replisome, PDB 7PFO](https://www.rcsb.org/structure/7PFO)
 
 CMG's six ATPase sites hydrolyse ATP as it unwinds. The C-terminal tier lights
-them in turn, one sweep per eight nucleotides unwound, each subunit warming
-as its site fires, and the wave follows the fork's speed: it rests before the
-origin fires and fades as the fork slows.
+them in turn, two nucleotides a subunit as staircase models of the motor have
+it, so one sweep per twelve nucleotides unwound, each subunit warming as its
+site fires, and the wave follows the fork's speed: it rests before the origin
+fires and fades as the fork slows.
+[Eickhoff et al., 2019](https://doi.org/10.1016/j.celrep.2019.07.104)
 
 ### Single-strand protection
 
@@ -108,11 +117,19 @@ an enzyme arrives. [Wyka et al., 2003](https://pubmed.ncbi.nlm.nih.gov/14596605/
 DNA polymerases only extend an existing 3′ end, so primase lays an RNA primer
 first. Human and yeast structures position primase near the excluded lagging
 template. Each fragment gets an RNA start, a short Pol α DNA extension, and a
-handoff: RFC opens the PCNA ring, closes it round the primer end and leaves, and
-Pol δ docks on the clamp. Leading synthesis proceeds towards the fork; lagging
-synthesis proceeds away from it. Both add to a growing 3′ end.
+handoff: Pol α lets the primer end go, RFC takes it, opens the PCNA ring,
+closes it round the DNA and leaves, and Pol δ docks on the clamp. Synthesis
+rests while the clamp changes hands. Leading synthesis proceeds towards the
+fork; lagging synthesis proceeds away from it. Both add to a growing 3′ end.
 [Jones et al., 2023, Molecular Cell](https://doi.org/10.1016/j.molcel.2023.06.035),
 [human primase–replisome structure, PDB 8B9D](https://www.rcsb.org/structure/8B9D)
+
+RFC binds PCNA's C-terminal front face, the face polymerases bind, and holds
+the primer's 3′ end in its own chamber. It is therefore drawn on the
+primer-end side of the clamp, below it on the lagging strand, where Pol δ
+then sits. In the opening bubble the first fragments change hands too fast to
+show this, so there the clamp slides in on its own, as the leading strand's
+does. [Gaubitz et al., 2022](https://doi.org/10.7554/eLife.74175)
 
 PCNA is drawn after its structure: a homotrimer ring of two-domain subunits,
 told apart by its seams, held at a tilt around the new duplex behind each
@@ -153,6 +170,17 @@ short flap. Only after those RNA bases are replaced does a nick remain for
 ligase. The simulation exposes that nick between model positions 89 and 90,
 then joins the backbone. Fragment 0 processes fragment −1's primer the same
 way, out of view, and each fork's first fragment does so at the origin.
+
+FEN1 mostly cuts one-nucleotide flaps, as each displaced nucleotide brakes
+Pol δ. A flap of one is below the scene's five-base sampling, so fewer,
+longer flaps are drawn, and the information sheet says so.
+[Stodola & Burgers, 2016](https://doi.org/10.1038/nsmb.3207)
+
+PCNA stays on the DNA when Pol δ leaves. FEN1 and then DNA ligase I bind it,
+and Lig1 and PCNA sit on the nick as two stacked rings. The clamp is unloaded,
+by ATAD5–RFC, only after the nick is sealed. It is drawn fading once the
+backbone is joined, and ATAD5–RFC is not drawn.
+[Kang et al., 2019](https://doi.org/10.1038/s41467-019-10376-w)
 
 The illustrated short-flap route is one route. Human biochemical work shows
 that primer removal can be slow and that RNase H2 can facilitate it; DNA2 also
@@ -259,8 +287,12 @@ are recorded once and disposed with the screen.
 
 The domain checks cover primer composition, synthesis after unwinding, opposite
 extension directions, RNA replacement before sealing, the remaining final
-primer, the origin's symmetry, the hand-over from the bubble to the tour, and
-topoisomerase II's order (the T-segment only crosses a cut, open gate).
+primer, the origin's symmetry, the hand-over from the bubble to the tour,
+topoisomerase II's order (the T-segment only crosses a cut, open gate), and the
+rest at each primer end while the clamp changes hands.
+`replication_biology_test` checks that RFC holds the primer end on the face of
+PCNA that Pol δ binds, once Pol α has let go, and that PCNA stays on the DNA
+until the nick is sealed.
 Widget checks cover navigation, autoplay, pause, phase seeking, replay, reduced
 motion, lifecycle changes, the research sheet, the side scrubber and small or
 enlarged-text layouts. Camera checks cover working-site visibility, continuity,
