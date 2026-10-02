@@ -85,16 +85,18 @@ class ReplicationMoment {
       frame.seconds < 6
           ? 'Unwinding overwinds the DNA ahead: it is wound tighter and tighter.'
           : frame.seconds < 7
-          ? 'Topoisomerase II cuts both strands, like a nuclease, and passes '
-                'another duplex through.'
-          : 'It reseals the break, like a ligase, and the DNA ahead relaxes.',
+          ? 'Topoisomerase II cuts both strands, holds the cut ends, and '
+                'passes another duplex through.'
+          : 'It rejoins the ends it holds, and the DNA ahead relaxes.',
     ReplicationChapter.primase || ReplicationChapter.nextPrimer =>
       frame.seconds - (chapter == ReplicationChapter.primase ? 8 : 50) < 4
           ? 'Primase makes a short RNA primer: DNA polymerases can only '
                 'extend an existing 3′ end.'
           : 'Pol α adds DNA to the RNA primer, then hands it on.',
     ReplicationChapter.polymerase =>
-      frame.seconds < 20
+      frame.seconds < ReplicationFrame.primerDoneAt(0)
+          ? 'Pol α adds DNA to the RNA primer, then hands it on.'
+          : frame.seconds < ReplicationFrame.handoffAt(0)
           ? 'RFC opens the PCNA ring and closes it round the primer end; '
                 'Pol δ takes over.'
           : 'PCNA holds Pol δ on the DNA as the fragment grows.',

@@ -200,6 +200,29 @@ void main() {
     },
   );
 
+  test(
+    'Pol α lets go of a whole primer, and its end rests until Pol δ takes it',
+    () {
+      for (final int k in <int>[0, 1]) {
+        final double done = ReplicationFrame.primerDoneAt(k);
+        final double handoff = ReplicationFrame.handoffAt(k);
+        expect(handoff, greaterThan(done), reason: '$k');
+        // 10 nt of RNA and 20 of Pol α DNA when it lets go.
+        expect(ReplicationFrame(done).lengthOf(k), closeTo(30, 1e-9));
+        // While RFC loads the clamp, nothing is made.
+        final double end = ReplicationFrame(done).tipOf(k);
+        for (double s = done; s <= handoff; s += 0.1) {
+          expect(
+            ReplicationFrame(s).tipOf(k),
+            closeTo(end, 1e-9),
+            reason: '$k at $s',
+          );
+        }
+        expect(ReplicationFrame(handoff + 1).lengthOf(k), greaterThan(30));
+      }
+    },
+  );
+
   test('an A/T-rich origin: two hydrogen bonds a pair, G/C flanks three', () {
     const int origin = -95;
     for (int i = origin - 12; i <= origin + 12; i++) {

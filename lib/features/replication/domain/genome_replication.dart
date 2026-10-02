@@ -292,10 +292,11 @@ class ReplicationFrame {
     endSlope: 0,
   );
 
-  // RNA (10 nt), Pol alpha DNA (20 nt), then Pol delta (70 nt), starting
-  // from rest and slowing to a stop at the earlier fragment.
+  // RNA (10 nt) and Pol alpha DNA (20 nt); a rest while RFC takes the primer
+  // end and loads PCNA; then Pol delta (70 nt), starting from rest and
+  // slowing to a stop at the earlier fragment.
   static final MonotoneCurve _synthesis = MonotoneCurve(
-    const <(double, double)>[(0, 0), (4, 10), (12, 30), (38, 100)],
+    const <(double, double)>[(0, 0), (4, 10), (10, 30), (14, 30), (38, 100)],
     startSlope: 0,
     endSlope: 0,
   );
@@ -308,9 +309,16 @@ class ReplicationFrame {
     _ => 50,
   };
 
-  /// When Pol α hands [fragment]'s primer to RFC, PCNA and Pol δ.
+  /// When Pol α has made [fragment]'s RNA–DNA primer and lets it go: RFC
+  /// takes the primer end from it and loads PCNA there. The bubble's first
+  /// fragment is primed too fast to show RFC: Pol δ takes it over at once.
+  static double primerDoneAt(int fragment) =>
+      primedAt(fragment) + (fragment < 0 ? 3.5 : 10);
+
+  /// When Pol δ, on the clamp RFC has closed, takes over [fragment]'s primer
+  /// end.
   static double handoffAt(int fragment) =>
-      primedAt(fragment) + (fragment < 0 ? 3.5 : 12);
+      primedAt(fragment) + (fragment < 0 ? 3.5 : 14);
 
   /// Nucleotides laid down on [fragment]: RNA, then Pol alpha, then Pol delta.
   double lengthOf(int fragment) => fragment < 0

@@ -328,15 +328,16 @@ class ReplicationStaging {
   }
 
   /// Primase–Pol α on lagging fragment [k] (−1, 0 or 1): it arrives as its
-  /// primer starts, and leaves once Pol δ has taken the primer end.
+  /// primer starts, and lets the primer end go once its DNA is made, so RFC
+  /// can take it.
   _Enzyme _primase(int k) {
     final double start = ReplicationFrame.primedAt(k);
-    final double handoff = ReplicationFrame.handoffAt(k);
+    final double done = ReplicationFrame.primerDoneAt(k);
     final double arrival = _eased(_s, start - 1, start);
-    final double departure = _eased(_s, handoff, handoff + 2);
-    // Where Pol α left its primer end: the tip, held once Pol δ takes over.
+    final double departure = _eased(_s, done, done + (k < 0 ? 2 : 0.9));
+    // Where Pol α left its primer end: the tip, held once it lets go.
     final Offset site = g.centre(
-      ReplicationFrame(math.min(_s, handoff)).tipOf(k),
+      ReplicationFrame(math.min(_s, done)).tipOf(k),
       leading: false,
     );
     return _Enzyme(
@@ -394,30 +395,62 @@ class ReplicationStaging {
     _ => 100,
   };
 
-  /// RFC's visit with PCNA to fragment [k]'s primer end: arrive, close,
-  /// leave, as model seconds.
+  /// RFC's visit with PCNA to fragment [k]'s primer end: it arrives as Pol α
+  /// lets the end go, closes the clamp round the DNA and leaves as Pol δ
+  /// comes. Arrive, close, leave, as model seconds. The bubble's first
+  /// fragment is primed and handed over too fast to show RFC at its work:
+  /// there the clamp slides in by itself while Pol α works, as the leading
+  /// strand's does.
   static (double, double, double, double, double, double) _loading(int k) {
-    final double start = ReplicationFrame.primedAt(k);
-    return k < 0
-        ? (
-            start + 1.2,
-            start + 2.2,
-            start + 2.3,
-            start + 2.9,
-            start + 2.9,
-            start + 4.2,
-          )
-        : (
-            start + 9,
-            start + 10,
-            start + 10.2,
-            start + 11.2,
-            start + 11.6,
-            start + 12.6,
-          );
+    if (k < 0) {
+      final double start = ReplicationFrame.primedAt(k);
+      return (
+        start + 1.2,
+        start + 2.2,
+        start + 2.3,
+        start + 2.9,
+        start + 2.9,
+        start + 4.2,
+      );
+    }
+    // RFC comes in as Pol α has all but gone.
+    final double done = ReplicationFrame.primerDoneAt(k);
+    final double handoff = ReplicationFrame.handoffAt(k);
+    return (
+      done + 0.7,
+      done + 1.7,
+      done + 1.9,
+      done + 2.6,
+      handoff - 0.6,
+      handoff + 0.2,
+    );
   }
 
-  /// Pol δ on lagging fragment [k], with its clamp.
+  /// Fragment [k]'s primer end while it changes hands, from Pol α letting it
+  /// go until Pol δ has it, so no RPA rebinds the template there meanwhile.
+  _Enzyme _primerEnd(int k) {
+    final double done = ReplicationFrame.primerDoneAt(k);
+    final double handoff = ReplicationFrame.handoffAt(k);
+    final Offset site = g.centre(_laggingTip(k), leading: false);
+    return _Enzyme(
+      site: site,
+      centre: site,
+      opacity:
+          _eased(_s, done - 0.5, done) *
+          (1 - _eased(_s, handoff + 1.5, handoff + 2)),
+    );
+  }
+
+  /// When fragment [k]'s clamp comes off the DNA: PCNA holds FEN1 and DNA
+  /// ligase I in turn, and is unloaded only once the nick is sealed.
+  static (double, double) _unloading(int k) => switch (k) {
+    -1 => (-2, 0),
+    0 => (56.5, 58),
+    _ => (110.5, 112),
+  };
+
+  /// Pol δ on lagging fragment [k], with its clamp, which stays on the DNA
+  /// after Pol δ has gone.
   _Enzyme _delta(int k) {
     final double handoff = ReplicationFrame.handoffAt(k);
     final double end = _deltaEnd(k);
@@ -425,12 +458,13 @@ class ReplicationStaging {
     final double departure = _eased(_s, end, end + 2);
     final Offset site = g.centre(_laggingTip(k), leading: false);
     final (double arrive, double arrived, _, _, _, _) = _loading(k);
+    final (double unload, double unloaded) = _unloading(k);
     return _Enzyme(
       site: site,
       centre: site + Offset(-25 * (1 - arrival + departure), 0),
       opacity: arrival * (1 - departure),
       working: arrival * (1 - _eased(_s, end - 0.6, end)),
-      clamp: _eased(_s, arrive, arrived) * (1 - departure),
+      clamp: _eased(_s, arrive, arrived) * (1 - _eased(_s, unload, unloaded)),
     );
   }
 
@@ -540,8 +574,8 @@ class ReplicationStaging {
 
     // CMG: the MCM2–7 motor's two tiers encircle the leading template, the
     // N-terminal tier leading. Its six ATPase sites fire in turn as it
-    // unwinds, one sweep of the ring every eight nucleotides. The excluded
-    // lagging template passes outside the ring.
+    // unwinds, two nucleotides a subunit, so one sweep of the ring every
+    // twelve. The excluded lagging template passes outside the ring.
     final ({Offset centre, double opacity, double open}) cmg = _cmg;
     if (cmg.opacity > 0) {
       rings
@@ -551,7 +585,7 @@ class ReplicationStaging {
             RingKind.mcmC,
             cmg.centre + const Offset(0, 6),
             open: cmg.open,
-            atp: _f.fork / 8,
+            atp: _f.fork / 12,
             firing: _firing,
             opacity: cmg.opacity,
           ),
@@ -637,6 +671,8 @@ class ReplicationStaging {
       ...deltas.values,
       leadingPrimase,
       epsilon,
+      // The bubble's first fragment changes hands without a pause.
+      for (final int k in <int>[0, 1]) _primerEnd(k),
     ];
 
     // RPA holds bare template: it binds as the fork exposes it and gives way
@@ -774,24 +810,29 @@ class ReplicationStaging {
     Offset offset = Offset.zero,
     double opacity = 1,
   }) {
-    final Offset at = g.centre(index, leading: leading);
-    final Offset along =
-        g.centre(index + 1, leading: leading) -
-        g.centre(index - 1, leading: leading);
     return StagedRing(
       key,
       RingKind.pcna,
-      at + offset,
+      g.centre(index, leading: leading) + offset,
       rotation: turn - index * math.pi * 2 / 38,
       open: open,
-      axis: math.atan2(along.dx, -along.dy),
+      axis: _axis(index, leading: leading),
       opacity: opacity,
     );
   }
 
+  /// The DNA's direction through a ring at [index], radians from vertical.
+  double _axis(double index, {required bool leading}) {
+    final Offset along =
+        g.centre(index + 1, leading: leading) -
+        g.centre(index - 1, leading: leading);
+    return math.atan2(along.dx, -along.dy);
+  }
+
   /// RFC brings PCNA, held open, to the primer end Pol α has made on
   /// fragment [k], closes it around the DNA and leaves; the clamp then
-  /// travels with Pol δ. This is the clamp, or null while it is not there.
+  /// travels with Pol δ, and stays on the DNA until the nick Pol δ leaves is
+  /// sealed. This is the clamp, or null while it is not there.
   StagedRing? _clampOf(int k) {
     final (
       double arrive,
@@ -811,7 +852,7 @@ class ReplicationStaging {
     // the end of their slide out, so neither is long see-through. The fast
     // bubble act gives a fade more model time for the same time on screen.
     final double fade = k < 0 ? 0.9 : 0.45;
-    final double gone = _deltaEnd(k) + 2;
+    final double gone = _unloading(k).$2;
     return _pcna(
       'pcna-$k',
       _laggingTip(k) + 16,
@@ -825,7 +866,9 @@ class ReplicationStaging {
     );
   }
 
-  /// RFC on fragment [k]'s clamp while it loads it, or null.
+  /// RFC on fragment [k]'s clamp while it loads it, or null. It holds the
+  /// primer end, on the clamp's front face, the face Pol δ binds next: on
+  /// the lagging strand, below the clamp.
   StagedRing? _loaderOf(int k) {
     final (
       double arrive,
@@ -836,19 +879,22 @@ class ReplicationStaging {
       double left,
     ) = _loading(k);
     final double leaving = _eased(_s, leave, left);
-    if (_delta(k).clamp <= 0 ||
+    if (k < 0 ||
+        _delta(k).clamp <= 0 ||
         _eased(_s, arrive, arrived) * (1 - leaving) <= 0) {
       return null;
     }
-    final double fade = k < 0 ? 0.9 : 0.45;
+    const double fade = 0.45;
+    final double index = _laggingTip(k) + 5;
     return StagedRing(
       'rfc-$k',
       RingKind.rfc,
-      g.centre(_laggingTip(k) + 16, leading: false) +
+      g.centre(index, leading: false) +
           _approach(k) +
-          Offset(20 * leaving, -14 - 10 * leaving),
+          Offset(20 * leaving, 10 * leaving),
       rotation: math.pi,
       open: 1.2,
+      axis: _axis(index, leading: false),
       opacity:
           _eased(_s, arrive, arrive + fade) *
           (1 - _eased(_s, left - fade, left)),
@@ -1618,13 +1664,15 @@ class ReplicationStaging {
         final _Enzyme primase = _primase(k);
         final _Enzyme delta = _delta(k);
         // Low on its right lobe: near the fork the CMG covers its left one,
-        // and the template crosses the top of its right.
+        // and the template crosses the top of its right. The name leaves as
+        // Pol α lets the primer end go.
+        final double done = ReplicationFrame.primerDoneAt(k);
         label(
           'Primase · Pol α',
           below,
           _body(primase, const Offset(17, 16)),
           SceneInk.primase,
-          _alone(primase.opacity),
+          _alone(primase.opacity) * (1 - _eased(_s, done - 0.4, done)),
           _primaseIs,
         );
         label(
@@ -1647,10 +1695,17 @@ class ReplicationStaging {
           _primerShown(k) * _primerOut(k) * (1 - _loaderNear(k)),
           _primerIs,
         );
-        final double start = ReplicationFrame.primedAt(k);
+        final (
+          double _,
+          double arrived,
+          double _,
+          double _,
+          double leave,
+          double _,
+        ) = _loading(k);
         // Named where they land, once they have: the rings slide in under
-        // these words.
-        final double landed = _eased(_s, start + 9.75, start + 10.2);
+        // these words. RFC is below the clamp, on the face Pol δ binds next.
+        final double landed = _eased(_s, arrived - 0.25, arrived + 0.2);
         final StagedRing? clamp = _clampOf(k);
         if (clamp != null) {
           label(
@@ -1665,10 +1720,10 @@ class ReplicationStaging {
         if (loader != null) {
           label(
             'RFC',
-            const Offset(255, 150),
+            const Offset(255, 262),
             _ringFace(loader, radius: 13, height: 8),
             SceneInk.rfc,
-            landed * (1 - _eased(_s, start + 11.2, start + 12)),
+            landed * (1 - _eased(_s, leave - 0.4, leave + 0.4)),
             'clamp loader',
           );
         }
@@ -1815,18 +1870,22 @@ class ReplicationStaging {
           ligase.opacity,
           'seals the nick',
         );
+        // PCNA stays above the ligase until the nick is sealed, so the nick
+        // is named from below, on the right, where only the ligase lies
+        // between the words and it.
+        const Offset right = Offset(254, 430);
         label(
           'Nick',
-          above,
+          right,
           g.nick,
           SceneInk.quiet,
-          (1 - _eased(_s, 109.5, 110)) * (1 - (_clampOf(1)?.opacity ?? 0)),
+          1 - _eased(_s, 109.5, 110),
           'unsealed backbone',
           SceneInk.newDna,
         );
         label(
           'Joined backbone',
-          above,
+          right,
           g.nick,
           SceneInk.newDna,
           _eased(_s, 110, 110.5),

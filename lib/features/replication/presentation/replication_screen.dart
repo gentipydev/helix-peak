@@ -361,8 +361,12 @@ class _ScienceSheet extends StatelessWidget {
                   'makes two forks that copy in opposite directions. Each '
                   'fork’s leading strand starts at the origin and its lagging '
                   'strand ends there: each fork’s first Okazaki fragment '
-                  'replaces the other fork’s leading primer. The animation then '
-                  'follows the upper fork through two 100-nucleotide fragments. '
+                  'replaces the other fork’s leading primer. In replication '
+                  'rebuilt from purified yeast proteins there is no separate '
+                  'leading primer: Pol δ extends the other fork’s first '
+                  'lagging-strand primer back across the origin, and Pol ε '
+                  'takes over at the CMG. The animation then follows the upper '
+                  'fork through two 100-nucleotide fragments. '
                   'The lower fork is drawn as its mirror image; in cells the two '
                   'move independently. The sequence is illustrative, not a '
                   'particular gene or a measured genomic locus.',
@@ -370,15 +374,17 @@ class _ScienceSheet extends StatelessWidget {
             paragraph(
               'The human machinery',
               'CMG unwinds the DNA by ATP hydrolysis in its MCM2–7 ring; the '
-                  'animation lights its six ATPase sites in turn. RPA, the human '
-                  'single-strand binding protein, coats exposed single strands, '
-                  'which keeps them from reannealing and protects them from '
-                  'nucleases. Primase lays a short RNA primer because DNA '
-                  'polymerases cannot start a chain: they only extend an existing '
-                  '3′ end. Pol α adds a short DNA stretch; RFC opens the PCNA '
-                  'ring, a homotrimer, and closes it round the primer end. Pol ε '
-                  'extends the leading strand and Pol δ the lagging fragments, '
-                  'each on PCNA. Both new strands grow 5′ → 3′.',
+                  'animation lights its six ATPase sites in turn, two '
+                  'nucleotides a subunit. RPA, the human single-strand binding '
+                  'protein, coats exposed single strands, which keeps them from '
+                  'reannealing and protects them from nucleases. Primase lays a '
+                  'short RNA primer because DNA polymerases cannot start a '
+                  'chain: they only extend an existing 3′ end. Pol α adds a '
+                  'short DNA stretch and lets the primer end go. RFC takes it, '
+                  'opens the PCNA ring, a homotrimer, and closes it round the '
+                  'DNA, its front face towards the 3′ end: the face Pol δ then '
+                  'binds. Pol ε extends the leading strand and Pol δ the lagging '
+                  'fragments, each on PCNA. Both new strands grow 5′ → 3′.',
             ),
             paragraph(
               'Supercoiling',
@@ -395,9 +401,12 @@ class _ScienceSheet extends StatelessWidget {
               'From fragments to a continuous strand',
               'This view shows a short-flap route: Pol δ displaces the earlier '
                   'primer as it synthesizes DNA, FEN1 cleaves each flap, and DNA '
-                  'ligase I seals the nick. RNase H2 and DNA2 can also help process '
-                  'primers in cells. The newest primer remains until the next '
-                  'fragment reaches it, beyond this window.',
+                  'ligase I seals the nick. FEN1 mostly cuts one-nucleotide '
+                  'flaps; the animation draws fewer, longer ones. PCNA holds '
+                  'each enzyme in turn and stays on the DNA until the nick is '
+                  'sealed; ATAD5–RFC then unloads it. RNase H2 and DNA2 can also '
+                  'help process primers in cells. The newest primer remains '
+                  'until the next fragment reaches it, beyond this window.',
             ),
             paragraph(
               'Reading the animation',
@@ -430,14 +439,29 @@ class _ScienceSheet extends StatelessWidget {
               'https://doi.org/10.1038/nature25787',
             ),
             const _SourceLink(
+              'How yeast replisomes start their leading strands',
+              'Aria & Yeeles, 2019 · Molecular Cell',
+              'https://doi.org/10.1016/j.molcel.2018.10.019',
+            ),
+            const _SourceLink(
               'Human replisome · cryo-EM structure',
               'Jones et al., 2021 · PDB 7PFO',
               'https://www.rcsb.org/structure/7PFO',
             ),
             const _SourceLink(
+              'How CMG’s ATPase sites move it along DNA',
+              'Eickhoff et al., 2019 · Cell Reports',
+              'https://doi.org/10.1016/j.celrep.2019.07.104',
+            ),
+            const _SourceLink(
               'Human PCNA, the sliding clamp',
               'Gulbis et al., 1996 · PDB 1AXC',
               'https://www.rcsb.org/structure/1AXC',
+            ),
+            const _SourceLink(
+              'RFC loads PCNA at the primer end',
+              'Gaubitz et al., 2022 · eLife',
+              'https://doi.org/10.7554/eLife.74175',
             ),
             const _SourceLink(
               'Human topoisomerase II cutting DNA',
@@ -460,9 +484,19 @@ class _ScienceSheet extends StatelessWidget {
               'https://doi.org/10.1038/s41467-022-34751-2',
             ),
             const _SourceLink(
+              'FEN1 cuts mostly one-nucleotide flaps',
+              'Stodola & Burgers, 2016 · Nat Struct Mol Biol',
+              'https://doi.org/10.1038/nsmb.3207',
+            ),
+            const _SourceLink(
               'How PCNA coordinates DNA ligase I',
               'Blair et al., 2022 · Nature Communications',
               'https://doi.org/10.1038/s41467-022-35475-z',
+            ),
+            const _SourceLink(
+              'ATAD5–RFC unloads PCNA from DNA',
+              'Kang et al., 2019 · Nature Communications',
+              'https://doi.org/10.1038/s41467-019-10376-w',
             ),
           ],
         ),
