@@ -69,7 +69,8 @@ Git: commit the session's own changes locally. Never push, in any form.
 ## Where code lives
 
 - `lib/core/`: biology tables and `GeneRecord`, the parsed GenBank record
-  (`biology/`); `ProteinTarget`, `ProteinTrack` and `GeneQuery`
+  (`biology/`); `ProteinTarget`, `ProteinTrack` and `GeneQuery`, and
+  `ProteinResolver` with its `ProteinSuggestion` and `ResolveStatus`
   (`catalog/`); the evidence tracks as entities (`GeneClinVar`,
   `ProteinConstraint`, `GeneImpact`, `ImpactExplanations`, `VariantEvidence`)
   and `ImpactExplanationRepository` (`evidence/`); `.env` config, DI,
@@ -86,8 +87,11 @@ Git: commit the session's own changes locally. Never push, in any form.
   `presentation/` (`anatomy/`, `clinvar/`, `constraint/`, `inspector/`,
   `structure/`, `cubit/`, `screens/`).
 - `lib/features/lab/`: new flows, built only with the lab flag on (see "The
-  lab" below). `home/` and `search/` hold the home screen and the catalog
-  list.
+  lab" below). `home/` and `search/` hold the home screen and the search:
+  the curated list, and below it every reviewed human protein, which can be
+  built on demand (its own cubits, `ProteinSuggestionsCubit` and
+  `ProteinBuildCubit`). Search is not the walk; it reaches the walk only by
+  opening `/gene/<slug>`.
 
 `test/architecture_test.dart` holds that layering to the import lines: `lab/`
 never imports the walk's screens or cubit, `core/` and `shared/` import no
@@ -272,6 +276,18 @@ missing, the app falls back to `http://localhost:8000` with a debug warning.
 
 UI code calls `TrackSource.read(slug, kind)` and never sees a storage path.
 Tests use `test/support/fixture_track_source.dart` over `test/fixtures/`.
+
+4. **Beyond the catalog (Phase 6)** → `ProteinResolver`. `/proteins/suggest`
+   names every reviewed human protein (`listed`, `ready`, `buildable`,
+   `unavailable`); `POST /proteins/resolve` asks for one to be built, and
+   `GET /proteins/resolve/{gene}` says how far it has got. The backend's
+   resolver on Modal writes its row (`catalog_order` null, so never in
+   `/catalog`) and its record, then scores ESM-2 650M, the twenty's model.
+   Search watches the constraint track with `ProteinResolver.trackState`, read
+   fresh each time, and opens the walk only once it is no longer `pending`:
+   `TrackClient` and `ProteinCatalogRepository` each remember a protein once
+   read, so a protein opened mid-bake stays unscored until a restart. Tests use
+   `test/features/search/support/resolver_api.dart`.
 
 ## The four track states (`TrackState` in `protein_track.dart`)
 
