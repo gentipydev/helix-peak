@@ -12,31 +12,36 @@ import 'package:helixpeek/features/replication/presentation/replication_staging.
 import '../../gene_lookup/anatomy/anatomy_fixture.dart';
 
 /// A close-up's words must be readable wherever the camera is: none may lie
-/// on the DNA, on a protein, on other words or off the frame. The scene is a
-/// pure function of time, so it is staged every quarter second and each
-/// label is measured in the app's own font, as the scene draws it.
+/// on the DNA, on a protein, on other words or off the frame. A label's line
+/// may not cross other words or another line, nor pass over a protein other
+/// than the one what it names lies in, and a direction arrow may not lie on
+/// a protein or the DNA. The scene is a pure function of time, so it is
+/// staged every quarter second and each label, name and note, is measured in
+/// the app's own font, as the scene draws it.
 ///
 /// The whole fork's own words are left out: they sit at the ends of its
 /// drawing by design.
 void main() {
   setUpAll(loadAppFonts);
 
-  final Map<(String, double), Size> measured = <(String, double), Size>{};
-  Size measure(String text, double size) => measured.putIfAbsent(
-    (text, size),
-    () => (TextPainter(
-      text: TextSpan(
-        text: text,
-        style: TextStyle(
-          fontFamily: AppTypography.sansFamily,
-          fontSize: size,
-          fontWeight: FontWeight.w500,
-          height: 1.15,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout()).size,
-  );
+  final Map<(String, double, FontWeight), Size> measured =
+      <(String, double, FontWeight), Size>{};
+  Size measure(String text, double size, FontWeight weight) =>
+      measured.putIfAbsent(
+        (text, size, weight),
+        () => (TextPainter(
+          text: TextSpan(
+            text: text,
+            style: TextStyle(
+              fontFamily: AppTypography.sansFamily,
+              fontSize: size,
+              fontWeight: weight,
+              height: 1.15,
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+        )..layout()).size,
+      );
 
   // A tall phone's scene, and a narrow one that shows only the design width.
   for (final Size size in <Size>[const Size(376, 562), const Size(300, 562)]) {
@@ -59,7 +64,7 @@ void main() {
 String _faultsAt(
   double s,
   Size size,
-  Size Function(String, double) measure,
+  Size Function(String, double, FontWeight) measure,
 ) {
   final ReplicationMoment moment = ReplicationMoment(s);
   final ReplicationFrame frame = moment.frame;
@@ -152,12 +157,20 @@ String _faultsAt(
 
   final List<String> faults = <String>[];
   final List<(String, Rect)> words = <(String, Rect)>[];
+  final List<(String, Offset, Offset)> lines = <(String, Offset, Offset)>[];
   for (final StagedLabel label in stage.labels) {
     if (!label.key.contains(':') || label.opacity < 0.3) continue;
-    final Size box = measure(label.text, label.size);
-    final Rect rect =
-        (label.at - Offset(label.centred ? box.width / 2 : 0, 0) & box)
-            .deflate(1);
+    final String? note = label.note;
+    final Rect block = label.block(
+      measure(label.text, label.size, FontWeight.w500),
+      note == null
+          ? null
+          : measure(note, StagedLabel.noteSize, FontWeight.w400),
+    );
+    final Rect rect = block.deflate(1);
+    if (label.target case final Offset target) {
+      lines.add((label.key, StagedLabel.exit(block, target), target));
+    }
     // A backbone bead is about 2.2 design units across, before the zoom.
     final Rect clear = rect.inflate(1 + 2.2 * camera.zoom);
     if (dna.any(clear.contains)) {
@@ -178,7 +191,97 @@ String _faultsAt(
     }
     words.add((label.key, rect));
   }
+
+  for (final (String key, Offset from, Offset to) in lines) {
+    for (final (String other, Rect rect) in words) {
+      if (other != key && _throughRect(from, to, rect)) {
+        faults.add('$key line through $other');
+      }
+    }
+    for (final (String other, Offset a, Offset b) in lines) {
+      if (other.compareTo(key) > 0 && _cross(from, to, a, b)) {
+        faults.add('$key line crosses $other line');
+      }
+    }
+    // What a label names may lie inside a protein, as DNA in a channel does:
+    // its line may cross that protein, but no other.
+    for (final (String protein, Offset centre, Offset half) in proteins) {
+      if (!_inEllipse(to, centre, half) &&
+          _overEllipse(from, to, centre, half * 0.85)) {
+        faults.add('$key line over $protein');
+      }
+    }
+  }
+
+  // A direction arrow beside an enzyme lies on nothing.
+  for (final StagedArrow arrow in stage.arrows) {
+    if (!arrow.key.contains(':') || arrow.opacity < 0.3) continue;
+    for (final (String protein, Offset centre, Offset half) in proteins) {
+      if (_overEllipse(arrow.from, arrow.to, centre, half)) {
+        faults.add('${arrow.key} on $protein');
+      }
+    }
+    final double clear = 1 + 2.2 * camera.zoom;
+    if (dna.any((Offset p) => _distance(p, arrow.from, arrow.to) < clear)) {
+      faults.add('${arrow.key} on DNA');
+    }
+  }
   return faults.isEmpty ? '' : '${s.toStringAsFixed(2)} s: ${faults.join(', ')}';
+}
+
+/// How far [p] is from the segment [a]–[b].
+double _distance(Offset p, Offset a, Offset b) {
+  final Offset ab = b - a;
+  final double length = ab.distanceSquared;
+  if (length == 0) return (p - a).distance;
+  final double t = (((p - a).dx * ab.dx + (p - a).dy * ab.dy) / length).clamp(
+    0.0,
+    1.0,
+  );
+  return (p - (a + ab * t)).distance;
+}
+
+/// Whether the segment [a]–[b] passes through [rect].
+bool _throughRect(Offset a, Offset b, Rect rect) {
+  if (rect.contains(a) || rect.contains(b)) return true;
+  final List<Offset> corners = <Offset>[
+    rect.topLeft,
+    rect.topRight,
+    rect.bottomRight,
+    rect.bottomLeft,
+  ];
+  for (int k = 0; k < 4; k++) {
+    if (_cross(a, b, corners[k], corners[(k + 1) % 4])) return true;
+  }
+  return false;
+}
+
+/// Whether the segments [a]–[b] and [c]–[d] cross, other than at an end.
+bool _cross(Offset a, Offset b, Offset c, Offset d) {
+  double side(Offset p, Offset q, Offset r) =>
+      (q.dx - p.dx) * (r.dy - p.dy) - (q.dy - p.dy) * (r.dx - p.dx);
+  final double d1 = side(c, d, a);
+  final double d2 = side(c, d, b);
+  final double d3 = side(a, b, c);
+  final double d4 = side(a, b, d);
+  return d1 * d2 < 0 && d3 * d4 < 0;
+}
+
+/// Whether [p] lies in the ellipse at [centre] with semi-axes [half].
+bool _inEllipse(Offset p, Offset centre, Offset half) {
+  final double x = (p.dx - centre.dx) / half.dx;
+  final double y = (p.dy - centre.dy) / half.dy;
+  return x * x + y * y < 1;
+}
+
+/// Whether the segment [a]–[b] passes over the ellipse at [centre] with
+/// semi-axes [half].
+bool _overEllipse(Offset a, Offset b, Offset centre, Offset half) {
+  Offset unit(Offset p) => Offset(
+    (p.dx - centre.dx) / half.dx,
+    (p.dy - centre.dy) / half.dy,
+  );
+  return _distance(Offset.zero, unit(a), unit(b)) < 1;
 }
 
 /// A ring's outer half-width, and its half-height seen at its tilt.

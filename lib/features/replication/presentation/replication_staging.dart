@@ -135,7 +135,7 @@ final class StagedTrace extends StagedItem {
 }
 
 /// Words on the screen: at [at] in screen space, with a line to [target]
-/// when they name something.
+/// when they name something. A [note] under the name says what it is.
 @immutable
 class StagedLabel {
   const StagedLabel(
@@ -144,6 +144,8 @@ class StagedLabel {
     this.at,
     this.ink, {
     this.target,
+    this.note,
+    this.names,
     this.size = 12,
     this.centred = false,
     this.opacity = 1,
@@ -153,9 +155,51 @@ class StagedLabel {
   final Offset at;
   final Offset? target;
   final SceneInk ink;
+
+  /// What the named thing is, in a few words, drawn smaller under the name.
+  final String? note;
+
+  /// The colour of what [target] lands on, when it is not [ink]: a
+  /// polymerase is named in the text colour but drawn in its own.
+  final SceneInk? names;
   final double size;
   final bool centred;
   final double opacity;
+
+  /// The size a note is set in.
+  static const double noteSize = 10;
+
+  /// How far a line keeps from the words it leaves.
+  static const double margin = 3;
+
+  /// Where the words lie, given the measured sizes of the name and the
+  /// note: the note under the name, both aligned as the name is.
+  Rect block(Size name, Size? note) {
+    final double width = math.max(name.width, note?.width ?? 0);
+    final double height = name.height + (note?.height ?? 0);
+    return Rect.fromLTWH(
+      at.dx - (centred ? width / 2 : 0),
+      at.dy,
+      width,
+      height,
+    );
+  }
+
+  /// Where a line to [target] leaves the words in [block]: on the side
+  /// facing it, a [margin] off, along the way from the words' middle to the
+  /// target. It never crosses the words, and it slides round them as the
+  /// target moves.
+  static Offset exit(Rect block, Offset target) {
+    final Rect box = block.inflate(margin);
+    final Offset towards = target - box.center;
+    final double across = towards.dx.abs() < 1e-9
+        ? double.infinity
+        : box.width / 2 / towards.dx.abs();
+    final double down = towards.dy.abs() < 1e-9
+        ? double.infinity
+        : box.height / 2 / towards.dy.abs();
+    return box.center + towards * math.min(1, math.min(across, down));
+  }
 }
 
 @immutable
@@ -661,7 +705,9 @@ class ReplicationStaging {
     }
     for (final int k in fragments) {
       final _Enzyme d = deltas[k]!;
-      _loadClamp(k, d);
+      for (final StagedRing? ring in <StagedRing?>[_clampOf(k), _loaderOf(k)]) {
+        if (ring != null) rings.add(ring);
+      }
       if (d.opacity > 0) {
         items
           ..add(
@@ -743,63 +789,84 @@ class ReplicationStaging {
     );
   }
 
-  /// RFC brings PCNA, held open, to the primer end Pol α has made, closes it
-  /// around the DNA and leaves; the clamp then travels with Pol δ.
-  void _loadClamp(int k, _Enzyme delta) {
+  /// RFC brings PCNA, held open, to the primer end Pol α has made on
+  /// fragment [k], closes it around the DNA and leaves; the clamp then
+  /// travels with Pol δ. This is the clamp, or null while it is not there.
+  StagedRing? _clampOf(int k) {
     final (
       double arrive,
       double arrived,
       double close,
       double closed,
-      double leave,
-      double left,
+      double _,
+      double _,
     ) = _loading(k);
-    final double present = delta.clamp;
-    if (present <= 0) {
-      return;
+    if (_delta(k).clamp <= 0) {
+      return null;
     }
-    final double arriving = _eased(_s, arrive, arrived);
-    final double closing = _eased(_s, close, closed);
-    final double leaving = _eased(_s, leave, left);
     // The clamp sits on the new duplex just behind the primer end; loaded
     // with its open interface facing the DNA it arrives beside.
-    final double index = _laggingTip(k) + 16;
     final double loadedAt = ReplicationFrame(arrived).tipOf(k) + 16;
-    final Offset approach = Offset(26 * (1 - arriving), -12 * (1 - arriving));
     // Both rings are solid soon after they start to slide in and go only at
     // the end of their slide out, so neither is long see-through. The fast
     // bubble act gives a fade more model time for the same time on screen.
     final double fade = k < 0 ? 0.9 : 0.45;
     final double gone = _deltaEnd(k) + 2;
-    rings.add(
-      _pcna(
-        'pcna-$k',
-        index,
-        leading: false,
-        open: 1.1 * (1 - closing),
-        turn: math.pi + loadedAt * math.pi * 2 / 38,
-        offset: approach,
-        opacity:
-            _eased(_s, arrive, arrive + fade) *
-            (1 - _eased(_s, gone - fade, gone)),
-      ),
+    return _pcna(
+      'pcna-$k',
+      _laggingTip(k) + 16,
+      leading: false,
+      open: 1.1 * (1 - _eased(_s, close, closed)),
+      turn: math.pi + loadedAt * math.pi * 2 / 38,
+      offset: _approach(k),
+      opacity:
+          _eased(_s, arrive, arrive + fade) *
+          (1 - _eased(_s, gone - fade, gone)),
     );
-    if (arriving * (1 - leaving) > 0) {
-      rings.add(
-        StagedRing(
-          'rfc-$k',
-          RingKind.rfc,
-          g.centre(index, leading: false) +
-              approach +
-              Offset(20 * leaving, -14 - 10 * leaving),
-          rotation: math.pi,
-          open: 1.2,
-          opacity:
-              _eased(_s, arrive, arrive + fade) *
-              (1 - _eased(_s, left - fade, left)),
-        ),
-      );
+  }
+
+  /// RFC on fragment [k]'s clamp while it loads it, or null.
+  StagedRing? _loaderOf(int k) {
+    final (
+      double arrive,
+      double arrived,
+      double _,
+      double _,
+      double leave,
+      double left,
+    ) = _loading(k);
+    final double leaving = _eased(_s, leave, left);
+    if (_delta(k).clamp <= 0 ||
+        _eased(_s, arrive, arrived) * (1 - leaving) <= 0) {
+      return null;
     }
+    final double fade = k < 0 ? 0.9 : 0.45;
+    return StagedRing(
+      'rfc-$k',
+      RingKind.rfc,
+      g.centre(_laggingTip(k) + 16, leading: false) +
+          _approach(k) +
+          Offset(20 * leaving, -14 - 10 * leaving),
+      rotation: math.pi,
+      open: 1.2,
+      opacity:
+          _eased(_s, arrive, arrive + fade) *
+          (1 - _eased(_s, left - fade, left)),
+    );
+  }
+
+  /// How near RFC is to fragment [k]'s primer end, 0 to 1: from a moment
+  /// before it slides in until a moment after it has gone.
+  double _loaderNear(int k) {
+    final (double arrive, _, _, _, _, double left) = _loading(k);
+    return _eased(_s, arrive - 0.6, arrive) * (1 - _eased(_s, left, left + 0.6));
+  }
+
+  /// How far RFC still has to bring fragment [k]'s clamp in.
+  Offset _approach(int k) {
+    final (double arrive, double arrived, _, _, _, _) = _loading(k);
+    final double arriving = _eased(_s, arrive, arrived);
+    return Offset(26 * (1 - arriving), -12 * (1 - arriving));
   }
 
   Offset get _topoCentre => Offset(180, g.yOf(_f.topoIndex));
@@ -904,7 +971,11 @@ class ReplicationStaging {
       _overviewWords(overview * tour);
     }
     // Before the tour a zoom near 1 is only the bubble passing through it.
-    final double closeUp = 1 - overview * tour;
+    // Close-up words wait until the whole fork's have mostly gone, so the
+    // two sets never lie over each other at half strength.
+    final double closeUp = ReplicationGeometry.ease(
+      (0.5 - overview * tour) / 0.5,
+    );
     if (closeUp > 0) {
       final ReplicationChapter chapter = moment.chapter;
       _closeUpWords(chapter, closeUp * _chapter(chapter));
@@ -947,14 +1018,87 @@ class ReplicationStaging {
     Offset at,
     Offset target,
     SceneInk ink,
-    double opacity,
-  ) {
+    double opacity, {
+    String? note,
+    SceneInk? names,
+  }) {
     if (!showLabels || opacity <= 0) {
       return;
     }
     labels.add(
-      StagedLabel(key, text, at, ink, target: target, opacity: opacity),
+      StagedLabel(
+        key,
+        text,
+        at,
+        ink,
+        target: target,
+        note: note,
+        names: names,
+        opacity: opacity,
+      ),
     );
+  }
+
+  // --- Where a label's line lands: on the thing itself, wherever it is. ---
+
+  /// A point on [enzyme]'s body, [into] from its middle: it rides with the
+  /// enzyme as it slides in and out.
+  static Offset _body(_Enzyme enzyme, Offset into) => enzyme.centre + into;
+
+  /// The front of the CMG's N-terminal tier, on top of the ring: never lit
+  /// by the ATP wave, which runs round the C-terminal tier below it.
+  Offset get _cmgFace => _cmg.centre + const Offset(0, -2.6);
+
+  /// GINS and Cdc45, on the CMG's side.
+  Offset get _gins => _cmg.centre + const Offset(-40, -12);
+  Offset get _cdc45 => _cmg.centre + const Offset(-39, 16);
+
+  /// The front of a ring's top face, [angle] round from its right, turned
+  /// with the ring about the DNA's axis.
+  static Offset _ringFace(
+    StagedRing ring, {
+    required double radius,
+    required double height,
+    double tilt = 0.42,
+    double angle = math.pi / 2,
+  }) {
+    final Offset local = Offset(
+      math.cos(angle) * radius,
+      math.sin(angle) * radius * tilt - height / 2,
+    );
+    final double c = math.cos(ring.axis);
+    final double s = math.sin(ring.axis);
+    return ring.centre +
+        Offset(local.dx * c - local.dy * s, local.dx * s + local.dy * c);
+  }
+
+  /// The drawn base of fragment [k]'s RNA primer nearest its 5′ end.
+  double _primerBase(int k) => ReplicationFrame.fivePrimeOf(k) - 4.5;
+
+  /// On that base, beside the primer's backbone.
+  Offset _primerSpot(int k) {
+    final double index = _primerBase(k);
+    final Offset backbone = g.daughter(index, leading: false);
+    return Offset.lerp(
+      backbone,
+      g.template(index, leading: false),
+      0.2,
+    )!;
+  }
+
+  /// How far fragment [k]'s primer has come out of primase, 0 to 1. Primase
+  /// makes it inside itself; Pol α's DNA then carries it out, and its 5′
+  /// base is in sight once about 13 nucleotides are made.
+  double _primerOut(int k) => ReplicationGeometry.ease(
+    (ReplicationFrame.fivePrimeOf(k) - _f.tipOf(k) - 13) / 2,
+  );
+
+  /// Fragment [k]'s DNA, halfway between its clamp and its RNA primer.
+  Offset _fragmentSpot(int k) {
+    final double top =
+        ReplicationFrame.fivePrimeOf(k) - GenomeReplication.rnaBases - 2;
+    final double bottom = math.min(_f.tipOf(k) + 24, top);
+    return g.daughter((bottom + top) / 2, leading: false);
   }
 
   void _arrow(String key, Offset from, Offset to, SceneInk ink, double opacity) {
@@ -1002,8 +1146,10 @@ class ReplicationStaging {
         size: 10);
     _text('parental', 'Parental DNA', const Offset(180, 4), SceneInk.ink, o,
         size: 13);
-    _text('parental-5', '5′', const Offset(154, 25), SceneInk.quiet, o, size: 10);
-    _text('parental-3', '3′', const Offset(205, 25), SceneInk.quiet, o, size: 10);
+    // The parental strands' ends, either side of their name: topoisomerase
+    // II covers the ends themselves.
+    _text('parental-5', '5′', const Offset(126, 7), SceneInk.quiet, o, size: 10);
+    _text('parental-3', '3′', const Offset(234, 7), SceneInk.quiet, o, size: 10);
 
     // Physical direction of travel, beside the working tips.
     final Offset lead = g.leadingEnzyme;
@@ -1025,11 +1171,13 @@ class ReplicationStaging {
       o * delta.working,
     );
 
+    // Every enzyme is named by a line to its own body, so a name is never
+    // read as the next protein's.
     _callout(
       'overview-topoisomerase',
       'Topoisomerase II',
-      p(Offset(16, forkY - 133)),
-      p(_topoCentre + const Offset(-30, -1)),
+      p(Offset(230, forkY - 140)),
+      p(_topoCentre + const Offset(24, -15)),
       SceneInk.topoisomerase,
       o,
     );
@@ -1037,23 +1185,32 @@ class ReplicationStaging {
       'overview-helicase',
       'CMG helicase',
       p(Offset(230, forkY - 48)),
-      p(Offset(193, forkY - 11)),
+      p(_cmgFace),
       SceneInk.helicase,
       o,
     );
-    _text(
+    final _Enzyme epsilon = _epsilon;
+    _callout(
       'overview-pol-epsilon',
       'Pol ε',
-      p(lead + const Offset(-9, -54)),
+      p(lead + const Offset(-86, -72)),
+      p(_body(epsilon, const Offset(-22, 6))),
       SceneInk.ink,
-      o,
-      size: 13,
+      o * epsilon.opacity,
+      names: SceneInk.polymerase,
     );
     _callout(
       'overview-pcna',
       'PCNA',
       p(lead + const Offset(-80, 29)),
-      p(g.centre(_f.leadingTip - 16, leading: true) + const Offset(-14, 0)),
+      p(
+        _ringFace(
+          _pcna('pcna-leading', _f.leadingTip - 16, leading: true),
+          radius: 20,
+          height: 10,
+          angle: math.pi * 0.8,
+        ),
+      ),
       SceneInk.clamp,
       o,
     );
@@ -1062,24 +1219,25 @@ class ReplicationStaging {
       'overview-primase',
       'Primase · Pol α',
       p(Offset(156, primase.site.dy + 44)),
-      p(primase.site + const Offset(-20, 18)),
-      SceneInk.rna,
+      p(_body(primase, const Offset(17, 16))),
+      SceneInk.primase,
       o * primase.opacity,
     );
-    _text(
+    _callout(
       'overview-pol-delta',
       'Pol δ',
-      p(Offset(lag.dx - 60, math.min(510, lag.dy - 22))),
+      p(Offset(lag.dx - 75, math.min(510, lag.dy - 22))),
+      p(_body(delta, const Offset(-22, 6))),
       SceneInk.ink,
       o * delta.opacity,
-      size: 13,
+      names: SceneInk.polymerase,
     );
     final Offset rpa = g.template(41, leading: false);
     _callout(
       'overview-rpa',
       'RPA',
       p(Offset(208, rpa.dy - 21)),
-      p(rpa),
+      p(rpa + const Offset(5, 0)),
       SceneInk.rpa,
       o * (1 - _eased(_s, 7.2, 8)),
     );
@@ -1092,20 +1250,22 @@ class ReplicationStaging {
       SceneInk.rna,
       o * _eased(_s, 19.2, 20) * (1 - _eased(_s, 87.2, 88)),
     );
-    _text(
+    _callout(
       'overview-fen1',
       'FEN1',
-      p(g.laggingEnzyme + const Offset(-48, 49)),
+      p(g.laggingEnzyme + const Offset(-62, 49)),
+      p(_fen1Centre),
       SceneInk.nuclease,
       o * _fen1,
     );
+    final _Enzyme ligase = _ligase;
     _callout(
       'overview-ligase',
       'DNA ligase I',
       p(Offset(144, g.nick.dy - 36)),
-      p(g.centre(89.5, leading: false) - const Offset(25, 13)),
+      p(_body(ligase, const Offset(-20, 6))),
       SceneInk.ligase,
-      o * _ligase.opacity,
+      o * ligase.opacity,
     );
     final double joined = o * _eased(_s, 111.5, 112.5);
     _text(
@@ -1151,8 +1311,10 @@ class ReplicationStaging {
       final Offset fork = camera.project(
         Offset(180, g.yOf(upper ? _f.fork : _f.lowerFork)),
       );
+      // Each fork's arrow is on the side its CMG leaves clear: the lower
+      // fork is the upper one turned, so its arrow is on the left.
       final double sign = upper ? -1 : 1;
-      final Offset p = fork + Offset(46, 6 * sign);
+      final Offset p = fork + Offset(46 * -sign, 6 * sign);
       final double shown = alpha * _inside(p, 40);
       _arrow(
         '$c:fork-${upper ? 'up' : 'down'}',
@@ -1164,11 +1326,11 @@ class ReplicationStaging {
       _text(
         '$c:fork-${upper ? 'up' : 'down'}-text',
         'Fork',
-        p + Offset(16, upper ? -8 : 10),
+        p + Offset(upper ? 16 : -30, upper ? -8 : 10),
         SceneInk.ink,
         shown,
         size: 11,
-        centred: false,
+        centred: !upper,
       );
     }
   }
@@ -1189,12 +1351,27 @@ class ReplicationStaging {
   static double _alone(double opacity) =>
       ReplicationGeometry.ease(opacity * 2 - 1);
 
+  // What a machine is, said the same way in every chapter that names it.
+  static const String _cmgIs = 'unwinds the DNA';
+  static const String _pcnaIs = 'sliding clamp';
+  static const String _deltaIs = 'lagging-strand polymerase';
+  static const String _primaseIs = 'makes the RNA–DNA primer';
+  static const String _primerIs = '${GenomeReplication.rnaBases} nt';
+
   void _closeUpWords(ReplicationChapter chapter, double alpha) {
     if (alpha <= 0) {
       return;
     }
     final String c = chapter.name;
-    void label(String text, Offset at, Offset target, SceneInk ink, [double o = 1]) {
+    void label(
+      String text,
+      Offset at,
+      Offset target,
+      SceneInk ink, [
+      double o = 1,
+      String? note,
+      SceneInk? names,
+    ]) {
       final Offset projected = camera.project(target);
       _callout(
         '$c:$text',
@@ -1203,18 +1380,21 @@ class ReplicationStaging {
         projected,
         ink,
         alpha * o * _inside(projected),
+        note: note,
+        names: names,
       );
     }
 
-    // [across] puts the arrow beside the working enzyme, on whichever side
-    // the template leaves clear.
+    // [across] and [down] put the arrow beside the working enzyme, where the
+    // template and the other proteins leave room.
     void direction(
       Offset site, {
       required bool leading,
       double o = 1,
       double across = 112,
+      double down = 0,
     }) {
-      final Offset p = camera.project(site) + Offset(across, 0);
+      final Offset p = camera.project(site) + Offset(across, down);
       final double edge = ReplicationGeometry.ease(
         math.min(
               math.min(p.dx - 20, 320 - p.dx),
@@ -1241,44 +1421,72 @@ class ReplicationStaging {
 
     const Offset below = Offset(24, 450);
     const Offset above = Offset(24, 112);
-    Offset rung(double index) =>
-        (g.template(index, leading: true) +
-            g.template(index, leading: false)) /
-        2;
+    // A base pair, pointed at on one of its bases, so the dot never covers
+    // the bonds between them.
+    Offset pair(double index) {
+      final Offset base = g.template(index, leading: false);
+      final Offset middle =
+          (g.template(index, leading: true) + base) / 2;
+      return Offset.lerp(middle, base, 0.6)!;
+    }
     switch (chapter) {
       case ReplicationChapter.origin:
         final double shown = _f.originShown;
         label(
           'A/T-rich origin',
           below,
-          Offset(180 - 24, g.yOf(_origin - 6)),
+          g.template(_origin + 6, leading: true),
           SceneInk.quiet,
           shown,
+          '${GenomeReplication.unwindingHalf * 2 + 1}-bp unwinding element',
+          SceneInk.parental,
         );
         label(
           'A·T pair: 2 H-bonds',
           const Offset(220, 356),
-          rung(_origin + 5),
+          pair(_origin + 5),
           SceneInk.quiet,
           shown,
+          null,
+          SceneInk.parental,
         );
         label(
           'G·C pair: 3 H-bonds',
           const Offset(220, 150),
-          rung(_origin + 20),
+          pair(_origin + 20),
           SceneInk.quiet,
           shown,
+          null,
+          SceneInk.parental,
         );
       case ReplicationChapter.licensing:
-        final Offset orc = Offset(180, g.yOf(_origin + 34));
+        // ORC and Cdc6 are named where they are, as they slide in.
+        final Offset orc = Offset(
+          180 + 40 * (1 - _f.orc),
+          g.yOf(_origin + 34),
+        );
+        final Offset cdc6 = Offset(
+          180 + 30 * (1 - _f.cdc6),
+          g.yOf(_origin + 34),
+        );
         final Offset cmg = _cmg.centre;
-        label('ORC', const Offset(246, 112), orc + const Offset(22, -3), SceneInk.orc, _f.orc);
+        label(
+          'ORC',
+          const Offset(222, 100),
+          orc + const Offset(22, -3),
+          SceneInk.orc,
+          _f.orc,
+          'origin recognition complex',
+        );
+        // Right of ORC's line, and named once the MCM ring sliding in past
+        // it has arrived.
         label(
           'Cdc6',
-          const Offset(246, 156),
-          orc + const Offset(18, 8),
-          SceneInk.orc,
-          _f.cdc6,
+          const Offset(264, 196),
+          cdc6 + const Offset(18, 8),
+          SceneInk.cdc6,
+          _f.cdc6 * ReplicationGeometry.ease((_f.mcmArrive - 0.6) / 0.4),
+          'MCM loader',
         );
         label(
           'Cdt1',
@@ -1286,6 +1494,7 @@ class ReplicationStaging {
           cmg + const Offset(34, 10),
           SceneInk.cdt1,
           _f.cdt1,
+          'MCM chaperone',
         );
         // The longest name: it starts further left to clear the duplex.
         label(
@@ -1294,22 +1503,34 @@ class ReplicationStaging {
           cmg + const Offset(-18, 0),
           SceneInk.helicase,
           _f.mcmDocked,
+          'inactive helicase',
         );
       case ReplicationChapter.firing:
-        final Offset cmg = _cmg.centre;
+        // GINS sits above Cdc45: each is named from its own side, so neither
+        // line crosses the other protein.
         label(
-          'Cdc45 · GINS',
+          'GINS',
           above,
-          cmg + const Offset(-40, 2),
+          _gins,
           SceneInk.helicase,
           _f.cmgPartners,
+          'the G in CMG',
+        );
+        label(
+          'Cdc45',
+          below,
+          _cdc45,
+          SceneInk.helicase,
+          _f.cmgPartners,
+          'the C in CMG',
         );
         label(
           'CMG helicase',
-          below,
-          cmg + const Offset(18, 4),
+          const Offset(226, 452),
+          _cmgFace,
           SceneInk.helicase,
           _f.cmgPartners,
+          _cmgIs,
         );
       case ReplicationChapter.bubble:
       case ReplicationChapter.result:
@@ -1320,8 +1541,10 @@ class ReplicationStaging {
         label(
           'CMG helicase',
           const Offset(220, 452),
-          Offset(191, g.forkY + 30),
+          _cmgFace,
           SceneInk.helicase,
+          1,
+          _cmgIs,
         );
         // Below topoisomerase II, which waits at the top of this view.
         label(
@@ -1329,19 +1552,27 @@ class ReplicationStaging {
           const Offset(238, 124),
           g.template(_f.fork + 30, leading: false),
           SceneInk.quiet,
+          1,
+          null,
+          SceneInk.parental,
         );
       case ReplicationChapter.binding:
         label(
-          'RPA · human SSB',
+          'RPA',
           below,
           g.template(67, leading: false) + const Offset(5, 8),
           SceneInk.rpa,
+          1,
+          'ssDNA-binding protein',
         );
         label(
           'Exposed template',
           above,
           g.template(85, leading: false),
           SceneInk.quiet,
+          1,
+          null,
+          SceneInk.parental,
         );
       case ReplicationChapter.topoisomerase:
         // The enzyme is above the overwound stretch it relieves, so each
@@ -1351,135 +1582,248 @@ class ReplicationStaging {
           above,
           _topoCentre + const Offset(-24, -14),
           SceneInk.topoisomerase,
+          1,
+          'relaxes overwound DNA',
         );
         label(
           'Overwound DNA',
           below,
-          rung(_f.fork + 22),
+          g.template(_f.fork + 22, leading: false),
           SceneInk.quiet,
           _f.overwinding / 0.7,
+          'positive supercoils',
+          SceneInk.parental,
+        );
+        // The duplex passed through the cut, named along its way.
+        final double t = _f.transport;
+        final double x = t <= 1
+            ? -72 + 48 * t
+            : t <= 2
+            ? -24 + 48 * (t - 1)
+            : 24 + 48 * (t - 2);
+        // Named from the side it comes in from, until it leaves the C-gate.
+        label(
+          'T-segment',
+          const Offset(24, 386),
+          _topoCentre + Offset(x, -11),
+          SceneInk.quiet,
+          _f.transportShown * (1 - ReplicationGeometry.ease((t - 2) / 0.3)),
+          'duplex passed through',
+          SceneInk.parental,
         );
       case ReplicationChapter.primase:
       case ReplicationChapter.nextPrimer:
       case ReplicationChapter.polymerase:
         final int k = chapter == ReplicationChapter.nextPrimer ? 1 : 0;
-        final Offset site = g.centre(_f.tipOf(k), leading: false);
+        final _Enzyme primase = _primase(k);
         final _Enzyme delta = _delta(k);
+        // Low on its right lobe: near the fork the CMG covers its left one,
+        // and the template crosses the top of its right.
         label(
           'Primase · Pol α',
           below,
-          site + const Offset(-20, 16),
-          SceneInk.rna,
-          _alone(_primase(k).opacity),
+          _body(primase, const Offset(17, 16)),
+          SceneInk.primase,
+          _alone(primase.opacity),
+          _primaseIs,
         );
         label(
           'Pol δ',
           below,
-          site + const Offset(-20, 16),
+          _body(delta, const Offset(-22, 6)),
           SceneInk.ink,
           _alone(delta.opacity),
+          _deltaIs,
+          SceneInk.polymerase,
         );
+        // RFC covers the primer while it brings the clamp: the name gives way
+        // before it arrives and comes back once it has gone.
+        final StagedRing? loader = _loaderOf(k);
         label(
           'RNA primer',
           const Offset(218, 112),
-          g.daughter(k == 0 ? 95 : 195, leading: false),
+          _primerSpot(k),
           SceneInk.rna,
-          _primerShown(k),
+          _primerShown(k) * _primerOut(k) * (1 - _loaderNear(k)),
+          _primerIs,
         );
-        final Offset clamp = g.centre(_laggingTip(k) + 16, leading: false);
         final double start = ReplicationFrame.primedAt(k);
         // Named where they land, once they have: the rings slide in under
         // these words.
         final double landed = _eased(_s, start + 9.75, start + 10.2);
-        label(
-          'PCNA',
-          const Offset(255, 192),
-          clamp,
-          SceneInk.clamp,
-          delta.clamp * landed,
-        );
-        label(
-          'RFC',
-          const Offset(255, 150),
-          clamp + const Offset(0, -16),
-          SceneInk.rfc,
-          landed * (1 - _eased(_s, start + 11.2, start + 12)),
-        );
+        final StagedRing? clamp = _clampOf(k);
+        if (clamp != null) {
+          label(
+            'PCNA',
+            const Offset(255, 192),
+            _ringFace(clamp, radius: 20, height: 10),
+            SceneInk.clamp,
+            delta.clamp * landed,
+            _pcnaIs,
+          );
+        }
+        if (loader != null) {
+          label(
+            'RFC',
+            const Offset(255, 150),
+            _ringFace(loader, radius: 13, height: 8),
+            SceneInk.rfc,
+            landed * (1 - _eased(_s, start + 11.2, start + 12)),
+            'clamp loader',
+          );
+        }
         // Near the fork the template runs down to the right of the primer.
         // The direction shows once synthesis is under way.
-        direction(site, leading: false, o: _primerMade(k), across: -130);
+        // Near the fork the CMG is beside the second primer, and the
+        // template and RPA run down its other side: the arrow goes below.
+        direction(
+          g.centre(_f.tipOf(k), leading: false),
+          leading: false,
+          o: _primerMade(k),
+          across: k == 0 ? -130 : -100,
+          down: k == 0 ? 0 : 70,
+        );
       case ReplicationChapter.leading:
+        final _Enzyme epsilon = _epsilon;
         label(
           'Pol ε',
-          below,
-          g.leadingEnzyme + const Offset(-22, 14),
+          above,
+          _body(epsilon, const Offset(-22, 6)),
           SceneInk.ink,
+          1,
+          'leading-strand polymerase',
+          SceneInk.polymerase,
         );
         label(
           'PCNA',
           const Offset(236, 430),
-          g.centre(_f.leadingTip - 16, leading: true),
+          _ringFace(
+            _pcna('pcna-leading', _f.leadingTip - 16, leading: true),
+            radius: 20,
+            height: 10,
+          ),
           SceneInk.clamp,
+          1,
+          _pcnaIs,
         );
         direction(g.leadingEnzyme, leading: true);
       case ReplicationChapter.lagging:
       case ReplicationChapter.fragments:
         final int k = chapter == ReplicationChapter.lagging ? 0 : 1;
-        final Offset site = g.centre(_f.tipOf(k), leading: false);
         final _Enzyme delta = _delta(k);
         label(
           'Pol δ',
           below,
-          site + const Offset(-20, 14),
+          _body(delta, const Offset(-22, 6)),
           SceneInk.ink,
           delta.opacity,
+          _deltaIs,
+          SceneInk.polymerase,
         );
         // The second fragment starts nearer the fork, where the duplex
         // crosses the top left of the view.
         label(
           'Okazaki fragment',
           k == 0 ? above : const Offset(236, 112),
-          g.daughter(_f.tipOf(k) + 38, leading: false),
+          _fragmentSpot(k),
           SceneInk.newDna,
+          1 - _loaderNear(k),
+          '${GenomeReplication.fragmentBases} nt',
         );
-        direction(site, leading: false, o: delta.working);
+        final StagedRing? clamp = _clampOf(k);
+        if (clamp != null) {
+          label(
+            'PCNA',
+            const Offset(250, 200),
+            _ringFace(clamp, radius: 20, height: 10),
+            SceneInk.clamp,
+            delta.clamp,
+            _pcnaIs,
+          );
+        }
+        if (k == 0) {
+          label(
+            'RNA primer',
+            const Offset(236, 112),
+            _primerSpot(0),
+            SceneInk.rna,
+            _primerShown(0) * _primerOut(0),
+            _primerIs,
+          );
+        }
+        direction(
+          g.centre(_f.tipOf(k), leading: false),
+          leading: false,
+          o: delta.working,
+        );
       case ReplicationChapter.replacement:
+        final _Enzyme delta = _delta(1);
         label(
           'Pol δ',
           above,
-          g.laggingEnzyme + const Offset(-20, -12),
+          _body(delta, const Offset(-22, 6)),
           SceneInk.ink,
+          1,
+          _deltaIs,
+          SceneInk.polymerase,
         );
-        label('FEN1', below, _fen1Centre, SceneInk.nuclease, _fen1);
-        final Offset front = g.daughter(
-          99.5 - _f.replacedBases,
-          leading: false,
+        label(
+          'FEN1',
+          below,
+          _fen1Centre,
+          SceneInk.nuclease,
+          _fen1,
+          'flap endonuclease',
         );
+        final StagedRing? clamp = _clampOf(1);
+        if (clamp != null) {
+          label(
+            'PCNA',
+            const Offset(292, 112),
+            _ringFace(clamp, radius: 20, height: 10),
+            SceneInk.clamp,
+            delta.clamp,
+            _pcnaIs,
+          );
+        }
+        final double front = 99.5 - _f.replacedBases;
         // One name gives way to the next in the same place: the first fades
         // out before the second fades in.
         label(
           'RNA flap',
           const Offset(254, 430),
-          front,
+          g.daughter(front - 1.5, leading: false),
           SceneInk.rna,
           1 - _eased(_s, 99.4, 99.9),
         );
         label(
           'RNA replaced',
           const Offset(254, 430),
-          front,
+          g.daughter(front, leading: false),
           SceneInk.rna,
           _eased(_s, 99.9, 100.4),
+          null,
+          SceneInk.newDna,
         );
       case ReplicationChapter.ligase:
+        final _Enzyme ligase = _ligase;
         label(
           'DNA ligase I',
           below,
-          g.centre(89.5, leading: false) + const Offset(-20, 12),
+          _body(ligase, const Offset(-20, 6)),
           SceneInk.ligase,
-          _ligase.opacity,
+          ligase.opacity,
+          'seals the nick',
         );
-        label('Nick', above, g.nick, SceneInk.quiet, 1 - _eased(_s, 109.5, 110));
+        label(
+          'Nick',
+          above,
+          g.nick,
+          SceneInk.quiet,
+          (1 - _eased(_s, 109.5, 110)) * (1 - (_clampOf(1)?.opacity ?? 0)),
+          'unsealed backbone',
+          SceneInk.newDna,
+        );
         label(
           'Joined backbone',
           above,

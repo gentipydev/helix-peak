@@ -22,6 +22,7 @@ enum SceneInk {
   topoisomerase,
   activeSite,
   orc,
+  cdc6,
   cdt1,
 }
 
@@ -33,6 +34,11 @@ enum SceneInk {
 /// simulation (Machado 2009), and a strand's bases wear its colour, so which
 /// strand is old, new or RNA reads at a glance. Proteins are muted, one hue
 /// family each, so they frame the strands rather than compete with them.
+///
+/// The DNA and the ring proteins are drawn flat: a ring is one colour, its
+/// walls and square ends one darker step of it ([sideOf]), its seams and
+/// edges a further step ([edgeOf]). The other proteins are lit, folded
+/// envelopes.
 @immutable
 class ReplicationInks {
   const ReplicationInks({
@@ -53,6 +59,7 @@ class ReplicationInks {
     required this.topoisomerase,
     required this.activeSite,
     required this.orc,
+    required this.cdc6,
     required this.cdt1,
   });
 
@@ -63,6 +70,7 @@ class ReplicationInks {
     Color mix(Color a, Color b, double t) => Color.lerp(a, b, t)!;
     final Color ground = scheme.surface;
     final Color grey = bases.unknown;
+    final Color orc = mix(anatomy.dibasic, grey, 0.45);
     return ReplicationInks(
       ground: ground,
       ink: scheme.onSurface,
@@ -90,7 +98,8 @@ class ReplicationInks {
       ligase: mix(anatomy.roleMature2, scheme.onSurfaceVariant, 0.35),
       topoisomerase: mix(anatomy.roleUtr3, scheme.onSurfaceVariant, 0.35),
       activeSite: mix(anatomy.roleStopCodon, scheme.onSurface, 0.15),
-      orc: mix(anatomy.dibasic, grey, 0.45),
+      orc: orc,
+      cdc6: mix(orc, Colors.white, 0.22),
       cdt1: mix(anatomy.roleMature1, grey, 0.55),
     );
   }
@@ -115,9 +124,17 @@ class ReplicationInks {
   /// tyrosines do.
   final Color activeSite;
 
-  /// The origin recognition complex, and Cdc6 in a lighter tint of it.
+  /// The origin recognition complex, and Cdc6, its partner, a lighter tint
+  /// of it.
   final Color orc;
+  final Color cdc6;
   final Color cdt1;
+
+  /// A flat ring's walls and square ends: one darker step of its colour.
+  static Color sideOf(Color color) => Color.lerp(color, Colors.black, 0.3)!;
+
+  /// A flat ring's seams and edges.
+  static Color edgeOf(Color color) => Color.lerp(color, Colors.black, 0.6)!;
 
   Color operator [](SceneInk ink) => switch (ink) {
     SceneInk.ink => this.ink,
@@ -136,6 +153,7 @@ class ReplicationInks {
     SceneInk.topoisomerase => topoisomerase,
     SceneInk.activeSite => activeSite,
     SceneInk.orc => orc,
+    SceneInk.cdc6 => cdc6,
     SceneInk.cdt1 => cdt1,
   };
 
@@ -157,6 +175,7 @@ class ReplicationInks {
     topoisomerase,
     activeSite,
     orc,
+    cdc6,
     cdt1,
   ];
 

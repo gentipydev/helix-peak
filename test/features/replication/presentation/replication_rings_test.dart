@@ -43,7 +43,6 @@ void main() {
     height: 12,
     tilt: 0.4,
     round: 10,
-    shine: 0.04,
     angles: ringAngles(count: 6, open: open),
     extents: ringExtents(count: 6, seam: 0.018, open: open),
     colors: tints(const Color(0xFF6E8796), 6),

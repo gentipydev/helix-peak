@@ -403,8 +403,9 @@ class _ScienceSheet extends StatelessWidget {
               'Reading the animation',
               'Grey is parental DNA, teal new DNA and amber RNA; each strand’s '
                   'bases wear its colour, so which strand is old or new reads at '
-                  'a glance. At the origin, the lines between paired bases count '
-                  'their hydrogen bonds. The scene samples bases and enlarges and '
+                  'a glance. The short lines between paired bases are their '
+                  'hydrogen bonds, drawn larger at the origin, where they are '
+                  'counted. The scene samples bases and enlarges and '
                   'separates the proteins to expose their work. Shapes, spacing '
                   'and motion are illustrative. The camera visits processes that '
                   'occur together. Playback takes 3 min 32 s at 1×; this is a '

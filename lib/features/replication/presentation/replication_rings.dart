@@ -1,7 +1,8 @@
 import 'dart:math' as math;
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+
+import 'replication_inks.dart';
 
 /// One subunit's share of a ring between two angles, whether either end is
 /// only where the ring's near and far halves meet rather than the subunit's
@@ -25,9 +26,13 @@ typedef _Part = ({
 /// so the DNA threads the hole. PCNA as its 1AXC trimer shows it; MCM2–7 as
 /// the helicase's motor; RFC open; ORC with Cdc6.
 ///
+/// It is drawn flat: a subunit's top face is its colour, its walls and ends
+/// one darker step ([ReplicationInks.sideOf]), and its edges and the core in
+/// its seams a further step ([ReplicationInks.edgeOf]).
+///
 /// Everything drawn is a continuous function of the ring's angles: a subunit
-/// passing from the back half to the front keeps its light, its edges and
-/// its details, so a turning ring cannot flicker.
+/// passing from the back half to the front keeps its colours and its edges,
+/// so a turning ring cannot flicker.
 @immutable
 class ProteinRing {
   const ProteinRing({
@@ -40,7 +45,6 @@ class ProteinRing {
     required this.colors,
     this.tilt = 0.42,
     this.round = 4,
-    this.shine = 0.22,
     this.glow = const <double>[],
     this.opacity = 1,
   });
@@ -72,10 +76,7 @@ class ProteinRing {
   /// high is blockier. The ends themselves are always cut square.
   final double round;
 
-  /// How much light the top face catches.
-  final double shine;
-
-  /// A warm light on each subunit, 0 to 1: an ATPase site firing.
+  /// How warm each subunit is, 0 to 1: an ATPase site firing.
   final List<double> glow;
   final double opacity;
 
@@ -94,12 +95,6 @@ class ProteinRing {
   /// Where a subunit is split between the halves, its far part's face runs
   /// this far under the near part, radians, so no seam shows between them.
   static const double _overlap = 0.01;
-
-  // The light, from the upper left in front: x to the right, y up and z
-  // towards the viewer.
-  static const double _lx = -0.52;
-  static const double _ly = 0.55;
-  static const double _lz = 0.65;
 
   Offset _on(Offset level, double r, double angle) =>
       level + Offset(math.cos(angle) * r, math.sin(angle) * r * tilt);
@@ -220,50 +215,6 @@ class ProteinRing {
     return parts;
   }
 
-  /// Lambert light on a surface whose normal is (nx, ny, nz), 0 to 1.
-  static double _lit(double nx, double ny, double nz) =>
-      math.max(0.0, nx * _lx + ny * _ly + nz * _lz);
-
-  /// A wall lit as a cylinder seen from the front: brightest on the left of
-  /// its front, dark at its right edge. [outward] is false for the inner
-  /// wall, which faces the axis.
-  ui.Gradient _cylinder(Color color, double r, {required bool outward}) {
-    const List<double> across = <double>[
-      -1,
-      -0.85,
-      -0.6,
-      -0.3,
-      0,
-      0.3,
-      0.6,
-      0.85,
-      1,
-    ];
-    final Color dark = Color.lerp(color, Colors.black, outward ? 0.6 : 0.78)!;
-    final Color light = outward
-        ? Color.lerp(color, Colors.white, 0.08)!
-        : Color.lerp(color, Colors.black, 0.4)!;
-    return ui.Gradient.linear(
-      centre - Offset(r, 0),
-      centre + Offset(r, 0),
-      <Color>[
-        for (final double c in across)
-          Color.lerp(
-            dark,
-            light,
-            0.28 +
-                0.72 *
-                    _lit(
-                      outward ? c : -c,
-                      0,
-                      math.sqrt(math.max(0.0, 1 - c * c)),
-                    ),
-          )!,
-      ],
-      <double>[for (final double c in across) (c + 1) / 2],
-    );
-  }
-
   void draw(Canvas canvas, {required bool near}) {
     if (opacity <= 0) {
       return;
@@ -320,9 +271,10 @@ class ProteinRing {
     }
   }
 
-  /// The core under the subunits: a lower, thinner band of the darkest tint.
-  /// It is whole round a closed ring and stops inside the end subunits at an
-  /// open interface, easing between the two as the interface opens.
+  /// The core under the subunits: a lower, thinner band in the edge tone,
+  /// seen only in the seams. It is whole round a closed ring and stops
+  /// inside the end subunits at an open interface, easing between the two as
+  /// the interface opens.
   void _drawCore(
     Canvas canvas,
     Offset top,
@@ -342,11 +294,10 @@ class ProteinRing {
     if (to <= from) {
       return;
     }
-    final Color base = Color.lerp(_mean, Colors.black, 0.5)!;
     final Offset coreTop = top + Offset(0, height * 0.1);
     final Offset coreBottom = bottom - Offset(0, height * 0.04);
     final double half = thickness * _core;
-    final Paint fill = Paint();
+    final Paint fill = Paint()..color = ReplicationInks.edgeOf(_mean);
     for (final ({double a, double b, bool cutA, bool cutB}) part
         in _split(from, to, near)) {
       final List<double> steps = _steps(0, part.a, part.b);
@@ -356,7 +307,7 @@ class ProteinRing {
           (double t) => _on(coreTop, radius + (near ? half : -half), t),
           (double t) => _on(coreBottom, radius + (near ? half : -half), t),
         ),
-        fill..color = Color.lerp(base, Colors.black, near ? 0.2 : 0.45)!,
+        fill,
       );
       canvas.drawPath(
         _band(
@@ -364,7 +315,7 @@ class ProteinRing {
           (double t) => _on(coreTop, radius + half, t),
           (double t) => _on(coreTop, radius - half, t),
         ),
-        fill..color = base,
+        fill,
       );
     }
   }
@@ -399,8 +350,15 @@ class ProteinRing {
     required bool near,
   }) {
     final int j = part.j;
-    final Color color = colors[j];
+    // An ATPase site at work warms its whole subunit, face and sides alike.
     final double warmth = j < glow.length ? glow[j] : 0;
+    final Color color = Color.lerp(colors[j], _warm, 0.4 * warmth)!;
+    final Color side = Color.lerp(
+      ReplicationInks.sideOf(colors[j]),
+      _warm,
+      0.32 * warmth,
+    )!;
+    final Color edge = ReplicationInks.edgeOf(colors[j]);
     final List<double> steps = _across(j, part.a, part.b, part.cutA, part.cutB);
     double outerAt(double t) => radius + _half(j, t);
     double innerAt(double t) => radius - _half(j, t);
@@ -410,132 +368,72 @@ class ProteinRing {
     final Paint line = Paint()
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.butt
-      ..strokeJoin = StrokeJoin.round;
+      ..strokeJoin = StrokeJoin.round
+      ..color = edge;
 
     if (near) {
-      // The outer wall, lit as a cylinder, darkening towards its base.
-      final Path wall = _band(
-        steps,
-        (double t) => _on(top, outerAt(t), t),
-        (double t) => _on(bottom, outerAt(t), t),
-      );
+      // The outer wall, and its foot.
       canvas.drawPath(
-        wall,
-        fill
-          ..color = Colors.black
-          ..shader = _cylinder(color, radius + thickness, outward: true),
+        _band(
+          steps,
+          (double t) => _on(top, outerAt(t), t),
+          (double t) => _on(bottom, outerAt(t), t),
+        ),
+        fill..color = side,
       );
-      fill.shader = null;
-      for (final double from in const <double>[0.5, 0.74]) {
-        canvas.drawPath(
-          _band(
-            steps,
-            (double t) => _on(top + Offset(0, height * from), outerAt(t), t),
-            (double t) => _on(bottom, outerAt(t), t),
-          ),
-          fill..color = Colors.black.withValues(alpha: 0.1),
-        );
-      }
-      if (warmth > 0) {
-        canvas.drawPath(
-          wall,
-          fill..color = _warm.withValues(alpha: 0.32 * warmth),
-        );
-      }
       canvas.drawPath(
         _curve(steps, (double t) => _on(bottom, outerAt(t), t)),
-        line
-          ..strokeWidth = 0.8
-          ..color = Color.lerp(color, Colors.black, 0.75)!.withValues(
-            alpha: 0.6,
-          ),
+        line..strokeWidth = 0.8,
       );
     } else {
-      // The inner wall, facing the viewer through the hole: the interior.
+      // The inner wall, facing the viewer through the hole.
       canvas.drawPath(
         _band(
           steps,
           (double t) => _on(top, innerAt(t), t),
           (double t) => _on(bottom, innerAt(t), t),
         ),
-        fill
-          ..color = Colors.black
-          ..shader = _cylinder(color, radius - thickness, outward: false),
+        fill..color = side,
       );
-      fill.shader = null;
-      // The helices lining the hole, two to a subunit, as short coils. Each
-      // shows as its own place on the wall turns to face the hole.
-      for (final double u in const <double>[-0.42, 0.42]) {
-        final double angle =
-            angles[j] + u * (u < 0 ? extents[j].$1 : extents[j].$2);
-        if (angle < part.a || angle > part.b) {
-          continue;
-        }
-        final double facing = _ease((-math.sin(angle) - 0.05) / 0.3);
-        if (facing <= 0) {
-          continue;
-        }
-        final Offset c = _on(centre, innerAt(angle), angle);
-        line
-          ..strokeWidth = 0.9
-          ..color = Colors.black.withValues(alpha: 0.4 * facing);
-        for (int turn = -1; turn <= 1; turn++) {
-          canvas.drawArc(
-            Rect.fromCenter(
-              center: c + Offset(0, turn * height * 0.26),
-              width: 3.2,
-              height: 2.2,
-            ),
-            0,
-            math.pi,
-            false,
-            line,
-          );
-        }
-      }
     }
 
-    // The square-cut ends that face the viewer, lit by which way they face.
+    // The square-cut ends that face the viewer, in the walls' tone, with the
+    // corner where each meets its outer wall. A corner fades in as its end
+    // turns to face the viewer, and both halves draw it alike, so it never
+    // appears at once, even as an end passes from one half to the other.
     for (final (bool cut, double angle, double sign) in <(bool, double, double)>[
       (part.cutA, part.a, -1),
       (part.cutB, part.b, 1),
     ]) {
       // An end faces the viewer when its normal, ±(−sin, 0, cos), does.
-      final double nx = -sign * math.sin(angle);
-      final double nz = sign * math.cos(angle);
-      if (cut || nz <= 0) {
+      final double facing = sign * math.cos(angle);
+      if (cut || facing <= 0) {
         continue;
       }
       final Offset topIn = _on(top, innerAt(angle), angle);
       final Offset topOut = _on(top, outerAt(angle), angle);
       final Offset bottomOut = _on(bottom, outerAt(angle), angle);
       final Offset bottomIn = _on(bottom, innerAt(angle), angle);
-      final Path end = Path()
-        ..moveTo(topIn.dx, topIn.dy)
-        ..lineTo(topOut.dx, topOut.dy)
-        ..lineTo(bottomOut.dx, bottomOut.dy)
-        ..lineTo(bottomIn.dx, bottomIn.dy)
-        ..close();
       canvas.drawPath(
-        end,
-        fill
-          ..color = Color.lerp(
-            Color.lerp(color, Colors.black, 0.62)!,
-            Color.lerp(color, Colors.black, 0.06)!,
-            0.2 + 0.8 * _lit(nx, 0, nz),
-          )!,
+        Path()
+          ..moveTo(topIn.dx, topIn.dy)
+          ..lineTo(topOut.dx, topOut.dy)
+          ..lineTo(bottomOut.dx, bottomOut.dy)
+          ..lineTo(bottomIn.dx, bottomIn.dy)
+          ..close(),
+        fill..color = side,
       );
-      if (warmth > 0) {
-        canvas.drawPath(
-          end,
-          fill..color = _warm.withValues(alpha: 0.3 * warmth),
-        );
-      }
+      canvas.drawLine(
+        topOut,
+        bottomOut,
+        line
+          ..strokeWidth = 0.6
+          ..color = edge.withValues(alpha: _ease(facing / 0.2)),
+      );
+      line.color = edge;
     }
 
-    // The top face: the light from the upper left that the rings have
-    // always caught, and the back of the ring a little deeper in shade.
-    final double reach = (radius + thickness) * tilt;
+    // The top face.
     final Path face = _band(
       part.faceA == part.a && part.faceB == part.b
           ? steps
@@ -543,86 +441,16 @@ class ProteinRing {
       (double t) => _on(top, outerAt(t), t),
       (double t) => _on(top, innerAt(t), t),
     );
-    canvas.drawPath(
-      face,
-      fill
-        ..color = Colors.black
-        ..shader = ui.Gradient.radial(
-          top + Offset(-radius * 0.6, -radius * tilt * 0.8),
-          radius * 2.6,
-          <Color>[
-            Color.lerp(color, Colors.white, shine)!,
-            Color.lerp(color, Colors.black, 0.16)!,
-          ],
-        ),
-    );
-    fill.shader = ui.Gradient.linear(
-      top - Offset(0, reach),
-      top + Offset(0, reach * 0.2),
-      <Color>[
-        Colors.black.withValues(alpha: 0.24),
-        Colors.black.withValues(alpha: 0),
-      ],
-    );
-    canvas.drawPath(face, fill);
-    fill.shader = null;
-    // Folds on the surface: a few soft, lighter lumps, fixed to the subunit
-    // and cut at the seam between the halves rather than moved across it.
-    final double lump = thickness * 0.45 / radius;
-    for (final double u in const <double>[-0.45, 0.1, 0.55]) {
-      final double angle =
-          angles[j] + u * (u < 0 ? extents[j].$1 : extents[j].$2);
-      if (angle < part.a - lump || angle > part.b + lump) {
-        continue;
-      }
-      final bool whole = angle > part.a + lump && angle < part.b - lump;
-      if (!whole) {
-        canvas.save();
-        canvas.clipPath(face);
-      }
-      canvas.drawOval(
-        Rect.fromCenter(
-          center: _on(top, radius + thickness * 0.15 * u, angle),
-          width: thickness * 0.9,
-          height: thickness * 0.9 * math.max(tilt, 0.5),
-        ),
-        fill..color = Colors.white.withValues(alpha: 0.06),
-      );
-      if (!whole) {
-        canvas.restore();
-      }
-    }
-    if (warmth > 0) {
-      canvas.drawPath(face, fill..color = _warm.withValues(alpha: 0.4 * warmth));
-    }
+    canvas.drawPath(face, fill..color = color);
 
-    // Edges: only the subunit's own. The outer rim is a dark line where it
-    // is the ring's far silhouette and a soft light where the wall turns
-    // down towards the viewer, blended by height, so it never switches.
-    final Color edge = Color.lerp(color, Colors.black, 0.65)!;
+    // Edges: only the subunit's own, its rims and its square ends.
     canvas.drawPath(
       _curve(steps, (double t) => _on(top, outerAt(t), t)),
-      line
-        ..strokeWidth = 0.8
-        ..color = Colors.black
-        ..shader = ui.Gradient.linear(
-          top - Offset(0, reach),
-          top + Offset(0, reach),
-          <Color>[
-            edge.withValues(alpha: 0.6),
-            edge.withValues(alpha: 0.35),
-            Colors.white.withValues(alpha: 0.2),
-            Colors.white.withValues(alpha: 0.24),
-          ],
-          <double>[0, 0.45, 0.7, 1],
-        ),
+      line..strokeWidth = 0.8,
     );
-    line.shader = null;
     canvas.drawPath(
       _curve(steps, (double t) => _on(top, innerAt(t), t)),
-      line
-        ..strokeWidth = 0.7
-        ..color = edge.withValues(alpha: 0.5),
+      line..strokeWidth = 0.7,
     );
     for (final (bool cut, double angle) in <(bool, double)>[
       (part.cutA, part.a),
