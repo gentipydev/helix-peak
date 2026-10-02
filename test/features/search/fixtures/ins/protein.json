@@ -1,0 +1,146 @@
+{
+  "slug": "ins",
+  "display": "Insulin",
+  "gene": "INS",
+  "uniprot": "P01308",
+  "accession": "NG_007114.1",
+  "summary": "Made by INS on chromosome 11. Built on demand from UniProt P01308 and MANE Select NM_000207.3, not curated by hand.",
+  "facts": {
+    "residues": 110,
+    "exons": 3,
+    "chains": 2,
+    "bridges": 3
+  },
+  "catalog_order": null,
+  "chain": null,
+  "chains": [],
+  "structure": null,
+  "tracks": {
+    "record": "ready",
+    "constraint": "pending",
+    "impact": "absent",
+    "clinvar": "absent",
+    "structure": "absent",
+    "impact_explanations": "absent"
+  },
+  "mature_peptides": false,
+  "transcript_id": "NM_000207.3",
+  "protein_id": "NP_000198.1",
+  "regions": [
+    {
+      "label": "Signal peptide",
+      "short": "S",
+      "start": 1,
+      "end": 24,
+      "origin": 1,
+      "kept": false
+    },
+    {
+      "label": "Insulin B chain",
+      "short": "B",
+      "start": 25,
+      "end": 54,
+      "origin": 25,
+      "kept": true
+    },
+    {
+      "label": "B / C cleavage site",
+      "short": "",
+      "start": 55,
+      "end": 56,
+      "origin": 1,
+      "kept": false
+    },
+    {
+      "label": "C peptide",
+      "short": "C",
+      "start": 57,
+      "end": 87,
+      "origin": 1,
+      "kept": false
+    },
+    {
+      "label": "C / A cleavage site",
+      "short": "",
+      "start": 88,
+      "end": 89,
+      "origin": 1,
+      "kept": false
+    },
+    {
+      "label": "Insulin A chain",
+      "short": "A",
+      "start": 90,
+      "end": 110,
+      "origin": 90,
+      "kept": true
+    }
+  ],
+  "disulfides": [
+    [
+      31,
+      96
+    ],
+    [
+      43,
+      109
+    ],
+    [
+      95,
+      100
+    ]
+  ],
+  "provenance": {
+    "mane": {
+      "protein": "NP_000198.1",
+      "release": "v1.5",
+      "transcript": "NM_000207.3"
+    },
+    "prose": "templated",
+    "source": "pipeline/resolver",
+    "cleaved": true,
+    "uniprot": {
+      "release": "2026_03",
+      "accession": "P01308",
+      "retrieved": "2026-10-02",
+      "release_date": "2026-09-02"
+    },
+    "chain_label": "Insulin",
+    "regions_from": [
+      {
+        "end": 24,
+        "kept": false,
+        "label": "Signal peptide",
+        "short": "S",
+        "start": 1
+      },
+      {
+        "end": 54,
+        "kept": true,
+        "label": "Insulin B chain",
+        "short": "B",
+        "start": 25
+      },
+      {
+        "end": 87,
+        "kept": false,
+        "label": "C peptide",
+        "short": "C",
+        "start": 57
+      },
+      {
+        "end": 110,
+        "kept": true,
+        "label": "Insulin A chain",
+        "short": "A",
+        "start": 90
+      }
+    ],
+    "regions_rule": "processing",
+    "resolver_version": 1,
+    "skipped_features": [],
+    "uniprot_variants": [],
+    "disulfides_dropped": []
+  },
+  "resolver_version": 1
+}

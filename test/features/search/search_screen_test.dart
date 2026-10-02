@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:helixpeek/core/catalog/protein_resolver.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/network/api_exception.dart';
 import 'package:helixpeek/features/gene_lookup/data/repositories/protein_catalog_repository.dart';
@@ -10,6 +11,7 @@ import 'package:helixpeek/shared/format.dart';
 
 import '../../support/catalog_api.dart';
 import '../../support/test_catalog.dart';
+import 'support/resolver_api.dart';
 
 /// Tall enough that the lazy list builds the whole catalog at once.
 ///
@@ -26,10 +28,15 @@ Future<void> _pump(WidgetTester tester, {Size? size}) async {
   await tester.binding.setSurfaceSize(size ?? _tall);
   addTearDown(() => tester.binding.setSurfaceSize(null));
   await tester.pumpWidget(RepositoryProvider<ProteinCatalogRepository>.value(
-    value: catalog, child: const MaterialApp(home: SearchScreen()),
+    value: catalog, child: _withResolver(const MaterialApp(home: SearchScreen())),
   ));
   await tester.pumpAndSettle();
 }
+
+/// The search of every protein, answering that nothing matches.
+Widget _withResolver(Widget child) => RepositoryProvider<ProteinResolver>.value(
+  value: ProteinResolver(ResolverApi()), child: child,
+);
 
 void main() {
   testWidgets('an empty catalog shows loading then a retryable failure', (tester) async {
@@ -37,7 +44,7 @@ void main() {
     final catalog = ProteinCatalogRepository(api, null);
     addTearDown(catalog.dispose);
     await tester.pumpWidget(RepositoryProvider<ProteinCatalogRepository>.value(
-      value: catalog, child: const MaterialApp(home: SearchScreen()),
+      value: catalog, child: _withResolver(const MaterialApp(home: SearchScreen())),
     ));
     expect(find.text('LOADING PROTEINS'), findsOneWidget);
     expect(find.text('The service can take up to a minute to wake.'), findsOneWidget);

@@ -6,6 +6,7 @@ import '../../features/gene_lookup/data/repositories/gene_repository_impl.dart';
 import '../../features/gene_lookup/data/repositories/protein_catalog_repository.dart';
 import '../../features/gene_lookup/domain/repositories/gene_repository.dart';
 import '../../features/gene_lookup/domain/usecases/fetch_gene.dart';
+import '../catalog/protein_resolver.dart';
 import '../evidence/impact_explanation_repository.dart';
 import '../network/api_client.dart';
 import '../network/track_client.dart';
@@ -18,6 +19,10 @@ List<RepositoryProvider<Object>> buildAppProviders({
   return <RepositoryProvider<Object>>[
     RepositoryProvider<ApiClient>.value(value: api),
     RepositoryProvider<ProteinCatalogRepository>.value(value: catalog),
+    RepositoryProvider<ProteinResolver>(
+      create: (BuildContext context) =>
+          ProteinResolver(context.read<ApiClient>()),
+    ),
     RepositoryProvider<TrackSource>(
       create: (BuildContext context) => TrackClient(context.read<ApiClient>()),
     ),

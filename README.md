@@ -17,8 +17,15 @@ leptin, TNF-alpha, SOD1, amylase and prion protein. Each has five stored tracks:
 [docs/protein-verification.md](docs/protein-verification.md) is what the second
 ten were checked against before they were added.
 
-The search screen filters the cached list locally. Searching beyond that list
-is planned in the on-demand pipeline handoff.
+The search screen keeps the two apart. The curated list is filtered locally,
+as it always was; below it, once two letters are typed, comes every reviewed
+human protein, from the backend's `/proteins/suggest`. One built earlier opens
+at once. One that is not yet built can be built from its row: the backend
+resolves it on demand (Phase 6) from its UniProt entry and MANE transcript,
+stores its gene record and scores it with ESM-2, and it opens in the walk like
+the twenty, without their hand-checked prose, its regions read from UniProt's
+processing features, and without a ClinVar, AlphaGenome or fold track. The
+screen opens it once its ESM-2 track has landed.
 
 ## Running
 
