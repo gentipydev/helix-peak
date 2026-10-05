@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../shared/format.dart';
 import 'anatomy_tables.dart';
+import 'cell_archetypes.dart';
 import 'locus_track.dart';
 import 'zoom_path.dart';
 
@@ -34,8 +35,17 @@ enum ZoomUnit { metres, basePairs }
 /// as each spans.
 @immutable
 final class ZoomDepth {
-  ZoomDepth(this.track, {required this.path, this.cellMetres = 4e-5})
-    : organMetres = _organOf(path) {
+  ZoomDepth(this.track, {required this.path})
+    : organMetres = _organOf(path),
+      archetype = archetypeOf(path) {
+    // A nucleus is framed with room for its chromosome condensed, which for
+    // a long chromosome in a small nucleus is the longer; a cell, with room
+    // for its nucleus.
+    nucleusMetres = math.max(
+      archetype.nucleusViewMetres,
+      1.15 * 1.5 * condensedLength,
+    );
+    cellMetres = math.max(archetype.viewMetres, 1.3 * nucleusMetres);
     final List<double> travel = <double>[];
     for (int k = 0; k + 1 < ZoomStop.values.length; k++) {
       travel.add(math.max(math.log(1 / ratioOf(k)) / math.ln10, minimumTravel));
@@ -51,8 +61,14 @@ final class ZoomDepth {
   final LocusTrack track;
   final ZoomPath path;
 
+  /// The kind of cell the path lands in, as it is drawn.
+  final CellArchetype archetype;
+
   /// How wide the view is at the cell, in metres.
-  final double cellMetres;
+  late final double cellMetres;
+
+  /// How wide the view is at the nucleus, in metres.
+  late final double nucleusMetres;
 
   /// How wide the view is at the organ, in metres: the organ whole, with a
   /// margin round it.
@@ -96,7 +112,7 @@ final class ZoomDepth {
     ZoomStop.organ => organMetres,
     ZoomStop.tissue => 5e-4,
     ZoomStop.cell => cellMetres,
-    ZoomStop.nucleus => 1.5e-5,
+    ZoomStop.nucleus => nucleusMetres,
     ZoomStop.chromosome => 1.5 * condensedLength,
     ZoomStop.band => 1.5 * track.bandLengthBp,
     ZoomStop.gene => 1.3 * track.geneLengthBp,

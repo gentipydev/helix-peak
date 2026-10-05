@@ -309,10 +309,12 @@ class _ZoomScreenState extends State<ZoomScreen>
 
   void _set(double d) => _depth.value = d.clamp(0.0, _d.total);
 
-  /// Turns the helix while the DNA is near, and only where motion is
+  /// Runs the ambient clock while the cell or the DNA is near, for the
+  /// vesicles a cell secretes and the helix's turn, and only where motion is
   /// allowed.
   void _ambience(ZoomStop nearest) {
-    final bool wanted = nearest == ZoomStop.dna && !_reduced;
+    final bool wanted =
+        (nearest == ZoomStop.dna || nearest == ZoomStop.cell) && !_reduced;
     if (wanted && !_ambientTicker.isActive) {
       unawaited(_ambientTicker.start());
     } else if (!wanted && _ambientTicker.isActive) {

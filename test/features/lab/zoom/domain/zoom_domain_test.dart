@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/biology/gene_record.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/features/lab/zoom/domain/anatomy_tables.dart';
+import 'package:helixpeek/features/lab/zoom/domain/cell_archetypes.dart';
 import 'package:helixpeek/features/lab/zoom/domain/gene_layout.dart';
 import 'package:helixpeek/features/lab/zoom/domain/locus_track.dart';
 import 'package:helixpeek/features/lab/zoom/domain/zoom_camera.dart';
@@ -294,6 +295,109 @@ void main() {
       expect(territoryRadius['Y'], inExclusiveRange(0, 1));
       // Gene-dense 19 inward, gene-poor 18 at the rim.
       expect(territoryRadius['19']!, lessThan(territoryRadius['18']!));
+    });
+  });
+
+  group('the cells', () {
+    test('draw each of the twenty’s cells in its own kind’s shape', () {
+      const Map<String, CellShape> expected = <String, CellShape>{
+        'insulin': CellShape.endocrine,
+        'glucagon': CellShape.endocrine,
+        'somatotropin': CellShape.endocrine,
+        'cftr': CellShape.epithelial,
+        'amylase': CellShape.acinar,
+        'lysozyme': CellShape.acinar,
+        'hemoglobin': CellShape.erythroid,
+        'tnf': CellShape.leukocyte,
+        'erythropoietin': CellShape.hepatocyte,
+        'sod1': CellShape.hepatocyte,
+        'leptin': CellShape.adipocyte,
+        'myoglobin': CellShape.myofibre,
+        'dystrophin': CellShape.myofibre,
+        'oxytocin': CellShape.neuron,
+        'vasopressin': CellShape.neuron,
+        'prion': CellShape.ciliated,
+        'relaxin': CellShape.ciliated,
+        'ubiquitin': CellShape.germ,
+        'app': CellShape.endothelial,
+        'p53': CellShape.dividing,
+      };
+      for (final ProteinTarget t in TestCatalog.all) {
+        expect(
+          archetypeOf(_path(t)).shape,
+          expected[t.slug],
+          reason: t.slug,
+        );
+      }
+    });
+
+    test('give every one of the Atlas’s classes a shape', () {
+      for (final String cellClass in <String>[
+        'Neuronal cells', 'Glial cells', 'Endocrine cells', //
+        'Squamous epithelial cells', 'Pigment cells', 'Ciliated cells',
+        'Specialized epithelial cells', 'Glandular epithelial cells',
+        'Germ cells', 'Trophoblast cells', 'Muscle cells',
+        'Endothelial and mural cells', 'Mesenchymal cells',
+        'Blood and immune cells', 'Stem and proliferating cells',
+      ]) {
+        expect(shapeOfCell('Any cells', cellClass), isNotNull);
+      }
+      for (final TissueRecipe recipe in TissueRecipe.values) {
+        expect(shapeOfTissue(recipe), isNotNull);
+      }
+    });
+
+    test('draw every subcellular word the Atlas uses, and every one the '
+        'twenty name', () {
+      const List<String> atlasWords = <String>[
+        'Acrosome', 'Actin filaments', 'Aggresome', 'Annulus', 'Basal body', //
+        'Calyx', 'Cell Junctions', 'Centriolar satellite', 'Centrosome',
+        'Cleavage furrow', 'Connecting piece', 'Cytokinetic bridge',
+        'Cytoplasmic bodies', 'Cytosol', 'End piece', 'Endoplasmic reticulum',
+        'Endosomes', 'Equatorial segment', 'Flagellar centriole',
+        'Focal adhesion sites', 'Golgi apparatus', 'Intermediate filaments',
+        'Kinetochore', 'Lipid droplets', 'Lysosomes', 'Microtubule ends',
+        'Microtubules', 'Mid piece', 'Midbody', 'Midbody ring',
+        'Mitochondria', 'Mitotic chromosome', 'Mitotic spindle',
+        'Nuclear bodies', 'Nuclear membrane', 'Nuclear speckles', 'Nucleoli',
+        'Nucleoli fibrillar center', 'Nucleoli rim', 'Nucleoplasm',
+        'Perinuclear theca', 'Peroxisomes', 'Plasma membrane',
+        'Primary cilium', 'Primary cilium tip',
+        'Primary cilium transition zone', 'Principal piece', 'Rods & Rings',
+        'Vesicles',
+      ];
+      expect(compartmentOf.keys.toSet(), atlasWords.toSet());
+      for (final ProteinTarget t in TestCatalog.all) {
+        final LocusTrack track = locusOf(t);
+        for (final String word in <String>[
+          ...track.subcellular.main,
+          ...track.subcellular.additional,
+        ]) {
+          expect(compartmentOf[word], isNotNull, reason: '${t.slug} $word');
+        }
+      }
+    });
+
+    test('frame a nucleus with room for its chromosome, and a cell with '
+        'room for its nucleus', () {
+      for (final ProteinTarget t in TestCatalog.all) {
+        final ZoomDepth depth = _depth(t);
+        expect(
+          depth.widthOf(ZoomStop.nucleus),
+          greaterThanOrEqualTo(1.15 * depth.widthOf(ZoomStop.chromosome) - 1e-18),
+          reason: t.slug,
+        );
+        expect(
+          depth.widthOf(ZoomStop.cell),
+          greaterThanOrEqualTo(1.3 * depth.widthOf(ZoomStop.nucleus) - 1e-18),
+          reason: t.slug,
+        );
+        expect(
+          depth.widthOf(ZoomStop.nucleus),
+          greaterThanOrEqualTo(depth.archetype.nucleus),
+          reason: t.slug,
+        );
+      }
     });
   });
 

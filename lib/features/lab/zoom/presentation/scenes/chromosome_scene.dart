@@ -119,19 +119,20 @@ final class ChromosomeScene extends ZoomScene {
   }
 
   /// The territory the chromosome condenses from: the nucleus scene's own
-  /// spot for it, in this scene's units.
-  Contour _territory() {
+  /// outline for it, in this scene's units, so the hand-over is exact.
+  late final Contour _territoryOutline = () {
+    final NucleusScene nucleus = NucleusScene(subject);
     final double ratio = subject.depth.ratioOf(ZoomStop.nucleus.index);
-    final double radius = NucleusScene(subject).spot / ratio;
-    return Contour.blob(
-      Offset.zero,
-      radius,
-      radius * 1.15,
-      count: 128,
-      wobble: 0.16,
-      seed: _track.chromosome.hashCode,
-    );
-  }
+    final Offset portal = nucleus.portal;
+    final Contour shape = nucleus
+        .territoryShape(_track.chromosome, 0)
+        .resampled(128);
+    return Contour(<Offset>[
+      for (final Offset p in shape.points) (p - portal) / ratio,
+    ]);
+  }();
+
+  Contour _territory() => _territoryOutline;
 
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {

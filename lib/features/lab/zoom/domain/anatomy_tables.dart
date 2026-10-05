@@ -426,3 +426,38 @@ const Map<String, double> territoryRadius = <String, double>{
   'X': 0.70,
   'Y': 0.62,
 };
+
+/// How long each chromosome is on GRCh38, in millions of base pairs: a
+/// territory's size in the nucleus follows how much DNA it holds. General,
+/// the same for every gene.
+const Map<String, double> chromosomeMegabases = <String, double>{
+  '1': 248.96,
+  '2': 242.19,
+  '3': 198.30,
+  '4': 190.21,
+  '5': 181.54,
+  '6': 170.81,
+  '7': 159.35,
+  '8': 145.14,
+  '9': 138.39,
+  '10': 133.80,
+  '11': 135.09,
+  '12': 133.28,
+  '13': 114.36,
+  '14': 107.04,
+  '15': 101.99,
+  '16': 90.34,
+  '17': 83.26,
+  '18': 80.37,
+  '19': 58.62,
+  '20': 64.44,
+  '21': 46.71,
+  '22': 50.82,
+  'X': 156.04,
+  'Y': 57.23,
+};
+
+/// The chromosomes whose short arms carry the genes for ribosomal RNA,
+/// which gather round the nucleolus: the five acrocentrics.
+const Set<String> acrocentric = <String>{'13', '14', '15', '21', '22'};
+

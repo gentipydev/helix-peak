@@ -135,11 +135,66 @@ decades for chromosome 1), and the minimum travel gives it its room.
 - "Walk ›" unzips it into the walk's rows (`HelixModel(unzip:)`) over
   450 ms before the walk opens.
 
-**Still to come.** The scenes above the chromosome are still the earlier
-illustrations on the new camera:
-- the cell and nucleus in immunofluorescence and chromosome paint;
-- the tissue in H&E under a loupe;
-- the body and organs from the anatomogram.
+## The cell and its nucleus
+
+**The cell's convention.** The cell is drawn in immunofluorescence, the way
+the Human Protein Atlas images cells:
+- DNA in blue (DAPI);
+- the endoplasmic reticulum in yellow;
+- microtubules in magenta, not the Atlas's red, so a reader who cannot tell
+  red from green can still tell them from the protein;
+- the protein in green, where the Atlas finds it: brighter at its main
+  locations, fainter at its additional ones. Each of the Atlas's 49
+  subcellular words is drawn in a compartment (`compartmentOf`).
+
+A protein the Atlas finds secreted leaves the cell in vesicles from the Golgi,
+moving with an ambient clock that is still under reduced motion. Where the
+Atlas gives no location, no green is drawn, and the callout names the
+nucleus the zoom goes to next. Otherwise it names the main locations.
+
+**Shapes.** The cell's shape is its kind's, chosen from the Atlas's class,
+with refinements by name (`cell_archetypes.dart`):
+
+| Shape | Look |
+|---|---|
+| hepatocyte | polygonal |
+| acinar | pyramidal |
+| endocrine | rounded |
+| ciliated | columnar |
+| endothelial | flat |
+| neuron | dendrites and an axon |
+| myofibre | striated, its nuclei along its rim |
+| adipocyte | one lipid droplet, its nucleus pressed to the rim |
+| erythroid | the erythroblastic island |
+| megakaryocyte, leukocyte, germ cell, dividing cell, trophoblast | their own shapes |
+
+Each has a real size, and so do their nuclei. The nucleus view is widened to
+fit a long chromosome condensed, and the cell view to fit its nucleus, so the
+dive never turns back: a metaphase chromosome 1 is longer than a small
+nucleus is wide.
+
+**No nucleus.** A cell type with no nucleus lands in its precursor's island,
+in the marrow: a macrophage, erythroblasts round it at every stage (the last
+pushing out its nucleus), and grown red cells leaving it, the biconcave discs
+named "red cells: no nucleus".
+
+**Transitions.** Coming in from the tissue, the dark of the fluorescence field
+spreads out from the cell. The cell's nucleus and the nucleus's own share one
+outline (`NucleusShape`): round, a lens, a crescent or lobed. So the step
+between them changes no shape. On it, the DNA stain resolves into chromosome
+paint.
+
+**The nucleus** holds 46 territories:
+- each as large as its chromosome's DNA (hg38 lengths);
+- gene-dense chromosomes toward the centre and gene-poor ones at the rim, in
+  the order Boyle et al. (2001) and Croft et al. (1999) measured;
+- the five acrocentrics round the nucleolus;
+- pores in the envelope once there is room to see them.
+
+The followed territory is the outline the chromosome condenses from.
+
+**Still to come.** The tissue in H&E under a loupe, and the body and organs
+from the anatomogram.
 
 ## Smooth motion
 
