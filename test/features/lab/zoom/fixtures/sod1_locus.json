@@ -143,7 +143,46 @@
           "ncpm": 1476.3
         }
       ]
-    }
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Adipose subcutaneous",
+        "cell_type": "Adipocytes (Subcutaneous)"
+      },
+      {
+        "tissue": "Heart muscle",
+        "cell_type": "Cardiomyocytes"
+      },
+      {
+        "tissue": "Liver",
+        "cell_type": "Hepatocytes"
+      },
+      {
+        "tissue": "Testis",
+        "cell_type": "Spermatogonia"
+      },
+      {
+        "tissue": "Thyroid gland",
+        "cell_type": "Thyroid glandular cells"
+      }
+    ],
+    "subcellular": {
+      "main": [
+        "Nucleoplasm"
+      ],
+      "additional": [
+        "Cytosol"
+      ]
+    },
+    "secretome": null
+  },
+  "path": {
+    "tissue": "liver",
+    "tissue_from": "tissue",
+    "cell_type": "Hepatocytes",
+    "cell_class": "Specialized epithelial cells",
+    "cell_from": "tissue_cell_type",
+    "lands_in": null
   },
   "sources": {
     "cytoband": {
@@ -178,7 +217,7 @@
       "url": "https://www.proteinatlas.org/ENSG00000142168.json"
     }
   },
-  "retrieved": "2026-09-27",
-  "schema_version": 1,
+  "retrieved": "2026-10-05",
+  "schema_version": 2,
   "built_by": "pipeline/locus/bake_locus.py"
 }

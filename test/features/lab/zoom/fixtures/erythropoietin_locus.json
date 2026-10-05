@@ -339,7 +339,26 @@
           "ncpm": 2.5
         }
       ]
-    }
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Minor Salivary Gland",
+        "cell_type": "Minor salivary glandular cells"
+      }
+    ],
+    "subcellular": {
+      "main": [],
+      "additional": []
+    },
+    "secretome": "Secreted to blood"
+  },
+  "path": {
+    "tissue": "liver",
+    "tissue_from": "tissue",
+    "cell_type": "Hepatocytes",
+    "cell_class": "Specialized epithelial cells",
+    "cell_from": "single_cell_type",
+    "lands_in": null
   },
   "sources": {
     "cytoband": {
@@ -374,7 +393,7 @@
       "url": "https://www.proteinatlas.org/ENSG00000130427.json"
     }
   },
-  "retrieved": "2026-09-27",
-  "schema_version": 1,
+  "retrieved": "2026-10-05",
+  "schema_version": 2,
   "built_by": "pipeline/locus/bake_locus.py"
 }

@@ -126,7 +126,34 @@
           "ncpm": 1230.6
         }
       ]
-    }
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Adrenal gland",
+        "cell_type": "Adrenal cortex cells"
+      },
+      {
+        "tissue": "Thyroid gland",
+        "cell_type": "Thyroid glandular cells"
+      }
+    ],
+    "subcellular": {
+      "main": [
+        "Golgi apparatus"
+      ],
+      "additional": [
+        "Vesicles"
+      ]
+    },
+    "secretome": "Secreted to blood"
+  },
+  "path": {
+    "tissue": "lymphoid tissue",
+    "tissue_from": "cell_type",
+    "cell_type": "Lymphatic endothelial cells",
+    "cell_class": "Endothelial and mural cells",
+    "cell_from": "single_cell_type",
+    "lands_in": null
   },
   "sources": {
     "cytoband": {
@@ -161,7 +188,7 @@
       "url": "https://www.proteinatlas.org/ENSG00000142192.json"
     }
   },
-  "retrieved": "2026-09-27",
-  "schema_version": 1,
+  "retrieved": "2026-10-05",
+  "schema_version": 2,
   "built_by": "pipeline/locus/bake_locus.py"
 }

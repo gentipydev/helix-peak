@@ -202,7 +202,39 @@
           "ncpm": 2725.7
         }
       ]
-    }
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Liver",
+        "cell_type": "Hepatocytes"
+      },
+      {
+        "tissue": "Testis",
+        "cell_type": "Early spermatids"
+      },
+      {
+        "tissue": "Thyroid gland",
+        "cell_type": "Thyroid glandular cells"
+      }
+    ],
+    "subcellular": {
+      "main": [
+        "Cytosol"
+      ],
+      "additional": [
+        "Acrosome",
+        "Equatorial segment"
+      ]
+    },
+    "secretome": null
+  },
+  "path": {
+    "tissue": "testis",
+    "tissue_from": "cell_type",
+    "cell_type": "Late primary spermatocytes",
+    "cell_class": "Germ cells",
+    "cell_from": "single_cell_type",
+    "lands_in": null
   },
   "sources": {
     "cytoband": {
@@ -237,7 +269,7 @@
       "url": "https://www.proteinatlas.org/ENSG00000170315.json"
     }
   },
-  "retrieved": "2026-09-27",
-  "schema_version": 1,
+  "retrieved": "2026-10-05",
+  "schema_version": 2,
   "built_by": "pipeline/locus/bake_locus.py"
 }

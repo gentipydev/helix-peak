@@ -263,6 +263,33 @@
           "ncpm": 521402.5
         }
       ]
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Liver",
+        "cell_type": "Erythroid cells"
+      },
+      {
+        "tissue": "Spleen",
+        "cell_type": "Erythrocytes"
+      }
+    ],
+    "subcellular": {
+      "main": [],
+      "additional": []
+    },
+    "secretome": null
+  },
+  "path": {
+    "tissue": "bone marrow",
+    "tissue_from": "tissue",
+    "cell_type": "Erythrocytes",
+    "cell_class": "Blood and immune cells",
+    "cell_from": "single_cell_type",
+    "lands_in": {
+      "cell": "erythroblasts",
+      "place": "bone marrow",
+      "why": "no nucleus"
     }
   },
   "sources": {
@@ -298,7 +325,7 @@
       "url": "https://www.proteinatlas.org/ENSG00000244734.json"
     }
   },
-  "retrieved": "2026-09-27",
-  "schema_version": 1,
+  "retrieved": "2026-10-05",
+  "schema_version": 2,
   "built_by": "pipeline/locus/bake_locus.py"
 }

@@ -339,7 +339,30 @@
           "ncpm": 7.8
         }
       ]
-    }
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Breast",
+        "cell_type": "T-cells"
+      },
+      {
+        "tissue": "Thyroid gland",
+        "cell_type": "T-cells"
+      }
+    ],
+    "subcellular": {
+      "main": [],
+      "additional": []
+    },
+    "secretome": "Secreted to blood"
+  },
+  "path": {
+    "tissue": "bone marrow",
+    "tissue_from": "tissue",
+    "cell_type": null,
+    "cell_class": null,
+    "cell_from": null,
+    "lands_in": null
   },
   "sources": {
     "cytoband": {
@@ -374,7 +397,7 @@
       "url": "https://www.proteinatlas.org/ENSG00000232810.json"
     }
   },
-  "retrieved": "2026-09-27",
-  "schema_version": 1,
+  "retrieved": "2026-10-05",
+  "schema_version": 2,
   "built_by": "pipeline/locus/bake_locus.py"
 }

@@ -335,7 +335,46 @@
           "ncpm": 290.2
         }
       ]
-    }
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Adipose visceral",
+        "cell_type": "Mesothelial cells"
+      },
+      {
+        "tissue": "Colon",
+        "cell_type": "Colon enterocytes"
+      },
+      {
+        "tissue": "Lung",
+        "cell_type": "Alveolar cells type 2"
+      },
+      {
+        "tissue": "Minor Salivary Gland",
+        "cell_type": "Minor salivary glandular cells"
+      },
+      {
+        "tissue": "Skin",
+        "cell_type": "Eccrine sweat gland cells"
+      },
+      {
+        "tissue": "Testis",
+        "cell_type": "Early spermatids"
+      }
+    ],
+    "subcellular": {
+      "main": [],
+      "additional": []
+    },
+    "secretome": null
+  },
+  "path": {
+    "tissue": "pancreas",
+    "tissue_from": "tissue",
+    "cell_type": "Pancreatic duct cells",
+    "cell_class": "Specialized epithelial cells",
+    "cell_from": "single_cell_type",
+    "lands_in": null
   },
   "sources": {
     "cytoband": {
@@ -370,7 +409,7 @@
       "url": "https://www.proteinatlas.org/ENSG00000001626.json"
     }
   },
-  "retrieved": "2026-09-27",
-  "schema_version": 1,
+  "retrieved": "2026-10-05",
+  "schema_version": 2,
   "built_by": "pipeline/locus/bake_locus.py"
 }

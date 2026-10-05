@@ -167,7 +167,30 @@
           "ncpm": 1009.0
         }
       ]
-    }
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Adipose subcutaneous",
+        "cell_type": "Adipocytes (Subcutaneous)"
+      },
+      {
+        "tissue": "Kidney",
+        "cell_type": "Proximal tubular cells"
+      }
+    ],
+    "subcellular": {
+      "main": [],
+      "additional": []
+    },
+    "secretome": "Secreted to blood"
+  },
+  "path": {
+    "tissue": "brain",
+    "tissue_from": "tissue",
+    "cell_type": "Other brain neurons",
+    "cell_class": "Neuronal cells",
+    "cell_from": "single_cell_type",
+    "lands_in": null
   },
   "sources": {
     "cytoband": {
@@ -202,7 +225,7 @@
       "url": "https://www.proteinatlas.org/ENSG00000101405.json"
     }
   },
-  "retrieved": "2026-09-27",
-  "schema_version": 1,
+  "retrieved": "2026-10-05",
+  "schema_version": 2,
   "built_by": "pipeline/locus/bake_locus.py"
 }

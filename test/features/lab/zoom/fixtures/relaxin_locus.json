@@ -325,7 +325,34 @@
           "ncpm": 9.3
         }
       ]
-    }
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Breast",
+        "cell_type": "Breast glandular cells"
+      },
+      {
+        "tissue": "Prostate",
+        "cell_type": "Prostate glandular cells"
+      },
+      {
+        "tissue": "Testis",
+        "cell_type": "Early spermatids"
+      }
+    ],
+    "subcellular": {
+      "main": [],
+      "additional": []
+    },
+    "secretome": "Secreted to blood"
+  },
+  "path": {
+    "tissue": "fallopian tube",
+    "tissue_from": "tissue",
+    "cell_type": "Fallopian tube ciliated cells",
+    "cell_class": "Ciliated cells",
+    "cell_from": "single_cell_type",
+    "lands_in": null
   },
   "sources": {
     "cytoband": {
@@ -360,7 +387,7 @@
       "url": "https://www.proteinatlas.org/ENSG00000107014.json"
     }
   },
-  "retrieved": "2026-09-27",
-  "schema_version": 1,
+  "retrieved": "2026-10-05",
+  "schema_version": 2,
   "built_by": "pipeline/locus/bake_locus.py"
 }

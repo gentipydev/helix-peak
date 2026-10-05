@@ -1,29 +1,29 @@
 {
-  "slug": "insulin",
-  "gene": "INS",
-  "uniprot": "P01308",
+  "slug": "hemoglobin",
+  "gene": "HBB",
+  "uniprot": "P68871",
   "assembly": "GRCh38",
   "genome": "hg38",
   "chromosome": "11",
   "sequence": "NC_000011.10",
   "length": 135086622,
   "span": {
-    "start": 2159779,
-    "end": 2161209,
+    "start": 5225464,
+    "end": 5227071,
     "strand": -1
   },
   "transcript": {
-    "refseq": "NM_000207.3",
-    "ensembl": "ENST00000381330.5"
+    "refseq": "NM_000518.5",
+    "ensembl": "ENST00000335295.4"
   },
   "band": {
     "names": [
-      "p15.5"
+      "p15.4"
     ],
-    "start": 1,
-    "end": 2800000
+    "start": 2800001,
+    "end": 11700000
   },
-  "locus": "11p15.5",
+  "locus": "11p15.4",
   "bands": [
     {
       "name": "p15.5",
@@ -243,14 +243,14 @@
     }
   ],
   "expression": {
-    "ensembl_gene": "ENSG00000254647",
+    "ensembl_gene": "ENSG00000244734",
     "tissue": {
       "specificity": "Tissue enriched",
-      "distribution": "Detected in many",
+      "distribution": "Detected in all",
       "specific": [
         {
-          "name": "pancreas",
-          "ntpm": 12197.1
+          "name": "bone marrow",
+          "ntpm": 125480.9
         }
       ]
     },
@@ -259,34 +259,11 @@
       "distribution": "Detected in some",
       "specific": [
         {
-          "name": "Pancreatic islet cells",
-          "ncpm": 83209.9
+          "name": "Erythrocytes",
+          "ncpm": 521402.5
         }
       ]
-    },
-    "tissue_cell_type": [
-      {
-        "tissue": "Adrenal gland",
-        "cell_type": "Adrenal medulla cells"
-      },
-      {
-        "tissue": "Pancreas",
-        "cell_type": "Beta cells"
-      }
-    ],
-    "subcellular": {
-      "main": [],
-      "additional": []
-    },
-    "secretome": "Secreted to blood"
-  },
-  "path": {
-    "tissue": "pancreas",
-    "tissue_from": "tissue",
-    "cell_type": "Beta cells",
-    "cell_class": "Endocrine cells",
-    "cell_from": "tissue_cell_type",
-    "lands_in": null
+    }
   },
   "sources": {
     "cytoband": {
@@ -311,17 +288,17 @@
     "uniprot": {
       "release": "2026_03",
       "release_date": "2026-09-02",
-      "entry_version": 284
+      "entry_version": 219
     },
     "hpa": {
       "version": "25.1",
       "release_date": "2026-05-25",
       "ensembl": "109",
       "licence": "CC BY 4.0",
-      "url": "https://www.proteinatlas.org/ENSG00000254647.json"
+      "url": "https://www.proteinatlas.org/ENSG00000244734.json"
     }
   },
-  "retrieved": "2026-10-05",
-  "schema_version": 2,
+  "retrieved": "2026-09-27",
+  "schema_version": 1,
   "built_by": "pipeline/locus/bake_locus.py"
 }

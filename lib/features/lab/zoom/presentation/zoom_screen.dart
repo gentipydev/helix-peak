@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,15 +15,21 @@ import '../../../../core/network/api_exception.dart';
 import '../../../../core/network/track_source.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../shared/anatomy/sequence_scrubber.dart';
 import '../../../../shared/widgets/error_view.dart';
 import '../../../../shared/widgets/loading_view.dart';
 import '../../../gene_lookup/domain/usecases/fetch_gene.dart';
 import '../../presentation/lab_protein_picker.dart';
 import '../domain/locus_track.dart';
-import '../domain/zoom_captions.dart';
-import '../domain/zoom_path.dart';
-import '../domain/zoom_scale.dart';
+import '../domain/zoom_depth.dart';
+import '../domain/zoom_facts.dart';
+import '../domain/zoom_motion.dart';
+import 'scenes/zoom_subject.dart';
+import 'zoom_about.dart';
+import 'zoom_card.dart';
+import 'zoom_inks.dart';
 import 'zoom_painter.dart';
+import 'zoom_rail.dart';
 
 sealed class ZoomState {
   const ZoomState();
@@ -52,8 +61,8 @@ final class ZoomReady extends ZoomState {
   final GeneRecord record;
 }
 
-/// One protein's locus track, and its record for the gene's first bases,
-/// both through the lab's own tracks.
+/// One protein's locus track, and its record for the gene's parts and first
+/// bases, both through the lab's own tracks.
 class ZoomCubit extends Cubit<ZoomState> {
   ZoomCubit(this.target, this._tracks, this._fetchGene)
     : super(const ZoomLoading());
@@ -88,7 +97,7 @@ class ZoomCubit extends Cubit<ZoomState> {
   }
 }
 
-/// `/lab/zoom/<slug>`: from a body down to one protein's gene.
+/// `/lab/zoom/<slug>`: from a body down to one protein's DNA.
 class ZoomRoute extends StatelessWidget {
   const ZoomRoute({required this.slug, super.key});
 
@@ -140,7 +149,7 @@ class ZoomRoute extends StatelessWidget {
                   key: ValueKey<String>(target.slug),
                   target: target,
                   track: track,
-                  bases: record.sequence,
+                  record: record,
                 ),
             },
           ),
@@ -148,30 +157,37 @@ class ZoomRoute extends StatelessWidget {
   );
 }
 
-/// One continuous pinch from a body down to a gene.
+/// What the zoom is doing between frames.
+enum _Motion { idle, pinch, flight, settle, play }
+
+/// One continuous dive from a body down to a gene's DNA.
 ///
-/// Seven levels (body, organ, tissue, cell, nucleus, chromosome, gene) on one
-/// value whose logarithm is the view's width, so a pinch moves through all of
-/// them without a break, and lets go at the nearest. A chip for each level
-/// goes straight there. The organ and the cell are the Human Protein Atlas's
-/// reading of where the gene is read; where the cells it names have no
-/// nucleus the zoom lands in the precursor that has one, and the caption says
-/// so. The chromosome is the locus track's, the gene's band marked on it; the
-/// gene, its record's first bases. At the gene, the walk is offered, from its
-/// start.
+/// Nine stops (body, organ, tissue, cell, nucleus, chromosome, band, gene,
+/// DNA) on one depth, so a pinch moves through all of them without a break
+/// and a flick coasts to the stop it would reach. The rail down the right
+/// edge scrubs the depth; the card below names the stop, says one thing that
+/// is known of it and where that comes from, and steps or plays the dive.
+/// The organ and the cell are the path the bake chose from the Human Protein
+/// Atlas's reading, one that lives in the other; the chromosome, the band,
+/// the gene and its first bases are data. At the DNA, the walk is offered,
+/// from its start.
 class ZoomScreen extends StatefulWidget {
   const ZoomScreen({
     required this.target,
     required this.track,
-    required this.bases,
+    required this.record,
+    this.initialDepth = 0,
     super.key,
   });
 
   final ProteinTarget target;
   final LocusTrack track;
+  final GeneRecord record;
 
-  /// The gene's letters, 5' to 3', as its record holds them.
-  final String bases;
+  /// Where the zoom opens: at the body, but for a render check that frames
+  /// a moment between two stops.
+  @visibleForTesting
+  final double initialDepth;
 
   static String titleOf(ProteinTarget target) => 'Zoom · ${target.display}';
 
@@ -186,16 +202,21 @@ class ZoomScreen extends StatefulWidget {
         TrackState.ready => 'Where its gene lies is not published yet.',
       };
 
-  /// What each level's chip says.
-  static String nameOf(ZoomLevel level) => switch (level) {
-    ZoomLevel.body => 'Body',
-    ZoomLevel.organ => 'Organ',
-    ZoomLevel.tissue => 'Tissue',
-    ZoomLevel.cell => 'Cell',
-    ZoomLevel.nucleus => 'Nucleus',
-    ZoomLevel.chromosome => 'Chromosome',
-    ZoomLevel.gene => 'Gene',
+  /// What each stop is called.
+  static String nameOf(ZoomStop stop) => switch (stop) {
+    ZoomStop.body => 'Body',
+    ZoomStop.organ => 'Organ',
+    ZoomStop.tissue => 'Tissue',
+    ZoomStop.cell => 'Cell',
+    ZoomStop.nucleus => 'Nucleus',
+    ZoomStop.chromosome => 'Chromosome',
+    ZoomStop.band => 'Band',
+    ZoomStop.gene => 'Gene',
+    ZoomStop.dna => 'DNA',
   };
+
+  /// How much depth a pinch moves for each tenfold spread of the fingers.
+  static const double pinchGain = 2.5;
 
   @override
   State<ZoomScreen> createState() => _ZoomScreenState();
@@ -203,259 +224,342 @@ class ZoomScreen extends StatefulWidget {
 
 class _ZoomScreenState extends State<ZoomScreen>
     with SingleTickerProviderStateMixin {
-  late final ZoomScale _scale = ZoomScale(widget.track);
-  late final ZoomCaptions _captions = ZoomCaptions(widget.track);
-  late final ZoomPath _path = ZoomPath.of(widget.track);
-  final ValueNotifier<double> _zoom = ValueNotifier<double>(0);
-  late final AnimationController _snap = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 700),
+  late final ZoomSubject _subject = ZoomSubject(
+    track: widget.track,
+    record: widget.record,
   );
-  Animation<double>? _towards;
-  double _pinchFrom = 0;
+  late final ZoomStage _stage = ZoomStage(_subject);
+  late final ZoomFacts _facts = ZoomFacts(
+    track: widget.track,
+    path: _subject.path,
+    record: widget.record,
+  );
+  late final ValueNotifier<double> _depth = ValueNotifier<double>(
+    widget.initialDepth,
+  );
+  late final ValueNotifier<ZoomStop> _stop = ValueNotifier<ZoomStop>(
+    _d.nearest(widget.initialDepth),
+  );
+  late final Ticker _ticker = createTicker(_tick);
 
-  /// Each level's chip, to keep the one the zoom is nearest in view: the row
-  /// is wider than a phone.
-  final Map<ZoomLevel, GlobalKey> _chips = <ZoomLevel, GlobalKey>{
-    for (final ZoomLevel level in ZoomLevel.values) level: GlobalKey(),
-  };
-  ZoomLevel _shown = ZoomLevel.body;
+  _Motion _motion = _Motion.idle;
+  ZoomFlight? _flight;
+  Simulation? _spring;
+  double _springTarget = 0;
+  PlaySchedule? _play;
+
+  double _pinchFrom = 0;
+  double _pinchScale = 1;
+
+  ZoomDepth get _d => _subject.depth;
 
   @override
   void initState() {
     super.initState();
-    _snap.addListener(() {
-      final Animation<double>? towards = _towards;
-      if (towards != null) {
-        _zoom.value = towards.value;
-      }
-    });
-    _zoom.addListener(_follow);
+    _depth.addListener(_follow);
   }
 
   @override
   void dispose() {
-    _zoom.removeListener(_follow);
-    _snap.dispose();
-    _zoom.dispose();
+    _depth.removeListener(_follow);
+    _ticker.dispose();
+    _depth.dispose();
+    _stop.dispose();
     super.dispose();
   }
 
-  /// Scrolls the chip row to the level the zoom has come nearest, once the
-  /// frame that selects it is laid out.
+  bool get _reduced => MediaQuery.disableAnimationsOf(context);
+
+  /// Keeps the card on the stop the depth is nearest, with a tick under the
+  /// reader's finger each time a pinch or a scrub crosses one.
   void _follow() {
-    final ZoomLevel level = _level;
-    if (level == _shown) {
+    final ZoomStop nearest = _d.nearest(_depth.value);
+    if (nearest == _stop.value) {
       return;
     }
-    _shown = level;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final BuildContext? chip = _chips[level]?.currentContext;
-      if (!mounted || chip == null) {
-        return;
-      }
-      unawaited(
-        Scrollable.ensureVisible(
-          chip,
-          alignment: 0.5,
-          duration: MediaQuery.disableAnimationsOf(context)
-              ? Duration.zero
-              : const Duration(milliseconds: 250),
-          curve: Curves.easeOut,
-        ),
-      );
-    });
+    _stop.value = nearest;
+    if (_motion == _Motion.pinch || _motion == _Motion.idle) {
+      unawaited(HapticFeedback.selectionClick());
+    }
   }
 
-  ZoomLevel get _level => _scale.nearest(_zoom.value);
+  void _set(double d) => _depth.value = d.clamp(0.0, _d.total);
 
-  void _goTo(ZoomLevel level) {
-    final double target = _scale.zoomOf(level);
-    if (MediaQuery.disableAnimationsOf(context)) {
-      _snap.stop();
-      _zoom.value = target;
+  void _run(_Motion motion) {
+    _motion = motion;
+    _ticker.stop();
+    _ticker.start();
+  }
+
+  void _halt() {
+    final bool wasPlaying = _motion == _Motion.play;
+    _motion = _Motion.idle;
+    _ticker.stop();
+    _flight = null;
+    _spring = null;
+    _play = null;
+    if (wasPlaying && mounted) {
+      setState(() {});
+    }
+  }
+
+  void _tick(Duration elapsed) {
+    switch (_motion) {
+      case _Motion.flight:
+        final ZoomFlight flight = _flight!;
+        _set(flight.at(elapsed));
+        if (flight.doneAt(elapsed)) {
+          _halt();
+        }
+      case _Motion.settle:
+        final double t = elapsed.inMicroseconds / 1e6;
+        final Simulation spring = _spring!;
+        if (spring.isDone(t)) {
+          _set(_springTarget);
+          _halt();
+        } else {
+          _set(spring.x(t));
+        }
+      case _Motion.play:
+        final PlaySchedule play = _play!;
+        _set(play.at(elapsed));
+        if (play.doneAt(elapsed)) {
+          _halt();
+        }
+      case _Motion.idle || _Motion.pinch:
+        _ticker.stop();
+    }
+  }
+
+  /// Flies to [stop], or cuts there under reduced motion.
+  void _goTo(ZoomStop stop) {
+    _halt();
+    final double target = _d.depthOf(stop);
+    if (_reduced) {
+      _set(target);
       return;
     }
-    _towards = Tween<double>(
-      begin: _zoom.value,
-      end: target,
-    ).animate(CurvedAnimation(parent: _snap, curve: Curves.easeInOutCubic));
-    _snap
-      ..reset()
-      ..forward();
+    _flight = ZoomFlight(_depth.value, target);
+    _run(_Motion.flight);
+  }
+
+  void _step(int by) {
+    final int next = (_d.nearest(_depth.value).index + by).clamp(
+      0,
+      ZoomStop.values.length - 1,
+    );
+    _goTo(ZoomStop.values[next]);
+  }
+
+  /// Comes to rest on [stop] from the depth now, moving at [velocity].
+  void _settle(ZoomStop stop, double velocity) {
+    final double target = _d.depthOf(stop);
+    if (_reduced) {
+      _halt();
+      _set(target);
+      return;
+    }
+    _spring = SpringSimulation(
+      SpringDescription.withDampingRatio(mass: 1, stiffness: 140),
+      _depth.value,
+      target,
+      velocity,
+    );
+    _springTarget = target;
+    _run(_Motion.settle);
+  }
+
+  void _togglePlay() {
+    if (_motion == _Motion.play) {
+      _halt();
+      return;
+    }
+    _halt();
+    if (_depth.value >= _d.total - 1e-6) {
+      _set(0);
+    }
+    _play = PlaySchedule(_d, from: _depth.value, stepped: _reduced);
+    _run(_Motion.play);
+    setState(() {});
   }
 
   void _pinchStart(ScaleStartDetails details) {
-    _snap.stop();
-    _pinchFrom = _zoom.value;
+    _halt();
+    _motion = _Motion.pinch;
+    _pinchFrom = _depth.value;
+    _pinchScale = 1;
   }
 
   void _pinchUpdate(ScaleUpdateDetails details) {
-    if (details.scale == 1) {
+    if (details.pointerCount < 2 || details.scale <= 0) {
       return;
     }
-    // Spreading two fingers by a factor narrows the view by it.
-    _zoom.value = _scale.zoomAt(_scale.widthAt(_pinchFrom) / details.scale);
+    final double d =
+        _pinchFrom +
+        ZoomScreen.pinchGain * math.log(details.scale) / math.ln10;
+    _pinchScale = details.scale;
+    _set(d);
   }
 
-  void _pinchEnd(ScaleEndDetails details) => _goTo(_level);
-
-  void _deeper() {
-    final int next = (_level.index + 1).clamp(0, ZoomLevel.values.length - 1);
-    _goTo(ZoomLevel.values[next]);
-  }
-
-  /// The tallest caption's height, set in [style] at [width]: the box every
-  /// level's caption is given, so none is cut short and the canvas keeps its
-  /// size as the zoom moves from one level to the next.
-  double _tallest(BuildContext context, TextStyle style, double width) {
-    double tallest = 0;
-    for (final ZoomLevel level in ZoomLevel.values) {
-      final TextPainter painter = TextPainter(
-        text: TextSpan(text: _captions.captionOf(level), style: style),
-        textDirection: Directionality.of(context),
-        textScaler: MediaQuery.textScalerOf(context),
-      )..layout(maxWidth: width);
-      tallest = math.max(tallest, painter.height);
-      painter.dispose();
+  void _pinchEnd(ScaleEndDetails details) {
+    if (_motion != _Motion.pinch) {
+      return;
     }
-    return tallest.ceilToDouble();
+    _motion = _Motion.idle;
+    // The recognizer's own velocity of the spread, in the depth's terms:
+    // depth moves by the gain for each tenfold spread.
+    final double spread = details.scaleVelocity;
+    final double velocity = spread.isFinite && spread != -1
+        ? ZoomScreen.pinchGain *
+              spread /
+              (math.max(_pinchScale, 1e-3) * math.ln10)
+        : 0;
+    _settle(flingTarget(_d, _depth.value, velocity), velocity);
+  }
+
+  void _scrub(double d) {
+    if (_motion != _Motion.pinch) {
+      _halt();
+    }
+    _set(d);
+  }
+
+  void _released() {
+    if (_motion == _Motion.idle) {
+      _settle(_d.nearest(_depth.value), 0);
+    }
+  }
+
+  void _touched(PointerDownEvent event) {
+    if (_motion == _Motion.play) {
+      _halt();
+    }
+  }
+
+  void _about() {
+    _halt();
+    unawaited(
+      showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        showDragHandle: true,
+        builder: (BuildContext context) => ZoomAbout(facts: _facts),
+      ),
+    );
+  }
+
+  void _walk() {
+    _halt();
+    unawaited(context.push(RoutePaths.geneFor(widget.target)));
   }
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final TextStyle labels =
-        theme.textTheme.labelSmall ?? const TextStyle(fontSize: 11);
-    final TextStyle? note = theme.textTheme.bodySmall?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
-    );
+        theme.textTheme.labelSmall ?? const TextStyle(fontSize: 12);
+    final ZoomInks inks = ZoomInks.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(ZoomScreen.titleOf(widget.target))),
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            final TextStyle caption = DefaultTextStyle.of(context).style
-                .merge(theme.textTheme.bodyMedium);
-            // Every caption fits its box whole. Only at a text size that
-            // would take more than a third of the screen does the box scroll.
-            final double box = math.min(
-              _tallest(
-                context,
-                caption,
-                constraints.maxWidth - 2 * AppSpacing.screenPadding,
-              ),
-              constraints.maxHeight / 3,
-            );
-            return ValueListenableBuilder<double>(
-              valueListenable: _zoom,
-              builder: (BuildContext context, double zoom, Widget? canvas) {
-                final ZoomLevel level = _scale.nearest(zoom);
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Expanded(
-                      child: Semantics(
-                        label:
-                            'A zoom from a body to a gene, at the '
-                            '${ZoomScreen.nameOf(level).toLowerCase()}. '
-                            'Pinch, or pick a level below.',
-                        child: canvas,
-                      ),
-                    ),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.screenPadding,
-                      ),
-                      child: Row(
-                        children: <Widget>[
-                          for (final ZoomLevel l in ZoomLevel.values)
-                            Padding(
-                              key: _chips[l],
-                              padding: const EdgeInsets.only(
-                                right: AppSpacing.xs,
-                              ),
-                              child: ChoiceChip(
-                                key: ValueKey<String>('zoom-level-${l.name}'),
-                                label: Text(ZoomScreen.nameOf(l)),
-                                selected: l == level,
-                                onSelected: (_) => _goTo(l),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppSpacing.screenPadding,
-                        AppSpacing.sm,
-                        AppSpacing.screenPadding,
-                        AppSpacing.sm,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          SizedBox(
-                            key: const ValueKey<String>('zoom-caption-box'),
-                            height: box,
-                            child: SingleChildScrollView(
-                              child: Semantics(
-                                liveRegion: true,
-                                child: Text(
-                                  _captions.captionOf(level),
-                                  key: const ValueKey<String>('zoom-caption'),
-                                  style: caption,
-                                ),
+        top: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Expanded(
+              child: Stack(
+                children: <Widget>[
+                  Positioned.fill(
+                    child: Listener(
+                      onPointerDown: _touched,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onScaleStart: _pinchStart,
+                        onScaleUpdate: _pinchUpdate,
+                        onScaleEnd: _pinchEnd,
+                        onDoubleTap: () => _step(1),
+                        child: ValueListenableBuilder<ZoomStop>(
+                          valueListenable: _stop,
+                          builder:
+                              (BuildContext context, ZoomStop stop, Widget? c) =>
+                                  Semantics(
+                                    label:
+                                        'A zoom from a body to its DNA, at the '
+                                        '${ZoomScreen.nameOf(stop).toLowerCase()}. '
+                                        'Pinch, drag the depth rail, or step '
+                                        'with the buttons below.',
+                                    child: c,
+                                  ),
+                          child: RepaintBoundary(
+                            child: CustomPaint(
+                              key: const ValueKey<String>('zoom-canvas'),
+                              size: Size.infinite,
+                              painter: ZoomPainter(
+                                stage: _stage,
+                                at: () => _depth.value,
+                                inks: inks,
+                                labels: labels,
+                                repaint: _depth,
                               ),
                             ),
                           ),
-                          const SizedBox(height: AppSpacing.sm),
-                          Text(
-                            _captions.sources,
-                            key: const ValueKey<String>('zoom-sources'),
-                            style: note,
-                          ),
-                          if (level == ZoomLevel.gene) ...<Widget>[
-                            const SizedBox(height: AppSpacing.sm),
-                            FilledButton(
-                              key: const ValueKey<String>('zoom-walk'),
-                              onPressed: () => context.push(
-                                RoutePaths.geneFor(widget.target),
-                              ),
-                              child: const Text('Open the walk, from its gene'),
-                            ),
-                          ],
-                        ],
+                        ),
                       ),
-                    ),
-                  ],
-                );
-              },
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onScaleStart: _pinchStart,
-                onScaleUpdate: _pinchUpdate,
-                onScaleEnd: _pinchEnd,
-                onDoubleTap: _deeper,
-                child: RepaintBoundary(
-                  child: CustomPaint(
-                    key: const ValueKey<String>('zoom-canvas'),
-                    size: Size.infinite,
-                    painter: ZoomPainter(
-                      scale: _scale,
-                      path: _path,
-                      bases: widget.bases,
-                      at: () => _zoom.value,
-                      inks: ZoomInks.of(context),
-                      labels: labels,
-                      repaint: _zoom,
                     ),
                   ),
-                ),
+                  // A dark strip under the rail, so its ticks and thumb read
+                  // over the brightest field, a slide under the lamp.
+                  Positioned(
+                    top: 0,
+                    bottom: 0,
+                    right: 0,
+                    width: SequenceScrubber.width,
+                    child: IgnorePointer(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: <Color>[
+                              theme.colorScheme.surface.withValues(alpha: 0),
+                              theme.colorScheme.surface.withValues(alpha: 0.72),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: AppSpacing.sm,
+                    bottom: AppSpacing.sm,
+                    right: 0,
+                    width: SequenceScrubber.width,
+                    child: ZoomRail(
+                      depth: _d,
+                      value: _depth,
+                      nameOf: ZoomScreen.nameOf,
+                      onScrub: _scrub,
+                      onRelease: _released,
+                      onStep: _step,
+                    ),
+                  ),
+                ],
               ),
-            );
-          },
+            ),
+            ValueListenableBuilder<ZoomStop>(
+              valueListenable: _stop,
+              builder: (BuildContext context, ZoomStop stop, Widget? _) =>
+                  ZoomCard(
+                    facts: _facts,
+                    stop: stop,
+                    nameOf: ZoomScreen.nameOf,
+                    playing: _motion == _Motion.play,
+                    onPrevious: () => _step(-1),
+                    onNext: () => _step(1),
+                    onPlay: _togglePlay,
+                    onAbout: _about,
+                    onWalk: _walk,
+                  ),
+            ),
+          ],
         ),
       ),
     );

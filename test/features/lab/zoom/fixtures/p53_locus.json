@@ -181,7 +181,31 @@
       "specificity": "Low cell type specificity",
       "distribution": "Detected in many",
       "specific": []
-    }
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Stomach",
+        "cell_type": "Mitotic cells (Stomach)"
+      }
+    ],
+    "subcellular": {
+      "main": [
+        "Nucleoplasm"
+      ],
+      "additional": [
+        "Vesicles",
+        "Cytosol"
+      ]
+    },
+    "secretome": null
+  },
+  "path": {
+    "tissue": "stomach",
+    "tissue_from": "tissue_cell_type",
+    "cell_type": "Mitotic cells (Stomach)",
+    "cell_class": "Stem and proliferating cells",
+    "cell_from": "tissue_cell_type",
+    "lands_in": null
   },
   "sources": {
     "cytoband": {
@@ -216,7 +240,7 @@
       "url": "https://www.proteinatlas.org/ENSG00000141510.json"
     }
   },
-  "retrieved": "2026-09-27",
-  "schema_version": 1,
+  "retrieved": "2026-10-05",
+  "schema_version": 2,
   "built_by": "pipeline/locus/bake_locus.py"
 }

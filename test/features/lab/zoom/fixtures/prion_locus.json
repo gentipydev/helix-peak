@@ -187,7 +187,35 @@
           "ncpm": 343.1
         }
       ]
-    }
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Adipose subcutaneous",
+        "cell_type": "Adipose progenitor cells"
+      },
+      {
+        "tissue": "Breast",
+        "cell_type": "Breast myoepithelial cells"
+      }
+    ],
+    "subcellular": {
+      "main": [
+        "Nuclear membrane",
+        "Cytosol"
+      ],
+      "additional": [
+        "Vesicles"
+      ]
+    },
+    "secretome": null
+  },
+  "path": {
+    "tissue": "choroid plexus",
+    "tissue_from": "tissue",
+    "cell_type": null,
+    "cell_class": null,
+    "cell_from": null,
+    "lands_in": null
   },
   "sources": {
     "cytoband": {
@@ -222,7 +250,7 @@
       "url": "https://www.proteinatlas.org/ENSG00000171867.json"
     }
   },
-  "retrieved": "2026-09-27",
-  "schema_version": 1,
+  "retrieved": "2026-10-05",
+  "schema_version": 2,
   "built_by": "pipeline/locus/bake_locus.py"
 }

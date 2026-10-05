@@ -429,7 +429,29 @@
           "ncpm": 4.8
         }
       ]
-    }
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Pancreas",
+        "cell_type": "Exocrine glandular cells"
+      }
+    ],
+    "subcellular": {
+      "main": [
+        "Golgi apparatus",
+        "Cytosol"
+      ],
+      "additional": []
+    },
+    "secretome": "Secreted to digestive system"
+  },
+  "path": {
+    "tissue": "salivary gland",
+    "tissue_from": "tissue",
+    "cell_type": "Salivary acinar cells",
+    "cell_class": "Glandular epithelial cells",
+    "cell_from": "single_cell_type",
+    "lands_in": null
   },
   "sources": {
     "cytoband": {
@@ -464,7 +486,7 @@
       "url": "https://www.proteinatlas.org/ENSG00000237763.json"
     }
   },
-  "retrieved": "2026-09-27",
-  "schema_version": 1,
+  "retrieved": "2026-10-05",
+  "schema_version": 2,
   "built_by": "pipeline/locus/bake_locus.py"
 }

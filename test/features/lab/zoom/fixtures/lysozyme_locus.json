@@ -337,7 +337,55 @@
           "ncpm": 3967.9
         }
       ]
-    }
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Adrenal gland",
+        "cell_type": "Macrophages"
+      },
+      {
+        "tissue": "Breast",
+        "cell_type": "Macrophages"
+      },
+      {
+        "tissue": "Colon",
+        "cell_type": "Macrophages"
+      },
+      {
+        "tissue": "Kidney",
+        "cell_type": "Macrophages"
+      },
+      {
+        "tissue": "Minor Salivary Gland",
+        "cell_type": "Minor salivary glandular cells"
+      },
+      {
+        "tissue": "Prostate",
+        "cell_type": "Macrophages"
+      },
+      {
+        "tissue": "Thyroid gland",
+        "cell_type": "Macrophages"
+      }
+    ],
+    "subcellular": {
+      "main": [
+        "Golgi apparatus",
+        "Actin filaments"
+      ],
+      "additional": [
+        "Nucleoplasm"
+      ]
+    },
+    "secretome": "Secreted to blood"
+  },
+  "path": {
+    "tissue": "salivary gland",
+    "tissue_from": "tissue",
+    "cell_type": "Minor salivary glandular cells",
+    "cell_class": "Glandular epithelial cells",
+    "cell_from": "tissue_cell_type",
+    "lands_in": null
   },
   "sources": {
     "cytoband": {
@@ -372,7 +420,7 @@
       "url": "https://www.proteinatlas.org/ENSG00000090382.json"
     }
   },
-  "retrieved": "2026-09-27",
-  "schema_version": 1,
+  "retrieved": "2026-10-05",
+  "schema_version": 2,
   "built_by": "pipeline/locus/bake_locus.py"
 }

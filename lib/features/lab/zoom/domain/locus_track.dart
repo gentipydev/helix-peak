@@ -105,13 +105,114 @@ final class AtlasReading {
   String? get first => specific.isEmpty ? null : specific.first.$1;
 }
 
+/// One of the Atlas's tissue cell type pairs: a cell type it finds the gene
+/// enriched in within a tissue, both in its own words
+/// (`Pancreas - Beta cells`).
+@immutable
+final class TissueCellPair {
+  const TissueCellPair({required this.tissue, required this.cellType});
+
+  final String tissue;
+  final String cellType;
+}
+
+/// Where in a cell the Atlas finds the protein: its main locations and its
+/// additional ones, in its own words (`Golgi apparatus`). Empty where it
+/// gives none.
+@immutable
+final class SubcellularReading {
+  const SubcellularReading({
+    this.main = const <String>[],
+    this.additional = const <String>[],
+  });
+
+  final List<String> main;
+  final List<String> additional;
+
+  bool get isEmpty => main.isEmpty && additional.isEmpty;
+}
+
+/// The cell with a nucleus the zoom enters where the path's cell type has
+/// none, and where it is found.
+@immutable
+final class LandsIn {
+  const LandsIn({required this.cell, required this.place, required this.why});
+
+  /// `erythroblasts`.
+  final String cell;
+
+  /// `bone marrow`.
+  final String place;
+
+  /// `no nucleus`.
+  final String why;
+}
+
+/// The zoom's one way down for this gene, as the bake chose it from the
+/// Atlas's readings (`path_of` in `pipeline/locus/bake_locus.py`, schema 2):
+/// an organ, and a cell that lives in it.
+@immutable
+final class LocusPath {
+  const LocusPath({
+    this.tissue,
+    this.tissueFrom,
+    this.cellType,
+    this.cellClass,
+    this.cellFrom,
+    this.landsIn,
+  });
+
+  factory LocusPath.fromJson(Map<String, dynamic> json) {
+    final Map<String, dynamic>? lands =
+        json['lands_in'] as Map<String, dynamic>?;
+    return LocusPath(
+      tissue: json['tissue'] as String?,
+      tissueFrom: json['tissue_from'] as String?,
+      cellType: json['cell_type'] as String?,
+      cellClass: json['cell_class'] as String?,
+      cellFrom: json['cell_from'] as String?,
+      landsIn: lands == null
+          ? null
+          : LandsIn(
+              cell: lands['cell'] as String,
+              place: lands['place'] as String,
+              why: lands['why'] as String,
+            ),
+    );
+  }
+
+  /// The consensus tissue, lower case (`bone marrow`), or null where the
+  /// readings name none.
+  final String? tissue;
+
+  /// How the tissue was chosen: `tissue` (the RNA is highest there),
+  /// `cell_type` (the home of its top cell type) or `tissue_cell_type` (its
+  /// first tissue cell type pair).
+  final String? tissueFrom;
+
+  /// The cell type as the Atlas wrote it, or null where none lives in the
+  /// tissue and the zoom draws the tissue's own cells.
+  final String? cellType;
+
+  /// The Atlas's class for it: `Endocrine cells`.
+  final String? cellClass;
+
+  /// How the cell was chosen: `tissue_cell_type` or `single_cell_type`.
+  final String? cellFrom;
+
+  /// Set where the cell type has no nucleus.
+  final LandsIn? landsIn;
+}
+
 /// The `locus` track: where a protein's gene lies on its chromosome, by
 /// band, with every band of that chromosome, and where in the body its RNA
 /// is read.
 ///
 /// Baked by `pipeline/locus/` in the backend: the span MANE Select gives the
 /// gene on GRCh38, the bands from UCSC's cytoBand table for hg38, and the
-/// Human Protein Atlas's reading of the gene.
+/// Human Protein Atlas's reading of the gene. Schema 2 adds the Atlas's
+/// tissue cell type pairs, where in a cell and where to it finds the protein
+/// secreted, and the zoom's [path]; a schema 1 payload reads without them.
 @immutable
 final class LocusTrack {
   const LocusTrack({
@@ -131,6 +232,13 @@ final class LocusTrack {
     required this.cytobandUpdated,
     required this.atlasVersion,
     required this.atlasLicence,
+    this.schemaVersion = 1,
+    this.path,
+    this.tissueCellTypes = const <TissueCellPair>[],
+    this.subcellular = const SubcellularReading(),
+    this.secretome,
+    this.maneRelease = '',
+    this.atlasUrl = '',
   });
 
   /// Parses one payload, refusing one that names another protein or whose
@@ -197,8 +305,45 @@ final class LocusTrack {
       cytobandUpdated: cytoband['updated'] as String? ?? '',
       atlasVersion: atlas['version'] as String? ?? '',
       atlasLicence: atlas['licence'] as String? ?? '',
+      schemaVersion: json['schema_version'] as int? ?? 1,
+      path: json['path'] == null
+          ? null
+          : LocusPath.fromJson(json['path'] as Map<String, dynamic>),
+      tissueCellTypes: <TissueCellPair>[
+        for (final dynamic raw
+            in expression['tissue_cell_type'] as List<dynamic>? ??
+                <dynamic>[])
+          TissueCellPair(
+            tissue: (raw as Map<String, dynamic>)['tissue'] as String,
+            cellType: raw['cell_type'] as String,
+          ),
+      ],
+      subcellular: _subcellular(
+        expression['subcellular'] as Map<String, dynamic>?,
+      ),
+      secretome: expression['secretome'] as String?,
+      maneRelease:
+          (sources['mane'] as Map<String, dynamic>?)?['release'] as String? ??
+          '',
+      atlasUrl: atlas['url'] as String? ?? '',
     );
   }
+
+  static SubcellularReading _subcellular(Map<String, dynamic>? json) =>
+      json == null
+      ? const SubcellularReading()
+      : SubcellularReading(
+          main: <String>[
+            for (final dynamic name in json['main'] as List<dynamic>? ??
+                <dynamic>[])
+              name as String,
+          ],
+          additional: <String>[
+            for (final dynamic name
+                in json['additional'] as List<dynamic>? ?? <dynamic>[])
+              name as String,
+          ],
+        );
 
   /// [target]'s track, read through [tracks].
   static Future<LocusTrack> load(
@@ -247,6 +392,27 @@ final class LocusTrack {
   /// The Human Protein Atlas version read, and its licence.
   final String atlasVersion;
   final String atlasLicence;
+
+  /// The payload's schema: 1, or 2 with the fields below.
+  final int schemaVersion;
+
+  /// The zoom's one way down, as the bake chose it; null in schema 1.
+  final LocusPath? path;
+
+  /// The Atlas's tissue cell type pairs, as it lists them.
+  final List<TissueCellPair> tissueCellTypes;
+
+  /// Where in a cell the Atlas finds the protein.
+  final SubcellularReading subcellular;
+
+  /// Where the Atlas finds it secreted to (`Secreted to blood`), or null.
+  final String? secretome;
+
+  /// The MANE release the span is from: `v1.5`.
+  final String maneRelease;
+
+  /// The Atlas's page for the gene, as JSON.
+  final String atlasUrl;
 
   /// The gene's real length on the chromosome, in base pairs: its span,
   /// whatever the record drawn from it keeps of its introns.

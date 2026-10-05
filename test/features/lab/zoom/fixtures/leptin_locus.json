@@ -319,7 +319,53 @@
           "ncpm": 187.9
         }
       ]
-    }
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Adipose subcutaneous",
+        "cell_type": "Adipocytes (Subcutaneous)"
+      },
+      {
+        "tissue": "Adipose visceral",
+        "cell_type": "Adipocytes (Visceral)"
+      },
+      {
+        "tissue": "Breast",
+        "cell_type": "Adipocytes (Breast)"
+      },
+      {
+        "tissue": "Minor Salivary Gland",
+        "cell_type": "Adipocytes (Minor salivary gland)"
+      },
+      {
+        "tissue": "Skin",
+        "cell_type": "Adipocytes (Skin)"
+      },
+      {
+        "tissue": "Spleen",
+        "cell_type": "Smooth muscle cells"
+      },
+      {
+        "tissue": "Testis",
+        "cell_type": "Spermatogonia"
+      }
+    ],
+    "subcellular": {
+      "main": [
+        "Vesicles",
+        "Plasma membrane"
+      ],
+      "additional": []
+    },
+    "secretome": "Secreted to blood"
+  },
+  "path": {
+    "tissue": "adipose tissue",
+    "tissue_from": "tissue",
+    "cell_type": "Adipocytes (Subcutaneous)",
+    "cell_class": "Mesenchymal cells",
+    "cell_from": "tissue_cell_type",
+    "lands_in": null
   },
   "sources": {
     "cytoband": {
@@ -354,7 +400,7 @@
       "url": "https://www.proteinatlas.org/ENSG00000174697.json"
     }
   },
-  "retrieved": "2026-09-27",
-  "schema_version": 1,
+  "retrieved": "2026-10-05",
+  "schema_version": 2,
   "built_by": "pipeline/locus/bake_locus.py"
 }
