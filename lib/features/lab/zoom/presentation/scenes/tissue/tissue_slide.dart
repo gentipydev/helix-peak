@@ -24,7 +24,12 @@ enum SlideInk {
   /// Cytoplasm that takes haematoxylin as well: rich in ribosomes.
   basophil,
 
-  /// Fine stripes laid over cytoplasm: a muscle fibre's striations.
+  /// Secretory granules gathered in cells' apexes: eosin's deepest, laid
+  /// over their cytoplasm and under their borders.
+  granules,
+
+  /// Where a muscle fibre is striated: drawn as stripes [TissueSlide.sarcomere]
+  /// apart, over its cytoplasm.
   stria,
 
   /// The cells' borders, stroked thin.
@@ -69,6 +74,10 @@ final class SlideLayer {
 /// an acinar cell at the base of an acinus, a hepatocyte in a plate.
 final class TissueSlide {
   TissueSlide._();
+
+  /// How far apart a muscle fibre's striations are, in micrometres: one
+  /// sarcomere.
+  static const double sarcomere = 2.5;
 
   /// The layers, in the order they are drawn: what lies under the tissue's
   /// cells, the cells, what is laid over them, what is laid over that, and

@@ -50,7 +50,6 @@ extension GlandRecipes on SlideBuilder {
       }
     }
     final List<List<Offset>> cells = voronoi(seeds, pitch * 1.15);
-    final Path apexes = ink(SlideInk.eosin3, TissueSlide.over);
     final Path room = Path();
     final Set<int> laid = <int>{};
     for (int i = 0; i < cells.length; i++) {
@@ -85,14 +84,6 @@ extension GlandRecipes on SlideBuilder {
         continue;
       }
       laid.add(owner[i]);
-      apexes.addPath(
-        rounded(
-          <Offset>[for (final Offset p in poly) c + (p - c) * 0.56],
-          shrink: 0.97,
-          corner: 0.18,
-        ),
-        Offset.zero,
-      );
       // Where acini meet: a capillary, or a fibroblast.
       Offset corner = cells[i].first;
       for (final Offset p in cells[i]) {
@@ -115,7 +106,11 @@ extension GlandRecipes on SlideBuilder {
         );
       }
     }
+    // Each acinus's granules, round its lumen: one zone over its cells'
+    // apexes, their borders showing through it.
     for (final int i in laid) {
+      final double reach = between(10, 12);
+      ellipse(ink(SlideInk.granules), centres[i], reach, reach * 0.96);
       if (spare == null || !spare(centres[i])) {
         ellipse(ink(SlideInk.clear, TissueSlide.over), centres[i], 2.6, 2.4);
       }

@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../../../core/biology/gene_record.dart';
+import '../../domain/anatomy_figure.dart';
+import '../../domain/anatomy_tables.dart';
 import '../../domain/gene_layout.dart';
 import '../../domain/locus_track.dart';
 import '../../domain/zoom_depth.dart';
@@ -22,17 +24,29 @@ final class ZoomSubject {
   final GeneLayout layout;
   late final ZoomDepth depth;
 
+  /// How the path's tissue is drawn, or null where the path names none.
+  TissueAnatomy? get anatomy =>
+      path.tissue == null ? null : tissueAnatomy[path.tissue];
+
+  /// The standing figure the body is drawn as: one that has the path's
+  /// tissue, and as many of the others the gene is raised in as either has.
+  late final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
+    for (final (String name, double _) in track.tissue.specific)
+      ZoomPath.tissueName(name),
+  ]);
+
+  /// The part of [body] the zoom goes into, or null where the path names
+  /// no tissue.
+  AnatomyPart? get bodyPart => body.parts[anatomy?.uberon];
+
   /// [metres] in [stop]'s scene units.
-  double unitsOf(ZoomStop stop, double metres) =>
-      metres / depth.widthOf(stop);
+  double unitsOf(ZoomStop stop, double metres) => metres / depth.widthOf(stop);
 
   /// The genome position of a point [offset] base pairs into the gene from
   /// its 5′ end, on the span MANE gives it.
   double genomeAt(double offset) {
     final double along = offset / layout.length * track.geneLengthBp;
-    return track.strand < 0
-        ? track.spanEnd - along
-        : track.spanStart + along;
+    return track.strand < 0 ? track.spanEnd - along : track.spanStart + along;
   }
 
   /// The middle of the gene's span, on the genome.

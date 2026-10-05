@@ -27,7 +27,7 @@ enum ZoomUnit { metres, basePairs }
 /// still has a story to tell (the territory condensing into a chromosome),
 /// so it is given room.
 ///
-/// The widths are what things measure: a body 2.2 metres across, its organ
+/// The widths are what things measure: a body 1.8 metres across, its organ
 /// as big as the organ is, a slice of tissue half a millimetre, a cell tens
 /// of micrometres, its nucleus about ten. The chromosome is drawn at the
 /// length it condenses to when a cell divides, which follows its base pairs;
@@ -95,6 +95,10 @@ final class ZoomDepth {
   /// base pair's width kept clear at each end.
   static final int helixBases = dnaBasePairs.floor() - 2;
 
+  /// How wide the view is at the body, in metres: a figure 1.70 m tall
+  /// stands whole in a view as tall as it is wide.
+  static const double bodyMetres = 1.8;
+
   /// The organ is drawn with a margin of this much of itself round it.
   static const double organMargin = 1.6;
 
@@ -116,7 +120,7 @@ final class ZoomDepth {
 
   /// How wide the view is at [stop], in [unitOf] it.
   double widthOf(ZoomStop stop) => switch (stop) {
-    ZoomStop.body => 2.2,
+    ZoomStop.body => bodyMetres,
     ZoomStop.organ => organMetres,
     ZoomStop.tissue => tissueMetres,
     ZoomStop.cell => cellMetres,

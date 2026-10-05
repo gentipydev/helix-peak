@@ -56,7 +56,7 @@ stops the view narrows by the segment's factor, logarithmically in depth.
 
 Each scene says where the next stop lies in it (its portal). The camera is
 worked out from where the portal is on screen: the portal's offset from the
-centre shrinks to nothing over the first 35% of a segment (a smootherstep),
+centre shrinks to nothing over the first 60% of a segment (a smootherstep),
 and the centre follows. So the target never leaves the view, and every value
 is a continuous function of depth. `zoom_domain_test` holds the portal on
 screen and the view smooth across every segment of four genes, and holds the
@@ -193,6 +193,81 @@ paint.
 
 The followed territory is the outline the chromosome condenses from.
 
+## The body and the organ
+
+**The figure.** The body is the Expression Atlas anatomogram's standing
+figure (EMBL-EBI, CC BY 4.0): its line art, and inside it a shape for every
+tissue, named by UBERON id. `tool/zoom/anatomogram.py` reads the three
+drawings (female, male, and a brain in four views) at one pinned commit,
+holds each to its digest, and writes
+`lib/features/lab/zoom/domain/anatomy_figures.g.dart`: every outline
+simplified (Ramer-Douglas-Peucker) and measured in metres on a figure 1.70 m
+tall, only the tissues `anatomy_tables.dart` names kept, of the brain only
+its mid-sagittal view. About 95 KB of source for all three. `--check` fails
+if the file is stale.
+
+The outlines are compiled in rather than bundled: the app's asset list is
+held to three files by a walk test, and the figures are code-sized.
+
+**Which figure.** A tissue only one sex has is shown on that body: the
+fallopian tube on the female figure, the testis on the male. Any other is
+on both, and the figure is then the one that has more of the other tissues
+the gene is raised in, the female where they tie
+(`AnatomyFigure.bodyFor`). So a gene of the liver alone is shown the female
+figure, and nothing is meant by it.
+
+**What is lit.** The organs are faint inside the figure. Lit are the tissues
+the Atlas reads the gene's RNA raised in, each as bright as its level
+against the highest: myoglobin's skeletal muscle fully, its heart and tongue
+less. The one the zoom goes into is ringed, and found by a dot while it is
+too small to see. Skin is lit as the figure's own edge.
+
+**Seen through.** On the way in the line art gives way and the organs come
+up, as if the body were seen through.
+
+**One outline, two scenes.** The organ's scene draws the very outline the
+body drew for it (`OrganArt`), so the step is one shape seen closer. It
+comes up over the body's own drawing of the organ early in the step, and
+`zoom_anatomy_test` holds the two to the same point of the screen while both
+show.
+
+**Its real size.** The anatomogram is a diagram: it draws a stomach 11 cm
+long and a pancreas 9. Each organ therefore knows how many times its drawn
+size it really is, and grows to that over the second half of the step, as
+the body fades round it. At the organ's stop the scale bar is true of it.
+The view closes on the organ's middle, so it stands whole in the view, and
+a ring marks where in it the tissue is sampled: the point inside its outline
+farthest from its edge.
+
+**Its surface.** An outline is given the surface of the kind of organ it is:
+
+| Look | Organs |
+|---|---|
+| lobules | pancreas, liver, glands, testis, ovary, prostate, breast, placenta |
+| a wall round a lumen | stomach, bladder, gallbladder, uterus, tube, gullet |
+| fibres | muscle, heart, tongue |
+| airways from the hilum | lung |
+| cortex and pyramids | kidney |
+| marrow in its cavity | the femur, for bone marrow |
+| lobes | fat |
+| coils | intestine, epididymis, seminal vesicle |
+
+The other shapes of the same part (the other lung, the other kidney) stand
+beside it, fainter.
+
+**Not from the anatomogram.** Where it has no outline that shows the tissue,
+the organ is drawn from general anatomy: a lymph node (capsule, follicles,
+medulla, vessels in and out) for "lymphoid tissue", a length of artery, a
+block of skin, a parathyroid gland on the back of the thyroid, the eye cut
+level with the retina lining it. The brain is the anatomogram's own brain
+cut down its middle, with the cortex lit, or the lateral ventricle for the
+choroid plexus, which lies in it.
+
+**The glide.** The camera carries the organ from where it lies in the body
+to the middle of the view over the first three fifths of the step. From the
+head or the thigh that is a long way, and `zoom_smoothness_test` plays the
+protein whose organ lies farthest from the body's middle at 60 fps.
+
 ## The tissue
 
 **The convention.** The tissue is a section stained with haematoxylin and
@@ -253,7 +328,7 @@ principal cell is drawn there.
 **Layers.** A slide is five layers, each drawn whole over the one before:
 what lies under the cells, the cells, two for what is laid over them, and the
 zoom's own cell. In a layer the inks go down in one order: matrix and
-cytoplasm, striations, borders, fibres, lumens, nuclei, red cells. Lines are
+cytoplasm, granules, striations, borders, fibres, lumens, nuclei, red cells. Lines are
 set in screen pixels, so they keep their weight at any magnification.
 
 **The loupe.** From the organ, the field opens as a loupe on the place the
@@ -273,7 +348,6 @@ sees the same slide. The stains are flat: no chromatin texture, no
 variation in section thickness. The consensus "lymphoid tissue" is a lymph
 node; skin has no keratin layer of its own.
 
-**Still to come.** The body and organs from the anatomogram.
 
 ## Smooth motion
 
@@ -301,8 +375,9 @@ What it found, and what was changed:
 - **The lesser of two fades.** Where a callout's fade meets its scene's,
   the lesser of the two is taken, not their product, which compounded into
   a snap.
-- **The portal's glide** to the centre takes half the segment rather than
-  35%, so it stays gentle inside Play's own ease.
+- **The portal's glide** to the centre takes three fifths of the segment
+  rather than 35%, so it stays gentle inside Play's own ease, from as far
+  as the head is from the middle of a body.
 
 `zoom_smoothness_test` also places every stop's callouts at 390 and 320
 wide and fails if two plates overlap or one lies under the rail.
@@ -317,6 +392,9 @@ wide and fails if two plates overlap or one lies under the rail.
 - `domain/gene_layout.dart`: the gene's parts at real length.
 - `domain/anatomy_tables.dart`: tissues to organs, recipes, sizes and
   territories.
+- `domain/anatomy_figure.dart`, `anatomy_figures.g.dart`: the anatomogram's
+  figures, and `tool/zoom/anatomogram.py`, which makes them.
+- `presentation/scenes/organ_art.dart`: every organ's drawing.
 - `presentation/scenes/`: one scene a stop.
 - `presentation/scenes/tissue/`: the slide (`tissue_slide.dart`), the engine
   (`slide_builder.dart`) and the recipes (`recipes_glands.dart`,
@@ -331,9 +409,14 @@ wide and fails if two plates overlap or one lies under the rail.
   `ZOOM_DESIGN_SHOTS=/tmp/zoom flutter test test/zoom_design_render_check.dart`
   writes every stop and two moments in each segment, at 390 and 320 pixels.
   `ZOOM_GENES` narrows the proteins. `ZOOM_TISSUE_ATLAS=/tmp/atlas` writes
-  every recipe's slide on its own, the ones no catalog protein reaches
-  included.
+  every recipe's slide on its own and `ZOOM_ORGAN_ATLAS=/tmp/organs` every
+  tissue's organ, the ones no catalog protein reaches included.
 - `tissue_slide_test` lays every recipe about every kind of cell (432
   slides) and holds the zoom's own nucleus to be the only one at the middle,
   a tissue to be the same slide every time, the field clear of the rail, and
   the cell's name to land on its outline.
+- `zoom_anatomy_test` holds every protein's organ to a figure that has it,
+  the lit organs to the Atlas's reading, and the organ's scene to the
+  outline the body drew. `zoom_domain_test` holds the figures themselves:
+  1.70 m tall, every part inside its figure with its site inside it, and
+  the generated file to its source, commit and licence.

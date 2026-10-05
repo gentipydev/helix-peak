@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
@@ -92,6 +93,13 @@ final class TissueScene extends ZoomScene {
   );
 
   late final Path _ring = _target.$1.toPath();
+
+  /// Where the cell's scene draws a fibre's striations, in micrometres from
+  /// the middle: the slide's stripes lie on them, so the two are one set of
+  /// stripes across the step between the scenes. The cell's scene rules
+  /// them from two of its views to the left of its middle.
+  late final double _striaPhase =
+      (-2 * subject.depth.widthOf(ZoomStop.cell) * 1e6) % TissueSlide.sarcomere;
 
   /// Where on the cell's outline its name's line lands, in micrometres:
   /// its upper right, near its nucleus.
@@ -205,6 +213,7 @@ final class TissueScene extends ZoomScene {
       frame.inks.scale,
       pixel: 1 / perMicron,
       alpha: shown,
+      striaPhase: _striaPhase,
     );
     // The zoom's cell, ringed.
     canvas.drawPath(
@@ -242,13 +251,15 @@ final class TissueScene extends ZoomScene {
 
 /// Draws [slide] in its own micrometres, layer over layer, in the stains'
 /// colours: [pixel] is one screen pixel in micrometres, so lines keep their
-/// weight at any magnification.
+/// weight at any magnification. A muscle fibre's stripes are centred
+/// [striaPhase] micrometres from the middle, and every sarcomere from there.
 void paintTissueSlide(
   Canvas canvas,
   TissueSlide slide,
   ScaleColors colors, {
   required double pixel,
   double alpha = 1,
+  double striaPhase = 0,
 }) {
   final Color lamp = colors.brightfield;
   final Color eosin = colors.eosin;
@@ -286,11 +297,34 @@ void paintTissueSlide(
           filled(path, mix(eosin, deep, 0.9));
         case SlideInk.basophil:
           filled(path, mix(mix(eosin, deep, 0.5), pale, 0.55));
+        case SlideInk.granules:
+          filled(path, mix(eosin, deep, 0.9));
         case SlideInk.stria:
-          canvas.drawPath(
-            path,
-            fill..color = deep.withValues(alpha: 0.36 * alpha),
+          // Stripes a sarcomere apart. Finer than a pixel they would only
+          // shimmer, so they come up as the view closes on them.
+          final double seen = smoothstep(
+            (TissueSlide.sarcomere / pixel - 1) / 1.2,
           );
+          if (seen > 0) {
+            final Color stripe = deep.withValues(alpha: 0.36 * alpha * seen);
+            final double from = striaPhase - 0.21 * TissueSlide.sarcomere;
+            canvas.drawPath(
+              path,
+              Paint()
+                ..shader = ui.Gradient.linear(
+                  Offset(from, 0),
+                  Offset(from + TissueSlide.sarcomere, 0),
+                  <Color>[
+                    stripe,
+                    stripe,
+                    stripe.withValues(alpha: 0),
+                    stripe.withValues(alpha: 0),
+                  ],
+                  const <double>[0, 0.42, 0.42, 1],
+                  TileMode.repeated,
+                ),
+            );
+          }
         case SlideInk.border:
           stroked(path, deep, 0.42, 1);
         case SlideInk.fibre:

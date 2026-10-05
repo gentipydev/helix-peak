@@ -56,11 +56,7 @@ final class ZoomSource {
 /// every protein. Only the gene's own stop names the gene, as its record
 /// does; no other line names a gene or a protein.
 final class ZoomFacts {
-  ZoomFacts({
-    required this.track,
-    required this.path,
-    required this.record,
-  });
+  ZoomFacts({required this.track, required this.path, required this.record});
 
   final LocusTrack track;
   final ZoomPath path;
@@ -110,7 +106,8 @@ final class ZoomFacts {
     ZoomStop.dna => ZoomFact(
       stop: stop,
       title: 'Its first ${grouped(dnaBases)} bases',
-      line: '5′ ${record.sequence.substring(0, math.min(dnaBases, record.sequence.length))} 3′',
+      line:
+          '5′ ${record.sequence.substring(0, math.min(dnaBases, record.sequence.length))} 3′',
       source: 'RefSeq record',
     ),
   };
@@ -162,8 +159,8 @@ final class ZoomFacts {
       }(),
       TissueFrom.cellHome =>
         '${reading.specificity} · home of its top cell type',
-      TissueFrom.pair || null =>
-        '${reading.specificity} · its tissue cell type pair',
+      TissueFrom.pair ||
+      null => '${reading.specificity} · its tissue cell type pair',
     };
     return ZoomFact(
       stop: ZoomStop.body,
@@ -183,6 +180,8 @@ final class ZoomFacts {
       title: tissue == null ? 'An organ' : capital(tissue),
       line: anatomy == null
           ? 'Any organ it is read in'
+          : anatomy.inBrain != null && tissue != 'brain'
+          ? 'In the brain, about ${lengthLabel(anatomy.metres)} long'
           : 'About ${lengthLabel(anatomy.metres)} across',
       source: ZoomFact.drawn,
     );
@@ -273,6 +272,19 @@ final class ZoomFacts {
       uri: track.atlasUrl.isEmpty
           ? null
           : track.atlasUrl.replaceFirst(RegExp(r'\.json$'), ''),
+    ),
+    const ZoomSource(
+      name: 'Body and organs',
+      text:
+          'The figure, the brain and most organs’ outlines are made from the '
+          'Expression Atlas anatomograms, by EMBL-EBI, CC BY 4.0, with their '
+          'outlines simplified. The figure draws many organs smaller than '
+          'they are, so each is brought to its own size as the view closes on '
+          'it. The organs lit in the body are the tissues the Atlas finds the '
+          'gene’s RNA raised in, each as bright as its level against the '
+          'highest. A lymph node, a vessel, the skin, a parathyroid gland and '
+          'the eye are drawn from general anatomy.',
+      uri: 'https://github.com/ebi-gene-expression-group/anatomogram',
     ),
     ZoomSource(
       name: 'Bands',

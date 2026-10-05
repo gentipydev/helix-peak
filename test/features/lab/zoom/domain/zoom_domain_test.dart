@@ -6,6 +6,7 @@ import 'dart:ui';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/biology/gene_record.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
+import 'package:helixpeek/features/lab/zoom/domain/anatomy_figure.dart';
 import 'package:helixpeek/features/lab/zoom/domain/anatomy_tables.dart';
 import 'package:helixpeek/features/lab/zoom/domain/cell_archetypes.dart';
 import 'package:helixpeek/features/lab/zoom/domain/gene_layout.dart';
@@ -262,7 +263,6 @@ void main() {
     test('draw every tissue the Atlas names, once each', () {
       expect(tissueAnatomy.keys.toSet(), atlasTissues.toSet());
       for (final String tissue in atlasTissues) {
-        expect(placeOf(tissue), isNotNull, reason: tissue);
         final TissueAnatomy anatomy = tissueAnatomy[tissue]!;
         expect(anatomy.metres, inExclusiveRange(1e-3, 1.0), reason: tissue);
         expect(anatomy.uberon, startsWith('UBERON_'), reason: tissue);
@@ -287,6 +287,35 @@ void main() {
       });
     });
 
+    test('find every tissue on the figure of a body that has it', () {
+      for (final MapEntry<String, TissueAnatomy> e in tissueAnatomy.entries) {
+        final String part = e.value.uberon;
+        final bool onFemale = AnatomyFigure.female.parts.containsKey(part);
+        final bool onMale = AnatomyFigure.male.parts.containsKey(part);
+        switch (e.value.sex) {
+          case BodySex.female:
+            expect(onFemale, isTrue, reason: e.key);
+          case BodySex.male:
+            expect(onMale, isTrue, reason: e.key);
+          case BodySex.either:
+            expect(onFemale && onMale, isTrue, reason: e.key);
+        }
+        // And the figure the zoom picks for it has it.
+        expect(
+          AnatomyFigure.bodyFor(e.key, const <String>[]).parts[part],
+          isNotNull,
+          reason: e.key,
+        );
+        if (e.value.inBrain != null) {
+          expect(
+            AnatomyFigure.brain.parts[e.value.inBrain],
+            isNotNull,
+            reason: e.key,
+          );
+        }
+      }
+    });
+
     test('place every chromosome’s territory inside the nucleus', () {
       for (int n = 1; n <= 22; n++) {
         expect(territoryRadius['$n'], inExclusiveRange(0, 1), reason: '$n');
@@ -295,6 +324,102 @@ void main() {
       expect(territoryRadius['Y'], inExclusiveRange(0, 1));
       // Gene-dense 19 inward, gene-poor 18 at the rim.
       expect(territoryRadius['19']!, lessThan(territoryRadius['18']!));
+    });
+  });
+
+  group('the anatomogram’s figures', () {
+    bool inside(List<Offset> outline, Offset p) {
+      bool odd = false;
+      for (int i = 0; i < outline.length; i++) {
+        final Offset a = outline[i];
+        final Offset b = outline[(i + 1) % outline.length];
+        if ((a.dy > p.dy) != (b.dy > p.dy) &&
+            p.dx < a.dx + (p.dy - a.dy) * (b.dx - a.dx) / (b.dy - a.dy)) {
+          odd = !odd;
+        }
+      }
+      return odd;
+    }
+
+    Rect boxOf(List<Offset> outline) => outline.fold<Rect>(
+      Rect.fromPoints(outline.first, outline.first),
+      (Rect box, Offset p) => box.expandToInclude(Rect.fromPoints(p, p)),
+    );
+
+    test('stand 1.70 m tall about their midline, and the brain is 17 cm '
+        'long', () {
+      for (final AnatomyFigure figure in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ]) {
+        final Rect box = boxOf(figure.silhouette);
+        expect(box.top, closeTo(0, 1e-3), reason: figure.name);
+        expect(box.height, closeTo(AnatomyFigure.height, 1e-3));
+        expect(box.center.dx, closeTo(0, 1e-3), reason: figure.name);
+        // Arms out: wider than the trunk, narrower than it is tall.
+        expect(box.width, inExclusiveRange(0.7, 1.2), reason: figure.name);
+      }
+      final Rect brain = boxOf(AnatomyFigure.brain.silhouette);
+      expect(brain.width, closeTo(0.17, 1e-3));
+      expect(brain.center.distance, lessThan(1e-3));
+    });
+
+    test('draw every part inside the figure, with a place in it to go in '
+        'at', () {
+      for (final AnatomyFigure figure in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+        AnatomyFigure.brain,
+      ]) {
+        final Rect box = boxOf(figure.silhouette).inflate(0.01);
+        expect(figure.parts, isNotEmpty);
+        for (final MapEntry<String, AnatomyPart> part in figure.parts.entries) {
+          final String what = '${figure.name} ${part.key}';
+          expect(part.value.followed.length, greaterThan(5), reason: what);
+          expect(
+            inside(part.value.followed, part.value.site),
+            isTrue,
+            reason: '$what: its site is outside its outline',
+          );
+          for (final List<Offset> contour in part.value.contours) {
+            for (final Offset p in contour) {
+              expect(box.contains(p), isTrue, reason: '$what at $p');
+            }
+          }
+        }
+      }
+    });
+
+    test('pick a body that has the tissue, and as many of the others the '
+        'gene is read in as either has', () {
+      AnatomyFigure body(String? tissue, [List<String> others = const []]) =>
+          AnatomyFigure.bodyFor(tissue, others);
+      expect(body('testis'), same(AnatomyFigure.male));
+      expect(body('fallopian tube', <String>['testis']),
+          same(AnatomyFigure.female));
+      expect(body('liver'), same(AnatomyFigure.female));
+      expect(body('liver', <String>['prostate']), same(AnatomyFigure.male));
+      expect(body('liver', <String>['prostate', 'ovary']),
+          same(AnatomyFigure.female));
+      expect(body(null), same(AnatomyFigure.female));
+    });
+
+    test('carry their source, its commit and its licence in the file they '
+        'are generated into', () {
+      final String generated = File(
+        'lib/features/lab/zoom/domain/anatomy_figures.g.dart',
+      ).readAsStringSync();
+      final String head = generated.substring(0, generated.indexOf('const '));
+      expect(head, contains('GENERATED by tool/zoom/anatomogram.py'));
+      expect(head, contains('ebi-gene-expression-group/anatomogram'));
+      expect(head, contains('CC BY 4.0'));
+      expect(head, contains('simplified'));
+      // And the tool is pinned to the commit the file says it was made at.
+      final String commit = RegExp(r'[0-9a-f]{40}').firstMatch(head)!.group(0)!;
+      expect(
+        File('tool/zoom/anatomogram.py').readAsStringSync(),
+        contains('COMMIT = "$commit"'),
+      );
     });
   });
 
@@ -438,7 +563,7 @@ void main() {
       expect(depth.unitAt(depth.depthOf(ZoomStop.nucleus)), ZoomUnit.metres);
       expect(depth.unitAt(depth.depthOf(ZoomStop.chromosome)), ZoomUnit.metres);
       expect(depth.unitAt(depth.depthOf(ZoomStop.band)), ZoomUnit.basePairs);
-      expect(depth.widthLabel(depth.depthOf(ZoomStop.body)), '2.2 m');
+      expect(depth.widthLabel(depth.depthOf(ZoomStop.body)), '1.8 m');
       // The eyepiece's half-millimetre field, with the dark round it.
       expect(depth.widthLabel(depth.depthOf(ZoomStop.tissue)), '600 µm');
       expect(lengthLabel(ZoomDepth.tissueField), '500 µm');
@@ -804,6 +929,14 @@ void main() {
       expect(about, contains('CC BY 4.0'));
       expect(about, contains('2022-10-28'));
       expect(about, contains('MANE Select'));
+      // The anatomogram's own credit: who, under what, and what was changed.
+      final ZoomSource figures = _facts(TestCatalog.insulin)
+          .about
+          .firstWhere((ZoomSource s) => s.name == 'Body and organs');
+      expect(figures.text, contains('Expression Atlas anatomograms'));
+      expect(figures.text, contains('EMBL-EBI, CC BY 4.0'));
+      expect(figures.text, contains('simplified'));
+      expect(figures.uri, contains('ebi-gene-expression-group/anatomogram'));
     });
 
     test('show the record’s first bases at the DNA, 5′ to 3′', () {

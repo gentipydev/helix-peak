@@ -8,13 +8,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/core/theme/scale_colors.dart';
+import 'package:helixpeek/features/lab/zoom/domain/anatomy_figure.dart';
 import 'package:helixpeek/features/lab/zoom/domain/anatomy_tables.dart';
 import 'package:helixpeek/features/lab/zoom/domain/cell_archetypes.dart';
 import 'package:helixpeek/features/lab/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/lab/zoom/domain/zoom_path.dart';
 import 'package:helixpeek/features/lab/zoom/presentation/scenes/contour.dart';
+import 'package:helixpeek/features/lab/zoom/presentation/scenes/organ_art.dart';
 import 'package:helixpeek/features/lab/zoom/presentation/scenes/tissue/tissue_slide.dart';
 import 'package:helixpeek/features/lab/zoom/presentation/scenes/tissue_scene.dart';
+import 'package:helixpeek/features/lab/zoom/presentation/zoom_inks.dart';
 import 'package:helixpeek/features/lab/zoom/presentation/zoom_screen.dart';
 
 import 'features/gene_lookup/anatomy/anatomy_fixture.dart';
@@ -31,8 +34,9 @@ import 'support/test_catalog.dart';
 /// and checks nothing threw.
 ///
 /// ZOOM_TISSUE_ATLAS=/tmp/atlas writes every tissue recipe's slide on its
-/// own, whichever proteins go there: the ones no catalog protein reaches
-/// are seen nowhere else.
+/// own, and ZOOM_ORGAN_ATLAS=/tmp/organs every tissue's organ, whichever
+/// proteins go there: the ones no catalog protein reaches are seen nowhere
+/// else.
 void main() {
   setUpAll(() async {
     await loadAppFonts();
@@ -135,6 +139,64 @@ void main() {
     }
   }
 
+  testWidgets('every tissue has an organ to draw', (WidgetTester tester) async {
+    final String atlas = Platform.environment['ZOOM_ORGAN_ATLAS'] ?? '';
+    const double side = 360;
+    await tester.binding.setSurfaceSize(const Size(side, side));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    const Key key = ValueKey<String>('zoom-organ-atlas');
+    late ZoomInks inks;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.analysis,
+        home: Builder(
+          builder: (BuildContext context) {
+            inks = ZoomInks.of(context);
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
+    for (final MapEntry<String, TissueAnatomy> tissue
+        in tissueAnatomy.entries) {
+      final AnatomyFigure body = AnatomyFigure.bodyFor(
+        tissue.key,
+        const <String>[],
+      );
+      final OrganArt art = OrganArt.forTissue(
+        tissue.value,
+        body.parts[tissue.value.uberon],
+        tissue.value.metres * ZoomDepth.organMargin,
+      );
+      await tester.pumpWidget(
+        RepaintBoundary(
+          key: key,
+          child: CustomPaint(
+            size: const Size(side, side),
+            painter: _OrganPainter(art, inks),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull, reason: tissue.key);
+      if (atlas.isNotEmpty) {
+        await tester.runAsync(() async {
+          Directory(atlas).createSync(recursive: true);
+          final RenderRepaintBoundary boundary = tester.renderObject(
+            find.byKey(key),
+          );
+          final ui.Image image = await boundary.toImage(pixelRatio: 2);
+          final ByteData data = (await image.toByteData(
+            format: ui.ImageByteFormat.png,
+          ))!;
+          image.dispose();
+          File('$atlas/${tissue.key.replaceAll(' ', '_')}.png')
+              .writeAsBytesSync(data.buffer.asUint8List());
+        });
+      }
+    }
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets('every tissue recipe lays a slide', (WidgetTester tester) async {
     final String atlas = Platform.environment['ZOOM_TISSUE_ATLAS'] ?? '';
     const double side = 440;
@@ -199,6 +261,33 @@ void main() {
     }
     await tester.pumpWidget(const SizedBox.shrink());
   });
+}
+
+/// One organ on its own, at the size its scene shows it at its stop.
+class _OrganPainter extends CustomPainter {
+  _OrganPainter(this.art, this.inks);
+
+  final OrganArt art;
+  final ZoomInks inks;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawRect(Offset.zero & size, Paint()..color = inks.ground);
+    canvas.translate(size.width / 2, size.height / 2);
+    canvas.scale(size.width);
+    art.paint(canvas, inks, 1 / size.width, 1);
+    canvas.drawCircle(
+      art.site,
+      0.03,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2 / size.width
+        ..color = inks.mark,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _OrganPainter old) => old.art != art;
 }
 
 /// One slide on its own, its field filling the square.

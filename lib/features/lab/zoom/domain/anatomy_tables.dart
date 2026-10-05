@@ -84,6 +84,7 @@ final class TissueAnatomy {
     required this.metres,
     required this.uberon,
     required this.recipe,
+    this.inBrain,
     this.sex = BodySex.either,
   });
 
@@ -92,8 +93,13 @@ final class TissueAnatomy {
   /// The organ's longest extent, in metres: the organ level shows it whole.
   final double metres;
 
-  /// The anatomogram part it is drawn from, by UBERON id.
+  /// The part of the anatomogram's standing figure it is found by, by
+  /// UBERON id.
   final String uberon;
+
+  /// For a tissue of the brain, the part of the anatomogram's brain it is:
+  /// the organ level shows the brain cut down its middle, with this lit.
+  final String? inBrain;
 
   final TissueRecipe recipe;
   final BodySex sex;
@@ -102,8 +108,8 @@ final class TissueAnatomy {
 /// Every consensus tissue the Atlas names (version 25.1), by its own
 /// lower-case name. Where the anatomogram has no part of its own for a
 /// tissue, the part that holds it stands in: the choroid plexus lies in the
-/// brain's ventricles, the parathyroid glands behind the thyroid, and the
-/// consensus "lymphoid tissue" is drawn as a lymph node.
+/// brain's lateral ventricle, the parathyroid glands behind the thyroid, and
+/// the consensus "lymphoid tissue" is drawn as a lymph node.
 const Map<String, TissueAnatomy> tissueAnatomy = <String, TissueAnatomy>{
   'adipose tissue': TissueAnatomy(
     organ: OrganKind.adipose,
@@ -133,6 +139,7 @@ const Map<String, TissueAnatomy> tissueAnatomy = <String, TissueAnatomy>{
     organ: OrganKind.brain,
     metres: 0.17,
     uberon: 'UBERON_0000955',
+    inBrain: 'UBERON_0000956',
     recipe: TissueRecipe.neural,
   ),
   'breast': TissueAnatomy(
@@ -151,7 +158,8 @@ const Map<String, TissueAnatomy> tissueAnatomy = <String, TissueAnatomy>{
   'choroid plexus': TissueAnatomy(
     organ: OrganKind.brain,
     metres: 0.17,
-    uberon: 'UBERON_0002285',
+    uberon: 'UBERON_0000955',
+    inBrain: 'UBERON_0002285',
     recipe: TissueRecipe.choroidPlexus,
   ),
   'endometrium': TissueAnatomy(
@@ -338,61 +346,6 @@ const Map<String, TissueAnatomy> tissueAnatomy = <String, TissueAnatomy>{
     sex: BodySex.female,
   ),
 };
-
-/// Where each of the Atlas's tissues lies in a body standing facing the
-/// reader, in metres from the top of the head and across from its midline,
-/// the body's own left to the reader's right. General anatomy: a tissue's
-/// place, not any gene's.
-const Map<String, (double, double)> tissuePlaces = <String, (double, double)>{
-  'brain': (0.08, 0),
-  'choroid plexus': (0.09, 0.01),
-  'cerebral cortex': (0.06, 0.03),
-  'pituitary gland': (0.10, 0),
-  'retina': (0.11, 0.03),
-  'tongue': (0.16, 0),
-  'salivary gland': (0.17, -0.05),
-  'thyroid gland': (0.22, 0),
-  'parathyroid gland': (0.22, 0.015),
-  'lymphoid tissue': (0.21, -0.05),
-  'esophagus': (0.30, 0),
-  'thymus': (0.32, 0),
-  'breast': (0.40, -0.08),
-  'lung': (0.40, -0.08),
-  'heart muscle': (0.42, 0.04),
-  'liver': (0.50, -0.07),
-  'gallbladder': (0.53, -0.05),
-  'stomach': (0.50, 0.06),
-  'spleen': (0.49, 0.10),
-  'pancreas': (0.53, 0.035),
-  'adrenal gland': (0.52, -0.05),
-  'kidney': (0.56, 0.06),
-  'intestine': (0.66, 0),
-  'small intestine': (0.66, 0),
-  'colon': (0.70, -0.04),
-  'appendix': (0.72, -0.06),
-  'smooth muscle': (0.68, 0.02),
-  'adipose tissue': (0.62, 0.12),
-  'placenta': (0.72, 0),
-  'bone marrow': (0.80, 0.09),
-  'urinary bladder': (0.86, 0),
-  'endometrium': (0.83, 0),
-  'cervix': (0.85, 0),
-  'vagina': (0.88, 0),
-  'fallopian tube': (0.82, 0.06),
-  'ovary': (0.83, 0.08),
-  'prostate': (0.89, 0),
-  'seminal vesicle': (0.88, 0.02),
-  'ductus deferens': (0.90, 0.03),
-  'epididymis': (0.93, 0.03),
-  'testis': (0.94, 0.02),
-  'skin': (0.60, -0.24),
-  'skeletal muscle': (1.08, 0.08),
-  'blood vessel': (0.45, 0.02),
-};
-
-/// [tissue]'s place, by the name the zoom's path gives it; null for a name
-/// the table lacks.
-(double, double)? placeOf(String tissue) => tissuePlaces[tissue.toLowerCase()];
 
 /// Where each chromosome's territory is drawn in a nucleus, from its centre
 /// (0) to its edge (1): gene-dense chromosomes inward, gene-poor ones at the

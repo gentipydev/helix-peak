@@ -146,11 +146,21 @@ void main() {
     WidgetTester tester,
   ) async {
     final ZoomInks inks = await _inks(tester);
-    for (final ProteinTarget t in <ProteinTarget>[
+    // The longest glide of all: the protein whose organ lies farthest from
+    // the middle of the body.
+    final ProteinTarget farthest = TestCatalog.all.reduce(
+      (ProteinTarget a, ProteinTarget b) =>
+          _stage(a).scenes.first.portal.distance >=
+              _stage(b).scenes.first.portal.distance
+          ? a
+          : b,
+    );
+    for (final ProteinTarget t in <ProteinTarget>{
       TestCatalog.hemoglobin,
       TestCatalog.dystrophin,
       TestCatalog.amylase,
-    ]) {
+      farthest,
+    }) {
       final ZoomStage stage = _stage(t);
       final PlaySchedule play = PlaySchedule(stage.depth, from: 0);
       final int frames = (play.length.inMicroseconds / 1e6 * 60).ceil();

@@ -67,10 +67,11 @@ final class ZoomCamera {
   /// Where the stop after [stop] lies in [stop]'s scene, in its units.
   final Offset Function(ZoomStop stop) portalOf;
 
-  /// How much of a segment the portal takes to reach the centre: half of
-  /// it, so the glide eases out well before the next stop and stays gentle
-  /// even inside a flight's own ease.
-  static const double settle = 0.5;
+  /// How much of a segment the portal takes to reach the centre: three
+  /// fifths of it, so the glide eases out before the next stop and stays
+  /// gentle even inside a flight's own ease, from as far off as the head is
+  /// from the middle of a body.
+  static const double settle = 0.6;
 
   /// The two scenes at [d] on a view of [size]: the stop being left, and the
   /// one being entered.

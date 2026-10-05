@@ -335,14 +335,13 @@ extension BulkRecipes on SlideBuilder {
     }
   }
 
-  /// The cross-striations of a fibre lying between [top] and [bottom]: a
-  /// dark band to each sarcomere, 2.5 micrometres apart, as the cell's
-  /// scene has them.
+  /// Marks a fibre lying between [top] and [bottom] as striated: the
+  /// stripes themselves, a sarcomere apart, are drawn over it.
   void _striate(double top, double bottom, int layer) {
-    final Path stripes = ink(SlideInk.stria, layer);
-    for (double x = -field - 2; x < field + 2; x += 2.5) {
-      stripes.addRect(Rect.fromLTRB(x, top + 0.7, x + 1.05, bottom - 0.7));
-    }
+    ink(
+      SlideInk.stria,
+      layer,
+    ).addRect(Rect.fromLTRB(-field - 2, top + 0.7, field + 2, bottom - 0.7));
   }
 
   /// Grey matter: a pink felt of fibres stippled with the small nuclei of
