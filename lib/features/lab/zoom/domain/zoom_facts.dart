@@ -193,7 +193,9 @@ final class ZoomFacts {
     return ZoomFact(
       stop: ZoomStop.tissue,
       title: tissue == null ? 'A tissue' : '${capital(tissue)}, magnified',
-      line: 'A field half a millimetre across, stained with H&E',
+      line:
+          'A field ${lengthLabel(ZoomDepth.tissueField)} across, stained '
+          'with H&E',
       source: ZoomFact.drawn,
     );
   }
@@ -253,9 +255,12 @@ final class ZoomFacts {
       name: 'What is drawn',
       text:
           'The body, the organ, the tissue, the cell and the nucleus are '
-          'illustrations, drawn the same way for every gene. Which organ and '
-          'which cell they are is the Human Protein Atlas’s reading; the '
-          'chromosome’s bands, where the gene lies and its exons are data.',
+          'illustrations of general anatomy: every gene that goes to a tissue '
+          'or to a kind of cell is shown the same one. The tissue is drawn '
+          'as a section stained with haematoxylin and eosin, the cell as '
+          'immunofluorescence. Which organ and which cell they are is the '
+          'Human Protein Atlas’s reading; the chromosome’s bands, where the '
+          'gene lies and its exons are data.',
     ),
     ZoomSource(
       name: 'Human Protein Atlas',

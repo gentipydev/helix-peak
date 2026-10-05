@@ -193,8 +193,87 @@ paint.
 
 The followed territory is the outline the chromosome condenses from.
 
-**Still to come.** The tissue in H&E under a loupe, and the body and organs
-from the anatomogram.
+## The tissue
+
+**The convention.** The tissue is a section stained with haematoxylin and
+eosin, as a pathologist reads one: nuclei purple, cytoplasm and matrix pink,
+lumens, fat and vessels the lamp's own light, red cells red. It is seen in
+the round field of an eyepiece, 500 µm across (what a ×40 objective shows),
+which darkens toward its edge and stands clear of the rail.
+
+**One engine, a recipe an architecture.** `TissueSlide` lays a slide once,
+in micrometres, from the tissue's recipe: each of the Atlas's 37 tissues has
+one of 24 (`tissueAnatomy`). The engine (`SlideBuilder`) is seeds and the
+Voronoi cells round them, relaxed so they pack as cells do, an epithelium set
+cell by cell along a line, vessels, and fibres, all from one seeded
+generator, so a tissue is the same slide every time. Sizes are the tissue's
+own: a hepatocyte 24 µm, a fat cell 66, a seminiferous tubule 190 across.
+
+| Recipe | Tissues | What is laid |
+|---|---|---|
+| acinar | pancreas, salivary gland | acini edge to edge, purple at the base and pink at the apex, a pinpoint lumen; an islet among them, or a duct in its sheath, where the cell is of one |
+| hepatic | liver | plates one or two cells thick running out from a central vein and branching, sinusoids with their lining cells and red cells |
+| endocrine | pituitary, adrenal, parathyroid | nests of acidophils, basophils and chromophobes, sinusoids between the nests |
+| follicular | thyroid | follicles of colloid walled by cuboidal cells |
+| gastric, renal | stomach, kidney | glands or tubules cut across; the kidney's about a glomerulus |
+| seminiferous | testis | tubules: spermatogonia and Sertoli cells, spermatocytes, round then elongating spermatids, tails in the lumen; Leydig cells between |
+| choroidPlexus, placental | choroid plexus, placenta | fronds or villi cut every way, a capillary core in each; the mother's blood round the villi |
+| glandular, intestinal | tube, uterus, prostate, breast…; intestine | a mucosa in folds, ciliated, more folds free in the lumen; or villi with goblet cells and crypts |
+| squamous, urothelial | skin, gullet, cervix, vagina; bladder | layers on a wavy floor, flattening to the surface; or the bladder's, with large cells on top |
+| alveolar | lung | air spaces, capillaries in their walls |
+| lymphoid | lymphoid tissue | a node's edge: fat, capsule, the sinus under it, cortex and a follicle |
+| vascular | blood vessel | an artery's wall along its length |
+| marrow | bone marrow | blood-forming cells, fat cells, megakaryocytes, a sinusoid |
+| skeletalMuscle, cardiac | muscle, tongue; heart | fibres along their length, striated |
+| neural, retina | brain; retina | grey matter; the retina in its layers, vitreous to choroid |
+| adipose | fat | fat cells edge to edge |
+| smoothMuscle, ovarian | smooth muscle; ovary | spindle cells in sheets, or streaming in whorls |
+
+**The zoom's cell belongs where it sits.** It is drawn at the middle in the
+same outline the cell's scene draws (`cellOutline`), ringed, and the recipe
+lays the tissue about it:
+
+- an acinar cell is one of a ring, its apex on the lumen; a beta cell is in
+  an islet; a duct cell in a duct's ring;
+- a hepatocyte is in a plate, the lobule turned so that a file runs through
+  it;
+- an erythroblast is in its island, the one the cell's scene shows: the
+  macrophage, the brood round it, the grown red cells leaving;
+- a muscle fibre runs across the whole field, striated every 2.5 µm as it is
+  in the cell's scene, its other nuclei where that scene has them;
+- a ciliated cell stands on a fold with its apex to the lumen; a plexus
+  cell on a frond;
+- a spermatocyte is in the second layer of a tubule's wall; a lymphatic
+  endothelial cell lines the sinus's floor; a dividing cell is in a gastric
+  gland.
+
+Where the path names no cell that lives in the tissue, the tissue's own
+principal cell is drawn there.
+
+**Layers.** A slide is five layers, each drawn whole over the one before:
+what lies under the cells, the cells, two for what is laid over them, and the
+zoom's own cell. In a layer the inks go down in one order: matrix and
+cytoplasm, striations, borders, fibres, lumens, nuclei, red cells. Lines are
+set in screen pixels, so they keep their weight at any magnification.
+
+**The loupe.** From the organ, the field opens as a loupe on the place the
+organ is sampled: a circle that grows from 56 px to the eyepiece's field
+while it shows 0.3 and then 0.83 of the scene, so the magnification barely
+changes, the organ dimming round it. It meets the camera's own scale at the
+tissue's stop. A step of some hundredfold becomes a change of instrument.
+
+**Into the cell.** The slide is paths, not a picture: as the view closes on
+the cell it stays sharp, and a fibre's striations and an acinus's cells come
+up to meet the cell's own scene, whose dark field spreads out from the same
+outline.
+
+**What is not drawn.** One field stands for a tissue wherever in the organ
+it is cut, and every gene whose path goes there with the same kind of cell
+sees the same slide. The stains are flat: no chromatin texture, no
+variation in section thickness. The consensus "lymphoid tissue" is a lymph
+node; skin has no keratin layer of its own.
+
+**Still to come.** The body and organs from the anatomogram.
 
 ## Smooth motion
 
@@ -239,6 +318,9 @@ wide and fails if two plates overlap or one lies under the rail.
 - `domain/anatomy_tables.dart`: tissues to organs, recipes, sizes and
   territories.
 - `presentation/scenes/`: one scene a stop.
+- `presentation/scenes/tissue/`: the slide (`tissue_slide.dart`), the engine
+  (`slide_builder.dart`) and the recipes (`recipes_glands.dart`,
+  `recipes_linings.dart`, `recipes_bulk.dart`).
 - `presentation/zoom_painter.dart`: the visible scenes, the callouts and the
   scale bar.
 - `presentation/zoom_rail.dart`, `zoom_card.dart`, `zoom_about.dart`,
@@ -248,4 +330,10 @@ wide and fails if two plates overlap or one lies under the rail.
 - Render check:
   `ZOOM_DESIGN_SHOTS=/tmp/zoom flutter test test/zoom_design_render_check.dart`
   writes every stop and two moments in each segment, at 390 and 320 pixels.
-  `ZOOM_GENES` narrows the proteins.
+  `ZOOM_GENES` narrows the proteins. `ZOOM_TISSUE_ATLAS=/tmp/atlas` writes
+  every recipe's slide on its own, the ones no catalog protein reaches
+  included.
+- `tissue_slide_test` lays every recipe about every kind of cell (432
+  slides) and holds the zoom's own nucleus to be the only one at the middle,
+  a tissue to be the same slide every time, the field clear of the rail, and
+  the cell's name to land on its outline.

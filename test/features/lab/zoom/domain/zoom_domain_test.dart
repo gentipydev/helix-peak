@@ -316,7 +316,7 @@ void main() {
         'dystrophin': CellShape.myofibre,
         'oxytocin': CellShape.neuron,
         'vasopressin': CellShape.neuron,
-        'prion': CellShape.ciliated,
+        'prion': CellShape.epithelial,
         'relaxin': CellShape.ciliated,
         'ubiquitin': CellShape.germ,
         'app': CellShape.endothelial,
@@ -439,7 +439,9 @@ void main() {
       expect(depth.unitAt(depth.depthOf(ZoomStop.chromosome)), ZoomUnit.metres);
       expect(depth.unitAt(depth.depthOf(ZoomStop.band)), ZoomUnit.basePairs);
       expect(depth.widthLabel(depth.depthOf(ZoomStop.body)), '2.2 m');
-      expect(depth.widthLabel(depth.depthOf(ZoomStop.tissue)), '500 µm');
+      // The eyepiece's half-millimetre field, with the dark round it.
+      expect(depth.widthLabel(depth.depthOf(ZoomStop.tissue)), '600 µm');
+      expect(lengthLabel(ZoomDepth.tissueField), '500 µm');
       expect(depth.widthLabel(depth.depthOf(ZoomStop.dna)), '35 bp');
       // The chromosome condensed: micrometres, not millimetres.
       expect(

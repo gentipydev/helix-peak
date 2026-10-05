@@ -32,6 +32,7 @@ final class ScaleColors extends ThemeExtension<ScaleColors> {
     required this.eosinDeep,
     required this.haematoxylin,
     required this.haematoxylinLight,
+    required this.redCell,
     required this.eyepiece,
     required this.fluorescence,
     required this.dapi,
@@ -65,6 +66,9 @@ final class ScaleColors extends ThemeExtension<ScaleColors> {
   /// Haematoxylin: nuclei, and the paler stain of their chromatin.
   final Color haematoxylin;
   final Color haematoxylinLight;
+
+  /// A red cell on a stained slide: eosin at its reddest.
+  final Color redCell;
 
   /// The dark round the eyepiece's field.
   final Color eyepiece;
@@ -114,6 +118,7 @@ final class ScaleColors extends ThemeExtension<ScaleColors> {
     eosinDeep: Color(0xFFC46A98),
     haematoxylin: Color(0xFF4A3B8C),
     haematoxylinLight: Color(0xFF8574C4),
+    redCell: Color(0xFFD9566C),
     eyepiece: Color(0xFF0B0A09),
     fluorescence: Color(0xFF050506),
     dapi: Color(0xFF3F6DFF),
@@ -173,6 +178,7 @@ final class ScaleColors extends ThemeExtension<ScaleColors> {
       eosinDeep: mix(eosinDeep, other.eosinDeep),
       haematoxylin: mix(haematoxylin, other.haematoxylin),
       haematoxylinLight: mix(haematoxylinLight, other.haematoxylinLight),
+      redCell: mix(redCell, other.redCell),
       eyepiece: mix(eyepiece, other.eyepiece),
       fluorescence: mix(fluorescence, other.fluorescence),
       dapi: mix(dapi, other.dapi),

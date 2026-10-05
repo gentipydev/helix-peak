@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
 import 'body_scene.dart';
 import 'zoom_scene.dart';
@@ -32,6 +33,10 @@ final class OrganScene extends ZoomScene {
     }
     return shape..close();
   }();
+
+  // It stays under the loupe until the eyepiece's dark has covered it.
+  @override
+  double asParent(double progress) => 1 - smoothstep((progress - 0.7) / 0.3);
 
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {

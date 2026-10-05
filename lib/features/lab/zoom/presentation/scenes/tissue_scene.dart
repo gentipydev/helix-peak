@@ -2,122 +2,313 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../../../../core/theme/scale_colors.dart';
+import '../../domain/anatomy_tables.dart';
+import '../../domain/cell_archetypes.dart';
+import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
 import 'body_scene.dart';
+import 'cell_scene.dart';
+import 'contour.dart';
+import 'nucleus_shape.dart';
+import 'tissue/tissue_slide.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
 
-/// A cell, tens of micrometres across: each of the tissue's, and the one the
-/// cell level draws, so the cell the zoom closes on keeps its size.
-const double cellMetres = 2e-5;
-
-/// Its nucleus, about ten micrometres across, at every level that draws it.
-const double nucleusMetres = 1e-5;
-
-/// A slice of the tissue under the microscope: cells packed side by side at
-/// their size, the one the zoom closes on at the centre.
+/// The tissue as a pathologist sees it: a section stained with haematoxylin
+/// and eosin, in the round field of a microscope's eyepiece under the lamp.
+/// Its cells are laid out by the tissue's recipe ([TissueSlide]), and the
+/// zoom's own cell sits at the centre in the outline the cell's scene draws
+/// it in, ringed.
+///
+/// Coming from the organ, the field opens as a loupe on the place the organ
+/// is sampled: a circle that grows from a few tens of pixels to the
+/// eyepiece's field while what it shows stays magnified about the same,
+/// meeting the camera's own scale at the tissue's stop, as the organ round
+/// it dims. A step of some hundredfold, made a change of instrument.
 final class TissueScene extends ZoomScene {
-  TissueScene(this.subject);
+  TissueScene(this.subject) : archetype = subject.depth.archetype;
 
   final ZoomSubject subject;
+  final CellArchetype archetype;
 
   @override
   ZoomStop get stop => ZoomStop.tissue;
 
-  (double, Path, Path)? _cells;
+  /// The radius of the eyepiece's field, in the scene's units: it stands
+  /// clear of the rail, with the dark of the eyepiece round it.
+  static const double field =
+      ZoomDepth.tissueField / 2 / ZoomDepth.tissueMetres;
 
-  /// The cells and their nuclei, packed at their size in a patch that fills
-  /// the view at its level, [aspect] tall to one wide.
-  (Path, Path) _cellsFor(double aspect) {
-    final (double, Path, Path)? kept = _cells;
-    if (kept != null && kept.$1 == aspect) {
-      return (kept.$2, kept.$3);
-    }
-    final double cell = subject.unitsOf(stop, cellMetres);
-    final double nucleus = subject.unitsOf(stop, nucleusMetres) / 2;
-    final double rise = cell * 0.87;
-    final double reach = 0.5 * math.sqrt(1 + aspect * aspect) + cell;
-    final int cols = (reach / cell).ceil();
-    final int rows = (reach / rise).ceil();
-    final Path cells = Path();
-    final Path nuclei = Path();
-    for (int row = -rows; row <= rows; row++) {
-      for (int col = -cols; col <= cols; col++) {
-        final Offset c = Offset(
-          (col + (row.isOdd ? 0.5 : 0)) * cell,
-          row * rise,
-        );
-        if (c.distance > reach) {
-          continue;
-        }
-        for (int k = 0; k < 6; k++) {
-          final double a = math.pi / 6 + k * math.pi / 3;
-          final Offset v = c + Offset(math.cos(a), math.sin(a)) * cell * 0.55;
-          k == 0 ? cells.moveTo(v.dx, v.dy) : cells.lineTo(v.dx, v.dy);
-        }
-        cells.close();
-        nuclei.addOval(
-          Rect.fromCircle(
-            center: c + Offset(math.sin(row * 1.7 + col) * cell * 0.08, 0),
-            radius: nucleus,
+  /// One micrometre, in the scene's units: the slide is laid in
+  /// micrometres.
+  static const double micron = 1e-6 / ZoomDepth.tissueMetres;
+
+  /// The loupe's radius on screen as it opens, in pixels.
+  static const double loupeStart = 56;
+
+  /// How much of the slide the loupe shows across as it opens, in the
+  /// scene's units.
+  static const double loupeField = 0.3;
+
+  TissueRecipe get _recipe {
+    final String? tissue = subject.path.tissue;
+    final TissueAnatomy? anatomy = tissue == null
+        ? null
+        : tissueAnatomy[tissue];
+    return anatomy?.recipe ?? TissueRecipe.squamous;
+  }
+
+  /// A cell of [archetype] and its nucleus as a slide shows them, in
+  /// micrometres: the outline the cell's scene draws, where that scene's
+  /// view is [cellMetres] wide. A cell that runs off the cell's own view,
+  /// as a muscle fibre does, runs off the field here too.
+  static (Contour, Contour) targetOf(
+    CellArchetype archetype,
+    double cellMetres,
+  ) {
+    final double r = archetype.metres / 2 / cellMetres;
+    final double n = archetype.nucleus / 2 / cellMetres;
+    final double scale = cellMetres * 1e6;
+    const double beyond = ZoomDepth.tissueField * 1e6;
+    return (
+      Contour(<Offset>[
+        for (final Offset p in cellOutline(archetype.shape, r, n).points)
+          Offset(
+            p.dx.abs() > 0.5 ? p.dx.sign * beyond : p.dx * scale,
+            p.dy * scale,
           ),
-        );
+      ]),
+      Contour(<Offset>[
+        for (final Offset p in NucleusShape(archetype.shape).outline(n).points)
+          p * scale,
+      ]),
+    );
+  }
+
+  late final (Contour, Contour) _target = targetOf(
+    archetype,
+    subject.depth.widthOf(ZoomStop.cell),
+  );
+
+  late final Path _ring = _target.$1.toPath();
+
+  /// Where on the cell's outline its name's line lands, in micrometres:
+  /// its upper right, near its nucleus.
+  late final Offset _named = () {
+    Offset best = _target.$1.points.first;
+    double most = double.negativeInfinity;
+    for (final Offset p in _target.$1.points) {
+      if (p.dx.abs() <= 40 && p.dx - p.dy > most) {
+        most = p.dx - p.dy;
+        best = p;
       }
     }
-    _cells = (aspect, cells, nuclei);
-    return (cells, nuclei);
+    return best;
+  }();
+
+  late final TissueSlide _slide = TissueSlide.of(
+    _recipe,
+    field: ZoomDepth.tissueField * 1e6 / 2,
+    shape: archetype.shape,
+    target: _target.$1,
+    targetNucleus: _target.$2,
+    seed: _recipe.index + 3,
+  );
+
+  // The loupe is drawn from the segment's first frame, its opening its own
+  // fade; the slide gives way to the cell in the usual crossfade.
+  @override
+  double asChild(double progress) => 1;
+
+  /// How far the loupe has opened, from 0 to 1, at [frame].
+  double _opening(ZoomFrame frame) =>
+      frame.isChild ? smootherstep((frame.progress - 0.04) / 0.92) : 1;
+
+  /// How much of the loupe shows: it fades in as it starts to open.
+  double _shown(ZoomFrame frame) =>
+      frame.isChild ? smoothstep((frame.progress - 0.02) / 0.2) : 1;
+
+  /// The view the slide is drawn in: through the loupe as it opens, the
+  /// camera's own once it has.
+  ZoomView _view(ZoomFrame frame) {
+    if (!frame.isChild) {
+      return frame.view;
+    }
+    final double e = _opening(frame);
+    final double w = frame.size.width;
+    final double r1 = field * w;
+    final double radius = loupeStart * math.pow(r1 / loupeStart, e);
+    final double shown = loupeField * math.pow(2 * field / loupeField, e);
+    final double ppu = 2 * radius / shown;
+    final Offset at = frame.toScreen(Offset.zero);
+    final Offset centre = (frame.size.center(Offset.zero) - at) / ppu;
+    return ZoomView(
+      stop: stop,
+      pixelsPerUnit: ppu,
+      centre: centre,
+      progress: frame.progress,
+      isChild: true,
+    );
   }
 
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
-    // The cell the zoom closes on, at the rim of the ring round it.
-    final double ring = subject.unitsOf(stop, cellMetres) * 0.58;
-    final Offset target = frame.toScreen(Offset(ring * 0.7, -ring * 0.7));
-    out.item('tissue:target', frame.toScreen(Offset.zero), frame.opacity);
+    final ZoomView view = _view(frame);
+    final double shown = _shown(frame) * frame.opacity;
+    out.item('tissue:target', view.toScreen(Offset.zero, frame.size), shown);
     final String? cell = subject.path.cellName;
     out.callout(
       'tissue',
       cell == null
           ? 'a cell of the ${subject.path.tissue ?? 'tissue'}'
           : (subject.path.landsIn?.cell ?? cell.toLowerCase()),
-      target,
-      calloutPresence(frame),
+      view.toScreen(_named * micron, frame.size),
+      math.min(calloutPresence(frame), shown),
     );
   }
 
   @override
   void paint(Canvas canvas, ZoomFrame frame) {
+    final ZoomView view = _view(frame);
+    final Size size = frame.size;
+    final Offset centre = view.toScreen(Offset.zero, size);
+    final double radius = field * view.pixelsPerUnit;
+    final double shown = _shown(frame);
+    final Path lens = Path()
+      ..addOval(Rect.fromCircle(center: centre, radius: radius));
+    // Outside the field: the organ dimming as the loupe opens, then the
+    // dark of the eyepiece.
+    canvas.drawPath(
+      Path.combine(
+        PathOperation.difference,
+        Path()..addRect(Offset.zero & size),
+        lens,
+      ),
+      Paint()
+        ..color = frame.inks.scale.eyepiece.withValues(
+          alpha: _opening(frame) * shown,
+        ),
+    );
     canvas.save();
-    frame.enter(canvas);
-    final double pixel = frame.pixel;
-    final double aspect = frame.size.height / frame.size.width;
-    final (Path cells, Path nuclei) = _cellsFor(aspect);
-    // The lamp's light through the slide, round as a microscope's field is.
-    canvas.drawCircle(
-      Offset.zero,
-      0.5 * math.sqrt(1 + aspect * aspect),
-      Paint()..color = frame.inks.scale.brightfield,
-    );
-    canvas.drawPath(cells, Paint()..color = frame.inks.scale.eosin);
+    canvas.clipPath(lens);
     canvas.drawPath(
-      cells,
+      lens,
+      Paint()..color = frame.inks.scale.brightfield.withValues(alpha: shown),
+    );
+    canvas.translate(centre.dx, centre.dy);
+    final double perMicron = view.pixelsPerUnit * micron;
+    canvas.scale(perMicron);
+    paintTissueSlide(
+      canvas,
+      _slide,
+      frame.inks.scale,
+      pixel: 1 / perMicron,
+      alpha: shown,
+    );
+    // The zoom's cell, ringed.
+    canvas.drawPath(
+      _ring,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1 * pixel
-        ..color = frame.inks.scale.eosinDeep,
-    );
-    canvas.drawPath(
-      nuclei,
-      Paint()..color = frame.inks.scale.haematoxylin.withValues(alpha: 0.85),
-    );
-    canvas.drawCircle(
-      Offset.zero,
-      subject.unitsOf(stop, cellMetres) * 0.58,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2 * pixel
-        ..color = frame.inks.mark,
+        ..strokeWidth = 2.2 / perMicron
+        ..color = frame.inks.mark.withValues(alpha: shown),
     );
     canvas.restore();
+    // The field darkens toward its edge, as an eyepiece's does.
+    final Color dark = frame.inks.scale.eyepiece;
+    canvas.drawPath(
+      lens,
+      Paint()
+        ..shader = RadialGradient(
+          colors: <Color>[
+            dark.withValues(alpha: 0),
+            dark.withValues(alpha: 0),
+            dark.withValues(alpha: 0.3 * shown),
+          ],
+          stops: const <double>[0, 0.74, 1],
+        ).createShader(Rect.fromCircle(center: centre, radius: radius)),
+    );
+    canvas.drawCircle(
+      centre,
+      radius,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5
+        ..color = frame.inks.scale.membrane.withValues(alpha: 0.6 * shown),
+    );
+  }
+}
+
+/// Draws [slide] in its own micrometres, layer over layer, in the stains'
+/// colours: [pixel] is one screen pixel in micrometres, so lines keep their
+/// weight at any magnification.
+void paintTissueSlide(
+  Canvas canvas,
+  TissueSlide slide,
+  ScaleColors colors, {
+  required double pixel,
+  double alpha = 1,
+}) {
+  final Color lamp = colors.brightfield;
+  final Color eosin = colors.eosin;
+  final Color deep = colors.eosinDeep;
+  final Color pale = colors.haematoxylinLight;
+  final Color dark = colors.haematoxylin;
+  Color mix(Color a, Color b, double t) => Color.lerp(a, b, t)!;
+  final Paint fill = Paint();
+  final Paint stroke = Paint()..style = PaintingStyle.stroke;
+  void filled(Path path, Color color) =>
+      canvas.drawPath(path, fill..color = color.withValues(alpha: alpha));
+  void stroked(Path path, Color color, double strength, double width) =>
+      canvas.drawPath(
+        path,
+        stroke
+          ..strokeWidth = width * pixel
+          ..color = color.withValues(alpha: strength * alpha),
+      );
+  for (final SlideLayer layer in slide.layers) {
+    for (final SlideInk ink in SlideInk.values) {
+      final Path? path = layer[ink];
+      if (path == null) {
+        continue;
+      }
+      switch (ink) {
+        case SlideInk.lamp:
+          filled(path, lamp);
+        case SlideInk.eosin0:
+          filled(path, mix(lamp, eosin, 0.55));
+        case SlideInk.eosin1:
+          filled(path, eosin);
+        case SlideInk.eosin2:
+          filled(path, mix(eosin, deep, 0.45));
+        case SlideInk.eosin3:
+          filled(path, mix(eosin, deep, 0.9));
+        case SlideInk.basophil:
+          filled(path, mix(mix(eosin, deep, 0.5), pale, 0.55));
+        case SlideInk.stria:
+          canvas.drawPath(
+            path,
+            fill..color = deep.withValues(alpha: 0.36 * alpha),
+          );
+        case SlideInk.border:
+          stroked(path, deep, 0.42, 1);
+        case SlideInk.fibre:
+          stroked(path, deep, 0.45, 1.1);
+        case SlideInk.clear:
+          filled(path, lamp);
+          stroked(path, deep, 0.35, 1.3);
+        case SlideInk.nucleus0:
+          filled(path, mix(lamp, pale, 0.62));
+          stroked(path, dark, 0.75, 0.9);
+        case SlideInk.nucleus1:
+          filled(path, mix(pale, dark, 0.45));
+          stroked(path, dark, 0.5, 0.7);
+        case SlideInk.nucleus2:
+          filled(path, dark);
+        case SlideInk.blood:
+          filled(path, colors.redCell);
+      }
+    }
   }
 }

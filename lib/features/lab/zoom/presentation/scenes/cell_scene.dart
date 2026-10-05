@@ -427,7 +427,7 @@ final class _Cell {
 
   factory _Cell.of(CellShape shape, double r, double n, ZoomSubject subject) {
     final math.Random random = math.Random(shape.index * 31 + 7);
-    final Contour outline = _outline(shape, r, n);
+    final Contour outline = cellOutline(shape, r, n);
     final Path body = outline.toPath();
     final Path nucleus = NucleusShape(shape).outline(n).toPath();
     final (double ax, double ay) = NucleusShape(shape).axes;
@@ -662,9 +662,8 @@ final class _Cell {
     );
   }
 
-  /// The cell's outline for its shape, of half-size [r], its nucleus of
-  /// radius [n] at the origin.
-  static Contour _outline(CellShape shape, double r, double n) {
+  /// The cell's outline for its shape: see [cellOutline].
+  static Contour outlineOf(CellShape shape, double r, double n) {
     Contour polygon(List<Offset> corners) {
       final List<Offset> points = <Offset>[];
       for (int i = 0; i < corners.length; i++) {
@@ -835,3 +834,11 @@ final class _Cell {
 
 /// The cell type the path names, as it reads mid-sentence.
 String cellWord(ZoomPath path) => path.cellName?.toLowerCase() ?? 'a cell';
+
+/// A cell's outline for its [shape], of half-size [r], its nucleus of radius
+/// [n] at the origin: the cell scene draws it in fluorescence, and the
+/// tissue draws the same outline in its stain, so the cell the zoom closes
+/// on is one shape across the step between them.
+Contour cellOutline(CellShape shape, double r, double n) =>
+    _Cell.outlineOf(shape, r, n);
+

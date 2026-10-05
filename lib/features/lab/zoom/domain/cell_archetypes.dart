@@ -174,6 +174,9 @@ const Map<CellShape, CellArchetype> _archetypes = <CellShape, CellArchetype>{
   ),
 };
 
+/// How a cell of [shape] is drawn.
+CellArchetype archetypeFor(CellShape shape) => _archetypes[shape]!;
+
 /// The shape of a cell the Atlas names, by its name where the name says
 /// more than its class, then by its class: every one of the Atlas's fifteen
 /// classes has a shape, so every cell type does.
@@ -235,7 +238,7 @@ CellShape shapeOfTissue(TissueRecipe recipe) => switch (recipe) {
   TissueRecipe.adipose => CellShape.adipocyte,
   TissueRecipe.alveolar => CellShape.epithelial,
   TissueRecipe.cardiac => CellShape.cardiomyocyte,
-  TissueRecipe.choroidPlexus => CellShape.ciliated,
+  TissueRecipe.choroidPlexus => CellShape.epithelial,
   TissueRecipe.endocrine => CellShape.endocrine,
   TissueRecipe.follicular => CellShape.epithelial,
   TissueRecipe.gastric => CellShape.acinar,
@@ -269,7 +272,7 @@ CellArchetype archetypeOf(ZoomPath path) {
       : anatomy != null
       ? shapeOfTissue(anatomy.recipe)
       : CellShape.epithelial;
-  return _archetypes[shape]!;
+  return archetypeFor(shape);
 }
 
 /// What a cell compartment is, where the Atlas finds a protein in it.

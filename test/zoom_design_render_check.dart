@@ -7,8 +7,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/core/theme/scale_colors.dart';
+import 'package:helixpeek/features/lab/zoom/domain/anatomy_tables.dart';
+import 'package:helixpeek/features/lab/zoom/domain/cell_archetypes.dart';
 import 'package:helixpeek/features/lab/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/lab/zoom/domain/zoom_path.dart';
+import 'package:helixpeek/features/lab/zoom/presentation/scenes/contour.dart';
+import 'package:helixpeek/features/lab/zoom/presentation/scenes/tissue/tissue_slide.dart';
+import 'package:helixpeek/features/lab/zoom/presentation/scenes/tissue_scene.dart';
 import 'package:helixpeek/features/lab/zoom/presentation/zoom_screen.dart';
 
 import 'features/gene_lookup/anatomy/anatomy_fixture.dart';
@@ -23,6 +29,10 @@ import 'support/test_catalog.dart';
 /// ZOOM_GENES=hemoglobin,p53 narrows the proteins; ZOOM_BETWEEN=0 leaves out
 /// the moments between stops. Without ZOOM_DESIGN_SHOTS it draws each frame
 /// and checks nothing threw.
+///
+/// ZOOM_TISSUE_ATLAS=/tmp/atlas writes every tissue recipe's slide on its
+/// own, whichever proteins go there: the ones no catalog protein reaches
+/// are seen nowhere else.
 void main() {
   setUpAll(() async {
     await loadAppFonts();
@@ -124,4 +134,107 @@ void main() {
       });
     }
   }
+
+  testWidgets('every tissue recipe lays a slide', (WidgetTester tester) async {
+    final String atlas = Platform.environment['ZOOM_TISSUE_ATLAS'] ?? '';
+    const double side = 440;
+    await tester.binding.setSurfaceSize(const Size(side, side));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    const Key key = ValueKey<String>('zoom-tissue-atlas');
+    final List<(String, TissueRecipe, CellShape)> slides =
+        <(String, TissueRecipe, CellShape)>[
+          for (final TissueRecipe recipe in TissueRecipe.values)
+            (recipe.name, recipe, shapeOfTissue(recipe)),
+          // The same tissue about another kind of cell.
+          ('acinar-islet', TissueRecipe.acinar, CellShape.endocrine),
+          ('acinar-duct', TissueRecipe.acinar, CellShape.epithelial),
+          ('marrow-island', TissueRecipe.marrow, CellShape.erythroid),
+          ('lymphoid-sinus', TissueRecipe.lymphoid, CellShape.endothelial),
+          ('gastric-dividing', TissueRecipe.gastric, CellShape.dividing),
+          ('glandular-ciliated', TissueRecipe.glandular, CellShape.ciliated),
+          ('seminiferous-germ', TissueRecipe.seminiferous, CellShape.germ),
+        ];
+    for (final (String name, TissueRecipe recipe, CellShape shape) in slides) {
+      final CellArchetype archetype = archetypeFor(shape);
+      final (Contour target, Contour nucleus) = TissueScene.targetOf(
+        archetype,
+        archetype.viewMetres,
+      );
+      final Stopwatch watch = Stopwatch()..start();
+      final TissueSlide slide = TissueSlide.of(
+        recipe,
+        field: ZoomDepth.tissueField * 1e6 / 2,
+        shape: shape,
+        target: target,
+        targetNucleus: nucleus,
+        seed: recipe.index + 3,
+      );
+      watch.stop();
+      await tester.pumpWidget(
+        RepaintBoundary(
+          key: key,
+          child: CustomPaint(
+            size: const Size(side, side),
+            painter: _SlidePainter(slide, target),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull, reason: name);
+      if (atlas.isNotEmpty) {
+        // ignore: avoid_print
+        print('$name: laid in ${watch.elapsedMilliseconds} ms');
+        await tester.runAsync(() async {
+          Directory(atlas).createSync(recursive: true);
+          final RenderRepaintBoundary boundary = tester.renderObject(
+            find.byKey(key),
+          );
+          final ui.Image image = await boundary.toImage(pixelRatio: 2);
+          final ByteData data = (await image.toByteData(
+            format: ui.ImageByteFormat.png,
+          ))!;
+          image.dispose();
+          File('$atlas/$name.png').writeAsBytesSync(data.buffer.asUint8List());
+        });
+      }
+    }
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+}
+
+/// One slide on its own, its field filling the square.
+class _SlidePainter extends CustomPainter {
+  _SlidePainter(this.slide, this.target);
+
+  final TissueSlide slide;
+  final Contour target;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const ScaleColors colors = ScaleColors.analysis;
+    const double field = ZoomDepth.tissueField * 1e6 / 2;
+    final double perMicron = size.width / 2 / (field + 4);
+    canvas.drawRect(Offset.zero & size, Paint()..color = colors.eyepiece);
+    final Path lens = Path()
+      ..addOval(
+        Rect.fromCircle(
+          center: size.center(Offset.zero),
+          radius: field * perMicron,
+        ),
+      );
+    canvas.clipPath(lens);
+    canvas.drawPath(lens, Paint()..color = colors.brightfield);
+    canvas.translate(size.width / 2, size.height / 2);
+    canvas.scale(perMicron);
+    paintTissueSlide(canvas, slide, colors, pixel: 1 / perMicron);
+    canvas.drawPath(
+      target.toPath(),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.2 / perMicron
+        ..color = AppTheme.analysis.colorScheme.primary,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _SlidePainter old) => old.slide != slide;
 }

@@ -98,6 +98,14 @@ final class ZoomDepth {
   /// The organ is drawn with a margin of this much of itself round it.
   static const double organMargin = 1.6;
 
+  /// How wide the round field of the microscope is at the tissue, in
+  /// metres: half a millimetre, what a ×40 objective shows.
+  static const double tissueField = 5e-4;
+
+  /// How wide the view is at the tissue, in metres: the field, with the
+  /// dark of the eyepiece round it.
+  static const double tissueMetres = 6e-4;
+
   static double _organOf(ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -110,7 +118,7 @@ final class ZoomDepth {
   double widthOf(ZoomStop stop) => switch (stop) {
     ZoomStop.body => 2.2,
     ZoomStop.organ => organMetres,
-    ZoomStop.tissue => 5e-4,
+    ZoomStop.tissue => tissueMetres,
     ZoomStop.cell => cellMetres,
     ZoomStop.nucleus => nucleusMetres,
     ZoomStop.chromosome => 1.5 * condensedLength,
