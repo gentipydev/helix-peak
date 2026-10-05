@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../shared/format.dart';
 import 'anatomy_tables.dart';
 import 'locus_track.dart';
 import 'zoom_path.dart';
@@ -284,4 +285,22 @@ String basePairLabel(double basePairs) {
     return '${_trim(basePairs / 1e3)} kb';
   }
   return '${_trim(basePairs)} bp';
+}
+
+/// A ruler's number for [position] where ticks are [step] apart, precise
+/// enough that no two ticks read the same: 5 Mb; 5.23 Mb; 5,226 kb.
+String rulerLabel(double position, double step) {
+  if (step >= 1e6) {
+    return '${_trim(position / 1e6)} Mb';
+  }
+  if (step >= 1e5) {
+    return '${(position / 1e6).toStringAsFixed(1)} Mb';
+  }
+  if (step >= 1e4) {
+    return '${(position / 1e6).toStringAsFixed(2)} Mb';
+  }
+  if (step >= 1e3) {
+    return '${grouped((position / 1e3).round())} kb';
+  }
+  return '${grouped(position.round())} bp';
 }

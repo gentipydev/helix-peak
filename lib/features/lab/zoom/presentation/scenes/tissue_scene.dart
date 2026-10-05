@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../domain/zoom_depth.dart';
+import 'body_scene.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
 
@@ -69,7 +70,19 @@ final class TissueScene extends ZoomScene {
 
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
+    // The cell the zoom closes on, at the rim of the ring round it.
+    final double ring = subject.unitsOf(stop, cellMetres) * 0.58;
+    final Offset target = frame.toScreen(Offset(ring * 0.7, -ring * 0.7));
     out.item('tissue:target', frame.toScreen(Offset.zero), frame.opacity);
+    final String? cell = subject.path.cellName;
+    out.callout(
+      'tissue',
+      cell == null
+          ? 'a cell of the ${subject.path.tissue ?? 'tissue'}'
+          : (subject.path.landsIn?.cell ?? cell.toLowerCase()),
+      target,
+      calloutPresence(frame),
+    );
   }
 
   @override

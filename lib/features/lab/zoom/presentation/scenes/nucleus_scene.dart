@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../domain/anatomy_tables.dart';
+import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
 import 'body_scene.dart';
 import 'tissue_scene.dart';
@@ -26,6 +27,14 @@ final class NucleusScene extends ZoomScene {
   ZoomStop get stop => ZoomStop.nucleus;
 
   double get _radius => subject.unitsOf(stop, nucleusMetres) / 2;
+
+  /// A territory's radius, in the scene's units.
+  double get spot => _radius * 0.14;
+
+  // Its other territories and its envelope give way while the followed one
+  // condenses, which the chromosome's scene draws from the first frame.
+  @override
+  double asParent(double progress) => 1 - smoothstep((progress - 0.3) / 0.5);
 
   /// Where homologue [copy] of chromosome [name] lies: at its usual depth
   /// from the centre, the two copies apart.
@@ -58,7 +67,7 @@ final class NucleusScene extends ZoomScene {
     frame.enter(canvas);
     final double pixel = frame.pixel;
     final double r = _radius;
-    final double spot = r * 0.14;
+    final double spot = this.spot;
     canvas.drawCircle(
       Offset.zero,
       1.2,
@@ -96,20 +105,23 @@ final class NucleusScene extends ZoomScene {
       r * 0.17,
       Paint()..color = frame.inks.scale.dapi.withValues(alpha: 0.15),
     );
-    final Offset at = portal;
-    canvas.drawCircle(
-      at,
-      spot,
-      Paint()..color = frame.inks.scale.paintOf(followed),
-    );
-    canvas.drawCircle(
-      at,
-      spot,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2 * pixel
-        ..color = frame.inks.mark,
-    );
+    // The followed territory, until the chromosome's scene takes it over.
+    if (frame.isChild || frame.progress <= 0) {
+      final Offset at = portal;
+      canvas.drawCircle(
+        at,
+        spot,
+        Paint()..color = frame.inks.scale.paintOf(followed),
+      );
+      canvas.drawCircle(
+        at,
+        spot,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2 * pixel
+          ..color = frame.inks.mark,
+      );
+    }
     canvas.restore();
   }
 }

@@ -15,7 +15,12 @@ final class ZoomFrame {
     required this.inks,
     required this.clock,
     this.labels = const TextStyle(fontSize: 12),
+    this.unzip = 0,
   });
+
+  /// How far the helix is unzipped into the walk's rows, as the walk opens:
+  /// 0 until then.
+  final double unzip;
 
   final ZoomView view;
   final Size size;
@@ -105,6 +110,14 @@ abstract class ZoomScene {
 
   /// Where the next stop lies in this scene, in its units.
   Offset get portal => Offset.zero;
+
+  /// How much of the scene shows across the segment that leaves it, at
+  /// [progress] along it: by default it gives way to the next stop between a
+  /// third and four fifths of the way.
+  double asParent(double progress) => 1 - crossfade(progress);
+
+  /// How much of the scene shows across the segment that enters it.
+  double asChild(double progress) => crossfade(progress);
 
   /// What the scene names at [frame], by key and on screen.
   void stage(ZoomFrame frame, ZoomStaging out) {}

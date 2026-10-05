@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../domain/anatomy_tables.dart';
@@ -6,15 +8,23 @@ import '../../domain/zoom_depth.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
 
-/// How much a scene's callout shows at [frame]: only while the scene is
-/// drawn near its own size, so a name reads at its own stop and is gone
-/// long before its scene fills the screen or shrinks to a speck.
+/// How much a scene's callout shows at [frame]: around its own stop only,
+/// coming up over the last [around] of the way in and going over the first
+/// [around] of the way out, and never more than the scene itself shows.
+///
+/// It runs on how far along the segment the view is, not on how big the
+/// scene is drawn: across a segment that narrows six-hundredfold the scene's
+/// size races, while the depth eases in and out of every stop.
 double calloutPresence(ZoomFrame frame) {
-  final double near = frame.view.pixelsPerUnit / frame.size.width;
-  final double rise = smoothstep((near - 0.45) / 0.25);
-  final double fall = 1 - smoothstep((near - 1.6) / 0.6);
-  return frame.opacity * rise * fall;
+  final double s = frame.progress;
+  final double near = frame.isChild
+      ? smoothstep((s - (1 - around)) / around)
+      : 1 - smoothstep(s / around);
+  return math.min(frame.opacity, near);
 }
+
+/// How much of a segment either side of a stop its name is shown for.
+const double around = 0.35;
 
 /// The body, standing facing the reader, with the place the path's tissue
 /// lies marked.

@@ -41,7 +41,8 @@ ZoomStop flingTarget(ZoomDepth depth, double at, double velocity) {
 
 /// The dive the Play button plays: from the stop at or after where it
 /// starts to the DNA, resting at each stop and travelling the depth between
-/// at a steady rate, easing in and out of every stop.
+/// at a steady rate, but never in less than [shortestLeg], easing in and out
+/// of every stop.
 ///
 /// Under reduced motion it steps instead: each stop is held for
 /// [steppedHold] and the next replaces it, with nothing in between.
@@ -88,6 +89,10 @@ final class PlaySchedule {
   /// How long the dive takes to cross a tenfold step.
   static const double secondsPerDecade = 0.9;
 
+  /// The least time the dive spends between two stops, so that the shortest
+  /// segments' changes still read as moves rather than cuts.
+  static const Duration shortestLeg = Duration(milliseconds: 1400);
+
   /// How long each stop is held when the dive steps.
   static const Duration steppedHold = Duration(seconds: 3);
 
@@ -100,9 +105,12 @@ final class PlaySchedule {
     return ZoomStop.values.length - 1;
   }
 
-  static Duration _travel(double decades) => Duration(
-    microseconds: (math.max(decades, 0) * secondsPerDecade * 1e6).round(),
-  );
+  static Duration _travel(double decades) {
+    final Duration steady = Duration(
+      microseconds: (math.max(decades, 0) * secondsPerDecade * 1e6).round(),
+    );
+    return steady < shortestLeg ? shortestLeg : steady;
+  }
 
   /// The depth [elapsed] into the dive.
   double at(Duration elapsed) {

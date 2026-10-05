@@ -158,7 +158,7 @@ class ZoomRoute extends StatelessWidget {
 }
 
 /// What the zoom is doing between frames.
-enum _Motion { idle, pinch, flight, settle, play }
+enum _Motion { idle, pinch, flight, settle, play, exit }
 
 /// One continuous dive from a body down to a gene's DNA.
 ///
@@ -223,7 +223,7 @@ class ZoomScreen extends StatefulWidget {
 }
 
 class _ZoomScreenState extends State<ZoomScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late final ZoomSubject _subject = ZoomSubject(
     track: widget.track,
     record: widget.record,
@@ -241,6 +241,19 @@ class _ZoomScreenState extends State<ZoomScreen>
     _d.nearest(widget.initialDepth),
   );
   late final Ticker _ticker = createTicker(_tick);
+
+  /// Seconds of ambient time, for the helix's slow turn: it runs only while
+  /// the DNA is near and motion is allowed.
+  final ValueNotifier<double> _ambient = ValueNotifier<double>(0);
+  late final Ticker _ambientTicker = createTicker(
+    (Duration elapsed) => _ambient.value = elapsed.inMicroseconds / 1e6,
+  );
+
+  /// How far the helix is unzipped as the walk opens.
+  final ValueNotifier<double> _unzip = ValueNotifier<double>(0);
+
+  /// How long the helix takes to unzip into the walk's rows.
+  static const Duration _unzipping = Duration(milliseconds: 450);
 
   _Motion _motion = _Motion.idle;
   ZoomFlight? _flight;
@@ -260,11 +273,21 @@ class _ZoomScreenState extends State<ZoomScreen>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Reduced motion may have been turned on or off.
+    _ambience(_stop.value);
+  }
+
+  @override
   void dispose() {
     _depth.removeListener(_follow);
     _ticker.dispose();
+    _ambientTicker.dispose();
     _depth.dispose();
     _stop.dispose();
+    _ambient.dispose();
+    _unzip.dispose();
     super.dispose();
   }
 
@@ -278,12 +301,24 @@ class _ZoomScreenState extends State<ZoomScreen>
       return;
     }
     _stop.value = nearest;
+    _ambience(nearest);
     if (_motion == _Motion.pinch || _motion == _Motion.idle) {
       unawaited(HapticFeedback.selectionClick());
     }
   }
 
   void _set(double d) => _depth.value = d.clamp(0.0, _d.total);
+
+  /// Turns the helix while the DNA is near, and only where motion is
+  /// allowed.
+  void _ambience(ZoomStop nearest) {
+    final bool wanted = nearest == ZoomStop.dna && !_reduced;
+    if (wanted && !_ambientTicker.isActive) {
+      unawaited(_ambientTicker.start());
+    } else if (!wanted && _ambientTicker.isActive) {
+      _ambientTicker.stop();
+    }
+  }
 
   void _run(_Motion motion) {
     _motion = motion;
@@ -292,6 +327,9 @@ class _ZoomScreenState extends State<ZoomScreen>
   }
 
   void _halt() {
+    if (_motion == _Motion.exit && _unzip.value < 1) {
+      _unzip.value = 0;
+    }
     final bool wasPlaying = _motion == _Motion.play;
     _motion = _Motion.idle;
     _ticker.stop();
@@ -325,6 +363,13 @@ class _ZoomScreenState extends State<ZoomScreen>
         _set(play.at(elapsed));
         if (play.doneAt(elapsed)) {
           _halt();
+        }
+      case _Motion.exit:
+        _unzip.value = (elapsed.inMicroseconds / _unzipping.inMicroseconds)
+            .clamp(0.0, 1.0);
+        if (elapsed >= _unzipping) {
+          _halt();
+          _openWalk();
         }
       case _Motion.idle || _Motion.pinch:
         _ticker.stop();
@@ -448,9 +493,24 @@ class _ZoomScreenState extends State<ZoomScreen>
     );
   }
 
+  /// Unzips the helix into the walk's rows, then opens the walk at the gene.
   void _walk() {
     _halt();
-    unawaited(context.push(RoutePaths.geneFor(widget.target)));
+    if (_reduced) {
+      _openWalk();
+      return;
+    }
+    _run(_Motion.exit);
+  }
+
+  void _openWalk() {
+    unawaited(
+      context.push(RoutePaths.geneFor(widget.target)).then((_) {
+        if (mounted) {
+          _unzip.value = 0;
+        }
+      }),
+    );
   }
 
   @override
@@ -497,9 +557,15 @@ class _ZoomScreenState extends State<ZoomScreen>
                               painter: ZoomPainter(
                                 stage: _stage,
                                 at: () => _depth.value,
+                                clock: () => _ambient.value,
+                                unzip: () => _unzip.value,
                                 inks: inks,
                                 labels: labels,
-                                repaint: _depth,
+                                repaint: Listenable.merge(<Listenable>[
+                                  _depth,
+                                  _ambient,
+                                  _unzip,
+                                ]),
                               ),
                             ),
                           ),

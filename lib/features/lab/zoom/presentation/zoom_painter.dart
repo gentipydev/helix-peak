@@ -46,10 +46,11 @@ final class ZoomStage {
   /// The scenes on screen at depth [d], each with how much of it shows.
   List<(ZoomScene, ZoomView, double)> visible(double d, Size size) {
     final (ZoomView parent, ZoomView child) = camera.at(d, size);
-    final double into = crossfade(parent.progress);
+    final ZoomScene leaving = scenes[parent.stop.index];
+    final ZoomScene entering = scenes[child.stop.index];
     return <(ZoomScene, ZoomView, double)>[
-      (scenes[parent.stop.index], parent, 1 - into),
-      (scenes[child.stop.index], child, into),
+      (leaving, parent, leaving.asParent(parent.progress)),
+      (entering, child, entering.asChild(child.progress)),
     ];
   }
 
@@ -86,12 +87,16 @@ class ZoomPainter extends CustomPainter {
     required this.inks,
     required this.labels,
     this.clock,
+    this.unzip,
     super.repaint,
   });
 
   final ZoomStage stage;
   final double Function() at;
   final double Function()? clock;
+
+  /// How far the helix is unzipped as the walk opens.
+  final double Function()? unzip;
   final ZoomInks inks;
   final TextStyle labels;
 
@@ -119,6 +124,7 @@ class ZoomPainter extends CustomPainter {
         inks: inks,
         clock: time,
         labels: labels,
+        unzip: unzip?.call() ?? 0,
       );
       if (opacity < 0.995) {
         canvas.saveLayer(
@@ -132,35 +138,24 @@ class ZoomPainter extends CustomPainter {
       }
     }
     final ZoomStaging staging = stage.stage(d, size, inks, clock: time);
+    final List<Rect> placed = <Rect>[];
     for (final ZoomCallout callout in staging.callouts) {
-      _callout(canvas, size, callout);
+      placed.add(_callout(canvas, size, callout, placed));
     }
     _scaleBar(canvas, size, d);
     canvas.restore();
   }
 
   /// A name on a plate, beside what it names, with a line that lands on it.
-  void _callout(Canvas canvas, Size size, ZoomCallout callout) {
-    final TextPainter text = TextPainter(
-      text: TextSpan(
-        text: callout.text,
-        style: labels.copyWith(
-          color: inks.text.withValues(alpha: callout.opacity),
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-      maxLines: 2,
-    )..layout(maxWidth: size.width * 0.55);
-    const double pad = 6;
+  Rect _callout(
+    Canvas canvas,
+    Size size,
+    ZoomCallout callout,
+    List<Rect> placed,
+  ) {
+    final TextPainter text = calloutText(callout, labels, inks, size);
+    final Rect plate = placePlate(callout.target, text.size, size, placed);
     final Offset target = callout.target;
-    final double plateW = text.width + 2 * pad;
-    final double plateH = text.height + pad;
-    final bool left = target.dx + 24 + plateW > size.width - railStrip;
-    double x = left ? target.dx - 24 - plateW : target.dx + 24;
-    double y = target.dy - 30 - plateH / 2;
-    x = x.clamp(8.0, math.max(8.0, size.width - railStrip - plateW - 4));
-    y = y.clamp(8.0, math.max(8.0, size.height - plateH - 40));
-    final Rect plate = Rect.fromLTWH(x, y, plateW, plateH);
     final Offset from = Offset(
       target.dx.clamp(plate.left, plate.right),
       target.dy.clamp(plate.top, plate.bottom),
@@ -174,8 +169,12 @@ class ZoomPainter extends CustomPainter {
       RRect.fromRectAndRadius(plate, const Radius.circular(6)),
       Paint()..color = inks.raised.withValues(alpha: 0.88 * callout.opacity),
     );
-    text.paint(canvas, Offset(x + pad, y + pad / 2));
+    text.paint(
+      canvas,
+      Offset(plate.left + plateTextPadding, plate.top + plateTextPadding / 2),
+    );
     text.dispose();
+    return plate;
   }
 
   void _scaleBar(Canvas canvas, Size size, double d) {
@@ -224,3 +223,61 @@ class ZoomPainter extends CustomPainter {
   bool shouldRepaint(covariant ZoomPainter old) =>
       old.stage != stage || old.inks != inks || old.labels != labels;
 }
+
+/// How far a callout's words sit inside its plate.
+const double plateTextPadding = 6;
+
+/// A callout's words, laid out as the painter sets them.
+TextPainter calloutText(
+  ZoomCallout callout,
+  TextStyle labels,
+  ZoomInks inks,
+  Size size,
+) => TextPainter(
+  text: TextSpan(
+    text: callout.text,
+    style: labels.copyWith(color: inks.text.withValues(alpha: callout.opacity)),
+  ),
+  textDirection: TextDirection.ltr,
+  maxLines: 2,
+)..layout(maxWidth: size.width * 0.55);
+
+/// Where a callout's plate goes for words of [text] size naming [target] on
+/// a canvas of [size]: up and to the right where there is room, else at the
+/// first corner that keeps it on the canvas, clear of the rail and of the
+/// plates already [placed].
+Rect placePlate(Offset target, Size text, Size size, List<Rect> placed) {
+  final double plateW = text.width + 2 * plateTextPadding;
+  final double plateH = text.height + plateTextPadding;
+  final double right = size.width - ZoomPainter.railStrip - 4;
+  final double bottom = size.height - 40;
+  Rect at(double dx, double dy) {
+    final double x = (dx >= 0 ? target.dx + dx : target.dx + dx - plateW).clamp(
+      8.0,
+      math.max(8.0, right - plateW),
+    );
+    final double y = (target.dy + dy - plateH / 2).clamp(
+      8.0,
+      math.max(8.0, bottom - plateH),
+    );
+    return Rect.fromLTWH(x, y, plateW, plateH);
+  }
+
+  final List<Rect> choices = <Rect>[
+    at(24, -30),
+    at(24, 30),
+    at(-24, -30),
+    at(-24, 30),
+    at(24, -36 - plateH),
+    at(24, 36 + plateH),
+    at(-24, -36 - plateH),
+    at(-24, 36 + plateH),
+  ];
+  for (final Rect choice in choices) {
+    if (placed.every((Rect r) => !r.inflate(4).overlaps(choice))) {
+      return choice;
+    }
+  }
+  return choices.first;
+}
+

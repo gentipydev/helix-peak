@@ -70,18 +70,109 @@ scene two segments share to the same place at the stop between them.
   base pairs, projected to the screen in doubles, so no canvas transform
   carries the 10⁸-fold narrowing.
 
-## Status
+## The molecular end
 
-This is the engine and the screen. The scenes are still today's
-illustrations ported onto the new camera and crossfaded: the body, organ,
-tissue, cell and nucleus, the chromosome's bar and the helix. The band and the
-gene are new. The rest of the design comes in later phases, each recorded here
-as it lands:
+**Chromosome.** At its stop the chromosome is a metaphase chromosome:
+- two sister chromatids, pinched together at the centromere where its `acen`
+  bands meet;
+- stalks drawn thin, and `gvar` hatched as ideograms draw it;
+- the G-bands lit from the upper left across each chromatid;
+- an ISCN bracket beside the band the gene lies in, and the band's name on
+  the callout.
 
-- each scale seen the way science sees it (anatomogram, H&E, immunofluorescence,
-  chromosome paint, G-banding, a genome browser);
-- each transition's own animation;
-- the anatomogram's outlines.
+It is never the gene: the band is millions of base pairs, a stain pattern
+seen at low resolution, and the About sheet says the gene is far too small
+to see in it.
+
+**Condensing.** On the way in, the chromosome condenses out of its territory.
+The nucleus hands its followed territory to the chromosome's scene at the
+first frame of the segment, where the two coincide. The territory's outline
+blends into the chromosome's, resampled to 128 points from the top. The
+chromosome paint gives way to Giemsa's grey, the bands come up, and the two
+chromatids resolve out of one shape at the end. The step from the nucleus to
+a long chromosome is a beat in time more than a change of scale (0.07
+decades for chromosome 1), and the minimum travel gives it its room.
+
+**Into the map.**
+- On the way out, the chromosome turns about its band to lie along the
+  genome, short arm to the left as genome browsers draw it. Its chromatids
+  merge and it thins to the band strip's 18 px, all over the first 35% of
+  the segment.
+- The band's strip appears exactly where the turned chromosome lies: at
+  that moment the chromosome's length on screen and the strip's length of
+  genome are the same number of pixels, by the camera's own arithmetic. The
+  two cross-fade over half the segment.
+- The strip then rises, a ruler in base pairs comes up, and the whole
+  chromosome docks above with the view boxed on it. The scale bar changes
+  from µm to Mb half way.
+
+**Gene.**
+- The record's exons and introns are at their real lengths (`GeneLayout`
+  uses `realIntronBp` for the three genes whose record shortens its
+  introns), placed along the span MANE gives.
+- Coding exons are thick and numbered once they are 16 px wide. Their
+  untranslated ends are thin. Introns are a line with chevrons in the
+  direction the gene is read.
+- A ruler counts from the 5′ end.
+- The gene reads 5′→3′ left to right, as the walk does, from the moment it
+  appears.
+- A turn of reverse-strand genes was planned and dropped. The band draws
+  the gene as a featureless bar, so there is nothing to see turn, and the
+  turn swung dystrophin's 5′ end across the view by up to 3 px a frame,
+  past the smoothness bound.
+
+**DNA.**
+- Past a few thousand base pairs, the gene's line is a fibre of
+  nucleosomes: a core of 147 bp seen side on, its DNA passing behind and in
+  front of it, one every 200 bp. The first sits 40 bp into the gene and the
+  stretch before it is bare, as the start of a gene that is read usually is.
+  It is drawn as the textbook packs a gene, not measured for this one.
+- Beads come up once they read as beads and give way before one fills the
+  view.
+- Under 400 bp the bare 5′ end resolves into the double helix with the
+  record's own first 33 bases, which turns once in 16 s while the DNA is
+  near.
+- "Walk ›" unzips it into the walk's rows (`HelixModel(unzip:)`) over
+  450 ms before the walk opens.
+
+**Still to come.** The scenes above the chromosome are still the earlier
+illustrations on the new camera:
+- the cell and nucleus in immunofluorescence and chromosome paint;
+- the tissue in H&E under a loupe;
+- the body and organs from the anatomogram.
+
+## Smooth motion
+
+Every value on screen is a function of depth, and the staging each scene
+reports is what `zoom_smoothness_test` walks:
+- every protein's dive at 6,000 steps of depth;
+- Play at 60 fps for three of them.
+
+It fails on:
+- anything that appears, vanishes or changes by more than 0.08 opacity in a
+  step;
+- anything near the focus whose position's second difference passes
+  1.5 px. Further out, things fly outward faster the further they are as
+  the view narrows, and the test checks for a break rather than a bound.
+
+What it found, and what was changed:
+- **Play's legs.** A 0.6-decade segment once took 0.54 s of Play, so its
+  crossfade ran in six frames. Every leg is now at least 1.4 s.
+- **Fade windows.** Every scene's fade now spans at least 45% of its
+  segment.
+- **Callouts** show around their own stop, over the last and first 35% of
+  the segments either side. They run on segment progress, not on how big
+  the scene is drawn, because across a six-hundredfold segment the scene's
+  size races while the depth eases in and out.
+- **The lesser of two fades.** Where a callout's fade meets its scene's,
+  the lesser of the two is taken, not their product, which compounded into
+  a snap.
+- **The portal's glide** to the centre takes half the segment rather than
+  35%, so it stays gentle inside Play's own ease.
+
+`zoom_smoothness_test` also places every stop's callouts at 390 and 320
+wide and fails if two plates overlap or one lies under the rail.
+`placePlate` tries the corners round the target in turn.
 
 ## Implementation and checks
 
