@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../domain/anatomy_figure.dart';
 import '../../domain/anatomy_tables.dart';
 import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
@@ -11,7 +12,9 @@ import 'nucleus_shape.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
 
-/// The 23 kinds of chromosome a nucleus holds two of: 1 to 22, and X.
+/// The 23 pairs of chromosomes a nucleus holds: 1 to 22, and the sex
+/// chromosomes, of which a male body's second is a Y
+/// ([NucleusScene.kindOf]).
 const List<String> chromosomeNames = <String>[
   '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', //
   '15', '16', '17', '18', '19', '20', '21', '22', 'X',
@@ -50,6 +53,13 @@ final class NucleusScene extends ZoomScene {
   double spotOf(String name) =>
       radius * 0.25 * math.sqrt((chromosomeMegabases[name] ?? 100) / 150);
 
+  /// Which chromosome homologue [copy] of [name] is in this body: the
+  /// second sex chromosome of the male figure's cells is a Y.
+  String kindOf(String name, int copy) =>
+      name == 'X' && copy == 1 && identical(subject.body, AnatomyFigure.male)
+      ? 'Y'
+      : name;
+
   /// Where homologue [copy] of chromosome [name] lies, in the scene's units:
   /// at the depth nuclei keep it, the two copies apart; an acrocentric
   /// beside the nucleolus.
@@ -60,14 +70,14 @@ final class NucleusScene extends ZoomScene {
       final Offset unit = nucleolus + Offset(math.cos(a), math.sin(a)) * 0.3;
       return shape.place(unit, radius);
     }
-    final double depth = (territoryRadius[name] ?? 0.6) * 0.92;
+    final double depth = (territoryRadius[kindOf(name, copy)] ?? 0.6) * 0.92;
     final double a = index * 2.39996 + copy * (math.pi * 0.9);
     return shape.place(Offset(math.cos(a), math.sin(a)) * depth, radius);
   }
 
   /// A territory's outline, in the scene's units.
   Contour territoryShape(String name, int copy) {
-    final double r = spotOf(name);
+    final double r = spotOf(kindOf(name, copy));
     return Contour.blob(
       territory(name, copy),
       r,
@@ -134,7 +144,7 @@ final class NucleusScene extends ZoomScene {
             continue;
           }
           fill.color = frame.inks.scale
-              .paintOf(name)
+              .paintOf(kindOf(name, copy))
               .withValues(alpha: 0.62 * painted);
           canvas.drawPath(territoryShape(name, copy).toPath(), fill);
         }

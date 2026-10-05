@@ -6,6 +6,7 @@ import 'package:helixpeek/features/lab/zoom/domain/anatomy_tables.dart';
 import 'package:helixpeek/features/lab/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/lab/zoom/domain/zoom_path.dart';
 import 'package:helixpeek/features/lab/zoom/presentation/scenes/body_scene.dart';
+import 'package:helixpeek/features/lab/zoom/presentation/scenes/nucleus_scene.dart';
 import 'package:helixpeek/features/lab/zoom/presentation/scenes/organ_scene.dart';
 import 'package:helixpeek/features/lab/zoom/presentation/scenes/zoom_scene.dart';
 import 'package:helixpeek/features/lab/zoom/presentation/scenes/zoom_subject.dart';
@@ -52,6 +53,34 @@ void main() {
         );
       }
     }
+  });
+
+  test('a nucleus holds the sex chromosomes of the body it is drawn in', () {
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ZoomStage stage = _stage(t);
+      final NucleusScene nucleus =
+          stage.scenes[ZoomStop.nucleus.index] as NucleusScene;
+      final bool male = stage.subject.body.name == 'male';
+      expect(nucleus.kindOf('X', 0), 'X', reason: t.slug);
+      expect(nucleus.kindOf('X', 1), male ? 'Y' : 'X', reason: t.slug);
+      expect(nucleus.kindOf('7', 1), '7', reason: t.slug);
+      // The Y is the smaller territory.
+      if (male) {
+        expect(
+          nucleus.spotOf(nucleus.kindOf('X', 1)),
+          lessThan(nucleus.spotOf('X')),
+          reason: t.slug,
+        );
+      }
+    }
+    // At least one of the twenty is shown on each figure.
+    expect(
+      <String>{
+        for (final ProteinTarget t in TestCatalog.all)
+          _stage(t).subject.body.name,
+      },
+      <String>{'female', 'male'},
+    );
   });
 
   test('the body lights the tissues the Atlas reads the gene raised in, '

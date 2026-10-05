@@ -1,5 +1,7 @@
 # Zoom: from a body down to one gene's DNA
 
+![The nine stops of insulin's dive: the body, the pancreas, an islet under the eyepiece, a beta cell, its nucleus, chromosome 11, the band 11p15.5, the gene and its first bases](zoom.png)
+
 ## Experience
 
 The Lab's zoom (`/lab/zoom/<slug>`) dives from a whole body to the first bases
@@ -17,7 +19,7 @@ nucleus, chromosome, band, gene and DNA. It is one continuous depth.
   - The card's ‹ and › fly to the stop either side, in 350 ms plus 260 ms for
     each decade crossed, held between 450 and 2,600 ms and eased in depth.
 - **Play.** ▶ plays the dive: 1.5 s at each stop and 0.9 s for each decade
-  between, about 25 s from the body to the DNA. A touch on the canvas pauses
+  between, about 28 s from the body to the DNA. A touch on the canvas pauses
   it.
 - **Reduced motion.** Steps and settles cut, and Play holds each stop for 3 s.
 - **The card** names the stop and the place, gives one line of what is known
@@ -28,6 +30,120 @@ nucleus, chromosome, band, gene and DNA. It is one continuous depth.
 - **About (ⓘ)** says, once, what is drawn and what is data, and names every
   source with its licence.
 - **At the DNA**, "Walk ›" opens the walk at the gene page.
+
+## Research and its consequences
+
+Each stop is drawn in the convention of the instrument that shows its scale,
+so a reader who knows the field reads it without a legend. What each
+convention is, where it comes from, and what it decided:
+
+- **Where a gene is read.** The Human Protein Atlas reads a gene's RNA
+  tissue by tissue, cell type by cell type, and by cell type within a tissue,
+  and finds its protein in the cell by immunofluorescence (Uhlén et al. 2015;
+  Karlsson et al. 2021; Thul et al. 2017). The tissue reading and the single
+  cell reading are separate analyses, so the top of one need not live in the
+  top of the other. *Consequence:* the bake chooses one path, a cell that
+  lives in the organ ("One path per gene").
+- **Anatomy.** Expression Atlas shows expression on an anatomogram: a
+  standing figure with a shape for each tissue, named by its UBERON id.
+  *Consequence:* the body and the organ are those shapes, lit by the Atlas's
+  level.
+- **Histology.** Haematoxylin stains nuclei and ribosome-rich cytoplasm
+  blue-purple; eosin stains protein pink; fat, mucus and lumens take
+  neither. A ×40 objective under a standard eyepiece shows a field about
+  half a millimetre across. *Consequence:* the tissue is that field, and
+  each tissue's architecture is laid as the textbooks draw it (Junqueira's
+  Basic Histology; Ross and Pawlina, Histology: A Text and Atlas).
+- **A red cell has no nucleus.** It loses it as it matures in the marrow, in
+  an island of erythroblasts round a macrophage (Chasis and Mohandas 2008).
+  *Consequence:* where the Atlas's cell is a red cell, the zoom lands in an
+  erythroblast of an island, and says so.
+- **The cell.** The Atlas images a cell in four channels: the nucleus blue,
+  microtubules red, the endoplasmic reticulum yellow, the protein green
+  (Thul et al. 2017). *Consequence:* the cell is drawn in those channels,
+  with microtubules moved to magenta so that red and green are never the
+  only difference.
+- **Chromosome territories.** In interphase each chromosome keeps to a
+  territory of its own, and territories are ordered from the centre of the
+  nucleus to its edge by gene density: chromosome 19 toward the centre, 18 at
+  the edge (Croft et al. 1999; Boyle et al. 2001). Painting each chromosome
+  its own colour shows them (Speicher et al. 1996; Schröck et al. 1996).
+  *Consequence:* 46 territories in 24 colours, sized by their DNA and placed
+  in that order.
+- **Bands.** A chromosome is seen whole only when it condenses to divide,
+  some ten-thousandfold. Giemsa stain then bands it, and a band's name
+  (11p15.5) is the address cytogenetics gives a gene (ISCN 2020).
+  *Consequence:* the chromosome is a metaphase chromosome at that length,
+  the band is bracketed and named, and nothing claims the gene is seen
+  there.
+- **The gene's place.** Its span is that of its MANE Select transcript on
+  GRCh38 (Morales et al. 2022), and its bands the UCSC Genome Browser's
+  cytoBand table.
+- **Nucleosomes.** 147 base pairs wrap a core of eight histones (Luger et
+  al. 1997; Davey et al. 2002), about one core every 200. At the start of a
+  gene that is read there is a stretch free of them, with a positioned
+  nucleosome just downstream (Schones et al. 2008). *Consequence:* the gene
+  is a fibre of cores 200 bp apart, bare at its 5′ end.
+- **The helix.** A base pair every 0.34 nm, about ten and a half to a turn.
+
+Sources:
+
+- Boyle S et al. The spatial organization of human chromosomes within the
+  nuclei of normal and emerin-mutant cells. Hum Mol Genet 2001;10:211–219.
+- Chasis JA, Mohandas N. Erythroblastic islands: niches for erythropoiesis.
+  Blood 2008;112:470–478.
+- Croft JA et al. Differences in the localization and morphology of
+  chromosomes in the human nucleus. J Cell Biol 1999;145:1119–1131.
+- Davey CA et al. Solvent mediated interactions in the structure of the
+  nucleosome core particle at 1.9 Å resolution. J Mol Biol
+  2002;319:1097–1113.
+- Expression Atlas, EMBL-EBI: anatomograms, CC BY 4.0
+  (<https://www.ebi.ac.uk/gxa/licence.html>), which asks to be cited as
+  "Expression Atlas in 2026: enabling FAIR and open expression data through
+  community collaboration and integration", Nucleic Acids Research, 2025.
+- ISCN 2020: An International System for Human Cytogenomic Nomenclature.
+  Karger, 2020.
+- Karlsson M et al. A single-cell type transcriptomics map of human tissues.
+  Sci Adv 2021;7:eabh2169.
+- Luger K et al. Crystal structure of the nucleosome core particle at 2.8 Å
+  resolution. Nature 1997;389:251–260.
+- Morales J et al. A joint NCBI and EMBL-EBI transcript set for clinical
+  genomics and research. Nature 2022;604:310–315.
+- Schones DE et al. Dynamic regulation of nucleosome positioning in the
+  human genome. Cell 2008;132:887–898.
+- Schröck E et al. Multicolor spectral karyotyping of human chromosomes.
+  Science 1996;273:494–497.
+- Speicher MR, Ballard SG, Ward DC. Karyotyping human chromosomes by
+  combinatorial multi-fluor FISH. Nat Genet 1996;12:368–375.
+- Thul PJ et al. A subcellular map of the human proteome. Science
+  2017;356:eaal3321.
+- Uhlén M et al. Tissue-based map of the human proteome. Science
+  2015;347:1260419.
+
+## Visual language
+
+| Stop | Seen as | Its colours (`ScaleColors`) |
+|---|---|---|
+| Body, organ | anatomy, drawn | `bodyFill`, `bodyEdge`, `organ`, `organEdge` |
+| Tissue | a stained section, brightfield | `brightfield`, `eosin` to `eosinDeep`, `haematoxylinLight` to `haematoxylin`, `redCell`, `eyepiece` |
+| Cell | immunofluorescence | `fluorescence`, `dapi`, `reticulum`, `microtubules`, `protein`, `membrane` |
+| Nucleus | chromosome paint | `paint` (24), over `dapi` |
+| Chromosome | Giemsa bands | `giemsaPale`, `giemsaDark`, `centromere` |
+| Band, gene | a genome browser | the walk's own: `roleCds`, `roleUtr5`, `roleIntron` |
+| DNA | a fibre of nucleosomes, then the helix | `histone`, `backbone`, the walk's base colours |
+
+- **One mark.** Whatever the zoom follows is in the theme's primary colour,
+  at every stop: the organ's ring, the place it is sampled, the cell's
+  outline, its nucleus, the territory, the band's bracket, the gene.
+- **One name a stop.** A plate with a line to what it names, set clear of
+  the rail and of each other. The card says the rest.
+- **Light and dark.** The body, the organ and the genome are on the app's
+  own dark ground; the tissue is the lamp's light in the eyepiece's dark;
+  the cell and the nucleus are fluorescence on black. The ground changes
+  with the instrument, and each change is a beat of the dive: the loupe
+  opening, the dark spreading from the cell.
+- **Lines** are set in screen pixels, so they keep their weight at any
+  magnification.
 
 ## One path per gene
 
@@ -69,129 +185,6 @@ scene two segments share to the same place at the stop between them.
   past it, then in base pairs. The band, the gene and the DNA are placed in
   base pairs, projected to the screen in doubles, so no canvas transform
   carries the 10⁸-fold narrowing.
-
-## The molecular end
-
-**Chromosome.** At its stop the chromosome is a metaphase chromosome:
-- two sister chromatids, pinched together at the centromere where its `acen`
-  bands meet;
-- stalks drawn thin, and `gvar` hatched as ideograms draw it;
-- the G-bands lit from the upper left across each chromatid;
-- an ISCN bracket beside the band the gene lies in, and the band's name on
-  the callout.
-
-It is never the gene: the band is millions of base pairs, a stain pattern
-seen at low resolution, and the About sheet says the gene is far too small
-to see in it.
-
-**Condensing.** On the way in, the chromosome condenses out of its territory.
-The nucleus hands its followed territory to the chromosome's scene at the
-first frame of the segment, where the two coincide. The territory's outline
-blends into the chromosome's, resampled to 128 points from the top. The
-chromosome paint gives way to Giemsa's grey, the bands come up, and the two
-chromatids resolve out of one shape at the end. The step from the nucleus to
-a long chromosome is a beat in time more than a change of scale (0.07
-decades for chromosome 1), and the minimum travel gives it its room.
-
-**Into the map.**
-- On the way out, the chromosome turns about its band to lie along the
-  genome, short arm to the left as genome browsers draw it. Its chromatids
-  merge and it thins to the band strip's 18 px, all over the first 35% of
-  the segment.
-- The band's strip appears exactly where the turned chromosome lies: at
-  that moment the chromosome's length on screen and the strip's length of
-  genome are the same number of pixels, by the camera's own arithmetic. The
-  two cross-fade over half the segment.
-- The strip then rises, a ruler in base pairs comes up, and the whole
-  chromosome docks above with the view boxed on it. The scale bar changes
-  from µm to Mb half way.
-
-**Gene.**
-- The record's exons and introns are at their real lengths (`GeneLayout`
-  uses `realIntronBp` for the three genes whose record shortens its
-  introns), placed along the span MANE gives.
-- Coding exons are thick and numbered once they are 16 px wide. Their
-  untranslated ends are thin. Introns are a line with chevrons in the
-  direction the gene is read.
-- A ruler counts from the 5′ end.
-- The gene reads 5′→3′ left to right, as the walk does, from the moment it
-  appears.
-- A turn of reverse-strand genes was planned and dropped. The band draws
-  the gene as a featureless bar, so there is nothing to see turn, and the
-  turn swung dystrophin's 5′ end across the view by up to 3 px a frame,
-  past the smoothness bound.
-
-**DNA.**
-- Past a few thousand base pairs, the gene's line is a fibre of
-  nucleosomes: a core of 147 bp seen side on, its DNA passing behind and in
-  front of it, one every 200 bp. The first sits 40 bp into the gene and the
-  stretch before it is bare, as the start of a gene that is read usually is.
-  It is drawn as the textbook packs a gene, not measured for this one.
-- Beads come up once they read as beads and give way before one fills the
-  view.
-- Under 400 bp the bare 5′ end resolves into the double helix with the
-  record's own first 33 bases, which turns once in 16 s while the DNA is
-  near.
-- "Walk ›" unzips it into the walk's rows (`HelixModel(unzip:)`) over
-  450 ms before the walk opens.
-
-## The cell and its nucleus
-
-**The cell's convention.** The cell is drawn in immunofluorescence, the way
-the Human Protein Atlas images cells:
-- DNA in blue (DAPI);
-- the endoplasmic reticulum in yellow;
-- microtubules in magenta, not the Atlas's red, so a reader who cannot tell
-  red from green can still tell them from the protein;
-- the protein in green, where the Atlas finds it: brighter at its main
-  locations, fainter at its additional ones. Each of the Atlas's 49
-  subcellular words is drawn in a compartment (`compartmentOf`).
-
-A protein the Atlas finds secreted leaves the cell in vesicles from the Golgi,
-moving with an ambient clock that is still under reduced motion. Where the
-Atlas gives no location, no green is drawn, and the callout names the
-nucleus the zoom goes to next. Otherwise it names the main locations.
-
-**Shapes.** The cell's shape is its kind's, chosen from the Atlas's class,
-with refinements by name (`cell_archetypes.dart`):
-
-| Shape | Look |
-|---|---|
-| hepatocyte | polygonal |
-| acinar | pyramidal |
-| endocrine | rounded |
-| ciliated | columnar |
-| endothelial | flat |
-| neuron | dendrites and an axon |
-| myofibre | striated, its nuclei along its rim |
-| adipocyte | one lipid droplet, its nucleus pressed to the rim |
-| erythroid | the erythroblastic island |
-| megakaryocyte, leukocyte, germ cell, dividing cell, trophoblast | their own shapes |
-
-Each has a real size, and so do their nuclei. The nucleus view is widened to
-fit a long chromosome condensed, and the cell view to fit its nucleus, so the
-dive never turns back: a metaphase chromosome 1 is longer than a small
-nucleus is wide.
-
-**No nucleus.** A cell type with no nucleus lands in its precursor's island,
-in the marrow: a macrophage, erythroblasts round it at every stage (the last
-pushing out its nucleus), and grown red cells leaving it, the biconcave discs
-named "red cells: no nucleus".
-
-**Transitions.** Coming in from the tissue, the dark of the fluorescence field
-spreads out from the cell. The cell's nucleus and the nucleus's own share one
-outline (`NucleusShape`): round, a lens, a crescent or lobed. So the step
-between them changes no shape. On it, the DNA stain resolves into chromosome
-paint.
-
-**The nucleus** holds 46 territories:
-- each as large as its chromosome's DNA (hg38 lengths);
-- gene-dense chromosomes toward the centre and gene-poor ones at the rim, in
-  the order Boyle et al. (2001) and Croft et al. (1999) measured;
-- the five acrocentrics round the nucleolus;
-- pores in the envelope once there is room to see them.
-
-The followed territory is the outline the chromosome condenses from.
 
 ## The body and the organ
 
@@ -328,8 +321,8 @@ principal cell is drawn there.
 **Layers.** A slide is five layers, each drawn whole over the one before:
 what lies under the cells, the cells, two for what is laid over them, and the
 zoom's own cell. In a layer the inks go down in one order: matrix and
-cytoplasm, granules, striations, borders, fibres, lumens, nuclei, red cells. Lines are
-set in screen pixels, so they keep their weight at any magnification.
+cytoplasm, granules, striations, borders, fibres, lumens, nuclei, red
+cells.
 
 **The loupe.** From the organ, the field opens as a loupe on the place the
 organ is sampled: a circle that grows from 56 px to the eyepiece's field
@@ -342,19 +335,134 @@ the cell it stays sharp, and a fibre's striations and an acinus's cells come
 up to meet the cell's own scene, whose dark field spreads out from the same
 outline.
 
-**What is not drawn.** One field stands for a tissue wherever in the organ
-it is cut, and every gene whose path goes there with the same kind of cell
-sees the same slide. The stains are flat: no chromatin texture, no
-variation in section thickness. The consensus "lymphoid tissue" is a lymph
-node; skin has no keratin layer of its own.
+## The cell and its nucleus
 
+**The cell's convention.** The cell is drawn in immunofluorescence, the way
+the Human Protein Atlas images cells:
+- DNA in blue (DAPI);
+- the endoplasmic reticulum in yellow;
+- microtubules in magenta, not the Atlas's red, so a reader who cannot tell
+  red from green can still tell them from the protein;
+- the protein in green, where the Atlas finds it: brighter at its main
+  locations, fainter at its additional ones. Each of the Atlas's 49
+  subcellular words is drawn in a compartment (`compartmentOf`).
+
+A protein the Atlas finds secreted leaves the cell in vesicles from the Golgi,
+moving with an ambient clock that is still under reduced motion. Where the
+Atlas gives no location, no green is drawn, and the callout names the
+nucleus the zoom goes to next. Otherwise it names the main locations.
+
+**Shapes.** The cell's shape is its kind's, chosen from the Atlas's class,
+with refinements by name (`cell_archetypes.dart`):
+
+| Shape | Look |
+|---|---|
+| hepatocyte | polygonal |
+| acinar | pyramidal |
+| endocrine | rounded |
+| ciliated | columnar |
+| endothelial | flat |
+| neuron | dendrites and an axon |
+| myofibre | striated, its nuclei along its rim |
+| adipocyte | one lipid droplet, its nucleus pressed to the rim |
+| erythroid | the erythroblastic island |
+| megakaryocyte, leukocyte, germ cell, dividing cell, trophoblast | their own shapes |
+
+Each has a real size, and so do their nuclei. The nucleus view is widened to
+fit a long chromosome condensed, and the cell view to fit its nucleus, so the
+dive never turns back: a metaphase chromosome 1 is longer than a small
+nucleus is wide.
+
+**No nucleus.** A cell type with no nucleus lands in its precursor's island,
+in the marrow: a macrophage, erythroblasts round it at every stage (the last
+pushing out its nucleus), and grown red cells leaving it, the biconcave discs
+named "red cells: no nucleus".
+
+**Transitions.** Coming in from the tissue, the dark of the fluorescence field
+spreads out from the cell. The cell's nucleus and the nucleus's own share one
+outline (`NucleusShape`): round, a lens, a crescent or lobed. So the step
+between them changes no shape. On it, the DNA stain resolves into chromosome
+paint.
+
+**The nucleus** holds 46 territories:
+- each as large as its chromosome's DNA (hg38 lengths);
+- gene-dense chromosomes toward the centre and gene-poor ones at the rim;
+- the five acrocentrics round the nucleolus;
+- pores in the envelope once there is room to see them.
+
+The followed territory is the outline the chromosome condenses from.
+
+## The molecular end
+
+**Chromosome.** At its stop the chromosome is a metaphase chromosome:
+- two sister chromatids, pinched together at the centromere where its `acen`
+  bands meet;
+- stalks drawn thin, and `gvar` hatched as ideograms draw it;
+- the G-bands lit from the upper left across each chromatid;
+- an ISCN bracket beside the band the gene lies in, and the band's name on
+  the callout.
+
+It is never the gene: the band is millions of base pairs, a stain pattern
+seen at low resolution, and the About sheet says the gene is far too small
+to see in it.
+
+**Condensing.** On the way in, the chromosome condenses out of its territory.
+The nucleus hands its followed territory to the chromosome's scene at the
+first frame of the segment, where the two coincide. The territory's outline
+blends into the chromosome's, resampled to 128 points from the top. The
+chromosome paint gives way to Giemsa's grey, the bands come up, and the two
+chromatids resolve out of one shape at the end. The step from the nucleus to
+a long chromosome is a beat in time more than a change of scale (0.07
+decades for chromosome 1), and the minimum travel gives it its room.
+
+**Into the map.**
+- On the way out, the chromosome turns about its band to lie along the
+  genome, short arm to the left as genome browsers draw it. Its chromatids
+  merge and it thins to the band strip's 18 px, all over the first 35% of
+  the segment.
+- The band's strip appears exactly where the turned chromosome lies: at
+  that moment the chromosome's length on screen and the strip's length of
+  genome are the same number of pixels, by the camera's own arithmetic. The
+  two cross-fade over half the segment.
+- The strip then rises, a ruler in base pairs comes up, and the whole
+  chromosome docks above with the view boxed on it. The scale bar changes
+  from µm to Mb half way.
+
+**Gene.**
+- The record's exons and introns are at their real lengths (`GeneLayout`
+  uses `realIntronBp` for the three genes whose record shortens its
+  introns), placed along the span MANE gives.
+- Coding exons are thick and numbered once they are 16 px wide. Their
+  untranslated ends are thin. Introns are a line with chevrons in the
+  direction the gene is read.
+- A ruler counts from the 5′ end.
+- The gene reads 5′→3′ left to right, as the walk does, from the moment it
+  appears.
+- A turn of reverse-strand genes was planned and dropped. The band draws
+  the gene as a featureless bar, so there is nothing to see turn, and the
+  turn swung dystrophin's 5′ end across the view by up to 3 px a frame,
+  past the smoothness bound.
+
+**DNA.**
+- Past a few thousand base pairs, the gene's line is a fibre of
+  nucleosomes: a core of 147 bp seen side on, its DNA passing behind and in
+  front of it, one every 200 bp. The first sits 40 bp into the gene and the
+  stretch before it is bare.
+- Beads come up once they read as beads and give way before one fills the
+  view.
+- Under 400 bp the bare 5′ end resolves into the double helix with the
+  record's own first 33 bases, which turns once in 16 s while the DNA is
+  near.
+- "Walk ›" unzips it into the walk's rows (`HelixModel(unzip:)`) over
+  450 ms before the walk opens.
 
 ## Smooth motion
 
 Every value on screen is a function of depth, and the staging each scene
 reports is what `zoom_smoothness_test` walks:
 - every protein's dive at 6,000 steps of depth;
-- Play at 60 fps for three of them.
+- Play at 60 fps for three of them, and for the one whose organ lies
+  farthest from the body's middle.
 
 It fails on:
 - anything that appears, vanishes or changes by more than 0.08 opacity in a
@@ -382,6 +490,29 @@ What it found, and what was changed:
 `zoom_smoothness_test` also places every stop's callouts at 390 and 320
 wide and fails if two plates overlap or one lies under the rail.
 `placePlate` tries the corners round the target in turn.
+
+## Deliberate simplifications
+
+- **The figure is a diagram.** Organs lie and overlap as the anatomogram
+  draws them, from the front. Bone marrow is its femur, sampled where the
+  outline is widest; a biopsy is taken from the pelvis.
+- **One field a tissue.** Wherever in the organ it is cut, and for every
+  gene that goes there with the same kind of cell. "Lymphoid tissue" is a
+  lymph node, and skin has no keratin layer of its own.
+- **Flat stains.** No chromatin texture, no variation in section thickness.
+- **A cell of its kind.** The cell is its kind's shape and size, not a
+  measured cell, and the green fills the compartments the Atlas names
+  rather than reproducing its image.
+- **Territories are placed, not measured.** Their order from centre to edge
+  is the literature's; their places are drawn. A male figure's nucleus holds
+  an X and a Y, a female's two X.
+- **A dividing chromosome in a resting nucleus.** The chromosome is seen
+  condensed although the cell is not dividing: the territory condenses into
+  it, and the step says why it is shown so.
+- **Textbook packing.** Nucleosomes are drawn every 200 bp from 40 bp into
+  the gene, not where they sit on this gene.
+- **One body.** A gene of tissues both sexes have is shown the female
+  figure, unless more of its tissues are the male's alone.
 
 ## Implementation and checks
 

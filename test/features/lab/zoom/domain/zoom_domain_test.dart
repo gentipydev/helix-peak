@@ -936,7 +936,8 @@ void main() {
       expect(figures.text, contains('Expression Atlas anatomograms'));
       expect(figures.text, contains('EMBL-EBI, CC BY 4.0'));
       expect(figures.text, contains('simplified'));
-      expect(figures.uri, contains('ebi-gene-expression-group/anatomogram'));
+      // The link is to the Atlas's own statement of the licence.
+      expect(figures.uri, 'https://www.ebi.ac.uk/gxa/licence.html');
     });
 
     test('show the record’s first bases at the DNA, 5′ to 3′', () {

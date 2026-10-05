@@ -284,7 +284,7 @@ final class ZoomFacts {
           'gene’s RNA raised in, each as bright as its level against the '
           'highest. A lymph node, a vessel, the skin, a parathyroid gland and '
           'the eye are drawn from general anatomy.',
-      uri: 'https://github.com/ebi-gene-expression-group/anatomogram',
+      uri: 'https://www.ebi.ac.uk/gxa/licence.html',
     ),
     ZoomSource(
       name: 'Bands',

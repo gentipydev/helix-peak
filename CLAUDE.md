@@ -249,20 +249,36 @@ rotting on a branch, which is what keeps the shared layer from diverging.
   labelled reference. pH (through L, the Bohr effect), fetal hemoglobin (a
   lower L) and the one-site contrast (myoglobin's own structure track) each
   change the model, curve and animation together.
-- `zoom/` pinches from a body down to one protein's gene. Body, organ,
-  tissue, cell, nucleus, chromosome and gene sit on one value whose
-  logarithm is the view's width (`ZoomScale`), with a snap point and a chip
-  for each and a scale bar from metres to nanometres. Each level is a layer
-  drawn in metres, crossfaded into the next as the view zooms about the
-  place the next one lies. The chromosome is the `locus` track's
-  (`pipeline/locus` in the backend): its cytoBand bands, with the gene's band
-  marked and named, never the gene, and a caption that says the gene is too
-  small to see there. The organ and the cell are the Human Protein Atlas's
-  reading, carried in the same track. Where the Atlas's cell type has no
-  nucleus (`anucleateCellTypes`: red cells, platelets), the zoom lands in the
-  precursor that has one and the caption says so. Every other level is
-  illustration. At the gene, the record's first bases on the shared helix,
-  and a button that opens the walk at `/gene/<slug>`.
+- `zoom/` dives from a body down to one protein's DNA through nine stops on
+  one depth (`ZoomDepth`): body, organ, tissue, cell, nucleus, chromosome,
+  band, gene, DNA. A pinch, a flick, the depth rail (the walk's
+  `SequenceScrubber`), the card's ‹ › and Play all move that one number, and
+  everything drawn is a function of it: `zoom_smoothness_test` walks every
+  protein's dive and fails on a pop, a blink or a jump. Each stop is a scene
+  in its own units, nested in the one before where its portal lies
+  (`ZoomCamera`), and drawn the way its scale is seen:
+  - the body as the Expression Atlas anatomogram's figure (EMBL-EBI,
+    CC BY 4.0), the organs the Atlas reads the gene raised in lit;
+    `tool/zoom/anatomogram.py` generates `anatomy_figures.g.dart` from it,
+    and the About sheet carries the credit;
+  - the organ as the same outline, grown to its real size;
+  - the tissue as an H&E section under an eyepiece (`TissueSlide`: one
+    engine, a recipe a tissue architecture, the zoom's cell laid where it
+    lives);
+  - the cell in immunofluorescence, the protein green where the Atlas finds
+    it, and the nucleus in chromosome paint;
+  - a metaphase chromosome with its G-bands, a genome map of the band, the
+    record's exons at their real lengths, and the double helix.
+
+  The organ and the cell are one path the bake chose, a cell that lives in
+  the organ (`path` in the `locus` track's schema 2, `pipeline/locus` in the
+  backend). Where that cell has no nucleus (red cells, platelets), the zoom
+  lands in the precursor that has one. The band is marked and named, never
+  the gene: the About sheet says the gene is too small to see there, and
+  what is data and what is drawn; each stop's card tags its source. Colours
+  are `ScaleColors` (`core/theme/scale_colors.dart`), added for the zoom
+  alone. At the DNA, "Walk ›" unzips the helix and opens the walk at
+  `/gene/<slug>`. `docs/design/zoom.md` has the design and its checks.
 - `listen/` plays a protein as sound over the walk's own grid. The protein is
   the `audio` track (`pipeline/audio` in the backend): an `.m4a`, one note a
   residue (pitch hydropathy, timbre the fold's secondary structure, loudness

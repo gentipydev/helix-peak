@@ -67,8 +67,9 @@ const List<LabFeature> labFeatures = <LabFeature>[
   LabFeature(
     title: 'Zoom',
     summary:
-        'Pinch from a whole body down to one gene: through the organ and cells '
-        'it is read in, to its band on its chromosome.',
+        'Dive from a whole body down to one gene’s DNA: the organ and the '
+        'cell it is read in, its nucleus, its band on its chromosome, its '
+        'exons. Pinch, or press play.',
     path: '${RoutePaths.lab}/zoom',
   ),
   LabFeature(
@@ -142,7 +143,7 @@ List<RouteBase> buildLabRoutes() => <RouteBase>[
           _picked(
             'zoom',
             title: 'Zoom',
-            lead: 'Pick a protein to zoom from a body down to its gene.',
+            lead: 'Pick a protein to dive from a body down to its DNA.',
             screen: (String slug) => ZoomRoute(slug: slug),
           ),
           _picked(

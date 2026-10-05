@@ -19,9 +19,14 @@ The drawings are `homo_sapiens.female.svg`, `homo_sapiens.male.svg` and
 `homo_sapiens.brain.svg` from
 <https://github.com/ebi-gene-expression-group/anatomogram>, by the Expression
 Atlas team at EMBL-EBI, licensed
-[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The script fetches
-them at one commit (`COMMIT`) and holds each to its SHA-256, so a run is
-reproducible. They are not kept in this repository.
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Expression Atlas
+states the licence, and the paper it asks to be cited by, at
+<https://www.ebi.ac.uk/gxa/licence.html>: "Expression Atlas in 2026: enabling
+FAIR and open expression data through community collaboration and
+integration", Nucleic Acids Research, 2025.
+
+The script fetches the drawings at one commit (`COMMIT`) and holds each to
+its SHA-256, so a run is reproducible. They are not kept in this repository.
 
 What is changed from the drawings, as the licence asks to be said:
 
