@@ -1,8 +1,8 @@
 # The zoom's body and organ outlines
 
-`anatomogram.py` makes `lib/features/lab/zoom/domain/anatomy_figures.g.dart`
+`anatomogram.py` makes `lib/features/zoom/domain/anatomy_figures.g.dart`
 from the Expression Atlas anatomograms: the standing figures and the brain
-the Lab's zoom draws at its body and organ stops.
+the zoom draws at its body and organ stops.
 
 ```bash
 python3 tool/zoom/anatomogram.py            # fetch, convert, write

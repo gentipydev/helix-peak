@@ -3,8 +3,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
-import '../../../../../shared/helix/helix_geometry.dart';
-import '../../../../../shared/ribosome/molecular_material.dart';
+import '../../../../shared/helix/helix_geometry.dart';
+import '../../../../shared/ribosome/molecular_material.dart';
 import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
 import 'body_scene.dart';

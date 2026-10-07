@@ -5,14 +5,14 @@ import 'dart:typed_data';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/catalog/protein_track.dart';
 import 'package:helixpeek/core/network/track_source.dart';
-import 'package:helixpeek/features/lab/zoom/domain/locus_track.dart';
+import 'package:helixpeek/features/zoom/domain/locus_track.dart';
 
-import '../../../support/test_catalog.dart';
+import '../../support/test_catalog.dart';
 
 /// The twenty `locus` payloads `pipeline/locus/` baked, kept beside these
 /// tests rather than in `test/fixtures/`, which belongs to the walk.
 String locusAsset(ProteinTarget target) =>
-    'test/features/lab/zoom/fixtures/${target.slug}_locus.json';
+    'test/features/zoom/fixtures/${target.slug}_locus.json';
 
 Map<String, dynamic> locusJson(ProteinTarget target) =>
     jsonDecode(File(locusAsset(target)).readAsStringSync())

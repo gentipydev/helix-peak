@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 
-import '../../../../core/biology/gene_record.dart';
+import '../../../core/biology/gene_record.dart';
 
 /// What a stretch of a gene is.
 enum GenePieceKind { utr, cds, intron }

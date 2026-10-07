@@ -32,9 +32,16 @@ abstract final class RoutePaths {
   /// handed to [buildAppRouter] by the app.
   static const String replication = '/replication';
 
+  /// The zoom from a body down to one protein's DNA, in every build. Like
+  /// replication's, its routes are handed to [buildAppRouter] by the app.
+  static const String zoom = '/zoom';
+
   /// The walk for one protein. `/gene` with nothing after it is still the
   /// insulin walk, so every link that predates the catalog keeps working.
   static String geneFor(ProteinTarget target) => '$gene/${target.slug}';
+
+  /// The zoom for one protein.
+  static String zoomFor(ProteinTarget target) => '$zoom/${target.slug}';
 }
 
 GoRoute _walk(String path) => GoRoute(

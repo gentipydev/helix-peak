@@ -15,7 +15,6 @@ import 'presentation/lab_protein_picker.dart';
 import 'sickle/domain/sickle_story.dart';
 import 'sickle/presentation/sickle_screen.dart';
 import 'trafficking/presentation/cell_scene_screen.dart';
-import 'zoom/presentation/zoom_screen.dart';
 
 /// The lab's routes, or none: the lab is built only where [Env.labEnabled]
 /// says so. `lib/app.dart` spreads these into the app's router.
@@ -63,14 +62,6 @@ const List<LabFeature> labFeatures = <LabFeature>[
         'tense to relaxed, as the MWC model explains it.',
     path: '${RoutePaths.lab}/oxygen',
     subject: 'HBA1 + HBB',
-  ),
-  LabFeature(
-    title: 'Zoom',
-    summary:
-        'Dive from a whole body down to one gene’s DNA: the organ and the '
-        'cell it is read in, its nucleus, its band on its chromosome, its '
-        'exons. Pinch, or press play.',
-    path: '${RoutePaths.lab}/zoom',
   ),
   LabFeature(
     title: 'Listen',
@@ -139,12 +130,6 @@ List<RouteBase> buildLabRoutes() => <RouteBase>[
             path: 'oxygen',
             builder: (BuildContext context, GoRouterState state) =>
                 const OxygenRoute(),
-          ),
-          _picked(
-            'zoom',
-            title: 'Zoom',
-            lead: 'Pick a protein to dive from a body down to its DNA.',
-            screen: (String slug) => ZoomRoute(slug: slug),
           ),
           _picked(
             'listen',

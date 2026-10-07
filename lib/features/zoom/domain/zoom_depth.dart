@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 
-import '../../../../shared/format.dart';
+import '../../../shared/format.dart';
 import 'anatomy_tables.dart';
 import 'cell_archetypes.dart';
 import 'locus_track.dart';

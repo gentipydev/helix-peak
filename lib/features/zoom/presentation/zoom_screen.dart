@@ -8,18 +8,18 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/biology/gene_record.dart';
-import '../../../../core/catalog/protein_target.dart';
-import '../../../../core/catalog/protein_track.dart';
-import '../../../../core/network/api_exception.dart';
-import '../../../../core/network/track_source.dart';
-import '../../../../core/router/app_router.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../shared/anatomy/sequence_scrubber.dart';
-import '../../../../shared/widgets/error_view.dart';
-import '../../../../shared/widgets/loading_view.dart';
-import '../../../gene_lookup/domain/usecases/fetch_gene.dart';
-import '../../presentation/lab_protein_picker.dart';
+import '../../../core/biology/gene_record.dart';
+import '../../../core/catalog/protein_target.dart';
+import '../../../core/catalog/protein_track.dart';
+import '../../../core/network/api_exception.dart';
+import '../../../core/network/track_source.dart';
+import '../../../core/router/app_router.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../shared/anatomy/sequence_scrubber.dart';
+import '../../../shared/widgets/error_view.dart';
+import '../../../shared/widgets/loading_view.dart';
+import '../../gene_lookup/data/repositories/protein_catalog_repository.dart';
+import '../../gene_lookup/domain/usecases/fetch_gene.dart';
 import '../domain/locus_track.dart';
 import '../domain/zoom_depth.dart';
 import '../domain/zoom_facts.dart';
@@ -62,7 +62,7 @@ final class ZoomReady extends ZoomState {
 }
 
 /// One protein's locus track, and its record for the gene's parts and first
-/// bases, both through the lab's own tracks.
+/// bases, both through the app's tracks, the walk's own.
 class ZoomCubit extends Cubit<ZoomState> {
   ZoomCubit(this.target, this._tracks, this._fetchGene)
     : super(const ZoomLoading());
@@ -97,14 +97,14 @@ class ZoomCubit extends Cubit<ZoomState> {
   }
 }
 
-/// `/lab/zoom/<slug>`: from a body down to one protein's DNA.
+/// `/zoom/<slug>`: from a body down to one protein's DNA.
 class ZoomRoute extends StatelessWidget {
   const ZoomRoute({required this.slug, super.key});
 
   final String slug;
 
   @override
-  Widget build(BuildContext context) => LabTargetLoader(
+  Widget build(BuildContext context) => _TargetLoader(
     slug: slug,
     builder: (BuildContext context, ProteinTarget target) =>
         BlocProvider<ZoomCubit>(
@@ -155,6 +155,77 @@ class ZoomRoute extends StatelessWidget {
           ),
         ),
   );
+}
+
+/// Resolves a slug to its catalog row, then builds [builder] with it.
+///
+/// The lab's `LabTargetLoader`, kept here as the zoom's own since it left the
+/// lab: a deep link can arrive before the catalog, or name a protein outside
+/// it, and both are answered by asking the repository for the one protein.
+class _TargetLoader extends StatefulWidget {
+  const _TargetLoader({required this.slug, required this.builder});
+
+  final String slug;
+  final Widget Function(BuildContext context, ProteinTarget target) builder;
+
+  @override
+  State<_TargetLoader> createState() => _TargetLoaderState();
+}
+
+class _TargetLoaderState extends State<_TargetLoader> {
+  ProteinTarget? _target;
+  Object? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _target = context.read<ProteinCatalogRepository>().bySlug(widget.slug);
+    if (_target == null) {
+      unawaited(_resolve());
+    }
+  }
+
+  Future<void> _resolve() async {
+    final ProteinCatalogRepository catalog = context
+        .read<ProteinCatalogRepository>();
+    try {
+      final ProteinTarget target = await catalog.protein(widget.slug);
+      if (mounted) {
+        setState(() => _target = target);
+      }
+    } on Object catch (error) {
+      if (mounted) {
+        setState(() => _error = error);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ProteinTarget? target = _target;
+    if (target != null) {
+      return widget.builder(context, target);
+    }
+    final Object? error = _error;
+    if (error == null) {
+      return Scaffold(
+        body: LoadingView(label: 'LOADING ${widget.slug.toUpperCase()}'),
+      );
+    }
+    return Scaffold(
+      appBar: AppBar(),
+      body: ErrorView(
+        title: 'Fetch failed',
+        message: error is ApiException
+            ? error.userMessage
+            : const UnknownApiException().userMessage,
+        onRetry: () {
+          setState(() => _error = null);
+          unawaited(_resolve());
+        },
+      ),
+    );
+  }
 }
 
 /// What the zoom is doing between frames.

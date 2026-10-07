@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-import '../../../../../core/theme/scale_colors.dart';
+import '../../../../core/theme/scale_colors.dart';
 import '../../domain/anatomy_tables.dart';
 import '../../domain/cell_archetypes.dart';
 import '../../domain/zoom_camera.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// The colours the Lab's zoom sees each scale in, the way science sees it.
+/// The colours the zoom sees each scale in, the way science sees it.
 ///
 /// Every level of the zoom is drawn in the convention of the instrument
 /// that shows that scale, because a reader who knows the field reads those

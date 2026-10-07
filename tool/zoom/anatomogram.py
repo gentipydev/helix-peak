@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Makes the Lab zoom's body and organ outlines from the Expression Atlas
+"""Makes the zoom's body and organ outlines from the Expression Atlas
 anatomograms.
 
     python3 tool/zoom/anatomogram.py            # fetch, convert, write
@@ -10,7 +10,7 @@ The anatomograms (EMBL-EBI, https://github.com/ebi-gene-expression-group/
 anatomogram, CC BY 4.0) are three Inkscape drawings: a female figure, a male
 figure and a brain in four views, each with its line art in one layer and a
 shape for every tissue, named by its UBERON id, in another. This reads them
-at one pinned commit and writes `lib/features/lab/zoom/domain/
+at one pinned commit and writes `lib/features/zoom/domain/
 anatomy_figures.g.dart`: for each figure its silhouette, its line art, and
 the shapes of the tissues the zoom's table names (`anatomy_tables.dart`),
 every contour simplified and measured in metres on a figure 1.70 m tall (the
@@ -60,8 +60,8 @@ SOURCES = {
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 APP = os.path.normpath(os.path.join(HERE, "..", ".."))
-TABLE = os.path.join(APP, "lib/features/lab/zoom/domain/anatomy_tables.dart")
-OUT = os.path.join(APP, "lib/features/lab/zoom/domain/anatomy_figures.g.dart")
+TABLE = os.path.join(APP, "lib/features/zoom/domain/anatomy_tables.dart")
+OUT = os.path.join(APP, "lib/features/zoom/domain/anatomy_figures.g.dart")
 
 # A standing figure's height, and a brain's length front to back, in metres.
 FIGURE_HEIGHT = 1.70

@@ -8,21 +8,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/core/theme/scale_colors.dart';
-import 'package:helixpeek/features/lab/zoom/domain/anatomy_figure.dart';
-import 'package:helixpeek/features/lab/zoom/domain/anatomy_tables.dart';
-import 'package:helixpeek/features/lab/zoom/domain/cell_archetypes.dart';
-import 'package:helixpeek/features/lab/zoom/domain/zoom_depth.dart';
-import 'package:helixpeek/features/lab/zoom/domain/zoom_path.dart';
-import 'package:helixpeek/features/lab/zoom/presentation/scenes/contour.dart';
-import 'package:helixpeek/features/lab/zoom/presentation/scenes/organ_art.dart';
-import 'package:helixpeek/features/lab/zoom/presentation/scenes/tissue/tissue_slide.dart';
-import 'package:helixpeek/features/lab/zoom/presentation/scenes/tissue_scene.dart';
-import 'package:helixpeek/features/lab/zoom/presentation/zoom_inks.dart';
-import 'package:helixpeek/features/lab/zoom/presentation/zoom_screen.dart';
+import 'package:helixpeek/features/zoom/domain/anatomy_figure.dart';
+import 'package:helixpeek/features/zoom/domain/anatomy_tables.dart';
+import 'package:helixpeek/features/zoom/domain/cell_archetypes.dart';
+import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
+import 'package:helixpeek/features/zoom/domain/zoom_path.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/contour.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organ_art.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/tissue/tissue_slide.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/tissue_scene.dart';
+import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
+import 'package:helixpeek/features/zoom/presentation/zoom_screen.dart';
 
 import 'features/gene_lookup/anatomy/anatomy_fixture.dart';
 import 'features/lab/replication/replication_fixtures.dart';
-import 'features/lab/zoom/zoom_fixtures.dart';
+import 'features/zoom/zoom_fixtures.dart';
 import 'support/test_catalog.dart';
 
 /// Every stop of the zoom, and moments between them, as PNGs to look at.

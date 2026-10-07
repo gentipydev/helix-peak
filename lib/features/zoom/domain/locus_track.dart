@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
-import '../../../../core/catalog/protein_target.dart';
-import '../../../../core/catalog/protein_track.dart';
-import '../../../../core/network/track_source.dart';
+import '../../../core/catalog/protein_target.dart';
+import '../../../core/catalog/protein_track.dart';
+import '../../../core/network/track_source.dart';
 
 /// How a band takes Giemsa stain, as UCSC's cytoBand table names it.
 enum Stain {

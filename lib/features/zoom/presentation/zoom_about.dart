@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../shared/clinvar/sources_note.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../shared/clinvar/sources_note.dart';
 import '../domain/zoom_facts.dart';
 
 /// The zoom's About sheet: what is drawn and what is data, and every source

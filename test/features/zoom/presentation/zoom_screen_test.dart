@@ -16,15 +16,15 @@ import 'package:helixpeek/features/gene_lookup/data/datasources/gene_remote_data
 import 'package:helixpeek/features/gene_lookup/data/repositories/gene_repository_impl.dart';
 import 'package:helixpeek/features/gene_lookup/data/repositories/protein_catalog_repository.dart';
 import 'package:helixpeek/features/gene_lookup/domain/usecases/fetch_gene.dart';
-import 'package:helixpeek/features/lab/zoom/domain/zoom_depth.dart';
-import 'package:helixpeek/features/lab/zoom/domain/zoom_facts.dart';
-import 'package:helixpeek/features/lab/zoom/domain/zoom_motion.dart';
-import 'package:helixpeek/features/lab/zoom/domain/zoom_path.dart';
-import 'package:helixpeek/features/lab/zoom/presentation/zoom_screen.dart';
+import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
+import 'package:helixpeek/features/zoom/domain/zoom_facts.dart';
+import 'package:helixpeek/features/zoom/domain/zoom_motion.dart';
+import 'package:helixpeek/features/zoom/domain/zoom_path.dart';
+import 'package:helixpeek/features/zoom/presentation/zoom_screen.dart';
 
-import '../../../../support/catalog_api.dart';
-import '../../../../support/test_catalog.dart';
-import '../../replication/replication_fixtures.dart';
+import '../../../support/catalog_api.dart';
+import '../../../support/test_catalog.dart';
+import '../../lab/replication/replication_fixtures.dart';
 import '../zoom_fixtures.dart';
 
 const Size _phone = Size(390, 844);

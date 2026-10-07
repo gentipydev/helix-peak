@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/anatomy_colors.dart';
-import '../../../../core/theme/nucleotide_colors.dart';
-import '../../../../core/theme/scale_colors.dart';
+import '../../../core/theme/anatomy_colors.dart';
+import '../../../core/theme/nucleotide_colors.dart';
+import '../../../core/theme/scale_colors.dart';
 
 /// Every colour the zoom draws with, from the theme: the app's own surfaces
 /// and accent, the walk's base and gene-part colours, and the zoom's own

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../../../../../core/biology/gene_record.dart';
+import '../../../../core/biology/gene_record.dart';
 import '../../domain/anatomy_figure.dart';
 import '../../domain/anatomy_tables.dart';
 import '../../domain/gene_layout.dart';

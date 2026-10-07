@@ -2,8 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 
-import '../../../../core/biology/gene_record.dart';
-import '../../../../shared/format.dart';
+import '../../../core/biology/gene_record.dart';
+import '../../../shared/format.dart';
 import 'anatomy_tables.dart';
 import 'locus_track.dart';
 import 'zoom_depth.dart';

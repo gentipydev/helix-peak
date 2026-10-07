@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../shared/anatomy/sequence_scrubber.dart';
+import '../../../shared/anatomy/sequence_scrubber.dart';
 import '../domain/zoom_depth.dart';
 
 /// The zoom's depth rail: the walk's own [SequenceScrubber] down the right

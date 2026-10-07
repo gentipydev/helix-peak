@@ -7,15 +7,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/core/theme/app_typography.dart';
-import 'package:helixpeek/features/lab/zoom/domain/zoom_depth.dart';
-import 'package:helixpeek/features/lab/zoom/domain/zoom_motion.dart';
-import 'package:helixpeek/features/lab/zoom/presentation/scenes/zoom_scene.dart';
-import 'package:helixpeek/features/lab/zoom/presentation/scenes/zoom_subject.dart';
-import 'package:helixpeek/features/lab/zoom/presentation/zoom_inks.dart';
-import 'package:helixpeek/features/lab/zoom/presentation/zoom_painter.dart';
+import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
+import 'package:helixpeek/features/zoom/domain/zoom_motion.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/zoom_scene.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
+import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
+import 'package:helixpeek/features/zoom/presentation/zoom_painter.dart';
 
-import '../../../../support/test_catalog.dart';
-import '../../replication/replication_fixtures.dart';
+import '../../../support/test_catalog.dart';
+import '../../lab/replication/replication_fixtures.dart';
 import '../zoom_fixtures.dart';
 
 /// The zoom's canvas on a phone, under the app bar and above the card.
