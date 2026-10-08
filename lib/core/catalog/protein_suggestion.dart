@@ -45,6 +45,7 @@ final class ProteinSuggestion {
     required this.status,
     required this.reason,
     this.building = false,
+    this.stopped = false,
   });
 
   factory ProteinSuggestion.fromJson(Map<String, dynamic> json) =>
@@ -58,6 +59,7 @@ final class ProteinSuggestion {
         status: SuggestionStatus.fromWire(json['status'] as String?),
         reason: json['reason'] as String?,
         building: json['building'] as bool? ?? false,
+        stopped: json['stopped'] as bool? ?? false,
       );
 
   final String uniprot;
@@ -89,6 +91,10 @@ final class ProteinSuggestion {
   /// minutes before its ESM-2 track is, so one being built is watched, never
   /// opened. A service that predates the field says nothing, read as false.
   final bool building;
+
+  /// Whether the reader who asked stopped its scoring: it opens without its
+  /// ESM-2 scores, and asking for it again scores it.
+  final bool stopped;
 
   /// What the row is called: the app's name where it has one, UniProt's
   /// otherwise.
@@ -142,7 +148,10 @@ enum ResolveState {
   unavailable('unavailable'),
 
   /// Nobody has asked yet. Only a read says this.
-  buildable('buildable');
+  buildable('buildable'),
+
+  /// Stopped by the reader who asked. Only a stop's own answer says this.
+  stopped('stopped');
 
   const ResolveState(this.wire);
 
@@ -240,6 +249,8 @@ final class BuildReport {
     this.left,
     this.transcript,
     this.reason,
+    this.stopped = false,
+    this.ran,
   });
 
   /// Null where the step is one this build does not know.
@@ -249,6 +260,7 @@ final class BuildReport {
       return null;
     }
     final double? left = (json['left'] as num?)?.toDouble();
+    final double? ran = (json['ran'] as num?)?.toDouble();
     return BuildReport(
       step: step,
       elapsed: _seconds((json['elapsed'] as num?)?.toDouble() ?? 0),
@@ -258,6 +270,8 @@ final class BuildReport {
       left: left == null ? null : _seconds(left),
       transcript: json['transcript'] as String?,
       reason: json['reason'] as String?,
+      stopped: json['stopped'] as bool? ?? false,
+      ran: ran == null ? null : _seconds(ran),
     );
   }
 
@@ -283,8 +297,15 @@ final class BuildReport {
   /// The MANE Select transcript its gene record was built from.
   final String? transcript;
 
-  /// Why [step] ended without its result: the track's reason.
+  /// Why [step] ended without its result: the track's reason, or where it
+  /// was stopped.
   final String? reason;
+
+  /// Whether the reader who asked stopped it at [step].
+  final bool stopped;
+
+  /// How long the scoring under way has run: what stopping it gives up.
+  final Duration? ran;
 
   /// The share of residues scored, where the scorer has said.
   double? get fraction {

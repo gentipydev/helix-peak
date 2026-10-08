@@ -47,10 +47,16 @@ class SuggestionTile extends StatelessWidget {
           built.message ?? 'The service declined to build it.',
         BuildStage.failed => built.message ?? 'The build failed.',
         BuildStage.capped => built.message ?? "Today's builds are taken.",
+        BuildStage.stopped => built.opens
+            ? 'Stopped before ESM-2 finished'
+            : 'Stopped before it was built',
       };
     }
     if (suggestion.building) {
       return 'Building';
+    }
+    if (suggestion.stopped) {
+      return 'Stopped before ESM-2 finished';
     }
     return switch (suggestion.status) {
       SuggestionStatus.listed => 'Curated walk',
@@ -65,7 +71,7 @@ class SuggestionTile extends StatelessWidget {
   String? get _opens {
     final ProteinBuild? build = built;
     if (build != null) {
-      return build.stage == BuildStage.ready ? build.slug : null;
+      return build.opens ? build.slug : null;
     }
     if (suggestion.building) {
       return null;
@@ -156,13 +162,18 @@ class SuggestionTile extends StatelessWidget {
   Widget _action(BuildContext context, String? opens) {
     final ColorScheme colors = Theme.of(context).colorScheme;
     final ProteinBuild? build = built;
+    // Never built, or stopped: Build asks for what is missing, a stopped
+    // protein's ESM-2 scores included.
+    final bool stopped = build?.stage == BuildStage.stopped ||
+        (build == null && suggestion.stopped);
     if (suggestion.gene != null &&
-        suggestion.status == SuggestionStatus.buildable &&
         !suggestion.building &&
-        (build == null || build.stage == BuildStage.failed)) {
+        (stopped ||
+            (suggestion.status == SuggestionStatus.buildable &&
+                (build == null || build.stage == BuildStage.failed)))) {
       return TextButton(
         onPressed: () => onBuild(suggestion),
-        child: Text(build == null ? 'Build' : 'Try again'),
+        child: Text(build?.stage == BuildStage.failed ? 'Try again' : 'Build'),
       );
     }
     if (opens != null) {

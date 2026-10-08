@@ -7,6 +7,7 @@ import '../../features/gene_lookup/data/repositories/protein_catalog_repository.
 import '../../features/gene_lookup/domain/repositories/gene_repository.dart';
 import '../../features/gene_lookup/domain/usecases/fetch_gene.dart';
 import '../../shared/share/clip_exporter.dart';
+import '../catalog/install_id.dart';
 import '../catalog/protein_builds.dart';
 import '../catalog/protein_resolver.dart';
 import '../evidence/impact_explanation_repository.dart';
@@ -26,10 +27,13 @@ List<RepositoryProvider<Object>> buildAppProviders({
           ProteinResolver(context.read<ApiClient>()),
     ),
     // One list of builds for the whole app, so that a build outlives the
-    // search that asked for it.
+    // search that asked for it. Each ask names this install, so that only
+    // this phone may stop what it started.
     RepositoryProvider<ProteinBuilds>(
-      create: (BuildContext context) =>
-          ProteinBuilds(context.read<ProteinResolver>()),
+      create: (BuildContext context) => ProteinBuilds(
+        context.read<ProteinResolver>(),
+        asker: InstallId().read,
+      ),
       dispose: (ProteinBuilds builds) => builds.dispose(),
     ),
     RepositoryProvider<TrackSource>(

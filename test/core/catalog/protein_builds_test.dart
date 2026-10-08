@@ -215,6 +215,150 @@ void main() {
       builds.dispose();
     });
 
+    testWidgets('asked for by this phone, it is this phone\'s to stop', (
+      WidgetTester tester,
+    ) async {
+      final ResolverApi api = ResolverApi(
+        resolve: (String gene) async =>
+            _said('pending', slug: 'brca1', build: _report('queued', 0, ahead: 1)),
+        status: (String gene) async =>
+            _said('pending', slug: 'brca1', build: _report('queued', 3, ahead: 1)),
+        stop: (String gene) async => _said('stopped', build: <String, dynamic>{
+          ..._report('queued', 5, reason: 'Stopped before it was built.'),
+          'stopped': true,
+        }),
+      );
+      final ProteinBuilds builds = ProteinBuilds(
+        ProteinResolver(api),
+        asker: () async => 'install-a',
+      );
+      final List<ProteinBuild> ended = <ProteinBuild>[];
+      builds.ended.listen(ended.add);
+      unawaited(builds.build(_brca1));
+      await tester.pump();
+      expect(api.posted.single, <String, dynamic>{'gene': 'BRCA1', 'asker': 'install-a'});
+      expect((builds.of('BRCA1')!.mine, builds.of('BRCA1')!.stoppable), (true, true));
+
+      expect(await builds.stop('BRCA1'), isNull);
+      final ProteinBuild stopped = builds.of('BRCA1')!;
+      expect((stopped.stage, stopped.slug, stopped.opens), (BuildStage.stopped, null, false));
+      expect(stopped.report!.stopped, isTrue);
+      expect(api.posted.last, <String, dynamic>{'asker': 'install-a'});
+      await tester.pump();
+      expect(ended.map((ProteinBuild b) => b.stage), <BuildStage>[BuildStage.stopped]);
+
+      // Watched no more; nothing to open, so it leaves search with search.
+      final int asked = api.calls.length;
+      await tester.pump(_tick * 3);
+      expect(api.calls.length, asked);
+      builds.unpinEnded();
+      expect(builds.of('BRCA1')!.pinned, isFalse);
+      builds.dispose();
+    });
+
+    testWidgets('stopped while scoring, it opens, and asking again scores it', (
+      WidgetTester tester,
+    ) async {
+      final ResolverApi api = ResolverApi(
+        resolve: (String gene) async => _said('ready', slug: 'brca1',
+            build: _report('scoring', 60, scored: 450, residues: 1863, left: 1100)),
+        stop: (String gene) async => _said('stopped', slug: 'brca1', build: <String, dynamic>{
+          ..._report('scoring', 70, scored: 450, residues: 1863,
+              reason: 'Stopped at 450 of 1,863 residues.'),
+          'stopped': true,
+        }),
+      );
+      final ProteinBuilds builds = ProteinBuilds(
+        ProteinResolver(api),
+        asker: () async => 'install-a',
+      );
+      unawaited(builds.build(_brca1));
+      await tester.pump();
+      expect(await builds.stop('BRCA1'), isNull);
+      expect((builds.of('BRCA1')!.opens, builds.of('BRCA1')!.slug), (true, 'brca1'));
+      // Something to open: it stays at the top of search until opened.
+      builds.unpinEnded();
+      expect(builds.of('BRCA1')!.pinned, isTrue);
+
+      api.resolve = (String gene) async =>
+          _said('ready', slug: 'brca1', build: _report('scoring', 0.1, ahead: 0));
+      unawaited(builds.build(_brca1));
+      await tester.pump();
+      expect(builds.of('BRCA1')!.stage, BuildStage.building);
+      expect(api.posted.last, <String, dynamic>{'gene': 'BRCA1', 'asker': 'install-a'});
+      builds.dispose();
+    });
+
+    testWidgets('a stop turned down says why, and the build goes on', (
+      WidgetTester tester,
+    ) async {
+      final ResolverApi api = ResolverApi(
+        resolve: (String gene) async =>
+            _said('pending', slug: 'brca1', build: _report('queued', 0)),
+        status: (String gene) async =>
+            _said('pending', slug: 'brca1', build: _report('queued', 3)),
+        stop: (String gene) async => throw const ServerApiException(
+          statusCode: 403, detail: 'Only the phone that asked for it can stop it.'),
+      );
+      final ProteinBuilds builds = ProteinBuilds(
+        ProteinResolver(api),
+        asker: () async => 'install-a',
+      );
+      unawaited(builds.build(_brca1));
+      await tester.pump();
+      expect(await builds.stop('BRCA1'), contains('Only the phone that asked'));
+      expect((builds.of('BRCA1')!.stage, builds.of('BRCA1')!.stopping),
+          (BuildStage.building, false));
+      await tester.pump(_tick);
+      expect(api.calls.last, 'GET /proteins/resolve/BRCA1');
+      builds.dispose();
+    });
+
+    testWidgets('one this phone only watches, or asked without a name, it cannot stop', (
+      WidgetTester tester,
+    ) async {
+      final ResolverApi api = ResolverApi(
+        resolve: (String gene) async =>
+            _said('pending', slug: 'brca1', build: _report('queued', 0)),
+        status: (String gene) async =>
+            _said('pending', slug: 'brca1', build: _report('queued', 3)),
+      );
+      final ProteinBuilds named = ProteinBuilds(
+        ProteinResolver(api),
+        asker: () async => 'install-a',
+      );
+      named.watch(_brca1);
+      await tester.pump();
+      expect(named.of('BRCA1')!.stoppable, isFalse);
+      expect(await named.stop('BRCA1'), isNull);
+      named.dispose();
+
+      final ProteinBuilds nameless = ProteinBuilds(ProteinResolver(api));
+      unawaited(nameless.build(_brca1));
+      await tester.pump();
+      expect(api.posted.last, <String, dynamic>{'gene': 'BRCA1'});
+      expect(nameless.of('BRCA1')!.stoppable, isFalse);
+      expect(api.calls.where((String c) => c.endsWith('/stop')), isEmpty);
+      nameless.dispose();
+    });
+
+    testWidgets('stopped by the phone that asked, a watched build says so', (
+      WidgetTester tester,
+    ) async {
+      final ResolverApi api = ResolverApi(
+        status: (String gene) async => _said('ready', slug: 'brca1', build: <String, dynamic>{
+          ..._report('scoring', 90, scored: 450, residues: 1863,
+              reason: 'Stopped at 450 of 1,863 residues.'),
+          'stopped': true,
+        }),
+      );
+      final ProteinBuilds builds = ProteinBuilds(ProteinResolver(api));
+      builds.watch(_brca1);
+      await tester.pump();
+      expect((builds.of('BRCA1')!.stage, builds.of('BRCA1')!.opens), (BuildStage.stopped, true));
+      builds.dispose();
+    });
+
     testWidgets('declined, broken or capped ends at once, and leaves search when it is left', (
       WidgetTester tester,
     ) async {

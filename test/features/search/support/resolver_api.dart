@@ -1,7 +1,7 @@
 import 'package:helixpeek/core/network/api_client.dart';
 
-/// The four answers [ProteinResolver] asks the service for, each a callback a
-/// test can replace, and every call recorded in the order it was made.
+/// The answers [ProteinResolver] asks the service for, each a callback a test
+/// can replace, and every call recorded in the order it was made.
 ///
 /// By default every protein search finds nothing, which is what the curated
 /// list's own tests need: the screen as it was, with no service behind the
@@ -12,15 +12,20 @@ final class ResolverApi implements ApiClient {
     this.resolve,
     this.status,
     this.tracks,
+    this.stop,
   }) : suggest = suggest ?? _nothing;
 
   Future<Map<String, dynamic>> Function(String query) suggest;
   Future<Map<String, dynamic>> Function(String gene)? resolve;
   Future<Map<String, dynamic>> Function(String gene)? status;
   Future<Map<String, dynamic>> Function(String slug)? tracks;
+  Future<Map<String, dynamic>> Function(String gene)? stop;
 
   /// `GET /proteins/suggest?q=ins`, `POST /proteins/resolve BRCA1`, ...
   final List<String> calls = <String>[];
+
+  /// Every body posted, in order.
+  final List<Map<String, dynamic>> posted = <Map<String, dynamic>>[];
 
   static Future<Map<String, dynamic>> _nothing(String query) async =>
       <String, dynamic>{
@@ -55,6 +60,11 @@ final class ResolverApi implements ApiClient {
     String path, {
     required Map<String, dynamic> body,
   }) async {
+    posted.add(body);
+    if (path.startsWith('/proteins/resolve/') && path.endsWith('/stop')) {
+      calls.add('POST $path');
+      return _answer(stop, Uri.decodeComponent(path.split('/')[3]), path);
+    }
     final String gene = body['gene'] as String;
     calls.add('POST $path $gene');
     if (path != '/proteins/resolve') {

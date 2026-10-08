@@ -135,6 +135,14 @@ class _SearchViewState extends State<_SearchView> {
     _openSlug(slug);
   }
 
+  /// Stop a build this phone asked for; where the service would not, say why.
+  Future<void> _stop(ProteinBuild build) async {
+    final String? said = await _builds?.stop(build.gene);
+    if (said != null && mounted) {
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(said)));
+    }
+  }
+
   void _openAt(String location) {
     // Dismissed before the push so the keyboard is not still animating down
     // over the walk's first frame.
@@ -308,8 +316,9 @@ class _SearchViewState extends State<_SearchView> {
               key: ValueKey<String>('build-${build.gene}'),
               job: build,
               onOpen: (String slug) => _openBuilt(build, slug),
-              onRetry: (ProteinSuggestion protein) =>
+              onBuild: (ProteinSuggestion protein) =>
                   unawaited(_builds!.build(protein)),
+              onStop: (ProteinBuild build) => unawaited(_stop(build)),
             ),
             const SizedBox(height: AppSpacing.sm),
           ],

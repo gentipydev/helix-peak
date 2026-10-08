@@ -23,13 +23,25 @@ final class ProteinResolver {
         ),
       );
 
-  /// Ask for the protein [gene] makes, built where it is not one yet.
-  Future<ResolveStatus> request(String gene) async => ResolveStatus.fromJson(
-    await _api.postJson(
-      '/proteins/resolve',
-      body: <String, dynamic>{'gene': gene},
-    ),
-  );
+  /// Ask for the protein [gene] makes, built where it is not one yet, or
+  /// scored afresh where its scoring was stopped. [asker] is this install's
+  /// own id: only it may stop what the ask starts.
+  Future<ResolveStatus> request(String gene, {String? asker}) async =>
+      ResolveStatus.fromJson(
+        await _api.postJson(
+          '/proteins/resolve',
+          body: <String, dynamic>{'gene': gene, 'asker': ?asker},
+        ),
+      );
+
+  /// Stop the build of [gene]'s protein, which [asker] asked for.
+  Future<ResolveStatus> stop(String gene, String asker) async =>
+      ResolveStatus.fromJson(
+        await _api.postJson(
+          '/proteins/resolve/${Uri.encodeComponent(gene)}/stop',
+          body: <String, dynamic>{'asker': asker},
+        ),
+      );
 
   /// What [gene]'s protein is now, without asking for it.
   Future<ResolveStatus> status(String gene) async => ResolveStatus.fromJson(

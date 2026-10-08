@@ -26,7 +26,12 @@ enum BuildStage {
   failed,
 
   /// Today's builds are taken.
-  capped;
+  capped,
+
+  /// Stopped by this phone. Stopped while ESM-2 scored, it opens without its
+  /// scores ([ProteinBuild.slug] says where); either way asking again builds
+  /// what is missing.
+  stopped;
 
   bool get underway => this == asking || this == building;
 }
@@ -43,6 +48,8 @@ final class ProteinBuild {
     this.unchangedFor,
     this.unheard = false,
     this.pinned = true,
+    this.mine = false,
+    this.stopping = false,
   });
 
   /// The protein as search named it: what its card is headed with.
@@ -71,6 +78,25 @@ final class ProteinBuild {
   /// it ended without anything to open, until search is left.
   final bool pinned;
 
+  /// Whether this phone asked for it, and so may stop it.
+  final bool mine;
+
+  /// Whether a stop is on its way to the service.
+  final bool stopping;
+
+  /// Whether Stop is offered now: this phone's, under way, and at a step a
+  /// stop can end (not while its record is written, nor in the moments of
+  /// the check).
+  bool get stoppable =>
+      mine &&
+      stage == BuildStage.building &&
+      !stopping &&
+      (report?.step == BuildStep.queued || report?.step == BuildStep.scoring);
+
+  /// Whether it can be opened: built, or stopped once its record was.
+  bool get opens =>
+      slug != null && (stage == BuildStage.ready || stage == BuildStage.stopped);
+
   String get gene => protein.gene!;
 
   ProteinBuild _with({
@@ -81,6 +107,8 @@ final class ProteinBuild {
     Duration? unchangedFor,
     bool? unheard,
     bool? pinned,
+    bool? mine,
+    bool? stopping,
   }) => ProteinBuild(
     protein: protein,
     stage: stage ?? this.stage,
@@ -90,6 +118,8 @@ final class ProteinBuild {
     unchangedFor: unchangedFor,
     unheard: unheard ?? false,
     pinned: pinned ?? this.pinned,
+    mine: mine ?? this.mine,
+    stopping: stopping ?? this.stopping,
   );
 }
 
@@ -104,17 +134,25 @@ final class ProteinBuild {
 /// reads a protein's tracks once and keeps them, so a protein opened while its
 /// scores are pending would stay unscored until the app restarts.
 ///
-/// Nothing is given up on. A build whose report has not moved for [stall] says
-/// so and is asked about less often; one the service has stopped answering
-/// about says that. Either carries on as soon as there is something new.
+/// Nothing is given up on by the app. A build whose report has not moved for
+/// [stall] says so and is asked about less often; one the service has stopped
+/// answering about says that. Either carries on as soon as there is something
+/// new. The reader who asked may stop it ([stop]): there are no accounts, so
+/// an ask carries this install's own id ([asker]), and only it may stop what
+/// the ask started.
 class ProteinBuilds {
   ProteinBuilds(
     this._resolver, {
+    this.asker,
     this.interval = const Duration(seconds: 3),
     this.stall = const Duration(minutes: 10),
   });
 
   final ProteinResolver _resolver;
+
+  /// This install's own id (`InstallId.read`). Without it, an ask names no
+  /// one and nothing it starts can be stopped.
+  final Future<String> Function()? asker;
 
   /// How often a build under way is asked about.
   final Duration interval;
@@ -159,10 +197,15 @@ class ProteinBuilds {
     }
     _moved.remove(gene);
     _missed.remove(gene);
-    _put(ProteinBuild(protein: protein, stage: BuildStage.asking));
+    _put(ProteinBuild(
+      protein: protein,
+      stage: BuildStage.asking,
+      mine: asker != null,
+    ));
     ProteinBuild next;
     try {
-      next = await _settled(of(gene)!, await _resolver.request(gene));
+      final String? id = await _id();
+      next = await _settled(of(gene)!, await _resolver.request(gene, asker: id));
     } on ServerApiException catch (error) {
       next = ProteinBuild(
         protein: protein,
@@ -198,6 +241,56 @@ class ProteinBuilds {
     unawaited(_poll());
   }
 
+  /// Stop [gene]'s build, which this phone asked for. Null once it is
+  /// stopped; otherwise why it was not, in the service's words: its record
+  /// being written, its track made a moment ago, or another phone's.
+  Future<String?> stop(String gene) async {
+    final ProteinBuild? build = of(gene);
+    final String? id = await _id();
+    if (build == null || !build.stoppable || id == null) {
+      return null;
+    }
+    _put(build._with(stopping: true, unchangedFor: build.unchangedFor));
+    String? said;
+    try {
+      final ResolveStatus status = await _resolver.stop(gene, id);
+      final ProteinBuild now = of(gene) ?? build;
+      // The answer's slug is where it opens: none where nothing was built.
+      _land(ProteinBuild(
+        protein: now.protein,
+        stage: BuildStage.stopped,
+        report: status.build ?? now.report,
+        slug: status.slug,
+        pinned: now.pinned,
+        mine: now.mine,
+      ));
+    } on ApiException catch (error) {
+      said = error.userMessage;
+    } on Object {
+      said = const UnknownApiException().userMessage;
+    }
+    if (said != null) {
+      final ProteinBuild? now = of(gene);
+      if (now != null) {
+        _put(now._with(stopping: false, unchangedFor: now.unchangedFor));
+      }
+    }
+    _schedule();
+    return said;
+  }
+
+  Future<String?> _id() async {
+    final Future<String> Function()? read = asker;
+    if (read == null) {
+      return null;
+    }
+    try {
+      return await read();
+    } on Object {
+      return null;
+    }
+  }
+
   /// The reader opened it: it leaves the top of search, and search still
   /// knows where it opens.
   void opened(String gene) {
@@ -211,7 +304,7 @@ class ProteinBuilds {
   /// and leaves the top of it.
   void unpinEnded() {
     for (final ProteinBuild build in _builds.value.values.toList()) {
-      if (build.pinned && !build.stage.underway && build.stage != BuildStage.ready) {
+      if (build.pinned && !build.stage.underway && !build.opens) {
         _put(build._with(pinned: false));
       }
     }
@@ -246,7 +339,12 @@ class ProteinBuilds {
         }
         final bool over = report.step == BuildStep.done || report.reason != null;
         return build._with(
-          stage: over ? BuildStage.ready : BuildStage.building,
+          // Stopped by the phone that asked, when this one only watched it.
+          stage: report.stopped
+              ? BuildStage.stopped
+              : over
+              ? BuildStage.ready
+              : BuildStage.building,
           report: report,
           slug: slug,
         );
@@ -262,6 +360,8 @@ class ProteinBuilds {
           report: report,
           message: status.reason,
         );
+      case ResolveState.stopped:
+        return build._with(stage: BuildStage.stopped, report: report, slug: slug);
     }
   }
 

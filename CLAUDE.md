@@ -397,10 +397,19 @@ Tests use `test/support/fixture_track_source.dart` over `test/fixtures/`.
    by the service's clock. Search pins each build at its top, whatever is
    typed, as a `BuildCard` with those steps and a residue bar, until it is
    opened; a suggestion the service marks `building` is watched, never
-   opened. A build that ends while search is not on top is said in a snackbar
-   on any screen (`BuildReadyListener`, in `MaterialApp.builder`). Nothing is
-   given up on: a report that stands still for ten minutes says so. From a
-   service without the report, the constraint track's state is read instead.
+   opened. Between two answers the card's clock runs on (elapsed, and the
+   time left running down, each second), and the bar glides at the scorer's
+   own rate with a sheen, never more than one of its lines (25 residues)
+   ahead of its count (`BuildCard.advance`); reduced motion keeps the count.
+   The phone that asked may stop a build while it is queued or scoring, after
+   a dialog: each ask carries this install's own random id (`InstallId`, no
+   accounts), and only it may stop (`POST /proteins/resolve/{gene}/stop`).
+   Stopped while scoring, it opens unscored and Build scores it again; a
+   suggestion marks such a protein `stopped`. A build that ends while search
+   is not on top is said in a snackbar on any screen (`BuildReadyListener`,
+   in `MaterialApp.builder`). Nothing is given up on by the app: a report
+   that stands still for ten minutes says so. From a service without the
+   report, the constraint track's state is read instead.
    It opens the walk only once ESM-2 has scored it or declined to:
    `TrackClient` and `ProteinCatalogRepository` each remember a protein once
    read, so a protein opened mid-bake stays unscored until a restart. Tests use
