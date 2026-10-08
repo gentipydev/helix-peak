@@ -4,9 +4,14 @@
 
 ## Experience
 
-The Lab's zoom (`/lab/zoom/<slug>`) dives from a whole body to the first bases
-of one protein's gene, through nine stops: body, organ, tissue, cell,
-nucleus, chromosome, band, gene and DNA. It is one continuous depth.
+The zoom (`/zoom/<slug>`) dives from a whole body to the first bases of one
+protein's gene, through nine stops: body, organ, tissue, cell, nucleus,
+chromosome, band, gene and DNA. It is one continuous depth.
+
+- **Getting there.** The walk's gene page offers "Zoom ›" beside its line,
+  where the transcript offers "Ribosome ›", for a protein whose `locus`
+  track is ready: the twenty curated ones today. It began as a Lab flow, and
+  its links from then (`/lab/zoom/<slug>`) still open it.
 
 - **Moving through it.**
   - A pinch moves the depth 2.5 for each tenfold spread of the fingers, and a
@@ -29,7 +34,9 @@ nucleus, chromosome, band, gene and DNA. It is one continuous depth.
   keeps its size.
 - **About (ⓘ)** says, once, what is drawn and what is data, and names every
   source with its licence.
-- **At the DNA**, "Walk ›" opens the walk at the gene page.
+- **At the DNA**, "Walk ›" goes back to the walk's gene page, the one it
+  was opened from. A zoom opened by a link, with no walk under it, opens the
+  walk there.
 
 ## Research and its consequences
 
@@ -193,7 +200,7 @@ figure (EMBL-EBI, CC BY 4.0): its line art, and inside it a shape for every
 tissue, named by UBERON id. `tool/zoom/anatomogram.py` reads the three
 drawings (female, male, and a brain in four views) at one pinned commit,
 holds each to its digest, and writes
-`lib/features/lab/zoom/domain/anatomy_figures.g.dart`: every outline
+`lib/features/zoom/domain/anatomy_figures.g.dart`: every outline
 simplified (Ramer-Douglas-Peucker) and measured in metres on a figure 1.70 m
 tall, only the tissues `anatomy_tables.dart` names kept, of the brain only
 its mid-sagittal view. About 95 KB of source for all three. `--check` fails
@@ -534,6 +541,9 @@ wide and fails if two plates overlap or one lies under the rail.
   scale bar.
 - `presentation/zoom_rail.dart`, `zoom_card.dart`, `zoom_about.dart`,
   `zoom_screen.dart`.
+- `zoom_routes.dart`: its route, in every build, and the redirects from its
+  Lab links. The walk opens it by that route (`RoutePaths.zoomFor`), with
+  `?over=walk` so that "Walk ›" pops back.
 - Colours: `ScaleColors` in `lib/core/theme/scale_colors.dart`, read through
   `context.scaleColors`. `AppTheme.analysis` is unchanged.
 - Render check:
@@ -551,3 +561,7 @@ wide and fails if two plates overlap or one lies under the rail.
   outline the body drew. `zoom_domain_test` holds the figures themselves:
   1.70 m tall, every part inside its figure with its site inside it, and
   the generated file to its source, commit and licence.
+- `zoom_routes_test` holds the route outside the lab, the redirects, and the
+  whole trip from the walk and back under the app's own routes.
+  `zoom_entry_test`, among the walk's tests, holds where the gene page
+  offers it and that every gene's line stays whole beside the pill.

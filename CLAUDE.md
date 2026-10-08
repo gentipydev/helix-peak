@@ -160,13 +160,18 @@ Git: commit the session's own changes locally. Never push, in any form.
   stands down, its band given to the player's controls: no swipe turns a page
   until the chain has landed, and Back puts it away onto the transcript.
   Without it the swipe plays the walk's own translation, as it always has.
+  The gene page, with nothing picked, offers "Zoom ›" in the same place for
+  a protein whose `locus` track is ready, and never in a ClinVar landing:
+  it opens the zoom over the walk (see "Zoom" below), which comes back to
+  this page. A protein with no ready locus is drawn as it always was.
 - `lib/features/lab/`: new flows, built only with the lab flag on (see "The
   lab" below). `home/` and `search/` hold the home screen and the search:
   the curated list, and below it every reviewed human protein, which can be
   built on demand (its own cubits, `ProteinSuggestionsCubit` and
   `ProteinBuildCubit`). Search is not the walk; it reaches the walk only by
-  opening `/gene/<slug>`. `replication/` holds the replication tour, in
-  every build (see "Replication" below).
+  opening `/gene/<slug>`. `replication/` holds the replication tour and
+  `zoom/` the zoom, both in every build (see "Replication" and "Zoom"
+  below).
 
 `test/architecture_test.dart` holds that layering to the import lines: `lab/`
 never imports the walk's screens or cubit, `core/` and `shared/` import no
@@ -207,6 +212,55 @@ folded envelopes, and topoisomerase II has its own (`replication_topo.dart`).
 A label's line must land on what it names (`replication_targets_test`).
 `docs/design/replication-fork.md` has the design and its sources.
 
+## Zoom (`lib/features/zoom/`)
+
+From a body down to one protein's DNA, at `/zoom/<slug>`, in every build. It
+began in the lab and left it for the walk: links from then (`/lab/zoom/<slug>`,
+and `/lab/zoom`, its picker) redirect, the second to the protein list.
+`zoom_routes.dart` wraps it in `AppTheme.analysis`, which the lab's shell used
+to give it, and it reads through the app's own `TrackSource`, the walk's: a
+`locus` payload is a few kilobytes, and its record is the one the walk holds.
+
+It is reached from the walk's gene page, which offers "Zoom ›" on its strip
+for a protein whose `locus` track is `ready`: the twenty curated ones today,
+by their rows and by no list, so a protein built on demand gets it the day it
+gets a locus. The walk opens it by route (`RoutePaths.zoomFor(target,
+overWalk: true)`, `?over=walk`), never by import. At the DNA, "Walk ›" unzips
+the helix and goes back to the gene page it left; opened any other way, with
+no walk under it, it opens the walk at `/gene/<slug>`. `ZoomRoute` resolves
+its slug with a loader of its own, a copy of the lab's `LabTargetLoader`: one
+shared loader would have to read `ProteinCatalogRepository` from core or
+shared, which the layering test forbids.
+
+The dive is nine stops on one depth (`ZoomDepth`): body, organ, tissue,
+cell, nucleus, chromosome, band, gene, DNA. A pinch, a flick, the depth rail (the walk's
+`SequenceScrubber`), the card's ‹ › and Play all move that one number, and
+everything drawn is a function of it: `zoom_smoothness_test` walks every
+protein's dive and fails on a pop, a blink or a jump. Each stop is a scene
+in its own units, nested in the one before where its portal lies
+(`ZoomCamera`), and drawn the way its scale is seen:
+- the body as the Expression Atlas anatomogram's figure (EMBL-EBI,
+  CC BY 4.0), the organs the Atlas reads the gene raised in lit;
+  `tool/zoom/anatomogram.py` generates `anatomy_figures.g.dart` from it,
+  and the About sheet carries the credit;
+- the organ as the same outline, grown to its real size;
+- the tissue as an H&E section under an eyepiece (`TissueSlide`: one
+  engine, a recipe a tissue architecture, the zoom's cell laid where it
+  lives);
+- the cell in immunofluorescence, the protein green where the Atlas finds
+  it, and the nucleus in chromosome paint;
+- a metaphase chromosome with its G-bands, a genome map of the band, the
+  record's exons at their real lengths, and the double helix.
+
+The organ and the cell are one path the bake chose, a cell that lives in
+the organ (`path` in the `locus` track's schema 2, `pipeline/locus` in the
+backend). Where that cell has no nucleus (red cells, platelets), the zoom
+lands in the precursor that has one. The band is marked and named, never
+the gene: the About sheet says the gene is too small to see there, and
+what is data and what is drawn; each stop's card tags its source. Colours
+are `ScaleColors` (`core/theme/scale_colors.dart`), added for the zoom
+alone. `docs/design/zoom.md` has the design and its checks.
+
 ## The lab (`LAB_ENABLED`)
 
 Everything under `lib/features/lab/` sits behind one build-time switch:
@@ -216,8 +270,8 @@ when the app is built, so a build without the line ships none of the lab: no
 `.env.example` says so. A lab flow merges early behind the flag instead of
 rotting on a branch, which is what keeps the shared layer from diverging.
 
-- `lib/app.dart` hands `replicationRoutes` and `labRoutes` to
-  `buildAppRouter(extra: ...)`, so core names no file of either. With the flag
+- `lib/app.dart` hands `replicationRoutes`, `zoomRoutes` and `labRoutes` to
+  `buildAppRouter(extra: ...)`, so core names no file of any. With the flag
   off `labRoutes` is empty; `appRouter` itself is the walk's routes alone.
 - One `ShellRoute` holds every lab route under `LabScope`
   (`lab_scope.dart`), which gives the lab its own `TrackClient` (folder
@@ -249,36 +303,6 @@ rotting on a branch, which is what keeps the shared layer from diverging.
   labelled reference. pH (through L, the Bohr effect), fetal hemoglobin (a
   lower L) and the one-site contrast (myoglobin's own structure track) each
   change the model, curve and animation together.
-- `zoom/` dives from a body down to one protein's DNA through nine stops on
-  one depth (`ZoomDepth`): body, organ, tissue, cell, nucleus, chromosome,
-  band, gene, DNA. A pinch, a flick, the depth rail (the walk's
-  `SequenceScrubber`), the card's ‹ › and Play all move that one number, and
-  everything drawn is a function of it: `zoom_smoothness_test` walks every
-  protein's dive and fails on a pop, a blink or a jump. Each stop is a scene
-  in its own units, nested in the one before where its portal lies
-  (`ZoomCamera`), and drawn the way its scale is seen:
-  - the body as the Expression Atlas anatomogram's figure (EMBL-EBI,
-    CC BY 4.0), the organs the Atlas reads the gene raised in lit;
-    `tool/zoom/anatomogram.py` generates `anatomy_figures.g.dart` from it,
-    and the About sheet carries the credit;
-  - the organ as the same outline, grown to its real size;
-  - the tissue as an H&E section under an eyepiece (`TissueSlide`: one
-    engine, a recipe a tissue architecture, the zoom's cell laid where it
-    lives);
-  - the cell in immunofluorescence, the protein green where the Atlas finds
-    it, and the nucleus in chromosome paint;
-  - a metaphase chromosome with its G-bands, a genome map of the band, the
-    record's exons at their real lengths, and the double helix.
-
-  The organ and the cell are one path the bake chose, a cell that lives in
-  the organ (`path` in the `locus` track's schema 2, `pipeline/locus` in the
-  backend). Where that cell has no nucleus (red cells, platelets), the zoom
-  lands in the precursor that has one. The band is marked and named, never
-  the gene: the About sheet says the gene is too small to see there, and
-  what is data and what is drawn; each stop's card tags its source. Colours
-  are `ScaleColors` (`core/theme/scale_colors.dart`), added for the zoom
-  alone. At the DNA, "Walk ›" unzips the helix and opens the walk at
-  `/gene/<slug>`. `docs/design/zoom.md` has the design and its checks.
 - `listen/` plays a protein as sound over the walk's own grid. The protein is
   the `audio` track (`pipeline/audio` in the backend): an `.m4a`, one note a
   residue (pitch hydropathy, timbre the fold's secondary structure, loudness
