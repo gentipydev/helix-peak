@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:helixpeek/core/catalog/protein_builds.dart';
 import 'package:helixpeek/core/catalog/protein_resolver.dart';
 import 'package:helixpeek/core/network/api_exception.dart';
 import 'package:helixpeek/features/gene_lookup/data/repositories/protein_catalog_repository.dart';
@@ -33,9 +36,11 @@ Map<String, dynamic> _suggestion(
   String? slug,
   String? display,
   String? reason,
+  bool building = false,
 }) => <String, dynamic>{
   'uniprot': uniprot, 'gene': gene, 'name': name, 'display': display,
   'length': length, 'slug': slug, 'status': status, 'reason': reason,
+  'building': building,
 };
 
 final Map<String, dynamic> _insulin = _suggestion(
@@ -61,19 +66,40 @@ Future<Map<String, dynamic>> Function(String) _finding(
       'q': q, 'release': _release, 'suggestions': suggestions,
     };
 
-Map<String, dynamic> _said(String state, {String? slug, String? reason}) =>
-    <String, dynamic>{'slug': slug, 'state': state, 'reason': reason};
+Map<String, dynamic> _said(
+  String state, {
+  String? slug,
+  String? reason,
+  Map<String, dynamic>? build,
+}) => <String, dynamic>{'slug': slug, 'state': state, 'reason': reason, 'build': build};
+
+/// A `BuildReport` as the backend's `app/resolves.py` writes one.
+Map<String, dynamic> _report(
+  String step,
+  double elapsed, {
+  int? ahead,
+  int? scored,
+  int? residues,
+  double? left,
+  String? transcript,
+  String? reason,
+}) => <String, dynamic>{
+  'step': step, 'ahead': ahead, 'scored': scored, 'residues': residues,
+  'left': left, 'elapsed': elapsed, 'transcript': transcript, 'reason': reason,
+};
 
 Map<String, dynamic> _constraint(String state) => <String, dynamic>{
   'constraint': <String, dynamic>{'state': state},
 };
 
 /// The search screen on a router whose walk is a line naming the slug it
-/// opened, so a test can see where a tap went.
-Future<void> _pump(WidgetTester tester, ResolverApi api) async {
+/// opened, so a test can see where a tap went, with the builds the app's,
+/// above the router, as `core/di` provides them.
+Future<GoRouter> _pump(WidgetTester tester, ResolverApi api) async {
   final ProteinCatalogRepository catalog = ProteinCatalogRepository(CatalogApi(), null);
   await catalog.refresh();
   addTearDown(catalog.dispose);
+  final ProteinResolver resolver = ProteinResolver(api);
   final GoRouter router = GoRouter(
     routes: <RouteBase>[
       GoRoute(
@@ -85,6 +111,11 @@ Future<void> _pump(WidgetTester tester, ResolverApi api) async {
         builder: (BuildContext context, GoRouterState state) =>
             Scaffold(body: Text('walk ${state.pathParameters['slug']}')),
       ),
+      GoRoute(
+        path: '/elsewhere',
+        builder: (BuildContext context, GoRouterState state) =>
+            const Scaffold(body: Text('elsewhere')),
+      ),
     ],
   );
   addTearDown(router.dispose);
@@ -94,12 +125,17 @@ Future<void> _pump(WidgetTester tester, ResolverApi api) async {
     MultiRepositoryProvider(
       providers: <RepositoryProvider<Object>>[
         RepositoryProvider<ProteinCatalogRepository>.value(value: catalog),
-        RepositoryProvider<ProteinResolver>.value(value: ProteinResolver(api)),
+        RepositoryProvider<ProteinResolver>.value(value: resolver),
+        RepositoryProvider<ProteinBuilds>(
+          create: (BuildContext context) => ProteinBuilds(resolver),
+          dispose: (ProteinBuilds builds) => builds.dispose(),
+        ),
       ],
       child: MaterialApp.router(routerConfig: router),
     ),
   );
   await tester.pumpAndSettle();
+  return router;
 }
 
 /// Type, wait out the pause, and let the answer land.
@@ -117,6 +153,17 @@ Finder _tile(String title) => find.ancestor(
 
 Finder _inTile(String title, Finder finder) =>
     find.descendant(of: _tile(title), matching: finder);
+
+Finder _card(String gene) => find.byKey(ValueKey<String>('build-$gene'));
+
+Finder _inCard(String gene, Finder finder) =>
+    find.descendant(of: _card(gene), matching: finder);
+
+/// Answers in turn, the last one for as long as it is asked.
+Future<Map<String, dynamic>> Function(String) _inTurn(
+  List<Map<String, dynamic>> answers,
+) =>
+    (String key) async => answers.length > 1 ? answers.removeAt(0) : answers.single;
 
 void main() {
   testWidgets('the curated list and every other protein are told apart', (
@@ -141,22 +188,26 @@ void main() {
     expect(api.calls, <String>['GET /proteins/suggest?q=ins']);
   });
 
-  testWidgets('a protein is built from its row in the list, then opened', (
+  testWidgets('a build is pinned, told step by step, and opened when scored', (
     WidgetTester tester,
   ) async {
-    final List<Map<String, dynamic>> resolving = <Map<String, dynamic>>[
-      _said('pending', slug: 'brca1'),
-      _said('ready', slug: 'brca1'),
-    ];
-    final List<Map<String, dynamic>> scoring = <Map<String, dynamic>>[
-      _constraint('pending'),
-      _constraint('ready'),
-    ];
     final ResolverApi api = ResolverApi(
-      suggest: _finding(<Map<String, dynamic>>[_brca1]),
-      resolve: (String gene) async => _said('pending', slug: 'brca1'),
-      status: (String gene) async => resolving.removeAt(0),
-      tracks: (String slug) async => scoring.removeAt(0),
+      suggest: _finding(<Map<String, dynamic>>[_insr, _brca1]),
+      resolve: (String gene) async => _said(
+        'pending', slug: 'brca1', build: _report('queued', 0.2, ahead: 1)),
+      status: _inTurn(<Map<String, dynamic>>[
+        _said('pending', slug: 'brca1', build: _report('record', 31.0)),
+        _said('ready', slug: 'brca1',
+            build: _report('scoring', 35.0, ahead: 0, transcript: 'NM_007294.4')),
+        _said('ready', slug: 'brca1',
+            build: _report('scoring', 50.0, transcript: 'NM_007294.4')),
+        _said('ready', slug: 'brca1', build: _report('scoring', 331.0,
+            scored: 450, residues: 1863, left: 245.0, transcript: 'NM_007294.4')),
+        _said('ready', slug: 'brca1', build: _report('check', 900.0,
+            scored: 1863, residues: 1863, left: 0.0, transcript: 'NM_007294.4')),
+        _said('ready', slug: 'brca1', build: _report('done', 905.0,
+            scored: 1863, residues: 1863, transcript: 'NM_007294.4')),
+      ]),
     );
     await _pump(tester, api);
     await _type(tester, 'brca1');
@@ -164,27 +215,226 @@ void main() {
 
     await tester.tap(_inTile('Breast cancer type 1 susceptibility protein', find.text('Build')));
     await tester.pump();
-    expect(find.text('Building its gene record'), findsOneWidget);
+    await tester.pump();
+    // Pinned above everything, and no longer in the list below.
+    expect(find.text('BUILDING'), findsOneWidget);
+    expect(_tile('Breast cancer type 1 susceptibility protein'), findsNothing);
+    expect(_tile('Insulin receptor'), findsOneWidget);
+    expect(_inCard('BRCA1', find.text('P38398 · 1,863 aa')), findsOneWidget);
+    expect(_inCard('BRCA1', find.text('Queued')), findsOneWidget);
+    expect(_inCard('BRCA1', find.text('1 protein ahead')), findsOneWidget);
+    expect(_inCard('BRCA1', find.text('Asked 0 s ago')), findsOneWidget);
+
+    await tester.pump(_tick);
+    expect(_inCard('BRCA1', find.text('1 protein ahead')), findsNothing);
+    expect(_inCard('BRCA1', find.text('Asked 31 s ago')), findsOneWidget);
+    // Its row is there: the record is done, and the walk is not opened yet.
+    await tester.pump(_tick);
+    expect(_inCard('BRCA1', find.text('NM_007294.4')), findsOneWidget);
+    expect(_inCard('BRCA1', find.text('Next')), findsOneWidget);
+    expect(find.text('Open'), findsNothing);
+    await tester.pump(_tick);
+    expect(_inCard('BRCA1', find.text('Loading the model')), findsOneWidget);
+    await tester.pump(_tick);
+    expect(_inCard('BRCA1', find.text('450 / 1,863')), findsOneWidget);
+    expect(_inCard('BRCA1', find.text('4 min left')), findsOneWidget);
+    expect(_inCard('BRCA1', find.text('Asked 5 min ago')), findsOneWidget);
+    final LinearProgressIndicator bar = tester.widget(
+      _inCard('BRCA1', find.byType(LinearProgressIndicator)),
+    );
+    expect(bar.semanticsLabel, 'ESM-2, 450 of 1863 residues scored');
+    await tester.pumpAndSettle(const Duration(milliseconds: 100));
+    expect(
+      tester.widget<LinearProgressIndicator>(
+        _inCard('BRCA1', find.byType(LinearProgressIndicator)),
+      ).value,
+      closeTo(450 / 1863, 1e-9),
+    );
+    await tester.pump(_tick);
+    expect(_inCard('BRCA1', find.byType(LinearProgressIndicator)), findsNothing);
+    expect(_inCard('BRCA1', find.text('Alignment check')), findsOneWidget);
     expect(find.text('Open'), findsNothing);
 
     await tester.pump(_tick);
-    expect(find.text('Building its gene record'), findsOneWidget);
+    expect(_inCard('BRCA1', find.text('Built in 15 min')), findsOneWidget);
+    expect(_inCard('BRCA1', find.text('Queued')), findsNothing);
+    await tester.tap(_inCard('BRCA1', find.text('Open')));
+    await tester.pumpAndSettle();
+    expect(find.text('walk brca1'), findsOneWidget);
+    expect(api.calls, <String>[
+      'GET /proteins/suggest?q=brca1',
+      'POST /proteins/resolve BRCA1',
+      for (int i = 0; i < 6; i++) 'GET /proteins/resolve/BRCA1',
+    ]);
+  });
+
+  testWidgets('opened, it leaves the top and opens from its row', (
+    WidgetTester tester,
+  ) async {
+    final ResolverApi api = ResolverApi(
+      suggest: _finding(<Map<String, dynamic>>[_brca1]),
+      resolve: (String gene) async => _said('ready', slug: 'brca1',
+          build: _report('done', 600.0, scored: 1863, residues: 1863)),
+    );
+    final GoRouter router = await _pump(tester, api);
+    await _type(tester, 'brca1');
+    await tester.tap(find.text('Build'));
+    await tester.pump();
+    await tester.pump();
+    await tester.tap(_inCard('BRCA1', find.text('Open')));
+    await tester.pumpAndSettle();
+    router.pop();
+    await tester.pumpAndSettle();
+
+    expect(find.text('BUILDING'), findsNothing);
+    expect(_inTile('Breast cancer type 1 susceptibility protein', find.text('Built on demand')),
+        findsOneWidget);
+    await tester.tap(_tile('Breast cancer type 1 susceptibility protein'));
+    await tester.pumpAndSettle();
+    expect(find.text('walk brca1'), findsOneWidget);
+  });
+
+  testWidgets('a build stays pinned whatever is typed, and outlives search', (
+    WidgetTester tester,
+  ) async {
+    final ResolverApi api = ResolverApi(
+      suggest: (String q) async =>
+          _finding(<Map<String, dynamic>>[if (q == 'brca1') _brca1 else _insr])(q),
+      resolve: (String gene) async => _said('pending', slug: 'brca1',
+          build: _report('queued', 0.0, ahead: 0)),
+      status: _inTurn(<Map<String, dynamic>>[
+        _said('ready', slug: 'brca1', build: _report('scoring', 120.0,
+            scored: 100, residues: 1863, left: 2000.0)),
+        _said('ready', slug: 'brca1', build: _report('scoring', 300.0,
+            scored: 400, residues: 1863, left: 1100.0)),
+      ]),
+    );
+    final GoRouter router = await _pump(tester, api);
+    await _type(tester, 'brca1');
+    await tester.tap(find.text('Build'));
+    await tester.pump();
+    await tester.pump();
+
+    await _type(tester, 'insr');
+    expect(_card('BRCA1'), findsOneWidget);
+    expect(_tile('Insulin receptor'), findsOneWidget);
+
+    // Away from search, the build goes on being asked about.
+    unawaited(router.push('/elsewhere'));
+    await tester.pumpAndSettle();
+    await tester.pump(_tick);
+    await tester.pump(_tick);
+    router.pop();
+    await tester.pumpAndSettle();
+    expect(_inCard('BRCA1', find.text('400 / 1,863')), findsOneWidget);
+  });
+
+  testWidgets('a build search finds under way is watched, not opened', (
+    WidgetTester tester,
+  ) async {
+    // B2M's row is written, so it reads as ready; its ESM-2 track is not.
+    final Map<String, dynamic> b2m = _suggestion(
+      'P61769', 'B2M', 'Beta-2-microglobulin', 119, 'ready', slug: 'b2m', building: true);
+    final ResolverApi api = ResolverApi(
+      suggest: _finding(<Map<String, dynamic>>[b2m]),
+      status: (String gene) async => _said('ready', slug: 'b2m',
+          build: _report('scoring', 20.0, scored: 50, residues: 119, left: 6.0)),
+    );
+    await _pump(tester, api);
+    await _type(tester, 'b2m');
+    await tester.pump();
+    expect(_tile('Beta-2-microglobulin'), findsNothing);
+    expect(_inCard('B2M', find.text('50 / 119')), findsOneWidget);
+    expect(_inCard('B2M', find.text('< 1 min left')), findsOneWidget);
+    expect(find.text('Open'), findsNothing);
+    expect(api.calls, <String>['GET /proteins/suggest?q=b2m', 'GET /proteins/resolve/B2M']);
+  });
+
+  testWidgets('ESM-2 scores declined open unscored, and the check says why', (
+    WidgetTester tester,
+  ) async {
+    const String gate =
+        'ESM-2 prefers the residue that is there to the one before it 37.9% of the time, '
+        'and to the one after it 37.9%. The scores are not drawn.';
+    final ResolverApi api = ResolverApi(
+      suggest: _finding(<Map<String, dynamic>>[_brca1]),
+      resolve: (String gene) async => _said('ready', slug: 'brca1', build: _report(
+          'check', 40.0, scored: 1863, residues: 1863, transcript: 'NM_007294.4',
+          reason: gate)),
+    );
+    await _pump(tester, api);
+    await _type(tester, 'brca1');
+    await tester.tap(find.text('Build'));
+    await tester.pump();
+    await tester.pump();
+    expect(_inCard('BRCA1', find.text(gate)), findsOneWidget);
+    expect(_inCard('BRCA1', find.text('Built in 40 s')), findsOneWidget);
+    await tester.tap(_inCard('BRCA1', find.text('Open')));
+    await tester.pumpAndSettle();
+    expect(find.text('walk brca1'), findsOneWidget);
+  });
+
+  testWidgets('a request the resolver declined says why at its record', (
+    WidgetTester tester,
+  ) async {
+    const String why = "The record's protein is 111 residues long; UniProt A2JGV3 is 58.";
+    final ResolverApi api = ResolverApi(
+      suggest: _finding(<Map<String, dynamic>>[_brca1]),
+      resolve: (String gene) async => _said('pending', slug: 'brca1',
+          build: _report('queued', 0.0, ahead: 0)),
+      status: (String gene) async => _said('refused', reason: why,
+          build: _report('record', 4.0)),
+    );
+    await _pump(tester, api);
+    await _type(tester, 'brca1');
+    await tester.tap(find.text('Build'));
+    await tester.pump();
+    await tester.pump(_tick);
+    expect(_inCard('BRCA1', find.text(why)), findsOneWidget);
+    expect(find.text('Open'), findsNothing);
+    expect(find.text('Try again'), findsNothing);
+  });
+
+  testWidgets('a service without the report builds as before: one line, then Open', (
+    WidgetTester tester,
+  ) async {
+    final ResolverApi api = ResolverApi(
+      suggest: _finding(<Map<String, dynamic>>[_brca1]),
+      resolve: (String gene) async => _said('pending', slug: 'brca1'),
+      status: _inTurn(<Map<String, dynamic>>[
+        _said('pending', slug: 'brca1'),
+        _said('ready', slug: 'brca1'),
+      ]),
+      tracks: _inTurn(<Map<String, dynamic>>[_constraint('pending'), _constraint('ready')]),
+    );
+    await _pump(tester, api);
+    await _type(tester, 'brca1');
+
+    await tester.tap(_inTile('Breast cancer type 1 susceptibility protein', find.text('Build')));
+    await tester.pump();
+    expect(_inCard('BRCA1', find.text('Building')), findsOneWidget);
+    expect(find.text('Open'), findsNothing);
+
+    await tester.pump(_tick);
+    expect(_inCard('BRCA1', find.text('Building')), findsOneWidget);
     await tester.pump(_tick);
     // The row is there; the walk is not opened until ESM-2 has scored it.
-    expect(find.text('Scoring every residue with ESM-2'), findsOneWidget);
+    expect(_inCard('BRCA1', find.text('Building')), findsOneWidget);
     expect(find.text('Open'), findsNothing);
     await tester.pump(_tick);
-    expect(find.text('Built, ready to walk'), findsOneWidget);
+    expect(_inCard('BRCA1', find.text('Built, ready to walk')), findsOneWidget);
 
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
     expect(find.text('walk brca1'), findsOneWidget);
+    // Its state each time, and once it has a row, its track as well.
     expect(api.calls, <String>[
       'GET /proteins/suggest?q=brca1',
       'POST /proteins/resolve BRCA1',
       'GET /proteins/resolve/BRCA1',
       'GET /proteins/resolve/BRCA1',
       'GET /protein/brca1/tracks',
+      'GET /proteins/resolve/BRCA1',
       'GET /protein/brca1/tracks',
     ]);
   });
@@ -219,7 +469,7 @@ void main() {
     expect(find.text('Build'), findsNothing);
   });
 
-  testWidgets("a day's builds taken is said on the row", (WidgetTester tester) async {
+  testWidgets("a day's builds taken is said on its card", (WidgetTester tester) async {
     await _pump(
       tester,
       ResolverApi(
@@ -235,7 +485,7 @@ void main() {
     await tester.tap(find.text('Build'));
     await tester.pump();
     await tester.pump();
-    expect(find.textContaining("today's are taken"), findsOneWidget);
+    expect(_inCard('BRCA1', find.textContaining("today's are taken")), findsOneWidget);
     expect(find.text('Build'), findsNothing);
   });
 

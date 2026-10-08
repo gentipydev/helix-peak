@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/catalog/protein_builds.dart';
 import '../../../../core/catalog/protein_resolver.dart';
 import '../../../../core/catalog/protein_suggestion.dart';
 import '../../../../core/catalog/protein_target.dart';
@@ -14,8 +15,8 @@ import '../../../../shared/format.dart';
 import '../../../../shared/widgets/error_view.dart';
 import '../../../../shared/widgets/loading_view.dart';
 import '../../../gene_lookup/data/repositories/protein_catalog_repository.dart';
-import '../cubit/protein_build_cubit.dart';
 import '../cubit/protein_suggestions_cubit.dart';
+import '../widgets/build_card.dart';
 import '../widgets/protein_card.dart';
 import '../widgets/suggestion_tile.dart';
 
@@ -30,6 +31,9 @@ import '../widgets/suggestion_tile.dart';
 /// Searching every protein needs a [ProteinResolver], which the app always
 /// provides (`core/di`). Where nothing does, the screen is the curated list
 /// alone, exactly as it was before there was anything else to search.
+///
+/// Builds are the app's [ProteinBuilds], so one outlives this screen. Where
+/// nothing provides them, the screen keeps its own for as long as it is open.
 class SearchScreen extends StatelessWidget {
   const SearchScreen({super.key});
 
@@ -39,12 +43,17 @@ class SearchScreen extends StatelessWidget {
     if (resolver == null) {
       return const _SearchView(everyProtein: false);
     }
-    return BlocProvider<ProteinSuggestionsCubit>(
+    final Widget view = BlocProvider<ProteinSuggestionsCubit>(
       create: (BuildContext context) => ProteinSuggestionsCubit(resolver),
-      child: BlocProvider<ProteinBuildCubit>(
-        create: (BuildContext context) => ProteinBuildCubit(resolver),
-        child: const _SearchView(everyProtein: true),
-      ),
+      child: const _SearchView(everyProtein: true),
+    );
+    if (context.read<ProteinBuilds?>() != null) {
+      return view;
+    }
+    return RepositoryProvider<ProteinBuilds>(
+      create: (BuildContext context) => ProteinBuilds(resolver),
+      dispose: (ProteinBuilds builds) => builds.dispose(),
+      child: view,
     );
   }
 }
@@ -53,7 +62,7 @@ class _SearchView extends StatefulWidget {
   const _SearchView({required this.everyProtein});
 
   /// Whether every reviewed human protein is searched below the list, with
-  /// the cubits above this that it takes.
+  /// the cubit and the builds above this that it takes.
   final bool everyProtein;
 
   @override
@@ -66,12 +75,18 @@ class _SearchViewState extends State<_SearchView> {
 
   late final ProteinCatalogRepository _catalog;
 
+  /// The app's builds; null where only the curated list is searched.
+  ProteinBuilds? _builds;
+
   @override
   void initState() {
     super.initState();
     _catalog = context.read<ProteinCatalogRepository>();
     _catalog.rows.addListener(_refreshed);
     _catalog.status.addListener(_refreshed);
+    if (widget.everyProtein) {
+      _builds = context.read<ProteinBuilds>();
+    }
   }
 
   void _refreshed() {
@@ -84,8 +99,24 @@ class _SearchViewState extends State<_SearchView> {
   void dispose() {
     _catalog.rows.removeListener(_refreshed);
     _catalog.status.removeListener(_refreshed);
+    // A build that ended with nothing to open has been said here.
+    _builds?.unpinEnded();
     _controller.dispose();
     super.dispose();
+  }
+
+  /// Builds search found under way are watched, not offered to open: a
+  /// protein is ready minutes before its ESM-2 track is.
+  void _found(BuildContext context, SuggestionsState found) {
+    final ProteinBuilds? builds = _builds;
+    if (builds == null || found is! SuggestionsShown) {
+      return;
+    }
+    for (final ProteinSuggestion suggestion in found.page.suggestions) {
+      if (suggestion.building) {
+        builds.watch(suggestion);
+      }
+    }
   }
 
   void _typed(String value) {
@@ -98,6 +129,11 @@ class _SearchViewState extends State<_SearchView> {
   void _open(ProteinTarget target) => _openAt(RoutePaths.geneFor(target));
 
   void _openSlug(String slug) => _openAt('${RoutePaths.gene}/$slug');
+
+  void _openBuilt(ProteinBuild build, String slug) {
+    _builds?.opened(build.gene);
+    _openSlug(slug);
+  }
 
   void _openAt(String location) {
     // Dismissed before the push so the keyboard is not still animating down
@@ -181,10 +217,24 @@ class _SearchViewState extends State<_SearchView> {
                               action: 'Retry',
                             )
                           : !widget.everyProtein
-                          ? _results(context, results, carried, const SuggestionsIdle())
-                          : BlocBuilder<ProteinSuggestionsCubit, SuggestionsState>(
+                          ? _results(
+                              context,
+                              results,
+                              carried,
+                              const SuggestionsIdle(),
+                              const <String, ProteinBuild>{},
+                            )
+                          : BlocConsumer<ProteinSuggestionsCubit, SuggestionsState>(
+                              listener: _found,
                               builder: (BuildContext context, SuggestionsState found) =>
-                                  _results(context, results, carried, found),
+                                  ValueListenableBuilder<Map<String, ProteinBuild>>(
+                                    valueListenable: _builds!.builds,
+                                    builder: (
+                                      BuildContext context,
+                                      Map<String, ProteinBuild> builds,
+                                      Widget? child,
+                                    ) => _results(context, results, carried, found, builds),
+                                  ),
                             ),
                     ),
                   ],
@@ -202,12 +252,21 @@ class _SearchViewState extends State<_SearchView> {
     List<ProteinTarget> results,
     int carried,
     SuggestionsState found,
+    Map<String, ProteinBuild> builds,
   ) {
     final String query = _query.trim();
     final bool asking =
         widget.everyProtein && query.length >= ProteinSuggestionsCubit.shortest;
     final Set<String> shown = <String>{
       for (final ProteinTarget target in results) target.slug,
+    };
+    // Pinned while it builds, whatever is typed, and nowhere else meanwhile.
+    final List<ProteinBuild> pinned = <ProteinBuild>[
+      for (final ProteinBuild build in builds.values)
+        if (build.pinned) build,
+    ];
+    final Set<String> building = <String>{
+      for (final ProteinBuild build in pinned) build.gene,
     };
     final SuggestionPage? page = switch (found) {
       SuggestionsShown(:final SuggestionPage page) => page,
@@ -218,25 +277,49 @@ class _SearchViewState extends State<_SearchView> {
     final List<ProteinSuggestion> others = <ProteinSuggestion>[
       for (final ProteinSuggestion suggestion
           in page?.suggestions ?? const <ProteinSuggestion>[])
-        if (!shown.contains(suggestion.slug)) suggestion,
+        if (!shown.contains(suggestion.slug) &&
+            !building.contains(suggestion.gene))
+          suggestion,
     ];
     final bool settled = found is SuggestionsShown;
+    final bool nothing =
+        results.isEmpty && (!asking || (settled && others.isEmpty));
+    final Widget nothingFound = _NothingFound(
+      query: query,
+      carried: carried,
+      everyProtein: widget.everyProtein,
+      searchedEveryProtein: asking,
+    );
 
-    if (results.isEmpty && (!asking || (settled && others.isEmpty))) {
-      return _NothingFound(
-        query: query,
-        carried: carried,
-        everyProtein: widget.everyProtein,
-        searchedEveryProtein: asking,
-      );
+    if (nothing && pinned.isEmpty) {
+      return nothingFound;
     }
 
     final bool showOthers =
         asking && !(settled && others.isEmpty) && found is! SuggestionsIdle;
-    Widget list(BuildsState builds) => ListView(
+    return ListView(
       padding: const EdgeInsets.only(bottom: AppSpacing.xl),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       children: <Widget>[
+        if (pinned.isNotEmpty) ...<Widget>[
+          const _SectionHeader(title: 'Building'),
+          for (final ProteinBuild build in pinned) ...<Widget>[
+            BuildCard(
+              key: ValueKey<String>('build-${build.gene}'),
+              job: build,
+              onOpen: (String slug) => _openBuilt(build, slug),
+              onRetry: (ProteinSuggestion protein) =>
+                  unawaited(_builds!.build(protein)),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+          const SizedBox(height: AppSpacing.md),
+        ],
+        if (nothing)
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.xl),
+            child: nothingFound,
+          ),
         if (results.isNotEmpty) ...<Widget>[
           _SectionHeader(
             title: 'Curated',
@@ -272,31 +355,26 @@ class _SearchViewState extends State<_SearchView> {
           for (final ProteinSuggestion suggestion in others) ...<Widget>[
             SuggestionTile(
               suggestion: suggestion,
-              progress: builds.of(suggestion.gene ?? ''),
+              built: builds[suggestion.gene],
               onOpen: _openSlug,
-              onBuild: (String gene) =>
-                  unawaited(context.read<ProteinBuildCubit>().build(gene)),
+              onBuild: (ProteinSuggestion protein) =>
+                  unawaited(_builds!.build(protein)),
             ),
             const SizedBox(height: AppSpacing.sm),
           ],
         ],
       ],
     );
-    if (!widget.everyProtein) {
-      return list(const BuildsState(<String, BuildProgress>{}));
-    }
-    return BlocBuilder<ProteinBuildCubit, BuildsState>(
-      builder: (BuildContext context, BuildsState builds) => list(builds),
-    );
   }
 }
 
-/// The name of one part of the list, and a line on what is in it.
+/// The name of one part of the list, and a line on what is in it where its
+/// name does not say enough.
 class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, required this.caption});
+  const _SectionHeader({required this.title, this.caption});
 
   final String title;
-  final String caption;
+  final String? caption;
 
   @override
   Widget build(BuildContext context) {
@@ -315,8 +393,10 @@ class _SectionHeader extends StatelessWidget {
                 letterSpacing: 1.2,
               ),
             ),
-            const SizedBox(height: 2),
-            Text(caption, style: theme.textTheme.bodySmall),
+            if (caption case final String caption) ...<Widget>[
+              const SizedBox(height: 2),
+              Text(caption, style: theme.textTheme.bodySmall),
+            ],
           ],
         ),
       ),

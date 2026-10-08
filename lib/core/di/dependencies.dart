@@ -7,6 +7,7 @@ import '../../features/gene_lookup/data/repositories/protein_catalog_repository.
 import '../../features/gene_lookup/domain/repositories/gene_repository.dart';
 import '../../features/gene_lookup/domain/usecases/fetch_gene.dart';
 import '../../shared/share/clip_exporter.dart';
+import '../catalog/protein_builds.dart';
 import '../catalog/protein_resolver.dart';
 import '../evidence/impact_explanation_repository.dart';
 import '../network/api_client.dart';
@@ -23,6 +24,13 @@ List<RepositoryProvider<Object>> buildAppProviders({
     RepositoryProvider<ProteinResolver>(
       create: (BuildContext context) =>
           ProteinResolver(context.read<ApiClient>()),
+    ),
+    // One list of builds for the whole app, so that a build outlives the
+    // search that asked for it.
+    RepositoryProvider<ProteinBuilds>(
+      create: (BuildContext context) =>
+          ProteinBuilds(context.read<ProteinResolver>()),
+      dispose: (ProteinBuilds builds) => builds.dispose(),
     ),
     RepositoryProvider<TrackSource>(
       create: (BuildContext context) => TrackClient(context.read<ApiClient>()),

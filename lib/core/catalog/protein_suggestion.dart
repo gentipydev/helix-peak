@@ -44,6 +44,7 @@ final class ProteinSuggestion {
     required this.slug,
     required this.status,
     required this.reason,
+    this.building = false,
   });
 
   factory ProteinSuggestion.fromJson(Map<String, dynamic> json) =>
@@ -56,6 +57,7 @@ final class ProteinSuggestion {
         slug: json['slug'] as String?,
         status: SuggestionStatus.fromWire(json['status'] as String?),
         reason: json['reason'] as String?,
+        building: json['building'] as bool? ?? false,
       );
 
   final String uniprot;
@@ -81,6 +83,12 @@ final class ProteinSuggestion {
 
   /// Why an unavailable protein cannot be built.
   final String? reason;
+
+  /// Whether a build of it is under way: asked for and not yet resolved, or
+  /// resolved and still being scored. A protein is [SuggestionStatus.ready]
+  /// minutes before its ESM-2 track is, so one being built is watched, never
+  /// opened. A service that predates the field says nothing, read as false.
+  final bool building;
 
   /// What the row is called: the app's name where it has one, UniProt's
   /// otherwise.
@@ -154,15 +162,137 @@ enum ResolveState {
 
 @immutable
 final class ResolveStatus {
-  const ResolveStatus({required this.state, this.slug, this.reason});
+  const ResolveStatus({
+    required this.state,
+    this.slug,
+    this.reason,
+    this.build,
+  });
 
   factory ResolveStatus.fromJson(Map<String, dynamic> json) => ResolveStatus(
     state: ResolveState.fromWire(json['state'] as String?),
     slug: json['slug'] as String?,
     reason: json['reason'] as String?,
+    build: switch (json['build']) {
+      final Map<String, dynamic> build => BuildReport.fromJson(build),
+      _ => null,
+    },
   );
 
   final ResolveState state;
   final String? slug;
   final String? reason;
+
+  /// How far its build has got. Null for a curated protein, one nobody has
+  /// asked for, a step this build does not know, or a service that predates
+  /// the field.
+  final BuildReport? build;
+}
+
+/// The steps of a build, in the order a protein goes through them.
+///
+/// Mirrors `BuildReport.step` in the backend's `app/schemas.py`.
+enum BuildStep {
+  /// Asked for, and no worker has taken it yet.
+  queued('queued'),
+
+  /// Its row and gene record are being made, from its UniProt entry and its
+  /// MANE Select transcript.
+  record('record'),
+
+  /// Its ESM-2 track: waiting for the scorer, the model loading, or residues
+  /// being scored.
+  scoring('scoring'),
+
+  /// Every residue scored; the alignment gate and the upload are left.
+  check('check'),
+
+  /// Scored and stored.
+  done('done');
+
+  const BuildStep(this.wire);
+
+  final String wire;
+
+  /// Null for a step this build does not know, which it cannot place.
+  static BuildStep? fromWire(String? wire) {
+    for (final BuildStep step in BuildStep.values) {
+      if (step.wire == wire) {
+        return step;
+      }
+    }
+    return null;
+  }
+}
+
+/// How far a protein built on demand has got, as the service measures it.
+///
+/// Mirrors `BuildReport` in the backend's `app/schemas.py`. Every number is
+/// the database's, so the phone's clock never enters one.
+@immutable
+final class BuildReport {
+  const BuildReport({
+    required this.step,
+    required this.elapsed,
+    this.ahead,
+    this.scored,
+    this.residues,
+    this.left,
+    this.transcript,
+    this.reason,
+  });
+
+  /// Null where the step is one this build does not know.
+  static BuildReport? fromJson(Map<String, dynamic> json) {
+    final BuildStep? step = BuildStep.fromWire(json['step'] as String?);
+    if (step == null) {
+      return null;
+    }
+    final double? left = (json['left'] as num?)?.toDouble();
+    return BuildReport(
+      step: step,
+      elapsed: _seconds((json['elapsed'] as num?)?.toDouble() ?? 0),
+      ahead: json['ahead'] as int?,
+      scored: json['scored'] as int?,
+      residues: json['residues'] as int?,
+      left: left == null ? null : _seconds(left),
+      transcript: json['transcript'] as String?,
+      reason: json['reason'] as String?,
+    );
+  }
+
+  static Duration _seconds(double seconds) =>
+      Duration(milliseconds: (seconds * 1000).round());
+
+  /// The step it is at, or ended at.
+  final BuildStep step;
+
+  /// Since it was asked for, to now, or to when it ended.
+  final Duration elapsed;
+
+  /// Proteins the worker takes first, while this one waits its turn.
+  final int? ahead;
+
+  /// Residues ESM-2 has scored, and of how many: the scorer's last line.
+  final int? scored;
+  final int? residues;
+
+  /// What the scorer estimates is left, as of the answer.
+  final Duration? left;
+
+  /// The MANE Select transcript its gene record was built from.
+  final String? transcript;
+
+  /// Why [step] ended without its result: the track's reason.
+  final String? reason;
+
+  /// The share of residues scored, where the scorer has said.
+  double? get fraction {
+    final int? done = scored;
+    final int? total = residues;
+    if (done == null || total == null || total <= 0) {
+      return null;
+    }
+    return (done / total).clamp(0.0, 1.0);
+  }
 }

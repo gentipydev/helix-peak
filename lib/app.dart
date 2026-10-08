@@ -6,6 +6,7 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/lab/lab_routes.dart';
 import 'features/replication/replication_routes.dart';
+import 'features/search/presentation/widgets/build_ready_listener.dart';
 import 'features/zoom/zoom_routes.dart';
 import 'shared/share/clip_sheet.dart';
 
@@ -20,9 +21,14 @@ class HelixPeekApp extends StatelessWidget {
       routerConfig: _router,
       theme: AppTheme.dark,
       themeMode: ThemeMode.dark,
-      // A clip that ends while no sheet shows it is said on any screen.
-      builder: (BuildContext context, Widget? child) =>
-          ClipReadyListener(child: child ?? const SizedBox.shrink()),
+      // A clip that ends while no sheet shows it is said on any screen, and
+      // so is a protein's build that ends while search is not open.
+      builder: (BuildContext context, Widget? child) => ClipReadyListener(
+        child: BuildReadyListener(
+          router: _router,
+          child: child ?? const SizedBox.shrink(),
+        ),
+      ),
     );
   }
 

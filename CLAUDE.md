@@ -167,11 +167,11 @@ Git: commit the session's own changes locally. Never push, in any form.
 - `lib/features/lab/`: new flows, built only with the lab flag on (see "The
   lab" below). `home/` and `search/` hold the home screen and the search:
   the curated list, and below it every reviewed human protein, which can be
-  built on demand (its own cubits, `ProteinSuggestionsCubit` and
-  `ProteinBuildCubit`). Search is not the walk; it reaches the walk only by
-  opening `/gene/<slug>`. `replication/` holds the replication tour and
-  `zoom/` the zoom, both in every build (see "Replication" and "Zoom"
-  below).
+  built on demand (its own `ProteinSuggestionsCubit`; the builds are the
+  app's, see "How data arrives" 4). Search is not the walk; it reaches the
+  walk only by opening `/gene/<slug>`. `replication/` holds the replication
+  tour and `zoom/` the zoom, both in every build (see "Replication" and
+  "Zoom" below).
 
 `test/architecture_test.dart` holds that layering to the import lines: `lab/`
 never imports the walk's screens or cubit, `core/` and `shared/` import no
@@ -388,8 +388,20 @@ Tests use `test/support/fixture_track_source.dart` over `test/fixtures/`.
    resolver (on the dev Mac until Modal runs it) writes its row
    (`catalog_order` null, so never in `/catalog`) and its record, then scores
    ESM-2 650M, the twenty's model.
-   Search watches the constraint track with `ProteinResolver.trackState`, read
-   fresh each time, and opens the walk only once it is no longer `pending`:
+   Builds are one job of the whole app, `ProteinBuilds`
+   (`core/catalog/protein_builds.dart`, provided in `core/di`), so a build
+   outlives the search that asked for it. Each is watched through
+   `GET /proteins/resolve/{gene}`, whose `build` (`BuildReport`) names the step
+   (queued, record, scoring, check, done), the proteins ahead, the residues
+   ESM-2 has scored with the time the scorer says is left, and every number
+   by the service's clock. Search pins each build at its top, whatever is
+   typed, as a `BuildCard` with those steps and a residue bar, until it is
+   opened; a suggestion the service marks `building` is watched, never
+   opened. A build that ends while search is not on top is said in a snackbar
+   on any screen (`BuildReadyListener`, in `MaterialApp.builder`). Nothing is
+   given up on: a report that stands still for ten minutes says so. From a
+   service without the report, the constraint track's state is read instead.
+   It opens the walk only once ESM-2 has scored it or declined to:
    `TrackClient` and `ProteinCatalogRepository` each remember a protein once
    read, so a protein opened mid-bake stays unscored until a restart. Tests use
    `test/features/search/support/resolver_api.dart`.

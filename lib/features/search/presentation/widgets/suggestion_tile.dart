@@ -1,57 +1,56 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/catalog/protein_builds.dart';
 import '../../../../core/catalog/protein_suggestion.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/format.dart';
-import '../cubit/protein_build_cubit.dart';
 
 /// One protein from every reviewed human protein, below the curated list:
 /// what it is called, its gene, its length, and what the app can do with it.
 ///
 /// A protein that opens (curated, or built earlier) is tapped like a card. One
-/// that can be built carries the build: its button, then how far it has got,
-/// then Open. One that cannot says why, in the service's words.
+/// that can be built offers to be; asked, its build goes to the top of search
+/// (`BuildCard`) until it is opened, and comes back here as what it became.
+/// One that cannot be built says why, in the service's words.
 class SuggestionTile extends StatelessWidget {
   const SuggestionTile({
     required this.suggestion,
-    required this.progress,
     required this.onOpen,
     required this.onBuild,
+    this.built,
     super.key,
   });
 
   final ProteinSuggestion suggestion;
 
-  /// This protein's build, where this visit asked for one.
-  final BuildProgress? progress;
+  /// This protein's build, once it has ended and left the top of search.
+  final ProteinBuild? built;
 
   /// Opens the walk at a slug.
   final ValueChanged<String> onOpen;
 
-  /// Asks for a build of a gene.
-  final ValueChanged<String> onBuild;
+  /// Asks for it to be built.
+  final ValueChanged<ProteinSuggestion> onBuild;
 
   /// `P38398 · 1,863 aa`.
   static String specOf(ProteinSuggestion suggestion) =>
       '${suggestion.uniprot} · ${grouped(suggestion.length)} aa';
 
   /// The line under the name: where it stands, in words.
-  static String statusOf(
-    ProteinSuggestion suggestion,
-    BuildProgress? progress,
-  ) {
-    if (progress != null) {
-      return switch (progress.stage) {
-        BuildStage.asking => 'Asking the service',
-        BuildStage.resolving => 'Building its gene record',
-        BuildStage.scoring => 'Scoring every residue with ESM-2',
-        BuildStage.ready => progress.message ?? 'Built, ready to walk',
+  static String statusOf(ProteinSuggestion suggestion, ProteinBuild? built) {
+    if (built != null) {
+      return switch (built.stage) {
+        BuildStage.ready => 'Built on demand',
+        BuildStage.asking || BuildStage.building => 'Building',
         BuildStage.refused =>
-          progress.message ?? 'The service declined to build it.',
-        BuildStage.failed => progress.message ?? 'The build failed.',
-        BuildStage.capped => progress.message ?? "Today's builds are taken.",
+          built.message ?? 'The service declined to build it.',
+        BuildStage.failed => built.message ?? 'The build failed.',
+        BuildStage.capped => built.message ?? "Today's builds are taken.",
       };
+    }
+    if (suggestion.building) {
+      return 'Building';
     }
     return switch (suggestion.status) {
       SuggestionStatus.listed => 'Curated walk',
@@ -64,9 +63,12 @@ class SuggestionTile extends StatelessWidget {
 
   /// The slug this tile opens, where it opens at all.
   String? get _opens {
-    final BuildProgress? build = progress;
+    final ProteinBuild? build = built;
     if (build != null) {
       return build.stage == BuildStage.ready ? build.slug : null;
+    }
+    if (suggestion.building) {
+      return null;
     }
     return switch (suggestion.status) {
       SuggestionStatus.listed || SuggestionStatus.ready => suggestion.slug,
@@ -115,7 +117,7 @@ class SuggestionTile extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                statusOf(suggestion, progress),
+                statusOf(suggestion, built),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.bodyMedium?.copyWith(
@@ -127,7 +129,7 @@ class SuggestionTile extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
-        _action(context, opens, gene),
+        _action(context, opens),
       ],
     );
 
@@ -151,29 +153,15 @@ class SuggestionTile extends StatelessWidget {
     );
   }
 
-  Widget _action(BuildContext context, String? opens, String? gene) {
+  Widget _action(BuildContext context, String? opens) {
     final ColorScheme colors = Theme.of(context).colorScheme;
-    final BuildProgress? build = progress;
-    if (build != null && build.stage.busy) {
-      return Semantics(
-        label: 'Building',
-        child: const SizedBox.square(
-          dimension: 20,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
-      );
-    }
-    if (build != null && build.stage == BuildStage.ready && opens != null) {
-      return TextButton(
-        onPressed: () => onOpen(opens),
-        child: const Text('Open'),
-      );
-    }
-    if (gene != null &&
+    final ProteinBuild? build = built;
+    if (suggestion.gene != null &&
         suggestion.status == SuggestionStatus.buildable &&
+        !suggestion.building &&
         (build == null || build.stage == BuildStage.failed)) {
       return TextButton(
-        onPressed: () => onBuild(gene),
+        onPressed: () => onBuild(suggestion),
         child: Text(build == null ? 'Build' : 'Try again'),
       );
     }
