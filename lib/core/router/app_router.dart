@@ -40,8 +40,17 @@ abstract final class RoutePaths {
   /// insulin walk, so every link that predates the catalog keeps working.
   static String geneFor(ProteinTarget target) => '$gene/${target.slug}';
 
-  /// The zoom for one protein.
-  static String zoomFor(ProteinTarget target) => '$zoom/${target.slug}';
+  /// The zoom for one protein. [overWalk] says the walk is the page under
+  /// it, which is where its "Walk ›" then goes back to: the walk's gene page
+  /// opens the zoom so, and nothing else does.
+  static String zoomFor(ProteinTarget target, {bool overWalk = false}) =>
+      '$zoom/${target.slug}${overWalk ? '?$_over=$_walk' : ''}';
+
+  /// Whether [uri] is a zoom opened over the walk, as [zoomFor] writes one.
+  static bool zoomIsOverWalk(Uri uri) => uri.queryParameters[_over] == _walk;
+
+  static const String _over = 'over';
+  static const String _walk = 'walk';
 }
 
 GoRoute _walk(String path) => GoRoute(

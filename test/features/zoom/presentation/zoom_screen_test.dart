@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -29,7 +30,11 @@ import '../zoom_fixtures.dart';
 
 const Size _phone = Size(390, 844);
 
-Widget _screen(ProteinTarget target, {bool reduced = true}) => MediaQuery(
+Widget _screen(
+  ProteinTarget target, {
+  bool reduced = true,
+  bool overWalk = false,
+}) => MediaQuery(
   data: MediaQueryData(size: _phone, disableAnimations: reduced),
   // Keyed by its protein, as the route keys it.
   child: ZoomScreen(
@@ -37,8 +42,53 @@ Widget _screen(ProteinTarget target, {bool reduced = true}) => MediaQuery(
     target: target,
     track: locusOf(target),
     record: recordOf(target),
+    overWalk: overWalk,
   ),
 );
+
+/// A page standing in for the walk, and the zoom at its own route, over the
+/// walk where its link says so.
+GoRouter _walkAndZoom(
+  ProteinTarget target,
+  String initialLocation, {
+  bool reduced = true,
+}) => GoRouter(
+  initialLocation: initialLocation,
+  routes: <RouteBase>[
+    GoRoute(
+      path: '${RoutePaths.gene}/:slug',
+      builder: (_, GoRouterState state) =>
+          Scaffold(body: Text('the walk of ${state.pathParameters['slug']}')),
+    ),
+    GoRoute(
+      path: '${RoutePaths.zoom}/:slug',
+      builder: (_, GoRouterState state) => _screen(
+        target,
+        reduced: reduced,
+        overWalk: RoutePaths.zoomIsOverWalk(state.uri),
+      ),
+    ),
+  ],
+);
+
+/// Lets [time] pass a frame at a time. Not `pumpAndSettle`: near the cell
+/// and the DNA the zoom's ambient clock never stops.
+Future<void> _pass(WidgetTester tester, Duration time) async {
+  const Duration frame = Duration(milliseconds: 50);
+  for (Duration t = Duration.zero; t < time; t += frame) {
+    await tester.pump(frame);
+  }
+}
+
+/// Steps the zoom on screen down to the DNA, where the walk is offered.
+Future<void> _toDna(WidgetTester tester) async {
+  for (int step = 1; step < ZoomStop.values.length; step++) {
+    await _tap(tester, 'zoom-next');
+    // Longer than the longest flight between two stops.
+    await _pass(tester, const Duration(seconds: 3));
+  }
+  expect(_stop(tester), 'DNA');
+}
 
 Future<void> _host(
   WidgetTester tester,
@@ -341,6 +391,90 @@ void main() {
     await tester.tap(walk);
     await tester.pumpAndSettle();
     expect(find.text('the walk of ${target.slug}'), findsOneWidget);
+  });
+
+  for (final bool reduced in <bool>[true, false]) {
+    testWidgets('opened over the walk, "Walk ›" goes back to that walk and '
+        'opens no second one, ${reduced ? 'under reduced motion' : 'after '
+              'the helix unzips'}', (WidgetTester tester) async {
+      final ProteinTarget target = TestCatalog.hemoglobin;
+      await tester.binding.setSurfaceSize(_phone);
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      final GoRouter router = _walkAndZoom(
+        target,
+        RoutePaths.geneFor(target),
+        reduced: reduced,
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        MaterialApp.router(theme: AppTheme.analysis, routerConfig: router),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('the walk of ${target.slug}'), findsOneWidget);
+
+      // As the walk's gene page opens it.
+      unawaited(router.push(RoutePaths.zoomFor(target, overWalk: true)));
+      await _pass(tester, const Duration(seconds: 1));
+      expect(find.byType(ZoomScreen), findsOneWidget);
+      expect(router.canPop(), isTrue);
+      await _toDna(tester);
+
+      await tester.tap(find.byKey(const ValueKey<String>('zoom-walk')));
+      // The helix unzips, where motion is allowed, and the page goes.
+      await _pass(tester, const Duration(seconds: 2));
+      expect(find.byType(ZoomScreen), findsNothing);
+      expect(find.text('the walk of ${target.slug}'), findsOneWidget);
+      // The walk it came from, with nothing left above or under it.
+      expect(router.canPop(), isFalse);
+      expect(
+        router.routerDelegate.currentConfiguration.uri.toString(),
+        RoutePaths.geneFor(target),
+      );
+    });
+  }
+
+  testWidgets('a link that says it is over the walk, with no page under it, '
+      'opens the walk like any other', (WidgetTester tester) async {
+    final ProteinTarget target = TestCatalog.hemoglobin;
+    await tester.binding.setSurfaceSize(_phone);
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final GoRouter router = _walkAndZoom(
+      target,
+      RoutePaths.zoomFor(target, overWalk: true),
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      MaterialApp.router(theme: AppTheme.analysis, routerConfig: router),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(ZoomScreen), findsOneWidget);
+    expect(router.canPop(), isFalse);
+    await _toDna(tester);
+
+    await tester.tap(find.byKey(const ValueKey<String>('zoom-walk')));
+    await _pass(tester, const Duration(seconds: 2));
+    expect(find.text('the walk of ${target.slug}'), findsOneWidget);
+    // Above the zoom, which Back still returns to.
+    expect(router.canPop(), isTrue);
+  });
+
+  test('only a zoom the walk opened says it is over the walk', () {
+    final ProteinTarget target = TestCatalog.hemoglobin;
+    expect(RoutePaths.zoomFor(target), '/zoom/hemoglobin');
+    expect(
+      RoutePaths.zoomIsOverWalk(Uri.parse(RoutePaths.zoomFor(target))),
+      isFalse,
+    );
+    expect(
+      RoutePaths.zoomIsOverWalk(
+        Uri.parse(RoutePaths.zoomFor(target, overWalk: true)),
+      ),
+      isTrue,
+    );
+    expect(
+      RoutePaths.zoomIsOverWalk(Uri.parse('/zoom/hemoglobin?over=search')),
+      isFalse,
+    );
   });
 
   group('the cubit', () {

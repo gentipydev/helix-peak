@@ -15,7 +15,10 @@ List<RouteBase> get zoomRoutes => <RouteBase>[
         // Drawn as it was in the lab, whose shell wore the walk's theme.
         Theme(
           data: AppTheme.analysis,
-          child: ZoomRoute(slug: state.pathParameters['slug']!),
+          child: ZoomRoute(
+            slug: state.pathParameters['slug']!,
+            overWalk: RoutePaths.zoomIsOverWalk(state.uri),
+          ),
         ),
   ),
   // Links saved while it was a lab flow open it where it is now. Two routes

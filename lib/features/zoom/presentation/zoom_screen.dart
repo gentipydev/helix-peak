@@ -99,9 +99,12 @@ class ZoomCubit extends Cubit<ZoomState> {
 
 /// `/zoom/<slug>`: from a body down to one protein's DNA.
 class ZoomRoute extends StatelessWidget {
-  const ZoomRoute({required this.slug, super.key});
+  const ZoomRoute({required this.slug, this.overWalk = false, super.key});
 
   final String slug;
+
+  /// Whether the walk is the page under this one: see [ZoomScreen.overWalk].
+  final bool overWalk;
 
   @override
   Widget build(BuildContext context) => _TargetLoader(
@@ -150,6 +153,7 @@ class ZoomRoute extends StatelessWidget {
                   target: target,
                   track: track,
                   record: record,
+                  overWalk: overWalk,
                 ),
             },
           ),
@@ -241,12 +245,13 @@ enum _Motion { idle, pinch, flight, settle, play, exit }
 /// The organ and the cell are the path the bake chose from the Human Protein
 /// Atlas's reading, one that lives in the other; the chromosome, the band,
 /// the gene and its first bases are data. At the DNA, the walk is offered,
-/// from its start.
+/// from its start: the one it was opened from, where there is one.
 class ZoomScreen extends StatefulWidget {
   const ZoomScreen({
     required this.target,
     required this.track,
     required this.record,
+    this.overWalk = false,
     this.initialDepth = 0,
     super.key,
   });
@@ -254,6 +259,11 @@ class ZoomScreen extends StatefulWidget {
   final ProteinTarget target;
   final LocusTrack track;
   final GeneRecord record;
+
+  /// Whether the walk is the page under this one, opened from its gene page.
+  /// "Walk ›" then goes back to that walk, as the reader left it, where it
+  /// would otherwise open a second one above the zoom.
+  final bool overWalk;
 
   /// Where the zoom opens: at the body, but for a render check that frames
   /// a moment between two stops.
@@ -577,6 +587,12 @@ class _ZoomScreenState extends State<ZoomScreen>
   }
 
   void _openWalk() {
+    // Back to the walk this was opened from. A link that only says so, with
+    // no page under it, opens the walk like any other.
+    if (widget.overWalk && context.canPop()) {
+      context.pop();
+      return;
+    }
     unawaited(
       context.push(RoutePaths.geneFor(widget.target)).then((_) {
         if (mounted) {

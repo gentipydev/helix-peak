@@ -5,15 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/biology/amino_acids.dart';
 import '../../../../core/biology/gene_record.dart';
 import '../../../../core/catalog/protein_target.dart';
+import '../../../../core/catalog/protein_track.dart';
 import '../../../../core/evidence/gene_clinvar.dart';
 import '../../../../core/evidence/gene_impact.dart';
 import '../../../../core/evidence/protein_constraint.dart';
 import '../../../../core/evidence/variant_evidence.dart';
 import '../../../../core/network/track_source.dart';
+import '../../../../core/router/app_router.dart' show RoutePaths;
 import '../../../../core/router/rise_route.dart';
 import '../../../../core/router/walk_route.dart';
 import '../../../../core/theme/anatomy_colors.dart';
@@ -1392,6 +1395,26 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   int get _proteinPage =>
       _model.stages.indexWhere((AnatomyStage s) => s.kind == StageKind.protein);
 
+  /// Whether the strip offers the zoom: on the gene page with nothing
+  /// picked, as its hint is, for a protein whose `locus` track is ready. Not
+  /// in a landing, whose header already names its way back.
+  bool get _offersZoom =>
+      widget.landing == null &&
+      _stage == 0 &&
+      _model.stages[_stage].kind == StageKind.gene &&
+      _selection == null &&
+      _tracer == null &&
+      _maskedIndex == null &&
+      widget.target.state(TrackKind.locus) == TrackState.ready;
+
+  /// Opens the zoom over the walk, from a body down to this gene. Its
+  /// "Walk ›" comes back to this page, as it was left.
+  void _openZoom() {
+    unawaited(
+      context.push(RoutePaths.zoomFor(widget.target, overWalk: true)),
+    );
+  }
+
   /// Whether the strip offers the ribosome: on the transcript page with
   /// nothing picked, as its hint is, for a record that makes a protein.
   bool get _offersRibosome =>
@@ -2173,6 +2196,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                 ? _openSelection
                 : null,
             onRibosome: _offersRibosome ? _openRibosome : null,
+            onZoom: _offersZoom ? _openZoom : null,
             shares: switch (_ribosome) {
               final WalkRibosome ribosome => <Widget>[
                 ShareClipButton(
@@ -2704,6 +2728,7 @@ class _Header extends StatelessWidget implements PreferredSizeWidget {
     this.hint,
     this.onOpenDna,
     this.onRibosome,
+    this.onZoom,
     this.shares = const <Widget>[],
     this.onWholeGene,
     this.onReturn,
@@ -2724,6 +2749,7 @@ class _Header extends StatelessWidget implements PreferredSizeWidget {
   final String? hint;
   final VoidCallback? onOpenDna;
   final VoidCallback? onRibosome;
+  final VoidCallback? onZoom;
 
   /// The ribosome's clip, while the ribosome is up; empty everywhere else.
   final List<Widget> shares;
@@ -2861,6 +2887,7 @@ class _Header extends StatelessWidget implements PreferredSizeWidget {
           showNote: onWholeGene == null || liftedBase,
           onOpenDna: onOpenDna,
           onRibosome: onRibosome,
+          onZoom: onZoom,
           textScale: textScale,
         ),
       ),
@@ -2927,6 +2954,7 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
     this.showNote = true,
     this.onOpenDna,
     this.onRibosome,
+    this.onZoom,
     this.textScale = 1,
   });
 
@@ -2946,6 +2974,11 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
   /// is nothing to play. Never offered beside [onOpenDna]: that is the gene
   /// page's, and this the transcript's.
   final VoidCallback? onRibosome;
+
+  /// Opens the zoom from a body down to this gene, or null where the gene
+  /// page is not at rest or the protein has no locus. Never offered beside
+  /// [onOpenDna]: a picked region takes the strip's one place.
+  final VoidCallback? onZoom;
   final double textScale;
 
   /// Three lines at their worst, plus the air that makes them three lines
@@ -2992,11 +3025,19 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
     final String? below = hint ?? (showNote ? tracer?.note : null);
     final Color accent = theme.colorScheme.primary;
     // The one thing the strip offers to be pressed, where it offers one.
-    final (VoidCallback, String)? action = switch ((onOpenDna, onRibosome)) {
-      (final VoidCallback open, _) => (open, _StripAction.openDna),
-      (null, final VoidCallback play) => (play, _StripAction.playRibosome),
-      (null, null) => null,
-    };
+    final (VoidCallback, String)? action =
+        switch ((onOpenDna, onRibosome, onZoom)) {
+          (final VoidCallback open, _, _) => (open, _StripAction.openDna),
+          (null, final VoidCallback play, _) => (
+            play,
+            _StripAction.playRibosome,
+          ),
+          (null, null, final VoidCallback zoom) => (
+            zoom,
+            _StripAction.openZoom,
+          ),
+          (null, null, null) => null,
+        };
 
     return Semantics(
       liveRegion: true,
@@ -3032,7 +3073,9 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
                   key: ValueKey<String>(
                     onOpenDna != null
                         ? 'open-dna-reach'
-                        : 'open-ribosome-reach',
+                        : onRibosome != null
+                        ? 'open-ribosome-reach'
+                        : 'open-zoom-reach',
                   ),
                   behavior: HitTestBehavior.opaque,
                   excludeFromSemantics: true,
@@ -3097,6 +3140,14 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
                             spoken: _StripAction.playRibosome,
                             accent: accent,
                             onTap: onRibosome!,
+                          )
+                        else if (onZoom != null)
+                          _StripAction(
+                            key: const ValueKey<String>('open-zoom'),
+                            label: 'Zoom \u203a',
+                            spoken: _StripAction.openZoom,
+                            accent: accent,
+                            onTap: onZoom!,
                           ),
                       ],
                     ),
@@ -3143,7 +3194,8 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
 }
 
 /// The one action the strip carries: open the selected region as DNA on the
-/// gene page, or play the transcript's translation on its own page.
+/// gene page, play the transcript's translation on its own page, or, on the
+/// gene page with nothing picked, zoom from a body down to the gene.
 ///
 /// A pill rather than bare type. The strip is prose and a filled control would
 /// outweigh a sentence — but this is the only thing on the page waiting to be
@@ -3187,6 +3239,7 @@ class _StripAction extends StatefulWidget {
 
   static const String openDna = 'Open the selected region as DNA';
   static const String playRibosome = 'Play the translation on the ribosome';
+  static const String openZoom = 'Zoom from a body down to this gene';
 
   @override
   State<_StripAction> createState() => _StripActionState();

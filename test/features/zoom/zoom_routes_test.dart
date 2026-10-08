@@ -16,6 +16,7 @@ import 'package:helixpeek/features/gene_lookup/data/datasources/gene_remote_data
 import 'package:helixpeek/features/gene_lookup/data/repositories/gene_repository_impl.dart';
 import 'package:helixpeek/features/gene_lookup/data/repositories/protein_catalog_repository.dart';
 import 'package:helixpeek/features/gene_lookup/domain/usecases/fetch_gene.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
 import 'package:helixpeek/features/lab/lab_routes.dart';
 import 'package:helixpeek/features/lab/presentation/lab_index_screen.dart';
 import 'package:helixpeek/features/search/presentation/screens/search_screen.dart';
@@ -34,6 +35,20 @@ Map<String, dynamic> _locatedCatalog() {
     final Map<String, dynamic> tracks =
         (row! as Map<String, dynamic>)['tracks'] as Map<String, dynamic>;
     tracks[TrackKind.locus.wire] = TrackState.ready.wire;
+  }
+  return body;
+}
+
+/// The same, with nothing ready but the record and the locus: what the walk
+/// and the zoom each need to open, and none of the walk's evidence, which is
+/// large and loaded off the test's clock.
+Map<String, dynamic> _bareCatalog() {
+  final Map<String, dynamic> body = catalogFixture();
+  for (final Object? row in body['proteins'] as List<dynamic>) {
+    (row! as Map<String, dynamic>)['tracks'] = <String, dynamic>{
+      TrackKind.record.wire: TrackState.ready.wire,
+      TrackKind.locus.wire: TrackState.ready.wire,
+    };
   }
   return body;
 }
@@ -61,10 +76,11 @@ Future<(GoRouter, _HeldTracks)> _host(
   WidgetTester tester,
   String path, {
   bool lab = false,
+  Map<String, dynamic> Function() served = _locatedCatalog,
 }) async {
   await tester.binding.setSurfaceSize(const Size(390, 844));
   addTearDown(() => tester.binding.setSurfaceSize(null));
-  final CatalogApi api = CatalogApi(answer: (_, _) async => _locatedCatalog());
+  final CatalogApi api = CatalogApi(answer: (_, _) async => served());
   final ProteinCatalogRepository catalog = ProteinCatalogRepository(api, null);
   addTearDown(catalog.dispose);
   await catalog.refresh();
@@ -99,8 +115,8 @@ Future<(GoRouter, _HeldTracks)> _host(
   return (router, tracks);
 }
 
-String _location(GoRouter router) =>
-    router.routerDelegate.currentConfiguration.uri.toString();
+/// Where the page on top is: a pushed page's own place, not the one under it.
+String _location(GoRouter router) => router.state.uri.toString();
 
 void main() {
   tearDown(dotenv.clean);
@@ -197,6 +213,47 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
     });
   }
+
+  testWidgets('the whole trip, under the app’s own routes: the walk’s gene '
+      'page opens the zoom, and "Walk ›" at the DNA comes back to that walk', (
+    WidgetTester tester,
+  ) async {
+    final (GoRouter router, _HeldTracks _) = await _host(
+      tester,
+      '/gene/insulin',
+      served: _bareCatalog,
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(AnatomyScreen), findsOneWidget);
+    final Finder pill = find.byKey(const ValueKey<String>('open-zoom'));
+    expect(pill, findsOneWidget);
+
+    await tester.tap(pill);
+    await tester.pumpAndSettle();
+    expect(find.byType(ZoomScreen), findsOneWidget);
+    expect(_location(router), '/zoom/insulin?over=walk');
+    expect(
+      tester.widget<ZoomScreen>(find.byType(ZoomScreen)).overWalk,
+      isTrue,
+    );
+
+    // Down to the DNA, where the walk is offered.
+    final Finder walk = find.byKey(const ValueKey<String>('zoom-walk'));
+    while (walk.evaluate().isEmpty) {
+      await tester.tap(find.byKey(const ValueKey<String>('zoom-next')));
+      await tester.pump();
+    }
+    await tester.tap(walk);
+    await tester.pumpAndSettle();
+
+    // The walk it left, on its gene page, and no second walk anywhere.
+    expect(find.byType(ZoomScreen), findsNothing);
+    expect(find.byType(AnatomyScreen, skipOffstage: false), findsOneWidget);
+    expect(pill, findsOneWidget);
+    expect(_location(router), '/gene/insulin');
+    expect(router.canPop(), isFalse);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 
   test('the lab no longer lists it', () {
     for (final LabFeature feature in labFeatures) {
