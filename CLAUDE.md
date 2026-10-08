@@ -385,8 +385,9 @@ Tests use `test/support/fixture_track_source.dart` over `test/fixtures/`.
    names every reviewed human protein (`listed`, `ready`, `buildable`,
    `unavailable`); `POST /proteins/resolve` asks for one to be built, and
    `GET /proteins/resolve/{gene}` says how far it has got. The backend's
-   resolver on Modal writes its row (`catalog_order` null, so never in
-   `/catalog`) and its record, then scores ESM-2 650M, the twenty's model.
+   resolver (on the dev Mac until Modal runs it) writes its row
+   (`catalog_order` null, so never in `/catalog`) and its record, then scores
+   ESM-2 650M, the twenty's model.
    Search watches the constraint track with `ProteinResolver.trackState`, read
    fresh each time, and opens the walk only once it is no longer `pending`:
    `TrackClient` and `ProteinCatalogRepository` each remember a protein once
@@ -449,6 +450,9 @@ dart run build_runner build    # after editing gene_record_dto.dart
 **Opt-in checks** skip unless their variable is set; run `*_check.dart` by path.
 - `LIVE_BACKEND=http://localhost:8000 flutter test test/live_backend_check.dart`
   fetches and parses every track through the production client.
+- `LIVE_BACKEND=<url> LIVE_RESOLVED=<GENE> flutter test test/live_resolved_check.dart`
+  reads a protein built on demand the same way and walks every page of it
+  (`LIVE_EXPECT=refused` for one whose ESM-2 track was refused).
 - `SHOT_DIR=<dir> flutter test test/goldens` writes PNGs (the catalog walk,
   ClinVar, constraint and impact tests do too). Also:
   `TRANSLATION_SHOT_DIR`, `SELECTION_SHOT_DIR`, `HELIX_OUT`, `HELIX_MOTION=1`.
