@@ -549,7 +549,9 @@ class _SearchViewState extends State<_SearchView> {
             built: builds[suggestion.gene],
             heading: _Shelf.built.label,
             onOpen: _openSlug,
-            onBuild: _startBuild,
+            // A stopped one opens unscored here; scoring it again is
+            // search's, not a tap on a list of everyone's builds.
+            onBuild: null,
           ),
           const SizedBox(height: AppSpacing.sm),
         ],

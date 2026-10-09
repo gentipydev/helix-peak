@@ -31,8 +31,10 @@ class SuggestionTile extends StatelessWidget {
   /// Opens the walk at a slug.
   final ValueChanged<String> onOpen;
 
-  /// Asks for it to be built.
-  final ValueChanged<ProteinSuggestion> onBuild;
+  /// Asks for it to be built, or a stopped one scored again. Null offers
+  /// neither: a list of what is built opens each one, and asking again is
+  /// search's.
+  final ValueChanged<ProteinSuggestion>? onBuild;
 
   /// The name of the list it is in, where that says what it is: a status line
   /// that would only repeat it is left out ("Built on demand" under the tab of
@@ -176,13 +178,15 @@ class SuggestionTile extends StatelessWidget {
     // protein's ESM-2 scores included.
     final bool stopped = build?.stage == BuildStage.stopped ||
         (build == null && suggestion.stopped);
-    if (suggestion.gene != null &&
+    final ValueChanged<ProteinSuggestion>? ask = onBuild;
+    if (ask != null &&
+        suggestion.gene != null &&
         !suggestion.building &&
         (stopped ||
             (suggestion.status == SuggestionStatus.buildable &&
                 (build == null || build.stage == BuildStage.failed)))) {
       return TextButton(
-        onPressed: () => onBuild(suggestion),
+        onPressed: () => ask(suggestion),
         child: Text(build?.stage == BuildStage.failed ? 'Try again' : 'Build'),
       );
     }

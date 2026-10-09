@@ -417,7 +417,9 @@ Tests use `test/support/fixture_track_source.dart` over `test/fixtures/`.
    report, the constraint track's state is read instead.
    `GET /proteins/built` lists every install's builds, newest first, as the
    same suggestions: one under way is left out until it is done, one stopped
-   is kept. A build of this phone's that ends with a protein to open asks for
+   is kept and opens unscored there, with no Build (scoring it again is
+   search's, not a tap on a list of everyone's builds; the user's choice of
+   2026-10-09). A build of this phone's that ends with a protein to open asks for
    the list again; pinned, it is its card there and not a row as well.
    It opens the walk only once ESM-2 has scored it or declined to:
    `TrackClient` and `ProteinCatalogRepository` each remember a protein once

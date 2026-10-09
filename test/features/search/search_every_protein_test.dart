@@ -953,11 +953,26 @@ void main() {
     expect(_inTile('Transthyretin', find.text('Built on demand')), findsNothing);
     expect(_inTile('E3 ubiquitin-protein ligase HERC2', find.text('Stopped before ESM-2 finished')),
         findsOneWidget);
-    expect(_inTile('E3 ubiquitin-protein ligase HERC2', find.text('Build')), findsOneWidget);
+    // Stopped, it opens unscored; scoring it again is search's, not this list's.
+    expect(_inTile('E3 ubiquitin-protein ligase HERC2', find.text('Build')), findsNothing);
+    expect(_inTile('E3 ubiquitin-protein ligase HERC2', find.byIcon(Icons.chevron_right_rounded)),
+        findsOneWidget);
 
     await tester.tap(_tile('Transthyretin'));
     await tester.pumpAndSettle();
     expect(find.text('walk ttr'), findsOneWidget);
+  });
+
+  testWidgets('a protein stopped before ESM-2 finished opens from the built tab, unscored', (
+    WidgetTester tester,
+  ) async {
+    final ResolverApi api = ResolverApi(built: _listing(<Map<String, dynamic>>[_herc2]));
+    await _pump(tester, api);
+    await _choose(tester, 'Built on demand');
+    await tester.tap(_tile('E3 ubiquitin-protein ligase HERC2'));
+    await tester.pumpAndSettle();
+    expect(find.text('walk herc2'), findsOneWidget);
+    expect(api.calls, <String>['GET /proteins/built']);
   });
 
   testWidgets('typing hides the tabs and searches everything; clearing goes back to the tab', (
