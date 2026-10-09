@@ -283,9 +283,15 @@ every scientific claim in them was wrong somewhere:
 - *Captions fit two lines* (about 80 characters on a phone; a test enforces it
   for insulin's).
 
-*Status: open.* For a generic pipeline this prose should be generated from
-features (chain count, inter- and intra-chain disulfides, helix and strand
-counts, ligands) by template, not written.
+*Status: open* for the twenty, whose prose is still written. *Baked* for a
+protein built on demand: its `sentence` and `semantics` are templated from its
+model's own numbers and never written (`pipeline/structure/alphafold.py`,
+`describe`): the mean pLDDT over the span drawn, the share of residues at 70 or
+over, each band's share, the bridges drawn. A test holds the sentence to its
+two lines at the longest numbers there are. For a generic pipeline over
+experimental entries this prose should be generated from features (chain
+count, inter- and intra-chain disulfides, helix and strand counts, ligands) by
+template in the same way.
 
 ## 5. The structure
 
@@ -305,6 +311,12 @@ Polyubiquitin's structure is one copy of three identical chains and takes the
 first chain's green. Whether identical copies should instead take a neutral
 colour is an *open* design decision.
 
+A predicted model is the exception (R5.4): it is one node per band of pLDDT,
+`plddtVeryHigh`, `plddtConfident`, `plddtLow` and `plddtVeryLow`, in AlphaFold
+DB's own four colours, because what a reader needs of a prediction is how far
+to believe each part of it, and the field reads those colours without a
+legend. Its bridges are still `bonds`, in `cysteine`.
+
 **R5.4 Prefer wild-type, human, experimental; report every deviation.** Read
 `SEQADV`: 3I40 has B30 Ala (not Thr), 3RGK carries K45R and C110A, 1DXX carries
 C10S and C188S, and 1HGU conflicts with human GH at twelve positions. Compare
@@ -314,14 +326,41 @@ generic picker should rank entries by coverage of the mature chain, then
 resolution, then fewest `SEQADV` records, and refuse above a threshold.
 AlphaFold is rejected for insulin because it predicts the 110-residue precursor
 at a mean pLDDT of 52.9; if used at all, use it only over the mature span and
-gate on pLDDT. *Status: open.*
+gate on pLDDT. *Status: open* for the picker over experimental entries.
+
+**AlphaFold DB is the source for a protein built on demand** (the user's
+decision, 2026-10-08), which has nobody to choose an entry for it. *Status:
+baked* (`pipeline/structure/alphafold.py`), under this rule:
+
+| | |
+|---|---|
+| entry | the canonical one, `AF-<accession>-F1`; none over 2,700 residues |
+| sequence | held to the record's protein: the same length, and no more residues different than the record may differ from UniProt by (R1.3: 1% of its length, and never fewer than three) |
+| span | the mature chain or chains: the first kept region to the last, so no signal peptide and no propeptide at either end |
+| gate | no model where the mean pLDDT over that span is under 50 |
+| colour | by pLDDT, in four bands at 90, 70 and 50 (R5.3) |
+| bridges | UniProt's pairs, each drawn only where the model puts the two sulfurs within 2.5 Å |
+| size | the compiled scene inside 1.3 MB, which the longest chain AlphaFold DB models fits |
+
+Where a precursor is cut into several chains, the model is still of the one
+precursor chain: what lies between the chains is drawn, and the caption says
+so. A protein with no model keeps its fold page, which says why in one line,
+in the pipeline's own sentence. Insulin's mature span scores 48.0 and is
+refused at this gate, as it was by hand. Measured on 2026-10-08: about 1% of
+buildable proteins have no model for their length, and of 150 sampled, three
+had a model of another sequence (UniProt's has changed since) and are refused.
 
 **R5.5 The count is the mature length, not the modelled length.** HBB's chip
 says 146 while the crystal resolves 145; ends that are not resolved are normal.
-*Status: baked* (hand-written `count`). *Open:* deriving it.
+*Status: baked* (hand-written `count`). *Open:* deriving it. For a protein
+built on demand it is derived: the residues of the span drawn, which a
+predicted model always places.
 
 **R5.6 Disulfides in the file must match the table.** `SSBOND` pairs, mapped to
-precursor numbering, equal `disulfides`. *Status: open.*
+precursor numbering, equal `disulfides`. *Status: open.* A predicted model's
+file names no bridge, so there the table is held to the model instead: a pair
+is drawn only where the model's sulfurs meet, and one it does not bear out is
+left off and named in the track's provenance (somatostatin-14's, 6 Å apart).
 
 **R5.7 Ligands are not drawn.** Haemoglobin's and myoglobin's hemes are in
 their entries and are the point of both proteins; so are SOD1's copper and
@@ -464,8 +503,8 @@ For each hand-written field, the generic source:
 | `uniprot_variants` | computed and reported rather than declared |
 | `proprotein`, `chain` short names | UniProt names (R3.3, R3.8) |
 | `mature_peptides` flag | R3.4's `Chain`-versus-`Peptide` rule |
-| `Structure` entry and chains | PDB search by UniProt accession (R5.4) |
-| structure `sentence`, `semantics`, `count` | templates over features (R4.5) |
+| `Structure` entry and chains | AlphaFold DB by UniProt accession, for a protein built on demand (R5.4, done); a PDB search by accession is still open |
+| structure `sentence`, `semantics`, `count` | templates over the model's own numbers (R4.5, done for a protein built on demand) |
 | ESM-2 constraint track | a server job; about 85 minutes for all twenty offline (dystrophin 45, CFTR 21), windowed past 1,022 residues |
 | AVI impact track | the Atlas's precomputed scores, already generic: GENCODE gives the exons and the reference gates the map, so nothing per-protein is written down (R2.5) |
 

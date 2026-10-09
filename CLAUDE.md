@@ -4,8 +4,10 @@ Helix Peek is a Flutter app that walks one protein from its gene to its fold:
 a grid of squares morphs through gene, mRNA, protein and mature chains, then
 ends on the 3D structure. Each of the twenty curated proteins is drawn from a
 stored GenBank record plus its evidence tracks (ESM-2 constraint, AlphaGenome
-variant impact, ClinVar, fold). All of it is served by `../helix-peak-backend`;
-the app ships no protein data.
+variant impact, ClinVar, fold). Any other reviewed human protein can be built
+on demand, with its record, its ESM-2 track and AlphaFold DB's model of its
+fold. All of it is served by `../helix-peak-backend`; the app ships no protein
+data.
 
 ## THE CONTRACT — read this first
 
@@ -415,6 +417,33 @@ Tests use `test/support/fixture_track_source.dart` over `test/fixtures/`.
    read, so a protein opened mid-bake stays unscored until a restart. Tests use
    `test/features/search/support/resolver_api.dart`.
 
+   **Its fold is AlphaFold DB's model** (R5.4, the user's decision of
+   2026-10-08), which the backend's worker makes in seconds, before the
+   scoring, and stores as the twenty's models are stored. Its row then
+   carries what theirs do, a fold description (`StructureChrome`) and a tint
+   for each node, and the fold page draws it by the same code. Three things
+   differ, and the row says each:
+   - Its nodes are pLDDT's four bands, not its chains
+     (`ChainTint.plddtVeryHigh` to `plddtVeryLow`, in AlphaFold DB's own
+     colours as `AnatomyColors` tokens, kept exact). The legend names a band
+     the same on every protein (`ChainTint.confidence`).
+   - Its entry id is AlphaFold DB's (`AF-<accession>-F1`), which
+     `StructureChrome.predicted` reads; the header and the About sheet name
+     the source by `StructureChrome.source`, and the About sheet credits it
+     (CC BY 4.0) through `SourcesNote(also:)`. The twenty's lines come out of
+     the same code, unchanged.
+   - It may have no model: none over 2,700 residues, none where the mean
+     pLDDT over the mature span is under 50. Then its row has no fold
+     description and its `structure` track is `refused`, and the fold page
+     says why in one line, the track row's own sentence (`StructureView`,
+     "A protein with no model"). Never "could not be loaded", which stays a
+     model that exists and did not arrive.
+
+   `ChainTint.fromWire` throws on a tint it does not know, on purpose: a
+   build older than these tints cannot open a protein once its model is
+   made. `test/support/built_on_demand.dart` is such a protein for the tests
+   (B2M's stored record and row), kept out of `test/fixtures/`.
+
 ## The four track states (`TrackState` in `protein_track.dart`)
 
 `ready` (stored, and `url` points at it); `pending` (a bake is queued or
@@ -427,13 +456,17 @@ arriving and a declined gene are three different things, and a boolean can
 tell the reader only one of them. "Not yet included" said of a pending track
 is exactly the claim the rules forbid. A track that isn't ready is a state the
 walk draws, not an error: the page is drawn without it. A *ready* track that
-fails to fetch is a real failure. Keep the two cases apart.
+fails to fetch is a real failure. Keep the two cases apart. The fold page is
+where a reader is shown a `refused` track's sentence: a protein built on
+demand that AlphaFold DB has no model of says so there.
 
 ## House rules (`docs/protein-pipeline-rules.md`: read it first)
 
 - **No per-protein code.** Nothing branches on a slug, gene or accession.
 - **No per-protein prose.** Captions are built from the record. The structure
-  page's `sentence` and `semantics` are the only exception (see R4.5).
+  page's `sentence` and `semantics` are the only exception (see R4.5), and
+  only for the twenty: a protein built on demand has its two templated by the
+  backend from its model's own numbers.
 - **Every claim traceable to the record.** Numbers come from data, never from
   a literal: no hard-coded lengths and no count of the catalog (R4.1).
   Captions agree with their own numbers via `grouped`, `spelled` and
