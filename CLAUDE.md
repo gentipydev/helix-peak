@@ -170,7 +170,10 @@ Git: commit the session's own changes locally. Never push, in any form.
   lab" below). `home/` and `search/` hold the home screen and the search:
   the curated list, and below it every reviewed human protein, which can be
   built on demand (its own `ProteinSuggestionsCubit`; the builds are the
-  app's, see "How data arrives" 4). Search is not the walk; it reaches the
+  app's, see "How data arrives" 4). With nothing typed, two tabs sit under
+  the field: Curated, which it opens on, and Built on demand, every
+  install's builds (`BuiltProteinsCubit`); typing hides them, and a search
+  covers everything whichever was chosen. Search is not the walk; it reaches the
   walk only by opening `/gene/<slug>`. `replication/` holds the replication
   tour and `zoom/` the zoom, both in every build (see "Replication" and
   "Zoom" below).
@@ -412,6 +415,10 @@ Tests use `test/support/fixture_track_source.dart` over `test/fixtures/`.
    in `MaterialApp.builder`). Nothing is given up on by the app: a report
    that stands still for ten minutes says so. From a service without the
    report, the constraint track's state is read instead.
+   `GET /proteins/built` lists every install's builds, newest first, as the
+   same suggestions: one under way is left out until it is done, one stopped
+   is kept. A build of this phone's that ends with a protein to open asks for
+   the list again; pinned, it is its card there and not a row as well.
    It opens the walk only once ESM-2 has scored it or declined to:
    `TrackClient` and `ProteinCatalogRepository` each remember a protein once
    read, so a protein opened mid-bake stays unscored until a restart. Tests use

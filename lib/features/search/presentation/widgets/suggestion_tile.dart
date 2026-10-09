@@ -19,6 +19,7 @@ class SuggestionTile extends StatelessWidget {
     required this.onOpen,
     required this.onBuild,
     this.built,
+    this.heading,
     super.key,
   });
 
@@ -32,6 +33,12 @@ class SuggestionTile extends StatelessWidget {
 
   /// Asks for it to be built.
   final ValueChanged<ProteinSuggestion> onBuild;
+
+  /// The name of the list it is in, where that says what it is: a status line
+  /// that would only repeat it is left out ("Built on demand" under the tab of
+  /// that name), and one that says something else stays. Null, the default,
+  /// shows every status line.
+  final String? heading;
 
   /// `P38398 · 1,863 aa`.
   static String specOf(ProteinSuggestion suggestion) =>
@@ -88,6 +95,7 @@ class SuggestionTile extends StatelessWidget {
     final ColorScheme colors = theme.colorScheme;
     final String? opens = opensAt(suggestion, built);
     final String? gene = suggestion.gene;
+    final String status = statusOf(suggestion, built);
 
     final Widget body = Row(
       children: <Widget>[
@@ -121,16 +129,18 @@ class SuggestionTile extends StatelessWidget {
                 style: AppTypography.sequenceSmall(colors.onSurfaceVariant)
                     .copyWith(fontSize: 11, letterSpacing: 0),
               ),
-              const SizedBox(height: 2),
-              Text(
-                statusOf(suggestion, built),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontSize: 13,
-                  height: 1.35,
+              if (status != heading) ...<Widget>[
+                const SizedBox(height: 2),
+                Text(
+                  status,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontSize: 13,
+                    height: 1.35,
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),

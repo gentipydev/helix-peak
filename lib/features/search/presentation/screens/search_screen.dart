@@ -15,6 +15,7 @@ import '../../../../shared/format.dart';
 import '../../../../shared/widgets/error_view.dart';
 import '../../../../shared/widgets/loading_view.dart';
 import '../../../gene_lookup/data/repositories/protein_catalog_repository.dart';
+import '../cubit/built_proteins_cubit.dart';
 import '../cubit/protein_suggestions_cubit.dart';
 import '../widgets/build_card.dart';
 import '../widgets/protein_card.dart';
@@ -36,6 +37,11 @@ import '../widgets/suggestion_tile.dart';
 /// nothing provides them, the screen keeps its own for as long as it is open.
 /// Asking for one ends the search that found it: the field is emptied and put
 /// away, and the build's card shows at the top of the list.
+///
+/// With nothing typed, two tabs sit under the field: the curated list, which
+/// the screen opens on, and the proteins built on demand, every install's,
+/// newest first. Typing hides them: a search covers everything, whichever tab
+/// was chosen, and clearing the field goes back to that tab.
 class SearchScreen extends StatelessWidget {
   const SearchScreen({super.key});
 
@@ -47,7 +53,13 @@ class SearchScreen extends StatelessWidget {
     }
     final Widget view = BlocProvider<ProteinSuggestionsCubit>(
       create: (BuildContext context) => ProteinSuggestionsCubit(resolver),
-      child: const _SearchView(everyProtein: true),
+      child: BlocProvider<BuiltProteinsCubit>(
+        create: (BuildContext context) => BuiltProteinsCubit(
+          resolver,
+          ended: context.read<ProteinBuilds>().ended,
+        ),
+        child: const _SearchView(everyProtein: true),
+      ),
     );
     if (context.read<ProteinBuilds?>() != null) {
       return view;
@@ -74,6 +86,9 @@ class _SearchView extends StatefulWidget {
 class _SearchViewState extends State<_SearchView> {
   final TextEditingController _controller = TextEditingController();
   String _query = '';
+
+  /// The tab chosen, kept while a search hides the tabs.
+  _Shelf _shelf = _Shelf.curated;
 
   /// Put back at its top when a build is asked for, where the build's card is.
   final ScrollController _list = ScrollController();
@@ -109,6 +124,18 @@ class _SearchViewState extends State<_SearchView> {
     _controller.dispose();
     _list.dispose();
     super.dispose();
+  }
+
+  /// Whether the tabs show: only with nothing typed, since a search covers
+  /// everything whichever tab is chosen.
+  bool get _shelves => widget.everyProtein && _query.trim().isEmpty;
+
+  /// Each time the built tab is chosen, its list is asked for again.
+  void _choose(_Shelf shelf) {
+    setState(() => _shelf = shelf);
+    if (shelf == _Shelf.built) {
+      context.read<BuiltProteinsCubit>().load();
+    }
   }
 
   /// Builds search found under way are watched, not offered to open: a
@@ -217,6 +244,9 @@ class _SearchViewState extends State<_SearchView> {
   Widget build(BuildContext context) {
     final List<ProteinTarget> results = _catalog.matching(_query);
     final int carried = _catalog.all.length;
+    // The catalog's own states are the curated tab's: the built tab asks the
+    // service for its list itself.
+    final bool curated = !(_shelves && _shelf == _Shelf.built);
 
     return Theme(
       data: AppTheme.analysis,
@@ -269,14 +299,31 @@ class _SearchViewState extends State<_SearchView> {
                       onTapOutside: (_) => FocusScope.of(context).unfocus(),
                       onSubmitted: (_) => _submitted(results),
                     ),
+                    if (_shelves) ...<Widget>[
+                      const SizedBox(height: AppSpacing.md),
+                      SegmentedButton<_Shelf>(
+                        key: const ValueKey<String>('search-shelves'),
+                        showSelectedIcon: false,
+                        segments: <ButtonSegment<_Shelf>>[
+                          for (final _Shelf shelf in _Shelf.values)
+                            ButtonSegment<_Shelf>(
+                              value: shelf,
+                              label: Text(shelf.label),
+                            ),
+                        ],
+                        selected: <_Shelf>{_shelf},
+                        onSelectionChanged: (Set<_Shelf> chosen) =>
+                            _choose(chosen.single),
+                      ),
+                    ],
                     const SizedBox(height: AppSpacing.lg),
                     Expanded(
-                      child: carried == 0 && _catalog.status.value == CatalogStatus.loading
+                      child: curated && carried == 0 && _catalog.status.value == CatalogStatus.loading
                           ? const Column(children: <Widget>[
                               Text('The service can take up to a minute to wake.'),
                               Expanded(child: LoadingView(label: 'LOADING PROTEINS')),
                             ])
-                          : carried == 0 && _catalog.status.value == CatalogStatus.failed
+                          : curated && carried == 0 && _catalog.status.value == CatalogStatus.failed
                           ? ErrorView(
                               title: 'List unavailable',
                               message: 'The service did not answer. Check the connection and try again.',
@@ -332,6 +379,20 @@ class _SearchViewState extends State<_SearchView> {
       for (final ProteinBuild build in builds.values)
         if (build.pinned) build,
     ];
+    if (_shelves) {
+      return switch (_shelf) {
+        _Shelf.curated => _shelfList(pinned, <Widget>[
+          if (results.isNotEmpty) ...<Widget>[
+            _Caption(_curatedCaption(carried)),
+            ..._cards(results),
+          ],
+        ]),
+        _Shelf.built => BlocBuilder<BuiltProteinsCubit, BuiltState>(
+          builder: (BuildContext context, BuiltState built) =>
+              _shelfList(pinned, _builtShelf(context, built, builds)),
+        ),
+      };
+    }
     final SuggestionPage? page = switch (found) {
       SuggestionsShown(:final SuggestionPage page) => page,
       SuggestionsLoading(:final SuggestionPage? previous) => previous,
@@ -359,37 +420,15 @@ class _SearchViewState extends State<_SearchView> {
       padding: const EdgeInsets.only(bottom: AppSpacing.xl),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       children: <Widget>[
-        if (pinned.isNotEmpty) ...<Widget>[
-          const _SectionHeader(title: 'Building'),
-          for (final ProteinBuild build in pinned) ...<Widget>[
-            BuildCard(
-              key: ValueKey<String>('build-${build.gene}'),
-              job: build,
-              onOpen: (String slug) => _openBuilt(build, slug),
-              onBuild: (ProteinSuggestion protein) =>
-                  unawaited(_builds!.build(protein)),
-              onStop: (ProteinBuild build) => unawaited(_stop(build)),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-          ],
-          const SizedBox(height: AppSpacing.md),
-        ],
+        ..._pinnedCards(pinned),
         if (nothing)
           Padding(
             padding: const EdgeInsets.only(top: AppSpacing.xl),
             child: nothingFound,
           ),
         if (results.isNotEmpty) ...<Widget>[
-          _SectionHeader(
-            title: 'Curated',
-            caption:
-                '${spelledLeading(carried)} proteins, checked by hand '
-                'and baked in advance.',
-          ),
-          for (final ProteinTarget target in results) ...<Widget>[
-            ProteinCard(target: target, onTap: () => _open(target)),
-            const SizedBox(height: AppSpacing.sm),
-          ],
+          _SectionHeader(title: 'Curated', caption: _curatedCaption(carried)),
+          ..._cards(results),
         ],
         if (showOthers) ...<Widget>[
           if (results.isNotEmpty) const SizedBox(height: AppSpacing.md),
@@ -424,6 +463,122 @@ class _SearchViewState extends State<_SearchView> {
       ],
     );
   }
+
+  /// The list under the tabs: this phone's builds pinned at its top, then
+  /// the chosen tab's.
+  Widget _shelfList(List<ProteinBuild> pinned, List<Widget> shelf) => ListView(
+    controller: _list,
+    padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+    children: <Widget>[..._pinnedCards(pinned), ...shelf],
+  );
+
+  /// Pinned while it builds, whatever is typed or chosen, until it is opened.
+  List<Widget> _pinnedCards(List<ProteinBuild> pinned) => <Widget>[
+    if (pinned.isNotEmpty) ...<Widget>[
+      const _SectionHeader(title: 'Building'),
+      for (final ProteinBuild build in pinned) ...<Widget>[
+        BuildCard(
+          key: ValueKey<String>('build-${build.gene}'),
+          job: build,
+          onOpen: (String slug) => _openBuilt(build, slug),
+          onBuild: (ProteinSuggestion protein) =>
+              unawaited(_builds!.build(protein)),
+          onStop: (ProteinBuild build) => unawaited(_stop(build)),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+      ],
+      const SizedBox(height: AppSpacing.md),
+    ],
+  ];
+
+  String _curatedCaption(int carried) =>
+      '${spelledLeading(carried)} proteins, checked by hand '
+      'and baked in advance.';
+
+  List<Widget> _cards(List<ProteinTarget> results) => <Widget>[
+    for (final ProteinTarget target in results) ...<Widget>[
+      ProteinCard(target: target, onTap: () => _open(target)),
+      const SizedBox(height: AppSpacing.sm),
+    ],
+  ];
+
+  /// The built tab: every install's builds, newest first. One of this phone's
+  /// pinned at the top is its card there, and not a row here as well.
+  List<Widget> _builtShelf(
+    BuildContext context,
+    BuiltState built,
+    Map<String, ProteinBuild> builds,
+  ) {
+    final BuiltPage? page = switch (built) {
+      BuiltShown(:final BuiltPage page) => page,
+      BuiltLoading(:final BuiltPage? previous) => previous,
+      _ => null,
+    };
+    final TextStyle? line = Theme.of(context).textTheme.bodyMedium;
+    return <Widget>[
+      const _Caption('Built from UniProt and MANE, scored with ESM-2.'),
+      if (built is BuiltLoading)
+        const Padding(
+          padding: EdgeInsets.only(bottom: AppSpacing.sm),
+          child: LinearProgressIndicator(minHeight: 2),
+        ),
+      if (built case BuiltFailed(:final String message))
+        _Unreachable(
+          message: message,
+          onRetry: context.read<BuiltProteinsCubit>().load,
+        ),
+      if (built is BuiltNotListed)
+        Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+          child: Text('This service does not list built proteins yet.', style: line),
+        ),
+      if (built case BuiltShown(:final BuiltPage page) when page.proteins.isEmpty)
+        Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+          child: Text(
+            'None yet. Search for any reviewed human protein and tap Build.',
+            style: line,
+          ),
+        ),
+      for (final ProteinSuggestion suggestion
+          in page?.proteins ?? const <ProteinSuggestion>[])
+        if (!(builds[suggestion.gene]?.pinned ?? false)) ...<Widget>[
+          SuggestionTile(
+            suggestion: suggestion,
+            built: builds[suggestion.gene],
+            heading: _Shelf.built.label,
+            onOpen: _openSlug,
+            onBuild: _startBuild,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+        ],
+    ];
+  }
+}
+
+/// The two tabs under the field while nothing is typed.
+enum _Shelf {
+  curated('Curated'),
+  built('Built on demand');
+
+  const _Shelf(this.label);
+
+  final String label;
+}
+
+/// One line on what a tab lists, where a header would only repeat the tab's
+/// name.
+class _Caption extends StatelessWidget {
+  const _Caption(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+    child: Text(text, style: Theme.of(context).textTheme.bodySmall),
+  );
 }
 
 /// The name of one part of the list, and a line on what is in it where its
