@@ -163,6 +163,10 @@ final class AnatomyColors extends ThemeExtension<AnatomyColors> {
     required this.connector,
     required this.pending,
     required this.baseTile,
+    required this.plddtVeryHigh,
+    required this.plddtConfident,
+    required this.plddtLow,
+    required this.plddtVeryLow,
   });
 
   final Color aminoAliphatic;
@@ -297,6 +301,21 @@ final class AnatomyColors extends ThemeExtension<AnatomyColors> {
   /// become a surface competing with their own letters.
   final Color baseTile;
 
+  /// How sure AlphaFold is of each residue of a predicted fold: pLDDT, in the
+  /// four bands the field draws it in, 90 and over, 70 to 90, 50 to 70, and
+  /// under 50.
+  ///
+  /// These four are not this palette's to choose. They are AlphaFold DB's own,
+  /// and a reader who has seen one of its models reads them without a legend,
+  /// which is the reason a predicted fold is drawn in them and not in the
+  /// chain colours an experimental one keeps from the page before it: there
+  /// the question is which chain, and here it is how far to believe the shape.
+  /// So they are kept exactly, and not through [Kaleido.filter] either.
+  final Color plddtVeryHigh;
+  final Color plddtConfident;
+  final Color plddtLow;
+  final Color plddtVeryLow;
+
   Color forProperty(AminoAcidProperty property) => switch (property) {
     AminoAcidProperty.aliphatic => aminoAliphatic,
     AminoAcidProperty.aromatic => aminoAromatic,
@@ -337,6 +356,10 @@ final class AnatomyColors extends ThemeExtension<AnatomyColors> {
     connector: Color(0xFF2E3849),
     pending: Color(0xFF171D27),
     baseTile: Color(0xFF2A2723),
+    plddtVeryHigh: Color(0xFF0053D6),
+    plddtConfident: Color(0xFF65CBF3),
+    plddtLow: Color(0xFFFFDB13),
+    plddtVeryLow: Color(0xFFFF7D45),
   );
 
   /// [dark] through [Kaleido.filter]: the palette the Protein Analyses flow is
@@ -381,6 +404,10 @@ final class AnatomyColors extends ThemeExtension<AnatomyColors> {
     Color? connector,
     Color? pending,
     Color? baseTile,
+    Color? plddtVeryHigh,
+    Color? plddtConfident,
+    Color? plddtLow,
+    Color? plddtVeryLow,
   }) {
     return AnatomyColors(
       aminoAliphatic: aminoAliphatic ?? this.aminoAliphatic,
@@ -409,6 +436,10 @@ final class AnatomyColors extends ThemeExtension<AnatomyColors> {
       connector: connector ?? this.connector,
       pending: pending ?? this.pending,
       baseTile: baseTile ?? this.baseTile,
+      plddtVeryHigh: plddtVeryHigh ?? this.plddtVeryHigh,
+      plddtConfident: plddtConfident ?? this.plddtConfident,
+      plddtLow: plddtLow ?? this.plddtLow,
+      plddtVeryLow: plddtVeryLow ?? this.plddtVeryLow,
     );
   }
 
@@ -446,6 +477,10 @@ final class AnatomyColors extends ThemeExtension<AnatomyColors> {
       connector: Color.lerp(connector, other.connector, t)!,
       pending: Color.lerp(pending, other.pending, t)!,
       baseTile: Color.lerp(baseTile, other.baseTile, t)!,
+      plddtVeryHigh: Color.lerp(plddtVeryHigh, other.plddtVeryHigh, t)!,
+      plddtConfident: Color.lerp(plddtConfident, other.plddtConfident, t)!,
+      plddtLow: Color.lerp(plddtLow, other.plddtLow, t)!,
+      plddtVeryLow: Color.lerp(plddtVeryLow, other.plddtVeryLow, t)!,
     );
   }
 }

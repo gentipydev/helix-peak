@@ -24,7 +24,23 @@ enum ChainTint {
 
   /// Cystine. Needs no special case — a disulfide bridge is two cysteines, and
   /// that is already the residue's colour in the palette.
-  cysteine;
+  cysteine,
+
+  /// The residues of a predicted model AlphaFold is surest of: pLDDT 90 and
+  /// over. A model from AlphaFold DB is not cut into chains but into these
+  /// four bands of confidence, one node each (`pipeline/structure/alphafold.py`
+  /// in the backend), because what a reader needs of a prediction is how far
+  /// to believe each part of it.
+  plddtVeryHigh,
+
+  /// pLDDT 70 to 90.
+  plddtConfident,
+
+  /// pLDDT 50 to 70.
+  plddtLow,
+
+  /// pLDDT under 50: often no fixed shape at all.
+  plddtVeryLow;
 
   /// The tint named on the wire. The names are the enum's own, so a tint the
   /// service invents later is a bug worth hearing about rather than a colour
@@ -36,6 +52,23 @@ enum ChainTint {
     ChainTint.mature2 => anatomy.roleMature2,
     ChainTint.mature3 => anatomy.roleMature3,
     ChainTint.cysteine => anatomy.aminoCysteine,
+    ChainTint.plddtVeryHigh => anatomy.plddtVeryHigh,
+    ChainTint.plddtConfident => anatomy.plddtConfident,
+    ChainTint.plddtLow => anatomy.plddtLow,
+    ChainTint.plddtVeryLow => anatomy.plddtVeryLow,
+  };
+
+  /// What a band of confidence is called in the fold's legend, or null for a
+  /// tint that is a chain's or the bridges', which the record names.
+  String? get confidence => switch (this) {
+    ChainTint.plddtVeryHigh => 'pLDDT \u2265 90',
+    ChainTint.plddtConfident => 'pLDDT 70\u201390',
+    ChainTint.plddtLow => 'pLDDT 50\u201370',
+    ChainTint.plddtVeryLow => 'pLDDT < 50',
+    ChainTint.mature1 ||
+    ChainTint.mature2 ||
+    ChainTint.mature3 ||
+    ChainTint.cysteine => null,
   };
 }
 
@@ -94,8 +127,19 @@ final class StructureChrome {
   }
 
   /// The PDB entry the model is cut from — `pipeline/targets.py` bakes it, and
-  /// `check_assets.py` holds the two to each other.
+  /// `check_assets.py` holds the two to each other. For a protein built on
+  /// demand, the AlphaFold DB entry its model is: see [predicted].
   final String pdb;
+
+  /// Whether the model is AlphaFold DB's prediction and not an experiment's
+  /// entry. Read off the id itself, which is a rule over every protein and
+  /// names none: AlphaFold DB's are `AF-<accession>-F<n>`, and a PDB entry's
+  /// is four characters.
+  bool get predicted => pdb.startsWith('AF-');
+
+  /// Where the model is from, as the page names it: `PDB 2OCJ`, or
+  /// `AlphaFold DB AF-Q04671-F1`.
+  String get source => predicted ? 'AlphaFold DB $pdb' : 'PDB $pdb';
 
   /// The precursor span the model covers, where it is not the whole mature
   /// protein: p53's DNA-binding core is 96–289 of 393. Null for an entry that

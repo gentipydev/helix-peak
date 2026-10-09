@@ -10,6 +10,7 @@ import 'package:flutter_scene/scene.dart';
 
 import '../../core/catalog/protein_target.dart';
 import '../../core/catalog/protein_track.dart';
+import '../../core/network/api_exception.dart';
 import '../../core/network/track_source.dart';
 import '../../core/theme/anatomy_colors.dart';
 import '../../core/theme/app_spacing.dart';
@@ -41,13 +42,18 @@ import 'structure_scene_view.dart';
 /// page is for out of sight. A protein whose story is not its bridges is drawn
 /// without them; see [ProteinTarget.chains].
 ///
-/// The geometry is crystallographic, one entry per protein, chosen and baked by
-/// `pipeline/structure/`: human insulin is RCSB `3I40`, X-ray at 1.85 A. Not the
-/// AlphaFold model of the gene's own translation product, which predicts the
-/// full 110-residue preproprotein at a mean pLDDT of 52.9 with half its
-/// residues below 50 — that is the *third* page's molecule anyway, and it is
-/// predicted to be largely disordered, so it would draw a coil of
-/// low-confidence loops exactly where the reader has been promised a hormone.
+/// For the curated proteins the geometry is crystallographic, one entry per
+/// protein, chosen and baked by `pipeline/structure/`: human insulin is RCSB
+/// `3I40`, X-ray at 1.85 A. Not the AlphaFold model of the gene's own
+/// translation product, which predicts the full 110-residue preproprotein at a
+/// mean pLDDT of 52.9 with half its residues below 50 — that is the *third*
+/// page's molecule anyway, and it is predicted to be largely disordered, so it
+/// would draw a coil of low-confidence loops exactly where the reader has been
+/// promised a hormone.
+///
+/// A protein built on demand has no entry chosen for it, and there AlphaFold
+/// DB's model is what is drawn: over the mature span, and only where it is
+/// sure enough of itself (see "A protein with no model", below).
 ///
 /// Which nodes a model has, and what each is called, is the target's to say:
 /// see [ProteinTarget.chains]. A protein that folds as one chain has no
@@ -64,6 +70,11 @@ import 'structure_scene_view.dart';
 ///
 /// The bridges take [AnatomyColors.aminoCysteine], which needs no special case:
 /// they are cystines, and that is already the residue's colour in the palette.
+///
+/// A predicted fold is the exception, and is coloured by how far it is to be
+/// believed: its nodes are pLDDT's four bands and not its chains, in AlphaFold
+/// DB's own colours ([AnatomyColors.plddtVeryHigh] and the three below it).
+/// The row says which, as it does for every model: a tint a node.
 ///
 /// The tokens are sRGB and glTF's `baseColorFactor` is linear, so they are
 /// converted on the way in. What lands on screen is still the token *as lit* —
@@ -105,6 +116,16 @@ import 'structure_scene_view.dart';
 ///
 /// Reduced motion, or a protein whose `folding` track is not ready or does
 /// not load, opens on the model, as the page did before.
+///
+/// ## A protein with no model
+///
+/// A protein built on demand is drawn from AlphaFold DB's model, and not
+/// every protein has one: none is made of a chain over 2,700 residues, and
+/// one too unsure of itself is not drawn. Its row then carries no fold
+/// description and its track is not ready, and that is a state this page
+/// draws, not a failure: one line saying why, in the pipeline's own sentence
+/// where it refused, and nothing asked of the renderer. "The model could not
+/// be loaded" stays what it was, a model that exists and did not arrive.
 class StructureView extends StatefulWidget {
   const StructureView({
     required this.viewport,
@@ -145,6 +166,10 @@ class StructureView extends StatefulWidget {
   /// Calling it again returns the same future. A failure is not kept, so the
   /// next call, or the page itself, tries again.
   static Future<void> prepare(BuildContext context, ProteinTarget target) {
+    if (_hasNoModel(target)) {
+      // Nothing to warm: the page will say why there is none.
+      return Future<void>.value();
+    }
     final TrackSource? tracks = context.read<TrackSource?>();
     if (tracks == null) {
       // Nothing provided a source, so there is no model to warm and no page
@@ -158,6 +183,12 @@ class StructureView extends StatefulWidget {
       tracks,
     );
   }
+
+  /// Whether [target] has no model to draw: no fold description on its row,
+  /// which every protein with a model carries, and a track that is not ready.
+  static bool _hasNoModel(ProteinTarget target) =>
+      target.structure == null &&
+      target.state(TrackKind.structure) != TrackState.ready;
 
   /// Keyed by protein: most of what warming buys — the shader library, the
   /// lighting environment, the render pipelines — is shared and paid once
@@ -310,6 +341,10 @@ enum _StructureTrouble {
   /// The model did not arrive, or arrived and did not match the row that named
   /// it. A fact about this protein, this time.
   model,
+
+  /// There is no model of this protein to load, and [_StructureViewState._why]
+  /// says why. A state of the protein, and no failure of anything.
+  absent,
 }
 
 class _StructureViewState extends State<StructureView>
@@ -349,6 +384,16 @@ class _StructureViewState extends State<StructureView>
   /// two are told apart so the page can say which happened.
   _StructureTrouble? _trouble;
 
+  /// Why this protein has no model, as one line: the pipeline's own sentence
+  /// where it refused, and empty while that sentence is being asked for.
+  String _why = '';
+
+  static const String _noModel = 'There is no structure model of this protein.';
+  static const String _modelOnItsWay =
+      'The structure model is still being made.';
+  static const String _modelRefused =
+      'No structure model could be made for this protein.';
+
   /// Whether the reader has turned the model yet. Until they have, a line
   /// under it says that they can.
   bool _turned = false;
@@ -378,7 +423,53 @@ class _StructureViewState extends State<StructureView>
   @override
   void initState() {
     super.initState();
+    if (StructureView._hasNoModel(widget.target)) {
+      _sayWhy();
+      return;
+    }
     _load();
+  }
+
+  /// Names the state the protein's model is in, and loads nothing.
+  ///
+  /// The row says which state. Only a refusal has more to say, and its
+  /// sentence is on the track's own row, which the catalog's bare states do
+  /// not carry: asking the source for the model is how that row is read, and
+  /// what comes back is the refusal.
+  void _sayWhy() {
+    final ProteinTarget target = widget.target;
+    _trouble = _StructureTrouble.absent;
+    switch (target.state(TrackKind.structure)) {
+      case TrackState.pending:
+        _why = _modelOnItsWay;
+      case TrackState.refused:
+        final String? reason = target.reason(TrackKind.structure);
+        if (reason != null) {
+          _why = reason;
+        } else {
+          unawaited(_askWhy());
+        }
+      case TrackState.absent || TrackState.ready:
+        _why = _noModel;
+    }
+  }
+
+  Future<void> _askWhy() async {
+    final TrackSource? tracks = context.read<TrackSource?>();
+    String? reason;
+    if (tracks != null) {
+      try {
+        await tracks.read(widget.target.slug, TrackKind.structure);
+      } on TrackApiException catch (error) {
+        reason = error.reason;
+      } on Object catch (error) {
+        // The row could not be read. The page still says what it knows.
+        debugPrint('helixpeek: no reason for the missing model ($error)');
+      }
+    }
+    if (mounted) {
+      setState(() => _why = reason ?? _modelRefused);
+    }
   }
 
   @override
@@ -602,6 +693,7 @@ class _StructureViewState extends State<StructureView>
                       'The structure needs 3D rendering, which is not '
                           'available here.',
                     _StructureTrouble.model => 'The model could not be loaded.',
+                    _StructureTrouble.absent => _why,
                   },
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium,

@@ -1740,15 +1740,17 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     );
   }
 
-  /// Where the fold comes from: `PDB 2OCJ · residues 96–289 of 393`.
+  /// Where the fold comes from: `PDB 2OCJ · residues 96–289 of 393`, or, for
+  /// a protein built on demand, `AlphaFold DB AF-P61769-F1 · residues 21–119
+  /// of 119`.
   String get _foldSource {
     final StructureChrome? structure = widget.target.structure;
     if (structure == null) return '';
     return switch (structure.modelled) {
       (final int from, final int to) =>
-        'PDB ${structure.pdb} · residues $from–$to of '
+        '${structure.source} · residues ${grouped(from)}–${grouped(to)} of '
             '${grouped(widget.target.facts.residues)}',
-      null => 'PDB ${structure.pdb}',
+      null => structure.source,
     };
   }
 
@@ -1776,6 +1778,12 @@ class _AnatomyScreenState extends State<AnatomyScreen>
             ChainTint.mature2 => nameOf(1),
             ChainTint.mature3 => nameOf(2),
             ChainTint.cysteine => 'disulfide bridges',
+            // A predicted fold is cut by confidence, not by chain, and a
+            // band is called the same on every protein.
+            ChainTint.plddtVeryHigh ||
+            ChainTint.plddtConfident ||
+            ChainTint.plddtLow ||
+            ChainTint.plddtVeryLow => chain.tint.confidence!,
           },
         ),
     ];

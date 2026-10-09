@@ -48,6 +48,22 @@ Future<void> showRecordSheet({
   ),
 );
 
+/// The credit a predicted fold owes, and what its colours mean.
+///
+/// AlphaFold DB's models are CC BY 4.0, so a page that draws one says whose it
+/// is. Written here, once, for the protein that has one: the fold page's
+/// legend is a key and no place for a licence, and the twenty are drawn from
+/// PDB entries, which ask for none.
+SourceEntry _alphaFold(ProteinTarget target) => SourceEntry(
+  name: 'AlphaFold',
+  text:
+      'Predicted structure, from AlphaFold DB (EMBL-EBI and Google DeepMind), '
+      'CC BY 4.0. Its colours are pLDDT, the model\u2019s own confidence in '
+      'each residue, 0\u2013100: under 50 is often disorder, not a shape. '
+      'Jumper et al. 2021; Varadi et al. 2024.',
+  uri: Uri.parse('https://alphafold.ebi.ac.uk/entry/${target.uniprot}'),
+);
+
 class _RecordSheet extends StatefulWidget {
   const _RecordSheet({
     required this.model,
@@ -148,9 +164,9 @@ class _RecordSheetState extends State<_RecordSheet> {
       if (mature != null) ('Chains', mature.sentence),
       if (target.structure != null) (
         'Structure',
-        'PDB ${target.structure!.pdb}'
+        '${target.structure!.source}'
             '${switch (target.structure!.modelled) {
-              (final int from, final int to) => ' · residues $from–$to',
+              (final int from, final int to) => ' · residues ${grouped(from)}–${grouped(to)}',
               null => '',
             }}',
       ),
@@ -270,6 +286,10 @@ class _RecordSheetState extends State<_RecordSheet> {
                     snapshotDate: widget.clinvar?.snapshotDate,
                     included:
                         widget.target.clinvarAvailable || widget.clinvar != null,
+                    also: <SourceEntry>[
+                      if (target.structure?.predicted ?? false)
+                        _alphaFold(target),
+                    ],
                   ),
                 ],
               ),

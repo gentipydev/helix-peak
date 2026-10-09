@@ -38,6 +38,7 @@ class SourcesNote extends StatelessWidget {
     this.snapshotDate,
     this.included = true,
     this.sources,
+    this.also = const <SourceEntry>[],
     this.open = _openOutside,
     super.key,
   });
@@ -59,6 +60,11 @@ class SourcesNote extends StatelessWidget {
   /// from, since a claim and the place it is answered for belong on the same
   /// screen.
   final List<SourceEntry>? sources;
+
+  /// Sources beside the walk's own four, written after them and after the
+  /// line that closes them: a predicted fold's, which has a licence to credit.
+  /// None, as the note has always been written, unless a caller names one.
+  final List<SourceEntry> also;
 
   /// How a source's link is opened. Nothing in the walk's own four has one.
   final SourceOpener open;
@@ -160,6 +166,9 @@ class SourcesNote extends StatelessWidget {
           'assessment.',
           style: body,
         ),
+        if (also.isNotEmpty) const SizedBox(height: 8),
+        for (final SourceEntry source in also)
+          paragraph(source.name, source.text, uri: source.uri),
       ],
     );
   }
