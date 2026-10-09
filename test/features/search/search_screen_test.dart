@@ -38,6 +38,10 @@ Widget _withResolver(Widget child) => RepositoryProvider<ProteinResolver>.value(
   value: ProteinResolver(ResolverApi()), child: child,
 );
 
+/// Whether the search field has the cursor.
+bool _focused(WidgetTester tester) =>
+    tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus;
+
 void main() {
   testWidgets('an empty catalog shows loading then a retryable failure', (tester) async {
     final api = CatalogApi(answer: (_, _) async => throw const NetworkApiException());
@@ -109,6 +113,28 @@ void main() {
     await tester.tap(find.byTooltip('Clear'));
     await tester.pumpAndSettle();
     expect(find.byType(ProteinCard), findsNWidgets(TestCatalog.all.length));
+  });
+
+  testWidgets('a tap outside the field puts the cursor away, and Clear keeps it', (
+    WidgetTester tester,
+  ) async {
+    await _pump(tester);
+    await tester.enterText(find.byType(TextField), 'lysozyme');
+    await tester.pumpAndSettle();
+    expect(_focused(tester), isTrue);
+
+    // Below the one card left, where nothing else is.
+    await tester.tapAt(tester.getBottomLeft(find.byType(ProteinCard)) + const Offset(16, 40));
+    await tester.pumpAndSettle();
+    expect(_focused(tester), isFalse);
+    expect(find.byType(ProteinCard), findsOneWidget);
+
+    // Clear is part of the field: what is typed goes, the cursor stays.
+    await tester.enterText(find.byType(TextField), 'lysozyme');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Clear'));
+    await tester.pumpAndSettle();
+    expect(_focused(tester), isTrue);
   });
 
   testWidgets('every card is one tap to that protein and reads as a button', (

@@ -34,6 +34,8 @@ import '../widgets/suggestion_tile.dart';
 ///
 /// Builds are the app's [ProteinBuilds], so one outlives this screen. Where
 /// nothing provides them, the screen keeps its own for as long as it is open.
+/// Asking for one ends the search that found it: the field is emptied and put
+/// away, and the build's card shows at the top of the list.
 class SearchScreen extends StatelessWidget {
   const SearchScreen({super.key});
 
@@ -73,6 +75,9 @@ class _SearchViewState extends State<_SearchView> {
   final TextEditingController _controller = TextEditingController();
   String _query = '';
 
+  /// Put back at its top when a build is asked for, where the build's card is.
+  final ScrollController _list = ScrollController();
+
   late final ProteinCatalogRepository _catalog;
 
   /// The app's builds; null where only the curated list is searched.
@@ -102,6 +107,7 @@ class _SearchViewState extends State<_SearchView> {
     // A build that ended with nothing to open has been said here.
     _builds?.unpinEnded();
     _controller.dispose();
+    _list.dispose();
     super.dispose();
   }
 
@@ -125,6 +131,63 @@ class _SearchViewState extends State<_SearchView> {
       context.read<ProteinSuggestionsCubit>().query(value);
     }
   }
+
+  /// Build [protein], which search found: what the search was for, so it
+  /// ends. The field is emptied and put away (a screen reader's tap is no
+  /// touch outside it), and the list goes back to its top, where the build's
+  /// card is pinned; from further down the card would come in out of sight.
+  void _startBuild(ProteinSuggestion protein) {
+    FocusScope.of(context).unfocus();
+    _controller.clear();
+    _typed('');
+    if (_list.hasClients) {
+      _list.jumpTo(0);
+    }
+    unawaited(_builds!.build(protein));
+  }
+
+  /// A single result is what the reader was after: the one curated match,
+  /// or, with none, the one other protein, where it opens. Anything else and
+  /// submitting has nothing to add to the list already on screen, and nothing
+  /// is built but by its own Build.
+  void _submitted(List<ProteinTarget> results) {
+    if (results.length == 1) {
+      _open(results.single);
+      return;
+    }
+    final ProteinBuilds? builds = _builds;
+    if (results.isNotEmpty || builds == null) {
+      return;
+    }
+    final SuggestionsState found = context.read<ProteinSuggestionsCubit>().state;
+    if (found is! SuggestionsShown) {
+      return;
+    }
+    final Map<String, ProteinBuild> now = builds.builds.value;
+    final List<ProteinSuggestion> others = _others(found.page, const <String>{}, now);
+    if (others.length != 1) {
+      return;
+    }
+    final String? slug = SuggestionTile.opensAt(others.single, now[others.single.gene]);
+    if (slug != null) {
+      _openSlug(slug);
+    }
+  }
+
+  /// What [page] names that is not on screen already. A curated protein the
+  /// list shows ([shown], by slug) is not shown twice, and one pinned while it
+  /// builds is nowhere else meanwhile.
+  List<ProteinSuggestion> _others(
+    SuggestionPage? page,
+    Set<String> shown,
+    Map<String, ProteinBuild> builds,
+  ) => <ProteinSuggestion>[
+    for (final ProteinSuggestion suggestion
+        in page?.suggestions ?? const <ProteinSuggestion>[])
+      if (!shown.contains(suggestion.slug) &&
+          !(builds[suggestion.gene]?.pinned ?? false))
+        suggestion,
+  ];
 
   void _open(ProteinTarget target) => _openAt(RoutePaths.geneFor(target));
 
@@ -201,14 +264,10 @@ class _SearchViewState extends State<_SearchView> {
                               ),
                       ),
                       onChanged: _typed,
-                      // A single result is what the reader was after; anything
-                      // else and submitting has nothing to add to the list
-                      // already on screen.
-                      onSubmitted: (_) {
-                        if (results.length == 1) {
-                          _open(results.single);
-                        }
-                      },
+                      // Flutter keeps a field focused when a touch lands
+                      // outside it; the reader expects the cursor to go.
+                      onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                      onSubmitted: (_) => _submitted(results),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     Expanded(
@@ -273,22 +332,12 @@ class _SearchViewState extends State<_SearchView> {
       for (final ProteinBuild build in builds.values)
         if (build.pinned) build,
     ];
-    final Set<String> building = <String>{
-      for (final ProteinBuild build in pinned) build.gene,
-    };
     final SuggestionPage? page = switch (found) {
       SuggestionsShown(:final SuggestionPage page) => page,
       SuggestionsLoading(:final SuggestionPage? previous) => previous,
       _ => null,
     };
-    // A curated protein the list already shows is not shown twice.
-    final List<ProteinSuggestion> others = <ProteinSuggestion>[
-      for (final ProteinSuggestion suggestion
-          in page?.suggestions ?? const <ProteinSuggestion>[])
-        if (!shown.contains(suggestion.slug) &&
-            !building.contains(suggestion.gene))
-          suggestion,
-    ];
+    final List<ProteinSuggestion> others = _others(page, shown, builds);
     final bool settled = found is SuggestionsShown;
     final bool nothing =
         results.isEmpty && (!asking || (settled && others.isEmpty));
@@ -306,6 +355,7 @@ class _SearchViewState extends State<_SearchView> {
     final bool showOthers =
         asking && !(settled && others.isEmpty) && found is! SuggestionsIdle;
     return ListView(
+      controller: _list,
       padding: const EdgeInsets.only(bottom: AppSpacing.xl),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       children: <Widget>[
@@ -366,8 +416,7 @@ class _SearchViewState extends State<_SearchView> {
               suggestion: suggestion,
               built: builds[suggestion.gene],
               onOpen: _openSlug,
-              onBuild: (ProteinSuggestion protein) =>
-                  unawaited(_builds!.build(protein)),
+              onBuild: _startBuild,
             ),
             const SizedBox(height: AppSpacing.sm),
           ],

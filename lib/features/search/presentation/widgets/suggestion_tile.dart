@@ -67,11 +67,11 @@ class SuggestionTile extends StatelessWidget {
     };
   }
 
-  /// The slug this tile opens, where it opens at all.
-  String? get _opens {
-    final ProteinBuild? build = built;
-    if (build != null) {
-      return build.opens ? build.slug : null;
+  /// The slug [suggestion] opens at, where it opens at all; [built] is its
+  /// build, as for [statusOf]. Search's Search key reads the same rule.
+  static String? opensAt(ProteinSuggestion suggestion, ProteinBuild? built) {
+    if (built != null) {
+      return built.opens ? built.slug : null;
     }
     if (suggestion.building) {
       return null;
@@ -86,7 +86,7 @@ class SuggestionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colors = theme.colorScheme;
-    final String? opens = _opens;
+    final String? opens = opensAt(suggestion, built);
     final String? gene = suggestion.gene;
 
     final Widget body = Row(

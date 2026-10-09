@@ -95,8 +95,14 @@ Map<String, dynamic> _constraint(String state) => <String, dynamic>{
 /// The search screen on a router whose walk is a line naming the slug it
 /// opened, so a test can see where a tap went, with the builds the app's,
 /// above the router, as `core/di` provides them. With [asker], this phone
-/// names itself when it asks, and may stop what it asked for.
-Future<GoRouter> _pump(WidgetTester tester, ResolverApi api, {String? asker}) async {
+/// names itself when it asks, and may stop what it asked for. [size] is tall
+/// by default, so the lazy list builds everything it has.
+Future<GoRouter> _pump(
+  WidgetTester tester,
+  ResolverApi api, {
+  String? asker,
+  Size size = const Size(400, 4000),
+}) async {
   final ProteinCatalogRepository catalog = ProteinCatalogRepository(CatalogApi(), null);
   await catalog.refresh();
   addTearDown(catalog.dispose);
@@ -120,7 +126,7 @@ Future<GoRouter> _pump(WidgetTester tester, ResolverApi api, {String? asker}) as
     ],
   );
   addTearDown(router.dispose);
-  await tester.binding.setSurfaceSize(const Size(400, 4000));
+  await tester.binding.setSurfaceSize(size);
   addTearDown(() => tester.binding.setSurfaceSize(null));
   await tester.pumpWidget(
     MultiRepositoryProvider(
@@ -159,6 +165,14 @@ Finder _inTile(String title, Finder finder) =>
     find.descendant(of: _tile(title), matching: finder);
 
 Finder _card(String gene) => find.byKey(ValueKey<String>('build-$gene'));
+
+/// Whether the search field has the cursor.
+bool _focused(WidgetTester tester) =>
+    tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus;
+
+/// What the search field reads.
+String _typed(WidgetTester tester) =>
+    tester.widget<TextField>(find.byType(TextField)).controller!.text;
 
 Finder _inCard(String gene, Finder finder) =>
     find.descendant(of: _card(gene), matching: finder);
@@ -221,10 +235,15 @@ void main() {
     await tester.tap(_inTile('Breast cancer type 1 susceptibility protein', find.text('Build')));
     await tester.pump();
     await tester.pump();
-    // Pinned above everything, and no longer in the list below.
+    // Pinned above everything, and the search that found it is over: the
+    // field emptied and put away, the other matches gone with it, and the
+    // list back to how it opens.
     expect(find.text('BUILDING'), findsOneWidget);
     expect(_tile('Breast cancer type 1 susceptibility protein'), findsNothing);
-    expect(_tile('Insulin receptor'), findsOneWidget);
+    expect(_tile('Insulin receptor'), findsNothing);
+    expect(_typed(tester), isEmpty);
+    expect(_focused(tester), isFalse);
+    expect(find.text('CURATED'), findsOneWidget);
     expect(_inCard('BRCA1', find.text('P38398 · 1,863 aa')), findsOneWidget);
     expect(_inCard('BRCA1', find.text('Queued')), findsOneWidget);
     expect(_inCard('BRCA1', find.text('1 protein ahead')), findsOneWidget);
@@ -291,6 +310,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('BUILDING'), findsNothing);
+    // Asking for it ended the search; looked for again, it opens from its row.
+    await _type(tester, 'brca1');
     expect(_inTile('Breast cancer type 1 susceptibility protein', find.text('Built on demand')),
         findsOneWidget);
     await tester.tap(_tile('Breast cancer type 1 susceptibility protein'));
@@ -334,6 +355,114 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
     expect(_inCard('BRCA1', find.text('400 / 1,863')), findsOneWidget);
+  });
+
+  testWidgets('a build asked from far down the list shows its card at the top', (
+    WidgetTester tester,
+  ) async {
+    final List<Map<String, dynamic>> kinases = <Map<String, dynamic>>[
+      for (int i = 1; i <= 12; i++)
+        _suggestion('Q9K${i.toString().padLeft(3, '0')}', 'KIN$i', 'Kinase $i', 300 + i,
+            'buildable', slug: 'kin$i'),
+    ];
+    final ResolverApi api = ResolverApi(
+      suggest: _finding(kinases),
+      resolve: (String gene) async => _said('pending', build: _report('queued', 0.0, ahead: 0)),
+      status: (String gene) async => _said('pending', build: _report('queued', 3.0, ahead: 0)),
+    );
+    await _pump(tester, api, size: const Size(400, 800));
+    await _type(tester, 'kinase');
+    final Finder last = _inTile('Kinase 12', find.text('Build'));
+    await tester.dragUntilVisible(last, find.byType(ListView), const Offset(0, -200));
+    await tester.ensureVisible(last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(last);
+    await tester.pump();
+    await tester.pump();
+    expect(_card('KIN12').hitTestable(), findsOneWidget);
+  });
+
+  testWidgets("the card's own Try again keeps what is typed", (WidgetTester tester) async {
+    final ResolverApi api = ResolverApi(
+      suggest: (String q) async =>
+          _finding(<Map<String, dynamic>>[if (q == 'brca1') _brca1 else _insr])(q),
+      resolve: (String gene) async => throw const NetworkApiException(),
+    );
+    await _pump(tester, api);
+    await _type(tester, 'brca1');
+    await tester.tap(find.text('Build'));
+    await tester.pump();
+    await tester.pump();
+    expect(_inCard('BRCA1', find.text('Try again')), findsOneWidget);
+
+    // A search under way is the reader's: the card asking again leaves it be.
+    await _type(tester, 'insr');
+    await tester.tap(_inCard('BRCA1', find.text('Try again')));
+    await tester.pump();
+    await tester.pump();
+    expect(_typed(tester), 'insr');
+    expect(_tile('Insulin receptor'), findsOneWidget);
+  });
+
+  testWidgets('a Build without a touch, as a screen reader asks, puts the field away too', (
+    WidgetTester tester,
+  ) async {
+    final ResolverApi api = ResolverApi(
+      suggest: _finding(<Map<String, dynamic>>[_brca1]),
+      resolve: (String gene) async =>
+          _said('pending', slug: 'brca1', build: _report('queued', 0.0, ahead: 0)),
+      status: (String gene) async =>
+          _said('pending', slug: 'brca1', build: _report('queued', 3.0, ahead: 0)),
+    );
+    final SemanticsHandle semantics = tester.ensureSemantics();
+    await _pump(tester, api);
+    await _type(tester, 'brca1');
+    expect(_focused(tester), isTrue);
+
+    // No pointer comes down outside the field: Build itself puts it away.
+    tester.semantics.tap(find.semantics.byLabel('Build'));
+    await tester.pump();
+    await tester.pump();
+    expect(_card('BRCA1'), findsOneWidget);
+    expect(_typed(tester), isEmpty);
+    expect(_focused(tester), isFalse);
+    semantics.dispose();
+  });
+
+  testWidgets('the Search key opens the one match, built or curated, and never builds', (
+    WidgetTester tester,
+  ) async {
+    final ResolverApi api = ResolverApi(
+      suggest: (String q) async => _finding(<Map<String, dynamic>>[
+        if (q == 'b2m') _b2m,
+        if (q == 'brca1') _brca1,
+      ])(q),
+    );
+    final GoRouter router = await _pump(tester, api);
+    // Nothing curated, and one other protein, built on demand: it opens.
+    await _type(tester, 'b2m');
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await tester.pumpAndSettle();
+    expect(find.text('walk b2m'), findsOneWidget);
+    router.pop();
+    await tester.pumpAndSettle();
+
+    // One curated match opens, as it always has.
+    await _type(tester, 'lysozyme');
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await tester.pumpAndSettle();
+    expect(find.text('walk lysozyme'), findsOneWidget);
+    router.pop();
+    await tester.pumpAndSettle();
+
+    // One not built yet is built by its own Build alone.
+    await _type(tester, 'brca1');
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await tester.pumpAndSettle();
+    expect(find.text('walk brca1'), findsNothing);
+    expect(find.text('BUILDING'), findsNothing);
+    expect(api.calls.where((String call) => call.startsWith('POST')), isEmpty);
   });
 
   testWidgets('a build search finds under way is watched, not opened', (
