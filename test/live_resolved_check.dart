@@ -256,6 +256,13 @@ void main() {
         if (forward && i == pages - 1) {
           // The fold: its source where it has a model, and why where not.
           expect(find.byType(StructureView), findsOneWidget);
+          // The rows were read on the real clock, in `setUpAll`, and a page
+          // that asks them why is answered on it: this test's own clock
+          // would never deliver it.
+          await tester.runAsync(
+            () => Future<void>.delayed(const Duration(milliseconds: 50)),
+          );
+          await tester.pump();
           final Object? none = modelError;
           if (target.structure case final StructureChrome chrome) {
             expect(find.textContaining(chrome.source), findsOneWidget);
