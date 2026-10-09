@@ -11,9 +11,15 @@
 // LIVE_EXPECT=refused is for a protein whose ESM-2 track the scorer declined.
 // The backend's scripts/check_built.py checks the same protein from the
 // server's side.
+//
+// Its model is read as it stands, whichever state its structure track is in:
+// ready (AlphaFold DB's, with its bands and its words), refused (the sentence
+// the fold page shows), or never asked for.
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/biology/gene_record.dart';
 import 'package:helixpeek/core/catalog/protein_resolver.dart';
@@ -21,8 +27,10 @@ import 'package:helixpeek/core/catalog/protein_suggestion.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/catalog/protein_track.dart';
 import 'package:helixpeek/core/evidence/protein_constraint.dart';
+import 'package:helixpeek/core/network/api_exception.dart';
 import 'package:helixpeek/core/network/dio_api_client.dart';
 import 'package:helixpeek/core/network/track_client.dart';
+import 'package:helixpeek/core/network/track_source.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/data/datasources/gene_remote_data_source.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
@@ -31,6 +39,7 @@ import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canv
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_toolbar.dart';
 import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/shared/structure/structure_view.dart';
 
 const Size _phone = Size(390, 844);
 
@@ -46,8 +55,11 @@ void main() {
   late Directory root;
   late ProteinTarget target;
   late GeneRecord record;
+  late TrackClient tracks;
   ProteinConstraint? constraint;
   Object? constraintError;
+  Uint8List? model;
+  Object? modelError;
   late ResolveStatus status;
   late TrackState trackState;
   late SuggestionPage suggested;
@@ -76,7 +88,7 @@ void main() {
     target = await catalog.protein(slug);
 
     // The record and the ESM-2 track, as the walk reads them.
-    final TrackClient tracks = TrackClient(
+    tracks = TrackClient(
       api,
       cache: Directory('${root.path}/tracks')..createSync(),
     );
@@ -86,6 +98,12 @@ void main() {
       constraint = await ProteinConstraint.load(target, tracks: tracks);
     } on Object catch (error) {
       constraintError = error;
+    }
+    // The model, as the fold page reads it.
+    try {
+      model = await tracks.read(slug, TrackKind.structure);
+    } on Object catch (error) {
+      modelError = error;
     }
 
     // What the search screen asks.
@@ -111,7 +129,6 @@ void main() {
     expect(target.summary, contains('Built on demand from UniProt'));
     expect(target.state(TrackKind.record), TrackState.ready);
     expect(target.state(TrackKind.constraint), expected);
-    expect(target.state(TrackKind.structure), TrackState.absent);
     expect(target.state(TrackKind.clinvar), TrackState.absent);
     expect(target.scored, scored);
 
@@ -144,6 +161,50 @@ void main() {
     );
   });
 
+  test('its model is AlphaFold DB\u2019s, or the service says why there is none', () {
+    if (!on) {
+      markTestSkipped('set LIVE_BACKEND and LIVE_RESOLVED');
+      return;
+    }
+    final TrackState state = target.state(TrackKind.structure);
+    if (state == TrackState.ready) {
+      final StructureChrome chrome = target.structure!;
+      expect(modelError, isNull);
+      expect(model, isNotEmpty);
+      expect(chrome.predicted, isTrue);
+      expect(chrome.pdb, 'AF-${target.uniprot}-F1');
+      expect(chrome.sentence.length, lessThanOrEqualTo(80));
+      // Every node is a band of confidence, or the bridges.
+      expect(target.chains, isNotEmpty);
+      for (final StructureChain chain in target.chains) {
+        expect(
+          chain.tint.confidence != null || chain.tint == ChainTint.cysteine,
+          isTrue,
+          reason: chain.node,
+        );
+      }
+      // ignore: avoid_print
+      print(
+        '$gene: model ${chrome.source}, ${model!.length} bytes, '
+        '${chrome.count} ${chrome.unit}, modelled ${chrome.modelled}; nodes '
+        '${target.chains.map((StructureChain c) => c.node).toList()}. '
+        '"${chrome.sentence}"',
+      );
+    } else {
+      // No model: no words and no chains for one, and the track row says
+      // which state it is in, with the sentence where the pipeline refused.
+      expect(target.structure, isNull);
+      expect(target.chains, isEmpty);
+      expect(model, isNull);
+      expect(modelError, isA<TrackApiException>());
+      final TrackApiException said = modelError! as TrackApiException;
+      expect(said.state, state.wire);
+      expect(said.reason, state == TrackState.refused ? isNotNull : isNull);
+      // ignore: avoid_print
+      print('$gene: no model, ${said.state}: ${said.reason}');
+    }
+  });
+
   testWidgets('the walk draws every page of it', (WidgetTester tester) async {
     if (!on) {
       markTestSkipped('set LIVE_BACKEND and LIVE_RESOLVED');
@@ -152,15 +213,20 @@ void main() {
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.binding.setSurfaceSize(_phone);
     await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.analysis,
-        debugShowCheckedModeBanner: false,
-        home: MediaQuery(
-          data: const MediaQueryData(disableAnimations: true),
-          child: AnatomyScreen(
-            target: target,
-            record: record,
-            constraint: constraint,
+      // The rows the client read above: where the fold page has no model, it
+      // asks them why.
+      RepositoryProvider<TrackSource?>.value(
+        value: tracks,
+        child: MaterialApp(
+          theme: AppTheme.analysis,
+          debugShowCheckedModeBanner: false,
+          home: MediaQuery(
+            data: const MediaQueryData(disableAnimations: true),
+            child: AnatomyScreen(
+              target: target,
+              record: record,
+              constraint: constraint,
+            ),
           ),
         ),
       ),
@@ -187,6 +253,18 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull, reason: 'page $i');
+        if (forward && i == pages - 1) {
+          // The fold: its source where it has a model, and why where not.
+          expect(find.byType(StructureView), findsOneWidget);
+          final Object? none = modelError;
+          if (target.structure case final StructureChrome chrome) {
+            expect(find.textContaining(chrome.source), findsOneWidget);
+            expect(find.text(chrome.sentence), findsOneWidget);
+          } else if (none is TrackApiException && none.reason != null) {
+            expect(find.text(none.reason!), findsOneWidget);
+          }
+          expect(find.text('The model could not be loaded.'), findsNothing);
+        }
         if (forward && i == proteinPage) {
           expect(
             find.byType(ConstraintToolbar),
