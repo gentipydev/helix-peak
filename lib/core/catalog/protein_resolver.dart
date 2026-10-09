@@ -23,6 +23,17 @@ final class ProteinResolver {
         ),
       );
 
+  /// The proteins built on demand, every install's, newest first.
+  ///
+  /// One page of up to [limit]. Its `next` is not followed: that waits until
+  /// there are nearly that many builds.
+  Future<BuiltPage> built({int limit = 200}) async => BuiltPage.fromJson(
+    await _api.getJson(
+      '/proteins/built',
+      query: <String, dynamic>{'limit': limit},
+    ),
+  );
+
   /// Ask for the protein [gene] makes, built where it is not one yet, or
   /// scored afresh where its scoring was stopped. [asker] is this install's
   /// own id: only it may stop what the ask starts.

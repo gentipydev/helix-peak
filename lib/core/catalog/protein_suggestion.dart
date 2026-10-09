@@ -128,6 +128,29 @@ final class SuggestionPage {
   final List<ProteinSuggestion> suggestions;
 }
 
+/// One answer from `/proteins/built`: the proteins built on demand, every
+/// install's, newest first.
+@immutable
+final class BuiltPage {
+  const BuiltPage({required this.proteins, required this.next});
+
+  factory BuiltPage.fromJson(Map<String, dynamic> json) => BuiltPage(
+    proteins: <ProteinSuggestion>[
+      for (final Object? row
+          in json['proteins'] as List<dynamic>? ?? const <dynamic>[])
+        ProteinSuggestion.fromJson(row! as Map<String, dynamic>),
+    ],
+    next: json['next'] as String?,
+  );
+
+  /// Each [SuggestionStatus.ready]. One still being built is left out until
+  /// it is done; one whose scoring was stopped is here, and says so.
+  final List<ProteinSuggestion> proteins;
+
+  /// What to pass back for the page after this one; null on the last.
+  final String? next;
+}
+
 /// What a gene's protein is now, as `/proteins/resolve` says it.
 ///
 /// Mirrors `ResolveResponse.state` in the backend's `app/schemas.py`.

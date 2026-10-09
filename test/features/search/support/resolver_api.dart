@@ -13,6 +13,7 @@ final class ResolverApi implements ApiClient {
     this.status,
     this.tracks,
     this.stop,
+    this.built,
   }) : suggest = suggest ?? _nothing;
 
   Future<Map<String, dynamic>> Function(String query) suggest;
@@ -20,6 +21,9 @@ final class ResolverApi implements ApiClient {
   Future<Map<String, dynamic>> Function(String gene)? status;
   Future<Map<String, dynamic>> Function(String slug)? tracks;
   Future<Map<String, dynamic>> Function(String gene)? stop;
+
+  /// `GET /proteins/built`, answered with the limit it was asked for.
+  Future<Map<String, dynamic>> Function(int limit)? built;
 
   /// `GET /proteins/suggest?q=ins`, `POST /proteins/resolve BRCA1`, ...
   final List<String> calls = <String>[];
@@ -45,6 +49,13 @@ final class ResolverApi implements ApiClient {
       return suggest(q);
     }
     calls.add('GET $path');
+    if (path == '/proteins/built') {
+      final Future<Map<String, dynamic>> Function(int limit)? answer = built;
+      if (answer == null) {
+        throw StateError('Nothing answers GET $path');
+      }
+      return answer(query?['limit'] as int? ?? 0);
+    }
     final List<String> parts = path.split('/');
     if (path.startsWith('/proteins/resolve/')) {
       return _answer(status, Uri.decodeComponent(parts.last), path);
