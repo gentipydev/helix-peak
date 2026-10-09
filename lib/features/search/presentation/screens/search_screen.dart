@@ -300,20 +300,11 @@ class _SearchViewState extends State<_SearchView> {
                       onSubmitted: (_) => _submitted(results),
                     ),
                     if (_shelves) ...<Widget>[
-                      const SizedBox(height: AppSpacing.md),
-                      SegmentedButton<_Shelf>(
+                      const SizedBox(height: AppSpacing.sm),
+                      _ShelfTabs(
                         key: const ValueKey<String>('search-shelves'),
-                        showSelectedIcon: false,
-                        segments: <ButtonSegment<_Shelf>>[
-                          for (final _Shelf shelf in _Shelf.values)
-                            ButtonSegment<_Shelf>(
-                              value: shelf,
-                              label: Text(shelf.label),
-                            ),
-                        ],
-                        selected: <_Shelf>{_shelf},
-                        onSelectionChanged: (Set<_Shelf> chosen) =>
-                            _choose(chosen.single),
+                        chosen: _shelf,
+                        onChoose: _choose,
                       ),
                     ],
                     const SizedBox(height: AppSpacing.lg),
@@ -567,6 +558,80 @@ enum _Shelf {
   const _Shelf(this.label);
 
   final String label;
+}
+
+/// The two tabs under the field: plain names, the chosen one bright over an
+/// accent line, as the walk's page bar marks the page on screen. Not the
+/// walk's `StageBar` itself, which a screen reader hears as stages of a walk.
+class _ShelfTabs extends StatelessWidget {
+  const _ShelfTabs({required this.chosen, required this.onChoose, super.key});
+
+  final _Shelf chosen;
+  final ValueChanged<_Shelf> onChoose;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colors = theme.colorScheme;
+    final Duration motion = MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : const Duration(milliseconds: 220);
+    return Row(
+      children: <Widget>[
+        for (final _Shelf shelf in _Shelf.values) ...<Widget>[
+          if (shelf != _Shelf.values.first) const SizedBox(width: AppSpacing.xl),
+          // Large text gives a name less room, never more than the row.
+          Flexible(
+            child: Semantics(
+              button: true,
+              selected: shelf == chosen,
+              inMutuallyExclusiveGroup: true,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: shelf == chosen ? null : () => onChoose(shelf),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 44),
+                  child: IntrinsicWidth(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        AnimatedDefaultTextStyle(
+                          duration: motion,
+                          style: theme.textTheme.titleSmall!.copyWith(
+                            color: shelf == chosen
+                                ? colors.onSurface
+                                : colors.onSurfaceVariant,
+                          ),
+                          child: Text(
+                            shelf.label,
+                            maxLines: 1,
+                            softWrap: false,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        AnimatedContainer(
+                          duration: motion,
+                          height: 2,
+                          decoration: BoxDecoration(
+                            color: colors.primary.withValues(
+                              alpha: shelf == chosen ? 1 : 0,
+                            ),
+                            borderRadius: BorderRadius.circular(1),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
 }
 
 /// One line on what a tab lists, where a header would only repeat the tab's

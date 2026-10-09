@@ -1140,4 +1140,17 @@ void main() {
     await _choose(tester, 'Curated');
     expect(find.text('List unavailable'), findsOneWidget);
   });
+
+  testWidgets('at twice the text size the tabs shorten their names, never overflow', (
+    WidgetTester tester,
+  ) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await _pump(tester, ResolverApi(built: _listing(<Map<String, dynamic>>[_ttr])));
+    expect(tester.takeException(), isNull);
+    expect(_shelf('Built on demand'), findsOneWidget);
+    await _choose(tester, 'Built on demand');
+    expect(tester.takeException(), isNull);
+    expect(find.text(_builtCaption), findsOneWidget);
+  });
 }
