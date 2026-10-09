@@ -12,7 +12,7 @@ import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_scre
 import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
 
 import '../../../support/test_catalog.dart';
-import '../../lab/replication/replication_fixtures.dart';
+import '../../zoom/record_fixtures.dart';
 import '../../zoom/zoom_fixtures.dart';
 import '../clinvar/gene_clinvar_test.dart' show snapshot;
 import '../clinvar/variant_evidence_test.dart'

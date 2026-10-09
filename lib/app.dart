@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'core/constants/app_constants.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
-import 'features/lab/lab_routes.dart';
 import 'features/replication/replication_routes.dart';
 import 'features/search/presentation/widgets/build_ready_listener.dart';
 import 'features/zoom/zoom_routes.dart';
@@ -34,9 +33,9 @@ class HelixPeekApp extends StatelessWidget {
 
 }
 
-/// The walk's routes with replication's and the zoom's spread in after them,
-/// and the lab's too when this build carries it. All are handed over here, at
-/// the root, so that core never names a feature for them.
+/// The walk's routes with replication's and the zoom's spread in after them.
+/// Both are handed over here, at the root, so that core never names a feature
+/// for them.
 final GoRouter _router = buildAppRouter(
-  extra: <RouteBase>[...replicationRoutes, ...zoomRoutes, ...labRoutes],
+  extra: <RouteBase>[...replicationRoutes, ...zoomRoutes],
 );

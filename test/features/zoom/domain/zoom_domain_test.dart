@@ -18,7 +18,7 @@ import 'package:helixpeek/features/zoom/domain/zoom_motion.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_path.dart';
 
 import '../../../support/test_catalog.dart';
-import '../../lab/replication/replication_fixtures.dart';
+import '../record_fixtures.dart';
 import '../zoom_fixtures.dart';
 
 /// The Human Protein Atlas's consensus tissues, version 25.1, as its search

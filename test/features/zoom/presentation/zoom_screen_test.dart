@@ -25,7 +25,7 @@ import 'package:helixpeek/features/zoom/presentation/zoom_screen.dart';
 
 import '../../../support/catalog_api.dart';
 import '../../../support/test_catalog.dart';
-import '../../lab/replication/replication_fixtures.dart';
+import '../record_fixtures.dart';
 import '../zoom_fixtures.dart';
 
 const Size _phone = Size(390, 844);

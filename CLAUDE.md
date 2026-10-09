@@ -108,7 +108,7 @@ Git: commit the session's own changes locally. Never push, in any form.
   with no words on the page (a screen reader hears each step's name), and
   swaps the untouched model in at the end, which changes no pixel: once the
   bridges close, the fold is the model float for float;
-  `folds` defaults to false, the finished fold, for the lab's screens. The
+  `folds` defaults to false, the finished fold. The
   scene holds the model with z negated, and so does the fold
   (`docs/folding-renderer.md`). Reduced motion, no ready track, or a model the
   fold cannot be bound to, opens on the model.
@@ -166,22 +166,27 @@ Git: commit the session's own changes locally. Never push, in any form.
   a protein whose `locus` track is ready, and never in a ClinVar landing:
   it opens the zoom over the walk (see "Zoom" below), which comes back to
   this page. A protein with no ready locus is drawn as it always was.
-- `lib/features/lab/`: new flows, built only with the lab flag on (see "The
-  lab" below). `home/` and `search/` hold the home screen and the search:
-  the curated list, and below it every reviewed human protein, which can be
-  built on demand (its own `ProteinSuggestionsCubit`; the builds are the
-  app's, see "How data arrives" 4). With nothing typed, two tabs sit under
-  the field: Curated, which it opens on, and Built on demand, every
+- `lib/features/home/` and `lib/features/search/`: the home screen and the
+  search: the curated list, and below it every reviewed human protein, which
+  can be built on demand (its own `ProteinSuggestionsCubit`; the builds are
+  the app's, see "How data arrives" 4). With nothing typed, two tabs sit
+  under the field: Curated, which it opens on, and Built on demand, every
   install's builds (`BuiltProteinsCubit`); typing hides them, and a search
-  covers everything whichever was chosen. Search is not the walk; it reaches the
-  walk only by opening `/gene/<slug>`. `replication/` holds the replication
-  tour and `zoom/` the zoom, both in every build (see "Replication" and
-  "Zoom" below).
+  covers everything whichever was chosen. Search is not the walk; it reaches
+  the walk only by opening `/gene/<slug>`.
+- `lib/features/replication/` and `lib/features/zoom/`: the replication tour
+  and the zoom (see "Replication" and "Zoom" below).
 
-`test/architecture_test.dart` holds that layering to the import lines: `lab/`
-never imports the walk's screens or cubit, `core/` and `shared/` import no
-feature, and no feature imports another's `presentation/` (domain entities are
-the crossing point). The imports that already broke it are listed in its
+There was a lab (`lib/features/lab/`, behind `LAB_ENABLED`) where flows were
+tried before they earned a place; replication, the zoom, the fold animation
+and the walk's ribosome came out of it. It was deleted on 2026-10-09 with
+every flow still in it. Links from then (`/lab/replication`, `/lab/zoom`)
+still redirect; `/lab` itself is not a page.
+
+`test/architecture_test.dart` holds that layering to the import lines:
+`core/` and `shared/` import no feature, and no feature imports another's
+`presentation/` (domain entities are the crossing point), so no feature reuses
+the walk's screens or its cubit. The imports that already broke it are listed in its
 `knownBreaches`. The list may only shrink: close an entry by moving code,
 never by adding one.
 
@@ -233,9 +238,9 @@ gets a locus. The walk opens it by route (`RoutePaths.zoomFor(target,
 overWalk: true)`, `?over=walk`), never by import. At the DNA, "Walk ›" unzips
 the helix and goes back to the gene page it left; opened any other way, with
 no walk under it, it opens the walk at `/gene/<slug>`. `ZoomRoute` resolves
-its slug with a loader of its own, a copy of the lab's `LabTargetLoader`: one
-shared loader would have to read `ProteinCatalogRepository` from core or
-shared, which the layering test forbids.
+its slug with a loader of its own: a shared loader would have to read
+`ProteinCatalogRepository` from core or shared, which the layering test
+forbids.
 
 The dive is nine stops on one depth (`ZoomDepth`): body, organ, tissue,
 cell, nucleus, chromosome, band, gene, DNA. A pinch, a flick, the depth rail (the walk's
@@ -265,86 +270,6 @@ the gene: the About sheet says the gene is too small to see there, and
 what is data and what is drawn; each stop's card tags its source. Colours
 are `ScaleColors` (`core/theme/scale_colors.dart`), added for the zoom
 alone. `docs/design/zoom.md` has the design and its checks.
-
-## The lab (`LAB_ENABLED`)
-
-Everything under `lib/features/lab/` sits behind one build-time switch:
-`LAB_ENABLED=true` in `.env`, read as `Env.labEnabled`. The file is bundled
-when the app is built, so a build without the line ships none of the lab: no
-`/lab` route and no Lab row on the home screen. Off is the default, and
-`.env.example` says so. A lab flow merges early behind the flag instead of
-rotting on a branch, which is what keeps the shared layer from diverging.
-
-- `lib/app.dart` hands `replicationRoutes`, `zoomRoutes` and `labRoutes` to
-  `buildAppRouter(extra: ...)`, so core names no file of any. With the flag
-  off `labRoutes` is empty; `appRouter` itself is the walk's routes alone.
-- One `ShellRoute` holds every lab route under `LabScope`
-  (`lab_scope.dart`), which gives the lab its own `TrackClient` (folder
-  `lab/tracks`, 100 MB budget) so exploring can never evict a walk track.
-  Below it, `TrackSource` and `FetchGene` read through that client, and the
-  lab wears `AppTheme.analysis`. The walk's routes are not below it.
-- The index at `/lab` lists `labFeatures` in `lab_routes.dart`, one entry per
-  flow as it arrives.
-- `ar/` embeds `StructureView` and, on Android, opens Scene Viewer on the
-  `structure_ar` track's `.glb`: the fold at 1 Å to 1 cm, its size read from
-  the row's provenance (`pipeline/structure_ar` in the backend). iOS says
-  room view is Android only until its AR Quick Look half is built on a Mac.
-- `trafficking/` derives a protein's route through the cell
-  (`TraffickingRoute`) from its constraint track's region table and, where
-  the `trafficking` track is ready, UniProt's transmembrane spans
-  (`pipeline/trafficking` in the backend). Without them the route stops at
-  unknown and the screen says why. One `CustomPainter` cell draws every
-  protein on the shared transport bar, with captions built from the regions
-  and events. No Rive asset exists, so there is no Rive dependency. The route
-  is inferred and the screen says so. Nothing names a tissue, and nothing
-  reaches the nucleus yet.
-- `oxygen/` is a story of its own subject, `/lab/oxygen`: the hemoglobin
-  tetramer, an assembly the backend keeps outside the catalog
-  (`/assembly/{slug}/tracks`, `pipeline/assemblies`), tense and relaxed in
-  one frame. The MWC model (`domain/mwc.dart`, tested before any widget:
-  sigmoid for four sites, a hyperbola for one) drives it: each oxygen binds,
-  and the molecule settles to the R share MWC gives that many bound. The
-  curve draws itself with its point marked; a Hill curve is only a fitted,
-  labelled reference. pH (through L, the Bohr effect), fetal hemoglobin (a
-  lower L) and the one-site contrast (myoglobin's own structure track) each
-  change the model, curve and animation together.
-- `listen/` plays a protein as sound over the walk's own grid. The protein is
-  the `audio` track (`pipeline/audio` in the backend): an `.m4a`, one note a
-  residue (pitch hydropathy, timbre the fold's secondary structure, loudness
-  conservation, a tick at a residue with a ClinVar record), whose timing map
-  rides in a `uuid` box after the audio (`AudioTrack.mapOf`); the file's edit
-  list skips the AAC priming, so position zero is the first note. DNA mode is
-  made on the phone from the record (`DnaScore`, `DnaVoice`): a three-note
-  chord a codon (A plays A, C C, G G, T E; first base lowest) and a 5 ms
-  grain an intron base, from start codon to stop, over the gene page; spliced,
-  the codons alone over the transcript page, reached by the walk's own
-  splicing. The playhead is the walk's tracer ring (`LabAnatomyView.tracer`),
-  moved only by the position the player reports (`ListenPlayer.positions`,
-  `noteAt`): nothing in Listen keeps time. Playback is just_audio behind
-  `ListenPlayer`; tests use a fake that reports positions by hand. The mapping
-  is announced (`SemanticsService.sendAnnouncement`), the piece is described
-  in words, a paused note is a live region, and the about sheet
-  (`ListenAbout`, on `SourcesNote`) says the mapping is arbitrary, channel by
-  channel. Without a ready `audio` row the protein is off and the gene plays.
-- `challenges/` is the daily puzzle at `/lab/challenges`, whose subject is
-  the day. `PuzzleGenerator` makes four rounds on the phone from the date and
-  the catalog, never the backend: each round draws from its own `SeededDraw`
-  (seeded with the day and the round's name, the catalog sorted by slug), so
-  every phone makes the same puzzle, and one day's is pinned in a test. Whose
-  fold is this (the shared `StructureView`); which residue differs (two
-  stretches in the walk's residue colours, the change a held ClinVar missense
-  record quoted inside `ClinVarSourced`, or one made for the puzzle and said
-  to be); put a walk in order; eight codons against a 45 s clock, twice that
-  with a screen reader on. A round picks its protein by the date first and
-  only then asks what the lab's cache holds of it (`TrackClient.held`, which
-  reads the cache alone); where the fold or the sequence is not held, the same
-  protein is asked about from its catalog row (`IdentifyRound`). No text says
-  a variant causes anything. Days and streaks stay on the phone
-  (`lab/challenges/days.json`), a day is played once, and the share card is
-  a square a round and a square a codon with `helixpeek://open/lab/challenges`,
-  recorded on a canvas, encoded as PNG and shared through `systemShareSheet`.
-- Tests switch it on with `dotenv.loadFromString(envString: 'LAB_ENABLED=true')`
-  and off with `dotenv.clean()`.
 
 ## State
 

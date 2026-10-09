@@ -6,7 +6,7 @@ import '../../core/theme/app_theme.dart';
 import 'presentation/replication_screen.dart';
 
 /// Replication's routes, in every build: it left the lab for the home screen.
-/// `lib/app.dart` spreads these into the app's router, as it does the lab's.
+/// `lib/app.dart` spreads these into the app's router, as it does the zoom's.
 List<RouteBase> get replicationRoutes => <RouteBase>[
   GoRoute(
     path: RoutePaths.replication,

@@ -4,7 +4,7 @@ import Flutter
 import UIKit
 
 /// Encodes a clip to MP4, one frame per call, for `VideoEncoder` in
-/// `lib/features/lab/share/video_encoder.dart`.
+/// `lib/shared/share/video_encoder.dart`.
 ///
 /// The iOS half of `VideoEncoderChannel.kt`, with the same calls on the same
 /// channel. The recipe is the one `docs/video-encoding-spike.md` asked an iOS

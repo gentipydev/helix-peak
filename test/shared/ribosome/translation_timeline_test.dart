@@ -6,8 +6,6 @@ import 'package:helixpeek/core/biology/gene_record.dart';
 import 'package:helixpeek/core/biology/genetic_code.dart';
 import 'package:helixpeek/core/biology/nmd.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
-import 'package:helixpeek/features/lab/mutate/domain/apply_edit.dart';
-import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
 import 'package:helixpeek/shared/format.dart';
 import 'package:helixpeek/shared/motion/animation_timeline.dart';
 import 'package:helixpeek/shared/ribosome/translation_timeline.dart';
@@ -105,39 +103,8 @@ void main() {
       expect(ins.stateAt(second).phase, TranslationPhase.translocation);
     });
 
-    test('puts the last decay codon at 44, where the edit engine does', () {
+    test('puts the last decay codon at 44', () {
       expect(ins.nmdThresholdCodon, 44);
-      final AnatomyStage mrna = AnatomyModel.derive(insulin).stages
-          .firstWhere((AnatomyStage s) => s.kind == StageKind.mrna);
-      // Every codon one substitution can turn into a stop: the engine calls
-      // that stop degraded exactly when the timeline's threshold says so.
-      int checked = 0;
-      for (int codon = 2; codon <= ins.protein.length; codon++) {
-        final int first = ins.cdsStart + 3 * (codon - 1);
-        for (int i = 0; i < 3; i++) {
-          for (final String base in <String>['A', 'C', 'G', 'T']) {
-            final String edited =
-                ins.mrna.substring(first, first + i) +
-                base +
-                ins.mrna.substring(first + i + 1, first + 3);
-            if (base == ins.mrna[first + i] ||
-                GeneticCode.translate(edited) != '*') {
-              continue;
-            }
-            final EditOutcomeKind kind = classify(
-              insulin,
-              Substitution(mrna.positions[first + i], base),
-            ).kind;
-            expect(
-              kind == EditOutcomeKind.mrnaDegraded,
-              codon <= ins.nmdThresholdCodon!,
-              reason: 'a stop at codon $codon',
-            );
-            checked++;
-          }
-        }
-      }
-      expect(checked, greaterThan(10));
     });
   });
 

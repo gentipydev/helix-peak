@@ -5,15 +5,14 @@ import 'package:flutter_test/flutter_test.dart';
 /// The layering of `lib/`, read off its import lines, so that the boundary
 /// cannot erode one convenient import at a time.
 ///
-/// Three rules:
+/// Two rules:
 ///
-/// 1. Nothing under `lib/features/lab/` imports the walk's screens or its
-///    cubit. A new feature owns its own screen and its own state.
-/// 2. Nothing under `lib/shared/` or `lib/core/` imports anything under
+/// 1. Nothing under `lib/shared/` or `lib/core/` imports anything under
 ///    `lib/features/`. The layers below the features know none of them.
-/// 3. No feature imports another feature's `presentation/`. What one feature
+/// 2. No feature imports another feature's `presentation/`. What one feature
 ///    may take from another is its domain entities, [crossingPoint]: data, not
-///    widgets.
+///    widgets. So no feature reuses the walk's screens or its cubit: each owns
+///    its own screen and its own state.
 ///
 /// The imports that broke a rule when this test was written are listed, rule
 /// by rule, in [knownBreaches]. The list is a debt, not a licence: an import
@@ -27,7 +26,6 @@ const String crossingPoint = 'domain/entities/';
 /// Every rule's breaches as they stood on 2026-09-26, each as
 /// `importing file -> imported file`.
 const Map<String, Set<String>> knownBreaches = <String, Set<String>>{
-  'lab': <String>{},
   'layers': <String>{
     // The composition root: dependency injection wires the walk's data layer.
     'lib/core/di/dependencies.dart -> lib/features/gene_lookup/data/datasources/gene_remote_data_source.dart',
@@ -111,18 +109,12 @@ String? _resolve(Uri base, String uri) {
 String? _feature(String path) =>
     RegExp(r'^lib/features/([^/]+)/').firstMatch(path)?.group(1);
 
-/// Rule 1: a new flow does not reuse the walk's screen or its state.
-bool breaksLab(Import i) =>
-    i.from.startsWith('lib/features/lab/') &&
-    (i.to.startsWith('lib/features/gene_lookup/presentation/screens/') ||
-        i.to.startsWith('lib/features/gene_lookup/presentation/cubit/'));
-
-/// Rule 2: the shared layer and core know no feature.
+/// Rule 1: the shared layer and core know no feature.
 bool breaksLayers(Import i) =>
     (i.from.startsWith('lib/shared/') || i.from.startsWith('lib/core/')) &&
     i.to.startsWith('lib/features/');
 
-/// Rule 3: one feature never imports another's presentation. Anything under
+/// Rule 2: one feature never imports another's presentation. Anything under
 /// its [crossingPoint] is what crossing is for.
 bool breaksFeatures(Import i) {
   final String? from = _feature(i.from);
@@ -183,21 +175,19 @@ void main() {
   });
 
   test('the rules catch the imports they name', () {
-    // Nothing is under lib/features/lab/ yet, so rule 1 has nothing to catch
-    // today; these prove it will.
     Import edge(String from, String to) =>
         importsOf(from, "import '$to';").single;
-    const String lab = 'lib/features/lab/mutate/mutate_screen.dart';
+    const String zoom = 'lib/features/zoom/presentation/zoom_screen.dart';
     expect(
-      breaksLab(
-        edge(lab, '../../gene_lookup/presentation/screens/gene_screen.dart'),
+      breaksFeatures(
+        edge(zoom, '../../gene_lookup/presentation/screens/gene_screen.dart'),
       ),
       isTrue,
     );
     expect(
-      breaksLab(
+      breaksFeatures(
         edge(
-          lab,
+          zoom,
           'package:helixpeek/features/gene_lookup/presentation/cubit/gene_lookup_cubit.dart',
         ),
       ),
@@ -205,13 +195,13 @@ void main() {
     );
     expect(
       breaksFeatures(
-        edge(lab, '../../gene_lookup/presentation/anatomy/anatomy_canvas.dart'),
+        edge(zoom, '../../gene_lookup/presentation/anatomy/anatomy_canvas.dart'),
       ),
       isTrue,
     );
     expect(
       breaksFeatures(
-        edge(lab, '../../gene_lookup/domain/entities/gene_record.dart'),
+        edge(zoom, '../../gene_lookup/domain/entities/gene_record.dart'),
       ),
       isFalse,
       reason: 'domain entities are the crossing point',
@@ -227,16 +217,6 @@ void main() {
     );
   });
 
-  test('no lab flow imports the walk’s screens or its cubit', () {
-    expectRule(
-      imports,
-      'lab',
-      breaksLab,
-      'A file under lib/features/lab/ imports lib/features/gene_lookup/'
-      'presentation/screens/ or the gene_lookup cubit. A new feature owns its '
-      'own screen and its own state.',
-    );
-  });
 
   test('nothing in shared or core imports a feature', () {
     expectRule(

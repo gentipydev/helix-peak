@@ -5,7 +5,7 @@ import 'package:helixpeek/core/biology/gene_record.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
 
-import '../../../support/test_catalog.dart';
+import '../../support/test_catalog.dart';
 
 /// Parsed once per test file: the tests walk every record several times.
 final Map<String, GeneRecord> _records = <String, GeneRecord>{};

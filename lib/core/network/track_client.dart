@@ -67,9 +67,9 @@ final class TrackClient implements TrackSource {
   /// Where under the application cache directory the payloads go, when no
   /// cache directory is given. The rows go beside it, in `track_rows/`.
   ///
-  /// The walk's client keeps `tracks`. A second client named something else,
-  /// such as the lab's `lab/tracks`, has its own files, its own rows and its
-  /// own [budget], so nothing it reads can evict a track the walk holds.
+  /// The walk's client keeps `tracks`. A second client named something else
+  /// has its own files, its own rows and its own [budget], so nothing it reads
+  /// can evict a track the walk holds.
   final String folder;
 
   final Map<String, Future<Map<TrackKind, TrackRef>>> _rows =

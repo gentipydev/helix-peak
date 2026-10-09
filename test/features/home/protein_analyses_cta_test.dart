@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/features/home/presentation/screens/home_screen.dart';
 import 'package:helixpeek/features/home/presentation/widgets/protein_analyses_cta.dart';
 
 void main() {
-  tearDown(dotenv.clean);
-
   testWidgets('with no label, the row says what the walk’s entry always said', (
     WidgetTester tester,
   ) async {
@@ -27,40 +24,29 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ProteinAnalysesCta(label: 'Lab', onPressed: () => pressed++),
+          body: ProteinAnalysesCta(
+            label: 'DNA Replication',
+            onPressed: () => pressed++,
+          ),
         ),
       ),
     );
-    expect(find.text('Lab'), findsOneWidget);
+    expect(find.text('DNA Replication'), findsOneWidget);
     expect(find.text('Protein Analyses'), findsNothing);
-    await tester.tap(find.text('Lab'));
+    await tester.tap(find.text('DNA Replication'));
     expect(pressed, 1);
   });
 
-  testWidgets('home offers the walk and replication in a build without the lab', (
+  testWidgets('home offers the walk, then replication, and nothing else', (
     WidgetTester tester,
   ) async {
-    dotenv.clean();
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
     await tester.pump();
     expect(find.byType(ProteinAnalysesCta), findsNWidgets(2));
-    expect(find.text('Protein Analyses'), findsOneWidget);
-    expect(find.text('DNA Replication'), findsOneWidget);
+    expect(
+      tester.getCenter(find.text('Protein Analyses')).dy,
+      lessThan(tester.getCenter(find.text('DNA Replication')).dy),
+    );
     expect(find.text('Lab'), findsNothing);
-  });
-
-  testWidgets('home offers the lab below them in a build that carries it', (
-    WidgetTester tester,
-  ) async {
-    dotenv.loadFromString(envString: 'LAB_ENABLED=true');
-    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
-    await tester.pump();
-    expect(find.byType(ProteinAnalysesCta), findsNWidgets(3));
-    final List<double> rows = <double>[
-      for (final String label in <String>['Protein Analyses', 'DNA Replication', 'Lab'])
-        tester.getCenter(find.text(label)).dy,
-    ];
-    expect(rows[0], lessThan(rows[1]));
-    expect(rows[1], lessThan(rows[2]));
   });
 }

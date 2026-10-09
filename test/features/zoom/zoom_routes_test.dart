@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
@@ -17,8 +16,6 @@ import 'package:helixpeek/features/gene_lookup/data/repositories/gene_repository
 import 'package:helixpeek/features/gene_lookup/data/repositories/protein_catalog_repository.dart';
 import 'package:helixpeek/features/gene_lookup/domain/usecases/fetch_gene.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
-import 'package:helixpeek/features/lab/lab_routes.dart';
-import 'package:helixpeek/features/lab/presentation/lab_index_screen.dart';
 import 'package:helixpeek/features/search/presentation/screens/search_screen.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_screen.dart';
 import 'package:helixpeek/features/zoom/zoom_routes.dart';
@@ -70,12 +67,11 @@ final class _HeldTracks implements TrackSource {
   }
 }
 
-/// The app's routes with the zoom's, and the lab's where [lab] says so, over
-/// a catalog that has a locus for every protein.
+/// The app's routes with the zoom's, over a catalog that has a locus for
+/// every protein.
 Future<(GoRouter, _HeldTracks)> _host(
   WidgetTester tester,
   String path, {
-  bool lab = false,
   Map<String, dynamic> Function() served = _locatedCatalog,
 }) async {
   await tester.binding.setSurfaceSize(const Size(390, 844));
@@ -86,7 +82,7 @@ Future<(GoRouter, _HeldTracks)> _host(
   await catalog.refresh();
   final _HeldTracks tracks = _HeldTracks();
   final GoRouter router = buildAppRouter(
-    extra: <RouteBase>[...zoomRoutes, if (lab) ...buildLabRoutes()],
+    extra: <RouteBase>[...zoomRoutes],
   );
   addTearDown(router.dispose);
   await tester.pumpWidget(
@@ -119,14 +115,10 @@ Future<(GoRouter, _HeldTracks)> _host(
 String _location(GoRouter router) => router.state.uri.toString();
 
 void main() {
-  tearDown(dotenv.clean);
-
-  testWidgets('/zoom/<slug> opens the zoom in a build without the lab, in '
-      'the walk’s theme and through the app’s tracks', (
+  testWidgets('/zoom/<slug> opens the zoom, in the walk’s theme and through '
+      'the app’s tracks', (
     WidgetTester tester,
   ) async {
-    dotenv.clean();
-    expect(labRoutes, isEmpty);
     final (GoRouter _, _HeldTracks tracks) = await _host(
       tester,
       '/zoom/insulin',
@@ -181,38 +173,30 @@ void main() {
     expect(tracks.reads, 0);
   });
 
-  for (final bool lab in <bool>[false, true]) {
-    final String build = lab ? 'with the lab' : 'without the lab';
+  testWidgets('a link from when it was a lab flow opens it where it is now', (
+    WidgetTester tester,
+  ) async {
+    final (GoRouter router, _HeldTracks _) = await _host(
+      tester,
+      '/lab/zoom/hemoglobin',
+    );
+    expect(_location(router), '/zoom/hemoglobin');
+    expect(find.byType(ZoomScreen), findsOneWidget);
+    expect(
+      find.text(ZoomScreen.titleOf(TestCatalog.hemoglobin)),
+      findsOneWidget,
+    );
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 
-    testWidgets('a link from when it was a lab flow opens it where it is '
-        'now, $build', (WidgetTester tester) async {
-      final (GoRouter router, _HeldTracks _) = await _host(
-        tester,
-        '/lab/zoom/hemoglobin',
-        lab: lab,
-      );
-      expect(_location(router), '/zoom/hemoglobin');
-      expect(find.byType(ZoomScreen), findsOneWidget);
-      expect(
-        find.text(ZoomScreen.titleOf(TestCatalog.hemoglobin)),
-        findsOneWidget,
-      );
-      await tester.pumpWidget(const SizedBox.shrink());
-    });
-
-    testWidgets('the lab’s old picker is the protein list, $build', (
-      WidgetTester tester,
-    ) async {
-      final (GoRouter router, _HeldTracks _) = await _host(
-        tester,
-        '/lab/zoom',
-        lab: lab,
-      );
-      expect(_location(router), RoutePaths.search);
-      expect(find.byType(SearchScreen), findsOneWidget);
-      await tester.pumpWidget(const SizedBox.shrink());
-    });
-  }
+  testWidgets('the lab’s old picker is the protein list', (
+    WidgetTester tester,
+  ) async {
+    final (GoRouter router, _HeldTracks _) = await _host(tester, '/lab/zoom');
+    expect(_location(router), RoutePaths.search);
+    expect(find.byType(SearchScreen), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 
   testWidgets('the whole trip, under the app’s own routes: the walk’s gene '
       'page opens the zoom, and "Walk ›" at the DNA comes back to that walk', (
@@ -253,13 +237,6 @@ void main() {
     expect(_location(router), '/gene/insulin');
     expect(router.canPop(), isFalse);
     await tester.pumpWidget(const SizedBox.shrink());
-  });
-
-  test('the lab no longer lists it', () {
-    for (final LabFeature feature in labFeatures) {
-      expect(feature.title, isNot('Zoom'));
-      expect(feature.path, isNot(startsWith('${RoutePaths.lab}/zoom')));
-    }
   });
 
   test('its path is its own, outside the lab', () {

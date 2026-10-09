@@ -3,8 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:helixpeek/core/router/app_router.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
-import 'package:helixpeek/features/lab/lab_routes.dart';
-import 'package:helixpeek/features/lab/presentation/lab_protein_picker.dart';
 import 'package:helixpeek/features/replication/domain/replication_tour.dart';
 import 'package:helixpeek/features/replication/presentation/replication_scene.dart';
 import 'package:helixpeek/features/replication/presentation/replication_screen.dart';
@@ -53,7 +51,6 @@ void main() {
     await host(tester);
     expect(find.text('Replication'), findsOneWidget);
     expect(find.text('Human DNA · 200 bp'), findsOneWidget);
-    expect(find.byType(LabProteinPicker), findsNothing);
     expect(controllerOf(tester).isPlaying, isTrue);
     await tester.pump(const Duration(seconds: 3));
     expect(
@@ -70,7 +67,7 @@ void main() {
     WidgetTester tester,
   ) async {
     final GoRouter router = buildAppRouter(
-      extra: <RouteBase>[...replicationRoutes, ...buildLabRoutes()],
+      extra: <RouteBase>[...replicationRoutes],
     );
     addTearDown(router.dispose);
     await tester.pumpWidget(MaterialApp.router(routerConfig: router));

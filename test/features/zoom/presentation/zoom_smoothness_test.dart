@@ -15,7 +15,7 @@ import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_painter.dart';
 
 import '../../../support/test_catalog.dart';
-import '../../lab/replication/replication_fixtures.dart';
+import '../record_fixtures.dart';
 import '../zoom_fixtures.dart';
 
 /// The zoom's canvas on a phone, under the app bar and above the card.

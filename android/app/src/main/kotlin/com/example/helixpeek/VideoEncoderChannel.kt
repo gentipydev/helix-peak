@@ -17,7 +17,7 @@ import java.nio.ByteBuffer
 
 /**
  * Encodes a clip to MP4, one frame per call, for `VideoEncoder` in
- * `lib/features/lab/share/video_encoder.dart`.
+ * `lib/shared/share/video_encoder.dart`.
  *
  * The recipe is the one `docs/video-encoding-spike.md` measured on a Galaxy
  * S21 Ultra: MediaCodec (H.264) fed through its flexible YUV input images,

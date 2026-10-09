@@ -24,12 +24,13 @@ abstract final class RoutePaths {
   static const String search = '/search';
   static const String gene = '/gene';
 
-  /// The lab's index. Its routes are built only when `Env.labEnabled` is on,
-  /// and are handed to [buildAppRouter] by the app rather than named here.
+  /// Where the lab was. Nothing is there now: only links saved while
+  /// replication and the zoom were lab flows still use it, and those routes
+  /// redirect to where each is now.
   static const String lab = '/lab';
 
-  /// The replication tour, in every build. Like the lab's, its routes are
-  /// handed to [buildAppRouter] by the app.
+  /// The replication tour, in every build. Its routes are handed to
+  /// [buildAppRouter] by the app.
   static const String replication = '/replication';
 
   /// The zoom from a body down to one protein's DNA, in every build. Like
@@ -160,9 +161,10 @@ class _WalkLoaderState extends State<_WalkLoader> {
 
 /// The app's routes, with [extra] spread in after the walk's own.
 ///
-/// [extra] is how the lab's routes arrive: `lib/app.dart` hands them over, so
-/// that core names no feature it did not already name (the architecture
-/// test's `layers` rule). Empty, this is [appRouter] exactly.
+/// [extra] is how replication's and the zoom's routes arrive: `lib/app.dart`
+/// hands them over, so that core names no feature it did not already name
+/// (the architecture test's `layers` rule). Empty, this is [appRouter]
+/// exactly.
 GoRouter buildAppRouter({List<RouteBase> extra = const <RouteBase>[]}) =>
     GoRouter(
       initialLocation: RoutePaths.home,

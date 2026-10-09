@@ -21,7 +21,7 @@ import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_screen.dart';
 
 import 'features/gene_lookup/anatomy/anatomy_fixture.dart';
-import 'features/lab/replication/replication_fixtures.dart';
+import 'features/zoom/record_fixtures.dart';
 import 'features/zoom/zoom_fixtures.dart';
 import 'support/test_catalog.dart';
 
