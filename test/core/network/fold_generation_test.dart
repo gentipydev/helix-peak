@@ -1,5 +1,6 @@
 // A protein built on demand whose fold is published again while the app runs:
 // each walk reads one generation of it, whole, and the next walk the new one.
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -16,90 +17,15 @@ import 'package:helixpeek/core/network/track_source.dart';
 import 'package:helixpeek/core/router/app_router.dart';
 import 'package:helixpeek/features/gene_lookup/data/repositories/protein_catalog_repository.dart';
 
-/// Transthyretin as it was built (AlphaFold DB's model, drawn still) and as
-/// a backfill publishes it (PDB 8C86, with its fold): each its row and its
-/// track rows.
-abstract final class _Fold {
-  static Map<String, dynamic> row(String generation) => <String, dynamic>{
-    'slug': 'ttr',
-    'display': 'Transthyretin',
-    'gene': 'TTR',
-    'uniprot': 'P02766',
-    'accession': 'NG_009490.1',
-    'summary': 'Built on demand.',
-    'facts': <String, int>{'residues': 147, 'exons': 4, 'chains': 1, 'bridges': 0},
-    'catalog_order': null,
-    'chain': null,
-    'chains': generation == 'pdb'
-        ? <Map<String, String>>[<String, String>{'node': 'chainA', 'tint': 'mature1'}]
-        : <Map<String, String>>[
-            <String, String>{'node': 'plddtVeryHigh', 'tint': 'plddtVeryHigh'},
-            <String, String>{'node': 'plddtLow', 'tint': 'plddtLow'},
-          ],
-    'structure': <String, dynamic>{
-      'pdb': generation == 'pdb' ? '8C86' : 'AF-P02766-F1',
-      'modelled': null,
-      'label': generation == 'pdb' ? 'the subunit' : 'the predicted fold',
-      'count': 127,
-      'unit': 'residues',
-      'sentence': 'A sentence.',
-      'semantics': 'Its semantics.',
-    },
-    'regions': <Map<String, dynamic>>[
-      <String, dynamic>{'label': 'Signal peptide', 'short': 'S', 'start': 1, 'end': 20,
-                        'origin': 1, 'kept': false},
-      <String, dynamic>{'label': 'Transthyretin', 'short': 'T', 'start': 21, 'end': 147,
-                        'origin': 21, 'kept': true},
-    ],
-    'tracks': <String, String>{
-      'record': 'ready',
-      'structure': 'ready',
-      'folding': generation == 'pdb' ? 'ready' : 'absent',
-    },
-  };
+import '../../support/built_fold.dart';
 
-  static Map<String, dynamic> tracks(String generation, {String? framedIn}) {
-    final bool pdb = generation == 'pdb';
-    final String glb = pdb ? 'b' * 64 : 'a' * 64;
-    final String scene = pdb ? '2' * 64 : '1' * 64;
-    return <String, dynamic>{
-      'record': _ref('record/ttr.0123456789ab.json', '0' * 64),
-      'structure': <String, dynamic>{
-        ..._ref('structure/ttr.${scene.substring(0, 12)}.fsceneb', scene),
-        'format': 'fsceneb',
-        'provenance': <String, dynamic>{
-          'pdb': pdb ? '8C86' : 'AF-P02766-F1',
-          'nodes': pdb ? <String>['chainA'] : <String>['plddtVeryHigh', 'plddtLow'],
-          'glb': <String, dynamic>{'path': 'structure/ttr.glb', 'sha256': glb},
-        },
-      },
-      'folding': pdb
-          ? <String, dynamic>{
-              ..._ref('folding/ttr.${'3' * 12}.json', '3' * 64),
-              'provenance': <String, dynamic>{
-                'frame': <String, dynamic>{'glb_sha256': framedIn ?? glb},
-              },
-            }
-          : <String, dynamic>{'state': 'absent', 'provenance': <String, dynamic>{}},
-    };
-  }
-
-  static Map<String, dynamic> _ref(String path, String sha256) => <String, dynamic>{
-    'state': 'ready',
-    'reason': null,
-    'url': 'https://cdn.example/$path',
-    'format': 'json',
-    'bytes': 4,
-    'sha256': sha256,
-    'content_encoding': null,
-    'provenance': <String, dynamic>{},
-  };
-}
-
-/// The service, as answers queued a path at a time: the last one stays.
+/// The service, as answers queued a path at a time: the last one stays. With
+/// [hold] set, a call waits for it before it is answered, as a service that
+/// is asleep keeps a caller waiting.
 class _Api implements ApiClient {
   final Map<String, List<Object>> answers = <String, List<Object>>{};
   final List<String> asked = <String>[];
+  Completer<void>? hold;
 
   void answer(String path, Object body) => answers[path] = <Object>[body];
   void then(String path, Object body) => answers[path]!.add(body);
@@ -107,6 +33,10 @@ class _Api implements ApiClient {
   @override
   Future<Map<String, dynamic>> getJson(String path, {Map<String, dynamic>? query}) async {
     asked.add(path);
+    final Completer<void>? waits = hold;
+    if (waits != null) {
+      await waits.future;
+    }
     final List<Object>? queued = answers[path];
     if (queued == null) {
       throw const ServerApiException(statusCode: 404, detail: 'No such path');
@@ -137,6 +67,18 @@ class _Storage implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
+/// A patience no answer here outlasts, and one every held answer does.
+const Duration _long = Duration(minutes: 1);
+const Duration _short = Duration(milliseconds: 20);
+
+/// Waits until [met], for as long as two seconds.
+Future<void> _until(Future<bool> Function() met) async {
+  for (int turn = 0; turn < 400 && !await met(); turn++) {
+    await Future<void>.delayed(const Duration(milliseconds: 5));
+  }
+  expect(await met(), isTrue);
+}
+
 void main() {
   late Directory cache;
   late _Api api;
@@ -156,10 +98,10 @@ void main() {
   });
 
   ProteinTarget target(String generation) =>
-      ProteinTarget.fromJson(_Fold.row(generation));
+      ProteinTarget.fromJson(BuiltFold.row(generation));
 
   Map<TrackKind, TrackRef> rows(String generation, {String? framedIn}) =>
-      tracksFromJson(_Fold.tracks(generation, framedIn: framedIn));
+      tracksFromJson(BuiltFold.tracks(generation, framedIn: framedIn));
 
   group('a row and its track rows', () {
     test('are one fold where the model and its fold agree with the row', () {
@@ -178,7 +120,7 @@ void main() {
     });
 
     test('have nothing to disagree about where there is no model yet', () {
-      final Map<String, dynamic> pending = _Fold.tracks('alphafold')
+      final Map<String, dynamic> pending = BuiltFold.tracks('alphafold')
         ..['structure'] = <String, dynamic>{'state': 'pending'};
       expect(foldCoherence(target('alphafold'), tracksFromJson(pending)), FoldCoherence.whole);
     });
@@ -186,18 +128,17 @@ void main() {
 
   group('a walk of a protein built on demand', () {
     test('reads one generation of its fold, and the next walk the one published since', () async {
-      api.answer('/protein/ttr', _Fold.row('alphafold'));
-      api.answer('/protein/ttr/tracks', _Fold.tracks('alphafold'));
-      final (ProteinTarget first, TrackSource? firstSource) = await pinWalk(
-        catalog, client, await catalog.protein('ttr', fresh: true));
+      api.answer('/protein/ttr', BuiltFold.row('alphafold'));
+      api.answer('/protein/ttr/tracks', BuiltFold.tracks('alphafold'));
+      final (ProteinTarget first, TrackSource? firstSource) = await pinWalk(catalog, client, 'ttr');
       expect(first.structure!.pdb, 'AF-P02766-F1');
       final PinnedTrackSource before = firstSource! as PinnedTrackSource;
 
       // A backfill publishes the experimental fold.
-      api.answer('/protein/ttr', _Fold.row('pdb'));
-      api.answer('/protein/ttr/tracks', _Fold.tracks('pdb'));
+      api.answer('/protein/ttr', BuiltFold.row('pdb'));
+      api.answer('/protein/ttr/tracks', BuiltFold.tracks('pdb'));
       final (ProteinTarget second, TrackSource? secondSource) = await pinWalk(
-        catalog, client, await catalog.protein('ttr', fresh: true));
+        catalog, client, 'ttr', patience: _long);
       expect(second.structure!.pdb, '8C86');
       expect(catalog.bySlug('ttr')!.structure!.pdb, '8C86');
       final PinnedTrackSource after = secondSource! as PinnedTrackSource;
@@ -218,23 +159,21 @@ void main() {
     });
 
     test('reads its row and its rows once more where a publication parted them', () async {
-      // The row read before the backfill landed; the track rows after it.
-      api.answer('/protein/ttr', _Fold.row('alphafold'));
-      api.then('/protein/ttr', _Fold.row('pdb'));
-      api.answer('/protein/ttr/tracks', _Fold.tracks('pdb'));
-      final ProteinTarget stale = await catalog.protein('ttr', fresh: true);
-      expect(stale.structure!.pdb, 'AF-P02766-F1');
-      final (ProteinTarget target, TrackSource? source) = await pinWalk(catalog, client, stale);
+      // The row answered before the backfill landed; the track rows after it.
+      api.answer('/protein/ttr', BuiltFold.row('alphafold'));
+      api.then('/protein/ttr', BuiltFold.row('pdb'));
+      api.answer('/protein/ttr/tracks', BuiltFold.tracks('pdb'));
+      final (ProteinTarget target, TrackSource? source) = await pinWalk(catalog, client, 'ttr');
       expect(target.structure!.pdb, '8C86');
       expect(foldCoherence(target, (source! as TrackRows).rowsOf('ttr')!), FoldCoherence.whole);
       expect(api.asked.where((String path) => path == '/protein/ttr'), hasLength(2));
+      expect(api.asked.where((String path) => path == '/protein/ttr/tracks'), hasLength(2));
     });
 
     test('opens on the model, without its fold, where the fold was made with another model', () async {
-      api.answer('/protein/ttr', _Fold.row('pdb'));
-      api.answer('/protein/ttr/tracks', _Fold.tracks('pdb', framedIn: 'c' * 64));
-      final (_, TrackSource? source) = await pinWalk(
-        catalog, client, await catalog.protein('ttr', fresh: true));
+      api.answer('/protein/ttr', BuiltFold.row('pdb'));
+      api.answer('/protein/ttr/tracks', BuiltFold.tracks('pdb', framedIn: 'c' * 64));
+      final (_, TrackSource? source) = await pinWalk(catalog, client, 'ttr');
       final PinnedTrackSource pinned = source! as PinnedTrackSource;
       expect(pinned.rowsOf('ttr')![TrackKind.folding]!.state, TrackState.absent);
       expect(pinned.rowsOf('ttr')![TrackKind.structure]!.state, TrackState.ready);
@@ -242,17 +181,136 @@ void main() {
     });
 
     test('reads as it always has where no track rows can be read at all', () async {
-      api.answer('/protein/ttr', _Fold.row('pdb'));
+      api.answer('/protein/ttr', BuiltFold.row('pdb'));
       api.answer('/protein/ttr/tracks', const ServerApiException(statusCode: 503));
-      final ProteinTarget held = await catalog.protein('ttr', fresh: true);
-      final (ProteinTarget target, TrackSource? source) = await pinWalk(catalog, client, held);
-      expect((target, source), (held, null));
+      final (ProteinTarget target, TrackSource? source) = await pinWalk(catalog, client, 'ttr');
+      expect((target.structure!.pdb, source), ('8C86', null));
+    });
+
+    test('never read, waits for the service however slow it is', () async {
+      api.answer('/protein/ttr', BuiltFold.row('pdb'));
+      api.answer('/protein/ttr/tracks', BuiltFold.tracks('pdb'));
+      final Completer<void> asleep = api.hold = Completer<void>();
+      bool opened = false;
+      final Future<(ProteinTarget, TrackSource?)> open = pinWalk(
+        catalog, client, 'ttr', patience: _short);
+      unawaited(open.then(((ProteinTarget, TrackSource?) _) => opened = true));
+      await Future<void>.delayed(_short * 6);
+      expect(opened, isFalse);
+      asleep.complete();
+      expect((await open).$1.structure!.pdb, '8C86');
+    });
+
+    test('already read, opens on what is held where the service is slow, and keeps its answer', () async {
+      api.answer('/protein/ttr', BuiltFold.row('alphafold'));
+      api.answer('/protein/ttr/tracks', BuiltFold.tracks('alphafold'));
+      await pinWalk(catalog, client, 'ttr');
+
+      // Its fold is published again, and the service is slow to say so.
+      api.answer('/protein/ttr', BuiltFold.row('pdb'));
+      api.answer('/protein/ttr/tracks', BuiltFold.tracks('pdb'));
+      final Completer<void> asleep = api.hold = Completer<void>();
+      final (ProteinTarget target, TrackSource? source) = await pinWalk(
+        catalog, client, 'ttr', patience: _short);
+      expect(target.structure!.pdb, 'AF-P02766-F1');
+      expect((source! as TrackRows).rowsOf('ttr')![TrackKind.structure]!.sha256, '1' * 64);
+      // Nothing else of the walk waits on that answer: the rows remembered
+      // are still the ones any read is by (the record's is the client's own).
+      expect(
+        (await client.tracksOf('ttr').timeout(_short * 6))[TrackKind.structure]!.sha256,
+        '1' * 64,
+      );
+
+      // It answers at last: kept, and the next open is by it.
+      asleep.complete();
+      api.hold = null;
+      await _until(() async =>
+          catalog.bySlug('ttr')!.structure!.pdb == '8C86' &&
+          (await client.remembered('ttr')!)[TrackKind.structure]!.sha256 == '2' * 64);
+      api.asked.clear();
+      api.hold = Completer<void>();
+      final (ProteinTarget next, TrackSource? nextSource) = await pinWalk(
+        catalog, client, 'ttr', patience: _short);
+      expect(next.structure!.pdb, '8C86');
+      expect((nextSource! as TrackRows).rowsOf('ttr')![TrackKind.folding]!.sha256, '3' * 64);
+      api.hold!.complete();
+    });
+
+    test('already read, waits all the same where what is held is not one fold', () async {
+      // The row of one fold and the rows of another, however often it asks.
+      api.answer('/protein/ttr', BuiltFold.row('alphafold'));
+      api.answer('/protein/ttr/tracks', BuiltFold.tracks('pdb'));
+      final (ProteinTarget parted, TrackSource? partedSource) = await pinWalk(catalog, client, 'ttr');
+      expect(foldCoherence(parted, (partedSource! as TrackRows).rowsOf('ttr')!), FoldCoherence.none);
+
+      api.answer('/protein/ttr', BuiltFold.row('pdb'));
+      final Completer<void> asleep = api.hold = Completer<void>();
+      bool opened = false;
+      final Future<(ProteinTarget, TrackSource?)> open = pinWalk(
+        catalog, client, 'ttr', patience: _short);
+      unawaited(open.then(((ProteinTarget, TrackSource?) _) => opened = true));
+      await Future<void>.delayed(_short * 6);
+      expect(opened, isFalse);
+      asleep.complete();
+      final (ProteinTarget target, TrackSource? source) = await open;
+      expect(foldCoherence(target, (source! as TrackRows).rowsOf('ttr')!), FoldCoherence.whole);
+    });
+  });
+
+  group('track rows asked for again', () {
+    setUp(() async {
+      api.answer('/protein/ttr/tracks', BuiltFold.tracks('alphafold'));
+      await client.tracksOf('ttr');
+    });
+
+    test('are the service\'s, remembered in place of those held', () async {
+      api.answer('/protein/ttr/tracks', BuiltFold.tracks('pdb'));
+      expect((await client.refresh('ttr'))[TrackKind.structure]!.sha256, '2' * 64);
+      expect((await client.tracksOf('ttr'))[TrackKind.structure]!.sha256, '2' * 64);
+      expect(api.asked, hasLength(2));
+    });
+
+    test('are the ones held where the service cannot be reached, and those stay', () async {
+      api.answer('/protein/ttr/tracks', const ServerApiException(statusCode: 503));
+      expect((await client.refresh('ttr'))[TrackKind.structure]!.sha256, '1' * 64);
+      expect((await client.remembered('ttr')!)[TrackKind.structure]!.sha256, '1' * 64);
+    });
+
+    test('are forgotten where the service refuses outright', () async {
+      api.answer('/protein/ttr/tracks', const ServerApiException(statusCode: 404, detail: 'Gone'));
+      await expectLater(client.refresh('ttr'), throwsA(isA<ServerApiException>()));
+      expect(client.remembered('ttr'), isNull);
+    });
+
+    test('asked again before the service has answered, are the one ask', () async {
+      final Completer<void> asleep = api.hold = Completer<void>();
+      api.asked.clear();
+      final Future<Map<TrackKind, TrackRef>> first = client.refresh('ttr');
+      final Future<Map<TrackKind, TrackRef>> second = client.refresh('ttr');
+      api.answer('/protein/ttr/tracks', BuiltFold.tracks('pdb'));
+      asleep.complete();
+      expect((await first)[TrackKind.structure]!.sha256, '2' * 64);
+      expect((await second)[TrackKind.structure]!.sha256, '2' * 64);
+      expect(api.asked, hasLength(1));
+
+      // Answered, the next ask is a new one.
+      api.hold = null;
+      api.answer('/protein/ttr/tracks', BuiltFold.tracks('alphafold'));
+      expect((await client.refresh('ttr'))[TrackKind.structure]!.sha256, '1' * 64);
+      expect(api.asked, hasLength(2));
+    });
+
+    test('of a protein never read are read as any are, the cache behind them', () async {
+      api.answer('/protein/prl/tracks', BuiltFold.tracks('pdb'));
+      expect(client.remembered('prl'), isNull);
+      expect((await client.refresh('prl'))[TrackKind.structure]!.sha256, '2' * 64);
+      expect(client.remembered('prl'), isNotNull);
     });
   });
 
   group('a row read afresh', () {
     test('is the one kept where the service cannot be reached, and not where it refuses', () async {
-      api.answer('/protein/ttr', _Fold.row('alphafold'));
+      api.answer('/protein/ttr', BuiltFold.row('alphafold'));
       expect((await catalog.protein('ttr')).structure!.pdb, 'AF-P02766-F1');
       api.answer('/protein/ttr', const ServerApiException(statusCode: 503));
       expect((await catalog.protein('ttr', fresh: true)).structure!.pdb, 'AF-P02766-F1');
@@ -263,7 +321,7 @@ void main() {
     test('is the list\'s own for one of the catalog, which is never asked for again', () async {
       api.answer('/catalog', <String, dynamic>{
         'proteins': <Map<String, dynamic>>[<String, dynamic>{
-          ..._Fold.row('pdb'), 'slug': 'insulin', 'catalog_order': 0}],
+          ...BuiltFold.row('pdb'), 'slug': 'insulin', 'catalog_order': 0}],
         'next': null,
       });
       await catalog.refresh();

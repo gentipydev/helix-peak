@@ -74,6 +74,7 @@ GoRoute _walk(String path) => GoRoute(
 // is a protein built on demand, whose fold can be published again while the
 // app runs: it is read afresh at every open, its row and its track rows
 // together, and its walk reads that one generation of its fold ([pinWalk]).
+// Held already, it waits on the service no longer than [walkPatience].
 Widget _walkBody(BuildContext context, GoRouterState state) {
   final ProteinCatalogRepository catalog =
       context.read<ProteinCatalogRepository>();
@@ -96,44 +97,114 @@ Widget _geneBody(ProteinTarget target, {TrackSource? pinned}) {
       : RepositoryProvider<TrackSource>.value(value: pinned, child: walk);
 }
 
-/// A protein built on demand's track rows, read with its row, and a source
-/// that reads its walk by them: one generation of its fold, whatever the
-/// service publishes while the walk is open. The next open reads again.
+/// How long the open of a protein already read in this run waits on the
+/// service before it opens on what the app holds ([pinWalk]).
+@visibleForTesting
+const Duration walkPatience = Duration(seconds: 2);
+
+/// A protein built on demand, read for one walk: its row and its track rows,
+/// and a source that reads the walk by those rows alone, so the walk draws
+/// one generation of its fold whatever the service publishes while it is
+/// open. The next open reads again.
 ///
-/// The two are read one after the other, so a fold published in between can
-/// part them (`foldCoherence`): then both are read once more. A fold still
-/// made in another model's frame is not animated, and the walk opens on the
-/// model; a row naming another model than its track holds is left for the
+/// The two are asked for together. A fold published between the two answers
+/// can part them (`foldCoherence`): then both are asked for once more. A fold
+/// still made in another model's frame is not animated, and the walk opens on
+/// the model; a row naming another model than its track holds is left for the
 /// fold page, which says the model could not be loaded. Where no track rows
 /// can be read at all, the walk reads as it always has.
+///
+/// A protein already read in this run does not wait on a service that is slow
+/// to answer (asleep, or far away): after [patience] it opens on the row and
+/// the rows the app holds, where those are one fold, and the answer, when it
+/// comes, is kept for the next open. A service that cannot be reached at all
+/// fails at once, and the same two are what
+/// [ProteinCatalogRepository.protein] and [TrackClient.refresh] fall back to.
 @visibleForTesting
 Future<(ProteinTarget, TrackSource?)> pinWalk(
   ProteinCatalogRepository catalog,
   TrackClient client,
-  ProteinTarget target,
-) async {
-  Map<TrackKind, TrackRef> rows;
-  try {
-    rows = await client.refresh(target.slug);
-  } on Object catch (error) {
-    debugPrint('helixpeek: no track rows to pin ${target.slug} to ($error)');
-    return (target, null);
-  }
-  if (foldCoherence(target, rows) != FoldCoherence.whole) {
-    try {
-      target = await catalog.protein(target.slug, fresh: true);
-      rows = await client.refresh(target.slug);
-    } on Object catch (error) {
-      debugPrint('helixpeek: ${target.slug} read once more, and not ($error)');
+  String slug, {
+  Duration patience = walkPatience,
+}) async {
+  final ProteinTarget? held = catalog.bySlug(slug);
+  final Future<Map<TrackKind, TrackRef>>? kept = client.remembered(slug);
+  final Future<(ProteinTarget, Map<TrackKind, TrackRef>?)> asked = _readWalk(
+    catalog,
+    client,
+    slug,
+  );
+  (ProteinTarget, Map<TrackKind, TrackRef>?)? read;
+  if (held != null && kept != null) {
+    read = await asked
+        .then<(ProteinTarget, Map<TrackKind, TrackRef>?)?>(
+          ((ProteinTarget, Map<TrackKind, TrackRef>?) answer) => answer,
+        )
+        .timeout(patience, onTimeout: () => null);
+    if (read == null) {
+      try {
+        final Map<TrackKind, TrackRef> rows = await kept;
+        if (foldCoherence(held, rows) == FoldCoherence.whole) {
+          read = (held, rows);
+        }
+      } on Object catch (error) {
+        debugPrint('helixpeek: nothing held to open $slug on ($error)');
+      }
     }
   }
-  if (foldCoherence(target, rows) == FoldCoherence.modelOnly) {
-    rows = <TrackKind, TrackRef>{
-      ...rows,
-      TrackKind.folding: const TrackRef(state: TrackState.absent),
-    };
+  final (ProteinTarget target, Map<TrackKind, TrackRef>? rows) =
+      read ?? await asked;
+  if (rows == null) {
+    return (target, null);
   }
-  return (target, client.pinned(target.slug, rows));
+  return (
+    target,
+    client.pinned(
+      slug,
+      foldCoherence(target, rows) == FoldCoherence.modelOnly
+          ? <TrackKind, TrackRef>{
+              ...rows,
+              TrackKind.folding: const TrackRef(state: TrackState.absent),
+            }
+          : rows,
+    ),
+  );
+}
+
+/// [slug]'s row and its track rows, asked of the service together, and once
+/// more where they are not one fold. Its rows are null where none can be
+/// read; a row that cannot be read throws.
+Future<(ProteinTarget, Map<TrackKind, TrackRef>?)> _readWalk(
+  ProteinCatalogRepository catalog,
+  TrackClient client,
+  String slug,
+) async {
+  Future<(ProteinTarget, Map<TrackKind, TrackRef>?)> both() async {
+    final Future<Map<TrackKind, TrackRef>?> rows = client
+        .refresh(slug)
+        .then<Map<TrackKind, TrackRef>?>(
+          (Map<TrackKind, TrackRef> rows) => rows,
+          onError: (Object error) {
+            debugPrint('helixpeek: no track rows to pin $slug to ($error)');
+            return null;
+          },
+        );
+    final ProteinTarget target = await catalog.protein(slug, fresh: true);
+    return (target, await rows);
+  }
+
+  final (ProteinTarget, Map<TrackKind, TrackRef>?) first = await both();
+  final Map<TrackKind, TrackRef>? rows = first.$2;
+  if (rows == null || foldCoherence(first.$1, rows) == FoldCoherence.whole) {
+    return first;
+  }
+  try {
+    final (ProteinTarget, Map<TrackKind, TrackRef>?) second = await both();
+    return second.$2 == null ? first : second;
+  } on Object catch (error) {
+    debugPrint('helixpeek: $slug read once more, and not ($error)');
+    return first;
+  }
 }
 
 /// A deep link can arrive before the catalog, or name a protein outside it.
@@ -185,11 +256,13 @@ class _WalkLoaderState extends State<_WalkLoader> {
     try {
       final ProteinCatalogRepository catalog = widget.catalog;
       final bool listed = catalog.listed(widget.slug);
-      ProteinTarget target = await catalog.protein(widget.slug, fresh: !listed);
-      TrackSource? pinned;
       final TrackClient? client = _client;
-      if (!listed && client != null) {
-        (target, pinned) = await pinWalk(catalog, client, target);
+      final ProteinTarget target;
+      TrackSource? pinned;
+      if (listed || client == null) {
+        target = await catalog.protein(widget.slug, fresh: !listed);
+      } else {
+        (target, pinned) = await pinWalk(catalog, client, widget.slug);
       }
       if (mounted) {
         setState(() {

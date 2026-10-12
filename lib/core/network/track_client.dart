@@ -76,6 +76,11 @@ final class TrackClient implements TrackSource {
   final Map<String, Future<Map<TrackKind, TrackRef>>> _rows =
       <String, Future<Map<TrackKind, TrackRef>>>{};
 
+  /// The asks [refresh] still has out, a protein at a time: asked again
+  /// before the service has answered, a protein joins the ask it has out.
+  final Map<String, Future<Map<TrackKind, TrackRef>>> _asking =
+      <String, Future<Map<TrackKind, TrackRef>>>{};
+
   Future<Directory?>? _cacheDirectory;
 
   /// What the service says about every family of one protein.
@@ -95,13 +100,48 @@ final class TrackClient implements TrackSource {
     (await tracksOf(slug))[kind] ?? const TrackRef(state: TrackState.absent),
   );
 
-  /// [slug]'s rows read again from the service, and remembered in place of
-  /// those held: what a protein built on demand is opened by, so that a fold
-  /// published since the last open is the one drawn. Where the service cannot
-  /// be reached, the rows last written to the cache, as [tracksOf] falls back.
-  Future<Map<TrackKind, TrackRef>> refresh(String slug) {
-    unawaited(_rows.remove(slug));
-    return tracksOf(slug);
+  /// The rows this client remembers for [slug], or null where it remembers
+  /// none: the answer its last [tracksOf] or [refresh] got, or is waiting on.
+  Future<Map<TrackKind, TrackRef>>? remembered(String slug) => _rows[slug];
+
+  /// [slug]'s rows asked of the service again, and remembered in place of
+  /// those held once it answers: what a protein built on demand is opened by,
+  /// so that a fold published since the last open is the one drawn.
+  ///
+  /// Until it answers, the rows remembered stay the ones every other read
+  /// gets, so nothing waits on this that did not ask for it, and asked again
+  /// meanwhile it is the one ask. Where the service cannot be reached, the
+  /// rows remembered are the answer; where it refuses outright (a removed
+  /// protein), they are forgotten, as [tracksOf] never hides a refusal behind
+  /// yesterday's rows. A protein with no rows remembered is read as
+  /// [tracksOf] reads it, with the rows last written to the cache behind it.
+  Future<Map<TrackKind, TrackRef>> refresh(String slug) =>
+      _asking[slug] ??= _askAgain(slug).whenComplete(() {
+        unawaited(_asking.remove(slug));
+      });
+
+  Future<Map<TrackKind, TrackRef>> _askAgain(String slug) async {
+    final Future<Map<TrackKind, TrackRef>>? before = _rows[slug];
+    if (before == null) {
+      return tracksOf(slug);
+    }
+    final Map<String, dynamic> body;
+    try {
+      body = await _api.getJson('/protein/${Uri.encodeComponent(slug)}/tracks');
+    } on Object catch (error) {
+      if (error is ServerApiException &&
+          error.statusCode != null && error.statusCode! < 500) {
+        if (identical(_rows[slug], before)) {
+          unawaited(_rows.remove(slug));
+        }
+        rethrow;
+      }
+      _note('kept the rows it had for $slug', error);
+      return before;
+    }
+    final Map<TrackKind, TrackRef> rows = await _keepRows(slug, body);
+    _rows[slug] = Future<Map<TrackKind, TrackRef>>.value(rows);
+    return rows;
   }
 
   /// A source that reads [slug] by [rows] alone, whatever this client comes
@@ -180,6 +220,15 @@ final class TrackClient implements TrackSource {
       }
       rethrow;
     }
+    return _keepRows(slug, body);
+  }
+
+  /// The service's answer about [slug], parsed, and written to the cache for
+  /// the day the service cannot be asked.
+  Future<Map<TrackKind, TrackRef>> _keepRows(
+    String slug,
+    Map<String, dynamic> body,
+  ) async {
     final Map<TrackKind, TrackRef> parsed = tracksFromJson(body);
     final File? file = await _rowFile(slug);
     if (file != null) {

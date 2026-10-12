@@ -357,18 +357,25 @@ Tests use `test/support/fixture_track_source.dart` over `test/fixtures/`.
    the list again; pinned, it is its card there and not a row as well.
    It opens the walk only once its AVI and ClinVar are in and ESM-2 has
    scored it or declined to (the backend's ESM-2 bake waits for the first
-   two): `TrackClient` and `ProteinCatalogRepository` each remember a protein
-   once read, so a protein opened mid-bake stays without them until a restart.
-   Its fold is the exception: it can be published again while the app runs
-   (a backfill, or an earlier fold put back), so every open of a protein
-   outside the catalog reads its row and its track rows afresh
-   (`ProteinCatalogRepository.protein(fresh:)`, `TrackClient.refresh`), and
-   its walk reads by those rows alone (`pinWalk` in `core/router`, a
-   `PinnedTrackSource`, which is `TrackRows`): one generation of its fold
-   for the walk, whatever is published while it is open, and the new one at
-   the next open, with no restart. Where the two reads disagree (a fold
-   published in between, `foldCoherence`), both are read once more. Offline,
-   the rows kept are read. A catalog protein opens as it always has.
+   two). `TrackClient` and `ProteinCatalogRepository` each remember a protein
+   once read, and a catalog protein opens on what they remember, at once, as
+   it always has. A protein outside the catalog is asked for again at every
+   open, its row and its track rows together
+   (`ProteinCatalogRepository.protein(fresh:)`, `TrackClient.refresh`),
+   because its fold can be published again while the app runs (a backfill, or
+   an earlier fold put back); one opened mid-bake has what was made since at
+   its next open, with no restart. Its walk reads by the rows it opened with
+   alone (`pinWalk` in `core/router`, a `PinnedTrackSource`, which is
+   `TrackRows`): one generation of its fold for the walk, whatever is
+   published while it is open. Where the two answers disagree (a fold
+   published between them, `foldCoherence`), both are asked for once more.
+   Already read in this run, it waits on the service no longer than
+   `walkPatience`, two seconds: then it opens on the row and rows the app
+   holds, and the answer, when it comes, is kept for the next open, so a
+   service that has gone to sleep costs an open two seconds and not its
+   timeout. Until the service answers, the rows remembered stay the ones
+   every other read gets. Unreachable, it fails at once, and the row and
+   rows kept are read.
    The walk reads a built protein's AVI and ClinVar as it reads the twenty's
    (`test/features/gene_lookup/anatomy/built_evidence_test.dart`, with B2M's
    stored tracks beside its record in `test/support/built_on_demand/`). Tests
