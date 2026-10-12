@@ -81,6 +81,10 @@ final class TrackClient implements TrackSource {
   final Map<String, Future<Map<TrackKind, TrackRef>>> _asking =
       <String, Future<Map<TrackKind, TrackRef>>>{};
 
+  /// Each protein's rows as last read in this run ([known]).
+  final Map<String, Map<TrackKind, TrackRef>> _read =
+      <String, Map<TrackKind, TrackRef>>{};
+
   Future<Directory?>? _cacheDirectory;
 
   /// What the service says about every family of one protein.
@@ -103,6 +107,11 @@ final class TrackClient implements TrackSource {
   /// The rows this client remembers for [slug], or null where it remembers
   /// none: the answer its last [tracksOf] or [refresh] got, or is waiting on.
   Future<Map<TrackKind, TrackRef>>? remembered(String slug) => _rows[slug];
+
+  /// [slug]'s rows as this client last read them in this run, there to be
+  /// had at once, or null where it has read none: what a walk can be opened
+  /// by without a wait, while the service is asked behind it ([refresh]).
+  Map<TrackKind, TrackRef>? known(String slug) => _read[slug];
 
   /// [slug]'s rows asked of the service again, and remembered in place of
   /// those held once it answers: what a protein built on demand is opened by,
@@ -213,6 +222,7 @@ final class TrackClient implements TrackSource {
           );
           // Do not memoise an offline answer: the next read tries the service.
           unawaited(_rows.remove(slug));
+          _read[slug] = cached;
           return cached;
         }
       } on Object catch (cacheError) {
@@ -230,6 +240,7 @@ final class TrackClient implements TrackSource {
     Map<String, dynamic> body,
   ) async {
     final Map<TrackKind, TrackRef> parsed = tracksFromJson(body);
+    _read[slug] = parsed;
     final File? file = await _rowFile(slug);
     if (file != null) {
       try {

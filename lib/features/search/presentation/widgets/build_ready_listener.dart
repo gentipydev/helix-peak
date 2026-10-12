@@ -131,7 +131,16 @@ class _BuildReadyListenerState extends State<BuildReadyListener>
                 textColor: scheme.primary,
                 onPressed: () {
                   builds.opened(gene);
-                  unawaited(widget.router.push('${RoutePaths.gene}/$slug'));
+                  // Named, so its walk's wait is headed while its row is read.
+                  unawaited(
+                    widget.router.push(
+                      '${RoutePaths.gene}/$slug',
+                      extra: RoutePaths.walkNames(
+                        gene: build.gene,
+                        display: build.protein.title,
+                      ),
+                    ),
+                  );
                 },
               )
             : null,

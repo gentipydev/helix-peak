@@ -300,6 +300,24 @@ void main() {
       expect(api.asked, hasLength(2));
     });
 
+    test('are there to be had at once, as last read', () async {
+      expect(client.known('prl'), isNull);
+      expect(client.known('ttr')![TrackKind.structure]!.sha256, '1' * 64);
+      api.answer('/protein/ttr/tracks', BuiltFold.tracks('pdb'));
+      final Completer<void> asleep = api.hold = Completer<void>();
+      final Future<Map<TrackKind, TrackRef>> asked = client.refresh('ttr');
+      // Still the ones it had, while it is asked.
+      expect(client.known('ttr')![TrackKind.structure]!.sha256, '1' * 64);
+      asleep.complete();
+      await asked;
+      expect(client.known('ttr')![TrackKind.structure]!.sha256, '2' * 64);
+      // And the ones it had where the service cannot be reached.
+      api.hold = null;
+      api.answer('/protein/ttr/tracks', const ServerApiException(statusCode: 503));
+      await client.refresh('ttr');
+      expect(client.known('ttr')![TrackKind.structure]!.sha256, '2' * 64);
+    });
+
     test('of a protein never read are read as any are, the cache behind them', () async {
       api.answer('/protein/prl/tracks', BuiltFold.tracks('pdb'));
       expect(client.remembered('prl'), isNull);

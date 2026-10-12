@@ -197,7 +197,7 @@ class _SearchViewState extends State<_SearchView> {
     }
     final String? slug = SuggestionTile.opensAt(others.single, now[others.single.gene]);
     if (slug != null) {
-      _openSlug(slug);
+      _openSlug(slug, others.single);
     }
   }
 
@@ -218,11 +218,23 @@ class _SearchViewState extends State<_SearchView> {
 
   void _open(ProteinTarget target) => _openAt(RoutePaths.geneFor(target));
 
-  void _openSlug(String slug) => _openAt('${RoutePaths.gene}/$slug');
+  /// Open the walk of a protein outside the catalog, handing it what this
+  /// screen already calls it: its walk's wait is headed by that while its row
+  /// is read, as a curated protein's is by its row.
+  void _openSlug(String slug, ProteinSuggestion named) => _openAt(
+    '${RoutePaths.gene}/$slug',
+    names: switch (named.gene) {
+      final String gene => RoutePaths.walkNames(
+        gene: gene,
+        display: named.title,
+      ),
+      null => null,
+    },
+  );
 
   void _openBuilt(ProteinBuild build, String slug) {
     _builds?.opened(build.gene);
-    _openSlug(slug);
+    _openSlug(slug, build.protein);
   }
 
   /// Stop a build this phone asked for; where the service would not, say why.
@@ -233,11 +245,11 @@ class _SearchViewState extends State<_SearchView> {
     }
   }
 
-  void _openAt(String location) {
+  void _openAt(String location, {Map<String, String>? names}) {
     // Dismissed before the push so the keyboard is not still animating down
     // over the walk's first frame.
     FocusScope.of(context).unfocus();
-    context.push(location);
+    context.push(location, extra: names);
   }
 
   @override
@@ -445,7 +457,7 @@ class _SearchViewState extends State<_SearchView> {
             SuggestionTile(
               suggestion: suggestion,
               built: builds[suggestion.gene],
-              onOpen: _openSlug,
+              onOpen: (String slug) => _openSlug(slug, suggestion),
               onBuild: _startBuild,
             ),
             const SizedBox(height: AppSpacing.sm),
@@ -539,7 +551,7 @@ class _SearchViewState extends State<_SearchView> {
             suggestion: suggestion,
             built: builds[suggestion.gene],
             heading: _Shelf.built.label,
-            onOpen: _openSlug,
+            onOpen: (String slug) => _openSlug(slug, suggestion),
             // A stopped one opens unscored here; scoring it again is
             // search's, not a tap on a list of everyone's builds.
             onBuild: null,

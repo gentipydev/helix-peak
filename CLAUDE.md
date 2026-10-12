@@ -371,13 +371,27 @@ Tests use `test/support/fixture_track_source.dart` over `test/fixtures/`.
    `TrackRows`): one generation of its fold for the walk, whatever is
    published while it is open. Where the two answers disagree (a fold
    published between them, `foldCoherence`), both are asked for once more.
-   Already read in this run, it waits on the service no longer than
-   `walkPatience`, two seconds: then it opens on the row and rows the app
-   holds, and the answer, when it comes, is kept for the next open, so a
-   service that has gone to sleep costs an open two seconds and not its
-   timeout. Until the service answers, the rows remembered stay the ones
-   every other read gets. Unreachable, it fails at once, and the row and
-   rows kept are read.
+
+   **The page it opens on is the walk's own from its first frame**
+   (`_WalkLoader` in `core/router`), as a curated protein's is: the walk's
+   ground, its header, and the walk landing in the places its wait held.
+   Never a page of the loader's own before it, which is what a reader saw as
+   a flash of another ground with no header.
+   - Opened before in this run, it opens at once on the row and rows the app
+     holds (`TrackClient.known`), and the service is asked behind the walk.
+     Where it answers within `walkPatience` (two seconds) with other rows,
+     the walk is opened again on them, unless the reader has touched it by
+     then; slower, or touched, this walk stays whole as it opened and the
+     next adopts. Until the service answers, the rows remembered stay the
+     ones every read gets.
+   - Not read yet, it shows the walk's wait (`GeneScreen` over a lookup not
+     yet asked for the record), headed by the names the list it was opened
+     from hands the route (`RoutePaths.walkNames`, the route's `extra`:
+     search's tiles, a build's card, the build-ready snackbar). The record is
+     asked for once the row and its rows are in.
+   - A link from outside the app names nothing: its wait has no heading, on
+     the same ground under a header of the same height. So has the page that
+     says a protein could not be read.
    The walk reads a built protein's AVI and ClinVar as it reads the twenty's
    (`test/features/gene_lookup/anatomy/built_evidence_test.dart`, with B2M's
    stored tracks beside its record in `test/support/built_on_demand/`). Tests
