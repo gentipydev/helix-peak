@@ -6,8 +6,10 @@ ends on the 3D structure. Each of the twenty curated proteins is drawn from a
 stored GenBank record plus its evidence tracks (ESM-2 constraint, AlphaGenome
 variant impact, ClinVar, fold). Any other reviewed human protein can be built
 on demand, with its record, its ESM-2 track, its AlphaGenome and ClinVar
-tracks, and AlphaFold DB's model of its fold. All of it is served by
-`../helix-peak-backend`; the app ships no protein data.
+tracks, and its fold: an experimental PDB entry chosen by rule, which folds
+as the twenty's do, or AlphaFold DB's model where the PDB has none that
+passes. All of it is served by `../helix-peak-backend`; the app ships no
+protein data.
 
 ## THE CONTRACT — read this first
 
@@ -435,7 +437,7 @@ is exactly the claim the rules forbid. A track that isn't ready is a state the
 walk draws, not an error: the page is drawn without it. A *ready* track that
 fails to fetch is a real failure. Keep the two cases apart. The fold page is
 where a reader is shown a `refused` track's sentence: a protein built on
-demand that AlphaFold DB has no model of says so there.
+demand that neither the PDB nor AlphaFold DB has a model of says so there.
 
 ## House rules (`docs/protein-pipeline-rules.md`: read it first)
 
