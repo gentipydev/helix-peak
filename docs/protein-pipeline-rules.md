@@ -311,6 +311,12 @@ Polyubiquitin's structure is one copy of three identical chains and takes the
 first chain's green. Whether identical copies should instead take a neutral
 colour is an *open* design decision.
 
+An experimental entry chosen for a protein built on demand (R5.4) is drawn the
+same way: one node per mature product it holds, at most three, `mature1` to
+`mature3` in the order the products come in the precursor, and `cysteine` for
+its bridges. Where its record names no mature peptides, the fold's legend names
+each chain by its region in the protein's table instead.
+
 A predicted model is the exception (R5.4): it is one node per band of pLDDT,
 `plddtVeryHigh`, `plddtConfident`, `plddtLow` and `plddtVeryLow`, in AlphaFold
 DB's own four colours, because what a reader needs of a prediction is how far
@@ -321,16 +327,37 @@ legend. Its bridges are still `bonds`, in `cysteine`.
 `SEQADV`: 3I40 has B30 Ala (not Thr), 3RGK carries K45R and C110A, 1DXX carries
 C10S and C188S, and 1HGU conflicts with human GH at twelve positions. Compare
 residue by residue as well: `SEQADV` can be wrong itself, and 1TNF files its one
-deviation against residue 45 when it sits at 143 (UniProt's Asp219). A
-generic picker should rank entries by coverage of the mature chain, then
-resolution, then fewest `SEQADV` records, and refuse above a threshold.
+deviation against residue 45 when it sits at 143 (UniProt's Asp219).
 AlphaFold is rejected for insulin because it predicts the 110-residue precursor
 at a mean pLDDT of 52.9; if used at all, use it only over the mature span and
-gate on pLDDT. *Status: open* for the picker over experimental entries.
+gate on pLDDT. The twenty keep the entries chosen for them by hand.
 
-**AlphaFold DB is the source for a protein built on demand** (the user's
-decision, 2026-10-08), which has nobody to choose an entry for it. *Status:
-baked* (`pipeline/structure/alphafold.py`), under this rule:
+**An experimental entry, chosen by rule, is the source for a protein built on
+demand**, which has nobody to choose one for it, and it folds on its page as
+the twenty do: the nine-second animation, ending on the model. AlphaFold DB's
+model is drawn only where a whole, successful search of the PDB finds no entry
+that passes; a search cut short, or a service not answering, is never read as
+none. This supersedes the decision of 2026-10-08 that drew AlphaFold DB's model
+for every one (`HANDOFF-PDB-FOLDING.md`, 2026-10-09). *Status: baked*
+(`pipeline/structure/pdb_policy.py`, `normalize.py`, `experimental.py`), under
+policy 1, which the user froze on 2026-10-12 on a dry run over 52 proteins:
+
+| | |
+|---|---|
+| found | every polymer entity RCSB maps to the protein's UniProt accession, experimental methods only; entities SIFTS has not mapped are found by sequence and laid on the record only where they fit once, without a gap |
+| may be drawn | the whole entity human; one unbroken SIFTS stretch on the canonical sequence; 70% of a mature product placed, or else 90% of an annotated domain of 30 residues or more; at most 2% of the residues drawn not the record's, rounded down, so a peptide under 50 may differ nowhere; and the experiment's own support for the region drawn (density fit, map fit or geometry, by method) |
+| ranked | a mature product before a domain; more of a precursor's products drawn together before fewer; coverage in tenths below the best; a mature construct before a precursor's; wild type before the better experiment; a method with a resolution before one without; the measured region; the finer resolution; then the ids |
+| held to its own file | PDBe's SIFTS-enriched mmCIF: one model (an NMR entry's representative conformer, never an average), one conformation a residue, no chain break, chains drawn together touching, a bridge only where its sulfurs are within 2.5 Å |
+| baked | from one working copy of the entry in the record's numbering, by the twenty's own bakers: the model and its fold in one frame; PyMOL's dashed loop across a short gap left out; held to the twenty's folding check and then to the app's own binding of the fold to the model (`test/fold_bundle_check.dart`), or the next candidate is tried |
+| words | templated from the entry's numbers (R4.5): the method and resolution, how much is placed, what is not drawn |
+
+Every number is a constant of `pdb_policy.py`, and the backend's
+`pipeline/structure/README.md` has the rule whole and what it chose for the 52.
+A change to any of them is policy 2.
+
+**AlphaFold DB is the source where no experimental entry passes** (the user's
+decision of 2026-10-08, now the fallback). *Status: baked*
+(`pipeline/structure/alphafold.py`), under this rule:
 
 | | |
 |---|---|
@@ -353,14 +380,19 @@ had a model of another sequence (UniProt's has changed since) and are refused.
 **R5.5 The count is the mature length, not the modelled length.** HBB's chip
 says 146 while the crystal resolves 145; ends that are not resolved are normal.
 *Status: baked* (hand-written `count`). *Open:* deriving it. For a protein
-built on demand it is derived: the residues of the span drawn, which a
-predicted model always places.
+built on demand it is derived: the residues of the span drawn. A predicted
+model places them all. An experimental entry may not, and its sentence says
+how many it places of those counted ("116 of these 127 residues placed"); a
+residue it does not place is never called disordered.
 
 **R5.6 Disulfides in the file must match the table.** `SSBOND` pairs, mapped to
 precursor numbering, equal `disulfides`. *Status: open.* A predicted model's
 file names no bridge, so there the table is held to the model instead: a pair
 is drawn only where the model's sulfurs meet, and one it does not bear out is
-left off and named in the track's provenance (somatostatin-14's, 6 Å apart).
+left off and named in the track's provenance (somatostatin-14's, 6 Å apart). An
+experimental entry chosen on demand draws its own disulfides, each joining two
+of the record's cysteines with its sulfurs within 2.5 Å; a pair of the table
+the entry does not bear out is named in the bake's audit.
 
 **R5.7 Ligands are not drawn.** Haemoglobin's and myoglobin's hemes are in
 their entries and are the point of both proteins; so are SOD1's copper and
@@ -480,6 +512,8 @@ accepts arbitrary input.
 | each structure chain is a substring of a mature chain | *add to `check_assets.py`* |
 | `SSBOND` pairs match `disulfides` | *add to `check_assets.py`* |
 | `SEQADV` deviations are listed and under a limit | *add to `check_assets.py`* |
+| ✓ an experimental fold made on demand: each chain on the record by SIFTS, letter for letter, its deviations under policy 1's limit and declared, its bridges the entry's own between record cysteines | `normalize.examine`, `pdb_policy.py` |
+| ✓ an experimental fold made on demand binds to its model as the walk will bind it, ring by ring and rod by rod, and ends on the stored mesh float for float | `check_folding.py`, `test/fold_bundle_check.dart`, before it is stored |
 | structure prose claims match features (R4.5) | *generate, then review* |
 | ✓ gene rows are tall enough to label (14pt; long genes scroll) | catalog test |
 | ✓ residue tiles are at least 28pt (long proteins scroll) | catalog test |
@@ -503,7 +537,7 @@ For each hand-written field, the generic source:
 | `uniprot_variants` | computed and reported rather than declared |
 | `proprotein`, `chain` short names | UniProt names (R3.3, R3.8) |
 | `mature_peptides` flag | R3.4's `Chain`-versus-`Peptide` rule |
-| `Structure` entry and chains | AlphaFold DB by UniProt accession, for a protein built on demand (R5.4, done); a PDB search by accession is still open |
+| `Structure` entry and chains | an experimental PDB entry chosen by rule, with its fold animation, and AlphaFold DB's model where a whole search finds none, for a protein built on demand (R5.4, done) |
 | structure `sentence`, `semantics`, `count` | templates over the model's own numbers (R4.5, done for a protein built on demand) |
 | ESM-2 constraint track | a server job; about 85 minutes for all twenty offline (dystrophin 45, CFTR 21), windowed past 1,022 residues |
 | AVI impact track | the Atlas's precomputed scores, already generic: GENCODE gives the exons and the reference gates the map, so nothing per-protein is written down (R2.5) |
