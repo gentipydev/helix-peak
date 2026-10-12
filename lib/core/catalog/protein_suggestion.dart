@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import 'protein_track.dart';
+
 /// What the app can do with a protein `/proteins/suggest` names.
 ///
 /// Mirrors `Suggestion.status` in the backend's `app/schemas.py`.
@@ -251,6 +253,10 @@ enum BuildStep {
 
   final String wire;
 
+  /// The step the service holds a build at while its first fold is made, its
+  /// scores over: every step here is behind it ([BuildReport.holding]).
+  static const String _structure = 'structure';
+
   /// Null for a step this build does not know, which it cannot place.
   static BuildStep? fromWire(String? wire) {
     for (final BuildStep step in BuildStep.values) {
@@ -279,11 +285,15 @@ final class BuildReport {
     this.reason,
     this.stopped = false,
     this.ran,
+    this.fold,
+    this.holding = false,
   });
 
   /// Null where the step is one this build does not know.
   static BuildReport? fromJson(Map<String, dynamic> json) {
-    final BuildStep? step = BuildStep.fromWire(json['step'] as String?);
+    final String? wire = json['step'] as String?;
+    final bool holding = wire == BuildStep._structure;
+    final BuildStep? step = holding ? BuildStep.done : BuildStep.fromWire(wire);
     if (step == null) {
       return null;
     }
@@ -300,6 +310,11 @@ final class BuildReport {
       reason: json['reason'] as String?,
       stopped: json['stopped'] as bool? ?? false,
       ran: ran == null ? null : _seconds(ran),
+      fold: switch (json['fold']) {
+        final String wire => TrackState.fromWire(wire),
+        _ => null,
+      },
+      holding: holding,
     );
   }
 
@@ -334,6 +349,16 @@ final class BuildReport {
 
   /// How long the scoring under way has run: what stopping it gives up.
   final Duration? ran;
+
+  /// Where its fold has got to: being made, made, or refused with no model.
+  /// Null where none was asked for, from a worker that makes no models or a
+  /// service older than the field.
+  final TrackState? fold;
+
+  /// Whether the service holds it for its first fold (its `structure` step):
+  /// every step is behind it, its scores over, and it is not done until its
+  /// fold is made, or the service stops waiting for it.
+  final bool holding;
 
   /// The share of residues scored, where the scorer has said.
   double? get fraction {

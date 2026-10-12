@@ -11,6 +11,7 @@ import 'package:flutter_scene/scene.dart';
 import '../../core/catalog/protein_target.dart';
 import '../../core/catalog/protein_track.dart';
 import '../../core/network/api_exception.dart';
+import '../../core/network/track_rows.dart';
 import '../../core/network/track_source.dart';
 import '../../core/theme/anatomy_colors.dart';
 import '../../core/theme/app_spacing.dart';
@@ -51,9 +52,18 @@ import 'structure_scene_view.dart';
 /// would draw a coil of low-confidence loops exactly where the reader has been
 /// promised a hormone.
 ///
-/// A protein built on demand has no entry chosen for it, and there AlphaFold
-/// DB's model is what is drawn: over the mature span, and only where it is
-/// sure enough of itself (see "A protein with no model", below).
+/// A protein built on demand has no entry chosen for it by hand: one is chosen
+/// by rule, and folds as the twenty's do; only where no experimental entry
+/// passes is AlphaFold DB's model drawn, still, over the mature span, and only
+/// where it is sure enough of itself (see "A protein with no model", below).
+///
+/// Such a protein's fold can be published again while the app runs, so its
+/// walk reads it by rows fixed when the walk opened ([TrackRows]): this page
+/// names its caches by that generation of the fold, and holds the row, the
+/// model and the fold to each other before it draws them. A fold made in
+/// another model's frame is not played, and the page opens on the model; a
+/// row naming another model than its track holds is a model that could not
+/// be loaded. Any other source reads as it always has, by protein.
 ///
 /// Which nodes a model has, and what each is called, is the target's to say:
 /// see [ProteinTarget.chains]. A protein that folds as one chain has no
@@ -206,14 +216,57 @@ class StructureView extends StatefulWidget {
     ProteinTarget target,
     TrackSource tracks,
   ) {
-    return _preparing[target.slug] ??= _warm(anatomy, loose, target, tracks)
+    final String key = _generationOf(target, tracks);
+    return _preparing[key] ??= _warm(anatomy, loose, target, tracks)
         .then((_) {
-          _warmed.add(target.slug);
+          _warmed.add(key);
         })
         .catchError((Object error, StackTrace stack) {
-          _preparing.remove(target.slug);
+          _preparing.remove(key);
           Error.throwWithStackTrace(error, stack);
         });
+  }
+
+  /// What this page's caches name a protein's fold by: the protein, and,
+  /// where [tracks] reads it by rows it holds, the generation of its fold
+  /// those rows are, by its model's digest and its fold's. A fold published
+  /// again is a new name, and nothing kept for the last one is read for it,
+  /// a binding that failed included.
+  static String _generationOf(ProteinTarget target, TrackSource? tracks) {
+    final Map<TrackKind, TrackRef>? rows = tracks is TrackRows
+        ? (tracks as TrackRows).rowsOf(target.slug)
+        : null;
+    if (rows == null) {
+      return target.slug;
+    }
+    return '${target.slug}@${rows[TrackKind.structure]?.sha256}'
+        '+${rows[TrackKind.folding]?.sha256}';
+  }
+
+  /// [_generationOf], for a test of what the caches are named by.
+  @visibleForTesting
+  static String generationOf(ProteinTarget target, TrackSource? tracks) =>
+      _generationOf(target, tracks);
+
+  /// [_foldOf], for a test of the fold a page would play: none where it was
+  /// made with another model than the rows it is read by name.
+  @visibleForTesting
+  static Future<FoldGeometry?> foldOf(
+    ProteinTarget target,
+    TrackSource tracks,
+  ) => _foldOf(target, tracks);
+
+  /// Where [tracks] reads [target] by rows it holds and the row names
+  /// another model than the one they hold: that model is not drawn.
+  static void _holdRowToModel(ProteinTarget target, TrackSource tracks) {
+    final Map<TrackKind, TrackRef>? rows = tracks is TrackRows
+        ? (tracks as TrackRows).rowsOf(target.slug)
+        : null;
+    if (rows != null && foldCoherence(target, rows) == FoldCoherence.none) {
+      throw StateError(
+        'The row of ${target.slug} names another model than its track holds',
+      );
+    }
   }
 
   static Future<void> _warm(
@@ -228,6 +281,7 @@ class StructureView extends StatefulWidget {
     // The pulse too, so that its first frame on the page is not a blank one
     // spent reading the asset.
     await StructureLoadingView.preload();
+    _holdRowToModel(target, tracks);
     final (Node molecule, PerspectiveCamera camera) = await buildStructureModel(
       scene,
       anatomy,
@@ -237,7 +291,7 @@ class StructureView extends StatefulWidget {
     final FoldGeometry? fold = await _foldOf(target, tracks);
     final FoldBinding? binding = fold == null
         ? null
-        : await _bindingOf(target, fold, molecule);
+        : await _bindingOf(target, tracks, fold, molecule);
     if (fold != null && binding != null) {
       final FoldMorph morph = FoldMorph(
         FoldTimeline(fold),
@@ -261,9 +315,14 @@ class StructureView extends StatefulWidget {
   /// cannot be: the page then opens on the model, as it does with no fold.
   static Future<FoldBinding?> _bindingOf(
     ProteinTarget target,
+    TrackSource tracks,
     FoldGeometry fold,
     Node molecule,
-  ) => _bindings[target.slug] ??= _bind(target, fold, molecule);
+  ) => _bindings[_generationOf(target, tracks)] ??= _bind(
+    target,
+    fold,
+    molecule,
+  );
 
   static Future<FoldBinding?> _bind(
     ProteinTarget target,
@@ -302,14 +361,17 @@ class StructureView extends StatefulWidget {
   static Future<FoldGeometry?> _foldOf(
     ProteinTarget target,
     TrackSource tracks,
-  ) => _folds[target.slug] ??= _readFold(target, tracks).then((
-    FoldGeometry? fold,
   ) {
-    if (fold == null) {
-      _folds.remove(target.slug);
-    }
-    return fold;
-  });
+    final String key = _generationOf(target, tracks);
+    return _folds[key] ??= _readFold(target, tracks).then((
+      FoldGeometry? fold,
+    ) {
+      if (fold == null) {
+        _folds.remove(key);
+      }
+      return fold;
+    });
+  }
 
   static Future<FoldGeometry?> _readFold(
     ProteinTarget target,
@@ -319,7 +381,24 @@ class StructureView extends StatefulWidget {
       return null;
     }
     try {
-      return FoldGeometry.of(await FoldingTrack.load(target, tracks: tracks));
+      final FoldingTrack track = await FoldingTrack.load(
+        target,
+        tracks: tracks,
+      );
+      // Read by rows it holds, the fold has to have been made in the frame
+      // of the model those rows name: it ends on that model, float for float.
+      final Map<TrackKind, TrackRef>? rows = tracks is TrackRows
+          ? (tracks as TrackRows).rowsOf(target.slug)
+          : null;
+      final Object? glb = rows?[TrackKind.structure]?.provenance['glb'];
+      if (rows != null &&
+          (glb is! Map<String, dynamic> || glb['sha256'] != track.glbSha256)) {
+        throw StateError(
+          'The fold of ${target.slug} was made with another model than its '
+          'structure track holds',
+        );
+      }
+      return FoldGeometry.of(track);
     } on Object catch (error) {
       // The page opens on the model instead, as it did before there was a
       // fold to play.
@@ -405,7 +484,7 @@ class _StructureViewState extends State<StructureView>
   /// a few frames, and a pulse for them would read as a flicker, not a wait:
   /// the page holds still instead.
   late final bool _warmAtOpen = StructureView._warmed.contains(
-    widget.target.slug,
+    StructureView._generationOf(widget.target, context.read<TrackSource?>()),
   );
 
   final StructureRotation _rotation = StructureRotation();
@@ -528,6 +607,7 @@ class _StructureViewState extends State<StructureView>
         // No source, so no model. Not a renderer that cannot draw.
         throw StateError('No track source for ${widget.target.slug}');
       }
+      StructureView._holdRowToModel(widget.target, tracks);
       await StructureView._prepareWith(anatomy, loose, widget.target, tracks);
       if (!mounted) {
         return;
@@ -553,7 +633,12 @@ class _StructureViewState extends State<StructureView>
           : null;
       final FoldBinding? binding = fold == null
           ? null
-          : await StructureView._bindingOf(widget.target, fold, molecule);
+          : await StructureView._bindingOf(
+              widget.target,
+              tracks,
+              fold,
+              molecule,
+            );
       if (!mounted) {
         return;
       }

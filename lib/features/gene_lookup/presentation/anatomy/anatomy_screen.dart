@@ -1766,8 +1766,27 @@ class _AnatomyScreenState extends State<AnatomyScreen>
         products.add(name);
       }
     }
+    // A protein built on demand whose record names no peptides, drawn as two
+    // or three of its products, names each by its region in its table, in
+    // the order of the precursor, as its chains are tinted (the user's
+    // decision of 2026-10-12). A catalog row has no table.
+    final int matureChains = widget.target.chains
+        .where(
+          (StructureChain chain) =>
+              chain.tint == ChainTint.mature1 ||
+              chain.tint == ChainTint.mature2 ||
+              chain.tint == ChainTint.mature3,
+        )
+        .length;
+    final List<String> regions = <String>[
+      if (products.isEmpty && matureChains >= 2)
+        for (final ProteinRegion region in widget.target.regions)
+          if (region.kept) region.label,
+    ];
     String nameOf(int ordinal) => ordinal < products.length
         ? products[ordinal]
+        : ordinal < regions.length
+        ? regions[ordinal]
         : widget.target.chain ?? widget.target.display;
     return <(Color, String)>[
       for (final StructureChain chain in widget.target.chains)

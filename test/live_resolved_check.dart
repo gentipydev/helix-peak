@@ -16,8 +16,11 @@
 // protein from the server's side.
 //
 // Its model is read as it stands, whichever state its structure track is in:
-// ready (AlphaFold DB's, with its bands and its words), refused (the sentence
-// the fold page shows), or never asked for.
+// ready (an experimental entry's, with its fold, held to each other and to
+// the row as the walk holds them; or AlphaFold DB's, with its bands and its
+// words), refused (the sentence the fold page shows), or never asked for.
+// LIVE_FOLD says which it should be: `pdb`, `alphafold` or `none`; unset,
+// either model passes.
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -35,6 +38,7 @@ import 'package:helixpeek/core/evidence/protein_constraint.dart';
 import 'package:helixpeek/core/network/api_exception.dart';
 import 'package:helixpeek/core/network/dio_api_client.dart';
 import 'package:helixpeek/core/network/track_client.dart';
+import 'package:helixpeek/core/network/track_rows.dart';
 import 'package:helixpeek/core/network/track_source.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/data/datasources/gene_remote_data_source.dart';
@@ -44,6 +48,7 @@ import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canv
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_toolbar.dart';
 import 'package:helixpeek/shared/anatomy/anatomy_stages.dart';
+import 'package:helixpeek/shared/folding/folding_track.dart';
 import 'package:helixpeek/shared/structure/structure_view.dart';
 
 const Size _phone = Size(390, 844);
@@ -74,6 +79,10 @@ void main() {
   Object? constraintError;
   Uint8List? model;
   Object? modelError;
+  late Map<TrackKind, TrackRef> rows;
+  FoldingTrack? fold;
+  Object? foldError;
+  final String source = Platform.environment['LIVE_FOLD'] ?? '';
   GeneImpact? impact;
   GeneClinVar? clinvar;
   late ResolveStatus status;
@@ -115,11 +124,20 @@ void main() {
     } on Object catch (error) {
       constraintError = error;
     }
-    // The model, as the fold page reads it.
+    // The model, as the fold page reads it, and its fold, by the rows a walk
+    // of it is opened with.
+    rows = await tracks.refresh(slug);
     try {
       model = await tracks.read(slug, TrackKind.structure);
     } on Object catch (error) {
       modelError = error;
+    }
+    if (rows[TrackKind.folding]?.state == TrackState.ready) {
+      try {
+        fold = await FoldingTrack.load(target, tracks: tracks);
+      } on Object catch (error) {
+        foldError = error;
+      }
     }
     // Its AlphaGenome and ClinVar tracks, as the walk reads them, where the
     // service says they are ready; a widget test could not finish loading them.
@@ -215,36 +233,72 @@ void main() {
     }
   });
 
-  test('its model is AlphaFold DB\u2019s, or the service says why there is none', () {
+  test('its model is an experimental entry\u2019s with its fold, or AlphaFold DB\u2019s, '
+      'or the service says why there is none', () {
     if (!on) {
       markTestSkipped('set LIVE_BACKEND and LIVE_RESOLVED');
       return;
     }
     final TrackState state = target.state(TrackKind.structure);
+    // The row, the model and its fold are one generation of it.
+    expect(foldCoherence(target, rows), FoldCoherence.whole);
     if (state == TrackState.ready) {
       final StructureChrome chrome = target.structure!;
       expect(modelError, isNull);
       expect(model, isNotEmpty);
-      expect(chrome.predicted, isTrue);
-      expect(chrome.pdb, 'AF-${target.uniprot}-F1');
       expect(chrome.sentence.length, lessThanOrEqualTo(80));
-      // Every node is a band of confidence, or the bridges.
       expect(target.chains, isNotEmpty);
-      for (final StructureChain chain in target.chains) {
-        expect(
-          chain.tint.confidence != null || chain.tint == ChainTint.cysteine,
-          isTrue,
-          reason: chain.node,
+      final Map<String, dynamic> made = rows[TrackKind.structure]!.provenance;
+      expect(made['pdb'], chrome.pdb);
+      if (!chrome.predicted) {
+        expect(source, anyOf('', 'pdb'));
+        // An experimental entry: its chains as the twenty's are tinted, and
+        // its fold, made in the frame of the model it ends on.
+        for (final StructureChain chain in target.chains) {
+          expect(
+            <ChainTint>[ChainTint.mature1, ChainTint.mature2, ChainTint.mature3,
+                        ChainTint.cysteine],
+            contains(chain.tint),
+            reason: chain.node,
+          );
+        }
+        expect(made['source'], 'PDB');
+        expect(target.state(TrackKind.folding), TrackState.ready);
+        expect(foldError, isNull);
+        expect(fold, isNotNull);
+        expect(fold!.glbSha256, (made['glb'] as Map<String, dynamic>)['sha256']);
+        expect(fold!.pdb, chrome.pdb);
+        // ignore: avoid_print
+        print(
+          '$gene: model PDB ${chrome.pdb}, ${model!.length} bytes, ${chrome.count} '
+          '${chrome.unit}, ${chrome.label}; nodes '
+          '${target.chains.map((StructureChain c) => c.node).toList()}; its fold '
+          '${fold!.chains.length} chain(s), ${fold!.bridges.length} bridge(s). '
+          '"${chrome.sentence}"',
+        );
+      } else {
+        expect(source, anyOf('', 'alphafold'));
+        expect(chrome.pdb, 'AF-${target.uniprot}-F1');
+        // Every node is a band of confidence, or the bridges; and it is drawn
+        // still, with no fold.
+        for (final StructureChain chain in target.chains) {
+          expect(
+            chain.tint.confidence != null || chain.tint == ChainTint.cysteine,
+            isTrue,
+            reason: chain.node,
+          );
+        }
+        expect(target.state(TrackKind.folding), isNot(TrackState.ready));
+        // ignore: avoid_print
+        print(
+          '$gene: model ${chrome.source}, ${model!.length} bytes, '
+          '${chrome.count} ${chrome.unit}, modelled ${chrome.modelled}; nodes '
+          '${target.chains.map((StructureChain c) => c.node).toList()}. '
+          '"${chrome.sentence}"',
         );
       }
-      // ignore: avoid_print
-      print(
-        '$gene: model ${chrome.source}, ${model!.length} bytes, '
-        '${chrome.count} ${chrome.unit}, modelled ${chrome.modelled}; nodes '
-        '${target.chains.map((StructureChain c) => c.node).toList()}. '
-        '"${chrome.sentence}"',
-      );
     } else {
+      expect(source, anyOf('', 'none'));
       // No model: no words and no chains for one, and the track row says
       // which state it is in, with the sentence where the pipeline refused.
       expect(target.structure, isNull);
@@ -254,6 +308,7 @@ void main() {
       final TrackApiException said = modelError! as TrackApiException;
       expect(said.state, state.wire);
       expect(said.reason, state == TrackState.refused ? isNotNull : isNull);
+      expect(target.state(TrackKind.folding), isNot(TrackState.ready));
       // ignore: avoid_print
       print('$gene: no model, ${said.state}: ${said.reason}');
     }

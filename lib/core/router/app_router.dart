@@ -14,7 +14,11 @@ import '../../features/search/presentation/screens/search_screen.dart';
 import '../../shared/widgets/error_view.dart';
 import '../../shared/widgets/loading_view.dart';
 import '../catalog/protein_target.dart';
+import '../catalog/protein_track.dart';
 import '../network/api_exception.dart';
+import '../network/track_client.dart';
+import '../network/track_rows.dart';
+import '../network/track_source.dart';
 import 'walk_route.dart';
 
 export 'walk_route.dart' show walkPage, walkRoute;
@@ -65,23 +69,71 @@ GoRoute _walk(String path) => GoRoute(
 
 // The cubit is created per visit and starts fetching immediately, so a deep
 // link to a protein behaves the same as picking it off the search screen.
+//
+// One of the catalog's own opens on the row the list holds, at once. Any other
+// is a protein built on demand, whose fold can be published again while the
+// app runs: it is read afresh at every open, its row and its track rows
+// together, and its walk reads that one generation of its fold ([pinWalk]).
 Widget _walkBody(BuildContext context, GoRouterState state) {
   final ProteinCatalogRepository catalog =
       context.read<ProteinCatalogRepository>();
   final String slug = state.pathParameters['slug'] ??
       ProteinCatalogRepository.fallbackSlug;
   final ProteinTarget? target = catalog.bySlug(slug);
-  return target == null
-      ? _WalkLoader(key: ValueKey<String>(slug), catalog: catalog, slug: slug)
-      : _geneBody(target);
+  return target != null && catalog.listed(slug)
+      ? _geneBody(target)
+      : _WalkLoader(key: ValueKey<String>(slug), catalog: catalog, slug: slug);
 }
 
-Widget _geneBody(ProteinTarget target) {
-  return BlocProvider<GeneLookupCubit>(
+Widget _geneBody(ProteinTarget target, {TrackSource? pinned}) {
+  final Widget walk = BlocProvider<GeneLookupCubit>(
     create: (BuildContext context) =>
         GeneLookupCubit(context.read<FetchGene>())..load(target.query),
     child: GeneScreen(target: target),
   );
+  return pinned == null
+      ? walk
+      : RepositoryProvider<TrackSource>.value(value: pinned, child: walk);
+}
+
+/// A protein built on demand's track rows, read with its row, and a source
+/// that reads its walk by them: one generation of its fold, whatever the
+/// service publishes while the walk is open. The next open reads again.
+///
+/// The two are read one after the other, so a fold published in between can
+/// part them (`foldCoherence`): then both are read once more. A fold still
+/// made in another model's frame is not animated, and the walk opens on the
+/// model; a row naming another model than its track holds is left for the
+/// fold page, which says the model could not be loaded. Where no track rows
+/// can be read at all, the walk reads as it always has.
+@visibleForTesting
+Future<(ProteinTarget, TrackSource?)> pinWalk(
+  ProteinCatalogRepository catalog,
+  TrackClient client,
+  ProteinTarget target,
+) async {
+  Map<TrackKind, TrackRef> rows;
+  try {
+    rows = await client.refresh(target.slug);
+  } on Object catch (error) {
+    debugPrint('helixpeek: no track rows to pin ${target.slug} to ($error)');
+    return (target, null);
+  }
+  if (foldCoherence(target, rows) != FoldCoherence.whole) {
+    try {
+      target = await catalog.protein(target.slug, fresh: true);
+      rows = await client.refresh(target.slug);
+    } on Object catch (error) {
+      debugPrint('helixpeek: ${target.slug} read once more, and not ($error)');
+    }
+  }
+  if (foldCoherence(target, rows) == FoldCoherence.modelOnly) {
+    rows = <TrackKind, TrackRef>{
+      ...rows,
+      TrackKind.folding: const TrackRef(state: TrackState.absent),
+    };
+  }
+  return (target, client.pinned(target.slug, rows));
 }
 
 /// A deep link can arrive before the catalog, or name a protein outside it.
@@ -97,12 +149,19 @@ class _WalkLoader extends StatefulWidget {
 
 class _WalkLoaderState extends State<_WalkLoader> {
   ProteinTarget? _target;
+  TrackSource? _pinned;
   Object? _error;
   bool _fetching = false;
+
+  /// The app's track source, where it is the client that can read a
+  /// protein's rows afresh; null in a test that hands its own in.
+  TrackClient? _client;
 
   @override
   void initState() {
     super.initState();
+    final TrackSource? source = context.read<TrackSource?>();
+    _client = source is TrackClient ? source : null;
     widget.catalog.status.addListener(_resolve);
     _resolve();
   }
@@ -124,8 +183,20 @@ class _WalkLoaderState extends State<_WalkLoader> {
 
   Future<void> _fetch() async {
     try {
-      final ProteinTarget target = await widget.catalog.protein(widget.slug);
-      if (mounted) setState(() => _target = target);
+      final ProteinCatalogRepository catalog = widget.catalog;
+      final bool listed = catalog.listed(widget.slug);
+      ProteinTarget target = await catalog.protein(widget.slug, fresh: !listed);
+      TrackSource? pinned;
+      final TrackClient? client = _client;
+      if (!listed && client != null) {
+        (target, pinned) = await pinWalk(catalog, client, target);
+      }
+      if (mounted) {
+        setState(() {
+          _target = target;
+          _pinned = pinned;
+        });
+      }
     } on Object catch (error) {
       if (mounted) setState(() => _error = error);
     } finally {
@@ -136,7 +207,7 @@ class _WalkLoaderState extends State<_WalkLoader> {
   @override
   Widget build(BuildContext context) {
     final ProteinTarget? target = _target;
-    if (target != null) return _geneBody(target);
+    if (target != null) return _geneBody(target, pinned: _pinned);
     final Object? error = _error;
     if (error == null) {
       return Scaffold(body: LoadingView(label: 'LOADING ${widget.slug.toUpperCase()}'));

@@ -7,6 +7,7 @@ import 'package:flutter/scheduler.dart';
 
 import '../../../../core/catalog/protein_builds.dart';
 import '../../../../core/catalog/protein_suggestion.dart';
+import '../../../../core/catalog/protein_track.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/format.dart';
@@ -421,7 +422,8 @@ class _BuildCardState extends State<BuildCard>
 
 enum _Mark { waiting, active, done, declined }
 
-/// The five steps a build goes through, each marked where it stands.
+/// The five steps a build goes through, each marked where it stands, and its
+/// fold beside them where the service makes one.
 class _Steps extends StatelessWidget {
   const _Steps({required this.job, required this.report, required this.bar});
 
@@ -460,10 +462,11 @@ class _Steps extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final TrackState? fold = report.fold;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        for (final (BuildStep step, String title) in _shown)
+        for (final (BuildStep step, String title) in _shown) ...<Widget>[
           _StepRow(
             title: title,
             mark: _markOf(step),
@@ -479,9 +482,20 @@ class _Steps extends StatelessWidget {
                 ? report.reason ?? job.message
                 : null,
           ),
+          // Its fold is made once its record is, beside the rest: marked by
+          // its own state, and not shown where none is made.
+          if (step == BuildStep.record && fold != null)
+            _StepRow(title: 'Structure', mark: _foldMark(fold)),
+        ],
       ],
     );
   }
+
+  static _Mark _foldMark(TrackState fold) => switch (fold) {
+    TrackState.pending => _Mark.active,
+    TrackState.refused => _Mark.declined,
+    TrackState.ready || TrackState.absent => _Mark.done,
+  };
 
   /// What sits beside a step's name: the data it has, where it has any.
   String? _detail(BuildStep step, _Mark mark) {

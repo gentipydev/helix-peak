@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../core/catalog/protein_target.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/network/api_exception.dart';
 import '../../domain/entities/protein_ranking.dart';
 import '../datasources/catalog_local_data_source.dart';
 
@@ -50,16 +51,45 @@ final class ProteinCatalogRepository {
     _status.dispose();
   }
 
-  Future<ProteinTarget> protein(String slug) async {
+  /// [slug]'s row: the catalog's own, or one read from the service and kept.
+  ///
+  /// [fresh] reads a protein outside the catalog again even where one is
+  /// kept: a protein built on demand can have its fold published again while
+  /// the app runs, and the walk opened next draws the row as it is now. Where
+  /// the service cannot be reached, the row kept is the answer; an
+  /// authoritative refusal (a removed protein) is not hidden by it.
+  Future<ProteinTarget> protein(String slug, {bool fresh = false}) async {
     final ProteinTarget? held = bySlug(slug);
-    if (held != null) {
+    if (held != null && (!fresh || listed(slug))) {
       return held;
     }
-    final ProteinTarget target = ProteinTarget.fromJson(
-      await _api.getJson('/protein/${Uri.encodeComponent(slug)}'),
-    );
-    _details[slug] = target;
-    return target;
+    try {
+      final ProteinTarget target = ProteinTarget.fromJson(
+        await _api.getJson('/protein/${Uri.encodeComponent(slug)}'),
+      );
+      _details[slug] = target;
+      return target;
+    } on Object catch (error) {
+      final bool refused =
+          error is ServerApiException &&
+          error.statusCode != null &&
+          error.statusCode! < 500;
+      if (held == null || refused) {
+        rethrow;
+      }
+      _note('kept the row it had for $slug', error);
+      return held;
+    }
+  }
+
+  /// Whether [slug] is one of the catalog's own, as its list has it.
+  bool listed(String slug) {
+    for (final ProteinTarget target in _rows.value) {
+      if (target.slug == slug) {
+        return true;
+      }
+    }
+    return false;
   }
 
   ProteinTarget? bySlug(String slug) {

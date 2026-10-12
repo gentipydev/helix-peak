@@ -341,7 +341,14 @@ Tests use `test/support/fixture_track_source.dart` over `test/fixtures/`.
    is not on top is said in a snackbar on any screen (`BuildReadyListener`,
    in `MaterialApp.builder`). Nothing is given up on by the app: a report
    that stands still for ten minutes says so. From a service without the
-   report, the constraint track's state is read instead.
+   report, the constraint track's state is read instead. Where the service
+   makes folds, the card has a "Structure" row after "Gene record", marked
+   from the report's `fold` (being made, made, or refused with no model;
+   hidden where none is made), and a build whose scores are over while its
+   first fold is still being made is held: the service reports its
+   `structure` step, read as every step behind it and `BuildReport.holding`,
+   and it opens once the fold is made or the service stops waiting (20
+   minutes at most). `BuildStep` keeps its six values: a walk test pins them.
    `GET /proteins/built` lists every install's builds, newest first, as the
    same suggestions: one under way is left out until it is done, one stopped
    is kept and opens unscored there, with no Build (scoring it again is
@@ -352,32 +359,55 @@ Tests use `test/support/fixture_track_source.dart` over `test/fixtures/`.
    scored it or declined to (the backend's ESM-2 bake waits for the first
    two): `TrackClient` and `ProteinCatalogRepository` each remember a protein
    once read, so a protein opened mid-bake stays without them until a restart.
+   Its fold is the exception: it can be published again while the app runs
+   (a backfill, or an earlier fold put back), so every open of a protein
+   outside the catalog reads its row and its track rows afresh
+   (`ProteinCatalogRepository.protein(fresh:)`, `TrackClient.refresh`), and
+   its walk reads by those rows alone (`pinWalk` in `core/router`, a
+   `PinnedTrackSource`, which is `TrackRows`): one generation of its fold
+   for the walk, whatever is published while it is open, and the new one at
+   the next open, with no restart. Where the two reads disagree (a fold
+   published in between, `foldCoherence`), both are read once more. Offline,
+   the rows kept are read. A catalog protein opens as it always has.
    The walk reads a built protein's AVI and ClinVar as it reads the twenty's
    (`test/features/gene_lookup/anatomy/built_evidence_test.dart`, with B2M's
    stored tracks beside its record in `test/support/built_on_demand/`). Tests
    use `test/features/search/support/resolver_api.dart`.
 
-   **Its fold is AlphaFold DB's model** (R5.4, the user's decision of
-   2026-10-08), which the backend's worker makes in seconds, before the
-   scoring, and stores as the twenty's models are stored. Its row then
-   carries what theirs do, a fold description (`StructureChrome`) and a tint
-   for each node, and the fold page draws it by the same code. Three things
-   differ, and the row says each:
-   - Its nodes are pLDDT's four bands, not its chains
+   **Its fold is an experimental entry's, with the twenty's fold animation,
+   where one passes** (R5.4: chosen by rule, baked and held to this app's
+   own binding of it by the backend, `test/fold_bundle_check.dart`), and
+   AlphaFold DB's model, drawn still, only where a whole search finds none
+   (the user's decision of 2026-10-08, now the fallback). Its row carries
+   what the twenty's do, a fold description (`StructureChrome`) and a tint for
+   each node, and the fold page draws it by the same code:
+   - An experimental fold is drawn as the twenty's are: its chains
+     `mature1` to `mature3` in precursor order, `bonds` in `cysteine`, and its
+     `folding` track played on the walk's fold page. Where its record names
+     no peptides (no record built on demand does) and the model has two or
+     more chains, the fold legend names each by its region in the row's table
+     (`ProteinTarget.regions`, `/protein/{slug}`'s `regions`; the user's
+     decision of 2026-10-12). The fold page holds the row, the model and the
+     fold to each other by the rows its walk was opened with: a fold made in
+     another model's frame (`FoldingTrack.glbSha256`) is not played, and the
+     page opens on the model; a row naming another model than its track holds
+     is a model that could not be loaded. Its caches are named by that
+     generation of the fold (`StructureView`), a failed binding included.
+   - AlphaFold's nodes are pLDDT's four bands, not its chains
      (`ChainTint.plddtVeryHigh` to `plddtVeryLow`, in AlphaFold DB's own
      colours as `AnatomyColors` tokens, kept exact). The legend names a band
-     the same on every protein (`ChainTint.confidence`).
-   - Its entry id is AlphaFold DB's (`AF-<accession>-F1`), which
-     `StructureChrome.predicted` reads; the header and the About sheet name
-     the source by `StructureChrome.source`, and the About sheet credits it
-     (CC BY 4.0) through `SourcesNote(also:)`. The twenty's lines come out of
-     the same code, unchanged.
-   - It may have no model: none over 2,700 residues, none where the mean
-     pLDDT over the mature span is under 50. Then its row has no fold
-     description and its `structure` track is `refused`, and the fold page
-     says why in one line, the track row's own sentence (`StructureView`,
-     "A protein with no model"). Never "could not be loaded", which stays a
-     model that exists and did not arrive.
+     the same on every protein (`ChainTint.confidence`). Its entry id is
+     AlphaFold DB's (`AF-<accession>-F1`), which `StructureChrome.predicted`
+     reads; the header and the About sheet name the source by
+     `StructureChrome.source`, and the About sheet credits it (CC BY 4.0)
+     through `SourcesNote(also:)`. The twenty's lines come out of the same
+     code, unchanged.
+   - It may have no model: no experimental entry passes and AlphaFold DB has
+     none, or none sure enough. Then its row has no fold description and its
+     `structure` track is `refused`, and the fold page says why in one line,
+     the track row's own sentence (`StructureView`, "A protein with no
+     model"). Never "could not be loaded", which stays a model that exists
+     and did not arrive.
 
    `ChainTint.fromWire` throws on a tint it does not know, on purpose: a
    build older than these tints cannot open a protein once its model is

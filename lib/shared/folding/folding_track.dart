@@ -192,6 +192,7 @@ final class FoldingTrack {
     required this.angstromsPerUnit,
     this.cartoon = FoldCartoon.pymol,
     this.bridges = const <FoldBridge>[],
+    this.glbSha256,
   });
 
   /// Parses one payload, refusing one that names another protein, a chain
@@ -238,6 +239,7 @@ final class FoldingTrack {
         json['cartoon'] as Map<String, dynamic>?;
     return FoldingTrack(
       pdb: json['pdb'] as String? ?? '',
+      glbSha256: frame?['glb_sha256'] as String?,
       chains: List<FoldChain>.unmodifiable(chains),
       boundsMin: _point(bounds['min'], target),
       boundsMax: _point(bounds['max'], target),
@@ -269,6 +271,11 @@ final class FoldingTrack {
 
   /// The PDB entry the chains were read from.
   final String pdb;
+
+  /// The digest of the `.glb` this track was baked in the frame of: the model
+  /// the fold ends on, which the structure track's provenance names by the
+  /// same digest. Null for a track that does not say.
+  final String? glbSha256;
 
   final List<FoldChain> chains;
 

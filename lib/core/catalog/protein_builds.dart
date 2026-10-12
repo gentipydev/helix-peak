@@ -337,7 +337,9 @@ class ProteinBuilds {
             slug: slug,
           );
         }
-        final bool over = report.step == BuildStep.done || report.reason != null;
+        final bool over =
+            (report.step == BuildStep.done && !report.holding) ||
+            report.reason != null;
         return build._with(
           // Stopped by the phone that asked, when this one only watched it.
           stage: report.stopped

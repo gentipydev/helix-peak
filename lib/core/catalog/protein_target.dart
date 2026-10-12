@@ -189,6 +189,36 @@ final class ProteinFacts {
   final int bridges;
 }
 
+/// A named stretch of the precursor, as the service's table of a protein's
+/// regions has it: its signal peptide, a chain, a propeptide. Numbered as the
+/// precursor is, 1-based inclusive; [kept] is whether the stretch is still
+/// there once the precursor has been cut.
+///
+/// Only a protein built on demand is served with its table
+/// (`/protein/{slug}`): a catalog row carries none, and the twenty's regions
+/// are their records' own.
+@immutable
+final class ProteinRegion {
+  const ProteinRegion({
+    required this.label,
+    required this.start,
+    required this.end,
+    this.kept = true,
+  });
+
+  factory ProteinRegion.fromJson(Map<String, dynamic> json) => ProteinRegion(
+    label: json['label'] as String,
+    start: json['start'] as int,
+    end: json['end'] as int,
+    kept: json['kept'] as bool? ?? true,
+  );
+
+  final String label;
+  final int start;
+  final int end;
+  final bool kept;
+}
+
 /// One protein the service can walk, with its track states and fold metadata.
 @immutable
 final class ProteinTarget {
@@ -205,6 +235,7 @@ final class ProteinTarget {
     this.chain,
     this.impactExplanationsAvailable = false,
     this.tracks = const <TrackKind, TrackRef>{},
+    this.regions = const <ProteinRegion>[],
   });
 
   /// A catalog or detail row as the service serves it.
@@ -230,6 +261,11 @@ final class ProteinTarget {
       chain: json['chain'] as String?,
       impactExplanationsAvailable: _ready(tracks, TrackKind.impactExplanations),
       tracks: tracks,
+      regions: <ProteinRegion>[
+        for (final dynamic region
+            in json['regions'] as List<dynamic>? ?? <dynamic>[])
+          ProteinRegion.fromJson(region as Map<String, dynamic>),
+      ],
     );
   }
 
@@ -312,6 +348,10 @@ final class ProteinTarget {
 
   /// The served state of each family, independent of the device cache.
   final Map<TrackKind, TrackRef> tracks;
+
+  /// The precursor's table of regions, in order, where the row carries one:
+  /// a protein built on demand's. Empty for a catalog row.
+  final List<ProteinRegion> regions;
 
   /// Where [kind] has got to, or [TrackState.absent] where nothing was said.
   TrackState state(TrackKind kind) =>

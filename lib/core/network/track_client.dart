@@ -10,6 +10,7 @@ import '../catalog/protein_track.dart';
 import 'api_client.dart';
 import 'api_exception.dart';
 import 'dio_api_client.dart';
+import 'track_rows.dart';
 import 'track_source.dart';
 
 /// Fetches track payloads from storage and keeps their rows and bytes.
@@ -88,9 +89,29 @@ final class TrackClient implements TrackSource {
       });
 
   @override
-  Future<Uint8List> read(String slug, TrackKind kind) async {
-    final TrackRef ref =
-        (await tracksOf(slug))[kind] ?? const TrackRef(state: TrackState.absent);
+  Future<Uint8List> read(String slug, TrackKind kind) async => readBy(
+    slug,
+    kind,
+    (await tracksOf(slug))[kind] ?? const TrackRef(state: TrackState.absent),
+  );
+
+  /// [slug]'s rows read again from the service, and remembered in place of
+  /// those held: what a protein built on demand is opened by, so that a fold
+  /// published since the last open is the one drawn. Where the service cannot
+  /// be reached, the rows last written to the cache, as [tracksOf] falls back.
+  Future<Map<TrackKind, TrackRef>> refresh(String slug) {
+    unawaited(_rows.remove(slug));
+    return tracksOf(slug);
+  }
+
+  /// A source that reads [slug] by [rows] alone, whatever this client comes
+  /// to hold for it later: one generation of its tracks, for one walk.
+  PinnedTrackSource pinned(String slug, Map<TrackKind, TrackRef> rows) =>
+      PinnedTrackSource._(this, slug, rows);
+
+  /// The payload [ref] names: its bytes from the cache, or from storage. A
+  /// row that is not ready throws, as [read] does.
+  Future<Uint8List> readBy(String slug, TrackKind kind, TrackRef ref) async {
     final String? url = ref.url;
     if (ref.state != TrackState.ready || url == null) {
       throw TrackApiException(
@@ -330,4 +351,36 @@ final class TrackClient implements TrackSource {
       return true;
     }(), 'debug-only diagnostic');
   }
+}
+
+/// One protein's tracks as they stood when a walk opened, for that walk.
+///
+/// Reads [slug] by the rows it was made with ([TrackClient.pinned]), so an
+/// open walk draws one generation of the protein's fold, whatever the service
+/// publishes meanwhile; every other protein is read as the client reads it.
+/// The rows are [TrackRows]: what the fold page names its caches by, and
+/// holds the model and the fold to.
+final class PinnedTrackSource implements TrackSource, TrackRows {
+  PinnedTrackSource._(this._client, this.slug, Map<TrackKind, TrackRef> rows)
+    : _rows = Map<TrackKind, TrackRef>.unmodifiable(rows);
+
+  final TrackClient _client;
+
+  /// The protein this source holds the rows of.
+  final String slug;
+
+  final Map<TrackKind, TrackRef> _rows;
+
+  @override
+  Map<TrackKind, TrackRef>? rowsOf(String slug) =>
+      slug == this.slug ? _rows : null;
+
+  @override
+  Future<Uint8List> read(String slug, TrackKind kind) => slug == this.slug
+      ? _client.readBy(
+          slug,
+          kind,
+          _rows[kind] ?? const TrackRef(state: TrackState.absent),
+        )
+      : _client.read(slug, kind);
 }
