@@ -449,6 +449,13 @@ dart run build_runner build    # after editing gene_record_dto.dart
   (`LIVE_EXPECT=refused` for one whose ESM-2 track was refused, `absent` for one
   whose scoring was stopped; `LIVE_EVIDENCE` likewise for its AVI and ClinVar,
   `ready` by default).
+- `FOLD_BUNDLE=<dir> flutter test test/fold_bundle_check.dart` holds a fold the
+  backend has baked for a protein built on demand (its row, `.glb`, scene and
+  `folding` track) to the fold page's rules: the scene is the model, every
+  ring and rod binds, the fold ends on the stored mesh float for float, and
+  nothing jumps. It writes its verdict to `check.json` (`ok`, `unsuitable`,
+  `fault`); the backend's worker runs it on every such model before storing
+  it (`pipeline/structure/experimental.py`).
 - `SHOT_DIR=<dir> flutter test test/goldens` writes PNGs (the catalog walk,
   ClinVar, constraint and impact tests do too). Also:
   `TRANSLATION_SHOT_DIR`, `SELECTION_SHOT_DIR`, `HELIX_OUT`, `HELIX_MOTION=1`.

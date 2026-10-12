@@ -15,12 +15,14 @@ import 'package:helixpeek/shared/folding/fold_skin.dart';
 /// so a mesh read here is the one the page draws, float for float.
 List<SkinMesh> storedMeshes(String slug) => _meshes.putIfAbsent(
   slug,
-  () => _read(File('test/fixtures/models/$slug.glb').readAsBytesSync()),
+  () => meshesOfGlb(File('test/fixtures/models/$slug.glb').readAsBytesSync()),
 );
 
 final Map<String, List<SkinMesh>> _meshes = <String, List<SkinMesh>>{};
 
-List<SkinMesh> _read(Uint8List bytes) {
+/// The meshes of any `.glb`, each node as the compiler bakes it: read by
+/// `test/fold_bundle_check.dart` too, for a model the backend has just made.
+List<SkinMesh> meshesOfGlb(Uint8List bytes) {
   final ByteData data = ByteData.sublistView(bytes);
   if (data.getUint32(0, Endian.little) != 0x46546C67 ||
       data.getUint32(4, Endian.little) != 2) {
