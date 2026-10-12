@@ -341,6 +341,55 @@ void main() {
     semantics.dispose();
   });
 
+  testWidgets('AlphaGenome and ClinVar are a step between the record and ESM-2, with no Stop', (
+    WidgetTester tester,
+  ) async {
+    final ResolverApi api = ResolverApi(
+      suggest: _finding(<Map<String, dynamic>>[_brca1]),
+      resolve: (String gene) async => _said(
+        'pending', slug: 'brca1', build: _report('queued', 0.2, ahead: 0)),
+      status: _inTurn(<Map<String, dynamic>>[
+        _said('ready', slug: 'brca1',
+            build: _report('evidence', 53.0, transcript: 'NM_007294.4')),
+        _said('ready', slug: 'brca1',
+            build: _report('scoring', 172.0, ahead: 0, transcript: 'NM_007294.4')),
+        _said('ready', slug: 'brca1', build: _report('done', 905.0,
+            scored: 1863, residues: 1863, transcript: 'NM_007294.4')),
+      ]),
+    );
+    await _pump(tester, api, asker: 'install-a');
+    await _type(tester, 'brca1');
+    await tester.tap(_inTile('Breast cancer type 1 susceptibility protein', find.text('Build')));
+    await tester.pump();
+    await tester.pump();
+    // Queued, and this phone's: it may be stopped.
+    expect(_inCard('BRCA1', find.text('Stop')), findsOneWidget);
+
+    // Its AVI and ClinVar under way: the gene record done, the step between it
+    // and ESM-2 at work, and no Stop, which ends ESM-2, not yet begun.
+    await tester.pump(_tick);
+    final Finder evidence = _inCard('BRCA1', find.text('AlphaGenome and ClinVar'));
+    expect(evidence, findsOneWidget);
+    expect(_inCard('BRCA1', find.text('NM_007294.4')), findsOneWidget);
+    expect(_inCard('BRCA1', find.byIcon(Icons.check_rounded)), findsNWidgets(2));
+    final double record = tester.getTopLeft(_inCard('BRCA1', find.text('Gene record'))).dy;
+    final double scoring = tester.getTopLeft(_inCard('BRCA1', find.text('ESM-2 650M'))).dy;
+    expect(tester.getTopLeft(evidence).dy, inExclusiveRange(record, scoring));
+    expect(_inCard('BRCA1', find.text('Stop')), findsNothing);
+    expect(find.text('Open'), findsNothing);
+
+    // ESM-2's turn: the evidence is done, and Stop is offered again.
+    await tester.pump(_tick);
+    expect(_inCard('BRCA1', find.byIcon(Icons.check_rounded)), findsNWidgets(3));
+    expect(_inCard('BRCA1', find.text('Next')), findsOneWidget);
+    expect(_inCard('BRCA1', find.text('Stop')), findsOneWidget);
+    expect(find.text('Open'), findsNothing);
+
+    await tester.pump(_tick);
+    expect(_inCard('BRCA1', find.text('Built in 15 min')), findsOneWidget);
+    expect(_inCard('BRCA1', find.text('Open')), findsOneWidget);
+  });
+
   testWidgets('opened, it leaves the top and opens from its row', (
     WidgetTester tester,
   ) async {

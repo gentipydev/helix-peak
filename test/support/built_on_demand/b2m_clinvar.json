@@ -1,0 +1,2747 @@
+{
+  "schema_version": 1,
+  "source": "NCBI ClinVar",
+  "gene": "B2M",
+  "accession": "NG_012920.2",
+  "assembly": "GRCh38",
+  "chromosome": "chr15",
+  "scope": "reference-matched single nucleotide variants in the drawn gene",
+  "start": 5041,
+  "sequence": "ATTCCTGAAGCTGACAGCATTCGGGCCGAGATGTCTCGCTCCGTGGCCTTAGCTGTGCTCGCGCTACTCTCTCTTTCTGGCCTGGAGGCTATCCAGCGTGAGTCTCTCCTACCCTCCCGCTCTGGTCCTTCCTCTCCCGCTCTGCACCCTCTGTGGCCCTCGCTGTGCTCTCTCGCTCCGTGACTTCCCTTCTCCAAGTTCTCCTTGGTGGCCCGCCGTGGGGCTAGTCCAGGGCTGGATCTCGGGGAAGCGGCGGGGTGGCCTGGGAGTGGGGAAGGGGGTGCGCACCCGGGACGCGCGCTACTTGCCCCTTTCGGCGGGGAGCAGGGGAGACCTTTGGCCTACGGCGACGGGAGGGTCGGGACAAAGTTTAGGGCGTCGATAAGCGTCAGAGCGCCGAGGTTGGGGGAGGGTTTCTCTTCCGCTCTTTCGCGGGGCCTCTGGCTCCCCCAGCGCAGCTGGAGTGGGGGACGGGTAGGCTCGTCCCAAAGGCGCGGCGCTGAGGTTTGTGAACGCGTGGAGGGGCGCTTGGGGTCTGGGGGAGGCGTCGCCCGGGTAAGCCTGTCTGCTGCGGCTCTGCTTCCCTTAGACTGGAGAGCTGTGGACTTCGTCTAGGCGCCCGCTAAGTTCGCATGTCCTAGCACCTCTGGGTCTATGTGGGGCCACACCGTGGGGAGGAAACAGCACGCGACGTTTGTAGAATGCTTGGCTGTGATACAAAGCGGTTTCGAATAATTAACTTATTTGTTCCCATCACATGTCACTTTTAAAAAATTATAAGAACTACCCGTTATTGACATCTTTCTGTGTGCCAAGGACTTTATGTGCTTTGCGTCATTTAATTTTGAAAACAGTTATCTTCCGCCATAGATAACTACTATGGTTATCTTCTGCCTCTCACAGATGAAGAAACTAAGGCACCGAGATTTTAAGAAACTTAATTACACAGGGGATAAATGGCAGCAATCGAGATTGAAGTCAAGCCTAACCAGGGCTTTTGCGGGAGCGCATGCCTTTTGGCTGTAATTCGTGCATTTTTTTTTAAGAAAAACGCCTGCCTTCTGCGTGAGATTCTCCAGAGCAAACTGGGCGGCATGGGCCCTGTGGTCTTTTCGTACAGAGGGCTTCCTCTTTGGCTCTTTGCCTGGTTGTTTCCAAGATGTACTGTGCCTCTTACTTTCGGTTTTGAAAACATGAGGGGGTTGGGCGTGGTAGCTTACGCCTGTAATCCCAGCACTTAGGGAGGCCGAGGCGGGAGGATGGCTTGAGGTCCGTAGTTGAGACCAGCCTGGCCAACATGGTGAAGCCTGGTCTCTACAAAAAATAATAACAAAAATTAGCCGGGTGTGGTGGCTCGTGCCTGTGGTCCCAGCTGCTCCGGTGGCTGAGGCGGGAGGATCTCTTGAGCTTAGGCTTTTGAGCTATCATGGCGCCAGTGCACTCCAGCGTGGGCAACAGAGCGAGACCCTGTCTCTCAAAAAAGAAAAAAAAAAAAAAAGAAAGAGAAAAGAAAAGAAAGAAAGAAGTGAAGGTTTGTCAGTCAGGGGAGCTGTAAAACCATTAATAAAGATAATCCAAGATGGTTACCAAGACTGTTGAGGACGCCAGAGATCTTGAGCACTTTCTAAGTACCTGGCAATACACTAAGCGCGCTCACCTTTTCCTCTGGCAAAACATGATCGAAAGCAGAATGTTTTGATCATGAGAAAATTGCATTTAATTTGAATACAATTTATTTACAACATAAAGGATAATGTATATATCACCACCATTACTGGTATTTGCTGGTTATGTTAGATGTCATTTTAAAAAATAACAATCTGATATTTAAAAAAAAATCTTATTTTGAAAATTTCCAAAGTAATACATGCCATGCATAGACCATTTCTGGAAGATACCACAAGAAACATGTAATGATGATTGCCTCTGAAGGTCTATTTTCCTCCTCTGACCTGTGTGTGGGTTTTGTTTTTGTTTTACTGTGGGCATAAATTAATTTTTCAGTTAAGTTTTGGAAGCTTAAATAACTCTCCAAAAGTCATAAAGCCAGTAACTGGTTGAGCCCAAATTCAAACCCAGCCTGTCTGATACTTGTCCTCTTCTTAGAAAAGATTACAGTGATGCTCTCACAAAATCTTGCCGCCTTCCCTCAAACAGAGAGTTCCAGGCAGGATGAATCTGTGCTCTGATCCCTGAGGCATTTAATATGTTCTTATTATTAGAAGCTCAGATGCAAAGAGCTCTCTTAGCTTTTAATGTTATGAAAAAAATCAGGTCTTCATTAGATTCCCCAATCCACCTCTTGATGGGGCTAGTAGCCTTTCCTTAATGATAGGGTGTTTCTAGAGAGATATATCTGGTCAAGGTGGCCTGGTACTCCTCCTTCTCCCCACAGCCTCCCAGACAAGGAGGAGTAGCTGCCTTTTAGTGATCATGTACCCTGAATATAAGTGTATTTAAAAGAATTTTATACACATATATTTAGTGTCAATCTGTATATTTAGTAGCACTAACACTTCTCTTCATTTTCAATGAAAAATATAGAGTTTATAATATTTTCTTCCCACTTCCCCATGGATGGTCTAGTCATGCCTCTCATTTTGGAAAGTACTGTTTCTGAAACATTAGGCAATATATTCCCAACCTGGCTAGTTTACAGCAATCACCTGTGGATGCTAATTAAAACGCAAATCCCACTGTCACATGCATTACTCCATTTGATCATAATGGAAAGTATGTTCTGTCCCATTTGCCATAGTCCTCACCTATCCCTGTTGTATTTTATCGGGTCCAACTCAACCATTTAAGGTATTTGCCAGCTCTTGTATGCATTTAGGTTTTGTTTCTTTGTTTTTTAGCTCATGAAATTAGGTACAAAGTCAGAGAGGGGTCTGGCATATAAAACCTCAGCAGAAATAAAGAGGTTTTGTTGTTTGGTAAGAACATACCTTGGGTTGGTTGGGCACGGTGGCTCGTGCCTGTAATCCCAACACTTTGGGAGGCCAAGGCAGGCTGATCACTTGAAGTTGGGAGTTCAAGACCAGCCTGGCCAACATGGTGAAATCCCGTCTCTACTGAAAATACAAAAATTAACCAGGCATGGTGGTGTGTGCCTGTAGTCCCAGGAATCACTTGAACCCAGGAGGCGGAGGTTGCAGTGAGCTGAGATCTCACCACTGCACACTGCACTCCAGCCTGGGCAATGGAATGAGATTCCATCCCAAAAAATAAAAAAATAAAAAAATAAAGAACATACCTTGGGTTGATCCACTTAGGAACCTCAGATAATAACATCTGCCACGTATAGAGCAATTGCTATGTCCCAGGCACTCTACTAGACACTTCATACAGTTTAGAAAATCAGATGGGTGTAGATCAAGGCAGGAGCAGGAACCAAAAAGAAAGGCATAAACATAAGAAAAAAAATGGAAGGGGTGGAAACAGAGTACAATAACATGAGTAATTTGATGGGGGCTATTATGAACTGAGAAATGAACTTTGAAAAGTATCTTGGGGCCAAATCATGTAGACTCTTGAGTGATGTGTTAAGGAATGCTATGAGTGCTGAGAGGGCATCAGAAGTCCTTGAGAGCCTCCAGAGAAAGGCTCTTAAAAATGCAGCGCAATCTCCAGTGACAGAAGATACTGCTAGAAATCTGCTAGAAAAAAAACAAAAAAGGCATGTATAGAGGAATTATGAGGGAAAGATACCAAGTCACGGTTTATTCTTCAAAATGGAGGTGGCTTGTTGGGAAGGTGGAAGCTCATTTGGCCAGAGTGGAAATGGAATTGGGAGAAATCGATGACCAAATGTAAACACTTGGTGCCTGATATAGCTTGACACCAAGTTAGCCCCAAGTGAAATACCCTGGCAATATTAATGTGTCTTTTCCCGATATTCCTCAGGTACTCCAAAGATTCAGGTTTACTCACGTCATCCAGCAGAGAATGGAAAGTCAAATTTCCTGAATTGCTATGTGTCTGGGTTTCATCCATCCGACATTGAAGTTGACTTACTGAAGAATGGAGAGAGAATTGAAAAAGTGGAGCATTCAGACTTGTCTTTCAGCAAGGACTGGTCTTTCTATCTCTTGTACTACACTGAATTCACCCCCACTGAAAAAGATGAGTATGCCTGCCGTGTGAACCATGTGACTTTGTCACAGCCCAAGATAGTTAAGTGGGGTAAGTCTTACATTCTTTTGTAAGCTGCTGAAAGTTGTGTATGAGTAGTCATATCATAAAGCTGCTTTGATATAAAAAAGGTCTATGGCCATACTACCCTGAATGAGTCCCATCCCATCTGATATAAACAATCTGCATATTGGGATTGTCAGGGAATGTTCTTAAAGATCAGATTAGTGGCACCTGCTGAGATACTGATGCACAGCATGGTTTCTGAACCAGTAGTTTCCCTGCAGTTGAGCAGGGAGCAGCAGCAGCACTTGCACAAATACATATACACTCTTAACACTTCTTACCTACTGGCTTCCTCTAGCTTTTGTGGCAGCTTCAGGTATATTTAGCACTGAACGAACATCTCAAGAAGGTATAGGCCTTTGTTTGTAAGTCCTGCTGTCCTAGCATCCTATAATCCTGGACTTCTCCAGTACTTTCTGGCTGGATTGGTATCTGAGGCTAGTAGGAAGGGCTTGTTCCTGCTGGGTAGCTCTAAACAATGTATTCATGGGTAGGAACAGCAGCCTATTCTGCCAGCCTTATTTCTAACCATTTTAGACATTTGTTAGTACATGGTATTTTAAAAGTAAAACTTAATGTCTTCCTTTTTTTTCTCCACTGTCTTTTTCATAGATCGAGACATGTAAGCAGCATCATGGAGGTAAGTTTTTGACCTTGAGAAAATGTTTTTGTTTCACTGTCCTGAGGACTATTTATAGACAGCTCTAACATGATAACCCTCACTATGTGGAGAACATTGACAGAGTAACATTTTAGCAGGGAAAGAAGAATCCTACAGGGTCATGTTCCCTTCTCCTGTGGAGTGGCATGAAGAAGGTGTATGGCCCCAGGTATGGCCATATTACTGACCCTCTACAGAGAGGGCAAAGGAACTGCCAGTATGGTATTGCAGGATAAAGGCAGGTGGTTACCCACATTACCTGCAAGGCTTTGATCTTTCTTCTGCCATTTCCACATTGGACATCTCTGCTGAGGAGAGAAAATGAACCACTCTTTTCCTTTGTATAATGTTGTTTTATTCTTCAGACAGAAGAGAGGAGTTATACAGCTCTGCAGACATCCCATTCCTGTATGGGGACTGTGTTTGCCTCTTAGAGGTTCCCAGGCCACTAGAGGAGATAAAGGGAAACAGATTGTTATAACTTGATATAATGATACTATAATAGATGTAACTACAAGGAGCTCCAGAAGCAAGAGAGAGGGAGGAACTTGGACTTCTCTGCATCTTTAGTTGGAGTCCAAAGGCTTTTCAATGAAATTCTACTGCCCAGGGTACATTGATGCTGAAACCCCATTCAAATCTCCTGTTATATTCTAGAACAGGGAATTGATTTGGGAGAGCATCAGGAAGGTGGATGATCTGCCCAGTCACACTGTTAGTAAATTGTAGAGCCAGGACCTGAACTCTAATATAGTCATGTGTTACTTAATGACGGGGACATGTTCTGAGAAATGCTTACACAAACCTAGGTGTTGTAGCCTACTACACGCATAGGCTACATGGTATAGCCTATTGCTCCTAGACTACAAACCTGTACAGCCTGTTACTGTACTGAATACTGTGGGCAGTTGTAACACAATGGTAAGTATTTGTGTATCTAAACATAGAAGTTGCAGTAAAAATATGCTATTTTAATCTTATGAGACCACTGTCATATATACAGTCCATCATTGACCAAAACATCATATCAGCATTTTTTCTTCTAAGATTTTGGGAGCACCAAAGGGATACACTAACAGGATATACTCTTTATAATGGGTTTGGAGAACTGTCTGCAGCTACTTCTTTTAAAAAGGTGATCTACACAGTAGAAATTAGACAAGTTTGGTAATGAGATCTGCAATCCAAATAAAATAAATTCATTGCTAACCTTTTTCTTTTCTTTTCAGGTTTGAAGATGCCGCATTTGGATTGGATGAATTCCAAATTCTGCTTGCTTGCTTTTTAATATTGATATGCTTATACACTTACACTTTATGCACAAAATGTAGGGTTATAATAATGTTAACATGGACATGATCTTCTTTATAATTCTACTTTGAGTGCTGTCTCCATGTTTGATGTATCTGAGCAGGTTGCTCCACAGGTAGCTCTAGGAGGGCTGGCAACTTAGAGGTGGGGAGCAGAGAATTCTCTTATCCAACATCAACATCTTGGTCAGATTTGAACTCTTCAATCTCTTGCACTCAAAGCTTGTTAAGATAGTTAAGCGTGCATAAGTTAACTTCCAATTTACATACTCTGCTTAGAATTTGGGGGAAAATTTAGAAATATAATTGACAGGATTATTGGAAATTTGTTATAATGAATGAAACATTTTGTCATATAAGATTCATATTTACTTCTTATACATTTGATAAAGTAAGGCATGGTTGTGGTTAATCTGGTTTATTTTTGTTCCACAAGTTAAATAAATCATAAAACTTGATGTGTTATCTCTTATATCTCACTCCCACTATTACCCCTTTATTTTCAAACAGGGAAACAGTCTTCAAGTTCCACTTGGTAAAAAATGTGAACCCCTTGTATATAGAGTTTGGCTCACAGTGTAAAGGGCCTCAGTGATTCACATTTTCCAGATTAGGAATCTGATGCTCAAAGAAGTTAAATGGCATAGTTGGGGTGACACAGCTGTCTAGTGGGAGGCCAGCCTTCTATATTTTAGCCAGCGTTCTTTCCTGCGGGCCAGGTCATGAGGAGTATGCAGACTCTAAGAGGGAGCAAAAGTATCTGAAGGATTTAATATTTTAGCAAGGAATAGATATACAATCATCCCTTGGTCTCCCTGGGGGATTGGTTTCAGGACCCCTTCTTGGACACCAAATCTATGGATATTTAAGTCCCTTCTATAAAATGGTATAGTATTTGCATATAACCTATCCACATCCTCCTGTATACTTTAAATCATTTCTAGATTACTTGTAATACCTAATACAATGTAAATGCTATGCAAATAGTTGTTATTGTTTAAGGAATAATGACAAGAAAAAAAAGTCTGTACATGCTCAGTAAAGACACAACCATCCCTTTTTTTCCCCAGTGTTTTTGATCCATGGTTTGCTGAATCCACAGATGTGGAGCCCCTGGATACGGAAGGCCCGCTGTACTTTGAATGACAAATAACAGATTTAAAATTTTCAAGGCATAGTTTTATACCTGA",
+  "protein_sequence": "MSRSVALAVLALLSLSGLEAIQRTPKIQVYSRHPAENGKSNFLNCYVSGFHPSDIEVDLLKNGERIEKVEHSDLSFSKDWSFYLLYYTEFTPTEKDEYACRVNHVTLSQPKIVKWDRDM",
+  "complemented": false,
+  "runs": [
+    {
+      "local": 5041,
+      "genomic": 44711517,
+      "step": 1,
+      "length": 7361
+    }
+  ],
+  "retrieved_at": "2026-10-09T14:48:14.166905+00:00",
+  "query": "B2M[gene]",
+  "searched_records": 121,
+  "excluded": {
+    "no_germline_classification": 21,
+    "no_unique_GRCh38_location": 17,
+    "not_a_single_base_substitution": 7
+  },
+  "source_batches": [
+    {
+      "file": "batch-0.xml",
+      "sha256": "67b84496316298db788bbe8642ec5dfd01f45a4ccb692d6ad71bf8ed879a265e"
+    },
+    {
+      "file": "batch-1.xml",
+      "sha256": "70890f04ae3c0870f260bae714d6077b8b41475646e65f3581b7055e6993aa69"
+    }
+  ],
+  "traits": {
+    "Amyloidosis, hereditary systemic 6": {
+      "medgen": "C5935573",
+      "symbol": "AMYLD6",
+      "omim": "620659",
+      "mondo": "MONDO:0971010"
+    },
+    "Familial visceral amyloidosis, Ostertag type": {
+      "medgen": "C0268389",
+      "symbol": "AMYLD2",
+      "omim": "105200",
+      "mondo": "MONDO:0007099"
+    },
+    "Hypoproteinemia, hypercatabolic": {
+      "medgen": "C1855796",
+      "symbol": "IMD43",
+      "omim": "241600",
+      "mondo": "MONDO:0009434"
+    },
+    "Inborn genetic diseases": {
+      "medgen": "C0950123"
+    },
+    "Non-Hodgkin lymphoma": {
+      "medgen": "C0024305",
+      "symbol": "NHL",
+      "mondo": "MONDO:0018908"
+    }
+  },
+  "variants": [
+    {
+      "variation_id": "4689008",
+      "accession": "VCV004689008.2",
+      "name": "NM_004048.4(B2M):c.-4C>T",
+      "position": 5067,
+      "genomic": 44711543,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign/Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-01-22",
+      "last_updated": "2026-09-27",
+      "conditions": [
+        {
+          "accession": "RCV006459549.2",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Benign/Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2026-01-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3577174",
+      "accession": "VCV003577174.1",
+      "name": "NM_004048.4(B2M):c.2T>C (p.Met1Thr)",
+      "position": 5072,
+      "genomic": 44711548,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 1,
+      "protein_change": "p.M1T",
+      "coding_change": "c.2T>C",
+      "consequence": "start codon",
+      "classification": "Likely pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-01-11",
+      "last_updated": "2025-02-01",
+      "conditions": [
+        {
+          "accession": "RCV005009638.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 6",
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-01-11"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "534623",
+      "accession": "VCV000534623.8",
+      "name": "NM_004048.4(B2M):c.5C>T (p.Ser2Phe)",
+      "position": 5075,
+      "genomic": 44711551,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 2,
+      "protein_change": "p.S2F",
+      "coding_change": "c.5C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2017-12-27",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV000642237.9",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-12-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1011724",
+      "accession": "VCV001011724.7",
+      "name": "NM_004048.4(B2M):c.7C>T (p.Arg3Cys)",
+      "position": 5077,
+      "genomic": 44711553,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 3,
+      "protein_change": "p.R3C",
+      "coding_change": "c.7C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-12-23",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001309565.7",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1910383",
+      "accession": "VCV001910383.5",
+      "name": "NM_004048.4(B2M):c.8G>A (p.Arg3His)",
+      "position": 5078,
+      "genomic": 44711554,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 3,
+      "protein_change": "p.R3H",
+      "coding_change": "c.8G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-08-08",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002593234.5",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-08-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2824511",
+      "accession": "VCV002824511.3",
+      "name": "NM_004048.4(B2M):c.20T>A (p.Leu7Ter)",
+      "position": 5090,
+      "genomic": 44711566,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": 7,
+      "protein_change": "p.L7*",
+      "coding_change": "c.20T>A",
+      "consequence": "stop gained",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-03-09",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV003631800.5",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-03-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2417400",
+      "accession": "VCV002417400.5",
+      "name": "NM_004048.4(B2M):c.24T>C (p.Ala8=)",
+      "position": 5094,
+      "genomic": 44711570,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 8,
+      "protein_change": "p.A8=",
+      "coding_change": "c.24T>C",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-03-25",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV003114869.6",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-03-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2703987",
+      "accession": "VCV002703987.3",
+      "name": "NM_004048.4(B2M):c.27G>A (p.Val9=)",
+      "position": 5097,
+      "genomic": 44711573,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 9,
+      "protein_change": "p.V9=",
+      "coding_change": "c.27G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-12-16",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003518031.4",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-12-16"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "17740",
+      "accession": "VCV000017740.8",
+      "name": "NM_004048.4(B2M):c.31G>C (p.Ala11Pro)",
+      "position": 5101,
+      "genomic": 44711577,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 11,
+      "protein_change": "p.A11P",
+      "coding_change": "c.31G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-04-22",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV000019314.32",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-04-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "3577175",
+      "accession": "VCV003577175.1",
+      "name": "NM_004048.4(B2M):c.32C>T (p.Ala11Val)",
+      "position": 5102,
+      "genomic": 44711578,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 11,
+      "protein_change": "p.A11V",
+      "coding_change": "c.32C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-06-09",
+      "last_updated": "2025-02-01",
+      "conditions": [
+        {
+          "accession": "RCV005009639.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 6",
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1645345",
+      "accession": "VCV001645345.8",
+      "name": "NM_004048.4(B2M):c.33G>C (p.Ala11=)",
+      "position": 5103,
+      "genomic": 44711579,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 11,
+      "protein_change": "p.A11=",
+      "coding_change": "c.33G>C",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-06-26",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002148480.8",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3577176",
+      "accession": "VCV003577176.1",
+      "name": "NM_004048.4(B2M):c.37C>T (p.Leu13Phe)",
+      "position": 5107,
+      "genomic": 44711583,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 13,
+      "protein_change": "p.L13F",
+      "coding_change": "c.37C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-04-04",
+      "last_updated": "2025-02-01",
+      "conditions": [
+        {
+          "accession": "RCV005009640.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 6",
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3704078",
+      "accession": "VCV003704078.2",
+      "name": "NM_004048.4(B2M):c.41C>G (p.Ser14Cys)",
+      "position": 5111,
+      "genomic": 44711587,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 14,
+      "protein_change": "p.S14C",
+      "coding_change": "c.41C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-12-12",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005178913.2",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-12-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1468686",
+      "accession": "VCV001468686.3",
+      "name": "NM_004048.4(B2M):c.50G>A (p.Gly17Asp)",
+      "position": 5120,
+      "genomic": 44711596,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 17,
+      "protein_change": "p.G17D",
+      "coding_change": "c.50G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-01-19",
+      "last_updated": "2024-09-29",
+      "conditions": [
+        {
+          "accession": "RCV001970714.3",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-01-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2028582",
+      "accession": "VCV002028582.4",
+      "name": "NM_004048.4(B2M):c.52C>G (p.Leu18Val)",
+      "position": 5122,
+      "genomic": 44711598,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 18,
+      "protein_change": "p.L18V",
+      "coding_change": "c.52C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-06-28",
+      "last_updated": "2026-02-24",
+      "conditions": [
+        {
+          "accession": "RCV002893947.5",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-06-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4697809",
+      "accession": "VCV004697809.1",
+      "name": "NM_004048.4(B2M):c.61A>C (p.Ile21Leu)",
+      "position": 5131,
+      "genomic": 44711607,
+      "ref": "A",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": 21,
+      "protein_change": "p.I21L",
+      "coding_change": "c.61A>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-05-26",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006477544.1",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-05-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1379541",
+      "accession": "VCV001379541.3",
+      "name": "NM_004048.4(B2M):c.61A>G (p.Ile21Val)",
+      "position": 5131,
+      "genomic": 44711607,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 21,
+      "protein_change": "p.I21V",
+      "coding_change": "c.61A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-09-04",
+      "last_updated": "2024-09-29",
+      "conditions": [
+        {
+          "accession": "RCV001914880.3",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-09-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3577177",
+      "accession": "VCV003577177.1",
+      "name": "NM_004048.4(B2M):c.67C>T (p.Arg23Cys)",
+      "position": 5137,
+      "genomic": 44711613,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 23,
+      "protein_change": "p.R23C",
+      "coding_change": "c.67C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-02-28",
+      "last_updated": "2025-02-01",
+      "conditions": [
+        {
+          "accession": "RCV005009641.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 6",
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "217869",
+      "accession": "VCV000217869.2",
+      "name": "NM_004048.4(B2M):c.67+1G>T",
+      "position": 5138,
+      "genomic": 44711614,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-11-30",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000201934.2",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2015-08-01"
+        },
+        {
+          "accession": "RCV002478720.1",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type",
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-11-30"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "3617749",
+      "accession": "VCV003617749.2",
+      "name": "NM_004048.4(B2M):c.67+9C>T",
+      "position": 5146,
+      "genomic": 44711622,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-10-24",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005081381.2",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1578487",
+      "accession": "VCV001578487.9",
+      "name": "NM_004048.4(B2M):c.67+12C>T",
+      "position": 5149,
+      "genomic": 44711625,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-08-25",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV002090622.8",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-25"
+        },
+        {
+          "accession": "RCV002498298.1",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type",
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-12-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1558254",
+      "accession": "VCV001558254.10",
+      "name": "NM_004048.4(B2M):c.67+19C>T",
+      "position": 5156,
+      "genomic": 44711632,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign/Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-01-18",
+      "last_updated": "2026-09-27",
+      "conditions": [
+        {
+          "accession": "RCV002190624.8",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-18"
+        },
+        {
+          "accession": "RCV002486819.1",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type",
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-12-11"
+        },
+        {
+          "accession": "RCV006846773.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-11-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2794329",
+      "accession": "VCV002794329.3",
+      "name": "NM_004048.4(B2M):c.67+20C>A",
+      "position": 5157,
+      "genomic": 44711633,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-05-20",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003631492.4",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-05-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2740082",
+      "accession": "VCV002740082.3",
+      "name": "NM_004048.4(B2M):c.67+20C>T",
+      "position": 5157,
+      "genomic": 44711633,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-09-10",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003516666.4",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-09-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4726776",
+      "accession": "VCV004726776.1",
+      "name": "NM_004048.4(B2M):c.68-18T>C",
+      "position": 8929,
+      "genomic": 44715405,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-09-07",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006528978.1",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-09-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1636638",
+      "accession": "VCV001636638.10",
+      "name": "NM_004048.4(B2M):c.68-13C>T",
+      "position": 8934,
+      "genomic": 44715410,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-08-18",
+      "last_updated": "2026-09-27",
+      "conditions": [
+        {
+          "accession": "RCV002128507.8",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-18"
+        },
+        {
+          "accession": "RCV002480991.1",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type",
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-07-20"
+        },
+        {
+          "accession": "RCV006850889.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-07-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1545805",
+      "accession": "VCV001545805.8",
+      "name": "NM_004048.4(B2M):c.68-12G>A",
+      "position": 8935,
+      "genomic": 44715411,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-12-12",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002168191.8",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1146713",
+      "accession": "VCV001146713.9",
+      "name": "NM_004048.4(B2M):c.68-10T>C",
+      "position": 8937,
+      "genomic": 44715413,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2020-08-10",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001486008.9",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-08-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4808285",
+      "accession": "VCV004808285.1",
+      "name": "NM_004048.4(B2M):c.68-2A>C",
+      "position": 8945,
+      "genomic": 44715421,
+      "ref": "A",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-06-17",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV006627803.1",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "841336",
+      "accession": "VCV000841336.5",
+      "name": "NM_004048.4(B2M):c.85G>T (p.Val29Phe)",
+      "position": 8964,
+      "genomic": 44715440,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 29,
+      "protein_change": "p.V29F",
+      "coding_change": "c.85G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-09-07",
+      "last_updated": "2024-09-29",
+      "conditions": [
+        {
+          "accession": "RCV001043536.5",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-09-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2002657",
+      "accession": "VCV002002657.4",
+      "name": "NM_004048.4(B2M):c.94C>T (p.Arg32Cys)",
+      "position": 8973,
+      "genomic": 44715449,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 32,
+      "protein_change": "p.R32C",
+      "coding_change": "c.94C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-01-31",
+      "last_updated": "2026-02-24",
+      "conditions": [
+        {
+          "accession": "RCV002824765.5",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-01-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3627237",
+      "accession": "VCV003627237.3",
+      "name": "NM_004048.4(B2M):c.105A>G (p.Ala35=)",
+      "position": 8984,
+      "genomic": 44715460,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 35,
+      "protein_change": "p.A35=",
+      "coding_change": "c.105A>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-01-22",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV005086823.2",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-11"
+        },
+        {
+          "accession": "RCV006455973.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1512065",
+      "accession": "VCV001512065.6",
+      "name": "NM_004048.4(B2M):c.106G>A (p.Glu36Lys)",
+      "position": 8985,
+      "genomic": 44715461,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 36,
+      "protein_change": "p.E36K",
+      "coding_change": "c.106G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-04-09",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002020729.6",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-04-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2899666",
+      "accession": "VCV002899666.3",
+      "name": "NM_004048.4(B2M):c.114A>G (p.Gly38=)",
+      "position": 8993,
+      "genomic": 44715469,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 38,
+      "protein_change": "p.G38=",
+      "coding_change": "c.114A>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-10-19",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003632629.4",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-10-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3132524",
+      "accession": "VCV003132524.1",
+      "name": "NM_004048.4(B2M):c.115A>G (p.Lys39Glu)",
+      "position": 8994,
+      "genomic": 44715470,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 39,
+      "protein_change": "p.K39E",
+      "coding_change": "c.115A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-01-23",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004423434.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-01-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2762284",
+      "accession": "VCV002762284.3",
+      "name": "NM_004048.4(B2M):c.126C>T (p.Phe42=)",
+      "position": 9005,
+      "genomic": 44715481,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 42,
+      "protein_change": "p.F42=",
+      "coding_change": "c.126C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-06-19",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003517612.4",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2848870",
+      "accession": "VCV002848870.3",
+      "name": "NM_004048.4(B2M):c.135C>G (p.Cys45Trp)",
+      "position": 9014,
+      "genomic": 44715490,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 45,
+      "protein_change": "p.C45W",
+      "coding_change": "c.135C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-03-23",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003632070.4",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-03-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3672913",
+      "accession": "VCV003672913.2",
+      "name": "NM_004048.4(B2M):c.138T>C (p.Tyr46=)",
+      "position": 9017,
+      "genomic": 44715493,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 46,
+      "protein_change": "p.Y46=",
+      "coding_change": "c.138T>C",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-09-28",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005151312.2",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-09-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3625617",
+      "accession": "VCV003625617.2",
+      "name": "NM_004048.4(B2M):c.141G>A (p.Val47=)",
+      "position": 9020,
+      "genomic": 44715496,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 47,
+      "protein_change": "p.V47=",
+      "coding_change": "c.141G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-04-15",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005083298.2",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4694757",
+      "accession": "VCV004694757.1",
+      "name": "NM_004048.4(B2M):c.143C>T (p.Ser48Phe)",
+      "position": 9022,
+      "genomic": 44715498,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 48,
+      "protein_change": "p.S48F",
+      "coding_change": "c.143C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-04-07",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006486396.1",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-04-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2131279",
+      "accession": "VCV002131279.4",
+      "name": "NM_004048.4(B2M):c.147G>A (p.Gly49=)",
+      "position": 9026,
+      "genomic": 44715502,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 49,
+      "protein_change": "p.G49=",
+      "coding_change": "c.147G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-02-24",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003048129.5",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1633969",
+      "accession": "VCV001633969.8",
+      "name": "NM_004048.4(B2M):c.147G>T (p.Gly49=)",
+      "position": 9026,
+      "genomic": 44715502,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 49,
+      "protein_change": "p.G49=",
+      "coding_change": "c.147G>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-10-03",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002130536.8",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-10-03"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1981635",
+      "accession": "VCV001981635.4",
+      "name": "NM_004048.4(B2M):c.156A>C (p.Pro52=)",
+      "position": 9035,
+      "genomic": 44715511,
+      "ref": "A",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": 52,
+      "protein_change": "p.P52=",
+      "coding_change": "c.156A>C",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-08-23",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002785273.5",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-08-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3703441",
+      "accession": "VCV003703441.2",
+      "name": "NM_004048.4(B2M):c.156A>G (p.Pro52=)",
+      "position": 9035,
+      "genomic": 44715511,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 52,
+      "protein_change": "p.P52=",
+      "coding_change": "c.156A>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-12-24",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005181332.2",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-12-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "719660",
+      "accession": "VCV000719660.11",
+      "name": "NM_004048.4(B2M):c.159C>T (p.Ser53=)",
+      "position": 9038,
+      "genomic": 44715514,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 53,
+      "protein_change": "p.S53=",
+      "coding_change": "c.159C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-12-24",
+      "last_updated": "2026-09-27",
+      "conditions": [
+        {
+          "accession": "RCV000892848.11",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-24"
+        },
+        {
+          "accession": "RCV006853592.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-11-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1479725",
+      "accession": "VCV001479725.7",
+      "name": "NM_004048.4(B2M):c.160G>A (p.Asp54Asn)",
+      "position": 9039,
+      "genomic": 44715515,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 54,
+      "protein_change": "p.D54N",
+      "coding_change": "c.160G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-01-23",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001991019.6",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-01-23"
+        },
+        {
+          "accession": "RCV005008346.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 6",
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4720352",
+      "accession": "VCV004720352.1",
+      "name": "NM_004048.4(B2M):c.162C>T (p.Asp54=)",
+      "position": 9041,
+      "genomic": 44715517,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 54,
+      "protein_change": "p.D54=",
+      "coding_change": "c.162C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-05-27",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006512635.1",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-05-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3577178",
+      "accession": "VCV003577178.3",
+      "name": "NM_004048.4(B2M):c.164T>C (p.Ile55Thr)",
+      "position": 9043,
+      "genomic": 44715519,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 55,
+      "protein_change": "p.I55T",
+      "coding_change": "c.164T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-08-03",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV005009642.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 6",
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-03-21"
+        },
+        {
+          "accession": "RCV005112589.2",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-03"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1087135",
+      "accession": "VCV001087135.9",
+      "name": "NM_004048.4(B2M):c.168A>G (p.Glu56=)",
+      "position": 9047,
+      "genomic": 44715523,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 56,
+      "protein_change": "p.E56=",
+      "coding_change": "c.168A>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-02-29",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001405136.9",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-29"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4808699",
+      "accession": "VCV004808699.1",
+      "name": "NM_004048.4(B2M):c.183G>C (p.Lys61Asn)",
+      "position": 9062,
+      "genomic": 44715538,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 61,
+      "protein_change": "p.K61N",
+      "coding_change": "c.183G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-04-17",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV006629702.1",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-04-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4717560",
+      "accession": "VCV004717560.1",
+      "name": "NM_004048.4(B2M):c.187G>A (p.Gly63Arg)",
+      "position": 9066,
+      "genomic": 44715542,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 63,
+      "protein_change": "p.G63R",
+      "coding_change": "c.187G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-05-16",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006506867.1",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-05-16"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3815109",
+      "accession": "VCV003815109.2",
+      "name": "NM_004048.4(B2M):c.202A>G (p.Lys68Glu)",
+      "position": 9081,
+      "genomic": 44715557,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 68,
+      "protein_change": "p.K68E",
+      "coding_change": "c.202A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-12-21",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV005292995.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-01-09"
+        },
+        {
+          "accession": "RCV006474810.1",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-21"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2540393",
+      "accession": "VCV002540393.2",
+      "name": "NM_004048.4(B2M):c.212A>G (p.His71Arg)",
+      "position": 9091,
+      "genomic": 44715567,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 71,
+      "protein_change": "p.H71R",
+      "coding_change": "c.212A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-04-25",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003271753.2",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-04-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4741740",
+      "accession": "VCV004741740.1",
+      "name": "NM_004048.4(B2M):c.228C>T (p.Phe76=)",
+      "position": 9107,
+      "genomic": 44715583,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 76,
+      "protein_change": "p.F76=",
+      "coding_change": "c.228C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-09-24",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006517981.1",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-09-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2848871",
+      "accession": "VCV002848871.3",
+      "name": "NM_004048.4(B2M):c.245T>C (p.Phe82Ser)",
+      "position": 9124,
+      "genomic": 44715600,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 82,
+      "protein_change": "p.F82S",
+      "coding_change": "c.245T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-03-23",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003632071.4",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-03-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3647252",
+      "accession": "VCV003647252.2",
+      "name": "NM_004048.4(B2M):c.261C>T (p.Tyr87=)",
+      "position": 9140,
+      "genomic": 44715616,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 87,
+      "protein_change": "p.Y87=",
+      "coding_change": "c.261C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-06-09",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005124673.2",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4845374",
+      "accession": "VCV004845374.1",
+      "name": "NM_004048.4(B2M):c.272C>A (p.Thr91Asn)",
+      "position": 9151,
+      "genomic": 44715627,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 91,
+      "protein_change": "p.T91N",
+      "coding_change": "c.272C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2026-03-30",
+      "last_updated": "2026-05-03",
+      "conditions": [
+        {
+          "accession": "RCV006684099.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 6"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-03-30"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3577179",
+      "accession": "VCV003577179.2",
+      "name": "NM_004048.4(B2M):c.275C>T (p.Pro92Leu)",
+      "position": 9154,
+      "genomic": 44715630,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 92,
+      "protein_change": "p.P92L",
+      "coding_change": "c.275C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-12-09",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV005009643.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 6",
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-18"
+        },
+        {
+          "accession": "RCV006332431.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1408274",
+      "accession": "VCV001408274.10",
+      "name": "NM_004048.4(B2M):c.278C>A (p.Thr93Asn)",
+      "position": 9157,
+      "genomic": 44715633,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 93,
+      "protein_change": "p.T93N",
+      "coding_change": "c.278C>A",
+      "consequence": "missense",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2025-10-29",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001909894.7",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-29"
+        },
+        {
+          "accession": "RCV004042781.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-01-03"
+        },
+        {
+          "accession": "RCV005002657.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 6",
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-03-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1944292",
+      "accession": "VCV001944292.5",
+      "name": "NM_004048.4(B2M):c.278C>T (p.Thr93Ile)",
+      "position": 9157,
+      "genomic": 44715633,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 93,
+      "protein_change": "p.T93I",
+      "coding_change": "c.278C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-10-23",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002639684.5",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1119242",
+      "accession": "VCV001119242.9",
+      "name": "NM_004048.4(B2M):c.279T>C (p.Thr93=)",
+      "position": 9158,
+      "genomic": 44715634,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 93,
+      "protein_change": "p.T93=",
+      "coding_change": "c.279T>C",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-07-12",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001448619.9",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-07-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "31907",
+      "accession": "VCV000031907.2",
+      "name": "NM_004048.4(B2M):c.286G>A (p.Asp96Asn)",
+      "position": 9165,
+      "genomic": 44715641,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 96,
+      "protein_change": "p.D96N",
+      "coding_change": "c.286G>A",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-05-28",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000024598.28",
+          "names": [
+            "Familial visceral amyloidosis, Ostertag type"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2012-06-14"
+        },
+        {
+          "accession": "RCV000989305.1",
+          "names": [
+            "Non-Hodgkin lymphoma"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-05-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "1931224",
+      "accession": "VCV001931224.5",
+      "name": "NM_004048.4(B2M):c.300C>T (p.Cys100=)",
+      "position": 9179,
+      "genomic": 44715655,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 100,
+      "protein_change": "p.C100=",
+      "coding_change": "c.300C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-01-27",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002631457.5",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-01-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2177853",
+      "accession": "VCV002177853.2",
+      "name": "NM_004048.4(B2M):c.301C>T (p.Arg101Cys)",
+      "position": 9180,
+      "genomic": 44715656,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 101,
+      "protein_change": "p.R101C",
+      "coding_change": "c.301C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-11-18",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV002588393.3",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-11-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3615379",
+      "accession": "VCV003615379.2",
+      "name": "NM_004048.4(B2M):c.302G>A (p.Arg101His)",
+      "position": 9181,
+      "genomic": 44715657,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 101,
+      "protein_change": "p.R101H",
+      "coding_change": "c.302G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-12-26",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005070994.2",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-12-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1987439",
+      "accession": "VCV001987439.5",
+      "name": "NM_004048.4(B2M):c.306G>A (p.Val102=)",
+      "position": 9185,
+      "genomic": 44715661,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 102,
+      "protein_change": "p.V102=",
+      "coding_change": "c.306G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-10-04",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002775986.5",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-10-04"
+        },
+        {
+          "accession": "RCV004758890.1",
+          "names": [
+            "B2M-related condition"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2019-07-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2804165",
+      "accession": "VCV002804165.3",
+      "name": "NM_004048.4(B2M):c.312T>C (p.His104=)",
+      "position": 9191,
+      "genomic": 44715667,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 104,
+      "protein_change": "p.H104=",
+      "coding_change": "c.312T>C",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-06-22",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003631581.4",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-06-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1494121",
+      "accession": "VCV001494121.8",
+      "name": "NM_004048.4(B2M):c.313G>A (p.Val105Met)",
+      "position": 9192,
+      "genomic": 44715668,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 105,
+      "protein_change": "p.V105M",
+      "coding_change": "c.313G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-08-23",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001987003.8",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-08-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1399008",
+      "accession": "VCV001399008.6",
+      "name": "NM_004048.4(B2M):c.340A>C (p.Lys114Gln)",
+      "position": 9219,
+      "genomic": 44715695,
+      "ref": "A",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": 114,
+      "protein_change": "p.K114Q",
+      "coding_change": "c.340A>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-11-11",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV001915346.4",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-11-11"
+        },
+        {
+          "accession": "RCV005002643.1",
+          "names": [
+            "Amyloidosis, hereditary systemic 6",
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4799336",
+      "accession": "VCV004799336.1",
+      "name": "NM_004048.4(B2M):c.346+7C>G",
+      "position": 9232,
+      "genomic": 44715708,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-10-23",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV006621850.1",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4924591",
+      "accession": "VCV004924591.1",
+      "name": "NM_004048.4(B2M):c.346+20G>A",
+      "position": 9245,
+      "genomic": 44715721,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-10-31",
+      "last_updated": "2026-09-27",
+      "conditions": [
+        {
+          "accession": "RCV006855852.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3018572",
+      "accession": "VCV003018572.4",
+      "name": "NM_004048.4(B2M):c.347-15C>T",
+      "position": 9838,
+      "genomic": 44716314,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-07-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV003879219.4",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-07-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "in vitro"
+      ]
+    },
+    {
+      "variation_id": "1103348",
+      "accession": "VCV001103348.9",
+      "name": "NM_004048.4(B2M):c.347-4A>G",
+      "position": 9849,
+      "genomic": 44716325,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-10-24",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001427001.9",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4811830",
+      "accession": "VCV004811830.1",
+      "name": "NM_004048.4(B2M):c.349C>A (p.Arg117=)",
+      "position": 9855,
+      "genomic": 44716331,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 117,
+      "protein_change": "p.R117=",
+      "coding_change": "c.349C>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-03-27",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV006633700.1",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-03-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2007357",
+      "accession": "VCV002007357.4",
+      "name": "NM_004048.4(B2M):c.355A>G (p.Met119Val)",
+      "position": 9861,
+      "genomic": 44716337,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 119,
+      "protein_change": "p.M119V",
+      "coding_change": "c.355A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-06-16",
+      "last_updated": "2026-02-24",
+      "conditions": [
+        {
+          "accession": "RCV002812111.5",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-06-16"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2133605",
+      "accession": "VCV002133605.4",
+      "name": "NM_004048.4(B2M):c.358T>C (p.Ter120Gln)",
+      "position": 9864,
+      "genomic": 44716340,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": "c.358T>C",
+      "consequence": "stop lost",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-04-04",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003041015.5",
+          "names": [
+            "Hypoproteinemia, hypercatabolic"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    }
+  ]
+}

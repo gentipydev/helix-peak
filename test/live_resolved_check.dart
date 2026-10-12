@@ -8,9 +8,12 @@
 //   LIVE_BACKEND=https://helix-peak-backend.onrender.com LIVE_RESOLVED=B2M \
 //     flutter test test/live_resolved_check.dart
 //
-// LIVE_EXPECT=refused is for a protein whose ESM-2 track the scorer declined.
-// The backend's scripts/check_built.py checks the same protein from the
-// server's side.
+// LIVE_EXPECT=refused is for a protein whose ESM-2 track the scorer declined,
+// and LIVE_EXPECT=absent for one whose scoring a reader stopped (its track
+// then says nothing is coming). LIVE_EVIDENCE says what its AlphaGenome and ClinVar
+// tracks are: `ready` (the default, as every build has them since 2026-10-09),
+// `refused`, or `absent`. The backend's scripts/check_built.py checks the same
+// protein from the server's side.
 //
 // Its model is read as it stands, whichever state its structure track is in:
 // ready (AlphaFold DB's, with its bands and its words), refused (the sentence
@@ -26,6 +29,8 @@ import 'package:helixpeek/core/catalog/protein_resolver.dart';
 import 'package:helixpeek/core/catalog/protein_suggestion.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/catalog/protein_track.dart';
+import 'package:helixpeek/core/evidence/gene_clinvar.dart';
+import 'package:helixpeek/core/evidence/gene_impact.dart';
 import 'package:helixpeek/core/evidence/protein_constraint.dart';
 import 'package:helixpeek/core/network/api_exception.dart';
 import 'package:helixpeek/core/network/dio_api_client.dart';
@@ -46,11 +51,20 @@ const Size _phone = Size(390, 844);
 void main() {
   final String baseUrl = Platform.environment['LIVE_BACKEND'] ?? '';
   final String gene = Platform.environment['LIVE_RESOLVED'] ?? '';
-  final bool scored =
-      (Platform.environment['LIVE_EXPECT'] ?? 'ready') == 'ready';
+  final String scoring = Platform.environment['LIVE_EXPECT'] ?? 'ready';
+  final bool scored = scoring == 'ready';
   final bool on = baseUrl.isNotEmpty && gene.isNotEmpty;
   final String slug = gene.toLowerCase();
-  final TrackState expected = scored ? TrackState.ready : TrackState.refused;
+  final TrackState expected = switch (scoring) {
+    'refused' => TrackState.refused,
+    'absent' => TrackState.absent,
+    _ => TrackState.ready,
+  };
+  final TrackState evidence = switch (Platform.environment['LIVE_EVIDENCE'] ?? 'ready') {
+    'refused' => TrackState.refused,
+    'absent' => TrackState.absent,
+    _ => TrackState.ready,
+  };
 
   late Directory root;
   late ProteinTarget target;
@@ -60,6 +74,8 @@ void main() {
   Object? constraintError;
   Uint8List? model;
   Object? modelError;
+  GeneImpact? impact;
+  GeneClinVar? clinvar;
   late ResolveStatus status;
   late TrackState trackState;
   late SuggestionPage suggested;
@@ -105,6 +121,14 @@ void main() {
     } on Object catch (error) {
       modelError = error;
     }
+    // Its AlphaGenome and ClinVar tracks, as the walk reads them, where the
+    // service says they are ready; a widget test could not finish loading them.
+    if (target.impactScored) {
+      impact = await GeneImpact.load(target, tracks: tracks);
+    }
+    if (target.clinvarAvailable) {
+      clinvar = await GeneClinVar.load(target, tracks: tracks);
+    }
 
     // What the search screen asks.
     final ProteinResolver resolver = ProteinResolver(api);
@@ -129,7 +153,8 @@ void main() {
     expect(target.summary, contains('Built on demand from UniProt'));
     expect(target.state(TrackKind.record), TrackState.ready);
     expect(target.state(TrackKind.constraint), expected);
-    expect(target.state(TrackKind.clinvar), TrackState.absent);
+    expect(target.state(TrackKind.impact), evidence);
+    expect(target.state(TrackKind.clinvar), evidence);
     expect(target.scored, scored);
 
     expect(record.gene, gene);
@@ -159,6 +184,35 @@ void main() {
       '${record.isIntronCompressed ? ' (introns shortened)' : ''}; '
       'ESM-2 track ${expected.name}.',
     );
+  });
+
+  test('its AVI and ClinVar are the service\u2019s, or it says why there are none', () {
+    if (!on) {
+      markTestSkipped('set LIVE_BACKEND and LIVE_RESOLVED');
+      return;
+    }
+    if (evidence == TrackState.ready) {
+      // Every drawn base scored, and every record mapped to one of them.
+      expect(impact, isNotNull);
+      expect(clinvar, isNotNull);
+      expect(clinvar!.variants, isNotEmpty);
+      for (final ClinVarVariant variant in clinvar!.variants) {
+        expect(variant.position, inInclusiveRange(record.start, record.end));
+      }
+      // ignore: avoid_print
+      print(
+        '$gene: AVI ready; ClinVar ${clinvar!.variants.length} of '
+        '${clinvar!.searchedRecords} records mapped, snapshot ${clinvar!.snapshotDate}.',
+      );
+    } else {
+      expect((impact, clinvar), (null, null));
+      for (final TrackKind kind in <TrackKind>[TrackKind.impact, TrackKind.clinvar]) {
+        final String? reason = target.reason(kind);
+        expect(reason, evidence == TrackState.refused ? isNotNull : isNull);
+        // ignore: avoid_print
+        print('$gene: ${kind.wire} ${evidence.name}${reason == null ? '' : ': $reason'}');
+      }
+    }
   });
 
   test('its model is AlphaFold DB\u2019s, or the service says why there is none', () {
@@ -226,6 +280,8 @@ void main() {
               target: target,
               record: record,
               constraint: constraint,
+              impact: impact,
+              clinvar: clinvar,
             ),
           ),
         ),

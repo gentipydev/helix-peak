@@ -5,9 +5,9 @@ a grid of squares morphs through gene, mRNA, protein and mature chains, then
 ends on the 3D structure. Each of the twenty curated proteins is drawn from a
 stored GenBank record plus its evidence tracks (ESM-2 constraint, AlphaGenome
 variant impact, ClinVar, fold). Any other reviewed human protein can be built
-on demand, with its record, its ESM-2 track and AlphaFold DB's model of its
-fold. All of it is served by `../helix-peak-backend`; the app ships no protein
-data.
+on demand, with its record, its ESM-2 track, its AlphaGenome and ClinVar
+tracks, and AlphaFold DB's model of its fold. All of it is served by
+`../helix-peak-backend`; the app ships no protein data.
 
 ## THE CONTRACT — read this first
 
@@ -316,13 +316,15 @@ Tests use `test/support/fixture_track_source.dart` over `test/fixtures/`.
    `unavailable`); `POST /proteins/resolve` asks for one to be built, and
    `GET /proteins/resolve/{gene}` says how far it has got. The backend's
    resolver (on the dev Mac until Modal runs it) writes its row
-   (`catalog_order` null, so never in `/catalog`) and its record, then scores
-   ESM-2 650M, the twenty's model.
+   (`catalog_order` null, so never in `/catalog`) and its record, then makes
+   its AlphaGenome (AVI) and ClinVar tracks with the twenty's bakers (since
+   2026-10-09), then scores ESM-2 650M, the twenty's model.
    Builds are one job of the whole app, `ProteinBuilds`
    (`core/catalog/protein_builds.dart`, provided in `core/di`), so a build
    outlives the search that asked for it. Each is watched through
    `GET /proteins/resolve/{gene}`, whose `build` (`BuildReport`) names the step
-   (queued, record, scoring, check, done), the proteins ahead, the residues
+   (queued, record, evidence, scoring, check, done; `evidence` is shown as
+   "AlphaGenome and ClinVar", and offers no Stop), the proteins ahead, the residues
    ESM-2 has scored with the time the scorer says is left, and every number
    by the service's clock. Search pins each build at its top, whatever is
    typed, as a `BuildCard` with those steps and a residue bar, until it is
@@ -346,10 +348,14 @@ Tests use `test/support/fixture_track_source.dart` over `test/fixtures/`.
    search's, not a tap on a list of everyone's builds; the user's choice of
    2026-10-09). A build of this phone's that ends with a protein to open asks for
    the list again; pinned, it is its card there and not a row as well.
-   It opens the walk only once ESM-2 has scored it or declined to:
-   `TrackClient` and `ProteinCatalogRepository` each remember a protein once
-   read, so a protein opened mid-bake stays unscored until a restart. Tests use
-   `test/features/search/support/resolver_api.dart`.
+   It opens the walk only once its AVI and ClinVar are in and ESM-2 has
+   scored it or declined to (the backend's ESM-2 bake waits for the first
+   two): `TrackClient` and `ProteinCatalogRepository` each remember a protein
+   once read, so a protein opened mid-bake stays without them until a restart.
+   The walk reads a built protein's AVI and ClinVar as it reads the twenty's
+   (`test/features/gene_lookup/anatomy/built_evidence_test.dart`, with B2M's
+   stored tracks beside its record in `test/support/built_on_demand/`). Tests
+   use `test/features/search/support/resolver_api.dart`.
 
    **Its fold is AlphaFold DB's model** (R5.4, the user's decision of
    2026-10-08), which the backend's worker makes in seconds, before the
@@ -440,7 +446,9 @@ dart run build_runner build    # after editing gene_record_dto.dart
   fetches and parses every track through the production client.
 - `LIVE_BACKEND=<url> LIVE_RESOLVED=<GENE> flutter test test/live_resolved_check.dart`
   reads a protein built on demand the same way and walks every page of it
-  (`LIVE_EXPECT=refused` for one whose ESM-2 track was refused).
+  (`LIVE_EXPECT=refused` for one whose ESM-2 track was refused, `absent` for one
+  whose scoring was stopped; `LIVE_EVIDENCE` likewise for its AVI and ClinVar,
+  `ready` by default).
 - `SHOT_DIR=<dir> flutter test test/goldens` writes PNGs (the catalog walk,
   ClinVar, constraint and impact tests do too). Also:
   `TRANSLATION_SHOT_DIR`, `SELECTION_SHOT_DIR`, `HELIX_OUT`, `HELIX_MOTION=1`.

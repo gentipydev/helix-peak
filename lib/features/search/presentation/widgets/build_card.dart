@@ -421,7 +421,7 @@ class _BuildCardState extends State<BuildCard>
 
 enum _Mark { waiting, active, done, declined }
 
-/// The four steps a build goes through, each marked where it stands.
+/// The five steps a build goes through, each marked where it stands.
 class _Steps extends StatelessWidget {
   const _Steps({required this.job, required this.report, required this.bar});
 
@@ -434,6 +434,7 @@ class _Steps extends StatelessWidget {
   static const List<(BuildStep, String)> _shown = <(BuildStep, String)>[
     (BuildStep.queued, 'Queued'),
     (BuildStep.record, 'Gene record'),
+    (BuildStep.evidence, 'AlphaGenome and ClinVar'),
     (BuildStep.scoring, 'ESM-2 650M'),
     (BuildStep.check, 'Alignment check'),
   ];
@@ -555,7 +556,9 @@ class _StepRow extends StatelessWidget {
               children: <Widget>[
                 Row(
                   children: <Widget>[
-                    Text(title, style: titleStyle),
+                    // Wraps rather than overflows: "AlphaGenome and ClinVar"
+                    // is longer than a narrow card allows at a large text size.
+                    Flexible(child: Text(title, style: titleStyle)),
                     if (detail case final String detail) ...<Widget>[
                       const SizedBox(width: AppSpacing.sm),
                       Flexible(

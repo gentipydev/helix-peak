@@ -232,6 +232,11 @@ enum BuildStep {
   /// MANE Select transcript.
   record('record'),
 
+  /// Its AlphaGenome Variant Impact track, then its ClinVar records, which
+  /// that track's coordinate map places on its bases. Made before ESM-2,
+  /// which waits for them, so a build that opens has both.
+  evidence('evidence'),
+
   /// Its ESM-2 track: waiting for the scorer, the model loading, or residues
   /// being scored.
   scoring('scoring'),
