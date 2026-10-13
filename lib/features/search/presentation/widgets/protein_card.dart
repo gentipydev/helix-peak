@@ -31,6 +31,16 @@ class ProteinCard extends StatelessWidget {
     ].join(' · ');
   }
 
+  /// The surface every row of the list is on: a curated card, a protein built
+  /// on demand, a build's card, and the places the wait holds for them. They
+  /// were two, the curated cards filled and the rest an outline alone, on one
+  /// list.
+  static BoxDecoration surface(ColorScheme colors) => BoxDecoration(
+    color: colors.surfaceContainerLow,
+    borderRadius: BorderRadius.circular(AppRadius.md),
+    border: Border.all(color: colors.outline, width: 0.5),
+  );
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
@@ -51,11 +61,7 @@ class ProteinCard extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(AppRadius.md),
           child: Ink(
-            decoration: BoxDecoration(
-              color: colors.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              border: Border.all(color: colors.outline, width: 0.5),
-            ),
+            decoration: surface(colors),
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.lg,
               vertical: AppSpacing.md,
@@ -88,9 +94,7 @@ class ProteinCard extends StatelessWidget {
                         specOf(target),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTypography.sequenceSmall(
-                          colors.onSurfaceVariant,
-                        ).copyWith(fontSize: 11, letterSpacing: 0),
+                        style: AppTypography.spec(colors.onSurfaceVariant),
                       ),
                       const SizedBox(height: 2),
                       // Two lines: at one, every summary was cut about forty
@@ -100,10 +104,7 @@ class ProteinCard extends StatelessWidget {
                         target.summary,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontSize: 13,
-                          height: 1.35,
-                        ),
+                        style: theme.cardBody,
                       ),
                     ],
                   ),

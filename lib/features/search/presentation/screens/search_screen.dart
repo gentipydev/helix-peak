@@ -11,13 +11,14 @@ import '../../../../core/catalog/protein_target.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/format.dart';
 import '../../../../shared/widgets/error_view.dart';
-import '../../../../shared/widgets/loading_view.dart';
 import '../../../gene_lookup/data/repositories/protein_catalog_repository.dart';
 import '../cubit/built_proteins_cubit.dart';
 import '../cubit/protein_suggestions_cubit.dart';
 import '../widgets/build_card.dart';
+import '../widgets/list_wait.dart';
 import '../widgets/protein_card.dart';
 import '../widgets/suggestion_tile.dart';
 
@@ -322,10 +323,14 @@ class _SearchViewState extends State<_SearchView> {
                     const SizedBox(height: AppSpacing.lg),
                     Expanded(
                       child: curated && carried == 0 && _catalog.status.value == CatalogStatus.loading
-                          ? const Column(children: <Widget>[
-                              Text('The service can take up to a minute to wake.'),
-                              Expanded(child: LoadingView(label: 'LOADING PROTEINS')),
-                            ])
+                          // Under the line the list's own caption takes, so the
+                          // first card lands where the first place was.
+                          ? const ListWait(
+                              label: 'LOADING PROTEINS',
+                              header: _Caption(
+                                'The service can take up to a minute to wake.',
+                              ),
+                            )
                           : curated && carried == 0 && _catalog.status.value == CatalogStatus.failed
                           ? ErrorView(
                               title: 'List unavailable',
@@ -656,7 +661,7 @@ class _Caption extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-    child: Text(text, style: Theme.of(context).textTheme.bodySmall),
+    child: Text(text, style: Theme.of(context).caption),
   );
 }
 
@@ -687,7 +692,7 @@ class _SectionHeader extends StatelessWidget {
             ),
             if (caption case final String caption) ...<Widget>[
               const SizedBox(height: 2),
-              Text(caption, style: theme.textTheme.bodySmall),
+              Text(caption, style: theme.caption),
             ],
           ],
         ),

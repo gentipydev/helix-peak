@@ -11,6 +11,7 @@ import '../../../../core/catalog/protein_track.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/format.dart';
+import 'protein_card.dart';
 import 'suggestion_tile.dart';
 
 /// A protein being built on demand, pinned at the top of search while it is:
@@ -100,14 +101,6 @@ class BuildCard extends StatefulWidget {
     final double next = from + dt.inMicroseconds / per.inMicroseconds;
     return math.min(next, math.min(done + lineEvery, total).toDouble());
   }
-
-  /// The card's small print, in the app's own face: the theme defines no
-  /// `bodySmall`, and Material's would set it in the platform's.
-  static TextStyle? small(ThemeData theme) => theme.textTheme.bodyMedium?.copyWith(
-    fontSize: 12,
-    height: 1.35,
-    color: theme.colorScheme.onSurfaceVariant,
-  );
 
   @override
   State<BuildCard> createState() => _BuildCardState();
@@ -221,8 +214,12 @@ class _BuildCardState extends State<BuildCard>
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('Keep building'),
           ),
+          // The one of the two that loses work, and so the one marked.
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: const Text('Stop'),
           ),
         ],
@@ -269,8 +266,7 @@ class _BuildCardState extends State<BuildCard>
                 SuggestionTile.specOf(protein),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: AppTypography.sequenceSmall(colors.onSurfaceVariant)
-                    .copyWith(fontSize: 11, letterSpacing: 0),
+                style: AppTypography.spec(colors.onSurfaceVariant),
               ),
             ],
           ),
@@ -287,7 +283,7 @@ class _BuildCardState extends State<BuildCard>
           padding: const EdgeInsets.only(top: 2),
           child: Text(
             _line(report),
-            style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13, height: 1.35),
+            style: theme.cardBody,
           ),
         )
       else ...<Widget>[
@@ -313,10 +309,7 @@ class _BuildCardState extends State<BuildCard>
         onTap: opens == null ? null : () => widget.onOpen(opens),
         borderRadius: BorderRadius.circular(AppRadius.md),
         child: Ink(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            border: Border.all(color: colors.outline, width: 0.5),
-          ),
+          decoration: ProteinCard.surface(colors),
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.lg,
             vertical: AppSpacing.md,
@@ -351,7 +344,7 @@ class _BuildCardState extends State<BuildCard>
   /// with what can be done next.
   Widget _footer(ThemeData theme, BuildReport report) {
     final ProteinBuild job = _job;
-    final TextStyle? style = BuildCard.small(theme);
+    final TextStyle? style = theme.caption;
     if (job.stage == BuildStage.stopped) {
       final String? slug = job.opens ? job.slug : null;
       return Row(
@@ -546,9 +539,7 @@ class _StepRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colors = theme.colorScheme;
-    final TextStyle? titleStyle = theme.textTheme.bodyMedium?.copyWith(
-      fontSize: 13,
-      height: 1.35,
+    final TextStyle? titleStyle = theme.cardBody?.copyWith(
       color: mark == _Mark.waiting ? colors.onSurfaceVariant : colors.onSurface,
     );
     final Widget? bar = counted;
@@ -582,7 +573,7 @@ class _StepRow extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: accession
                               ? AppTypography.sequenceSmall(colors.onSurfaceVariant)
-                              : BuildCard.small(theme),
+                              : theme.caption,
                         ),
                       ),
                     ],
@@ -594,7 +585,7 @@ class _StepRow extends StatelessWidget {
                 ],
                 if (reason case final String reason) ...<Widget>[
                   const SizedBox(height: 2),
-                  Text(reason, style: BuildCard.small(theme)),
+                  Text(reason, style: theme.caption),
                 ],
               ],
             ),
@@ -693,8 +684,7 @@ class _LiveBar extends StatelessWidget {
           children: <Widget>[
             Text(
               BuildCard.scored(done, total),
-              style: AppTypography.sequenceSmall(colors.onSurfaceVariant)
-                  .copyWith(fontSize: 11, letterSpacing: 0),
+              style: AppTypography.spec(colors.onSurfaceVariant),
             ),
             const Spacer(),
             if (report.left case final Duration left)
@@ -702,7 +692,7 @@ class _LiveBar extends StatelessWidget {
                 valueListenable: seconds,
                 builder: (BuildContext context, int seconds, Widget? child) => Text(
                   '${BuildCard.clock(left - Duration(seconds: seconds))} left',
-                  style: BuildCard.small(theme),
+                  style: theme.caption,
                 ),
               ),
           ],

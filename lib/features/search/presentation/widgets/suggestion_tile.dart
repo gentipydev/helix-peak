@@ -5,6 +5,7 @@ import '../../../../core/catalog/protein_suggestion.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/format.dart';
+import 'protein_card.dart';
 
 /// One protein from every reviewed human protein, below the curated list:
 /// what it is called, its gene, its length, and what the app can do with it.
@@ -128,8 +129,7 @@ class SuggestionTile extends StatelessWidget {
                 specOf(suggestion),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: AppTypography.sequenceSmall(colors.onSurfaceVariant)
-                    .copyWith(fontSize: 11, letterSpacing: 0),
+                style: AppTypography.spec(colors.onSurfaceVariant),
               ),
               if (status != heading) ...<Widget>[
                 const SizedBox(height: 2),
@@ -137,10 +137,7 @@ class SuggestionTile extends StatelessWidget {
                   status,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontSize: 13,
-                    height: 1.35,
-                  ),
+                  style: theme.cardBody,
                 ),
               ],
             ],
@@ -157,10 +154,7 @@ class SuggestionTile extends StatelessWidget {
         onTap: opens == null ? null : () => onOpen(opens),
         borderRadius: BorderRadius.circular(AppRadius.md),
         child: Ink(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            border: Border.all(color: colors.outline, width: 0.5),
-          ),
+          decoration: ProteinCard.surface(colors),
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.lg,
             vertical: AppSpacing.md,

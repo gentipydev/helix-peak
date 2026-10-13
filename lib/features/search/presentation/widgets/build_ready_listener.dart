@@ -108,9 +108,6 @@ class _BuildReadyListenerState extends State<BuildReadyListener>
         _onSearch) {
       return;
     }
-    // The snackbar's surface is the theme's dark one; Material's own action
-    // and close colours are made for a light one and all but vanish on it.
-    final ColorScheme scheme = Theme.of(context).colorScheme;
     final String? slug = build.slug;
     final bool opens = build.stage == BuildStage.ready && slug != null;
     final String said = switch (build.stage) {
@@ -124,11 +121,9 @@ class _BuildReadyListenerState extends State<BuildReadyListener>
       SnackBar(
         content: Text(said),
         showCloseIcon: true,
-        closeIconColor: scheme.onSurfaceVariant,
         action: opens
             ? SnackBarAction(
                 label: 'Open',
-                textColor: scheme.primary,
                 onPressed: () {
                   builds.opened(gene);
                   // Named, so its walk's wait is headed while its row is read.
