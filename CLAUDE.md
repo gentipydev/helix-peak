@@ -197,7 +197,12 @@ comes from `flutter/foundation.dart`. There is one existing violation:
 `lib/core/catalog/protein_target.dart` imports material so that `ChainTint` can
 name a colour. Don't copy it. Colours come from the theme (`AppColorTokens`,
 `context.nucleotideColors`, `context.anatomyColors`), never from a raw hex.
-The walk is drawn in `AppTheme.analysis`; home uses `AppTheme.dark`.
+The whole app is on one ground: `AppTheme.analysis`, the walk's, is the app's
+theme, and home wears `AppTheme.home`, the same ground with the helix's bases
+at full strength. `AppTheme.dark`, the cool ground the app began on, is worn by
+no screen; the walk's tests still set the walk inside it. Small print is
+`theme.caption` (`core/theme/app_typography.dart`), never a bare `bodySmall`,
+which is Material's in the bright ink.
 
 ## Replication (`lib/features/replication/`)
 

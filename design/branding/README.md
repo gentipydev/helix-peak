@@ -1,8 +1,9 @@
 # Helix Peek branding
 
 An eye surrounding a DNA double helix: the subject and the act of looking in
-one symbol. Mint and teal sit on the app's navy `#0E1116` surface. The app's
-Space Grotesk wordmark stays live text for crisp rendering and accessibility.
+one symbol. Mint and teal sit on the icon's navy `#0E1116`; in the app the mark
+is transparent, on the app's warm ground. The app's Space Grotesk wordmark
+stays live text for crisp rendering and accessibility.
 
 ![Helix Peek app icon](exports/app-icon-256.png)
 

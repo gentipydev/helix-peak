@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- AppColorTokens.dark.surfaceBase. The app has one theme, so the launch
-         window uses the same ground the first Flutter frame paints. -->
-    <color name="launch_background">#FF0E1116</color>
+    <!-- AppColorTokens.warm.surfaceBase. The app is on one ground, so the
+         launch window uses the one the first Flutter frame paints. The
+         launcher icon keeps the navy it was drawn on. -->
+    <color name="launch_background">#FF1C1A18</color>
 	<color name="ic_launcher_background">#0E1116</color>
 </resources>

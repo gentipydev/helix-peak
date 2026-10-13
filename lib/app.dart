@@ -18,7 +18,10 @@ class HelixPeekApp extends StatelessWidget {
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       routerConfig: _router,
-      theme: AppTheme.dark,
+      // One ground for the whole app: the warm one the walk is drawn on.
+      // Each flow still puts it around itself, as the walk has to; this is
+      // what whatever has no flow of its own is on.
+      theme: AppTheme.analysis,
       themeMode: ThemeMode.dark,
       // A clip that ends while no sheet shows it is said on any screen, and
       // so is a protein's build that ends while search is not open.
