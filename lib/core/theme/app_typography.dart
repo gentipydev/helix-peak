@@ -130,6 +130,13 @@ abstract final class AppTypography {
         color: color,
       );
 
+  /// A card's line of figures: an accession, a length, a count.
+  ///
+  /// [sequenceSmall] a point down and untracked, so that five figures and the
+  /// dots between them fit a phone's width on one line.
+  static TextStyle spec(Color color) =>
+      sequenceSmall(color).copyWith(fontSize: 11, letterSpacing: 0);
+
   /// The note under the tracer's line: the fact its name and size do not give.
   ///
   /// Deliberately the smallest type in the app. It is a footnote to the line
@@ -171,4 +178,21 @@ abstract final class AppTypography {
         letterSpacing: -0.3,
         color: color,
       );
+}
+
+/// The styles a screen builds from the theme's own, named once here so that
+/// each is one style wherever it is set.
+extension AppTextStyles on ThemeData {
+  /// Small print: a line under a heading, a note beside a figure.
+  ///
+  /// `bodySmall` on its own is Material's, in the bright ink, which made the
+  /// small print under a line of body text the louder of the two. This is
+  /// that style in the quiet ink.
+  TextStyle? get caption =>
+      textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant);
+
+  /// A line of prose on a card: body type a step down, so that two lines of
+  /// it sit under a name without the row growing past a thumb's reach.
+  TextStyle? get cardBody =>
+      textTheme.bodyMedium?.copyWith(fontSize: 13, height: 1.35);
 }

@@ -14,4 +14,7 @@ abstract final class AppRadius {
   static const double sm = 6;
   static const double md = 10;
   static const double lg = 14;
+
+  /// A sheet's top corners: a modal sheet's, as the walk's inspector has them.
+  static const double sheet = 24;
 }
