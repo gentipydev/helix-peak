@@ -97,6 +97,23 @@ class ZoomCubit extends Cubit<ZoomState> {
   }
 }
 
+/// The zoom's header, at the walk's own height: the zoom opens over the
+/// walk's gene page, and a header of another height resized the chrome under
+/// the reader on the way in and again on the way back. Its title's type is
+/// held where the walk holds its own, since the bar does not grow with it.
+///
+/// With no [target] it has no title: the wait for a protein's row, before
+/// there is a name to head it with.
+AppBar _zoomBar([ProteinTarget? target]) => AppBar(
+  toolbarHeight: ZoomScreen.headerHeight,
+  title: target == null
+      ? null
+      : MediaQuery.withClampedTextScaling(
+          maxScaleFactor: 1.2,
+          child: Text(ZoomScreen.titleOf(target)),
+        ),
+);
+
 /// `/zoom/<slug>`: from a body down to one protein's DNA.
 class ZoomRoute extends StatelessWidget {
   const ZoomRoute({required this.slug, this.overWalk = false, super.key});
@@ -119,13 +136,13 @@ class ZoomRoute extends StatelessWidget {
           child: BlocBuilder<ZoomCubit, ZoomState>(
             builder: (BuildContext context, ZoomState state) => switch (state) {
               ZoomLoading() => Scaffold(
-                appBar: AppBar(title: Text(ZoomScreen.titleOf(target))),
+                appBar: _zoomBar(target),
                 body: LoadingView(
                   label: 'LOADING ${target.slug.toUpperCase()}',
                 ),
               ),
               ZoomFailed(:final String message) => Scaffold(
-                appBar: AppBar(title: Text(ZoomScreen.titleOf(target))),
+                appBar: _zoomBar(target),
                 body: ErrorView(
                   title: 'Fetch failed',
                   message: message,
@@ -134,7 +151,7 @@ class ZoomRoute extends StatelessWidget {
               ),
               ZoomUnavailable(:final TrackState state, :final String? reason) =>
                 Scaffold(
-                  appBar: AppBar(title: Text(ZoomScreen.titleOf(target))),
+                  appBar: _zoomBar(target),
                   body: Center(
                     child: Padding(
                       padding: const EdgeInsets.all(AppSpacing.screenPadding),
@@ -212,12 +229,17 @@ class _TargetLoaderState extends State<_TargetLoader> {
     }
     final Object? error = _error;
     if (error == null) {
+      // Under the header's own height, which it has no name to fill yet: the
+      // label sat under the status bar, and moved when a header arrived.
       return Scaffold(
-        body: LoadingView(label: 'LOADING ${widget.slug.toUpperCase()}'),
+        appBar: _zoomBar(),
+        body: SafeArea(
+          child: LoadingView(label: 'LOADING ${widget.slug.toUpperCase()}'),
+        ),
       );
     }
     return Scaffold(
-      appBar: AppBar(),
+      appBar: _zoomBar(),
       body: ErrorView(
         title: 'Fetch failed',
         message: error is ApiException
@@ -271,6 +293,9 @@ class ZoomScreen extends StatefulWidget {
   final double initialDepth;
 
   static String titleOf(ProteinTarget target) => 'Zoom · ${target.display}';
+
+  /// The header's row, the walk's and search's own.
+  static const double headerHeight = 44;
 
   /// What the screen says where the row has no locus for it.
   static String unavailable(TrackState state, String? reason) =>
@@ -609,7 +634,7 @@ class _ZoomScreenState extends State<ZoomScreen>
         theme.textTheme.labelSmall ?? const TextStyle(fontSize: 12);
     final ZoomInks inks = ZoomInks.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(ZoomScreen.titleOf(widget.target))),
+      appBar: _zoomBar(widget.target),
       body: SafeArea(
         top: false,
         child: Column(

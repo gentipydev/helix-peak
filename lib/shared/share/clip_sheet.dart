@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/theme/app_spacing.dart';
+import '../../core/theme/app_typography.dart';
 import 'clip_exporter.dart';
 import 'video_encoder.dart';
 
@@ -153,10 +154,9 @@ class _ClipSheetState extends State<ClipSheet> {
                 Text(
                   line,
                   key: const ValueKey<String>('clip-progress'),
-                  style: theme.textTheme.bodySmall,
+                  style: theme.caption,
                 ),
-                if (where != null)
-                  Text(where, style: theme.textTheme.bodySmall),
+                if (where != null) Text(where, style: theme.caption),
                 if (job.timing case final String timing) ...<Widget>[
                   const SizedBox(height: AppSpacing.sm),
                   SelectableText(timing, style: theme.textTheme.labelSmall),
@@ -318,19 +318,14 @@ class _ClipReadyListenerState extends State<ClipReadyListener>
     if (messenger == null || !mounted) {
       return;
     }
-    // The snackbar's surface is the theme's dark one; Material's own action
-    // and close colours are made for a light one and all but vanish on it.
-    final ColorScheme scheme = Theme.of(context).colorScheme;
     if (job.status == ClipStatus.ready) {
       final Size screen = MediaQuery.sizeOf(context);
       messenger.showSnackBar(
         SnackBar(
           content: Text('Clip ready · ${job.target.gene}'),
           showCloseIcon: true,
-          closeIconColor: scheme.onSurfaceVariant,
           action: SnackBarAction(
             label: 'Share',
-            textColor: scheme.primary,
             onPressed: () => unawaited(
               _share(
                 exporter,
@@ -354,7 +349,6 @@ class _ClipReadyListenerState extends State<ClipReadyListener>
           action: failure.reason == EncodeFailureReason.interrupted
               ? SnackBarAction(
                   label: 'Try again',
-                  textColor: scheme.primary,
                   onPressed: exporter.retry,
                 )
               : null,

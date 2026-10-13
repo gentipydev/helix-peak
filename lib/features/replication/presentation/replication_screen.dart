@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/theme/app_typography.dart';
 import '../../../shared/anatomy/sequence_scrubber.dart';
 import '../../../shared/motion/timeline_controller.dart';
 import '../../../shared/motion/transport_bar.dart';
@@ -118,7 +119,7 @@ class _ReplicationScreenState extends State<ReplicationScreen>
               'Human DNA · 200 bp',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodySmall,
+              style: theme.caption,
             ),
           ],
         ),
@@ -312,7 +313,7 @@ class _Legend extends StatelessWidget {
       ),
       const SizedBox(width: 6),
       Flexible(
-        child: Text(label, style: Theme.of(context).textTheme.bodySmall),
+        child: Text(label, style: Theme.of(context).caption),
       ),
     ],
   );
@@ -515,7 +516,7 @@ class _SourceLink extends StatelessWidget {
   Widget build(BuildContext context) => ListTile(
     contentPadding: EdgeInsets.zero,
     title: Text(title, style: Theme.of(context).textTheme.bodyMedium),
-    subtitle: Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+    subtitle: Text(subtitle, style: Theme.of(context).caption),
     trailing: const Icon(Icons.open_in_new_rounded, size: 17),
     onTap: () async {
       bool opened = false;

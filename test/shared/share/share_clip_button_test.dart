@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/core/theme/app_typography.dart';
 import 'package:helixpeek/shared/share/clip_exporter.dart';
 import 'package:helixpeek/shared/share/clip_sheet.dart';
 import 'package:helixpeek/shared/share/share_clip_button.dart';
@@ -164,6 +165,32 @@ void main() {
   testWidgets('on iOS there is a clip to offer', (WidgetTester tester) async {
     await host(tester, TargetPlatform.iOS);
     expect(_button, findsOneWidget);
+  });
+
+  testWidgets('the sheet\'s small print is in the app\'s face and quiet ink', (
+    WidgetTester tester,
+  ) async {
+    await host(tester, TargetPlatform.android);
+    await tester.tap(_button);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    // How far it has got, and what happens to it when the app is left: two
+    // lines under the bar, in a style the theme did not name. On a phone they
+    // were set in the platform's face, and in the bright ink.
+    final ThemeData theme = AppTheme.analysis;
+    final TextStyle progress = tester
+        .widget<Text>(find.byKey(const ValueKey<String>('clip-progress')))
+        .style!;
+    expect(progress.fontFamily, AppTypography.sansFamily);
+    expect(progress.color, theme.colorScheme.onSurfaceVariant);
+    final TextStyle where = tester
+        .widget<Text>(find.textContaining('It goes on while you use the app'))
+        .style!;
+    expect(where, progress);
+
+    await tester.tap(find.byKey(const ValueKey<String>('clip-cancel')));
+    await tester.pumpAndSettle();
   });
 
   testWidgets('it makes the clip in a sheet, and shares it only when asked', (

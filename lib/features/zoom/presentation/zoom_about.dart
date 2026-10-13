@@ -25,7 +25,7 @@ class ZoomAbout extends StatelessWidget {
               header: true,
               child: Text(
                 'About this zoom',
-                style: theme.textTheme.titleMedium,
+                style: theme.textTheme.titleLarge,
               ),
             ),
             const SizedBox(height: AppSpacing.md),
