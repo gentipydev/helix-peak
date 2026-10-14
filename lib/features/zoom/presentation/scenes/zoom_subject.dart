@@ -91,4 +91,9 @@ final class ZoomSubject {
       ? record.sequence.length
       : ZoomDepth.helixBases;
   double get dnaMiddle => dnaBases / 2;
+
+  /// Where the middle of the view at the DNA lies, in base pairs from the
+  /// gene's 5′ end: the 5′ end a little inside its left edge, the helix
+  /// running on past its right.
+  double get dnaView => ZoomDepth.dnaBasePairs / 2 - 0.65;
 }

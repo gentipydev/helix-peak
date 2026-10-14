@@ -270,8 +270,11 @@ in its own units, nested in the one before where its portal lies
   recipe a tissue architecture, the zoom's cell laid where it lives);
 - the cell, the protein glowing where the Atlas finds it, and the nucleus
   with its chromosome territories;
-- a metaphase chromosome with its G-bands, a genome map of the band, the
-  record's exons at their real lengths, and the double helix.
+- a metaphase chromosome with its G-bands, a genome map of the band
+  opened out of the whole chromosome, the record's exons at their real
+  lengths with a polymerase passing along them, and the home screen's own
+  double helix (`DnaHelixPainter`, from `lib/shared/helix/`), lying 5′ to
+  3′ with the record's first bases.
 
 The organ and the cell are one path the bake chose, a cell that lives in
 the organ (`path` in the `locus` track's schema 2, `pipeline/locus` in the

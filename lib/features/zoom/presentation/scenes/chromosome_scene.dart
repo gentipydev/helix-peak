@@ -6,6 +6,7 @@ import '../../domain/locus_track.dart';
 import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
 import '../zoom_inks.dart';
+import 'band_scene.dart';
 import 'body_scene.dart';
 import 'contour.dart';
 import 'nucleus_scene.dart';
@@ -58,7 +59,7 @@ final class ChromosomeScene extends ZoomScene {
   static const double splay = 0.07;
 
   /// The map's band strip, in pixels: the chromosome thins to it.
-  static const double stripPixels = 18;
+  static const double stripPixels = BandScene.strip;
 
   double yOf(num base) => -length / 2 + (base - 1) / _track.length * length;
 

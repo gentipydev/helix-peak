@@ -33,6 +33,9 @@ class DnaHelixPainter extends CustomPainter {
     required this.cytosine,
     required this.transcript,
     required this.background,
+    this.topFade = _topFadeStop,
+    this.bottomFade = _bottomFadeStop,
+    this.overscan = _overscan,
   }) : super(repaint: repaint) {
     _buildLuts();
   }
@@ -54,6 +57,18 @@ class DnaHelixPainter extends CustomPainter {
   final Color transcript;
 
   final Color background;
+
+  /// How much of the canvas's height, at its top and at its bottom, the
+  /// duplex fades out over into [background]. The home screen's by default;
+  /// a caller that lays the duplex along something of its own, as the zoom
+  /// does, may fade an end itself, or not at all.
+  final double topFade;
+  final double bottomFade;
+
+  /// How much taller than the canvas the duplex is drawn, at the least: the
+  /// home screen's runs past both its edges. At 0 it is drawn at its
+  /// model's own height, its rungs at its pitch.
+  final double overscan;
 
   static const double _widthFraction = 0.40;
 
@@ -174,7 +189,7 @@ class DnaHelixPainter extends CustomPainter {
     }
 
     final double radius = math.min(model.radius, size.width * _widthFraction);
-    final double height = math.max(model.modelHeight, size.height * _overscan);
+    final double height = math.max(model.modelHeight, size.height * overscan);
 
     // Two independent terms, so they add: how far the ball's front surface
     // sits ahead of its centre, plus the uncertainty in the depth of the
@@ -444,12 +459,12 @@ class DnaHelixPainter extends CustomPainter {
     if (_fadeSize != size) {
       _fadeSize = size;
 
-      _topFade = Rect.fromLTWH(0, 0, size.width, size.height * _topFadeStop);
+      _topFade = Rect.fromLTWH(0, 0, size.width, size.height * topFade);
       _bottomFade = Rect.fromLTWH(
         0,
-        size.height * (1 - _bottomFadeStop),
+        size.height * (1 - bottomFade),
         size.width,
-        size.height * _bottomFadeStop,
+        size.height * bottomFade,
       );
 
       final List<Color> colours = <Color>[];
@@ -458,7 +473,7 @@ class DnaHelixPainter extends CustomPainter {
       for (int i = 0; i <= _fadeSteps; i++) {
         final double t = i / _fadeSteps;
         colours.add(background.withValues(alpha: 1 - _smoothstep(t)));
-        stops.add(t * _topFadeStop);
+        stops.add(t * topFade);
       }
 
       // The run between the two bands interpolates clear to clear, so it needs
@@ -466,7 +481,7 @@ class DnaHelixPainter extends CustomPainter {
       for (int i = 0; i <= _fadeSteps; i++) {
         final double t = i / _fadeSteps;
         colours.add(background.withValues(alpha: _smoothstep(t)));
-        stops.add(1 - _bottomFadeStop + t * _bottomFadeStop);
+        stops.add(1 - bottomFade + t * bottomFade);
       }
 
       _fadePaint.shader = ui.Gradient.linear(
@@ -555,6 +570,9 @@ class DnaHelixPainter extends CustomPainter {
         oldDelegate.guanine != guanine ||
         oldDelegate.cytosine != cytosine ||
         oldDelegate.transcript != transcript ||
-        oldDelegate.background != background;
+        oldDelegate.background != background ||
+        oldDelegate.topFade != topFade ||
+        oldDelegate.bottomFade != bottomFade ||
+        oldDelegate.overscan != overscan;
   }
 }

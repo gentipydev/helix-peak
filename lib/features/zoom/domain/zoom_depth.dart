@@ -94,13 +94,13 @@ final class ZoomDepth {
   /// phone, fills most of the canvas's height.
   static const double chromosomeView = 0.9;
 
-  /// How wide the view is at the DNA: 12 nm, a few turns of the helix, in
-  /// base pairs.
-  static const double dnaBasePairs = 1.2e-8 / basePairMetres;
+  /// How wide the view is at the DNA, in base pairs: the home screen's
+  /// helix at its own proportions on a phone, a turn and a third of it.
+  static const double dnaBasePairs = 14;
 
-  /// How many of the gene's base pairs the view at the DNA holds, with a
-  /// base pair's width kept clear at each end.
-  static final int helixBases = dnaBasePairs.floor() - 2;
+  /// How many of the gene's first bases the helix at the DNA carries: more
+  /// than the view holds, as the home screen's helix runs off its edge.
+  static const int helixBases = 33;
 
   /// How wide the view is at the body, in metres: a figure 1.70 m tall
   /// stands whole in a view as tall as it is wide.

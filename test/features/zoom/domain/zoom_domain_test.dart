@@ -567,7 +567,7 @@ void main() {
       // The eyepiece's half-millimetre field, with the dark round it.
       expect(depth.widthLabel(depth.depthOf(ZoomStop.tissue)), '600 µm');
       expect(lengthLabel(ZoomDepth.tissueField), '500 µm');
-      expect(depth.widthLabel(depth.depthOf(ZoomStop.dna)), '35 bp');
+      expect(depth.widthLabel(depth.depthOf(ZoomStop.dna)), '14 bp');
       // The chromosome condensed: micrometres, not millimetres.
       expect(
         depth.widthAt(depth.depthOf(ZoomStop.chromosome)),
