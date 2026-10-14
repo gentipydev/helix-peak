@@ -357,8 +357,10 @@ void main() {
     }
   });
 
-  testWidgets('the gene’s DNA opens out of its bar on the band’s map, its 5′ '
-      'end at the bar’s left whatever its strand', (WidgetTester tester) async {
+  testWidgets('the gene’s DNA opens out of its mark on the band’s strip, its '
+      '5′ end at the mark’s left whatever its strand', (
+    WidgetTester tester,
+  ) async {
     final ZoomInks inks = await _inks(tester);
     for (final ProteinTarget t in TestCatalog.all) {
       final ZoomStage stage = _stage(t);

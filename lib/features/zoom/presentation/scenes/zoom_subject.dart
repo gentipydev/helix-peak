@@ -72,12 +72,12 @@ final class ZoomSubject {
   /// [metres] in [stop]'s scene units.
   double unitsOf(ZoomStop stop, double metres) => metres / depth.widthOf(stop);
 
-  /// Where the zoom goes into the gene on the band's map, as a genome
+  /// Where the zoom goes into the gene on the band's strip, as a genome
   /// position: the middle of the view at the DNA, counted from the left end
-  /// of the gene's bar. The DNA reads the gene 5′ to 3′ from its left, as
-  /// the walk does, whatever its strand: on the map the gene is a bar with
-  /// nothing inside it to turn, and turned over about its middle a bar is
-  /// the same bar, so its 5′ end is drawn at the bar's left end.
+  /// of the gene's mark. The DNA reads the gene 5′ to 3′ from its left, as
+  /// the walk does, whatever its strand: on the strip the gene is a mark
+  /// with nothing inside it to turn, and turned over about its middle a
+  /// mark is the same mark, so its 5′ end is drawn at the mark's left end.
   double get geneEntry => track.spanStart + dnaView;
 
   /// The middle of the band or bands it lies in, on the genome.

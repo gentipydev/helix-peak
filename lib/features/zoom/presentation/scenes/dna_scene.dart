@@ -14,13 +14,13 @@ import 'body_scene.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
 
-/// The gene's DNA from its 5′ end: what the gene's bar on the band's map
+/// The gene's DNA from its 5′ end: what the gene's mark on the band's strip
 /// opens into, through its exons and its chromatin down to the double helix
 /// that holds its first bases.
 ///
 /// It reads 5′ to 3′, left to right, as the walk does, whatever the gene's
-/// strand, from the left end of the bar ([ZoomSubject.geneEntry]). As the
-/// view closes in on the 5′ end, the bar opens into the gene as a genome
+/// strand, from the left end of the mark ([ZoomSubject.geneEntry]). As the
+/// view closes in on the 5′ end, the mark opens into the gene as a genome
 /// browser draws a transcript: its coding exons thick, their untranslated
 /// ends thin, each a lit block in the walk's own colours, its introns a line
 /// with chevrons the way it is read, every part at its real length.
@@ -54,8 +54,8 @@ final class DnaScene extends ZoomScene {
   static const double period = 200;
   static const double wrapped = 147;
 
-  // The gene comes up as soon as the band's bar does: on the map it is a
-  // few pixels wide, and the bar opens into it.
+  // The gene comes up as soon as the band's mark of it does: on the strip
+  // it is a tick, and the mark opens into it.
   @override
   double asChild(double progress) => smoothstep((progress - 0.02) / 0.45);
 

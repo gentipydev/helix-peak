@@ -520,41 +520,45 @@ decades for chromosome 1), and the minimum travel gives it its room.
   that moment the chromosome's length on screen and the strip's length of
   genome are the same number of pixels, by the camera's own arithmetic. The
   two cross-fade over half the segment.
-- The strip then rises, a ruler in base pairs comes up under the gene's
-  track, and the whole chromosome docks above with the view boxed on it.
-  The scale bar changes from µm to Mb half way.
+- The strip stays where it appears, a ruler in base pairs comes up under
+  it, the gene is marked on it, and the whole chromosome docks above with
+  the view boxed on it. The scale bar changes from µm to Mb half way.
 
 **Band.** As a genome browser shows it:
-- the strip, 26 px, a lit tube of the bands laid along the genome, 70 px
-  above the middle, each band named over the part of it in view where that
-  part has room for its name, and the gene's band ringed in the accent;
+- the strip, 26 px, a lit tube of the bands laid along the genome, on the
+  middle of the view, each band named over the part of it in view where
+  that part has room for its name, and the gene's band ringed in the
+  accent;
+- the gene marked on the strip, where MANE puts it, and named: its stretch
+  ringed in the accent, 8 px proud of the strip, at the least a tick
+  1.5 px wide. Seventeen of the twenty are ticks; APP, CFTR and DMD are
+  rings as wide as they are. It had a track of its own under the strip,
+  with an arrow for its strand, until the user chose to mark it on the
+  strip (2026-10-14); the walk's record sheet gives the strand;
 - the whole chromosome docked at the top as a lit ideogram, the view boxed
   on it in the accent, and a funnel from the box down to the strip;
-- the gene's span on a track of its own, where MANE puts it, in the accent,
-  with an arrow the way it is read and its name;
 - a ruler in Mb, 40 px below the middle.
 
 **Into the gene.** One step goes from the band down to the DNA, five to six
 decades: the gene and the DNA are one stop, which looks like the DNA (the
 user's choice of 2026-10-14; the gene had a stop of its own before, with a
 polymerase passing along it).
-- The zoom goes into the gene's bar at its left end, where the DNA's view
+- The zoom goes into the gene's mark at its left end, where the DNA's view
   lies. The DNA reads the gene 5′→3′ from its left, as the walk does,
-  whatever its strand: on the map the gene is a bar with nothing inside it
-  to turn, and a bar turned over about its middle is the same bar. A turn
-  of reverse-strand genes was planned once and dropped: it swung
+  whatever its strand: on the strip the gene is a mark with nothing inside
+  it to turn, and a mark turned over about its middle is the same mark. A
+  turn of reverse-strand genes was planned once and dropped: it swung
   dystrophin's 5′ end across the view by up to 3 px a frame, past the
   smoothness bound.
-- The band names the gene where the zoom goes in, so the name's dot stays
-  put as the view closes on it. On a bar at its least width (seventeen of
-  the twenty) that is its middle; on APP's, CFTR's and DMD's it is the
-  bar's left end.
+- The band names the gene at the top of its mark, where the zoom goes in,
+  so the name's dot stays put as the view closes on it. On a tick that is
+  its middle; on APP's, CFTR's and DMD's rings it is the left end.
 - The map gives way over the first half of the step, while the gene grows
-  out of its bar.
+  out of its mark.
 
 **DNA.** The gene's own stop: the card names the gene and its length over
 the first bases its helix carries.
-- On the way in, the bar opens into the gene's exons and introns at their
+- On the way in, the mark opens into the gene's exons and introns at their
   real lengths (`GeneLayout` uses `realIntronBp` for the three genes whose
   record shortens its introns), as a genome browser draws a transcript:
   lit, rounded blocks in the walk's role colours, coding exons tall and
@@ -620,8 +624,9 @@ folds, which once fell in the last frame of the step to the organ.
   passes its stop, and comes to rest still.
 - No two names overlap, and each keeps 8 pt from the edges, at 390 and 320
   wide; the band never sets two of its words over each other.
-- As the step leaves the band, the gene's DNA lies on its bar on the map,
-  5′ end at the bar's left, for all twenty; its exons show on the way in
+- As the step leaves the band, the gene's DNA lies on its mark on the
+  strip, 5′ end at the mark's left, for all twenty; its exons show on the
+  way in
   and not at the DNA.
 
 What it found over the zoom's life, and what was changed:
