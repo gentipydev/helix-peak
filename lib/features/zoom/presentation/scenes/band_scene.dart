@@ -45,8 +45,7 @@ final class BandScene extends ZoomScene {
   double asChild(double progress) => smoothstep((progress - 0.3) / 0.45);
 
   @override
-  double asParent(double progress) =>
-      1 - smoothstep((progress - 0.5) / 0.45);
+  double asParent(double progress) => 1 - smoothstep((progress - 0.5) / 0.45);
 
   /// Where the band strip and the ruler come to sit above the gene's track,
   /// in pixels from the middle of the view.
@@ -90,10 +89,10 @@ final class BandScene extends ZoomScene {
   }
 
   Color _stain(ZoomFrame frame, CytoBand band) {
-    final Color pale = frame.inks.scale.giemsaPale;
-    final Color dark = frame.inks.scale.giemsaDark;
+    final Color pale = frame.inks.lit(0.56);
+    final Color dark = frame.inks.shade(0.55);
     return switch (band.stain) {
-      Stain.acen => frame.inks.scale.centromere,
+      Stain.acen => frame.inks.shade(0.42),
       Stain.gvar => Color.lerp(pale, dark, 0.5)!,
       Stain.stalk => Color.lerp(pale, dark, 0.2)!,
       _ => Color.lerp(pale, dark, 0.06 + 0.88 * band.stain.depth)!,

@@ -3,15 +3,16 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/scale_colors.dart';
 import '../../domain/anatomy_tables.dart';
 import '../../domain/cell_archetypes.dart';
 import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
+import '../zoom_inks.dart';
 import 'body_scene.dart';
 import 'cell_scene.dart';
 import 'contour.dart';
 import 'nucleus_shape.dart';
+import 'sculpt.dart';
 import 'tissue/tissue_slide.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
@@ -182,29 +183,36 @@ final class TissueScene extends ZoomScene {
   void paint(Canvas canvas, ZoomFrame frame) {
     final ZoomView view = _view(frame);
     final Size size = frame.size;
+    final ZoomInks inks = frame.inks;
     final Offset centre = view.toScreen(Offset.zero, size);
     final double radius = field * view.pixelsPerUnit;
     final double shown = _shown(frame);
+    final double opening = _opening(frame);
     final Path lens = Path()
       ..addOval(Rect.fromCircle(center: centre, radius: radius));
-    // Outside the field: the organ dimming as the loupe opens, then the
-    // dark of the eyepiece.
+    // Outside the field: the organ dimming to the ground as the loupe
+    // opens.
     canvas.drawPath(
       Path.combine(
         PathOperation.difference,
         Path()..addRect(Offset.zero & size),
         lens,
       ),
-      Paint()
-        ..color = frame.inks.scale.eyepiece.withValues(
-          alpha: _opening(frame) * shown,
-        ),
+      Paint()..color = inks.ground.withValues(alpha: 0.92 * opening * shown),
+    );
+    // The field's shadow on what lies round it.
+    Sculpt.shadowUnder(
+      canvas,
+      Rect.fromCircle(center: centre, radius: radius),
+      inks,
+      strength: 0.5 * shown,
+      spread: 1.1,
     );
     canvas.save();
     canvas.clipPath(lens);
     canvas.drawPath(
       lens,
-      Paint()..color = frame.inks.scale.brightfield.withValues(alpha: shown),
+      Paint()..color = inks.ground.withValues(alpha: shown),
     );
     canvas.translate(centre.dx, centre.dy);
     final double perMicron = view.pixelsPerUnit * micron;
@@ -212,67 +220,90 @@ final class TissueScene extends ZoomScene {
     paintTissueSlide(
       canvas,
       _slide,
-      frame.inks.scale,
+      inks,
       pixel: 1 / perMicron,
       alpha: shown,
       striaPhase: _striaPhase,
     );
-    // The zoom's cell, ringed.
-    canvas.drawPath(
+    // The zoom's cell, in the mark.
+    final Rect cell = _ring.getBounds();
+    Sculpt.glow(
+      canvas,
+      cell.center,
+      cell.longestSide * 0.95,
+      inks,
+      0.3 * shown,
+    );
+    canvas.drawPath(_ring, Paint()..color = inks.glow(0.26 * shown));
+    Sculpt.glowingStroke(
+      canvas,
       _ring,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.2 / perMicron
-        ..color = frame.inks.mark.withValues(alpha: shown),
+      inks,
+      width: 1.8 / perMicron,
+      alpha: shown,
     );
     canvas.restore();
-    // The field darkens toward its edge, as an eyepiece's does.
-    final Color dark = frame.inks.scale.eyepiece;
+    // The field falls off toward its edge, as an eyepiece's does.
     canvas.drawPath(
       lens,
       Paint()
         ..shader = RadialGradient(
           colors: <Color>[
-            dark.withValues(alpha: 0),
-            dark.withValues(alpha: 0),
-            dark.withValues(alpha: 0.3 * shown),
+            inks.shadow.withValues(alpha: 0),
+            inks.shadow.withValues(alpha: 0),
+            inks.shadow.withValues(alpha: 0.55 * shown),
           ],
-          stops: const <double>[0, 0.74, 1],
+          stops: const <double>[0, 0.72, 1],
         ).createShader(Rect.fromCircle(center: centre, radius: radius)),
     );
+    // Its rim, and the light along its upper left.
+    final Rect rim = Rect.fromCircle(center: centre, radius: radius);
     canvas.drawCircle(
       centre,
       radius,
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5
-        ..color = frame.inks.scale.membrane.withValues(alpha: 0.6 * shown),
+        ..color = inks.lit(0.3).withValues(alpha: 0.8 * shown),
+    );
+    canvas.drawArc(
+      rim,
+      math.pi * 1.05,
+      math.pi * 0.5,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..strokeCap = StrokeCap.round
+        ..color = inks.glow(0.75 * shown),
     );
   }
 }
 
-/// Draws [slide] in its own micrometres, layer over layer, in the stains'
-/// colours: [pixel] is one screen pixel in micrometres, so lines keep their
+/// Draws [slide] in its own micrometres, layer over layer, in the zoom's
+/// inks: [pixel] is one screen pixel in micrometres, so lines keep their
 /// weight at any magnification. A muscle fibre's stripes are centred
 /// [striaPhase] micrometres from the middle, and every sarcomere from there.
+///
+/// The section is seen as the app draws: on its own ground, as though lit
+/// from the side, the cells' cytoplasm in the warm neutrals by how much
+/// stain it would take, their nuclei bright in the quiet ink, the denser
+/// the brighter, what takes no stain the ground, and blood the thymine red.
 void paintTissueSlide(
   Canvas canvas,
   TissueSlide slide,
-  ScaleColors colors, {
+  ZoomInks inks, {
   required double pixel,
   double alpha = 1,
   double striaPhase = 0,
 }) {
-  final Color lamp = colors.brightfield;
-  final Color eosin = colors.eosin;
-  final Color deep = colors.eosinDeep;
-  final Color pale = colors.haematoxylinLight;
-  final Color dark = colors.haematoxylin;
-  Color mix(Color a, Color b, double t) => Color.lerp(a, b, t)!;
+  final Color cool = Color.lerp(inks.high, inks.label, 0.35)!;
   final Paint fill = Paint();
   final Paint stroke = Paint()..style = PaintingStyle.stroke;
-  void filled(Path path, Color color) =>
-      canvas.drawPath(path, fill..color = color.withValues(alpha: alpha));
+  void filled(Path path, Color color) => canvas.drawPath(
+    path,
+    fill..color = color.withValues(alpha: color.a * alpha),
+  );
   void stroked(Path path, Color color, double strength, double width) =>
       canvas.drawPath(
         path,
@@ -288,19 +319,19 @@ void paintTissueSlide(
       }
       switch (ink) {
         case SlideInk.lamp:
-          filled(path, lamp);
+          filled(path, inks.ground);
         case SlideInk.eosin0:
-          filled(path, mix(lamp, eosin, 0.55));
+          filled(path, inks.shade(0.62));
         case SlideInk.eosin1:
-          filled(path, eosin);
+          filled(path, inks.shade(0.8));
         case SlideInk.eosin2:
-          filled(path, mix(eosin, deep, 0.45));
+          filled(path, inks.lit(0.1));
         case SlideInk.eosin3:
-          filled(path, mix(eosin, deep, 0.9));
+          filled(path, inks.lit(0.22));
         case SlideInk.basophil:
-          filled(path, mix(mix(eosin, deep, 0.5), pale, 0.55));
+          filled(path, cool);
         case SlideInk.granules:
-          filled(path, mix(eosin, deep, 0.9));
+          filled(path, inks.lit(0.2));
         case SlideInk.stria:
           // Stripes a sarcomere apart. Finer than a pixel they would only
           // shimmer, so they come up as the view closes on them.
@@ -308,7 +339,9 @@ void paintTissueSlide(
             (TissueSlide.sarcomere / pixel - 1) / 1.2,
           );
           if (seen > 0) {
-            final Color stripe = deep.withValues(alpha: 0.36 * alpha * seen);
+            final Color stripe = inks
+                .lit(0.38)
+                .withValues(alpha: 0.45 * alpha * seen);
             final double from = striaPhase - 0.21 * TissueSlide.sarcomere;
             canvas.drawPath(
               path,
@@ -327,23 +360,25 @@ void paintTissueSlide(
                 ),
             );
           }
+        case SlideInk.home:
+          filled(path, inks.glow(0.13));
+          stroked(path, inks.mark, 0.35, 1);
         case SlideInk.border:
-          stroked(path, deep, 0.42, 1);
+          stroked(path, inks.ground, 0.55, 1);
         case SlideInk.fibre:
-          stroked(path, deep, 0.45, 1.1);
+          stroked(path, inks.label, 0.16, 0.9);
         case SlideInk.clear:
-          filled(path, lamp);
-          stroked(path, deep, 0.35, 1.3);
+          filled(path, inks.ground);
+          stroked(path, inks.lit(0.3), 0.6, 1.2);
         case SlideInk.nucleus0:
-          filled(path, mix(lamp, pale, 0.62));
-          stroked(path, dark, 0.75, 0.9);
+          filled(path, Color.lerp(inks.high, inks.label, 0.5)!);
+          stroked(path, inks.label, 0.7, 0.8);
         case SlideInk.nucleus1:
-          filled(path, mix(pale, dark, 0.45));
-          stroked(path, dark, 0.5, 0.7);
+          filled(path, Color.lerp(inks.high, inks.label, 0.8)!);
         case SlideInk.nucleus2:
-          filled(path, dark);
+          filled(path, Color.lerp(inks.label, inks.text, 0.35)!);
         case SlideInk.blood:
-          filled(path, colors.redCell);
+          filled(path, inks.blood);
       }
     }
   }

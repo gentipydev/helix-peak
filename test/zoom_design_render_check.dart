@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
-import 'package:helixpeek/core/theme/scale_colors.dart';
 import 'package:helixpeek/features/zoom/domain/anatomy_figure.dart';
 import 'package:helixpeek/features/zoom/domain/anatomy_tables.dart';
 import 'package:helixpeek/features/zoom/domain/cell_archetypes.dart';
@@ -15,6 +14,7 @@ import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_path.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/contour.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organ_art.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/sculpt.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/tissue/tissue_slide.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/tissue_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
@@ -167,6 +167,8 @@ void main() {
         tissue.value,
         body.parts[tissue.value.uberon],
         tissue.value.metres * ZoomDepth.organMargin,
+        figure: body,
+        shape: shapeOfTissue(tissue.value.recipe),
       );
       await tester.pumpWidget(
         RepaintBoundary(
@@ -216,6 +218,18 @@ void main() {
           ('glandular-ciliated', TissueRecipe.glandular, CellShape.ciliated),
           ('seminiferous-germ', TissueRecipe.seminiferous, CellShape.germ),
         ];
+    late ZoomInks inks;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.analysis,
+        home: Builder(
+          builder: (BuildContext context) {
+            inks = ZoomInks.of(context);
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
     for (final (String name, TissueRecipe recipe, CellShape shape) in slides) {
       final CellArchetype archetype = archetypeFor(shape);
       final (Contour target, Contour nucleus) = TissueScene.targetOf(
@@ -237,7 +251,7 @@ void main() {
           key: key,
           child: CustomPaint(
             size: const Size(side, side),
-            painter: _SlidePainter(slide, target),
+            painter: _SlidePainter(slide, target, inks),
           ),
         ),
       );
@@ -276,14 +290,7 @@ class _OrganPainter extends CustomPainter {
     canvas.translate(size.width / 2, size.height / 2);
     canvas.scale(size.width);
     art.paint(canvas, inks, 1 / size.width, 1);
-    canvas.drawCircle(
-      art.site,
-      0.03,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2 / size.width
-        ..color = inks.mark,
-    );
+    Sculpt.reticle(canvas, art.site, 9 / size.width, 1 / size.width, inks);
   }
 
   @override
@@ -292,17 +299,17 @@ class _OrganPainter extends CustomPainter {
 
 /// One slide on its own, its field filling the square.
 class _SlidePainter extends CustomPainter {
-  _SlidePainter(this.slide, this.target);
+  _SlidePainter(this.slide, this.target, this.inks);
 
   final TissueSlide slide;
   final Contour target;
+  final ZoomInks inks;
 
   @override
   void paint(Canvas canvas, Size size) {
-    const ScaleColors colors = ScaleColors.analysis;
     const double field = ZoomDepth.tissueField * 1e6 / 2;
     final double perMicron = size.width / 2 / (field + 4);
-    canvas.drawRect(Offset.zero & size, Paint()..color = colors.eyepiece);
+    canvas.drawRect(Offset.zero & size, Paint()..color = inks.ground);
     final Path lens = Path()
       ..addOval(
         Rect.fromCircle(
@@ -311,16 +318,14 @@ class _SlidePainter extends CustomPainter {
         ),
       );
     canvas.clipPath(lens);
-    canvas.drawPath(lens, Paint()..color = colors.brightfield);
     canvas.translate(size.width / 2, size.height / 2);
     canvas.scale(perMicron);
-    paintTissueSlide(canvas, slide, colors, pixel: 1 / perMicron);
-    canvas.drawPath(
+    paintTissueSlide(canvas, slide, inks, pixel: 1 / perMicron);
+    Sculpt.glowingStroke(
+      canvas,
       target.toPath(),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.2 / perMicron
-        ..color = AppTheme.analysis.colorScheme.primary,
+      inks,
+      width: 1.8 / perMicron,
     );
   }
 

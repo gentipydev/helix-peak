@@ -97,7 +97,7 @@ final class DnaScene extends ZoomScene {
         Offset(w, mid),
         Paint()
           ..strokeWidth = 2
-          ..color = frame.inks.scale.backbone.withValues(alpha: 0.7 * line),
+          ..color = frame.inks.label.withValues(alpha: 0.7 * line),
       );
     }
     _nucleosomes(canvas, frame, perBase, mid);
@@ -105,8 +105,7 @@ final class DnaScene extends ZoomScene {
 
   /// How much of the helix shows at [frame]: it comes up as its bases
   /// grow big enough to tell apart.
-  double _helixShown(ZoomFrame frame) =>
-      smoothstep((420 - _span(frame)) / 260);
+  double _helixShown(ZoomFrame frame) => smoothstep((420 - _span(frame)) / 260);
 
   @override
   bool wantsClock(ZoomFrame frame) => _helixShown(frame) > 0;
@@ -132,7 +131,12 @@ final class DnaScene extends ZoomScene {
     }
   }
 
-  void _nucleosomes(Canvas canvas, ZoomFrame frame, double perBase, double mid) {
+  void _nucleosomes(
+    Canvas canvas,
+    ZoomFrame frame,
+    double perBase,
+    double mid,
+  ) {
     final double width = wrapped * perBase;
     // Beads come up once they are big enough to read as beads, and give way
     // to the helix's own bases before one fills the view.
@@ -174,7 +178,7 @@ final class DnaScene extends ZoomScene {
         ..strokeCap = StrokeCap.round;
       dna.color = Color.lerp(
         frame.inks.ground,
-        frame.inks.scale.backbone,
+        frame.inks.label,
         0.55,
       )!.withValues(alpha: show);
       canvas.drawPath(behind, dna);
@@ -183,10 +187,10 @@ final class DnaScene extends ZoomScene {
         Paint()
           ..shader = MolecularMaterial.residueShader(
             core,
-            frame.inks.scale.histone.withValues(alpha: show),
+            frame.inks.lit(0.42).withValues(alpha: show),
           ),
       );
-      dna.color = frame.inks.scale.backbone.withValues(alpha: show);
+      dna.color = frame.inks.label.withValues(alpha: show);
       canvas.drawPath(front, dna);
     }
   }
@@ -194,7 +198,14 @@ final class DnaScene extends ZoomScene {
   /// The wrap of DNA round [core], from where it comes in at [a] to where it
   /// leaves at [b]: a coil of 1.65 turns about the core's long axis, split
   /// into the strokes that pass behind the core and those that pass in front.
-  void _wrap(Rect core, double a, double b, double mid, Path behind, Path front) {
+  void _wrap(
+    Rect core,
+    double a,
+    double b,
+    double mid,
+    Path behind,
+    Path front,
+  ) {
     const int steps = 80;
     const double turns = 1.65;
     final double left = math.min(a, b);
@@ -280,9 +291,13 @@ final class DnaScene extends ZoomScene {
         HelixPalette.thymine => frame.inks.bases.thymine,
         HelixPalette.guanine => frame.inks.bases.guanine,
         HelixPalette.cytosine => frame.inks.bases.cytosine,
-        _ => frame.inks.scale.backbone,
+        _ => frame.inks.label,
       };
-      final Color lit = Color.lerp(far, colour, shade)!.withValues(alpha: alpha);
+      final Color lit = Color.lerp(
+        far,
+        colour,
+        shade,
+      )!.withValues(alpha: alpha);
       if (kind == HelixPrimitiveKind.node) {
         canvas.drawCircle(a, 3.2 * pixel, Paint()..color = lit);
         continue;

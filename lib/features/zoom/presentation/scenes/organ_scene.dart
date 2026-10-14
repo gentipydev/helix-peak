@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
 import 'organ_art.dart';
+import 'sculpt.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
 
-/// The organ the path's tissue is in, seen whole, with the place the tissue
-/// is sampled ringed in it.
+/// The organ the path's tissue is in, seen whole and sculpted, the figure's
+/// parts faint round it, the gene's place in it glowing and the place the
+/// tissue is sampled marked.
 ///
 /// It is the outline the body drew for it ([OrganArt]), so the step from
 /// the body is one shape seen closer: this scene comes up over the body's
@@ -64,20 +66,26 @@ final class OrganScene extends ZoomScene {
     );
   }
 
+  /// How far the organ has become its own, from the body's drawing of it:
+  /// its sculpting and what lies inside it come up once it is growing.
+  static double detailAt(ZoomFrame frame) =>
+      frame.isChild ? smoothstep((frame.progress - 0.5) / 0.4) : 1;
+
   @override
   void paint(Canvas canvas, ZoomFrame frame) {
     canvas.save();
     frame.enter(canvas);
     final double grown = _grown(frame);
-    _art.paint(canvas, frame.inks, frame.pixel, grown);
-    // Where the tissue is sampled.
-    canvas.drawCircle(
+    final double detail = detailAt(frame);
+    _art.paint(canvas, frame.inks, frame.pixel, grown, detail: detail);
+    // Where the tissue is sampled, once the organ is its own.
+    Sculpt.reticle(
+      canvas,
       _art.site * grown,
-      0.03,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2 * frame.pixel
-        ..color = frame.inks.mark,
+      9 * frame.pixel,
+      frame.pixel,
+      frame.inks,
+      opacity: detail,
     );
     canvas.restore();
   }

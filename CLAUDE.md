@@ -264,12 +264,12 @@ in its own units, nested in the one before where its portal lies
   CC BY 4.0), the organs the Atlas reads the gene raised in lit;
   `tool/zoom/anatomogram.py` generates `anatomy_figures.g.dart` from it,
   and the body carries its credit, with the Atlas's, in one caption line;
-- the organ as the same outline, grown to its real size;
-- the tissue as an H&E section under an eyepiece (`TissueSlide`: one
-  engine, a recipe a tissue architecture, the zoom's cell laid where it
-  lives);
-- the cell in immunofluorescence, the protein green where the Atlas finds
-  it, and the nucleus in chromosome paint;
+- the organ as the same outline, grown to its real size and sculpted, the
+  figure's parts faint round it, and inside it the gene's place;
+- the tissue as a section under an eyepiece (`TissueSlide`: one engine, a
+  recipe a tissue architecture, the zoom's cell laid where it lives);
+- the cell, the protein glowing where the Atlas finds it, and the nucleus
+  with its chromosome territories;
 - a metaphase chromosome with its G-bands, a genome map of the band, the
   record's exons at their real lengths, and the double helix.
 
@@ -278,9 +278,13 @@ the organ (`path` in the `locus` track's schema 2, `pipeline/locus` in the
 backend). Where that cell has no nucleus (red cells, platelets), the zoom
 lands in the precursor that has one. The band is marked and named, never
 the gene. The card says the place and one line of data, nothing that
-explains: there is no About sheet, no source tag and no player. Colours
-are `ScaleColors` (`core/theme/scale_colors.dart`), added for the zoom
-alone. `docs/design/zoom.md` has the design and its checks.
+explains: there is no About sheet, no source tag and no player. Its
+colours are the app's own (`ZoomInks`): one ground at every stop, the
+accent for the gene and what it makes (the organs its RNA is raised in, its
+cell, its protein, its chromosome, its band) and nothing else, and every
+other form sculpted in the warm neutrals; `zoom_inks_test` holds that no
+colour in the zoom is written out as a number. `docs/design/zoom.md` has
+the design and its checks.
 
 ## State
 

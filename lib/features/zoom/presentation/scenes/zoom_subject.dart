@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/biology/gene_record.dart';
@@ -38,6 +40,34 @@ final class ZoomSubject {
   /// The part of [body] the zoom goes into, or null where the path names
   /// no tissue.
   AnatomyPart? get bodyPart => body.parts[anatomy?.uberon];
+
+  /// How strongly each part of [body] is lit, by UBERON id, from 0 to 1:
+  /// the gene's level there against its highest, and the part the zoom goes
+  /// into at least half, whether or not the Atlas calls the gene raised
+  /// there.
+  late final Map<String, double> litLevels = () {
+    final Map<String, double> out = <String, double>{};
+    final List<(String, double)> specific = track.tissue.specific;
+    double top = 0;
+    for (final (String _, double level) in specific) {
+      top = math.max(top, level);
+    }
+    for (final (String name, double level) in specific) {
+      final String? part = tissueAnatomy[ZoomPath.tissueName(name)]?.uberon;
+      if (part != null && body.parts.containsKey(part)) {
+        out[part] = math.max(out[part] ?? 0, top <= 0 ? 1 : level / top);
+      }
+    }
+    final String? own = anatomy?.uberon;
+    if (own != null && body.parts.containsKey(own)) {
+      out.putIfAbsent(own, () => 0.5);
+    }
+    return Map<String, double>.unmodifiable(out);
+  }();
+
+  /// How strongly the part the zoom goes into is lit, or 0 where the body
+  /// does not draw it.
+  double get followedLevel => litLevels[anatomy?.uberon] ?? 0;
 
   /// [metres] in [stop]'s scene units.
   double unitsOf(ZoomStop stop, double metres) => metres / depth.widthOf(stop);

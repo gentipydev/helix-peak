@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 
 import '../../domain/anatomy_figure.dart';
 import '../../domain/anatomy_tables.dart';
+import '../../domain/cell_archetypes.dart';
 import '../../domain/zoom_depth.dart';
 import '../zoom_inks.dart';
 import 'contour.dart';
+import 'sculpt.dart';
 import 'zoom_subject.dart';
 
 /// An organ as its own scene draws it: in the scene's units, at its real
@@ -14,13 +16,18 @@ import 'zoom_subject.dart';
 /// ([site]).
 ///
 /// Most organs are the anatomogram's own outline for them, the one the body
-/// drew, given a surface for the kind of organ it is. The anatomogram is a
-/// diagram and draws many of them smaller than they are, so each knows how
-/// many times its drawn size it really is ([real]): the scene grows it to
-/// that on the way in. A few have no outline of their own there, or none
-/// that shows the tissue (a lymph node, a vessel, the skin, a parathyroid
-/// gland, the retina), and are drawn from general anatomy. The brain is the
-/// anatomogram's brain cut down its middle.
+/// drew, sculpted in the app's neutrals and given what lies inside them for
+/// the kind of organ each is. The anatomogram is a diagram and draws many
+/// of them smaller than they are, so each knows how many times its drawn
+/// size it really is ([real]): the scene grows it to that on the way in. A
+/// few have no outline of their own there, or none that shows the tissue (a
+/// lymph node, a vessel, the skin, a parathyroid gland, the retina), and are
+/// drawn from general anatomy. The brain is the anatomogram's brain cut down
+/// its middle.
+///
+/// Where the gene is, the organ glows in the mark: the part of it the
+/// zoom's cell lives in (the islets of a pancreas for an endocrine cell, its
+/// ducts for a duct cell), by the kind of organ and of cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -28,15 +35,22 @@ abstract class OrganArt {
     subject.anatomy,
     subject.bodyPart,
     subject.depth.widthOf(ZoomStop.organ),
+    figure: subject.body,
+    shape: subject.depth.archetype.shape,
+    level: subject.followedLevel,
   );
 
   /// The organ a tissue drawn as [anatomy] is in, where the body draws it
-  /// as [part] and the scene's unit is [view] metres.
+  /// as [part] of [figure] and the scene's unit is [view] metres, about a
+  /// cell of [shape]. [level] is how strongly the body lit it.
   factory OrganArt.forTissue(
     TissueAnatomy? anatomy,
     AnatomyPart? part,
-    double view,
-  ) {
+    double view, {
+    AnatomyFigure? figure,
+    CellShape shape = CellShape.epithelial,
+    double level = 1,
+  }) {
     if (anatomy == null) {
       return _AnyOrgan();
     }
@@ -48,7 +62,17 @@ abstract class OrganArt {
       OrganKind.skin => _SkinOrgan(size),
       OrganKind.parathyroid => _ParathyroidOrgan(size),
       OrganKind.eye => _EyeOrgan(size),
-      _ => part == null ? _AnyOrgan() : _DrawnOrgan(part, anatomy, view),
+      _ =>
+        part == null
+            ? _AnyOrgan()
+            : _DrawnOrgan(
+                part,
+                anatomy,
+                view,
+                figure: figure,
+                shape: shape,
+                level: level,
+              ),
     };
   }
 
@@ -62,32 +86,18 @@ abstract class OrganArt {
   /// Where in the organ its tissue is sampled, at its real size.
   Offset get site => Offset.zero;
 
-  /// A point on the organ for its name's line to land on, at its real
-  /// size.
-  Offset get named;
-
   /// Draws the organ at [scale] times its real size; [pixel] is one screen
-  /// pixel in the scene's units.
-  void paint(Canvas canvas, ZoomInks inks, double pixel, double scale);
-
-  static Color _mix(Color a, Color b, double t) => Color.lerp(a, b, t)!;
-
-  /// A fill lit from the upper left, for a shape in [box].
-  static Paint _lit(ZoomInks inks, Rect box) => Paint()
-    ..shader =
-        RadialGradient(
-          colors: <Color>[
-            _mix(inks.scale.organ, inks.scale.organEdge, 0.42),
-            inks.scale.organ,
-            _mix(inks.scale.organ, inks.scale.bodyFill, 0.4),
-          ],
-          stops: const <double>[0, 0.55, 1],
-        ).createShader(
-          Rect.fromCircle(
-            center: box.topLeft + Offset(box.width * 0.34, box.height * 0.3),
-            radius: box.longestSide * 0.85,
-          ),
-        );
+  /// pixel in the scene's units. [detail], from 0 to 1, is how far it has
+  /// become the organ from the body's drawing of it: at 0 the flat shape,
+  /// lit in the mark, that the body hands over; at 1 the organ sculpted,
+  /// with what lies inside it.
+  void paint(
+    Canvas canvas,
+    ZoomInks inks,
+    double pixel,
+    double scale, {
+    double detail = 1,
+  });
 
   static Path _closed(List<Offset> points) {
     final Path path = Path();
@@ -102,6 +112,58 @@ abstract class OrganArt {
   }
 
   static Offset _unit(double angle) => Offset(math.cos(angle), math.sin(angle));
+
+  /// A shape sculpted: its shadow on the ground, its body lit from the
+  /// upper left, its edge and the light on it, at [detail] of the way from
+  /// the flat shape the body drew.
+  static void _sculpted(
+    Canvas canvas,
+    Path shape,
+    Rect box,
+    ZoomInks inks,
+    double line,
+    double detail, {
+    double light = 0.3,
+  }) {
+    if (detail > 0) {
+      Sculpt.shadowUnder(canvas, box, inks, strength: 0.55 * detail);
+    }
+    canvas.drawPath(shape, Paint()..color = inks.lit(0.14));
+    if (detail > 0) {
+      canvas.drawPath(
+        shape,
+        Paint()..shader = Sculpt.body(box, inks, light: light, opacity: detail),
+      );
+    }
+  }
+
+  static void _edged(
+    Canvas canvas,
+    Path shape,
+    Rect box,
+    ZoomInks inks,
+    double line,
+    double detail,
+  ) {
+    canvas.drawPath(
+      shape,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.1 * line
+        ..strokeJoin = StrokeJoin.round
+        ..color = inks.lit(0.42).withValues(alpha: 0.55 + 0.4 * detail),
+    );
+    if (detail > 0) {
+      Sculpt.rim(
+        canvas,
+        shape,
+        box,
+        inks,
+        width: 1.8 * line,
+        strength: 0.5 * detail,
+      );
+    }
+  }
 }
 
 /// The surface an organ's outline is given.
@@ -130,12 +192,30 @@ _Look _lookOf(OrganKind kind) => switch (kind) {
   _ => _Look.lobules,
 };
 
-/// An organ the anatomogram outlines: its own outline, and beside it the
-/// others of its part (the other lung, the other kidney), fainter.
+/// What lies inside an organ of one kind, and the part of it the zoom's
+/// cell lives in, in the mark.
+abstract class _Study {
+  /// Draws inside the organ's outline, already clipped to it.
+  void inside(Canvas canvas, ZoomInks inks, double line, double detail);
+}
+
+/// Parts of the figure never drawn round an organ: the skin is the figure
+/// itself, and fat lies over everything.
+const Set<String> _notAround = <String>{'UBERON_0000014', 'UBERON_0001013'};
+
+/// An organ the anatomogram outlines: its own outline, sculpted, the others
+/// of its part beside it (the other lung, the other kidney), and the
+/// figure's parts round it, faint, as the body drew them.
 final class _DrawnOrgan extends OrganArt {
-  _DrawnOrgan(AnatomyPart part, TissueAnatomy anatomy, double view)
-    : real = anatomy.metres / part.extent,
-      _look = _lookOf(anatomy.organ) {
+  _DrawnOrgan(
+    AnatomyPart part,
+    TissueAnatomy anatomy,
+    double view, {
+    AnatomyFigure? figure,
+    CellShape shape = CellShape.epithelial,
+    this.level = 1,
+  }) : real = anatomy.metres / part.extent,
+       _look = _lookOf(anatomy.organ) {
     Offset placed(Offset p) => (p - part.centre) * (real / view);
     _points = <Offset>[for (final Offset p in part.followed) placed(p)];
     // The outline's corners are the simplifying's, not the organ's: drawn
@@ -152,11 +232,40 @@ final class _DrawnOrgan extends OrganArt {
     _box = _shape.getBounds();
     // The body's midline, in the scene: an organ's hilum faces it.
     _midline = placed(Offset(0, part.site.dy)).dx;
+    _study = anatomy.organ == OrganKind.pancreas
+        ? _Pancreas(_shape, _points, _box, _site, shape)
+        : null;
     _detail = _surface();
+    // Round it, what the figure draws there: as far out as the view
+    // reaches, and a little beyond for the way in.
+    _around = Path();
+    if (figure != null) {
+      final Rect reach = Rect.fromCenter(
+        center: Offset.zero,
+        width: 1.6,
+        height: 2.6,
+      );
+      for (final MapEntry<String, AnatomyPart> other in figure.parts.entries) {
+        if (_notAround.contains(other.key) || identical(other.value, part)) {
+          continue;
+        }
+        for (final List<Offset> contour in other.value.contours) {
+          final Path path = OrganArt._closed(<Offset>[
+            for (final Offset p in contour) placed(p),
+          ]);
+          if (path.getBounds().overlaps(reach)) {
+            _around.addPath(path, Offset.zero);
+          }
+        }
+      }
+    }
   }
 
   @override
   final double real;
+
+  /// How strongly the body lit the organ: the mark it is handed over in.
+  final double level;
 
   @override
   bool get followsBody => true;
@@ -170,22 +279,13 @@ final class _DrawnOrgan extends OrganArt {
   late final Path _shape;
   late final List<Offset> _points;
   late final Path _others;
+  late final Path _around;
   late final Rect _box;
   late final double _midline;
+  late final _Study? _study;
 
   /// What is stroked over the organ, and what is filled darker in it.
   late final (Path, Path) _detail;
-
-  @override
-  Offset get named {
-    Offset top = _points.first;
-    for (final Offset p in _points) {
-      if (p.dy - p.dx * 0.4 < top.dy - top.dx * 0.4) {
-        top = p;
-      }
-    }
-    return top;
-  }
 
   Offset get _middle {
     Offset sum = Offset.zero;
@@ -216,29 +316,16 @@ final class _DrawnOrgan extends OrganArt {
     final Offset middle = _middle;
     switch (_look) {
       case _Look.lobules || _Look.fat:
-        // Lobules, or lobes of fat: a cobble of rounded shapes.
-        final double step = size * (_look == _Look.fat ? 0.1 : 0.15);
-        int row = 0;
-        for (double y = _box.top; y < _box.bottom + step; y += step * 0.866) {
-          for (
-            double x = _box.left - (row.isOdd ? step / 2 : 0);
-            x < _box.right + step;
-            x += step
-          ) {
-            lines.addOval(
-              Rect.fromCircle(
-                center:
-                    Offset(x, y) +
-                    Offset(
-                          random.nextDouble() - 0.5,
-                          random.nextDouble() - 0.5,
-                        ) *
-                        (step * 0.3),
-                radius: step * (0.4 + 0.1 * random.nextDouble()),
-              ),
-            );
+        // Lobules, or lobes of fat: a cobble of rounded shapes. A study of
+        // its own draws them as domes.
+        if (_study == null) {
+          for (final Rect lobule in Sculpt.cobble(
+            _box,
+            size * (_look == _Look.fat ? 0.1 : 0.15),
+            random,
+          )) {
+            lines.addOval(lobule);
           }
-          row++;
         }
       case _Look.hollow:
         // A wall round a lumen: drawn in [paint], along the outline.
@@ -270,19 +357,17 @@ final class _DrawnOrgan extends OrganArt {
               : _box.right - _box.width * 0.16,
           _box.top + _box.height * 0.4,
         );
-        void branch(Offset from, double angle, double length, int left) {
-          final Offset to = from + OrganArt._unit(angle) * length;
-          lines
-            ..moveTo(from.dx, from.dy)
-            ..lineTo(to.dx, to.dy);
-          if (left > 0) {
-            final double spread = 0.42 + 0.2 * random.nextDouble();
-            branch(to, angle - spread, length * 0.74, left - 1);
-            branch(to, angle + spread, length * 0.74, left - 1);
-          }
+        for (final Path generation in Sculpt.tree(
+          hilum,
+          hilumLeft ? 0.45 : math.pi - 0.45,
+          size * 0.2,
+          5,
+          random,
+          spread: 0.5,
+          shrink: 0.74,
+        )) {
+          lines.addPath(generation, Offset.zero);
         }
-
-        branch(hilum, hilumLeft ? 0.45 : math.pi - 0.45, size * 0.2, 5);
       case _Look.kidney:
         // The cortex, and the pyramids of the medulla pointing in.
         lines.addPath(_inset(0.8), Offset.zero);
@@ -320,78 +405,307 @@ final class _DrawnOrgan extends OrganArt {
   }
 
   @override
-  void paint(Canvas canvas, ZoomInks inks, double pixel, double scale) {
+  void paint(
+    Canvas canvas,
+    ZoomInks inks,
+    double pixel,
+    double scale, {
+    double detail = 1,
+  }) {
     canvas.save();
     canvas.scale(scale);
     final double line = pixel / scale;
-    final Color organ = inks.scale.organ;
-    final Color edge = inks.scale.organEdge;
-    canvas.drawPath(_others, Paint()..color = organ.withValues(alpha: 0.42));
+    // Round it, the figure's parts, as the body drew them, fading out with
+    // their distance from the organ once it is its own: the organ in its
+    // place, not a map.
+    final double near = _box.longestSide * (1.6 - 0.75 * detail);
+    final Rect fade = Rect.fromCircle(center: _box.center, radius: near);
+    Paint around(Color colour, double alpha) =>
+        Paint()
+          ..shader = RadialGradient(
+            colors: <Color>[
+              colour.withValues(alpha: alpha),
+              colour.withValues(alpha: alpha * 0.5),
+              colour.withValues(alpha: 0),
+            ],
+            stops: const <double>[0, 0.55, 1],
+          ).createShader(fade);
+    canvas.drawPath(_around, around(inks.lit(0.14), 0.42 * (1 - 0.6 * detail)));
+    canvas.drawPath(
+      _around,
+      around(inks.lit(0.32), 0.45 * (1 - 0.3 * detail))
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.8 * line,
+    );
+    canvas.drawPath(_others, Paint()..color = inks.lit(0.16));
     canvas.drawPath(
       _others,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.1 * line
-        ..color = edge.withValues(alpha: 0.4),
+        ..strokeWidth = 0.9 * line
+        ..color = inks.lit(0.36).withValues(alpha: 0.6),
     );
+    final bool hollow = _look == _Look.hollow;
     final bool bone = _look == _Look.bone;
-    if (_look == _Look.hollow) {
-      // The lumen, dark, and the wall as a band inside the outline.
-      canvas.drawPath(
-        _shape,
-        Paint()..color = OrganArt._mix(organ, inks.scale.bodyFill, 0.6),
-      );
-      canvas.save();
-      canvas.clipPath(_shape);
-      canvas.drawPath(
-        _shape,
-        OrganArt._lit(inks, _box)
-          ..style = PaintingStyle.stroke
-          ..strokeJoin = StrokeJoin.round
-          ..strokeWidth =
-              2 * math.min(_box.shortestSide * 0.2, _box.longestSide * 0.075),
-      );
-      canvas.restore();
-    } else {
-      canvas.drawPath(
-        _shape,
-        bone
-            ? (Paint()..color = OrganArt._mix(edge, organ, 0.25))
-            : OrganArt._lit(inks, _box),
-      );
+    OrganArt._sculpted(
+      canvas,
+      _shape,
+      _box,
+      inks,
+      line,
+      detail,
+      light: bone ? 0.42 : 0.3,
+    );
+    // The mark the body handed it over in, giving way as it becomes the
+    // organ and the gene's place in it comes up.
+    final double handed = (1 - detail) * (0.2 + 0.55 * level);
+    if (handed > 0.002) {
+      canvas.drawPath(_shape, Paint()..color = inks.glow(handed));
     }
     canvas.save();
     canvas.clipPath(_shape);
-    canvas.drawPath(
-      _detail.$2,
-      Paint()
-        ..color = bone
-            ? organ
-            : OrganArt._mix(organ, inks.scale.bodyFill, 0.55),
-    );
-    canvas.drawPath(
-      _detail.$1,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1 * line
-        ..color = edge.withValues(alpha: 0.34),
-    );
+    if (hollow && detail > 0) {
+      // The lumen in shade, and the wall as a lit band inside the outline.
+      canvas.drawPath(
+        _inset(0.72, across: 0.55),
+        Paint()..color = inks.shade(0.45).withValues(alpha: detail),
+      );
+    }
+    if (detail > 0) {
+      canvas.drawPath(
+        _detail.$2,
+        Paint()
+          ..color = (bone ? inks.shade(0.6) : inks.shade(0.5)).withValues(
+            alpha: 0.8 * detail,
+          ),
+      );
+      canvas.drawPath(
+        _detail.$1,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1 * line
+          ..color = inks.lit(0.5).withValues(alpha: 0.22 * detail),
+      );
+      _study?.inside(canvas, inks, line, detail);
+    }
     canvas.restore();
-    canvas.drawPath(
-      _shape,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.6 * line
-        ..strokeJoin = StrokeJoin.round
-        ..color = edge,
-    );
+    OrganArt._edged(canvas, _shape, _box, inks, line, detail);
+    if (handed > 0.002) {
+      canvas.drawPath(
+        _shape,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.1 * line
+          ..strokeJoin = StrokeJoin.round
+          ..color = inks.glow((1 - detail) * (0.5 + 0.5 * level)),
+      );
+    }
     canvas.restore();
   }
 }
 
-/// The brain cut down its middle, as the anatomogram draws it, with the
-/// part the tissue is lit: the cortex, or the lateral ventricle the choroid
-/// plexus lies in.
+/// The pancreas: its lobules, and its main duct running from the tail to
+/// the head. Where the zoom's cell lives glows: the islets scattered
+/// through it, more of them toward the tail, for an endocrine cell; the
+/// duct tree for a duct cell; the acini, the gland itself, for any other.
+/// An islet, or a branch of the ducts, lies at the place it is sampled.
+final class _Pancreas implements _Study {
+  _Pancreas(this.shape, this.points, this.box, this.site, this.cell) {
+    final math.Random random = math.Random(7);
+    final double size = box.longestSide;
+    _lobules = <Rect>[
+      for (final Rect lobule in Sculpt.cobble(box, size * 0.055, random))
+        if (shape.contains(lobule.center)) lobule,
+    ];
+    _duct = _centreline();
+    _branches = Path();
+    for (int k = 1; k < 9; k++) {
+      final double t = k / 9;
+      final Offset at = _along(t);
+      final Offset ahead = _along(math.min(1, t + 0.02));
+      final double heading = math.atan2(ahead.dy - at.dy, ahead.dx - at.dx);
+      for (final double side in <double>[-1, 1]) {
+        for (final Path generation in Sculpt.tree(
+          at,
+          heading + side * (1.0 + 0.3 * random.nextDouble()),
+          size * 0.05,
+          2,
+          random,
+          spread: 0.6,
+          shrink: 0.7,
+        )) {
+          _branches.addPath(generation, Offset.zero);
+        }
+      }
+    }
+    // A branch reaching the place it is sampled.
+    final Offset near = _nearestOnDuct(site);
+    _branches
+      ..moveTo(near.dx, near.dy)
+      ..quadraticBezierTo(
+        (near.dx + site.dx) / 2 + size * 0.01,
+        (near.dy + site.dy) / 2,
+        site.dx,
+        site.dy,
+      );
+    // Islets: a million in a pancreas, drawn as a few dozen, more toward
+    // the tail, where they are more.
+    _islets = <(Offset, double)>[(site, size * 0.016)];
+    int tries = 0;
+    while (_islets.length < 46 && tries < 4000) {
+      tries++;
+      final Offset p = Offset(
+        box.left + random.nextDouble() * box.width,
+        box.top + random.nextDouble() * box.height,
+      );
+      final double tail = (p.dx - box.left) / box.width;
+      if (!shape.contains(p) || random.nextDouble() > 0.45 + 0.55 * tail) {
+        continue;
+      }
+      if (_islets.any(
+        ((Offset, double) i) => (i.$1 - p).distance < size * 0.03,
+      )) {
+        continue;
+      }
+      _islets.add((p, size * (0.006 + 0.008 * random.nextDouble())));
+    }
+  }
+
+  final Path shape;
+  final List<Offset> points;
+  final Rect box;
+  final Offset site;
+  final CellShape cell;
+
+  late final List<Rect> _lobules;
+  late final List<Offset> _duct;
+  late final Path _branches;
+  late final List<(Offset, double)> _islets;
+
+  /// The main duct: the organ's middle line from one end to the other, the
+  /// middle of each slice across it, smoothed.
+  List<Offset> _centreline() {
+    const int slices = 40;
+    final List<Offset> raw = <Offset>[];
+    for (int i = 1; i < slices; i++) {
+      final double x = box.left + box.width * i / slices;
+      double top = double.infinity;
+      double bottom = double.negativeInfinity;
+      for (int j = 0; j < points.length; j++) {
+        final Offset a = points[j];
+        final Offset b = points[(j + 1) % points.length];
+        if ((a.dx - x) * (b.dx - x) > 0 || a.dx == b.dx) {
+          continue;
+        }
+        final double y = a.dy + (b.dy - a.dy) * (x - a.dx) / (b.dx - a.dx);
+        top = math.min(top, y);
+        bottom = math.max(bottom, y);
+      }
+      if (top.isFinite && bottom.isFinite) {
+        raw.add(Offset(x, (top + bottom) / 2));
+      }
+    }
+    return <Offset>[
+      for (int i = 0; i < raw.length; i++)
+        () {
+          Offset sum = Offset.zero;
+          int n = 0;
+          for (
+            int k = math.max(0, i - 2);
+            k <= math.min(raw.length - 1, i + 2);
+            k++
+          ) {
+            sum += raw[k];
+            n++;
+          }
+          return sum / n.toDouble();
+        }(),
+    ];
+  }
+
+  Offset _along(double t) {
+    final double x = t * (_duct.length - 1);
+    final int i = x.floor().clamp(0, _duct.length - 2);
+    return Offset.lerp(_duct[i], _duct[i + 1], x - i)!;
+  }
+
+  Offset _nearestOnDuct(Offset p) {
+    Offset best = _duct.first;
+    for (final Offset q in _duct) {
+      if ((q - p).distance < (best - p).distance) {
+        best = q;
+      }
+    }
+    return best;
+  }
+
+  Path get _ductPath {
+    final Path path = Path()..moveTo(_duct.first.dx, _duct.first.dy);
+    for (final Offset p in _duct.skip(1)) {
+      path.lineTo(p.dx, p.dy);
+    }
+    return path;
+  }
+
+  @override
+  void inside(Canvas canvas, ZoomInks inks, double line, double detail) {
+    final bool acini =
+        cell != CellShape.endocrine && cell != CellShape.epithelial;
+    for (final Rect lobule in _lobules) {
+      Sculpt.dome(canvas, lobule, inks, 0.38 * detail);
+      if (acini) {
+        canvas.drawOval(
+          lobule.deflate(lobule.width * 0.12),
+          Paint()..color = inks.glow(0.22 * detail),
+        );
+      }
+    }
+    final Path duct = _ductPath;
+    if (cell == CellShape.epithelial) {
+      Sculpt.glowingStroke(
+        canvas,
+        _branches,
+        inks,
+        width: 1.1 * line,
+        alpha: detail,
+      );
+      Sculpt.glowingStroke(
+        canvas,
+        duct,
+        inks,
+        width: 2.4 * line,
+        alpha: detail,
+      );
+      return;
+    }
+    final Paint ductPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(
+      _branches,
+      ductPaint
+        ..strokeWidth = 1 * line
+        ..color = inks.lit(0.55).withValues(alpha: 0.35 * detail),
+    );
+    canvas.drawPath(
+      duct,
+      ductPaint
+        ..strokeWidth = 2.6 * line
+        ..color = inks.lit(0.6).withValues(alpha: 0.55 * detail),
+    );
+    if (cell == CellShape.endocrine) {
+      for (final (Offset at, double r) in _islets) {
+        Sculpt.glow(canvas, at, r * 3.2, inks, 0.42 * detail);
+        canvas.drawCircle(at, r, Paint()..color = inks.glow(0.95 * detail));
+      }
+    }
+  }
+}
+
+/// The brain cut down its middle, as the anatomogram draws it, sculpted,
+/// with the part the tissue is in glowing: the cortex, or the lateral
+/// ventricle the choroid plexus lies in.
 final class _BrainOrgan extends OrganArt {
   _BrainOrgan(TissueAnatomy anatomy, double view) {
     final AnatomyFigure figure = AnatomyFigure.brain;
@@ -416,53 +730,53 @@ final class _BrainOrgan extends OrganArt {
       for (final MapEntry<String, AnatomyPart> part in figure.parts.entries)
         if (part.key != anatomy.inBrain) all(part.value.contours),
     ];
-    Offset top = placed(lit.followed.first);
-    for (final Offset p in lit.followed) {
-      if (placed(p).dy < top.dy) {
-        top = placed(p);
-      }
-    }
-    _named = top;
+    _box = _silhouette.getBounds();
   }
 
   late final Path _silhouette;
   late final Path _lines;
   late final Path _lit;
   late final List<Path> _rest;
-  late final Offset _named;
   late final Offset _site;
-
-  @override
-  Offset get named => _named;
+  late final Rect _box;
 
   @override
   Offset get site => _site;
 
   @override
-  void paint(Canvas canvas, ZoomInks inks, double pixel, double scale) {
+  void paint(
+    Canvas canvas,
+    ZoomInks inks,
+    double pixel,
+    double scale, {
+    double detail = 1,
+  }) {
     canvas.save();
     canvas.scale(scale);
     final double line = pixel / scale;
-    canvas.drawPath(_silhouette, Paint()..color = inks.scale.bodyFill);
+    OrganArt._sculpted(canvas, _silhouette, _box, inks, line, 1);
     for (final Path part in _rest) {
       canvas.drawPath(
         part,
-        Paint()..color = inks.scale.organ.withValues(alpha: 0.34),
+        Paint()..color = inks.shade(0.62).withValues(alpha: 0.55),
+      );
+      canvas.drawPath(
+        part,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 0.9 * line
+          ..color = inks.lit(0.34).withValues(alpha: 0.5),
       );
     }
-    canvas.drawPath(_lit, OrganArt._lit(inks, _lit.getBounds()));
     canvas.drawPath(
       _lines,
-      Paint()..color = inks.scale.bodyEdge.withValues(alpha: 0.75),
+      Paint()..color = inks.label.withValues(alpha: 0.32),
     );
-    canvas.drawPath(
-      _lit,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.6 * line
-        ..strokeJoin = StrokeJoin.round
-        ..color = inks.scale.organEdge,
-    );
+    final Rect litBox = _lit.getBounds();
+    Sculpt.glow(canvas, litBox.center, litBox.longestSide * 0.8, inks, 0.22);
+    canvas.drawPath(_lit, Paint()..color = inks.glow(0.42));
+    Sculpt.glowingStroke(canvas, _lit, inks, width: 1.4 * line);
+    OrganArt._edged(canvas, _silhouette, _box, inks, line, 1);
     canvas.restore();
   }
 }
@@ -497,21 +811,23 @@ final class _NodeOrgan extends OrganArt {
   ];
 
   @override
-  Offset get named => _centre + Offset(size * 0.3, -size * 0.3);
-
-  @override
-  void paint(Canvas canvas, ZoomInks inks, double pixel, double scale) {
+  void paint(
+    Canvas canvas,
+    ZoomInks inks,
+    double pixel,
+    double scale, {
+    double detail = 1,
+  }) {
     canvas.save();
     canvas.scale(scale);
     final double line = pixel / scale;
-    final Color organ = inks.scale.organ;
-    final Color edge = inks.scale.organEdge;
     final Path bean = OrganArt._closed(_bean);
+    final Rect box = bean.getBounds();
     final Paint vessel = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.2 * line
       ..strokeCap = StrokeCap.round
-      ..color = edge.withValues(alpha: 0.7);
+      ..color = inks.lit(0.42).withValues(alpha: 0.7);
     // Lymph comes in through the capsule all round, and leaves at the hilum.
     for (final double a in <double>[-2.6, -2.0, -1.2, -0.5, 0.3, 3.4]) {
       final Offset at =
@@ -523,7 +839,7 @@ final class _NodeOrgan extends OrganArt {
       _centre + Offset(size * 0.04, size * 0.52),
       vessel..strokeWidth = 3.4 * line,
     );
-    canvas.drawPath(bean, OrganArt._lit(inks, bean.getBounds()));
+    OrganArt._sculpted(canvas, bean, box, inks, line, 1);
     canvas.save();
     canvas.clipPath(bean);
     // The medulla, darker, and its cords.
@@ -533,12 +849,12 @@ final class _NodeOrgan extends OrganArt {
         width: size * 0.5,
         height: size * 0.36,
       ),
-      Paint()..color = OrganArt._mix(organ, inks.scale.bodyFill, 0.4),
+      Paint()..color = inks.shade(0.55),
     );
     final Paint cord = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1 * line
-      ..color = edge.withValues(alpha: 0.4);
+      ..color = inks.lit(0.5).withValues(alpha: 0.3);
     for (int k = 0; k < 7; k++) {
       final double a = math.pi * (1.15 + 0.12 * k);
       final Offset from = _centre + Offset(0, size * 0.24);
@@ -553,25 +869,20 @@ final class _NodeOrgan extends OrganArt {
       final Offset at =
           _centre +
           Offset(math.cos(a) * size * 0.37, math.sin(a) * size * 0.28);
-      canvas.drawCircle(
-        at,
-        size * 0.062,
-        Paint()..color = OrganArt._mix(organ, inks.scale.bodyFill, 0.35),
+      Sculpt.dome(
+        canvas,
+        Rect.fromCircle(center: at, radius: size * 0.062),
+        inks,
+        0.4,
       );
       canvas.drawCircle(
         at,
-        size * 0.034,
-        Paint()..color = OrganArt._mix(organ, edge, 0.55),
+        size * 0.03,
+        Paint()..color = inks.lit(0.45).withValues(alpha: 0.6),
       );
     }
     canvas.restore();
-    canvas.drawPath(
-      bean,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.2 * line
-        ..color = edge,
-    );
+    OrganArt._edged(canvas, bean, box, inks, line, 1);
     canvas.restore();
   }
 }
@@ -582,9 +893,6 @@ final class _VesselOrgan extends OrganArt {
   _VesselOrgan(this.size);
 
   final double size;
-
-  @override
-  Offset get named => Offset(size * 0.3, -size * 0.02);
 
   Path _tube(List<Offset> spine, double half) {
     final List<Offset> left = <Offset>[];
@@ -600,7 +908,13 @@ final class _VesselOrgan extends OrganArt {
   }
 
   @override
-  void paint(Canvas canvas, ZoomInks inks, double pixel, double scale) {
+  void paint(
+    Canvas canvas,
+    ZoomInks inks,
+    double pixel,
+    double scale, {
+    double detail = 1,
+  }) {
     canvas.save();
     canvas.scale(scale);
     final double line = pixel / scale;
@@ -622,17 +936,16 @@ final class _VesselOrgan extends OrganArt {
               size * (0.03 * i / 20 + 0.5 * math.pow(i / 20, 1.5)),
             ),
     ];
-    final Paint flesh = Paint()..color = inks.scale.organ;
     final Paint blood = Paint()
-      ..color = OrganArt._mix(inks.scale.redCell, inks.scale.bodyFill, 0.35);
-    final Paint rim = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.4 * line
-      ..color = inks.scale.organEdge;
-    canvas.drawPath(_tube(branch, wall * 0.62), flesh);
-    canvas.drawPath(_tube(branch, wall * 0.62), rim);
-    canvas.drawPath(_tube(trunk, wall), flesh);
-    canvas.drawPath(_tube(trunk, wall), rim);
+      ..color = Color.lerp(inks.blood, inks.ground, 0.35)!;
+    for (final (List<Offset> spine, double half) in <(List<Offset>, double)>[
+      (branch, wall * 0.62),
+      (trunk, wall),
+    ]) {
+      final Path tube = _tube(spine, half);
+      OrganArt._sculpted(canvas, tube, tube.getBounds(), inks, line, 1);
+      OrganArt._edged(canvas, tube, tube.getBounds(), inks, line, 1);
+    }
     canvas.drawPath(_tube(branch, wall * 0.36), blood);
     canvas.drawPath(_tube(trunk, wall * 0.62), blood);
     canvas.restore();
@@ -653,16 +966,17 @@ final class _SkinOrgan extends OrganArt {
   Offset get site => Offset(-size * 0.04, -size * 0.13);
 
   @override
-  Offset get named => site + Offset(size * 0.36, size * 0.02);
-
-  @override
-  void paint(Canvas canvas, ZoomInks inks, double pixel, double scale) {
+  void paint(
+    Canvas canvas,
+    ZoomInks inks,
+    double pixel,
+    double scale, {
+    double detail = 1,
+  }) {
     canvas.save();
     canvas.scale(scale);
     canvas.translate(site.dx, site.dy);
     final double line = pixel / scale;
-    final Color organ = inks.scale.organ;
-    final Color edge = inks.scale.organEdge;
     final double s = size;
     // The cut face, its top edge just above the origin.
     final Rect face = Rect.fromLTRB(-s * 0.45, -s * 0.03, s * 0.55, s * 0.6);
@@ -679,16 +993,14 @@ final class _SkinOrgan extends OrganArt {
       face.bottomLeft + back,
       face.bottomLeft,
     ]);
-    canvas.drawPath(
-      side,
-      Paint()..color = OrganArt._mix(organ, inks.scale.bodyFill, 0.5),
-    );
-    canvas.drawPath(top, Paint()..color = OrganArt._mix(organ, edge, 0.45));
+    Sculpt.shadowUnder(canvas, face.inflate(s * 0.05), inks);
+    canvas.drawPath(side, Paint()..color = inks.shade(0.62));
+    canvas.drawPath(top, Paint()..color = inks.lit(0.32));
     // Creases across the surface, and hairs out of it.
     final Paint fine = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1 * line
-      ..color = edge.withValues(alpha: 0.5);
+      ..color = inks.lit(0.55).withValues(alpha: 0.4);
     for (int k = 1; k < 7; k++) {
       final Offset from = Offset.lerp(face.topLeft, face.topRight, k / 7)!;
       canvas.drawLine(from, from + back, fine);
@@ -699,18 +1011,19 @@ final class _SkinOrgan extends OrganArt {
       canvas.drawLine(
         root,
         root + Offset(-s * 0.05, -s * 0.2),
-        fine
+        Paint()
           ..strokeWidth = 1.6 * line
-          ..color = edge,
+          ..strokeCap = StrokeCap.round
+          ..color = inks.lit(0.5),
       );
     }
     // The layers.
     final double epidermis = face.top + s * 0.035;
     final double dermis = face.top + s * 0.25;
-    canvas.drawRect(face, Paint()..color = organ);
+    canvas.drawRect(face, Paint()..color = inks.lit(0.2));
     canvas.drawRect(
       Rect.fromLTRB(face.left, dermis, face.right, face.bottom),
-      Paint()..color = OrganArt._mix(organ, edge, 0.5),
+      Paint()..color = inks.shade(0.82),
     );
     final Path wavy = Path()..moveTo(face.left, face.top);
     for (int i = 0; i <= 60; i++) {
@@ -722,10 +1035,7 @@ final class _SkinOrgan extends OrganArt {
     wavy
       ..lineTo(face.right, face.top)
       ..close();
-    canvas.drawPath(
-      wavy,
-      Paint()..color = OrganArt._mix(organ, inks.scale.bodyFill, 0.45),
-    );
+    canvas.drawPath(wavy, Paint()..color = inks.lit(0.36));
     canvas.save();
     canvas.clipRect(Rect.fromLTRB(face.left, dermis, face.right, face.bottom));
     final double lobe = s * 0.085;
@@ -740,16 +1050,21 @@ final class _SkinOrgan extends OrganArt {
         x < face.right + lobe;
         x += lobe
       ) {
-        canvas.drawCircle(Offset(x, y), lobe * 0.46, fine..strokeWidth = line);
+        Sculpt.dome(
+          canvas,
+          Rect.fromCircle(center: Offset(x, y), radius: lobe * 0.46),
+          inks,
+          0.3,
+        );
       }
       row++;
     }
     canvas.restore();
     final Paint rim = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5 * line
+      ..strokeWidth = 1.2 * line
       ..strokeJoin = StrokeJoin.round
-      ..color = edge;
+      ..color = inks.lit(0.45);
     canvas.drawRect(face, rim);
     canvas.drawPath(top, rim);
     canvas.drawPath(side, rim);
@@ -764,28 +1079,28 @@ final class _ParathyroidOrgan extends OrganArt {
   final double size;
 
   @override
-  Offset get named => Offset(size * 0.3, -size * 0.26);
-
-  @override
-  void paint(Canvas canvas, ZoomInks inks, double pixel, double scale) {
+  void paint(
+    Canvas canvas,
+    ZoomInks inks,
+    double pixel,
+    double scale, {
+    double detail = 1,
+  }) {
     canvas.save();
     canvas.scale(scale);
     final double line = pixel / scale;
-    final Color organ = inks.scale.organ;
-    final Color edge = inks.scale.organEdge;
     // The thyroid behind it, ten times its size: only its surface shows.
-    canvas.drawCircle(
-      Offset(-size * 2.6, size * 0.6),
-      size * 3.1,
-      Paint()..color = OrganArt._mix(organ, inks.scale.bodyFill, 0.55),
+    final Rect thyroid = Rect.fromCircle(
+      center: Offset(-size * 2.6, size * 0.6),
+      radius: size * 3.1,
     );
-    canvas.drawCircle(
-      Offset(-size * 2.6, size * 0.6),
-      size * 3.1,
+    canvas.drawOval(thyroid, Paint()..color = inks.shade(0.7));
+    canvas.drawOval(
+      thyroid,
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.2 * line
-        ..color = edge.withValues(alpha: 0.5),
+        ..color = inks.lit(0.3).withValues(alpha: 0.6),
     );
     final Rect gland = Rect.fromCenter(
       center: Offset.zero,
@@ -799,43 +1114,28 @@ final class _ParathyroidOrgan extends OrganArt {
       Paint()
         ..strokeWidth = 3 * line
         ..strokeCap = StrokeCap.round
-        ..color = OrganArt._mix(inks.scale.redCell, inks.scale.bodyFill, 0.3),
+        ..color = Color.lerp(inks.blood, inks.ground, 0.3)!,
     );
     final Path oval = Path()..addOval(gland);
-    canvas.drawPath(oval, OrganArt._lit(inks, gland));
+    OrganArt._sculpted(canvas, oval, gland, inks, line, 1);
     canvas.save();
     canvas.clipPath(oval);
-    final Paint fine = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = line
-      ..color = edge.withValues(alpha: 0.34);
-    final double step = size * 0.15;
-    int row = 0;
-    for (double y = gland.top; y < gland.bottom + step; y += step * 0.866) {
-      for (
-        double x = gland.left - (row.isOdd ? step / 2 : 0);
-        x < gland.right + step;
-        x += step
-      ) {
-        canvas.drawCircle(Offset(x, y), step * 0.45, fine);
-      }
-      row++;
+    for (final Rect lobule in Sculpt.cobble(
+      gland,
+      size * 0.15,
+      math.Random(5),
+    )) {
+      Sculpt.dome(canvas, lobule, inks, 0.36);
     }
     canvas.restore();
-    canvas.drawPath(
-      oval,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.6 * line
-        ..color = edge,
-    );
+    OrganArt._edged(canvas, oval, gland, inks, line, 1);
     canvas.restore();
   }
 }
 
 /// The eye cut level, the cornea to the left: the lens and iris, the
-/// sclera, and lining the back of it the retina, lit. The tissue is sampled
-/// at the back of the eye.
+/// sclera, and lining the back of it the retina. The tissue is sampled at
+/// the back of the eye.
 final class _EyeOrgan extends OrganArt {
   _EyeOrgan(this.size);
 
@@ -848,16 +1148,17 @@ final class _EyeOrgan extends OrganArt {
   Offset get site => Offset(size * 0.42, 0);
 
   @override
-  Offset get named => site + Offset(-size * 0.12, -size * 0.34);
-
-  @override
-  void paint(Canvas canvas, ZoomInks inks, double pixel, double scale) {
+  void paint(
+    Canvas canvas,
+    ZoomInks inks,
+    double pixel,
+    double scale, {
+    double detail = 1,
+  }) {
     canvas.save();
     canvas.scale(scale);
     canvas.translate(site.dx, site.dy);
     final double line = pixel / scale;
-    final Color organ = inks.scale.organ;
-    final Color edge = inks.scale.organEdge;
     final double r = size / 2;
     // The retina at the back of the eye lies on the origin.
     final Offset centre = Offset(-r * 0.93, 0);
@@ -868,22 +1169,23 @@ final class _EyeOrgan extends OrganArt {
       centre + OrganArt._unit(0.3) * (r * 1.7),
       Paint()
         ..strokeWidth = r * 0.24
-        ..color = OrganArt._mix(organ, inks.scale.bodyFill, 0.3),
+        ..color = inks.shade(0.85),
     );
     // The cornea, bulging forward of the globe.
     final Rect cornea = Rect.fromCircle(
       center: centre + Offset(-r * 0.56, 0),
       radius: r * 0.62,
     );
-    canvas.drawOval(cornea, Paint()..color = inks.scale.bodyFill);
+    canvas.drawOval(cornea, Paint()..color = inks.shade(0.5));
     canvas.drawOval(
       cornea,
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5 * line
-        ..color = edge.withValues(alpha: 0.8),
+        ..color = inks.lit(0.5).withValues(alpha: 0.8),
     );
-    canvas.drawOval(globe, Paint()..color = inks.scale.bodyFill);
+    final Path ball = Path()..addOval(globe);
+    OrganArt._sculpted(canvas, ball, globe, inks, line, 1, light: 0.22);
     // The retina, lining the back two thirds.
     canvas.drawArc(
       Rect.fromCircle(center: centre, radius: r * 0.93),
@@ -893,18 +1195,18 @@ final class _EyeOrgan extends OrganArt {
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = r * 0.085
-        ..color = OrganArt._mix(organ, edge, 0.3),
+        ..color = inks.lit(0.4),
     );
     // The lens, hung behind the iris.
     final Offset lens = centre + Offset(-r * 0.66, 0);
     canvas.drawOval(
       Rect.fromCenter(center: lens, width: r * 0.36, height: r * 0.8),
-      Paint()..color = OrganArt._mix(organ, edge, 0.75).withValues(alpha: 0.5),
+      Paint()..color = inks.lit(0.55).withValues(alpha: 0.5),
     );
     final Paint iris = Paint()
       ..strokeWidth = 2.6 * line
       ..strokeCap = StrokeCap.round
-      ..color = edge;
+      ..color = inks.lit(0.5);
     for (final double side in <double>[-1, 1]) {
       canvas.drawLine(
         centre + Offset(-r * 0.74, side * r * 0.66),
@@ -912,13 +1214,7 @@ final class _EyeOrgan extends OrganArt {
         iris,
       );
     }
-    canvas.drawOval(
-      globe,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.4 * line
-        ..color = edge,
-    );
+    OrganArt._edged(canvas, ball, globe, inks, line, 1);
     canvas.restore();
   }
 }
@@ -946,20 +1242,19 @@ final class _AnyOrgan extends OrganArt {
   }();
 
   @override
-  Offset get named => const Offset(0, -0.27);
-
-  @override
-  void paint(Canvas canvas, ZoomInks inks, double pixel, double scale) {
+  void paint(
+    Canvas canvas,
+    ZoomInks inks,
+    double pixel,
+    double scale, {
+    double detail = 1,
+  }) {
     canvas.save();
     canvas.scale(scale);
-    canvas.drawPath(_shape, OrganArt._lit(inks, _shape.getBounds()));
-    canvas.drawPath(
-      _shape,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.6 * pixel / scale
-        ..color = inks.scale.organEdge,
-    );
+    final double line = pixel / scale;
+    final Rect box = _shape.getBounds();
+    OrganArt._sculpted(canvas, _shape, box, inks, line, 1);
+    OrganArt._edged(canvas, _shape, box, inks, line, 1);
     canvas.restore();
   }
 }

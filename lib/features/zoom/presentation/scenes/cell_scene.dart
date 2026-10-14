@@ -7,9 +7,11 @@ import '../../domain/locus_track.dart';
 import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
 import '../../domain/zoom_path.dart';
+import '../zoom_inks.dart';
 import 'body_scene.dart';
 import 'contour.dart';
 import 'nucleus_shape.dart';
+import 'sculpt.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
 
@@ -48,8 +50,7 @@ final class CellScene extends ZoomScene {
 
   SubcellularReading get _reading => subject.track.subcellular;
 
-  bool get _secreted =>
-      (subject.track.secretome ?? '').startsWith('Secreted');
+  bool get _secreted => (subject.track.secretome ?? '').startsWith('Secreted');
 
   // The cell is named by the card, and so is a red cell's want of a
   // nucleus: what is named here is where the protein is, where the Atlas
@@ -96,36 +97,35 @@ final class CellScene extends ZoomScene {
     canvas.save();
     frame.enter(canvas);
     final double pixel = frame.pixel;
+    final ZoomInks inks = frame.inks;
     final _Cell cell = _cell;
-    // The fluorescence field: spreading from the cell over the slide as the
-    // view comes in, everywhere at the cell's stop.
+    // The ground spreading from the cell over the slide as the view comes
+    // in, until the cell stands on its own.
     final double spread = frame.isChild
         ? smoothstep((frame.progress - 0.3) / 0.6)
         : 1;
     canvas.drawCircle(
       Offset.zero,
       size * 1.25 + (3 - size * 1.25) * spread,
-      Paint()..color = frame.inks.scale.fluorescence,
+      Paint()..color = inks.ground,
     );
     final Paint membrane = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2 * pixel
-      ..color = frame.inks.scale.membrane.withValues(alpha: 0.7);
+      ..strokeWidth = 1.1 * pixel
+      ..strokeJoin = StrokeJoin.round
+      ..color = inks.lit(0.42).withValues(alpha: 0.75);
 
-    // The island's other cells, dimmer: the macrophage, the erythroblasts
+    // The island's other cells, quieter: the macrophage, the erythroblasts
     // round it and the grown red cells leaving it.
     for (final Path other in cell.neighbours) {
-      canvas.drawPath(
-        other,
-        Paint()..color = frame.inks.scale.reticulum.withValues(alpha: 0.08),
-      );
+      canvas.drawPath(other, Paint()..color = inks.shade(0.7));
       canvas.drawPath(other, membrane);
     }
     for (final (Offset at, double r) in cell.neighbourNuclei) {
       canvas.drawCircle(
         at,
         r,
-        Paint()..color = frame.inks.scale.dapi.withValues(alpha: 0.6),
+        Paint()..color = Color.lerp(inks.high, inks.label, 0.55)!,
       );
     }
     for (final Offset at in cell.mature) {
@@ -134,62 +134,71 @@ final class CellScene extends ZoomScene {
 
     final Path body = cell.body;
     final Path nucleusPath = cell.nucleus;
+    final Rect box = body.getBounds();
+    Sculpt.shadowUnder(canvas, box, inks, strength: 0.5);
     canvas.drawPath(
       body,
-      Paint()..color = frame.inks.scale.reticulum.withValues(alpha: 0.06),
+      Paint()..shader = Sculpt.body(box, inks, light: 0.16),
     );
     canvas.save();
     canvas.clipPath(body);
-    // The reticulum, and the microtubules from the centrosome.
-    final Paint reticulum = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.3 * pixel
-      ..strokeCap = StrokeCap.round
-      ..color = frame.inks.scale.reticulum.withValues(alpha: 0.42);
-    canvas.drawPath(cell.reticulum, reticulum);
-    final Paint tubules = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1 * pixel
-      ..color = frame.inks.scale.microtubules.withValues(alpha: 0.5);
-    canvas.drawPath(cell.microtubules, tubules);
+    // The reticulum, and the microtubules from the centrosome: hairlines in
+    // the quiet ink.
+    canvas.drawPath(
+      cell.reticulum,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.1 * pixel
+        ..strokeCap = StrokeCap.round
+        ..color = inks.label.withValues(alpha: 0.3),
+    );
+    canvas.drawPath(
+      cell.microtubules,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.8 * pixel
+        ..color = inks.lit(0.5).withValues(alpha: 0.22),
+    );
     if (cell.striations != null) {
       canvas.drawPath(
         cell.striations!,
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.6 * pixel
-          ..color = frame.inks.scale.microtubules.withValues(alpha: 0.28),
+          ..color = inks.lit(0.45).withValues(alpha: 0.3),
       );
     }
     if (cell.droplet != null) {
-      canvas.drawPath(
-        cell.droplet!,
-        Paint()..color = frame.inks.scale.fluorescence,
-      );
+      canvas.drawPath(cell.droplet!, Paint()..color = inks.ground);
+      canvas.drawPath(cell.droplet!, membrane);
     }
     canvas.restore();
     canvas.drawPath(body, membrane);
+    Sculpt.rim(canvas, body, box, inks, width: 1.8 * pixel, strength: 0.45);
 
     // The protein, where the Atlas finds it.
     _protein(canvas, frame, cell, _reading.main, 0.9);
     _protein(canvas, frame, cell, _reading.additional, 0.45);
 
-    // The nucleus: DNA blue, its nucleolus a hollow in it, its chromatin
-    // condensing in a cell that is dividing or in meiosis. Opaque: nothing
-    // of the cytoplasm shows through it.
-    canvas.drawPath(
-      nucleusPath,
-      Paint()..color = frame.inks.scale.fluorescence,
-    );
+    // The nucleus: a sphere in the quiet ink, its nucleolus a darker body
+    // in it, its chromatin condensing in a cell that is dividing or in
+    // meiosis. Opaque: nothing of the cytoplasm shows through it. Ringed in
+    // the mark: the gene is in it.
+    final Rect round = Rect.fromCircle(center: Offset.zero, radius: nucleus);
+    canvas.drawPath(nucleusPath, Paint()..color = inks.ground);
     canvas.drawPath(
       nucleusPath,
       Paint()
         ..shader = RadialGradient(
+          center: Sculpt.highlight,
+          radius: 1.05,
           colors: <Color>[
-            frame.inks.scale.dapi,
-            frame.inks.scale.dapi.withValues(alpha: 0.7),
+            Color.lerp(inks.high, inks.label, 0.78)!,
+            Color.lerp(inks.high, inks.label, 0.4)!,
+            inks.shade(0.7),
           ],
-        ).createShader(Rect.fromCircle(center: Offset.zero, radius: nucleus)),
+          stops: const <double>[0, 0.5, 1],
+        ).createShader(round),
     );
     if (cell.chromatin != null) {
       canvas.drawPath(
@@ -198,24 +207,20 @@ final class CellScene extends ZoomScene {
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2.2 * pixel
           ..strokeCap = StrokeCap.round
-          ..color = Color.lerp(
-            frame.inks.scale.dapi,
-            Colors.white,
-            0.45,
-          )!,
+          ..color = Color.lerp(inks.label, inks.text, 0.4)!,
       );
     }
     canvas.drawCircle(
       cell.nucleolus,
       nucleus * 0.22,
-      Paint()..color = frame.inks.scale.fluorescence.withValues(alpha: 0.5),
+      Paint()..color = inks.shade(0.6).withValues(alpha: 0.8),
     );
     canvas.drawPath(
       nucleusPath,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2 * pixel
-        ..color = frame.inks.mark,
+        ..strokeWidth = 1.8 * pixel
+        ..color = inks.mark,
     );
     // Nucleus-bound protein shows over the DNA it is in.
     _protein(canvas, frame, cell, _reading.main, 0.9, nuclear: true);
@@ -232,8 +237,8 @@ final class CellScene extends ZoomScene {
       Paint()
         ..shader = RadialGradient(
           colors: <Color>[
-            frame.inks.scale.eosin.withValues(alpha: 0.18),
-            frame.inks.scale.eosinDeep.withValues(alpha: 0.55),
+            Color.lerp(frame.inks.blood, frame.inks.ground, 0.55)!,
+            frame.inks.blood,
           ],
           stops: const <double>[0.45, 1],
         ).createShader(Rect.fromCircle(center: at, radius: r)),
@@ -244,13 +249,13 @@ final class CellScene extends ZoomScene {
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1 * frame.pixel
-        ..color = frame.inks.scale.membrane.withValues(alpha: 0.6),
+        ..color = frame.inks.lit(0.4).withValues(alpha: 0.6),
     );
   }
 
-  /// The protein in [locations], [strength] bright, glowing as a
-  /// fluorophore does; [nuclear] draws only what lies in the nucleus, over
-  /// its DNA, and otherwise only what lies outside it.
+  /// The protein in [locations], [strength] bright, glowing in the mark;
+  /// [nuclear] draws only what lies in the nucleus, over its DNA, and
+  /// otherwise only what lies outside it.
   void _protein(
     Canvas canvas,
     ZoomFrame frame,
@@ -263,30 +268,27 @@ final class CellScene extends ZoomScene {
       return;
     }
     final double pixel = frame.pixel;
-    final Color green = frame.inks.scale.protein.withValues(alpha: strength);
-    final Paint glow = Paint()
-      ..color = green.withValues(alpha: strength * 0.55)
-      ..blendMode = BlendMode.plus
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, 5 * pixel);
-    final Paint crisp = Paint()
-      ..color = green
-      ..blendMode = BlendMode.plus;
+    final ZoomInks inks = frame.inks;
     void fill(Path path) {
-      canvas.drawPath(path, glow..style = PaintingStyle.fill);
-      canvas.drawPath(path, crisp..style = PaintingStyle.fill);
+      // A soft edge round the shape, then the shape.
+      canvas.drawPath(
+        path,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 6 * pixel
+          ..strokeJoin = StrokeJoin.round
+          ..color = inks.glow(0.16 * strength),
+      );
+      canvas.drawPath(path, Paint()..color = inks.glow(0.9 * strength));
     }
 
-    void stroke(Path path, double width) {
-      glow
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = width * 2 * pixel;
-      crisp
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = width * pixel
-        ..strokeCap = StrokeCap.round;
-      canvas.drawPath(path, glow);
-      canvas.drawPath(path, crisp);
-    }
+    void stroke(Path path, double width) => Sculpt.glowingStroke(
+      canvas,
+      path,
+      inks,
+      width: width * pixel,
+      alpha: strength,
+    );
 
     final Set<Compartment> drawn = <Compartment>{};
     for (final String location in locations) {
@@ -311,10 +313,10 @@ final class CellScene extends ZoomScene {
         case Compartment.nucleoplasm:
           canvas.save();
           canvas.clipPath(cell.nucleus);
-          fill(
-            Path()..addOval(
-              Rect.fromCircle(center: Offset.zero, radius: nucleus * 2),
-            ),
+          canvas.drawCircle(
+            Offset.zero,
+            nucleus * 2,
+            Paint()..color = inks.glow(0.62 * strength),
           );
           canvas.restore();
         case Compartment.nucleoli:
@@ -332,9 +334,7 @@ final class CellScene extends ZoomScene {
           );
           canvas.drawPath(
             cell.body,
-            Paint()
-              ..color = green.withValues(alpha: strength * 0.22)
-              ..blendMode = BlendMode.plus,
+            Paint()..color = inks.glow(0.24 * strength),
           );
           canvas.restore();
         case Compartment.plasmaMembrane || Compartment.junctions:
@@ -357,8 +357,9 @@ final class CellScene extends ZoomScene {
           canvas.restore();
         case Compartment.centrosome || Compartment.division:
           fill(
-            Path()
-              ..addOval(Rect.fromCircle(center: cell.centrosome, radius: 3 * pixel)),
+            Path()..addOval(
+              Rect.fromCircle(center: cell.centrosome, radius: 3 * pixel),
+            ),
           );
         case Compartment.sperm:
           stroke(cell.cap, 3);
@@ -370,13 +371,7 @@ final class CellScene extends ZoomScene {
   /// moving with the ambient clock, still under reduced motion.
   void _secretion(Canvas canvas, ZoomFrame frame, _Cell cell) {
     final double pixel = frame.pixel;
-    final Paint vesicle = Paint()
-      ..color = frame.inks.scale.protein.withValues(alpha: 0.85)
-      ..blendMode = BlendMode.plus;
-    final Paint halo = Paint()
-      ..color = frame.inks.scale.protein.withValues(alpha: 0.4)
-      ..blendMode = BlendMode.plus
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, 4 * pixel);
+    final ZoomInks inks = frame.inks;
     for (int i = 0; i < cell.exits.length; i++) {
       final double t = (frame.clock / 3.2 + i / cell.exits.length) % 1;
       final Offset from = cell.golgiCentre;
@@ -386,13 +381,12 @@ final class CellScene extends ZoomScene {
           ? Offset.lerp(from, to, smoothstep(t / 0.8))!
           : to + (to - from) * ((t - 0.8) * 0.6);
       // Drawn over the scene, not in it: it fades with the scene itself.
-      final double fade =
-          (t < 0.8 ? 1 : 1 - (t - 0.8) / 0.2) * frame.opacity;
-      canvas.drawCircle(at, 4.5 * pixel, halo..color = halo.color.withValues(alpha: 0.4 * fade));
+      final double fade = (t < 0.8 ? 1 : 1 - (t - 0.8) / 0.2) * frame.opacity;
+      Sculpt.glow(canvas, at, 6 * pixel, inks, 0.45 * fade);
       canvas.drawCircle(
         at,
-        2.6 * pixel,
-        vesicle..color = vesicle.color.withValues(alpha: 0.85 * fade),
+        2.4 * pixel,
+        Paint()..color = inks.glow(0.9 * fade),
       );
     }
   }
@@ -435,8 +429,9 @@ final class _Cell {
     final List<Offset> rim = outline.resampled(48).points;
 
     final Path? lipid = shape == CellShape.adipocyte
-        ? (Path()
-          ..addOval(Rect.fromCircle(center: Offset(0, r * 0.84), radius: r * 0.9)))
+        ? (Path()..addOval(
+            Rect.fromCircle(center: Offset(0, r * 0.84), radius: r * 0.9),
+          ))
         : null;
     bool inBody(Offset p) =>
         body.contains(p) &&
@@ -447,7 +442,10 @@ final class _Cell {
     final Path reticulum = Path();
     for (int k = 0; k < 26; k++) {
       final double a = 2 * math.pi * k / 26 + random.nextDouble() * 0.2;
-      Offset p = Offset(math.cos(a) * n * ax * 1.15, math.sin(a) * n * ay * 1.15);
+      Offset p = Offset(
+        math.cos(a) * n * ax * 1.15,
+        math.sin(a) * n * ay * 1.15,
+      );
       reticulum.moveTo(p.dx, p.dy);
       double heading = a;
       for (int step = 0; step < 9; step++) {
@@ -460,7 +458,8 @@ final class _Cell {
     // in a long cell, running its length.
     final Offset centrosome = Offset(n * ax * 1.25, -n * ay * 0.85);
     final Path microtubules = Path();
-    final bool long = shape == CellShape.myofibre ||
+    final bool long =
+        shape == CellShape.myofibre ||
         shape == CellShape.cardiomyocyte ||
         shape == CellShape.spindle ||
         shape == CellShape.endothelial;
@@ -482,7 +481,8 @@ final class _Cell {
     }
     for (int k = 0; !long && k < rim.length; k += 2) {
       final Offset end = rim[k];
-      final Offset mid = Offset.lerp(centrosome, end, 0.5)! +
+      final Offset mid =
+          Offset.lerp(centrosome, end, 0.5)! +
           Offset(-(end - centrosome).dy, (end - centrosome).dx) *
               (random.nextDouble() - 0.5) *
               0.25;
@@ -492,7 +492,8 @@ final class _Cell {
     }
     // The Golgi: stacked crescents on the far side of the nucleus from the
     // cell's apex.
-    final double golgiAngle = shape == CellShape.acinar || shape == CellShape.ciliated
+    final double golgiAngle =
+        shape == CellShape.acinar || shape == CellShape.ciliated
         ? -math.pi / 2
         : -math.pi / 4;
     final Path golgi = Path();
@@ -505,7 +506,10 @@ final class _Cell {
       );
     }
     final Offset golgiCentre =
-        Offset(math.cos(golgiAngle), math.sin(golgiAngle)) * n * 1.45 * math.max(ax, ay);
+        Offset(math.cos(golgiAngle), math.sin(golgiAngle)) *
+        n *
+        1.45 *
+        math.max(ax, ay);
     // Vesicles and mitochondria scattered in the cytoplasm.
     final Path vesicles = Path();
     final Path mitochondria = Path();
@@ -548,7 +552,10 @@ final class _Cell {
     final Offset membranePoint = rim[rim.length ~/ 4];
     // Actin's cortex: just inside the membrane all round.
     final Offset middle =
-        outline.points.fold<Offset>(Offset.zero, (Offset a, Offset b) => a + b) /
+        outline.points.fold<Offset>(
+          Offset.zero,
+          (Offset a, Offset b) => a + b,
+        ) /
         outline.points.length.toDouble();
     final Path cortex = Contour(<Offset>[
       for (final Offset p in outline.resampled(120).points)
@@ -565,8 +572,7 @@ final class _Cell {
     Path? striations;
     if (shape == CellShape.myofibre || shape == CellShape.cardiomyocyte) {
       // Sarcomeres, 2.5 µm apart.
-      final double step =
-          2.5e-6 / subject.depth.widthOf(ZoomStop.cell);
+      final double step = 2.5e-6 / subject.depth.widthOf(ZoomStop.cell);
       striations = Path();
       for (double x = -2; x <= 2; x += step) {
         striations
@@ -588,7 +594,8 @@ final class _Cell {
         chromatin.moveTo(p.dx, p.dy);
         for (int step = 0; step < 6; step++) {
           heading += (random.nextDouble() - 0.5) * 1.4;
-          final Offset next = p + Offset(math.cos(heading), math.sin(heading)) * n * 0.16;
+          final Offset next =
+              p + Offset(math.cos(heading), math.sin(heading)) * n * 0.16;
           if (next.distance > n * 0.85) {
             break;
           }
@@ -613,13 +620,20 @@ final class _Cell {
       // every stage, the youngest largest, and grown red cells leaving it.
       final Offset macrophage = Offset(-r * 2.3, r * 0.25);
       neighbours.add(
-        Contour.blob(macrophage, r * 1.5, r * 1.25, wobble: 0.18, seed: 5).toPath(),
+        Contour.blob(
+          macrophage,
+          r * 1.5,
+          r * 1.25,
+          wobble: 0.18,
+          seed: 5,
+        ).toPath(),
       );
       neighbourNuclei.add((macrophage + Offset(-r * 0.3, 0), r * 0.42));
       for (int k = 0; k < 5; k++) {
         final double a = math.pi * (0.45 + 0.28 * k);
         final double size = r * (0.95 - 0.1 * k);
-        final Offset c = macrophage + Offset(math.cos(a), math.sin(a)) * r * 2.25;
+        final Offset c =
+            macrophage + Offset(math.cos(a), math.sin(a)) * r * 2.25;
         neighbours.add(
           Contour.blob(c, size, size, wobble: 0.05, seed: 20 + k).toPath(),
         );
@@ -785,7 +799,10 @@ final class _Cell {
         reach += r * 0.62 * math.exp(-d * d / 0.018);
       }
       // The axon, longest, straight down.
-      final double axon = math.atan2(math.sin(a - math.pi / 2), math.cos(a - math.pi / 2));
+      final double axon = math.atan2(
+        math.sin(a - math.pi / 2),
+        math.cos(a - math.pi / 2),
+      );
       reach += r * 1.4 * math.exp(-axon * axon / 0.006);
       points.add(Offset(math.cos(a) * reach, math.sin(a) * reach));
     }
@@ -842,4 +859,3 @@ String cellWord(ZoomPath path) => path.cellName?.toLowerCase() ?? 'a cell';
 /// on is one shape across the step between them.
 Contour cellOutline(CellShape shape, double r, double n) =>
     _Cell.outlineOf(shape, r, n);
-

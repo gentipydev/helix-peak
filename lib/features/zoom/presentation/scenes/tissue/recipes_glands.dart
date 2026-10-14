@@ -128,6 +128,7 @@ extension GlandRecipes on SlideBuilder {
       spare: (Offset nucleus) => (nucleus - centre).distance < r,
     );
     ink(SlideInk.eosin0, TissueSlide.over).addPath(room, Offset.zero);
+    ink(SlideInk.home, TissueSlide.top).addPath(room, Offset.zero);
     for (int k = 0; k < 4; k++) {
       final double a = 0.7 + k * 1.57 + between(-0.2, 0.2);
       capillary(

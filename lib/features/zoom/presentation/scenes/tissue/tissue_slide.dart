@@ -32,6 +32,11 @@ enum SlideInk {
   /// apart, over its cytoplasm.
   stria,
 
+  /// Where the zoom's kind of cell lives in the tissue (an islet among the
+  /// acini): laid over the cells there, under their borders and nuclei, so
+  /// it can be drawn in the mark.
+  home,
+
   /// The cells' borders, stroked thin.
   border,
 

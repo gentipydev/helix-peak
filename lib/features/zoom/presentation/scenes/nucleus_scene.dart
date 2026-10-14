@@ -6,8 +6,10 @@ import '../../domain/anatomy_figure.dart';
 import '../../domain/anatomy_tables.dart';
 import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
+import '../zoom_inks.dart';
 import 'contour.dart';
 import 'nucleus_shape.dart';
+import 'sculpt.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
 
@@ -19,18 +21,19 @@ const List<String> chromosomeNames = <String>[
   '15', '16', '17', '18', '19', '20', '21', '22', 'X',
 ];
 
-/// The nucleus in chromosome paint, as fluorescence in-situ hybridisation
-/// shows it: each of its 46 chromosomes in a territory of its own, one
-/// colour a chromosome, a territory as big as its chromosome's DNA, the
-/// gene-dense ones toward the centre and the gene-poor at the rim, the five
-/// that carry ribosomal genes gathered round the nucleolus. The gene's own
-/// chromosome is the one the zoom follows.
+/// The nucleus and its chromosome territories: each of its 46 chromosomes
+/// in a territory of its own, as chromosome painting shows them, a
+/// territory as big as its chromosome's DNA, the gene-dense ones toward the
+/// centre and the gene-poor at the rim, the five that carry ribosomal genes
+/// gathered round the nucleolus. They are drawn in one neutral, a step
+/// apart, and the gene's own chromosome in the mark.
 ///
-/// On the way in, the nucleus's even DNA stain resolves into the paint; on
-/// the way out, the followed territory is handed to the chromosome's scene
-/// to condense, and the rest give way.
+/// On the way in, the nucleus the cell drew resolves into its territories;
+/// on the way out, the followed territory is handed to the chromosome's
+/// scene to condense, and the rest give way.
 final class NucleusScene extends ZoomScene {
-  NucleusScene(this.subject) : shape = NucleusShape(subject.depth.archetype.shape);
+  NucleusScene(this.subject)
+    : shape = NucleusShape(subject.depth.archetype.shape);
 
   final ZoomSubject subject;
   final NucleusShape shape;
@@ -99,30 +102,51 @@ final class NucleusScene extends ZoomScene {
     out.item('nucleus:target', frame.toScreen(portal), frame.opacity);
   }
 
+  /// Every territory's outline as a path, built once: the 46 of them are
+  /// drawn every frame the nucleus shows.
+  late final Map<(String, int), Path> _territories = <(String, int), Path>{
+    for (final String name in chromosomeNames)
+      for (int copy = 0; copy < 2; copy++)
+        (name, copy): territoryShape(name, copy).toPath(),
+  };
+
+  late final Path _outline = shape.outline(radius).toPath();
+
+  late final List<Offset> _pores = shape.outline(radius).resampled(56).points;
+
+  /// How light a territory is drawn, so neighbours tell apart in one
+  /// neutral: a step of a small ramp, by its chromosome.
+  static double _tone(String name, int copy) =>
+      0.16 + 0.36 * (((chromosomeNames.indexOf(name) * 7 + copy * 3) % 9) / 8);
+
   @override
   void paint(Canvas canvas, ZoomFrame frame) {
     canvas.save();
     frame.enter(canvas);
     final double pixel = frame.pixel;
+    final ZoomInks inks = frame.inks;
     final double r = radius;
-    canvas.drawCircle(
-      Offset.zero,
-      2,
-      Paint()..color = frame.inks.scale.fluorescence,
-    );
-    final Path outline = shape.outline(r).toPath();
-    // The DNA stain, even, brightest at the centre.
+    canvas.drawCircle(Offset.zero, 2, Paint()..color = inks.ground);
+    final Path outline = _outline;
+    final Rect round = Rect.fromCircle(center: Offset.zero, radius: r);
+    Sculpt.shadowUnder(canvas, round, inks, strength: 0.5);
+    // The nucleus as the cell drew it: a sphere in the quiet ink.
     canvas.drawPath(
       outline,
       Paint()
         ..shader = RadialGradient(
+          center: Sculpt.highlight,
+          radius: 1.05,
           colors: <Color>[
-            frame.inks.scale.dapi.withValues(alpha: 0.75),
-            frame.inks.scale.dapi.withValues(alpha: 0.4),
+            Color.lerp(inks.high, inks.label, 0.78)!,
+            Color.lerp(inks.high, inks.label, 0.4)!,
+            inks.shade(0.7),
           ],
-        ).createShader(Rect.fromCircle(center: Offset.zero, radius: r * 1.6)),
+          stops: const <double>[0, 0.5, 1],
+        ).createShader(round),
     );
-    // The paint resolves out of it on the way in.
+    // The territories resolve out of it on the way in, each in a neutral
+    // a step from its neighbours'.
     final double painted = frame.isChild
         ? smoothstep((frame.progress - 0.35) / 0.45)
         : 1;
@@ -131,24 +155,47 @@ final class NucleusScene extends ZoomScene {
     final String followed = subject.track.chromosome;
     if (painted > 0) {
       final Paint fill = Paint();
+      final Paint edge = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1 * pixel
+        ..color = inks.shade(0.55).withValues(alpha: 0.9 * painted);
       for (final String name in chromosomeNames) {
         for (int copy = 0; copy < 2; copy++) {
           if (name == followed && copy == 0) {
             continue;
           }
-          fill.color = frame.inks.scale
-              .paintOf(kindOf(name, copy))
-              .withValues(alpha: 0.62 * painted);
-          canvas.drawPath(territoryShape(name, copy).toPath(), fill);
+          final Path territory = _territories[(name, copy)]!;
+          fill.color = Color.lerp(
+            inks.high,
+            inks.label,
+            _tone(kindOf(name, copy), copy),
+          )!.withValues(alpha: 0.9 * painted);
+          canvas.drawPath(territory, fill);
+          canvas.drawPath(territory, edge);
         }
       }
     }
-    // The nucleolus: a hollow in the DNA stain.
+    // The nucleolus: a darker body among them.
     final Offset nucleolusAt = shape.place(nucleolus, r);
     canvas.drawCircle(
       nucleolusAt,
       r * 0.17,
-      Paint()..color = frame.inks.scale.fluorescence.withValues(alpha: 0.55),
+      Paint()..color = inks.shade(0.45).withValues(alpha: 0.9),
+    );
+    // The light falling across the whole of it.
+    canvas.drawPath(
+      outline,
+      Paint()
+        ..shader = RadialGradient(
+          center: Sculpt.highlight,
+          radius: 1.1,
+          colors: <Color>[
+            inks.text.withValues(alpha: 0.1),
+            inks.text.withValues(alpha: 0),
+            inks.shadow.withValues(alpha: 0.35),
+          ],
+          stops: const <double>[0, 0.5, 1],
+        ).createShader(round),
     );
     canvas.restore();
     // The envelope, and its pores once there is room to see them.
@@ -156,37 +203,34 @@ final class NucleusScene extends ZoomScene {
       outline,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.6 * pixel
-        ..color = frame.inks.scale.membrane,
+        ..strokeWidth = 1.4 * pixel
+        ..color = inks.lit(0.42),
     );
+    Sculpt.rim(canvas, outline, round, inks, width: 1.8 * pixel, strength: 0.4);
     final double rimPixels = r * frame.view.pixelsPerUnit;
     if (rimPixels > 140) {
       final double pores = smoothstep((rimPixels - 140) / 80);
       final Paint pore = Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.2 * pixel
-        ..color = frame.inks.scale.membrane.withValues(alpha: 0.8 * pores);
-      final Contour rim = shape.outline(r).resampled(56);
-      for (final Offset p in rim.points) {
+        ..strokeWidth = 1.1 * pixel
+        ..color = inks.lit(0.55).withValues(alpha: 0.8 * pores);
+      for (final Offset p in _pores) {
         canvas.drawCircle(p, 2.2 * pixel, pore);
       }
     }
-    // The followed territory, until the chromosome's scene takes it over.
+    // The gene's chromosome, in the mark, until the chromosome's scene takes
+    // it over.
     if (frame.isChild || frame.progress <= 0) {
-      final Path own = territoryShape(followed, 0).toPath();
-      canvas.drawPath(
+      final Path own = _territories[(followed, 0)]!;
+      final Rect box = own.getBounds();
+      Sculpt.glow(canvas, box.center, box.longestSide, inks, 0.3 * painted);
+      canvas.drawPath(own, Paint()..color = inks.glow(0.35 + 0.45 * painted));
+      Sculpt.glowingStroke(
+        canvas,
         own,
-        Paint()
-          ..color = frame.inks.scale
-              .paintOf(followed)
-              .withValues(alpha: 0.4 + 0.6 * painted),
-      );
-      canvas.drawPath(
-        own,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2 * pixel
-          ..color = frame.inks.mark.withValues(alpha: painted),
+        inks,
+        width: 1.6 * pixel,
+        alpha: painted,
       );
     }
     canvas.restore();

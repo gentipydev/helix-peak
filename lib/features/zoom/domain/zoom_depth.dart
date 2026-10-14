@@ -87,6 +87,11 @@ final class ZoomDepth {
   /// DNA stretched out.
   static const double condensation = 1e4;
 
+  /// How wide the view is at the chromosome, against the chromosome's own
+  /// length: a little narrower, so the chromosome, standing upright on a
+  /// phone, fills most of the canvas's height.
+  static const double chromosomeView = 0.9;
+
   /// How wide the view is at the DNA: 12 nm, a few turns of the helix, in
   /// base pairs.
   static const double dnaBasePairs = 1.2e-8 / basePairMetres;
@@ -125,7 +130,7 @@ final class ZoomDepth {
     ZoomStop.tissue => tissueMetres,
     ZoomStop.cell => cellMetres,
     ZoomStop.nucleus => nucleusMetres,
-    ZoomStop.chromosome => 1.5 * condensedLength,
+    ZoomStop.chromosome => chromosomeView * condensedLength,
     ZoomStop.band => 1.5 * track.bandLengthBp,
     ZoomStop.gene => 1.3 * track.geneLengthBp,
     ZoomStop.dna => dnaBasePairs,
@@ -143,7 +148,7 @@ final class ZoomDepth {
       track.length * basePairMetres / condensation;
 
   /// How many base pairs the view at the chromosome spans.
-  double get chromosomeBasePairs => 1.5 * track.length;
+  double get chromosomeBasePairs => chromosomeView * track.length;
 
   /// How long [basePairs] of DNA would be stretched out, in metres.
   static double stretchedLength(int basePairs) => basePairs * basePairMetres;

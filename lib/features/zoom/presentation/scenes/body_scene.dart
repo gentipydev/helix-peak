@@ -3,11 +3,11 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../domain/anatomy_figure.dart';
-import '../../domain/anatomy_tables.dart';
 import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
-import '../../domain/zoom_path.dart';
+import '../zoom_inks.dart';
 import 'organ_scene.dart';
+import 'sculpt.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
 
@@ -30,9 +30,11 @@ double calloutPresence(ZoomFrame frame) {
 const double around = 0.35;
 
 /// The body, standing facing the reader: the Expression Atlas anatomogram's
-/// figure (EMBL-EBI, CC BY 4.0), its organs faint inside it, and lit the
-/// ones the Atlas finds the gene's RNA raised in, each as bright as its
-/// level against the highest. The one the zoom goes into is ringed.
+/// figure (EMBL-EBI, CC BY 4.0), sculpted in the app's neutrals and seen
+/// through, its organs faint inside it. The ones the Atlas finds the gene's
+/// RNA raised in glow in the mark, each as bright as its level against the
+/// highest, and the one the zoom goes into is ringed. As the body is
+/// reached a scan passes down it, lighting them as it goes.
 ///
 /// On the way in the body is seen through: its line art gives way, the
 /// organs come up, and the one the zoom follows is handed to the organ's own
@@ -91,28 +93,10 @@ final class BodyScene extends ZoomScene {
 
   /// How strongly each part is lit, by UBERON id, from 0 to 1: the gene's
   /// level there against its highest, and the part the zoom goes into at
-  /// least a little, whether or not the Atlas calls the gene raised there.
+  /// least half ([ZoomSubject.litLevels]).
   Map<String, double> get lit => _levels;
 
-  late final Map<String, double> _levels = () {
-    final Map<String, double> out = <String, double>{};
-    final List<(String, double)> specific = subject.track.tissue.specific;
-    double top = 0;
-    for (final (String _, double level) in specific) {
-      top = math.max(top, level);
-    }
-    for (final (String name, double level) in specific) {
-      final String? part = tissueAnatomy[ZoomPath.tissueName(name)]?.uberon;
-      if (part != null && _figure.parts.containsKey(part)) {
-        out[part] = math.max(out[part] ?? 0, top <= 0 ? 1 : level / top);
-      }
-    }
-    final String? own = subject.anatomy?.uberon;
-    if (own != null && _figure.parts.containsKey(own)) {
-      out.putIfAbsent(own, () => 0.5);
-    }
-    return out;
-  }();
+  Map<String, double> get _levels => subject.litLevels;
 
   /// Every part's shape, by UBERON id.
   late final Map<String, Path> _parts = <String, Path>{
@@ -148,15 +132,88 @@ final class BodyScene extends ZoomScene {
     }
   }
 
+  /// The figure's box in the scene's units, and the silhouette's.
+  late final Rect _box = _silhouette.getBounds();
+
+  /// Each part's box, for its glow.
+  late final Map<String, Rect> _partBoxes = <String, Rect>{
+    for (final MapEntry<String, Path> part in _parts.entries)
+      part.key: part.value.getBounds(),
+  };
+
+  /// How long the scan takes to pass from head to foot, and the ping that
+  /// follows on the organ the zoom goes into, in seconds.
+  static const double scanTime = 1.1;
+  static const double pingTime = 0.9;
+
+  /// How far the scan has come down the figure, from 0 to 1, [dwell]
+  /// seconds after the body was reached.
+  static double scanned(double dwell) => smoothstep(dwell / scanTime);
+
+  // The figure: sculpted in the app's neutrals, seen through to the organs
+  // inside it, faint. What the gene lights is drawn over it, on the ambient
+  // layer, where the scan passes over it as the body is reached.
   @override
   void paint(Canvas canvas, ZoomFrame frame) {
     canvas.save();
     frame.enter(canvas);
     final double pixel = frame.pixel;
-    final Color organ = frame.inks.scale.organ;
-    final Color edge = frame.inks.scale.organEdge;
+    final ZoomInks inks = frame.inks;
     // How far the body is seen through, on the way in.
     final double seen = frame.isChild ? 0 : smoothstep(frame.progress / 0.5);
+    canvas.drawPath(
+      _silhouette,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: <Color>[inks.lit(0.07), inks.shade(0.74), inks.shade(0.5)],
+          stops: const <double>[0, 0.45, 1],
+        ).createShader(_box),
+    );
+    // Every organ, a faint shape in the figure.
+    final Paint ghost = Paint()
+      ..color = inks.lit(0.14).withValues(alpha: 0.42 + 0.25 * seen);
+    final Paint ghostEdge = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.8 * pixel
+      ..color = inks.lit(0.32).withValues(alpha: 0.45 + 0.3 * seen);
+    for (final MapEntry<String, Path> part in _parts.entries) {
+      if (_notGhosted.contains(part.key)) {
+        continue;
+      }
+      canvas.drawPath(part.value, ghost);
+      canvas.drawPath(part.value, ghostEdge);
+    }
+    // The figure's line art, giving way as it is seen through.
+    canvas.drawPath(
+      _lines,
+      Paint()..color = inks.label.withValues(alpha: 0.3 * (1 - 0.6 * seen)),
+    );
+    Sculpt.rim(
+      canvas,
+      _silhouette,
+      _box,
+      inks,
+      width: 1.4 * pixel,
+      strength: 0.42 * (1 - 0.5 * seen),
+    );
+    canvas.restore();
+  }
+
+  @override
+  bool wantsClock(ZoomFrame frame) =>
+      !frame.isChild && frame.dwell < scanTime + pingTime;
+
+  // What the gene lights, the scan passing over it as the body is reached,
+  // and the organ the zoom goes into, ringed. Each fades with the body.
+  @override
+  void paintAmbient(Canvas canvas, ZoomFrame frame) {
+    canvas.save();
+    frame.enter(canvas);
+    final double pixel = frame.pixel;
+    final ZoomInks inks = frame.inks;
+    final double opacity = frame.opacity;
     // How far the organ's own scene has taken over the part it follows.
     final double handed = frame.isChild
         ? 0
@@ -164,50 +221,82 @@ final class BodyScene extends ZoomScene {
     final String? own = subject.bodyPart == null
         ? null
         : subject.anatomy?.uberon;
-
-    canvas.drawPath(_silhouette, Paint()..color = frame.inks.scale.bodyFill);
-    // The organs, faint; then the ones the gene is raised in.
-    final Paint ghost = Paint()
-      ..color = organ.withValues(alpha: 0.13 + 0.2 * seen);
-    for (final MapEntry<String, Path> part in _parts.entries) {
-      if (!_levels.containsKey(part.key) && !_notGhosted.contains(part.key)) {
-        canvas.drawPath(part.value, ghost);
-      }
-    }
+    final double scan = scanned(frame.dwell);
+    final double reach = _box.top + (_box.height * 1.08) * scan;
     for (final MapEntry<String, double> lit in _levels.entries) {
-      final double shown = lit.key == own ? 1 - handed : 1;
-      final double strength = (0.35 + 0.6 * lit.value) * shown;
+      final double shown = (lit.key == own ? 1 - handed : 1) * opacity;
+      if (shown <= 0.002) {
+        continue;
+      }
+      final double level = lit.value;
       if (lit.key == _skin) {
         // The skin is the figure's own edge.
         canvas.drawPath(
           _silhouette,
           Paint()
             ..style = PaintingStyle.stroke
-            ..strokeWidth = 3.2 * pixel
-            ..color = organ.withValues(alpha: strength),
+            ..strokeWidth = 2.4 * pixel
+            ..color = inks.glow((0.35 + 0.55 * level) * shown),
         );
         continue;
       }
       final Path path = _parts[lit.key]!;
-      canvas.drawPath(path, Paint()..color = organ.withValues(alpha: strength));
+      final Rect box = _partBoxes[lit.key]!;
+      Sculpt.glow(
+        canvas,
+        box.center,
+        box.longestSide * 0.85 + 10 * pixel,
+        inks,
+        (0.16 + 0.22 * level) * shown,
+      );
+      canvas.drawPath(
+        path,
+        Paint()..color = inks.glow((0.2 + 0.55 * level) * shown),
+      );
       canvas.drawPath(
         path,
         Paint()
           ..style = PaintingStyle.stroke
-          ..strokeWidth = 0.9 * pixel
-          ..color = edge.withValues(alpha: 0.7 * strength),
+          ..strokeWidth = 1.1 * pixel
+          ..strokeJoin = StrokeJoin.round
+          ..color = inks.glow((0.5 + 0.5 * level) * shown),
       );
     }
-    canvas.drawPath(
-      _lines,
-      Paint()
-        ..color = frame.inks.scale.bodyEdge.withValues(alpha: 0.9 - 0.5 * seen),
-    );
-    // What the zoom follows: ringed, and found by a mark while it is too
-    // small to see.
+    // The scan: a band of the mark passing down the figure, over organs
+    // already lit, so it may pass again each time the body is reached.
+    final double sweeping =
+        smoothstep(scan / 0.12) * (1 - smoothstep((scan - 0.86) / 0.14));
+    if (sweeping > 0) {
+      final double band = 46 * pixel;
+      final Rect sweep = Rect.fromLTRB(
+        _box.left,
+        reach - band,
+        _box.right,
+        reach + band * 0.25,
+      );
+      canvas.save();
+      canvas.clipPath(_silhouette);
+      canvas.drawRect(
+        sweep,
+        Paint()
+          ..shader = LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: <Color>[
+              inks.glow(0),
+              inks.glow(0.2 * opacity * sweeping),
+              inks.glow(0.5 * opacity * sweeping),
+              inks.glow(0),
+            ],
+            stops: const <double>[0, 0.7, 0.8, 1],
+          ).createShader(sweep),
+      );
+      canvas.restore();
+    }
+    // What the zoom follows: ringed, and found by a reticle while it is too
+    // small to see, which pings once the scan has passed it.
     final AnatomyPart? part = subject.bodyPart;
     if (part != null) {
-      final Color mark = frame.inks.mark;
       final Offset at = place(part.site);
       if (own != _skin) {
         canvas.drawPath(
@@ -216,7 +305,7 @@ final class BodyScene extends ZoomScene {
             ..style = PaintingStyle.stroke
             ..strokeWidth = 1.8 * pixel
             ..strokeJoin = StrokeJoin.round
-            ..color = mark.withValues(alpha: 1 - handed),
+            ..color = inks.glow((1 - handed) * opacity),
         );
       }
       final double across = part.extent / _width * frame.view.pixelsPerUnit;
@@ -224,15 +313,27 @@ final class BodyScene extends ZoomScene {
           ? 1 - handed
           : 1 - smoothstep((across - 14) / 26);
       if (lost > 0) {
-        canvas.drawCircle(
+        Sculpt.reticle(
+          canvas,
           at,
-          9 * pixel,
-          Paint()..color = mark.withValues(alpha: 0.3 * lost),
+          8 * pixel,
+          pixel,
+          inks,
+          opacity: lost * opacity,
         );
+      }
+      // The ping: a ring that spreads and fades once the scan reaches it.
+      final double reached =
+          (at.dy - _box.top) / (_box.height * 1.08) * scanTime;
+      final double ping = ((frame.dwell - reached) / pingTime).clamp(0.0, 1.0);
+      if (ping > 0 && ping < 1) {
         canvas.drawCircle(
           at,
-          3.2 * pixel,
-          Paint()..color = mark.withValues(alpha: lost),
+          (8 + 30 * Curves.easeOut.transform(ping)) * pixel,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.4 * pixel
+            ..color = inks.glow((1 - ping) * 0.8 * opacity),
         );
       }
     }
