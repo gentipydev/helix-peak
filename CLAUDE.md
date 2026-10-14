@@ -86,7 +86,8 @@ Git: commit the session's own changes locally. Never push, in any form.
   `presentation/<area>/<file>.dart` becomes `lib/shared/<area>/<file>.dart`.
 - `lib/shared/helix/`: the home screen's double helix as geometry
   (`HelixModel`), promoted out of `lib/features/home/` for the lab's
-  replication flow. The home screen's widget and painter stay in home.
+  replication flow, and its painter (`DnaHelixPainter`), promoted for the
+  zoom's DNA stop. The home screen's widget stays in home.
 - `lib/shared/ribosome/`: translation on the ribosome (`TranslationTimeline`,
   `TranslationDirector`, `CaptionGenerator`, `TranslationPainter`), its
   player (`TranslationPlayer`) and the chain's flight into the protein page
