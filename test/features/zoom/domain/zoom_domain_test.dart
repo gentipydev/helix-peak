@@ -16,6 +16,7 @@ import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_facts.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_motion.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_path.dart';
+import 'package:helixpeek/shared/format.dart';
 
 import '../../../support/test_catalog.dart';
 import '../record_fixtures.dart';
@@ -641,7 +642,8 @@ void main() {
           last = childOrigin;
         }
         // Across each stop, the scene both segments draw is drawn the same.
-        for (final ZoomStop stop in ZoomStop.values.skip(1).take(7)) {
+        for (final ZoomStop stop
+            in ZoomStop.values.skip(1).take(ZoomStop.values.length - 2)) {
           final double at = depth.depthOf(stop);
           final (ZoomView _, ZoomView entering) = camera.at(at - 1e-9, size);
           final (ZoomView leaving, ZoomView _) = camera.at(at, size);
@@ -666,7 +668,8 @@ void main() {
         depth,
         portalOf: (ZoomStop stop) => const Offset(0.2, 0.1),
       );
-      for (final ZoomStop stop in ZoomStop.values.take(8)) {
+      // Every stop a segment leaves: the DNA only ends one.
+      for (final ZoomStop stop in ZoomStop.values.take(ZoomStop.dna.index)) {
         final (ZoomView parent, ZoomView _) = camera.at(
           depth.depthOf(stop),
           const Size(390, 560),
@@ -784,7 +787,7 @@ void main() {
           ];
           for (final ZoomStop stop in ZoomStop.values) {
             final ZoomFact fact = facts.of(stop);
-            final String words = stop == ZoomStop.gene
+            final String words = stop == ZoomStop.dna
                 ? fact.line
                 : '${fact.title} ${fact.line}';
             for (final RegExp name in names) {
@@ -796,7 +799,7 @@ void main() {
             }
           }
         }
-        expect(facts.of(ZoomStop.gene).title, startsWith('${t.gene} · '));
+        expect(facts.of(ZoomStop.dna).title, startsWith('${t.gene} · '));
       }
     });
 
@@ -805,9 +808,6 @@ void main() {
       for (final ProteinTarget t in TestCatalog.all) {
         final ZoomFacts facts = _facts(t);
         for (final ZoomStop stop in ZoomStop.values) {
-          if (stop == ZoomStop.dna) {
-            continue;
-          }
           final ZoomFact fact = facts.of(stop);
           expect(
             ungrouped.hasMatch('${fact.title} ${fact.line}'),
@@ -901,7 +901,7 @@ void main() {
       for (final ProteinTarget t in TestCatalog.all) {
         final GeneRecord record = recordOf(t);
         final int bases = record.realSpanBp ?? record.lengthBp;
-        final String title = _facts(t).of(ZoomStop.gene).title;
+        final String title = _facts(t).of(ZoomStop.dna).title;
         expect(title, contains(' · '), reason: t.slug);
         expect(
           title,
@@ -947,14 +947,19 @@ void main() {
       expect(head, contains(AnatomyFigure.licence));
     });
 
-    test('show the record’s first bases at the DNA, 5′ to 3′', () {
+    test('name the gene at the DNA, over its first bases, 5′ to 3′', () {
       for (final ProteinTarget t in TestCatalog.all) {
         final GeneRecord record = recordOf(t);
         final ZoomFact dna = _facts(t).of(ZoomStop.dna);
         final int n = math.min(ZoomDepth.helixBases, record.sequence.length);
-        expect(dna.title, 'First $n bases');
+        final int bases = record.realSpanBp ?? record.lengthBp;
+        expect(dna.title, '${record.gene} · ${grouped(bases)} bases');
         expect(dna.line, '5′ ${record.sequence.substring(0, n)} 3′');
       }
+      expect(
+        _facts(TestCatalog.insulin).of(ZoomStop.dna).title,
+        'INS · 1,431 bases',
+      );
     });
   });
 }

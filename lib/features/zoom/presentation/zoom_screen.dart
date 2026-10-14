@@ -258,15 +258,16 @@ enum _Motion { idle, pinch, flight, settle, exit }
 
 /// One continuous dive from a body down to a gene's DNA.
 ///
-/// Nine stops (body, organ, tissue, cell, nucleus, chromosome, band, gene,
-/// DNA) on one depth. The card's buttons step from one to the next, a step
-/// asked for mid-flight carrying straight on; a pinch moves through all of
-/// them without a break and a flick coasts to the stop it would reach. The
-/// card names the stop and says one thing that is known of it. The organ
-/// and the cell are the path the bake chose from the Human Protein Atlas's
-/// reading, one that lives in the other; the chromosome, the band, the gene
-/// and its first bases are data. At the DNA, the walk is offered, from its
-/// start: the one it was opened from, where there is one.
+/// Eight stops (body, organ, tissue, cell, nucleus, chromosome, band, DNA)
+/// on one depth. The card's buttons step from one to the next, a step asked
+/// for mid-flight carrying straight on; a pinch moves through all of them
+/// without a break and a flick coasts to the stop it would reach. The card
+/// names the stop and says one thing that is known of it. The organ and the
+/// cell are the path the bake chose from the Human Protein Atlas's reading,
+/// one that lives in the other; the chromosome, the band, the gene and its
+/// first bases are data. At the DNA, the gene's own stop, the walk is
+/// offered, from its start: the one it was opened from, where there is
+/// one.
 class ZoomScreen extends StatefulWidget {
   const ZoomScreen({
     required this.target,
@@ -316,7 +317,6 @@ class ZoomScreen extends StatefulWidget {
     ZoomStop.nucleus => 'Nucleus',
     ZoomStop.chromosome => 'Chromosome',
     ZoomStop.band => 'Band',
-    ZoomStop.gene => 'Gene',
     ZoomStop.dna => 'DNA',
   };
 

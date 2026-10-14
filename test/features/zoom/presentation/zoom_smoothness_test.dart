@@ -10,6 +10,8 @@ import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/core/theme/app_typography.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_motion.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/band_scene.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/dna_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
@@ -299,7 +301,6 @@ void main() {
       ZoomStop.organ,
       ZoomStop.band,
       ZoomStop.body,
-      ZoomStop.gene,
       ZoomStop.dna,
     ]);
     expect(stage.prepared, isTrue);
@@ -353,6 +354,71 @@ void main() {
           }
         }
       }
+    }
+  });
+
+  testWidgets('the gene’s DNA opens out of its bar on the band’s map, its 5′ '
+      'end at the bar’s left whatever its strand', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ZoomStage stage = _stage(t);
+      final ZoomDepth depth = stage.depth;
+      final double band = depth.depthOf(ZoomStop.band);
+      final double step = depth.travelOf(ZoomStop.band.index);
+      // While the band still shows, giving way to the gene.
+      for (final double s in <double>[0.05, 0.15, 0.25, 0.35]) {
+        final List<(ZoomScene, ZoomFrame)> frames = stage.frames(
+          band + s * step,
+          _canvas,
+          inks,
+        );
+        final (ZoomScene map, ZoomFrame onMap) = frames.firstWhere(
+          ((ZoomScene, ZoomFrame) f) => f.$1 is BandScene,
+        );
+        final (ZoomScene dna, ZoomFrame inDna) = frames.firstWhere(
+          ((ZoomScene, ZoomFrame) f) => f.$1 is DnaScene,
+        );
+        double onBand(double position) =>
+            onMap.toScreen(Offset((map as BandScene).unitOf(position), 0)).dx;
+        double inGene(double offset) =>
+            inDna.toScreen(Offset((dna as DnaScene).unitAlong(offset), 0)).dx;
+        final double left = onBand(stage.subject.track.spanStart.toDouble());
+        final double right = onBand(stage.subject.track.spanEnd + 1.0);
+        expect(inGene(0), closeTo(left, 0.5), reason: '${t.slug} at $s');
+        // The record's span and MANE's differ by a few dozen base pairs at
+        // most.
+        expect(
+          inGene(stage.subject.layout.length),
+          closeTo(right, math.max(1, 0.005 * (right - left))),
+          reason: '${t.slug} at $s',
+        );
+      }
+    }
+  });
+
+  testWidgets('the gene’s exons show on the way in to the DNA, and none at '
+      'it', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ZoomStage stage = _stage(t);
+      final ZoomDepth depth = stage.depth;
+      double shown(double d) {
+        for (final (ZoomScene scene, ZoomFrame frame) in stage.frames(
+          d,
+          _canvas,
+          inks,
+        )) {
+          if (scene is DnaScene) {
+            return scene.geneShown(frame);
+          }
+        }
+        return 0;
+      }
+
+      final double band = depth.depthOf(ZoomStop.band);
+      final double step = depth.travelOf(ZoomStop.band.index);
+      expect(shown(band + 0.3 * step), 1, reason: t.slug);
+      expect(shown(depth.depthOf(ZoomStop.dna)), 0, reason: t.slug);
     }
   });
 

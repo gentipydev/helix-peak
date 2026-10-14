@@ -9,7 +9,6 @@ import 'scenes/body_scene.dart';
 import 'scenes/cell_scene.dart';
 import 'scenes/chromosome_scene.dart';
 import 'scenes/dna_scene.dart';
-import 'scenes/gene_scene.dart';
 import 'scenes/nucleus_scene.dart';
 import 'scenes/organ_scene.dart';
 import 'scenes/tissue_scene.dart';
@@ -17,7 +16,7 @@ import 'scenes/zoom_scene.dart';
 import 'scenes/zoom_subject.dart';
 import 'zoom_inks.dart';
 
-/// The nine scenes of one protein's zoom, and the camera that nests them.
+/// The eight scenes of one protein's zoom, and the camera that nests them.
 final class ZoomStage {
   ZoomStage(this.subject)
     : scenes = <ZoomScene>[
@@ -28,7 +27,6 @@ final class ZoomStage {
         NucleusScene(subject),
         ChromosomeScene(subject),
         BandScene(subject),
-        GeneScene(subject),
         DnaScene(subject),
       ] {
     camera = ZoomCamera(

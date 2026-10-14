@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../../../shared/helix/dna_helix_painter.dart';
 import '../../../../shared/helix/helix_geometry.dart';
 import '../../../../shared/ribosome/molecular_material.dart';
+import '../../domain/gene_layout.dart';
 import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
 import '../zoom_inks.dart';
@@ -13,20 +14,28 @@ import 'body_scene.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
 
-/// The DNA at the gene's 5′ end, as chromatin packs it and as the double
-/// helix holds its bases.
+/// The gene's DNA from its 5′ end: what the gene's bar on the band's map
+/// opens into, through its exons and its chromatin down to the double helix
+/// that holds its first bases.
+///
+/// It reads 5′ to 3′, left to right, as the walk does, whatever the gene's
+/// strand, from the left end of the bar ([ZoomSubject.geneEntry]). As the
+/// view closes in on the 5′ end, the bar opens into the gene as a genome
+/// browser draws a transcript: its coding exons thick, their untranslated
+/// ends thin, each a lit block in the walk's own colours, its introns a line
+/// with chevrons the way it is read, every part at its real length.
 ///
 /// From a view a few thousand base pairs wide, the gene's line is a fibre of
 /// nucleosomes: 147 base pairs wrapped round each histone core, one every
 /// 200, drawn as the textbook packs a gene and not measured for this one. The
 /// stretch at the 5′ end is drawn bare, as the start of a gene that is read
-/// usually is. Closer in, the bare end resolves into the home screen's own
-/// double helix ([DnaHelixPainter]), lying along the gene with its 5′ end at
-/// the left, carrying the record's first bases in the bases' own colours,
-/// turning as the home screen's does. Unlike the home screen's, nothing reads
-/// it: no bubble opens and no transcript trails from it, so the helix stays
-/// whole, every base paired. As the walk opens it unzips into the walk's
-/// rows, its turn easing until they lie flat.
+/// usually is. Closer in, the exons give way and the bare end resolves into
+/// the home screen's own double helix ([DnaHelixPainter]), lying along the
+/// gene with its 5′ end at the left, carrying the record's first bases in the
+/// bases' own colours, turning as the home screen's does. Unlike the home
+/// screen's, nothing reads it: no bubble opens and no transcript trails from
+/// it, so the helix stays whole, every base paired. As the walk opens it
+/// unzips into the walk's rows, its turn easing until they lie flat.
 final class DnaScene extends ZoomScene {
   DnaScene(this.subject);
 
@@ -45,8 +54,14 @@ final class DnaScene extends ZoomScene {
   static const double period = 200;
   static const double wrapped = 147;
 
+  // The gene comes up as soon as the band's bar does: on the map it is a
+  // few pixels wide, and the bar opens into it.
   @override
-  double asChild(double progress) => smoothstep((progress - 0.08) / 0.45);
+  double asChild(double progress) => smoothstep((progress - 0.02) / 0.45);
+
+  /// How wide the view is, in base pairs, when the gene's exons are gone:
+  /// they show whole while it is ten times as wide, and fade evenly between.
+  static const double exonsGone = 400;
 
   /// The home screen's helix as its painter draws it, in the painter's own
   /// pixels: its radius, and its length for each base pair.
@@ -132,8 +147,11 @@ final class DnaScene extends ZoomScene {
     final double mid = frame.size.height / 2;
     final double span = _span(frame);
     final double perBase = w / span;
-    // The fibre's line gives way to the helix as the bases come up.
-    final double line = 1 - smoothstep((180 - span) / 100);
+    // The fibre's line comes up with its beads, so it never runs across the
+    // band's map, and gives way to the helix as the bases come up.
+    final double line =
+        smoothstep((wrapped * perBase - 2) / 10) *
+        (1 - smoothstep((180 - span) / 100));
     if (line > 0) {
       canvas.drawLine(
         Offset(0, mid),
@@ -143,7 +161,89 @@ final class DnaScene extends ZoomScene {
           ..color = frame.inks.label.withValues(alpha: 0.7 * line),
       );
     }
+    final double exons = geneShown(frame);
+    if (exons > 0) {
+      _gene(canvas, frame, mid, exons);
+    }
     _nucleosomes(canvas, frame, perBase, mid);
+  }
+
+  /// How much of the gene's exons and introns show at [frame]: all of them
+  /// while the view is wider than ten times [exonsGone], none from it on.
+  double geneShown(ZoomFrame frame) =>
+      smoothstep(math.log(_span(frame) / exonsGone) / math.ln10);
+
+  /// The gene's parts along its line, [alpha] of them showing.
+  void _gene(Canvas canvas, ZoomFrame frame, double mid, double alpha) {
+    final double w = frame.size.width;
+    double clampX(double x) => x.clamp(-8.0, w + 8);
+    // An intron as a browser draws one: a thin line, light enough to read
+    // on the dark ground, which the walk's intron tile colour is not.
+    final Color line = frame.inks.label.withValues(alpha: 0.75 * alpha);
+    final Paint intron = Paint()
+      ..strokeWidth = 1.6
+      ..color = line;
+    final Paint chevron = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.4
+      ..color = line;
+    Color faded(Color colour) => colour.withValues(alpha: colour.a * alpha);
+    for (final GenePiece piece in subject.layout.pieces) {
+      final double left = _x(frame, piece.start);
+      final double right = _x(frame, piece.end);
+      if (right < -8 || left > w + 8) {
+        continue;
+      }
+      switch (piece.kind) {
+        case GenePieceKind.intron:
+          canvas.drawLine(
+            Offset(clampX(left), mid),
+            Offset(clampX(right), mid),
+            intron,
+          );
+          // Chevrons the way it is read, 5′ to 3′.
+          final double from = math.max(left, -8) + 18;
+          for (double x = from; x < math.min(right, w + 8) - 12; x += 36) {
+            canvas.drawPath(
+              Path()
+                ..moveTo(x - 3, mid - 4)
+                ..lineTo(x + 3, mid)
+                ..lineTo(x - 3, mid + 4),
+              chevron,
+            );
+          }
+        case GenePieceKind.utr || GenePieceKind.cds:
+          final bool coding = piece.kind == GenePieceKind.cds;
+          final double half = coding ? 9 : 5;
+          final double centre = (left + right) / 2;
+          final double reach = math.max((right - left) / 2, 0.5);
+          final Rect block = Rect.fromLTRB(
+            clampX(centre - reach),
+            mid - half,
+            clampX(centre + reach),
+            mid + half,
+          );
+          // A block lit from above: brighter along its top, in shade below.
+          final Color colour = coding ? frame.inks.cds : frame.inks.utr;
+          canvas.drawRRect(
+            RRect.fromRectAndRadius(
+              block,
+              Radius.circular(math.min(3, block.width / 2)),
+            ),
+            Paint()
+              ..shader = LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: <Color>[
+                  faded(Color.lerp(colour, frame.inks.text, 0.3)!),
+                  faded(colour),
+                  faded(Color.lerp(colour, frame.inks.ground, 0.35)!),
+                ],
+                stops: const <double>[0, 0.45, 1],
+              ).createShader(block),
+          );
+      }
+    }
   }
 
   /// How much of the helix shows at [frame]: it comes up as its bases

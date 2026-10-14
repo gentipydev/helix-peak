@@ -21,7 +21,10 @@ import 'zoom_subject.dart';
 /// It takes over from the chromosome as it turns to lie along the genome:
 /// the strip appears where the turned chromosome lies, on the middle of the
 /// view, and rises to make room for the gene's track as the ruler and the
-/// map come up.
+/// map come up. On the way out the zoom goes into the gene's bar where the
+/// DNA's view lies, read from the bar's left end ([ZoomSubject.geneEntry]),
+/// and the map gives way over the first half of the step as the gene's own
+/// DNA opens out of the bar.
 ///
 /// Its units are the width of the view at the band, in base pairs, from the
 /// middle of the band; points are placed on screen through the camera in
@@ -43,13 +46,15 @@ final class BandScene extends ZoomScene {
   double unitOf(double position) => (position - subject.bandMiddle) / _width;
 
   @override
-  Offset get portal => Offset(unitOf(subject.geneMiddle), 0);
+  Offset get portal => Offset(unitOf(subject.geneEntry), 0);
 
   @override
   double asChild(double progress) => smoothstep((progress - 0.3) / 0.45);
 
+  // The step out goes down to the DNA, past the gene's whole scale, so the
+  // map gives way while the gene is still small on it.
   @override
-  double asParent(double progress) => 1 - smoothstep((progress - 0.5) / 0.45);
+  double asParent(double progress) => 1 - smoothstep((progress - 0.1) / 0.45);
 
   /// Where the band's strip comes to sit above the gene's track, and the
   /// ruler under the track, in pixels from the middle of the view: the
@@ -84,10 +89,13 @@ final class BandScene extends ZoomScene {
     );
   }
 
+  // The gene is named where the zoom goes into it: on a bar at its least
+  // width that is its middle, and on a wide one a point that stays put as
+  // the view closes in on it.
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
     final double mid = frame.size.height / 2;
-    final Offset gene = Offset(_x(frame, subject.geneMiddle), mid);
+    final Offset gene = Offset(_x(frame, subject.geneEntry), mid);
     final (double _, double _, double _, double track) = _beats(frame);
     out.item('band:gene', gene, frame.opacity * track);
     out.callout(

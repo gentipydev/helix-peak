@@ -30,9 +30,10 @@ final class ZoomFact {
 /// The words of the zoom: a [ZoomFact] for each stop, and the credit the
 /// body carries. Every number about the protein comes from its locus track
 /// or its record; the rest are what bodies, cells and DNA measure, said once
-/// for every protein. Only the gene's own stop names the gene, as its record
-/// does; no other line names a gene or a protein. Nothing explains: what a
-/// stop shows is drawn, and the card names it.
+/// for every protein. Only the DNA, the gene's own stop, names the gene, as
+/// its record does, over the first bases its helix carries; no other line
+/// names a gene or a protein. Nothing explains: what a stop shows is drawn,
+/// and the card names it.
 final class ZoomFacts {
   ZoomFacts({required this.track, required this.path, required this.record});
 
@@ -63,17 +64,9 @@ final class ZoomFacts {
           '${basePairLabel(track.bandLengthBp.toDouble())} · gene at '
           '${grouped(track.spanStart)}–${grouped(track.spanEnd)}',
     ),
-    ZoomStop.gene => ZoomFact(
-      stop: stop,
-      title: '${record.gene} · ${grouped(geneBases)} bases',
-      line:
-          '${spelledLeading(record.exons.length)} '
-          '${record.exons.length == 1 ? 'exon' : 'exons'} · '
-          '${track.strand < 0 ? 'reverse' : 'forward'} strand',
-    ),
     ZoomStop.dna => ZoomFact(
       stop: stop,
-      title: 'First ${grouped(dnaBases)} bases',
+      title: '${record.gene} · ${grouped(geneBases)} bases',
       line:
           '5′ ${record.sequence.substring(0, math.min(dnaBases, record.sequence.length))} 3′',
     ),
