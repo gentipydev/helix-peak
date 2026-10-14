@@ -98,7 +98,7 @@ final class OrganScene extends ZoomScene {
     Sculpt.ping(
       canvas,
       _art.site * grown,
-      9 * frame.pixel,
+      Sculpt.beaconRadius * frame.pixel,
       30 * frame.pixel,
       ping,
       frame.pixel,
@@ -120,18 +120,17 @@ final class OrganScene extends ZoomScene {
     final double grown = _grown(frame);
     final double detail = detailAt(frame);
     _art.paint(canvas, frame.inks, frame.pixel, grown, detail: detail);
-    // Where the tissue is sampled, once the organ is its own: tightening
-    // onto the place as the loupe opens there.
-    final double tighten = frame.isChild
+    // Where the tissue is sampled, once the organ is its own, until the
+    // loupe opening there takes its place.
+    final double opening = frame.isChild
         ? 0
         : smoothstep(frame.progress / 0.25);
-    Sculpt.reticle(
+    Sculpt.beacon(
       canvas,
       _art.site * grown,
-      (9 - 5 * tighten) * frame.pixel,
       frame.pixel,
       frame.inks,
-      opacity: detail * (1 - 0.5 * tighten),
+      opacity: detail * (1 - opening),
     );
     canvas.restore();
   }

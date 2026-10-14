@@ -220,12 +220,16 @@ abstract final class Sculpt {
     );
   }
 
-  /// Where the zoom goes in: a ring, and four ticks reaching in to it.
-  /// [radius] and [pixel] are in the caller's units.
-  static void reticle(
+  /// How far out a [beacon] reaches, in screen pixels: its dot and the thin
+  /// ring round it. A ping spreads from here.
+  static const double beaconRadius = 5.6;
+
+  /// Where the zoom goes in, marked as a map marks a place: a dot of the
+  /// mark, set off from what lies under it by a thin ring of the bright ink,
+  /// in a soft glow. [pixel] is one screen pixel in the caller's units.
+  static void beacon(
     Canvas canvas,
     Offset at,
-    double radius,
     double pixel,
     ZoomInks inks, {
     double opacity = 1,
@@ -233,23 +237,20 @@ abstract final class Sculpt {
     if (opacity <= 0.002) {
       return;
     }
-    final Paint line = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = 1.6 * pixel
-      ..color = inks.glow(opacity);
-    canvas.drawCircle(at, radius, line);
-    final double tick = radius * 0.55;
-    for (int k = 0; k < 4; k++) {
-      final double a = math.pi / 4 + k * math.pi / 2;
-      final Offset way = Offset(math.cos(a), math.sin(a));
-      canvas.drawLine(
-        at + way * (radius + tick),
-        at + way * (radius + 1.5 * pixel),
-        line,
-      );
-    }
-    canvas.drawCircle(at, 1.8 * pixel, Paint()..color = inks.glow(opacity));
+    glow(canvas, at, 16 * pixel, inks, 0.32 * opacity);
+    canvas.drawCircle(
+      at,
+      (beaconRadius - 0.7) * pixel,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.4 * pixel
+        ..color = inks.text.withValues(alpha: 0.92 * opacity),
+    );
+    canvas.drawCircle(
+      at,
+      (beaconRadius - 1.4) * pixel,
+      Paint()..color = inks.glow(opacity),
+    );
   }
 
   /// A branching tree from [root], heading [angle], [length] long, each

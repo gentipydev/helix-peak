@@ -303,7 +303,7 @@ final class BodyScene extends ZoomScene {
       );
       canvas.restore();
     }
-    // What the zoom follows: ringed, and found by a reticle while it is too
+    // What the zoom follows: ringed, and marked by a beacon while it is too
     // small to see, which pings once the scan has passed it.
     final AnatomyPart? part = subject.bodyPart;
     if (part != null) {
@@ -323,14 +323,7 @@ final class BodyScene extends ZoomScene {
           ? 1 - handed
           : 1 - smoothstep((across - 14) / 26);
       if (lost > 0) {
-        Sculpt.reticle(
-          canvas,
-          at,
-          8 * pixel,
-          pixel,
-          inks,
-          opacity: lost * opacity,
-        );
+        Sculpt.beacon(canvas, at, pixel, inks, opacity: lost * opacity);
       }
       // The ping: a ring that spreads and fades once the scan reaches it.
       final double reached =
@@ -339,7 +332,7 @@ final class BodyScene extends ZoomScene {
       if (ping > 0 && ping < 1) {
         canvas.drawCircle(
           at,
-          (8 + 30 * Curves.easeOut.transform(ping)) * pixel,
+          (Sculpt.beaconRadius + 30 * Curves.easeOut.transform(ping)) * pixel,
           Paint()
             ..style = PaintingStyle.stroke
             ..strokeWidth = 1.4 * pixel

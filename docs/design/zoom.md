@@ -45,7 +45,7 @@ What each stop says, for insulin:
 | Stop | Card title | Card line | On the canvas |
 |---|---|---|---|
 | Body | Pancreas | Tissue enriched · 12,197 nTPM | the credit |
-| Organ | Pancreas | About 16 cm | the reticle where the tissue is sampled |
+| Organ | Pancreas | About 16 cm | a marker where the tissue is sampled |
 | Tissue | Islet (the recipe's architecture) | none | beta cells |
 | Cell | Beta cells | Tissue cell type enriched | none: the Atlas names no place in the cell for it, and its vesicles leave the cell |
 | Nucleus | Chromosome 11 territory | none | none |
@@ -198,7 +198,7 @@ moves under reduced motion.
 
 | Stop | Beat |
 |---|---|
-| Body | a band of the accent passes from head to foot in 1.1 s, then the followed organ's reticle pings (0.9 s) |
+| Body | a band of the accent passes from head to foot in 1.1 s, then the followed organ's marker pings (0.9 s) |
 | Organ | a band of light passes over it (1.2 s), and the place it is sampled pings |
 | Tissue, cell, nucleus, chromosome | the zoom's cell, its nucleus, the gene's territory, the gene's band ping once (1.1 s) |
 | Gene | a polymerase passes 5′ to 3′ every 9 s, its transcript trailing in the accent |
@@ -277,8 +277,10 @@ art in the quiet ink, and every organ inside it a faint outline. Lit are
 the tissues the Atlas reads the gene's RNA raised in, glowing in the accent,
 each as bright as its level against the highest: myoglobin's skeletal
 muscle fully, its heart and tongue less. The one the zoom goes into is
-ringed, and found by a reticle while it is too small to see. Skin is lit as
-the figure's own edge.
+ringed, and marked while it is too small to see. The marker is the one a
+map uses for where you are: a dot of the accent in a thin ring of the
+bright ink, in a soft glow (`Sculpt.beacon`). Skin is lit as the figure's
+own edge.
 
 **One outline, two scenes.** The organ's scene draws the very outline the
 body drew for it (`OrganArt`), so the step is one shape seen closer. It
@@ -290,9 +292,9 @@ show. On the way in, the body's line art and its unlit organs give way.
 long and a pancreas 9. Each organ therefore knows how many times its drawn
 size it really is, and grows to that over the second half of the step, as
 the body fades round it, its sculpting and its inner anatomy coming up as
-it grows. At the organ's stop the scale bar is true of it. A reticle marks
-where in it the tissue is sampled, and tightens onto that place as the
-loupe opens there.
+it grows. At the organ's stop the scale bar is true of it. The same marker
+shows where in it the tissue is sampled, and gives way to the loupe as it
+opens there.
 
 **In place.** The figure's own parts near the organ are drawn faintly round
 it, fading with their distance from it.

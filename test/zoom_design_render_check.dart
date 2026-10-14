@@ -290,7 +290,7 @@ class _OrganPainter extends CustomPainter {
     canvas.translate(size.width / 2, size.height / 2);
     canvas.scale(size.width);
     art.paint(canvas, inks, 1 / size.width, 1);
-    Sculpt.reticle(canvas, art.site, 9 / size.width, 1 / size.width, inks);
+    Sculpt.beacon(canvas, art.site, 1 / size.width, inks);
   }
 
   @override
