@@ -257,9 +257,12 @@ depth has), and a pinch and a flick move the same number. Everything drawn
 is a function of it, but what moves at rest (a helix turning, vesicles
 leaving a cell), which is drawn on a layer of its own on the ambient clock:
 `zoom_smoothness_test` walks every protein's dive, and every step either way
-at 60 fps, and fails on a pop, a blink or a jump. Each stop is a scene
-in its own units, nested in the one before where its portal lies
-(`ZoomCamera`), and drawn the way its scale is seen:
+at 60 fps, and fails on a pop, a blink or a jump. Each scene builds what it
+caches (`ZoomScene.prepare`) one a frame while nothing moves, so no step
+pays for a scene's first frame: a scene that caches something costly
+builds it there. Each stop is a scene in its own units, nested in the one
+before where its portal lies (`ZoomCamera`), and drawn the way its scale is
+seen:
 - the body as the Expression Atlas anatomogram's figure (EMBL-EBI,
   CC BY 4.0), the organs the Atlas reads the gene raised in lit;
   `tool/zoom/anatomogram.py` generates `anatomy_figures.g.dart` from it,

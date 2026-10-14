@@ -1,6 +1,6 @@
 # Zoom: from a body down to one gene's DNA
 
-![The nine stops of insulin's dive: the body, the pancreas, an islet under the eyepiece, a beta cell, its nucleus, chromosome 11, the band 11p15.5, the gene and its first bases](zoom.png)
+![Insulin's nine stops on the app's ground: a glass figure with the pancreas glowing, the pancreas sculpted with its islets in the accent, an islet under the eyepiece, a beta cell, its nucleus with chromosome 11's territory in the accent, a lit metaphase chromosome 11, the band 11p15.5 under a docked map, the gene with a polymerase passing along it, and the home screen's helix carrying the gene's first bases](zoom.png)
 
 ## Experience
 
@@ -12,36 +12,55 @@ chromosome, band, gene and DNA. It is one continuous depth.
   where the transcript offers "Ribosome ›", for a protein whose `locus`
   track is ready: the twenty curated ones today. It began as a Lab flow, and
   its links from then (`/lab/zoom/<slug>`) still open it.
-
 - **Moving through it.**
-  - A pinch moves the depth 2.5 for each tenfold spread of the fingers, and a
-    flick coasts to the stop it would reach, settled by a critically damped
+  - The card's ‹ and › fly to the stop either side, and a double tap goes
+    one stop deeper. A step asked for mid-flight carries straight on at the
+    speed the depth has.
+  - A pinch moves the depth 2.5 for each tenfold spread of the fingers. A
+    flick settles on the stop it would coast to, on a critically damped
     spring.
-  - A double tap goes one stop deeper.
-  - The depth rail down the right edge is the walk's own `SequenceScrubber`,
-    one landmark a stop. Dragging it scrubs the depth; letting go settles on
-    the nearest stop.
-  - The card's ‹ and › fly to the stop either side, in 350 ms plus 260 ms for
-    each decade crossed, held between 450 and 2,600 ms and eased in depth.
-- **Play.** ▶ plays the dive: 1.5 s at each stop and 0.9 s for each decade
-  between, about 28 s from the body to the DNA. A touch on the canvas pauses
-  it.
-- **Reduced motion.** Steps and settles cut, and Play holds each stop for 3 s.
-- **The card** names the stop and the place, gives one line of what is known
-  of it, and tags where that comes from: `HPA 25.1`, `UCSC hg38`,
-  `MANE v1.5`, `RefSeq record`, or `drawn` where the stop is illustration.
-  Its height is the tallest stop's at the reader's text size, so the canvas
-  keeps its size.
-- **About (ⓘ)** says, once, what is drawn and what is data, and names every
-  source with its licence.
-- **At the DNA**, "Walk ›" goes back to the walk's gene page, the one it
-  was opened from. A zoom opened by a link, with no walk under it, opens the
-  walk there.
+  - There is no player and no depth rail: the buttons and the pinch are
+    the whole of it.
+- **The card** holds the stop's place, one line of data where there is one,
+  and its two steps (`‹ Organ`, `Cell ›`; `Walk ›` at the DNA). Nothing on
+  it explains. A new stop's words slide 6 pt the way the zoom travels and
+  fade in, in 220 ms. The card is as tall as the tallest stop's words at the
+  reader's text size, so the canvas keeps its size. A screen reader hears
+  the stop's name, its place and its line.
+- **The canvas** names only what the card does not say: the cell in the
+  tissue, where the protein sits, the band on the chromosome, the gene on
+  the map, the gene's ends and exons. A scale bar is always at its lower
+  left. At the body alone, its lower right carries the credit,
+  "Anatomogram EMBL-EBI · HPA 25.1 · CC BY 4.0", built from the track's
+  Atlas version and the figures' licence. It goes onto two lines where it
+  would meet the scale bar, and fades as the body does.
+- **Reduced motion.** Steps and settles cut, the cards cut, and every stop
+  is drawn as its beats leave it, with nothing moving.
+- **At the DNA**, "Walk ›" unzips the helix into the walk's rows and goes
+  back to the walk's gene page it was opened from. A zoom opened by a link,
+  with no walk under it, opens the walk there.
+
+What each stop says, for insulin:
+
+| Stop | Card title | Card line | On the canvas |
+|---|---|---|---|
+| Body | Pancreas | Tissue enriched · 12,197 nTPM | the credit |
+| Organ | Pancreas | About 16 cm | the reticle where the tissue is sampled |
+| Tissue | Islet (the recipe's architecture) | none | beta cells |
+| Cell | Beta cells | Tissue cell type enriched | none: the Atlas names no place in the cell for it, and its vesicles leave the cell |
+| Nucleus | Chromosome 11 territory | none | none |
+| Chromosome | Chromosome 11 | 135,086,622 bp · 36 bands | 11p15.5 |
+| Band | 11p15.5 | 2.8 Mb · gene at 2,159,779–2,161,209 | INS |
+| Gene | INS · 1,431 bases | Three exons · reverse strand | 5′, 3′, the exons' numbers |
+| DNA | First 33 bases | 5′ AGCCCTCCAGGACAGGCTGCATCAGAAGAGGCC 3′ | 5′ |
+
+A cell with no nucleus says so in its line: hemoglobin's is "Erythrocytes ·
+521,403 nCPM · no nucleus", over the erythroblasts it lands in.
 
 ## Research and its consequences
 
-Each stop is drawn in the convention of the instrument that shows its scale,
-so a reader who knows the field reads it without a legend. What each
+Each stop is laid out in the convention of the instrument that shows its
+scale, so a reader who knows the field reads it without a legend. What each
 convention is, where it comes from, and what it decided:
 
 - **Where a gene is read.** The Human Protein Atlas reads a gene's RNA
@@ -53,36 +72,41 @@ convention is, where it comes from, and what it decided:
   lives in the organ ("One path per gene").
 - **Anatomy.** Expression Atlas shows expression on an anatomogram: a
   standing figure with a shape for each tissue, named by its UBERON id.
-  *Consequence:* the body and the organ are those shapes, lit by the Atlas's
-  level.
-- **Histology.** Haematoxylin stains nuclei and ribosome-rich cytoplasm
-  blue-purple; eosin stains protein pink; fat, mucus and lumens take
-  neither. A ×40 objective under a standard eyepiece shows a field about
-  half a millimetre across. *Consequence:* the tissue is that field, and
-  each tissue's architecture is laid as the textbooks draw it (Junqueira's
-  Basic Histology; Ross and Pawlina, Histology: A Text and Atlas).
+  *Consequence:* the body and the organ are those shapes, glowing by the
+  Atlas's level.
+- **Histology.** Haematoxylin stains nuclei and ribosome-rich cytoplasm;
+  eosin stains protein; fat, mucus and lumens take neither. A ×40 objective
+  under a standard eyepiece shows a field about half a millimetre across.
+  *Consequence:* the tissue is that field, each tissue's architecture laid
+  as the textbooks draw it (Junqueira's Basic Histology; Ross and Pawlina,
+  Histology: A Text and Atlas), and each part by the stain it would take.
+  It is drawn in the app's neutrals rather than in the stains' pink and
+  purple (the user's choice of 2026-10-14): what takes stain lit, the
+  denser the brighter, what takes none the ground.
 - **A red cell has no nucleus.** It loses it as it matures in the marrow, in
   an island of erythroblasts round a macrophage (Chasis and Mohandas 2008).
   *Consequence:* where the Atlas's cell is a red cell, the zoom lands in an
-  erythroblast of an island, and says so.
+  erythroblast of an island, and the card says "no nucleus".
 - **The cell.** The Atlas images a cell in four channels: the nucleus blue,
   microtubules red, the endoplasmic reticulum yellow, the protein green
-  (Thul et al. 2017). *Consequence:* the cell is drawn in those channels,
-  with microtubules moved to magenta so that red and green are never the
-  only difference.
+  (Thul et al. 2017). *Consequence:* the protein is placed where the Atlas
+  finds it, brighter at its main locations. The channels' colours are not
+  kept: the cell is sculpted in the neutrals, and the protein is its one
+  accent.
 - **Chromosome territories.** In interphase each chromosome keeps to a
   territory of its own, and territories are ordered from the centre of the
   nucleus to its edge by gene density: chromosome 19 toward the centre, 18 at
   the edge (Croft et al. 1999; Boyle et al. 2001). Painting each chromosome
   its own colour shows them (Speicher et al. 1996; Schröck et al. 1996).
-  *Consequence:* 46 territories in 24 colours, sized by their DNA and placed
-  in that order.
+  *Consequence:* 46 territories, sized by their DNA and placed in that
+  order, each a step lighter or darker than its neighbour, the gene's
+  chromosome in the accent.
 - **Bands.** A chromosome is seen whole only when it condenses to divide,
   some ten-thousandfold. Giemsa stain then bands it, and a band's name
   (11p15.5) is the address cytogenetics gives a gene (ISCN 2020).
   *Consequence:* the chromosome is a metaphase chromosome at that length,
-  the band is bracketed and named, and nothing claims the gene is seen
-  there.
+  its pale bands lit and its dark ones deep, the gene's band marked and
+  named, and nothing claims the gene is seen there.
 - **The gene's place.** Its span is that of its MANE Select transcript on
   GRCh38 (Morales et al. 2022), and its bands the UCSC Genome Browser's
   cytoBand table.
@@ -129,28 +153,56 @@ Sources:
 
 ## Visual language
 
-| Stop | Seen as | Its colours (`ScaleColors`) |
-|---|---|---|
-| Body, organ | anatomy, drawn | `bodyFill`, `bodyEdge`, `organ`, `organEdge` |
-| Tissue | a stained section, brightfield | `brightfield`, `eosin` to `eosinDeep`, `haematoxylinLight` to `haematoxylin`, `redCell`, `eyepiece` |
-| Cell | immunofluorescence | `fluorescence`, `dapi`, `reticulum`, `microtubules`, `protein`, `membrane` |
-| Nucleus | chromosome paint | `paint` (24), over `dapi` |
-| Chromosome | Giemsa bands | `giemsaPale`, `giemsaDark`, `centromere` |
-| Band, gene | a genome browser | the walk's own: `roleCds`, `roleUtr5`, `roleIntron` |
-| DNA | a fibre of nucleosomes, then the helix | `histone`, `backbone`, the walk's base colours |
-
-- **One mark.** Whatever the zoom follows is in the theme's primary colour,
-  at every stop: the organ's ring, the place it is sampled, the cell's
-  outline, its nucleus, the territory, the band's bracket, the gene.
-- **One name a stop.** A plate with a line to what it names, set clear of
-  the rail and of each other. The card says the rest.
-- **Light and dark.** The body, the organ and the genome are on the app's
-  own dark ground; the tissue is the lamp's light in the eyepiece's dark;
-  the cell and the nucleus are fluorescence on black. The ground changes
-  with the instrument, and each change is a beat of the dive: the loupe
-  opening, the dark spreading from the cell.
+- **One ground.** Every stop is on the app's own ground
+  (`colorScheme.surface`), as every other screen is.
+- **The accent follows the gene.** The theme's primary marks the gene and
+  what it makes, at every scale: the organs its RNA is raised in (brighter
+  where the level is higher), where its cell lives in the organ, its cell
+  in the tissue, where its protein sits in the cell, its chromosome's
+  territory, its band, its gene on the map, and its RNA at the gene and at
+  the helix. Nothing else is in it.
+- **Everything else is sculpted** in the app's warm neutrals, under one
+  light from the upper left (`Sculpt`): a lit body from the surfaces up
+  toward the bright ink, a rim where the light catches an edge, a soft
+  shadow under the form, and fine line work in the quiet ink.
+- **Data keeps its colours.** The gene's parts are the walk's role colours,
+  the bases the home helix's (`NucleotideColors.dark`), and blood the
+  thymine red, the one red the app has.
+- **Glows** are gradients and wide faint strokes, never a blur.
+- **Names.** One plate a name, with a line to what it names, set clear of
+  each other and 8 pt in from the edges. The card says the rest.
 - **Lines** are set in screen pixels, so they keep their weight at any
   magnification.
+
+Every colour comes from `ZoomInks`, built from the theme:
+
+| Ink | From | Drawn as |
+|---|---|---|
+| `ground` | `surface` | the ground at every stop |
+| `raised`, `overlay`, `high`, `outline` | the surface containers and the outline | form in shade (`shade(t)`) |
+| `lit(t)` | the outline lerped toward `onSurface` | form in the light |
+| `label` | `onSurfaceVariant` | fine lines, quiet words |
+| `text` | `onSurface` | rims, bright words |
+| `mark`, `markDeep` | `primary`, `primaryContainer` | the gene and what it makes (`glow(a)`) |
+| `shadow` | the ground three quarters of the way to black | shadows under forms |
+| `blood` | the walk's thymine | red cells |
+| `bases` | `NucleotideColors.dark` | the helix's bases |
+| `cds`, `utr`, `intron` | `AnatomyColors`' roles | the gene's parts |
+
+`zoom_inks_test` holds that no colour in `lib/features/zoom/` is written as
+a number, and that every ink is the theme's own or a mix of its own.
+
+**Arrival beats.** Each stop plays a beat once as the depth comes to rest
+on it; the gene and the DNA move for as long as they are shown. Nothing
+moves under reduced motion.
+
+| Stop | Beat |
+|---|---|
+| Body | a band of the accent passes from head to foot in 1.1 s, then the followed organ's reticle pings (0.9 s) |
+| Organ | a band of light passes over it (1.2 s), and the place it is sampled pings |
+| Tissue, cell, nucleus, chromosome | the zoom's cell, its nucleus, the gene's territory, the gene's band ping once (1.1 s) |
+| Gene | a polymerase passes 5′ to 3′ every 9 s, its transcript trailing in the accent |
+| DNA | the helix turns once in 24 s, and a polymerase passes along it every 30 |
 
 ## One path per gene
 
@@ -192,6 +244,10 @@ scene two segments share to the same place at the stop between them.
   past it, then in base pairs. The band, the gene and the DNA are placed in
   base pairs, projected to the screen in doubles, so no canvas transform
   carries the 10⁸-fold narrowing.
+- **Framing.** A phone's canvas is about 1.45 times as tall as it is wide,
+  so an organ taller than it is wide is framed by its height, and the
+  chromosome's view is 0.9 of its condensed length, so it stands about
+  three quarters of the canvas tall.
 
 ## The body and the organ
 
@@ -216,65 +272,98 @@ the gene is raised in, the female where they tie
 (`AnatomyFigure.bodyFor`). So a gene of the liver alone is shown the female
 figure, and nothing is meant by it.
 
-**What is lit.** The organs are faint inside the figure. Lit are the tissues
-the Atlas reads the gene's RNA raised in, each as bright as its level
-against the highest: myoglobin's skeletal muscle fully, its heart and tongue
-less. The one the zoom goes into is ringed, and found by a dot while it is
-too small to see. Skin is lit as the figure's own edge.
-
-**Seen through.** On the way in the line art gives way and the organs come
-up, as if the body were seen through.
+**A glass figure.** The silhouette is sculpted and lit with a rim, its line
+art in the quiet ink, and every organ inside it a faint outline. Lit are
+the tissues the Atlas reads the gene's RNA raised in, glowing in the accent,
+each as bright as its level against the highest: myoglobin's skeletal
+muscle fully, its heart and tongue less. The one the zoom goes into is
+ringed, and found by a reticle while it is too small to see. Skin is lit as
+the figure's own edge.
 
 **One outline, two scenes.** The organ's scene draws the very outline the
 body drew for it (`OrganArt`), so the step is one shape seen closer. It
 comes up over the body's own drawing of the organ early in the step, and
 `zoom_anatomy_test` holds the two to the same point of the screen while both
-show.
+show. On the way in, the body's line art and its unlit organs give way.
 
 **Its real size.** The anatomogram is a diagram: it draws a stomach 11 cm
 long and a pancreas 9. Each organ therefore knows how many times its drawn
 size it really is, and grows to that over the second half of the step, as
-the body fades round it. At the organ's stop the scale bar is true of it.
-The view closes on the organ's middle, so it stands whole in the view, and
-a ring marks where in it the tissue is sampled: the point inside its outline
-farthest from its edge.
+the body fades round it, its sculpting and its inner anatomy coming up as
+it grows. At the organ's stop the scale bar is true of it. A reticle marks
+where in it the tissue is sampled, and tightens onto that place as the
+loupe opens there.
 
-**Its surface.** An outline is given the surface of the kind of organ it is:
+**In place.** The figure's own parts near the organ are drawn faintly round
+it, fading with their distance from it.
+
+**Its anatomy.** The twenty's paths reach thirteen organs. Ten kinds have a
+study of their own (`OrganStudy`), and in each the part the zoom's cell
+lives in is in the accent, by the kind of organ and of cell, never by gene:
+
+| Organ (proteins) | Drawn | In the accent |
+|---|---|---|
+| Pancreas (INS, GCG, CFTR) | lobules, the main duct along its length | the islets, more toward the tail (INS, GCG); the duct tree (CFTR) |
+| Salivary gland (AMY1A, LYZ) | lobules, the duct out of its hilum | the acini |
+| Bone marrow (HBB, TNF) | the anatomogram's femur cut along its length: cortex, spongy ends, the shaft's cavity | the red marrow in the spongy ends |
+| Liver (EPO, SOD1) | two lobes either side of the falciform ligament, portal vessels from the hilum | the lobules, as a honeycomb |
+| Adipose tissue (LEP) | lobes parted by septa, small vessels | the lobes |
+| Skeletal muscle (MB, DMD) | fascicles along its length, tendon at its ends | the fibres |
+| Fallopian tube (RLN2) | opened along its length: its wall, its lumen | the folds of its mucosa |
+| Testis (UBB) | tunica, septa from the mediastinum | the coiled seminiferous tubules |
+| Stomach (TP53) | opened: its wall, the rugae, arcades of vessels along its curvatures | the mucosa |
+| Pituitary gland (GH1) | from the side: posterior lobe, stalk, hypothalamus, the sella turcica | the anterior lobe |
+
+The brain (OXT, AVP) is the anatomogram's own brain cut down its middle,
+with its sulci, the corpus callosum, the cerebellum's folia and arbor
+vitae and the brainstem, the cortex in the accent; for the choroid plexus
+(PRNP), the lateral ventricle opened, its fronds in the accent. The lymph
+node (APP) is drawn from general anatomy: capsule, follicles, medulla and
+the sinuses, which are in the accent for an endothelial cell, the follicles
+for a leukocyte.
+
+Every other outline is sculpted with a surface for its kind:
 
 | Look | Organs |
 |---|---|
-| lobules | pancreas, liver, glands, testis, ovary, prostate, breast, placenta |
-| a wall round a lumen | stomach, bladder, gallbladder, uterus, tube, gullet |
-| fibres | muscle, heart, tongue |
+| lobules | glands, ovary, prostate, breast, placenta |
+| a wall round a lumen | bladder, gallbladder, uterus, gullet |
+| fibres | heart, tongue |
 | airways from the hilum | lung |
 | cortex and pyramids | kidney |
-| marrow in its cavity | the femur, for bone marrow |
-| lobes | fat |
 | coils | intestine, epididymis, seminal vesicle |
 
-The other shapes of the same part (the other lung, the other kidney) stand
-beside it, fainter.
-
-**Not from the anatomogram.** Where it has no outline that shows the tissue,
-the organ is drawn from general anatomy: a lymph node (capsule, follicles,
-medulla, vessels in and out) for "lymphoid tissue", a length of artery, a
-block of skin, a parathyroid gland on the back of the thyroid, the eye cut
-level with the retina lining it. The brain is the anatomogram's own brain
-cut down its middle, with the cortex lit, or the lateral ventricle for the
-choroid plexus, which lies in it.
+Where the anatomogram has no outline that shows a tissue, the organ is
+drawn from general anatomy: a length of artery, a block of skin, a
+parathyroid gland on the back of the thyroid, the eye cut level with the
+retina lining it.
 
 **The glide.** The camera carries the organ from where it lies in the body
 to the middle of the view over the first three fifths of the step. From the
-head or the thigh that is a long way, and `zoom_smoothness_test` plays the
-protein whose organ lies farthest from the body's middle at 60 fps.
+head or the thigh that is a long way, and `zoom_smoothness_test` plays every
+step of every protein at 60 fps.
 
 ## The tissue
 
-**The convention.** The tissue is a section stained with haematoxylin and
-eosin, as a pathologist reads one: nuclei purple, cytoplasm and matrix pink,
-lumens, fat and vessels the lamp's own light, red cells red. It is seen in
-the round field of an eyepiece, 500 µm across (what a ×40 objective shows),
-which darkens toward its edge and stands clear of the rail.
+**The convention.** The tissue is a section as a pathologist reads one,
+seen in the round field of an eyepiece 500 µm across (what a ×40 objective
+shows), five sixths of the view wide. Each part is laid by the stain it
+would take (`SlideInk`) and drawn in the zoom's inks, as though the section
+were lit from the side on the app's ground (`paintTissueSlide`):
+
+| Part (`SlideInk`) | Drawn |
+|---|---|
+| what takes no stain (`lamp`) | the ground |
+| matrix and cytoplasm, palest to deepest (`eosin0` to `eosin3`) | the shade ramp, up into the light |
+| ribosome-rich cytoplasm (`basophil`) | a cooled neutral |
+| granules, striations (`granules`, `stria`) | lit, the striations as stripes 2.5 µm apart once they are wider than a pixel |
+| cell borders (`border`) | the ground, stroked thin |
+| fibres, cilia, tails (`fibre`) | the quiet ink, faint |
+| lumens, fat, vessels (`clear`) | the ground, rimmed in light |
+| nuclei, open to dense (`nucleus0` to `nucleus2`) | the quiet ink, brighter the denser |
+| red cells | the thymine red |
+| where the zoom's kind of cell lives (`home`) | the accent, faint |
+| the zoom's cell | the accent: fill, glow and rim |
 
 **One engine, a recipe an architecture.** `TissueSlide` lays a slide once,
 in micrometres, from the tissue's recipe: each of the Atlas's 37 tissues has
@@ -286,7 +375,7 @@ own: a hepatocyte 24 µm, a fat cell 66, a seminiferous tubule 190 across.
 
 | Recipe | Tissues | What is laid |
 |---|---|---|
-| acinar | pancreas, salivary gland | acini edge to edge, purple at the base and pink at the apex, a pinpoint lumen; an islet among them, or a duct in its sheath, where the cell is of one |
+| acinar | pancreas, salivary gland | acini edge to edge, a pinpoint lumen; an islet among them, or a duct in its sheath, where the cell is of one |
 | hepatic | liver | plates one or two cells thick running out from a central vein and branching, sinusoids with their lining cells and red cells |
 | endocrine | pituitary, adrenal, parathyroid | nests of acidophils, basophils and chromophobes, sinusoids between the nests |
 | follicular | thyroid | follicles of colloid walled by cuboidal cells |
@@ -305,8 +394,8 @@ own: a hepatocyte 24 µm, a fat cell 66, a seminiferous tubule 190 across.
 | smoothMuscle, ovarian | smooth muscle; ovary | spindle cells in sheets, or streaming in whorls |
 
 **The zoom's cell belongs where it sits.** It is drawn at the middle in the
-same outline the cell's scene draws (`cellOutline`), ringed, and the recipe
-lays the tissue about it:
+same outline the cell's scene draws (`cellOutline`), and the recipe lays
+the tissue about it, the place its kind lives faint in the accent round it:
 
 - an acinar cell is one of a ring, its apex on the lumen; a beta cell is in
   an islet; a duct cell in a duct's ring;
@@ -328,36 +417,33 @@ principal cell is drawn there.
 **Layers.** A slide is five layers, each drawn whole over the one before:
 what lies under the cells, the cells, two for what is laid over them, and the
 zoom's own cell. In a layer the inks go down in one order: matrix and
-cytoplasm, granules, striations, borders, fibres, lumens, nuclei, red
-cells.
+cytoplasm, granules, striations, where the cell lives, borders, fibres,
+lumens, nuclei, red cells.
 
 **The loupe.** From the organ, the field opens as a loupe on the place the
 organ is sampled: a circle that grows from 56 px to the eyepiece's field
 while it shows 0.3 and then 0.83 of the scene, so the magnification barely
-changes, the organ dimming round it. It meets the camera's own scale at the
-tissue's stop. A step of some hundredfold becomes a change of instrument.
+changes, the organ dimming to the ground round it. Its rim is lit, with an
+arc of the accent along its upper left, and the field falls off toward its
+edge as an eyepiece's does. It meets the camera's own scale at the tissue's
+stop. A step of some hundredfold becomes a change of instrument.
 
 **Into the cell.** The slide is paths, not a picture: as the view closes on
 the cell it stays sharp, and a fibre's striations and an acinus's cells come
-up to meet the cell's own scene, whose dark field spreads out from the same
+up to meet the cell's own scene, whose ground spreads out from the same
 outline.
 
 ## The cell and its nucleus
 
-**The cell's convention.** The cell is drawn in immunofluorescence, the way
-the Human Protein Atlas images cells:
-- DNA in blue (DAPI);
-- the endoplasmic reticulum in yellow;
-- microtubules in magenta, not the Atlas's red, so a reader who cannot tell
-  red from green can still tell them from the protein;
-- the protein in green, where the Atlas finds it: brighter at its main
-  locations, fainter at its additional ones. Each of the Atlas's 49
-  subcellular words is drawn in a compartment (`compartmentOf`).
-
-A protein the Atlas finds secreted leaves the cell in vesicles from the Golgi,
-moving with an ambient clock that is still under reduced motion. Where the
-Atlas gives no location, no green is drawn, and the callout names the
-nucleus the zoom goes to next. Otherwise it names the main locations.
+**The cell** is sculpted: its body lit from the upper left with a rim, the
+endoplasmic reticulum and the microtubules from the centrosome hairlines in
+the quiet ink, a muscle fibre's striations lit, and its nucleus a lit sphere
+ringed in the accent, the gene being in it. The protein glows in the
+accent where the Atlas finds it, brighter at its main locations, fainter at
+its additional ones: each of the Atlas's 49 subcellular words is drawn in a
+compartment (`compartmentOf`). A protein the Atlas finds secreted leaves the
+cell in vesicles from the Golgi, on the ambient clock. Where the Atlas
+gives no location, nothing glows and nothing is named.
 
 **Shapes.** The cell's shape is its kind's, chosen from the Atlas's class,
 with refinements by name (`cell_archetypes.dart`):
@@ -382,73 +468,89 @@ nucleus is wide.
 
 **No nucleus.** A cell type with no nucleus lands in its precursor's island,
 in the marrow: a macrophage, erythroblasts round it at every stage (the last
-pushing out its nucleus), and grown red cells leaving it, the biconcave discs
-named "red cells: no nucleus".
+pushing out its nucleus), and grown red cells leaving it, biconcave discs in
+the thymine red.
 
-**Transitions.** Coming in from the tissue, the dark of the fluorescence field
-spreads out from the cell. The cell's nucleus and the nucleus's own share one
-outline (`NucleusShape`): round, a lens, a crescent or lobed. So the step
-between them changes no shape. On it, the DNA stain resolves into chromosome
-paint.
+**Transitions.** Coming in from the tissue, the ground spreads out from the
+cell. The cell's nucleus and the nucleus's own share one outline
+(`NucleusShape`): round, a lens, a crescent or lobed. So the step between
+them changes no shape. On it, the nucleus's even tone resolves into its
+territories, and the gene's comes up in the accent.
 
 **The nucleus** holds 46 territories:
 - each as large as its chromosome's DNA (hg38 lengths);
 - gene-dense chromosomes toward the centre and gene-poor ones at the rim;
 - the five acrocentrics round the nucleolus;
+- in nine tones of one neutral, the gene's chromosome in the accent;
 - pores in the envelope once there is room to see them.
 
-The followed territory is the outline the chromosome condenses from.
+The followed territory is the outline the chromosome condenses from. As it
+condenses, the others drift out from it and fade.
 
 ## The molecular end
 
-**Chromosome.** At its stop the chromosome is a metaphase chromosome:
-- two sister chromatids, pinched together at the centromere where its `acen`
-  bands meet;
-- stalks drawn thin, and `gvar` hatched as ideograms draw it;
-- the G-bands lit from the upper left across each chromatid;
-- an ISCN bracket beside the band the gene lies in, and the band's name on
-  the callout.
+**Chromosome.** At its stop the chromosome is a metaphase chromosome, lit:
+- two sister chromatids, each a tube as thick as a chromatid is, splayed a
+  little and pinched together at the centromere where its `acen` bands meet,
+  with its kinetochores;
+- a fuzz of chromatin round their edge;
+- the G-bands ringing each chromatid as bands ring a tube, pale bands lit
+  and dark ones deep, stalks drawn thin and `gvar` hatched as ideograms
+  draw it;
+- the gene's band in the accent on both chromatids, bracketed and named.
 
 It is never the gene: the band is millions of base pairs, a stain pattern
-seen at low resolution, and the About sheet says the gene is far too small
-to see in it.
+seen at low resolution.
 
 **Condensing.** On the way in, the chromosome condenses out of its territory.
 The nucleus hands its followed territory to the chromosome's scene at the
 first frame of the segment, where the two coincide. The territory's outline
 blends into the chromosome's, resampled to 128 points from the top. The
-chromosome paint gives way to Giemsa's grey, the bands come up, and the two
-chromatids resolve out of one shape at the end. The step from the nucleus to
-a long chromosome is a beat in time more than a change of scale (0.07
+bands come up, the accent draws in to the gene's band, and the two
+chromatids resolve out of one shape at the end. The step from the nucleus
+to a long chromosome is a beat in time more than a change of scale (0.07
 decades for chromosome 1), and the minimum travel gives it its room.
 
 **Into the map.**
 - On the way out, the chromosome turns about its band to lie along the
   genome, short arm to the left as genome browsers draw it. Its chromatids
-  merge and it thins to the band strip's 18 px, all over the first 35% of
+  merge and it thins to the band strip's 26 px, all over the first 35% of
   the segment.
 - The band's strip appears exactly where the turned chromosome lies: at
   that moment the chromosome's length on screen and the strip's length of
   genome are the same number of pixels, by the camera's own arithmetic. The
   two cross-fade over half the segment.
-- The strip then rises, a ruler in base pairs comes up, and the whole
-  chromosome docks above with the view boxed on it. The scale bar changes
-  from µm to Mb half way.
+- The strip then rises, a ruler in base pairs comes up under the gene's
+  track, and the whole chromosome docks above with the view boxed on it.
+  The scale bar changes from µm to Mb half way.
+
+**Band.** As a genome browser shows it:
+- the strip, 26 px, a lit tube of the bands laid along the genome, 70 px
+  above the middle, each band named over the part of it in view where that
+  part has room for its name, and the gene's band ringed in the accent;
+- the whole chromosome docked at the top as a lit ideogram, the view boxed
+  on it in the accent, and a funnel from the box down to the strip;
+- the gene's span on a track of its own, where MANE puts it, in the accent,
+  with an arrow the way it is read and its name;
+- a ruler in Mb, 40 px below the middle.
 
 **Gene.**
 - The record's exons and introns are at their real lengths (`GeneLayout`
   uses `realIntronBp` for the three genes whose record shortens its
   introns), placed along the span MANE gives.
-- Coding exons are thick and numbered once they are 16 px wide. Their
-  untranslated ends are thin. Introns are a line with chevrons in the
-  direction the gene is read.
-- A ruler counts from the 5′ end.
+- Exons are lit, rounded blocks in the walk's role colours: coding exons
+  tall and numbered once they are 16 px wide, their untranslated ends
+  short. Introns are a lit hairline with chevrons the way the gene is read.
+- A bent arrow marks where transcription starts, and a ruler counts from
+  the 5′ end.
+- A polymerase glides from the 5′ end to the 3′ every 9 s, its transcript
+  trailing below the gene in the accent. Where nothing moves it stands
+  0.45 of the way along.
 - The gene reads 5′→3′ left to right, as the walk does, from the moment it
-  appears.
-- A turn of reverse-strand genes was planned and dropped. The band draws
-  the gene as a featureless bar, so there is nothing to see turn, and the
-  turn swung dystrophin's 5′ end across the view by up to 3 px a frame,
-  past the smoothness bound.
+  appears. A turn of reverse-strand genes was planned and dropped: the band
+  draws the gene as a bar with nothing inside it to turn, and the turn swung
+  dystrophin's 5′ end across the view by up to 3 px a frame, past the
+  smoothness bound.
 
 **DNA.**
 - Past a few thousand base pairs, the gene's line is a fibre of
@@ -457,32 +559,59 @@ decades for chromosome 1), and the minimum travel gives it its room.
   stretch before it is bare.
 - Beads come up once they read as beads and give way before one fills the
   view.
-- Under 400 bp the bare 5′ end resolves into the double helix with the
-  record's own first 33 bases, which turns once in 16 s while the DNA is
-  near.
+- Under 420 bp across the view, the bare 5′ end resolves into the home
+  screen's own double helix, drawn by its own painter (`DnaHelixPainter`, in
+  `lib/shared/helix/`): lying along the gene with its 5′ end at the left,
+  14 base pairs across the view, carrying the record's first 33 bases in
+  the bases' colours, its backbone in the quiet ink, running off the canvas
+  on its 3′ side. It turns once in 24 s, and a polymerase opens its bubble
+  and passes along it every 30 s, its transcript in the accent. Where
+  nothing moves, one has just passed the view and every base in it is
+  paired.
 - "Walk ›" unzips it into the walk's rows (`HelixModel(unzip:)`) over
-  450 ms before the walk opens.
+  450 ms before the walk opens, its turn easing to flat by the shortest way.
 
 ## Smooth motion
 
-Every value on screen is a function of depth, and the staging each scene
-reports is what `zoom_smoothness_test` walks:
-- every protein's dive at 6,000 steps of depth;
-- Play at 60 fps for three of them, and for the one whose organ lies
-  farthest from the body's middle.
+**Flights.** A step is a flight in depth, a quintic from the depth and the
+speed it has to the stop, arriving with no speed and no change of speed.
+It takes 1.3 s plus 0.15 s a decade, held between 1.45 and 1.9 s: the
+shortest steps need 1.4 s to keep every fade under 0.08 a frame at 60 fps,
+and a long chromosome's turn into its band about 1.6. A step asked for
+mid-flight starts the next flight at the speed the depth has, so it carries
+straight on. A flick coasts 0.35 s at its own speed to choose its stop, and
+a critically damped spring (stiffness 140) takes it there.
 
-It fails on:
-- anything that appears, vanishes or changes by more than 0.08 opacity in a
-  step;
-- anything near the focus whose position's second difference passes
-  1.5 px. Further out, things fly outward faster the further they are as
-  the view narrows, and the test checks for a break rather than a bound.
+**Two layers.** The scenes are drawn again only when the depth moves. What
+moves at rest (a beat, a helix turning, vesicles leaving a cell) is drawn
+on a layer of its own (`ZoomScene.paintAmbient`) on an ambient clock that
+runs only while a scene on screen wants it (`wantsClock`). A stop's beats
+run on its dwell, the seconds since the depth came to rest there; under
+reduced motion the dwell is long past every beat.
 
-What it found, and what was changed:
-- **Play's legs.** A 0.6-decade segment once took 0.54 s of Play, so its
-  crossfade ran in six frames. Every leg is now at least 1.4 s.
-- **Fade windows.** Every scene's fade now spans at least 45% of its
-  segment.
+**Built ahead.** Each scene builds what it caches (`ZoomScene.prepare`)
+before its first frame: one scene after each frame while nothing on screen
+moves, the nearest the stop first, and the stop the zoom opens on holds its
+beats until they are built. A step builds the scenes it will pass before it
+moves, a pinch the two stops either way of where it starts. The tissue's
+slide is the costly one: up to 60 ms on a Mac for the fallopian tube's
+folds, which once fell in the last frame of the step to the organ.
+
+**What `zoom_smoothness_test` holds.**
+- Every protein's dive at 6,000 steps of depth, and every step either way
+  at 60 fps, for all twenty.
+- It fails on anything that appears, vanishes or changes by more than 0.08
+  opacity in a step, or near the focus whose position's second difference
+  passes 1.5 px. Further out, things fly outward faster the further they
+  are as the view narrows, and the test checks for a break rather than a
+  bound.
+- A step asked for mid-flight takes over at the speed the depth has, never
+  passes its stop, and comes to rest still.
+- No two names overlap, and each keeps 8 pt from the edges, at 390 and 320
+  wide; the band never sets two of its words over each other.
+
+What it found over the zoom's life, and what was changed:
+- **Fade windows.** Every scene's fade spans at least 45% of its segment.
 - **Callouts** show around their own stop, over the last and first 35% of
   the segments either side. They run on segment progress, not on how big
   the scene is drawn, because across a six-hundredfold segment the scene's
@@ -490,32 +619,43 @@ What it found, and what was changed:
 - **The lesser of two fades.** Where a callout's fade meets its scene's,
   the lesser of the two is taken, not their product, which compounded into
   a snap.
-- **The portal's glide** to the centre takes three fifths of the segment
-  rather than 35%, so it stays gentle inside Play's own ease, from as far
-  as the head is from the middle of a body.
+- **The portal's glide** to the centre takes three fifths of the segment,
+  so it stays gentle from as far as the head is from the middle of a body.
+- **The flight's floor.** Steps under 1.45 s ran a crossfade in too few
+  frames.
 
-`zoom_smoothness_test` also places every stop's callouts at 390 and 320
-wide and fails if two plates overlap or one lies under the rail.
-`placePlate` tries the corners round the target in turn.
+**On a device.** On the iPhone 17 Pro simulator, in a debug build, stepping
+all nine stops and back for insulin, hemoglobin, dystrophin and prion: each
+step's median frame took 1 to 2.6 ms to build and 0.7 to 3.3 ms to raster,
+with one or two frames a protein up to 24 ms to build or 30 ms to raster.
+A release build on a mid-range Android phone has not been measured.
+`test/zoom_paint_timing_check.dart` (`ZOOM_PAINT_TIMING=1`) times each
+scene's build and every moment's recording for five proteins: every moment
+records in under a millisecond on a Mac.
 
 ## Deliberate simplifications
 
 - **The figure is a diagram.** Organs lie and overlap as the anatomogram
   draws them, from the front. Bone marrow is its femur, sampled where the
   outline is widest; a biopsy is taken from the pelvis.
+- **An organ's anatomy is its kind's.** Islets, red marrow and tubules are
+  drawn where general anatomy puts them, by the kind of organ and cell,
+  not measured for the gene.
 - **One field a tissue.** Wherever in the organ it is cut, and for every
   gene that goes there with the same kind of cell. "Lymphoid tissue" is a
   lymph node, and skin has no keratin layer of its own.
-- **Flat stains.** No chromatin texture, no variation in section thickness.
+- **A section in the app's light.** Each part is laid by the stain it would
+  take but drawn in the neutrals, with no chromatin texture and no
+  variation in section thickness.
 - **A cell of its kind.** The cell is its kind's shape and size, not a
-  measured cell, and the green fills the compartments the Atlas names
+  measured cell, and the accent fills the compartments the Atlas names
   rather than reproducing its image.
 - **Territories are placed, not measured.** Their order from centre to edge
   is the literature's; their places are drawn. A male figure's nucleus holds
   an X and a Y, a female's two X.
 - **A dividing chromosome in a resting nucleus.** The chromosome is seen
   condensed although the cell is not dividing: the territory condenses into
-  it, and the step says why it is shown so.
+  it. Nothing on screen says so.
 - **Textbook packing.** Nucleosomes are drawn every 200 bp from 40 bp into
   the gene, not where they sit on this gene.
 - **One body.** A gene of tissues both sexes have is shown the female
@@ -523,44 +663,57 @@ wide and fails if two plates overlap or one lies under the rail.
 
 ## Implementation and checks
 
-- `domain/zoom_depth.dart`: the stops, travel, widths and units.
+- `domain/zoom_depth.dart`: the stops, travel, widths, framing and units.
 - `domain/zoom_camera.dart`: the nested views.
-- `domain/zoom_motion.dart`: flights, the flick and Play.
-- `domain/zoom_facts.dart`: the card and About.
+- `domain/zoom_motion.dart`: flights and the flick.
+- `domain/zoom_facts.dart`: the card's words and the credit.
 - `domain/gene_layout.dart`: the gene's parts at real length.
 - `domain/anatomy_tables.dart`: tissues to organs, recipes, sizes and
   territories.
 - `domain/anatomy_figure.dart`, `anatomy_figures.g.dart`: the anatomogram's
   figures, and `tool/zoom/anatomogram.py`, which makes them.
-- `presentation/scenes/organ_art.dart`: every organ's drawing.
-- `presentation/scenes/`: one scene a stop.
+- `presentation/zoom_inks.dart`: every colour, from the theme.
+- `presentation/scenes/`: one scene a stop, and `sculpt.dart`, the light
+  and the glows they share.
+- `presentation/scenes/organ_art.dart`: every organ's drawing, and
+  `organ_studies.dart`, the ten studies.
 - `presentation/scenes/tissue/`: the slide (`tissue_slide.dart`), the engine
   (`slide_builder.dart`) and the recipes (`recipes_glands.dart`,
   `recipes_linings.dart`, `recipes_bulk.dart`).
-- `presentation/zoom_painter.dart`: the visible scenes, the callouts and the
-  scale bar.
-- `presentation/zoom_rail.dart`, `zoom_card.dart`, `zoom_about.dart`,
-  `zoom_screen.dart`.
+- `presentation/zoom_painter.dart`: the stage (the scenes, and building
+  them ahead), the scenes' layer, and the layer over it: what moves at
+  rest, the callouts, the scale bar and the credit.
+- `presentation/zoom_card.dart`, `zoom_screen.dart`.
 - `zoom_routes.dart`: its route, in every build, and the redirects from its
   Lab links. The walk opens it by that route (`RoutePaths.zoomFor`), with
   `?over=walk` so that "Walk ›" pops back.
-- Colours: `ScaleColors` in `lib/core/theme/scale_colors.dart`, read through
-  `context.scaleColors`. `AppTheme.analysis` is unchanged.
+- The DNA's helix is the home screen's painter, `DnaHelixPainter` in
+  `lib/shared/helix/`, whose `topFade`, `bottomFade` and `overscan` default
+  to the home screen's; `helix_vertices_test` pins every call the home
+  screen's helix makes.
 - Render check:
   `ZOOM_DESIGN_SHOTS=/tmp/zoom flutter test test/zoom_design_render_check.dart`
   writes every stop and two moments in each segment, at 390 and 320 pixels.
-  `ZOOM_GENES` narrows the proteins. `ZOOM_TISSUE_ATLAS=/tmp/atlas` writes
-  every recipe's slide on its own and `ZOOM_ORGAN_ATLAS=/tmp/organs` every
-  tissue's organ, the ones no catalog protein reaches included.
+  `ZOOM_GENES` narrows the proteins and `ZOOM_BETWEEN=0` leaves out the
+  moments. `ZOOM_TISSUE_ATLAS=/tmp/atlas` writes every recipe's slide on
+  its own and `ZOOM_ORGAN_ATLAS=/tmp/organs` every tissue's organ, the ones
+  no catalog protein reaches included. The picture at the top of this page
+  is insulin's nine stops from it.
+- `zoom_screen_test` holds the card (its words for all twenty, fitting at
+  320 pt with type turned up, and nothing on it but its words and its
+  steps), the steps and the pinch, a step mid-flight, the credit, the
+  opening stop holding its beats while the scenes are built, and the way
+  back to the walk. `zoom_inks_test` holds the colours to the theme.
 - `tissue_slide_test` lays every recipe about every kind of cell (432
   slides) and holds the zoom's own nucleus to be the only one at the middle,
-  a tissue to be the same slide every time, the field clear of the rail, and
-  the cell's name to land on its outline.
+  a tissue to be the same slide every time, the field inside the canvas,
+  and the cell's name to land on its outline.
 - `zoom_anatomy_test` holds every protein's organ to a figure that has it,
-  the lit organs to the Atlas's reading, and the organ's scene to the
-  outline the body drew. `zoom_domain_test` holds the figures themselves:
-  1.70 m tall, every part inside its figure with its site inside it, and
-  the generated file to its source, commit and licence.
+  the lit organs to the Atlas's reading, the organ's scene to the outline
+  the body drew, and every organ the twenty reach to a drawing of its own
+  with its site and its accent inside its outline. `zoom_domain_test` holds
+  the figures themselves: 1.70 m tall, every part inside its figure with its
+  site inside it, and the generated file to its source, commit and licence.
 - `zoom_routes_test` holds the route outside the lab, the redirects, and the
   whole trip from the walk and back under the app's own routes.
   `zoom_entry_test`, among the walk's tests, holds where the gene page
