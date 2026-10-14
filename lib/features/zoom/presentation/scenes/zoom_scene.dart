@@ -145,6 +145,12 @@ abstract class ZoomScene {
   /// layer of its own, so a stop at rest repaints only this.
   void paintAmbient(Canvas canvas, ZoomFrame frame) {}
 
+  /// Builds what the scene caches for its drawing (reading a late field
+  /// builds it), ahead of its first frame: the screen calls it while nothing
+  /// moves, or before a step that would draw it, so no frame of a step pays
+  /// for it.
+  void prepare(ZoomInks inks) {}
+
   /// Whether the scene, at [frame], still has something moving on its own:
   /// a loop that never ends, or a beat that has not finished. The ambient
   /// clock stops when no scene on screen wants it.

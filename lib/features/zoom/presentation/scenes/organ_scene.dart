@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
+import '../zoom_inks.dart';
 import 'organ_art.dart';
 import 'sculpt.dart';
 import 'zoom_scene.dart';
@@ -67,6 +68,9 @@ final class OrganScene extends ZoomScene {
   }
 
   @override
+  void prepare(ZoomInks inks) => _art.outline;
+
+  @override
   bool wantsClock(ZoomFrame frame) => !frame.isChild && frame.dwell < 2;
 
   // As it is reached, a band of light passes over the organ, and the place
@@ -116,14 +120,18 @@ final class OrganScene extends ZoomScene {
     final double grown = _grown(frame);
     final double detail = detailAt(frame);
     _art.paint(canvas, frame.inks, frame.pixel, grown, detail: detail);
-    // Where the tissue is sampled, once the organ is its own.
+    // Where the tissue is sampled, once the organ is its own: tightening
+    // onto the place as the loupe opens there.
+    final double tighten = frame.isChild
+        ? 0
+        : smoothstep(frame.progress / 0.25);
     Sculpt.reticle(
       canvas,
       _art.site * grown,
-      9 * frame.pixel,
+      (9 - 5 * tighten) * frame.pixel,
       frame.pixel,
       frame.inks,
-      opacity: detail,
+      opacity: detail * (1 - 0.5 * tighten),
     );
     canvas.restore();
   }

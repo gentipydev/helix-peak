@@ -202,6 +202,16 @@ final class BodyScene extends ZoomScene {
   }
 
   @override
+  void prepare(ZoomInks inks) => <Object?>[
+    _silhouette,
+    _lines,
+    _parts,
+    _partBoxes,
+    _followed,
+    _box,
+  ];
+
+  @override
   bool wantsClock(ZoomFrame frame) =>
       !frame.isChild && frame.dwell < scanTime + pingTime;
 

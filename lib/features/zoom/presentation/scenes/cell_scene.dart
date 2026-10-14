@@ -72,6 +72,9 @@ final class CellScene extends ZoomScene {
   }
 
   @override
+  void prepare(ZoomInks inks) => _cell.body;
+
+  @override
   bool wantsClock(ZoomFrame frame) =>
       _secreted || (!frame.isChild && frame.dwell < 1.4);
 

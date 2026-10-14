@@ -228,9 +228,9 @@ final class BandScene extends ZoomScene {
     }
   }
 
-  /// The names of the bands in view, over the strip, wherever a band is
-  /// wide enough to hold its own; the gene's band, named by the card, left
-  /// to its ring.
+  /// The names of the bands in view, over the strip, each over the part of
+  /// its band in view and only where that part has room for it, so no two
+  /// ever meet; the gene's band, named by the card, left to its ring.
   void _names(Canvas canvas, ZoomFrame frame, double y, double alpha) {
     if (alpha <= 0) {
       return;
@@ -240,25 +240,39 @@ final class BandScene extends ZoomScene {
       if (band.start >= _track.bandStart && band.end <= _track.bandEnd) {
         continue;
       }
-      final double a = _x(frame, band.start.toDouble());
-      final double b = _x(frame, band.end + 1);
-      if (b < 0 || a > w || b - a < 40) {
+      final double from = _x(frame, band.start.toDouble());
+      final double to = _x(frame, band.end + 1);
+      // The part of the band in view, a little in from the edges.
+      final double a = math.max(math.min(from, to), 4);
+      final double b = math.min(math.max(from, to), w - 4);
+      if (b - a < 24) {
         continue;
       }
-      final TextPainter name = TextPainter(
-        text: TextSpan(
-          text: band.name,
-          style: frame.labels.copyWith(
-            color: frame.inks.label.withValues(alpha: alpha * frame.opacity),
+      TextSpan span(double shown) => TextSpan(
+        text: band.name,
+        style: frame.labels.copyWith(
+          color: frame.inks.label.withValues(
+            alpha: alpha * frame.opacity * shown,
           ),
         ),
+      );
+      final TextPainter name = TextPainter(
+        text: span(1),
         textDirection: TextDirection.ltr,
       )..layout();
-      final double x = ((a + b) / 2 - name.width / 2).clamp(
-        4.0,
-        math.max(4.0, w - name.width - 4),
-      );
-      name.paint(canvas, Offset(x, y - strip / 2 - 6 - name.height));
+      // It fades in as the room opens, rather than appearing.
+      final double room = smoothstep((b - a - name.width - 8) / 16);
+      if (room > 0) {
+        if (room < 1) {
+          name
+            ..text = span(room)
+            ..layout();
+        }
+        name.paint(
+          canvas,
+          Offset((a + b - name.width) / 2, y - strip / 2 - 6 - name.height),
+        );
+      }
       name.dispose();
     }
   }

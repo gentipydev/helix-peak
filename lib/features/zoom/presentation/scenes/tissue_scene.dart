@@ -180,6 +180,9 @@ final class TissueScene extends ZoomScene {
   }
 
   @override
+  void prepare(ZoomInks inks) => <Object?>[_slide, _ring, _named];
+
+  @override
   bool wantsClock(ZoomFrame frame) => !frame.isChild && frame.dwell < 1.4;
 
   // As the tissue is reached, the zoom's cell pings once.
@@ -216,6 +219,11 @@ final class TissueScene extends ZoomScene {
     final Offset centre = view.toScreen(Offset.zero, size);
     final double radius = field * view.pixelsPerUnit;
     final double shown = _shown(frame);
+    // At the organ, before the loupe has begun to open, there is nothing to
+    // draw.
+    if (shown <= 0) {
+      return;
+    }
     final double opening = _opening(frame);
     final Path lens = Path()
       ..addOval(Rect.fromCircle(center: centre, radius: radius));

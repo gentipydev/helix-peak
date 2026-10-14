@@ -386,6 +386,14 @@ class _ZoomScreenState extends State<ZoomScreen> with TickerProviderStateMixin {
   /// on it whether they still move.
   Size _canvas = Size.zero;
 
+  /// Whether the stop the zoom opens on is holding its beats until every
+  /// scene has built what it caches: they play once the scenes are ready,
+  /// or as soon as a step is taken.
+  bool _opening = true;
+
+  /// Whether the next scene's building is waiting for nothing to move.
+  bool _warmArmed = false;
+
   ZoomDepth get _d => _subject.depth;
 
   @override
@@ -438,14 +446,20 @@ class _ZoomScreenState extends State<ZoomScreen> with TickerProviderStateMixin {
 
   /// The depth has come to rest at a stop: its beats play from now.
   void _rest() {
+    _opening = false;
     _restedAt = _ambient.value;
     _wake();
+    _warm();
   }
 
   /// Starts the ambient clock where something on screen moves on its own,
   /// and motion is allowed.
   void _wake() {
-    if (!mounted || _ambientTicker.isActive || _reduced || _canvas.isEmpty) {
+    if (!mounted ||
+        _opening ||
+        _ambientTicker.isActive ||
+        _reduced ||
+        _canvas.isEmpty) {
       return;
     }
     if (_stage.wantsClock(
@@ -456,6 +470,62 @@ class _ZoomScreenState extends State<ZoomScreen> with TickerProviderStateMixin {
     )) {
       _ambientFrom = _ambient.value;
       unawaited(_ambientTicker.start());
+    }
+  }
+
+  /// Builds what the scenes cache, nearest the zoom's stop first, one scene
+  /// after each frame and only while nothing on screen moves, so that no
+  /// step pays for its scenes' first frame and no frame waits for one.
+  /// Something moving (the page coming up, a step, a beat) holds it until
+  /// the frame after the last that moves.
+  void _warm() {
+    if (_warmArmed || !mounted) {
+      return;
+    }
+    if (_stage.prepared) {
+      if (_opening && !_moving) {
+        _rest();
+      }
+      return;
+    }
+    _warmArmed = true;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _warmArmed = false;
+      if (!mounted) {
+        return;
+      }
+      if (!_moving) {
+        final ZoomStop? next = _stage.unprepared(_d.nearest(_depth.value));
+        if (next != null) {
+          _stage.prepare(next, ZoomInks.of(context));
+        }
+      }
+      _warm();
+    });
+    // While something moves its frames come anyway; at rest, one is asked
+    // for.
+    if (!_moving) {
+      SchedulerBinding.instance.scheduleFrame();
+    }
+  }
+
+  /// Whether anything on screen moves: the depth, under a finger or on its
+  /// own, or anything animating, the page itself coming up included.
+  bool get _moving =>
+      _motion != _Motion.idle ||
+      SchedulerBinding.instance.transientCallbackCount > 0;
+
+  /// Builds what the scenes between [stop] and the stop the depth is at
+  /// cache, before a step there moves.
+  void _prepareTo(ZoomStop stop) {
+    final int here = _d.nearest(_depth.value).index;
+    final ZoomInks inks = ZoomInks.of(context);
+    for (
+      int i = math.min(here, stop.index);
+      i <= math.max(here, stop.index);
+      i++
+    ) {
+      _stage.prepare(ZoomStop.values[i], inks);
     }
   }
 
@@ -540,6 +610,7 @@ class _ZoomScreenState extends State<ZoomScreen> with TickerProviderStateMixin {
       _rest();
       return;
     }
+    _prepareTo(stop);
     _flight = ZoomFlight(_depth.value, target, velocity: velocity);
     _bound = stop;
     _run(_Motion.flight);
@@ -574,6 +645,9 @@ class _ZoomScreenState extends State<ZoomScreen> with TickerProviderStateMixin {
 
   void _pinchStart(ScaleStartDetails details) {
     _halt();
+    final int here = _d.nearest(_depth.value).index;
+    _prepareTo(ZoomStop.values[math.max(here - 2, 0)]);
+    _prepareTo(ZoomStop.values[math.min(here + 2, ZoomStop.values.length - 1)]);
     _motion = _Motion.pinch;
     _pinchFrom = _depth.value;
     _pinchScale = 1;
@@ -650,9 +724,10 @@ class _ZoomScreenState extends State<ZoomScreen> with TickerProviderStateMixin {
                   final Size canvas = box.biggest;
                   if (canvas != _canvas) {
                     _canvas = canvas;
-                    WidgetsBinding.instance.addPostFrameCallback(
-                      (_) => _wake(),
-                    );
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _wake();
+                      _warm();
+                    });
                   }
                   return GestureDetector(
                     behavior: HitTestBehavior.opaque,

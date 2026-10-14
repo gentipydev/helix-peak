@@ -206,6 +206,9 @@ final class ChromosomeScene extends ZoomScene {
   }
 
   @override
+  void prepare(ZoomInks inks) => <Object?>[_sisters, _fuzz, _territoryOutline];
+
+  @override
   bool wantsClock(ZoomFrame frame) => !frame.isChild && frame.dwell < 1.4;
 
   // As the chromosome is reached, the gene's band pings once.

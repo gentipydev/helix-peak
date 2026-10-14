@@ -206,7 +206,9 @@ void main() {
         expect(_stop(tester), ZoomScreen.nameOf(stop).toUpperCase());
         final ZoomFact fact = facts.of(stop);
         expect(_text(tester, 'zoom-card-title'), fact.title);
-        final Finder line = find.byKey(const ValueKey<String>('zoom-card-line'));
+        final Finder line = find.byKey(
+          const ValueKey<String>('zoom-card-line'),
+        );
         if (fact.line.isEmpty) {
           expect(line, findsNothing, reason: '${target.slug} at ${stop.name}');
         } else {
@@ -222,7 +224,9 @@ void main() {
           expect(
             _within(
               tester.getRect(find.byKey(ValueKey<String>(key))),
-              tester.getRect(find.ancestor(of: words, matching: find.byType(SizedBox)).first),
+              tester.getRect(
+                find.ancestor(of: words, matching: find.byType(SizedBox)).first,
+              ),
             ),
             isTrue,
             reason: '${target.slug} at ${stop.name}: $key spills',
@@ -381,7 +385,9 @@ void main() {
         );
         expect(
           _within(
-            tester.getRect(find.byKey(const ValueKey<String>('zoom-card-title'))),
+            tester.getRect(
+              find.byKey(const ValueKey<String>('zoom-card-title')),
+            ),
             words,
           ),
           isTrue,
@@ -396,13 +402,14 @@ void main() {
     final ProteinTarget target = TestCatalog.insulin;
     final ZoomDepth depth = _depth(target);
     await _host(tester, target, reduced: false);
-    double at() => (tester
-                .widget<CustomPaint>(
-                  find.byKey(const ValueKey<String>('zoom-canvas')),
-                )
-                .painter!
-            as ZoomPainter)
-        .at();
+    double at() =>
+        (tester
+                    .widget<CustomPaint>(
+                      find.byKey(const ValueKey<String>('zoom-canvas')),
+                    )
+                    .painter!
+                as ZoomPainter)
+            .at();
     await _tap(tester, 'zoom-next');
     const Duration frame = Duration(microseconds: 16667);
     final List<double> seen = <double>[];
@@ -428,6 +435,23 @@ void main() {
     // And it lands two stops on.
     expect(_stop(tester), 'TISSUE');
     expect(at(), closeTo(depth.depthOf(ZoomStop.tissue), 1e-9));
+  });
+
+  testWidgets('the scenes are built a frame apart while nothing moves, and '
+      'the body plays its beats once they are', (WidgetTester tester) async {
+    await _host(tester, TestCatalog.relaxin, reduced: false);
+    // Its beats are held: nothing ticks.
+    expect(tester.binding.transientCallbackCount, 0);
+    int frames = 0;
+    while (tester.binding.transientCallbackCount == 0 && frames < 20) {
+      await tester.pump(const Duration(milliseconds: 16));
+      frames++;
+    }
+    // A frame for each scene at most, and then the body's beats play.
+    expect(tester.binding.transientCallbackCount, greaterThan(0));
+    expect(frames, lessThanOrEqualTo(ZoomStop.values.length));
+    await _pass(tester, const Duration(seconds: 3));
+    expect(tester.binding.transientCallbackCount, 0);
   });
 
   testWidgets('the body carries its credit, clear of the scale bar, and no '
@@ -510,7 +534,7 @@ void main() {
   for (final bool reduced in <bool>[true, false]) {
     testWidgets('opened over the walk, "Walk ›" goes back to that walk and '
         'opens no second one, ${reduced ? 'under reduced motion' : 'after '
-              'the helix unzips'}', (WidgetTester tester) async {
+                  'the helix unzips'}', (WidgetTester tester) async {
       final ProteinTarget target = TestCatalog.hemoglobin;
       await tester.binding.setSurfaceSize(_phone);
       addTearDown(() => tester.binding.setSurfaceSize(null));

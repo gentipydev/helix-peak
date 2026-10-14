@@ -120,6 +120,9 @@ final class NucleusScene extends ZoomScene {
       0.16 + 0.36 * (((chromosomeNames.indexOf(name) * 7 + copy * 3) % 9) / 8);
 
   @override
+  void prepare(ZoomInks inks) => <Object?>[_territories, _outline, _pores];
+
+  @override
   bool wantsClock(ZoomFrame frame) => !frame.isChild && frame.dwell < 1.4;
 
   // As the nucleus is reached, the gene's territory pings once.
@@ -178,12 +181,17 @@ final class NucleusScene extends ZoomScene {
     canvas.save();
     canvas.clipPath(outline);
     final String followed = subject.track.chromosome;
-    if (painted > 0) {
+    // As the gene's territory condenses into its chromosome, the others
+    // drift out from it and fade.
+    final double away = frame.isChild ? 0 : smoothstep(frame.progress / 0.6);
+    final double shown = painted * (1 - away);
+    if (shown > 0) {
       final Paint fill = Paint();
       final Paint edge = Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1 * pixel
-        ..color = inks.shade(0.55).withValues(alpha: 0.9 * painted);
+        ..color = inks.shade(0.55).withValues(alpha: 0.9 * shown);
+      final Offset from = portal;
       for (final String name in chromosomeNames) {
         for (int copy = 0; copy < 2; copy++) {
           if (name == followed && copy == 0) {
@@ -194,9 +202,14 @@ final class NucleusScene extends ZoomScene {
             inks.high,
             inks.label,
             _tone(kindOf(name, copy), copy),
-          )!.withValues(alpha: 0.9 * painted);
+          )!.withValues(alpha: 0.9 * shown);
+          final Offset drift =
+              (this.territory(name, copy) - from) * (0.35 * away);
+          canvas.save();
+          canvas.translate(drift.dx, drift.dy);
           canvas.drawPath(territory, fill);
           canvas.drawPath(territory, edge);
+          canvas.restore();
         }
       }
     }

@@ -115,6 +115,33 @@ final class ZoomStage {
     return false;
   }
 
+  final Set<ZoomStop> _prepared = <ZoomStop>{};
+
+  /// Whether every scene has built what it caches.
+  bool get prepared => _prepared.length == scenes.length;
+
+  /// Builds what the scene at [stop] caches, the first time it is asked.
+  void prepare(ZoomStop stop, ZoomInks inks) {
+    if (_prepared.add(stop)) {
+      scenes[stop.index].prepare(inks);
+    }
+  }
+
+  /// The stop nearest [from] whose scene has not built what it caches, the
+  /// deeper first of two as near; null once every scene has.
+  ZoomStop? unprepared(ZoomStop from) {
+    for (int reach = 0; reach < scenes.length; reach++) {
+      for (final int i in <int>[from.index + reach, from.index - reach]) {
+        if (i >= 0 &&
+            i < scenes.length &&
+            !_prepared.contains(ZoomStop.values[i])) {
+          return ZoomStop.values[i];
+        }
+      }
+    }
+    return null;
+  }
+
   /// How much of the body's credit shows at depth [d]: at the body, and
   /// going over the first stretch of the way out, as a name does.
   double creditAt(double d) {

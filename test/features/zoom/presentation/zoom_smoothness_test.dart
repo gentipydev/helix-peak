@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -38,6 +39,43 @@ Future<ZoomInks> _inks(WidgetTester tester) async {
     ),
   );
   return inks;
+}
+
+/// A canvas that keeps only where words are set, on screen.
+class _Words implements Canvas {
+  final List<Rect> boxes = <Rect>[];
+  final List<Matrix4> _saved = <Matrix4>[];
+  Matrix4 _now = Matrix4.identity();
+
+  @override
+  void save() => _saved.add(_now.clone());
+
+  @override
+  void saveLayer(Rect? bounds, Paint paint) => save();
+
+  @override
+  void restore() => _now = _saved.removeLast();
+
+  @override
+  void translate(double dx, double dy) => _now.translateByDouble(dx, dy, 0, 1);
+
+  @override
+  void scale(double sx, [double? sy]) => _now.scaleByDouble(sx, sy ?? sx, 1, 1);
+
+  @override
+  void rotate(double radians) => _now.rotateZ(radians);
+
+  @override
+  void drawParagraph(ui.Paragraph paragraph, Offset offset) => boxes.add(
+    MatrixUtils.transformRect(
+      _now,
+      offset & Size(paragraph.maxIntrinsicWidth, paragraph.height),
+    ),
+  );
+
+  // Everything else it draws is not words.
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
 }
 
 bool _onCanvas(Offset p) =>
@@ -194,8 +232,7 @@ void main() {
         // The speed carries over wherever it is not more than the new
         // flight can carry without passing its stop.
         final double span = (depth.depthOf(to) - first.at(at)).abs();
-        final double most =
-            2 * span / (second.duration.inMicroseconds / 1e6);
+        final double most = 2 * span / (second.duration.inMicroseconds / 1e6);
         expect(
           second.speedAt(Duration.zero),
           closeTo(speed.clamp(-most, most), 1e-9),
@@ -216,6 +253,85 @@ void main() {
           } else {
             expect(d, greaterThanOrEqualTo(stop - 1e-9));
             expect(d, lessThanOrEqualTo(from + 0.35 * span + 1e-9));
+          }
+        }
+      }
+    }
+  });
+
+  testWidgets('the scenes build what they cache ahead of their first frame, '
+      'the nearest a stop first', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    final ZoomStage stage = _stage(TestCatalog.insulin);
+    final List<ZoomStop> order = <ZoomStop>[];
+    for (
+      ZoomStop? next = stage.unprepared(ZoomStop.cell);
+      next != null;
+      next = stage.unprepared(ZoomStop.cell)
+    ) {
+      order.add(next);
+      stage.prepare(next, inks);
+    }
+    // Deeper first of two as near: a step is more often taken in.
+    expect(order, <ZoomStop>[
+      ZoomStop.cell,
+      ZoomStop.nucleus,
+      ZoomStop.tissue,
+      ZoomStop.chromosome,
+      ZoomStop.organ,
+      ZoomStop.band,
+      ZoomStop.body,
+      ZoomStop.gene,
+      ZoomStop.dna,
+    ]);
+    expect(stage.prepared, isTrue);
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ZoomStage each = _stage(t);
+      for (final ZoomStop stop in ZoomStop.values) {
+        each.prepare(stop, inks);
+      }
+      expect(each.prepared, isTrue, reason: t.slug);
+    }
+  });
+
+  testWidgets('the band never sets two of its words over each other, at it '
+      'or on the way in or out', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    final TextStyle labels = AppTheme.analysis.textTheme.labelSmall!;
+    for (final Size size in <Size>[_canvas, const Size(320, 420)]) {
+      for (final ProteinTarget t in TestCatalog.all) {
+        final ZoomStage stage = _stage(t);
+        final ZoomDepth depth = stage.depth;
+        final double band = depth.depthOf(ZoomStop.band);
+        final double inward = depth.travelOf(ZoomStop.chromosome.index);
+        final double outward = depth.travelOf(ZoomStop.band.index);
+        for (final double d in <double>[
+          for (int i = 20; i <= 40; i++) band - inward * (40 - i) / 40,
+          for (int i = 1; i <= 24; i++) band + outward * i / 40,
+        ]) {
+          for (final (ZoomScene scene, ZoomFrame frame) in stage.frames(
+            d,
+            size,
+            inks,
+            labels: labels,
+          )) {
+            if (scene.stop != ZoomStop.band) {
+              continue;
+            }
+            final _Words words = _Words();
+            scene.paint(words, frame);
+            final List<Rect> boxes = words.boxes;
+            for (int i = 0; i < boxes.length; i++) {
+              for (int j = i + 1; j < boxes.length; j++) {
+                expect(
+                  boxes[i].deflate(0.5).overlaps(boxes[j].deflate(0.5)),
+                  isFalse,
+                  reason:
+                      '${t.slug} at ${size.width} wide, depth $d: '
+                      '${boxes[i]} and ${boxes[j]}',
+                );
+              }
+            }
           }
         }
       }
@@ -285,14 +401,13 @@ void main() {
     final Rect plate = placePlate(target, const Size(60, 16), size, <Rect>[]);
     expect(plate.left, greaterThan(target.dx));
     expect(plate.bottom, lessThan(target.dy));
-    final Rect second = placePlate(
-      target,
-      const Size(60, 16),
-      size,
-      <Rect>[plate],
-    );
+    final Rect second = placePlate(target, const Size(60, 16), size, <Rect>[
+      plate,
+    ]);
     expect(second.overlaps(plate), isFalse);
-    expect(math.max(second.top - plate.bottom, plate.top - second.bottom),
-        greaterThan(-1));
+    expect(
+      math.max(second.top - plate.bottom, plate.top - second.bottom),
+      greaterThan(-1),
+    );
   });
 }

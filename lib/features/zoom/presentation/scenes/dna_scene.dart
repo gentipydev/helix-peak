@@ -74,17 +74,16 @@ final class DnaScene extends ZoomScene {
   ZoomInks? _painted;
   double _unzipped = -1;
 
-  /// The painter for the helix at [frame], made again only when it unzips a
-  /// step further or the inks change.
-  DnaHelixPainter? _helix(ZoomFrame frame) {
+  /// The painter for the helix in [inks], [unzip] of the way unzipped, made
+  /// again only when it unzips a step further or the inks change.
+  DnaHelixPainter? _helix(ZoomInks inks, double unzip) {
     final int count = subject.dnaBases;
     if (count < 4) {
       return null;
     }
-    final double quantised = (frame.unzip * 60).roundToDouble() / 60;
-    if (_painter == null || quantised != _unzipped || _painted != frame.inks) {
+    final double quantised = (unzip * 60).roundToDouble() / 60;
+    if (_painter == null || quantised != _unzipped || _painted != inks) {
       final String bases = subject.record.sequence;
-      final ZoomInks inks = frame.inks;
       _painter = DnaHelixPainter(
         repaint: _rotation,
         rotation: _rotation,
@@ -160,6 +159,9 @@ final class DnaScene extends ZoomScene {
   /// How much of the helix shows at [frame]: it comes up as its bases
   /// grow big enough to tell apart.
   double _helixShown(ZoomFrame frame) => smoothstep((420 - _span(frame)) / 260);
+
+  @override
+  void prepare(ZoomInks inks) => _helix(inks, 0);
 
   @override
   bool wantsClock(ZoomFrame frame) => _helixShown(frame) > 0;
@@ -278,7 +280,7 @@ final class DnaScene extends ZoomScene {
   }
 
   void _drawHelix(Canvas canvas, ZoomFrame frame, double alpha) {
-    final DnaHelixPainter? painter = _helix(frame);
+    final DnaHelixPainter? painter = _helix(frame.inks, frame.unzip);
     if (painter == null) {
       return;
     }
