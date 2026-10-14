@@ -205,6 +205,33 @@ final class ChromosomeScene extends ZoomScene {
   }
 
   @override
+  bool wantsClock(ZoomFrame frame) => !frame.isChild && frame.dwell < 1.4;
+
+  // As the chromosome is reached, the gene's band pings once.
+  @override
+  void paintAmbient(Canvas canvas, ZoomFrame frame) {
+    if (frame.isChild) {
+      return;
+    }
+    final double here = frame.opacity * (1 - smoothstep(frame.progress / 0.15));
+    canvas.save();
+    frame.enter(canvas);
+    for (final double side in <double>[-1, 1]) {
+      Sculpt.ping(
+        canvas,
+        Offset(_centreAt(side, _bandY), _bandY),
+        _width(_bandY),
+        half * 1.6,
+        Sculpt.beat(frame.dwell, delay: 0.15, length: 1.1),
+        frame.pixel,
+        frame.inks,
+        opacity: here,
+      );
+    }
+    canvas.restore();
+  }
+
+  @override
   void paint(Canvas canvas, ZoomFrame frame) {
     canvas.save();
     frame.enter(canvas);

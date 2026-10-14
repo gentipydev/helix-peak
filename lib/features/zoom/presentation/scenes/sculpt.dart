@@ -153,6 +153,73 @@ abstract final class Sculpt {
     );
   }
 
+  /// How far through a beat that starts [delay] seconds after a stop is
+  /// reached and lasts [length] seconds the stop is, [dwell] seconds after
+  /// it was reached: 0 before, 1 after.
+  static double beat(double dwell, {double delay = 0, double length = 0.9}) =>
+      ((dwell - delay) / length).clamp(0.0, 1.0);
+
+  /// A ring of the mark spreading [grow] out from [radius] about [centre]
+  /// and fading, [t] of the way through: the beat a stop plays once as it
+  /// is reached. Nothing before it starts or after it ends.
+  static void ping(
+    Canvas canvas,
+    Offset centre,
+    double radius,
+    double grow,
+    double t,
+    double pixel,
+    ZoomInks inks, {
+    double opacity = 1,
+  }) {
+    if (t <= 0 || t >= 1 || opacity <= 0) {
+      return;
+    }
+    final double out = Curves.easeOutCubic.transform(t);
+    canvas.drawCircle(
+      centre,
+      radius + grow * out,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = (2.2 - 1.2 * t) * pixel
+        ..color = inks.glow((1 - t) * 0.8 * opacity),
+    );
+  }
+
+  /// A band of light passing across [box], [t] of the way, clipped by the
+  /// caller to the form it lights.
+  static void sweep(
+    Canvas canvas,
+    Rect box,
+    double t,
+    ZoomInks inks, {
+    double opacity = 1,
+  }) {
+    if (t <= 0 || t >= 1 || opacity <= 0) {
+      return;
+    }
+    final double at = -0.2 + 1.4 * Curves.easeInOutCubic.transform(t);
+    final double fade = math.sin(math.pi * t) * opacity;
+    canvas.drawRect(
+      box.inflate(box.shortestSide * 0.1),
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: <Color>[
+            inks.text.withValues(alpha: 0),
+            inks.text.withValues(alpha: 0.3 * fade),
+            inks.text.withValues(alpha: 0),
+          ],
+          stops: <double>[
+            (at - 0.16).clamp(0.0, 1.0),
+            at.clamp(0.0, 1.0),
+            (at + 0.16).clamp(0.0, 1.0),
+          ],
+        ).createShader(box),
+    );
+  }
+
   /// Where the zoom goes in: a ring, and four ticks reaching in to it.
   /// [radius] and [pixel] are in the caller's units.
   static void reticle(

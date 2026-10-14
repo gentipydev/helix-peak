@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
+import '../../../domain/cell_archetypes.dart';
 import '../contour.dart';
 import 'slide_builder.dart';
 import 'tissue_slide.dart';
@@ -211,6 +212,11 @@ extension GlandRecipes on SlideBuilder {
       layer: TissueSlide.over,
       nucleus: 3.1,
     );
+    // The duct's wall is where the zoom's kind of cell lives.
+    ink(SlideInk.home, TissueSlide.top)
+      ..fillType = PathFillType.evenOdd
+      ..addOval(Rect.fromCircle(center: centre, radius: outer))
+      ..addOval(Rect.fromCircle(center: centre, radius: lumen));
     own(SlideInk.eosin0);
   }
 
@@ -782,6 +788,10 @@ extension GlandRecipes on SlideBuilder {
       ).toPath();
       ink(SlideInk.eosin1).addPath(wall, Offset.zero);
       ink(SlideInk.border).addPath(wall, Offset.zero);
+      if (shape == CellShape.germ) {
+        // Every tubule's wall is where germ cells live.
+        ink(SlideInk.home).addPath(wall, Offset.zero);
+      }
       Offset at(double a, double share) =>
           c + Offset(math.cos(a) * rx * share, math.sin(a) * ry * share);
       // One layer of the wall: nuclei [apart] along a circle at [share]

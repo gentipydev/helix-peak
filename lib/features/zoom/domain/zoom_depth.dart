@@ -1,8 +1,10 @@
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 
 import '../../../shared/format.dart';
+import 'anatomy_figure.dart';
 import 'anatomy_tables.dart';
 import 'cell_archetypes.dart';
 import 'locus_track.dart';
@@ -36,7 +38,7 @@ enum ZoomUnit { metres, basePairs }
 @immutable
 final class ZoomDepth {
   ZoomDepth(this.track, {required this.path})
-    : organMetres = _organOf(path),
+    : organMetres = _organOf(track, path),
       archetype = archetypeOf(path) {
     // A nucleus is framed with room for its chromosome condensed, which for
     // a long chromosome in a small nucleus is the longer; a cell, with room
@@ -115,12 +117,52 @@ final class ZoomDepth {
   /// dark of the eyepiece round it.
   static const double tissueMetres = 6e-4;
 
-  static double _organOf(ZoomPath path) {
+  /// How much taller than wide a phone's canvas is, about: a tall organ is
+  /// framed by the canvas's height, not its width.
+  static const double phoneAspect = 1.45;
+
+  static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
         ? null
         : tissueAnatomy[tissue];
-    return anatomy == null ? 0.3 : anatomy.metres * organMargin;
+    if (anatomy == null) {
+      return 0.3;
+    }
+    return anatomy.metres * organMargin / uprightOf(track, path, anatomy);
+  }
+
+  /// How much taller than wide the organ is drawn, up to a phone's own
+  /// proportions ([phoneAspect]), or 1 for one that is not: its longest
+  /// side, standing upright, then takes the share of the canvas's height
+  /// that a wide one's takes of its width. Read from the anatomogram's own
+  /// outline, the one the organ's scene draws; an organ drawn from general
+  /// anatomy, or the brain, is framed by its width.
+  static double uprightOf(
+    LocusTrack track,
+    ZoomPath path,
+    TissueAnatomy anatomy,
+  ) {
+    if (anatomy.inBrain != null ||
+        anatomy.organ == OrganKind.lymphNode ||
+        anatomy.organ == OrganKind.vessel ||
+        anatomy.organ == OrganKind.skin ||
+        anatomy.organ == OrganKind.parathyroid ||
+        anatomy.organ == OrganKind.eye) {
+      return 1;
+    }
+    final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
+      for (final (String name, double _) in track.tissue.specific)
+        ZoomPath.tissueName(name),
+    ]);
+    final AnatomyPart? part = body.parts[anatomy.uberon];
+    if (part == null) {
+      return 1;
+    }
+    final Rect box = part.box;
+    return box.width <= 0
+        ? 1
+        : (box.height / box.width).clamp(1.0, phoneAspect);
   }
 
   /// How wide the view is at [stop], in [unitOf] it.

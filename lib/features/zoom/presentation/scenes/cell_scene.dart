@@ -72,17 +72,30 @@ final class CellScene extends ZoomScene {
   }
 
   @override
-  bool wantsClock(ZoomFrame frame) => _secreted;
+  bool wantsClock(ZoomFrame frame) =>
+      _secreted || (!frame.isChild && frame.dwell < 1.4);
 
-  // Vesicles leave a cell that secretes the protein, on the ambient clock.
+  // Vesicles leave a cell that secretes the protein, on the ambient clock;
+  // and as the cell is reached its nucleus, where the gene is, pings once.
   @override
   void paintAmbient(Canvas canvas, ZoomFrame frame) {
-    if (!_secreted) {
-      return;
-    }
     canvas.save();
     frame.enter(canvas);
-    _secretion(canvas, frame, _cell);
+    if (_secreted) {
+      _secretion(canvas, frame, _cell);
+    }
+    if (!frame.isChild) {
+      Sculpt.ping(
+        canvas,
+        Offset.zero,
+        nucleus,
+        nucleus * 0.9,
+        Sculpt.beat(frame.dwell, delay: 0.15, length: 1.1),
+        frame.pixel,
+        frame.inks,
+        opacity: frame.opacity * (1 - smoothstep(frame.progress / 0.15)),
+      );
+    }
     canvas.restore();
   }
 

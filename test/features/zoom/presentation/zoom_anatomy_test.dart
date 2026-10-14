@@ -7,7 +7,9 @@ import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_path.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/body_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/nucleus_scene.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organ_art.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organ_scene.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organ_studies.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
@@ -161,10 +163,20 @@ void main() {
       final ZoomStage stage = _stage(t);
       final ZoomSubject subject = stage.subject;
       final ZoomDepth depth = stage.depth;
-      // The view is the organ with its margin round it.
+      // The view is the organ with its margin round it, a tall one's
+      // standing on the canvas's height.
+      final double upright = ZoomDepth.uprightOf(
+        subject.track,
+        subject.path,
+        subject.anatomy!,
+      );
+      expect(upright, inInclusiveRange(1.0, ZoomDepth.phoneAspect));
       expect(
         depth.widthOf(ZoomStop.organ),
-        closeTo(subject.anatomy!.metres * ZoomDepth.organMargin, 1e-12),
+        closeTo(
+          subject.anatomy!.metres * ZoomDepth.organMargin / upright,
+          1e-12,
+        ),
         reason: t.slug,
       );
       // And the place its tissue is sampled is on the canvas, clear of its
@@ -177,6 +189,35 @@ void main() {
         (Offset.zero & _canvas).deflate(8).contains(site),
         isTrue,
         reason: '${t.slug}: sampled at $site',
+      );
+    }
+  });
+
+  test('every organ the twenty reach is drawn as itself, the place its '
+      'tissue is sampled inside it', () {
+    // The organs drawn from general anatomy or from the brain's own figure
+    // are each a drawing of their own; the rest have a study.
+    const Set<OrganKind> drawn = <OrganKind>{
+      OrganKind.brain,
+      OrganKind.lymphNode,
+      OrganKind.vessel,
+      OrganKind.skin,
+      OrganKind.parathyroid,
+      OrganKind.eye,
+    };
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ZoomSubject subject = _stage(t).subject;
+      final OrganKind kind = subject.anatomy!.organ;
+      expect(
+        drawn.contains(kind) || OrganStudy.studied.contains(kind),
+        isTrue,
+        reason: '${t.slug}: $kind has no drawing of its own',
+      );
+      final OrganArt art = OrganArt.of(subject);
+      expect(
+        art.outline.contains(art.site),
+        isTrue,
+        reason: '${t.slug}: sampled outside the $kind',
       );
     }
   });

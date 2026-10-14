@@ -86,6 +86,11 @@ extension BulkRecipes on SlideBuilder {
       for (final Offset p in grown) {
         keep(p, 4.2);
       }
+      // The island is where the zoom's kind of cell lives.
+      ink(
+        SlideInk.home,
+        TissueSlide.top,
+      ).addOval(Rect.fromCircle(center: nurse * 0.55, radius: r * 3.7));
     }
     // The blood-forming cells. No borders: they lie loose.
     final List<Offset> seeds = relaxed(lattice(9.6, jitter: 0.8), 22, times: 1);

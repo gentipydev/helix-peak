@@ -8,6 +8,7 @@ import '../../domain/cell_archetypes.dart';
 import '../../domain/zoom_depth.dart';
 import '../zoom_inks.dart';
 import 'contour.dart';
+import 'organ_studies.dart';
 import 'sculpt.dart';
 import 'zoom_subject.dart';
 
@@ -57,7 +58,7 @@ abstract class OrganArt {
     final double size = anatomy.metres / view;
     return switch (anatomy.organ) {
       OrganKind.brain => _BrainOrgan(anatomy, view),
-      OrganKind.lymphNode => _NodeOrgan(size),
+      OrganKind.lymphNode => _NodeOrgan(size, shape),
       OrganKind.vessel => _VesselOrgan(size),
       OrganKind.skin => _SkinOrgan(size),
       OrganKind.parathyroid => _ParathyroidOrgan(size),
@@ -85,6 +86,10 @@ abstract class OrganArt {
 
   /// Where in the organ its tissue is sampled, at its real size.
   Offset get site => Offset.zero;
+
+  /// The organ's outline at its real size, for the light that passes over
+  /// it as it is reached; none where it has no one outline.
+  Path get outline => Path();
 
   /// Draws the organ at [scale] times its real size; [pixel] is one screen
   /// pixel in the scene's units. [detail], from 0 to 1, is how far it has
@@ -192,13 +197,6 @@ _Look _lookOf(OrganKind kind) => switch (kind) {
   _ => _Look.lobules,
 };
 
-/// What lies inside an organ of one kind, and the part of it the zoom's
-/// cell lives in, in the mark.
-abstract class _Study {
-  /// Draws inside the organ's outline, already clipped to it.
-  void inside(Canvas canvas, ZoomInks inks, double line, double detail);
-}
-
 /// Parts of the figure never drawn round an organ: the skin is the figure
 /// itself, and fat lies over everything.
 const Set<String> _notAround = <String>{'UBERON_0000014', 'UBERON_0001013'};
@@ -232,9 +230,11 @@ final class _DrawnOrgan extends OrganArt {
     _box = _shape.getBounds();
     // The body's midline, in the scene: an organ's hilum faces it.
     _midline = placed(Offset(0, part.site.dy)).dx;
-    _study = anatomy.organ == OrganKind.pancreas
-        ? _Pancreas(_shape, _points, _box, _site, shape)
-        : null;
+    _study = OrganStudy.of(
+      anatomy.organ,
+      OrganForm(_shape, _points, _site, midline: _midline),
+      shape,
+    );
     _detail = _surface();
     // Round it, what the figure draws there: as far out as the view
     // reaches, and a little beyond for the way in.
@@ -270,6 +270,9 @@ final class _DrawnOrgan extends OrganArt {
   @override
   bool get followsBody => true;
 
+  @override
+  Path get outline => _shape;
+
   final _Look _look;
   late final Offset _site;
 
@@ -282,7 +285,7 @@ final class _DrawnOrgan extends OrganArt {
   late final Path _around;
   late final Rect _box;
   late final double _midline;
-  late final _Study? _study;
+  late final OrganStudy? _study;
 
   /// What is stroked over the organ, and what is filled darker in it.
   late final (Path, Path) _detail;
@@ -309,6 +312,10 @@ final class _DrawnOrgan extends OrganArt {
   }
 
   (Path, Path) _surface() {
+    // An organ with a study of its own is drawn by it.
+    if (_study != null) {
+      return (Path(), Path());
+    }
     final math.Random random = math.Random(_look.index + 11);
     final Path lines = Path();
     final Path dark = Path();
@@ -316,16 +323,13 @@ final class _DrawnOrgan extends OrganArt {
     final Offset middle = _middle;
     switch (_look) {
       case _Look.lobules || _Look.fat:
-        // Lobules, or lobes of fat: a cobble of rounded shapes. A study of
-        // its own draws them as domes.
-        if (_study == null) {
-          for (final Rect lobule in Sculpt.cobble(
-            _box,
-            size * (_look == _Look.fat ? 0.1 : 0.15),
-            random,
-          )) {
-            lines.addOval(lobule);
-          }
+        // Lobules, or lobes of fat: a cobble of rounded shapes.
+        for (final Rect lobule in Sculpt.cobble(
+          _box,
+          size * (_look == _Look.fat ? 0.1 : 0.15),
+          random,
+        )) {
+          lines.addOval(lobule);
         }
       case _Look.hollow:
         // A wall round a lumen: drawn in [paint], along the outline.
@@ -445,7 +449,8 @@ final class _DrawnOrgan extends OrganArt {
         ..strokeWidth = 0.9 * line
         ..color = inks.lit(0.36).withValues(alpha: 0.6),
     );
-    final bool hollow = _look == _Look.hollow;
+    _study?.behind(canvas, inks, line, detail);
+    final bool hollow = _look == _Look.hollow && _study == null;
     final bool bone = _look == _Look.bone;
     OrganArt._sculpted(
       canvas,
@@ -504,210 +509,15 @@ final class _DrawnOrgan extends OrganArt {
   }
 }
 
-/// The pancreas: its lobules, and its main duct running from the tail to
-/// the head. Where the zoom's cell lives glows: the islets scattered
-/// through it, more of them toward the tail, for an endocrine cell; the
-/// duct tree for a duct cell; the acini, the gland itself, for any other.
-/// An islet, or a branch of the ducts, lies at the place it is sampled.
-final class _Pancreas implements _Study {
-  _Pancreas(this.shape, this.points, this.box, this.site, this.cell) {
-    final math.Random random = math.Random(7);
-    final double size = box.longestSide;
-    _lobules = <Rect>[
-      for (final Rect lobule in Sculpt.cobble(box, size * 0.055, random))
-        if (shape.contains(lobule.center)) lobule,
-    ];
-    _duct = _centreline();
-    _branches = Path();
-    for (int k = 1; k < 9; k++) {
-      final double t = k / 9;
-      final Offset at = _along(t);
-      final Offset ahead = _along(math.min(1, t + 0.02));
-      final double heading = math.atan2(ahead.dy - at.dy, ahead.dx - at.dx);
-      for (final double side in <double>[-1, 1]) {
-        for (final Path generation in Sculpt.tree(
-          at,
-          heading + side * (1.0 + 0.3 * random.nextDouble()),
-          size * 0.05,
-          2,
-          random,
-          spread: 0.6,
-          shrink: 0.7,
-        )) {
-          _branches.addPath(generation, Offset.zero);
-        }
-      }
-    }
-    // A branch reaching the place it is sampled.
-    final Offset near = _nearestOnDuct(site);
-    _branches
-      ..moveTo(near.dx, near.dy)
-      ..quadraticBezierTo(
-        (near.dx + site.dx) / 2 + size * 0.01,
-        (near.dy + site.dy) / 2,
-        site.dx,
-        site.dy,
-      );
-    // Islets: a million in a pancreas, drawn as a few dozen, more toward
-    // the tail, where they are more.
-    _islets = <(Offset, double)>[(site, size * 0.016)];
-    int tries = 0;
-    while (_islets.length < 46 && tries < 4000) {
-      tries++;
-      final Offset p = Offset(
-        box.left + random.nextDouble() * box.width,
-        box.top + random.nextDouble() * box.height,
-      );
-      final double tail = (p.dx - box.left) / box.width;
-      if (!shape.contains(p) || random.nextDouble() > 0.45 + 0.55 * tail) {
-        continue;
-      }
-      if (_islets.any(
-        ((Offset, double) i) => (i.$1 - p).distance < size * 0.03,
-      )) {
-        continue;
-      }
-      _islets.add((p, size * (0.006 + 0.008 * random.nextDouble())));
-    }
-  }
-
-  final Path shape;
-  final List<Offset> points;
-  final Rect box;
-  final Offset site;
-  final CellShape cell;
-
-  late final List<Rect> _lobules;
-  late final List<Offset> _duct;
-  late final Path _branches;
-  late final List<(Offset, double)> _islets;
-
-  /// The main duct: the organ's middle line from one end to the other, the
-  /// middle of each slice across it, smoothed.
-  List<Offset> _centreline() {
-    const int slices = 40;
-    final List<Offset> raw = <Offset>[];
-    for (int i = 1; i < slices; i++) {
-      final double x = box.left + box.width * i / slices;
-      double top = double.infinity;
-      double bottom = double.negativeInfinity;
-      for (int j = 0; j < points.length; j++) {
-        final Offset a = points[j];
-        final Offset b = points[(j + 1) % points.length];
-        if ((a.dx - x) * (b.dx - x) > 0 || a.dx == b.dx) {
-          continue;
-        }
-        final double y = a.dy + (b.dy - a.dy) * (x - a.dx) / (b.dx - a.dx);
-        top = math.min(top, y);
-        bottom = math.max(bottom, y);
-      }
-      if (top.isFinite && bottom.isFinite) {
-        raw.add(Offset(x, (top + bottom) / 2));
-      }
-    }
-    return <Offset>[
-      for (int i = 0; i < raw.length; i++)
-        () {
-          Offset sum = Offset.zero;
-          int n = 0;
-          for (
-            int k = math.max(0, i - 2);
-            k <= math.min(raw.length - 1, i + 2);
-            k++
-          ) {
-            sum += raw[k];
-            n++;
-          }
-          return sum / n.toDouble();
-        }(),
-    ];
-  }
-
-  Offset _along(double t) {
-    final double x = t * (_duct.length - 1);
-    final int i = x.floor().clamp(0, _duct.length - 2);
-    return Offset.lerp(_duct[i], _duct[i + 1], x - i)!;
-  }
-
-  Offset _nearestOnDuct(Offset p) {
-    Offset best = _duct.first;
-    for (final Offset q in _duct) {
-      if ((q - p).distance < (best - p).distance) {
-        best = q;
-      }
-    }
-    return best;
-  }
-
-  Path get _ductPath {
-    final Path path = Path()..moveTo(_duct.first.dx, _duct.first.dy);
-    for (final Offset p in _duct.skip(1)) {
-      path.lineTo(p.dx, p.dy);
-    }
-    return path;
-  }
-
-  @override
-  void inside(Canvas canvas, ZoomInks inks, double line, double detail) {
-    final bool acini =
-        cell != CellShape.endocrine && cell != CellShape.epithelial;
-    for (final Rect lobule in _lobules) {
-      Sculpt.dome(canvas, lobule, inks, 0.38 * detail);
-      if (acini) {
-        canvas.drawOval(
-          lobule.deflate(lobule.width * 0.12),
-          Paint()..color = inks.glow(0.22 * detail),
-        );
-      }
-    }
-    final Path duct = _ductPath;
-    if (cell == CellShape.epithelial) {
-      Sculpt.glowingStroke(
-        canvas,
-        _branches,
-        inks,
-        width: 1.1 * line,
-        alpha: detail,
-      );
-      Sculpt.glowingStroke(
-        canvas,
-        duct,
-        inks,
-        width: 2.4 * line,
-        alpha: detail,
-      );
-      return;
-    }
-    final Paint ductPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-    canvas.drawPath(
-      _branches,
-      ductPaint
-        ..strokeWidth = 1 * line
-        ..color = inks.lit(0.55).withValues(alpha: 0.35 * detail),
-    );
-    canvas.drawPath(
-      duct,
-      ductPaint
-        ..strokeWidth = 2.6 * line
-        ..color = inks.lit(0.6).withValues(alpha: 0.55 * detail),
-    );
-    if (cell == CellShape.endocrine) {
-      for (final (Offset at, double r) in _islets) {
-        Sculpt.glow(canvas, at, r * 3.2, inks, 0.42 * detail);
-        canvas.drawCircle(at, r, Paint()..color = inks.glow(0.95 * detail));
-      }
-    }
-  }
-}
-
-/// The brain cut down its middle, as the anatomogram draws it, sculpted,
-/// with the part the tissue is in glowing: the cortex, or the lateral
-/// ventricle the choroid plexus lies in.
+/// The brain cut down its middle, as the anatomogram draws it, sculpted:
+/// the sulci folding its cortex, the cerebellum's folia round the white
+/// tree of its arbor vitae, and the part the tissue is in glowing. For the
+/// cortex, the cortex itself; for the choroid plexus, the lateral
+/// ventricle opened, dark with its fluid, the plexus's fronds along its
+/// floor in the mark.
 final class _BrainOrgan extends OrganArt {
-  _BrainOrgan(TissueAnatomy anatomy, double view) {
+  _BrainOrgan(TissueAnatomy anatomy, double view)
+    : _plexus = anatomy.inBrain == _ventricle {
     final AnatomyFigure figure = AnatomyFigure.brain;
     final AnatomyPart lit = figure.parts[anatomy.inBrain]!;
     Offset placed(Offset p) => p / view;
@@ -731,17 +541,120 @@ final class _BrainOrgan extends OrganArt {
         if (part.key != anatomy.inBrain) all(part.value.contours),
     ];
     _box = _silhouette.getBounds();
+    final double size = _box.longestSide;
+    final math.Random random = math.Random(43);
+    // Sulci: folds running in from the cortex's surface.
+    _sulci = Path();
+    final AnatomyPart? cortex = figure.parts[_cortex];
+    if (cortex != null) {
+      final List<Offset> rim = <Offset>[
+        for (final Offset p in cortex.followed) placed(p),
+      ];
+      Offset middle = Offset.zero;
+      for (final Offset p in rim) {
+        middle += p;
+      }
+      middle = middle / rim.length.toDouble();
+      // Sulci running in from the rim, gently curved, of a few depths.
+      int i = 0;
+      while (i < rim.length) {
+        final Offset p = rim[i];
+        final Offset inward = middle - p;
+        final double d = inward.distance;
+        i += math.max(1, rim.length ~/ 20) + random.nextInt(2);
+        if (d == 0) {
+          continue;
+        }
+        final Offset way = inward / d;
+        final Offset side = Offset(-way.dy, way.dx);
+        final double depth = size * (0.04 + 0.07 * random.nextDouble());
+        final double lean = (random.nextDouble() - 0.5) * 0.5;
+        final Offset bend =
+            p + way * (depth * 0.55) + side * (depth * lean * 0.5);
+        final Offset end = p + way * depth + side * (depth * lean);
+        _sulci
+          ..moveTo(p.dx, p.dy)
+          ..quadraticBezierTo(bend.dx, bend.dy, end.dx, end.dy);
+      }
+      _cortexPath = all(cortex.contours);
+    } else {
+      _cortexPath = Path();
+    }
+    // The cerebellum's folia, and its arbor vitae.
+    _folia = Path();
+    _arbor = Path();
+    final AnatomyPart? cerebellum = figure.parts[_cerebellum];
+    if (cerebellum != null) {
+      final List<Offset> outline = <Offset>[
+        for (final Offset p in cerebellum.followed) placed(p),
+      ];
+      final Path shape = OrganArt._closed(outline);
+      _cerebellumPath = shape;
+      final Rect box = shape.getBounds();
+      for (int k = 1; k < 9; k++) {
+        final Rect ring = Rect.fromCenter(
+          center: box.centerLeft + Offset(box.width * 0.1, 0),
+          width: box.width * 1.9 * k / 8,
+          height: box.height * 1.7 * k / 8,
+        );
+        _folia.addArc(ring, -math.pi * 0.48, math.pi * 0.96);
+      }
+      for (final Path generation in Sculpt.tree(
+        box.centerLeft + Offset(box.width * 0.12, 0),
+        0,
+        box.width * 0.32,
+        3,
+        random,
+        spread: 0.55,
+        shrink: 0.68,
+      )) {
+        _arbor.addPath(generation, Offset.zero);
+      }
+    } else {
+      _cerebellumPath = Path();
+    }
+    // The plexus's fronds, along the ventricle's floor.
+    _fronds = <(Offset, double)>[];
+    if (_plexus) {
+      final List<Offset> rim = <Offset>[
+        for (final Offset p in lit.followed) placed(p),
+      ];
+      final Rect box = _lit.getBounds();
+      for (int i = 0; i < rim.length; i += 2) {
+        final Offset p = rim[i];
+        if (p.dy < box.center.dy) {
+          continue;
+        }
+        final Offset up = Offset(0, -box.height * 0.08);
+        _fronds.add((p + up, size * (0.008 + 0.006 * random.nextDouble())));
+      }
+      _fronds.add((_site, size * 0.016));
+    }
   }
 
+  static const String _cortex = 'UBERON_0000956';
+  static const String _cerebellum = 'UBERON_0002037';
+  static const String _ventricle = 'UBERON_0002285';
+
+  final bool _plexus;
   late final Path _silhouette;
   late final Path _lines;
   late final Path _lit;
   late final List<Path> _rest;
   late final Offset _site;
   late final Rect _box;
+  late final Path _sulci;
+  late final Path _cortexPath;
+  late final Path _folia;
+  late final Path _arbor;
+  late final Path _cerebellumPath;
+  late final List<(Offset, double)> _fronds;
 
   @override
   Offset get site => _site;
+
+  @override
+  Path get outline => _silhouette;
 
   @override
   void paint(
@@ -772,10 +685,76 @@ final class _BrainOrgan extends OrganArt {
       _lines,
       Paint()..color = inks.label.withValues(alpha: 0.32),
     );
+    // The cerebellum's folia and its white tree.
+    canvas.save();
+    canvas.clipPath(_cerebellumPath);
+    canvas.drawPath(
+      _folia,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1 * line
+        ..color = inks.shade(0.45).withValues(alpha: 0.8),
+    );
+    canvas.drawPath(
+      _arbor,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2 * line
+        ..strokeCap = StrokeCap.round
+        ..color = inks.lit(0.62).withValues(alpha: 0.7),
+    );
+    canvas.restore();
     final Rect litBox = _lit.getBounds();
-    Sculpt.glow(canvas, litBox.center, litBox.longestSide * 0.8, inks, 0.22);
-    canvas.drawPath(_lit, Paint()..color = inks.glow(0.42));
-    Sculpt.glowingStroke(canvas, _lit, inks, width: 1.4 * line);
+    if (_plexus) {
+      // The ventricle opened, dark with its fluid; the fronds glowing.
+      canvas.drawPath(_lit, Paint()..color = inks.shade(0.3));
+      canvas.drawPath(
+        _lit,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.2 * line
+          ..color = inks.lit(0.6).withValues(alpha: 0.8),
+      );
+      canvas.save();
+      canvas.clipPath(_lit);
+      for (final (Offset at, double r) in _fronds) {
+        Sculpt.glow(canvas, at, r * 2.6, inks, 0.35);
+        canvas.drawCircle(at, r, Paint()..color = inks.glow(0.9));
+      }
+      canvas.restore();
+    } else {
+      Sculpt.glow(canvas, litBox.center, litBox.longestSide * 0.8, inks, 0.22);
+      canvas.drawPath(_lit, Paint()..color = inks.glow(0.42));
+      Sculpt.glowingStroke(canvas, _lit, inks, width: 1.4 * line);
+    }
+    // The sulci folding the cortex, over whatever it is drawn in, and one
+    // running the length of it, as the cingulate sulcus does.
+    canvas.save();
+    canvas.clipPath(_cortexPath);
+    final Paint sulcus = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(
+      _sulci,
+      sulcus
+        ..strokeWidth = 1.3 * line
+        ..color = inks.shade(0.45).withValues(alpha: 0.6),
+    );
+    final double band = _box.longestSide * 0.075;
+    canvas.drawPath(
+      _cortexPath,
+      sulcus
+        ..strokeWidth = 2 * band + 1.3 * line
+        ..color = inks.shade(0.45).withValues(alpha: 0.5),
+    );
+    canvas.drawPath(
+      _cortexPath,
+      sulcus
+        ..strokeWidth = 2 * band - 1.3 * line
+        ..color = _plexus ? inks.lit(0.14) : inks.glow(0.42),
+    );
+    canvas.restore();
     OrganArt._edged(canvas, _silhouette, _box, inks, line, 1);
     canvas.restore();
   }
@@ -783,17 +762,23 @@ final class _BrainOrgan extends OrganArt {
 
 /// A lymph node: a bean in its capsule, follicles round its cortex, the
 /// cords of its medulla at the hilum, vessels in and out. The tissue is
-/// sampled under the capsule, at the top.
+/// sampled under the capsule, at the top. Where the zoom's cell lives is in
+/// the mark: the sinuses lymph runs through, lined by endothelium, for an
+/// endothelial cell; the follicles for a white cell.
 final class _NodeOrgan extends OrganArt {
-  _NodeOrgan(this.size);
+  _NodeOrgan(this.size, this.cell);
 
   /// How long the node is, in the scene's units.
   final double size;
+  final CellShape cell;
 
   Offset get _centre => Offset.zero;
 
   @override
   Offset get site => Offset(0, -size * 0.34);
+
+  @override
+  Path get outline => OrganArt._closed(_bean);
 
   late final List<Offset> _bean = <Offset>[
     for (int i = 0; i < 96; i++)
@@ -864,6 +849,7 @@ final class _NodeOrgan extends OrganArt {
       canvas.drawLine(from, to, cord);
     }
     // Follicles in the cortex, each with its pale centre.
+    final bool white = cell == CellShape.leukocyte;
     for (int k = 0; k < 9; k++) {
       final double a = math.pi * (0.92 + 0.145 * k);
       final Offset at =
@@ -878,8 +864,35 @@ final class _NodeOrgan extends OrganArt {
       canvas.drawCircle(
         at,
         size * 0.03,
-        Paint()..color = inks.lit(0.45).withValues(alpha: 0.6),
+        Paint()
+          ..color = white
+              ? inks.glow(0.8)
+              : inks.lit(0.45).withValues(alpha: 0.6),
       );
+    }
+    if (cell == CellShape.endothelial) {
+      // The subcapsular sinus under the capsule, and the medullary sinuses
+      // between the cords, down to the hilum.
+      Sculpt.glowingStroke(
+        canvas,
+        OrganArt._closed(<Offset>[
+          for (final Offset p in _bean) _centre + (p - _centre) * 0.92,
+        ]),
+        inks,
+        width: 1.6 * line,
+      );
+      final Path sinuses = Path();
+      for (int k = 0; k < 6; k++) {
+        final double a = math.pi * (1.21 + 0.12 * k);
+        final Offset from = _centre + Offset(0, size * 0.27);
+        final Offset to =
+            _centre +
+            Offset(math.cos(a) * size * 0.4, math.sin(a) * size * 0.3);
+        sinuses
+          ..moveTo(from.dx, from.dy)
+          ..lineTo(to.dx, to.dy);
+      }
+      Sculpt.glowingStroke(canvas, sinuses, inks, width: 1.1 * line);
     }
     canvas.restore();
     OrganArt._edged(canvas, bean, box, inks, line, 1);
@@ -1240,6 +1253,9 @@ final class _AnyOrgan extends OrganArt {
     }
     return shape..close();
   }();
+
+  @override
+  Path get outline => _shape;
 
   @override
   void paint(

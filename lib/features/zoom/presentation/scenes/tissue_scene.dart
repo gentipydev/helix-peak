@@ -180,6 +180,35 @@ final class TissueScene extends ZoomScene {
   }
 
   @override
+  bool wantsClock(ZoomFrame frame) => !frame.isChild && frame.dwell < 1.4;
+
+  // As the tissue is reached, the zoom's cell pings once.
+  @override
+  void paintAmbient(Canvas canvas, ZoomFrame frame) {
+    if (frame.isChild) {
+      return;
+    }
+    final double t = Sculpt.beat(frame.dwell, delay: 0.15, length: 1.1);
+    final double here = frame.opacity * (1 - smoothstep(frame.progress / 0.15));
+    if (t <= 0 || t >= 1 || here <= 0) {
+      return;
+    }
+    final ZoomView view = _view(frame);
+    final Rect cell = _ring.getBounds();
+    final double perMicron = view.pixelsPerUnit * micron;
+    Sculpt.ping(
+      canvas,
+      view.toScreen(cell.center * micron, frame.size),
+      cell.longestSide / 2 * perMicron,
+      34,
+      t,
+      1,
+      frame.inks,
+      opacity: here,
+    );
+  }
+
+  @override
   void paint(Canvas canvas, ZoomFrame frame) {
     final ZoomView view = _view(frame);
     final Size size = frame.size;
@@ -371,12 +400,12 @@ void paintTissueSlide(
           filled(path, inks.ground);
           stroked(path, inks.lit(0.3), 0.6, 1.2);
         case SlideInk.nucleus0:
-          filled(path, Color.lerp(inks.high, inks.label, 0.5)!);
-          stroked(path, inks.label, 0.7, 0.8);
+          filled(path, Color.lerp(inks.high, inks.label, 0.38)!);
+          stroked(path, inks.label, 0.55, 0.8);
         case SlideInk.nucleus1:
-          filled(path, Color.lerp(inks.high, inks.label, 0.8)!);
+          filled(path, Color.lerp(inks.high, inks.label, 0.6)!);
         case SlideInk.nucleus2:
-          filled(path, Color.lerp(inks.label, inks.text, 0.35)!);
+          filled(path, Color.lerp(inks.high, inks.label, 0.82)!);
         case SlideInk.blood:
           filled(path, inks.blood);
       }

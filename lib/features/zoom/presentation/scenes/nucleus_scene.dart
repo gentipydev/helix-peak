@@ -120,6 +120,31 @@ final class NucleusScene extends ZoomScene {
       0.16 + 0.36 * (((chromosomeNames.indexOf(name) * 7 + copy * 3) % 9) / 8);
 
   @override
+  bool wantsClock(ZoomFrame frame) => !frame.isChild && frame.dwell < 1.4;
+
+  // As the nucleus is reached, the gene's territory pings once.
+  @override
+  void paintAmbient(Canvas canvas, ZoomFrame frame) {
+    if (frame.isChild) {
+      return;
+    }
+    final Rect box = _territories[(subject.track.chromosome, 0)]!.getBounds();
+    canvas.save();
+    frame.enter(canvas);
+    Sculpt.ping(
+      canvas,
+      box.center,
+      box.longestSide / 2,
+      box.longestSide * 0.6,
+      Sculpt.beat(frame.dwell, delay: 0.15, length: 1.1),
+      frame.pixel,
+      frame.inks,
+      opacity: frame.opacity * (1 - smoothstep(frame.progress / 0.15)),
+    );
+    canvas.restore();
+  }
+
+  @override
   void paint(Canvas canvas, ZoomFrame frame) {
     canvas.save();
     frame.enter(canvas);

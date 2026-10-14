@@ -66,6 +66,44 @@ final class OrganScene extends ZoomScene {
     );
   }
 
+  @override
+  bool wantsClock(ZoomFrame frame) => !frame.isChild && frame.dwell < 2;
+
+  // As it is reached, a band of light passes over the organ, and the place
+  // its tissue is sampled pings.
+  @override
+  void paintAmbient(Canvas canvas, ZoomFrame frame) {
+    if (frame.isChild) {
+      return;
+    }
+    final double here = frame.opacity * (1 - smoothstep(frame.progress / 0.15));
+    final double light = Sculpt.beat(frame.dwell, delay: 0.05, length: 1.2);
+    final double ping = Sculpt.beat(frame.dwell, delay: 0.75, length: 1.1);
+    if (here <= 0 || ((light <= 0 || light >= 1) && (ping <= 0 || ping >= 1))) {
+      return;
+    }
+    canvas.save();
+    frame.enter(canvas);
+    final double grown = _grown(frame);
+    final Path outline = _art.outline;
+    canvas.save();
+    canvas.scale(grown);
+    canvas.clipPath(outline);
+    Sculpt.sweep(canvas, outline.getBounds(), light, frame.inks, opacity: here);
+    canvas.restore();
+    Sculpt.ping(
+      canvas,
+      _art.site * grown,
+      9 * frame.pixel,
+      30 * frame.pixel,
+      ping,
+      frame.pixel,
+      frame.inks,
+      opacity: here,
+    );
+    canvas.restore();
+  }
+
   /// How far the organ has become its own, from the body's drawing of it:
   /// its sculpting and what lies inside it come up once it is growing.
   static double detailAt(ZoomFrame frame) =>

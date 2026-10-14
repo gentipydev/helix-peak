@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
+import '../../../domain/cell_archetypes.dart';
 import '../contour.dart';
 import 'slide_builder.dart';
 import 'tissue_slide.dart';
@@ -537,6 +538,13 @@ extension LiningRecipes on SlideBuilder {
       polygon(<Offset>[...floorLine, ...roofLine.reversed]),
       Offset.zero,
     );
+    if (shape == CellShape.endothelial) {
+      // The sinus, lined by the zoom's kind of cell.
+      ink(SlideInk.home).addPath(
+        polygon(<Offset>[...floorLine, ...roofLine.reversed]),
+        Offset.zero,
+      );
+    }
     ink(SlideInk.eosin1).addPath(
       polygon(<Offset>[
         ...floorLine,
