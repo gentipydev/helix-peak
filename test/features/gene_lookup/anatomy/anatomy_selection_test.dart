@@ -285,34 +285,37 @@ void main() {
     },
   );
 
-  testWidgets('the action announces itself, once per region named', (
+  testWidgets('the action fades in at its own tint, and stays as it is for '
+      'the next region named', (
     tester,
   ) async {
-    double labelOpacity() => tester
-        .widget<Opacity>(
-          find.descendant(
-            of: find.byKey(const ValueKey<String>('open-dna')),
-            matching: find.byType(Opacity),
-          ),
-        )
-        .opacity;
+    Finder inPill(Type type) => find.descendant(
+          of: find.byKey(const ValueKey<String>('open-dna')),
+          matching: find.byType(type),
+        );
+    double opacity() => tester.widget<Opacity>(inPill(Opacity)).opacity;
+    double tint() =>
+        (tester.widget<DecoratedBox>(inPill(DecoratedBox)).decoration
+                as BoxDecoration)
+            .color!
+            .a;
 
     await _screen(tester);
     _select(tester, 6000);
     await tester.pump();
-    // The highlight it lands in: the tint is at its strongest and the label
-    // has not arrived.
-    expect(labelOpacity(), lessThan(1));
+    // It fades in at the tint it rests at: no highlight.
+    final double rest = tint();
+    expect(opacity(), lessThan(1));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(labelOpacity(), 1);
+    expect(opacity(), 1);
+    expect(tint(), rest);
 
-    // A second region picked without letting go of the first leaves the action
-    // on screen, so it is replayed rather than remounted.
+    // A second region picked without letting go of the first leaves the
+    // action as it is.
     _select(tester, 5301);
     await tester.pump();
-    expect(labelOpacity(), lessThan(1));
-    await tester.pump(const Duration(milliseconds: 300));
-    expect(labelOpacity(), 1);
+    expect(opacity(), 1);
+    expect(tint(), rest);
   });
 
   testWidgets('a screen reader is offered the action on the strip', (

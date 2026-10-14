@@ -3154,10 +3154,6 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
                             label: 'DNA \u203a',
                             spoken: _StripAction.openDna,
                             accent: accent,
-                            // What has just been named. A second region picked
-                            // without letting go of the first keeps the action
-                            // on screen, and it should announce itself again.
-                            flashOn: tracer?.line,
                             onTap: onOpenDna!,
                           )
                         else if (onRibosome != null)
@@ -3230,16 +3226,16 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
 /// caption and sat directly under the count badge. Tinted, centred on the line
 /// it shares and set two points larger, it reads as the offer it is.
 ///
-/// It announces itself once, on the highlight it lands in: the tint fades back
-/// as the label arrives from the right. One flash, no loop — a control that
-/// keeps moving in a fixed header is a control that has to be read past.
+/// It fades in where it is offered, once, at its own tint: no highlight and
+/// no movement, since a control that moves in a fixed header is a control that
+/// has to be read past. Another region named while it is up leaves it as it
+/// is.
 class _StripAction extends StatefulWidget {
   const _StripAction({
     required this.label,
     required this.spoken,
     required this.accent,
     required this.onTap,
-    this.flashOn,
     super.key,
   });
 
@@ -3250,19 +3246,13 @@ class _StripAction extends StatefulWidget {
   final Color accent;
   final VoidCallback onTap;
 
-  /// What is currently named on the line beside it. A second region picked
-  /// without letting go of the first leaves this widget in the tree, so the
-  /// flash is replayed off this rather than off the mount.
-  final String? flashOn;
-
   /// The label, and the air either side of it inside the pill.
   static const double _size = 15;
   static const double _padX = 7;
   static const double _padY = 3;
 
-  /// The tint the pill settles at, and the one it arrives on.
-  static const double _rest = 0.12;
-  static const double _flash = 0.28;
+  /// The pill's tint.
+  static const double _tint = 0.12;
 
   static const String openDna = 'Open the selected region as DNA';
   static const String playRibosome = 'Play the translation on the ribosome';
@@ -3277,12 +3267,11 @@ class _StripActionState extends State<_StripAction>
   late final AnimationController _arrival = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 260),
-    value: 1,
   );
 
-  /// Whether the arrival has been played for the region on screen. The first
-  /// one runs from here rather than from [initState], where the media query
-  /// that says whether it may run at all is not available yet.
+  /// Whether it has begun to fade in. It begins here rather than in
+  /// [initState], where the media query that says whether it may move at all
+  /// is not available yet.
   bool _arrived = false;
 
   @override
@@ -3290,24 +3279,12 @@ class _StripActionState extends State<_StripAction>
     super.didChangeDependencies();
     if (!_arrived) {
       _arrived = true;
-      _flash();
+      if (MediaQuery.disableAnimationsOf(context)) {
+        _arrival.value = 1;
+      } else {
+        unawaited(_arrival.forward());
+      }
     }
-  }
-
-  @override
-  void didUpdateWidget(_StripAction old) {
-    super.didUpdateWidget(old);
-    if (old.flashOn != widget.flashOn) {
-      _flash();
-    }
-  }
-
-  void _flash() {
-    if (MediaQuery.disableAnimationsOf(context)) {
-      _arrival.value = 1;
-      return;
-    }
-    unawaited(_arrival.forward(from: 0));
   }
 
   @override
@@ -3335,40 +3312,28 @@ class _StripActionState extends State<_StripAction>
               widthFactor: 1,
               child: AnimatedBuilder(
                 animation: _arrival,
-                builder: (BuildContext context, Widget? label) {
-                  final double t = Curves.easeOutCubic.transform(
-                    _arrival.value,
-                  );
-                  return DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: widget.accent.withValues(
-                        alpha:
-                            _StripAction._flash +
-                            (_StripAction._rest - _StripAction._flash) * t,
-                      ),
-                      borderRadius: BorderRadius.circular(999),
+                builder: (BuildContext context, Widget? pill) => Opacity(
+                  opacity: Curves.easeOutCubic.transform(_arrival.value),
+                  child: pill,
+                ),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: widget.accent.withValues(alpha: _StripAction._tint),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: _StripAction._padX,
+                      vertical: _StripAction._padY,
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: _StripAction._padX,
-                        vertical: _StripAction._padY,
-                      ),
-                      child: Opacity(
-                        opacity: t,
-                        child: Transform.translate(
-                          offset: Offset(4 * (1 - t), 0),
-                          child: label,
-                        ),
+                    child: Text(
+                      widget.label,
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        fontSize: _StripAction._size,
+                        height: 1,
+                        color: widget.accent,
                       ),
                     ),
-                  );
-                },
-                child: Text(
-                  widget.label,
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    fontSize: _StripAction._size,
-                    height: 1,
-                    color: widget.accent,
                   ),
                 ),
               ),
