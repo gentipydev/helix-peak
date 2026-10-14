@@ -37,8 +37,8 @@ final class TissueScene extends ZoomScene {
   @override
   ZoomStop get stop => ZoomStop.tissue;
 
-  /// The radius of the eyepiece's field, in the scene's units: it stands
-  /// clear of the rail, with the dark of the eyepiece round it.
+  /// The radius of the eyepiece's field, in the scene's units: five sixths
+  /// of the view across, the organ dimmed round it.
   static const double field =
       ZoomDepth.tissueField / 2 / ZoomDepth.tissueMetres;
 

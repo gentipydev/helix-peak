@@ -59,10 +59,10 @@ final class DnaScene extends ZoomScene {
   static const double turnSeconds = 24;
   static const double transcriptionSeconds = 60;
 
-  /// Where the polymerase is where nothing moves: a third of the way along
-  /// the view, its transcript behind it, as the home screen's still frame
-  /// shows one.
-  static const double stillTranscription = 0.37;
+  /// Where the polymerases are where nothing moves: one just past the view,
+  /// its transcript peeling away beyond it, the other not yet come, so every
+  /// base in view, the ones the card spells, is paired.
+  static const double stillTranscription = 0.57;
 
   final ProxyAnimation _rotation = ProxyAnimation(kAlwaysDismissedAnimation);
   final ProxyAnimation _transcription = ProxyAnimation(

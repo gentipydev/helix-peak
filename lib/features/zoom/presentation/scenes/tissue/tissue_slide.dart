@@ -68,9 +68,11 @@ final class SlideLayer {
 }
 
 /// A tissue as a section stained with haematoxylin and eosin shows it, laid
-/// out once, in micrometres from the middle of the field: cytoplasm and
-/// matrix in eosin's pinks, nuclei in haematoxylin's purples, lumens, fat and
-/// vessels the lamp's own light, and red cells in the vessels.
+/// out once, in micrometres from the middle of the field, each part by the
+/// stain it would take ([SlideInk]): cytoplasm and matrix eosin, nuclei
+/// haematoxylin, lumens, fat and vessels none, and red cells in the vessels.
+/// The zoom draws it in its own inks (`paintTissueSlide`), as though lit
+/// from the side on the app's ground.
 ///
 /// Every slide is made by one engine ([SlideBuilder]) from a recipe for the
 /// tissue's architecture, the same for every gene whose path goes there. The

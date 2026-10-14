@@ -15,21 +15,21 @@ import 'sculpt.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
 
-/// The cell the zoom lands in, as immunofluorescence shows a cell and as the
-/// Human Protein Atlas images one: DNA blue, the endoplasmic reticulum
-/// yellow, microtubules magenta (the Atlas's red, moved to magenta so a
-/// reader who cannot tell red from green can tell them from the protein),
-/// and the protein green, where the Atlas finds it in a cell: brighter where
-/// it calls a location main, fainter where additional. A protein the Atlas
-/// finds secreted leaves the cell in vesicles. Where the Atlas gives no
-/// location, no green is drawn.
+/// The cell the zoom lands in, sculpted in the app's neutrals: its body lit
+/// from the upper left with a rim, the endoplasmic reticulum and the
+/// microtubules hairlines in the quiet ink, its nucleus a lit sphere ringed
+/// in the mark, the gene being in it. The protein glows in the mark where
+/// the Human Protein Atlas finds it in a cell: brighter where it calls a
+/// location main, fainter where additional. A protein the Atlas finds
+/// secreted leaves the cell in vesicles. Where the Atlas gives no location,
+/// nothing glows.
 ///
 /// The cell's shape is its kind's ([CellArchetype]), its nucleus at the
 /// centre where the zoom goes next. A red cell has none: the zoom lands in
 /// an erythroblast of an island in the marrow, the grown red cells beside it.
 ///
-/// Coming in from the tissue, the dark of the fluorescence field spreads out
-/// from the cell over the stained slide.
+/// Coming in from the tissue, the ground spreads out from the cell over the
+/// slide.
 final class CellScene extends ZoomScene {
   CellScene(this.subject)
     : archetype = subject.depth.archetype,
@@ -870,8 +870,8 @@ final class _Cell {
 String cellWord(ZoomPath path) => path.cellName?.toLowerCase() ?? 'a cell';
 
 /// A cell's outline for its [shape], of half-size [r], its nucleus of radius
-/// [n] at the origin: the cell scene draws it in fluorescence, and the
-/// tissue draws the same outline in its stain, so the cell the zoom closes
-/// on is one shape across the step between them.
+/// [n] at the origin: the cell scene sculpts it, and the tissue lays the
+/// same outline in its slide, so the cell the zoom closes on is one shape
+/// across the step between them.
 Contour cellOutline(CellShape shape, double r, double n) =>
     _Cell.outlineOf(shape, r, n);
