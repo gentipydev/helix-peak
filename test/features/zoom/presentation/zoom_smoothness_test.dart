@@ -78,6 +78,24 @@ class _Words implements Canvas {
   dynamic noSuchMethod(Invocation invocation) => null;
 }
 
+/// A canvas that keeps only the dots and lines drawn on it: each one's size
+/// (a dot's radius, a line's width) and colour.
+class _Marks implements Canvas {
+  final List<(double, Color)> drawn = <(double, Color)>[];
+
+  @override
+  void drawCircle(Offset c, double radius, Paint paint) =>
+      drawn.add((radius, paint.color));
+
+  @override
+  void drawLine(Offset p1, Offset p2, Paint paint) =>
+      drawn.add((paint.strokeWidth, paint.color));
+
+  // Everything else it draws is neither.
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
+}
+
 bool _onCanvas(Offset p) =>
     p.dx > -_canvas.width &&
     p.dx < 2 * _canvas.width &&
@@ -333,6 +351,52 @@ void main() {
               }
             }
           }
+        }
+      }
+    }
+  });
+
+  testWidgets('the helix at the DNA is whole: nothing reads it, so no '
+      'strand peels away from it at any moment of its turn', (
+    WidgetTester tester,
+  ) async {
+    final ZoomInks inks = await _inks(tester);
+    // The mark, or the mark shaded toward the ground as the helix's painter
+    // shades a strand by its depth.
+    bool isMark(Color c) {
+      final Color g = inks.ground;
+      final Color m = inks.mark;
+      final double kr = (c.r - g.r) / (m.r - g.r);
+      final double kg = (c.g - g.g) / (m.g - g.g);
+      final double kb = (c.b - g.b) / (m.b - g.b);
+      return kg > 0.3 && (kg - kb).abs() < 0.03 && (kg - kr).abs() < 0.1;
+    }
+
+    for (final ProteinTarget t in <ProteinTarget>[
+      TestCatalog.insulin,
+      TestCatalog.dystrophin,
+    ]) {
+      final ZoomStage stage = _stage(t);
+      final double d = stage.depth.depthOf(ZoomStop.dna);
+      // Two minutes of its clock, longer than any pass a polymerase made.
+      for (int s = 0; s <= 120; s += 3) {
+        for (final (ZoomScene scene, ZoomFrame frame) in stage.frames(
+          d,
+          _canvas,
+          inks,
+          clock: s.toDouble(),
+          dwell: s.toDouble(),
+        )) {
+          final _Marks marks = _Marks();
+          scene.paint(marks, frame);
+          scene.paintAmbient(marks, frame);
+          expect(
+            marks.drawn.where(
+              ((double, Color) c) => c.$1 > 0.01 && isMark(c.$2),
+            ),
+            isEmpty,
+            reason: '${t.slug}, ${s}s into its turn',
+          );
         }
       }
     }

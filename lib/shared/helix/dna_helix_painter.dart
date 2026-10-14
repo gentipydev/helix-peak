@@ -44,7 +44,10 @@ class DnaHelixPainter extends CustomPainter {
 
   final Animation<double> drift;
 
-  final Animation<double> transcription;
+  /// Where the polymerases reading the duplex are, each opening a bubble
+  /// with its transcript trailing from it. Null where nothing reads it: no
+  /// bubble opens and no transcript is drawn.
+  final Animation<double>? transcription;
 
   final HelixModel model;
 
@@ -231,11 +234,17 @@ class DnaHelixPainter extends CustomPainter {
     final double driftY =
         math.sin(drift.value * 2 * math.pi) * _driftAmplitude;
 
-    final double progress = transcription.value;
+    // With nothing reading it, both heads are infinitely far off: no point
+    // is in a bubble, and no transcript point is behind a head.
+    final double? progress = transcription?.value;
     final double reach = model.headReach;
     final double travel = 2 * reach;
-    final double headA = reach - progress * travel;
-    final double headB = reach - ((progress + 0.5) % 1) * travel;
+    final double headA = progress == null
+        ? double.infinity
+        : reach - progress * travel;
+    final double headB = progress == null
+        ? double.infinity
+        : reach - ((progress + 0.5) % 1) * travel;
 
     final double half = model.bubbleHalfWidth;
     final double span = model.transcriptSpan;

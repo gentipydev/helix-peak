@@ -159,8 +159,8 @@ Sources:
   what it makes, at every scale: the organs its RNA is raised in (brighter
   where the level is higher), where its cell lives in the organ, its cell
   in the tissue, where its protein sits in the cell, its chromosome's
-  territory, its band, its gene on the map, and its RNA at the gene and at
-  the helix. Nothing else is in it.
+  territory, its band, its gene on the map, and its RNA at the gene.
+  Nothing else is in it.
 - **Everything else is sculpted** in the app's warm neutrals, under one
   light from the upper left (`Sculpt`): a lit body from the surfaces up
   toward the bright ink, a rim where the light catches an edge, a soft
@@ -202,7 +202,7 @@ moves under reduced motion.
 | Organ | a band of light passes over it (1.2 s), and the place it is sampled pings |
 | Tissue, cell, nucleus, chromosome | the zoom's cell, its nucleus, the gene's territory, the gene's band ping once (1.1 s) |
 | Gene | a polymerase passes 5′ to 3′ every 9 s, its transcript trailing in the accent |
-| DNA | the helix turns once in 24 s, and a polymerase passes along it every 30 |
+| DNA | the helix turns once in 24 s |
 
 ## One path per gene
 
@@ -566,10 +566,9 @@ decades for chromosome 1), and the minimum travel gives it its room.
   `lib/shared/helix/`): lying along the gene with its 5′ end at the left,
   14 base pairs across the view, carrying the record's first 33 bases in
   the bases' colours, its backbone in the quiet ink, running off the canvas
-  on its 3′ side. It turns once in 24 s, and a polymerase opens its bubble
-  and passes along it every 30 s, its transcript in the accent. Where
-  nothing moves, one has just passed the view and every base in it is
-  paired.
+  on its 3′ side. It turns once in 24 s. Unlike the home screen's, nothing
+  transcribes it: no bubble opens and no strand peels away, so every base
+  stays paired (the user's choice of 2026-10-14).
 - "Walk ›" unzips it into the walk's rows (`HelixModel(unzip:)`) over
   450 ms before the walk opens, its turn easing to flat by the shortest way.
 
@@ -691,7 +690,8 @@ records in under a millisecond on a Mac.
   `?over=walk` so that "Walk ›" pops back.
 - The DNA's helix is the home screen's painter, `DnaHelixPainter` in
   `lib/shared/helix/`, whose `topFade`, `bottomFade` and `overscan` default
-  to the home screen's; `helix_vertices_test` pins every call the home
+  to the home screen's, and whose `transcription` the zoom leaves null, for
+  a helix nothing reads; `helix_vertices_test` pins every call the home
   screen's helix makes.
 - Render check:
   `ZOOM_DESIGN_SHOTS=/tmp/zoom flutter test test/zoom_design_render_check.dart`

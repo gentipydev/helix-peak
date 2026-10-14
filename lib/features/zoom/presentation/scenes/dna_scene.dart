@@ -23,9 +23,10 @@ import 'zoom_subject.dart';
 /// usually is. Closer in, the bare end resolves into the home screen's own
 /// double helix ([DnaHelixPainter]), lying along the gene with its 5′ end at
 /// the left, carrying the record's first bases in the bases' own colours,
-/// turning as the home screen's does, a polymerase passing along it now and
-/// then, its transcript in the mark. As the walk opens it unzips into the
-/// walk's rows, its turn easing until they lie flat.
+/// turning as the home screen's does. Unlike the home screen's, nothing reads
+/// it: no bubble opens and no transcript trails from it, so the helix stays
+/// whole, every base paired. As the walk opens it unzips into the walk's
+/// rows, its turn easing until they lie flat.
 final class DnaScene extends ZoomScene {
   DnaScene(this.subject);
 
@@ -53,21 +54,10 @@ final class DnaScene extends ZoomScene {
   static const double helixPerBase =
       HelixModel.defaultPitch / HelixModel.basePairsPerTurn;
 
-  /// How long a turn takes, as on the home screen, and how long a
-  /// polymerase takes to pass along the helix and come round again: the
-  /// home screen's pace, for a helix a third as long.
+  /// How long a turn takes, as on the home screen.
   static const double turnSeconds = 24;
-  static const double transcriptionSeconds = 60;
-
-  /// Where the polymerases are where nothing moves: one just past the view,
-  /// its transcript peeling away beyond it, the other not yet come, so every
-  /// base in view, the ones the card spells, is paired.
-  static const double stillTranscription = 0.57;
 
   final ProxyAnimation _rotation = ProxyAnimation(kAlwaysDismissedAnimation);
-  final ProxyAnimation _transcription = ProxyAnimation(
-    kAlwaysDismissedAnimation,
-  );
   static const Animation<double> _still = AlwaysStoppedAnimation<double>(0);
 
   DnaHelixPainter? _painter;
@@ -88,13 +78,13 @@ final class DnaScene extends ZoomScene {
         repaint: _rotation,
         rotation: _rotation,
         drift: _still,
-        transcription: _transcription,
+        transcription: null,
         model: HelixModel(
           rungCount: count,
           sampleCount: 3 * count,
           unzip: quantised,
-          // The 3′ end first: the painter's polymerases run toward its
-          // first rung, and on the gene they run 5′ to 3′.
+          // The 3′ end first: the painter's first rung comes to lie at the
+          // right, the gene's 3′ side.
           bases: Uint8List.fromList(<int>[
             for (int i = count - 1; i >= 0; i--) HelixPalette.ofBase(bases[i]),
           ]),
@@ -284,16 +274,12 @@ final class DnaScene extends ZoomScene {
     if (painter == null) {
       return;
     }
-    // The home screen's turn, eased to the nearest flat as it unzips; its
-    // polymerases running 5′ to 3′ along it.
+    // The home screen's turn, eased to the nearest flat as it unzips.
     final double turn =
         (HelixModel.staticRotationTurns + frame.clock / turnSeconds) % 1;
     final double flat = turn < 0.5 ? 0 : 1;
     _rotation.parent = AlwaysStoppedAnimation<double>(
       turn + (flat - turn) * smoothstep(frame.unzip),
-    );
-    _transcription.parent = AlwaysStoppedAnimation<double>(
-      (stillTranscription + frame.clock / transcriptionSeconds) % 1,
     );
     // The painter's helix stands along its canvas's height, its middle at
     // the canvas's, its first rung at the top: turned to lie along the gene

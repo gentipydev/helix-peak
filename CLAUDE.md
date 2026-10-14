@@ -277,7 +277,8 @@ seen:
   opened out of the whole chromosome, the record's exons at their real
   lengths with a polymerase passing along them, and the home screen's own
   double helix (`DnaHelixPainter`, from `lib/shared/helix/`), lying 5′ to
-  3′ with the record's first bases.
+  3′ with the record's first bases, whole: unlike the home screen's,
+  nothing transcribes it (`transcription: null`), so no strand peels away.
 
 The organ and the cell are one path the bake chose, a cell that lives in
 the organ (`path` in the `locus` track's schema 2, `pipeline/locus` in the
