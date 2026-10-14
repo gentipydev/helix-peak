@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
-import 'body_scene.dart';
 import 'organ_art.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
@@ -55,18 +54,13 @@ final class OrganScene extends ZoomScene {
   @override
   Offset get portal => _art.site;
 
+  // The organ is not named here: the card names it.
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
     out.item(
       'organ:target',
       frame.toScreen(_art.site * _grown(frame)),
       frame.opacity,
-    );
-    out.callout(
-      'organ',
-      subject.path.tissue ?? 'an organ, any',
-      frame.toScreen(_art.named * _grown(frame)),
-      calloutPresence(frame),
     );
   }
 

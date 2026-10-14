@@ -142,37 +142,88 @@ void main() {
     }
   });
 
-  testWidgets('Play moves without a pop, a blink or a jump, at 60 fps', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('every step, either way, moves without a pop, a blink or a '
+      'jump, at 60 fps', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
-    // The longest glide of all: the protein whose organ lies farthest from
-    // the middle of the body.
-    final ProteinTarget farthest = TestCatalog.all.reduce(
-      (ProteinTarget a, ProteinTarget b) =>
-          _stage(a).scenes.first.portal.distance >=
-              _stage(b).scenes.first.portal.distance
-          ? a
-          : b,
-    );
-    for (final ProteinTarget t in <ProteinTarget>{
-      TestCatalog.hemoglobin,
-      TestCatalog.dystrophin,
-      TestCatalog.amylase,
-      farthest,
-    }) {
+    List<double> frames(ZoomFlight flight) => <double>[
+      for (
+        int f = 0;
+        f <= (flight.duration.inMicroseconds / 1e6 * 60).ceil();
+        f++
+      )
+        flight.at(Duration(microseconds: (f * 1e6 / 60).round())),
+    ];
+    for (final ProteinTarget t in TestCatalog.all) {
       final ZoomStage stage = _stage(t);
-      final PlaySchedule play = PlaySchedule(stage.depth, from: 0);
-      final int frames = (play.length.inMicroseconds / 1e6 * 60).ceil();
-      _expectSmooth(stage, inks, <double>[
-        for (int f = 0; f <= frames; f++)
-          play.at(Duration(microseconds: (f * 1e6 / 60).round())),
-      ], what: '${t.slug} playing');
+      final ZoomDepth depth = stage.depth;
+      for (int k = 0; k + 1 < ZoomStop.values.length; k++) {
+        final double a = depth.depthOf(ZoomStop.values[k]);
+        final double b = depth.depthOf(ZoomStop.values[k + 1]);
+        _expectSmooth(
+          stage,
+          inks,
+          frames(ZoomFlight(a, b)),
+          what: '${t.slug} stepping in from ${ZoomStop.values[k].name}',
+        );
+        _expectSmooth(
+          stage,
+          inks,
+          frames(ZoomFlight(b, a)),
+          what: '${t.slug} stepping out to ${ZoomStop.values[k].name}',
+        );
+      }
     }
   });
 
-  testWidgets('no two names overlap, and none lies under the rail, at any '
-      'stop, at two widths', (WidgetTester tester) async {
+  test('a step asked for mid-flight takes over at the speed the depth has', () {
+    final ZoomDepth depth = _stage(TestCatalog.hemoglobin).depth;
+    final ZoomFlight first = ZoomFlight(
+      depth.depthOf(ZoomStop.organ),
+      depth.depthOf(ZoomStop.tissue),
+    );
+    for (final double share in <double>[0.2, 0.5, 0.8]) {
+      final Duration at = first.duration * share;
+      final double speed = first.speedAt(at);
+      for (final ZoomStop to in <ZoomStop>[ZoomStop.cell, ZoomStop.organ]) {
+        final ZoomFlight second = ZoomFlight(
+          first.at(at),
+          depth.depthOf(to),
+          velocity: speed,
+        );
+        expect(second.at(Duration.zero), closeTo(first.at(at), 1e-12));
+        // The speed carries over wherever it is not more than the new
+        // flight can carry without passing its stop.
+        final double span = (depth.depthOf(to) - first.at(at)).abs();
+        final double most =
+            2 * span / (second.duration.inMicroseconds / 1e6);
+        expect(
+          second.speedAt(Duration.zero),
+          closeTo(speed.clamp(-most, most), 1e-9),
+          reason: '$share to ${to.name}',
+        );
+        expect(second.at(second.duration), closeTo(depth.depthOf(to), 1e-12));
+        expect(second.speedAt(second.duration).abs(), lessThan(1e-9));
+        // It never passes the stop it is bound for. Turned back, it carries
+        // on a little the way it was going before it turns, as a hand
+        // would.
+        final double from = first.at(at);
+        final double stop = depth.depthOf(to);
+        for (int f = 0; f <= 60; f++) {
+          final double d = second.at(second.duration * (f / 60));
+          if (stop > from) {
+            expect(d, lessThanOrEqualTo(stop + 1e-9));
+            expect(d, greaterThanOrEqualTo(from - 1e-9));
+          } else {
+            expect(d, greaterThanOrEqualTo(stop - 1e-9));
+            expect(d, lessThanOrEqualTo(from + 0.35 * span + 1e-9));
+          }
+        }
+      }
+    }
+  });
+
+  testWidgets('no two names overlap, and each keeps clear of the edges, at '
+      'any stop, at two widths', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
     final TextStyle labels = AppTheme.analysis.textTheme.labelSmall!;
     for (final Size size in <Size>[_canvas, const Size(320, 420)]) {
@@ -203,18 +254,25 @@ void main() {
             }
             expect(
               plate.right,
-              lessThanOrEqualTo(size.width - ZoomPainter.railStrip),
-              reason: '${t.slug} at ${stop.name}: ${callout.text} under rail',
+              lessThanOrEqualTo(size.width - ZoomOverlayPainter.margin),
+              reason: '${t.slug} at ${stop.name}: ${callout.text} at the edge',
             );
             expect(plate.left, greaterThanOrEqualTo(0));
             expect(plate.top, greaterThanOrEqualTo(0));
             placed.add(plate);
           }
-          // Each stop names what it follows.
+          // A stop names what it follows only where the card does not:
+          // the card names the organ and the territory, and the cell where
+          // the Atlas says nothing of where its protein sits.
+          final bool named = switch (stop) {
+            ZoomStop.body || ZoomStop.organ || ZoomStop.nucleus => false,
+            ZoomStop.cell => locusOf(t).subcellular.main.isNotEmpty,
+            _ => true,
+          };
           expect(
             staging.callouts.where((ZoomCallout c) => c.opacity > 0.5),
-            isNotEmpty,
-            reason: '${t.slug} at ${stop.name} names nothing',
+            named ? isNotEmpty : isEmpty,
+            reason: '${t.slug} at ${stop.name}',
           );
         }
       }

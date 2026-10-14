@@ -4,57 +4,35 @@ import 'package:flutter/foundation.dart';
 
 import '../../../core/biology/gene_record.dart';
 import '../../../shared/format.dart';
+import 'anatomy_figure.dart';
 import 'anatomy_tables.dart';
+import 'cell_archetypes.dart';
 import 'locus_track.dart';
 import 'zoom_depth.dart';
 import 'zoom_path.dart';
 
-/// What the level card says at one stop: the place, one line of what is
-/// known of it, and where that comes from: a source, or `drawn` where the
-/// stop is an illustration.
+/// What the card says at one stop: the place, and one line of what is known
+/// of it, or none where the stop has nothing to add to its name.
 @immutable
 final class ZoomFact {
-  const ZoomFact({
-    required this.stop,
-    required this.title,
-    required this.line,
-    required this.source,
-  });
+  const ZoomFact({required this.stop, required this.title, this.line = ''});
 
   final ZoomStop stop;
 
   /// The place: `Bone marrow`, `Chromosome 11`, `HBB · 1,606 bases`.
   final String title;
 
-  /// One line, data first: `Tissue enriched · 125,481 nTPM`.
+  /// One line, data only: `Tissue enriched · 125,481 nTPM`. Empty where the
+  /// stop has none.
   final String line;
-
-  /// `HPA 25.1`, `UCSC hg38`, `RefSeq record`, or [drawn].
-  final String source;
-
-  /// The tag of a stop that is illustration, drawn the same way for every
-  /// gene.
-  static const String drawn = 'drawn';
-
-  bool get isDrawn => source == drawn;
 }
 
-/// One paragraph of the About sheet: a lead, what it says, and where to read
-/// it.
-@immutable
-final class ZoomSource {
-  const ZoomSource({required this.name, required this.text, this.uri});
-
-  final String name;
-  final String text;
-  final String? uri;
-}
-
-/// The words of the zoom: a [ZoomFact] for each stop and the About sheet's
-/// paragraphs. Every number about the protein comes from its locus track or
-/// its record; the rest are what bodies, cells and DNA measure, said once for
-/// every protein. Only the gene's own stop names the gene, as its record
-/// does; no other line names a gene or a protein.
+/// The words of the zoom: a [ZoomFact] for each stop, and the credit the
+/// body carries. Every number about the protein comes from its locus track
+/// or its record; the rest are what bodies, cells and DNA measure, said once
+/// for every protein. Only the gene's own stop names the gene, as its record
+/// does; no other line names a gene or a protein. Nothing explains: what a
+/// stop shows is drawn, and the card names it.
 final class ZoomFacts {
   ZoomFacts({required this.track, required this.path, required this.record});
 
@@ -62,37 +40,28 @@ final class ZoomFacts {
   final ZoomPath path;
   final GeneRecord record;
 
-  String get _atlas => 'HPA ${track.atlasVersion}';
-
   ZoomFact of(ZoomStop stop) => switch (stop) {
     ZoomStop.body => _body(),
     ZoomStop.organ => _organ(),
-    ZoomStop.tissue => _tissue(),
+    ZoomStop.tissue => ZoomFact(stop: stop, title: architecture),
     ZoomStop.cell => _cell(),
     ZoomStop.nucleus => ZoomFact(
       stop: stop,
       title: 'Chromosome ${track.chromosome} territory',
-      line: 'One of 46 in the nucleus, each in a territory of its own',
-      source: ZoomFact.drawn,
     ),
     ZoomStop.chromosome => ZoomFact(
       stop: stop,
       title: 'Chromosome ${track.chromosome}',
       line:
-          '${grouped(track.length)} bp · ${spelled(track.bands.length)} bands '
-          '· condensed for division',
-      source: 'UCSC hg38',
+          '${grouped(track.length)} bp · '
+          '${spelled(track.bands.length)} bands',
     ),
     ZoomStop.band => ZoomFact(
       stop: stop,
       title: track.locus,
       line:
-          '${basePairLabel(track.bandLengthBp.toDouble())} of '
-          '${track.bandNames.length == 1 ? 'band' : 'bands'} · the gene at '
+          '${basePairLabel(track.bandLengthBp.toDouble())} · gene at '
           '${grouped(track.spanStart)}–${grouped(track.spanEnd)}',
-      source: track.maneRelease.isEmpty
-          ? 'UCSC hg38'
-          : 'UCSC hg38 · MANE ${track.maneRelease}',
     ),
     ZoomStop.gene => ZoomFact(
       stop: stop,
@@ -101,14 +70,12 @@ final class ZoomFacts {
           '${spelledLeading(record.exons.length)} '
           '${record.exons.length == 1 ? 'exon' : 'exons'} · '
           '${track.strand < 0 ? 'reverse' : 'forward'} strand',
-      source: 'RefSeq record',
     ),
     ZoomStop.dna => ZoomFact(
       stop: stop,
-      title: 'Its first ${grouped(dnaBases)} bases',
+      title: 'First ${grouped(dnaBases)} bases',
       line:
           '5′ ${record.sequence.substring(0, math.min(dnaBases, record.sequence.length))} 3′',
-      source: 'RefSeq record',
     ),
   };
 
@@ -118,6 +85,59 @@ final class ZoomFacts {
 
   /// How many of its first bases the DNA stop draws.
   int get dnaBases => math.min(ZoomDepth.helixBases, record.sequence.length);
+
+  /// The credit the body carries for what it is drawn from: the
+  /// anatomogram's makers and the Atlas's version, under their licence,
+  /// named once where the two share it.
+  String get credit {
+    final String atlas = 'HPA ${track.atlasVersion}';
+    return track.atlasLicence == AnatomyFigure.licence
+        ? '${AnatomyFigure.credit} · $atlas · ${AnatomyFigure.licence}'
+        : '${AnatomyFigure.credit}, ${AnatomyFigure.licence} · $atlas, '
+              '${track.atlasLicence}';
+  }
+
+  /// What the tissue stop shows, by the recipe its slide is laid by: the
+  /// architecture a pathologist would name, the same for every gene whose
+  /// path goes there with the same kind of cell.
+  String get architecture {
+    final String? tissue = path.tissue;
+    final TissueRecipe recipe =
+        (tissue == null ? null : tissueAnatomy[tissue])?.recipe ??
+        TissueRecipe.squamous;
+    final CellShape shape = archetypeOf(path).shape;
+    return switch (recipe) {
+      TissueRecipe.acinar => switch (shape) {
+        CellShape.endocrine => 'Islet',
+        CellShape.epithelial => 'Ducts',
+        _ => 'Acini',
+      },
+      TissueRecipe.adipose => 'Fat lobules',
+      TissueRecipe.alveolar => 'Alveoli',
+      TissueRecipe.cardiac => 'Cardiac muscle',
+      TissueRecipe.choroidPlexus => 'Choroid plexus',
+      TissueRecipe.endocrine => 'Endocrine cords',
+      TissueRecipe.follicular => 'Follicles',
+      TissueRecipe.gastric => 'Gastric glands',
+      TissueRecipe.glandular => 'Mucosal folds',
+      TissueRecipe.hepatic => 'Hepatic plates',
+      TissueRecipe.intestinal => 'Villi and crypts',
+      TissueRecipe.lymphoid => 'Lymph node',
+      TissueRecipe.marrow =>
+        shape == CellShape.erythroid ? 'Erythroblastic island' : 'Marrow',
+      TissueRecipe.neural => 'Grey matter',
+      TissueRecipe.ovarian => 'Ovarian stroma',
+      TissueRecipe.placental => 'Chorionic villi',
+      TissueRecipe.renal => 'Tubules',
+      TissueRecipe.retina => 'Retina',
+      TissueRecipe.seminiferous => 'Seminiferous tubules',
+      TissueRecipe.skeletalMuscle => 'Muscle fibres',
+      TissueRecipe.smoothMuscle => 'Smooth muscle',
+      TissueRecipe.squamous => 'Squamous epithelium',
+      TissueRecipe.urothelial => 'Urothelium',
+      TissueRecipe.vascular => 'Vessel wall',
+    };
+  }
 
   static String capital(String text) =>
       text.isEmpty ? text : '${text[0].toUpperCase()}${text.substring(1)}';
@@ -147,7 +167,6 @@ final class ZoomFacts {
             ? 'Every tissue'
             : 'No tissue stands out',
         line: '${reading.specificity} · ${lower(reading.distribution)}',
-        source: _atlas,
       );
     }
     final String line = switch (path.tissueFrom) {
@@ -157,17 +176,9 @@ final class ZoomFacts {
         return '${reading.specificity} · ${grouped(ntpm.round())} nTPM'
             '${others.isEmpty ? '' : ' · also ${others.join(', ')}'}';
       }(),
-      TissueFrom.cellHome =>
-        '${reading.specificity} · home of its top cell type',
-      TissueFrom.pair ||
-      null => '${reading.specificity} · its tissue cell type pair',
+      _ => reading.specificity,
     };
-    return ZoomFact(
-      stop: ZoomStop.body,
-      title: capital(tissue),
-      line: line,
-      source: _atlas,
-    );
+    return ZoomFact(stop: ZoomStop.body, title: capital(tissue), line: line);
   }
 
   ZoomFact _organ() {
@@ -175,27 +186,16 @@ final class ZoomFacts {
     final TissueAnatomy? anatomy = tissue == null
         ? null
         : tissueAnatomy[tissue];
+    if (tissue == null || anatomy == null) {
+      return const ZoomFact(stop: ZoomStop.organ, title: 'An organ');
+    }
+    final String size = lengthLabel(anatomy.metres);
     return ZoomFact(
       stop: ZoomStop.organ,
-      title: tissue == null ? 'An organ' : capital(tissue),
-      line: anatomy == null
-          ? 'Any organ it is read in'
-          : anatomy.inBrain != null && tissue != 'brain'
-          ? 'In the brain, about ${lengthLabel(anatomy.metres)} long'
-          : 'About ${lengthLabel(anatomy.metres)} across',
-      source: ZoomFact.drawn,
-    );
-  }
-
-  ZoomFact _tissue() {
-    final String? tissue = path.tissue;
-    return ZoomFact(
-      stop: ZoomStop.tissue,
-      title: tissue == null ? 'A tissue' : '${capital(tissue)}, magnified',
-      line:
-          'A field ${lengthLabel(ZoomDepth.tissueField)} across, stained '
-          'with H&E',
-      source: ZoomFact.drawn,
+      title: capital(tissue),
+      line: anatomy.inBrain != null && tissue != 'brain'
+          ? 'In the brain · about $size'
+          : 'About $size',
     );
   }
 
@@ -221,8 +221,7 @@ final class ZoomFacts {
         title: capital(precursor),
         line:
             '${capital(cell)}${ncpm == null ? '' : ' · ${grouped(ncpm.round())} nCPM'}'
-            ' · no nucleus, so its precursor',
-        source: _atlas,
+            ' · no nucleus',
       );
     }
     if (cell != null) {
@@ -231,85 +230,18 @@ final class ZoomFacts {
         stop: ZoomStop.cell,
         title: capital(cell),
         line: path.cellFrom == CellFrom.pair || ncpm == null
-            ? 'Enriched in the ${path.tissue ?? 'tissue'} · tissue cell type'
+            ? 'Tissue cell type enriched'
             : '${grouped(ncpm.round())} nCPM · ${track.cellType.specificity}',
-        source: _atlas,
       );
     }
     final String? top = track.cellType.first;
     final String? tissue = path.tissue;
     return ZoomFact(
       stop: ZoomStop.cell,
-      title: tissue == null ? 'A cell' : 'A cell of the $tissue',
+      title: tissue == null ? 'A cell' : '${capital(tissue)} cell',
       line: top == null
           ? track.cellType.specificity
-          : 'Its single cell reading is highest in ${lower(top)}, elsewhere',
-      source: ZoomFact.drawn,
+          : 'Top cell type: ${lower(top)}',
     );
   }
-
-  /// The About sheet: what is data and what is drawn, and every source.
-  List<ZoomSource> get about => <ZoomSource>[
-    const ZoomSource(
-      name: 'What is drawn',
-      text:
-          'The body, the organ, the tissue, the cell and the nucleus are '
-          'illustrations of general anatomy: every gene that goes to a tissue '
-          'or to a kind of cell is shown the same one. The tissue is drawn '
-          'as a section stained with haematoxylin and eosin, the cell as '
-          'immunofluorescence. Which organ and which cell they are is the '
-          'Human Protein Atlas’s reading; the chromosome’s bands, where the '
-          'gene lies and its exons are data.',
-    ),
-    ZoomSource(
-      name: 'Human Protein Atlas',
-      text:
-          'Where the gene is read: the consensus RNA reading of tissues, the '
-          'single cell types, the tissue cell type pairs and where in a cell '
-          'the protein is found. Version ${track.atlasVersion}, '
-          '${track.atlasLicence}. The tissue and the cell are each the Atlas’s '
-          'reading of many samples, not a measurement in one body.',
-      uri: track.atlasUrl.isEmpty
-          ? null
-          : track.atlasUrl.replaceFirst(RegExp(r'\.json$'), ''),
-    ),
-    const ZoomSource(
-      name: 'Body and organs',
-      text:
-          'The figure, the brain and most organs’ outlines are made from the '
-          'Expression Atlas anatomograms, by EMBL-EBI, CC BY 4.0, with their '
-          'outlines simplified. The figure draws many organs smaller than '
-          'they are, so each is brought to its own size as the view closes on '
-          'it. The organs lit in the body are the tissues the Atlas finds the '
-          'gene’s RNA raised in, each as bright as its level against the '
-          'highest. A lymph node, a vessel, the skin, a parathyroid gland and '
-          'the eye are drawn from general anatomy.',
-      uri: 'https://www.ebi.ac.uk/gxa/licence.html',
-    ),
-    ZoomSource(
-      name: 'Bands',
-      text:
-          'The UCSC Genome Browser’s cytoBand table for hg38, updated '
-          '${track.cytobandUpdated.split('T').first}. A band is a stain '
-          'pattern seen down a microscope at low resolution, millions of base '
-          'pairs long: it says where the gene lies, and the gene itself is '
-          'far too small to see in it.',
-      uri: 'https://genome.ucsc.edu/',
-    ),
-    ZoomSource(
-      name: 'Where it lies',
-      text:
-          'The span of its MANE Select transcript on GRCh38'
-          '${track.maneRelease.isEmpty ? '' : ', release ${track.maneRelease}'}. '
-          'Its exons and first bases are the RefSeq record the walk reads, '
-          'whose outer ends can differ from the span by a few bases.',
-    ),
-    const ZoomSource(
-      name: 'Territories',
-      text:
-          'Gene-dense chromosomes are drawn toward the nucleus’s centre and '
-          'gene-poor ones at its rim, in the order Boyle et al. (2001) and '
-          'Croft et al. (1999) measured; the places themselves are drawn.',
-    ),
-  ];
 }

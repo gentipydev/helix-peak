@@ -138,9 +138,9 @@ void main() {
           _canvas,
           inks,
         );
-        // The place the body names in the organ, and the place the organ's
-        // scene samples it: one point of one outline.
-        final Offset inBody = staging.items['callout:body']!.$1;
+        // The place the body goes into the organ by, and the place the
+        // organ's scene samples it: one point of one outline.
+        final Offset inBody = staging.items['body:site']!.$1;
         final Offset inOrgan = staging.items['organ:target']!.$1;
         expect(
           (inBody - inOrgan).distance,
@@ -167,8 +167,8 @@ void main() {
         closeTo(subject.anatomy!.metres * ZoomDepth.organMargin, 1e-12),
         reason: t.slug,
       );
-      // And the place its tissue is sampled is on the canvas, clear of the
-      // rail.
+      // And the place its tissue is sampled is on the canvas, clear of its
+      // edges.
       final Offset site = stage
           .stage(depth.depthOf(ZoomStop.organ), _canvas, inks)
           .items['organ:target']!
@@ -177,11 +177,6 @@ void main() {
         (Offset.zero & _canvas).deflate(8).contains(site),
         isTrue,
         reason: '${t.slug}: sampled at $site',
-      );
-      expect(
-        site.dx,
-        lessThan(_canvas.width - ZoomPainter.railStrip),
-        reason: t.slug,
       );
     }
   });

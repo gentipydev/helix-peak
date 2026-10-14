@@ -16,7 +16,16 @@ final class ZoomFrame {
     required this.clock,
     this.labels = const TextStyle(fontSize: 12),
     this.unzip = 0,
+    this.dwell = settled,
   });
+
+  /// A dwell long past every arrival's beat: where nothing moves on its own
+  /// (tests, reduced motion), each stop is drawn as its beats leave it.
+  static const double settled = 1e6;
+
+  /// Seconds since the depth last came to rest at a stop: the clock a
+  /// stop's arrival beats run on, once each time it is reached.
+  final double dwell;
 
   /// How far the helix is unzipped into the walk's rows, as the walk opens:
   /// 0 until then.
@@ -125,7 +134,21 @@ abstract class ZoomScene {
   /// Draws the scene. The canvas is the view's, untransformed: a scene
   /// drawn in its units calls [ZoomFrame.enter]; one drawn in base pairs
   /// places its own points through [ZoomFrame.toScreen].
+  ///
+  /// It is drawn again only when the depth moves, so nothing here may run on
+  /// [ZoomFrame.clock] or [ZoomFrame.dwell]: what moves on its own is drawn
+  /// in [paintAmbient].
   void paint(Canvas canvas, ZoomFrame frame);
+
+  /// Draws, over [paint], what moves at rest: a helix turning, vesicles
+  /// leaving a cell, the beats a stop plays as it is reached. Drawn on a
+  /// layer of its own, so a stop at rest repaints only this.
+  void paintAmbient(Canvas canvas, ZoomFrame frame) {}
+
+  /// Whether the scene, at [frame], still has something moving on its own:
+  /// a loop that never ends, or a beat that has not finished. The ambient
+  /// clock stops when no scene on screen wants it.
+  bool wantsClock(ZoomFrame frame) => false;
 }
 
 /// How much of the stop being entered shows across a segment, while the

@@ -90,7 +90,6 @@ final class DnaScene extends ZoomScene {
     final double span = _span(frame);
     final double perBase = w / span;
     // The fibre's line gives way to the helix as the bases come up.
-    final double helix = smoothstep((420 - span) / 260);
     final double line = 1 - smoothstep((180 - span) / 100);
     if (line > 0) {
       canvas.drawLine(
@@ -102,8 +101,34 @@ final class DnaScene extends ZoomScene {
       );
     }
     _nucleosomes(canvas, frame, perBase, mid);
-    if (helix > 0) {
-      _drawHelix(canvas, frame, helix);
+  }
+
+  /// How much of the helix shows at [frame]: it comes up as its bases
+  /// grow big enough to tell apart.
+  double _helixShown(ZoomFrame frame) =>
+      smoothstep((420 - _span(frame)) / 260);
+
+  @override
+  bool wantsClock(ZoomFrame frame) => _helixShown(frame) > 0;
+
+  // The helix turns at rest, so it is drawn over the scene on the ambient
+  // clock, and fades there with the scene itself.
+  @override
+  void paintAmbient(Canvas canvas, ZoomFrame frame) {
+    final double helix = _helixShown(frame);
+    if (helix <= 0) {
+      return;
+    }
+    final bool fading = frame.opacity < 0.995;
+    if (fading) {
+      canvas.saveLayer(
+        Offset.zero & frame.size,
+        Paint()..color = Color.fromRGBO(0, 0, 0, frame.opacity),
+      );
+    }
+    _drawHelix(canvas, frame, helix);
+    if (fading) {
+      canvas.restore();
     }
   }
 

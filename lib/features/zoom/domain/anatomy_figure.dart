@@ -140,6 +140,12 @@ final class AnatomyFigure {
   /// How tall a standing figure is, in metres.
   static const double height = 1.7;
 
+  /// Who made the drawings the figures are made from, as the zoom credits
+  /// them where they are drawn, and under what licence (the head of
+  /// `anatomy_figures.g.dart`, which `tool/zoom/anatomogram.py` writes).
+  static const String credit = 'Anatomogram EMBL-EBI';
+  static const String licence = 'CC BY 4.0';
+
   /// The standing figure a zoom to [tissue] is drawn on. A tissue only one
   /// sex has is found on that figure. Any other is found on both, and the
   /// figure is then the one that has the most of the [others] the gene is

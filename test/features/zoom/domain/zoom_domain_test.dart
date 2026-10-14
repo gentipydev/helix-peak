@@ -575,20 +575,6 @@ void main() {
       );
     });
 
-    test('maps the rail evenly by stop, and back', () {
-      final ZoomDepth depth = _depth(TestCatalog.dystrophin);
-      for (final ZoomStop stop in ZoomStop.values) {
-        expect(
-          depth.railOf(depth.depthOf(stop)),
-          closeTo(stop.index / (ZoomStop.values.length - 1), 1e-12),
-        );
-      }
-      for (int i = 0; i <= 100; i++) {
-        final double d = depth.total * i / 100;
-        expect(depth.depthAtRail(depth.railOf(d)), closeTo(d, 1e-9));
-      }
-    });
-
     test('labels lengths and stretches of the genome as each reads best', () {
       expect(lengthLabel(2.2), '2.2 m');
       expect(lengthLabel(0.05), '5 cm');
@@ -693,14 +679,34 @@ void main() {
   });
 
   group('the motion', () {
-    test('takes longer to fly further, within bounds', () {
-      expect(flightDuration(0, 0.1), const Duration(milliseconds: 450));
-      expect(flightDuration(0, 1).inMilliseconds, 610);
-      expect(flightDuration(0, 40), const Duration(milliseconds: 2600));
+    test('takes a second and a half a step, a little longer the further, '
+        'within bounds', () {
+      expect(flightDuration(0, 0.1), const Duration(milliseconds: 1450));
+      expect(flightDuration(0, 3).inMilliseconds, 1750);
+      expect(flightDuration(0, 40), const Duration(milliseconds: 1900));
       final ZoomFlight flight = ZoomFlight(1, 3);
       expect(flight.at(Duration.zero), 1);
       expect(flight.at(flight.duration), 3);
       expect(flight.at(flight.duration ~/ 2), closeTo(2, 1e-9));
+      expect(flight.speedAt(Duration.zero), 0);
+      expect(flight.speedAt(flight.duration), 0);
+    });
+
+    test('sets off at the speed it is given, and comes to rest', () {
+      final ZoomFlight flight = ZoomFlight(1, 3, velocity: 1.5);
+      expect(flight.speedAt(Duration.zero), closeTo(1.5, 1e-9));
+      expect(flight.at(flight.duration), closeTo(3, 1e-12));
+      expect(flight.speedAt(flight.duration), closeTo(0, 1e-9));
+      // Speed is depth a second: the speed it reports is the rate the depth
+      // changes.
+      const Duration step = Duration(microseconds: 100);
+      for (final double share in <double>[0.1, 0.4, 0.7]) {
+        final Duration at = flight.duration * share;
+        final double rate =
+            (flight.at(at + step) - flight.at(at - step)) /
+            (2 * step.inMicroseconds / 1e6);
+        expect(flight.speedAt(at), closeTo(rate, 1e-3));
+      }
     });
 
     test('coasts a flick to the stop it would reach', () {
@@ -709,32 +715,6 @@ void main() {
       expect(flingTarget(depth, cell, 0), ZoomStop.cell);
       expect(flingTarget(depth, cell, 8), isNot(ZoomStop.cell));
       expect(flingTarget(depth, cell, -100), ZoomStop.body);
-    });
-
-    test('plays the dive from the body to the DNA, resting at each stop', () {
-      final ZoomDepth depth = _depth(TestCatalog.hemoglobin);
-      final PlaySchedule play = PlaySchedule(depth, from: 0);
-      expect(play.length.inSeconds, inInclusiveRange(18, 32));
-      expect(play.at(Duration.zero), 0);
-      // Resting at the body for its dwell.
-      expect(play.at(const Duration(milliseconds: 1400)), 0);
-      expect(play.at(play.length), depth.total);
-      double previous = -1;
-      for (int ms = 0; ms <= play.length.inMilliseconds; ms += 50) {
-        final double d = play.at(Duration(milliseconds: ms));
-        expect(d, greaterThanOrEqualTo(previous - 1e-12));
-        previous = d;
-      }
-      final PlaySchedule stepped = PlaySchedule(
-        depth,
-        from: 0,
-        stepped: true,
-      );
-      expect(stepped.length, PlaySchedule.steppedHold * ZoomStop.values.length);
-      expect(
-        stepped.at(PlaySchedule.steppedHold + const Duration(milliseconds: 1)),
-        depth.depthOf(ZoomStop.organ),
-      );
     });
   });
 
@@ -838,23 +818,63 @@ void main() {
       }
     });
 
-    test('say where each line comes from, and which stops are drawn', () {
+    test('say data, and explain nothing', () {
+      final RegExp explains = RegExp(
+        r'condensed for division|one of 46|territory of its own|stained|'
+        r'so its precursor|elsewhere|home of its top|cell type pair|'
+        r'a field|magnified|any organ',
+        caseSensitive: false,
+      );
       for (final ProteinTarget t in TestCatalog.all) {
         final ZoomFacts facts = _facts(t);
-        expect(facts.of(ZoomStop.body).source, 'HPA 25.1');
-        for (final ZoomStop stop in <ZoomStop>[
-          ZoomStop.organ,
-          ZoomStop.tissue,
-          ZoomStop.nucleus,
-        ]) {
-          expect(facts.of(stop).isDrawn, isTrue, reason: '${t.slug} $stop');
+        for (final ZoomStop stop in ZoomStop.values) {
+          final ZoomFact fact = facts.of(stop);
+          expect(
+            explains.hasMatch('${fact.title} ${fact.line}'),
+            isFalse,
+            reason: '${t.slug} at ${stop.name}: ${fact.title} · ${fact.line}',
+          );
         }
-        expect(facts.of(ZoomStop.chromosome).source, 'UCSC hg38');
-        expect(facts.of(ZoomStop.gene).source, 'RefSeq record');
+        // The nucleus and the tissue are named, with nothing to add.
+        expect(facts.of(ZoomStop.nucleus).line, isEmpty);
+        expect(facts.of(ZoomStop.tissue).line, isEmpty);
+      }
+      expect(
+        _facts(TestCatalog.insulin).of(ZoomStop.chromosome).line,
+        '135,086,622 bp · 36 bands',
+      );
+      expect(
+        _facts(TestCatalog.insulin).of(ZoomStop.cell),
+        isA<ZoomFact>()
+            .having((ZoomFact f) => f.title, 'title', 'Beta cells')
+            .having((ZoomFact f) => f.line, 'line', 'Tissue cell type enriched'),
+      );
+    });
+
+    test('name each tissue by the architecture its slide is laid in', () {
+      final Map<ProteinTarget, String> named = <ProteinTarget, String>{
+        TestCatalog.insulin: 'Islet',
+        TestCatalog.glucagon: 'Islet',
+        TestCatalog.cftr: 'Ducts',
+        TestCatalog.amylase: 'Acini',
+        TestCatalog.hemoglobin: 'Erythroblastic island',
+        TestCatalog.tnf: 'Marrow',
+        TestCatalog.erythropoietin: 'Hepatic plates',
+        TestCatalog.leptin: 'Fat lobules',
+        TestCatalog.myoglobin: 'Muscle fibres',
+        TestCatalog.oxytocin: 'Grey matter',
+        TestCatalog.prion: 'Choroid plexus',
+        TestCatalog.somatotropin: 'Endocrine cords',
+        TestCatalog.relaxin: 'Mucosal folds',
+        TestCatalog.ubiquitin: 'Seminiferous tubules',
+        TestCatalog.app: 'Lymph node',
+        TestCatalog.p53: 'Gastric glands',
+      };
+      for (final MapEntry<ProteinTarget, String> entry in named.entries) {
         expect(
-          facts.of(ZoomStop.cell).isDrawn,
-          _path(t).cellType == null,
-          reason: t.slug,
+          _facts(entry.key).of(ZoomStop.tissue).title,
+          entry.value,
+          reason: entry.key.slug,
         );
       }
     });
@@ -873,9 +893,8 @@ void main() {
     test('say the Atlas’s top cell type where none of the organ’s stands '
         'out', () {
       final ZoomFact tnf = _facts(TestCatalog.tnf).of(ZoomStop.cell);
-      expect(tnf.title, 'A cell of the bone marrow');
-      expect(tnf.line, contains('highest in microglia'));
-      expect(tnf.isDrawn, isTrue);
+      expect(tnf.title, 'Bone marrow cell');
+      expect(tnf.line, 'Top cell type: microglia');
     });
 
     test('give the gene’s length as its record does, the walk’s', () {
@@ -912,32 +931,20 @@ void main() {
           final ZoomFact fact = facts.of(stop);
           expect(seen.hasMatch('${fact.title} ${fact.line}'), isFalse);
         }
-        final String bands = facts.about
-            .firstWhere((ZoomSource s) => s.name == 'Bands')
-            .text;
-        expect(bands, contains('far too small to see'));
-        expect(bands, contains('at low resolution'));
       }
     });
 
-    test('name their sources, with the Atlas version and licence', () {
-      final String about = _facts(
-        TestCatalog.insulin,
-      ).about.map((ZoomSource s) => '${s.name} ${s.text}').join(' ');
-      expect(about, contains('cytoBand table for hg38'));
-      expect(about, contains('Version 25.1'));
-      expect(about, contains('CC BY 4.0'));
-      expect(about, contains('2022-10-28'));
-      expect(about, contains('MANE Select'));
-      // The anatomogram's own credit: who, under what, and what was changed.
-      final ZoomSource figures = _facts(TestCatalog.insulin)
-          .about
-          .firstWhere((ZoomSource s) => s.name == 'Body and organs');
-      expect(figures.text, contains('Expression Atlas anatomograms'));
-      expect(figures.text, contains('EMBL-EBI, CC BY 4.0'));
-      expect(figures.text, contains('simplified'));
-      // The link is to the Atlas's own statement of the licence.
-      expect(figures.uri, 'https://www.ebi.ac.uk/gxa/licence.html');
+    test('credit the anatomogram and the Atlas, under their licence', () {
+      expect(
+        _facts(TestCatalog.insulin).credit,
+        'Anatomogram EMBL-EBI · HPA 25.1 · CC BY 4.0',
+      );
+      // The figures' own file says whose they are, under what.
+      final String head = File(
+        'lib/features/zoom/domain/anatomy_figures.g.dart',
+      ).readAsStringSync().substring(0, 600);
+      expect(head, contains('EMBL-EBI'));
+      expect(head, contains(AnatomyFigure.licence));
     });
 
     test('show the record’s first bases at the DNA, 5′ to 3′', () {
@@ -945,7 +952,7 @@ void main() {
         final GeneRecord record = recordOf(t);
         final ZoomFact dna = _facts(t).of(ZoomStop.dna);
         final int n = math.min(ZoomDepth.helixBases, record.sequence.length);
-        expect(dna.title, 'Its first $n bases');
+        expect(dna.title, 'First $n bases');
         expect(dna.line, '5′ ${record.sequence.substring(0, n)} 3′');
       }
     });

@@ -19,8 +19,9 @@ import 'package:helixpeek/features/gene_lookup/data/repositories/protein_catalog
 import 'package:helixpeek/features/gene_lookup/domain/usecases/fetch_gene.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_facts.dart';
-import 'package:helixpeek/features/zoom/domain/zoom_motion.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_path.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
+import 'package:helixpeek/features/zoom/presentation/zoom_painter.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_screen.dart';
 
 import '../../../support/catalog_api.dart';
@@ -118,8 +119,23 @@ ZoomDepth _depth(ProteinTarget target) =>
 String _text(WidgetTester tester, String key) =>
     tester.widget<Text>(find.byKey(ValueKey<String>(key))).data!;
 
-/// The stop the card is at, by its overline.
-String _stop(WidgetTester tester) => _text(tester, 'zoom-card-stop');
+/// The stop the card is at, by the key its words carry, in capitals: the
+/// words of a stop being left may still be on their way out.
+String _stop(WidgetTester tester) {
+  const String prefix = 'zoom-card-at-';
+  final Element words = find
+      .byWidgetPredicate(
+        (Widget w) =>
+            w.key is ValueKey<String> &&
+            (w.key! as ValueKey<String>).value.startsWith(prefix),
+      )
+      .evaluate()
+      .last;
+  final String name = (words.widget.key! as ValueKey<String>).value.substring(
+    prefix.length,
+  );
+  return ZoomScreen.nameOf(ZoomStop.values.byName(name)).toUpperCase();
+}
 
 Future<void> _tap(WidgetTester tester, String key) async {
   await tester.tap(find.byKey(ValueKey<String>(key)));
@@ -190,13 +206,18 @@ void main() {
         expect(_stop(tester), ZoomScreen.nameOf(stop).toUpperCase());
         final ZoomFact fact = facts.of(stop);
         expect(_text(tester, 'zoom-card-title'), fact.title);
-        expect(_text(tester, 'zoom-card-line'), fact.line);
+        final Finder line = find.byKey(const ValueKey<String>('zoom-card-line'));
+        if (fact.line.isEmpty) {
+          expect(line, findsNothing, reason: '${target.slug} at ${stop.name}');
+        } else {
+          expect(_text(tester, 'zoom-card-line'), fact.line);
+        }
         final Finder words = find.byKey(
           const ValueKey<String>('zoom-card-words'),
         );
         for (final String key in <String>[
           'zoom-card-title',
-          'zoom-card-line',
+          if (fact.line.isNotEmpty) 'zoom-card-line',
         ]) {
           expect(
             _within(
@@ -240,23 +261,6 @@ void main() {
     expect(_stop(tester), 'ORGAN');
   });
 
-  testWidgets('the rail is a slider a screen reader steps by stop', (
-    WidgetTester tester,
-  ) async {
-    await _host(tester, TestCatalog.hemoglobin);
-    Semantics rail() => tester.widget<Semantics>(
-      find.byKey(const ValueKey<String>('zoom-rail')),
-    );
-    expect(rail().properties.slider, isTrue);
-    expect(rail().properties.value, startsWith('Body, '));
-    expect(rail().properties.increasedValue, 'Organ');
-    expect(rail().properties.onDecrease, isNull);
-    rail().properties.onIncrease!();
-    await tester.pump();
-    expect(_stop(tester), 'ORGAN');
-    expect(rail().properties.decreasedValue, 'Body');
-  });
-
   testWidgets('a pinch runs through the stops and lets go at the nearest', (
     WidgetTester tester,
   ) async {
@@ -297,63 +301,173 @@ void main() {
     expect(_stop(tester), 'ORGAN');
   });
 
-  testWidgets('Play dives on its own, resting at each stop, and a touch '
-      'pauses it', (WidgetTester tester) async {
-    final ProteinTarget target = TestCatalog.hemoglobin;
-    await _host(tester, target, reduced: false);
-    await _tap(tester, 'zoom-play');
-    // Resting at the body first.
-    await tester.pump(const Duration(milliseconds: 1200));
-    expect(_stop(tester), 'BODY');
-    // Then on to the organ, and its rest.
-    await tester.pump(
-      PlaySchedule.dwell + const Duration(milliseconds: 1500),
-    );
-    expect(_stop(tester), isNot('BODY'));
-    // A touch on the canvas pauses the dive where it is.
-    await tester.tap(find.byKey(const ValueKey<String>('zoom-canvas')));
-    await tester.pump(const Duration(milliseconds: 400));
-    final String paused = _stop(tester);
-    await tester.pump(const Duration(seconds: 6));
-    expect(_stop(tester), paused);
-    expect(
-      find.byTooltip('Play the dive'),
-      findsOneWidget,
-      reason: 'the button offers to play again',
-    );
-  });
-
-  testWidgets('under reduced motion Play steps a stop every few seconds', (
-    WidgetTester tester,
-  ) async {
-    await _host(tester, TestCatalog.insulin);
-    await _tap(tester, 'zoom-play');
-    expect(_stop(tester), 'BODY');
-    await tester.pump(PlaySchedule.steppedHold + const Duration(milliseconds: 50));
-    expect(_stop(tester), 'ORGAN');
-    await tester.pump(PlaySchedule.steppedHold);
-    expect(_stop(tester), 'TISSUE');
-    await _tap(tester, 'zoom-play');
-  });
-
-  testWidgets('About names every source, under its licence', (
-    WidgetTester tester,
-  ) async {
-    await _host(tester, TestCatalog.insulin);
-    await _tap(tester, 'zoom-about');
-    await tester.pumpAndSettle();
-    expect(
-      find.byKey(const ValueKey<String>('zoom-about-sheet')),
-      findsOneWidget,
-    );
-    for (final ZoomSource source in _facts(TestCatalog.insulin).about) {
-      expect(
-        find.textContaining(source.name, findRichText: true),
-        findsWidgets,
-        reason: source.name,
-      );
+  testWidgets('the card holds its words and a step either way, and nothing '
+      'else', (WidgetTester tester) async {
+    for (final ProteinTarget target in <ProteinTarget>[
+      TestCatalog.insulin,
+      TestCatalog.hemoglobin,
+      TestCatalog.dystrophin,
+    ]) {
+      await _host(tester, target);
+      for (final ZoomStop stop in ZoomStop.values) {
+        if (stop != ZoomStop.body) {
+          await _tap(tester, 'zoom-next');
+        }
+        for (final String gone in <String>[
+          'zoom-play',
+          'zoom-about',
+          'zoom-rail',
+          'zoom-card-stop',
+          'zoom-card-source',
+        ]) {
+          expect(
+            find.byKey(ValueKey<String>(gone)),
+            findsNothing,
+            reason: '${target.slug} at ${stop.name}: $gone',
+          );
+        }
+        expect(find.byType(IconButton), findsNothing);
+        expect(
+          find.byKey(const ValueKey<String>('zoom-previous')),
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(
+            ValueKey<String>(stop == ZoomStop.dna ? 'zoom-walk' : 'zoom-next'),
+          ),
+          findsOneWidget,
+        );
+      }
+      await tester.pumpWidget(const SizedBox());
     }
-    expect(find.textContaining('CC BY 4.0', findRichText: true), findsWidgets);
+  });
+
+  testWidgets('every stop’s words fit the card on a small phone with type '
+      'turned up', (WidgetTester tester) async {
+    const Size small = Size(320, 568);
+    await tester.binding.setSurfaceSize(small);
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    for (final ProteinTarget target in TestCatalog.all) {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.analysis,
+          home: MediaQuery(
+            data: const MediaQueryData(
+              size: small,
+              textScaler: TextScaler.linear(1.3),
+              disableAnimations: true,
+            ),
+            child: ZoomScreen(
+              key: ValueKey<String>(target.slug),
+              target: target,
+              track: locusOf(target),
+              record: recordOf(target),
+            ),
+          ),
+        ),
+      );
+      for (final ZoomStop stop in ZoomStop.values) {
+        if (stop != ZoomStop.body) {
+          await _tap(tester, 'zoom-next');
+        }
+        expect(tester.takeException(), isNull, reason: target.slug);
+        final Rect words = tester.getRect(
+          find
+              .ancestor(
+                of: find.byKey(const ValueKey<String>('zoom-card-words')),
+                matching: find.byType(SizedBox),
+              )
+              .first,
+        );
+        expect(
+          _within(
+            tester.getRect(find.byKey(const ValueKey<String>('zoom-card-title'))),
+            words,
+          ),
+          isTrue,
+          reason: '${target.slug} at ${stop.name}',
+        );
+      }
+    }
+  });
+
+  testWidgets('a step asked for mid-flight carries straight on, with no '
+      'stall', (WidgetTester tester) async {
+    final ProteinTarget target = TestCatalog.insulin;
+    final ZoomDepth depth = _depth(target);
+    await _host(tester, target, reduced: false);
+    double at() => (tester
+                .widget<CustomPaint>(
+                  find.byKey(const ValueKey<String>('zoom-canvas')),
+                )
+                .painter!
+            as ZoomPainter)
+        .at();
+    await _tap(tester, 'zoom-next');
+    const Duration frame = Duration(microseconds: 16667);
+    final List<double> seen = <double>[];
+    for (int i = 0; i < 24; i++) {
+      await tester.pump(frame);
+      seen.add(at());
+    }
+    // A second step, while the first is still on its way to the organ.
+    expect(seen.last, lessThan(depth.depthOf(ZoomStop.organ)));
+    await _tap(tester, 'zoom-next');
+    for (int i = 0; i < 6; i++) {
+      await tester.pump(frame);
+      seen.add(at());
+    }
+    // Its speed carries over: no frame's step is far from the one before.
+    for (int i = 2; i < seen.length; i++) {
+      final double before = seen[i - 1] - seen[i - 2];
+      final double now = seen[i] - seen[i - 1];
+      expect(now, greaterThan(0), reason: 'frame $i');
+      expect((now - before).abs(), lessThan(0.02), reason: 'frame $i');
+    }
+    await tester.pumpAndSettle();
+    // And it lands two stops on.
+    expect(_stop(tester), 'TISSUE');
+    expect(at(), closeTo(depth.depthOf(ZoomStop.tissue), 1e-9));
+  });
+
+  testWidgets('the body carries its credit, clear of the scale bar, and no '
+      'other stop does', (WidgetTester tester) async {
+    for (final ProteinTarget target in TestCatalog.all) {
+      final ZoomFacts facts = _facts(target);
+      final ZoomDepth depth = _depth(target);
+      expect(
+        facts.credit,
+        'Anatomogram EMBL-EBI · HPA ${locusOf(target).atlasVersion} · '
+        'CC BY 4.0',
+      );
+      final ZoomStage stage = ZoomStage(
+        ZoomSubject(track: locusOf(target), record: recordOf(target)),
+      );
+      expect(stage.creditAt(depth.depthOf(ZoomStop.body)), 1);
+      for (final ZoomStop stop in ZoomStop.values.skip(1)) {
+        expect(stage.creditAt(depth.depthOf(stop)), 0, reason: stop.name);
+      }
+    }
+    final TextStyle labels = AppTheme.analysis.textTheme.labelSmall!;
+    final TextStyle caption = AppTheme.analysis.caption!;
+    final ZoomDepth depth = _depth(TestCatalog.insulin);
+    final String credit = _facts(TestCatalog.insulin).credit;
+    for (final Size size in <Size>[
+      const Size(390, 560),
+      const Size(320, 420),
+    ]) {
+      final (double pixels, String label) = scaleBarAt(depth, 0, size);
+      final TextPainter text = TextPainter(
+        text: TextSpan(text: label, style: labels),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      final Rect bar = scaleBarBox(pixels, text.size, size);
+      text.dispose();
+      final Rect box = creditBox(credit, caption, size, bar);
+      expect(box.overlaps(bar), isFalse, reason: '$size');
+      expect(box.right, lessThanOrEqualTo(size.width), reason: '$size');
+      expect(box.left, greaterThan(bar.right), reason: '$size');
+    }
   });
 
   testWidgets('offers the walk at the DNA alone, and opens it at the gene', (

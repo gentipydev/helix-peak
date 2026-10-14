@@ -132,16 +132,16 @@ final class BodyScene extends ZoomScene {
     return place(part?.centre ?? const Offset(0, 0.55));
   }
 
+  // The organ is not named here: the card names it.
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
-    final String? tissue = subject.path.tissue;
     final AnatomyPart? part = subject.bodyPart;
     out.item('body:target', frame.toScreen(portal), frame.opacity);
-    if (tissue != null && part != null) {
-      // The name's line lands inside the organ, wherever its middle is.
-      out.callout(
-        'body',
-        tissue,
+    if (part != null) {
+      // The place inside the organ the zoom goes in by, wherever its
+      // middle is.
+      out.item(
+        'body:site',
         frame.toScreen(place(part.site)),
         calloutPresence(frame),
       );

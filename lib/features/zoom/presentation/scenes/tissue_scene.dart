@@ -133,9 +133,11 @@ final class TissueScene extends ZoomScene {
   double _opening(ZoomFrame frame) =>
       frame.isChild ? smootherstep((frame.progress - 0.04) / 0.92) : 1;
 
-  /// How much of the loupe shows: it fades in as it starts to open.
+  /// How much of the loupe shows: it fades in as it starts to open, over
+  /// enough of the way that a step's flight shows it come up rather than
+  /// blink on.
   double _shown(ZoomFrame frame) =>
-      frame.isChild ? smoothstep((frame.progress - 0.02) / 0.2) : 1;
+      frame.isChild ? smoothstep((frame.progress - 0.02) / 0.4) : 1;
 
   /// The view the slide is drawn in: through the loupe as it opens, the
   /// camera's own once it has.

@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/catalog/protein_track.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
-import 'package:helixpeek/core/theme/app_typography.dart';
 import 'package:helixpeek/features/gene_lookup/data/repositories/protein_catalog_repository.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_screen.dart';
 import 'package:helixpeek/shared/widgets/loading_view.dart';
@@ -16,9 +15,9 @@ import '../../../support/test_catalog.dart';
 import '../record_fixtures.dart';
 import '../zoom_fixtures.dart';
 
-/// The zoom's header and its About sheet, set as the rest of the app sets
-/// its own: the zoom opens over the walk, whose header's row is 44 points,
-/// and a header of another height resized the chrome on the way in.
+/// The zoom's header, set as the rest of the app sets its own: the zoom
+/// opens over the walk, whose header's row is 44 points, and a header of
+/// another height resized the chrome on the way in.
 
 const Size _phone = Size(390, 844);
 
@@ -88,25 +87,6 @@ void main() {
     );
     expect(tester.getSize(find.byType(AppBar)).height, 59 + 44);
     expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('its About sheet is titled as the app\'s other sheets are', (
-    WidgetTester tester,
-  ) async {
-    await _zoom(tester);
-    await tester.tap(find.byKey(const ValueKey<String>('zoom-about')));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
-
-    // It was a style the theme did not name: Material's, in the platform's
-    // face. The record sheet, the clip's and replication's are `titleLarge`.
-    final TextStyle title = tester
-        .widget<Text>(find.text('About this zoom'))
-        .style!;
-    final TextStyle sheets = AppTheme.analysis.textTheme.titleLarge!;
-    expect(title.fontFamily, AppTypography.sansFamily);
-    expect(title.fontSize, sheets.fontSize);
-    expect(title.fontWeight, sheets.fontWeight);
   });
 
   testWidgets('the wait for a protein\'s row stands under a header', (

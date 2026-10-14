@@ -222,19 +222,6 @@ final class ZoomDepth {
     return best;
   }
 
-  /// [depth] on the rail, from 0 to 1, the stops evenly spaced along it.
-  double railOf(double depth) {
-    final (int k, double s) = segmentAt(depth);
-    return (k + s) / (ZoomStop.values.length - 1);
-  }
-
-  /// The depth at [rail], from 0 to 1 along the rail.
-  double depthAtRail(double rail) {
-    final double r = rail.clamp(0.0, 1.0) * (ZoomStop.values.length - 1);
-    final int k = math.min(r.floor(), ZoomStop.values.length - 2);
-    return _at[k] + (r - k) * _travel[k];
-  }
-
   /// The view's width at [depth], as the scale reads it: `30 µm`, `3.2 Mb`.
   String widthLabel(double depth) {
     final double width = widthAt(depth);

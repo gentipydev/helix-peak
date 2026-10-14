@@ -120,11 +120,11 @@ void main() {
     );
   });
 
-  test('the eyepiece’s field stands clear of the rail on a phone', () {
+  test('the eyepiece’s field stands clear of the canvas’s edges on a phone', () {
     for (final double width in <double>[320, 360, 390, 430]) {
       expect(
         width / 2 - TissueScene.field * width,
-        greaterThanOrEqualTo(ZoomPainter.railStrip - 2),
+        greaterThanOrEqualTo(ZoomOverlayPainter.margin),
         reason: 'at $width px',
       );
     }

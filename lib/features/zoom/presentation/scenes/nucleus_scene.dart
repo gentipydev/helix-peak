@@ -6,7 +6,6 @@ import '../../domain/anatomy_figure.dart';
 import '../../domain/anatomy_tables.dart';
 import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
-import 'body_scene.dart';
 import 'contour.dart';
 import 'nucleus_shape.dart';
 import 'zoom_scene.dart';
@@ -94,16 +93,10 @@ final class NucleusScene extends ZoomScene {
   @override
   Offset get portal => territory(subject.track.chromosome, 0);
 
+  // The territory is not named here: the card names it.
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
-    final Offset target = frame.toScreen(portal);
-    out.item('nucleus:target', target, frame.opacity);
-    out.callout(
-      'nucleus',
-      'chromosome ${subject.track.chromosome}',
-      target,
-      calloutPresence(frame),
-    );
+    out.item('nucleus:target', frame.toScreen(portal), frame.opacity);
   }
 
   @override

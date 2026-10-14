@@ -251,16 +251,19 @@ its slug with a loader of its own: a shared loader would have to read
 forbids.
 
 The dive is nine stops on one depth (`ZoomDepth`): body, organ, tissue,
-cell, nucleus, chromosome, band, gene, DNA. A pinch, a flick, the depth rail (the walk's
-`SequenceScrubber`), the card's ‹ › and Play all move that one number, and
-everything drawn is a function of it: `zoom_smoothness_test` walks every
-protein's dive and fails on a pop, a blink or a jump. Each stop is a scene
+cell, nucleus, chromosome, band, gene, DNA. The card's ‹ › step from one to
+the next (a step asked for mid-flight carries straight on at the speed the
+depth has), and a pinch and a flick move the same number. Everything drawn
+is a function of it, but what moves at rest (a helix turning, vesicles
+leaving a cell), which is drawn on a layer of its own on the ambient clock:
+`zoom_smoothness_test` walks every protein's dive, and every step either way
+at 60 fps, and fails on a pop, a blink or a jump. Each stop is a scene
 in its own units, nested in the one before where its portal lies
 (`ZoomCamera`), and drawn the way its scale is seen:
 - the body as the Expression Atlas anatomogram's figure (EMBL-EBI,
   CC BY 4.0), the organs the Atlas reads the gene raised in lit;
   `tool/zoom/anatomogram.py` generates `anatomy_figures.g.dart` from it,
-  and the About sheet carries the credit;
+  and the body carries its credit, with the Atlas's, in one caption line;
 - the organ as the same outline, grown to its real size;
 - the tissue as an H&E section under an eyepiece (`TissueSlide`: one
   engine, a recipe a tissue architecture, the zoom's cell laid where it
@@ -274,8 +277,8 @@ The organ and the cell are one path the bake chose, a cell that lives in
 the organ (`path` in the `locus` track's schema 2, `pipeline/locus` in the
 backend). Where that cell has no nucleus (red cells, platelets), the zoom
 lands in the precursor that has one. The band is marked and named, never
-the gene: the About sheet says the gene is too small to see there, and
-what is data and what is drawn; each stop's card tags its source. Colours
+the gene. The card says the place and one line of data, nothing that
+explains: there is no About sheet, no source tag and no player. Colours
 are `ScaleColors` (`core/theme/scale_colors.dart`), added for the zoom
 alone. `docs/design/zoom.md` has the design and its checks.
 

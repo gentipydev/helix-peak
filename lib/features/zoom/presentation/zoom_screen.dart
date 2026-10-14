@@ -15,7 +15,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/network/track_source.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../shared/anatomy/sequence_scrubber.dart';
+import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../gene_lookup/data/repositories/protein_catalog_repository.dart';
@@ -24,12 +24,11 @@ import '../domain/locus_track.dart';
 import '../domain/zoom_depth.dart';
 import '../domain/zoom_facts.dart';
 import '../domain/zoom_motion.dart';
+import 'scenes/zoom_scene.dart';
 import 'scenes/zoom_subject.dart';
-import 'zoom_about.dart';
 import 'zoom_card.dart';
 import 'zoom_inks.dart';
 import 'zoom_painter.dart';
-import 'zoom_rail.dart';
 
 sealed class ZoomState {
   const ZoomState();
@@ -255,19 +254,19 @@ class _TargetLoaderState extends State<_TargetLoader> {
 }
 
 /// What the zoom is doing between frames.
-enum _Motion { idle, pinch, flight, settle, play, exit }
+enum _Motion { idle, pinch, flight, settle, exit }
 
 /// One continuous dive from a body down to a gene's DNA.
 ///
 /// Nine stops (body, organ, tissue, cell, nucleus, chromosome, band, gene,
-/// DNA) on one depth, so a pinch moves through all of them without a break
-/// and a flick coasts to the stop it would reach. The rail down the right
-/// edge scrubs the depth; the card below names the stop, says one thing that
-/// is known of it and where that comes from, and steps or plays the dive.
-/// The organ and the cell are the path the bake chose from the Human Protein
-/// Atlas's reading, one that lives in the other; the chromosome, the band,
-/// the gene and its first bases are data. At the DNA, the walk is offered,
-/// from its start: the one it was opened from, where there is one.
+/// DNA) on one depth. The card's buttons step from one to the next, a step
+/// asked for mid-flight carrying straight on; a pinch moves through all of
+/// them without a break and a flick coasts to the stop it would reach. The
+/// card names the stop and says one thing that is known of it. The organ
+/// and the cell are the path the bake chose from the Human Protein Atlas's
+/// reading, one that lives in the other; the chromosome, the band, the gene
+/// and its first bases are data. At the DNA, the walk is offered, from its
+/// start: the one it was opened from, where there is one.
 class ZoomScreen extends StatefulWidget {
   const ZoomScreen({
     required this.target,
@@ -328,8 +327,7 @@ class ZoomScreen extends StatefulWidget {
   State<ZoomScreen> createState() => _ZoomScreenState();
 }
 
-class _ZoomScreenState extends State<ZoomScreen>
-    with TickerProviderStateMixin {
+class _ZoomScreenState extends State<ZoomScreen> with TickerProviderStateMixin {
   late final ZoomSubject _subject = ZoomSubject(
     track: widget.track,
     record: widget.record,
@@ -348,12 +346,17 @@ class _ZoomScreenState extends State<ZoomScreen>
   );
   late final Ticker _ticker = createTicker(_tick);
 
-  /// Seconds of ambient time, for the helix's slow turn: it runs only while
-  /// the DNA is near and motion is allowed.
+  /// Seconds of ambient time, for what moves at rest: a helix turning,
+  /// vesicles leaving a cell, the beats a stop plays as it is reached. It
+  /// runs only while something on screen wants it and motion is allowed.
   final ValueNotifier<double> _ambient = ValueNotifier<double>(0);
-  late final Ticker _ambientTicker = createTicker(
-    (Duration elapsed) => _ambient.value = elapsed.inMicroseconds / 1e6,
-  );
+  late final Ticker _ambientTicker = createTicker(_tickAmbient);
+
+  /// The ambient time the clock had reached when its ticker last started.
+  double _ambientFrom = 0;
+
+  /// The ambient time at which the depth last came to rest at a stop.
+  double _restedAt = 0;
 
   /// How far the helix is unzipped as the walk opens.
   final ValueNotifier<double> _unzip = ValueNotifier<double>(0);
@@ -365,10 +368,23 @@ class _ZoomScreenState extends State<ZoomScreen>
   ZoomFlight? _flight;
   Simulation? _spring;
   double _springTarget = 0;
-  PlaySchedule? _play;
+
+  /// How long the motion now running has run, for its speed when another
+  /// step takes over from it.
+  Duration _elapsed = Duration.zero;
+
+  /// The stop the motion now running is bound for.
+  ZoomStop? _bound;
+
+  /// Whether the card's stop was last reached going deeper.
+  bool _forward = true;
 
   double _pinchFrom = 0;
   double _pinchScale = 1;
+
+  /// The canvas's size, as last laid out: the ambient clock asks the scenes
+  /// on it whether they still move.
+  Size _canvas = Size.zero;
 
   ZoomDepth get _d => _subject.depth;
 
@@ -382,7 +398,7 @@ class _ZoomScreenState extends State<ZoomScreen>
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Reduced motion may have been turned on or off.
-    _ambience(_stop.value);
+    _wake();
   }
 
   @override
@@ -400,62 +416,96 @@ class _ZoomScreenState extends State<ZoomScreen>
   bool get _reduced => MediaQuery.disableAnimationsOf(context);
 
   /// Keeps the card on the stop the depth is nearest, with a tick under the
-  /// reader's finger each time a pinch or a scrub crosses one.
+  /// reader's finger each time a pinch crosses one.
   void _follow() {
     final ZoomStop nearest = _d.nearest(_depth.value);
-    if (nearest == _stop.value) {
-      return;
+    if (nearest != _stop.value) {
+      _forward = nearest.index > _stop.value.index;
+      _stop.value = nearest;
+      if (_motion == _Motion.pinch || _motion == _Motion.idle) {
+        unawaited(HapticFeedback.selectionClick());
+      }
     }
-    _stop.value = nearest;
-    _ambience(nearest);
-    if (_motion == _Motion.pinch || _motion == _Motion.idle) {
-      unawaited(HapticFeedback.selectionClick());
-    }
+    _wake();
   }
 
   void _set(double d) => _depth.value = d.clamp(0.0, _d.total);
 
-  /// Runs the ambient clock while the cell or the DNA is near, for the
-  /// vesicles a cell secretes and the helix's turn, and only where motion is
-  /// allowed.
-  void _ambience(ZoomStop nearest) {
-    final bool wanted =
-        (nearest == ZoomStop.dna || nearest == ZoomStop.cell) && !_reduced;
-    if (wanted && !_ambientTicker.isActive) {
+  /// Seconds since the depth last came to rest, as the scenes' beats read
+  /// it: long past every beat where nothing moves on its own.
+  double get _dwell =>
+      _reduced ? ZoomFrame.settled : _ambient.value - _restedAt;
+
+  /// The depth has come to rest at a stop: its beats play from now.
+  void _rest() {
+    _restedAt = _ambient.value;
+    _wake();
+  }
+
+  /// Starts the ambient clock where something on screen moves on its own,
+  /// and motion is allowed.
+  void _wake() {
+    if (!mounted || _ambientTicker.isActive || _reduced || _canvas.isEmpty) {
+      return;
+    }
+    if (_stage.wantsClock(
+      _depth.value,
+      _canvas,
+      ZoomInks.of(context),
+      dwell: _dwell,
+    )) {
+      _ambientFrom = _ambient.value;
       unawaited(_ambientTicker.start());
-    } else if (!wanted && _ambientTicker.isActive) {
+    }
+  }
+
+  void _tickAmbient(Duration elapsed) {
+    _ambient.value = _ambientFrom + elapsed.inMicroseconds / 1e6;
+    if (_reduced ||
+        !_stage.wantsClock(
+          _depth.value,
+          _canvas,
+          ZoomInks.of(context),
+          dwell: _dwell,
+        )) {
       _ambientTicker.stop();
     }
   }
 
   void _run(_Motion motion) {
     _motion = motion;
+    _elapsed = Duration.zero;
     _ticker.stop();
     _ticker.start();
   }
+
+  /// How fast the depth is moving now, in depth a second.
+  double get _velocity => switch (_motion) {
+    _Motion.flight => _flight!.speedAt(_elapsed),
+    _Motion.settle => _spring!.dx(_elapsed.inMicroseconds / 1e6),
+    _ => 0,
+  };
 
   void _halt() {
     if (_motion == _Motion.exit && _unzip.value < 1) {
       _unzip.value = 0;
     }
-    final bool wasPlaying = _motion == _Motion.play;
     _motion = _Motion.idle;
     _ticker.stop();
     _flight = null;
     _spring = null;
-    _play = null;
-    if (wasPlaying && mounted) {
-      setState(() {});
-    }
+    _bound = null;
   }
 
   void _tick(Duration elapsed) {
+    _elapsed = elapsed;
     switch (_motion) {
       case _Motion.flight:
         final ZoomFlight flight = _flight!;
         _set(flight.at(elapsed));
         if (flight.doneAt(elapsed)) {
           _halt();
+          _rest();
         }
       case _Motion.settle:
         final double t = elapsed.inMicroseconds / 1e6;
@@ -463,14 +513,9 @@ class _ZoomScreenState extends State<ZoomScreen>
         if (spring.isDone(t)) {
           _set(_springTarget);
           _halt();
+          _rest();
         } else {
           _set(spring.x(t));
-        }
-      case _Motion.play:
-        final PlaySchedule play = _play!;
-        _set(play.at(elapsed));
-        if (play.doneAt(elapsed)) {
-          _halt();
         }
       case _Motion.exit:
         _unzip.value = (elapsed.inMicroseconds / _unzipping.inMicroseconds)
@@ -484,23 +529,26 @@ class _ZoomScreenState extends State<ZoomScreen>
     }
   }
 
-  /// Flies to [stop], or cuts there under reduced motion.
+  /// Flies to [stop] from wherever the depth is and as fast as it is going,
+  /// or cuts there under reduced motion.
   void _goTo(ZoomStop stop) {
+    final double velocity = _velocity;
     _halt();
     final double target = _d.depthOf(stop);
-    if (_reduced) {
+    if (_reduced || (target - _depth.value).abs() < 1e-9) {
       _set(target);
+      _rest();
       return;
     }
-    _flight = ZoomFlight(_depth.value, target);
+    _flight = ZoomFlight(_depth.value, target, velocity: velocity);
+    _bound = stop;
     _run(_Motion.flight);
   }
 
+  /// One stop on from the one the zoom is at, or is bound for.
   void _step(int by) {
-    final int next = (_d.nearest(_depth.value).index + by).clamp(
-      0,
-      ZoomStop.values.length - 1,
-    );
+    final ZoomStop from = _bound ?? _d.nearest(_depth.value);
+    final int next = (from.index + by).clamp(0, ZoomStop.values.length - 1);
     _goTo(ZoomStop.values[next]);
   }
 
@@ -510,6 +558,7 @@ class _ZoomScreenState extends State<ZoomScreen>
     if (_reduced) {
       _halt();
       _set(target);
+      _rest();
       return;
     }
     _spring = SpringSimulation(
@@ -519,21 +568,8 @@ class _ZoomScreenState extends State<ZoomScreen>
       velocity,
     );
     _springTarget = target;
+    _bound = stop;
     _run(_Motion.settle);
-  }
-
-  void _togglePlay() {
-    if (_motion == _Motion.play) {
-      _halt();
-      return;
-    }
-    _halt();
-    if (_depth.value >= _d.total - 1e-6) {
-      _set(0);
-    }
-    _play = PlaySchedule(_d, from: _depth.value, stepped: _reduced);
-    _run(_Motion.play);
-    setState(() {});
   }
 
   void _pinchStart(ScaleStartDetails details) {
@@ -548,8 +584,7 @@ class _ZoomScreenState extends State<ZoomScreen>
       return;
     }
     final double d =
-        _pinchFrom +
-        ZoomScreen.pinchGain * math.log(details.scale) / math.ln10;
+        _pinchFrom + ZoomScreen.pinchGain * math.log(details.scale) / math.ln10;
     _pinchScale = details.scale;
     _set(d);
   }
@@ -568,37 +603,6 @@ class _ZoomScreenState extends State<ZoomScreen>
               (math.max(_pinchScale, 1e-3) * math.ln10)
         : 0;
     _settle(flingTarget(_d, _depth.value, velocity), velocity);
-  }
-
-  void _scrub(double d) {
-    if (_motion != _Motion.pinch) {
-      _halt();
-    }
-    _set(d);
-  }
-
-  void _released() {
-    if (_motion == _Motion.idle) {
-      _settle(_d.nearest(_depth.value), 0);
-    }
-  }
-
-  void _touched(PointerDownEvent event) {
-    if (_motion == _Motion.play) {
-      _halt();
-    }
-  }
-
-  void _about() {
-    _halt();
-    unawaited(
-      showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        showDragHandle: true,
-        builder: (BuildContext context) => ZoomAbout(facts: _facts),
-      ),
-    );
   }
 
   /// Unzips the helix into the walk's rows, then opens the walk at the gene.
@@ -641,40 +645,65 @@ class _ZoomScreenState extends State<ZoomScreen>
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Expanded(
-              child: Stack(
-                children: <Widget>[
-                  Positioned.fill(
-                    child: Listener(
-                      onPointerDown: _touched,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onScaleStart: _pinchStart,
-                        onScaleUpdate: _pinchUpdate,
-                        onScaleEnd: _pinchEnd,
-                        onDoubleTap: () => _step(1),
-                        child: ValueListenableBuilder<ZoomStop>(
-                          valueListenable: _stop,
-                          builder:
-                              (BuildContext context, ZoomStop stop, Widget? c) =>
-                                  Semantics(
-                                    label:
-                                        'A zoom from a body to its DNA, at the '
-                                        '${ZoomScreen.nameOf(stop).toLowerCase()}. '
-                                        'Pinch, drag the depth rail, or step '
-                                        'with the buttons below.',
-                                    child: c,
-                                  ),
-                          child: RepaintBoundary(
+              child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints box) {
+                  final Size canvas = box.biggest;
+                  if (canvas != _canvas) {
+                    _canvas = canvas;
+                    WidgetsBinding.instance.addPostFrameCallback(
+                      (_) => _wake(),
+                    );
+                  }
+                  return GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onScaleStart: _pinchStart,
+                    onScaleUpdate: _pinchUpdate,
+                    onScaleEnd: _pinchEnd,
+                    onDoubleTap: () => _step(1),
+                    child: ValueListenableBuilder<ZoomStop>(
+                      valueListenable: _stop,
+                      builder:
+                          (BuildContext context, ZoomStop stop, Widget? c) =>
+                              Semantics(
+                                label:
+                                    'A zoom from a body to its DNA, at the '
+                                    '${ZoomScreen.nameOf(stop).toLowerCase()}. '
+                                    'Step with the buttons below, or pinch.',
+                                child: c,
+                              ),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: <Widget>[
+                          RepaintBoundary(
                             child: CustomPaint(
                               key: const ValueKey<String>('zoom-canvas'),
                               size: Size.infinite,
                               painter: ZoomPainter(
                                 stage: _stage,
                                 at: () => _depth.value,
-                                clock: () => _ambient.value,
                                 unzip: () => _unzip.value,
                                 inks: inks,
                                 labels: labels,
+                                repaint: Listenable.merge(<Listenable>[
+                                  _depth,
+                                  _unzip,
+                                ]),
+                              ),
+                            ),
+                          ),
+                          RepaintBoundary(
+                            child: CustomPaint(
+                              size: Size.infinite,
+                              painter: ZoomOverlayPainter(
+                                stage: _stage,
+                                at: () => _depth.value,
+                                clock: () => _reduced ? 0 : _ambient.value,
+                                dwell: () => _dwell,
+                                unzip: () => _unzip.value,
+                                inks: inks,
+                                labels: labels,
+                                caption: theme.caption ?? labels,
+                                credit: _facts.credit,
                                 repaint: Listenable.merge(<Listenable>[
                                   _depth,
                                   _ambient,
@@ -683,45 +712,11 @@ class _ZoomScreenState extends State<ZoomScreen>
                               ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
-                  ),
-                  // A dark strip under the rail, so its ticks and thumb read
-                  // over the brightest field, a slide under the lamp.
-                  Positioned(
-                    top: 0,
-                    bottom: 0,
-                    right: 0,
-                    width: SequenceScrubber.width,
-                    child: IgnorePointer(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: <Color>[
-                              theme.colorScheme.surface.withValues(alpha: 0),
-                              theme.colorScheme.surface.withValues(alpha: 0.72),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: AppSpacing.sm,
-                    bottom: AppSpacing.sm,
-                    right: 0,
-                    width: SequenceScrubber.width,
-                    child: ZoomRail(
-                      depth: _d,
-                      value: _depth,
-                      nameOf: ZoomScreen.nameOf,
-                      onScrub: _scrub,
-                      onRelease: _released,
-                      onStep: _step,
-                    ),
-                  ),
-                ],
+                  );
+                },
               ),
             ),
             ValueListenableBuilder<ZoomStop>(
@@ -731,11 +726,9 @@ class _ZoomScreenState extends State<ZoomScreen>
                     facts: _facts,
                     stop: stop,
                     nameOf: ZoomScreen.nameOf,
-                    playing: _motion == _Motion.play,
+                    forward: _forward,
                     onPrevious: () => _step(-1),
                     onNext: () => _step(1),
-                    onPlay: _togglePlay,
-                    onAbout: _about,
                     onWalk: _walk,
                   ),
             ),

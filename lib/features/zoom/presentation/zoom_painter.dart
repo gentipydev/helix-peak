@@ -54,39 +54,144 @@ final class ZoomStage {
     ];
   }
 
+  /// The frames the scenes on screen at depth [d] are drawn with, the
+  /// ones too faint to see left out.
+  List<(ZoomScene, ZoomFrame)> frames(
+    double d,
+    Size size,
+    ZoomInks inks, {
+    double clock = 0,
+    double dwell = ZoomFrame.settled,
+    double unzip = 0,
+    TextStyle labels = const TextStyle(fontSize: 12),
+  }) => <(ZoomScene, ZoomFrame)>[
+    for (final (ZoomScene scene, ZoomView view, double opacity) in visible(
+      d,
+      size,
+    ))
+      if (opacity >= 0.005)
+        (
+          scene,
+          ZoomFrame(
+            view: view,
+            size: size,
+            opacity: opacity,
+            inks: inks,
+            clock: clock,
+            dwell: dwell,
+            unzip: unzip,
+            labels: labels,
+          ),
+        ),
+  ];
+
   /// What the view shows at depth [d], by key, without drawing it.
   ZoomStaging stage(double d, Size size, ZoomInks inks, {double clock = 0}) {
     final ZoomStaging staging = ZoomStaging();
-    for (final (ZoomScene scene, ZoomView view, double opacity)
-        in visible(d, size)) {
-      if (opacity < 0.005) {
-        continue;
-      }
-      scene.stage(
-        ZoomFrame(
-          view: view,
-          size: size,
-          opacity: opacity,
-          inks: inks,
-          clock: clock,
-        ),
-        staging,
-      );
+    for (final (ZoomScene scene, ZoomFrame frame) in frames(
+      d,
+      size,
+      inks,
+      clock: clock,
+    )) {
+      scene.stage(frame, staging);
     }
     return staging;
+  }
+
+  /// Whether anything on screen at depth [d] moves on its own, [dwell]
+  /// seconds after the depth came to rest.
+  bool wantsClock(double d, Size size, ZoomInks inks, {required double dwell}) {
+    for (final (ZoomScene scene, ZoomFrame frame) in frames(
+      d,
+      size,
+      inks,
+      dwell: dwell,
+    )) {
+      if (scene.wantsClock(frame)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// How much of the body's credit shows at depth [d]: at the body, and
+  /// going over the first stretch of the way out, as a name does.
+  double creditAt(double d) {
+    final (int k, double s) = depth.segmentAt(d);
+    return k == ZoomStop.body.index ? 1 - smoothstep(s / around) : 0;
   }
 }
 
 /// A continuous zoom from a body to its DNA: the stop being left and the
-/// one being entered, nested where the next one lies, then the names of
-/// what the zoom follows and a scale bar.
+/// one being entered, nested where the next one lies. Drawn again only when
+/// the depth moves: what moves on its own, and the names, are
+/// [ZoomOverlayPainter]'s, on the layer above.
 class ZoomPainter extends CustomPainter {
   ZoomPainter({
     required this.stage,
     required this.at,
     required this.inks,
     required this.labels,
+    this.unzip,
+    super.repaint,
+  });
+
+  final ZoomStage stage;
+  final double Function() at;
+
+  /// How far the helix is unzipped as the walk opens.
+  final double Function()? unzip;
+  final ZoomInks inks;
+  final TextStyle labels;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty) {
+      return;
+    }
+    canvas.save();
+    canvas.clipRect(Offset.zero & size);
+    for (final (ZoomScene scene, ZoomFrame frame) in stage.frames(
+      at(),
+      size,
+      inks,
+      labels: labels,
+      unzip: unzip?.call() ?? 0,
+    )) {
+      if (frame.opacity < 0.995) {
+        canvas.saveLayer(
+          Offset.zero & size,
+          Paint()..color = Color.fromRGBO(0, 0, 0, frame.opacity),
+        );
+        scene.paint(canvas, frame);
+        canvas.restore();
+      } else {
+        scene.paint(canvas, frame);
+      }
+    }
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant ZoomPainter old) =>
+      old.stage != stage || old.inks != inks || old.labels != labels;
+}
+
+/// What lies over the scenes: what moves on its own at rest (each scene's
+/// [ZoomScene.paintAmbient], which fades itself with its scene), the names
+/// of what the zoom follows, the scale bar, and at the body the credit for
+/// what it is drawn from.
+class ZoomOverlayPainter extends CustomPainter {
+  ZoomOverlayPainter({
+    required this.stage,
+    required this.at,
+    required this.inks,
+    required this.labels,
+    required this.caption,
+    required this.credit,
     this.clock,
+    this.dwell,
     this.unzip,
     super.repaint,
   });
@@ -94,14 +199,20 @@ class ZoomPainter extends CustomPainter {
   final ZoomStage stage;
   final double Function() at;
   final double Function()? clock;
-
-  /// How far the helix is unzipped as the walk opens.
+  final double Function()? dwell;
   final double Function()? unzip;
   final ZoomInks inks;
   final TextStyle labels;
 
-  /// The strip down the right edge the rail lies in: no name is set there.
-  static const double railStrip = 28;
+  /// The style the credit is set in: the app's small print.
+  final TextStyle caption;
+
+  /// The body's credit: who drew it and whose data lights it.
+  final String credit;
+
+  /// How far a name, the scale bar and the credit keep from the canvas's
+  /// edges.
+  static const double margin = 8;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -111,38 +222,24 @@ class ZoomPainter extends CustomPainter {
     canvas.save();
     canvas.clipRect(Offset.zero & size);
     final double d = at();
-    final double time = clock?.call() ?? 0;
-    for (final (ZoomScene scene, ZoomView view, double opacity)
-        in stage.visible(d, size)) {
-      if (opacity < 0.005) {
-        continue;
-      }
-      final ZoomFrame frame = ZoomFrame(
-        view: view,
-        size: size,
-        opacity: opacity,
-        inks: inks,
-        clock: time,
-        labels: labels,
-        unzip: unzip?.call() ?? 0,
-      );
-      if (opacity < 0.995) {
-        canvas.saveLayer(
-          Offset.zero & size,
-          Paint()..color = Color.fromRGBO(0, 0, 0, opacity),
-        );
-        scene.paint(canvas, frame);
-        canvas.restore();
-      } else {
-        scene.paint(canvas, frame);
-      }
+    for (final (ZoomScene scene, ZoomFrame frame) in stage.frames(
+      d,
+      size,
+      inks,
+      clock: clock?.call() ?? 0,
+      dwell: dwell?.call() ?? ZoomFrame.settled,
+      unzip: unzip?.call() ?? 0,
+      labels: labels,
+    )) {
+      scene.paintAmbient(canvas, frame);
     }
-    final ZoomStaging staging = stage.stage(d, size, inks, clock: time);
+    final ZoomStaging staging = stage.stage(d, size, inks);
     final List<Rect> placed = <Rect>[];
     for (final ZoomCallout callout in staging.callouts) {
       placed.add(_callout(canvas, size, callout, placed));
     }
-    _scaleBar(canvas, size, d);
+    final Rect bar = _scaleBar(canvas, size, d);
+    _credit(canvas, size, d, bar);
     canvas.restore();
   }
 
@@ -177,14 +274,10 @@ class ZoomPainter extends CustomPainter {
     return plate;
   }
 
-  void _scaleBar(Canvas canvas, Size size, double d) {
-    final ZoomDepth depth = stage.depth;
-    final (double _, double pixels, String label) = scaleBar(
-      depth.widthAt(d),
-      size.width,
-      unit: depth.unitAt(d),
-    );
-    const double left = 16;
+  /// The scale bar at the lower left, and the box it takes.
+  Rect _scaleBar(Canvas canvas, Size size, double d) {
+    final (double pixels, String label) = scaleBarAt(stage.depth, d, size);
+    const double left = scaleBarLeft;
     final double y = size.height - 18;
     final TextPainter measure = TextPainter(
       text: TextSpan(
@@ -193,16 +286,9 @@ class ZoomPainter extends CustomPainter {
       ),
       textDirection: TextDirection.ltr,
     )..layout();
+    final Rect box = scaleBarBox(pixels, measure.size, size);
     canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTRB(
-          left - 8,
-          y - 14 - measure.height,
-          left + math.max(pixels, measure.width) + 8,
-          y + 10,
-        ),
-        const Radius.circular(6),
-      ),
+      RRect.fromRectAndRadius(box, const Radius.circular(6)),
       Paint()..color = inks.ground.withValues(alpha: 0.8),
     );
     final Paint bar = Paint()
@@ -217,11 +303,55 @@ class ZoomPainter extends CustomPainter {
     );
     measure.paint(canvas, Offset(left, y - 8 - measure.height));
     measure.dispose();
+    return box;
+  }
+
+  /// The credit at the lower right while the body shows, on a second line
+  /// where one would meet the scale bar.
+  void _credit(Canvas canvas, Size size, double d, Rect bar) {
+    final double shown = stage.creditAt(d);
+    if (shown <= 0 || credit.isEmpty) {
+      return;
+    }
+    final Rect box = creditBox(credit, caption, size, bar);
+    final TextPainter text = creditText(credit, caption, size, bar, shown);
+    text.paint(canvas, box.topLeft);
+    text.dispose();
   }
 
   @override
-  bool shouldRepaint(covariant ZoomPainter old) =>
-      old.stage != stage || old.inks != inks || old.labels != labels;
+  bool shouldRepaint(covariant ZoomOverlayPainter old) =>
+      old.stage != stage ||
+      old.inks != inks ||
+      old.labels != labels ||
+      old.caption != caption ||
+      old.credit != credit;
+}
+
+/// Where the scale bar starts, from the canvas's left edge.
+const double scaleBarLeft = 16;
+
+/// The scale bar's length in pixels and its label at depth [d] on a canvas
+/// of [size].
+(double, String) scaleBarAt(ZoomDepth depth, double d, Size size) {
+  final (double _, double pixels, String label) = scaleBar(
+    depth.widthAt(d),
+    size.width,
+    unit: depth.unitAt(d),
+  );
+  return (pixels, label);
+}
+
+/// The box the scale bar's plate takes on a canvas of [size]: a bar
+/// [pixels] long under a label of [label] size.
+Rect scaleBarBox(double pixels, Size label, Size size) {
+  final double y = size.height - 18;
+  return Rect.fromLTRB(
+    scaleBarLeft - 8,
+    y - 14 - label.height,
+    scaleBarLeft + math.max(pixels, label.width) + 8,
+    y + 10,
+  );
 }
 
 /// How far a callout's words sit inside its plate.
@@ -242,23 +372,59 @@ TextPainter calloutText(
   maxLines: 2,
 )..layout(maxWidth: size.width * 0.55);
 
+/// The credit's words, laid out right-aligned in the room the scale bar
+/// [bar] leaves on a canvas of [size], at most two lines.
+TextPainter creditText(
+  String credit,
+  TextStyle caption,
+  Size size,
+  Rect bar, [
+  double opacity = 1,
+]) => TextPainter(
+  text: TextSpan(
+    text: credit,
+    style: caption.copyWith(
+      color: caption.color?.withValues(
+        alpha: (caption.color?.a ?? 1) * opacity,
+      ),
+    ),
+  ),
+  textDirection: TextDirection.ltr,
+  textAlign: TextAlign.right,
+  maxLines: 2,
+)..layout(maxWidth: size.width - bar.right - 2 * ZoomOverlayPainter.margin);
+
+/// Where the credit goes: its lines' box against the lower right corner,
+/// level with the scale bar's foot.
+Rect creditBox(String credit, TextStyle caption, Size size, Rect bar) {
+  final TextPainter text = creditText(credit, caption, size, bar);
+  final Size box = text.size;
+  text.dispose();
+  return Rect.fromLTWH(
+    size.width - ZoomOverlayPainter.margin - box.width,
+    bar.bottom - box.height,
+    box.width,
+    box.height,
+  );
+}
+
 /// Where a callout's plate goes for words of [text] size naming [target] on
 /// a canvas of [size]: up and to the right where there is room, else at the
-/// first corner that keeps it on the canvas, clear of the rail and of the
-/// plates already [placed].
+/// first corner that keeps it on the canvas, clear of the plates already
+/// [placed].
 Rect placePlate(Offset target, Size text, Size size, List<Rect> placed) {
   final double plateW = text.width + 2 * plateTextPadding;
   final double plateH = text.height + plateTextPadding;
-  final double right = size.width - ZoomPainter.railStrip - 4;
+  final double right = size.width - ZoomOverlayPainter.margin;
   final double bottom = size.height - 40;
   Rect at(double dx, double dy) {
     final double x = (dx >= 0 ? target.dx + dx : target.dx + dx - plateW).clamp(
-      8.0,
-      math.max(8.0, right - plateW),
+      ZoomOverlayPainter.margin,
+      math.max(ZoomOverlayPainter.margin, right - plateW),
     );
     final double y = (target.dy + dy - plateH / 2).clamp(
-      8.0,
-      math.max(8.0, bottom - plateH),
+      ZoomOverlayPainter.margin,
+      math.max(ZoomOverlayPainter.margin, bottom - plateH),
     );
     return Rect.fromLTWH(x, y, plateW, plateH);
   }
@@ -280,4 +446,3 @@ Rect placePlate(Offset target, Size text, Size size, List<Rect> placed) {
   }
   return choices.first;
 }
-

@@ -7,21 +7,22 @@ import '../../../core/theme/app_typography.dart';
 import '../domain/zoom_depth.dart';
 import '../domain/zoom_facts.dart';
 
-/// The level card under the canvas: the stop, the place, one line of what is
-/// known of it and where that comes from, and the zoom's controls.
+/// The card under the canvas: the stop's place, one line of what is known
+/// of it, and a step either way, `Walk ›` at the last.
 ///
-/// Its height is the tallest stop's content at the reader's text size, so the
-/// canvas above it keeps its size as the zoom moves from stop to stop.
+/// Its height is the tallest stop's words at the reader's text size, so the
+/// canvas above it keeps its size as the zoom moves from stop to stop. As
+/// the zoom passes from one stop to the next the words slide a few points
+/// the way it travels and fade, and under reduced motion they change in
+/// place.
 class ZoomCard extends StatelessWidget {
   const ZoomCard({
     required this.facts,
     required this.stop,
     required this.nameOf,
-    required this.playing,
+    required this.forward,
     required this.onPrevious,
     required this.onNext,
-    required this.onPlay,
-    required this.onAbout,
     required this.onWalk,
     super.key,
   });
@@ -29,18 +30,21 @@ class ZoomCard extends StatelessWidget {
   final ZoomFacts facts;
   final ZoomStop stop;
   final String Function(ZoomStop stop) nameOf;
-  final bool playing;
+
+  /// Whether the zoom reached [stop] going deeper: the words then come in
+  /// from the side its next step lies on.
+  final bool forward;
+
   final VoidCallback onPrevious;
   final VoidCallback onNext;
-  final VoidCallback onPlay;
-  final VoidCallback onAbout;
   final VoidCallback onWalk;
 
-  static TextStyle overlineOf(ThemeData theme) =>
-      (theme.textTheme.labelSmall ?? const TextStyle(fontSize: 12)).copyWith(
-        color: theme.colorScheme.onSurfaceVariant,
-        letterSpacing: 1.2,
-      );
+  /// How long the words take to change, and how far they slide.
+  static const Duration change = Duration(milliseconds: 220);
+  static const double slide = 6;
+
+  /// The gap between the title and its line.
+  static const double gap = 2;
 
   static TextStyle titleOf(ThemeData theme) =>
       (theme.textTheme.titleSmall ?? const TextStyle(fontSize: 15)).copyWith(
@@ -51,10 +55,10 @@ class ZoomCard extends StatelessWidget {
     final TextStyle base =
         theme.textTheme.bodyMedium ?? const TextStyle(fontSize: 14);
     return stop == ZoomStop.dna
-        ? AppTypography.sequenceSmall(
-            theme.colorScheme.onSurfaceVariant,
-          ).copyWith(letterSpacing: 0.5)
+        ? AppTypography.sequenceSmall(theme.colorScheme.onSurfaceVariant)
+              .copyWith(letterSpacing: 0.5)
         : base.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
             fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
           );
   }
@@ -86,7 +90,9 @@ class ZoomCard extends StatelessWidget {
       tallest = math.max(
         tallest,
         measure(fact.title, titleOf(theme)) +
-            measure(fact.line, lineOf(theme, stop)),
+            (fact.line.isEmpty
+                ? 0
+                : gap + measure(fact.line, lineOf(theme, stop))),
       );
     }
     return tallest.ceilToDouble();
@@ -103,10 +109,19 @@ class ZoomCard extends StatelessWidget {
     final ZoomStop? next = stop.index < last
         ? ZoomStop.values[stop.index + 1]
         : null;
+    final bool reduced = MediaQuery.disableAnimationsOf(context);
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints box) {
         final double inner = box.maxWidth - 2 * AppSpacing.lg;
-        final double words = wordsHeight(context, facts, inner);
+        final double height = wordsHeight(context, facts, inner);
+        final Widget words = _Words(
+          key: ValueKey<String>('zoom-card-at-${stop.name}'),
+          fact: fact,
+          name: nameOf(stop),
+          title: titleOf(theme),
+          line: lineOf(theme, stop),
+        );
+        final double shift = (forward ? 1 : -1) * slide / math.max(inner, 1);
         return DecoratedBox(
           decoration: BoxDecoration(
             color: theme.colorScheme.surfaceContainerLow,
@@ -123,41 +138,41 @@ class ZoomCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        nameOf(stop).toUpperCase(),
-                        key: const ValueKey<String>('zoom-card-stop'),
-                        style: overlineOf(theme),
-                      ),
-                    ),
-                    _SourceTag(fact: fact),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.xs),
                 SizedBox(
-                  height: words,
-                  child: Semantics(
-                    liveRegion: true,
-                    container: true,
-                    child: Column(
-                      key: const ValueKey<String>('zoom-card-words'),
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          fact.title,
-                          key: const ValueKey<String>('zoom-card-title'),
-                          style: titleOf(theme),
+                  height: height,
+                  child: reduced
+                      ? words
+                      : AnimatedSwitcher(
+                          duration: change,
+                          switchInCurve: Curves.easeOutCubic,
+                          switchOutCurve: Curves.easeInCubic,
+                          layoutBuilder:
+                              (Widget? current, List<Widget> previous) => Stack(
+                                alignment: AlignmentDirectional.topStart,
+                                children: <Widget>[...previous, ?current],
+                              ),
+                          transitionBuilder:
+                              (Widget child, Animation<double> animation) {
+                                // The words coming in arrive from the side
+                                // the zoom travels to; those going leave
+                                // toward the other.
+                                final bool incoming = child.key == words.key;
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: SlideTransition(
+                                    position: Tween<Offset>(
+                                      begin: Offset(
+                                        incoming ? shift : -shift,
+                                        0,
+                                      ),
+                                      end: Offset.zero,
+                                    ).animate(animation),
+                                    child: child,
+                                  ),
+                                );
+                              },
+                          child: words,
                         ),
-                        Text(
-                          fact.line,
-                          key: const ValueKey<String>('zoom-card-line'),
-                          style: lineOf(theme, stop),
-                        ),
-                      ],
-                    ),
-                  ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Row(
@@ -173,22 +188,6 @@ class ZoomCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    IconButton(
-                      key: const ValueKey<String>('zoom-play'),
-                      tooltip: playing ? 'Pause the dive' : 'Play the dive',
-                      onPressed: onPlay,
-                      icon: Icon(
-                        playing
-                            ? Icons.pause_rounded
-                            : Icons.play_arrow_rounded,
-                      ),
-                    ),
-                    IconButton(
-                      key: const ValueKey<String>('zoom-about'),
-                      tooltip: 'About this zoom',
-                      onPressed: onAbout,
-                      icon: const Icon(Icons.info_outline_rounded),
-                    ),
                     Expanded(
                       child: Align(
                         alignment: AlignmentDirectional.centerEnd,
@@ -199,13 +198,20 @@ class ZoomCard extends StatelessWidget {
                                 back: false,
                                 onPressed: onNext,
                               )
-                            : TextButton(
-                                key: const ValueKey<String>('zoom-walk'),
-                                onPressed: onWalk,
-                                child: const Text(
-                                  'Walk ›',
-                                  maxLines: 1,
-                                  semanticsLabel: 'Open the walk, from its gene',
+                            : ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  minHeight: 48,
+                                  minWidth: 48,
+                                ),
+                                child: TextButton(
+                                  key: const ValueKey<String>('zoom-walk'),
+                                  onPressed: onWalk,
+                                  child: const Text(
+                                    'Walk ›',
+                                    maxLines: 1,
+                                    semanticsLabel:
+                                        'Open the walk, from its gene',
+                                  ),
                                 ),
                               ),
                       ),
@@ -221,38 +227,47 @@ class ZoomCard extends StatelessWidget {
   }
 }
 
-/// Where the card's line comes from: a source, or `drawn`.
-class _SourceTag extends StatelessWidget {
-  const _SourceTag({required this.fact});
+/// A stop's title and line, read aloud under the stop's name.
+class _Words extends StatelessWidget {
+  const _Words({
+    required this.fact,
+    required this.name,
+    required this.title,
+    required this.line,
+    super.key,
+  });
 
   final ZoomFact fact;
+  final String name;
+  final TextStyle title;
+  final TextStyle line;
 
   @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final Color colour = fact.isDrawn
-        ? theme.colorScheme.onSurfaceVariant
-        : theme.colorScheme.primary;
-    return DecoratedBox(
-      key: const ValueKey<String>('zoom-card-source'),
-      decoration: BoxDecoration(
-        border: Border.all(color: colour.withValues(alpha: 0.6)),
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.sm,
-          vertical: 2,
+  Widget build(BuildContext context) => Semantics(
+    container: true,
+    liveRegion: true,
+    label: name,
+    child: Column(
+      key: const ValueKey<String>('zoom-card-words'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Text(
+          fact.title,
+          key: const ValueKey<String>('zoom-card-title'),
+          style: title,
         ),
-        child: Text(
-          fact.source,
-          style: (theme.textTheme.labelSmall ?? const TextStyle()).copyWith(
-            color: colour,
+        if (fact.line.isNotEmpty) ...<Widget>[
+          const SizedBox(height: ZoomCard.gap),
+          Text(
+            fact.line,
+            key: const ValueKey<String>('zoom-card-line'),
+            style: line,
           ),
-        ),
-      ),
-    );
-  }
+        ],
+      ],
+    ),
+  );
 }
 
 /// ‹ Tissue, or Nucleus ›: a step to the stop either side, named.

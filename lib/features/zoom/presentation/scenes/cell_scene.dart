@@ -51,36 +51,38 @@ final class CellScene extends ZoomScene {
   bool get _secreted =>
       (subject.track.secretome ?? '').startsWith('Secreted');
 
+  // The cell is named by the card, and so is a red cell's want of a
+  // nucleus: what is named here is where the protein is, where the Atlas
+  // finds it.
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
-    final double shown = calloutPresence(frame);
     out.item('cell:target', frame.toScreen(Offset.zero), frame.opacity);
-    final _Cell cell = _cell;
-    if (cell.mature.isNotEmpty) {
-      out.callout(
-        'cell:mature',
-        'red cells: no nucleus',
-        frame.toScreen(cell.mature.first),
-        shown,
-      );
-    }
     final List<String> main = _reading.main;
     if (main.isEmpty) {
-      out.callout(
-        'cell',
-        'its nucleus',
-        frame.toScreen(Offset(nucleus * 0.7, -nucleus * 0.7)),
-        shown,
-      );
       return;
     }
     final Compartment first = compartmentOf[main.first] ?? Compartment.cytosol;
     out.callout(
       'cell',
       main.map(_word).join(', '),
-      frame.toScreen(cell.pointOf(first)),
-      shown,
+      frame.toScreen(_cell.pointOf(first)),
+      calloutPresence(frame),
     );
+  }
+
+  @override
+  bool wantsClock(ZoomFrame frame) => _secreted;
+
+  // Vesicles leave a cell that secretes the protein, on the ambient clock.
+  @override
+  void paintAmbient(Canvas canvas, ZoomFrame frame) {
+    if (!_secreted) {
+      return;
+    }
+    canvas.save();
+    frame.enter(canvas);
+    _secretion(canvas, frame, _cell);
+    canvas.restore();
   }
 
   /// The Atlas's word as it reads mid-sentence: "cytosol", "Golgi
@@ -219,9 +221,6 @@ final class CellScene extends ZoomScene {
     _protein(canvas, frame, cell, _reading.main, 0.9, nuclear: true);
     _protein(canvas, frame, cell, _reading.additional, 0.45, nuclear: true);
 
-    if (_secreted) {
-      _secretion(canvas, frame, cell);
-    }
     canvas.restore();
   }
 
@@ -386,7 +385,9 @@ final class CellScene extends ZoomScene {
       final Offset at = t < 0.8
           ? Offset.lerp(from, to, smoothstep(t / 0.8))!
           : to + (to - from) * ((t - 0.8) * 0.6);
-      final double fade = t < 0.8 ? 1 : 1 - (t - 0.8) / 0.2;
+      // Drawn over the scene, not in it: it fades with the scene itself.
+      final double fade =
+          (t < 0.8 ? 1 : 1 - (t - 0.8) / 0.2) * frame.opacity;
       canvas.drawCircle(at, 4.5 * pixel, halo..color = halo.color.withValues(alpha: 0.4 * fade));
       canvas.drawCircle(
         at,
