@@ -269,12 +269,14 @@ final class ZoomDepth {
   }
 
   /// The view's width at [depth], as the scale reads it: `30 µm`, `3.2 Mb`.
-  String widthLabel(double depth) {
-    final double width = widthAt(depth);
-    return unitAt(depth) == ZoomUnit.metres
-        ? lengthLabel(_round2(width))
-        : basePairLabel(_round2(width));
-  }
+  String widthLabel(double depth) => labelAt(depth, widthAt(depth));
+
+  /// [value], a length in the unit the view at [depth] is measured in, as
+  /// the scale reads it: to two significant figures.
+  String labelAt(double depth, double value) =>
+      unitAt(depth) == ZoomUnit.metres
+      ? lengthLabel(_round2(value))
+      : basePairLabel(_round2(value));
 
   /// [value] to two significant figures.
   static double _round2(double value) {

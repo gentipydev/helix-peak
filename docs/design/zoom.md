@@ -29,11 +29,13 @@ chromosome, band and DNA. It is one continuous depth.
   the stop's name, its place and its line.
 - **The canvas** names only what the card does not say: the cell in the
   tissue, where the protein sits, the band on the chromosome, the gene on
-  the map, the gene's 5′ end. A scale bar is always at its lower
-  left. At the body alone, its lower right carries the credit,
-  "Anatomogram EMBL-EBI · HPA 25.1 · CC BY 4.0", built from the track's
-  Atlas version and the figures' licence. It goes onto two lines where it
-  would meet the scale bar, and fades as the body does.
+  the map, the gene's 5′ end. A scale bar is always at its lower left: a
+  round length at each stop, and between two stops a bar that glides from
+  the one's length to the next, reading the length it spans as it goes, so
+  it never springs back. At the body alone, its lower right carries the
+  credit, "Anatomogram EMBL-EBI · HPA 25.1 · CC BY 4.0", built from the
+  track's Atlas version and the figures' licence. It goes onto two lines
+  where it would meet the scale bar, and fades as the body does.
 - **Reduced motion.** Steps and settles cut, the cards cut, and every stop
   is drawn as its beats leave it, with nothing moving.
 - **At the DNA**, "Walk ›" unzips the helix into the walk's rows and goes
@@ -626,8 +628,9 @@ folds, which once fell in the last frame of the step to the organ.
   wide; the band never sets two of its words over each other.
 - As the step leaves the band, the gene's DNA lies on its mark on the
   strip, 5′ end at the mark's left, for all twenty; its exons show on the
-  way in
-  and not at the DNA.
+  way in and not at the DNA.
+- The scale bar reads its round length at every stop, and no frame of any
+  step at 60 fps changes its length by 2 px or more.
 
 What it found over the zoom's life, and what was changed:
 - **Fade windows.** Every scene's fade spans at least 45% of its segment.
@@ -642,6 +645,11 @@ What it found over the zoom's life, and what was changed:
   so it stays gentle from as far as the head is from the middle of a body.
 - **The flight's floor.** Steps under 1.45 s ran a crossfade in too few
   frames.
+- **The scale bar.** Held to round lengths all the way, it shrank with the
+  view and sprang back long at every 1, 2 and 5 it passed: nine lengths in
+  the step from the organ, up to nineteen in the step from the band. Now
+  it glides between the stops' round lengths and its figures count (the
+  user's ask, 2026-10-14).
 
 **On a device.** On the iPhone 17 Pro simulator, in a debug build, stepping
 all nine stops (before the gene and the DNA became one) and back for

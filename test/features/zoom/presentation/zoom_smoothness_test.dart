@@ -233,6 +233,61 @@ void main() {
     }
   });
 
+  test('the scale bar reads a round length at every stop, and glides from '
+      'one to the next without springing back', () {
+    for (final Size size in <Size>[_canvas, const Size(320, 420)]) {
+      for (final ProteinTarget t in TestCatalog.all) {
+        final ZoomDepth depth = _stage(t).depth;
+        for (final ZoomStop stop in ZoomStop.values) {
+          final (double _, double round, String label) = scaleBar(
+            depth.widthOf(stop),
+            size.width,
+            unit: ZoomDepth.unitOf(stop),
+          );
+          final (double pixels, String reads) = scaleBarAt(
+            depth,
+            depth.depthOf(stop),
+            size,
+          );
+          final String where = '${t.slug} at ${stop.name}, ${size.width}';
+          expect(pixels, closeTo(round, 1e-6), reason: where);
+          expect(reads, label, reason: where);
+        }
+        // Every step either way at 60 fps: the bar never changes its length
+        // by as much as two pixels from one frame to the next.
+        for (int k = 0; k + 1 < ZoomStop.values.length; k++) {
+          final double a = depth.depthOf(ZoomStop.values[k]);
+          final double b = depth.depthOf(ZoomStop.values[k + 1]);
+          for (final ZoomFlight flight in <ZoomFlight>[
+            ZoomFlight(a, b),
+            ZoomFlight(b, a),
+          ]) {
+            final int frames = (flight.duration.inMicroseconds / 1e6 * 60)
+                .ceil();
+            double? last;
+            for (int f = 0; f <= frames; f++) {
+              final (double pixels, String _) = scaleBarAt(
+                depth,
+                flight.at(Duration(microseconds: (f * 1e6 / 60).round())),
+                size,
+              );
+              if (last != null) {
+                expect(
+                  (pixels - last).abs(),
+                  lessThan(2),
+                  reason:
+                      '${t.slug} from ${ZoomStop.values[k].name}, frame $f, '
+                      '${size.width}',
+                );
+              }
+              last = pixels;
+            }
+          }
+        }
+      }
+    }
+  });
+
   test('a step asked for mid-flight takes over at the speed the depth has', () {
     final ZoomDepth depth = _stage(TestCatalog.hemoglobin).depth;
     final ZoomFlight first = ZoomFlight(

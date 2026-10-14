@@ -307,7 +307,12 @@ class ZoomOverlayPainter extends CustomPainter {
     final TextPainter measure = TextPainter(
       text: TextSpan(
         text: label,
-        style: labels.copyWith(color: inks.label),
+        // Its figures count as the bar glides: each as wide as the next, so
+        // the words do not shuffle.
+        style: labels.copyWith(
+          color: inks.label,
+          fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+        ),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
@@ -358,13 +363,28 @@ const double scaleBarLeft = 16;
 
 /// The scale bar's length in pixels and its label at depth [d] on a canvas
 /// of [size].
+///
+/// At a stop it is the round length [scaleBar] picks for the view there.
+/// Between two stops it glides from the one stop's length on screen to the
+/// next one's as the depth moves, and reads the length it spans as it goes,
+/// to two figures. Held to round lengths all the way, it shrank with the
+/// view and sprang back long at every 1, 2 and 5 it passed, as many as
+/// nineteen times in one step.
 (double, String) scaleBarAt(ZoomDepth depth, double d, Size size) {
-  final (double _, double pixels, String label) = scaleBar(
-    depth.widthAt(d),
-    size.width,
-    unit: depth.unitAt(d),
-  );
-  return (pixels, label);
+  double roundAt(ZoomStop stop) {
+    final (double _, double pixels, String _) = scaleBar(
+      depth.widthOf(stop),
+      size.width,
+      unit: ZoomDepth.unitOf(stop),
+    );
+    return pixels;
+  }
+
+  final (int k, double s) = depth.segmentAt(d);
+  final double from = roundAt(ZoomStop.values[k]);
+  final double to = roundAt(ZoomStop.values[k + 1]);
+  final double pixels = from + (to - from) * smoothstep(s);
+  return (pixels, depth.labelAt(d, pixels / size.width * depth.widthAt(d)));
 }
 
 /// The box the scale bar's plate takes on a canvas of [size]: a bar
