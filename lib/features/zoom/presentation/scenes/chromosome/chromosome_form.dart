@@ -241,6 +241,13 @@ final class ChromosomeForm {
   double _thickness(int i) =>
       yOf(track.bands[i].end + 1) - yOf(track.bands[i].start);
 
+  /// How far the top edge of band [i] is softened to either side: none at
+  /// the first.
+  double featherAt(int i) => _feathers[i];
+
+  /// The band [y] lies in, by its place in the track's bands.
+  int bandAt(double y) => _bandAt(y);
+
   /// The band [y] lies in.
   int _bandAt(double y) {
     int lo = 0;

@@ -49,7 +49,13 @@ final class BandScene extends ZoomScene {
   Offset get portal => Offset(unitOf(subject.geneEntry), 0);
 
   @override
-  double asChild(double progress) => smoothstep((progress - 0.3) / 0.45);
+  double asChild(double progress) => arriving(progress);
+
+  /// How much of the map shows across the step from the chromosome, at
+  /// [progress] along it: the chromosome turned into its strip lies under
+  /// it, drawn as the strip is, until it is all there.
+  static double arriving(double progress) =>
+      smoothstep((progress - 0.3) / 0.45);
 
   // The step out goes down to the DNA, past the gene's whole scale, so the
   // map gives way while the gene is still small on it.
@@ -62,6 +68,37 @@ final class BandScene extends ZoomScene {
 
   /// The strip's thickness, in pixels: the chromosome thins to it.
   static const double strip = 26;
+
+  /// How thick a band of [stain] is drawn on the strip, of [strip]: the
+  /// centromere pinched, as a genome browser draws it, and nothing else,
+  /// since a chromosome drawn narrower anywhere else reads as cut (the
+  /// user's choice, 2026-10-15). The docked map pinches it too.
+  static double thickness(Stain stain) => stain == Stain.acen ? 0.55 : 1;
+
+  /// The strip's light, from its top edge to its bottom, over the bands'
+  /// stains: a lit tube seen from the side.
+  static List<Color> light(ZoomInks inks) => <Color>[
+    inks.text.withValues(alpha: 0.05),
+    inks.text.withValues(alpha: 0.22),
+    inks.text.withValues(alpha: 0),
+    inks.shadow.withValues(alpha: 0.5),
+  ];
+
+  /// Where across the strip, from its top edge (0) to its bottom (1), each
+  /// of [light]'s colours lies.
+  static const List<double> lightStops = <double>[0, 0.25, 0.55, 1];
+
+  /// The ring round the gene's band: how far it stands off the strip, its
+  /// corners' radius and its width, in pixels.
+  static const double ringReach = 3;
+  static const double ringRadius = 5;
+  static const double ringWidth = 1.8;
+
+  /// The glow round the gene's mark: how far it reaches, in pixels, and
+  /// how strong it is at its heart. The chromosome's FISH spots ease into
+  /// it on the way in.
+  static const double geneGlow = 22;
+  static const double geneGlowAlpha = 0.3;
 
   /// How far the gene's mark stands above and below the strip, in pixels:
   /// prouder than the band's own ring, which stands 3.
@@ -79,6 +116,16 @@ final class BandScene extends ZoomScene {
   double _x(ZoomFrame frame, double position) =>
       frame.toScreen(Offset(unitOf(position), 0)).dx;
 
+  /// Where genome [position] lies across the screen at [frame].
+  @visibleForTesting
+  double stripX(ZoomFrame frame, double position) => _x(frame, position);
+
+  /// Where the strip's middle lies down the screen at [frame]: on the
+  /// scene's own origin, which the camera brings to the middle of the view
+  /// by the time the map is there, so the strip appears where the turned
+  /// chromosome lies and glides with it.
+  double stripY(ZoomFrame frame) => frame.toScreen(Offset.zero).dy;
+
   /// How much the ruler, the docked map and the gene's mark show: all of
   /// them once the band is reached.
   (double, double, double) _beats(ZoomFrame frame) {
@@ -89,19 +136,23 @@ final class BandScene extends ZoomScene {
     return (
       smoothstep((s - 0.6) / 0.3),
       smoothstep((s - 0.55) / 0.3),
-      smoothstep((s - 0.7) / 0.3),
+      markArriving(s),
     );
   }
+
+  /// How much of the gene's mark shows across the step from the chromosome,
+  /// at [progress] along it.
+  static double markArriving(double progress) =>
+      smoothstep((progress - 0.7) / 0.3);
 
   // The gene is named at the top of its mark, where the zoom goes into it:
   // on a mark at its least width that is its middle, and on a wide one a
   // point that stays put as the view closes in on it.
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
-    final double mid = frame.size.height / 2;
     final Offset gene = Offset(
       _x(frame, subject.geneEntry),
-      mid - strip / 2 - markReach,
+      stripY(frame) - strip / 2 - markReach,
     );
     final (double _, double _, double mark) = _beats(frame);
     out.item('band:gene', gene, frame.opacity * mark);
@@ -129,7 +180,6 @@ final class BandScene extends ZoomScene {
   @override
   void paint(Canvas canvas, ZoomFrame frame) {
     final double w = frame.size.width;
-    final double mid = frame.size.height / 2;
     final ZoomInks inks = frame.inks;
     final (double ruler, double dock, double mark) = _beats(frame);
     double clampX(double x) => x.clamp(-8.0, w + 8);
@@ -139,7 +189,7 @@ final class BandScene extends ZoomScene {
     final double right =
         subject.bandMiddle +
         frame.view.fromScreen(Offset(w, 0), frame.size).dx * _width;
-    final double y = mid;
+    final double y = stripY(frame);
 
     // The funnel from the docked chromosome's box down to the strip, under
     // everything: the stretch of the whole the strip opens out.
@@ -162,9 +212,7 @@ final class BandScene extends ZoomScene {
         continue;
       }
       fill.color = stain(frame.inks, band.stain);
-      final double thin = band.stain == Stain.acen || band.stain == Stain.stalk
-          ? 0.55
-          : 1;
+      final double thin = thickness(band.stain);
       canvas.drawRect(
         Rect.fromLTRB(
           clampX(_x(frame, band.start.toDouble())),
@@ -181,29 +229,26 @@ final class BandScene extends ZoomScene {
         ..shader = LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: <Color>[
-            inks.text.withValues(alpha: 0.05),
-            inks.text.withValues(alpha: 0.22),
-            inks.text.withValues(alpha: 0),
-            inks.shadow.withValues(alpha: 0.5),
-          ],
-          stops: const <double>[0, 0.25, 0.55, 1],
+          colors: light(inks),
+          stops: lightStops,
         ).createShader(tube),
     );
     canvas.restore();
     final Rect own = Rect.fromLTRB(
       clampX(_x(frame, _track.bandStart.toDouble())),
-      y - strip / 2 - 3,
+      y - strip / 2 - ringReach,
       clampX(_x(frame, _track.bandEnd + 1)),
-      y + strip / 2 + 3,
+      y + strip / 2 + ringReach,
     );
     final Path ring = Path()
-      ..addRRect(RRect.fromRectAndRadius(own, const Radius.circular(5)));
-    Sculpt.glowingStroke(canvas, ring, inks, width: 1.8);
+      ..addRRect(
+        RRect.fromRectAndRadius(own, const Radius.circular(ringRadius)),
+      );
+    Sculpt.glowingStroke(canvas, ring, inks, width: ringWidth);
     _names(canvas, frame, y, ruler);
 
     if (ruler > 0) {
-      _ruler(canvas, frame, left, right, mid + rulerY, ruler);
+      _ruler(canvas, frame, left, right, y + rulerY, ruler);
     }
     if (dock > 0) {
       _dock(canvas, frame, left, right, dock);
@@ -221,7 +266,7 @@ final class BandScene extends ZoomScene {
         clampX(centre + half),
         y + strip / 2 + markReach,
       );
-      Sculpt.glow(canvas, gene.center, 22, inks, 0.3 * mark);
+      Sculpt.glow(canvas, gene.center, geneGlow, inks, geneGlowAlpha * mark);
       Sculpt.glowingStroke(
         canvas,
         Path()..addRRect(

@@ -8,6 +8,7 @@ import '../../zoom_inks.dart';
 import '../sculpt.dart';
 import '../zoom_scene.dart';
 import 'chromosome_form.dart';
+import 'chromosome_shading.dart';
 import 'chromosome_style.dart';
 
 /// A chromosome at rest, drawn as a scanning micrograph shows one: two
@@ -21,13 +22,13 @@ import 'chromosome_style.dart';
 /// hands them on, at any magnification.
 final class ChromosomeArt {
   ChromosomeArt(this.form, this.inks)
-    : _light = _Light(),
-      _palette = _Palette(inks);
+    : _light = ChromosomeLight(),
+      _palette = ChromosomePalette(inks);
 
   final ChromosomeForm form;
   final ZoomInks inks;
-  final _Light _light;
-  final _Palette _palette;
+  final ChromosomeLight _light;
+  final ChromosomePalette _palette;
 
   double get _half => form.half;
 
@@ -123,7 +124,7 @@ final class ChromosomeArt {
           final double u = (columns[j] + columns[j + 1]) / 2;
           final double area =
               (rows[i + 1] - rows[i]) * w * (columns[j + 1] - columns[j]);
-          final _Normal n = _Normal(
+          final SurfaceNormal n = SurfaceNormal(
             u,
             -slope,
             math.sqrt(math.max(0, 1 - u * u)),
@@ -169,77 +170,129 @@ final class ChromosomeArt {
     meanTone,
   ];
 
-  /// The chromosome at rest, without its spots.
-  void paintRest(Canvas canvas, ZoomFrame frame) {
+  /// The chromosome at rest, without its spots. On its way into the band's
+  /// map, each sister is moved [merge] of the way onto the axis at the
+  /// band's height and thinned [thin] of the way to [target] half-width
+  /// there, as the tube under it is: its shadow, its coat and the groove
+  /// go with it.
+  void paintRest(
+    Canvas canvas,
+    ZoomFrame frame, {
+    double merge = 0,
+    double thin = 0,
+    double target = 0,
+  }) {
     final double pixel = frame.pixel;
+    final bool still = merge == 0 && thin == 0;
+    // [draw] for sister [i], moved with it.
+    void sister(int i, void Function() draw) {
+      if (still) {
+        draw();
+        return;
+      }
+      canvas.save();
+      _toward(canvas, i == 0 ? -1 : 1, merge, thin, target);
+      draw();
+      canvas.restore();
+    }
+
     // The shadow the sisters cast, under them and to the lower right.
     canvas.save();
     canvas.translate(
       ChromosomeStyle.shadowX * _half,
       ChromosomeStyle.shadowY * _half,
     );
-    for (final Path outline in _outlines) {
-      canvas.drawPath(
-        outline,
-        Paint()..color = inks.shadow.withValues(alpha: 0.32),
-      );
-      canvas.drawPath(
-        outline,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 0.5 * _half
-          ..strokeJoin = StrokeJoin.round
-          ..color = inks.shadow.withValues(alpha: 0.12),
-      );
+    for (int i = 0; i < 2; i++) {
+      sister(i, () {
+        canvas.drawPath(
+          _outlines[i],
+          Paint()..color = inks.shadow.withValues(alpha: 0.32),
+        );
+        canvas.drawPath(
+          _outlines[i],
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 0.5 * _half
+            ..strokeJoin = StrokeJoin.round
+            ..color = inks.shadow.withValues(alpha: 0.12),
+        );
+      });
     }
     canvas.restore();
     // Their coat: half of a wide, faint stroke shows round each.
-    for (final Path outline in _outlines) {
-      canvas.drawPath(
-        outline,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = ChromosomeStyle.coat * _half
-          ..strokeJoin = StrokeJoin.round
-          ..color = inks.lit(0.3).withValues(alpha: 0.06),
-      );
-      canvas.drawPath(
-        outline,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = ChromosomeStyle.coatInner * _half
-          ..strokeJoin = StrokeJoin.round
-          ..color = inks.lit(0.3).withValues(alpha: 0.11),
-      );
+    for (int i = 0; i < 2; i++) {
+      sister(i, () {
+        canvas.drawPath(
+          _outlines[i],
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = ChromosomeStyle.coat * _half
+            ..strokeJoin = StrokeJoin.round
+            ..color = inks.lit(0.3).withValues(alpha: 0.06),
+        );
+        canvas.drawPath(
+          _outlines[i],
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = ChromosomeStyle.coatInner * _half
+            ..strokeJoin = StrokeJoin.round
+            ..color = inks.lit(0.3).withValues(alpha: 0.11),
+        );
+      });
     }
     final Paint mesh = Paint();
     for (int i = 0; i < 2; i++) {
-      for (final ui.Vertices vertices in _sisters[i]) {
-        canvas.drawVertices(vertices, BlendMode.dst, mesh);
-      }
-      for (final ui.Vertices vertices in _granules[i]) {
-        canvas.drawVertices(vertices, BlendMode.dst, mesh);
-      }
+      sister(i, () {
+        for (final ui.Vertices vertices in _sisters[i]) {
+          canvas.drawVertices(vertices, BlendMode.dst, mesh);
+        }
+        for (final ui.Vertices vertices in _granules[i]) {
+          canvas.drawVertices(vertices, BlendMode.dst, mesh);
+        }
+      });
     }
-    // The groove, soft and then sharp.
-    canvas.drawPath(
-      _seam,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 5 * pixel
-        ..strokeCap = StrokeCap.round
-        ..shader = _seamShade
-        ..color = inks.shadow.withValues(alpha: 0.3),
-    );
-    canvas.drawPath(
-      _seam,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = math.max(1.2 * pixel, 0.07 * _half)
-        ..strokeCap = StrokeCap.round
-        ..shader = _seamShade,
-    );
+    // The groove, soft and then sharp: the right sister's facing side.
+    sister(1, () {
+      canvas.drawPath(
+        _seam,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 5 * pixel
+          ..strokeCap = StrokeCap.round
+          ..shader = _seamShade
+          ..color = inks.shadow.withValues(alpha: 0.3),
+      );
+      canvas.drawPath(
+        _seam,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = math.max(1.2 * pixel, 0.07 * _half)
+          ..strokeCap = StrokeCap.round
+          ..shader = _seamShade,
+      );
+    });
   }
+
+  /// Moves [canvas] so that sister [side] is drawn [merge] of the way onto
+  /// the axis at the band's height and [thin] of the way to [target]
+  /// half-width there, about its own middle.
+  void _toward(
+    Canvas canvas,
+    double side,
+    double merge,
+    double thin,
+    double target,
+  ) {
+    final double y = form.bandY;
+    final double from = form.centreAt(side, y);
+    final double w = form.widthAt(y);
+    canvas.translate(form.centreAt(side, y, merge: merge), 0);
+    canvas.scale(w <= 0 ? 1 : (w + (target - w) * thin) / w, 1);
+    canvas.translate(-from, 0);
+  }
+
+  /// The spots' core: the mark lightened toward the bright ink.
+  late final Color _core = Color.lerp(inks.mark, inks.text, 0.55)!;
 
   /// The gene's two FISH spots, one on each sister at its height: a core of
   /// the mark lightened toward the bright ink, in its glow.
@@ -248,31 +301,43 @@ final class ChromosomeArt {
       return;
     }
     final double r = form.fishRadius;
-    final Color core = Color.lerp(inks.mark, inks.text, 0.55)!;
     for (final double side in <double>[-1, 1]) {
-      final Offset at = form.fish(side, merge: merge);
-      Sculpt.glow(
+      paintSpot(
         canvas,
-        at,
+        form.fish(side, merge: merge),
+        r,
         ChromosomeStyle.fishGlow * r,
-        inks,
         0.38 * opacity,
-      );
-      final Rect box = Rect.fromCircle(center: at, radius: r);
-      canvas.drawOval(
-        box,
-        Paint()
-          ..shader = RadialGradient(
-            colors: <Color>[
-              core.withValues(alpha: opacity),
-              inks.glow(0.95 * opacity),
-              inks.glow(0.35 * opacity),
-              inks.glow(0),
-            ],
-            stops: const <double>[0, 0.42, 0.75, 1],
-          ).createShader(box),
+        opacity,
       );
     }
+  }
+
+  /// One FISH spot at [at]: its core [radius] across, at [opacity], in a
+  /// glow of the mark [reach] out and [glow] at its heart.
+  void paintSpot(
+    Canvas canvas,
+    Offset at,
+    double radius,
+    double reach,
+    double glow,
+    double opacity,
+  ) {
+    Sculpt.glow(canvas, at, reach, inks, glow);
+    final Rect box = Rect.fromCircle(center: at, radius: radius);
+    canvas.drawOval(
+      box,
+      Paint()
+        ..shader = RadialGradient(
+          colors: <Color>[
+            _core.withValues(alpha: opacity),
+            inks.glow(0.95 * opacity),
+            inks.glow(0.35 * opacity),
+            inks.glow(0),
+          ],
+          stops: const <double>[0, 0.42, 0.75, 1],
+        ).createShader(box),
+    );
   }
 
   /// The spots flaring as the chromosome is reached, [t] of the way through
@@ -349,7 +414,7 @@ final class ChromosomeArt {
       final double gene = form.geneAt(y);
       for (final double u in columns) {
         final double nz = math.sqrt(math.max(0, 1 - u * u));
-        final _Normal n = _Normal(u, -slope, nz);
+        final SurfaceNormal n = SurfaceNormal(u, -slope, nz);
         final ({double light, double occlusion}) s = _surface(
           side,
           y,
@@ -399,7 +464,7 @@ final class ChromosomeArt {
     final double phi = knobs.phi[k];
     final double u = math.sin(phi);
     final double r = knobs.radius[k];
-    final _Normal n = _Normal(u, -form.slope(y), math.cos(phi));
+    final SurfaceNormal n = SurfaceNormal(u, -form.slope(y), math.cos(phi));
     final double flat = math.sqrt(n.x * n.x + n.y * n.y);
     final double dx = flat < 1e-6 ? 1 : n.x / flat;
     final double dy = flat < 1e-6 ? 0 : n.y / flat;
@@ -447,15 +512,15 @@ final class ChromosomeArt {
     final double tone = form.toneAt(y);
     final double gene = form.geneAt(y);
     final double u = math.sin(knobs.phi[k]);
-    final _Normal base = p.normal;
+    final SurfaceNormal base = p.normal;
     final double r = knobs.radius[k];
     ({double light, double occlusion}) lit(double tilt, double a) {
       // The ring's normal, tilted out from the dome's top toward [a].
       final Offset out = p.at(a, 1) - Offset(p.x, p.y);
       final double length = out.distance;
-      final _Normal n = length < 1e-12
+      final SurfaceNormal n = length < 1e-12
           ? base
-          : _Normal(
+          : SurfaceNormal(
               base.x + tilt * out.dx / length,
               base.y + tilt * out.dy / length,
               base.z,
@@ -519,7 +584,7 @@ final class ChromosomeArt {
     final double ry = ChromosomeStyle.plateY * _half;
     final double u = side * ChromosomeStyle.plateOut;
     final double y = form.centromere;
-    final _Normal n = _Normal(u, 0, math.sqrt(1 - u * u));
+    final SurfaceNormal n = SurfaceNormal(u, 0, math.sqrt(1 - u * u));
     final ({double light, double occlusion}) s = _surface(
       side,
       y,
@@ -605,7 +670,7 @@ final class _Knob {
 
   final double x;
   final double y;
-  final _Normal normal;
+  final SurfaceNormal normal;
   final double ax;
   final double ay;
   final double bx;
@@ -617,147 +682,6 @@ final class _Knob {
     final double s = math.sin(a) * scale;
     return Offset(x + ax * c + bx * s, y + ay * c + by * s);
   }
-}
-
-/// A unit normal: x across the screen, y down it, z out of it.
-final class _Normal {
-  factory _Normal(double x, double y, double z) {
-    final double length = math.sqrt(x * x + y * y + z * z);
-    return length == 0
-        ? const _Normal._(0, 0, 1)
-        : _Normal._(x / length, y / length, z / length);
-  }
-
-  const _Normal._(this.x, this.y, this.z);
-
-  final double x;
-  final double y;
-  final double z;
-}
-
-/// The one light, from the upper left and a little in front, and how a
-/// scanning micrograph sees a surface under it: lit as it faces the light,
-/// its edges glowing on the side the light comes from and darkening on the
-/// other.
-final class _Light {
-  _Light() {
-    final double length = math.sqrt(
-      ChromosomeStyle.lightX * ChromosomeStyle.lightX +
-          ChromosomeStyle.lightY * ChromosomeStyle.lightY +
-          ChromosomeStyle.lightZ * ChromosomeStyle.lightZ,
-    );
-    x = ChromosomeStyle.lightX / length;
-    y = ChromosomeStyle.lightY / length;
-    z = ChromosomeStyle.lightZ / length;
-    final double flat = math.sqrt(x * x + y * y);
-    screenX = x / flat;
-    screenY = y / flat;
-  }
-
-  late final double x;
-  late final double y;
-  late final double z;
-
-  /// The light's direction on the screen.
-  late final double screenX;
-  late final double screenY;
-
-  double brightness(double nx, double ny, double nz) {
-    final double lit = math.max(0, nx * x + ny * y + nz * z);
-    final double edge = math
-        .pow(math.max(0, 1 - nz), ChromosomeStyle.edgePower)
-        .toDouble();
-    final double flat = math.sqrt(nx * nx + ny * ny);
-    final double facing = flat < 1e-6
-        ? 0
-        : math.max(0, (nx * screenX + ny * screenY) / flat);
-    final double toward = 0.35 + 0.65 * facing;
-    return ChromosomeStyle.ambient +
-        ChromosomeStyle.diffuse * lit +
-        ChromosomeStyle.edgeLit * edge * toward -
-        ChromosomeStyle.edgeShade * edge * (1 - toward);
-  }
-}
-
-/// The inks the micrograph is mixed from, as channels to mix without
-/// building a colour for every vertex: chromatin from the lit outline down
-/// to the surfaces by its stain, toward the shadow as light leaves it,
-/// toward the bright ink where it is brightest, and the mark in the gene's
-/// band.
-final class _Palette {
-  _Palette(ZoomInks inks)
-    : _pale = _Channels(inks.lit(ChromosomeStyle.paleLit)),
-      _deep = _Channels(inks.shade(ChromosomeStyle.deepShade)),
-      _shadow = _Channels(inks.shadow),
-      _text = _Channels(inks.text),
-      _mark = _Channels(inks.mark);
-
-  final _Channels _pale;
-  final _Channels _deep;
-  final _Channels _shadow;
-  final _Channels _text;
-  final _Channels _mark;
-
-  /// Chromatin of stain [tone], at brightness [light], [occlusion] of the
-  /// way into the groove's shade and [gene] of the way into the gene's band.
-  int colour(
-    double tone,
-    double light,
-    double occlusion,
-    double gene,
-    double alpha,
-  ) {
-    final (double r, double g, double b) = mix(tone, light, occlusion, gene);
-    return _pack(alpha, r, g, b);
-  }
-
-  /// [colour]'s channels, from 0 to 1, before they are packed.
-  (double, double, double) mix(
-    double tone,
-    double light,
-    double occlusion,
-    double gene,
-  ) {
-    double r = _pale.r + (_deep.r - _pale.r) * tone;
-    double g = _pale.g + (_deep.g - _pale.g) * tone;
-    double b = _pale.b + (_deep.b - _pale.b) * tone;
-    if (light <= 1) {
-      final double t = math.max(0, light);
-      r = _shadow.r + (r - _shadow.r) * t;
-      g = _shadow.g + (g - _shadow.g) * t;
-      b = _shadow.b + (b - _shadow.b) * t;
-    } else {
-      final double t = math.min(0.7, 0.9 * (light - 1));
-      r += (_text.r - r) * t;
-      g += (_text.g - g) * t;
-      b += (_text.b - b) * t;
-    }
-    r += (_shadow.r - r) * occlusion;
-    g += (_shadow.g - g) * occlusion;
-    b += (_shadow.b - b) * occlusion;
-    final double wash = ChromosomeStyle.wash * gene;
-    r += (_mark.r - r) * wash;
-    g += (_mark.g - g) * wash;
-    b += (_mark.b - b) * wash;
-    return (r, g, b);
-  }
-
-  int shadow(double alpha) => _pack(alpha, _shadow.r, _shadow.g, _shadow.b);
-
-  int text(double alpha) => _pack(alpha, _text.r, _text.g, _text.b);
-
-  static int _pack(double a, double r, double g, double b) {
-    int channel(double v) => (v.clamp(0.0, 1.0) * 255).round();
-    return channel(a) << 24 | channel(r) << 16 | channel(g) << 8 | channel(b);
-  }
-}
-
-final class _Channels {
-  _Channels(Color colour) : r = colour.r, g = colour.g, b = colour.b;
-
-  final double r;
-  final double g;
-  final double b;
 }
 
 /// Triangles with a colour at every vertex, gathered into as many meshes as

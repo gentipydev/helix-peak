@@ -122,13 +122,20 @@ abstract final class Sculpt {
   /// [path] stroked in the mark, with a soft glow round the stroke: a wide,
   /// faint stroke under a crisp one. Cheaper than a blur, and the same at
   /// any scale.
+  ///
+  /// [under] is for a stroke the same stroke will be drawn over, on a layer
+  /// shown at [under]: each part is then drawn faint enough that the two
+  /// together show as one, rather than doubling as the layer comes up.
   static void glowingStroke(
     Canvas canvas,
     Path path,
     ZoomInks inks, {
     required double width,
     double alpha = 1,
+    double under = 0,
   }) {
+    double shown(double a) =>
+        under <= 0 ? a : (under >= 1 ? 0 : a * (1 - under) / (1 - a * under));
     final Paint paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
@@ -137,19 +144,19 @@ abstract final class Sculpt {
       path,
       paint
         ..strokeWidth = width * 4.5
-        ..color = inks.glow(0.1 * alpha),
+        ..color = inks.glow(shown(0.1 * alpha)),
     );
     canvas.drawPath(
       path,
       paint
         ..strokeWidth = width * 2.4
-        ..color = inks.glow(0.22 * alpha),
+        ..color = inks.glow(shown(0.22 * alpha)),
     );
     canvas.drawPath(
       path,
       paint
         ..strokeWidth = width
-        ..color = inks.glow(0.95 * alpha),
+        ..color = inks.glow(shown(0.95 * alpha)),
     );
   }
 

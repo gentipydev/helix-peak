@@ -6,8 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/features/zoom/domain/locus_track.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_camera.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/band_scene.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/chromosome_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
@@ -81,6 +84,40 @@ class _Fills implements Canvas {
     }
     return null;
   }
+}
+
+/// A canvas that keeps where each mesh drawn on it lies: the transform it
+/// was drawn through.
+class _Meshes implements Canvas {
+  final List<Matrix4> drawn = <Matrix4>[];
+  final List<Matrix4> _saved = <Matrix4>[];
+  Matrix4 _now = Matrix4.identity();
+
+  @override
+  void save() => _saved.add(_now.clone());
+
+  @override
+  void saveLayer(Rect? bounds, Paint paint) => save();
+
+  @override
+  void restore() => _now = _saved.removeLast();
+
+  @override
+  void translate(double dx, double dy) => _now.translateByDouble(dx, dy, 0, 1);
+
+  @override
+  void scale(double sx, [double? sy]) => _now.scaleByDouble(sx, sy ?? sx, 1, 1);
+
+  @override
+  void rotate(double radians) => _now.rotateZ(radians);
+
+  @override
+  void drawVertices(ui.Vertices vertices, BlendMode blendMode, Paint paint) =>
+      drawn.add(_now.clone());
+
+  // Everything else it draws is not a mesh.
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
 }
 
 /// The scenes on screen at [d], by the stop each one is.
@@ -274,6 +311,132 @@ void main() {
         }
         expect(most, lessThanOrEqualTo(8), reason: t.slug);
         expect(total / near.length, lessThan(0.01), reason: t.slug);
+      }
+    });
+  });
+
+  group('the step to the band', () {
+    testWidgets('from a third of the way on, the chromosome is the strip: '
+        'every band’s edge on the strip’s, and as thick as the strip is '
+        'there', (WidgetTester tester) async {
+      final ZoomInks inks = await _inks(tester);
+      for (final ProteinTarget t in TestCatalog.all) {
+        final ZoomStage stage = _stage(t);
+        final ZoomDepth depth = stage.depth;
+        final List<CytoBand> bands = stage.subject.track.bands;
+        int checked = 0;
+        for (final double s in <double>[0.35, 0.4, 0.5, 0.6, 0.7, 0.8]) {
+          final Map<ZoomStop, (ZoomScene, ZoomFrame)> at = _at(
+            stage,
+            inks,
+            depth.depthOf(ZoomStop.chromosome) +
+                s * depth.travelOf(ZoomStop.chromosome.index),
+          );
+          final (ZoomScene chromosome, ZoomFrame turning) =
+              at[ZoomStop.chromosome]!;
+          final (ZoomScene band, ZoomFrame map) = at[ZoomStop.band]!;
+          final _Meshes canvas = _Meshes();
+          chromosome.paint(canvas, turning);
+          expect(canvas.drawn, isNotEmpty, reason: '${t.slug} at $s');
+          final Matrix4 onScreen = canvas.drawn.first;
+          final BandScene strip = band as BandScene;
+          final double y = strip.stripY(map);
+          final double from = strip.stripX(map, 1);
+          final double to = strip.stripX(map, stage.subject.track.length + 1);
+          for (final ({int band, int edge, Offset top, Offset bottom}) row
+              in (chromosome as ChromosomeScene).tubeIn(inks).laidRows) {
+            if (row.edge == 0) {
+              continue;
+            }
+            final CytoBand own = bands[row.band];
+            final double x = strip.stripX(
+              map,
+              row.edge > 0 ? own.start.toDouble() : own.end + 1.0,
+            );
+            // On the canvas, and clear of the strip's rounded ends.
+            if (x < 0 ||
+                x > _canvas.width ||
+                x - from < BandScene.strip / 2 ||
+                to - x < BandScene.strip / 2) {
+              continue;
+            }
+            final Offset top = MatrixUtils.transformPoint(onScreen, row.top);
+            final Offset bottom = MatrixUtils.transformPoint(
+              onScreen,
+              row.bottom,
+            );
+            final double half =
+                BandScene.strip / 2 * BandScene.thickness(own.stain);
+            final String where = '${t.slug} at $s, ${own.name}';
+            expect(top.dx, closeTo(x, 0.5), reason: where);
+            expect(bottom.dx, closeTo(x, 0.5), reason: where);
+            expect(top.dy, closeTo(y - half, 0.5), reason: where);
+            expect(bottom.dy, closeTo(y + half, 0.5), reason: where);
+            checked++;
+          }
+        }
+        expect(checked, greaterThan(10), reason: t.slug);
+      }
+    });
+
+    testWidgets('from a third of the way on, the chromosome is drawn in the '
+        'strip’s colours', (WidgetTester tester) async {
+      final ZoomInks inks = await _inks(tester);
+      for (final ProteinTarget t in <ProteinTarget>[
+        TestCatalog.insulin,
+        TestCatalog.sod1,
+        TestCatalog.amylase,
+        TestCatalog.dystrophin,
+      ]) {
+        final ZoomStage stage = _stage(t);
+        final ZoomDepth depth = stage.depth;
+        final LocusTrack track = stage.subject.track;
+        for (final double s in <double>[0.5, 0.7]) {
+          final Map<ZoomStop, (ZoomScene, ZoomFrame)> at = _at(
+            stage,
+            inks,
+            depth.depthOf(ZoomStop.chromosome) +
+                s * depth.travelOf(ZoomStop.chromosome.index),
+          );
+          final (ZoomScene chromosome, ZoomFrame turning) =
+              at[ZoomStop.chromosome]!;
+          final (ZoomScene band, ZoomFrame map) = at[ZoomStop.band]!;
+          final Uint8List tube = await _pixels(tester, chromosome, turning);
+          final Uint8List drawn = await _pixels(tester, band, map);
+          final BandScene strip = band as BandScene;
+          final double y = strip.stripY(map);
+          // The gene's band is ringed and its spot glows on it: left out.
+          final double ringFrom = strip.stripX(map, track.bandStart - 1.0);
+          final double ringTo = strip.stripX(map, track.bandEnd + 1.0);
+          int probed = 0;
+          int most = 0;
+          for (final CytoBand own in track.bands) {
+            final double a = strip.stripX(map, own.start.toDouble());
+            final double b = strip.stripX(map, own.end + 1.0);
+            final double reach =
+                (BandScene.strip / 2 * BandScene.thickness(own.stain) - 3)
+                    .floorToDouble();
+            // Inside the band, clear of its edges, on the canvas, and clear
+            // of the gene's band.
+            for (double x = a + 3; x <= b - 3; x += 4) {
+              if (x < 4 ||
+                  x > _canvas.width - 4 ||
+                  (x > ringFrom - 26 && x < ringTo + 26)) {
+                continue;
+              }
+              for (double dy = -reach; dy <= reach; dy += 2) {
+                final int i =
+                    ((y + dy).round() * _canvas.width.toInt() + x.round()) * 4;
+                for (int c = 0; c < 4; c++) {
+                  most = math.max(most, (tube[i + c] - drawn[i + c]).abs());
+                }
+                probed++;
+              }
+            }
+          }
+          expect(probed, greaterThan(20), reason: '${t.slug} at $s');
+          expect(most, lessThanOrEqualTo(4), reason: '${t.slug} at $s');
+        }
       }
     });
   });

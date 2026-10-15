@@ -105,6 +105,10 @@ abstract final class ChromosomeStyle {
   static const double fishShare = 0.8;
   static const double fishGlow = 2.1;
 
+  /// A FISH spot's core as the chromosome lies down into the band's map,
+  /// in pixels: where the map's own glow round the gene takes over.
+  static const double fishOnStrip = 6;
+
   /// How dark a band's stain is, from 0 (pale) to 1 (as deep as the
   /// chromatin is drawn).
   static double tone(Stain stain) => switch (stain) {
