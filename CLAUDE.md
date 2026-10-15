@@ -250,8 +250,8 @@ its slug with a loader of its own: a shared loader would have to read
 `ProteinCatalogRepository` from core or shared, which the layering test
 forbids.
 
-The dive is eight stops on one depth (`ZoomDepth`): body, organ, tissue,
-cell, nucleus, chromosome, band, DNA. The card's ‹ › step from one to
+The dive is nine stops on one depth (`ZoomDepth`): body, organ, tissue,
+cell, nucleus, chromosome, band, gene, DNA. The card's ‹ › step from one to
 the next (a step asked for mid-flight carries straight on at the speed the
 depth has), and a pinch and a flick move the same number. Everything drawn
 is a function of it, but what moves at rest (a helix turning, vesicles
@@ -281,15 +281,17 @@ seen:
   out of its territory, and on the way out turns into a smooth tube that
   is, by the time it lies along the genome, the band map's strip pixel for
   pixel;
-- a genome map of the band opened out of the whole chromosome, and the
-  gene's own DNA, its stop (the gene and the DNA are one, the user's choice
-  of 2026-10-14): on the way in, the gene's mark on the band's strip opens
-  into the record's exons at their real lengths, then into chromatin, then
-  into the home screen's own double helix (`DnaHelixPainter`, from
-  `lib/shared/helix/`), lying 5′ to 3′ with the record's first bases, whole:
-  unlike the home screen's, nothing transcribes it (`transcription: null`),
-  so no strand peels away. The zoom goes into the mark at its left end,
-  where the 5′ end is drawn whatever the strand, so nothing turns.
+- a genome map of the band opened out of the whole chromosome; the gene,
+  opened out of its mark on the band's strip, as a genome browser draws a
+  transcript, the record's exons at their real lengths, still (its own stop
+  again, the user's choice of 2026-10-15, after a day as one stop with the
+  DNA); and its DNA from the 5′ end, chromatin and then the home screen's
+  own double helix (`DnaHelixPainter`, from `lib/shared/helix/`), lying 5′
+  to 3′ with the record's first bases, whole: unlike the home screen's,
+  nothing transcribes it (`transcription: null`), so no strand peels away.
+  The gene reads 5′ to 3′ from its first frame whatever its strand, a
+  reverse one mirrored about its middle: its mark on the strip has nothing
+  inside it to turn, so nothing turns.
 
 The organ and the cell are one path the bake chose, a cell that lives in
 the organ (`path` in the `locus` track's schema 2, `pipeline/locus` in the

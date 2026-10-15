@@ -1,12 +1,12 @@
 # Zoom: from a body down to one gene's DNA
 
-![Insulin's eight stops on the app's ground: a glass figure with the pancreas glowing, the pancreas sculpted with its islets in the accent, an islet under the eyepiece, a beta cell, its nucleus with chromosome 11's territory in the accent, chromosome 11 as a micrograph with the gene's two FISH spots at its tip, the band 11p15.5 under a docked map, and the home screen's helix carrying the gene's first bases](zoom.png)
+![Insulin's nine stops on the app's ground: a glass figure with the pancreas glowing, the pancreas sculpted with its islets in the accent, an islet under the eyepiece, a beta cell, its nucleus with chromosome 11's territory in the accent, chromosome 11 as a micrograph with the gene's two FISH spots at its tip, the band 11p15.5 under a docked map, the gene as a genome browser draws it, and the home screen's helix carrying the gene's first bases](zoom.png)
 
 ## Experience
 
 The zoom (`/zoom/<slug>`) dives from a whole body to the first bases of one
-protein's gene, through eight stops: body, organ, tissue, cell, nucleus,
-chromosome, band and DNA. It is one continuous depth.
+protein's gene, through nine stops: body, organ, tissue, cell, nucleus,
+chromosome, band, gene and DNA. It is one continuous depth.
 
 - **Getting there.** The walk's gene page offers "Zoom ›" beside its line,
   where the transcript offers "Ribosome ›", for a protein whose `locus`
@@ -54,7 +54,8 @@ What each stop says, for insulin:
 | Nucleus | Chromosome 11 territory | none | nucleolus |
 | Chromosome | Chromosome 11 | 135,086,622 bp · 36 bands | 11p15.5 |
 | Band | 11p15.5 | 2.8 Mb · gene at 2,159,779–2,161,209 | INS |
-| DNA | INS · 1,431 bases | 5′ AGCCCTCCAGGACAGGCTGCATCAGAAGAGGCC 3′ | 5′ |
+| Gene | INS · 1,431 bases | Three exons · reverse strand | 5′, 3′, the exons' numbers |
+| DNA | First 33 bases | 5′ AGCCCTCCAGGACAGGCTGCATCAGAAGAGGCC 3′ | 5′ |
 
 A cell with no nucleus says so in its line: hemoglobin's is "Erythrocytes ·
 521,403 nCPM · no nucleus", over the erythroblasts it lands in.
@@ -338,9 +339,9 @@ scene two segments share to the same place at the stop between them.
   from the nucleus to a long chromosome is only 0.07 decades: chromosome 1
   condensed is almost as wide as the nucleus, so it would otherwise flash by.
 - **Units.** The view reads in metres down to the chromosome and half way
-  past it, then in base pairs. The band and the DNA are placed in base
-  pairs, projected to the screen in doubles, so no canvas transform carries
-  the 10⁸-fold narrowing.
+  past it, then in base pairs. The band, the gene and the DNA are placed in
+  base pairs, projected to the screen in doubles, so no canvas transform
+  carries the 10⁸-fold narrowing.
 - **Framing.** A phone's canvas is about 1.45 times as tall as it is wide,
   so an organ taller than it is wide is framed by its height, and the
   chromosome's view is 0.9 of its condensed length, so it stands about
@@ -672,44 +673,69 @@ gives it its room.
   1.5 px wide. Seventeen of the twenty are ticks; APP, CFTR and DMD are
   rings as wide as they are. It had a track of its own under the strip,
   with an arrow for its strand, until the user chose to mark it on the
-  strip (2026-10-14); the walk's record sheet gives the strand;
+  strip (2026-10-14); the gene's own card says its strand;
 - the whole chromosome docked at the top as a lit ideogram, the view boxed
   on it in the accent, and a funnel from the box down to the strip;
 - a ruler in Mb, 40 px below the middle.
 
-**Into the gene.** One step goes from the band down to the DNA, five to six
-decades: the gene and the DNA are one stop, which looks like the DNA (the
-user's choice of 2026-10-14; the gene had a stop of its own before, with a
-polymerase passing along it).
-- The zoom goes into the gene's mark at its left end, where the DNA's view
-  lies. The DNA reads the gene 5′→3′ from its left, as the walk does,
-  whatever its strand: on the strip the gene is a mark with nothing inside
-  it to turn, and a mark turned over about its middle is the same mark. A
-  turn of reverse-strand genes was planned once and dropped: it swung
-  dystrophin's 5′ end across the view by up to 3 px a frame, past the
-  smoothness bound.
-- The band names the gene at the top of its mark, where the zoom goes in,
-  so the name's dot stays put as the view closes on it. On a tick that is
-  its middle; on APP's, CFTR's and DMD's rings it is the left end.
-- The map gives way over the first half of the step, while the gene grows
-  out of its mark.
+**Into the gene.** The gene has a stop of its own between the band and the
+DNA. On 2026-10-14 it became one stop with the DNA, which looked like the
+DNA; on 2026-10-15 the user asked for it back, keeping the dive's look. The
+step from the band opens the gene out of its mark, 0.7 decades for
+dystrophin to 3.8 for oxytocin.
+- The zoom goes into the gene's mark at its middle, where the gene's stop
+  is centred. The gene reads 5′→3′ left to right from its first frame, as
+  the walk does, whatever its strand: on the strip the gene is a mark with
+  nothing inside it to turn, and a mark turned over about its middle is the
+  same mark, so a gene on the reverse strand is drawn mirrored. A turn of
+  reverse-strand genes was planned once and dropped: it swung dystrophin's
+  5′ end across the view by up to 3 px a frame, past the smoothness bound.
+- The band names the gene at the top of its mark, over its middle, so the
+  name's dot stays put as the view closes on it.
+- As on the dive that ran from the band to the DNA in one step, the gene
+  comes up in its mark a little before the map gives way: the gene from a
+  quarter of the step, the map from about a third, each over 45% of it.
+  Both come later than on that dive, which was five to six decades deep,
+  so the map goes while the mark opens past a few tens of pixels, as it
+  did there.
+- The gene's ruler, start, 3′ end and exons' numbers come up over the last
+  45% of the step, as the map goes; an exon's number as its block grows
+  from half its size at the stop to its size there.
 
-**DNA.** The gene's own stop: the card names the gene and its length over
-the first bases its helix carries.
-- On the way in, the mark opens into the gene's exons and introns at their
-  real lengths (`GeneLayout` uses `realIntronBp` for the three genes whose
-  record shortens its introns), as a genome browser draws a transcript:
-  lit, rounded blocks in the walk's role colours, coding exons tall and
-  their untranslated ends short, and introns a lit hairline with chevrons
-  the way the gene is read. They show whole while the view is wider than
-  4 kb and are gone by 400 bp, evenly between, so none is seen at the stop.
+**Gene.** As a genome browser draws a transcript, and still: nothing reads
+it, as nothing reads the helix at the DNA (the user's choice of
+2026-10-15; until 2026-10-14 a polymerase passed along it every 9 s, its
+transcript trailing in the accent).
+- The record's exons and introns are at their real lengths (`GeneLayout`
+  uses `realIntronBp` for the three genes whose record shortens its
+  introns), placed along the span MANE gives, in a view 1.3 times as wide.
+- Exons are lit, rounded blocks in the walk's role colours: coding exons
+  tall, and numbered where they are 16 px wide at the stop, their
+  untranslated ends short. Introns are a lit hairline with chevrons the way
+  the gene is read.
+- A bent arrow in the accent marks where transcription starts, and a ruler
+  counts from the 5′ end.
+- The card names the gene and its length, its exons and its strand:
+  `INS · 1,431 bases`, `Three exons · reverse strand`.
+
+**DNA.** The card says the first bases its helix carries, over them, 5′ to
+3′: `First 33 bases`.
+- On the way in from the gene, the view closes in on its 5′ end. The
+  gene's ruler, numbers, start and 3′ end go over the first 45% of the
+  step. Its exons and introns give way by the view's width and are gone by
+  400 bp, before the helix comes up: over a tenfold narrowing (4 kb to
+  400 bp), as on the dive from the band, or over 0.45 of the step where
+  that is more. A deep step crosses a decade too fast for a fade at 60 fps:
+  dystrophin's is 5.3 decades, so its exons give way from about 100 kb. A
+  short gene's give way from its own stop. The gene's stop draws them all
+  the way and the DNA's never does, so the two never draw them at once.
 - Past a few thousand base pairs, the gene's line is a fibre of
   nucleosomes: a core of 147 bp seen side on, its DNA passing behind and in
   front of it, one every 200 bp. The first sits 40 bp into the gene and the
   stretch before it is bare.
 - Beads come up once they read as beads and give way before one fills the
-  view. The fibre's line comes up with them, so it never runs across the
-  band's map.
+  view. The fibre's line comes up with them and as the gene's exons, which
+  lie over it, give way.
 - Under 420 bp across the view, the bare 5′ end resolves into the home
   screen's own double helix, drawn by its own painter (`DnaHelixPainter`, in
   `lib/shared/helix/`): lying along the gene with its 5′ end at the left,
@@ -728,9 +754,8 @@ speed it has to the stop, arriving with no speed and no change of speed.
 It takes 1.3 s plus 0.15 s a decade, held between 1.45 and 1.9 s: the
 shortest steps need 1.4 s to keep every fade under 0.08 a frame at 60 fps,
 and a long chromosome's turn into its band about 1.6. The step from the band
-to the DNA crosses five to six decades and takes the 1.9 s cap: the helix
-comes up about two thirds of the way through it and settles over the last
-0.6 s. A step asked for
+to the gene crosses 0.7 to 3.8 decades (1.45 to 1.87 s), and the step from
+the gene to the DNA 1.9 to 5.3 (1.59 to 1.9 s). A step asked for
 mid-flight starts the next flight at the speed the depth has, so it carries
 straight on. A flick coasts 0.35 s at its own speed to choose its stop, and
 a critically damped spring (stiffness 140) takes it there.
@@ -762,9 +787,13 @@ folds, which once fell in the last frame of the step to the organ.
   passes its stop, and comes to rest still.
 - No two names overlap, and each keeps 8 pt from the edges, at 390 and 320
   wide; the band never sets two of its words over each other.
-- As the step leaves the band, the gene's DNA lies on its mark on the
-  strip, 5′ end at the mark's left, for all twenty; its exons show on the
-  way in and not at the DNA.
+- As the step leaves the band, the gene lies on its mark on the strip, its
+  5′ end at the mark's left and its 3′ end at its right, to half a pixel,
+  for all twenty. Across the step to the DNA, the gene's 5′ end and the
+  DNA's are one, to half a pixel. The exons show whole at the gene and on
+  the way in, and are gone once the view is 400 bp wide; nothing the gene
+  draws changes by more than 0.08 a frame at 60 fps, on any step to it or
+  from it.
 - The scale bar reads its round length at every stop, and no frame of any
   step at 60 fps changes its length by 2 px or more.
 
@@ -786,6 +815,11 @@ What it found over the zoom's life, and what was changed:
   the step from the organ, up to nineteen in the step from the band. Now
   it glides between the stops' round lengths and its figures count (the
   user's ask, 2026-10-14).
+- **The exons' fade.** Over a fixed tenfold narrowing (4 kb to 400 bp),
+  the exons of dystrophin, APP and CFTR gave way by up to 0.13 a frame on
+  their deep step from the gene to the DNA, as they had on the one step
+  from the band. On a deep step the fade now spans 0.45 of it, which
+  holds every gene under 0.08 (2026-10-15).
 - **The territory drawn twice.** At the nucleus the chromosome, already
   the step's child, painted the territory over the nucleus's own, and as
   the step began the territory's glow and edge vanished in one frame. Now
@@ -809,13 +843,17 @@ What it found over the zoom's life, and what was changed:
   view.
 
 **On a device.** On the iPhone 17 Pro simulator, in a debug build, stepping
-all nine stops (before the gene and the DNA became one) and back for
-insulin, hemoglobin, dystrophin and prion: each step's median frame took 1
-to 2.6 ms to build and 0.7 to 3.3 ms to raster, with one or two frames a
-protein up to 24 ms to build or 30 ms to raster. The step from the band to
-the DNA and back, for insulin and dystrophin (2026-10-14): medians of 1.4
-to 2.4 ms to build and 0.8 to 1.1 ms to raster, the worst frame 18.5 ms to
-build, half way through the step, where the card changes stop. The
+all nine stops and back for insulin, hemoglobin, dystrophin and prion
+(2026-10-14, when a polymerase still passed along the gene): each step's
+median frame took 1 to 2.6 ms to build and 0.7 to 3.3 ms to raster, with
+one or two frames a protein up to 24 ms to build or 30 ms to raster. The
+one step from the band to the DNA and back, for insulin and dystrophin
+(2026-10-14, while the gene and the DNA were one stop): medians of 1.4 to
+2.4 ms to build and 0.8 to 1.1 ms to raster, the worst frame 18.5 ms to
+build, half way through the step, where the card changes stop. The gene's
+two steps, both ways, for insulin and dystrophin (2026-10-15): medians of
+2.1 to 2.6 ms to build and 0.8 to 1.2 ms to raster, the worst frames
+15.7 ms to build and 6.1 ms to raster. The
 chromosome's two steps (2026-10-15, debug, insulin, amylase and SOD1,
 both ways): medians of 1.0 to 2.35 ms to build and 1.0 to 1.9 ms to
 raster, the arrival beat's 1.0 to 1.5 and 1.1 to 1.9; the worst frame
@@ -910,7 +948,7 @@ frame (0.4 to 0.8 ms).
   moments and no others (a stop, or a share of the step that leaves it). `ZOOM_TISSUE_ATLAS=/tmp/atlas` writes every recipe's slide on
   its own and `ZOOM_ORGAN_ATLAS=/tmp/organs` every tissue's organ, the ones
   no catalog protein reaches included. The picture at the top of this page
-  is insulin's eight stops from it.
+  is insulin's nine stops from it.
 - The chromosome's tests: `chromosome_scene_test` (nothing narrower than
   its arms but the centromere and the ends), `chromosome_form_test` (the
   same form every time and for every protein on one chromosome, the knobs
