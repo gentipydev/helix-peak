@@ -500,9 +500,10 @@ condenses, the others drift out from it and fade.
   and dark ones deep, `gvar` an even grey (an ideogram's hatching reads as a
   cut on a lit form), each edge bowed as far as the tube is thick there, so
   two bands meet however it narrows;
-- on an acrocentric, the short arm's satellite a round knob on the thin
-  thread of its `stalk`, the knob and the arm each rounded into the thread
-  as a chromatid's end is;
+- on an acrocentric, the short arm whole, as thick as any arm: its
+  satellite and `stalk` are bands like any other, since a stalk drawn
+  thin, as a notch or as a satellite on a thread, read as a cut (the
+  user, 2026-10-15);
 - the gene's band in the accent on both chromatids, bracketed and named.
 
 It is never the gene: the band is millions of base pairs, a stain pattern

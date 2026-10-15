@@ -13,13 +13,17 @@ import '../zoom_fixtures.dart';
 ChromosomeScene _scene(ProteinTarget t) =>
     ChromosomeScene(ZoomSubject(track: locusOf(t), record: recordOf(t)));
 
-/// The widest [scene]'s chromatid is from [from] to [to], sampled finely.
-double _widest(ChromosomeScene scene, double from, double to) {
-  double widest = 0;
-  for (int i = 0; i <= 400; i++) {
-    widest = math.max(widest, scene.widthAt(from + (to - from) * i / 400));
+/// The most [scene]'s chromatid widens on the way from [from] to [to].
+double _widening(ChromosomeScene scene, double from, double to) {
+  const int steps = 4000;
+  double last = scene.widthAt(from);
+  double widening = 0;
+  for (int i = 1; i <= steps; i++) {
+    final double w = scene.widthAt(from + (to - from) * i / steps);
+    widening = math.max(widening, w - last);
+    last = w;
   }
-  return widest;
+  return widening;
 }
 
 void main() {
@@ -46,36 +50,39 @@ void main() {
     },
   );
 
-  test('an acrocentric\'s satellite is a knob on its stalk\'s thread', () {
-    int acrocentric = 0;
+  test('a chromatid narrows toward its centromere and nowhere else, '
+      'a stalk as thick as its arm', () {
+    int stalks = 0;
     for (final ProteinTarget target in TestCatalog.all) {
       final LocusTrack track = locusOf(target);
       final ChromosomeScene scene = _scene(target);
-      for (final CytoBand stalk in track.bands) {
-        if (stalk.stain != Stain.stalk) {
-          continue;
+      // Clear of each end's rounding, each arm narrows only as it nears the
+      // centromere.
+      final double top = scene.yOf(1) + scene.half;
+      final double bottom = scene.yOf(track.length + 1) - scene.half;
+      expect(
+        _widening(scene, top, scene.centromere),
+        lessThan(1e-12),
+        reason: '${target.slug}: the short arm',
+      );
+      expect(
+        _widening(scene, bottom, scene.centromere),
+        lessThan(1e-12),
+        reason: '${target.slug}: the long arm',
+      );
+      for (final CytoBand band in track.bands) {
+        if (band.stain == Stain.stalk) {
+          stalks++;
+          final double y =
+              (scene.yOf(band.start) + scene.yOf(band.end + 1)) / 2;
+          expect(
+            scene.widthAt(y),
+            greaterThan(scene.half * 0.9),
+            reason: '${target.slug}: ${band.name}',
+          );
         }
-        acrocentric++;
-        final double thread = scene.half * ChromosomeScene.thread;
-        final double from = scene.yOf(stalk.start);
-        final double to = scene.yOf(stalk.end + 1);
-        expect(
-          scene.widthAt((from + to) / 2),
-          closeTo(thread, 1e-9),
-          reason: target.slug,
-        );
-        expect(
-          _widest(scene, scene.yOf(1), from),
-          greaterThan(thread * 2),
-          reason: '${target.slug}: the satellite',
-        );
-        expect(
-          _widest(scene, to, scene.yOf(track.length + 1)),
-          closeTo(scene.half, scene.half * 0.01),
-          reason: '${target.slug}: the chromatid',
-        );
       }
     }
-    expect(acrocentric, isPositive, reason: 'no chromosome with a stalk');
+    expect(stalks, isPositive, reason: 'no chromosome with a stalk');
   });
 }

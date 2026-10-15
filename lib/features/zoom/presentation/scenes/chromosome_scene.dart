@@ -18,9 +18,8 @@ import 'zoom_subject.dart';
 /// chromatids, each a coil of chromatin as thick as a chromatid is, lying
 /// side by side and joined at the centromere, their arms splayed a little,
 /// stained in their cytoBand G-bands, which ring them as bands ring a tube.
-/// An acrocentric's short arm ends in its satellite, a knob on the thin
-/// thread of its stalk. The band the gene lies in is in the mark, bracketed
-/// and named. Never the gene, which is far too small to see at this scale.
+/// The band the gene lies in is in the mark, bracketed and named. Never the
+/// gene, which is far too small to see at this scale.
 ///
 /// On the way in it condenses out of its territory in the nucleus, the mark
 /// drawing in to the gene's band as the bands come up. On the way out it
@@ -93,94 +92,25 @@ final class ChromosomeScene extends ZoomScene {
     return math.exp(-d * d);
   }
 
-  /// How thick a stalk's thread is, against a chromatid.
-  static const double thread = 0.2;
-
-  /// The lengths a chromatid is in, top to bottom: the whole of it, or,
-  /// where its short arm has a stalk, the satellite beyond the stalk and the
-  /// chromatid this side of it. Each is rounded at both ends as a
-  /// chromatid's end is, over [half] or half its own length, whichever is
-  /// less, and is never much wider than it is long, so a short satellite is
-  /// a round knob.
-  late final List<_Span> _pieces = () {
-    final List<_Span> pieces = <_Span>[];
-    void add(double from, double to) {
-      if (to > from) {
-        pieces.add((
-          from: from,
-          to: to,
-          round: math.min(half, (to - from) / 2),
-          wide: math.min(half, (to - from) * 0.65),
-        ));
-      }
-    }
-
-    double from = yOf(1);
-    for (final CytoBand band in _track.bands) {
-      if (band.stain == Stain.stalk) {
-        add(from, yOf(band.start));
-        from = yOf(band.end + 1);
-      }
-    }
-    add(from, yOf(_track.length + 1));
-    return pieces;
-  }();
-
-  /// Each stalk's thread, top to bottom, reaching into the pieces either
-  /// side of it as far as they are rounded, so it runs into them with no
-  /// step.
-  late final List<({double from, double to})> _threads =
-      <({double from, double to})>[
-        for (final CytoBand band in _track.bands)
-          if (band.stain == Stain.stalk) _threadOf(band),
-      ];
-
-  ({double from, double to}) _threadOf(CytoBand stalk) {
-    double from = yOf(stalk.start);
-    double to = yOf(stalk.end + 1);
-    for (final _Span piece in _pieces) {
-      if (piece.to == from) {
-        from -= piece.round;
-      }
-      if (piece.from == to) {
-        to += piece.round;
-      }
-    }
-    return (from: from, to: to);
-  }
-
   /// A chromatid's half-width at [y], as it is drawn.
   @visibleForTesting
   double widthAt(double y) => _width(y);
 
-  /// A chromatid's half-width at [y]: narrower at the waist and rounded to
-  /// nothing at each end of each piece, a satellite held on its stalk's
-  /// thread.
+  /// A chromatid's half-width at [y]: narrower at the waist, rounded to
+  /// nothing at each end. An acrocentric's stalk and satellite are bands
+  /// like any other, as thick as the arm they are in: drawn thin, the stalk
+  /// read as a cut.
   double _width(double y) {
-    double w = 0;
-    for (final _Span piece in _pieces) {
-      if (y >= piece.from && y <= piece.to) {
-        final double fromEnd = math.min(y - piece.from, piece.to - y);
-        final double t = math.max(0, piece.round - fromEnd) / piece.round;
-        w =
-            piece.wide *
-            (1 - 0.42 * _waist(y)) *
-            math.sqrt(math.max(0, 1 - t * t));
-      }
-    }
-    for (final ({double from, double to}) stalk in _threads) {
-      if (y >= stalk.from && y <= stalk.to) {
-        w = _smoothMax(w, half * thread, half * 0.15);
-      }
+    double w = half * (1 - 0.42 * _waist(y));
+    final double top = yOf(1);
+    final double bottom = yOf(_track.length + 1);
+    final double cap = half;
+    final double fromEnd = math.min(y - top, bottom - y);
+    if (fromEnd < cap) {
+      final double t = (cap - fromEnd) / cap;
+      w *= math.sqrt(math.max(0, 1 - t * t));
     }
     return w;
-  }
-
-  /// The larger of [a] and [b], eased where they come within [k] of each
-  /// other, so the thread flows into the pieces it holds with no corner.
-  static double _smoothMax(double a, double b, double k) {
-    final double h = math.max(0, k - (a - b).abs()) / k;
-    return math.max(a, b) + h * h * k / 4;
   }
 
   /// Where chromatid [side]'s middle lies at [y]: touching its sister along
@@ -192,18 +122,17 @@ final class ChromosomeScene extends ZoomScene {
       (1 - merge);
 
   /// The heights an outline is drawn through, top to bottom: [steps] even
-  /// ones, and more round each end of each piece, where it turns fastest.
+  /// ones, and more round each end, where it turns fastest.
   List<double> _rows(int steps) {
     const int round = 16;
     final double top = yOf(1);
     final double bottom = yOf(_track.length + 1);
     return <double>{
       for (int i = 0; i <= steps; i++) top + (bottom - top) * i / steps,
-      for (final _Span piece in _pieces)
-        for (int i = 1; i < round; i++) ...<double>[
-          piece.from + piece.round * (1 - math.cos(math.pi / 2 * i / round)),
-          piece.to - piece.round * (1 - math.cos(math.pi / 2 * i / round)),
-        ],
+      for (int i = 1; i < round; i++) ...<double>[
+        top + half * (1 - math.cos(math.pi / 2 * i / round)),
+        bottom - half * (1 - math.cos(math.pi / 2 * i / round)),
+      ],
     }.toList()..sort();
   }
 
@@ -594,7 +523,3 @@ final class ChromosomeScene extends ZoomScene {
     }
   }
 }
-
-/// A stretch of a chromatid, top to bottom in the scene's units: how far in
-/// from each end it is rounded, and its half-width.
-typedef _Span = ({double from, double to, double round, double wide});
