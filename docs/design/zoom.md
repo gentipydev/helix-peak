@@ -29,7 +29,8 @@ chromosome, band and DNA. It is one continuous depth.
   the stop's name, its place and its line.
 - **The canvas** names only what the card does not say: the cell in the
   tissue, where the protein sits, the band on the chromosome, the gene on
-  the map, the gene's 5′ end. A scale bar is always at its lower left: a
+  the map, the gene's 5′ end; and the one landmark a reader asked after, the
+  nucleolus, at the cell and the nucleus (the user's ask, 2026-10-15). A scale bar is always at its lower left: a
   round length at each stop, and between two stops a bar that glides from
   the one's length to the next, reading the length it spans as it goes, so
   it never springs back. At the body alone, its lower right carries the
@@ -49,8 +50,8 @@ What each stop says, for insulin:
 | Body | Pancreas | Tissue enriched · 12,197 nTPM | the credit |
 | Organ | Pancreas | About 16 cm | a marker where the tissue is sampled |
 | Tissue | Islet (the recipe's architecture) | none | beta cells |
-| Cell | Beta cells | Tissue cell type enriched | none: the Atlas names no place in the cell for it, and its vesicles leave the cell |
-| Nucleus | Chromosome 11 territory | none | none |
+| Cell | Beta cells | Tissue cell type enriched | nucleolus: the Atlas names no place in the cell for it, and its vesicles leave the cell |
+| Nucleus | Chromosome 11 territory | none | nucleolus |
 | Chromosome | Chromosome 11 | 135,086,622 bp · 36 bands | 11p15.5 |
 | Band | 11p15.5 | 2.8 Mb · gene at 2,159,779–2,161,209 | INS |
 | DNA | INS · 1,431 bases | 5′ AGCCCTCCAGGACAGGCTGCATCAGAAGAGGCC 3′ | 5′ |
@@ -94,6 +95,15 @@ convention is, where it comes from, and what it decided:
   finds it, brighter at its main locations. The channels' colours are not
   kept: the cell is sculpted in the neutrals, and the protein is its one
   accent.
+- **The nucleolus.** The nucleus's densest body, where ribosomes are
+  made, has no membrane: it is a condensate of three layers, pale fibrillar
+  centres each in a rim of dense fibrillar component, in a granular bulk,
+  round the ribosomal genes of the five acrocentrics (Lafontaine et al.
+  2021; McStay 2016). *Consequence:* it is drawn lobed, not round, its edge
+  soft, a little darker than the chromatin round it, its fibrillar centres
+  showing once it is some 20 pixels across, and the acrocentrics' territories
+  round it. A protein in the nucleoplasm glows round it, as
+  immunofluorescence shows one.
 - **Chromosome territories.** In interphase each chromosome keeps to a
   territory of its own, and territories are ordered from the centre of the
   nucleus to its edge by gene density: chromosome 19 toward the centre, 18 at
@@ -189,6 +199,8 @@ Sources:
   Karger, 2020.
 - Karlsson M et al. A single-cell type transcriptomics map of human tissues.
   Sci Adv 2021;7:eabh2169.
+- Lafontaine DLJ, Riback JA, Bascetin R, Brangwynne CP. The nucleolus as a
+  multiphase liquid condensate. Nat Rev Mol Cell Biol 2021;22:165–182.
 - Luger K et al. Crystal structure of the nucleosome core particle at 2.8 Å
   resolution. Nature 1997;389:251–260.
 - McStay B. Nucleolar organizer regions: genomic 'dark matter' requiring
@@ -250,7 +262,12 @@ Sources:
   thymine red, the one red the app has.
 - **Glows** are gradients and wide faint strokes, never a blur.
 - **Names.** One plate a name, with a line to what it names, set clear of
-  each other and 8 pt in from the edges. The card says the rest.
+  each other and 8 pt in from the edges. The card says the rest. The
+  line is in the accent, but for a landmark's (the nucleolus), which is in
+  the quiet ink. A landmark's plate is set off what holds it, so it hides
+  none of it: beyond the nucleus's rim nearest the nucleolus, or else above
+  or below the nucleus, the first with room at rest; and it keeps that
+  place through the steps either side, so it never jumps.
 - **Lines** are set in screen pixels, so they keep their weight at any
   magnification.
 
@@ -562,7 +579,8 @@ territories, and the gene's comes up in the accent.
 **The nucleus** holds 46 territories:
 - each as large as its chromosome's DNA (hg38 lengths);
 - gene-dense chromosomes toward the centre and gene-poor ones at the rim;
-- the five acrocentrics round the nucleolus;
+- the five acrocentrics round the nucleolus, which the cell drew and the
+  nucleus draws again, the same shape in the same place (`Nucleolus`);
 - in nine tones of one neutral, the gene's chromosome in the accent;
 - pores in the envelope once there is room to see them.
 
@@ -905,6 +923,11 @@ frame (0.4 to 0.8 ms).
   strip's, nothing changing with the clock, and every moment drawn for all
   twenty). `test/zoom_paint_timing_check.dart` times closer moments through
   the chromosome's two steps.
+- `nucleolus_test` holds the nucleolus to one shape in one place across the
+  step from the cell to the nucleus (to half a pixel), its name to both
+  stops and no other, landing on it, set off the nucleus at two widths, in
+  the quiet ink, never jumping from the tissue to the chromosome, and said
+  once where the Atlas puts the protein in it.
 - `zoom_screen_test` holds the card (its words for all twenty, fitting at
   320 pt with type turned up, and nothing on it but its words and its
   steps), the steps and the pinch, a step mid-flight, the credit, the
