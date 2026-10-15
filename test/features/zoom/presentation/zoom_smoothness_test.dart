@@ -99,6 +99,27 @@ class _Marks implements Canvas {
   dynamic noSuchMethod(Invocation invocation) => null;
 }
 
+/// A flight from [from] to [to] as the screen flies it: the step into the
+/// DNA takes its time.
+ZoomFlight _flight(ZoomDepth depth, double from, double to) =>
+    ZoomFlight(from, to, minimum: depth.leastFlight(from, to));
+
+/// The depth on the step from the gene to the DNA at which the view is
+/// [width] base pairs across.
+double _depthWhere(ZoomDepth depth, double width) {
+  double high = depth.depthOf(ZoomStop.gene);
+  double low = depth.depthOf(ZoomStop.dna);
+  for (int i = 0; i < 80; i++) {
+    final double mid = (high + low) / 2;
+    if (depth.widthAt(mid) > width) {
+      high = mid;
+    } else {
+      low = mid;
+    }
+  }
+  return (high + low) / 2;
+}
+
 bool _onCanvas(Offset p) =>
     p.dx > -_canvas.width &&
     p.dx < 2 * _canvas.width &&
@@ -221,13 +242,13 @@ void main() {
         _expectSmooth(
           stage,
           inks,
-          frames(ZoomFlight(a, b)),
+          frames(_flight(depth, a, b)),
           what: '${t.slug} stepping in from ${ZoomStop.values[k].name}',
         );
         _expectSmooth(
           stage,
           inks,
-          frames(ZoomFlight(b, a)),
+          frames(_flight(depth, b, a)),
           what: '${t.slug} stepping out to ${ZoomStop.values[k].name}',
         );
       }
@@ -260,8 +281,8 @@ void main() {
           final double a = depth.depthOf(ZoomStop.values[k]);
           final double b = depth.depthOf(ZoomStop.values[k + 1]);
           for (final ZoomFlight flight in <ZoomFlight>[
-            ZoomFlight(a, b),
-            ZoomFlight(b, a),
+            _flight(depth, a, b),
+            _flight(depth, b, a),
           ]) {
             final int frames = (flight.duration.inMicroseconds / 1e6 * 60)
                 .ceil();
@@ -499,12 +520,8 @@ void main() {
       }
       // Where the view is as narrow as the exons last to, on the way to the
       // DNA: the helix comes up below it.
-      final double wide = depth.widthOf(ZoomStop.gene);
-      final double s =
-          math.log(GeneScene.exonsGone / wide) /
-          math.log(depth.widthOf(ZoomStop.dna) / wide);
       final (GeneScene scene, ZoomFrame frame) = gene(
-        at + s * depth.travelOf(ZoomStop.gene.index) + 1e-9,
+        _depthWhere(depth, GeneScene.exonsGone) + 1e-9,
       )!;
       expect(scene.exonsShown(frame), lessThan(1e-6), reason: t.slug);
       expect(gene(depth.depthOf(ZoomStop.dna)), isNull, reason: t.slug);
@@ -576,10 +593,10 @@ void main() {
       final double gene = depth.depthOf(ZoomStop.gene);
       final double dna = depth.depthOf(ZoomStop.dna);
       for (final ZoomFlight flight in <ZoomFlight>[
-        ZoomFlight(band, gene),
-        ZoomFlight(gene, band),
-        ZoomFlight(gene, dna),
-        ZoomFlight(dna, gene),
+        _flight(depth, band, gene),
+        _flight(depth, gene, band),
+        _flight(depth, gene, dna),
+        _flight(depth, dna, gene),
       ]) {
         final int frames = (flight.duration.inMicroseconds / 1e6 * 60).ceil();
         (double, double)? last;

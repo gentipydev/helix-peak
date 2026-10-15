@@ -78,7 +78,7 @@ final class ZoomCamera {
   (ZoomView, ZoomView) at(double d, Size size) {
     final (int k, double s) = depth.segmentAt(d);
     final double ratio = depth.ratioOf(k);
-    final double narrowed = math.pow(ratio, s).toDouble();
+    final double narrowed = math.pow(ratio, depth.narrowedAt(k, s)).toDouble();
     final double ppu = size.width / narrowed;
     final ZoomStop from = ZoomStop.values[k];
     final Offset portal = portalOf(from);

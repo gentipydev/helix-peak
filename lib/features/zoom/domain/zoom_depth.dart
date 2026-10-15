@@ -7,6 +7,7 @@ import '../../../shared/format.dart';
 import 'anatomy_figure.dart';
 import 'anatomy_tables.dart';
 import 'cell_archetypes.dart';
+import 'dna_dive.dart';
 import 'locus_track.dart';
 import 'zoom_path.dart';
 
@@ -23,7 +24,8 @@ enum ZoomUnit { metres, basePairs }
 ///
 /// Between two stops the view's width changes by the same factor for every
 /// equal step of depth, so a step of the pinch multiplies the width as much
-/// anywhere within a segment. A segment's depth is the number of tenfold
+/// anywhere within a segment; but for the step from the gene into its DNA,
+/// which lingers where its DNA winds and opens into the helix ([dive]). A segment's depth is the number of tenfold
 /// steps across it, but never fewer than [minimumTravel]: the nucleus is
 /// about as wide as a long chromosome condensed, and the step between them
 /// still has a story to tell (the territory condensing into a chromosome),
@@ -210,6 +212,38 @@ final class ZoomDepth {
   /// How much depth segment [k] takes.
   double travelOf(int k) => _travel[k];
 
+  /// How the step from the gene into its DNA spends its depth.
+  late final DnaDive dive = DnaDive(
+    geneWidth: widthOf(ZoomStop.gene),
+    dnaWidth: widthOf(ZoomStop.dna),
+  );
+
+  /// The share of segment [k]'s narrowing done [s] of the way along it: [s]
+  /// itself, the view narrowing by the same factor for each equal step of
+  /// depth, but on the step into the DNA ([dive]).
+  double narrowedAt(int k, double s) =>
+      k == ZoomStop.gene.index ? dive.narrowedAt(s) : s;
+
+  /// How long the step from the gene into its DNA takes at the least, in
+  /// seconds, for the five things that happen in it to be seen ([dive]).
+  static const double diveSeconds = 2.7;
+
+  /// How long a flight from depth [from] to [to] takes at the least: the
+  /// step into the DNA's [diveSeconds], or its share of them for a flight
+  /// over part of it; no time of its own for any other.
+  Duration leastFlight(double from, double to) {
+    final double start = depthOf(ZoomStop.gene);
+    final double end = depthOf(ZoomStop.dna);
+    final double over =
+        math.min(math.max(from, to), end) - math.max(math.min(from, to), start);
+    if (over <= 0) {
+      return Duration.zero;
+    }
+    return Duration(
+      microseconds: (diveSeconds * 1e6 * over / (end - start)).round(),
+    );
+  }
+
   /// The depth of the DNA, the deepest stop.
   double get total => _at.last;
 
@@ -233,11 +267,12 @@ final class ZoomDepth {
   double widthAt(double depth) {
     final (int k, double s) = segmentAt(depth);
     final ZoomStop from = ZoomStop.values[k];
+    final double narrowed = narrowedAt(k, s);
     if (from != ZoomStop.chromosome) {
-      return widthOf(from) * math.pow(ratioOf(k), s).toDouble();
+      return widthOf(from) * math.pow(ratioOf(k), narrowed).toDouble();
     }
     final double basePairs =
-        chromosomeBasePairs * math.pow(ratioOf(k), s).toDouble();
+        chromosomeBasePairs * math.pow(ratioOf(k), narrowed).toDouble();
     // The chromosome is still drawn as it is in a dividing cell until the
     // view has turned it into the genome's map, half way to the band.
     return unitAt(depth) == ZoomUnit.metres

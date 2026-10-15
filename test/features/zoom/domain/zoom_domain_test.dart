@@ -721,6 +721,125 @@ void main() {
     });
   });
 
+  group('the dive into the DNA', () {
+    test('narrows from the gene to the DNA without turning back or a jolt, '
+        'and every other step evenly, for all twenty', () {
+      for (final ProteinTarget t in TestCatalog.all) {
+        final ZoomDepth depth = _depth(t);
+        for (int k = 0; k + 1 < ZoomStop.values.length; k++) {
+          if (k == ZoomStop.gene.index) {
+            continue;
+          }
+          for (final double s in <double>[0, 0.2, 0.5, 0.9, 1]) {
+            expect(depth.narrowedAt(k, s), s);
+          }
+        }
+        const int k = 7; // the gene, the step into the DNA leaves
+        expect(ZoomStop.values[k], ZoomStop.gene);
+        expect(depth.narrowedAt(k, 0), 0);
+        expect(depth.narrowedAt(k, 1), 1);
+        // The largest second difference over [steps] even steps: halving
+        // the step quarters it where the curve is smooth, and only halves it
+        // across a kink.
+        double bend(int steps) {
+          double most = 0;
+          double? last;
+          double? before;
+          for (int i = 0; i <= steps; i++) {
+            final double now = depth.narrowedAt(k, i / steps);
+            if (last != null) {
+              expect(now, greaterThan(last), reason: '${t.slug} at $i');
+              if (before != null) {
+                most = math.max(most, (now - 2 * last + before).abs());
+              }
+            }
+            before = last;
+            last = now;
+          }
+          return most;
+        }
+
+        expect(bend(4000), lessThan(0.3 * bend(2000)), reason: t.slug);
+        // The view's width is the dive's at every depth of the step.
+        final double at = depth.depthOf(ZoomStop.gene);
+        final double travel = depth.travelOf(k);
+        for (final double s in <double>[0.1, 0.4, 0.8]) {
+          expect(
+            math.log(depth.widthAt(at + s * travel)) / math.ln10,
+            closeTo(
+              math.log(depth.widthOf(ZoomStop.gene)) / math.ln10 +
+                  depth.narrowedAt(k, s) *
+                      math.log(depth.ratioOf(k)) /
+                      math.ln10,
+              1e-9,
+            ),
+            reason: '${t.slug} at $s',
+          );
+        }
+      }
+    });
+
+    test('spends its depth where its DNA changes, not in a long gene’s '
+        'introns', () {
+      final ZoomDepth depth = _depth(TestCatalog.dystrophin);
+      final double gene = math.log(depth.widthOf(ZoomStop.gene)) / math.ln10;
+      final double dna = math.log(depth.widthOf(ZoomStop.dna)) / math.ln10;
+      // The share of the step's depth by the time the view is [width] wide.
+      double spentBy(double width) {
+        double low = 0;
+        double high = 1;
+        final double share = (gene - math.log(width) / math.ln10) / (gene - dna);
+        for (int i = 0; i < 60; i++) {
+          final double mid = (low + high) / 2;
+          if (depth.narrowedAt(ZoomStop.gene.index, mid) < share) {
+            low = mid;
+          } else {
+            high = mid;
+          }
+        }
+        return low;
+      }
+
+      // Two decades and more of introns in a tenth of the step, and the
+      // decade and a bit where the DNA winds and its beads are read in more
+      // than a third.
+      expect(spentBy(25000), lessThan(0.1));
+      expect(spentBy(150) - spentBy(2500), greaterThan(0.35));
+    });
+
+    test('takes its time: a step into the DNA lasts the dive, a share of it '
+        'for part of it, and no other step any longer', () {
+      final ZoomDepth depth = _depth(TestCatalog.insulin);
+      final double gene = depth.depthOf(ZoomStop.gene);
+      final double dna = depth.depthOf(ZoomStop.dna);
+      final Duration dive = Duration(
+        microseconds: (ZoomDepth.diveSeconds * 1e6).round(),
+      );
+      expect(depth.leastFlight(gene, dna), dive);
+      expect(depth.leastFlight(dna, gene), dive);
+      expect(
+        depth.leastFlight((gene + dna) / 2, gene).inMicroseconds,
+        closeTo(dive.inMicroseconds / 2, 1),
+      );
+      final double band = depth.depthOf(ZoomStop.band);
+      expect(depth.leastFlight(band, gene), Duration.zero);
+      expect(depth.leastFlight(0, depth.depthOf(ZoomStop.organ)), Duration.zero);
+      // A flight takes the longer of its own time and the least it is given.
+      final ZoomFlight dive2 = ZoomFlight(
+        gene,
+        dna,
+        minimum: depth.leastFlight(gene, dna),
+      );
+      expect(dive2.duration, dive);
+      expect(dive2.at(dive2.duration), closeTo(dna, 1e-12));
+      expect(dive2.speedAt(dive2.duration).abs(), lessThan(1e-9));
+      expect(
+        ZoomFlight(band, gene, minimum: depth.leastFlight(band, gene)).duration,
+        flightDuration(band, gene),
+      );
+    });
+  });
+
   group('the gene layout', () {
     test('lays every gene out from its 5′ end, its parts in order', () {
       for (final ProteinTarget t in TestCatalog.all) {

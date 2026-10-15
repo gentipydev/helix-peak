@@ -24,12 +24,23 @@ Duration flightDuration(double from, double to) {
 /// comes to rest at its end with no speed and no change of speed. Its path
 /// is a quintic in time: from rest it is the smootherstep the zoom has always
 /// eased by, in depth itself, so the speed never jumps where it crosses from
-/// one segment to the next.
+/// one segment to the next. It takes [flightDuration], or [minimum] where
+/// that is longer: the step into the DNA takes its time
+/// ([ZoomDepth.leastFlight]).
 @immutable
 final class ZoomFlight {
-  ZoomFlight(this.from, this.to, {double velocity = 0})
-    : duration = flightDuration(from, to),
-      _push = _pushOf(from, to, velocity, flightDuration(from, to));
+  ZoomFlight(
+    this.from,
+    this.to, {
+    double velocity = 0,
+    Duration minimum = Duration.zero,
+  }) : duration = _durationOf(from, to, minimum),
+       _push = _pushOf(from, to, velocity, _durationOf(from, to, minimum));
+
+  static Duration _durationOf(double from, double to, Duration minimum) {
+    final Duration own = flightDuration(from, to);
+    return minimum > own ? minimum : own;
+  }
 
   final double from;
   final double to;
