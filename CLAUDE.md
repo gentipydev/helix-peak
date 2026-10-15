@@ -273,16 +273,21 @@ seen:
   recipe a tissue architecture, the zoom's cell laid where it lives);
 - the cell, the protein glowing where the Atlas finds it, and the nucleus
   with its chromosome territories;
-- a metaphase chromosome with its G-bands, a genome map of the band
-  opened out of the whole chromosome, and the gene's own DNA, its stop
-  (the gene and the DNA are one, the user's choice of 2026-10-14): on the
-  way in, the gene's mark on the band's strip opens into the record's
-  exons at their real lengths, then into chromatin, then into the home
-  screen's own double helix (`DnaHelixPainter`, from `lib/shared/helix/`),
-  lying 5′ to 3′ with the record's first bases, whole: unlike the home
-  screen's, nothing transcribes it (`transcription: null`), so no strand
-  peels away. The zoom goes into the mark at its left end, where the 5′
-  end is drawn whatever the strand, so nothing turns.
+- a metaphase chromosome drawn as a scanning micrograph shows one
+  (`presentation/scenes/chromosome/`): two knobbly sisters, its G-bands
+  soft changes of tone, the gene two FISH spots in the accent. It condenses
+  out of its territory, and on the way out turns into a smooth tube that
+  is, by the time it lies along the genome, the band map's strip pixel for
+  pixel;
+- a genome map of the band opened out of the whole chromosome, and the
+  gene's own DNA, its stop (the gene and the DNA are one, the user's choice
+  of 2026-10-14): on the way in, the gene's mark on the band's strip opens
+  into the record's exons at their real lengths, then into chromatin, then
+  into the home screen's own double helix (`DnaHelixPainter`, from
+  `lib/shared/helix/`), lying 5′ to 3′ with the record's first bases, whole:
+  unlike the home screen's, nothing transcribes it (`transcription: null`),
+  so no strand peels away. The zoom goes into the mark at its left end,
+  where the 5′ end is drawn whatever the strand, so nothing turns.
 
 The organ and the cell are one path the bake chose, a cell that lives in
 the organ (`path` in the `locus` track's schema 2, `pipeline/locus` in the

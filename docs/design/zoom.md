@@ -1,6 +1,6 @@
 # Zoom: from a body down to one gene's DNA
 
-![Insulin's eight stops on the app's ground: a glass figure with the pancreas glowing, the pancreas sculpted with its islets in the accent, an islet under the eyepiece, a beta cell, its nucleus with chromosome 11's territory in the accent, a lit metaphase chromosome 11, the band 11p15.5 under a docked map, and the home screen's helix carrying the gene's first bases](zoom.png)
+![Insulin's eight stops on the app's ground: a glass figure with the pancreas glowing, the pancreas sculpted with its islets in the accent, an islet under the eyepiece, a beta cell, its nucleus with chromosome 11's territory in the accent, chromosome 11 as a micrograph with the gene's two FISH spots at its tip, the band 11p15.5 under a docked map, and the home screen's helix carrying the gene's first bases](zoom.png)
 
 ## Experience
 
@@ -104,10 +104,45 @@ convention is, where it comes from, and what it decided:
   chromosome in the accent.
 - **Bands.** A chromosome is seen whole only when it condenses to divide,
   some ten-thousandfold. Giemsa stain then bands it, and a band's name
-  (11p15.5) is the address cytogenetics gives a gene (ISCN 2020).
-  *Consequence:* the chromosome is a metaphase chromosome at that length,
-  its pale bands lit and its dark ones deep, the gene's band marked and
-  named, and nothing claims the gene is seen there.
+  (11p15.5) is the address cytogenetics gives a gene (ISCN 2020). The bands
+  follow the sequence itself, its GC-poor stretches staining dark (Niimura
+  and Gojobori 2002). *Consequence:* the chromosome is a metaphase
+  chromosome at that length, its band named, and nothing claims the gene is
+  seen there.
+- **A chromosome seen whole.** Its two sister chromatids lie side by side,
+  joined at the centromere's primary constriction, each with a scaffold of
+  its own (Paulson and Laemmli 1977; Poonperm et al. 2015). Each is
+  chromatin folded into loops by condensins along its axis (Naumova et al.
+  2013; Walther et al. 2018): in chicken cells, loops of about 80 kb nested
+  in loops of about 400 kb, winding in a helix (Gibcus et al. 2018); in
+  human cells, very large loops that overlap strongly (Beckwith et al.
+  2025). The fibre itself is no regular coil but chromatin packed at varying
+  density (Ou et al. 2017; Wako et al. 2020), and a good part of the
+  chromosome's volume is a coat round the chromatin, not chromatin (Booth et
+  al. 2016). A scanning micrograph shows the surface as knobs and globules
+  (Sumner 1991; Shemilt et al. 2014), and atomic force microscopy shows
+  G-bands as ridges and grooves of the relief, not of colour (Hoshi and
+  Ushiki 2001; Ushiki and Hoshi 2008). The bands run across both sisters at
+  the same heights, as stacked layers would (Daban 2015). On an
+  acrocentric's short arm, the stalk holds the ribosomal genes, and a silent
+  one is as condensed as the arm round it (McStay 2016). *Consequence:* the
+  chromosome is drawn as a micrograph: two velvety sisters touching along a
+  groove, knobbly with chromatin, in a soft coat, the bands soft changes of
+  tone, an acrocentric's short arm whole.
+- **A gene by FISH.** A probe hybridised to a metaphase chromosome shows as
+  a spot on each sister chromatid, at the same height on both (Trask 1991;
+  Baumgartner et al. 1991): it places a gene to within about a band, and is
+  about as big whatever the gene's length. *Consequence:* the gene is two
+  spots, one on each sister, over a faint wash of its band, in the accent;
+  nothing else on the chromosome is.
+- **Illustration.** The pictures of chromosomes that read as current share
+  one desaturated material, one glowing accent where the function is, and
+  soft, knobbly surfaces lit from the side, without outlines or cut-away
+  glass (for example EMBL's "Condensin shaping mitotic chromosomes by
+  looping DNA", by Tobias Wüstefeld/Illustratoren.de). A zoom across scales
+  reads best as one continuous travel, each level drawn in its own
+  convention (Halladjian et al. 2020). *Consequence:* the chromosome's look,
+  and the hand-overs either side of it.
 - **The gene's place.** Its span is that of its MANE Select transcript on
   GRCh38 (Morales et al. 2022), and its bands the UCSC Genome Browser's
   cytoBand table.
@@ -120,37 +155,81 @@ convention is, where it comes from, and what it decided:
 
 Sources:
 
+- Baumgartner M et al. Genes occupy a fixed and symmetrical position on
+  sister chromatids. Cell 1991;64:761–766.
+- Beckwith KS et al. Nanoscale DNA tracing reveals the self-organization
+  mechanism of mitotic chromosomes. Cell 2025;188:2656–2669.
+- Booth DG et al. 3D-CLEM reveals that a major portion of mitotic
+  chromosomes is not chromatin. Mol Cell 2016;64:790–802.
 - Boyle S et al. The spatial organization of human chromosomes within the
   nuclei of normal and emerin-mutant cells. Hum Mol Genet 2001;10:211–219.
 - Chasis JA, Mohandas N. Erythroblastic islands: niches for erythropoiesis.
   Blood 2008;112:470–478.
 - Croft JA et al. Differences in the localization and morphology of
   chromosomes in the human nucleus. J Cell Biol 1999;145:1119–1131.
+- Daban JR. Stacked thin layers of metaphase chromatin explain the
+  geometry of chromosome rearrangements and banding. Sci Rep 2015;5:14891.
 - Davey CA et al. Solvent mediated interactions in the structure of the
   nucleosome core particle at 1.9 Å resolution. J Mol Biol
   2002;319:1097–1113.
+- EMBL. Condensin shaping mitotic chromosomes by looping DNA. Illustration
+  by Tobias Wüstefeld/Illustratoren.de, EurekAlert! multimedia 936863.
 - Expression Atlas, EMBL-EBI: anatomograms, CC BY 4.0
   (<https://www.ebi.ac.uk/gxa/licence.html>), which asks to be cited as
   "Expression Atlas in 2026: enabling FAIR and open expression data through
   community collaboration and integration", Nucleic Acids Research, 2025.
+- Gibcus JH et al. A pathway for mitotic chromosome formation. Science
+  2018;359:eaao6135.
+- Halladjian S et al. ScaleTrotter: illustrative visual travels across
+  negative scales. IEEE Trans Vis Comput Graph 2020;26:654–664.
+- Hoshi O, Ushiki T. Three-dimensional structure of G-banded human
+  metaphase chromosomes observed by atomic force microscopy. Arch Histol
+  Cytol 2001;64:475–482.
 - ISCN 2020: An International System for Human Cytogenomic Nomenclature.
   Karger, 2020.
 - Karlsson M et al. A single-cell type transcriptomics map of human tissues.
   Sci Adv 2021;7:eabh2169.
 - Luger K et al. Crystal structure of the nucleosome core particle at 2.8 Å
   resolution. Nature 1997;389:251–260.
+- McStay B. Nucleolar organizer regions: genomic 'dark matter' requiring
+  illumination. Genes Dev 2016;30:1598–1610.
 - Morales J et al. A joint NCBI and EMBL-EBI transcript set for clinical
   genomics and research. Nature 2022;604:310–315.
+- Naumova N et al. Organization of the mitotic chromosome. Science
+  2013;342:948–953.
+- Niimura Y, Gojobori T. In silico chromosome staining: reconstruction of
+  Giemsa bands from the whole human genome sequence. Proc Natl Acad Sci
+  USA 2002;99:797–802.
+- Ou HD et al. ChromEMT: visualizing 3D chromatin structure and compaction
+  in interphase and mitotic cells. Science 2017;357:eaag0025.
+- Paulson JR, Laemmli UK. The structure of histone-depleted metaphase
+  chromosomes. Cell 1977;12:817–828.
+- Poonperm R et al. Chromosome scaffold is a double-stranded assembly of
+  scaffold proteins. Sci Rep 2015;5:11916.
 - Schones DE et al. Dynamic regulation of nucleosome positioning in the
   human genome. Cell 2008;132:887–898.
 - Schröck E et al. Multicolor spectral karyotyping of human chromosomes.
   Science 1996;273:494–497.
+- Shemilt LA et al. Scanning electron microscope studies of human
+  metaphase chromosomes. Philos Trans A Math Phys Eng Sci
+  2014;372:20130144.
 - Speicher MR, Ballard SG, Ward DC. Karyotyping human chromosomes by
   combinatorial multi-fluor FISH. Nat Genet 1996;12:368–375.
+- Sumner AT. Scanning electron microscopy of mammalian chromosomes from
+  prophase to telophase. Chromosoma 1991;100:410–418.
 - Thul PJ et al. A subcellular map of the human proteome. Science
   2017;356:eaal3321.
+- Trask BJ. Fluorescence in situ hybridization: applications in
+  cytogenetics and gene mapping. Trends Genet 1991;7:149–154.
 - Uhlén M et al. Tissue-based map of the human proteome. Science
   2015;347:1260419.
+- Ushiki T, Hoshi O. Atomic force microscopy for imaging human metaphase
+  chromosomes. Chromosome Res 2008;16:383–396.
+- Wako T et al. Human metaphase chromosome consists of randomly arranged
+  chromatin fibres with up to 30-nm diameter. Sci Rep 2020;10:8948.
+- Walther N et al. A quantitative map of human Condensins provides new
+  insights into mitotic chromosome architecture. J Cell Biol
+  2018;217:2309–2328.
 
 ## Visual language
 
@@ -201,7 +280,8 @@ reduced motion.
 |---|---|
 | Body | a band of the accent passes from head to foot in 1.1 s, then the followed organ's marker pings (0.9 s) |
 | Organ | a band of light passes over it (1.2 s), and the place it is sampled pings |
-| Tissue, cell, nucleus, chromosome | the zoom's cell, its nucleus, the gene's territory, the gene's band ping once (1.1 s) |
+| Tissue, cell, nucleus | the zoom's cell, its nucleus, the gene's territory ping once (1.1 s) |
+| Chromosome | the gene's two FISH spots flare once (1.1 s) |
 | DNA | the helix turns once in 24 s |
 
 ## One path per gene
@@ -491,42 +571,73 @@ condenses, the others drift out from it and fade.
 
 ## The molecular end
 
-**Chromosome.** At its stop the chromosome is a metaphase chromosome, lit:
-- two sister chromatids, each a tube as thick as a chromatid is, splayed a
-  little and pinched together at the centromere where its `acen` bands meet,
-  with its kinetochores;
-- a fuzz of chromatin round their edge;
-- the G-bands ringing each chromatid as bands ring a tube, pale bands lit
-  and dark ones deep, `gvar` an even grey (an ideogram's hatching reads as a
-  cut on a lit form), each edge bowed as far as the tube is thick there, so
-  two bands meet however it narrows;
-- on an acrocentric, the short arm whole, as thick as any arm: its
-  satellite and `stalk` are bands like any other, since a stalk drawn
-  thin, as a notch or as a satellite on a thread, read as a cut (the
-  user, 2026-10-15);
-- the gene's band in the accent on both chromatids, bracketed and named.
+**Chromosome.** At its stop the chromosome is drawn as a scanning
+micrograph shows one (the user's choice of 2026-10-15). It is drawn from
+its own track: its length, its centromere and its bands are its own, so
+proteins on one chromosome share it and only their gene tells them apart.
+- Two sister chromatids, each as thick as a chromatid is, touching along a
+  groove and pinched together at the centromere, opening a little toward
+  their ends, both arms bent a little the same way.
+- Their surface knobbly with chromatin, lobes and granules laid by a seed
+  of the chromosome's own, lit from the upper left as a micrograph sees
+  it: bright at the edges toward the light, dark in the crevices and along
+  the groove. A soft coat lies round them and a shadow under them.
+- The G-bands as soft changes of tone through the relief, the same height
+  on both sisters, `gvar` an even grey.
+- Nothing narrower anywhere but the centromere and the two ends. On an
+  acrocentric the short arm is whole, as thick as any arm: its satellite
+  and `stalk` are bands like any other, since a stalk drawn thin, as a
+  notch or as a satellite on a thread, read as a cut (the user,
+  2026-10-15).
+- The gene as FISH marks one: two soft spots in the accent, one on each
+  sister at its height, over a faint wash of its band, which is bracketed
+  and named. The spots flare once as the stop is reached.
 
 It is never the gene: the band is millions of base pairs, a stain pattern
-seen at low resolution.
+seen at low resolution, and the spots are a probe's. Each sister is a mesh
+built once (`ChromosomeArt`): its body lit vertex by vertex, its lobes as
+small domes over their crevices, the kinetochore's plate and its granules,
+so a frame at rest only hands the meshes on.
 
-**Condensing.** On the way in, the chromosome condenses out of its territory.
-The nucleus hands its followed territory to the chromosome's scene at the
-first frame of the segment, where the two coincide. The territory's outline
-blends into the chromosome's, resampled to 128 points from the top. The
-bands come up, the accent draws in to the gene's band, and the two
-chromatids resolve out of one shape at the end. The step from the nucleus
-to a long chromosome is a beat in time more than a change of scale (0.07
-decades for chromosome 1), and the minimum travel gives it its room.
+**Condensing.** On the way in, the chromosome condenses out of its
+territory.
+- At the nucleus, the nucleus alone draws the gene's territory. Once the
+  step is under way the chromosome draws it, through the same painter, so
+  the two meet to half a pixel.
+- The territory's outline draws in to the two sisters' own silhouette,
+  into the cleft where they part toward their ends, while its accent gives
+  way to the chromatin's mean tone and the nucleus's glow and edge fade.
+- The micrograph comes up over that fill, which goes last, so nothing of
+  the nucleus shows through it as it comes. The gene's spots and its
+  band's bracket come up after.
+- From 98% of the step every part is at rest and the stop itself is
+  drawn, so the step's last frames are the stop's.
+
+The step from the nucleus to a long chromosome is a beat in time more than
+a change of scale (0.07 decades for chromosome 1), and the minimum travel
+gives it its room.
 
 **Into the map.**
-- On the way out, the chromosome turns about its band to lie along the
-  genome, short arm to the left as genome browsers draw it. Its chromatids
-  merge and it thins to the band strip's 26 px, all over the first 35% of
-  the segment.
-- The band's strip appears exactly where the turned chromosome lies: at
-  that moment the chromosome's length on screen and the strip's length of
-  genome are the same number of pixels, by the camera's own arithmetic. The
-  two cross-fade over half the segment.
+- On the way out, the micrograph fades over the first 30% of the step.
+  Under it the chromosome turns about its band to lie along the genome,
+  short arm to the left as genome browsers draw it, as one smooth tube
+  (`ChromosomeTube`, laid afresh each frame), all over the first 35%:
+  - its sisters merge onto the axis and it thins to the band strip's 26 px;
+  - its bands' softened edges harden, and its rounded ends shorten to the
+    strip's;
+  - the centromere's waist becomes the strip's pinch;
+  - its colours ease from the micrograph's shading to the strip's stains
+    under the strip's own light, which stays on the screen's upper left
+    as it turns.
+- The gene's band is ringed as the strip rings it, and the gene's two
+  spots merge on the axis into one, in the glow the map marks the gene
+  with, until the map's own mark of the gene takes over in its place.
+- From 35% on the tube is the strip, pixel for pixel. The band's strip
+  appears exactly where the turned chromosome lies: at every moment the
+  chromosome's length on screen and the strip's length of genome are the
+  same number of pixels, by the camera's own arithmetic, and the strip lies
+  on its scene's own origin, which the camera brings to the middle of the
+  view. The chromosome stays under the map until the map is all there.
 - The strip stays where it appears, a ruler in base pairs comes up under
   it, the gene is marked on it, and the whole chromosome docks above with
   the view boxed on it. The scale bar changes from µm to Mb half way.
@@ -535,7 +646,9 @@ decades for chromosome 1), and the minimum travel gives it its room.
 - the strip, 26 px, a lit tube of the bands laid along the genome, on the
   middle of the view, each band named over the part of it in view where
   that part has room for its name, and the gene's band ringed in the
-  accent;
+  accent. Only the centromere is pinched, to 0.55 of the strip: a stalk is
+  drawn as thick as any band, as on the chromosome (the user's choice of
+  2026-10-15);
 - the gene marked on the strip, where MANE puts it, and named: its stretch
   ringed in the accent, 8 px proud of the strip, at the least a tick
   1.5 px wide. Seventeen of the twenty are ticks; APP, CFTR and DMD are
@@ -655,6 +768,27 @@ What it found over the zoom's life, and what was changed:
   the step from the organ, up to nineteen in the step from the band. Now
   it glides between the stops' round lengths and its figures count (the
   user's ask, 2026-10-14).
+- **The territory drawn twice.** At the nucleus the chromosome, already
+  the step's child, painted the territory over the nucleus's own, and as
+  the step began the territory's glow and edge vanished in one frame. Now
+  one scene draws it at a time, through one painter (2026-10-15).
+- **The strip off the chromosome.** The band's strip was drawn on the
+  middle of the view, which the turned chromosome reaches only 60% of the
+  way into the step; until then it showed as a second bar, up to 74 px
+  off. It now lies on its scene's own origin.
+- **Crossfading one picture.** The chromosome turned into the strip faded
+  out as the map faded in, so half way the ground showed through both and
+  the strip dimmed by about a fifth. The chromosome now stays under the
+  map until the map is all there. What both draw that lets the ground
+  through (the ring, the light over the pinch) it draws only as faint as
+  the two together should be.
+- **The gene's accent.** The spots went with the chromosome before the
+  map's mark of the gene came up, so the accent went out and came back;
+  they now hold until the mark takes over.
+- **The band's name on the turn.** Its target stays where the band lies at
+  rest as it fades over the first third of the step: followed through the
+  turn and the merge, its line jolted 2.2 px a frame near the middle of the
+  view.
 
 **On a device.** On the iPhone 17 Pro simulator, in a debug build, stepping
 all nine stops (before the gene and the DNA became one) and back for
@@ -663,11 +797,22 @@ to 2.6 ms to build and 0.7 to 3.3 ms to raster, with one or two frames a
 protein up to 24 ms to build or 30 ms to raster. The step from the band to
 the DNA and back, for insulin and dystrophin (2026-10-14): medians of 1.4
 to 2.4 ms to build and 0.8 to 1.1 ms to raster, the worst frame 18.5 ms to
-build, half way through the step, where the card changes stop. A release
-build on a mid-range Android phone has not been measured.
+build, half way through the step, where the card changes stop. The
+chromosome's two steps (2026-10-15, debug, insulin, amylase and SOD1,
+both ways): medians of 1.0 to 2.35 ms to build and 1.0 to 1.9 ms to
+raster, the arrival beat's 1.0 to 1.5 and 1.1 to 1.9; the worst frame
+4.9 ms to raster, and 10 to 12 ms to build half way through every step,
+where the card changes stop, as before. One frame took 32 ms to build: the
+first of the first step into the band, where a debug build compiles the
+tube's code. Opening and closing the zoom five times leaves the Dart heap
+where it was. Flutter has
+no profile mode on a simulator: a profile build on a phone, and a release
+build on a mid-range Android phone, have not been measured.
 `test/zoom_paint_timing_check.dart` (`ZOOM_PAINT_TIMING=1`) times each
-scene's build and every moment's recording for five proteins: every moment
-records in under a millisecond on a Mac.
+scene's build and every moment's recording for seven proteins: every
+moment records in about a millisecond or less on a Mac, the dearest the
+first third of the step out of the chromosome, which lays its tube every
+frame (0.4 to 0.8 ms).
 
 ## Deliberate simplifications
 
@@ -696,6 +841,12 @@ records in under a millisecond on a Mac.
   the gene, not where they sit on this gene.
 - **One body.** A gene of tissues both sexes have is shown the female
   figure, unless more of its tissues are the male's alone.
+- **A micrograph in the app's light.** A scanning micrograph shows relief,
+  not stain: the bands are drawn as soft changes of tone through the
+  relief, and the relief is laid by rule from the chromosome's own seed,
+  not imaged.
+- **A probe's spot.** The FISH spots are as big whatever the gene's length:
+  they say where the gene is, to within its band, not how long it is.
 
 ## Implementation and checks
 
@@ -711,6 +862,11 @@ records in under a millisecond on a Mac.
 - `presentation/zoom_inks.dart`: every colour, from the theme.
 - `presentation/scenes/`: one scene a stop, and `sculpt.dart`, the light
   and the glows they share.
+- `presentation/scenes/chromosome/`: the chromosome's form from its track
+  (`chromosome_form.dart`), every number its look is tuned by
+  (`chromosome_style.dart`), the micrograph's meshes (`chromosome_art.dart`)
+  and their light and palette (`chromosome_shading.dart`), and the tube it
+  turns into the band's strip as (`chromosome_tube.dart`).
 - `presentation/scenes/organ_art.dart`: every organ's drawing, and
   `organ_studies.dart`, the ten studies.
 - `presentation/scenes/tissue/`: the slide (`tissue_slide.dart`), the engine
@@ -732,10 +888,23 @@ records in under a millisecond on a Mac.
   `ZOOM_DESIGN_SHOTS=/tmp/zoom flutter test test/zoom_design_render_check.dart`
   writes every stop and two moments in each segment, at 390 and 320 pixels.
   `ZOOM_GENES` narrows the proteins and `ZOOM_BETWEEN=0` leaves out the
-  moments. `ZOOM_TISSUE_ATLAS=/tmp/atlas` writes every recipe's slide on
+  moments; `ZOOM_MOMENTS=nucleus+2,nucleus+10,chromosome` draws those
+  moments and no others (a stop, or a share of the step that leaves it). `ZOOM_TISSUE_ATLAS=/tmp/atlas` writes every recipe's slide on
   its own and `ZOOM_ORGAN_ATLAS=/tmp/organs` every tissue's organ, the ones
   no catalog protein reaches included. The picture at the top of this page
   is insulin's eight stops from it.
+- The chromosome's tests: `chromosome_scene_test` (nothing narrower than
+  its arms but the centromere and the ends), `chromosome_form_test` (the
+  same form every time and for every protein on one chromosome, the knobs
+  on their sisters, the spots), `chromosome_art_test` (the tones in order,
+  the accent only in the gene's band, at rest and turning, the meshes'
+  sizes, a translucent vertex over the ground) and
+  `chromosome_handover_test` (the territory handed over to half a pixel,
+  the condensing step's last frames the stop's, every band edge of the
+  turned chromosome on the strip's to half a pixel and its colours the
+  strip's, nothing changing with the clock, and every moment drawn for all
+  twenty). `test/zoom_paint_timing_check.dart` times closer moments through
+  the chromosome's two steps.
 - `zoom_screen_test` holds the card (its words for all twenty, fitting at
   320 pt with type turned up, and nothing on it but its words and its
   steps), the steps and the pinch, a step mid-flight, the credit, the
