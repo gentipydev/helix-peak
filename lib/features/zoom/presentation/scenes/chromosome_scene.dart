@@ -18,8 +18,9 @@ import 'zoom_subject.dart';
 /// chromatids, each a coil of chromatin as thick as a chromatid is, lying
 /// side by side and joined at the centromere, their arms splayed a little,
 /// stained in their cytoBand G-bands, which ring them as bands ring a tube.
-/// The band the gene lies in is in the mark, bracketed and named. Never the
-/// gene, which is far too small to see at this scale.
+/// An acrocentric's short arm ends in its satellite, a knob on the thin
+/// thread of its stalk. The band the gene lies in is in the mark, bracketed
+/// and named. Never the gene, which is far too small to see at this scale.
 ///
 /// On the way in it condenses out of its territory in the nucleus, the mark
 /// drawing in to the gene's band as the bands come up. On the way out it
@@ -92,26 +93,94 @@ final class ChromosomeScene extends ZoomScene {
     return math.exp(-d * d);
   }
 
-  /// A chromatid's half-width at [y]: narrower at the waist, thin along a
-  /// stalk, rounded to nothing at each end.
-  double _width(double y) {
-    double w = half * (1 - 0.42 * _waist(y));
-    for (final CytoBand band in _track.bands) {
-      if (band.stain == Stain.stalk &&
-          y >= yOf(band.start) &&
-          y <= yOf(band.end + 1)) {
-        w *= 0.35;
+  /// How thick a stalk's thread is, against a chromatid.
+  static const double thread = 0.2;
+
+  /// The lengths a chromatid is in, top to bottom: the whole of it, or,
+  /// where its short arm has a stalk, the satellite beyond the stalk and the
+  /// chromatid this side of it. Each is rounded at both ends as a
+  /// chromatid's end is, over [half] or half its own length, whichever is
+  /// less, and is never much wider than it is long, so a short satellite is
+  /// a round knob.
+  late final List<_Span> _pieces = () {
+    final List<_Span> pieces = <_Span>[];
+    void add(double from, double to) {
+      if (to > from) {
+        pieces.add((
+          from: from,
+          to: to,
+          round: math.min(half, (to - from) / 2),
+          wide: math.min(half, (to - from) * 0.65),
+        ));
       }
     }
-    final double top = yOf(1);
-    final double bottom = yOf(_track.length + 1);
-    final double cap = half;
-    final double fromEnd = math.min(y - top, bottom - y);
-    if (fromEnd < cap) {
-      final double t = (cap - fromEnd) / cap;
-      w *= math.sqrt(math.max(0, 1 - t * t));
+
+    double from = yOf(1);
+    for (final CytoBand band in _track.bands) {
+      if (band.stain == Stain.stalk) {
+        add(from, yOf(band.start));
+        from = yOf(band.end + 1);
+      }
+    }
+    add(from, yOf(_track.length + 1));
+    return pieces;
+  }();
+
+  /// Each stalk's thread, top to bottom, reaching into the pieces either
+  /// side of it as far as they are rounded, so it runs into them with no
+  /// step.
+  late final List<({double from, double to})> _threads =
+      <({double from, double to})>[
+        for (final CytoBand band in _track.bands)
+          if (band.stain == Stain.stalk) _threadOf(band),
+      ];
+
+  ({double from, double to}) _threadOf(CytoBand stalk) {
+    double from = yOf(stalk.start);
+    double to = yOf(stalk.end + 1);
+    for (final _Span piece in _pieces) {
+      if (piece.to == from) {
+        from -= piece.round;
+      }
+      if (piece.from == to) {
+        to += piece.round;
+      }
+    }
+    return (from: from, to: to);
+  }
+
+  /// A chromatid's half-width at [y], as it is drawn.
+  @visibleForTesting
+  double widthAt(double y) => _width(y);
+
+  /// A chromatid's half-width at [y]: narrower at the waist and rounded to
+  /// nothing at each end of each piece, a satellite held on its stalk's
+  /// thread.
+  double _width(double y) {
+    double w = 0;
+    for (final _Span piece in _pieces) {
+      if (y >= piece.from && y <= piece.to) {
+        final double fromEnd = math.min(y - piece.from, piece.to - y);
+        final double t = math.max(0, piece.round - fromEnd) / piece.round;
+        w =
+            piece.wide *
+            (1 - 0.42 * _waist(y)) *
+            math.sqrt(math.max(0, 1 - t * t));
+      }
+    }
+    for (final ({double from, double to}) stalk in _threads) {
+      if (y >= stalk.from && y <= stalk.to) {
+        w = _smoothMax(w, half * thread, half * 0.15);
+      }
     }
     return w;
+  }
+
+  /// The larger of [a] and [b], eased where they come within [k] of each
+  /// other, so the thread flows into the pieces it holds with no corner.
+  static double _smoothMax(double a, double b, double k) {
+    final double h = math.max(0, k - (a - b).abs()) / k;
+    return math.max(a, b) + h * h * k / 4;
   }
 
   /// Where chromatid [side]'s middle lies at [y]: touching its sister along
@@ -122,6 +191,25 @@ final class ChromosomeScene extends ZoomScene {
       (apart * (1 - 0.7 * _waist(y)) + splay * (y - centromere).abs()) *
       (1 - merge);
 
+  /// The heights an outline is drawn through, top to bottom: [steps] even
+  /// ones, and more round each end of each piece, where it turns fastest.
+  List<double> _rows(int steps) {
+    const int round = 16;
+    final double top = yOf(1);
+    final double bottom = yOf(_track.length + 1);
+    return <double>{
+      for (int i = 0; i <= steps; i++) top + (bottom - top) * i / steps,
+      for (final _Span piece in _pieces)
+        for (int i = 1; i < round; i++) ...<double>[
+          piece.from + piece.round * (1 - math.cos(math.pi / 2 * i / round)),
+          piece.to - piece.round * (1 - math.cos(math.pi / 2 * i / round)),
+        ],
+    }.toList()..sort();
+  }
+
+  late final List<double> _chromatidRows = _rows(120);
+  late final List<double> _outlineRows = _rows(64);
+
   /// One chromatid's outline, [merge] of the way to lying on the axis, at
   /// [thin] of the way to [target] half-width.
   Contour _chromatid(
@@ -130,13 +218,9 @@ final class ChromosomeScene extends ZoomScene {
     double thin = 0,
     double? target,
   }) {
-    const int steps = 120;
-    final double top = yOf(1);
-    final double bottom = yOf(_track.length + 1);
     final List<Offset> left = <Offset>[];
     final List<Offset> right = <Offset>[];
-    for (int i = 0; i <= steps; i++) {
-      final double y = top + (bottom - top) * i / steps;
+    for (final double y in _chromatidRows) {
       final double centre = _centreAt(side, y, merge: merge);
       final double w = _width(y) + ((target ?? half) - _width(y)) * thin;
       left.add(Offset(centre - w, y));
@@ -300,13 +384,9 @@ final class ChromosomeScene extends ZoomScene {
 
   /// The two chromatids' outer outline, as one shape.
   Contour _outline() {
-    const int steps = 64;
-    final double top = yOf(1);
-    final double bottom = yOf(_track.length + 1);
     final List<Offset> left = <Offset>[];
     final List<Offset> right = <Offset>[];
-    for (int i = 0; i <= steps; i++) {
-      final double y = top + (bottom - top) * i / steps;
+    for (final double y in _outlineRows) {
       final double centre = _centreAt(1, y);
       final double w = _width(y);
       left.add(Offset(-centre - w, y));
@@ -470,9 +550,22 @@ final class ChromosomeScene extends ZoomScene {
   }) {
     final ZoomInks inks = frame.inks;
     final Paint fill = Paint();
-    final Color dark = inks.shade(0.55);
     final double gene0 = yOf(_track.bandStart);
     final double gene1 = yOf(_track.bandEnd + 1);
+    // Where an edge between two bands crosses the chromatid at [y]: it bows
+    // as far as the tube is thick there, so the two meet along it however
+    // the chromatid narrows between them.
+    ({double centre, double w, double bow}) edge(double y) {
+      final double w = side == 0
+          ? 0
+          : _width(y) + ((target ?? half) - _width(y)) * thin;
+      return (
+        centre: side == 0 ? 0 : _centreAt(side, y, merge: merge),
+        w: w,
+        bow: w * 0.32 * (1 - merge),
+      );
+    }
+
     for (final CytoBand band in _track.bands) {
       final double top = yOf(band.start);
       final double bottom = yOf(band.end + 1);
@@ -480,41 +573,28 @@ final class ChromosomeScene extends ZoomScene {
       fill.color = (own ? inks.glow(0.9) : _stain(inks, band)).withValues(
         alpha: opacity * (own ? 0.9 : 1),
       );
-      // How far the band's edges bow, at its middle's width.
-      final double mid = (top + bottom) / 2;
-      final double w = side == 0
-          ? 0
-          : _width(mid) + ((target ?? half) - _width(mid)) * thin;
-      final double bow = w * 0.32 * (1 - merge);
-      final double centre = side == 0 ? 0 : _centreAt(side, mid, merge: merge);
+      final ({double centre, double w, double bow}) a = edge(top);
+      final ({double centre, double w, double bow}) b = edge(bottom);
       final Path path = Path()
-        ..moveTo(left, top + bow)
-        ..lineTo(centre - w, top + bow)
-        ..quadraticBezierTo(centre, top - bow, centre + w, top + bow)
-        ..lineTo(right, top + bow)
-        ..lineTo(right, bottom + bow)
-        ..lineTo(centre + w, bottom + bow)
-        ..quadraticBezierTo(centre, bottom - bow, centre - w, bottom + bow)
-        ..lineTo(left, bottom + bow)
+        ..moveTo(left, top + a.bow)
+        ..lineTo(a.centre - a.w, top + a.bow)
+        ..quadraticBezierTo(a.centre, top - a.bow, a.centre + a.w, top + a.bow)
+        ..lineTo(right, top + a.bow)
+        ..lineTo(right, bottom + b.bow)
+        ..lineTo(b.centre + b.w, bottom + b.bow)
+        ..quadraticBezierTo(
+          b.centre,
+          bottom - b.bow,
+          b.centre - b.w,
+          bottom + b.bow,
+        )
+        ..lineTo(left, bottom + b.bow)
         ..close();
       canvas.drawPath(path, fill);
-      if (band.stain == Stain.gvar) {
-        // Variable heterochromatin, hatched as ideograms draw it.
-        canvas.save();
-        canvas.clipPath(path);
-        final Paint hatch = Paint()
-          ..strokeWidth = 1.2 * frame.pixel
-          ..color = dark.withValues(alpha: 0.7 * opacity);
-        final double step = 5 * frame.pixel;
-        for (double x = left - (bottom - top); x < right; x += step) {
-          canvas.drawLine(
-            Offset(x, bottom + bow),
-            Offset(x + (bottom - top), top + bow),
-            hatch,
-          );
-        }
-        canvas.restore();
-      }
     }
   }
 }
+
+/// A stretch of a chromatid, top to bottom in the scene's units: how far in
+/// from each end it is rounded, and its half-width.
+typedef _Span = ({double from, double to, double round, double wide});
