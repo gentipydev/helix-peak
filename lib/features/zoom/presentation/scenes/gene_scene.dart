@@ -20,11 +20,12 @@ import 'zoom_subject.dart';
 /// its introns a line with chevrons running the way it is read, every part
 /// at its real length, along the span MANE gives it, with a ruler from its
 /// 5′ end and the bent arrow where transcription starts. And the gene being
-/// read: RNA polymerase II after polymerase riding it 5′ to 3′, each with
-/// its RNA hanging from it, introns spliced out as lariats, finished mRNAs
-/// leaving at the 3′ end ([TranscriptionArt]), for as long as the gene is
-/// shown (the user's choice of 2026-10-15, evening, over the still gene
-/// they had chosen that morning).
+/// read, as one still ([Transcription], [TranscriptionArt]): three RNA
+/// polymerase II on it, each a stage of one reading, their RNA hanging from
+/// them, the gene's longest intron looping out of one, and the finished mRNA
+/// lying below the 3′ end (the user's choice of 2026-10-16, over a loop of
+/// ten polymerases reading it, which they had chosen the evening before and
+/// found too busy).
 ///
 /// It reads 5′ to 3′, left to right, as the walk does, from the moment it
 /// appears: on the band's strip the gene is a mark with nothing inside it to
@@ -115,29 +116,23 @@ final class GeneScene extends ZoomScene {
     );
   }
 
-  /// How far above the canvas's foot the RNA hanging from the gene stops:
-  /// clear of the scale bar.
+  /// How far above the canvas's foot the gene being read stops: clear of
+  /// the scale bar.
   static const double foot = 60;
 
   @override
   void prepare(ZoomInks inks) => _reading.prepare(inks);
 
-  @override
-  bool wantsClock(ZoomFrame frame) =>
-      transcriptionShown(frame) * frame.opacity > 0.002;
-
-  // The gene being read moves for as long as it is shown, so it is drawn
-  // over the scene on the ambient clock, fading with the scene and its
-  // annotations.
+  // The gene being read lies over its DNA, which the DNA's scene draws from
+  // the gene's stop on, after this one: so it is drawn on the layer above,
+  // fading with the scene and its annotations. Nothing in it moves at rest,
+  // and it asks for no clock.
   @override
   void paintAmbient(Canvas canvas, ZoomFrame frame) {
     final double shown = transcriptionShown(frame) * frame.opacity;
     if (shown <= 0.002) {
       return;
     }
-    final double mid = frame.size.height / 2;
-    final double atRest = frame.size.width / _width;
-    final double perBase = frame.view.pixelsPerUnit / _width;
     final bool fading = shown < 0.995;
     if (fading) {
       canvas.saveLayer(
@@ -145,19 +140,24 @@ final class GeneScene extends ZoomScene {
         Paint()..color = Color.fromRGBO(0, 0, 0, shown),
       );
     }
-    _reading.paint(
-      canvas,
-      frame.inks,
-      clock: frame.clock,
-      x: (double offset) => _x(frame, offset),
-      line: mid,
-      perBase: perBase,
-      atRest: atRest,
-      compaction: _reading.compaction(atRest, mid - foot),
-    );
+    _reading.paint(canvas, frame.inks, readingAt(frame));
     if (fading) {
       canvas.restore();
     }
+  }
+
+  /// The gene being read as it lies on screen at [frame].
+  @visibleForTesting
+  ReadingLaid readingAt(ZoomFrame frame) {
+    final double mid = frame.size.height / 2;
+    final double atRest = frame.size.width / _width;
+    return _reading.lay(
+      x: (double offset) => _x(frame, offset),
+      line: mid,
+      perBase: frame.view.pixelsPerUnit / _width,
+      atRest: atRest,
+      compaction: _reading.compaction(atRest, mid - foot),
+    );
   }
 
   /// The screen x of [offset] base pairs into the gene, facing as it does.

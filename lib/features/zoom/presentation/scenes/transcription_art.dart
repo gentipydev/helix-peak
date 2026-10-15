@@ -8,15 +8,62 @@ import '../../domain/transcription.dart';
 import '../zoom_inks.dart';
 import 'sculpt.dart';
 
-/// How a gene's transcription is drawn ([Transcription]), as an electron
-/// micrograph of a gene being read shows it (Miller and Beatty 1969): each
-/// polymerase a small lit body on the gene's line, its RNA hanging from it,
-/// longer the further it has read, so the gene wears a fringe that lengthens
-/// toward its 3′ end. The RNA is in the gene's own colours (its exons' coding
-/// and untranslated parts, its introns in the quiet ink), capped at its 5′
-/// end in the mark. An intron being spliced loops out at its place and
-/// leaves as a lariat; a finished mRNA is cut free at the 3′ end and drifts
-/// away with its poly(A) tail.
+/// The gene being read as it lies on screen at one frame: what
+/// [TranscriptionArt.paint] draws, and what the tests hold it to.
+@immutable
+final class ReadingLaid {
+  const ReadingLaid({
+    required this.polymerases,
+    required this.fibrils,
+    required this.runs,
+    required this.caps,
+    required this.loop,
+    required this.mrna,
+    required this.tail,
+    required this.width,
+    required this.scale,
+  });
+
+  /// Where each polymerase sits, on the gene's line.
+  final List<Offset> polymerases;
+
+  /// Each polymerase's RNA, from its root under the polymerase to its 5′
+  /// end.
+  final List<(Offset, Offset)> fibrils;
+
+  /// Every stretch of RNA drawn, the fibrils' and the mRNA's: what it is,
+  /// its two ends, and whether it is the mRNA's.
+  final List<(GenePieceKind, Offset, Offset, bool)> runs;
+
+  /// Where each RNA's 5′ cap is.
+  final List<Offset> caps;
+
+  /// The loop of the intron being spliced: its centre, its radius and how
+  /// much of it shows; null where no intron loops out.
+  final (Offset, double, double)? loop;
+
+  /// The finished mRNA, from its 5′ end to its 3′ end, level; null where it
+  /// is too small at the gene's stop to read as one.
+  final (Offset, Offset)? mrna;
+
+  /// Its poly(A) tail, as points from the mRNA's 3′ end on.
+  final List<Offset> tail;
+
+  /// How thick the RNA is drawn.
+  final double width;
+
+  /// How many times its size at the gene's stop the gene is drawn.
+  final double scale;
+}
+
+/// How a gene being read is drawn ([Transcription]), as an electron
+/// micrograph of a gene being read shows it (Miller and Beatty 1969), and
+/// still: each polymerase a small lit body on the gene's line, its RNA
+/// hanging from it, longer the further it has read. The RNA is in the gene's
+/// own colours (its exons' coding and untranslated parts, its introns in the
+/// quiet ink), capped at its 5′ end in the mark. The intron being spliced
+/// loops out at its place; the finished mRNA lies free below them, under
+/// the gene's 3′ end, its exons joined and its poly(A) tail at its 3′ end.
 ///
 /// Everything is laid in screen pixels about the gene's line, through the
 /// scene's own mapping of a base's place, so it lies on the gene however the
@@ -33,19 +80,26 @@ final class TranscriptionArt {
   /// How wide a polymerase is drawn at the gene's stop, in pixels.
   static const double polymeraseWidth = 15;
 
-  /// How far apart the particles along an RNA are, in pixels at the gene's
-  /// stop: a nascent RNA is packed with proteins as it is made, and an
-  /// electron micrograph shows it beaded.
-  static const double beadEvery = 7;
-
-  /// The least room, in pixels, under the gene's line the longest RNA is
-  /// given, and the share of the room under it it takes at the most.
+  /// The share of the room under the gene's line the longest RNA takes at
+  /// the most: the finished mRNA lies in what is left.
   static const double roomShare = 0.8;
 
-  /// How long an intron's loop must be to be drawn whole, in pixels round:
-  /// shorter ones fade as they shrink, so a long gene's dozens of small
-  /// introns never turn to confetti.
+  /// How long an intron's loop must be round, in pixels at the gene's
+  /// stop, to be drawn whole: a shorter one is fainter, and one under 4 px
+  /// is not drawn.
   static const double loopShown = 12;
+
+  /// How long the finished mRNA must be, in pixels at the gene's stop, to
+  /// be drawn: a long gene's is a speck beside it.
+  static const double mrnaShown = 12;
+
+  /// How far below the lowest of the RNAs hanging from the gene the finished
+  /// mRNA lies, in pixels at the gene's stop.
+  static const double mrnaGap = 24;
+
+  /// The gap where two exons are joined in the finished mRNA, in pixels at
+  /// the gene's stop: a third of the shorter of the two, where that is less.
+  static const double junction = 1.5;
 
   ui.Picture? _blob;
   ZoomInks? _blobInks;
@@ -131,231 +185,183 @@ final class TranscriptionArt {
     GenePieceKind.intron => inks.label.withValues(alpha: 0.7),
   };
 
-  /// Draws the transcription [clock] seconds in. [x] is the screen x of a
-  /// place on the gene, in base pairs from its 5′ end; [line] the screen y
-  /// of the gene's line; [perBase] pixels a base now, [atRest] at the gene's
-  /// stop; [compaction] as above.
-  void paint(
-    Canvas canvas,
-    ZoomInks inks, {
-    required double clock,
+  /// Lays the gene being read out on screen. [x] is the screen x of a place
+  /// on the gene, in base pairs from its 5′ end; [line] the screen y of the
+  /// gene's line; [perBase] pixels a base now, [atRest] at the gene's stop;
+  /// [compaction] as above.
+  ReadingLaid lay({
     required double Function(double offset) x,
     required double line,
     required double perBase,
     required double atRest,
     required double compaction,
   }) {
-    final TranscriptionFrame now = reading.at(clock);
     final double scale = perBase / atRest;
     final double rnaPx = compaction * perBase;
     final double width = (2.2 * scale).clamp(1.1, 3.4);
-    // Where the RNA is sampled and where its particles sit are fixed along
-    // it, in its bases, as it is laid at the gene's stop: as the view moves
-    // they ride with the RNA and none comes or goes.
-    final double restPx = compaction * atRest;
-    final double sampleBases = 4 / restPx;
-    final double beadBases = beadEvery / restPx;
-    final double bead = width * 0.85;
     final double drop = 3.5 * scale;
     final Offset down = Offset(-math.sin(lean), math.cos(lean));
     final Offset across = Offset(math.cos(lean), math.sin(lean));
-
-    // A fibril's point [d] pixels from its root, swaying a little as a
-    // thread hanging in a slow current does: a wave running down it, no
-    // more than a few pixels at its far end.
-    Offset along(Offset root, double d, int lane) {
-      final double reach = math.min(d / 110, 1.6);
-      final double sway =
-          2.4 *
-          scale *
-          reach *
-          reach *
-          math.sin(clock * 1.6 + lane * 2.3 - d / (26 * math.max(scale, 0.4)));
-      return root + down * d + across * sway;
-    }
-
-    final Map<Color, Path> strokes = <Color, Path>{};
-    final Map<Color, List<Offset>> beaded = <Color, List<Offset>>{};
-    final List<(Offset, double, double)> loops = <(Offset, double, double)>[];
-    final List<(Offset, double)> caps = <(Offset, double)>[];
-
-    // Lays [rna] (5′ to 3′) along a fibril from [root], the 3′ end at the
-    // root, and gathers its strokes, its loops and its cap; [shown] as it
-    // fades.
-    void lay(Offset root, List<RnaStretch> rna, int lane, double shown) {
-      // In bases from the root, then on screen.
-      double total = 0;
-      for (final RnaStretch stretch in rna) {
-        total += stretch.length;
-      }
-      double from = 0;
-      for (int i = rna.length - 1; i >= 0; i--) {
-        final RnaStretch stretch = rna[i];
-        final double bases = stretch.length;
-        final double d = from * rnaPx;
-        final double run = bases * rnaPx;
-        if (run > 0.05) {
-          final Color ink = _ink(inks, stretch.kind);
-          final Color faded = ink.withValues(alpha: ink.a * shown);
-          final Path path = strokes.putIfAbsent(faded, Path.new);
-          final int pieces = math.max(1, (bases / sampleBases).ceil());
-          final Offset start = along(root, d, lane);
-          path.moveTo(start.dx, start.dy);
-          for (int k = 1; k <= pieces; k++) {
-            final Offset p = along(root, d + run * k / pieces, lane);
-            path.lineTo(p.dx, p.dy);
-          }
-          // Its particles, at places fixed along the RNA from its 5′ end,
-          // so they ride out with it as it grows.
-          if (beadEvery * scale > 2.5) {
-            final List<Offset> dots = beaded.putIfAbsent(
-              faded,
-              () => <Offset>[],
-            );
-            final double from5 = total - from - bases;
-            final double first = (from5 / beadBases).ceil() * beadBases;
-            for (double b = first; b < from5 + bases; b += beadBases) {
-              dots.add(along(root, (total - b) * rnaPx, lane));
-            }
-          }
-        }
-        if (stretch.looped > 0) {
-          loops.add((
-            along(root, d + run / 2, lane),
-            stretch.looped * rnaPx,
-            shown,
+    final List<Offset> polymerases = <Offset>[];
+    final List<(Offset, Offset)> fibrils = <(Offset, Offset)>[];
+    final List<(GenePieceKind, Offset, Offset, bool)> runs =
+        <(GenePieceKind, Offset, Offset, bool)>[];
+    final List<Offset> caps = <Offset>[];
+    (Offset, double, double)? loop;
+    double lowest = line + drop;
+    for (final Polymerase p in reading.polymerases) {
+      final Offset root = Offset(x(p.at), line + drop);
+      polymerases.add(Offset(root.dx, line));
+      // Its RNA from its 3′ end, at the polymerase, to its 5′ end.
+      double d = 0;
+      for (int i = p.rna.length - 1; i >= 0; i--) {
+        final RnaStretch stretch = p.rna[i];
+        final double run = stretch.length * rnaPx;
+        if (run > 0) {
+          runs.add((
+            stretch.kind,
+            root + down * d,
+            root + down * (d + run),
+            false,
           ));
         }
-        from += bases;
-      }
-      if (rna.isNotEmpty) {
-        caps.add((along(root, total * rnaPx, lane), shown));
-      }
-    }
-
-    for (final Polymerase p in now.polymerases) {
-      if (p.shown <= 0.002 || p.rna.isEmpty) {
-        continue;
-      }
-      lay(Offset(x(p.at), line + drop), p.rna, p.lane, p.shown);
-    }
-    for (final Release r in now.releases) {
-      final double t = r.age / Transcription.releaseSeconds;
-      final double shown = 1 - _smoothstep((t - 0.2) / 0.8);
-      final Offset drift =
-          const Offset(0.38, 0.92) * (26 * scale * r.age) +
-          Offset(0, 6 * scale * _smoothstep(r.age / 0.4));
-      final Offset root = Offset(x(r.from), line + drop) + drift;
-      lay(root, r.rna, r.lane, shown);
-      // Its poly(A) tail, coming up at its 3′ end as it is let go.
-      final double tail = 9 * scale * _smoothstep(r.age / 0.4);
-      if (tail > 0.3) {
-        final Path polyA = Path()..moveTo(root.dx, root.dy);
-        for (int k = 1; k <= 6; k++) {
-          final double u = k / 6;
-          final Offset p =
-              root -
-              down * (tail * u) +
-              across * (1.2 * scale * math.sin(u * math.pi * 3));
-          polyA.lineTo(p.dx, p.dy);
+        if (stretch.looped > 0) {
+          // Its two ends come together at its place, the loop round to the
+          // 3′ side; whole where it is big enough at the gene's stop.
+          final double r = stretch.looped * rnaPx / (2 * math.pi);
+          final double atStop = stretch.looped * compaction * atRest;
+          final Offset centre = root + down * (d + run / 2) + across * r;
+          loop = (centre, r, _smoothstep((atStop - 4) / (loopShown - 4)));
+          lowest = math.max(lowest, centre.dy + r);
         }
-        strokes
-            .putIfAbsent(inks.label.withValues(alpha: 0.7 * shown), Path.new)
-            .addPath(polyA, Offset.zero);
+        d += run;
       }
+      final Offset tip = root + down * d;
+      fibrils.add((root, tip));
+      if (p.rna.isNotEmpty) {
+        caps.add(tip);
+      }
+      lowest = math.max(lowest, tip.dy);
     }
 
+    // The finished mRNA, level below them, its 3′ end under the gene's.
+    (Offset, Offset)? mrna;
+    final List<Offset> tail = <Offset>[];
+    final double bases = reading.mrna.fold<double>(
+      0,
+      (double sum, RnaStretch s) => sum + s.length,
+    );
+    if (bases * compaction * atRest >= mrnaShown) {
+      final double y = lowest + mrnaGap * scale;
+      final double end = x(reading.layout.length);
+      final double start = end - bases * rnaPx;
+      mrna = (Offset(start, y), Offset(end, y));
+      final Set<double> joined = reading.junctions.toSet();
+      final List<RnaStretch> parts = reading.mrna;
+      // The gap either side of a junction, at most a third of the shorter
+      // of the two exons' stretches there.
+      double gapAt(int i) => math.min(
+        junction * scale,
+        math.min(parts[i - 1].length, parts[i].length) * rnaPx / 3,
+      );
+      double made = 0;
+      for (int i = 0; i < parts.length; i++) {
+        final RnaStretch stretch = parts[i];
+        double a = start + made * rnaPx;
+        double b = start + (made + stretch.length) * rnaPx;
+        if (i > 0 && joined.contains(made)) {
+          a += gapAt(i) / 2;
+        }
+        made += stretch.length;
+        if (i + 1 < parts.length && joined.contains(made)) {
+          b -= gapAt(i + 1) / 2;
+        }
+        if (b > a) {
+          runs.add((stretch.kind, Offset(a, y), Offset(b, y), true));
+        }
+      }
+      caps.add(Offset(start, y));
+      // Its poly(A) tail, on from its 3′ end.
+      final double reach = 9 * scale;
+      for (int k = 0; k <= 6; k++) {
+        final double u = k / 6;
+        tail.add(
+          Offset(end + reach * u, y + 1.2 * scale * math.sin(u * math.pi * 3)),
+        );
+      }
+    }
+    return ReadingLaid(
+      polymerases: polymerases,
+      fibrils: fibrils,
+      runs: runs,
+      caps: caps,
+      loop: loop,
+      mrna: mrna,
+      tail: tail,
+      width: width,
+      scale: scale,
+    );
+  }
+
+  /// Draws the gene being read as [laid] lays it.
+  void paint(Canvas canvas, ZoomInks inks, ReadingLaid laid) {
+    // One path for each colour, the fibrils' joined round, the mRNA's cut
+    // square, so its joins show.
+    final Map<Color, Path> hanging = <Color, Path>{};
+    final Map<Color, Path> made = <Color, Path>{};
+    for (final (GenePieceKind kind, Offset a, Offset b, bool mrna)
+        in laid.runs) {
+      final Path path = (mrna ? made : hanging).putIfAbsent(
+        _ink(inks, kind),
+        Path.new,
+      );
+      path
+        ..moveTo(a.dx, a.dy)
+        ..lineTo(b.dx, b.dy);
+    }
     final Paint stroke = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = width
+      ..strokeWidth = laid.width
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
-    for (final MapEntry<Color, Path> s in strokes.entries) {
+    for (final MapEntry<Color, Path> s in hanging.entries) {
       canvas.drawPath(s.value, stroke..color = s.key);
     }
-    final Paint dot = Paint();
-    for (final MapEntry<Color, List<Offset>> b in beaded.entries) {
-      dot.color = b.key;
-      for (final Offset at in b.value) {
-        canvas.drawCircle(at, bead, dot);
+    stroke.strokeCap = StrokeCap.butt;
+    for (final MapEntry<Color, Path> s in made.entries) {
+      canvas.drawPath(s.value, stroke..color = s.key);
+    }
+    stroke.strokeCap = StrokeCap.round;
+    if (laid.tail.isNotEmpty) {
+      final Path polyA = Path()..moveTo(laid.tail.first.dx, laid.tail.first.dy);
+      for (final Offset p in laid.tail.skip(1)) {
+        polyA.lineTo(p.dx, p.dy);
       }
+      canvas.drawPath(polyA, stroke..color = inks.label.withValues(alpha: 0.7));
     }
-
-    // An intron's loop, its two ends come together at its place on the
-    // fibril, round to the 3′ side; a lariat, drifting away as it fades.
-    final Color intron = inks.label;
-    void loop(Offset at, double round, double shown, {double tail = 0}) {
-      final double drawn = _smoothstep((round - 4) / (loopShown - 4));
-      if (drawn <= 0 || shown <= 0) {
-        return;
-      }
-      final double r = round / (2 * math.pi);
-      final Offset centre = at + across * r;
-      stroke.color = intron.withValues(alpha: 0.7 * shown * drawn);
-      canvas.drawCircle(centre, r, stroke);
-      if (tail > 0) {
-        canvas.drawLine(at, at - across * tail, stroke);
-      }
-    }
-
-    for (final (Offset at, double round, double shown) in loops) {
-      loop(at, round, shown);
-    }
-    for (final Lariat l in now.lariats) {
-      final double t = l.age / Transcription.lariatSeconds;
-      // Where its loop was on the fibril as it was cut free, swaying as
-      // the fibril does, and drifting off from there.
-      final Offset born = along(
-        Offset(x(l.from), line + drop),
-        l.along * rnaPx,
-        l.lane,
-      );
-      final Offset drift =
-          const Offset(0.62, 0.78) * (20 * scale * l.age) +
-          Offset(
-            0,
-            4 * scale * math.sin(l.age * 3 + l.lane) -
-                4 * scale * math.sin(l.lane.toDouble()),
-          );
-      loop(
-        born + drift,
-        l.length * rnaPx * (1 - 0.3 * t),
-        1 - _smoothstep((t - 0.25) / 0.75),
-        tail:
-            math.min(0.12 * l.length * rnaPx, 7 * scale) *
-            _smoothstep(l.age / 0.3),
-      );
-    }
-
-    final Paint cap = Paint()..color = inks.mark;
-    for (final (Offset at, double shown) in caps) {
+    final (Offset, double, double)? loop = laid.loop;
+    if (loop != null && loop.$3 > 0) {
+      final (Offset centre, double r, double shown) = loop;
       canvas.drawCircle(
-        at,
-        (1.9 * scale).clamp(1.0, 3.0),
-        cap..color = inks.glow(shown),
+        centre,
+        r,
+        stroke..color = inks.label.withValues(alpha: 0.7 * shown),
       );
+    }
+    final Paint cap = Paint()..color = inks.mark;
+    final double capRadius = (1.9 * laid.scale).clamp(1.0, 3.0);
+    for (final Offset at in laid.caps) {
+      canvas.drawCircle(at, capRadius, cap);
     }
 
     // The polymerases over their RNA's roots, on the gene's line.
     final ui.Picture blob = _polymerase(inks);
-    final double size = polymeraseWidth * scale / 100;
-    for (final Polymerase p in now.polymerases) {
-      if (p.shown <= 0.002) {
-        continue;
-      }
+    final double size = polymeraseWidth * laid.scale / 100;
+    for (final Offset at in laid.polymerases) {
       canvas.save();
-      canvas.translate(x(p.at), line);
+      canvas.translate(at.dx, at.dy);
       canvas.scale(size);
-      if (p.shown < 0.995) {
-        canvas.saveLayer(
-          const Rect.fromLTWH(-70, -70, 140, 140),
-          Paint()..color = Color.fromRGBO(0, 0, 0, p.shown),
-        );
-        canvas.drawPicture(blob);
-        canvas.restore();
-      } else {
-        canvas.drawPicture(blob);
-      }
+      canvas.drawPicture(blob);
       canvas.restore();
     }
   }

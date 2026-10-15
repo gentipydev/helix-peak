@@ -14,223 +14,189 @@ Transcription _reading(ProteinTarget t) =>
 double _inLine(List<RnaStretch> rna) =>
     rna.fold<double>(0, (double sum, RnaStretch s) => sum + s.length);
 
-double _exons(GeneLayout layout) => layout.pieces
-    .where((GenePiece p) => p.kind != GenePieceKind.intron)
-    .fold<double>(0, (double sum, GenePiece p) => sum + p.length);
+List<GenePiece> _introns(GeneLayout layout) => <GenePiece>[
+  for (final GenePiece p in layout.pieces)
+    if (p.kind == GenePieceKind.intron) p,
+];
 
-/// A frame a sixtieth of a second long.
-const double _frame = 1 / 60;
+/// The gene's longest intron; of two as long, the later.
+GenePiece _longestIntron(GeneLayout layout) =>
+    _introns(layout)
+        .reduce((GenePiece a, GenePiece b) => b.length >= a.length ? b : a);
+
+/// The exons' bases a polymerase at [at] has read.
+double _exonsRead(GeneLayout layout, double at) => layout.pieces
+    .where((GenePiece p) => p.kind != GenePieceKind.intron && p.start < at)
+    .fold<double>(
+      0,
+      (double sum, GenePiece p) => sum + math.min(p.end, at) - p.start,
+    );
 
 void main() {
-  test('every polymerase moves on without a jump, and comes and goes '
-      'without a pop, at 60 fps, for all twenty', () {
+  test('the gene is read by three polymerases, 5′ to 3′, each at a stage '
+      'of one reading, none nearer another than 12% of the gene, for '
+      'all twenty', () {
     for (final ProteinTarget t in TestCatalog.all) {
       final Transcription reading = _reading(t);
       final double length = reading.layout.length;
-      final double speed = reading.speed;
-      TranscriptionFrame? last;
-      for (int f = 0; f <= 2 * Transcription.passSeconds / _frame; f++) {
-        final TranscriptionFrame now = reading.at(f * _frame);
-        expect(now.polymerases.length, Transcription.polymerases);
-        if (last != null) {
-          for (int lane = 0; lane < Transcription.polymerases; lane++) {
-            final Polymerase a = last.polymerases[lane];
-            final Polymerase b = now.polymerases[lane];
-            final String what = '${t.slug}, lane $lane, frame $f';
-            expect(
-              (b.shown - a.shown).abs(),
-              lessThanOrEqualTo(0.08),
-              reason: what,
-            );
-            if (b.at >= a.at) {
-              expect(
-                b.at - a.at,
-                closeTo(speed * _frame, 1e-6 * length),
-                reason: what,
-              );
-            } else {
-              // Back at the 5′ end for its next pass: unseen either side.
-              expect(a.shown, lessThan(0.01), reason: what);
-              expect(b.shown, lessThan(0.01), reason: what);
-            }
-            // Its RNA grows a frame's reading at most, and shrinks only as
-            // an intron is spliced out or the whole is cut free, when it
-            // leaves as the release it was.
-            final double grew = _inLine(b.rna) - _inLine(a.rna);
-            expect(
-              grew,
-              lessThanOrEqualTo(speed * _frame * (1 + 1e-9) + 1e-9 * length),
-              reason: what,
-            );
-            if (a.rna.isNotEmpty && b.rna.isEmpty) {
-              final Iterable<Release> freed = now.releases.where(
-                (Release r) => r.lane == lane && r.age < _frame,
-              );
-              expect(freed, hasLength(1), reason: what);
-              expect(
-                _inLine(freed.single.rna),
-                closeTo(_inLine(a.rna), 0.02 * length),
-                reason: what,
-              );
-            }
-          }
+      final List<double> at = <double>[
+        for (final Polymerase p in reading.polymerases) p.at,
+      ];
+      expect(at, hasLength(3), reason: t.slug);
+      // The first has just begun.
+      expect(at.first, closeTo(Transcription.begun * length, 1e-9 * length));
+      for (int i = 0; i < at.length; i++) {
+        expect(at[i], inInclusiveRange(0, length), reason: t.slug);
+        if (i > 0) {
+          expect(
+            at[i] - at[i - 1],
+            greaterThanOrEqualTo(Transcription.apart * length),
+            reason: '${t.slug}: ${i - 1} and $i',
+          );
         }
-        last = now;
       }
     }
   });
 
-  test('an intron splicing out is all there, in line and looped; every one '
-      'is out before the RNA is let go; the mRNA is the exons', () {
+  test('one intron is being spliced, the gene\'s longest, half out, all of '
+      'it there in line and looped; nothing else loops', () {
     for (final ProteinTarget t in TestCatalog.all) {
       final Transcription reading = _reading(t);
       final GeneLayout layout = reading.layout;
-      final double exons = _exons(layout);
-      final List<GenePiece> introns = <GenePiece>[
-        for (final GenePiece p in layout.pieces)
-          if (p.kind == GenePieceKind.intron) p,
+      final GenePiece longest = _longestIntron(layout);
+      final List<(int, RnaStretch)> looped = <(int, RnaStretch)>[
+        for (int i = 0; i < reading.polymerases.length; i++)
+          for (final RnaStretch s in reading.polymerases[i].rna)
+            if (s.looped > 0) (i, s),
       ];
-      for (int f = 0; f <= Transcription.passSeconds / _frame; f++) {
-        final TranscriptionFrame now = reading.at(f * _frame);
-        for (final Polymerase p in now.polymerases) {
-          for (final RnaStretch s in p.rna) {
-            if (s.looped > 0) {
-              expect(s.kind, GenePieceKind.intron);
-              // Looping out only once it is all transcribed: the two parts
-              // are the whole intron.
-              expect(
-                introns.map((GenePiece g) => g.length),
-                contains(closeTo(s.length + s.looped, 1e-6 * layout.length)),
-                reason: '${t.slug} at $f',
-              );
-            }
-          }
-        }
-        for (final Release r in now.releases) {
-          expect(
-            r.rna.every((RnaStretch s) => s.kind != GenePieceKind.intron),
-            isTrue,
-          );
-          expect(_inLine(r.rna), closeTo(exons, 1e-6 * exons), reason: t.slug);
-        }
-        for (final Lariat l in now.lariats) {
-          expect(
-            introns.map((GenePiece g) => g.length),
-            contains(closeTo(l.length, 1e-9)),
-          );
-          expect(l.age, inInclusiveRange(0, Transcription.lariatSeconds));
-          expect(l.from, inInclusiveRange(0, reading.cut * reading.speed));
-          expect(l.along, inInclusiveRange(0, layout.length));
-        }
-      }
-      // Each intron comes out over the same time, soon after its 3′ end is
-      // read; every one is out before the RNA is let go, once it is read to
-      // the poly(A) site; and the polymerase has let go before its next pass.
-      expect(reading.cut, greaterThanOrEqualTo(Transcription.readSeconds));
+      expect(looped, hasLength(1), reason: t.slug);
+      final (int on, RnaStretch stretch) = looped.single;
+      expect(on, reading.splicing, reason: t.slug);
+      expect(stretch.kind, GenePieceKind.intron);
       expect(
-        reading.cut + Transcription.letGoSeconds,
-        lessThanOrEqualTo(Transcription.passSeconds),
-      );
-      expect(reading.splices, hasLength(introns.length));
-      for (int j = 0; j < introns.length; j++) {
-        final (double start, double end, double bases) = reading.splices[j];
-        expect(
-          start,
-          closeTo(
-            introns[j].end / reading.speed + Transcription.spliceDelay,
-            1e-9,
-          ),
-        );
-        expect(end - start, closeTo(Transcription.spliceSeconds, 1e-9));
-        expect(end, lessThanOrEqualTo(reading.cut));
-        expect(bases, introns[j].length);
-      }
-      // The most it carries is the most any moment shows.
-      double most = 0;
-      for (int f = 0; f <= Transcription.passSeconds / _frame; f++) {
-        for (final Polymerase p in reading.at(f * _frame).polymerases) {
-          most = math.max(most, _inLine(p.rna));
-        }
-      }
-      expect(
-        reading.longest,
-        greaterThanOrEqualTo(most * 0.995),
+        stretch.length + stretch.looped,
+        closeTo(longest.length, 1e-9 * layout.length),
         reason: t.slug,
       );
-      expect(reading.longest, lessThanOrEqualTo(layout.length));
-    }
-  });
-
-  test('what a pass leaves behind outlives the clock\'s wrap, and every '
-      'lariat and release ages a frame a frame until it is gone', () {
-    for (final ProteinTarget t in <ProteinTarget>[
-      TestCatalog.insulin,
-      TestCatalog.dystrophin,
-      TestCatalog.prion,
-    ]) {
-      final Transcription reading = _reading(t);
-      bool carried = false;
-      TranscriptionFrame? last;
-      for (int f = 0; f <= 2 * Transcription.passSeconds / _frame; f++) {
-        final TranscriptionFrame now = reading.at(f * _frame);
-        if (last != null) {
-          for (final Release r in now.releases) {
-            final Polymerase p = now.polymerases[r.lane];
-            // Older than its polymerase's pass: the last pass's.
-            final double pass = p.at / reading.speed;
-            if (r.age > pass + 1e-9) {
-              carried = true;
-            }
-            if (r.age >= _frame) {
-              expect(
-                last.releases.where(
-                  (Release q) =>
-                      q.lane == r.lane && (q.age + _frame - r.age).abs() < 1e-6,
-                ),
-                hasLength(1),
-                reason: '${t.slug} at $f',
-              );
-            }
-          }
-          for (final Lariat l in now.lariats) {
-            if (l.age >= _frame) {
-              expect(
-                last.lariats.where(
-                  (Lariat q) =>
-                      q.lane == l.lane &&
-                      q.from == l.from &&
-                      (q.age + _frame - l.age).abs() < 1e-6,
-                ),
-                hasLength(1),
-                reason: '${t.slug} at $f',
-              );
-            }
-          }
-        }
-        last = now;
+      // Half way, but where it is held at the gene's 3′ end.
+      final Polymerase splicing = reading.polymerases[on];
+      if (splicing.at < layout.length) {
+        expect(
+          stretch.looped / longest.length,
+          closeTo(0.5, 1e-9),
+          reason: t.slug,
+        );
       }
-      expect(carried, isTrue, reason: t.slug);
+      expect(
+        reading.splicedAt(longest, splicing.at),
+        inExclusiveRange(0, 1),
+        reason: t.slug,
+      );
     }
   });
 
-  test('at rest, the still frame holds the gene being read: every '
-      'polymerase on it, apart, their RNA longer toward the 3′ end', () {
+  test(
+    'each RNA is what its polymerase has read: every exon so far, and '
+    'an intron only until it is half spliced out, but the one looping out',
+    () {
+      for (final ProteinTarget t in TestCatalog.all) {
+        final Transcription reading = _reading(t);
+        final GeneLayout layout = reading.layout;
+        final GenePiece longest = _longestIntron(layout);
+        for (final Polymerase p in reading.polymerases) {
+          final String what = '${t.slug} at ${p.at.round()}';
+          final bool splicing = identical(
+            p,
+            reading.polymerases[reading.splicing],
+          );
+          bool kept(GenePiece piece) {
+            if (piece.kind != GenePieceKind.intron) {
+              return true;
+            }
+            final double spliced = reading.splicedAt(piece, p.at);
+            return spliced < 0.5 ||
+                splicing && identical(piece, longest) && spliced < 1;
+          }
+
+          // In order, 5′ to 3′: the pieces read, but the introns spliced out.
+          expect(p.rna.map((RnaStretch s) => s.kind).toList(), <GenePieceKind>[
+            for (final GenePiece piece in layout.pieces)
+              if (piece.start < p.at && kept(piece)) piece.kind,
+          ], reason: what);
+          expect(
+            p.rna
+                .where((RnaStretch s) => s.kind != GenePieceKind.intron)
+                .fold<double>(0, (double sum, RnaStretch s) => sum + s.length),
+            closeTo(_exonsRead(layout, p.at), 1e-9 * layout.length),
+            reason: what,
+          );
+          expect(p.inLine, closeTo(_inLine(p.rna), 1e-9), reason: what);
+        }
+      }
+    },
+  );
+
+  test('the finished mRNA is the exons alone, 5′ to 3′, joined where each '
+      'intron was', () {
     for (final ProteinTarget t in TestCatalog.all) {
       final Transcription reading = _reading(t);
-      final List<double> at = <double>[
-        for (final Polymerase p in reading.at(0).polymerases) p.at,
-      ]..sort();
-      final double even =
-          reading.speed * Transcription.passSeconds / Transcription.polymerases;
-      for (int i = 1; i < at.length; i++) {
-        expect(at[i] - at[i - 1], greaterThan(0.39 * even), reason: t.slug);
-      }
-      final List<Polymerase> reading0 = reading.at(0).polymerases;
+      final GeneLayout layout = reading.layout;
+      final double exons = _exonsRead(layout, layout.length);
       expect(
-        reading0.where((Polymerase p) => p.shown > 0.99 && p.rna.isNotEmpty),
-        hasLength(greaterThanOrEqualTo(Transcription.polymerases - 2)),
+        reading.mrna.every((RnaStretch s) => s.kind != GenePieceKind.intron),
+        isTrue,
+        reason: t.slug,
+      );
+      expect(_inLine(reading.mrna), closeTo(exons, 1e-9 * exons));
+      expect(
+        reading.junctions,
+        hasLength(layout.exonCount - 1),
+        reason: t.slug,
+      );
+      double last = 0;
+      for (final double j in reading.junctions) {
+        expect(j, greaterThan(last), reason: t.slug);
+        last = j;
+      }
+      expect(last, lessThan(exons), reason: t.slug);
+    }
+  });
+
+  test('the longest RNA is the most any of the three carries in line', () {
+    for (final ProteinTarget t in TestCatalog.all) {
+      final Transcription reading = _reading(t);
+      expect(
+        reading.longest,
+        reading.polymerases
+            .map((Polymerase p) => _inLine(p.rna))
+            .reduce(math.max),
         reason: t.slug,
       );
     }
+  });
+
+  test('a gene with no intron is read all the same, and nothing loops', () {
+    const GeneLayout layout = GeneLayout(
+      pieces: <GenePiece>[
+        GenePiece(start: 0, end: 100, kind: GenePieceKind.utr),
+        GenePiece(start: 100, end: 1600, kind: GenePieceKind.cds),
+        GenePiece(start: 1600, end: 2000, kind: GenePieceKind.utr),
+      ],
+      length: 2000,
+    );
+    final Transcription reading = Transcription(layout);
+    expect(reading.polymerases.map((Polymerase p) => p.at), <Matcher>[
+      closeTo(240, 1e-9),
+      closeTo(1000, 1e-9),
+      closeTo(1760, 1e-9),
+    ]);
+    expect(
+      reading.polymerases
+          .expand((Polymerase p) => p.rna)
+          .where((RnaStretch s) => s.looped > 0),
+      isEmpty,
+    );
+    expect(_inLine(reading.mrna), 2000);
+    expect(reading.junctions, isEmpty);
   });
 }

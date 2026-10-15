@@ -8,7 +8,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/core/theme/app_typography.dart';
-import 'package:helixpeek/features/zoom/domain/transcription.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_motion.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
@@ -27,17 +26,17 @@ import 'support/test_catalog.dart';
 /// ZOOM_MOTION_SHOTS=/tmp/motion flutter test test/zoom_motion_render_check.dart
 ///
 /// ZOOM_GENES=insulin,dystrophin names the proteins (those two by default).
-/// ZOOM_MOTION picks the takes, by name, comma separated: `gene` (one pass
-/// of the gene being read, at its stop, 10 frames a second), `arrive` (the
-/// step from the band to the gene, then two seconds there, 30 frames a
+/// ZOOM_MOTION picks the takes, by name, comma separated: `arrive` (the step
+/// from the band to the gene, then half a second there, 30 frames a
 /// second), `dive` (the step from the gene to the DNA as the screen flies
 /// it, then a second there, 30 frames a second, the clock running on);
-/// `gene,dive` by default. ZOOM_MOTION_WIDTH sets the canvas's width (390).
+/// `arrive,dive` by default. The gene's stop itself is still: the design
+/// render check draws it. ZOOM_MOTION_WIDTH sets the canvas's width (390).
 /// Without ZOOM_MOTION_SHOTS it draws nothing and passes.
 void main() {
   final String directory = Platform.environment['ZOOM_MOTION_SHOTS'] ?? '';
   final String genes = Platform.environment['ZOOM_GENES'] ?? '';
-  final String takes = Platform.environment['ZOOM_MOTION'] ?? 'gene,dive';
+  final String takes = Platform.environment['ZOOM_MOTION'] ?? 'arrive,dive';
   final double width =
       double.tryParse(Platform.environment['ZOOM_MOTION_WIDTH'] ?? '') ?? 390;
   final List<ProteinTarget> targets = genes.isEmpty
@@ -65,9 +64,6 @@ void main() {
       final ZoomDepth depth = stage.depth;
       // Each frame: its depth, its ambient clock and its dwell.
       final List<(String, double, double)> frames = <(String, double, double)>[
-        if (takes.contains('gene'))
-          for (int f = 0; f < Transcription.passSeconds * 10; f++)
-            ('gene', depth.depthOf(ZoomStop.gene), f / 10),
         if (takes.contains('arrive'))
           ...() {
             final double from = depth.depthOf(ZoomStop.band);
@@ -82,8 +78,8 @@ void main() {
                   flight.at(Duration(microseconds: (f * 1e6 / 30).round())),
                   f / 30,
                 ),
-              // And two seconds at the gene, read.
-              for (int f = 1; f <= 60; f++) ('arrive', to, (count + f) / 30),
+              // And half a second at the gene, which is still.
+              for (int f = 1; f <= 15; f++) ('arrive', to, (count + f) / 30),
             ];
           }(),
         if (takes.contains('dive'))

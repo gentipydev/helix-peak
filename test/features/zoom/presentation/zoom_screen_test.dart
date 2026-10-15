@@ -454,6 +454,19 @@ void main() {
     expect(tester.binding.transientCallbackCount, 0);
   });
 
+  testWidgets('with motion on, the gene\'s stop is still: once there, the '
+      'zoom stops ticking', (WidgetTester tester) async {
+    await _host(tester, TestCatalog.relaxin, reduced: false);
+    // The body's beats, then a step at a time down to the gene.
+    await _pass(tester, const Duration(seconds: 3));
+    for (int step = 0; step < ZoomStop.gene.index; step++) {
+      await _tap(tester, 'zoom-next');
+      await _pass(tester, const Duration(seconds: 3));
+    }
+    expect(_stop(tester), 'GENE');
+    expect(tester.binding.transientCallbackCount, 0);
+  });
+
   testWidgets('the body carries its credit, clear of the scale bar, and no '
       'other stop does', (WidgetTester tester) async {
     for (final ProteinTarget target in TestCatalog.all) {

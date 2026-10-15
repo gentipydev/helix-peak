@@ -7,10 +7,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/zoom/domain/dna_dive.dart';
+import 'package:helixpeek/features/zoom/domain/gene_layout.dart';
+import 'package:helixpeek/features/zoom/domain/transcription.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_motion.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/dna_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/gene_scene.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/transcription_art.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
@@ -43,14 +46,15 @@ Future<(ZoomInks, TextStyle)> _inks(WidgetTester tester) async {
 }
 
 /// The whole canvas at depth [d], the scenes and what lies over them, at
-/// the ambient clock's 0, as pixels.
+/// [clock] seconds of the ambient clock, as pixels.
 Future<Uint8List> _pixels(
   WidgetTester tester,
   ZoomStage stage,
   double d,
   ZoomInks inks,
-  TextStyle labels,
-) async {
+  TextStyle labels, {
+  double clock = 0,
+}) async {
   final ui.PictureRecorder recorder = ui.PictureRecorder();
   final Canvas canvas = Canvas(recorder);
   canvas.drawRect(Offset.zero & _canvas, Paint()..color = inks.ground);
@@ -63,6 +67,8 @@ Future<Uint8List> _pixels(
   ZoomOverlayPainter(
     stage: stage,
     at: () => d,
+    clock: () => clock,
+    dwell: () => clock,
     inks: inks,
     labels: labels,
     caption: labels,
@@ -80,6 +86,18 @@ Future<Uint8List> _pixels(
   });
   picture.dispose();
   return bytes!;
+}
+
+/// How far [p] is from the segment from [a] to [b].
+double _toSegment(Offset p, Offset a, Offset b) {
+  final Offset ab = b - a;
+  final double t = ab.distanceSquared == 0
+      ? 0
+      : (((p - a).dx * ab.dx + (p - a).dy * ab.dy) / ab.distanceSquared).clamp(
+          0.0,
+          1.0,
+        );
+  return (p - (a + ab * t)).distance;
 }
 
 void main() {
@@ -254,6 +272,113 @@ void main() {
                 '${t.slug}, ${flight.from < flight.to ? 'in' : 'out'}: '
                 '$what',
           );
+        }
+      }
+    }
+  });
+
+  testWidgets('the gene being read is still: at its stop no scene asks for '
+      'the ambient clock, and it is drawn the same at any moment', (
+    WidgetTester tester,
+  ) async {
+    final (ZoomInks inks, TextStyle labels) = await _inks(tester);
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ZoomStage stage = _stage(t);
+      final double at = stage.depth.depthOf(ZoomStop.gene);
+      for (final double dwell in <double>[0, 0.5, 60]) {
+        expect(
+          stage.wantsClock(at, _canvas, inks, dwell: dwell),
+          isFalse,
+          reason: '${t.slug}, ${dwell}s there',
+        );
+      }
+    }
+    for (final ProteinTarget t in <ProteinTarget>[
+      TestCatalog.insulin,
+      TestCatalog.relaxin,
+      TestCatalog.dystrophin,
+    ]) {
+      final ZoomStage stage = _stage(t);
+      final double at = stage.depth.depthOf(ZoomStop.gene);
+      final Uint8List a = await _pixels(tester, stage, at, inks, labels);
+      final Uint8List b = await _pixels(
+        tester,
+        stage,
+        at,
+        inks,
+        labels,
+        clock: 7.3,
+      );
+      int worst = 0;
+      for (int i = 0; i < a.length; i++) {
+        worst = math.max(worst, (a[i] - b[i]).abs());
+      }
+      expect(worst, 0, reason: t.slug);
+    }
+  });
+
+  testWidgets('the gene being read keeps clear of itself at its stop: its '
+      'polymerases apart, its loop off the other RNAs, and the mRNA under '
+      'them all and over the scale bar, at two widths', (
+    WidgetTester tester,
+  ) async {
+    final (ZoomInks inks, TextStyle _) = await _inks(tester);
+    // A long gene's mRNA is a speck beside it, and is left out.
+    final Set<ProteinTarget> specks = <ProteinTarget>{
+      TestCatalog.dystrophin,
+      TestCatalog.app,
+      TestCatalog.cftr,
+    };
+    for (final Size size in <Size>[_canvas, const Size(320, 420)]) {
+      for (final ProteinTarget t in TestCatalog.all) {
+        final ZoomStage stage = _stage(t);
+        final String what = '${t.slug} at ${size.width.toInt()}';
+        final (ZoomScene scene, ZoomFrame frame) = stage
+            .frames(stage.depth.depthOf(ZoomStop.gene), size, inks)
+            .firstWhere(((ZoomScene, ZoomFrame) f) => f.$1 is GeneScene);
+        final ReadingLaid laid = (scene as GeneScene).readingAt(frame);
+        final int splicing = Transcription(GeneLayout.of(recordOf(t))).splicing;
+        for (int i = 1; i < laid.polymerases.length; i++) {
+          expect(
+            laid.polymerases[i].dx - laid.polymerases[i - 1].dx,
+            greaterThanOrEqualTo(1.5 * TranscriptionArt.polymeraseWidth),
+            reason: what,
+          );
+        }
+        final double floor = size.height - GeneScene.foot;
+        double lowest = 0;
+        for (final (Offset _, Offset tip) in laid.fibrils) {
+          expect(tip.dy, lessThan(floor), reason: what);
+          expect(tip.dx, inExclusiveRange(0, size.width), reason: what);
+          lowest = math.max(lowest, tip.dy);
+        }
+        final (Offset, double, double)? loop = laid.loop;
+        expect(loop, isNotNull, reason: what);
+        final (Offset centre, double r, double _) = loop!;
+        lowest = math.max(lowest, centre.dy + r);
+        for (int i = 0; i < laid.fibrils.length; i++) {
+          if (i != splicing) {
+            final (Offset root, Offset tip) = laid.fibrils[i];
+            expect(
+              _toSegment(centre, root, tip),
+              greaterThan(r + laid.width),
+              reason: '$what: fibril $i',
+            );
+          }
+        }
+        final (Offset, Offset)? mrna = laid.mrna;
+        expect(mrna == null, specks.contains(t), reason: what);
+        if (mrna != null) {
+          final (Offset from, Offset to) = mrna;
+          expect(from.dy, to.dy, reason: what);
+          expect(
+            from.dy,
+            greaterThanOrEqualTo(lowest + TranscriptionArt.mrnaGap - 1e-6),
+            reason: what,
+          );
+          expect(from.dy + laid.width, lessThan(floor), reason: what);
+          expect(from.dx, greaterThan(8), reason: what);
+          expect(laid.tail.last.dx, lessThan(size.width - 8), reason: what);
         }
       }
     }
