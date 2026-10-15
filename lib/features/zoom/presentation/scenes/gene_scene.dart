@@ -2,11 +2,15 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../domain/dna_dive.dart';
 import '../../domain/gene_layout.dart';
+import '../../domain/transcription.dart';
 import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
+import '../zoom_inks.dart';
 import 'band_scene.dart';
 import 'body_scene.dart';
+import 'transcription_art.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
 
@@ -14,9 +18,12 @@ import 'zoom_subject.dart';
 /// their untranslated ends thin, each a lit block in the walk's own colours,
 /// its introns a line with chevrons running the way it is read, every part
 /// at its real length, along the span MANE gives it, with a ruler from its
-/// 5′ end and the bent arrow where transcription starts. Nothing moves on
-/// it: nothing reads it, as nothing reads the helix at the DNA (the user's
-/// choice of 2026-10-15, when the gene had its stop again).
+/// 5′ end and the bent arrow where transcription starts. And the gene being
+/// read: RNA polymerase II after polymerase riding it 5′ to 3′, each with
+/// its RNA hanging from it, introns spliced out as lariats, finished mRNAs
+/// leaving at the 3′ end ([TranscriptionArt]), for as long as the gene is
+/// shown (the user's choice of 2026-10-15, evening, over the still gene
+/// they had chosen that morning).
 ///
 /// It reads 5′ to 3′, left to right, as the walk does, from the moment it
 /// appears: on the band's strip the gene is a mark with nothing inside it to
@@ -29,9 +36,14 @@ import 'zoom_subject.dart';
 /// the way to the DNA those go first, and the exons give way as the view
 /// closes in on its 5′ end, gone before the double helix comes up there.
 final class GeneScene extends ZoomScene {
-  const GeneScene(this.subject);
+  GeneScene(this.subject);
 
   final ZoomSubject subject;
+
+  /// The gene being read, built ahead of its first frame ([prepare]).
+  late final TranscriptionArt _reading = TranscriptionArt(
+    Transcription(subject.layout),
+  );
 
   @override
   ZoomStop get stop => ZoomStop.gene;
@@ -97,11 +109,71 @@ final class GeneScene extends ZoomScene {
   /// How much the ruler, the exons' numbers, the start and the 3′ end show
   /// at [frame]: they come up over the end of the step that reaches the
   /// gene, once the band's map has given way, and go first on the way to
-  /// the DNA.
+  /// the DNA, gone before the DNA starts to wind ([DnaDive.windsFrom]).
   @visibleForTesting
   double annotationsShown(ZoomFrame frame) => frame.isChild
       ? smoothstep((frame.progress - 0.55) / 0.45)
-      : 1 - smoothstep(frame.progress / 0.45);
+      : 1 - _leaving(frame);
+
+  /// How much of the gene being read shows at [frame]: as its annotations.
+  @visibleForTesting
+  double transcriptionShown(ZoomFrame frame) => annotationsShown(frame);
+
+  /// How far the step has gone, at [frame] on the way to the DNA, from the
+  /// gene's stop to where its DNA starts to wind, in the step's own depth:
+  /// a long gene's empty decades go by fast, and a fade keyed to them would
+  /// go as fast.
+  double _leaving(ZoomFrame frame) {
+    final DnaDive dive = subject.depth.dive;
+    return smoothstep(
+      frame.progress / dive.spentAt(DnaDive.windsFrom(_width)),
+    );
+  }
+
+  /// How far above the canvas's foot the RNA hanging from the gene stops:
+  /// clear of the scale bar.
+  static const double foot = 60;
+
+  @override
+  void prepare(ZoomInks inks) => _reading.prepare(inks);
+
+  @override
+  bool wantsClock(ZoomFrame frame) =>
+      transcriptionShown(frame) * frame.opacity > 0.002;
+
+  // The gene being read moves for as long as it is shown, so it is drawn
+  // over the scene on the ambient clock, fading with the scene and its
+  // annotations.
+  @override
+  void paintAmbient(Canvas canvas, ZoomFrame frame) {
+    final double shown = transcriptionShown(frame) * frame.opacity;
+    if (shown <= 0.002) {
+      return;
+    }
+    final double mid = frame.size.height / 2;
+    final double atRest = frame.size.width / _width;
+    final double perBase = frame.view.pixelsPerUnit / _width;
+    final bool fading = shown < 0.995;
+    if (fading) {
+      canvas.saveLayer(
+        Offset.zero & frame.size,
+        Paint()..color = Color.fromRGBO(0, 0, 0, shown),
+      );
+    }
+    _reading.paint(
+      canvas,
+      frame.inks,
+      clock: frame.clock,
+      x: (double offset) => _x(frame, offset),
+      line: mid,
+      perBase: perBase,
+      scale: perBase / atRest,
+      compaction: _reading.compaction(atRest, mid - foot),
+    );
+    if (fading) {
+      canvas.restore();
+    }
+  }
 
   /// How many base pairs the view spans at [frame].
   double _span(ZoomFrame frame) =>

@@ -32,6 +32,12 @@ final class DnaDive {
   /// The weight of the whole step.
   late final double _whole;
 
+  /// The view's width, in base pairs, at which the DNA starts to wind onto
+  /// its histones on the way in from a gene whose stop is [geneWidth] wide:
+  /// 2.5 kb, or sooner where the gene's own view is not much wider. What the
+  /// gene's stop names and what reads it are gone by then.
+  static double windsFrom(double geneWidth) => math.min(2500, 0.6 * geneWidth);
+
   /// What a decade weighs where nothing but the gene's introns goes by.
   static const double empty = 0.15;
 
@@ -89,6 +95,13 @@ final class DnaDive {
               _risen(_across(_top, width, over)));
     }
     return held;
+  }
+
+  /// The share of the step's depth spent by the time the view is [width]
+  /// base pairs wide: 0 at the gene, 1 at the DNA.
+  double spentAt(double width) {
+    final double decade = math.log(width) / math.ln10;
+    return (_held(decade.clamp(_bottom, _top)) / _whole).clamp(0.0, 1.0);
   }
 
   /// The share of the step's decades narrowed [s] of the way along it: 0 at

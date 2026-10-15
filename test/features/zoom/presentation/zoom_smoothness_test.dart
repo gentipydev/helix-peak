@@ -572,8 +572,9 @@ void main() {
     for (final ProteinTarget t in TestCatalog.all) {
       final ZoomStage stage = _stage(t);
       final ZoomDepth depth = stage.depth;
-      // The scene's own showing times its exons' and its annotations'.
-      (double, double) shown(double d) {
+      // The scene's own showing times its exons', its annotations' and its
+      // reading's.
+      (double, double, double) shown(double d) {
         for (final (ZoomScene scene, ZoomFrame frame) in stage.frames(
           d,
           _canvas,
@@ -583,10 +584,11 @@ void main() {
             return (
               frame.opacity * scene.exonsShown(frame),
               frame.opacity * scene.annotationsShown(frame),
+              frame.opacity * scene.transcriptionShown(frame),
             );
           }
         }
-        return (0, 0);
+        return (0, 0, 0);
       }
 
       final double band = depth.depthOf(ZoomStop.band);
@@ -599,9 +601,9 @@ void main() {
         _flight(depth, dna, gene),
       ]) {
         final int frames = (flight.duration.inMicroseconds / 1e6 * 60).ceil();
-        (double, double)? last;
+        (double, double, double)? last;
         for (int f = 0; f <= frames; f++) {
-          final (double exons, double annotations) now = shown(
+          final (double exons, double annotations, double reading) now = shown(
             flight.at(Duration(microseconds: (f * 1e6 / 60).round())),
           );
           if (last != null) {
@@ -616,6 +618,11 @@ void main() {
               (now.$2 - last.$2).abs(),
               lessThanOrEqualTo(0.08),
               reason: '$what: annotations',
+            );
+            expect(
+              (now.$3 - last.$3).abs(),
+              lessThanOrEqualTo(0.08),
+              reason: '$what: its reading',
             );
           }
           last = now;
