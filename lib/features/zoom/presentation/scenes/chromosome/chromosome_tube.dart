@@ -69,6 +69,30 @@ final class ChromosomeTube {
   /// Vertices across a row: the columns and a soft edge either side.
   static final int _across = columns.length + 2;
 
+  /// How far each column of each sister is turned to the other, for the
+  /// groove's shade: the left sister's first.
+  static final List<double> _turned = <double>[
+    for (final double side in <double>[-1, 1])
+      for (final double u in columns) smoothstep((-side * u - 0.3) / 0.7),
+  ];
+
+  /// How bright each column is where the tube's width does not change, this
+  /// frame: most rows, worked out once rather than for every row.
+  final List<double> _flatLight = List<double>.filled(columns.length, 0);
+
+  /// The strip's light at each column where the tube is the strip's full
+  /// thickness, this frame: channels and alpha.
+  final List<(double, double, double, double)> _flatStrip =
+      List<(double, double, double, double)>.filled(columns.length, (
+        0,
+        0,
+        0,
+        0,
+      ));
+
+  /// How steep a row's sides may be and still be lit as a flat one.
+  static const double _flat = 1e-4;
+
   /// How many rows round each end follow its rounding.
   static const int _round = 16;
 
@@ -396,6 +420,16 @@ final class ChromosomeTube {
     final double soften = 1 - merge;
     final double cap = _half + (target - _half) * thin;
     _place(cap, soften);
+    for (int j = 0; j < columns.length; j++) {
+      final double u = columns[j];
+      final SurfaceNormal normal = SurfaceNormal(
+        u,
+        0,
+        math.sqrt(math.max(0, 1 - u * u)),
+      );
+      _flatLight[j] = light.brightness(normal.x, normal.y, normal.z);
+      _flatStrip[j] = _lightAt((1 - u) / 2);
+    }
     final int n = _rows.length;
     final double top = form.top;
     final double bottom = form.bottom;
@@ -442,19 +476,21 @@ final class ChromosomeTube {
           double ag = 0;
           double ab = 0;
           if (strip < 1) {
-            final SurfaceNormal normal = SurfaceNormal(
-              u,
-              -slope,
-              math.sqrt(math.max(0, 1 - u * u)),
-            );
-            final double occlusion =
-                ChromosomeStyle.occlusion *
-                smoothstep((-side * u - 0.3) / 0.7) *
-                contact;
+            double lit = _flatLight[j];
+            if (slope.abs() > _flat) {
+              final SurfaceNormal normal = SurfaceNormal(
+                u,
+                -slope,
+                math.sqrt(math.max(0, 1 - u * u)),
+              );
+              lit = light.brightness(normal.x, normal.y, normal.z);
+            }
             (ar, ag, ab) = _palette.mix(
               tone,
-              light.brightness(normal.x, normal.y, normal.z),
-              occlusion,
+              lit,
+              ChromosomeStyle.occlusion *
+                  _turned[sister * columns.length + j] *
+                  contact,
               gene,
             );
           }
@@ -465,10 +501,12 @@ final class ChromosomeTube {
           double lb = 0;
           double la = 0;
           if (strip > 0) {
-            final double across = target <= 0
-                ? u
-                : (u * w / target).clamp(-1.0, 1.0);
-            (lr, lg, lb, la) = _lightAt((1 - across) / 2);
+            if (target <= 0 || (w - target).abs() < 1e-9 * target) {
+              (lr, lg, lb, la) = _flatStrip[j];
+            } else {
+              final double across = (u * w / target).clamp(-1.0, 1.0);
+              (lr, lg, lb, la) = _lightAt((1 - across) / 2);
+            }
           }
           final int colour = ChromosomePalette.pack(
             1,
