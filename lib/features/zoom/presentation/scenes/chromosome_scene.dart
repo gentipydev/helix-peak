@@ -8,6 +8,7 @@ import '../../domain/zoom_depth.dart';
 import '../zoom_inks.dart';
 import 'band_scene.dart';
 import 'body_scene.dart';
+import 'chromosome/chromosome_form.dart';
 import 'contour.dart';
 import 'nucleus_scene.dart';
 import 'sculpt.dart';
@@ -37,7 +38,7 @@ final class ChromosomeScene extends ZoomScene {
 
   /// The chromosome's length in the scene's units: the view is
   /// [ZoomDepth.chromosomeView] times it.
-  static const double length = 1 / ZoomDepth.chromosomeView;
+  static const double length = ChromosomeForm.length;
 
   /// How thick a chromatid is, in metres, condensed for division.
   static const double chromatidMetres = 0.7e-6;
@@ -50,30 +51,18 @@ final class ChromosomeScene extends ZoomScene {
     length * 0.075,
   );
 
-  /// How far apart the two chromatids' middles lie at the centromere's
-  /// height: touching, along a groove.
-  double get apart => half * 1.12;
-
-  /// How far each arm splays from its sister, for each unit of length from
-  /// the centromere.
-  static const double splay = 0.07;
+  /// The chromosome as a form: the same for every protein on it.
+  late final ChromosomeForm form = ChromosomeForm(_track, half: half);
 
   /// The map's band strip, in pixels: the chromosome thins to it.
   static const double stripPixels = BandScene.strip;
 
-  double yOf(num base) => -length / 2 + (base - 1) / _track.length * length;
+  double yOf(num base) => form.yOf(base);
 
-  double get _bandY => (yOf(_track.bandStart) + yOf(_track.bandEnd + 1)) / 2;
+  double get _bandY => form.bandY;
 
   /// Where the centromere is: the end of the short arm.
-  late final double centromere = () {
-    for (final CytoBand band in _track.bands) {
-      if (!band.onShortArm) {
-        return yOf(band.start);
-      }
-    }
-    return 0.0;
-  }();
+  double get centromere => form.centromere;
 
   @override
   Offset get portal => Offset(0, _bandY);
@@ -86,77 +75,21 @@ final class ChromosomeScene extends ZoomScene {
   @override
   double asParent(double progress) => 1 - smoothstep((progress - 0.3) / 0.5);
 
-  /// How pinched the chromatids are at [y]: 1 at the centromere.
-  double _waist(double y) {
-    final double d = (y - centromere) / (half * 0.9);
-    return math.exp(-d * d);
-  }
-
   /// A chromatid's half-width at [y], as it is drawn.
   @visibleForTesting
-  double widthAt(double y) => _width(y);
+  double widthAt(double y) => form.widthAt(y);
 
-  /// A chromatid's half-width at [y]: narrower at the waist, rounded to
-  /// nothing at each end. An acrocentric's stalk and satellite are bands
-  /// like any other, as thick as the arm they are in: drawn thin, the stalk
-  /// read as a cut.
-  double _width(double y) {
-    double w = half * (1 - 0.42 * _waist(y));
-    final double top = yOf(1);
-    final double bottom = yOf(_track.length + 1);
-    final double cap = half;
-    final double fromEnd = math.min(y - top, bottom - y);
-    if (fromEnd < cap) {
-      final double t = (cap - fromEnd) / cap;
-      w *= math.sqrt(math.max(0, 1 - t * t));
-    }
-    return w;
-  }
+  double _width(double y) => form.widthAt(y);
 
-  /// Where chromatid [side]'s middle lies at [y]: touching its sister along
-  /// the groove at the centromere, splayed a little toward its ends, and
-  /// [merge] of the way onto the axis.
   double _centreAt(double side, double y, {double merge = 0}) =>
-      side *
-      (apart * (1 - 0.7 * _waist(y)) + splay * (y - centromere).abs()) *
-      (1 - merge);
+      form.centreAt(side, y, merge: merge);
 
-  /// The heights an outline is drawn through, top to bottom: [steps] even
-  /// ones, and more round each end, where it turns fastest.
-  List<double> _rows(int steps) {
-    const int round = 16;
-    final double top = yOf(1);
-    final double bottom = yOf(_track.length + 1);
-    return <double>{
-      for (int i = 0; i <= steps; i++) top + (bottom - top) * i / steps,
-      for (int i = 1; i < round; i++) ...<double>[
-        top + half * (1 - math.cos(math.pi / 2 * i / round)),
-        bottom - half * (1 - math.cos(math.pi / 2 * i / round)),
-      ],
-    }.toList()..sort();
-  }
-
-  late final List<double> _chromatidRows = _rows(120);
-  late final List<double> _outlineRows = _rows(64);
-
-  /// One chromatid's outline, [merge] of the way to lying on the axis, at
-  /// [thin] of the way to [target] half-width.
   Contour _chromatid(
     double side, {
     double merge = 0,
     double thin = 0,
     double? target,
-  }) {
-    final List<Offset> left = <Offset>[];
-    final List<Offset> right = <Offset>[];
-    for (final double y in _chromatidRows) {
-      final double centre = _centreAt(side, y, merge: merge);
-      final double w = _width(y) + ((target ?? half) - _width(y)) * thin;
-      left.add(Offset(centre - w, y));
-      right.add(Offset(centre + w, y));
-    }
-    return Contour(<Offset>[...right, ...left.reversed]);
-  }
+  }) => form.chromatid(side, merge: merge, thin: thin, target: target);
 
   /// The chromatids at rest, built once.
   late final List<Path> _sisters = <Path>[
@@ -281,7 +214,7 @@ final class ChromosomeScene extends ZoomScene {
       return;
     }
     final ZoomInks inks = frame.inks;
-    final Contour outline = _outline().resampled(128);
+    final Contour outline = form.outline().resampled(128);
     final Contour shape = _territoryOutline.lerp(outline, m);
     final Path path = shape.toPath();
     canvas.drawPath(
@@ -311,19 +244,6 @@ final class ChromosomeScene extends ZoomScene {
     }
   }
 
-  /// The two chromatids' outer outline, as one shape.
-  Contour _outline() {
-    final List<Offset> left = <Offset>[];
-    final List<Offset> right = <Offset>[];
-    for (final double y in _outlineRows) {
-      final double centre = _centreAt(1, y);
-      final double w = _width(y);
-      left.add(Offset(-centre - w, y));
-      right.add(Offset(centre + w, y));
-    }
-    return Contour(<Offset>[...right, ...left.reversed]);
-  }
-
   static Color _pale(ZoomInks inks) => inks.lit(0.56);
 
   /// The chromosome at metaphase, or on its way to the map: [merge] and
@@ -340,7 +260,7 @@ final class ChromosomeScene extends ZoomScene {
     final bool resting = merge == 0 && thin == 0;
     final double top = yOf(1);
     final double bottom = yOf(_track.length + 1);
-    final double reach = apart + half + splay * length;
+    final double reach = form.apart + half + ChromosomeForm.splay * length;
     if (resting) {
       Sculpt.shadowUnder(
         canvas,
@@ -355,7 +275,10 @@ final class ChromosomeScene extends ZoomScene {
           ? _sisters[side < 0 ? 0 : 1]
           : _chromatid(side, merge: merge, thin: thin, target: target).toPath();
       final double w = half + ((target ?? half) - half) * thin;
-      final double centre = side * (apart + splay * length * 0.5) * (1 - merge);
+      final double centre =
+          side *
+          (form.apart + ChromosomeForm.splay * length * 0.5) *
+          (1 - merge);
       canvas.save();
       canvas.clipPath(chromatid);
       _bands(
@@ -452,17 +375,6 @@ final class ChromosomeScene extends ZoomScene {
     }
   }
 
-  Color _stain(ZoomInks inks, CytoBand band) {
-    final Color pale = _pale(inks);
-    final Color dark = inks.shade(0.55);
-    return switch (band.stain) {
-      Stain.acen => inks.shade(0.42),
-      Stain.gvar => Color.lerp(pale, dark, 0.5)!,
-      Stain.stalk => Color.lerp(pale, dark, 0.2)!,
-      _ => Color.lerp(pale, dark, 0.06 + 0.88 * band.stain.depth)!,
-    };
-  }
-
   /// The bands across [left] to [right], in their stains, each ringing the
   /// chromatid as a band rings a tube seen a little from above; the gene's
   /// in the mark.
@@ -499,9 +411,8 @@ final class ChromosomeScene extends ZoomScene {
       final double top = yOf(band.start);
       final double bottom = yOf(band.end + 1);
       final bool own = top >= gene0 - 1e-9 && bottom <= gene1 + 1e-9;
-      fill.color = (own ? inks.glow(0.9) : _stain(inks, band)).withValues(
-        alpha: opacity * (own ? 0.9 : 1),
-      );
+      fill.color = (own ? inks.glow(0.9) : BandScene.stain(inks, band.stain))
+          .withValues(alpha: opacity * (own ? 0.9 : 1));
       final ({double centre, double w, double bow}) a = edge(top);
       final ({double centre, double w, double bow}) b = edge(bottom);
       final Path path = Path()

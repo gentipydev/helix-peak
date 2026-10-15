@@ -113,14 +113,16 @@ final class BandScene extends ZoomScene {
     );
   }
 
-  Color _stain(ZoomFrame frame, CytoBand band) {
-    final Color pale = frame.inks.lit(0.56);
-    final Color dark = frame.inks.shade(0.55);
-    return switch (band.stain) {
-      Stain.acen => frame.inks.shade(0.42),
+  /// A band in its stain, as the strip and the chromosome both draw it:
+  /// the pale bands lit, the dark ones deep, the centromere deepest.
+  static Color stain(ZoomInks inks, Stain stain) {
+    final Color pale = inks.lit(0.56);
+    final Color dark = inks.shade(0.55);
+    return switch (stain) {
+      Stain.acen => inks.shade(0.42),
       Stain.gvar => Color.lerp(pale, dark, 0.5)!,
       Stain.stalk => Color.lerp(pale, dark, 0.2)!,
-      _ => Color.lerp(pale, dark, 0.06 + 0.88 * band.stain.depth)!,
+      _ => Color.lerp(pale, dark, 0.06 + 0.88 * stain.depth)!,
     };
   }
 
@@ -159,7 +161,7 @@ final class BandScene extends ZoomScene {
       if (band.end < left || band.start > right) {
         continue;
       }
-      fill.color = _stain(frame, band);
+      fill.color = stain(frame.inks, band.stain);
       final double thin = band.stain == Stain.acen || band.stain == Stain.stalk
           ? 0.55
           : 1;
@@ -358,7 +360,7 @@ final class BandScene extends ZoomScene {
     );
     final Paint fill = Paint();
     for (final CytoBand band in _track.bands) {
-      fill.color = _stain(frame, band).withValues(alpha: alpha);
+      fill.color = stain(frame.inks, band.stain).withValues(alpha: alpha);
       final double thin = band.stain == Stain.acen ? 0.5 : 1;
       canvas.drawRect(
         Rect.fromLTRB(
