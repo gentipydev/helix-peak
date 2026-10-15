@@ -10,6 +10,7 @@ import '../../domain/zoom_depth.dart';
 import '../zoom_inks.dart';
 import 'band_scene.dart';
 import 'body_scene.dart';
+import 'gene_strand.dart';
 import 'transcription_art.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
@@ -64,47 +65,27 @@ final class GeneScene extends ZoomScene {
   /// genome's way round.
   double unitAlong(double offset) => unitOf(subject.genomeAt(offset));
 
+  // The DNA's view lies [ZoomSubject.dnaView] base pairs of the genome
+  // along from the gene's 5′ end: the DNA counts the genome's base pairs,
+  // where this scene lays the record's along MANE's span, a little shorter
+  // for a few genes, so the two meet exactly at the 5′ end.
   @override
-  Offset get portal => Offset(_facing * unitAlong(subject.dnaView), 0);
+  Offset get portal => Offset(
+    _facing *
+        unitOf(subject.genomeAt(0) + (_reverse ? -1 : 1) * subject.dnaView),
+    0,
+  );
 
   // The gene comes up out of the band's mark of it a little before the map
   // starts to give way.
   @override
   double asChild(double progress) => smoothstep((progress - 0.25) / 0.45);
 
-  // On the way to the DNA its exons give way by how wide the view is
-  // ([exonsShown]); the scene goes after them.
+  // On the way to the DNA the DNA's scene draws the gene's DNA from the
+  // first ([DnaScene]); this one draws only what names it and what reads
+  // it, both gone before the DNA winds, and goes after them.
   @override
   double asParent(double progress) => 1 - smoothstep((progress - 0.5) / 0.45);
-
-  /// How wide the view is, in base pairs, when the gene's exons are gone on
-  /// the way to the DNA: the helix comes up below it.
-  static const double exonsGone = 400;
-
-  /// How much of the gene's exons and introns show where the view is [span]
-  /// base pairs wide, on the way from the gene to the DNA of [depth]: all of
-  /// them at the gene, and none once the view is [exonsGone] wide, so they
-  /// are gone before the DNA's helix comes up. They give way evenly in the
-  /// view's log over a tenfold narrowing, as they did on the dive from the
-  /// band, or over 0.45 of the step where that is more: a deep step crosses
-  /// a decade too fast for a fade at 60 fps. A gene too short for that gives
-  /// way from its own stop, and over the octave below it at the least.
-  static double exonsShownAt(double span, ZoomDepth depth) {
-    final double gene = depth.widthOf(ZoomStop.gene);
-    final double decades =
-        math.log(gene / depth.widthOf(ZoomStop.dna)) / math.ln10;
-    final double whole = math.min(
-      gene,
-      exonsGone * math.pow(10, math.max(1, 0.45 * decades)),
-    );
-    final double gone = math.min(exonsGone, whole / 2);
-    return smoothstep(math.log(span / gone) / math.log(whole / gone));
-  }
-
-  /// How much of the gene's exons and introns show at [frame].
-  @visibleForTesting
-  double exonsShown(ZoomFrame frame) =>
-      exonsShownAt(_span(frame), subject.depth);
 
   /// How much the ruler, the exons' numbers, the start and the 3′ end show
   /// at [frame]: they come up over the end of the step that reaches the
@@ -125,8 +106,12 @@ final class GeneScene extends ZoomScene {
   /// go as fast.
   double _leaving(ZoomFrame frame) {
     final DnaDive dive = subject.depth.dive;
+    // Over a sixth of the step at the least, so a gene whose DNA winds soon
+    // after its stop does not drop them in a few frames; they are faint by
+    // then.
     return smoothstep(
-      frame.progress / dive.spentAt(DnaDive.windsFrom(_width)),
+      frame.progress /
+          math.max(dive.spentAt(DnaDive.windsFrom(_width)), 0.15),
     );
   }
 
@@ -167,17 +152,13 @@ final class GeneScene extends ZoomScene {
       x: (double offset) => _x(frame, offset),
       line: mid,
       perBase: perBase,
-      scale: perBase / atRest,
+      atRest: atRest,
       compaction: _reading.compaction(atRest, mid - foot),
     );
     if (fading) {
       canvas.restore();
     }
   }
-
-  /// How many base pairs the view spans at [frame].
-  double _span(ZoomFrame frame) =>
-      frame.size.width / frame.view.pixelsPerUnit * _width;
 
   /// The screen x of [offset] base pairs into the gene, facing as it does.
   double _x(ZoomFrame frame, double offset) {
@@ -202,12 +183,21 @@ final class GeneScene extends ZoomScene {
   @override
   void paint(Canvas canvas, ZoomFrame frame) {
     final double mid = frame.size.height / 2;
-    final double exons = exonsShown(frame);
     final double annotations = annotationsShown(frame);
-    if (exons > 0) {
-      _parts(canvas, frame, mid, exons, annotations);
+    // On the step that reaches the gene this scene draws its DNA; from the
+    // gene's stop on the DNA's scene does, drawing the same.
+    if (frame.isChild) {
+      GeneStrand.paint(
+        canvas,
+        frame.inks,
+        subject.layout,
+        x: (double offset) => _x(frame, offset),
+        mid: mid,
+        width: frame.size.width,
+      );
     }
     if (annotations > 0) {
+      _numbers(canvas, frame, mid, annotations);
       _ends(canvas, frame, mid, annotations);
       _ruler(canvas, frame, mid + rulerY, annotations);
       _start(canvas, frame, mid, annotations);
@@ -218,32 +208,16 @@ final class GeneScene extends ZoomScene {
   /// numbered there.
   static const double numbered = 16;
 
-  /// The gene's parts along its line, [alpha] of them showing, and the
-  /// coding exons' numbers [numbers] of the way up.
-  void _parts(
-    Canvas canvas,
-    ZoomFrame frame,
-    double mid,
-    double alpha,
-    double numbers,
-  ) {
+  /// The coding exons' numbers over their blocks, [alpha] of the way up.
+  void _numbers(Canvas canvas, ZoomFrame frame, double mid, double alpha) {
     final double w = frame.size.width;
-    double clampX(double x) => x.clamp(-8.0, w + 8);
-    // An intron as a browser draws one: a thin line, light enough to read
-    // on the dark ground, which the walk's intron tile colour is not.
-    final Color line = frame.inks.label.withValues(alpha: 0.75 * alpha);
-    final Paint intron = Paint()
-      ..strokeWidth = 1.6
-      ..color = line;
-    final Paint chevron = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.4
-      ..color = line;
-    Color faded(Color colour) => colour.withValues(alpha: colour.a * alpha);
     // How many times as big as at its stop the gene is drawn: an exon's
     // number comes up as its block grows from half its size there.
     final double scale = frame.view.pixelsPerUnit / w;
     final double grown = smoothstep(math.log(2 * scale) / math.ln2);
+    if (alpha * grown <= 0) {
+      return;
+    }
     int exon = 0;
     GenePieceKind? last;
     for (final GenePiece piece in subject.layout.pieces) {
@@ -252,73 +226,23 @@ final class GeneScene extends ZoomScene {
         exon++;
       }
       last = piece.kind;
+      if (piece.kind != GenePieceKind.cds) {
+        continue;
+      }
       final double a = _x(frame, piece.start);
       final double b = _x(frame, piece.end);
       final double left = math.min(a, b);
       final double right = math.max(a, b);
-      if (right < -8 || left > w + 8) {
+      if (right < -8 || left > w + 8 || (right - left) / scale < numbered) {
         continue;
       }
-      switch (piece.kind) {
-        case GenePieceKind.intron:
-          canvas.drawLine(
-            Offset(clampX(left), mid),
-            Offset(clampX(right), mid),
-            intron,
-          );
-          // Chevrons the way it is read, 5′ to 3′.
-          final double from = math.max(left, -8) + 18;
-          for (double x = from; x < math.min(right, w + 8) - 12; x += 36) {
-            canvas.drawPath(
-              Path()
-                ..moveTo(x - 3, mid - 4)
-                ..lineTo(x + 3, mid)
-                ..lineTo(x - 3, mid + 4),
-              chevron,
-            );
-          }
-        case GenePieceKind.utr || GenePieceKind.cds:
-          final bool coding = piece.kind == GenePieceKind.cds;
-          final double half = coding ? 9 : 5;
-          final double centre = (left + right) / 2;
-          final double reach = math.max((right - left) / 2, 0.5);
-          final Rect block = Rect.fromLTRB(
-            clampX(centre - reach),
-            mid - half,
-            clampX(centre + reach),
-            mid + half,
-          );
-          // A block lit from above: brighter along its top, in shade below.
-          final Color colour = coding ? frame.inks.cds : frame.inks.utr;
-          canvas.drawRRect(
-            RRect.fromRectAndRadius(
-              block,
-              Radius.circular(math.min(3, block.width / 2)),
-            ),
-            Paint()
-              ..shader = LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: <Color>[
-                  faded(Color.lerp(colour, frame.inks.text, 0.3)!),
-                  faded(colour),
-                  faded(Color.lerp(colour, frame.inks.ground, 0.35)!),
-                ],
-                stops: const <double>[0, 0.45, 1],
-              ).createShader(block),
-          );
-          if (coding &&
-              numbers * grown > 0 &&
-              (right - left) / scale >= numbered) {
-            _number(
-              canvas,
-              frame,
-              '$exon',
-              Offset(centre, mid - 22),
-              numbers * grown,
-            );
-          }
-      }
+      _number(
+        canvas,
+        frame,
+        '$exon',
+        Offset((left + right) / 2, mid - 22),
+        alpha * grown,
+      );
     }
   }
 

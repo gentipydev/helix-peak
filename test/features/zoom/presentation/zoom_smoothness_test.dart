@@ -101,8 +101,12 @@ class _Marks implements Canvas {
 
 /// A flight from [from] to [to] as the screen flies it: the step into the
 /// DNA takes its time.
-ZoomFlight _flight(ZoomDepth depth, double from, double to) =>
-    ZoomFlight(from, to, minimum: depth.leastFlight(from, to));
+ZoomFlight _flight(ZoomDepth depth, double from, double to) => ZoomFlight(
+  from,
+  to,
+  minimum: depth.leastFlight(from, to),
+  cruise: depth.cruiseOf(from, to),
+);
 
 /// The depth on the step from the gene to the DNA at which the view is
 /// [width] base pairs across.
@@ -487,44 +491,51 @@ void main() {
     }
   });
 
-  testWidgets('the gene’s exons show whole at its stop and on the way in, '
-      'and are gone before the DNA’s helix comes up', (
+  testWidgets('the gene’s exons show whole at its stop, sink into its DNA on '
+      'the way in, and are gone before the helix’s bases come up', (
     WidgetTester tester,
   ) async {
     final ZoomInks inks = await _inks(tester);
     for (final ProteinTarget t in TestCatalog.all) {
       final ZoomStage stage = _stage(t);
       final ZoomDepth depth = stage.depth;
-      (GeneScene, ZoomFrame)? gene(double d) {
+      (DnaScene, ZoomFrame)? dna(double d) {
         for (final (ZoomScene scene, ZoomFrame frame) in stage.frames(
           d,
           _canvas,
           inks,
         )) {
-          if (scene is GeneScene) {
+          if (scene is DnaScene) {
             return (scene, frame);
           }
         }
         return null;
       }
 
-      final double band = depth.depthOf(ZoomStop.band);
-      final double at = depth.depthOf(ZoomStop.gene);
-      for (final double d in <double>[
-        band + 0.5 * depth.travelOf(ZoomStop.band.index),
-        at - 1e-9,
-        at,
-      ]) {
-        final (GeneScene scene, ZoomFrame frame) = gene(d)!;
-        expect(scene.exonsShown(frame), 1, reason: '${t.slug} at $d');
-      }
-      // Where the view is as narrow as the exons last to, on the way to the
-      // DNA: the helix comes up below it.
-      final (GeneScene scene, ZoomFrame frame) = gene(
-        _depthWhere(depth, GeneScene.exonsGone) + 1e-9,
+      final double gene = depth.depthOf(ZoomStop.gene);
+      final double end = depth.depthOf(ZoomStop.dna);
+      // From the gene's stop on, the DNA's scene draws the gene's DNA, its
+      // exons whole there.
+      final (DnaScene atStop, ZoomFrame stopFrame) = dna(gene)!;
+      expect(atStop.exonsShown(stopFrame), 1, reason: t.slug);
+      expect(stopFrame.opacity, 1, reason: t.slug);
+      // Where the view is as narrow as the exons last to: gone.
+      final (DnaScene gone, ZoomFrame goneFrame) = dna(
+        _depthWhere(depth, DnaScene.exonsGone) + 1e-9,
       )!;
-      expect(scene.exonsShown(frame), lessThan(1e-6), reason: t.slug);
-      expect(gene(depth.depthOf(ZoomStop.dna)), isNull, reason: t.slug);
+      expect(gone.exonsShown(goneFrame), lessThan(1e-6), reason: t.slug);
+      // Never the exons' colours and the bases at once.
+      for (int i = 0; i <= 400; i++) {
+        final (DnaScene scene, ZoomFrame frame) = dna(
+          gene + (end - gene) * i / 400,
+        )!;
+        final (double _, double bases) = scene.helixShown(frame);
+        expect(
+          scene.exonsShown(frame) * bases,
+          lessThan(1e-9),
+          reason: '${t.slug} at $i',
+        );
+      }
     }
   });
 
@@ -566,29 +577,43 @@ void main() {
     }
   });
 
-  testWidgets('nothing the gene draws changes by more than 0.08 a frame at '
-      '60 fps, on any step to it or from it', (WidgetTester tester) async {
+  testWidgets('nothing the gene or its DNA draws changes by more than 0.08 a '
+      'frame at 60 fps, on any step to the gene or from it', (
+    WidgetTester tester,
+  ) async {
     final ZoomInks inks = await _inks(tester);
     for (final ProteinTarget t in TestCatalog.all) {
       final ZoomStage stage = _stage(t);
       final ZoomDepth depth = stage.depth;
-      // The scene's own showing times its exons', its annotations' and its
-      // reading's.
-      (double, double, double) shown(double d) {
+      // Each part's showing, the scene's own times the part's.
+      Map<String, double> shown(double d) {
+        final Map<String, double> out = <String, double>{};
         for (final (ZoomScene scene, ZoomFrame frame) in stage.frames(
           d,
           _canvas,
           inks,
         )) {
           if (scene is GeneScene) {
-            return (
-              frame.opacity * scene.exonsShown(frame),
-              frame.opacity * scene.annotationsShown(frame),
-              frame.opacity * scene.transcriptionShown(frame),
-            );
+            out['gene'] = frame.opacity;
+            // On the step from the band the gene's scene draws its exons,
+            // whole; from its stop on the DNA's scene draws the same.
+            if (frame.isChild) {
+              out['the exons'] = frame.opacity;
+            }
+            out['annotations'] =
+                frame.opacity * scene.annotationsShown(frame);
+            out['its reading'] =
+                frame.opacity * scene.transcriptionShown(frame);
+          }
+          if (scene is DnaScene) {
+            final (double helix, double bases) = scene.helixShown(frame);
+            out['the exons'] = frame.opacity * scene.exonsShown(frame);
+            out['the winding'] = frame.opacity * scene.woundShown(frame);
+            out['the helix'] = frame.opacity * helix;
+            out['its bases'] = frame.opacity * bases;
           }
         }
-        return (0, 0, 0);
+        return out;
       }
 
       final double band = depth.depthOf(ZoomStop.band);
@@ -601,29 +626,21 @@ void main() {
         _flight(depth, dna, gene),
       ]) {
         final int frames = (flight.duration.inMicroseconds / 1e6 * 60).ceil();
-        (double, double, double)? last;
+        Map<String, double>? last;
         for (int f = 0; f <= frames; f++) {
-          final (double exons, double annotations, double reading) now = shown(
+          final Map<String, double> now = shown(
             flight.at(Duration(microseconds: (f * 1e6 / 60).round())),
           );
           if (last != null) {
-            final String what =
-                '${t.slug} from ${flight.from} to ${flight.to}, frame $f';
-            expect(
-              (now.$1 - last.$1).abs(),
-              lessThanOrEqualTo(0.08),
-              reason: '$what: exons',
-            );
-            expect(
-              (now.$2 - last.$2).abs(),
-              lessThanOrEqualTo(0.08),
-              reason: '$what: annotations',
-            );
-            expect(
-              (now.$3 - last.$3).abs(),
-              lessThanOrEqualTo(0.08),
-              reason: '$what: its reading',
-            );
+            for (final String part in <String>{...now.keys, ...last.keys}) {
+              expect(
+                ((now[part] ?? 0) - (last[part] ?? 0)).abs(),
+                lessThanOrEqualTo(0.08),
+                reason:
+                    '${t.slug} from ${flight.from} to ${flight.to}, frame '
+                    '$f: $part',
+              );
+            }
           }
           last = now;
         }

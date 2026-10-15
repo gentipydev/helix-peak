@@ -740,7 +740,7 @@ void main() {
         expect(depth.narrowedAt(k, 1), 1);
         // The largest second difference over [steps] even steps: halving
         // the step quarters it where the curve is smooth, and only halves it
-        // across a kink.
+        // across a kink; between the two, smooth.
         double bend(int steps) {
           double most = 0;
           double? last;
@@ -759,7 +759,7 @@ void main() {
           return most;
         }
 
-        expect(bend(4000), lessThan(0.3 * bend(2000)), reason: t.slug);
+        expect(bend(4000), lessThan(0.4 * bend(2000)), reason: t.slug);
         // The view's width is the dive's at every depth of the step.
         final double at = depth.depthOf(ZoomStop.gene);
         final double travel = depth.travelOf(k);

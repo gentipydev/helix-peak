@@ -616,6 +616,7 @@ class _ZoomScreenState extends State<ZoomScreen> with TickerProviderStateMixin {
       target,
       velocity: velocity,
       minimum: _d.leastFlight(_depth.value, target),
+      cruise: _d.cruiseOf(_depth.value, target),
     );
     _bound = stop;
     _run(_Motion.flight);

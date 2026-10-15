@@ -5,32 +5,44 @@ import 'package:flutter/material.dart';
 
 import '../../../../shared/helix/dna_helix_painter.dart';
 import '../../../../shared/helix/helix_geometry.dart';
-import '../../../../shared/ribosome/molecular_material.dart';
+import '../../domain/chromatin_layout.dart';
+import '../../domain/dna_dive.dart';
+import '../../domain/gene_layout.dart';
 import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
 import '../zoom_inks.dart';
 import 'body_scene.dart';
-import 'gene_scene.dart';
+import 'gene_strand.dart';
+import 'nucleosome_art.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
 
-/// The DNA at the gene's 5′ end, as chromatin packs it and as the double
-/// helix holds its bases: what the gene's stop opens into as the view closes
-/// in on its 5′ end, its exons giving way ([GeneScene.exonsShownAt]).
+/// The gene's DNA from the gene's stop down to its first bases: one DNA all
+/// the way, seen closer and closer (the user's choice of 2026-10-15,
+/// evening, over a gene that gave way to beads and a helix that came up
+/// from nowhere).
 ///
-/// It reads 5′ to 3′, left to right, as the walk does, whatever the gene's
-/// strand, as the gene's stop does. From a view a few thousand base pairs
-/// wide, the gene's line is a fibre of nucleosomes: 147 base pairs wrapped
-/// round each histone core, one every 200, drawn as the textbook packs a gene
-/// and not measured for this one. The stretch at the 5′ end is drawn bare, as
-/// the start of a gene that is read usually is. Closer in, the bare end
-/// resolves into the home screen's own double helix ([DnaHelixPainter]),
-/// lying along the gene with its 5′ end at the left, carrying the record's
-/// first bases in the bases' own colours, turning as the home screen's does.
-/// Unlike the home screen's, nothing reads it: no bubble opens and no
-/// transcript trails from it, so the helix stays whole, every base paired. As
-/// the walk opens it unzips into the walk's rows, its turn easing until they
-/// lie flat.
+/// It reads 5′ to 3′, left to right, whatever the gene's strand, as the
+/// gene's stop does, and from that stop on it is this scene's: it draws the
+/// gene's line and exons as the gene's scene did a frame before
+/// ([GeneStrand]), so nothing changes at the stop. Then, as the view closes
+/// in on the gene's 5′ end:
+/// - the exons sink into the DNA, each a stretch of it in its colour, and
+///   the DNA either side of the gene comes up;
+/// - the DNA winds onto its histones ([ChromatinLayout]): each nucleosome's
+///   stretch coils round a core that grows in its turns, and the linkers
+///   draw the cores together, so the line is seen to be beads on a string;
+///   the stretch round the start, which a gene being read keeps bare, stays
+///   where it is, and the first of them is named;
+/// - the bare start thickens to the home screen's own double helix
+///   ([DnaHelixPainter]), a twisted rope at first that shows its grooves as
+///   it grows, its bases coming in as they can be told apart, the record's
+///   first bases in their own colours.
+///
+/// At its stop the helix lies along the gene with its 5′ end at the left,
+/// turning as the home screen's does, whole, every base paired: nothing
+/// reads it. As the walk opens it unzips into the walk's rows, its turn
+/// easing until they lie flat.
 final class DnaScene extends ZoomScene {
   DnaScene(this.subject);
 
@@ -42,17 +54,7 @@ final class DnaScene extends ZoomScene {
   /// One base pair along the axis, in the scene's units.
   static const double pitch = 1 / ZoomDepth.dnaBasePairs;
 
-  /// Where nucleosomes sit, in base pairs from the 5′ end: the first a
-  /// little way into the gene, one every [period] after it, and one before
-  /// the bare stretch at its start.
-  static const double first = 40;
-  static const double period = 200;
-  static const double wrapped = 147;
-
-  // The chromatin comes up as soon as the step from the gene begins: for a
-  // short gene its beads are already big enough to read there.
-  @override
-  double asChild(double progress) => smoothstep((progress - 0.02) / 0.45);
+  static const ChromatinLayout chromatin = ChromatinLayout();
 
   /// The home screen's helix as its painter draws it, in the painter's own
   /// pixels: its radius, and its length for each base pair.
@@ -60,39 +62,129 @@ final class DnaScene extends ZoomScene {
   static const double helixPerBase =
       HelixModel.defaultPitch / HelixModel.basePairsPerTurn;
 
+  /// How thick the helix's painter draws the duplex, in base pairs'
+  /// lengths, and so how thick the DNA is drawn wherever it is a tube:
+  /// 2.1 nm, about the 2 nm it is.
+  static const double thickness = 2 * helixRadius / helixPerBase;
+
   /// How long a turn takes, as on the home screen.
   static const double turnSeconds = 24;
+
+  /// How much narrower the view gets, from where the DNA starts to wind,
+  /// before every nucleosome is wound.
+  static const double windsOver = 4;
+
+  /// How wide the view is, in base pairs, when the gene's exons are gone
+  /// from its DNA: the bases come up below it.
+  static const double exonsGone = 230;
+
+  // Every stage of the way is keyed to how wide the view is: a function of
+  // the depth, however the step spends it.
+  double get _gene => subject.depth.widthOf(ZoomStop.gene);
+  double get _winds => DnaDive.windsFrom(_gene);
+  double get _sinks => math.min(_gene, 10 * _winds);
+
+  /// How far the exons have sunk into the DNA, where the view is [span]
+  /// base pairs wide: from the gene's stop, or a decade above where the DNA
+  /// winds, to where it does.
+  double sunkAt(double span) => _between(span, _sinks, _winds);
+
+  /// How far the DNA is wound onto its histones.
+  double woundAt(double span) => _between(span, _winds, _winds / windsOver);
+
+  /// How much of the exons' colours the DNA still wears.
+  static double tintAt(double span) => 1 - _fall(span, 500, exonsGone);
+
+  /// How much of the DNA either side of the gene shows: it comes up as the
+  /// exons sink, and goes before the bases come up, the record holding none
+  /// of them.
+  double contextAt(double span) => sunkAt(span) * (1 - _fall(span, 600, 250));
+
+  /// How much of the bare start is the helix's: its tube hands over to the
+  /// painter's duplex, a twisted rope as thick as it.
+  static double helixAt(double span) => _fall(span, 800, 300);
+
+  /// How much of the helix's bases show, and the least width its backbones
+  /// are drawn at, on screen: thin strands far out, its own at its stop.
+  static double basesAt(double span) => _fall(span, 220, 40);
+  static double floorAt(double span) => 1.4 * smoothstep((span - 16) / 24);
+
+  /// 0 where the view is [from] base pairs wide or wider, 1 where it is
+  /// [to] or narrower, evenly in its log between: every stage of the way is
+  /// spread over the step's depth as it narrows.
+  static double _fall(double span, double from, double to) =>
+      smoothstep(math.log(from / span) / math.log(from / to));
+
+  static double _between(double span, double from, double to) {
+    if (from <= to) {
+      return span <= to ? 1 : 0;
+    }
+    return smoothstep(math.log(from / span) / math.log(from / to));
+  }
+
+  /// How much of the gene's exons show on its DNA at [frame]: whole at the
+  /// gene's stop, gone by [exonsGone].
+  @visibleForTesting
+  double exonsShown(ZoomFrame frame) => tintAt(_span(frame));
+
+  /// How far the DNA is wound at [frame].
+  @visibleForTesting
+  double woundShown(ZoomFrame frame) => woundAt(_span(frame));
+
+  /// How much of the helix shows at [frame], and of its bases.
+  @visibleForTesting
+  (double, double) helixShown(ZoomFrame frame) {
+    final double span = _span(frame);
+    return (helixAt(span), basesAt(span));
+  }
+
+  // From the gene's stop on, this scene draws the gene's DNA, so it is all
+  // there from the first: its parts come and go by the view's width.
+  @override
+  double asChild(double progress) => 1;
 
   final ProxyAnimation _rotation = ProxyAnimation(kAlwaysDismissedAnimation);
   static const Animation<double> _still = AlwaysStoppedAnimation<double>(0);
 
   DnaHelixPainter? _painter;
-  ZoomInks? _painted;
-  double _unzipped = -1;
+  (ZoomInks, double, double, double)? _painted;
 
-  /// The painter for the helix in [inks], [unzip] of the way unzipped, made
-  /// again only when it unzips a step further or the inks change.
-  DnaHelixPainter? _helix(ZoomInks inks, double unzip) {
+  /// The painter for the helix in [inks], [unzip] of the way unzipped, its
+  /// strands no thinner than [floor] painter pixels and [bases] of its bases
+  /// showing, made again only when one of them changes.
+  DnaHelixPainter? _helix(
+    ZoomInks inks,
+    double unzip, {
+    double floor = 0,
+    double bases = 1,
+  }) {
     final int count = subject.dnaBases;
     if (count < 4) {
       return null;
     }
     final double quantised = (unzip * 60).roundToDouble() / 60;
-    if (_painter == null || quantised != _unzipped || _painted != inks) {
-      final String bases = subject.record.sequence;
+    final (ZoomInks, double, double, double) now = (
+      inks,
+      quantised,
+      floor,
+      bases,
+    );
+    if (_painter == null || _painted != now) {
+      final String sequence = subject.record.sequence;
       _painter = DnaHelixPainter(
         repaint: _rotation,
         rotation: _rotation,
         drift: _still,
         transcription: null,
-        model: HelixModel(
+        model: _models[quantised] ??= HelixModel(
           rungCount: count,
           sampleCount: 3 * count,
           unzip: quantised,
           // The 3′ end first: the painter's first rung comes to lie at the
           // right, the gene's 3′ side.
           bases: Uint8List.fromList(<int>[
-            for (int i = count - 1; i >= 0; i--) HelixPalette.ofBase(bases[i]),
+            for (int i = count - 1; i >= 0; i--)
+              HelixPalette.ofBase(sequence[i]),
           ]),
         ),
         backbone: inks.label,
@@ -107,12 +199,28 @@ final class DnaScene extends ZoomScene {
         topFade: 0,
         bottomFade: 0,
         overscan: 0,
+        strandFloor: floor,
+        bases: bases,
       );
-      _painted = inks;
-      _unzipped = quantised;
+      _painted = now;
     }
     return _painter;
   }
+
+  /// The helix's models, by how far unzipped: the turn into the walk's rows
+  /// builds each once.
+  final Map<double, HelixModel> _models = <double, HelixModel>{};
+
+  /// How many base pairs of the genome a base pair of the record's gene
+  /// lies along: the gene's scene lays the record's parts along the span
+  /// MANE gives the gene, which for a few genes is a little shorter, and
+  /// the DNA lays the gene's parts as the gene's scene does.
+  double get _scale => subject.track.geneLengthBp / subject.layout.length;
+
+  /// Where the point [offset] base pairs into the record's gene lies across
+  /// the screen at [frame], as the gene's scene lays it.
+  @visibleForTesting
+  double screenX(ZoomFrame frame, double offset) => _x(frame, offset * _scale);
 
   /// A point [offset] base pairs from the 5′ end, in the scene's units: the
   /// scene's middle is the middle of its view ([ZoomSubject.dnaView]).
@@ -121,6 +229,12 @@ final class DnaScene extends ZoomScene {
   double _x(ZoomFrame frame, double offset) =>
       frame.toScreen(Offset(unitAlong(offset), 0)).dx;
 
+  /// Where along the fibre the screen's [x] lies, in base pairs' lengths
+  /// from the 5′ end.
+  double _along(ZoomFrame frame, double x) =>
+      frame.view.fromScreen(Offset(x, 0), frame.size).dx / pitch +
+      subject.dnaView;
+
   /// How many base pairs the view spans.
   double _span(ZoomFrame frame) =>
       frame.size.width / frame.view.pixelsPerUnit / pitch;
@@ -128,160 +242,368 @@ final class DnaScene extends ZoomScene {
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
     final Offset five = Offset(_x(frame, 0), frame.size.height / 2);
-    out.item('dna:5', five, frame.opacity);
-    out.callout('dna', '5′', five, calloutPresence(frame));
+    final double named = calloutPresence(frame);
+    out.item('dna:5', five, named);
+    out.callout('dna', '5′', five, named);
+    final (Offset core, double reach, double shown) = _firstCore(frame);
+    if (shown > 0) {
+      out.callout(
+        'dna:nucleosome',
+        'nucleosome',
+        core,
+        shown,
+        // Below its core, clear of its DNA: nothing hangs from the gene
+        // there by now.
+        anchors: <Offset>[core.translate(0, reach + 10)],
+        quiet: true,
+      );
+    }
+  }
+
+  /// The first nucleosome past the gene's start, the one named: its core's
+  /// middle on screen, how far its DNA reaches round it there, and how much
+  /// of its name shows. Named once wound and big enough to read as a bead,
+  /// until the bases come up beside it.
+  (Offset, double, double) _firstCore(ZoomFrame frame) {
+    final double span = _span(frame);
+    final double wound = woundAt(span);
+    final double perBase = frame.size.width / span;
+    final double centre =
+        chromatin.axisAt(ChromatinLayout.first, wound) +
+        ChromatinLayout.across / 2;
+    final Offset at = Offset(_x(frame, centre), frame.size.height / 2);
+    final double reach = (ChromatinLayout.radius + thickness) * perBase;
+    // Keyed to the view's width alone, over windows wide enough in its log
+    // for the step to take its time over them: in as the beads grow from a
+    // dozen pixels to some twenty, wound by then; out before the bases.
+    final double shown =
+        smoothstep(math.log(900 / span) / math.log(900 / 350)) *
+        (1 - smoothstep(math.log(330 / span) / math.log(330 / 150)));
+    return (at, reach, math.min(shown, frame.opacity));
   }
 
   @override
   void paint(Canvas canvas, ZoomFrame frame) {
+    final double span = _span(frame);
     final double w = frame.size.width;
     final double mid = frame.size.height / 2;
-    final double span = _span(frame);
     final double perBase = w / span;
-    // The fibre's line comes up with its beads and as the gene's exons,
-    // which lie over it, give way, and gives way to the helix as the bases
-    // come up.
-    final double line =
-        smoothstep((wrapped * perBase - 2) / 10) *
-        (1 - GeneScene.exonsShownAt(span, subject.depth)) *
-        (1 - smoothstep((180 - span) / 100));
-    if (line > 0) {
-      canvas.drawLine(
-        Offset(0, mid),
-        Offset(w, mid),
-        Paint()
-          ..strokeWidth = 2
-          ..color = frame.inks.label.withValues(alpha: 0.7 * line),
+    final double wound = woundAt(span);
+    final double sunk = sunkAt(span);
+    // The line the gene's stop draws, thickening to the DNA's own width as
+    // the exons sink into it.
+    final double thick =
+        GeneStrand.line +
+        math.max(0, thickness * perBase - GeneStrand.line) * sunk;
+    final ZoomInks inks = frame.inks;
+    final double around = contextAt(span);
+    if (wound <= 0 && helixAt(span) <= 0) {
+      // The gene's DNA as its stop draws it, its exons sinking into it, and
+      // the DNA either side of it coming up.
+      if (around > 0) {
+        final Color dna = GeneStrand.ink(inks, GenePieceKind.intron, 0);
+        final Color faded = dna.withValues(alpha: dna.a * around);
+        final double start = _x(frame, 0);
+        final double end = screenX(frame, subject.layout.length);
+        if (start > -8) {
+          GeneStrand.tube(
+            canvas,
+            Path()
+              ..moveTo(-8, mid)
+              ..lineTo(start, mid),
+            faded,
+            thick,
+            inks,
+          );
+        }
+        if (end < w + 8) {
+          GeneStrand.tube(
+            canvas,
+            Path()
+              ..moveTo(end, mid)
+              ..lineTo(w + 8, mid),
+            faded,
+            thick,
+            inks,
+          );
+        }
+      }
+      GeneStrand.paint(
+        canvas,
+        inks,
+        subject.layout,
+        x: (double offset) => screenX(frame, offset),
+        mid: mid,
+        width: w,
+        sink: sunk,
+        thick: thick,
+      );
+      return;
+    }
+    _fibre(canvas, frame, span, wound, thick, perBase, mid, around);
+    if (sunk < 1) {
+      GeneStrand.paint(
+        canvas,
+        inks,
+        subject.layout,
+        x: (double offset) => screenX(frame, offset),
+        mid: mid,
+        width: w,
+        sink: sunk,
+        thick: thick,
+        line: false,
       );
     }
-    _nucleosomes(canvas, frame, perBase, mid);
   }
 
-  /// How much of the helix shows at [frame]: it comes up as its bases
-  /// grow big enough to tell apart.
-  double _helixShown(ZoomFrame frame) => smoothstep((420 - _span(frame)) / 260);
+  /// The genome's offset whose place along the fibre is [along], [wound] of
+  /// the way wound: the layout only ever draws the DNA in, so it is found
+  /// by halving.
+  double _offsetOf(double along, double wound) {
+    double low = along - 4 * math.max(along.abs(), 400);
+    double high = along + 4 * math.max(along.abs(), 400);
+    for (int i = 0; i < 60; i++) {
+      final double mid = (low + high) / 2;
+      if (chromatin.axisAt(mid, wound) < along) {
+        low = mid;
+      } else {
+        high = mid;
+      }
+    }
+    return (low + high) / 2;
+  }
+
+  /// The DNA as chromatin, [wound] of the way wound, in view.
+  void _fibre(
+    Canvas canvas,
+    ZoomFrame frame,
+    double span,
+    double wound,
+    double thick,
+    double perBase,
+    double mid,
+    double around,
+  ) {
+    final ZoomInks inks = frame.inks;
+    final double w = frame.size.width;
+    final GeneLayout layout = subject.layout;
+    final double scale = _scale;
+    final double end = layout.length * scale;
+    const double reach = ChromatinLayout.across + thickness;
+    final double from = _offsetOf(_along(frame, 0) - reach, wound);
+    final double to = _offsetOf(_along(frame, w) + reach, wound);
+    final List<(double, double)> beads = chromatin.nucleosomesWithin(from, to);
+    final double tint = tintAt(span);
+    final double helix = helixAt(span);
+    final int bare = subject.dnaBases;
+    // As the bare start becomes the helix the rest of the DNA shows its
+    // twist too: two strands round its grooves, as the helix's own are.
+    final double twist = helix;
+    // Steps along the DNA fine enough to follow its turns where they show,
+    // and coarse where it is a line.
+    final double step = twist > 0
+        ? (1.2 / perBase).clamp(0.25, 3.0)
+        : double.infinity;
+
+    Offset screen(FibrePoint p) =>
+        Offset(_x(frame, p.along), mid + p.across * perBase);
+
+    // The DNA's colour at [offset]: the gene's, its exons tinted as they
+    // fade; the DNA either side of it as it comes and goes; the bare start
+    // giving way to the helix.
+    Color colourAt(double offset) {
+      final GenePieceKind kind = _kindAt(layout, offset / scale);
+      final Color ink = GeneStrand.ink(inks, kind, tint);
+      double alpha = 1;
+      if (offset < 0 || offset > end) {
+        alpha = around;
+      } else if (offset < bare) {
+        alpha = 1 - helix;
+      }
+      return ink.withValues(alpha: ink.a * alpha);
+    }
+
+    // Where each piece of the gene starts and ends, to split the DNA's
+    // colour at.
+    final List<double> marks = <double>[
+      0,
+      end,
+      bare.toDouble(),
+      for (final GenePiece piece in layout.pieces) ...<double>[
+        piece.start * scale,
+        piece.end * scale,
+      ],
+    ];
+    List<double> splitAt(double a, double b, int samples) {
+      final int fine = step.isFinite
+          ? math.max(samples, ((b - a) / step).ceil())
+          : samples;
+      return <double>[
+        for (int i = 0; i <= fine; i++) a + (b - a) * i / fine,
+        for (final double m in marks)
+          if (m > a && m < b) m,
+      ]..sort();
+    }
+
+    // Lays the DNA over [offsets] (in order), its points from [at], into
+    // [into], or a wound stretch's into [behind] where it passes behind its
+    // core: one stroke for each run of a colour, so it turns without seams.
+    void lay(
+      List<double> offsets,
+      FibrePoint Function(double) at,
+      _Strokes into, [
+      _Strokes? behind,
+    ]) {
+      FibrePoint? last;
+      for (int i = 0; i + 1 < offsets.length; i++) {
+        final double a = offsets[i];
+        final double b = offsets[i + 1];
+        if (b - a < 1e-9) {
+          continue;
+        }
+        final double m = (a + b) / 2;
+        final Color colour = colourAt(m);
+        final FibrePoint pa = last ?? at(a);
+        final FibrePoint pb = at(b);
+        last = pb;
+        if (colour.a <= 0.002) {
+          continue;
+        }
+        final _Strokes target = behind != null && at(m).depth < 0
+            ? behind
+            : into;
+        target.add(colour, screen(pa), screen(pb), a, b);
+      }
+    }
+
+    // The runs between nucleosomes, straight from where one lets its DNA go
+    // to where the next takes it up; the bare start along the axis, where
+    // the helix lies.
+    final _Strokes runs = _Strokes();
+    double runFrom = from;
+    FibrePoint runStart = FibrePoint(chromatin.axisAt(from, wound), 0, 0);
+    void run(double a, double b, FibrePoint pa, FibrePoint pb) {
+      if (b <= a) {
+        return;
+      }
+      final bool holdsStart = a <= 0 && b >= bare;
+      FibrePoint at(double offset) {
+        if (holdsStart) {
+          if (offset >= 0 && offset <= bare) {
+            return FibrePoint(offset, 0, 0);
+          }
+          // Either side of the bare start's fixed stretch, straight to it.
+          if (offset < 0) {
+            final double t = (offset - a) / (0 - a);
+            return FibrePoint(
+              pa.along + (0 - pa.along) * t,
+              pa.across * (1 - t),
+              pa.depth * (1 - t),
+            );
+          }
+          final double t = (offset - bare) / (b - bare);
+          return FibrePoint(
+            bare + (pb.along - bare) * t,
+            pb.across * t,
+            pb.depth * t,
+          );
+        }
+        final double t = (offset - a) / (b - a);
+        return FibrePoint(
+          pa.along + (pb.along - pa.along) * t,
+          pa.across + (pb.across - pa.across) * t,
+          pa.depth + (pb.depth - pa.depth) * t,
+        );
+      }
+
+      lay(splitAt(a, b, 1), at, runs);
+    }
+
+    for (final (double start, double end) in beads) {
+      run(runFrom, start, runStart, chromatin.woundAt(start, start, wound));
+      runFrom = end;
+      runStart = chromatin.woundAt(start, end, wound);
+    }
+    run(runFrom, to, runStart, FibrePoint(chromatin.axisAt(to, wound), 0, 0));
+    runs.paint(canvas, inks, thick, perBase, twist);
+
+    // Each nucleosome: the DNA behind its core, the core, the DNA in front.
+    final double grown = 0.5 + 0.5 * smoothstep(wound);
+    final double cores = smoothstep((wound - 0.05) / 0.3);
+    for (final (double start, double end) in beads) {
+      final _Strokes behind = _Strokes();
+      final _Strokes inFront = _Strokes();
+      lay(
+        splitAt(start, end, 56),
+        (double offset) => chromatin.woundAt(start, offset, wound),
+        inFront,
+        behind,
+      );
+      behind.paint(canvas, inks, thick, perBase, twist, shaded: true);
+      final double centre =
+          chromatin.axisAt(start, wound) + ChromatinLayout.across / 2;
+      final double side = start < 0 || start > end ? around : 1;
+      NucleosomeArt.paint(
+        canvas,
+        Offset(_x(frame, centre), mid),
+        perBase,
+        inks,
+        grown: grown,
+        alpha: cores * side,
+      );
+      inFront.paint(canvas, inks, thick, perBase, twist);
+    }
+  }
+
+  /// What the gene is at [offset] base pairs from its 5′ end: an exon's
+  /// coding or untranslated part, or an intron, as the DNA either side of
+  /// it is drawn.
+  static GenePieceKind _kindAt(GeneLayout layout, double offset) {
+    final List<GenePiece> pieces = layout.pieces;
+    int low = 0;
+    int high = pieces.length - 1;
+    while (low <= high) {
+      final int m = (low + high) >> 1;
+      final GenePiece piece = pieces[m];
+      if (offset < piece.start) {
+        high = m - 1;
+      } else if (offset >= piece.end) {
+        low = m + 1;
+      } else {
+        return piece.kind;
+      }
+    }
+    return GenePieceKind.intron;
+  }
 
   @override
   void prepare(ZoomInks inks) => _helix(inks, 0);
 
   @override
-  bool wantsClock(ZoomFrame frame) => _helixShown(frame) > 0;
+  bool wantsClock(ZoomFrame frame) => helixAt(_span(frame)) > 0;
 
   // The helix turns at rest, so it is drawn over the scene on the ambient
   // clock, and fades there with the scene itself.
   @override
   void paintAmbient(Canvas canvas, ZoomFrame frame) {
-    final double helix = _helixShown(frame);
+    final double helix = helixAt(_span(frame));
     if (helix <= 0) {
       return;
     }
     _drawHelix(canvas, frame, helix * frame.opacity);
   }
 
-  void _nucleosomes(
-    Canvas canvas,
-    ZoomFrame frame,
-    double perBase,
-    double mid,
-  ) {
-    final double width = wrapped * perBase;
-    // Beads come up once they are big enough to read as beads, and give way
-    // to the helix's own bases before one fills the view.
-    final double show =
-        smoothstep((width - 4) / 12) * (1 - smoothstep((width - 220) / 220));
-    if (show <= 0) {
-      return;
-    }
-    final double w = frame.size.width;
-    final double gene = subject.layout.length;
-    final List<double> starts = <double>[
-      first - period - wrapped - 60,
-      for (double at = first; at < gene; at += period) at,
-    ];
-    // A core seen side on: a disc about twice as wide as it is thick.
-    final double height = math.min(width * 0.52, frame.size.height * 0.36);
-    final double strand = math.max(1.6, height * 0.075);
-    for (final double start in starts) {
-      final double a = _x(frame, start);
-      final double b = _x(frame, start + wrapped);
-      if (b < -width || a > w + width) {
-        continue;
-      }
-      final Rect core = Rect.fromCenter(
-        center: Offset((a + b) / 2, mid),
-        width: (b - a).abs() * 0.86,
-        height: height,
-      );
-      // The DNA's 1.65 turns round the core: the half behind it first, then
-      // the core, then the half in front.
-      final Path behind = Path();
-      final Path front = Path();
-      if (width > 24) {
-        _wrap(core, a, b, mid, behind, front);
-      }
-      final Paint dna = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strand
-        ..strokeCap = StrokeCap.round;
-      dna.color = Color.lerp(
-        frame.inks.ground,
-        frame.inks.label,
-        0.55,
-      )!.withValues(alpha: show);
-      canvas.drawPath(behind, dna);
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(core, Radius.circular(height * 0.42)),
-        Paint()
-          ..shader = MolecularMaterial.residueShader(
-            core,
-            frame.inks.lit(0.42).withValues(alpha: show),
-          ),
-      );
-      dna.color = frame.inks.label.withValues(alpha: show);
-      canvas.drawPath(front, dna);
-    }
-  }
-
-  /// The wrap of DNA round [core], from where it comes in at [a] to where it
-  /// leaves at [b]: a coil of 1.65 turns about the core's long axis, split
-  /// into the strokes that pass behind the core and those that pass in front.
-  void _wrap(
-    Rect core,
-    double a,
-    double b,
-    double mid,
-    Path behind,
-    Path front,
-  ) {
-    const int steps = 80;
-    const double turns = 1.65;
-    final double left = math.min(a, b);
-    final double right = math.max(a, b);
-    final double reach = core.height * 0.62;
-    Offset at(int i) {
-      final double t = i / steps;
-      final double phase = 2 * math.pi * turns * t - math.pi / 2;
-      return Offset(left + (right - left) * t, mid + math.sin(phase) * reach);
-    }
-
-    bool inFront(int i) {
-      final double t = (i + 0.5) / steps;
-      return math.cos(2 * math.pi * turns * t - math.pi / 2) > 0;
-    }
-
-    Offset previous = at(0);
-    for (int i = 0; i < steps; i++) {
-      final Offset next = at(i + 1);
-      final Path path = inFront(i) ? front : behind;
-      path
-        ..moveTo(previous.dx, previous.dy)
-        ..lineTo(next.dx, next.dy);
-      previous = next;
-    }
-  }
-
   void _drawHelix(Canvas canvas, ZoomFrame frame, double alpha) {
-    final DnaHelixPainter? painter = _helix(frame.inks, frame.unzip);
+    final double span = _span(frame);
+    // The painter's helix in screen pixels: its own pixels at the camera's
+    // scale.
+    final double scale = frame.view.pixelsPerUnit * pitch / helixPerBase;
+    final DnaHelixPainter? painter = _helix(
+      frame.inks,
+      frame.unzip,
+      floor: floorAt(span) / scale,
+      bases: basesAt(span),
+    );
     if (painter == null) {
       return;
     }
@@ -296,16 +618,24 @@ final class DnaScene extends ZoomScene {
     // the canvas's, its first rung at the top: turned to lie along the gene
     // with its first rung, the 3′ end, at the right, its middle on the
     // record's middle base, at the camera's scale.
-    final double scale = frame.view.pixelsPerUnit * pitch / helixPerBase;
     final double length = subject.dnaBases * helixPerBase;
     final Size page = Size(helixRadius * 4.4, length * 1.3);
     final double mid = frame.size.height / 2;
     final double w = frame.size.width;
-    final bool fading = alpha < 0.995;
-    if (fading) {
+    // Its 3′ side runs off into the ground at the canvas's right edge, as
+    // the home screen's runs off its own. Where nothing of the DNA lies
+    // under that fade (at the stop, and closing in on it) it is drawn as it
+    // always was, the ground painted over it, with no layer to pay for at
+    // every turn; elsewhere it is erased on a layer of its own, so the DNA
+    // under it on the way in still shows.
+    final bool alone =
+        alpha >= 0.995 &&
+        _x(frame, subject.dnaBases.toDouble()) >= w &&
+        contextAt(span) <= 0;
+    if (!alone) {
       canvas.saveLayer(
         Offset.zero & frame.size,
-        Paint()..color = Color.fromRGBO(0, 0, 0, alpha),
+        Paint()..color = Color.fromRGBO(0, 0, 0, alpha.clamp(0.0, 1.0)),
       );
     }
     canvas.save();
@@ -315,12 +645,11 @@ final class DnaScene extends ZoomScene {
     canvas.translate(-page.width / 2, -page.height / 2);
     painter.paint(canvas, page);
     canvas.restore();
-    // Its 3′ side runs off into the ground at the canvas's right edge, as
-    // the home screen's runs off its own.
     final Rect fade = Rect.fromLTRB(w * 0.72, 0, w, frame.size.height);
     canvas.drawRect(
       fade,
       Paint()
+        ..blendMode = alone ? BlendMode.srcOver : BlendMode.dstOut
         ..shader = LinearGradient(
           colors: <Color>[
             frame.inks.ground.withValues(alpha: 0),
@@ -328,8 +657,147 @@ final class DnaScene extends ZoomScene {
           ],
         ).createShader(fade),
     );
-    if (fading) {
+    if (!alone) {
       canvas.restore();
+    }
+  }
+}
+
+/// The DNA's strokes by colour, laid as it runs: a run of one colour is one
+/// stroke, so the DNA turns without seams; and its two strands, where it is
+/// thick enough to show them, by which side of the duplex they are on.
+final class _Strokes {
+  final Map<Color, Path> _body = <Color, Path>{};
+  final Map<Color, Offset> _ends = <Color, Offset>{};
+
+  /// Each stretch laid: its colour, its ends on screen and in base pairs.
+  final List<(Color, Offset, Offset, double, double)> _laid =
+      <(Color, Offset, Offset, double, double)>[];
+
+  void add(Color colour, Offset a, Offset b, double from, double to) {
+    final Path path = _body[colour] ??= Path();
+    final Offset? end = _ends[colour];
+    if (end == null || (end - a).distanceSquared > 0.01) {
+      path.moveTo(a.dx, a.dy);
+    }
+    path.lineTo(b.dx, b.dy);
+    _ends[colour] = b;
+    _laid.add((colour, a, b, from, to));
+  }
+
+  /// Draws the DNA [thick] pixels thick, [perBase] pixels a base pair along
+  /// it, its strands showing [twist] of the way; in shade behind a core.
+  void paint(
+    Canvas canvas,
+    ZoomInks inks,
+    double thick,
+    double perBase,
+    double twist, {
+    bool shaded = false,
+  }) {
+    Color shade(Color c, double by) =>
+        Color.lerp(c, inks.ground, by)!.withValues(alpha: c.a);
+    for (final MapEntry<Color, Path> body in _body.entries) {
+      // A tube, giving way to its strands as they come up, as the helix
+      // is its strands and its bases alone.
+      final Color colour = shade(body.key, shaded ? 0.4 : 0);
+      if (twist < 1) {
+        GeneStrand.tube(
+          canvas,
+          body.value,
+          colour.withValues(alpha: colour.a * (1 - twist)),
+          thick,
+          inks,
+        );
+      }
+    }
+    if (twist <= 0) {
+      return;
+    }
+    // Its two strands, a turn every 10.5 base pairs, 127° apart across the
+    // minor groove, as the helix's are: each stretch's points offset across
+    // the DNA by where its strands are in their turn.
+    // As thin as the helix's backbones are drawn where it is this small.
+    final double strand = math.max(1.4, 0.016 * thick);
+    final double out = thick / 2 - strand / 2;
+    final Map<Color, Path> back = <Color, Path>{};
+    final Map<Color, Path> front = <Color, Path>{};
+    // Each strand one stroke for as long as it stays on one side and in one
+    // colour: translucent strokes joined end to end would double where they
+    // meet.
+    for (final double groove in <double>[0, HelixModel.grooveOffset]) {
+      Offset? last;
+      Path? open;
+      bool? side;
+      Color? ink;
+      Offset? stretchEnd;
+      for (final (Color colour, Offset a, Offset b, double from, double to)
+          in _laid) {
+        final Offset along = b - a;
+        final double length = along.distance;
+        if (length < 1e-6) {
+          continue;
+        }
+        if (stretchEnd == null ||
+            (stretchEnd - a).distanceSquared > 0.01 ||
+            ink != colour) {
+          last = null;
+          open = null;
+        }
+        stretchEnd = b;
+        ink = colour;
+        final Offset across = Offset(-along.dy, along.dx) / length;
+        final int steps = math.max(1, (length / 2).ceil());
+        for (int k = 0; k <= steps; k++) {
+          final double t = k / steps;
+          final double offset = from + (to - from) * t;
+          final double angle =
+              2 * math.pi * offset / HelixModel.basePairsPerTurn + groove;
+          final Offset p = a + along * t + across * (out * math.cos(angle));
+          final bool isFront = math.sin(angle) >= 0;
+          if (last == null) {
+            last = p;
+            side = isFront;
+            continue;
+          }
+          if (open == null || side != isFront) {
+            // A new stroke: at the start, or over the edge of the duplex,
+            // where the strand passes to its other side.
+            open = (isFront ? front : back)[colour] ??= Path();
+            open.moveTo(last.dx, last.dy);
+            side = isFront;
+          }
+          open.lineTo(p.dx, p.dy);
+          last = p;
+        }
+      }
+    }
+    final Paint paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strand
+      ..strokeCap = StrokeCap.round;
+    // In the DNA's own colour at full strength, as the helix's backbones
+    // are; the far strand in shade, as the helix shades its own by depth.
+    double strength(Color c) => math.min(1, c.a / GeneStrand.lineInk) * twist;
+    for (final MapEntry<Color, Path> s in back.entries) {
+      canvas.drawPath(
+        s.value,
+        paint
+          ..color = shade(
+            s.key,
+            shaded ? 0.7 : 0.45,
+          ).withValues(alpha: strength(s.key) * (shaded ? 0.7 : 1)),
+      );
+    }
+    for (final MapEntry<Color, Path> s in front.entries) {
+      canvas.drawPath(
+        s.value,
+        paint
+          ..color = shade(
+            s.key,
+            shaded ? 0.35 : 0,
+          ).withValues(alpha: strength(s.key)),
+      );
     }
   }
 }

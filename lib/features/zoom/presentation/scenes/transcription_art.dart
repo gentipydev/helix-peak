@@ -133,8 +133,8 @@ final class TranscriptionArt {
 
   /// Draws the transcription [clock] seconds in. [x] is the screen x of a
   /// place on the gene, in base pairs from its 5′ end; [line] the screen y
-  /// of the gene's line; [perBase] pixels a base now; [scale] how much
-  /// bigger than at the gene's stop it is drawn; [compaction] as above.
+  /// of the gene's line; [perBase] pixels a base now, [atRest] at the gene's
+  /// stop; [compaction] as above.
   void paint(
     Canvas canvas,
     ZoomInks inks, {
@@ -142,13 +142,19 @@ final class TranscriptionArt {
     required double Function(double offset) x,
     required double line,
     required double perBase,
-    required double scale,
+    required double atRest,
     required double compaction,
   }) {
     final TranscriptionFrame now = reading.at(clock);
+    final double scale = perBase / atRest;
     final double rnaPx = compaction * perBase;
     final double width = (2.2 * scale).clamp(1.1, 3.4);
-    final double beads = beadEvery * scale;
+    // Where the RNA is sampled and where its particles sit are fixed along
+    // it, in its bases, as it is laid at the gene's stop: as the view moves
+    // they ride with the RNA and none comes or goes.
+    final double restPx = compaction * atRest;
+    final double sampleBases = 4 / restPx;
+    final double beadBases = beadEvery / restPx;
     final double bead = width * 0.85;
     final double drop = 3.5 * scale;
     final Offset down = Offset(-math.sin(lean), math.cos(lean));
@@ -177,19 +183,22 @@ final class TranscriptionArt {
     // root, and gathers its strokes, its loops and its cap; [shown] as it
     // fades.
     void lay(Offset root, List<RnaStretch> rna, int lane, double shown) {
+      // In bases from the root, then on screen.
       double total = 0;
       for (final RnaStretch stretch in rna) {
-        total += stretch.length * rnaPx;
+        total += stretch.length;
       }
-      double d = 0;
+      double from = 0;
       for (int i = rna.length - 1; i >= 0; i--) {
         final RnaStretch stretch = rna[i];
-        final double run = stretch.length * rnaPx;
+        final double bases = stretch.length;
+        final double d = from * rnaPx;
+        final double run = bases * rnaPx;
         if (run > 0.05) {
           final Color ink = _ink(inks, stretch.kind);
           final Color faded = ink.withValues(alpha: ink.a * shown);
           final Path path = strokes.putIfAbsent(faded, Path.new);
-          final int pieces = math.max(1, (run / 4).ceil());
+          final int pieces = math.max(1, (bases / sampleBases).ceil());
           final Offset start = along(root, d, lane);
           path.moveTo(start.dx, start.dy);
           for (int k = 1; k <= pieces; k++) {
@@ -198,15 +207,15 @@ final class TranscriptionArt {
           }
           // Its particles, at places fixed along the RNA from its 5′ end,
           // so they ride out with it as it grows.
-          if (beads > 2.5) {
+          if (beadEvery * scale > 2.5) {
             final List<Offset> dots = beaded.putIfAbsent(
               faded,
               () => <Offset>[],
             );
-            final double from5 = total - d - run;
-            final double first = (from5 / beads).ceil() * beads;
-            for (double b = first; b < from5 + run; b += beads) {
-              dots.add(along(root, total - b, lane));
+            final double from5 = total - from - bases;
+            final double first = (from5 / beadBases).ceil() * beadBases;
+            for (double b = first; b < from5 + bases; b += beadBases) {
+              dots.add(along(root, (total - b) * rnaPx, lane));
             }
           }
         }
@@ -217,10 +226,10 @@ final class TranscriptionArt {
             shown,
           ));
         }
-        d += run;
+        from += bases;
       }
       if (rna.isNotEmpty) {
-        caps.add((along(root, d, lane), shown));
+        caps.add((along(root, total * rnaPx, lane), shown));
       }
     }
 

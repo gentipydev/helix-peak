@@ -27,6 +27,11 @@ Duration flightDuration(double from, double to) {
 /// one segment to the next. It takes [flightDuration], or [minimum] where
 /// that is longer: the step into the DNA takes its time
 /// ([ZoomDepth.leastFlight]).
+///
+/// With a [cruise] it spends that share of its time in its middle at one
+/// speed, easing up to it and down from it with no jolt at either end: the
+/// step into the DNA, where five things happen one after another, would
+/// otherwise cross the middle ones at nearly twice its mean speed.
 @immutable
 final class ZoomFlight {
   ZoomFlight(
@@ -34,8 +39,13 @@ final class ZoomFlight {
     this.to, {
     double velocity = 0,
     Duration minimum = Duration.zero,
+    this.cruise = 0,
   }) : duration = _durationOf(from, to, minimum),
        _push = _pushOf(from, to, velocity, _durationOf(from, to, minimum));
+
+  /// The share of the flight in its middle spent at one speed: 0, the
+  /// quintic every step has always eased by.
+  final double cruise;
 
   static Duration _durationOf(double from, double to, Duration minimum) {
     final Duration own = flightDuration(from, to);
@@ -66,10 +76,47 @@ final class ZoomFlight {
     return total == 0 ? 1 : (elapsed.inMicroseconds / total).clamp(0.0, 1.0);
   }
 
+  /// How far along its way the flight is at [u] of its time, from rest to
+  /// rest: the quintic, or with a [cruise], speed rising as a smootherstep
+  /// over the first of the two equal ramps, held, and falling over the last.
+  double _eased(double u) {
+    if (cruise <= 0) {
+      return u * u * u * (u * (u * 6 - 15) + 10);
+    }
+    final double ramp = (1 - cruise) / 2;
+    // The integral of a smootherstep from 0 to x: x⁶ − 3x⁵ + 2.5x⁴.
+    double rise(double x) => x * x * x * x * (x * x - 3 * x + 2.5);
+    final double whole = 1 - ramp;
+    if (u <= ramp) {
+      return ramp * rise(u / ramp) / whole;
+    }
+    if (u >= 1 - ramp) {
+      return 1 - ramp * rise((1 - u) / ramp) / whole;
+    }
+    return (ramp / 2 + (u - ramp)) / whole;
+  }
+
+  /// How fast [_eased] moves at [u], in its way a whole flight.
+  double _easedSpeed(double u) {
+    if (cruise <= 0) {
+      return 30 * u * u * (1 - u) * (1 - u);
+    }
+    final double ramp = (1 - cruise) / 2;
+    double step(double x) => x * x * x * (x * (x * 6 - 15) + 10);
+    final double whole = 1 - ramp;
+    if (u <= ramp) {
+      return step(u / ramp) / whole;
+    }
+    if (u >= 1 - ramp) {
+      return step((1 - u) / ramp) / whole;
+    }
+    return 1 / whole;
+  }
+
   /// The depth [elapsed] into the flight.
   double at(Duration elapsed) {
     final double u = _t(elapsed);
-    final double eased = u * u * u * (u * (u * 6 - 15) + 10);
+    final double eased = _eased(u);
     // u (1 − u)³ (1 + 3u): the start's speed, worn away by the end.
     final double carried = u * math.pow(1 - u, 3) * (1 + 3 * u);
     return from + (to - from) * eased + _push * carried;
@@ -78,7 +125,7 @@ final class ZoomFlight {
   /// How fast the depth moves [elapsed] into the flight, in depth a second.
   double speedAt(Duration elapsed) {
     final double u = _t(elapsed);
-    final double eased = 30 * u * u * (1 - u) * (1 - u);
+    final double eased = _easedSpeed(u);
     final double carried = math.pow(1 - u, 2) * (1 + 2 * u - 15 * u * u);
     final double seconds = duration.inMicroseconds / 1e6;
     return seconds == 0 ? 0 : ((to - from) * eased + _push * carried) / seconds;

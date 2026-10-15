@@ -228,6 +228,11 @@ final class ZoomDepth {
   /// seconds, for the five things that happen in it to be seen ([dive]).
   static const double diveSeconds = 2.7;
 
+  /// The share of a flight through the step into the DNA spent at one
+  /// speed in its middle ([ZoomFlight.cruise]); none for any other.
+  double cruiseOf(double from, double to) =>
+      leastFlight(from, to) > Duration.zero ? 0.5 : 0;
+
   /// How long a flight from depth [from] to [to] takes at the least: the
   /// step into the DNA's [diveSeconds], or its share of them for a flight
   /// over part of it; no time of its own for any other.

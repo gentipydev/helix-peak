@@ -43,14 +43,16 @@ final class DnaDive {
 
   /// Where the weight changes, as the view narrows past each width (base
   /// pairs), over how many decades, and by how much: up to a decade's worth
-  /// where the exons sink into the DNA, below about 20 kb; up again where
-  /// the DNA winds and its beads are read, below about 2.8 kb; and down a
-  /// little where the bare start opens into the helix, below about 160 bp.
+  /// where the exons sink into the DNA, below about 40 kb; up where the DNA
+  /// winds, below about 2.8 kb, and again where its beads are read and named
+  /// and the bare start becomes the helix, below about 700 bp; and down where
+  /// the helix's bases come in, below about 160 bp.
   static const List<(double, double, double)> _changes =
       <(double, double, double)>[
         (40000, 0.4, 1.85),
         (2800, 0.3, 2.5),
-        (160, 0.3, -3.6),
+        (700, 0.25, 2.5),
+        (160, 0.3, -4.0),
       ];
 
   /// What a decade weighs where the view is 10^[decade] base pairs wide.
@@ -114,24 +116,19 @@ final class DnaDive {
       return 1;
     }
     final double target = s * _whole;
-    // Newton's way down the decades, kept within a bracket that holds the
-    // answer: the weight spent only grows as the view narrows.
+    // Halving down the decades: the weight spent only grows as the view
+    // narrows, so the width that has spent [target] is bracketed exactly.
     double high = _top;
     double low = _bottom;
-    double at = _top - s * (_top - _bottom);
-    for (int i = 0; i < 40; i++) {
-      final double gap = _held(at) - target;
-      if (gap.abs() < 1e-13) {
-        break;
-      }
-      if (gap > 0) {
-        low = at;
+    for (int i = 0; i < 64; i++) {
+      final double mid = (high + low) / 2;
+      if (_held(mid) > target) {
+        low = mid;
       } else {
-        high = at;
+        high = mid;
       }
-      final double next = at + gap / weightAt(at);
-      at = next > low && next < high ? next : (low + high) / 2;
     }
+    final double at = (high + low) / 2;
     return (_top - at) / (_top - _bottom);
   }
 }
