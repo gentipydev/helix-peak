@@ -226,9 +226,9 @@ final class ZoomDepth {
 
   /// How long the step from the gene into its DNA takes at the least, in
   /// seconds, for the five things that happen in it to be seen ([dive]):
-  /// half as long again as the 2.7 s it first took, which the user liked but
-  /// would have slower (2026-10-16).
-  static const double diveSeconds = 4;
+  /// slow, each a second or more, as the user would have it (2026-10-16;
+  /// it first took 2.7 s, then 4).
+  static const double diveSeconds = 8;
 
   /// The share of a flight through the step into the DNA spent at one
   /// speed in its middle ([ZoomFlight.cruise]); none for any other.
