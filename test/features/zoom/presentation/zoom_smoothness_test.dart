@@ -12,6 +12,7 @@ import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_motion.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/band_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/dna_scene.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/gene_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
@@ -356,6 +357,7 @@ void main() {
       ZoomStop.organ,
       ZoomStop.band,
       ZoomStop.body,
+      ZoomStop.gene,
       ZoomStop.dna,
     ]);
     expect(stage.prepared, isTrue);
@@ -412,8 +414,8 @@ void main() {
     }
   });
 
-  testWidgets('the gene’s DNA opens out of its mark on the band’s strip, its '
-      '5′ end at the mark’s left whatever its strand', (
+  testWidgets('the gene opens out of its mark on the band’s strip, its 5′ '
+      'end at the mark’s left whatever its strand', (
     WidgetTester tester,
   ) async {
     final ZoomInks inks = await _inks(tester);
@@ -422,60 +424,186 @@ void main() {
       final ZoomDepth depth = stage.depth;
       final double band = depth.depthOf(ZoomStop.band);
       final double step = depth.travelOf(ZoomStop.band.index);
-      // While the band still shows, giving way to the gene.
-      for (final double s in <double>[0.05, 0.15, 0.25, 0.35]) {
+      int seen = 0;
+      // Wherever the band still shows, giving way to the gene.
+      for (int i = 1; i < 40; i++) {
+        final double s = i / 40;
         final List<(ZoomScene, ZoomFrame)> frames = stage.frames(
           band + s * step,
           _canvas,
           inks,
         );
-        final (ZoomScene map, ZoomFrame onMap) = frames.firstWhere(
+        final Iterable<(ZoomScene, ZoomFrame)> map = frames.where(
           ((ZoomScene, ZoomFrame) f) => f.$1 is BandScene,
         );
-        final (ZoomScene dna, ZoomFrame inDna) = frames.firstWhere(
-          ((ZoomScene, ZoomFrame) f) => f.$1 is DnaScene,
+        final Iterable<(ZoomScene, ZoomFrame)> gene = frames.where(
+          ((ZoomScene, ZoomFrame) f) => f.$1 is GeneScene,
         );
+        if (map.isEmpty || gene.isEmpty) {
+          continue;
+        }
+        seen++;
+        final (ZoomScene strip, ZoomFrame onMap) = map.single;
+        final (ZoomScene drawn, ZoomFrame inGene) = gene.single;
         double onBand(double position) =>
-            onMap.toScreen(Offset((map as BandScene).unitOf(position), 0)).dx;
-        double inGene(double offset) =>
-            inDna.toScreen(Offset((dna as DnaScene).unitAlong(offset), 0)).dx;
-        final double left = onBand(stage.subject.track.spanStart.toDouble());
-        final double right = onBand(stage.subject.track.spanEnd + 1.0);
-        expect(inGene(0), closeTo(left, 0.5), reason: '${t.slug} at $s');
-        // The record's span and MANE's differ by a few dozen base pairs at
-        // most.
+            (strip as BandScene).stripX(onMap, position);
+        double inGeneAt(double offset) =>
+            (drawn as GeneScene).screenX(inGene, offset);
+        final String what = '${t.slug} at $s';
+        // The gene's 5′ end at the mark's left, its 3′ end at its right.
         expect(
-          inGene(stage.subject.layout.length),
-          closeTo(right, math.max(1, 0.005 * (right - left))),
-          reason: '${t.slug} at $s',
+          inGeneAt(0),
+          closeTo(onBand(stage.subject.track.spanStart.toDouble()), 0.5),
+          reason: what,
+        );
+        expect(
+          inGeneAt(stage.subject.layout.length),
+          closeTo(onBand(stage.subject.track.spanEnd + 1.0), 0.5),
+          reason: what,
         );
       }
+      expect(seen, greaterThan(8), reason: t.slug);
     }
   });
 
-  testWidgets('the gene’s exons show on the way in to the DNA, and none at '
-      'it', (WidgetTester tester) async {
+  testWidgets('the gene’s exons show whole at its stop and on the way in, '
+      'and are gone before the DNA’s helix comes up', (
+    WidgetTester tester,
+  ) async {
     final ZoomInks inks = await _inks(tester);
     for (final ProteinTarget t in TestCatalog.all) {
       final ZoomStage stage = _stage(t);
       final ZoomDepth depth = stage.depth;
-      double shown(double d) {
+      (GeneScene, ZoomFrame)? gene(double d) {
         for (final (ZoomScene scene, ZoomFrame frame) in stage.frames(
           d,
           _canvas,
           inks,
         )) {
-          if (scene is DnaScene) {
-            return scene.geneShown(frame);
+          if (scene is GeneScene) {
+            return (scene, frame);
           }
         }
-        return 0;
+        return null;
       }
 
       final double band = depth.depthOf(ZoomStop.band);
-      final double step = depth.travelOf(ZoomStop.band.index);
-      expect(shown(band + 0.3 * step), 1, reason: t.slug);
-      expect(shown(depth.depthOf(ZoomStop.dna)), 0, reason: t.slug);
+      final double at = depth.depthOf(ZoomStop.gene);
+      for (final double d in <double>[
+        band + 0.5 * depth.travelOf(ZoomStop.band.index),
+        at - 1e-9,
+        at,
+      ]) {
+        final (GeneScene scene, ZoomFrame frame) = gene(d)!;
+        expect(scene.exonsShown(frame), 1, reason: '${t.slug} at $d');
+      }
+      // Where the view is as narrow as the exons last to, on the way to the
+      // DNA: the helix comes up below it.
+      final double wide = depth.widthOf(ZoomStop.gene);
+      final double s =
+          math.log(GeneScene.exonsGone / wide) /
+          math.log(depth.widthOf(ZoomStop.dna) / wide);
+      final (GeneScene scene, ZoomFrame frame) = gene(
+        at + s * depth.travelOf(ZoomStop.gene.index) + 1e-9,
+      )!;
+      expect(scene.exonsShown(frame), lessThan(1e-6), reason: t.slug);
+      expect(gene(depth.depthOf(ZoomStop.dna)), isNull, reason: t.slug);
+    }
+  });
+
+  testWidgets('the DNA starts where the gene does: across the step from the '
+      'gene, their 5′ ends are one', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ZoomStage stage = _stage(t);
+      final ZoomDepth depth = stage.depth;
+      final double at = depth.depthOf(ZoomStop.gene);
+      final double step = depth.travelOf(ZoomStop.gene.index);
+      int seen = 0;
+      for (int i = 1; i <= 30; i++) {
+        final double s = i / 40;
+        final List<(ZoomScene, ZoomFrame)> frames = stage.frames(
+          at + s * step,
+          _canvas,
+          inks,
+        );
+        final Iterable<(ZoomScene, ZoomFrame)> gene = frames.where(
+          ((ZoomScene, ZoomFrame) f) => f.$1 is GeneScene,
+        );
+        final Iterable<(ZoomScene, ZoomFrame)> dna = frames.where(
+          ((ZoomScene, ZoomFrame) f) => f.$1 is DnaScene,
+        );
+        if (gene.isEmpty || dna.isEmpty) {
+          continue;
+        }
+        seen++;
+        final (ZoomScene g, ZoomFrame inGene) = gene.single;
+        final (ZoomScene n, ZoomFrame inDna) = dna.single;
+        expect(
+          inDna.toScreen(Offset((n as DnaScene).unitAlong(0), 0)).dx,
+          closeTo((g as GeneScene).screenX(inGene, 0), 0.5),
+          reason: '${t.slug} at $s',
+        );
+      }
+      expect(seen, greaterThan(8), reason: t.slug);
+    }
+  });
+
+  testWidgets('nothing the gene draws changes by more than 0.08 a frame at '
+      '60 fps, on any step to it or from it', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ZoomStage stage = _stage(t);
+      final ZoomDepth depth = stage.depth;
+      // The scene's own showing times its exons' and its annotations'.
+      (double, double) shown(double d) {
+        for (final (ZoomScene scene, ZoomFrame frame) in stage.frames(
+          d,
+          _canvas,
+          inks,
+        )) {
+          if (scene is GeneScene) {
+            return (
+              frame.opacity * scene.exonsShown(frame),
+              frame.opacity * scene.annotationsShown(frame),
+            );
+          }
+        }
+        return (0, 0);
+      }
+
+      final double band = depth.depthOf(ZoomStop.band);
+      final double gene = depth.depthOf(ZoomStop.gene);
+      final double dna = depth.depthOf(ZoomStop.dna);
+      for (final ZoomFlight flight in <ZoomFlight>[
+        ZoomFlight(band, gene),
+        ZoomFlight(gene, band),
+        ZoomFlight(gene, dna),
+        ZoomFlight(dna, gene),
+      ]) {
+        final int frames = (flight.duration.inMicroseconds / 1e6 * 60).ceil();
+        (double, double)? last;
+        for (int f = 0; f <= frames; f++) {
+          final (double exons, double annotations) now = shown(
+            flight.at(Duration(microseconds: (f * 1e6 / 60).round())),
+          );
+          if (last != null) {
+            final String what =
+                '${t.slug} from ${flight.from} to ${flight.to}, frame $f';
+            expect(
+              (now.$1 - last.$1).abs(),
+              lessThanOrEqualTo(0.08),
+              reason: '$what: exons',
+            );
+            expect(
+              (now.$2 - last.$2).abs(),
+              lessThanOrEqualTo(0.08),
+              reason: '$what: annotations',
+            );
+          }
+          last = now;
+        }
+      }
     }
   });
 

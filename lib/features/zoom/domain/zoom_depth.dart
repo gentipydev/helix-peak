@@ -11,7 +11,7 @@ import 'locus_track.dart';
 import 'zoom_path.dart';
 
 /// The stops of the zoom, from the widest to the finest.
-enum ZoomStop { body, organ, tissue, cell, nucleus, chromosome, band, dna }
+enum ZoomStop { body, organ, tissue, cell, nucleus, chromosome, band, gene, dna }
 
 /// What a stop's width is measured in. From the body down to the whole
 /// chromosome the view is a stretch of space; from the chromosome down it
@@ -33,8 +33,8 @@ enum ZoomUnit { metres, basePairs }
 /// as big as the organ is, a slice of tissue half a millimetre, a cell tens
 /// of micrometres, its nucleus about ten. The chromosome is drawn at the
 /// length it condenses to when a cell divides, which follows its base pairs;
-/// below it, the band and the double helix are as many base pairs as each
-/// spans.
+/// below it, the band, the gene and the double helix are as many base pairs
+/// as each spans.
 @immutable
 final class ZoomDepth {
   ZoomDepth(this.track, {required this.path})
@@ -174,6 +174,7 @@ final class ZoomDepth {
     ZoomStop.nucleus => nucleusMetres,
     ZoomStop.chromosome => chromosomeView * condensedLength,
     ZoomStop.band => 1.5 * track.bandLengthBp,
+    ZoomStop.gene => 1.3 * track.geneLengthBp,
     ZoomStop.dna => dnaBasePairs,
   };
 

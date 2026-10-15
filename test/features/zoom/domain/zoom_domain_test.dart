@@ -787,7 +787,7 @@ void main() {
           ];
           for (final ZoomStop stop in ZoomStop.values) {
             final ZoomFact fact = facts.of(stop);
-            final String words = stop == ZoomStop.dna
+            final String words = stop == ZoomStop.gene
                 ? fact.line
                 : '${fact.title} ${fact.line}';
             for (final RegExp name in names) {
@@ -799,7 +799,7 @@ void main() {
             }
           }
         }
-        expect(facts.of(ZoomStop.dna).title, startsWith('${t.gene} · '));
+        expect(facts.of(ZoomStop.gene).title, startsWith('${t.gene} · '));
       }
     });
 
@@ -901,7 +901,7 @@ void main() {
       for (final ProteinTarget t in TestCatalog.all) {
         final GeneRecord record = recordOf(t);
         final int bases = record.realSpanBp ?? record.lengthBp;
-        final String title = _facts(t).of(ZoomStop.dna).title;
+        final String title = _facts(t).of(ZoomStop.gene).title;
         expect(title, contains(' · '), reason: t.slug);
         expect(
           title,
@@ -947,18 +947,37 @@ void main() {
       expect(head, contains(AnatomyFigure.licence));
     });
 
-    test('name the gene at the DNA, over its first bases, 5′ to 3′', () {
+    test('name the gene at its own stop: its length, its exons and its '
+        'strand', () {
+      for (final ProteinTarget t in TestCatalog.all) {
+        final GeneRecord record = recordOf(t);
+        final ZoomFact gene = _facts(t).of(ZoomStop.gene);
+        final int bases = record.realSpanBp ?? record.lengthBp;
+        final int exons = record.exons.length;
+        expect(gene.title, '${record.gene} · ${grouped(bases)} bases');
+        expect(
+          gene.line,
+          '${spelledLeading(exons)} ${exons == 1 ? 'exon' : 'exons'} · '
+          '${locusOf(t).strand < 0 ? 'reverse' : 'forward'} strand',
+          reason: t.slug,
+        );
+      }
+      final ZoomFact insulin = _facts(TestCatalog.insulin).of(ZoomStop.gene);
+      expect(insulin.title, 'INS · 1,431 bases');
+      expect(insulin.line, 'Three exons · reverse strand');
+    });
+
+    test('show the record’s first bases at the DNA, 5′ to 3′', () {
       for (final ProteinTarget t in TestCatalog.all) {
         final GeneRecord record = recordOf(t);
         final ZoomFact dna = _facts(t).of(ZoomStop.dna);
         final int n = math.min(ZoomDepth.helixBases, record.sequence.length);
-        final int bases = record.realSpanBp ?? record.lengthBp;
-        expect(dna.title, '${record.gene} · ${grouped(bases)} bases');
+        expect(dna.title, 'First $n bases');
         expect(dna.line, '5′ ${record.sequence.substring(0, n)} 3′');
       }
       expect(
         _facts(TestCatalog.insulin).of(ZoomStop.dna).title,
-        'INS · 1,431 bases',
+        'First 33 bases',
       );
     });
   });

@@ -21,10 +21,9 @@ import 'zoom_subject.dart';
 /// It takes over from the chromosome as it turns to lie along the genome:
 /// the strip appears where the turned chromosome lies, on the middle of the
 /// view, and stays there as the ruler, the map and the gene's mark come up.
-/// On the way out the zoom goes into the strip where the DNA's view lies,
-/// read from the left end of the gene's mark ([ZoomSubject.geneEntry]), and
-/// the map gives way over the first half of the step as the gene's own DNA
-/// opens out of the mark.
+/// On the way out the zoom goes into the gene's mark at its middle, where
+/// the gene's own stop is centred, and the map gives way as the gene opens
+/// out of the mark.
 ///
 /// Its units are the width of the view at the band, in base pairs, from the
 /// middle of the band; points are placed on screen through the camera in
@@ -46,7 +45,7 @@ final class BandScene extends ZoomScene {
   double unitOf(double position) => (position - subject.bandMiddle) / _width;
 
   @override
-  Offset get portal => Offset(unitOf(subject.geneEntry), 0);
+  Offset get portal => Offset(unitOf(subject.geneMiddle), 0);
 
   @override
   double asChild(double progress) => arriving(progress);
@@ -57,10 +56,10 @@ final class BandScene extends ZoomScene {
   static double arriving(double progress) =>
       smoothstep((progress - 0.3) / 0.45);
 
-  // The step out goes down to the DNA, past the gene's whole scale, so the
-  // map gives way while the gene is still small on it.
+  // The map gives way as the gene's mark opens into the gene, a little
+  // after the gene has begun to come up in it.
   @override
-  double asParent(double progress) => 1 - smoothstep((progress - 0.1) / 0.45);
+  double asParent(double progress) => 1 - smoothstep((progress - 0.35) / 0.45);
 
   /// Where the ruler runs, in pixels below the middle of the view, where
   /// the strip lies.
@@ -145,13 +144,12 @@ final class BandScene extends ZoomScene {
   static double markArriving(double progress) =>
       smoothstep((progress - 0.7) / 0.3);
 
-  // The gene is named at the top of its mark, where the zoom goes into it:
-  // on a mark at its least width that is its middle, and on a wide one a
-  // point that stays put as the view closes in on it.
+  // The gene is named at the top of its mark, over its middle, where the
+  // zoom goes into it, so the name stays put as the view closes in on it.
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
     final Offset gene = Offset(
-      _x(frame, subject.geneEntry),
+      _x(frame, subject.geneMiddle),
       stripY(frame) - strip / 2 - markReach,
     );
     final (double _, double _, double mark) = _beats(frame);
