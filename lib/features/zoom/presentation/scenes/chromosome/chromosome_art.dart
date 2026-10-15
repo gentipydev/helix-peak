@@ -96,8 +96,78 @@ final class ChromosomeArt {
     );
   }();
 
+  /// What the chromosome at rest covers, its coat, its shadow and its relief
+  /// included, in the scene's units: the room a layer of it needs.
+  late final Rect bounds = _outlines[0]
+      .getBounds()
+      .expandToInclude(_outlines[1].getBounds())
+      .inflate(1.2 * _half);
+
+  /// The body's colour averaged over its area on both sisters, lit as it
+  /// is, the gene's wash left out: what the territory's mark gives way to as
+  /// the chromosome condenses out of it.
+  late final Color meanTone = () {
+    final Float64List rows = form.bodyRows;
+    final List<double> columns = _columns;
+    double r = 0;
+    double g = 0;
+    double b = 0;
+    double total = 0;
+    for (final double side in <double>[-1, 1]) {
+      for (int i = 0; i + 1 < rows.length; i++) {
+        final double y = (rows[i] + rows[i + 1]) / 2;
+        final double w = form.widthAt(y);
+        final double slope = form.slope(y);
+        final double tone = form.toneAt(y);
+        for (int j = 0; j + 1 < columns.length; j++) {
+          final double u = (columns[j] + columns[j + 1]) / 2;
+          final double area =
+              (rows[i + 1] - rows[i]) * w * (columns[j + 1] - columns[j]);
+          final _Normal n = _Normal(
+            u,
+            -slope,
+            math.sqrt(math.max(0, 1 - u * u)),
+          );
+          final ({double light, double occlusion}) s = _surface(
+            side,
+            y,
+            u,
+            n.x,
+            n.y,
+            n.z,
+          );
+          final (double, double, double) mix = _palette.mix(
+            tone,
+            s.light,
+            s.occlusion,
+            0,
+          );
+          r += mix.$1 * area;
+          g += mix.$2 * area;
+          b += mix.$3 * area;
+          total += area;
+        }
+      }
+    }
+    return total <= 0
+        ? inks.lit(ChromosomeStyle.paleLit)
+        : Color.from(
+            alpha: 1,
+            red: r / total,
+            green: g / total,
+            blue: b / total,
+          );
+  }();
+
   /// Builds every mesh now rather than at the first frame.
-  void prepare() => <Object?>[_sisters, _granules, _outlines, _seamShade];
+  void prepare() => <Object?>[
+    _sisters,
+    _granules,
+    _outlines,
+    _seamShade,
+    bounds,
+    meanTone,
+  ];
 
   /// The chromosome at rest, without its spots.
   void paintRest(Canvas canvas, ZoomFrame frame) {
@@ -255,13 +325,17 @@ final class ChromosomeArt {
     );
   }
 
+  /// How far across the tube each of the body's columns lies, from one
+  /// edge to the other: the sine of its angle round it.
+  static final List<double> _columns = <double>[
+    for (final double u in ChromosomeStyle.columns.reversed) -u,
+    ...ChromosomeStyle.columns.skip(1),
+  ];
+
   List<ui.Vertices> _sister(double side) {
     final _Mesh mesh = _Mesh();
     final Float64List rows = form.bodyRows;
-    final List<double> columns = <double>[
-      for (final double u in ChromosomeStyle.columns.reversed) -u,
-      ...ChromosomeStyle.columns.skip(1),
-    ];
+    final List<double> columns = _columns;
     final int across = columns.length;
     // The body: a sheet of rows across the tube, lit vertex by vertex.
     mesh.begin(rows.length * across);
@@ -633,6 +707,17 @@ final class _Palette {
     double gene,
     double alpha,
   ) {
+    final (double r, double g, double b) = mix(tone, light, occlusion, gene);
+    return _pack(alpha, r, g, b);
+  }
+
+  /// [colour]'s channels, from 0 to 1, before they are packed.
+  (double, double, double) mix(
+    double tone,
+    double light,
+    double occlusion,
+    double gene,
+  ) {
     double r = _pale.r + (_deep.r - _pale.r) * tone;
     double g = _pale.g + (_deep.g - _pale.g) * tone;
     double b = _pale.b + (_deep.b - _pale.b) * tone;
@@ -654,7 +739,7 @@ final class _Palette {
     r += (_mark.r - r) * wash;
     g += (_mark.g - g) * wash;
     b += (_mark.b - b) * wash;
-    return _pack(alpha, r, g, b);
+    return (r, g, b);
   }
 
   int shadow(double alpha) => _pack(alpha, _shadow.r, _shadow.g, _shadow.b);

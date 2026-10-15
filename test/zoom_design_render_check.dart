@@ -30,8 +30,10 @@ import 'support/test_catalog.dart';
 /// ZOOM_DESIGN_SHOTS=/tmp/zoom flutter test test/zoom_design_render_check.dart
 ///
 /// ZOOM_GENES=hemoglobin,p53 narrows the proteins; ZOOM_BETWEEN=0 leaves out
-/// the moments between stops. Without ZOOM_DESIGN_SHOTS it draws each frame
-/// and checks nothing threw.
+/// the moments between stops. ZOOM_MOMENTS=nucleus+2,nucleus+10,chromosome
+/// draws those moments and no others: a stop, or the share of the step that
+/// leaves it, in percent. Without ZOOM_DESIGN_SHOTS it draws each frame and
+/// checks nothing threw.
 ///
 /// ZOOM_TISSUE_ATLAS=/tmp/atlas writes every tissue recipe's slide on its
 /// own, and ZOOM_ORGAN_ATLAS=/tmp/organs every tissue's organ, whichever
@@ -59,6 +61,10 @@ void main() {
   final String directory = Platform.environment['ZOOM_DESIGN_SHOTS'] ?? '';
   final String genes = Platform.environment['ZOOM_GENES'] ?? '';
   final bool between = Platform.environment['ZOOM_BETWEEN'] != '0';
+  final List<String> asked = <String>[
+    for (final String name in (Platform.environment['ZOOM_MOMENTS'] ?? '').split(','))
+      if (name.trim().isNotEmpty) name.trim(),
+  ];
   final List<ProteinTarget> targets = genes.isEmpty
       ? <ProteinTarget>[
           TestCatalog.hemoglobin,
@@ -82,15 +88,22 @@ void main() {
           locusOf(target),
           path: ZoomPath.of(locusOf(target)),
         );
-        final Map<String, double> moments = <String, double>{
-          for (final ZoomStop stop in ZoomStop.values) ...<String, double>{
-            '${stop.index}-${stop.name}': depth.depthOf(stop),
-            if (between && stop != ZoomStop.dna)
-              for (final double s in <double>[0.3, 0.6])
-                '${stop.index}-${stop.name}-${(s * 10).round()}':
-                    depth.depthOf(stop) + s * depth.travelOf(stop.index),
-          },
-        };
+        final Map<String, double> moments = asked.isNotEmpty
+            ? <String, double>{
+                for (final String name in asked)
+                  if (_moment(name) case (final ZoomStop stop, final double s))
+                    '${stop.index}-$name':
+                        depth.depthOf(stop) + s * depth.travelOf(stop.index),
+              }
+            : <String, double>{
+                for (final ZoomStop stop in ZoomStop.values) ...<String, double>{
+                  '${stop.index}-${stop.name}': depth.depthOf(stop),
+                  if (between && stop != ZoomStop.dna)
+                    for (final double s in <double>[0.3, 0.6])
+                      '${stop.index}-${stop.name}-${(s * 10).round()}':
+                          depth.depthOf(stop) + s * depth.travelOf(stop.index),
+                },
+              };
         const Key key = ValueKey<String>('zoom-design-capture');
         for (final MapEntry<String, double> moment in moments.entries) {
           await tester.pumpWidget(
@@ -275,6 +288,14 @@ void main() {
     }
     await tester.pumpWidget(const SizedBox.shrink());
   });
+}
+
+/// A moment named `stop` or `stop+percent`: the stop, or that share of the
+/// step that leaves it.
+(ZoomStop, double) _moment(String name) {
+  final List<String> parts = name.split('+');
+  final ZoomStop stop = ZoomStop.values.byName(parts.first);
+  return (stop, parts.length > 1 ? double.parse(parts[1]) / 100 : 0);
 }
 
 /// One organ on its own, at the size its scene shows it at its stop.

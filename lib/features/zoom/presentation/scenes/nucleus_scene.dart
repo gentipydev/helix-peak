@@ -99,7 +99,42 @@ final class NucleusScene extends ZoomScene {
   // The territory is not named here: the card names it.
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
-    out.item('nucleus:target', frame.toScreen(portal), frame.opacity);
+    final Offset at = frame.toScreen(portal);
+    out.item('nucleus:target', at, frame.opacity);
+    // The gene's territory, for as long as this scene draws it: the
+    // chromosome's scene draws it once the step to it is under way.
+    if (frame.isChild || frame.progress <= 0) {
+      final double shown = math.min(frame.opacity, _painted(frame));
+      out.item('territory:followed', at, shown);
+      out.item('territory:halo', at, shown);
+    }
+  }
+
+  /// How far the territories have resolved out of the nucleus's even tone:
+  /// all of them once it is reached.
+  static double _painted(ZoomFrame frame) =>
+      frame.isChild ? smoothstep((frame.progress - 0.35) / 0.45) : 1;
+
+  /// The gene's territory as the nucleus draws it, along [path] in a box
+  /// [box], [pixel] the scene's pixel: filled in [fill], its glow [halo] of
+  /// the way up and its edge in the mark [edge] of the way. The
+  /// chromosome's scene draws it the same way as it condenses out of it, so
+  /// the hand-over between the two is exact.
+  static void paintFollowedTerritory(
+    Canvas canvas,
+    Path path,
+    Rect box,
+    ZoomInks inks,
+    double pixel, {
+    required Color fill,
+    double halo = 1,
+    double edge = 1,
+  }) {
+    Sculpt.glow(canvas, box.center, box.longestSide, inks, 0.3 * halo);
+    canvas.drawPath(path, Paint()..color = fill);
+    if (edge > 0) {
+      Sculpt.glowingStroke(canvas, path, inks, width: 1.6 * pixel, alpha: edge);
+    }
   }
 
   /// Every territory's outline as a path, built once: the 46 of them are
@@ -175,9 +210,7 @@ final class NucleusScene extends ZoomScene {
     );
     // The territories resolve out of it on the way in, each in a neutral
     // a step from its neighbours'.
-    final double painted = frame.isChild
-        ? smoothstep((frame.progress - 0.35) / 0.45)
-        : 1;
+    final double painted = _painted(frame);
     canvas.save();
     canvas.clipPath(outline);
     final String followed = subject.track.chromosome;
@@ -260,15 +293,15 @@ final class NucleusScene extends ZoomScene {
     // it over.
     if (frame.isChild || frame.progress <= 0) {
       final Path own = _territories[(followed, 0)]!;
-      final Rect box = own.getBounds();
-      Sculpt.glow(canvas, box.center, box.longestSide, inks, 0.3 * painted);
-      canvas.drawPath(own, Paint()..color = inks.glow(0.35 + 0.45 * painted));
-      Sculpt.glowingStroke(
+      paintFollowedTerritory(
         canvas,
         own,
+        own.getBounds(),
         inks,
-        width: 1.6 * pixel,
-        alpha: painted,
+        pixel,
+        fill: inks.glow(0.35 + 0.45 * painted),
+        halo: painted,
+        edge: painted,
       );
     }
     canvas.restore();

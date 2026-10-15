@@ -168,16 +168,60 @@ final class ChromosomeForm {
     return Contour(<Offset>[...right, ...left.reversed]);
   }
 
-  /// The two chromatids' outer outline, as one shape.
+  /// How far apart the sisters' facing sides are at [y]: below 0 where they
+  /// overlap along the groove.
+  double _gap(double y) => centreAt(1, y) - centreAt(-1, y) - 2 * widthAt(y);
+
+  /// The two chromatids' outline, as one shape: round each sister's outer
+  /// side and its ends, and into the cleft between them toward each end,
+  /// where they part wider than the groove is drawn, so a shape drawn in to
+  /// it covers only what the sisters do. It starts at the top of the right
+  /// sister and runs clockwise on screen.
   Contour outline() {
-    final List<Offset> left = <Offset>[];
-    final List<Offset> right = <Offset>[];
-    for (final double y in _outlineRows) {
-      final double w = widthAt(y);
-      left.add(Offset(centreAt(-1, y) - w, y));
-      right.add(Offset(centreAt(1, y) + w, y));
+    final List<double> rows = _outlineRows;
+    final int n = rows.length;
+    final double parted = 0.07 * half;
+    int first = 0;
+    while (first < n && _gap(rows[first]) > parted) {
+      first++;
     }
-    return Contour(<Offset>[...right, ...left.reversed]);
+    int last = n - 1;
+    while (last > first && _gap(rows[last]) > parted) {
+      last--;
+    }
+    // Where the facing sides close to the groove's width, between two rows.
+    Offset meet(int a, int b) {
+      final double ga = _gap(rows[a]) - parted;
+      final double gb = _gap(rows[b]) - parted;
+      final double t = ga == gb ? 0 : (ga / (ga - gb)).clamp(0.0, 1.0);
+      final double y = rows[a] + (rows[b] - rows[a]) * t;
+      return Offset((centreAt(1, y) + centreAt(-1, y)) / 2, y);
+    }
+
+    Offset outer(double side, double y) =>
+        Offset(centreAt(side, y) + side * widthAt(y), y);
+    Offset inner(double side, double y) =>
+        Offset(centreAt(side, y) - side * widthAt(y), y);
+    final bool apart = first > 0 && first < n;
+    final bool apartBelow = last < n - 1 && apart;
+    return Contour(<Offset>[
+      // The right sister: up its side facing the cleft at the top, down
+      // its outer side, and up into the cleft at the bottom.
+      if (apart) ...<Offset>[
+        meet(first - 1, first),
+        for (int i = first - 1; i >= 0; i--) inner(1, rows[i]),
+      ],
+      for (int i = 0; i < n; i++) outer(1, rows[i]),
+      if (apartBelow) ...<Offset>[
+        for (int i = n - 1; i > last; i--) inner(1, rows[i]),
+        meet(last, last + 1),
+        for (int i = last + 1; i < n; i++) inner(-1, rows[i]),
+      ],
+      // The left sister: up its outer side, and down into the cleft.
+      for (int i = n - 1; i >= 0; i--) outer(-1, rows[i]),
+      if (apart)
+        for (int i = 0; i < first; i++) inner(-1, rows[i]),
+    ]);
   }
 
   // The bands, softened at their edges.

@@ -110,6 +110,10 @@ final class ChromosomeScene extends ZoomScene {
     return _art = ChromosomeArt(form, inks)..prepare();
   }
 
+  /// The two chromatids' outer outline, as the territory's outline is drawn
+  /// in to it.
+  late final Contour _outline = form.outline().resampled(128);
+
   /// The territory the chromosome condenses from: the nucleus scene's own
   /// outline for it, in this scene's units, so the hand-over is exact.
   late final Contour _territoryOutline = () {
@@ -141,11 +145,51 @@ final class ChromosomeScene extends ZoomScene {
       target,
       math.min(calloutPresence(frame), formed),
     );
+    final double s = frame.progress;
+    final Offset band = frame.toScreen(Offset(0, _bandY));
+    if (frame.isChild) {
+      // Before the step is under way the nucleus draws the territory.
+      if (s <= 0) {
+        return;
+      }
+      final _Condensing c = _Condensing(s);
+      final Offset origin = frame.toScreen(Offset.zero);
+      out.item('territory:followed', origin, 1 - c.tint);
+      out.item('territory:halo', origin, c.edge);
+      out.item('chromosome:art', band, c.art);
+      out.item('chromosome:spots', frame.toScreen(_spots), c.spots);
+      return;
+    }
+    final double turn = smootherstep(s / 0.35);
+    final double art = math.min(frame.opacity, 1 - smoothstep(s / 0.3));
+    out.item('chromosome:art', band, art);
+    out.item('chromosome:spots', _onScreen(frame, _spots, turn), art);
+  }
+
+  /// The middle of the gene's two spots.
+  Offset get _spots =>
+      Offset((form.fish(-1).dx + form.fish(1).dx) / 2, form.geneY);
+
+  /// Where the scene's point [p] is on screen while the chromosome is
+  /// turned [turn] of the way to lying along the genome, about its band.
+  Offset _onScreen(ZoomFrame frame, Offset p, double turn) {
+    if (turn <= 0) {
+      return frame.toScreen(p);
+    }
+    final double a = -math.pi / 2 * turn;
+    final Offset d = p - Offset(0, _bandY);
+    return frame.toScreen(
+      Offset(
+        d.dx * math.cos(a) - d.dy * math.sin(a),
+        _bandY + d.dx * math.sin(a) + d.dy * math.cos(a),
+      ),
+    );
   }
 
   @override
   void prepare(ZoomInks inks) => <Object?>[
     _sisters,
+    _outline,
     _territoryOutline,
     _artIn(inks),
   ];
@@ -213,46 +257,48 @@ final class ChromosomeScene extends ZoomScene {
     _bracket(canvas, frame);
   }
 
-  /// The territory condensing into the chromosome: the mark drawing in to
-  /// the gene's band as the bands come up.
+  /// The territory condensing into the chromosome. Its outline draws in to
+  /// the chromosome's while its mark gives way to the chromatin's own tone,
+  /// as the nucleus's edge and glow fade; the micrograph comes up over it,
+  /// the fill under it going last; and the gene's spots come up on the
+  /// sisters. Nothing is drawn before the step is under way, where the
+  /// nucleus draws the territory, and once every part is at rest the stop
+  /// itself is drawn, so the step's last frames are the stop's.
   void _condensing(Canvas canvas, ZoomFrame frame) {
-    final double m = smootherstep((frame.progress - 0.08) / 0.62);
-    if (m >= 1) {
+    final double s = frame.progress;
+    if (s <= 0) {
+      return;
+    }
+    if (s >= _Condensing.done) {
       _resting(canvas, frame);
       return;
     }
     final ZoomInks inks = frame.inks;
-    final Contour outline = form.outline().resampled(128);
-    final Contour shape = _territoryOutline.lerp(outline, m);
-    final Path path = shape.toPath();
-    canvas.drawPath(
+    final ChromosomeArt art = _artIn(inks);
+    final _Condensing c = _Condensing(s);
+    final Path path = _territoryOutline.lerp(_outline, c.shape).toPath();
+    final Color fill = Color.lerp(inks.glow(0.8), art.meanTone, c.tint)!;
+    NucleusScene.paintFollowedTerritory(
+      canvas,
       path,
-      Paint()
-        ..color = Color.lerp(
-          inks.glow(0.8),
-          _pale(inks),
-          smoothstep((m - 0.3) / 0.6),
-        )!,
+      path.getBounds(),
+      inks,
+      frame.pixel,
+      fill: fill.withValues(alpha: fill.a * c.fill),
+      halo: c.edge,
+      edge: c.edge,
     );
-    final double bands = smoothstep((m - 0.55) / 0.4);
-    if (bands > 0) {
-      canvas.save();
-      canvas.clipPath(path);
-      _bands(canvas, frame, -0.3, 0.3, opacity: bands);
-      canvas.restore();
-    }
-    if (m > 0.85) {
-      // The two chromatids resolve out of one shape at the very end.
+    if (c.art > 0) {
       canvas.saveLayer(
-        null,
-        Paint()..color = Color.fromRGBO(0, 0, 0, smoothstep((m - 0.85) / 0.15)),
+        art.bounds,
+        Paint()..color = Color.fromRGBO(0, 0, 0, c.art),
       );
-      _resting(canvas, frame);
+      art.paintRest(canvas, frame);
       canvas.restore();
     }
+    art.paintSpots(canvas, opacity: c.spots);
+    _bracket(canvas, frame, alpha: c.spots);
   }
-
-  static Color _pale(ZoomInks inks) => inks.lit(0.56);
 
   /// The chromosome on its way to the map, as two banded tubes: [merge]
   /// and [thin] from 0 to 1.
@@ -317,15 +363,17 @@ final class ChromosomeScene extends ZoomScene {
     _bracket(canvas, frame, merge: merge, thin: thin, target: target);
   }
 
-  /// The band the gene lies in: a bracket beside it, as ISCN marks one.
+  /// The band the gene lies in: a bracket beside it, as ISCN marks one,
+  /// [alpha] of the way up.
   void _bracket(
     Canvas canvas,
     ZoomFrame frame, {
+    double alpha = 1,
     double merge = 0,
     double thin = 0,
     double? target,
   }) {
-    final double turned = 1 - merge;
+    final double turned = (1 - merge) * alpha;
     if (turned <= 0.02) {
       return;
     }
@@ -408,4 +456,39 @@ final class ChromosomeScene extends ZoomScene {
       canvas.drawPath(path, fill);
     }
   }
+}
+
+/// How far the chromosome has condensed out of its territory, [s] of the
+/// way through the step from the nucleus: each part on its own schedule,
+/// every one of them at rest by [done]. None of the fades changes by more
+/// than 0.08 a frame at 60 fps on the shortest flight.
+final class _Condensing {
+  _Condensing(double s)
+    : shape = smootherstep((s - 0.08) / 0.62),
+      edge = 1 - smoothstep(s / 0.45),
+      tint = smoothstep((s - 0.15) / 0.5),
+      art = smoothstep((s - 0.35) / 0.45),
+      fill = 1 - smoothstep((s - 0.62) / 0.36),
+      spots = smoothstep((s - 0.5) / 0.45);
+
+  /// Where every part is at rest, and the stop itself is drawn.
+  static const double done = 0.98;
+
+  /// How far the territory's outline has drawn in to the chromosome's.
+  final double shape;
+
+  /// How much of the nucleus's edge and glow round the territory is left.
+  final double edge;
+
+  /// How far the territory's mark has given way to the chromatin's tone.
+  final double tint;
+
+  /// How far the micrograph has come up.
+  final double art;
+
+  /// How much of the fill under the micrograph is left.
+  final double fill;
+
+  /// How far the gene's spots and its band's bracket have come up.
+  final double spots;
 }
