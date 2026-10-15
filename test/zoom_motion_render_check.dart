@@ -27,10 +27,12 @@ import 'support/test_catalog.dart';
 /// ZOOM_MOTION_SHOTS=/tmp/motion flutter test test/zoom_motion_render_check.dart
 ///
 /// ZOOM_GENES=insulin,dystrophin names the proteins (those two by default).
-/// ZOOM_MOTION picks the takes: `gene` (one pass of the gene being read, at
-/// its stop, 10 frames a second), `dive` (the step from the gene to the DNA
-/// as the screen flies it, 30 frames a second, the clock running on), or
-/// both, the default. ZOOM_MOTION_WIDTH sets the canvas's width (390).
+/// ZOOM_MOTION picks the takes, by name, comma separated: `gene` (one pass
+/// of the gene being read, at its stop, 10 frames a second), `arrive` (the
+/// step from the band to the gene, then two seconds there, 30 frames a
+/// second), `dive` (the step from the gene to the DNA as the screen flies
+/// it, then a second there, 30 frames a second, the clock running on);
+/// `gene,dive` by default. ZOOM_MOTION_WIDTH sets the canvas's width (390).
 /// Without ZOOM_MOTION_SHOTS it draws nothing and passes.
 void main() {
   final String directory = Platform.environment['ZOOM_MOTION_SHOTS'] ?? '';
@@ -66,6 +68,24 @@ void main() {
         if (takes.contains('gene'))
           for (int f = 0; f < Transcription.passSeconds * 10; f++)
             ('gene', depth.depthOf(ZoomStop.gene), f / 10),
+        if (takes.contains('arrive'))
+          ...() {
+            final double from = depth.depthOf(ZoomStop.band);
+            final double to = depth.depthOf(ZoomStop.gene);
+            final ZoomFlight flight = ZoomFlight(from, to);
+            final int count = (flight.duration.inMicroseconds / 1e6 * 30)
+                .ceil();
+            return <(String, double, double)>[
+              for (int f = 0; f <= count; f++)
+                (
+                  'arrive',
+                  flight.at(Duration(microseconds: (f * 1e6 / 30).round())),
+                  f / 30,
+                ),
+              // And two seconds at the gene, read.
+              for (int f = 1; f <= 60; f++) ('arrive', to, (count + f) / 30),
+            ];
+          }(),
         if (takes.contains('dive'))
           ...() {
             final double from = depth.depthOf(ZoomStop.gene);
@@ -74,6 +94,7 @@ void main() {
               from,
               to,
               minimum: depth.leastFlight(from, to),
+              cruise: depth.cruiseOf(from, to),
             );
             final int count = (flight.duration.inMicroseconds / 1e6 * 30)
                 .ceil();
