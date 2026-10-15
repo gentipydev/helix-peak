@@ -237,6 +237,20 @@ final class ChromosomeTube {
   /// How many vertices the tube is drawn with.
   int get vertexCount => _rows.length * _across * 2;
 
+  /// Whether the tube was last drawn as one, its right sister alone.
+  bool _lastMerged = false;
+
+  /// The vertices drawn last frame, for tests: where each lies, in the
+  /// scene's units before it turns, and its colour.
+  @visibleForTesting
+  ({Float32List positions, Int32List colours}) get laidVertices {
+    final int from = _lastMerged ? _rows.length * _across : 0;
+    return (
+      positions: Float32List.sublistView(_positions, from * 2),
+      colours: Int32List.sublistView(_colours, from),
+    );
+  }
+
   /// The rows as last laid, in order along the tube, for tests: the band
   /// each carries; whether it is the last row of its band at an edge (-1),
   /// the first (1), or neither (0); and where the right sister's two edges
@@ -280,6 +294,7 @@ final class ChromosomeTube {
     required double under,
   }) {
     _lay(frame.pixel, turn, merge, thin, strip, target);
+    _lastMerged = merge >= 1;
     final ui.Vertices tube = ui.Vertices.raw(
       VertexMode.triangles,
       _positions,

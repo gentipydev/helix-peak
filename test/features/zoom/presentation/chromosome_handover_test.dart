@@ -440,4 +440,89 @@ void main() {
       }
     });
   });
+
+  group('every moment', () {
+    testWidgets('the chromosome draws the same whatever the clock or the '
+        'dwell: what moves on its own is drawn over it', (
+      WidgetTester tester,
+    ) async {
+      final ZoomInks inks = await _inks(tester);
+      for (final ProteinTarget t in <ProteinTarget>[
+        TestCatalog.insulin,
+        TestCatalog.sod1,
+      ]) {
+        final ZoomStage stage = _stage(t);
+        final ZoomDepth depth = stage.depth;
+        for (final (ZoomStop from, double s) in <(ZoomStop, double)>[
+          (ZoomStop.nucleus, 0.3),
+          (ZoomStop.nucleus, 0.6),
+          (ZoomStop.nucleus, 0.99),
+          (ZoomStop.chromosome, 0),
+          (ZoomStop.chromosome, 0.15),
+          (ZoomStop.chromosome, 0.5),
+        ]) {
+          final (ZoomScene chromosome, ZoomFrame frame) = _at(
+            stage,
+            inks,
+            depth.depthOf(from) + s * depth.travelOf(from.index),
+          )[ZoomStop.chromosome]!;
+          ZoomFrame at(double clock, double dwell) => ZoomFrame(
+            view: frame.view,
+            size: frame.size,
+            opacity: frame.opacity,
+            inks: frame.inks,
+            clock: clock,
+            dwell: dwell,
+          );
+          final Uint8List still = await _pixels(tester, chromosome, at(0, 99));
+          for (final (double clock, double dwell) in <(double, double)>[
+            (12.5, 0.3),
+            (3, 0),
+            (0.7, 1.2),
+          ]) {
+            expect(
+              await _pixels(tester, chromosome, at(clock, dwell)),
+              still,
+              reason: '${t.slug}, ${from.name} +$s, $clock s, $dwell s',
+            );
+          }
+        }
+      }
+    });
+
+    testWidgets('every moment from the nucleus to the band draws, for all '
+        'twenty', (WidgetTester tester) async {
+      final ZoomInks inks = await _inks(tester);
+      const TextStyle labels = TextStyle(fontSize: 12);
+      for (final ProteinTarget t in TestCatalog.all) {
+        final ZoomStage stage = _stage(t);
+        final ZoomDepth depth = stage.depth;
+        final double from = depth.depthOf(ZoomStop.nucleus);
+        final double to = depth.depthOf(ZoomStop.band);
+        for (int i = 0; i <= 60; i++) {
+          final double d = from + (to - from) * i / 60;
+          final ui.PictureRecorder recorder = ui.PictureRecorder();
+          final Canvas canvas = Canvas(recorder);
+          ZoomPainter(
+            stage: stage,
+            at: () => d,
+            inks: inks,
+            labels: labels,
+          ).paint(canvas, _canvas);
+          ZoomOverlayPainter(
+            stage: stage,
+            at: () => d,
+            inks: inks,
+            labels: labels,
+            caption: labels,
+            credit: '',
+            clock: () => 0.4,
+            dwell: () => 0.4,
+          ).paint(canvas, _canvas);
+          recorder.endRecording().dispose();
+          expect(tester.takeException(), isNull, reason: '${t.slug} at $d');
+        }
+      }
+    });
+  });
 }

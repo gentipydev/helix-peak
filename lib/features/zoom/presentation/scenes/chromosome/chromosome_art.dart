@@ -397,8 +397,31 @@ final class ChromosomeArt {
     ...ChromosomeStyle.columns.skip(1),
   ];
 
+  /// Every mesh's vertices as built, for tests: where each lies, in the
+  /// scene's units, and its colour.
+  @visibleForTesting
+  List<({Float32List positions, Int32List colours})> get meshData {
+    final List<({Float32List positions, Int32List colours})> out =
+        <({Float32List positions, Int32List colours})>[];
+    for (final double side in <double>[-1, 1]) {
+      for (final void Function(_Mesh, double) lay
+          in <void Function(_Mesh, double)>[_laySister, _layGrains]) {
+        final _Mesh mesh = _Mesh(keep: true);
+        lay(mesh, side);
+        mesh.build();
+        out.addAll(mesh.kept);
+      }
+    }
+    return out;
+  }
+
   List<ui.Vertices> _sister(double side) {
     final _Mesh mesh = _Mesh();
+    _laySister(mesh, side);
+    return mesh.build();
+  }
+
+  void _laySister(_Mesh mesh, double side) {
     final Float64List rows = form.bodyRows;
     final List<double> columns = _columns;
     final int across = columns.length;
@@ -453,7 +476,6 @@ final class ChromosomeArt {
       }
     }
     _plate(mesh, side);
-    return mesh.build();
   }
 
   /// Where knob [k] lies on screen, its surface's normal there, and the
@@ -620,8 +642,13 @@ final class ChromosomeArt {
   }
 
   List<ui.Vertices> _grains(double side) {
-    const int ring = 6;
     final _Mesh mesh = _Mesh();
+    _layGrains(mesh, side);
+    return mesh.build();
+  }
+
+  void _layGrains(_Mesh mesh, double side) {
+    const int ring = 6;
     final KnobField knobs = form.knobs(side);
     final int bump = _palette.text(ChromosomeStyle.bumpAlpha);
     final int pit = _palette.shadow(ChromosomeStyle.pitAlpha);
@@ -643,7 +670,6 @@ final class ChromosomeArt {
         mesh.triangle(centre, centre + 1 + i, centre + 1 + (i + 1) % ring);
       }
     }
-    return mesh.build();
   }
 }
 
@@ -687,6 +713,15 @@ final class _Knob {
 /// Triangles with a colour at every vertex, gathered into as many meshes as
 /// their 16-bit indices need.
 final class _Mesh {
+  _Mesh({this.keep = false});
+
+  /// Whether to keep each mesh's vertices as well, for tests.
+  final bool keep;
+
+  /// Each mesh's vertices, when [keep]: where each lies and its colour.
+  final List<({Float32List positions, Int32List colours})> kept =
+      <({Float32List positions, Int32List colours})>[];
+
   static const int _limit = 65000;
 
   final List<ui.Vertices> _done = <ui.Vertices>[];
@@ -719,14 +754,19 @@ final class _Mesh {
 
   void _flush() {
     if (_indices.isNotEmpty) {
+      final Float32List positions = Float32List.fromList(_positions);
+      final Int32List colours = Int32List.fromList(_colours);
       _done.add(
         ui.Vertices.raw(
           VertexMode.triangles,
-          Float32List.fromList(_positions),
-          colors: Int32List.fromList(_colours),
+          positions,
+          colors: colours,
           indices: Uint16List.fromList(_indices),
         ),
       );
+      if (keep) {
+        kept.add((positions: positions, colours: colours));
+      }
     }
     _positions.clear();
     _colours.clear();

@@ -1,0 +1,234 @@
+import 'dart:math' as math;
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:helixpeek/core/catalog/protein_target.dart';
+import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/features/zoom/domain/locus_track.dart';
+import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/chromosome/chromosome_art.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/chromosome/chromosome_form.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/chromosome/chromosome_shading.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/chromosome/chromosome_style.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/chromosome/chromosome_tube.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/chromosome_scene.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/zoom_scene.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
+import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
+import 'package:helixpeek/features/zoom/presentation/zoom_painter.dart';
+
+import '../../../support/test_catalog.dart';
+import '../record_fixtures.dart';
+import '../zoom_fixtures.dart';
+
+/// The zoom's canvas on a phone, under the app bar and above the card.
+const Size _canvas = Size(390, 560);
+
+Future<ZoomInks> _inks(WidgetTester tester) async {
+  late ZoomInks inks;
+  await tester.pumpWidget(
+    MaterialApp(
+      theme: AppTheme.analysis,
+      home: Builder(
+        builder: (BuildContext context) {
+          inks = ZoomInks.of(context);
+          return const SizedBox();
+        },
+      ),
+    ),
+  );
+  return inks;
+}
+
+ZoomStage _stage(ProteinTarget t) =>
+    ZoomStage(ZoomSubject(track: locusOf(t), record: recordOf(t)));
+
+/// A vertex colour's channels, from 0 to 1.
+(double, double, double) _channels(int colour) => (
+  (colour >> 16 & 255) / 255,
+  (colour >> 8 & 255) / 255,
+  (colour & 255) / 255,
+);
+
+/// How far a colour leans to the mark, a teal: green over red where blue
+/// is below green, else green over the other two. Every neutral of the
+/// app's, and every mix of them, comes out at about nothing or below.
+double _tealness(int colour) {
+  final (double r, double g, double b) = _channels(colour);
+  return b < g ? g - r : 2 * g - r - b;
+}
+
+/// Where along the chromosome the gene's band's wash may reach: the band,
+/// its edges' softening, and the widest a lobe of it is drawn.
+(double, double) _geneReach(ChromosomeForm form) {
+  final LocusTrack track = form.track;
+  final double reach =
+      ChromosomeStyle.feather * form.half +
+      (ChromosomeStyle.lobe + ChromosomeStyle.lobeSpread) *
+          form.half *
+          ChromosomeStyle.skirtOuter;
+  return (
+    form.yOf(track.bandStart) - reach,
+    form.yOf(track.bandEnd + 1) + reach,
+  );
+}
+
+/// A canvas that draws nothing.
+class _Nowhere implements Canvas {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
+}
+
+void main() {
+  testWidgets('the bands’ tones run from the palest to the deepest, gvar '
+      'among them', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    final ChromosomePalette palette = ChromosomePalette(inks);
+    double lightness(Stain stain) {
+      final (double r, double g, double b) = palette.mix(
+        ChromosomeStyle.tone(stain),
+        1,
+        0,
+        0,
+      );
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+
+    final List<double> ladder = <double>[
+      for (final Stain stain in <Stain>[
+        Stain.gneg,
+        Stain.gpos25,
+        Stain.gpos50,
+        Stain.gpos75,
+        Stain.gpos100,
+      ])
+        lightness(stain),
+    ];
+    for (int i = 0; i + 1 < ladder.length; i++) {
+      expect(ladder[i], greaterThan(ladder[i + 1]), reason: 'step $i');
+    }
+    expect(lightness(Stain.gvar), inExclusiveRange(ladder.last, ladder.first));
+  });
+
+  testWidgets('the mark shows only in the gene’s band, at rest and on the '
+      'way into the map', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ChromosomeScene scene = ChromosomeScene(
+        ZoomSubject(track: locusOf(t), record: recordOf(t)),
+      );
+      final ChromosomeForm form = scene.form;
+      final (double from, double to) = _geneReach(form);
+      void hold(
+        List<({Float32List positions, Int32List colours})> meshes,
+        String what,
+      ) {
+        int teal = 0;
+        double elsewhere = -1;
+        for (final ({Float32List positions, Int32List colours}) mesh
+            in meshes) {
+          for (int i = 0; i < mesh.colours.length; i++) {
+            final double lean = _tealness(mesh.colours[i]);
+            final double y = mesh.positions[i * 2 + 1];
+            if (y >= from && y <= to) {
+              if (lean > 0.01) {
+                teal++;
+              }
+            } else {
+              elsewhere = math.max(elsewhere, lean);
+            }
+          }
+        }
+        expect(elsewhere, lessThanOrEqualTo(0.01), reason: '${t.slug}, $what');
+        expect(teal, greaterThan(0), reason: '${t.slug}, $what');
+      }
+
+      hold(ChromosomeArt(form, inks).meshData, 'at rest');
+      // On the way into the map, while the wash still shows.
+      final ZoomStage stage = _stage(t);
+      final ZoomDepth depth = stage.depth;
+      for (final double s in <double>[0.02, 0.1, 0.2]) {
+        for (final (ZoomScene shown, ZoomFrame frame) in stage.frames(
+          depth.depthOf(ZoomStop.chromosome) +
+              s * depth.travelOf(ZoomStop.chromosome.index),
+          _canvas,
+          inks,
+        )) {
+          if (shown is ChromosomeScene) {
+            shown.paint(_Nowhere(), frame);
+            final ChromosomeTube tube = shown.tubeIn(inks);
+            hold(<({Float32List positions, Int32List colours})>[
+              tube.laidVertices,
+            ], 'turning, $s');
+          }
+        }
+      }
+    }
+  });
+
+  testWidgets('no mesh holds more vertices than its indices reach', (
+    WidgetTester tester,
+  ) async {
+    final ZoomInks inks = await _inks(tester);
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ChromosomeScene scene = ChromosomeScene(
+        ZoomSubject(track: locusOf(t), record: recordOf(t)),
+      );
+      for (final ({Float32List positions, Int32List colours}) mesh
+          in ChromosomeArt(scene.form, inks).meshData) {
+        expect(mesh.colours.length, lessThanOrEqualTo(65000), reason: t.slug);
+        expect(mesh.positions.length, mesh.colours.length * 2);
+      }
+      expect(
+        ChromosomeTube(scene.form, inks).vertexCount,
+        lessThanOrEqualTo(65000),
+        reason: t.slug,
+      );
+    }
+  });
+
+  testWidgets('a mesh’s translucent colours lie over the ground as the art '
+      'takes them to', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    const double alpha = 0.4;
+    const (double, double, double) colour = (0.9, 0.3, 0.1);
+    final ui.PictureRecorder recorder = ui.PictureRecorder();
+    final Canvas canvas = Canvas(recorder);
+    canvas.drawRect(
+      const Rect.fromLTWH(0, 0, 8, 8),
+      Paint()..color = inks.ground,
+    );
+    final ui.Vertices triangle = ui.Vertices.raw(
+      VertexMode.triangles,
+      Float32List.fromList(<double>[-8, -8, 40, -8, -8, 40]),
+      colors: Int32List.fromList(<int>[
+        for (int i = 0; i < 3; i++)
+          ChromosomePalette.pack(alpha, colour.$1, colour.$2, colour.$3),
+      ]),
+    );
+    canvas.drawVertices(triangle, BlendMode.dst, Paint());
+    triangle.dispose();
+    final ui.Picture picture = recorder.endRecording();
+    final Uint8List pixels = (await tester.runAsync(() async {
+      final ui.Image image = await picture.toImage(8, 8);
+      final ByteData data = (await image.toByteData())!;
+      image.dispose();
+      return data.buffer.asUint8List();
+    }))!;
+    picture.dispose();
+    const int i = (2 * 8 + 2) * 4;
+    for (final (int c, double over, double ground) in <(int, double, double)>[
+      (0, colour.$1, inks.ground.r),
+      (1, colour.$2, inks.ground.g),
+      (2, colour.$3, inks.ground.b),
+    ]) {
+      expect(
+        pixels[i + c],
+        closeTo((alpha * over + (1 - alpha) * ground) * 255, 1.5),
+        reason: 'channel $c',
+      );
+    }
+  });
+}

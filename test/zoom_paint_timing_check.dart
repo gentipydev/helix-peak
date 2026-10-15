@@ -55,6 +55,8 @@ void main() {
       TestCatalog.dystrophin,
       TestCatalog.p53,
       TestCatalog.prion,
+      TestCatalog.amylase,
+      TestCatalog.sod1,
     ]) {
       final ZoomStage stage = ZoomStage(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),
@@ -70,7 +72,20 @@ void main() {
         for (final ZoomStop stop in ZoomStop.values) ...<String, double>{
           stop.name: depth.depthOf(stop),
           if (stop != ZoomStop.dna)
-            for (final double s in <double>[0.25, 0.5, 0.75])
+            for (final double s in <double>[
+              0.25,
+              0.5,
+              0.75,
+              // Closer through the chromosome's two steps, where it is
+              // built afresh each frame.
+              if (stop == ZoomStop.nucleus) ...<double>[0.02, 0.1, 0.9, 0.98],
+              if (stop == ZoomStop.chromosome) ...<double>[
+                0.02,
+                0.1,
+                0.2,
+                0.35,
+              ],
+            ])
               '${stop.name}+${(s * 100).round()}':
                   depth.depthOf(stop) + s * depth.travelOf(stop.index),
         },

@@ -39,6 +39,27 @@ void main() {
     expect(found, isEmpty, reason: found.join('\n'));
   });
 
+  test('no colour is packed as a number where meshes are coloured', () {
+    // The chromosome's meshes take their colours as packed integers, worked
+    // out from the inks: a literal there would be a colour of its own.
+    final RegExp literal = RegExp(r'0x[0-9A-Fa-f]{6,}');
+    final List<String> found = <String>[];
+    for (final FileSystemEntity entity in Directory(
+      'lib/features/zoom/presentation/scenes/chromosome',
+    ).listSync(recursive: true)) {
+      if (entity is! File || !entity.path.endsWith('.dart')) {
+        continue;
+      }
+      final List<String> lines = entity.readAsLinesSync();
+      for (int i = 0; i < lines.length; i++) {
+        if (literal.hasMatch(lines[i])) {
+          found.add('${entity.path}:${i + 1}: ${lines[i].trim()}');
+        }
+      }
+    }
+    expect(found, isEmpty, reason: found.join('\n'));
+  });
+
   testWidgets('every ink is the theme’s own, or a mix of its own', (
     WidgetTester tester,
   ) async {
