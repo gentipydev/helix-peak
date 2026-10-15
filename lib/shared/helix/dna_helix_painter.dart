@@ -36,6 +36,8 @@ class DnaHelixPainter extends CustomPainter {
     this.topFade = _topFadeStop,
     this.bottomFade = _bottomFadeStop,
     this.overscan = _overscan,
+    this.strandFloor = 0,
+    this.bases = 1,
   }) : super(repaint: repaint) {
     _buildLuts();
   }
@@ -72,6 +74,17 @@ class DnaHelixPainter extends CustomPainter {
   /// home screen's runs past both its edges. At 0 it is drawn at its
   /// model's own height, its rungs at its pitch.
   final double overscan;
+
+  /// The least width a backbone is drawn at, in the painter's own pixels.
+  /// 0, the default, leaves the strands at their own widths. A caller that
+  /// draws the duplex far smaller than the home screen does, as the zoom does
+  /// on its way in, keeps its strands from thinning to nothing.
+  final double strandFloor;
+
+  /// How much of the bases show, from 0 to 1: the rungs thin and the bases
+  /// shrink by it, as a fading primitive does, and at 0 only the backbones
+  /// are drawn. 1, the default, draws them all.
+  final double bases;
 
   static const double _widthFraction = 0.40;
 
@@ -430,28 +443,49 @@ class DnaHelixPainter extends CustomPainter {
           (shade * (_shadeSteps - 1)).round().clamp(0, _shadeSteps - 1);
       final Color colour = _slotColour[slot * _shadeSteps + level];
 
+      // Bases that are not shown fade the way any primitive does here: by
+      // thinning, never by blanching.
+      final double shown =
+          isNode || kind == HelixPrimitiveKind.rungHalf ? bases : 1;
+      if (shown < _fadeEpsilon) {
+        continue;
+      }
+
       if (isNode) {
         final Offset centre = Offset(_sx[a], _sy[a]);
 
         // Fade shrinks as well as blanches. Opaque colours mean a half-faded
         // node would otherwise stamp a solid background disc over whatever is
         // behind it, and blink out the moment it crossed the cull threshold.
-        final double r = _baseRadius * _baseSizeScale[slot] * fade;
+        double r = _baseRadius * _baseSizeScale[slot] * fade;
+        double ring = _ringWidth * fade;
+        if (shown != 1) {
+          r *= shown;
+          ring *= shown;
+        }
 
         _fillPaint.color = background;
-        canvas.drawCircle(centre, r + _ringWidth * fade, _fillPaint);
+        canvas.drawCircle(centre, r + ring, _fillPaint);
 
         _fillPaint.color = colour;
         canvas.drawCircle(centre, r, _fillPaint);
         continue;
       }
 
-      final double width = fade *
+      double width = fade *
           scale *
           (kind == HelixPrimitiveKind.rungHalf
               ? _lerp(_rungMinWidth, _rungMaxWidth, depth) *
                   _baseSizeScale[slot]
               : _lerp(_strandMinWidth, _strandMaxWidth, depth));
+      if (shown != 1) {
+        width *= shown;
+      }
+      if (strandFloor > 0 &&
+          kind == HelixPrimitiveKind.strandSegment &&
+          width < strandFloor) {
+        width = strandFloor;
+      }
 
       _strokePaint
         ..color = colour
@@ -582,6 +616,8 @@ class DnaHelixPainter extends CustomPainter {
         oldDelegate.background != background ||
         oldDelegate.topFade != topFade ||
         oldDelegate.bottomFade != bottomFade ||
-        oldDelegate.overscan != overscan;
+        oldDelegate.overscan != overscan ||
+        oldDelegate.strandFloor != strandFloor ||
+        oldDelegate.bases != bases;
   }
 }
