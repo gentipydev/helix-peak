@@ -8,6 +8,7 @@ import '../../domain/zoom_depth.dart';
 import '../zoom_inks.dart';
 import 'band_scene.dart';
 import 'body_scene.dart';
+import 'chromosome/chromosome_art.dart';
 import 'chromosome/chromosome_form.dart';
 import 'contour.dart';
 import 'nucleus_scene.dart';
@@ -15,12 +16,14 @@ import 'sculpt.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
 
-/// The gene's chromosome as it is when a cell divides: two sister
-/// chromatids, each a coil of chromatin as thick as a chromatid is, lying
-/// side by side and joined at the centromere, their arms splayed a little,
-/// stained in their cytoBand G-bands, which ring them as bands ring a tube.
-/// The band the gene lies in is in the mark, bracketed and named. Never the
-/// gene, which is far too small to see at this scale.
+/// The gene's chromosome as it is when a cell divides, drawn as a scanning
+/// micrograph shows one ([ChromosomeArt]): two sister chromatids, each a
+/// coil of chromatin as thick as a chromatid is, touching along a groove and
+/// pinched together at the centromere, their surface knobbly, their
+/// cytoBand G-bands soft changes of tone. The gene is marked as FISH marks a
+/// gene: a spot on each sister at its height, over its band, which is
+/// bracketed and named. The spots are a probe's, never the gene, which is
+/// far too small to see at this scale.
 ///
 /// On the way in it condenses out of its territory in the nucleus, the mark
 /// drawing in to the gene's band as the bands come up. On the way out it
@@ -96,27 +99,16 @@ final class ChromosomeScene extends ZoomScene {
     for (final double side in <double>[-1, 1]) _chromatid(side).toPath(),
   ];
 
-  /// The coils of chromatin standing out of each chromatid's edge, built
-  /// once: a loop every few hundredths of a micrometre.
-  late final Path _fuzz = () {
-    final Path loops = Path();
-    final math.Random random = math.Random(_track.length % 997);
-    for (final double side in <double>[-1, 1]) {
-      final List<Offset> points = _chromatid(side).resampled(260).points;
-      for (int i = 0; i < points.length; i++) {
-        final Offset p = points[i];
-        final Offset q = points[(i + 1) % points.length];
-        final Offset run = q - p;
-        if (run.distance == 0) {
-          continue;
-        }
-        final Offset out = Offset(run.dy, -run.dx) / run.distance;
-        final double r = half * (0.06 + 0.07 * random.nextDouble());
-        loops.addOval(Rect.fromCircle(center: p + out * (r * 0.4), radius: r));
-      }
+  ChromosomeArt? _art;
+
+  /// The chromosome at rest in [inks], built once for them.
+  ChromosomeArt _artIn(ZoomInks inks) {
+    final ChromosomeArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
     }
-    return loops;
-  }();
+    return _art = ChromosomeArt(form, inks)..prepare();
+  }
 
   /// The territory the chromosome condenses from: the nucleus scene's own
   /// outline for it, in this scene's units, so the hand-over is exact.
@@ -152,12 +144,16 @@ final class ChromosomeScene extends ZoomScene {
   }
 
   @override
-  void prepare(ZoomInks inks) => <Object?>[_sisters, _fuzz, _territoryOutline];
+  void prepare(ZoomInks inks) => <Object?>[
+    _sisters,
+    _territoryOutline,
+    _artIn(inks),
+  ];
 
   @override
   bool wantsClock(ZoomFrame frame) => !frame.isChild && frame.dwell < 1.4;
 
-  // As the chromosome is reached, the gene's band pings once.
+  // As the chromosome is reached, the gene's two spots flare once.
   @override
   void paintAmbient(Canvas canvas, ZoomFrame frame) {
     if (frame.isChild) {
@@ -166,18 +162,12 @@ final class ChromosomeScene extends ZoomScene {
     final double here = frame.opacity * (1 - smoothstep(frame.progress / 0.15));
     canvas.save();
     frame.enter(canvas);
-    for (final double side in <double>[-1, 1]) {
-      Sculpt.ping(
-        canvas,
-        Offset(_centreAt(side, _bandY), _bandY),
-        _width(_bandY),
-        half * 1.6,
-        Sculpt.beat(frame.dwell, delay: 0.15, length: 1.1),
-        frame.pixel,
-        frame.inks,
-        opacity: here,
-      );
-    }
+    _artIn(frame.inks).paintFlare(
+      canvas,
+      frame,
+      Sculpt.beat(frame.dwell, delay: 0.15, length: 1.1),
+      here,
+    );
     canvas.restore();
   }
 
@@ -187,6 +177,8 @@ final class ChromosomeScene extends ZoomScene {
     frame.enter(canvas);
     if (frame.isChild) {
       _condensing(canvas, frame);
+    } else if (frame.progress <= 0) {
+      _resting(canvas, frame);
     } else {
       final double turn = smootherstep(frame.progress / 0.35);
       // Turned about the band, to lie along the genome as a browser draws
@@ -201,8 +193,24 @@ final class ChromosomeScene extends ZoomScene {
         thin: turn,
         target: stripPixels / 2 * frame.pixel,
       );
+      // The micrograph gives way to the tubes that turn into the map.
+      final double art = 1 - smoothstep(frame.progress / 0.3);
+      if (art > 0) {
+        canvas.saveLayer(null, Paint()..color = Color.fromRGBO(0, 0, 0, art));
+        _resting(canvas, frame);
+        canvas.restore();
+      }
     }
     canvas.restore();
+  }
+
+  /// The chromosome at rest: the micrograph, the gene's spots, and its
+  /// band's bracket.
+  void _resting(Canvas canvas, ZoomFrame frame) {
+    final ChromosomeArt art = _artIn(frame.inks);
+    art.paintRest(canvas, frame);
+    art.paintSpots(canvas);
+    _bracket(canvas, frame);
   }
 
   /// The territory condensing into the chromosome: the mark drawing in to
@@ -210,7 +218,7 @@ final class ChromosomeScene extends ZoomScene {
   void _condensing(Canvas canvas, ZoomFrame frame) {
     final double m = smootherstep((frame.progress - 0.08) / 0.62);
     if (m >= 1) {
-      _metaphase(canvas, frame);
+      _resting(canvas, frame);
       return;
     }
     final ZoomInks inks = frame.inks;
@@ -239,15 +247,15 @@ final class ChromosomeScene extends ZoomScene {
         null,
         Paint()..color = Color.fromRGBO(0, 0, 0, smoothstep((m - 0.85) / 0.15)),
       );
-      _metaphase(canvas, frame);
+      _resting(canvas, frame);
       canvas.restore();
     }
   }
 
   static Color _pale(ZoomInks inks) => inks.lit(0.56);
 
-  /// The chromosome at metaphase, or on its way to the map: [merge] and
-  /// [thin] from 0 to 1.
+  /// The chromosome on its way to the map, as two banded tubes: [merge]
+  /// and [thin] from 0 to 1.
   void _metaphase(
     Canvas canvas,
     ZoomFrame frame, {
@@ -257,28 +265,17 @@ final class ChromosomeScene extends ZoomScene {
   }) {
     final ZoomInks inks = frame.inks;
     final double pixel = frame.pixel;
-    final bool resting = merge == 0 && thin == 0;
     final double top = yOf(1);
     final double bottom = yOf(_track.length + 1);
-    final double reach = form.apart + half + ChromosomeForm.splay * length;
-    if (resting) {
-      Sculpt.shadowUnder(
-        canvas,
-        Rect.fromLTRB(-reach, top, reach, bottom),
-        inks,
-        strength: 0.6,
-        spread: 1.06,
-      );
-    }
     for (final double side in <double>[-1, 1]) {
-      final Path chromatid = resting
-          ? _sisters[side < 0 ? 0 : 1]
-          : _chromatid(side, merge: merge, thin: thin, target: target).toPath();
+      final Path chromatid = _chromatid(
+        side,
+        merge: merge,
+        thin: thin,
+        target: target,
+      ).toPath();
       final double w = half + ((target ?? half) - half) * thin;
-      final double centre =
-          side *
-          (form.apart + ChromosomeForm.splay * length * 0.5) *
-          (1 - merge);
+      final double centre = _centreAt(side, _bandY, merge: merge);
       canvas.save();
       canvas.clipPath(chromatid);
       _bands(
@@ -317,62 +314,40 @@ final class ChromosomeScene extends ZoomScene {
           ..color = inks.shade(0.6),
       );
     }
-    if (resting) {
-      // The coils standing out of its edge, and the light on them.
-      canvas.drawPath(
-        _fuzz,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 0.8 * pixel
-          ..color = inks.lit(0.5).withValues(alpha: 0.28),
-      );
-      for (final Path chromatid in _sisters) {
-        Sculpt.rim(
-          canvas,
-          chromatid,
-          chromatid.getBounds(),
-          inks,
-          width: 1.6 * pixel,
-          strength: 0.45,
-        );
-      }
-      // The kinetochores, one on each chromatid's outer face at the
-      // centromere.
-      for (final double side in <double>[-1, 1]) {
-        final double x =
-            _centreAt(side, centromere) + side * _width(centromere) * 0.9;
-        canvas.drawOval(
-          Rect.fromCenter(
-            center: Offset(x, centromere),
-            width: half * 0.5,
-            height: half * 0.9,
-          ),
-          Paint()..color = inks.shade(0.45),
-        );
-      }
-    }
-    // The band the gene lies in: a bracket beside it, as ISCN marks one.
+    _bracket(canvas, frame, merge: merge, thin: thin, target: target);
+  }
+
+  /// The band the gene lies in: a bracket beside it, as ISCN marks one.
+  void _bracket(
+    Canvas canvas,
+    ZoomFrame frame, {
+    double merge = 0,
+    double thin = 0,
+    double? target,
+  }) {
     final double turned = 1 - merge;
-    if (turned > 0.02) {
-      final double x =
-          _centreAt(1, _bandY, merge: merge) +
-          _width(_bandY) +
-          ((target ?? half) - _width(_bandY)) * thin +
-          6 * pixel;
-      final double a = yOf(_track.bandStart);
-      final double b = yOf(_track.bandEnd + 1);
-      canvas.drawPath(
-        Path()
-          ..moveTo(x, a)
-          ..lineTo(x + 4 * pixel, a)
-          ..lineTo(x + 4 * pixel, b)
-          ..lineTo(x, b),
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2 * pixel
-          ..color = inks.glow(turned),
-      );
+    if (turned <= 0.02) {
+      return;
     }
+    final double pixel = frame.pixel;
+    final double x =
+        _centreAt(1, _bandY, merge: merge) +
+        _width(_bandY) +
+        ((target ?? half) - _width(_bandY)) * thin +
+        6 * pixel;
+    final double a = yOf(_track.bandStart);
+    final double b = yOf(_track.bandEnd + 1);
+    canvas.drawPath(
+      Path()
+        ..moveTo(x, a)
+        ..lineTo(x + 4 * pixel, a)
+        ..lineTo(x + 4 * pixel, b)
+        ..lineTo(x, b),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2 * pixel
+        ..color = frame.inks.glow(turned),
+    );
   }
 
   /// The bands across [left] to [right], in their stains, each ringing the
