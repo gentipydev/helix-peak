@@ -85,8 +85,12 @@ Future<void> _pass(WidgetTester tester, Duration time) async {
 Future<void> _toDna(WidgetTester tester) async {
   for (int step = 1; step < ZoomStop.values.length; step++) {
     await _tap(tester, 'zoom-next');
-    // Longer than the longest flight between two stops.
-    await _pass(tester, const Duration(seconds: 3));
+    // Longer than the longest flight between two stops, the step into the
+    // DNA.
+    await _pass(
+      tester,
+      Duration(milliseconds: (ZoomDepth.diveSeconds * 1000).round() + 500),
+    );
   }
   expect(_stop(tester), 'DNA');
 }

@@ -226,14 +226,15 @@ void main() {
       final double sinks = math.min(gene, 10 * winds);
       // What happens where, by the view's width, and the least time each
       // is given: the exons sinking, the DNA winding, the beads named, the
-      // bare start becoming the helix, its bases coming in.
+      // bare start becoming the helix, its bases coming in. Half as long
+      // again as when the step took 2.7 s: the user would have it slower.
       final List<(String, double, double, double)> stages =
           <(String, double, double, double)>[
-            if (sinks > winds) ('the exons sinking', sinks, winds, 0.3),
-            ('the DNA winding', winds, winds / DnaScene.windsOver, 0.4),
-            ('the beads named', 600, 220, 0.4),
-            ('the helix coming', 800, 300, 0.4),
-            ('its bases coming', 220, 40, 0.4),
+            if (sinks > winds) ('the exons sinking', sinks, winds, 0.45),
+            ('the DNA winding', winds, winds / DnaScene.windsOver, 0.6),
+            ('the beads named', 600, 220, 0.6),
+            ('the helix coming', 800, 300, 0.6),
+            ('its bases coming', 220, 40, 0.6),
           ];
       final double from = depth.depthOf(ZoomStop.gene);
       final double to = depth.depthOf(ZoomStop.dna);

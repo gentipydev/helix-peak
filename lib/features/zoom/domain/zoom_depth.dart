@@ -225,8 +225,10 @@ final class ZoomDepth {
       k == ZoomStop.gene.index ? dive.narrowedAt(s) : s;
 
   /// How long the step from the gene into its DNA takes at the least, in
-  /// seconds, for the five things that happen in it to be seen ([dive]).
-  static const double diveSeconds = 2.7;
+  /// seconds, for the five things that happen in it to be seen ([dive]):
+  /// half as long again as the 2.7 s it first took, which the user liked but
+  /// would have slower (2026-10-16).
+  static const double diveSeconds = 4;
 
   /// The share of a flight through the step into the DNA spent at one
   /// speed in its middle ([ZoomFlight.cruise]); none for any other.
