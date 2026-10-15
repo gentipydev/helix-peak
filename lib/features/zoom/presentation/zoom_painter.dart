@@ -113,6 +113,63 @@ final class ZoomStage {
     return false;
   }
 
+  /// Which of its anchors each anchored callout on screen at depth [d] is
+  /// set at, at rest at the stop that shows it, by key; -1 where none had
+  /// room there. A plate keeps the anchor it has at rest for the whole of
+  /// the steps either side, so it never jumps from one to another as the
+  /// view moves. Only the stops either side of [d] are laid out: their
+  /// scenes are the ones being drawn.
+  Map<String, int> restingAnchors(
+    double d,
+    Size size,
+    ZoomInks inks,
+    TextStyle labels,
+  ) {
+    final (ZoomView parent, ZoomView child) = camera.at(d, size);
+    return <String, int>{
+      for (final ZoomStop stop in <ZoomStop>{parent.stop, child.stop})
+        ...(_resting[(stop, size, labels)] ??= _restingAt(
+          stop,
+          size,
+          inks,
+          labels,
+        )),
+    };
+  }
+
+  Map<String, int> _restingAt(
+    ZoomStop stop,
+    Size size,
+    ZoomInks inks,
+    TextStyle labels,
+  ) {
+    final Map<String, int> out = <String, int>{};
+    final List<Rect> placed = <Rect>[];
+    for (final ZoomCallout c in stage(
+      depth.depthOf(stop),
+      size,
+      inks,
+    ).callouts) {
+      final TextPainter text = calloutText(c, labels, inks, size);
+      final (Rect plate, int anchor) = placePlateAt(
+        c.target,
+        text.size,
+        size,
+        placed,
+        anchors: c.anchors,
+      );
+      text.dispose();
+      placed.add(plate);
+      if (c.anchors.isNotEmpty) {
+        out[c.key] = anchor;
+      }
+    }
+    return out;
+  }
+
+  final Map<(ZoomStop, Size, TextStyle), Map<String, int>> _resting =
+      <(ZoomStop, Size, TextStyle), Map<String, int>>{};
+
   final Set<ZoomStop> _prepared = <ZoomStop>{};
 
   /// Whether every scene has built what it caches.
@@ -261,7 +318,7 @@ class ZoomOverlayPainter extends CustomPainter {
     final ZoomStaging staging = stage.stage(d, size, inks);
     final List<Rect> placed = <Rect>[];
     for (final ZoomCallout callout in staging.callouts) {
-      placed.add(_callout(canvas, size, callout, placed));
+      placed.add(_callout(canvas, size, d, callout, placed));
     }
     final Rect bar = _scaleBar(canvas, size, d);
     _credit(canvas, size, d, bar);
@@ -272,11 +329,21 @@ class ZoomOverlayPainter extends CustomPainter {
   Rect _callout(
     Canvas canvas,
     Size size,
+    double d,
     ZoomCallout callout,
     List<Rect> placed,
   ) {
     final TextPainter text = calloutText(callout, labels, inks, size);
-    final Rect plate = placePlate(callout.target, text.size, size, placed);
+    final Rect plate = calloutPlate(
+      stage,
+      d,
+      callout,
+      text.size,
+      size,
+      placed,
+      inks,
+      labels,
+    );
     final Offset target = callout.target;
     final Offset from = Offset(
       target.dx.clamp(plate.left, plate.right),
@@ -284,7 +351,9 @@ class ZoomOverlayPainter extends CustomPainter {
     );
     final Paint line = Paint()
       ..strokeWidth = 1.2
-      ..color = inks.mark.withValues(alpha: callout.opacity);
+      ..color = (callout.quiet ? inks.label : inks.mark).withValues(
+        alpha: callout.opacity,
+      );
     canvas.drawLine(from, target, line);
     canvas.drawCircle(target, 2.6, line);
     canvas.drawRRect(
@@ -453,25 +522,122 @@ Rect creditBox(String credit, TextStyle caption, Size size, Rect bar) {
   );
 }
 
-/// Where a callout's plate goes for words of [text] size naming [target] on
-/// a canvas of [size]: up and to the right where there is room, else at the
-/// first corner that keeps it on the canvas, clear of the plates already
-/// [placed].
-Rect placePlate(Offset target, Size text, Size size, List<Rect> placed) {
+/// Where [callout]'s plate goes, its words of [text] size, on a canvas of
+/// [size] of [stage] at depth [d], the plates already [placed]: at the
+/// anchor it has at rest, wherever the view is, or where [placePlate] puts
+/// it.
+Rect calloutPlate(
+  ZoomStage stage,
+  double d,
+  ZoomCallout callout,
+  Size text,
+  Size size,
+  List<Rect> placed,
+  ZoomInks inks,
+  TextStyle labels,
+) {
+  final int? resting = callout.anchors.isEmpty
+      ? null
+      : stage.restingAnchors(d, size, inks, labels)[callout.key];
+  if (resting != null && resting >= 0) {
+    return plateBeyond(callout.target, callout.anchors[resting], text, size);
+  }
+  return placePlate(
+    callout.target,
+    text,
+    size,
+    placed,
+    // Where none of its anchors had room at rest, none is tried on the way.
+    anchors: resting == null ? callout.anchors : const <Offset>[],
+  );
+}
+
+/// A plate for words of [text] size naming [target], its corner or edge
+/// that faces the target at [anchor] and reaching on away from it: a corner
+/// where the way out is aslant, the middle of an edge where it is straight
+/// across or down. Kept on a canvas of [size].
+Rect plateBeyond(Offset target, Offset anchor, Size text, Size size) {
+  final Rect plate = _plateBeyond(target, anchor, text);
+  return _onCanvas(plate.left, plate.top, plate.size, size);
+}
+
+Rect _plateBeyond(Offset target, Offset anchor, Size text) {
   final double plateW = text.width + 2 * plateTextPadding;
   final double plateH = text.height + plateTextPadding;
+  final Offset out = anchor - target;
+  final Offset way = out.distance == 0 ? out : out / out.distance;
+  return Rect.fromCenter(
+    center:
+        anchor +
+        Offset(
+          (way.dx * 2.5).clamp(-1.0, 1.0) * plateW / 2,
+          (way.dy * 2.5).clamp(-1.0, 1.0) * plateH / 2,
+        ),
+    width: plateW,
+    height: plateH,
+  );
+}
+
+/// A plate of [plate] size at [x], [y], moved as little as keeps it on a
+/// canvas of [size], clear of its edges and the card's.
+Rect _onCanvas(double x, double y, Size plate, Size size) {
   final double right = size.width - ZoomOverlayPainter.margin;
   final double bottom = size.height - 40;
-  Rect at(double dx, double dy) {
-    final double x = (dx >= 0 ? target.dx + dx : target.dx + dx - plateW).clamp(
+  return Rect.fromLTWH(
+    x.clamp(
       ZoomOverlayPainter.margin,
-      math.max(ZoomOverlayPainter.margin, right - plateW),
-    );
-    final double y = (target.dy + dy - plateH / 2).clamp(
+      math.max(ZoomOverlayPainter.margin, right - plate.width),
+    ),
+    y.clamp(
       ZoomOverlayPainter.margin,
-      math.max(ZoomOverlayPainter.margin, bottom - plateH),
-    );
-    return Rect.fromLTWH(x, y, plateW, plateH);
+      math.max(ZoomOverlayPainter.margin, bottom - plate.height),
+    ),
+    plate.width,
+    plate.height,
+  );
+}
+
+/// Where a callout's plate goes for words of [text] size naming [target] on
+/// a canvas of [size], clear of the plates already [placed]: at the first of
+/// its [anchors] where it fits on the canvas as it is, reaching on away from
+/// the target; else up and to the right where there is room, else at the
+/// first corner that keeps it on the canvas.
+Rect placePlate(
+  Offset target,
+  Size text,
+  Size size,
+  List<Rect> placed, {
+  List<Offset> anchors = const <Offset>[],
+}) => placePlateAt(target, text, size, placed, anchors: anchors).$1;
+
+/// [placePlate]'s plate, and which of the [anchors] it is set at: -1 where
+/// none had room.
+(Rect, int) placePlateAt(
+  Offset target,
+  Size text,
+  Size size,
+  List<Rect> placed, {
+  List<Offset> anchors = const <Offset>[],
+}) {
+  final double plateW = text.width + 2 * plateTextPadding;
+  final double plateH = text.height + plateTextPadding;
+  Rect at(double dx, double dy) => _onCanvas(
+    dx >= 0 ? target.dx + dx : target.dx + dx - plateW,
+    target.dy + dy - plateH / 2,
+    Size(plateW, plateH),
+    size,
+  );
+  bool clear(Rect plate) =>
+      placed.every((Rect r) => !r.inflate(4).overlaps(plate));
+  // A plate moved to stay on the canvas would reach back over what the
+  // anchor keeps it off, so only one that fits as it is is taken.
+  for (int i = 0; i < anchors.length; i++) {
+    final Rect plate = _plateBeyond(target, anchors[i], text);
+    if (_onCanvas(plate.left, plate.top, plate.size, size).topLeft ==
+            plate.topLeft &&
+        clear(plate)) {
+      return (plate, i);
+    }
   }
 
   final List<Rect> choices = <Rect>[
@@ -485,9 +651,9 @@ Rect placePlate(Offset target, Size text, Size size, List<Rect> placed) {
     at(-24, 36 + plateH),
   ];
   for (final Rect choice in choices) {
-    if (placed.every((Rect r) => !r.inflate(4).overlaps(choice))) {
-      return choice;
+    if (clear(choice)) {
+      return (choice, -1);
     }
   }
-  return choices.first;
+  return (choices.first, -1);
 }

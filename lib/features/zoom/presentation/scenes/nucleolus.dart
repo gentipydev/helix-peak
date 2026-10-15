@@ -1,0 +1,185 @@
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+
+import '../../domain/zoom_camera.dart';
+import '../zoom_inks.dart';
+import 'contour.dart';
+import 'nucleus_shape.dart';
+import 'sculpt.dart';
+
+/// The nucleolus, where the cell makes its ribosomes: a dense body in the
+/// nucleus with no membrane round it, lobed rather than round, darker than
+/// the chromatin about it. The cell's scene and the nucleus's draw it from
+/// here, each in its own units, so it keeps its place and its shape across
+/// the step between them.
+///
+/// Close enough to see, it shows what an electron micrograph does: pale
+/// fibrillar centres, each in a darker rim of dense fibrillar component, in
+/// the granular bulk.
+final class Nucleolus {
+  /// The nucleolus of a nucleus of [shape] and [radius], in that nucleus's
+  /// units.
+  Nucleolus(this.shape, this.radius) : centre = shape.place(at, radius);
+
+  final NucleusShape shape;
+
+  /// The nucleus's radius.
+  final double radius;
+
+  /// Where the nucleolus lies, in the nucleus's units.
+  final Offset centre;
+
+  /// Where it lies, as a point of the nucleus's unit disc: off the middle,
+  /// toward the light.
+  static const Offset at = Offset(-0.32, -0.28);
+
+  /// Its radius as a share of the nucleus's: a body a micron or two across
+  /// in a nucleus of six to ten.
+  static const double reach = 0.18;
+
+  /// Its outline's waves: how many round it, how far each pushes out, and
+  /// where it starts. A broad ovoid, its edge uneven, with no notch deep
+  /// enough to read as a cleft.
+  static const List<(int, double, double)> _lobes = <(int, double, double)>[
+    (1, 0.04, 0),
+    (2, 0.08, 1.6),
+    (3, 0.05, 3.3),
+    (5, 0.04, 0.9),
+    (8, 0.025, 2.6),
+    (13, 0.012, 4),
+  ];
+
+  /// Its fibrillar centres, as points of its own unit disc and radii in its
+  /// radius.
+  static const List<(Offset, double)> _centres = <(Offset, double)>[
+    (Offset(-0.38, -0.22), 0.15),
+    (Offset(0.3, -0.3), 0.12),
+    (Offset(0.08, 0.2), 0.16),
+    (Offset(-0.34, 0.4), 0.1),
+  ];
+
+  /// Its radii across and down: drawn out along a long nucleus, as far as
+  /// the nucleus is, by the square root.
+  (double, double) get radii {
+    final (double ax, double ay) = shape.axes;
+    return (radius * reach * math.sqrt(ax), radius * reach * math.sqrt(ay));
+  }
+
+  /// Its outline.
+  late final Contour outline = () {
+    final (double rx, double ry) = radii;
+    const int count = 96;
+    return Contour(<Offset>[
+      for (int i = 0; i < count; i++)
+        () {
+          final double a = -math.pi / 2 + 2 * math.pi * i / count;
+          double push = 1;
+          for (final (int k, double size, double phase) in _lobes) {
+            push += size * math.sin(k * a + phase);
+          }
+          return centre +
+              Offset(math.cos(a) * rx * push, math.sin(a) * ry * push);
+        }(),
+    ]);
+  }();
+
+  late final Path path = outline.toPath();
+
+  /// The point of the nucleus's outline nearest the nucleolus, and the
+  /// nucleus's top and bottom: a name for the nucleolus is set off the
+  /// nucleus beyond the one, or else above or below it.
+  late final (Offset, double, double) rim = () {
+    Offset nearest = Offset.zero;
+    double best = double.infinity;
+    double top = 0;
+    double bottom = 0;
+    for (final Offset p in shape.outline(radius).resampled(128).points) {
+      final double d = (p - centre).distance;
+      if (d < best) {
+        best = d;
+        nearest = p;
+      }
+      top = math.min(top, p.dy);
+      bottom = math.max(bottom, p.dy);
+    }
+    return (nearest, top, bottom);
+  }();
+
+  /// Where a name for it may be set, on screen, as [toScreen] places a
+  /// point of the scene, in order: [gap] pixels off the nucleus, beyond the
+  /// rim nearest it, or straight above or below it past the nucleus's top or
+  /// bottom.
+  List<Offset> anchors(Offset Function(Offset) toScreen, double gap) {
+    final (Offset nearest, double top, double bottom) = rim;
+    final Offset at = toScreen(centre);
+    final Offset edge = toScreen(nearest);
+    final Offset out = edge - at;
+    return <Offset>[
+      edge + out / out.distance * gap,
+      Offset(at.dx, toScreen(Offset(0, top)).dy - gap),
+      Offset(at.dx, toScreen(Offset(0, bottom)).dy + gap),
+    ];
+  }
+
+  /// Draws it, [pixel] the scene's pixel: its fibrillar centres come up
+  /// once it is some 20 pixels across.
+  void paint(Canvas canvas, ZoomInks inks, double pixel) {
+    final Rect box = path.getBounds();
+    // No membrane: its edge softens into the nucleoplasm.
+    canvas.drawPath(
+      path,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3 * pixel
+        ..strokeJoin = StrokeJoin.round
+        ..color = inks.shade(0.4).withValues(alpha: 0.35),
+    );
+    canvas.drawPath(
+      path,
+      Paint()
+        ..shader = RadialGradient(
+          center: Sculpt.highlight,
+          radius: 1,
+          colors: <Color>[inks.shade(0.7), inks.shade(0.52), inks.shade(0.38)],
+          stops: const <double>[0, 0.55, 1],
+        ).createShader(box),
+    );
+    final (double rx, double ry) = radii;
+    final double size = math.sqrt(rx * ry);
+    final double detail = smoothstep((size / pixel - 10) / 8);
+    if (detail > 0) {
+      for (final (Offset unit, double r) in _centres) {
+        final Offset c = centre + Offset(unit.dx * rx, unit.dy * ry);
+        // The dense fibrillar component round it, then the pale centre.
+        final Rect dense = Rect.fromCircle(center: c, radius: r * size * 1.9);
+        canvas.drawOval(
+          dense,
+          Paint()
+            ..shader = RadialGradient(
+              colors: <Color>[
+                inks.shade(0.2).withValues(alpha: 0.7 * detail),
+                inks.shade(0.2).withValues(alpha: 0.7 * detail),
+                inks.shade(0.2).withValues(alpha: 0),
+              ],
+              stops: const <double>[0, 0.45, 1],
+            ).createShader(dense),
+        );
+        final Rect pale = Rect.fromCircle(center: c, radius: r * size);
+        canvas.drawOval(
+          pale,
+          Paint()
+            ..shader = RadialGradient(
+              colors: <Color>[
+                inks.shade(0.9).withValues(alpha: 0.75 * detail),
+                inks.shade(0.8).withValues(alpha: 0.55 * detail),
+                inks.shade(0.8).withValues(alpha: 0),
+              ],
+              stops: const <double>[0, 0.6, 1],
+            ).createShader(pale),
+        );
+      }
+    }
+    Sculpt.rim(canvas, path, box, inks, width: 1.2 * pixel, strength: 0.25);
+  }
+}

@@ -546,6 +546,7 @@ void main() {
               text.size,
               size,
               placed,
+              anchors: callout.anchors,
             );
             text.dispose();
             for (final Rect other in placed) {
@@ -573,8 +574,21 @@ void main() {
             _ => true,
           };
           expect(
-            staging.callouts.where((ZoomCallout c) => c.opacity > 0.5),
+            staging.callouts.where(
+              (ZoomCallout c) => c.opacity > 0.5 && !c.quiet,
+            ),
             named ? isNotEmpty : isEmpty,
+            reason: '${t.slug} at ${stop.name}',
+          );
+          // A landmark is named where it is seen: the nucleolus, at the
+          // cell and the nucleus.
+          expect(
+            staging.callouts.where(
+              (ZoomCallout c) => c.opacity > 0.5 && c.quiet,
+            ),
+            stop == ZoomStop.cell || stop == ZoomStop.nucleus
+                ? isNotEmpty
+                : isEmpty,
             reason: '${t.slug} at ${stop.name}',
           );
         }

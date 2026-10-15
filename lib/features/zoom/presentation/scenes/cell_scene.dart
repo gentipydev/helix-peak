@@ -10,6 +10,7 @@ import '../../domain/zoom_path.dart';
 import '../zoom_inks.dart';
 import 'body_scene.dart';
 import 'contour.dart';
+import 'nucleolus.dart';
 import 'nucleus_shape.dart';
 import 'sculpt.dart';
 import 'zoom_scene.dart';
@@ -18,7 +19,8 @@ import 'zoom_subject.dart';
 /// The cell the zoom lands in, sculpted in the app's neutrals: its body lit
 /// from the upper left with a rim, the endoplasmic reticulum and the
 /// microtubules hairlines in the quiet ink, its nucleus a lit sphere ringed
-/// in the mark, the gene being in it. The protein glows in the mark where
+/// in the mark, the gene being in it, its nucleolus named in the quiet ink.
+/// The protein glows in the mark where
 /// the Human Protein Atlas finds it in a cell: brighter where it calls a
 /// location main, fainter where additional. A protein the Atlas finds
 /// secreted leaves the cell in vesicles. Where the Atlas gives no location,
@@ -54,25 +56,52 @@ final class CellScene extends ZoomScene {
 
   // The cell is named by the card, and so is a red cell's want of a
   // nucleus: what is named here is where the protein is, where the Atlas
-  // finds it.
+  // finds it, and the nucleolus, off the nucleus, in the quiet ink. Where
+  // the protein is in the nucleolus, its own name says so.
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
     out.item('cell:target', frame.toScreen(Offset.zero), frame.opacity);
     final List<String> main = _reading.main;
-    if (main.isEmpty) {
+    if (main.isNotEmpty) {
+      final Compartment first =
+          compartmentOf[main.first] ?? Compartment.cytosol;
+      out.callout(
+        'cell',
+        main.map(_word).join(', '),
+        frame.toScreen(_cell.pointOf(first)),
+        calloutPresence(frame),
+      );
+    }
+    if (main.any((String w) => compartmentOf[w] == Compartment.nucleoli)) {
       return;
     }
-    final Compartment first = compartmentOf[main.first] ?? Compartment.cytosol;
+    final Nucleolus nucleolus = _cell.nucleolus;
     out.callout(
-      'cell',
-      main.map(_word).join(', '),
-      frame.toScreen(_cell.pointOf(first)),
+      'cell:nucleolus',
+      'nucleolus',
+      frame.toScreen(nucleolus.centre),
       calloutPresence(frame),
+      anchors: nucleolus.anchors(frame.toScreen, 10),
+      quiet: true,
     );
   }
 
+  /// The nucleolus, as the nucleus's scene draws it too.
+  @visibleForTesting
+  Nucleolus get nucleolus => _cell.nucleolus;
+
+  /// The nucleus less its nucleolus, where a protein in the nucleoplasm
+  /// glows.
+  @visibleForTesting
+  Path get nucleoplasm => _cell.nucleoplasm;
+
   @override
-  void prepare(ZoomInks inks) => _cell.body;
+  void prepare(ZoomInks inks) => <Object?>[
+    _cell.body,
+    _cell.nucleolus.path,
+    _cell.nucleolus.rim,
+    _cell.nucleoplasm,
+  ];
 
   @override
   bool wantsClock(ZoomFrame frame) =>
@@ -196,8 +225,8 @@ final class CellScene extends ZoomScene {
     _protein(canvas, frame, cell, _reading.main, 0.9);
     _protein(canvas, frame, cell, _reading.additional, 0.45);
 
-    // The nucleus: a sphere in the quiet ink, its nucleolus a darker body
-    // in it, its chromatin condensing in a cell that is dividing or in
+    // The nucleus: a sphere in the quiet ink, its nucleolus a darker, lobed
+    // body in it, its chromatin condensing in a cell that is dividing or in
     // meiosis. Opaque: nothing of the cytoplasm shows through it. Ringed in
     // the mark: the gene is in it.
     final Rect round = Rect.fromCircle(center: Offset.zero, radius: nucleus);
@@ -226,11 +255,7 @@ final class CellScene extends ZoomScene {
           ..color = Color.lerp(inks.label, inks.text, 0.4)!,
       );
     }
-    canvas.drawCircle(
-      cell.nucleolus,
-      nucleus * 0.22,
-      Paint()..color = inks.shade(0.6).withValues(alpha: 0.8),
-    );
+    cell.nucleolus.paint(canvas, inks, pixel);
     canvas.drawPath(
       nucleusPath,
       Paint()
@@ -327,8 +352,10 @@ final class CellScene extends ZoomScene {
       }
       switch (compartment) {
         case Compartment.nucleoplasm:
+          // As immunofluorescence shows it: everywhere in the nucleus but
+          // its nucleolus.
           canvas.save();
-          canvas.clipPath(cell.nucleus);
+          canvas.clipPath(cell.nucleoplasm);
           canvas.drawCircle(
             Offset.zero,
             nucleus * 2,
@@ -336,11 +363,7 @@ final class CellScene extends ZoomScene {
           );
           canvas.restore();
         case Compartment.nucleoli:
-          fill(
-            Path()..addOval(
-              Rect.fromCircle(center: cell.nucleolus, radius: nucleus * 0.22),
-            ),
-          );
+          fill(cell.nucleolus.path);
         case Compartment.nuclearMembrane:
           stroke(cell.nucleus, 2.4);
         case Compartment.cytosol:
@@ -671,7 +694,7 @@ final class _Cell {
     return _Cell(
       body: body,
       nucleus: nucleus,
-      nucleolus: NucleusShape(shape).place(const Offset(-0.3, -0.25), n),
+      nucleolus: Nucleolus(NucleusShape(shape), n),
       reticulum: reticulum,
       microtubules: microtubules,
       golgi: golgi,
@@ -827,7 +850,7 @@ final class _Cell {
 
   final Path body;
   final Path nucleus;
-  final Offset nucleolus;
+  final Nucleolus nucleolus;
   final Path reticulum;
   final Path microtubules;
   final Path golgi;
@@ -847,12 +870,19 @@ final class _Cell {
   final List<Offset> mature;
   final double matureRadius;
 
+  /// The nucleus with its nucleolus taken out.
+  late final Path nucleoplasm = Path.combine(
+    PathOperation.difference,
+    nucleus,
+    nucleolus.path,
+  );
+
   /// Where a callout naming [compartment] lands.
   Offset pointOf(Compartment compartment) {
     final Rect bounds = body.getBounds();
     return switch (compartment) {
-      Compartment.nucleoplasm => nucleolus * -0.9,
-      Compartment.nucleoli => nucleolus,
+      Compartment.nucleoplasm => nucleolus.centre * -0.9,
+      Compartment.nucleoli => nucleolus.centre,
       Compartment.nuclearMembrane => nucleus.getBounds().centerRight,
       Compartment.golgi => golgiCentre,
       Compartment.centrosome || Compartment.division => centrosome,

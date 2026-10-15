@@ -7,7 +7,9 @@ import '../../domain/anatomy_tables.dart';
 import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
 import '../zoom_inks.dart';
+import 'body_scene.dart';
 import 'contour.dart';
+import 'nucleolus.dart';
 import 'nucleus_shape.dart';
 import 'sculpt.dart';
 import 'zoom_scene.dart';
@@ -26,7 +28,8 @@ const List<String> chromosomeNames = <String>[
 /// territory as big as its chromosome's DNA, the gene-dense ones toward the
 /// centre and the gene-poor at the rim, the five that carry ribosomal genes
 /// gathered round the nucleolus. They are drawn in one neutral, a step
-/// apart, and the gene's own chromosome in the mark.
+/// apart, and the gene's own chromosome in the mark. The nucleolus is
+/// named, in the quiet ink.
 ///
 /// On the way in, the nucleus the cell drew resolves into its territories;
 /// on the way out, the followed territory is handed to the chromosome's
@@ -45,8 +48,8 @@ final class NucleusScene extends ZoomScene {
   double get radius =>
       subject.depth.archetype.nucleus / 2 / subject.depth.widthOf(stop);
 
-  /// Where the nucleolus is, as a point of the unit disc.
-  static const Offset nucleolus = Offset(-0.32, -0.28);
+  /// The nucleolus, as the cell drew it.
+  late final Nucleolus nucleolus = Nucleolus(shape, radius);
 
   @override
   double asParent(double progress) => 1 - smoothstep((progress - 0.3) / 0.5);
@@ -69,7 +72,7 @@ final class NucleusScene extends ZoomScene {
     final int index = math.max(chromosomeNames.indexOf(name), 0);
     if (acrocentric.contains(name)) {
       final double a = index * 1.3 + copy * 2.6;
-      final Offset unit = nucleolus + Offset(math.cos(a), math.sin(a)) * 0.3;
+      final Offset unit = Nucleolus.at + Offset(math.cos(a), math.sin(a)) * 0.3;
       return shape.place(unit, radius);
     }
     final double depth = (territoryRadius[kindOf(name, copy)] ?? 0.6) * 0.92;
@@ -96,11 +99,20 @@ final class NucleusScene extends ZoomScene {
   @override
   Offset get portal => territory(subject.track.chromosome, 0);
 
-  // The territory is not named here: the card names it.
+  // The territory is not named here: the card names it. The nucleolus is,
+  // off the nucleus, so its name hides no territory.
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
     final Offset at = frame.toScreen(portal);
     out.item('nucleus:target', at, frame.opacity);
+    out.callout(
+      'nucleus:nucleolus',
+      'nucleolus',
+      frame.toScreen(nucleolus.centre),
+      calloutPresence(frame),
+      anchors: nucleolus.anchors(frame.toScreen, 10),
+      quiet: true,
+    );
     // The gene's territory, for as long as this scene draws it: the
     // chromosome's scene draws it once the step to it is under way.
     if (frame.isChild || frame.progress <= 0) {
@@ -155,7 +167,13 @@ final class NucleusScene extends ZoomScene {
       0.16 + 0.36 * (((chromosomeNames.indexOf(name) * 7 + copy * 3) % 9) / 8);
 
   @override
-  void prepare(ZoomInks inks) => <Object?>[_territories, _outline, _pores];
+  void prepare(ZoomInks inks) => <Object?>[
+    _territories,
+    _outline,
+    _pores,
+    nucleolus.path,
+    nucleolus.rim,
+  ];
 
   @override
   bool wantsClock(ZoomFrame frame) => !frame.isChild && frame.dwell < 1.4;
@@ -247,12 +265,7 @@ final class NucleusScene extends ZoomScene {
       }
     }
     // The nucleolus: a darker body among them.
-    final Offset nucleolusAt = shape.place(nucleolus, r);
-    canvas.drawCircle(
-      nucleolusAt,
-      r * 0.17,
-      Paint()..color = inks.shade(0.45).withValues(alpha: 0.9),
-    );
+    nucleolus.paint(canvas, inks, pixel);
     // The light falling across the whole of it.
     canvas.drawPath(
       outline,

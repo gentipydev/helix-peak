@@ -79,6 +79,8 @@ final class ZoomCallout {
     required this.text,
     required this.target,
     required this.opacity,
+    this.anchors = const <Offset>[],
+    this.quiet = false,
   });
 
   final String key;
@@ -87,6 +89,15 @@ final class ZoomCallout {
   /// What it names, on screen.
   final Offset target;
   final double opacity;
+
+  /// Where its plate may be set, on screen, in order, reaching on away from
+  /// [target]: for a name that would hide what lies round its target. Where
+  /// none of them has room, the plate is set beside the target.
+  final List<Offset> anchors;
+
+  /// Whether it names a landmark rather than the gene or what it makes: its
+  /// line is then in the quiet ink, the mark being the gene's.
+  final bool quiet;
 }
 
 /// What a scene shows, by key: where each thing it names is on screen and
@@ -99,12 +110,26 @@ final class ZoomStaging {
   void item(String key, Offset at, double opacity) =>
       items[key] = (at, opacity);
 
-  void callout(String key, String text, Offset target, double opacity) {
+  void callout(
+    String key,
+    String text,
+    Offset target,
+    double opacity, {
+    List<Offset> anchors = const <Offset>[],
+    bool quiet = false,
+  }) {
     if (opacity <= 0) {
       return;
     }
     callouts.add(
-      ZoomCallout(key: key, text: text, target: target, opacity: opacity),
+      ZoomCallout(
+        key: key,
+        text: text,
+        target: target,
+        opacity: opacity,
+        anchors: anchors,
+        quiet: quiet,
+      ),
     );
     item('callout:$key', target, opacity);
   }

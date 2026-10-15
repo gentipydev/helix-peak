@@ -1,0 +1,350 @@
+import 'dart:convert';
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:helixpeek/core/catalog/protein_target.dart';
+import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/features/zoom/domain/locus_track.dart';
+import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/cell_scene.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/contour.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/nucleolus.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/nucleus_scene.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/zoom_scene.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
+import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
+import 'package:helixpeek/features/zoom/presentation/zoom_painter.dart';
+
+import '../../../support/test_catalog.dart';
+import '../record_fixtures.dart';
+import '../zoom_fixtures.dart';
+
+/// The zoom's canvas on a phone, under the app bar and above the card, and
+/// on a narrow one.
+const List<Size> _canvases = <Size>[Size(390, 560), Size(320, 420)];
+
+ZoomStage _stage(ProteinTarget t, [LocusTrack? track]) =>
+    ZoomStage(ZoomSubject(track: track ?? locusOf(t), record: recordOf(t)));
+
+Future<ZoomInks> _inks(WidgetTester tester) async {
+  late ZoomInks inks;
+  await tester.pumpWidget(
+    MaterialApp(
+      theme: AppTheme.analysis,
+      home: Builder(
+        builder: (BuildContext context) {
+          inks = ZoomInks.of(context);
+          return const SizedBox();
+        },
+      ),
+    ),
+  );
+  return inks;
+}
+
+/// The frame [scene] is drawn with at depth [d], if it shows.
+ZoomFrame? _frameOf(
+  ZoomStage stage,
+  ZoomScene scene,
+  double d,
+  Size size,
+  ZoomInks inks,
+) {
+  for (final (ZoomScene s, ZoomFrame frame) in stage.frames(d, size, inks)) {
+    if (identical(s, scene)) {
+      return frame;
+    }
+  }
+  return null;
+}
+
+/// [contour] on screen, as [frame] draws it.
+Path _onScreen(Contour contour, ZoomFrame frame) =>
+    Contour(<Offset>[for (final Offset p in contour.points) frame.toScreen(p)])
+        .toPath();
+
+/// A canvas that keeps the lines drawn on it.
+class _Lines implements Canvas {
+  final List<(Offset, Offset, Color)> lines = <(Offset, Offset, Color)>[];
+
+  @override
+  void drawLine(Offset p1, Offset p2, Paint paint) =>
+      lines.add((p1, p2, paint.color));
+
+  // Everything else it draws is not a line.
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
+}
+
+void main() {
+  testWidgets('the nucleolus is named at the cell and at the nucleus, and '
+      'nowhere else, for all twenty', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    for (final Size size in _canvases) {
+      for (final ProteinTarget t in TestCatalog.all) {
+        final ZoomStage stage = _stage(t);
+        for (final ZoomStop stop in ZoomStop.values) {
+          final List<ZoomCallout> named = <ZoomCallout>[
+            for (final ZoomCallout c
+                in stage.stage(stage.depth.depthOf(stop), size, inks).callouts)
+              if (c.text == 'nucleolus') c,
+          ];
+          final bool seen = stop == ZoomStop.cell || stop == ZoomStop.nucleus;
+          expect(
+            named,
+            hasLength(seen ? 1 : 0),
+            reason: '${t.slug} at ${stop.name}',
+          );
+          if (seen) {
+            expect(named.single.quiet, isTrue, reason: t.slug);
+            expect(named.single.opacity, closeTo(1, 1e-9), reason: t.slug);
+          }
+        }
+      }
+    }
+  });
+
+  testWidgets('its name lands on it and is set off the nucleus, hiding none '
+      'of it, at two widths', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    final TextStyle labels = AppTheme.analysis.textTheme.labelSmall!;
+    for (final Size size in _canvases) {
+      for (final ProteinTarget t in TestCatalog.all) {
+        final ZoomStage stage = _stage(t);
+        final CellScene cell = stage.scenes[ZoomStop.cell.index] as CellScene;
+        final NucleusScene nucleus =
+            stage.scenes[ZoomStop.nucleus.index] as NucleusScene;
+        for (final (
+              ZoomStop stop,
+              ZoomScene scene,
+              Nucleolus nucleolus,
+              Contour outline,
+            )
+            in <(ZoomStop, ZoomScene, Nucleolus, Contour)>[
+              (
+                ZoomStop.cell,
+                cell,
+                cell.nucleolus,
+                cell.nucleusShape.outline(cell.nucleus),
+              ),
+              (
+                ZoomStop.nucleus,
+                nucleus,
+                nucleus.nucleolus,
+                nucleus.shape.outline(nucleus.radius),
+              ),
+            ]) {
+          final double d = stage.depth.depthOf(stop);
+          final ZoomFrame frame = _frameOf(stage, scene, d, size, inks)!;
+          final List<Rect> placed = <Rect>[];
+          for (final ZoomCallout c in stage.stage(d, size, inks).callouts) {
+            final TextPainter text = calloutText(c, labels, inks, size);
+            final Rect plate = placePlate(
+              c.target,
+              text.size,
+              size,
+              placed,
+              anchors: c.anchors,
+            );
+            text.dispose();
+            placed.add(plate);
+            if (c.text != 'nucleolus') {
+              continue;
+            }
+            final String where = '${t.slug} at ${stop.name}, ${size.width}';
+            expect(
+              _onScreen(nucleolus.outline, frame).contains(c.target),
+              isTrue,
+              reason: where,
+            );
+            final Path round = _onScreen(outline, frame);
+            for (final Offset corner in <Offset>[
+              plate.topLeft,
+              plate.topRight,
+              plate.bottomLeft,
+              plate.bottomRight,
+              plate.center,
+            ]) {
+              expect(round.contains(corner), isFalse, reason: where);
+            }
+          }
+        }
+      }
+    }
+  });
+
+  testWidgets('its name keeps its place by it as the view moves, from the '
+      'tissue to the chromosome, at two widths', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    final TextStyle labels = AppTheme.analysis.textTheme.labelSmall!;
+    for (final Size size in _canvases) {
+      for (final ProteinTarget t in TestCatalog.all) {
+        final ZoomStage stage = _stage(t);
+        final double from = stage.depth.depthOf(ZoomStop.tissue);
+        final double to = stage.depth.depthOf(ZoomStop.chromosome);
+        Map<String, Offset> before = <String, Offset>{};
+        for (int i = 0; i <= 1500; i++) {
+          final double d = from + (to - from) * i / 1500;
+          final Map<String, Offset> now = <String, Offset>{};
+          final List<Rect> placed = <Rect>[];
+          for (final ZoomCallout c in stage.stage(d, size, inks).callouts) {
+            final TextPainter text = calloutText(c, labels, inks, size);
+            final Rect plate = calloutPlate(
+              stage,
+              d,
+              c,
+              text.size,
+              size,
+              placed,
+              inks,
+              labels,
+            );
+            text.dispose();
+            placed.add(plate);
+            // Where the plate is from what it names: a jump in it is the
+            // plate leaping to another place while it shows.
+            now[c.key] = plate.center - c.target;
+            final Offset? last = before[c.key];
+            if (last != null && c.opacity > 0.02) {
+              expect(
+                (now[c.key]! - last).distance,
+                lessThan(6),
+                reason: '${t.slug}, ${c.text} at ${i / 15}%, ${size.width}',
+              );
+            }
+          }
+          before = now;
+        }
+      }
+    }
+  });
+
+  testWidgets('the cell and the nucleus draw one nucleolus, in one place, '
+      'across the step between them', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    const Size size = Size(390, 560);
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ZoomStage stage = _stage(t);
+      final CellScene cell = stage.scenes[ZoomStop.cell.index] as CellScene;
+      final NucleusScene nucleus =
+          stage.scenes[ZoomStop.nucleus.index] as NucleusScene;
+      final double from = stage.depth.depthOf(ZoomStop.cell);
+      final double to = stage.depth.depthOf(ZoomStop.nucleus);
+      int both = 0;
+      for (int i = 1; i < 40; i++) {
+        final double d = from + (to - from) * i / 40;
+        final ZoomFrame? outer = _frameOf(stage, cell, d, size, inks);
+        final ZoomFrame? inner = _frameOf(stage, nucleus, d, size, inks);
+        if (outer == null || inner == null) {
+          continue;
+        }
+        both++;
+        final List<Offset> a = cell.nucleolus.outline.points;
+        final List<Offset> b = nucleus.nucleolus.outline.points;
+        expect(a, hasLength(b.length));
+        double worst = 0;
+        for (int k = 0; k < a.length; k++) {
+          worst = math.max(
+            worst,
+            (outer.toScreen(a[k]) - inner.toScreen(b[k])).distance,
+          );
+        }
+        expect(worst, lessThan(0.5), reason: '${t.slug} at $i/40');
+      }
+      expect(both, greaterThan(5), reason: t.slug);
+    }
+  });
+
+  testWidgets('its line is in the quiet ink: the mark is the gene\'s', (
+    WidgetTester tester,
+  ) async {
+    final ZoomInks inks = await _inks(tester);
+    const Size size = Size(390, 560);
+    const TextStyle labels = TextStyle(fontSize: 12);
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ZoomStage stage = _stage(t);
+      for (final ZoomStop stop in <ZoomStop>[ZoomStop.cell, ZoomStop.nucleus]) {
+        final double d = stage.depth.depthOf(stop);
+        final ZoomCallout named = stage
+            .stage(d, size, inks)
+            .callouts
+            .singleWhere((ZoomCallout c) => c.text == 'nucleolus');
+        final _Lines canvas = _Lines();
+        ZoomOverlayPainter(
+          stage: stage,
+          at: () => d,
+          inks: inks,
+          labels: labels,
+          caption: labels,
+          credit: '',
+        ).paint(canvas, size);
+        final Color line = canvas.lines
+            .singleWhere(((Offset, Offset, Color) l) => l.$2 == named.target)
+            .$3;
+        expect(
+          line.toARGB32(),
+          inks.label.toARGB32(),
+          reason: '${t.slug} at ${stop.name}',
+        );
+      }
+    }
+  });
+
+  testWidgets('where the Atlas puts the protein in the nucleolus, the '
+      'protein\'s own name says so, and the nucleolus is not named twice', (
+    WidgetTester tester,
+  ) async {
+    final ZoomInks inks = await _inks(tester);
+    const Size size = Size(390, 560);
+    final ProteinTarget t = TestCatalog.insulin;
+    final Map<String, dynamic> json =
+        jsonDecode(jsonEncode(locusJson(t))) as Map<String, dynamic>;
+    final Map<String, dynamic> expression =
+        json['expression'] as Map<String, dynamic>;
+    expression['subcellular'] = <String, dynamic>{
+      'main': <String>['Nucleoli'],
+      'additional': <String>[],
+    };
+    final ZoomStage stage = _stage(t, LocusTrack.fromJson(json, t));
+    final CellScene cell = stage.scenes[ZoomStop.cell.index] as CellScene;
+    final double d = stage.depth.depthOf(ZoomStop.cell);
+    final List<ZoomCallout> callouts = stage.stage(d, size, inks).callouts;
+    expect(
+      <String>[for (final ZoomCallout c in callouts) c.text],
+      <String>['nucleoli'],
+    );
+    expect(callouts.single.quiet, isFalse);
+    final ZoomFrame frame = _frameOf(stage, cell, d, size, inks)!;
+    expect(
+      (callouts.single.target - frame.toScreen(cell.nucleolus.centre)).distance,
+      lessThan(1e-6),
+    );
+    // The nucleus, where the Atlas reading is not drawn, still names it.
+    expect(
+      stage
+          .stage(stage.depth.depthOf(ZoomStop.nucleus), size, inks)
+          .callouts
+          .map((ZoomCallout c) => c.text),
+      <String>['nucleolus'],
+    );
+  });
+
+  test('the nucleoplasm a protein glows in is the nucleus less its '
+      'nucleolus', () {
+    final ZoomStage stage = _stage(TestCatalog.p53);
+    final CellScene cell = stage.scenes[ZoomStop.cell.index] as CellScene;
+    final Path nucleus = cell.nucleusShape.outline(cell.nucleus).toPath();
+    for (final Offset p in <Offset>[
+      cell.nucleolus.centre,
+      ...cell.nucleolus.outline
+          .resampled(12)
+          .points
+          .map((Offset q) => Offset.lerp(cell.nucleolus.centre, q, 0.9)!),
+    ]) {
+      expect(nucleus.contains(p), isTrue);
+      expect(cell.nucleoplasm.contains(p), isFalse);
+    }
+    expect(cell.nucleoplasm.contains(cell.nucleolus.centre * -0.9), isTrue);
+  });
+}
