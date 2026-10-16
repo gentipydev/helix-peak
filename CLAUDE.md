@@ -272,9 +272,10 @@ seen:
 - the tissue as a section under an eyepiece (`TissueSlide`: one engine, a
   recipe a tissue architecture, the zoom's cell laid where it lives);
 - the cell, the protein glowing where the Atlas finds it, and the nucleus
-  with its chromosome territories; the nucleolus, lobed, is one shape at
-  both (`scenes/nucleolus.dart`), and the one landmark the canvas names,
-  its line in the quiet ink and its plate off the nucleus;
+  with its chromosome territories; the nucleolus, lobed, plain and near
+  black, is one shape in one tone at both (`scenes/nucleolus.dart`), named
+  at the cell, its line in the quiet ink and its plate off the nucleus;
+  the nucleus names nothing (the user's choice of 2026-10-16);
 - a metaphase chromosome drawn as a scanning micrograph shows one
   (`presentation/scenes/chromosome/`): two knobbly sisters, its G-bands
   soft changes of tone, the gene two FISH spots in the accent. It condenses

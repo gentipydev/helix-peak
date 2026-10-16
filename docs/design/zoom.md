@@ -30,7 +30,9 @@ chromosome, band, gene and DNA. It is one continuous depth.
 - **The canvas** names only what the card does not say: the cell in the
   tissue, where the protein sits, the band on the chromosome, the gene on
   the map, the gene's 5′ end; and the one landmark a reader asked after, the
-  nucleolus, at the cell and the nucleus (the user's ask, 2026-10-15). A scale bar is always at its lower left: a
+  nucleolus, at the cell (the user's ask, 2026-10-15; at the nucleus too
+  until 2026-10-16, when the user asked for the nucleus to name nothing). A
+  scale bar is always at its lower left: a
   round length at each stop, and between two stops a bar that glides from
   the one's length to the next, reading the length it spans as it goes, so
   it never springs back. At the body alone, its lower right carries the
@@ -51,7 +53,7 @@ What each stop says, for insulin:
 | Organ | Pancreas | About 16 cm | a marker where the tissue is sampled |
 | Tissue | Islet (the recipe's architecture) | none | beta cells |
 | Cell | Beta cells | Tissue cell type enriched | nucleolus: the Atlas names no place in the cell for it, and its vesicles leave the cell |
-| Nucleus | Chromosome 11 territory | none | nucleolus |
+| Nucleus | Chromosome 11 territory | none | nothing |
 | Chromosome | Chromosome 11 | 135,086,622 bp · 36 bands | 11p15.5 |
 | Band | 11p15.5 | 2.8 Mb · gene at 2,159,779–2,161,209 | INS |
 | Gene | INS · 1,431 bases | Three exons · reverse strand | 5′, 3′, the exons' numbers |
@@ -101,10 +103,12 @@ convention is, where it comes from, and what it decided:
   centres each in a rim of dense fibrillar component, in a granular bulk,
   round the ribosomal genes of the five acrocentrics (Lafontaine et al.
   2021; McStay 2016). *Consequence:* it is drawn lobed, not round, its edge
-  soft, a little darker than the chromatin round it, its fibrillar centres
-  showing once it is some 20 pixels across, and the acrocentrics' territories
-  round it. A protein in the nucleoplasm glows round it, as
-  immunofluorescence shows one.
+  soft, near black against the chromatin round it, and the acrocentrics'
+  territories round it. Its layers are left out: it is one plain dark body
+  (the user's choice of 2026-10-16, to keep the picture simple; its
+  fibrillar centres showed once it was some 20 pixels across until then).
+  A protein in the nucleoplasm glows round it, as immunofluorescence shows
+  one.
 - **Chromosome territories.** In interphase each chromosome keeps to a
   territory of its own, and territories are ordered from the centre of the
   nucleus to its edge by gene density: chromosome 19 toward the centre, 18 at
@@ -581,7 +585,8 @@ territories, and the gene's comes up in the accent.
 - each as large as its chromosome's DNA (hg38 lengths);
 - gene-dense chromosomes toward the centre and gene-poor ones at the rim;
 - the five acrocentrics round the nucleolus, which the cell drew and the
-  nucleus draws again, the same shape in the same place (`Nucleolus`);
+  nucleus draws again, the same shape in the same place and the same near
+  black, over the nucleus's light (`Nucleolus`), unnamed here;
 - in nine tones of one neutral, the gene's chromosome in the accent;
 - pores in the envelope once there is room to see them.
 
@@ -962,10 +967,13 @@ frame (0.4 to 0.8 ms).
   twenty). `test/zoom_paint_timing_check.dart` times closer moments through
   the chromosome's two steps.
 - `nucleolus_test` holds the nucleolus to one shape in one place across the
-  step from the cell to the nucleus (to half a pixel), its name to both
-  stops and no other, landing on it, set off the nucleus at two widths, in
-  the quiet ink, never jumping from the tissue to the chromosome, and said
-  once where the Atlas puts the protein in it.
+  step from the cell to the nucleus (to half a pixel), its name to the cell
+  and no other stop (the nucleus names nothing), landing on it, set off the
+  nucleus at two widths, in the quiet ink, never jumping from the tissue to
+  the chromosome, and said once where the Atlas puts the protein in it; and
+  the body plain (no round shape drawn at any size), darker at the nucleus
+  than everything round it for all twenty, and no lighter than the app's
+  raised surface where the glow of the gene's territory does not reach it.
 - `zoom_screen_test` holds the card (its words for all twenty, fitting at
   320 pt with type turned up, and nothing on it but its words and its
   steps), the steps and the pinch, a step mid-flight, the credit, the
