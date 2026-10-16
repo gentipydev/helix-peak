@@ -167,10 +167,7 @@ abstract class ZoomScene {
 
   /// Draws, over [paint], what moves at rest: a helix turning, vesicles
   /// leaving a cell, the beats a stop plays as it is reached. Drawn on a
-  /// layer of its own, so a stop at rest repaints only this. A scene may
-  /// draw here too what must lie over the next scene's drawing though
-  /// nothing in it moves (the gene being read, over its DNA): asking for no
-  /// clock, it is drawn again only as the depth moves.
+  /// layer of its own, so a stop at rest repaints only this.
   void paintAmbient(Canvas canvas, ZoomFrame frame) {}
 
   /// Builds what the scene caches for its drawing (reading a late field

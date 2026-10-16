@@ -4,28 +4,24 @@ import 'package:flutter/material.dart';
 
 import '../../domain/dna_dive.dart';
 import '../../domain/gene_layout.dart';
-import '../../domain/transcription.dart';
 import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
 import '../zoom_inks.dart';
 import 'band_scene.dart';
 import 'body_scene.dart';
+import 'chromatin_beads.dart';
 import 'gene_strand.dart';
-import 'transcription_art.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
 
-/// The gene as a genome browser draws a transcript: its coding exons thick,
-/// their untranslated ends thin, each a lit block in the walk's own colours,
-/// its introns a line with chevrons running the way it is read, every part
-/// at its real length, along the span MANE gives it, with a ruler from its
-/// 5′ end and the bent arrow where transcription starts. And the gene being
-/// read, as one still ([Transcription], [TranscriptionArt]): three RNA
-/// polymerase II on it, each a stage of one reading, their RNA hanging from
-/// them, the gene's longest intron looping out of one, and the finished mRNA
-/// lying below the 3′ end (the user's choice of 2026-10-16, over a loop of
-/// ten polymerases reading it, which they had chosen the evening before and
-/// found too busy).
+/// The gene as a stretch of chromatin, still: its DNA a line beaded with its
+/// nucleosomes ([ChromatinBeads]), going on either side of it, and its
+/// exons, as a genome browser draws a transcript, lit blocks in the walk's
+/// own colours, coding parts tall and untranslated ends short, every part
+/// at its real length along the span MANE gives it; a ruler from its 5′ end
+/// and the bent arrow where transcription starts (the user's choice of
+/// 2026-10-16: a snapshot of the gene, nothing reading it, after a still of
+/// it being read that read as an animation laid out in space).
 ///
 /// It reads 5′ to 3′, left to right, as the walk does, from the moment it
 /// appears: on the band's strip the gene is a mark with nothing inside it to
@@ -41,11 +37,6 @@ final class GeneScene extends ZoomScene {
   GeneScene(this.subject);
 
   final ZoomSubject subject;
-
-  /// The gene being read, built ahead of its first frame ([prepare]).
-  late final TranscriptionArt _reading = TranscriptionArt(
-    Transcription(subject.layout),
-  );
 
   @override
   ZoomStop get stop => ZoomStop.gene;
@@ -83,8 +74,8 @@ final class GeneScene extends ZoomScene {
   double asChild(double progress) => smoothstep((progress - 0.25) / 0.45);
 
   // On the way to the DNA the DNA's scene draws the gene's DNA from the
-  // first ([DnaScene]); this one draws only what names it and what reads
-  // it, both gone before the DNA winds, and goes after them.
+  // first ([DnaScene]); this one draws only what names it, gone before the
+  // DNA winds, and goes after it.
   @override
   double asParent(double progress) => 1 - smoothstep((progress - 0.5) / 0.45);
 
@@ -97,10 +88,6 @@ final class GeneScene extends ZoomScene {
       ? smoothstep((frame.progress - 0.55) / 0.45)
       : 1 - _leaving(frame);
 
-  /// How much of the gene being read shows at [frame]: as its annotations.
-  @visibleForTesting
-  double transcriptionShown(ZoomFrame frame) => annotationsShown(frame);
-
   /// How far the step has gone, at [frame] on the way to the DNA, from the
   /// gene's stop to where its DNA starts to wind, in the step's own depth:
   /// a long gene's empty decades go by fast, and a fade keyed to them would
@@ -111,52 +98,7 @@ final class GeneScene extends ZoomScene {
     // after its stop does not drop them in a few frames; they are faint by
     // then.
     return smoothstep(
-      frame.progress /
-          math.max(dive.spentAt(DnaDive.windsFrom(_width)), 0.15),
-    );
-  }
-
-  /// How far above the canvas's foot the gene being read stops: clear of
-  /// the scale bar.
-  static const double foot = 60;
-
-  @override
-  void prepare(ZoomInks inks) => _reading.prepare(inks);
-
-  // The gene being read lies over its DNA, which the DNA's scene draws from
-  // the gene's stop on, after this one: so it is drawn on the layer above,
-  // fading with the scene and its annotations. Nothing in it moves at rest,
-  // and it asks for no clock.
-  @override
-  void paintAmbient(Canvas canvas, ZoomFrame frame) {
-    final double shown = transcriptionShown(frame) * frame.opacity;
-    if (shown <= 0.002) {
-      return;
-    }
-    final bool fading = shown < 0.995;
-    if (fading) {
-      canvas.saveLayer(
-        Offset.zero & frame.size,
-        Paint()..color = Color.fromRGBO(0, 0, 0, shown),
-      );
-    }
-    _reading.paint(canvas, frame.inks, readingAt(frame));
-    if (fading) {
-      canvas.restore();
-    }
-  }
-
-  /// The gene being read as it lies on screen at [frame].
-  @visibleForTesting
-  ReadingLaid readingAt(ZoomFrame frame) {
-    final double mid = frame.size.height / 2;
-    final double atRest = frame.size.width / _width;
-    return _reading.lay(
-      x: (double offset) => _x(frame, offset),
-      line: mid,
-      perBase: frame.view.pixelsPerUnit / _width,
-      atRest: atRest,
-      compaction: _reading.compaction(atRest, mid - foot),
+      frame.progress / math.max(dive.spentAt(DnaDive.windsFrom(_width)), 0.15),
     );
   }
 
@@ -185,16 +127,10 @@ final class GeneScene extends ZoomScene {
     final double mid = frame.size.height / 2;
     final double annotations = annotationsShown(frame);
     // On the step that reaches the gene this scene draws its DNA; from the
-    // gene's stop on the DNA's scene does, drawing the same.
+    // gene's stop on the DNA's scene does, drawing the same. Its beads and
+    // the DNA either side of it come up with its annotations.
     if (frame.isChild) {
-      GeneStrand.paint(
-        canvas,
-        frame.inks,
-        subject.layout,
-        x: (double offset) => _x(frame, offset),
-        mid: mid,
-        width: frame.size.width,
-      );
+      _strand(canvas, frame, mid, annotations);
     }
     if (annotations > 0) {
       _numbers(canvas, frame, mid, annotations);
@@ -202,6 +138,62 @@ final class GeneScene extends ZoomScene {
       _ruler(canvas, frame, mid + rulerY, annotations);
       _start(canvas, frame, mid, annotations);
     }
+  }
+
+  /// The gene's DNA, as the DNA's scene draws it from the gene's stop on: the
+  /// DNA either side of it and its beads [around] of the way up, its line,
+  /// its beads, and its exons over them.
+  void _strand(Canvas canvas, ZoomFrame frame, double mid, double around) {
+    final ZoomInks inks = frame.inks;
+    final double w = frame.size.width;
+    // The genome's base pairs, as the DNA counts them, to the record's.
+    final double scale = subject.track.geneLengthBp / subject.layout.length;
+    double x(double offset) => _x(frame, offset / scale);
+    final double end = subject.track.geneLengthBp.toDouble();
+    GeneStrand.flanks(
+      canvas,
+      inks,
+      start: x(0),
+      end: x(end),
+      mid: mid,
+      width: w,
+      alpha: around,
+    );
+    GeneStrand.paint(
+      canvas,
+      inks,
+      subject.layout,
+      x: (double offset) => _x(frame, offset),
+      mid: mid,
+      width: w,
+      blocks: false,
+    );
+    if (around > 0) {
+      final double a = _along(frame, -24) * scale;
+      final double b = _along(frame, w + 24) * scale;
+      ChromatinBeads.paint(
+        canvas,
+        inks,
+        x: x,
+        mid: mid,
+        from: math.min(a, b),
+        to: math.max(a, b),
+        perBase: (x(1000) - x(0)).abs() / 1000,
+        // The beads its stop shows, coming up with it: which they are does
+        // not change as the gene opens out.
+        level: ChromatinBeads.levelAt(frame.size.width / _width),
+        alphaAt: (double _) => around,
+      );
+    }
+    GeneStrand.paint(
+      canvas,
+      inks,
+      subject.layout,
+      x: (double offset) => _x(frame, offset),
+      mid: mid,
+      width: w,
+      line: false,
+    );
   }
 
   /// The least width, in pixels, a coding exon has at the gene's stop to be
@@ -296,11 +288,12 @@ final class GeneScene extends ZoomScene {
     painter.dispose();
   }
 
-  /// 3′ at the gene's far end; its 5′ end has the scene's callout.
+  /// 3′ at the gene's far end, over the DNA going on past it; its 5′ end
+  /// has the scene's callout.
   void _ends(Canvas canvas, ZoomFrame frame, double mid, double alpha) {
     final double end = _x(frame, subject.layout.length);
-    if (end > -8 && end < frame.size.width - 36) {
-      _number(canvas, frame, '3′', Offset(end + 14, mid), alpha);
+    if (end > -8 && end < frame.size.width - 24) {
+      _number(canvas, frame, '3′', Offset(end + 10, mid - 16), alpha);
     }
   }
 

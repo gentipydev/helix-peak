@@ -602,8 +602,6 @@ void main() {
             }
             out['annotations'] =
                 frame.opacity * scene.annotationsShown(frame);
-            out['its reading'] =
-                frame.opacity * scene.transcriptionShown(frame);
           }
           if (scene is DnaScene) {
             final (double helix, double bases) = scene.helixShown(frame);

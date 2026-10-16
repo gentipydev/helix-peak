@@ -12,6 +12,7 @@ import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
 import '../zoom_inks.dart';
 import 'body_scene.dart';
+import 'chromatin_beads.dart';
 import 'gene_strand.dart';
 import 'nucleosome_art.dart';
 import 'zoom_scene.dart';
@@ -95,10 +96,10 @@ final class DnaScene extends ZoomScene {
   /// How much of the exons' colours the DNA still wears.
   static double tintAt(double span) => 1 - _fall(span, 500, exonsGone);
 
-  /// How much of the DNA either side of the gene shows: it comes up as the
-  /// exons sink, and goes before the bases come up, the record holding none
-  /// of them.
-  double contextAt(double span) => sunkAt(span) * (1 - _fall(span, 600, 250));
+  /// How much of the DNA either side of the gene shows: all of it from the
+  /// gene's stop, where the gene is a stretch of chromatin, and none once
+  /// the bases come up, the record holding none of them.
+  double contextAt(double span) => 1 - _fall(span, 600, 250);
 
   /// How much of the bare start is the helix's: its tube hands over to the
   /// painter's duplex, a twisted rope as thick as it.
@@ -130,6 +131,19 @@ final class DnaScene extends ZoomScene {
   /// How far the DNA is wound at [frame].
   @visibleForTesting
   double woundShown(ZoomFrame frame) => woundAt(_span(frame));
+
+  /// How many halvings short of room for every bead the gene's beads are
+  /// chosen at [frame] ([ChromatinBeads.levelAt]): as many as the gene's
+  /// stop has at its stop, none by where the DNA starts to wind, and evenly
+  /// over the step's depth between. As the view's own width would, a long
+  /// gene's empty decades, which go by in a rush, would bring them up in
+  /// one.
+  @visibleForTesting
+  double beadLevel(ZoomFrame frame) {
+    final double atStop = ChromatinBeads.levelAt(frame.size.width / _gene);
+    final double winds = subject.depth.dive.spentAt(_winds);
+    return atStop * (1 - smoothstep(frame.progress / math.max(winds, 1e-6)));
+  }
 
   /// How much of the helix shows at [frame], and of its bases.
   @visibleForTesting
@@ -298,36 +312,19 @@ final class DnaScene extends ZoomScene {
     final ZoomInks inks = frame.inks;
     final double around = contextAt(span);
     if (wound <= 0 && helixAt(span) <= 0) {
-      // The gene's DNA as its stop draws it, its exons sinking into it, and
-      // the DNA either side of it coming up.
-      if (around > 0) {
-        final Color dna = GeneStrand.ink(inks, GenePieceKind.intron, 0);
-        final Color faded = dna.withValues(alpha: dna.a * around);
-        final double start = _x(frame, 0);
-        final double end = screenX(frame, subject.layout.length);
-        if (start > -8) {
-          GeneStrand.tube(
-            canvas,
-            Path()
-              ..moveTo(-8, mid)
-              ..lineTo(start, mid),
-            faded,
-            thick,
-            inks,
-          );
-        }
-        if (end < w + 8) {
-          GeneStrand.tube(
-            canvas,
-            Path()
-              ..moveTo(end, mid)
-              ..lineTo(w + 8, mid),
-            faded,
-            thick,
-            inks,
-          );
-        }
-      }
+      // The gene's DNA as its stop draws it, beaded with its nucleosomes and
+      // going on either side of it, its exons sinking into it.
+      final double end = subject.layout.length * _scale;
+      GeneStrand.flanks(
+        canvas,
+        inks,
+        start: _x(frame, 0),
+        end: _x(frame, end),
+        mid: mid,
+        width: w,
+        thick: thick,
+        alpha: around,
+      );
       GeneStrand.paint(
         canvas,
         inks,
@@ -337,6 +334,29 @@ final class DnaScene extends ZoomScene {
         width: w,
         sink: sunk,
         thick: thick,
+        blocks: false,
+      );
+      ChromatinBeads.paint(
+        canvas,
+        inks,
+        x: (double offset) => _x(frame, offset),
+        mid: mid,
+        from: _along(frame, -24),
+        to: _along(frame, w + 24),
+        perBase: perBase,
+        level: beadLevel(frame),
+        alphaAt: (double at) => at < 0 || at > end ? around : 1,
+      );
+      GeneStrand.paint(
+        canvas,
+        inks,
+        subject.layout,
+        x: (double offset) => screenX(frame, offset),
+        mid: mid,
+        width: w,
+        sink: sunk,
+        thick: thick,
+        line: false,
       );
       return;
     }
@@ -528,8 +548,10 @@ final class DnaScene extends ZoomScene {
     runs.paint(canvas, inks, thick, perBase, twist);
 
     // Each nucleosome: the DNA behind its core, the core, the DNA in front.
-    final double grown = 0.5 + 0.5 * smoothstep(wound);
-    final double cores = smoothstep((wound - 0.05) / 0.3);
+    // The cores are the beads the gene's stop drew, whole from the first;
+    // the DNA's front turns come over them as it winds, from under them.
+    final double level = beadLevel(frame);
+    final double over = smoothstep((wound - 0.05) / 0.35);
     for (final (double start, double end) in beads) {
       final _Strokes behind = _Strokes();
       final _Strokes inFront = _Strokes();
@@ -540,6 +562,9 @@ final class DnaScene extends ZoomScene {
         behind,
       );
       behind.paint(canvas, inks, thick, perBase, twist, shaded: true);
+      if (over < 1) {
+        inFront.paint(canvas, inks, thick, perBase, twist, alpha: 1 - over);
+      }
       final double centre =
           chromatin.axisAt(start, wound) + ChromatinLayout.across / 2;
       final double side = start < 0 || start > end ? around : 1;
@@ -548,10 +573,13 @@ final class DnaScene extends ZoomScene {
         Offset(_x(frame, centre), mid),
         perBase,
         inks,
-        grown: grown,
-        alpha: cores * side,
+        alpha:
+            ChromatinBeads.shownAt(ChromatinBeads.indexOf(start), level) * side,
+        least: ChromatinBeads.least,
       );
-      inFront.paint(canvas, inks, thick, perBase, twist);
+      if (over > 0) {
+        inFront.paint(canvas, inks, thick, perBase, twist, alpha: over);
+      }
     }
   }
 
@@ -686,7 +714,8 @@ final class _Strokes {
   }
 
   /// Draws the DNA [thick] pixels thick, [perBase] pixels a base pair along
-  /// it, its strands showing [twist] of the way; in shade behind a core.
+  /// it, its strands showing [twist] of the way; in shade behind a core;
+  /// [alpha] of it.
   void paint(
     Canvas canvas,
     ZoomInks inks,
@@ -694,9 +723,10 @@ final class _Strokes {
     double perBase,
     double twist, {
     bool shaded = false,
+    double alpha = 1,
   }) {
     Color shade(Color c, double by) =>
-        Color.lerp(c, inks.ground, by)!.withValues(alpha: c.a);
+        Color.lerp(c, inks.ground, by)!.withValues(alpha: c.a * alpha);
     for (final MapEntry<Color, Path> body in _body.entries) {
       // A tube, giving way to its strands as they come up, as the helix
       // is its strands and its bases alone.
@@ -786,7 +816,7 @@ final class _Strokes {
           ..color = shade(
             s.key,
             shaded ? 0.7 : 0.45,
-          ).withValues(alpha: strength(s.key) * (shaded ? 0.7 : 1)),
+          ).withValues(alpha: strength(s.key) * (shaded ? 0.7 : 1) * alpha),
       );
     }
     for (final MapEntry<Color, Path> s in front.entries) {
@@ -796,7 +826,7 @@ final class _Strokes {
           ..color = shade(
             s.key,
             shaded ? 0.35 : 0,
-          ).withValues(alpha: strength(s.key)),
+          ).withValues(alpha: strength(s.key) * alpha),
       );
     }
   }

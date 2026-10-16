@@ -6,16 +6,16 @@ import '../../domain/gene_layout.dart';
 import '../zoom_inks.dart';
 
 /// The gene's DNA as its stop draws it: a line, light enough to read on the
-/// dark ground, with chevrons on its introns the way it is read, and its
+/// dark ground, beaded with its nucleosomes ([ChromatinBeads]), and its
 /// exons as lit blocks in the walk's own colours, coding parts tall and
-/// untranslated ones short.
+/// untranslated ones short; the DNA going on either side of it.
 ///
 /// The gene's scene draws it on the step that reaches the gene, and the
 /// DNA's from the gene's stop on, so the hand-over at the stop changes no
 /// pixel. On the way to the DNA the exons sink into the line ([sink]): each
 /// block eases down to the line's width, and the line along it takes its
 /// colour, so the exons are stretches of the DNA itself by the time it
-/// winds onto its histones; the chevrons go as they sink.
+/// winds onto its histones.
 abstract final class GeneStrand {
   /// The line's width at the gene's stop, in pixels, and how much of the
   /// quiet ink it is drawn in.
@@ -70,10 +70,54 @@ abstract final class GeneStrand {
     }
   }
 
+  /// Draws the DNA either side of the gene on the line at [mid], from the
+  /// canvas's edge to the gene's 5′ end at screen x [start] and from its 3′
+  /// end at [end] to the canvas's other edge, [thick] pixels wide, at
+  /// [alpha]: the gene's own line going on.
+  static void flanks(
+    Canvas canvas,
+    ZoomInks inks, {
+    required double start,
+    required double end,
+    required double mid,
+    required double width,
+    double thick = GeneStrand.line,
+    double alpha = 1,
+  }) {
+    if (alpha <= 0) {
+      return;
+    }
+    final Color dna = ink(inks, GenePieceKind.intron, 0);
+    final Color faded = dna.withValues(alpha: dna.a * alpha);
+    if (start > -8) {
+      tube(
+        canvas,
+        Path()
+          ..moveTo(-8, mid)
+          ..lineTo(start, mid),
+        faded,
+        thick,
+        inks,
+      );
+    }
+    if (end < width + 8) {
+      tube(
+        canvas,
+        Path()
+          ..moveTo(end, mid)
+          ..lineTo(width + 8, mid),
+        faded,
+        thick,
+        inks,
+      );
+    }
+  }
+
   /// Draws the gene of [layout] on the line at [mid], its point [offset]
   /// base pairs from the 5′ end at screen x [x], on a canvas [width] wide:
   /// its exons [sink] of the way sunk into a line [thick] pixels wide, all
-  /// of it at [alpha]; without its [line] where the DNA is drawn otherwise.
+  /// of it at [alpha]; without its [line] where the DNA is drawn otherwise,
+  /// and without its [blocks] where its beads go between the two.
   static void paint(
     Canvas canvas,
     ZoomInks inks,
@@ -85,6 +129,7 @@ abstract final class GeneStrand {
     double thick = GeneStrand.line,
     double alpha = 1,
     bool line = true,
+    bool blocks = true,
   }) {
     if (alpha <= 0) {
       return;
@@ -92,14 +137,10 @@ abstract final class GeneStrand {
     double clampX(double at) => at.clamp(-8.0, width + 8);
     Color faded(Color colour) => colour.withValues(alpha: colour.a * alpha);
     final double kept = 1 - sink;
-    final Paint chevron = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.4
-      ..color = inks.label.withValues(alpha: lineInk * alpha * kept);
     // Piece by piece, 5′ to 3′, as a browser draws a transcript: an
-    // intron's line and its chevrons the way it is read, an exon's block
-    // lit from above, brighter along its top and in shade below, sinking to
-    // the line's width with the line along it in its colour.
+    // intron's line, an exon's block lit from above, brighter along its top
+    // and in shade below, sinking to the line's width with the line along
+    // it in its colour.
     for (final GenePiece piece in layout.pieces) {
       final double a = x(piece.start);
       final double b = x(piece.end);
@@ -133,20 +174,7 @@ abstract final class GeneStrand {
           );
         }
       }
-      if (kept <= 0) {
-        continue;
-      }
-      if (intron) {
-        final double from = math.max(left, -8) + 18;
-        for (double at = from; at < math.min(right, width + 8) - 12; at += 36) {
-          canvas.drawPath(
-            Path()
-              ..moveTo(at - 3, mid - 4)
-              ..lineTo(at + 3, mid)
-              ..lineTo(at - 3, mid + 4),
-            chevron,
-          );
-        }
+      if (kept <= 0 || intron || !blocks) {
         continue;
       }
       final bool isCoding = piece.kind == GenePieceKind.cds;

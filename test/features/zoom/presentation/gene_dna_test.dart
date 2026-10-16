@@ -6,14 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/features/zoom/domain/chromatin_layout.dart';
 import 'package:helixpeek/features/zoom/domain/dna_dive.dart';
-import 'package:helixpeek/features/zoom/domain/gene_layout.dart';
-import 'package:helixpeek/features/zoom/domain/transcription.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_motion.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/chromatin_beads.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/dna_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/gene_scene.dart';
-import 'package:helixpeek/features/zoom/presentation/scenes/transcription_art.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
@@ -86,18 +85,6 @@ Future<Uint8List> _pixels(
   });
   picture.dispose();
   return bytes!;
-}
-
-/// How far [p] is from the segment from [a] to [b].
-double _toSegment(Offset p, Offset a, Offset b) {
-  final Offset ab = b - a;
-  final double t = ab.distanceSquared == 0
-      ? 0
-      : (((p - a).dx * ab.dx + (p - a).dy * ab.dy) / ab.distanceSquared).clamp(
-          0.0,
-          1.0,
-        );
-  return (p - (a + ab * t)).distance;
 }
 
 void main() {
@@ -180,8 +167,8 @@ void main() {
   });
 
   testWidgets('the DNA is drawn by one scene at a time: the gene’s on the '
-      'way in, the DNA’s from the gene’s stop on, and never a second line '
-      'across the canvas past the gene’s ends at its stop', (
+      'way in, the DNA’s from the gene’s stop on, the DNA either side of the '
+      'gene all there at the stop and nothing of the dive begun', (
     WidgetTester tester,
   ) async {
     final (ZoomInks inks, TextStyle _) = await _inks(tester);
@@ -200,7 +187,8 @@ void main() {
           reason: '${t.slug} at $i',
         );
       }
-      // At the gene's stop the DNA either side of the gene is not there yet.
+      // At the gene's stop the gene is a stretch of chromatin, its DNA
+      // going on either side of it; nothing has sunk, wound or opened.
       for (final (ZoomScene scene, ZoomFrame frame) in stage.frames(
         gene,
         _canvas,
@@ -208,7 +196,7 @@ void main() {
       )) {
         if (scene is DnaScene) {
           final double span = depth.widthOf(ZoomStop.gene);
-          expect(scene.contextAt(span), 0, reason: t.slug);
+          expect(scene.contextAt(span), 1, reason: t.slug);
           expect(scene.sunkAt(span), 0, reason: t.slug);
           expect(scene.woundShown(frame), 0, reason: t.slug);
           expect(scene.helixShown(frame), (0, 0), reason: t.slug);
@@ -279,8 +267,8 @@ void main() {
     }
   });
 
-  testWidgets('the gene being read is still: at its stop no scene asks for '
-      'the ambient clock, and it is drawn the same at any moment', (
+  testWidgets('the gene is still: at its stop no scene asks for the ambient '
+      'clock, and it is drawn the same at any moment', (
     WidgetTester tester,
   ) async {
     final (ZoomInks inks, TextStyle labels) = await _inks(tester);
@@ -319,68 +307,150 @@ void main() {
     }
   });
 
-  testWidgets('the gene being read keeps clear of itself at its stop: its '
-      'polymerases apart, its loop off the other RNAs, and the mRNA under '
-      'them all and over the scale bar, at two widths', (
-    WidgetTester tester,
-  ) async {
-    final (ZoomInks inks, TextStyle _) = await _inks(tester);
-    // A long gene's mRNA is a speck beside it, and is left out.
-    final Set<ProteinTarget> specks = <ProteinTarget>{
-      TestCatalog.dystrophin,
-      TestCatalog.app,
-      TestCatalog.cftr,
-    };
+  testWidgets('the gene’s beads are its own nucleosomes, at their places in '
+      'the packing, as many as the view can tell apart, the first past its '
+      'start always', (WidgetTester tester) async {
+    const ChromatinLayout chromatin = ChromatinLayout();
     for (final Size size in <Size>[_canvas, const Size(320, 420)]) {
       for (final ProteinTarget t in TestCatalog.all) {
         final ZoomStage stage = _stage(t);
+        final double gene = stage.depth.widthOf(ZoomStop.gene);
+        final double perBase = size.width / gene;
         final String what = '${t.slug} at ${size.width.toInt()}';
-        final (ZoomScene scene, ZoomFrame frame) = stage
-            .frames(stage.depth.depthOf(ZoomStop.gene), size, inks)
-            .firstWhere(((ZoomScene, ZoomFrame) f) => f.$1 is GeneScene);
-        final ReadingLaid laid = (scene as GeneScene).readingAt(frame);
-        final int splicing = Transcription(GeneLayout.of(recordOf(t))).splicing;
-        for (int i = 1; i < laid.polymerases.length; i++) {
+        // The whole view, from its left edge to its right, in base pairs
+        // from the gene's 5′ end.
+        final double from = -0.15 * gene - 100;
+        final double to = 1.15 * gene + 100;
+        final Set<double> starts = <double>{
+          for (final (double start, double _) in chromatin.nucleosomesWithin(
+            from,
+            to,
+          ))
+            start,
+        };
+        final List<(double, int, double)> beads = ChromatinBeads.within(
+          from,
+          to,
+          ChromatinBeads.levelAt(perBase),
+        );
+        expect(beads, isNotEmpty, reason: what);
+        double? last;
+        for (final (double at, int index, double shown) in beads) {
           expect(
-            laid.polymerases[i].dx - laid.polymerases[i - 1].dx,
-            greaterThanOrEqualTo(1.5 * TranscriptionArt.polymeraseWidth),
-            reason: what,
+            starts.any(
+              (double start) =>
+                  (start - (at - ChromatinLayout.across / 2)).abs() < 1e-6,
+            ),
+            isTrue,
+            reason: '$what: bead $index',
           );
-        }
-        final double floor = size.height - GeneScene.foot;
-        double lowest = 0;
-        for (final (Offset _, Offset tip) in laid.fibrils) {
-          expect(tip.dy, lessThan(floor), reason: what);
-          expect(tip.dx, inExclusiveRange(0, size.width), reason: what);
-          lowest = math.max(lowest, tip.dy);
-        }
-        final (Offset, double, double)? loop = laid.loop;
-        expect(loop, isNotNull, reason: what);
-        final (Offset centre, double r, double _) = loop!;
-        lowest = math.max(lowest, centre.dy + r);
-        for (int i = 0; i < laid.fibrils.length; i++) {
-          if (i != splicing) {
-            final (Offset root, Offset tip) = laid.fibrils[i];
-            expect(
-              _toSegment(centre, root, tip),
-              greaterThan(r + laid.width),
-              reason: '$what: fibril $i',
-            );
+          if (shown > 0.999) {
+            if (last != null) {
+              expect(
+                (at - last) * perBase,
+                greaterThanOrEqualTo(ChromatinBeads.apart - 1e-6),
+                reason: '$what: bead $index',
+              );
+            }
+            last = at;
           }
         }
-        final (Offset, Offset)? mrna = laid.mrna;
-        expect(mrna == null, specks.contains(t), reason: what);
-        if (mrna != null) {
-          final (Offset from, Offset to) = mrna;
-          expect(from.dy, to.dy, reason: what);
-          expect(
-            from.dy,
-            greaterThanOrEqualTo(lowest + TranscriptionArt.mrnaGap - 1e-6),
-            reason: what,
+        expect(
+          beads.where(((double, int, double) b) => b.$2 == 0).single.$3,
+          1,
+          reason: what,
+        );
+      }
+    }
+  });
+
+  testWidgets('the beads come and go without a pop, and none moves along the '
+      'DNA, on the steps either side of the gene, at 60 fps', (
+    WidgetTester tester,
+  ) async {
+    final (ZoomInks inks, TextStyle _) = await _inks(tester);
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ZoomStage stage = _stage(t);
+      final ZoomDepth depth = stage.depth;
+      final double gene = depth.widthOf(ZoomStop.gene);
+      final double end = stage.subject.track.geneLengthBp.toDouble();
+      // How much of each bead shows at depth [d], by which nucleosome it
+      // is, as the scene drawing the gene's DNA there shows it: the gene's
+      // on the way in, coming up with its annotations; the DNA's from the
+      // stop on, the DNA either side of the gene going before the bases.
+      Map<int, double> shown(double d) {
+        final Map<int, double> out = <int, double>{};
+        for (final (ZoomScene scene, ZoomFrame frame) in stage.frames(
+          d,
+          _canvas,
+          inks,
+        )) {
+          final double span = depth.widthAt(d);
+          if (scene is GeneScene && frame.isChild) {
+            // The beads its stop shows, coming up with the gene.
+            for (final (double _, int index, double alpha)
+                in ChromatinBeads.within(
+                  -gene,
+                  2 * gene,
+                  ChromatinBeads.levelAt(_canvas.width / gene),
+                )) {
+              out[index] =
+                  alpha * frame.opacity * scene.annotationsShown(frame);
+            }
+          }
+          if (scene is DnaScene) {
+            final double around = scene.contextAt(span);
+            for (final (double at, int index, double alpha)
+                in ChromatinBeads.within(
+                  -gene,
+                  2 * gene,
+                  scene.beadLevel(frame),
+                )) {
+              out[index] =
+                  alpha * frame.opacity * (at < 0 || at > end ? around : 1);
+            }
+          }
+        }
+        return out;
+      }
+
+      final double band = depth.depthOf(ZoomStop.band);
+      final double at = depth.depthOf(ZoomStop.gene);
+      final double dna = depth.depthOf(ZoomStop.dna);
+      for (final ZoomFlight flight in <ZoomFlight>[
+        ZoomFlight(band, at),
+        ZoomFlight(at, band),
+        ZoomFlight(
+          at,
+          dna,
+          minimum: depth.leastFlight(at, dna),
+          cruise: depth.cruiseOf(at, dna),
+        ),
+        ZoomFlight(
+          dna,
+          at,
+          minimum: depth.leastFlight(dna, at),
+          cruise: depth.cruiseOf(dna, at),
+        ),
+      ]) {
+        final int frames = (flight.duration.inMicroseconds / 1e6 * 60).ceil();
+        Map<int, double>? last;
+        for (int f = 0; f <= frames; f++) {
+          final Map<int, double> now = shown(
+            flight.at(Duration(microseconds: (f * 1e6 / 60).round())),
           );
-          expect(from.dy + laid.width, lessThan(floor), reason: what);
-          expect(from.dx, greaterThan(8), reason: what);
-          expect(laid.tail.last.dx, lessThan(size.width - 8), reason: what);
+          if (last != null) {
+            for (final int index in <int>{...now.keys, ...last.keys}) {
+              expect(
+                ((now[index] ?? 0) - (last[index] ?? 0)).abs(),
+                lessThanOrEqualTo(0.08),
+                reason:
+                    '${t.slug} from ${flight.from} to ${flight.to}, frame '
+                    '$f: bead $index',
+              );
+            }
+          }
+          last = now;
         }
       }
     }

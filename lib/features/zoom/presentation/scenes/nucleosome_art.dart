@@ -16,7 +16,8 @@ abstract final class NucleosomeArt {
   static const double half = 2.85 / 0.34;
 
   /// Draws a core about [centre], [perBase] pixels to a base pair's length,
-  /// [grown] of its size, at [alpha].
+  /// [grown] of its size, at [alpha], and never smaller across than [least]
+  /// pixels from its middle: a bead the eye can see where the gene is far.
   static void paint(
     Canvas canvas,
     Offset centre,
@@ -24,12 +25,13 @@ abstract final class NucleosomeArt {
     ZoomInks inks, {
     double grown = 1,
     double alpha = 1,
+    double least = 0,
   }) {
     if (alpha <= 0.002 || grown <= 0) {
       return;
     }
-    final double r = radius * perBase * grown;
-    final double thick = half * perBase * grown;
+    final double r = math.max(radius * perBase * grown, least);
+    final double thick = r * half / radius;
     const double tilt = ChromatinLayout.tilt;
     final double faceTall = r * math.cos(tilt);
     final double lift = thick * math.sin(tilt);
