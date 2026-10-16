@@ -153,9 +153,12 @@ final class ZoomStage {
     ).callouts;
     final List<Rect> placed = <Rect>[
       ...rowPlates(callouts, labels, inks, size).values,
+      for (final RingPlate r
+          in ringPlates(callouts, labels, inks, size).values)
+        r.plate,
     ];
     for (final ZoomCallout c in callouts) {
-      if (c.row != null) {
+      if (c.row != null || c.ring != null) {
         continue;
       }
       final TextPainter text = calloutText(c, labels, inks, size);
@@ -177,6 +180,48 @@ final class ZoomStage {
 
   final Map<(ZoomStop, Size, TextStyle), Map<String, int>> _resting =
       <(ZoomStop, Size, TextStyle), Map<String, int>>{};
+
+  /// Where the names set round a shape on screen at depth [d] go
+  /// ([ZoomCallout.ring]), by key: as they are set at rest at the stop
+  /// either side ([ringHolds]), the side, row and lines each was given there
+  /// held for the whole of the steps either side, so none jumps from one
+  /// side to another as the view moves. [callouts] are the ones staged at
+  /// [d], where the caller has them.
+  Map<String, RingPlate> ringsAt(
+    double d,
+    Size size,
+    ZoomInks inks,
+    TextStyle labels, [
+    List<ZoomCallout>? callouts,
+  ]) {
+    final (double, Size, TextStyle) key = (d, size, labels);
+    if (_ringsKey == key) {
+      return _rings;
+    }
+    final (ZoomView parent, ZoomView child) = camera.at(d, size);
+    final Map<String, RingHold> held = <String, RingHold>{
+      for (final ZoomStop stop in <ZoomStop>{parent.stop, child.stop})
+        ...(_ringHolds[(stop, size, labels)] ??= ringHolds(
+          stage(depth.depthOf(stop), size, inks).callouts,
+          labels,
+          inks,
+          size,
+        )),
+    };
+    _ringsKey = key;
+    return _rings = ringPlates(
+      callouts ?? stage(d, size, inks).callouts,
+      labels,
+      inks,
+      size,
+      held: held,
+    );
+  }
+
+  final Map<(ZoomStop, Size, TextStyle), Map<String, RingHold>> _ringHolds =
+      <(ZoomStop, Size, TextStyle), Map<String, RingHold>>{};
+  (double, Size, TextStyle)? _ringsKey;
+  Map<String, RingPlate> _rings = const <String, RingPlate>{};
 
   final Set<ZoomStop> _prepared = <ZoomStop>{};
 
@@ -324,24 +369,37 @@ class ZoomOverlayPainter extends CustomPainter {
       scene.paintAmbient(canvas, frame);
     }
     final ZoomStaging staging = stage.stage(d, size, inks);
-    // The names set in rows first, so the others keep clear of them.
+    // The names set in rows and round a shape first, so the others keep
+    // clear of them.
     final Map<String, Rect> rows = rowPlates(
       staging.callouts,
       labels,
       inks,
       size,
     );
-    final List<Rect> placed = <Rect>[...rows.values];
+    final Map<String, RingPlate> rings = stage.ringsAt(
+      d,
+      size,
+      inks,
+      labels,
+      staging.callouts,
+    );
+    final List<Rect> placed = <Rect>[
+      ...rows.values,
+      for (final RingPlate r in rings.values) r.plate,
+    ];
     for (final ZoomCallout callout in staging.callouts) {
+      final RingPlate? ring = rings[callout.key];
       final Rect plate = _callout(
         canvas,
         size,
         d,
         callout,
         placed,
-        rows[callout.key],
+        rows[callout.key] ?? ring?.plate,
+        ring?.wrapped ?? false,
       );
-      if (callout.row == null) {
+      if (callout.row == null && callout.ring == null) {
         placed.add(plate);
       }
     }
@@ -359,8 +417,15 @@ class ZoomOverlayPainter extends CustomPainter {
     ZoomCallout callout,
     List<Rect> placed, [
     Rect? sets,
+    bool wrapped = false,
   ]) {
-    final TextPainter text = calloutText(callout, labels, inks, size);
+    final TextPainter text = calloutText(
+      callout,
+      labels,
+      inks,
+      size,
+      wrapped: wrapped,
+    );
     final Rect plate =
         sets ??
         calloutPlate(
@@ -591,20 +656,482 @@ List<double> spreadRow(
   return at;
 }
 
-/// A callout's words, laid out as the painter sets them.
+/// A callout's words, laid out as the painter sets them: a name round a
+/// shape on one line, or on two where it is [wrapped] ([twoLines]); any
+/// other on as many as two, at most 55% of the canvas wide.
 TextPainter calloutText(
   ZoomCallout callout,
   TextStyle labels,
   ZoomInks inks,
-  Size size,
-) => TextPainter(
+  Size size, {
+  bool wrapped = false,
+}) => TextPainter(
   text: TextSpan(
-    text: callout.text,
+    text: wrapped ? twoLines(callout.text) : callout.text,
     style: labels.copyWith(color: inks.text.withValues(alpha: callout.opacity)),
   ),
   textDirection: TextDirection.ltr,
   maxLines: 2,
-)..layout(maxWidth: size.width * 0.55);
+)..layout(
+    maxWidth: callout.ring == null ? size.width * 0.55 : double.infinity,
+  );
+
+/// [text] broken onto two lines at the space nearest its middle; as it is
+/// where it has no space.
+String twoLines(String text) {
+  int best = -1;
+  for (int i = 0; i < text.length; i++) {
+    if (text[i] == ' ' &&
+        (best < 0 ||
+            (i - text.length / 2).abs() < (best - text.length / 2).abs())) {
+      best = i;
+    }
+  }
+  return best < 0
+      ? text
+      : '${text.substring(0, best)}\n${text.substring(best + 1)}';
+}
+
+/// The side of its shape a name set round one is on ([ZoomCallout.ring]).
+enum RingSide { left, right, above, below }
+
+/// Where a name set round a shape is set at rest ([ringHolds]): on which
+/// side of it, in which row out from it where it is above or below, on one
+/// line or two, and its plate's middle from what it names, when the shape
+/// was [width] wide on screen.
+@immutable
+final class RingHold {
+  const RingHold(
+    this.side,
+    this.wrapped,
+    this.offset,
+    this.width, {
+    this.row = 0,
+  });
+
+  final RingSide side;
+  final int row;
+  final bool wrapped;
+  final Offset offset;
+  final double width;
+}
+
+/// A name's plate round its shape, and whether its words are on two lines.
+typedef RingPlate = ({Rect plate, bool wrapped});
+
+/// How far a plate round a shape keeps from its outline.
+const double ringGap = 10;
+
+/// The least room between two plates one over the other beside a shape.
+const double ringStack = 4;
+
+/// The rows out from a shape, above it and below, a name may go to.
+const int ringRows = 3;
+
+/// The box round [points].
+Rect _boundsOf(List<Offset> points) {
+  double left = double.infinity;
+  double top = double.infinity;
+  double right = double.negativeInfinity;
+  double bottom = double.negativeInfinity;
+  for (final Offset p in points) {
+    left = math.min(left, p.dx);
+    top = math.min(top, p.dy);
+    right = math.max(right, p.dx);
+    bottom = math.max(bottom, p.dy);
+  }
+  return Rect.fromLTRB(left, top, right, bottom);
+}
+
+/// The names in [callouts] set round a shape, shape by shape, in the order
+/// they are staged.
+Map<String, List<ZoomCallout>> _ringsOf(List<ZoomCallout> callouts) {
+  final Map<String, List<ZoomCallout>> rings = <String, List<ZoomCallout>>{};
+  for (final ZoomCallout c in callouts) {
+    final ZoomRing? ring = c.ring;
+    if (ring != null) {
+      (rings[ring.key] ??= <ZoomCallout>[]).add(c);
+    }
+  }
+  return rings;
+}
+
+/// The size of [callout]'s plate, on one line or [wrapped] onto two.
+Size _ringPlate(
+  ZoomCallout callout,
+  TextStyle labels,
+  ZoomInks inks,
+  Size size,
+  bool wrapped,
+) {
+  final TextPainter text = calloutText(
+    callout,
+    labels,
+    inks,
+    size,
+    wrapped: wrapped,
+  );
+  final Size plate = Size(
+    text.width + 2 * plateTextPadding,
+    text.height + plateTextPadding,
+  );
+  text.dispose();
+  return plate;
+}
+
+/// A plate of [plate] size beside [outline] on [side], its middle at
+/// height [y], its inner edge [ringGap] out from the outline's furthest
+/// point within the plate's own height: so it hugs the outline, however it
+/// bulges or narrows, rather than the box round it ([box]).
+Rect _beside(
+  List<Offset> outline,
+  Rect box,
+  RingSide side,
+  double y,
+  Size plate,
+) {
+  final double top = y - plate.height / 2;
+  final double bottom = y + plate.height / 2;
+  double? reach;
+  for (final Offset p in outline) {
+    if (p.dy < top - 2 || p.dy > bottom + 2) {
+      continue;
+    }
+    reach = side == RingSide.right
+        ? math.max(reach ?? p.dx, p.dx)
+        : math.min(reach ?? p.dx, p.dx);
+  }
+  return side == RingSide.right
+      ? Rect.fromLTWH(
+          (reach ?? box.right) + ringGap,
+          top,
+          plate.width,
+          plate.height,
+        )
+      : Rect.fromLTWH(
+          (reach ?? box.left) - ringGap - plate.width,
+          top,
+          plate.width,
+          plate.height,
+        );
+}
+
+/// Where each name in [callouts] set round a shape goes at rest, by key
+/// ([RingHold]), its words in [labels] on a canvas of [size].
+///
+/// Each is set beside its shape, on the side nearer what it names, its
+/// plate hugging the outline and stacked by height with the others there,
+/// on one line, or else on two; where neither fits on the canvas, in the
+/// row above the shape or below it, the one nearer what it names first, each
+/// row as near over what it names as the others leave room for, the nearer
+/// rows first. Names are given room in the order they are staged.
+Map<String, RingHold> ringHolds(
+  List<ZoomCallout> callouts,
+  TextStyle labels,
+  ZoomInks inks,
+  Size size,
+) => <String, RingHold>{
+  for (final List<ZoomCallout> names in _ringsOf(callouts).values)
+    ..._holdRing(names, labels, inks, size),
+};
+
+Map<String, RingHold> _holdRing(
+  List<ZoomCallout> names,
+  TextStyle labels,
+  ZoomInks inks,
+  Size size,
+) {
+  const double margin = ZoomOverlayPainter.margin;
+  final List<Offset> outline = names.first.ring!.outline;
+  final Rect box = _boundsOf(outline);
+  // Clear of the scale bar at the canvas's foot.
+  final double floor = size.height - 50;
+  final double top = math.max(box.top, margin);
+  final double bottom = math.min(box.bottom, floor);
+  bool wraps(ZoomCallout c) => c.text.contains(' ');
+  Size plateOf(ZoomCallout c, bool wrapped) =>
+      _ringPlate(c, labels, inks, size, wrapped);
+
+  // Beside the shape: each name on the side nearer what it names, on one
+  // line or two, where its plate stays on the canvas.
+  final Map<String, (RingSide, bool, Size)> beside =
+      <String, (RingSide, bool, Size)>{};
+  final List<ZoomCallout> over = <ZoomCallout>[];
+  bool fits(Rect plate) =>
+      plate.left >= margin && plate.right <= size.width - margin;
+  for (final ZoomCallout c in names) {
+    final RingSide side = c.target.dx < box.center.dx
+        ? RingSide.left
+        : RingSide.right;
+    (RingSide, bool, Size)? chosen;
+    for (final bool wrapped in <bool>[false, if (wraps(c)) true]) {
+      final Size plate = plateOf(c, wrapped);
+      final double y = c.target.dy.clamp(
+        top + plate.height / 2,
+        math.max(top + plate.height / 2, bottom - plate.height / 2),
+      );
+      if (fits(_beside(outline, box, side, y, plate))) {
+        chosen = (side, wrapped, plate);
+        break;
+      }
+    }
+    if (chosen == null) {
+      over.add(c);
+    } else {
+      beside[c.key] = chosen;
+    }
+  }
+
+  // Stacked by height on each side, within the shape's own height; a name
+  // stacked to where it no longer fits, or with no room left on its side,
+  // goes to a row.
+  final Map<String, Rect> sides = <String, Rect>{};
+  for (int pass = 0; pass <= names.length; pass++) {
+    sides.clear();
+    String? misfit;
+    for (final RingSide side in <RingSide>[RingSide.left, RingSide.right]) {
+      final List<ZoomCallout> column = <ZoomCallout>[
+        for (final ZoomCallout c in names)
+          if (beside[c.key]?.$1 == side) c,
+      ]..sort(
+          (ZoomCallout a, ZoomCallout b) => a.target.dy.compareTo(b.target.dy),
+        );
+      if (column.isEmpty) {
+        continue;
+      }
+      final List<double> heights = <double>[
+        for (final ZoomCallout c in column) beside[c.key]!.$3.height,
+      ];
+      final double needed =
+          heights.fold<double>(0, (double a, double b) => a + b) +
+          ringStack * (column.length - 1);
+      final List<double> middles = spreadRow(
+        <double>[for (final ZoomCallout c in column) c.target.dy],
+        heights,
+        top,
+        math.max(bottom, top + needed),
+        ringStack,
+      );
+      for (int i = 0; i < column.length; i++) {
+        final Rect plate = _beside(
+          outline,
+          box,
+          side,
+          middles[i],
+          beside[column[i].key]!.$3,
+        );
+        sides[column[i].key] = plate;
+        if (!fits(plate) || plate.top < margin || plate.bottom > floor) {
+          // The one staged last gives way.
+          if (misfit == null ||
+              names.indexWhere((ZoomCallout c) => c.key == column[i].key) >
+                  names.indexWhere((ZoomCallout c) => c.key == misfit)) {
+            misfit = column[i].key;
+          }
+        }
+      }
+    }
+    if (misfit == null) {
+      break;
+    }
+    beside.remove(misfit);
+    over.add(names.firstWhere((ZoomCallout c) => c.key == misfit));
+  }
+
+  // Rows above and below the shape, the nearer side first, then further out.
+  final Map<(RingSide, int), List<(ZoomCallout, bool, Size)>> rows =
+      <(RingSide, int), List<(ZoomCallout, bool, Size)>>{};
+  double rowHeight(RingSide side, int row) => <double>[
+    0,
+    for (final (ZoomCallout _, bool _, Size plate)
+        in rows[(side, row)] ?? const <(ZoomCallout, bool, Size)>[])
+      plate.height,
+  ].reduce(math.max);
+  // The top of row [row] above the shape, or the bottom of one below it,
+  // were it [height] tall.
+  double rowEdge(RingSide side, int row, double height) {
+    double at = side == RingSide.above
+        ? box.top - ringGap
+        : box.bottom + ringGap;
+    for (int k = 0; k < row; k++) {
+      final double h = rowHeight(side, k);
+      at += side == RingSide.above ? -(h + ringStack) : h + ringStack;
+    }
+    return side == RingSide.above ? at - height : at + height;
+  }
+
+  bool rowFits(RingSide side, int row, Size plate) {
+    final List<(ZoomCallout, bool, Size)> now =
+        rows[(side, row)] ?? const <(ZoomCallout, bool, Size)>[];
+    final double width =
+        now.fold<double>(
+          0,
+          (double a, (ZoomCallout, bool, Size) b) => a + b.$3.width,
+        ) +
+        rowGap * now.length +
+        plate.width;
+    final double height = math.max(rowHeight(side, row), plate.height);
+    final double edge = rowEdge(side, row, height);
+    return width <= size.width - 2 * margin &&
+        (side == RingSide.above ? edge >= margin : edge <= floor);
+  }
+
+  for (final ZoomCallout c in over) {
+    final RingSide near = c.target.dy < box.center.dy
+        ? RingSide.above
+        : RingSide.below;
+    final RingSide far = near == RingSide.above
+        ? RingSide.below
+        : RingSide.above;
+    (RingSide, int, bool, Size)? chosen;
+    for (int row = 0; row < ringRows && chosen == null; row++) {
+      for (final RingSide side in <RingSide>[near, far]) {
+        for (final bool wrapped in <bool>[false, if (wraps(c)) true]) {
+          final Size plate = plateOf(c, wrapped);
+          if (rowFits(side, row, plate)) {
+            chosen = (side, row, wrapped, plate);
+            break;
+          }
+        }
+        if (chosen != null) {
+          break;
+        }
+      }
+    }
+    // Where no row has room, the nearer row takes it all the same.
+    chosen ??= (near, 0, false, plateOf(c, false));
+    (rows[(chosen.$1, chosen.$2)] ??= <(ZoomCallout, bool, Size)>[]).add((
+      c,
+      chosen.$3,
+      chosen.$4,
+    ));
+  }
+
+  final Map<String, RingHold> out = <String, RingHold>{};
+  for (final ZoomCallout c in names) {
+    final Rect? plate = sides[c.key];
+    if (plate != null) {
+      out[c.key] = RingHold(
+        beside[c.key]!.$1,
+        beside[c.key]!.$2,
+        plate.center - c.target,
+        box.width,
+      );
+    }
+  }
+  for (final MapEntry<(RingSide, int), List<(ZoomCallout, bool, Size)>> row
+      in rows.entries) {
+    final (RingSide side, int index) = row.key;
+    final List<(ZoomCallout, bool, Size)> set = row.value
+      ..sort(
+        ((ZoomCallout, bool, Size) a, (ZoomCallout, bool, Size) b) =>
+            a.$1.target.dx.compareTo(b.$1.target.dx),
+      );
+    final double height = rowHeight(side, index);
+    final double edge = rowEdge(side, index, height);
+    // Each plate against the row's edge nearer the shape.
+    final List<double> middles = spreadRow(
+      <double>[for (final (ZoomCallout c, bool _, Size _) in set) c.target.dx],
+      <double>[
+        for (final (ZoomCallout _, bool _, Size plate) in set) plate.width,
+      ],
+      margin,
+      size.width - margin,
+      rowGap,
+    );
+    for (int i = 0; i < set.length; i++) {
+      final (ZoomCallout c, bool wrapped, Size plate) = set[i];
+      final double y = side == RingSide.above
+          ? edge + height - plate.height / 2
+          : edge - height + plate.height / 2;
+      out[c.key] = RingHold(
+        side,
+        wrapped,
+        Offset(middles[i], y) - c.target,
+        box.width,
+        row: index,
+      );
+    }
+  }
+  return out;
+}
+
+/// The plates of the names in [callouts] set round a shape
+/// ([ZoomCallout.ring]), by key, their words in [labels] on a canvas of
+/// [size]: as [held] sets them, or, without it, as they are set at rest
+/// ([ringHolds]).
+///
+/// Held, each keeps its side, row and lines, and its plate's middle stays
+/// where it was from what it names, scaled as the shape is: the zoom moves
+/// a shape by scaling it about a point, so the plates move as though drawn
+/// on it. Each side and row is then spread again so no two of its plates
+/// meet as they come closer.
+Map<String, RingPlate> ringPlates(
+  List<ZoomCallout> callouts,
+  TextStyle labels,
+  ZoomInks inks,
+  Size size, {
+  Map<String, RingHold>? held,
+}) {
+  final Map<String, RingPlate> out = <String, RingPlate>{};
+  for (final List<ZoomCallout> names in _ringsOf(callouts).values) {
+    final Map<String, RingHold> holds =
+        held != null && names.every((ZoomCallout c) => held.containsKey(c.key))
+        ? held
+        : _holdRing(names, labels, inks, size);
+    final Rect box = _boundsOf(names.first.ring!.outline);
+    final Map<(RingSide, int), List<(ZoomCallout, Size, Offset)>> groups =
+        <(RingSide, int), List<(ZoomCallout, Size, Offset)>>{};
+    for (final ZoomCallout c in names) {
+      final RingHold hold = holds[c.key]!;
+      final double scale = hold.width <= 0 ? 1 : box.width / hold.width;
+      (groups[(hold.side, hold.row)] ??= <(ZoomCallout, Size, Offset)>[]).add((
+        c,
+        _ringPlate(c, labels, inks, size, hold.wrapped),
+        c.target + hold.offset * scale,
+      ));
+    }
+    for (final MapEntry<(RingSide, int), List<(ZoomCallout, Size, Offset)>>
+        group in groups.entries) {
+      final bool across =
+          group.key.$1 == RingSide.above || group.key.$1 == RingSide.below;
+      final List<(ZoomCallout, Size, Offset)> set = group.value
+        ..sort(
+          ((ZoomCallout, Size, Offset) a, (ZoomCallout, Size, Offset) b) =>
+              across
+              ? a.$3.dx.compareTo(b.$3.dx)
+              : a.$3.dy.compareTo(b.$3.dy),
+        );
+      final List<double> middles = spreadRow(
+        <double>[
+          for (final (ZoomCallout _, Size _, Offset at) in set)
+            across ? at.dx : at.dy,
+        ],
+        <double>[
+          for (final (ZoomCallout _, Size plate, Offset _) in set)
+            across ? plate.width : plate.height,
+        ],
+        double.negativeInfinity,
+        double.infinity,
+        across ? rowGap : ringStack,
+      );
+      for (int i = 0; i < set.length; i++) {
+        final (ZoomCallout c, Size plate, Offset at) = set[i];
+        out[c.key] = (
+          plate: Rect.fromCenter(
+            center: across
+                ? Offset(middles[i], at.dy)
+                : Offset(at.dx, middles[i]),
+            width: plate.width,
+            height: plate.height,
+          ),
+          wrapped: holds[c.key]!.wrapped,
+        );
+      }
+    }
+  }
+  return out;
+}
 
 /// The credit's words, laid out right-aligned in the room the scale bar
 /// [bar] leaves on a canvas of [size], at most two lines.
@@ -656,6 +1183,12 @@ Rect calloutPlate(
   ZoomInks inks,
   TextStyle labels,
 ) {
+  if (callout.ring != null) {
+    final RingPlate? ring = stage.ringsAt(d, size, inks, labels)[callout.key];
+    if (ring != null) {
+      return ring.plate;
+    }
+  }
   final int? resting = callout.anchors.isEmpty
       ? null
       : stage.restingAnchors(d, size, inks, labels)[callout.key];

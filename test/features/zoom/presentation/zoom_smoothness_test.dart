@@ -715,17 +715,23 @@ void main() {
             size,
             inks,
           );
-          // The names set in a row first, as the painter sets them.
-          final Map<String, Rect> rows = rowPlates(
-            staging.callouts,
-            labels,
-            inks,
-            size,
-          );
+          // The names set in a row or round a shape first, as the painter
+          // sets them.
+          final Map<String, Rect> rows = <String, Rect>{
+            ...rowPlates(staging.callouts, labels, inks, size),
+            for (final MapEntry<String, RingPlate> ring in stage
+                .ringsAt(stage.depth.depthOf(stop), size, inks, labels)
+                .entries)
+              ring.key: ring.value.plate,
+          };
           final List<Rect> placed = <Rect>[];
           for (final ZoomCallout callout in <ZoomCallout>[
-            ...staging.callouts.where((ZoomCallout c) => c.row != null),
-            ...staging.callouts.where((ZoomCallout c) => c.row == null),
+            ...staging.callouts.where(
+              (ZoomCallout c) => rows.containsKey(c.key),
+            ),
+            ...staging.callouts.where(
+              (ZoomCallout c) => !rows.containsKey(c.key),
+            ),
           ]) {
             final TextPainter text = calloutText(callout, labels, inks, size);
             final Rect plate =

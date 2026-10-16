@@ -156,7 +156,7 @@ void main() {
     }
   });
 
-  testWidgets('its name at the cell lands on it and is set off the nucleus, '
+  testWidgets('its name at the cell lands on it and is set off the cell, '
       'hiding none of it, at two widths', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
     final TextStyle labels = AppTheme.analysis.textTheme.labelSmall!;
@@ -164,54 +164,40 @@ void main() {
       for (final ProteinTarget t in TestCatalog.all) {
         final ZoomStage stage = _stage(t);
         final CellScene cell = stage.scenes[ZoomStop.cell.index] as CellScene;
-        for (final (
-              ZoomStop stop,
-              ZoomScene scene,
-              Nucleolus nucleolus,
-              Contour outline,
-            )
-            in <(ZoomStop, ZoomScene, Nucleolus, Contour)>[
-              (
-                ZoomStop.cell,
-                cell,
-                cell.nucleolus,
-                cell.nucleusShape.outline(cell.nucleus),
-              ),
-            ]) {
-          final double d = stage.depth.depthOf(stop);
-          final ZoomFrame frame = _frameOf(stage, scene, d, size, inks)!;
-          final List<Rect> placed = <Rect>[];
-          for (final ZoomCallout c in stage.stage(d, size, inks).callouts) {
-            final TextPainter text = calloutText(c, labels, inks, size);
-            final Rect plate = placePlate(
-              c.target,
-              text.size,
-              size,
-              placed,
-              anchors: c.anchors,
-            );
-            text.dispose();
-            placed.add(plate);
-            if (c.text != 'nucleolus') {
-              continue;
-            }
-            final String where = '${t.slug} at ${stop.name}, ${size.width}';
-            expect(
-              _onScreen(nucleolus.outline, frame).contains(c.target),
-              isTrue,
-              reason: where,
-            );
-            final Path round = _onScreen(outline, frame);
-            for (final Offset corner in <Offset>[
-              plate.topLeft,
-              plate.topRight,
-              plate.bottomLeft,
-              plate.bottomRight,
-              plate.center,
-            ]) {
-              expect(round.contains(corner), isFalse, reason: where);
-            }
-          }
+        final double d = stage.depth.depthOf(ZoomStop.cell);
+        final ZoomFrame frame = _frameOf(stage, cell, d, size, inks)!;
+        final ZoomCallout? named = stage
+            .stage(d, size, inks)
+            .callouts
+            .where((ZoomCallout c) => c.text == 'nucleolus')
+            .firstOrNull;
+        if (named == null) {
+          continue;
+        }
+        final String where = '${t.slug}, ${size.width}';
+        expect(
+          _onScreen(cell.nucleolus.outline, frame).contains(named.target),
+          isTrue,
+          reason: where,
+        );
+        final Rect plate = stage
+            .ringsAt(d, size, inks, labels)[named.key]!
+            .plate;
+        final Contour body = Contour(<Offset>[
+          for (final Offset p in cell.outline) frame.toScreen(p),
+        ]);
+        final Path round = body.toPath();
+        for (final Offset corner in <Offset>[
+          plate.topLeft,
+          plate.topRight,
+          plate.bottomLeft,
+          plate.bottomRight,
+          plate.center,
+        ]) {
+          expect(round.contains(corner), isFalse, reason: where);
+        }
+        for (final Offset p in body.points) {
+          expect(plate.contains(p), isFalse, reason: where);
         }
       }
     }
@@ -400,7 +386,8 @@ void main() {
       final Uint8List pixels = await _pixels(tester, nucleus, frame, size);
       double light(Offset p) {
         final int i = (p.dy.round() * size.width.toInt() + p.dx.round()) * 4;
-        return 0.2126 * pixels[i] + 0.7152 * pixels[i + 1] +
+        return 0.2126 * pixels[i] +
+            0.7152 * pixels[i + 1] +
             0.0722 * pixels[i + 2];
       }
 

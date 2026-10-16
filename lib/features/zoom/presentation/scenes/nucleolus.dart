@@ -74,42 +74,6 @@ final class Nucleolus {
 
   late final Path path = outline.toPath();
 
-  /// The point of the nucleus's outline nearest the nucleolus, and the
-  /// nucleus's top and bottom: a name for the nucleolus is set off the
-  /// nucleus beyond the one, or else above or below it.
-  late final (Offset, double, double) rim = () {
-    Offset nearest = Offset.zero;
-    double best = double.infinity;
-    double top = 0;
-    double bottom = 0;
-    for (final Offset p in shape.outline(radius).resampled(128).points) {
-      final double d = (p - centre).distance;
-      if (d < best) {
-        best = d;
-        nearest = p;
-      }
-      top = math.min(top, p.dy);
-      bottom = math.max(bottom, p.dy);
-    }
-    return (nearest, top, bottom);
-  }();
-
-  /// Where a name for it may be set, on screen, as [toScreen] places a
-  /// point of the scene, in order: [gap] pixels off the nucleus, beyond the
-  /// rim nearest it, or straight above or below it past the nucleus's top or
-  /// bottom.
-  List<Offset> anchors(Offset Function(Offset) toScreen, double gap) {
-    final (Offset nearest, double top, double bottom) = rim;
-    final Offset at = toScreen(centre);
-    final Offset edge = toScreen(nearest);
-    final Offset out = edge - at;
-    return <Offset>[
-      edge + out / out.distance * gap,
-      Offset(at.dx, toScreen(Offset(0, top)).dy - gap),
-      Offset(at.dx, toScreen(Offset(0, bottom)).dy + gap),
-    ];
-  }
-
   /// Draws it, [pixel] the scene's pixel: one dark body, lit a little on
   /// the side the light falls from.
   void paint(Canvas canvas, ZoomInks inks, double pixel) {

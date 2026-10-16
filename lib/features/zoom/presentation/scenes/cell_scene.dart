@@ -56,11 +56,15 @@ final class CellScene extends ZoomScene {
 
   // The cell is named by the card, and so is a red cell's want of a
   // nucleus: what is named here is where the protein is, where the Atlas
-  // finds it, and the nucleolus, off the nucleus, in the quiet ink. Where
-  // the protein is in the nucleolus, its own name says so.
+  // finds it, and the nucleolus, in the quiet ink. Where the protein is in
+  // the nucleolus, its own name says so. The names are set round the cell,
+  // outside it, so they hide none of it.
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
     out.item('cell:target', frame.toScreen(Offset.zero), frame.opacity);
+    final ZoomRing ring = ZoomRing('cell', <Offset>[
+      for (final Offset p in _cell.outline) frame.toScreen(p),
+    ]);
     final List<String> main = _reading.main;
     if (main.isNotEmpty) {
       final Compartment first =
@@ -70,25 +74,30 @@ final class CellScene extends ZoomScene {
         main.map(_word).join(', '),
         frame.toScreen(_cell.pointOf(first)),
         calloutPresence(frame),
+        ring: ring,
       );
     }
     if (main.any((String w) => compartmentOf[w] == Compartment.nucleoli)) {
       return;
     }
-    final Nucleolus nucleolus = _cell.nucleolus;
     out.callout(
       'cell:nucleolus',
       'nucleolus',
-      frame.toScreen(nucleolus.centre),
+      frame.toScreen(_cell.nucleolus.centre),
       calloutPresence(frame),
-      anchors: nucleolus.anchors(frame.toScreen, 10),
       quiet: true,
+      ring: ring,
     );
   }
 
   /// The nucleolus, as the nucleus's scene draws it too.
   @visibleForTesting
   Nucleolus get nucleolus => _cell.nucleolus;
+
+  /// The cell's outline, as points, in the scene's units: what its names
+  /// are set round.
+  @visibleForTesting
+  List<Offset> get outline => _cell.outline;
 
   /// The nucleus less its nucleolus, where a protein in the nucleoplasm
   /// glows.
@@ -99,7 +108,6 @@ final class CellScene extends ZoomScene {
   void prepare(ZoomInks inks) => <Object?>[
     _cell.body,
     _cell.nucleolus.path,
-    _cell.nucleolus.rim,
     _cell.nucleoplasm,
   ];
 
@@ -436,6 +444,7 @@ final class CellScene extends ZoomScene {
 /// can name.
 final class _Cell {
   _Cell({
+    required this.outline,
     required this.body,
     required this.nucleus,
     required this.nucleolus,
@@ -692,6 +701,7 @@ final class _Cell {
     }
 
     return _Cell(
+      outline: outline.resampled(128).points,
       body: body,
       nucleus: nucleus,
       nucleolus: Nucleolus(NucleusShape(shape), n),
@@ -848,6 +858,8 @@ final class _Cell {
     return Contour(points);
   }
 
+  /// The cell's outline, as points: what its names are set round.
+  final List<Offset> outline;
   final Path body;
   final Path nucleus;
   final Nucleolus nucleolus;

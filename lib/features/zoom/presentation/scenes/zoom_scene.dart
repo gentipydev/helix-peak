@@ -71,6 +71,20 @@ final class ZoomFrame {
   }
 }
 
+/// A shape whose names are set round it, outside it, each on the side of it
+/// nearest what it names ([ZoomCallout.ring]): a cell, and the names of its
+/// parts.
+@immutable
+final class ZoomRing {
+  const ZoomRing(this.key, this.outline);
+
+  /// Which shape it is: the names set round one are laid out together.
+  final String key;
+
+  /// Its outline on screen, a closed loop of points.
+  final List<Offset> outline;
+}
+
 /// A label the painter sets in screen space, with a line to what it names.
 @immutable
 final class ZoomCallout {
@@ -82,6 +96,7 @@ final class ZoomCallout {
     this.anchors = const <Offset>[],
     this.quiet = false,
     this.row,
+    this.ring,
   });
 
   final String key;
@@ -105,6 +120,12 @@ final class ZoomCallout {
   /// others leave it, in their order along the row, so no line crosses a
   /// plate. Null for a name the painter places on its own.
   final double? row;
+
+  /// The shape the name is set round, outside it ([ringPlates]): beside it
+  /// on the side nearest what it names, hugging its outline, its words on
+  /// two lines where one would not fit there, or else in a row above or
+  /// below it. Null for a name set otherwise.
+  final ZoomRing? ring;
 }
 
 /// What a scene shows, by key: where each thing it names is on screen and
@@ -125,6 +146,7 @@ final class ZoomStaging {
     List<Offset> anchors = const <Offset>[],
     bool quiet = false,
     double? row,
+    ZoomRing? ring,
   }) {
     if (opacity <= 0) {
       return;
@@ -138,6 +160,7 @@ final class ZoomStaging {
         anchors: anchors,
         quiet: quiet,
         row: row,
+        ring: ring,
       ),
     );
     item('callout:$key', target, opacity);
