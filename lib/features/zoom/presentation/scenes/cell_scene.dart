@@ -3,12 +3,16 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../domain/cell_archetypes.dart';
+import '../../domain/cell_parts.dart';
 import '../../domain/locus_track.dart';
 import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
 import '../../domain/zoom_path.dart';
 import '../zoom_inks.dart';
 import 'body_scene.dart';
+import 'cell/cell_parts.dart';
+import 'cell/cell_parts_art.dart';
+import 'cell/neuron_form.dart';
 import 'contour.dart';
 import 'nucleolus.dart';
 import 'nucleus_shape.dart';
@@ -17,9 +21,15 @@ import 'zoom_scene.dart';
 import 'zoom_subject.dart';
 
 /// The cell the zoom lands in, sculpted in the app's neutrals: its body lit
-/// from the upper left with a rim, the endoplasmic reticulum and the
-/// microtubules hairlines in the quiet ink, its nucleus a lit sphere ringed
-/// in the mark, the gene being in it, its nucleolus named in the quiet ink.
+/// from the upper left with a rim, its nucleus a lit sphere ringed in the
+/// mark, the gene being in it, its nucleolus named in the quiet ink. A kind
+/// of cell with a recipe ([recipeOf]) is drawn with its own parts, and the
+/// ones that tell it apart are named round it (the user's choice of
+/// 2026-10-16): a beta cell its secretory granules, Golgi, rough ER and
+/// mitochondria; a neuron its dendrites, axon, axon hillock and Nissl
+/// bodies. Any other is drawn with the endoplasmic reticulum and the
+/// microtubules as hairlines in the quiet ink.
+///
 /// The protein glows in the mark where
 /// the Human Protein Atlas finds it in a cell: brighter where it calls a
 /// location main, fainter where additional. A protein the Atlas finds
@@ -50,6 +60,12 @@ final class CellScene extends ZoomScene {
 
   late final _Cell _cell = _Cell.of(archetype.shape, size, nucleus, subject);
 
+  /// How far the cell's parts have come up: from just under half way in
+  /// from the tissue to nine tenths of it, by how far along the step the
+  /// view is, not by how big the cell is drawn, which races.
+  static double _detail(ZoomFrame frame) =>
+      frame.isChild ? smoothstep((frame.progress - 0.45) / 0.45) : 1;
+
   SubcellularReading get _reading => subject.track.subcellular;
 
   bool get _secreted => (subject.track.secretome ?? '').startsWith('Secreted');
@@ -62,20 +78,43 @@ final class CellScene extends ZoomScene {
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
     out.item('cell:target', frame.toScreen(Offset.zero), frame.opacity);
+    if (_cell.parts != null) {
+      out.item(
+        'cell:detail',
+        frame.toScreen(Offset.zero),
+        math.min(frame.opacity, _detail(frame)),
+      );
+    }
     final ZoomRing ring = ZoomRing('cell', <Offset>[
       for (final Offset p in _cell.outline) frame.toScreen(p),
     ]);
     final List<String> main = _reading.main;
     if (main.isNotEmpty) {
-      final Compartment first =
-          compartmentOf[main.first] ?? Compartment.cytosol;
       out.callout(
         'cell',
         main.map(_word).join(', '),
-        frame.toScreen(_cell.pointOf(first)),
+        frame.toScreen(_cell.pointOfWord(main.first)),
         calloutPresence(frame),
         ring: ring,
       );
+    }
+    // The parts that tell the cell apart, but those the protein's own name
+    // says already.
+    final CellParts? parts = _cell.parts;
+    if (parts != null) {
+      for (final CellPart part in partsToName(_cell.recipe, main)) {
+        final Offset? at = parts.targets[part];
+        if (at != null) {
+          out.callout(
+            'cell:${part.name}',
+            part.word,
+            frame.toScreen(at),
+            calloutPresence(frame),
+            quiet: true,
+            ring: ring,
+          );
+        }
+      }
     }
     if (main.any((String w) => compartmentOf[w] == Compartment.nucleoli)) {
       return;
@@ -99,6 +138,15 @@ final class CellScene extends ZoomScene {
   @visibleForTesting
   List<Offset> get outline => _cell.outline;
 
+  /// The cell's parts, in the scene's units; null for a kind of cell with
+  /// no recipe yet.
+  @visibleForTesting
+  CellParts? get parts => _cell.parts;
+
+  /// The cell's body, in the scene's units.
+  @visibleForTesting
+  Path get body => _cell.body;
+
   /// The nucleus less its nucleolus, where a protein in the nucleoplasm
   /// glows.
   @visibleForTesting
@@ -107,8 +155,10 @@ final class CellScene extends ZoomScene {
   @override
   void prepare(ZoomInks inks) => <Object?>[
     _cell.body,
+    _cell.parts,
     _cell.nucleolus.path,
     _cell.nucleoplasm,
+    _cell.cytoplasm,
   ];
 
   @override
@@ -195,23 +245,29 @@ final class CellScene extends ZoomScene {
     );
     canvas.save();
     canvas.clipPath(body);
-    // The reticulum, and the microtubules from the centrosome: hairlines in
-    // the quiet ink.
-    canvas.drawPath(
-      cell.reticulum,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.1 * pixel
-        ..strokeCap = StrokeCap.round
-        ..color = inks.label.withValues(alpha: 0.3),
-    );
+    // The microtubules from the centrosome, hairlines in the quiet ink; and
+    // in a cell drawn part by part, its parts, or else its reticulum as
+    // hairlines too.
+    final CellParts? parts = cell.parts;
     canvas.drawPath(
       cell.microtubules,
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 0.8 * pixel
-        ..color = inks.lit(0.5).withValues(alpha: 0.22),
+        ..color = inks.lit(0.5).withValues(alpha: parts == null ? 0.22 : 0.12),
     );
+    if (parts == null) {
+      canvas.drawPath(
+        cell.reticulum,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.1 * pixel
+          ..strokeCap = StrokeCap.round
+          ..color = inks.label.withValues(alpha: 0.3),
+      );
+    } else {
+      paintCellParts(canvas, parts, inks, pixel, _detail(frame));
+    }
     if (cell.striations != null) {
       canvas.drawPath(
         cell.striations!,
@@ -340,7 +396,27 @@ final class CellScene extends ZoomScene {
     );
 
     final Set<Compartment> drawn = <Compartment>{};
+    final Set<CellPart> lit = <CellPart>{};
+    final CellParts? parts = cell.parts;
     for (final String location in locations) {
+      // A cell drawn part by part glows in the part the Atlas's word is.
+      final CellPart? part = parts == null
+          ? null
+          : partOfWord(location, cell.recipe);
+      if (part != null) {
+        final (Path, bool)? glow = parts!.glowOf(part);
+        if (!nuclear && glow != null && lit.add(part)) {
+          canvas.save();
+          canvas.clipPath(cell.body);
+          if (glow.$2) {
+            stroke(glow.$1, 2);
+          } else {
+            fill(glow.$1);
+          }
+          canvas.restore();
+        }
+        continue;
+      }
       final Compartment? compartment = compartmentOf[location];
       if (compartment == null || !drawn.add(compartment)) {
         continue;
@@ -376,9 +452,7 @@ final class CellScene extends ZoomScene {
           stroke(cell.nucleus, 2.4);
         case Compartment.cytosol:
           canvas.save();
-          canvas.clipPath(
-            Path.combine(PathOperation.difference, cell.body, cell.nucleus),
-          );
+          canvas.clipPath(cell.cytoplasm);
           canvas.drawPath(
             cell.body,
             Paint()..color = inks.glow(0.24 * strength),
@@ -444,6 +518,7 @@ final class CellScene extends ZoomScene {
 /// can name.
 final class _Cell {
   _Cell({
+    required this.recipe,
     required this.outline,
     required this.body,
     required this.nucleus,
@@ -459,6 +534,7 @@ final class _Cell {
     required this.cap,
     required this.exits,
     required this.membranePoint,
+    this.parts,
     this.striations,
     this.droplet,
     this.chromatin,
@@ -470,11 +546,22 @@ final class _Cell {
 
   factory _Cell.of(CellShape shape, double r, double n, ZoomSubject subject) {
     final math.Random random = math.Random(shape.index * 31 + 7);
-    final Contour outline = cellOutline(shape, r, n);
+    final NeuronForm? form = shape == CellShape.neuron ? NeuronForm(r) : null;
+    final Contour outline = form?.outline() ?? cellOutline(shape, r, n);
     final Path body = outline.toPath();
     final Path nucleus = NucleusShape(shape).outline(n).toPath();
     final (double ax, double ay) = NucleusShape(shape).axes;
     final List<Offset> rim = outline.resampled(48).points;
+    // Its own parts, where its kind has a recipe.
+    final CellParts? parts = CellParts.lay(
+      shape,
+      body: outline.points,
+      nucleus: NucleusShape(shape).outline(n).points,
+      r: r,
+      n: n,
+      um: 1e-6 / subject.depth.widthOf(ZoomStop.cell),
+      neuron: form,
+    );
 
     final Path? lipid = shape == CellShape.adipocyte
         ? (Path()..addOval(
@@ -503,8 +590,10 @@ final class _Cell {
       }
     }
     // The centrosome by the nucleus, its microtubules out to the membrane;
-    // in a long cell, running its length.
-    final Offset centrosome = Offset(n * ax * 1.25, -n * ay * 0.85);
+    // in a long cell, running its length. A neuron's run down its
+    // processes, as its neurofilaments do.
+    final Offset centrosome =
+        parts?.centrosome ?? Offset(n * ax * 1.25, -n * ay * 0.85);
     final Path microtubules = Path();
     final bool long =
         shape == CellShape.myofibre ||
@@ -529,6 +618,10 @@ final class _Cell {
     }
     for (int k = 0; !long && k < rim.length; k += 2) {
       final Offset end = rim[k];
+      if (form != null) {
+        random.nextDouble();
+        continue;
+      }
       final Offset mid =
           Offset.lerp(centrosome, end, 0.5)! +
           Offset(-(end - centrosome).dy, (end - centrosome).dx) *
@@ -541,9 +634,10 @@ final class _Cell {
     // The Golgi: stacked crescents on the far side of the nucleus from the
     // cell's apex.
     final double golgiAngle =
-        shape == CellShape.acinar || shape == CellShape.ciliated
-        ? -math.pi / 2
-        : -math.pi / 4;
+        parts?.golgiAngle ??
+        (shape == CellShape.acinar || shape == CellShape.ciliated
+            ? -math.pi / 2
+            : -math.pi / 4);
     final Path golgi = Path();
     for (int k = 0; k < 4; k++) {
       final double radius = n * (1.25 + 0.14 * k) * math.max(ax, ay);
@@ -554,10 +648,11 @@ final class _Cell {
       );
     }
     final Offset golgiCentre =
+        parts?.golgiCentre ??
         Offset(math.cos(golgiAngle), math.sin(golgiAngle)) *
-        n *
-        1.45 *
-        math.max(ax, ay);
+            n *
+            1.45 *
+            math.max(ax, ay);
     // Vesicles and mitochondria scattered in the cytoplasm.
     final Path vesicles = Path();
     final Path mitochondria = Path();
@@ -701,7 +796,9 @@ final class _Cell {
     }
 
     return _Cell(
-      outline: outline.resampled(128).points,
+      recipe: recipeOf(shape),
+      parts: parts,
+      outline: outline.resampled(parts == null ? 128 : 192).points,
       body: body,
       nucleus: nucleus,
       nucleolus: Nucleolus(NucleusShape(shape), n),
@@ -791,7 +888,7 @@ final class _Cell {
         wobble: 0.03,
         seed: 2,
       ),
-      CellShape.neuron => _neuron(r),
+      CellShape.neuron => NeuronForm(r).outline(),
       CellShape.glial => Contour.blob(
         Offset.zero,
         r * 0.38,
@@ -835,28 +932,10 @@ final class _Cell {
     };
   }
 
-  /// A neuron's body, drawn out into its dendrites and its axon.
-  static Contour _neuron(double r) {
-    final List<Offset> points = <Offset>[];
-    const int count = 220;
-    const List<double> processes = <double>[-1.6, -0.6, 0.3, 1.2, 2.2, 2.9];
-    for (int i = 0; i < count; i++) {
-      final double a = -math.pi / 2 + 2 * math.pi * i / count;
-      double reach = r * 0.42;
-      for (final double p in processes) {
-        final double d = math.atan2(math.sin(a - p), math.cos(a - p));
-        reach += r * 0.62 * math.exp(-d * d / 0.018);
-      }
-      // The axon, longest, straight down.
-      final double axon = math.atan2(
-        math.sin(a - math.pi / 2),
-        math.cos(a - math.pi / 2),
-      );
-      reach += r * 1.4 * math.exp(-axon * axon / 0.006);
-      points.add(Offset(math.cos(a) * reach, math.sin(a) * reach));
-    }
-    return Contour(points);
-  }
+  /// What the cell is drawn with, and its parts as drawn; none where its
+  /// kind has no recipe yet.
+  final CellRecipe recipe;
+  final CellParts? parts;
 
   /// The cell's outline, as points: what its names are set round.
   final List<Offset> outline;
@@ -888,6 +967,22 @@ final class _Cell {
     nucleus,
     nucleolus.path,
   );
+
+  /// The cytoplasm: the body less the nucleus.
+  late final Path cytoplasm = Path.combine(
+    PathOperation.difference,
+    body,
+    nucleus,
+  );
+
+  /// Where the protein's name lands, for the Atlas's [word]: on the part it
+  /// is in, where the cell is drawn part by part, or else where its
+  /// compartment lies.
+  Offset pointOfWord(String word) {
+    final CellPart? part = parts == null ? null : partOfWord(word, recipe);
+    final Offset? at = part == null ? null : parts!.targets[part];
+    return at ?? pointOf(compartmentOf[word] ?? Compartment.cytosol);
+  }
 
   /// Where a callout naming [compartment] lands.
   Offset pointOf(Compartment compartment) {

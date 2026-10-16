@@ -57,6 +57,7 @@ void main() {
       TestCatalog.prion,
       TestCatalog.amylase,
       TestCatalog.sod1,
+      TestCatalog.oxytocin,
     ]) {
       final ZoomStage stage = ZoomStage(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),
@@ -77,7 +78,10 @@ void main() {
               0.5,
               0.75,
               // Closer through the chromosome's two steps, where it is
-              // built afresh each frame.
+              // built afresh each frame, and the cell's, where its parts
+              // come up and go.
+              if (stop == ZoomStop.tissue) ...<double>[0.9],
+              if (stop == ZoomStop.cell) ...<double>[0.1],
               if (stop == ZoomStop.nucleus) ...<double>[0.02, 0.1, 0.9, 0.98],
               if (stop == ZoomStop.chromosome) ...<double>[
                 0.02,

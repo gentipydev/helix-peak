@@ -339,14 +339,20 @@ void main() {
     final CellScene cell = stage.scenes[ZoomStop.cell.index] as CellScene;
     final double d = stage.depth.depthOf(ZoomStop.cell);
     final List<ZoomCallout> callouts = stage.stage(d, size, inks).callouts;
+    // The protein's own name, and no other in the mark: the cell's parts
+    // are named quietly, and the nucleolus not at all.
+    final List<ZoomCallout> loud = <ZoomCallout>[
+      for (final ZoomCallout c in callouts)
+        if (!c.quiet) c,
+    ];
     expect(
-      <String>[for (final ZoomCallout c in callouts) c.text],
+      <String>[for (final ZoomCallout c in loud) c.text],
       <String>['nucleoli'],
     );
-    expect(callouts.single.quiet, isFalse);
+    expect(callouts.where((ZoomCallout c) => c.text == 'nucleolus'), isEmpty);
     final ZoomFrame frame = _frameOf(stage, cell, d, size, inks)!;
     expect(
-      (callouts.single.target - frame.toScreen(cell.nucleolus.centre)).distance,
+      (loud.single.target - frame.toScreen(cell.nucleolus.centre)).distance,
       lessThan(1e-6),
     );
     // The nucleus, where the Atlas reading is not drawn, names nothing.
