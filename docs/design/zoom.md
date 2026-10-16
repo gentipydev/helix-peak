@@ -718,7 +718,8 @@ transcript trailing in the accent).
   tall, and numbered where they are 16 px wide at the stop, their
   untranslated ends short. Introns are a lit hairline with chevrons the way
   the gene is read.
-- A bent arrow in the accent marks where transcription starts, and a ruler
+- A name, its line in the accent, marks where transcription starts (no bent
+  arrow beside it: the user found the two heavy, 2026-10-16), and a ruler
   counts from the 5′ end.
 - The card names the gene and its length, its exons and its strand:
   `INS · 1,431 bases`, `Three exons · reverse strand`.

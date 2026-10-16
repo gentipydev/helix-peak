@@ -22,9 +22,10 @@ import 'zoom_subject.dart';
 /// on either side of it, and its exons, as a genome browser draws a transcript, lit blocks in the walk's
 /// own colours, coding parts tall and untranslated ends short, every part
 /// at its real length along the span MANE gives it; a ruler from its 5′ end
-/// and the bent arrow where transcription starts (the user's choice of
+/// and a name where transcription starts (the user's choice of
 /// 2026-10-16: a snapshot of the gene, nothing reading it, after a still of
-/// it being read that read as an animation laid out in space).
+/// it being read that read as an animation laid out in space; its bent
+/// arrow went the same day, heavy beside the name's line).
 ///
 /// It reads 5′ to 3′, left to right, as the walk does, from the moment it
 /// appears: on the band's strip the gene is a mark with nothing inside it to
@@ -129,7 +130,7 @@ final class GeneScene extends ZoomScene {
       _names[width] ??= GeneNames.of(subject, width);
   final Map<double, GeneNames> _names = <double, GeneNames>{};
 
-  // The gene's 5′ end, where the bent arrow says transcription starts; and
+  // The gene's 5′ end, where transcription starts; and
   // below the line, in a row, quiet as the nucleolus's name is, its parts
   // (the user's choice of 2026-10-16: labelled hints, as the picture alone
   // did not say what everything was): an exon, an untranslated part, an
@@ -226,7 +227,6 @@ final class GeneScene extends ZoomScene {
       _numbers(canvas, frame, mid, annotations);
       _ends(canvas, frame, mid, annotations);
       _ruler(canvas, frame, mid + rulerY, annotations);
-      _start(canvas, frame, mid, annotations);
     }
   }
 
@@ -324,33 +324,6 @@ final class GeneScene extends ZoomScene {
 
   /// Where the gene's ruler runs, in pixels from the middle of the view.
   static const double rulerY = -84;
-
-  /// Where transcription starts: the bent arrow standing on the gene's 5′
-  /// end and pointing the way it is read.
-  void _start(Canvas canvas, ZoomFrame frame, double mid, double alpha) {
-    final double x = _x(frame, 0);
-    if (x < -20 || x > frame.size.width + 20) {
-      return;
-    }
-    final Paint arrow = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.8
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round
-      ..color = frame.inks.glow(alpha * frame.opacity);
-    const double rise = 30;
-    const double reach = 16;
-    canvas.drawPath(
-      Path()
-        ..moveTo(x, mid - 10)
-        ..lineTo(x, mid - rise)
-        ..lineTo(x + reach, mid - rise)
-        ..moveTo(x + reach - 5, mid - rise - 4)
-        ..lineTo(x + reach, mid - rise)
-        ..lineTo(x + reach - 5, mid - rise + 4),
-      arrow,
-    );
-  }
 
   void _number(
     Canvas canvas,
