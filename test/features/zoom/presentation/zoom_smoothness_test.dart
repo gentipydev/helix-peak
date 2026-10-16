@@ -770,14 +770,12 @@ void main() {
             reason: '${t.slug} at ${stop.name}',
           );
           // A landmark is named where it is seen: the nucleolus, at the
-          // cell and the nucleus; and the gene's parts at the gene.
+          // cell; and the gene's parts at the gene.
           expect(
             staging.callouts.where(
               (ZoomCallout c) => c.opacity > 0.5 && c.quiet,
             ),
-            stop == ZoomStop.cell ||
-                    stop == ZoomStop.nucleus ||
-                    stop == ZoomStop.gene
+            stop == ZoomStop.cell || stop == ZoomStop.gene
                 ? isNotEmpty
                 : isEmpty,
             reason: '${t.slug} at ${stop.name}',

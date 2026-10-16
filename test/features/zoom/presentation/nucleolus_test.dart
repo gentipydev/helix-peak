@@ -1,16 +1,20 @@
 import 'dart:convert';
 import 'dart:math' as math;
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/features/zoom/domain/cell_archetypes.dart';
 import 'package:helixpeek/features/zoom/domain/locus_track.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/cell_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/contour.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/nucleolus.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/nucleus_scene.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/nucleus_shape.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
@@ -77,20 +81,67 @@ class _Lines implements Canvas {
   dynamic noSuchMethod(Invocation invocation) => null;
 }
 
+/// A canvas that counts the round shapes drawn on it.
+class _Rounds implements Canvas {
+  int rounds = 0;
+  int paths = 0;
+
+  @override
+  void drawOval(Rect rect, Paint paint) => rounds++;
+
+  @override
+  void drawCircle(Offset c, double radius, Paint paint) => rounds++;
+
+  @override
+  void drawPath(Path path, Paint paint) => paths++;
+
+  // Nothing else is drawn by a nucleolus.
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
+}
+
+/// [scene] drawn at [frame] on its own, as pixels of a canvas of [size].
+Future<Uint8List> _pixels(
+  WidgetTester tester,
+  ZoomScene scene,
+  ZoomFrame frame,
+  Size size,
+) async {
+  final ui.PictureRecorder recorder = ui.PictureRecorder();
+  scene.paint(Canvas(recorder), frame);
+  final ui.Picture picture = recorder.endRecording();
+  final Uint8List? bytes = await tester.runAsync(() async {
+    final ui.Image image = await picture.toImage(
+      size.width.toInt(),
+      size.height.toInt(),
+    );
+    final ByteData data = (await image.toByteData())!;
+    image.dispose();
+    return data.buffer.asUint8List();
+  });
+  picture.dispose();
+  return bytes!;
+}
+
 void main() {
-  testWidgets('the nucleolus is named at the cell and at the nucleus, and '
-      'nowhere else, for all twenty', (WidgetTester tester) async {
+  testWidgets('the nucleolus is named at the cell, and nowhere else, for all '
+      'twenty; the nucleus names nothing', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
     for (final Size size in _canvases) {
       for (final ProteinTarget t in TestCatalog.all) {
         final ZoomStage stage = _stage(t);
         for (final ZoomStop stop in ZoomStop.values) {
+          final List<ZoomCallout> callouts = stage
+              .stage(stage.depth.depthOf(stop), size, inks)
+              .callouts;
           final List<ZoomCallout> named = <ZoomCallout>[
-            for (final ZoomCallout c
-                in stage.stage(stage.depth.depthOf(stop), size, inks).callouts)
+            for (final ZoomCallout c in callouts)
               if (c.text == 'nucleolus') c,
           ];
-          final bool seen = stop == ZoomStop.cell || stop == ZoomStop.nucleus;
+          if (stop == ZoomStop.nucleus) {
+            expect(callouts, isEmpty, reason: '${t.slug} at the nucleus');
+          }
+          final bool seen = stop == ZoomStop.cell;
           expect(
             named,
             hasLength(seen ? 1 : 0),
@@ -105,16 +156,14 @@ void main() {
     }
   });
 
-  testWidgets('its name lands on it and is set off the nucleus, hiding none '
-      'of it, at two widths', (WidgetTester tester) async {
+  testWidgets('its name at the cell lands on it and is set off the nucleus, '
+      'hiding none of it, at two widths', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
     final TextStyle labels = AppTheme.analysis.textTheme.labelSmall!;
     for (final Size size in _canvases) {
       for (final ProteinTarget t in TestCatalog.all) {
         final ZoomStage stage = _stage(t);
         final CellScene cell = stage.scenes[ZoomStop.cell.index] as CellScene;
-        final NucleusScene nucleus =
-            stage.scenes[ZoomStop.nucleus.index] as NucleusScene;
         for (final (
               ZoomStop stop,
               ZoomScene scene,
@@ -127,12 +176,6 @@ void main() {
                 cell,
                 cell.nucleolus,
                 cell.nucleusShape.outline(cell.nucleus),
-              ),
-              (
-                ZoomStop.nucleus,
-                nucleus,
-                nucleus.nucleolus,
-                nucleus.shape.outline(nucleus.radius),
               ),
             ]) {
           final double d = stage.depth.depthOf(stop);
@@ -264,7 +307,7 @@ void main() {
     const TextStyle labels = TextStyle(fontSize: 12);
     for (final ProteinTarget t in TestCatalog.all) {
       final ZoomStage stage = _stage(t);
-      for (final ZoomStop stop in <ZoomStop>[ZoomStop.cell, ZoomStop.nucleus]) {
+      for (final ZoomStop stop in <ZoomStop>[ZoomStop.cell]) {
         final double d = stage.depth.depthOf(stop);
         final ZoomCallout named = stage
             .stage(d, size, inks)
@@ -320,14 +363,115 @@ void main() {
       (callouts.single.target - frame.toScreen(cell.nucleolus.centre)).distance,
       lessThan(1e-6),
     );
-    // The nucleus, where the Atlas reading is not drawn, still names it.
+    // The nucleus, where the Atlas reading is not drawn, names nothing.
     expect(
-      stage
-          .stage(stage.depth.depthOf(ZoomStop.nucleus), size, inks)
-          .callouts
-          .map((ZoomCallout c) => c.text),
-      <String>['nucleolus'],
+      stage.stage(stage.depth.depthOf(ZoomStop.nucleus), size, inks).callouts,
+      isEmpty,
     );
+  });
+
+  testWidgets('it is one plain body, with no spots in it however near it is '
+      'seen', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    for (final CellShape shape in CellShape.values) {
+      for (final double radius in <double>[40, 400, 4000]) {
+        final _Rounds canvas = _Rounds();
+        Nucleolus(NucleusShape(shape), radius).paint(canvas, inks, 1);
+        expect(canvas.rounds, 0, reason: '${shape.name} at $radius');
+        expect(canvas.paths, greaterThan(0), reason: shape.name);
+      }
+    }
+  });
+
+  testWidgets('at the nucleus it is darker than everything round it, for all '
+      'twenty, and near black, no lighter than the app\'s raised surface, '
+      'where the glow of the gene\'s territory does not reach it', (
+    WidgetTester tester,
+  ) async {
+    final ZoomInks inks = await _inks(tester);
+    const Size size = Size(390, 560);
+    int nearBlack = 0;
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ZoomStage stage = _stage(t);
+      final NucleusScene nucleus =
+          stage.scenes[ZoomStop.nucleus.index] as NucleusScene;
+      final double d = stage.depth.depthOf(ZoomStop.nucleus);
+      final ZoomFrame frame = _frameOf(stage, nucleus, d, size, inks)!;
+      final Uint8List pixels = await _pixels(tester, nucleus, frame, size);
+      double light(Offset p) {
+        final int i = (p.dy.round() * size.width.toInt() + p.dx.round()) * 4;
+        return 0.2126 * pixels[i] + 0.7152 * pixels[i + 1] +
+            0.0722 * pixels[i + 2];
+      }
+
+      // Where the gene's chromosome is an acrocentric, its territory, in
+      // the mark, lies over the nucleolus's edge, its glowing edge a few
+      // pixels past it: only what shows of the nucleolus is read, and only
+      // what lies in the nucleus round it.
+      final Contour territory = nucleus.territoryShape(
+        locusOf(t).chromosome,
+        0,
+      );
+      final Path inTerritory = territory.toPath();
+      final List<Offset> edge = <Offset>[
+        for (final Offset p in territory.resampled(160).points)
+          frame.toScreen(p),
+      ];
+      bool covered(Offset q) =>
+          inTerritory.contains(q) ||
+          edge.any((Offset e) => (e - frame.toScreen(q)).distance < 8);
+      final Path held = Contour(<Offset>[
+        for (final Offset p
+            in nucleus.shape.outline(nucleus.radius).resampled(96).points)
+          p * 0.94,
+      ]).toPath();
+      final Nucleolus body = nucleus.nucleolus;
+      final List<Offset> rim = body.outline.resampled(24).points;
+      final List<double> inside = <double>[
+        for (final Offset q in <Offset>[
+          body.centre,
+          for (final Offset r in rim) Offset.lerp(body.centre, r, 0.6)!,
+        ])
+          if (!covered(q)) light(frame.toScreen(q)),
+      ];
+      final List<double> round = <double>[
+        for (final Offset r in rim)
+          if (held.contains(body.centre + (r - body.centre) * 1.5))
+            light(frame.toScreen(body.centre + (r - body.centre) * 1.5)),
+      ];
+      expect(inside, hasLength(greaterThan(8)), reason: t.slug);
+      expect(round, hasLength(greaterThan(8)), reason: t.slug);
+      // The glow round the gene's territory, in the mark, washes over what
+      // it reaches: an acrocentric's, lying against the nucleolus, or a
+      // territory's in a flat nucleus.
+      final Rect box = inTerritory.getBounds();
+      final List<double> unlit = <double>[
+        for (final Offset q in <Offset>[
+          body.centre,
+          for (final Offset r in rim) Offset.lerp(body.centre, r, 0.6)!,
+        ])
+          if ((q - box.center).distance > box.longestSide)
+            light(frame.toScreen(q)),
+      ];
+      if (unlit.isNotEmpty) {
+        nearBlack++;
+        final Color raised = inks.raised;
+        expect(
+          unlit.reduce(math.max),
+          lessThanOrEqualTo(
+            255 * (0.2126 * raised.r + 0.7152 * raised.g + 0.0722 * raised.b) +
+                2,
+          ),
+          reason: t.slug,
+        );
+      }
+      expect(
+        inside.reduce(math.max),
+        lessThan(round.reduce(math.min)),
+        reason: t.slug,
+      );
+    }
+    expect(nearBlack, greaterThanOrEqualTo(12));
   });
 
   test('the nucleoplasm a protein glows in is the nucleus less its '

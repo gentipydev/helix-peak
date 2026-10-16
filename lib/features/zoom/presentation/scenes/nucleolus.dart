@@ -2,21 +2,18 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../domain/zoom_camera.dart';
 import '../zoom_inks.dart';
 import 'contour.dart';
 import 'nucleus_shape.dart';
 import 'sculpt.dart';
 
 /// The nucleolus, where the cell makes its ribosomes: a dense body in the
-/// nucleus with no membrane round it, lobed rather than round, darker than
-/// the chromatin about it. The cell's scene and the nucleus's draw it from
-/// here, each in its own units, so it keeps its place and its shape across
-/// the step between them.
-///
-/// Close enough to see, it shows what an electron micrograph does: pale
-/// fibrillar centres, each in a darker rim of dense fibrillar component, in
-/// the granular bulk.
+/// nucleus with no membrane round it, lobed rather than round, near black
+/// against the chromatin about it, and plain: its fibrillar centres are left
+/// out (the user's choice of 2026-10-16, to keep the picture simple). The
+/// cell's scene and the nucleus's draw it from here, each in its own units,
+/// so it keeps its place, its shape and its tone across the step between
+/// them.
 final class Nucleolus {
   /// The nucleolus of a nucleus of [shape] and [radius], in that nucleus's
   /// units.
@@ -48,15 +45,6 @@ final class Nucleolus {
     (5, 0.04, 0.9),
     (8, 0.025, 2.6),
     (13, 0.012, 4),
-  ];
-
-  /// Its fibrillar centres, as points of its own unit disc and radii in its
-  /// radius.
-  static const List<(Offset, double)> _centres = <(Offset, double)>[
-    (Offset(-0.38, -0.22), 0.15),
-    (Offset(0.3, -0.3), 0.12),
-    (Offset(0.08, 0.2), 0.16),
-    (Offset(-0.34, 0.4), 0.1),
   ];
 
   /// Its radii across and down: drawn out along a long nucleus, as far as
@@ -122,8 +110,8 @@ final class Nucleolus {
     ];
   }
 
-  /// Draws it, [pixel] the scene's pixel: its fibrillar centres come up
-  /// once it is some 20 pixels across.
+  /// Draws it, [pixel] the scene's pixel: one dark body, lit a little on
+  /// the side the light falls from.
   void paint(Canvas canvas, ZoomInks inks, double pixel) {
     final Rect box = path.getBounds();
     // No membrane: its edge softens into the nucleoplasm.
@@ -133,7 +121,7 @@ final class Nucleolus {
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3 * pixel
         ..strokeJoin = StrokeJoin.round
-        ..color = inks.shade(0.4).withValues(alpha: 0.35),
+        ..color = inks.shadow.withValues(alpha: 0.35),
     );
     canvas.drawPath(
       path,
@@ -141,45 +129,10 @@ final class Nucleolus {
         ..shader = RadialGradient(
           center: Sculpt.highlight,
           radius: 1,
-          colors: <Color>[inks.shade(0.7), inks.shade(0.52), inks.shade(0.38)],
+          colors: <Color>[inks.shade(0.2), inks.shade(0.08), inks.shadow],
           stops: const <double>[0, 0.55, 1],
         ).createShader(box),
     );
-    final (double rx, double ry) = radii;
-    final double size = math.sqrt(rx * ry);
-    final double detail = smoothstep((size / pixel - 10) / 8);
-    if (detail > 0) {
-      for (final (Offset unit, double r) in _centres) {
-        final Offset c = centre + Offset(unit.dx * rx, unit.dy * ry);
-        // The dense fibrillar component round it, then the pale centre.
-        final Rect dense = Rect.fromCircle(center: c, radius: r * size * 1.9);
-        canvas.drawOval(
-          dense,
-          Paint()
-            ..shader = RadialGradient(
-              colors: <Color>[
-                inks.shade(0.2).withValues(alpha: 0.7 * detail),
-                inks.shade(0.2).withValues(alpha: 0.7 * detail),
-                inks.shade(0.2).withValues(alpha: 0),
-              ],
-              stops: const <double>[0, 0.45, 1],
-            ).createShader(dense),
-        );
-        final Rect pale = Rect.fromCircle(center: c, radius: r * size);
-        canvas.drawOval(
-          pale,
-          Paint()
-            ..shader = RadialGradient(
-              colors: <Color>[
-                inks.shade(0.9).withValues(alpha: 0.75 * detail),
-                inks.shade(0.8).withValues(alpha: 0.55 * detail),
-                inks.shade(0.8).withValues(alpha: 0),
-              ],
-              stops: const <double>[0, 0.6, 1],
-            ).createShader(pale),
-        );
-      }
-    }
-    Sculpt.rim(canvas, path, box, inks, width: 1.2 * pixel, strength: 0.25);
+    Sculpt.rim(canvas, path, box, inks, width: 1.2 * pixel, strength: 0.18);
   }
 }
