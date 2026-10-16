@@ -81,6 +81,7 @@ final class ZoomCallout {
     required this.opacity,
     this.anchors = const <Offset>[],
     this.quiet = false,
+    this.row,
   });
 
   final String key;
@@ -98,6 +99,12 @@ final class ZoomCallout {
   /// Whether it names a landmark rather than the gene or what it makes: its
   /// line is then in the quiet ink, the mark being the gene's.
   final bool quiet;
+
+  /// Where the top of its plate is, on screen, for a name set in a row with
+  /// the others there ([rowPlates]): each as near over what it names as the
+  /// others leave it, in their order along the row, so no line crosses a
+  /// plate. Null for a name the painter places on its own.
+  final double? row;
 }
 
 /// What a scene shows, by key: where each thing it names is on screen and
@@ -117,6 +124,7 @@ final class ZoomStaging {
     double opacity, {
     List<Offset> anchors = const <Offset>[],
     bool quiet = false,
+    double? row,
   }) {
     if (opacity <= 0) {
       return;
@@ -129,6 +137,7 @@ final class ZoomStaging {
         opacity: opacity,
         anchors: anchors,
         quiet: quiet,
+        row: row,
       ),
     );
     item('callout:$key', target, opacity);

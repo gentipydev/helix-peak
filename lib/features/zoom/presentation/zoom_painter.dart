@@ -146,12 +146,18 @@ final class ZoomStage {
     TextStyle labels,
   ) {
     final Map<String, int> out = <String, int>{};
-    final List<Rect> placed = <Rect>[];
-    for (final ZoomCallout c in stage(
+    final List<ZoomCallout> callouts = stage(
       depth.depthOf(stop),
       size,
       inks,
-    ).callouts) {
+    ).callouts;
+    final List<Rect> placed = <Rect>[
+      ...rowPlates(callouts, labels, inks, size).values,
+    ];
+    for (final ZoomCallout c in callouts) {
+      if (c.row != null) {
+        continue;
+      }
       final TextPainter text = calloutText(c, labels, inks, size);
       final (Rect plate, int anchor) = placePlateAt(
         c.target,
@@ -318,34 +324,55 @@ class ZoomOverlayPainter extends CustomPainter {
       scene.paintAmbient(canvas, frame);
     }
     final ZoomStaging staging = stage.stage(d, size, inks);
-    final List<Rect> placed = <Rect>[];
+    // The names set in rows first, so the others keep clear of them.
+    final Map<String, Rect> rows = rowPlates(
+      staging.callouts,
+      labels,
+      inks,
+      size,
+    );
+    final List<Rect> placed = <Rect>[...rows.values];
     for (final ZoomCallout callout in staging.callouts) {
-      placed.add(_callout(canvas, size, d, callout, placed));
+      final Rect plate = _callout(
+        canvas,
+        size,
+        d,
+        callout,
+        placed,
+        rows[callout.key],
+      );
+      if (callout.row == null) {
+        placed.add(plate);
+      }
     }
     final Rect bar = _scaleBar(canvas, size, d);
     _credit(canvas, size, d, bar);
     canvas.restore();
   }
 
-  /// A name on a plate, beside what it names, with a line that lands on it.
+  /// A name on a plate, beside what it names or where its row [sets] it,
+  /// with a line that lands on what it names.
   Rect _callout(
     Canvas canvas,
     Size size,
     double d,
     ZoomCallout callout,
-    List<Rect> placed,
-  ) {
+    List<Rect> placed, [
+    Rect? sets,
+  ]) {
     final TextPainter text = calloutText(callout, labels, inks, size);
-    final Rect plate = calloutPlate(
-      stage,
-      d,
-      callout,
-      text.size,
-      size,
-      placed,
-      inks,
-      labels,
-    );
+    final Rect plate =
+        sets ??
+        calloutPlate(
+          stage,
+          d,
+          callout,
+          text.size,
+          size,
+          placed,
+          inks,
+          labels,
+        );
     final Offset target = callout.target;
     final Offset from = Offset(
       target.dx.clamp(plate.left, plate.right),
@@ -472,6 +499,97 @@ Rect scaleBarBox(double pixels, Size label, Size size) {
 
 /// How far a callout's words sit inside its plate.
 const double plateTextPadding = 6;
+
+/// The least room between two plates set in a row.
+const double rowGap = 10;
+
+/// The plates of the names in [callouts] set in rows ([ZoomCallout.row]),
+/// by key, their words in [labels] on a canvas of [size]: in each row, in
+/// the order of what they name across it, each as nearly centred over what
+/// it names as the others leave room for ([spreadRow]), [rowGap] apart and
+/// clear of the canvas's edges while what they name is on it.
+Map<String, Rect> rowPlates(
+  List<ZoomCallout> callouts,
+  TextStyle labels,
+  ZoomInks inks,
+  Size size,
+) {
+  final Map<double, List<ZoomCallout>> rows = <double, List<ZoomCallout>>{};
+  for (final ZoomCallout c in callouts) {
+    final double? row = c.row;
+    if (row != null) {
+      (rows[row] ??= <ZoomCallout>[]).add(c);
+    }
+  }
+  final Map<String, Rect> out = <String, Rect>{};
+  for (final MapEntry<double, List<ZoomCallout>> row in rows.entries) {
+    final List<ZoomCallout> names = row.value
+      ..sort((ZoomCallout a, ZoomCallout b) => a.target.dx.compareTo(b.target.dx));
+    final List<Size> plates = <Size>[
+      for (final ZoomCallout c in names)
+        () {
+          final TextPainter text = calloutText(c, labels, inks, size);
+          final Size plate = Size(
+            text.width + 2 * plateTextPadding,
+            text.height + plateTextPadding,
+          );
+          text.dispose();
+          return plate;
+        }(),
+    ];
+    // Kept clear of the canvas's edges, but where what they name goes off
+    // it, as the view flies on, the row goes with it.
+    const double margin = ZoomOverlayPainter.margin;
+    final double first = names.first.target.dx;
+    final double last = names.last.target.dx;
+    final List<double> middles = spreadRow(
+      <double>[for (final ZoomCallout c in names) c.target.dx],
+      <double>[for (final Size p in plates) p.width],
+      math.min(margin, first - margin),
+      math.max(size.width - margin, last + margin),
+      rowGap,
+    );
+    for (int i = 0; i < names.length; i++) {
+      final Rect plate = _onCanvas(0, row.key, plates[i], size);
+      out[names[i].key] = Rect.fromLTWH(
+        middles[i] - plates[i].width / 2,
+        plate.top,
+        plates[i].width,
+        plates[i].height,
+      );
+    }
+  }
+  return out;
+}
+
+/// Where plates [widths] wide go along a row from [left] to [right], in
+/// order, each wanting its middle at [wants]: as near it as the ones before
+/// leave room for, [gap] apart, then drawn back from the right end where
+/// they run past it. No plate passes another, and each moves only as what
+/// the plates name moves, so a row glides as the view does.
+List<double> spreadRow(
+  List<double> wants,
+  List<double> widths,
+  double left,
+  double right,
+  double gap,
+) {
+  final int n = wants.length;
+  final List<double> at = List<double>.of(wants);
+  for (int i = 0; i < n; i++) {
+    final double least = i == 0
+        ? left + widths[0] / 2
+        : at[i - 1] + widths[i - 1] / 2 + gap + widths[i] / 2;
+    at[i] = math.max(at[i], least);
+  }
+  for (int i = n - 1; i >= 0; i--) {
+    final double most = i == n - 1
+        ? right - widths[i] / 2
+        : at[i + 1] - widths[i + 1] / 2 - gap - widths[i] / 2;
+    at[i] = math.min(at[i], most);
+  }
+  return at;
+}
 
 /// A callout's words, laid out as the painter sets them.
 TextPainter calloutText(

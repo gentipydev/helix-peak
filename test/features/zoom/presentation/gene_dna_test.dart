@@ -8,11 +8,14 @@ import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/zoom/domain/chromatin_layout.dart';
 import 'package:helixpeek/features/zoom/domain/dna_dive.dart';
+import 'package:helixpeek/features/zoom/domain/gene_layout.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_motion.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/chromatin_beads.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/chromatin_fibre.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/dna_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/gene_scene.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/gene_strand.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
@@ -479,6 +482,122 @@ void main() {
           }
           last = now;
         }
+      }
+    }
+  });
+
+  testWidgets('the gene’s stop names its parts where they are: an exon on a '
+      'coding block, an untranslated part on one wide enough to point at, an '
+      'intron on the line clear of the beads, a nucleosome on a bead it '
+      'shows, and its start', (WidgetTester tester) async {
+    final (ZoomInks inks, TextStyle _) = await _inks(tester);
+    for (final Size size in <Size>[_canvas, const Size(320, 420)]) {
+      for (final ProteinTarget t in TestCatalog.all) {
+        final ZoomStage stage = _stage(t);
+        final ZoomSubject subject = stage.subject;
+        final double at = stage.depth.depthOf(ZoomStop.gene);
+        final double gene = stage.depth.widthOf(ZoomStop.gene);
+        final String what = '${t.slug} at ${size.width.toInt()}';
+        late GeneScene scene;
+        late ZoomFrame frame;
+        for (final (ZoomScene s, ZoomFrame f) in stage.frames(
+          at,
+          size,
+          inks,
+        )) {
+          if (s is GeneScene) {
+            scene = s;
+            frame = f;
+          }
+        }
+        final Map<String, ZoomCallout> named = <String, ZoomCallout>{
+          for (final ZoomCallout c in stage.stage(at, size, inks).callouts)
+            c.key: c,
+        };
+        final double mid = size.height / 2;
+        final List<GenePiece> pieces = subject.layout.pieces;
+        // The genome's base pairs to the record's, and pixels to the
+        // genome's base pair at the stop.
+        final double scale = subject.track.geneLengthBp / subject.layout.length;
+        final double perBase = size.width / gene;
+        double x(double offset) => scene.screenX(frame, offset);
+        bool on(GenePiece piece, double at) =>
+            at >= math.min(x(piece.start), x(piece.end)) - 0.5 &&
+            at <= math.max(x(piece.start), x(piece.end)) + 0.5;
+
+        expect(named['gene']!.text, '5′ · transcription start', reason: what);
+
+        final ZoomCallout exon = named['gene:exon']!;
+        expect(exon.quiet, isTrue, reason: what);
+        expect(exon.target.dy, closeTo(mid + GeneStrand.coding, 1e-9));
+        expect(
+          pieces.any(
+            (GenePiece p) =>
+                p.kind == GenePieceKind.cds && on(p, exon.target.dx),
+          ),
+          isTrue,
+          reason: '$what: exon',
+        );
+
+        bool wide(GenePiece p) =>
+            p.length * scale * perBase >= GeneNames.leastUtr;
+        final ZoomCallout? utr = named['gene:utr'];
+        expect(
+          utr != null,
+          pieces.any((GenePiece p) => p.kind == GenePieceKind.utr && wide(p)),
+          reason: '$what: UTR',
+        );
+        if (utr != null) {
+          expect(utr.target.dy, closeTo(mid + GeneStrand.untranslated, 1e-9));
+          expect(
+            pieces.any(
+              (GenePiece p) =>
+                  p.kind == GenePieceKind.utr &&
+                  wide(p) &&
+                  on(p, utr.target.dx),
+            ),
+            isTrue,
+            reason: '$what: UTR',
+          );
+        }
+
+        final int depth = ChromatinBeads.depthAt(gene, size.width);
+        final List<int> beads = ChromatinBeads.within(-gene, 2 * gene, depth);
+        double beadX(int index) =>
+            x(ChromatinBeads.placeOf(index) / scale);
+        final ZoomCallout intron = named['gene:intron']!;
+        expect(intron.target.dy, closeTo(mid, 1e-9));
+        expect(
+          pieces.any(
+            (GenePiece p) =>
+                p.kind == GenePieceKind.intron && on(p, intron.target.dx),
+          ),
+          isTrue,
+          reason: '$what: intron',
+        );
+        // Clear of every bead: its DNA leaves the line no nearer than this.
+        final double glyph =
+            ChromatinLayout.reach * ChromatinFibre.magnified(perBase) * perBase;
+        for (final int index in beads) {
+          expect(
+            (beadX(index) - intron.target.dx).abs(),
+            greaterThanOrEqualTo(glyph),
+            reason: '$what: intron by bead $index',
+          );
+        }
+
+        final ZoomCallout bead = named['gene:nucleosome']!;
+        expect(bead.target.dy, greaterThan(mid), reason: what);
+        expect(
+          beads.any((int index) {
+            final double place = ChromatinBeads.placeOf(index);
+            return place >= 0 &&
+                place <= subject.track.geneLengthBp &&
+                (beadX(index) - bead.target.dx).abs() < 0.5;
+          }),
+          isTrue,
+          reason: '$what: nucleosome',
+        );
       }
     }
   });

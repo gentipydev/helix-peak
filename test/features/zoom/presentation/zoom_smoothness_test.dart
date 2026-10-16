@@ -146,9 +146,16 @@ void _expectSmooth(
   Map<String, (Offset, double)>? before;
   Map<String, (Offset, double)>? last;
   for (final double d in depths) {
-    final Map<String, (Offset, double)> now = stage
-        .stage(d, _canvas, inks)
-        .items;
+    final ZoomStaging staging = stage.stage(d, _canvas, inks);
+    final Map<String, (Offset, double)> now = staging.items;
+    // What a name set in a row names lies along the gene, away from where
+    // the view closes in: it flies with the view as the gene under it does,
+    // and the step into the DNA spends its depth unevenly, its empty
+    // decades in a rush, so only its coming and going is held here.
+    final Set<String> spread = <String>{
+      for (final ZoomCallout c in staging.callouts)
+        if (c.row != null) 'callout:${c.key}',
+    };
     if (last != null) {
       for (final String key in <String>{...now.keys, ...last.keys}) {
         final double a = last[key]?.$2 ?? 0;
@@ -168,6 +175,9 @@ void _expectSmooth(
             continue;
           }
           if (p2.$2 < 0.02 || !_onCanvas(p0.$1) || !_onCanvas(p2.$1)) {
+            continue;
+          }
+          if (spread.contains(key)) {
             continue;
           }
           final Offset second = p2.$1 - p1.$1 * 2 + p0.$1;
@@ -705,16 +715,28 @@ void main() {
             size,
             inks,
           );
+          // The names set in a row first, as the painter sets them.
+          final Map<String, Rect> rows = rowPlates(
+            staging.callouts,
+            labels,
+            inks,
+            size,
+          );
           final List<Rect> placed = <Rect>[];
-          for (final ZoomCallout callout in staging.callouts) {
+          for (final ZoomCallout callout in <ZoomCallout>[
+            ...staging.callouts.where((ZoomCallout c) => c.row != null),
+            ...staging.callouts.where((ZoomCallout c) => c.row == null),
+          ]) {
             final TextPainter text = calloutText(callout, labels, inks, size);
-            final Rect plate = placePlate(
-              callout.target,
-              text.size,
-              size,
-              placed,
-              anchors: callout.anchors,
-            );
+            final Rect plate =
+                rows[callout.key] ??
+                placePlate(
+                  callout.target,
+                  text.size,
+                  size,
+                  placed,
+                  anchors: callout.anchors,
+                );
             text.dispose();
             for (final Rect other in placed) {
               expect(
@@ -748,12 +770,14 @@ void main() {
             reason: '${t.slug} at ${stop.name}',
           );
           // A landmark is named where it is seen: the nucleolus, at the
-          // cell and the nucleus.
+          // cell and the nucleus; and the gene's parts at the gene.
           expect(
             staging.callouts.where(
               (ZoomCallout c) => c.opacity > 0.5 && c.quiet,
             ),
-            stop == ZoomStop.cell || stop == ZoomStop.nucleus
+            stop == ZoomStop.cell ||
+                    stop == ZoomStop.nucleus ||
+                    stop == ZoomStop.gene
                 ? isNotEmpty
                 : isEmpty,
             reason: '${t.slug} at ${stop.name}',

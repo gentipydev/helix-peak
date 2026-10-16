@@ -119,12 +119,97 @@ final class GeneScene extends ZoomScene {
   @visibleForTesting
   double screenX(ZoomFrame frame, double offset) => _x(frame, offset);
 
+  /// How far below the line the gene's names hang: the top of their plates,
+  /// in pixels.
+  static const double namesBelow = 26;
+
+  /// What the gene's stop names on a canvas [width] wide ([GeneNames]).
+  @visibleForTesting
+  GeneNames namesAt(double width) =>
+      _names[width] ??= GeneNames.of(subject, width);
+  final Map<double, GeneNames> _names = <double, GeneNames>{};
+
+  // The gene's 5′ end, where the bent arrow says transcription starts; and
+  // below the line, in a row, quiet as the nucleolus's name is, its parts
+  // (the user's choice of 2026-10-16: labelled hints, as the picture alone
+  // did not say what everything was): an exon, an untranslated part, an
+  // intron and a nucleosome. They come up with the ruler and the numbers,
+  // and go with them.
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
     final double mid = frame.size.height / 2;
     final Offset start = Offset(_x(frame, 0), mid - 12);
     out.item('gene:start', start, frame.opacity);
-    out.callout('gene', '5′', start, calloutPresence(frame));
+    out.callout(
+      'gene',
+      '5′ · transcription start',
+      start,
+      calloutPresence(frame),
+    );
+    final double shown = math.min(
+      calloutPresence(frame),
+      annotationsShown(frame),
+    );
+    if (shown <= 0) {
+      return;
+    }
+    final GeneNames names = namesAt(frame.size.width);
+    void name(String key, String text, Offset target) => out.callout(
+      key,
+      text,
+      target,
+      shown,
+      quiet: true,
+      row: mid + namesBelow,
+    );
+    double middle(GenePiece piece) =>
+        (_x(frame, piece.start) + _x(frame, piece.end)) / 2;
+    final GenePiece? exon = names.exon;
+    if (exon != null) {
+      name('gene:exon', 'exon', Offset(middle(exon), mid + GeneStrand.coding));
+    }
+    final GenePiece? utr = names.utr;
+    if (utr != null) {
+      name(
+        'gene:utr',
+        'UTR',
+        Offset(middle(utr), mid + GeneStrand.untranslated),
+      );
+    }
+    final double? intron = names.intron;
+    if (intron != null) {
+      name('gene:intron', 'intron', Offset(_x(frame, intron), mid));
+    }
+    final int? nucleosome = names.nucleosome;
+    if (nucleosome != null) {
+      // On the bead's lower edge: its DNA's turns, as large as it is drawn.
+      final (int _, double perBase, double grown) = _beads(frame);
+      final double scale = subject.track.geneLengthBp / subject.layout.length;
+      name(
+        'gene:nucleosome',
+        'nucleosome',
+        Offset(
+          _x(frame, ChromatinBeads.placeOf(nucleosome) / scale),
+          mid +
+              ChromatinLayout.radius *
+                  ChromatinFibre.magnified(perBase, grown) *
+                  perBase,
+        ),
+      );
+    }
+  }
+
+  /// The nucleosomes the gene's stop shows at [frame], as the least depth
+  /// of them ([ChromatinBeads.depthAt]); how many pixels a base pair of the
+  /// genome is; and how far they have grown to their least size, never
+  /// larger than the room between them as the gene opens out.
+  (int, double, double) _beads(ZoomFrame frame) {
+    final double scale = subject.track.geneLengthBp / subject.layout.length;
+    final int depth = ChromatinBeads.depthAt(_width, frame.size.width);
+    final double perBase =
+        (_x(frame, 1000 / scale) - _x(frame, 0)).abs() / 1000;
+    final double room = (1 << depth) * ChromatinLayout.period * perBase;
+    return (depth, perBase, math.min(1, room / ChromatinBeads.apart));
   }
 
   @override
@@ -158,15 +243,13 @@ final class GeneScene extends ZoomScene {
     // The nucleosomes its stop shows, coming up with it: which they are
     // does not change as the gene opens out, and they grow with it, never
     // larger than the room between them.
-    final int depth = ChromatinBeads.depthAt(_width, w);
-    final double perBase = (x(1000) - x(0)).abs() / 1000;
-    final double room = (1 << depth) * ChromatinLayout.period * perBase;
+    final (int depth, double perBase, double grown) = _beads(frame);
     ChromatinFibre.paint(
       canvas,
       inks,
       x: x,
       perBase: perBase,
-      grown: math.min(1, room / ChromatinBeads.apart),
+      grown: grown,
       mid: mid,
       width: w,
       packed: 0,
@@ -343,4 +426,138 @@ final class GeneScene extends ZoomScene {
         : (position - subject.track.spanStart) / subject.track.geneLengthBp;
     return fraction * subject.layout.length;
   }
+}
+
+/// What the gene's stop names besides its ends, each chosen by rule from
+/// the record at the stop's scale, so that none changes on the way to the
+/// stop or from it: the widest coding part of an exon, the widest
+/// untranslated part where it is wide enough to point at, the widest
+/// intron, and a nucleosome on the line clear of the exons.
+@immutable
+final class GeneNames {
+  const GeneNames({this.exon, this.utr, this.intron, this.nucleosome});
+
+  factory GeneNames.of(ZoomSubject subject, double width) {
+    final GeneLayout layout = subject.layout;
+    final double gene = subject.depth.widthOf(ZoomStop.gene);
+    // The genome's base pairs to the record's, and pixels to the genome's
+    // base pair at the stop.
+    final double scale = subject.track.geneLengthBp / layout.length;
+    final double perBase = width / gene;
+    GenePiece? widest(GenePieceKind kind) {
+      GenePiece? best;
+      for (final GenePiece piece in layout.pieces) {
+        if (piece.kind == kind && (best == null || piece.length > best.length)) {
+          best = piece;
+        }
+      }
+      return best;
+    }
+
+    GenePiece? utr = widest(GenePieceKind.utr);
+    if (utr != null && utr.length * scale * perBase < leastUtr) {
+      utr = null;
+    }
+    // The nucleosomes the stop shows, in order along the gene, and how far
+    // each reaches either side of its middle, in the genome's base pairs.
+    final double end = subject.track.geneLengthBp.toDouble();
+    final List<double> beads = <double>[
+      for (final int index in ChromatinBeads.within(
+        -gene,
+        end + gene,
+        ChromatinBeads.depthAt(gene, width),
+      ))
+        ChromatinBeads.placeOf(index),
+    ];
+    // The first in the gene clear of every exon, or where the exons leave
+    // none clear, the one farthest from them.
+    final double reach =
+        ChromatinLayout.reach * ChromatinFibre.magnified(perBase);
+    double clearance(double place) {
+      double least = double.infinity;
+      for (final GenePiece piece in layout.pieces) {
+        if (piece.kind == GenePieceKind.intron) {
+          continue;
+        }
+        final double a = piece.start * scale;
+        final double b = piece.end * scale;
+        least = math.min(
+          least,
+          place < a ? a - place : (place > b ? place - b : 0),
+        );
+      }
+      return least;
+    }
+
+    int? nucleosome;
+    double best = -1;
+    for (final int index in ChromatinBeads.within(
+      0,
+      end,
+      ChromatinBeads.depthAt(gene, width),
+    )) {
+      final double place = ChromatinBeads.placeOf(index);
+      if (place < 0 || place > end) {
+        continue;
+      }
+      final double room = clearance(place);
+      if (room >= reach) {
+        nucleosome = index;
+        break;
+      }
+      if (room > best) {
+        best = room;
+        nucleosome = index;
+      }
+    }
+    // The intron half way between the nucleosomes either side of its
+    // middle, where that is still in it: on the line, clear of both.
+    double? intron;
+    final GenePiece? longest = widest(GenePieceKind.intron);
+    if (longest != null) {
+      final double middle = (longest.start + longest.end) / 2 * scale;
+      double? before;
+      double? after;
+      for (final double place in beads) {
+        if (place <= middle) {
+          before = place;
+        } else {
+          after ??= place;
+        }
+      }
+      double at = middle;
+      if (before != null && after != null) {
+        final double between = (before + after) / 2;
+        if (between > longest.start * scale && between < longest.end * scale) {
+          at = between;
+        }
+      }
+      intron = at / scale;
+    }
+    return GeneNames(
+      exon: widest(GenePieceKind.cds),
+      utr: utr,
+      intron: intron,
+      nucleosome: nucleosome,
+    );
+  }
+
+  /// The least width, in pixels, an untranslated part has at the gene's
+  /// stop to be named.
+  static const double leastUtr = 6;
+
+  /// The widest coding part of an exon.
+  final GenePiece? exon;
+
+  /// The widest untranslated part, where it is [leastUtr] wide at the stop.
+  final GenePiece? utr;
+
+  /// Where an intron is named, in base pairs of the record from the gene's
+  /// 5′ end.
+  final double? intron;
+
+  /// The nucleosome named, by its index ([ChromatinBeads]): the first past
+  /// the gene's start the stop shows clear of the exons, or the farthest
+  /// from them where none is.
+  final int? nucleosome;
 }
