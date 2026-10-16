@@ -5,32 +5,32 @@ import 'package:helixpeek/features/zoom/domain/chromatin_layout.dart';
 
 void main() {
   const ChromatinLayout chromatin = ChromatinLayout();
-  const List<double> windings = <double>[0, 0.2, 0.5, 0.8, 1];
+  const List<double> packings = <double>[0, 0.2, 0.5, 0.8, 1];
 
   test('the bare stretch round the gene’s start never moves, so its 5′ end '
-      'stays where it is however far the DNA is wound', () {
-    for (final double wound in windings) {
+      'stays where it is however far the fibre is packed', () {
+    for (final double packed in packings) {
       for (
         double o = ChromatinLayout.bareUpstream;
         o <= ChromatinLayout.first;
         o += 5
       ) {
-        expect(chromatin.axisAt(o, wound), closeTo(o, 1e-9));
+        expect(chromatin.axisAt(o, packed), closeTo(o, 1e-9));
       }
-      expect(chromatin.axisAt(0, wound), 0);
+      expect(chromatin.axisAt(0, packed), 0);
     }
   });
 
-  test('lies along the genome unwound, and in order along the fibre however '
-      'far it is wound', () {
-    for (final double wound in windings) {
+  test('lies along the genome unpacked, and in order along the fibre however '
+      'far it is packed', () {
+    for (final double packed in packings) {
       double last = double.negativeInfinity;
       for (double o = -3000; o <= 3000; o += 1.5) {
-        final double at = chromatin.axisAt(o, wound);
-        if (wound == 0) {
+        final double at = chromatin.axisAt(o, packed);
+        if (packed == 0) {
           expect(at, o);
         }
-        expect(at, greaterThan(last), reason: 'at $o, $wound wound');
+        expect(at, greaterThan(last), reason: 'at $o, $packed packed');
         last = at;
       }
     }
@@ -72,36 +72,59 @@ void main() {
     }
   });
 
-  test('wound, a nucleosome takes the length its core does, its DNA going '
-      '1.65 times round the core, left-handed, from where the gene’s stop '
-      'laid it', () {
+  test('packed, a nucleosome takes the length its core does, and the place '
+      'along the fibre finds the point laid there at any packing', () {
     const double start = 440;
     expect(
       chromatin.axisAt(start + ChromatinLayout.wrapped, 1) -
           chromatin.axisAt(start, 1),
       closeTo(ChromatinLayout.across, 1e-9),
     );
-    // Unwound, its stretch is the line the gene's stop lays it on.
-    for (double o = start; o <= start + ChromatinLayout.wrapped; o += 7) {
-      final FibrePoint p = chromatin.woundAt(start, o, 0);
-      expect(p.along, o);
-      expect(p.across, 0);
-      expect(p.depth, 0);
+    for (final double packed in packings) {
+      for (double o = -3000; o <= 3000; o += 0.75) {
+        expect(
+          chromatin.offsetAt(chromatin.axisAt(o, packed), packed),
+          closeTo(o, 1e-6),
+          reason: 'at $o, $packed packed',
+        );
+      }
     }
-    // Wound, its points go round the core's axis: count the turns, seen
-    // down the axis, from the in-plane angle.
-    final double centre =
-        chromatin.axisAt(start, 1) + ChromatinLayout.across / 2;
+  });
+
+  test('a core sits where its DNA starts winding, the first past the start '
+      'never moving and the others drawn in without a jump', () {
+    for (final double packed in packings) {
+      expect(
+        chromatin.coreAt(ChromatinLayout.first, packed),
+        ChromatinLayout.first + ChromatinLayout.across / 2,
+      );
+    }
+    for (int i = 0; i < 100; i++) {
+      final double a = chromatin.coreAt(640, i / 100);
+      final double b = chromatin.coreAt(640, (i + 1) / 100);
+      // Drawn in by the three nucleosomes before it.
+      expect(a - b, inInclusiveRange(0, 3 * 122.3 / 100 + 1e-9));
+    }
+  });
+
+  test('a nucleosome’s DNA goes 1.65 times round its core on the superhelix, '
+      'left-handed', () {
     const double tilt = ChromatinLayout.tilt;
+    final double from = ChromatinLayout.wayIn;
+    final double to = 1 - ChromatinLayout.wayOut;
+    // Back into the core's frame: along its face, round it, and up its axis.
+    (double, double, double) inCore(FibrePoint p) => (
+      p.along,
+      p.across * math.cos(tilt) + p.depth * math.sin(tilt),
+      -p.across * math.sin(tilt) + p.depth * math.cos(tilt),
+    );
     double? last;
     double turned = 0;
-    const int steps = 2000;
+    const int steps = 4000;
     for (int i = 0; i <= steps; i++) {
-      final double o = start + ChromatinLayout.wrapped * i / steps;
-      final FibrePoint p = chromatin.woundAt(start, o, 1);
-      // Back into the core's frame: along its face, and round it.
-      final double x = p.along - centre;
-      final double round = p.across * math.cos(tilt) + p.depth * math.sin(tilt);
+      final (double x, double round, double _) = inCore(
+        ChromatinLayout.coilAt(from + (to - from) * i / steps),
+      );
       final double angle = math.atan2(round, x);
       if (last != null) {
         double d = angle - last;
@@ -114,44 +137,62 @@ void main() {
         turned += d;
       }
       last = angle;
-      // Every point is the superhelix's radius from the core's axis.
       expect(
         math.sqrt(x * x + round * round),
         closeTo(ChromatinLayout.radius, 1e-6),
       );
     }
-    expect(turned / (2 * math.pi), closeTo(ChromatinLayout.turns, 1e-3));
-    // Left-handed: going round, it steps down the core's axis.
-    double up(double o) {
-      final FibrePoint p = chromatin.woundAt(start, o, 1);
-      return -p.across * math.sin(tilt) + p.depth * math.cos(tilt);
-    }
-
-    expect(up(start + ChromatinLayout.wrapped), lessThan(up(start)));
+    expect(turned.abs() / (2 * math.pi), closeTo(ChromatinLayout.turns, 1e-3));
+    // Left-handed: it steps along the core's axis the other way to its turn,
+    // as the superhelix of Luger et al. (1997) does.
+    final (double _, double _, double up0) = inCore(
+      ChromatinLayout.coilAt(from),
+    );
+    final (double _, double _, double up1) = inCore(ChromatinLayout.coilAt(to));
+    expect(turned * (up1 - up0), lessThan(0));
   });
 
-  test('a stretch winds without a jump: its points move a little for a '
-      'little more winding, and its ends meet the DNA either side', () {
-    // The second nucleosome past the start: as the first winds, it is drawn
-    // in, by at most the bases the two of them and their linker hold for
-    // each share of the winding.
-    const double start = 240;
-    const double most =
-        3 * ChromatinLayout.wrapped / 100 + ChromatinLayout.radius / 10;
-    for (double o = start; o <= start + ChromatinLayout.wrapped; o += 3) {
-      for (int i = 0; i < 100; i++) {
-        final FibrePoint a = chromatin.woundAt(start, o, i / 100);
-        final FibrePoint b = chromatin.woundAt(start, o, (i + 1) / 100);
-        final double moved = math.sqrt(
-          math.pow(b.along - a.along, 2) + math.pow(b.across - a.across, 2),
+  test('a nucleosome’s DNA leaves the fibre’s axis before its core and comes '
+      'back to it after, along it, and is one line all the way round', () {
+    final FibrePoint first = ChromatinLayout.coilAt(0);
+    final FibrePoint last = ChromatinLayout.coilAt(1);
+    expect(first.along, closeTo(-ChromatinLayout.reach, 1e-9));
+    expect(last.along, closeTo(ChromatinLayout.reach, 1e-9));
+    for (final FibrePoint p in <FibrePoint>[first, last]) {
+      expect(p.across, closeTo(0, 1e-9));
+      expect(p.depth, closeTo(0, 1e-9));
+    }
+    // Along the axis where it leaves it and where it comes back.
+    for (final (double a, double b) in <(double, double)>[
+      (0, 1e-4),
+      (1 - 1e-4, 1),
+    ]) {
+      final FibrePoint p = ChromatinLayout.coilAt(a);
+      final FibrePoint q = ChromatinLayout.coilAt(b);
+      final double dx = q.along - p.along;
+      expect(dx, greaterThan(0));
+      expect((q.across - p.across).abs() / dx, lessThan(0.01));
+      expect((q.depth - p.depth).abs() / dx, lessThan(0.01));
+    }
+    // No break: neighbouring points a small step apart all the way round,
+    // over the joins between its way in, its turns and its way out.
+    const int steps = 4000;
+    double longest = 0;
+    double whole = 0;
+    FibrePoint? before;
+    for (int i = 0; i <= steps; i++) {
+      final FibrePoint p = ChromatinLayout.coilAt(i / steps);
+      if (before != null) {
+        final double d = math.sqrt(
+          math.pow(p.along - before.along, 2) +
+              math.pow(p.across - before.across, 2) +
+              math.pow(p.depth - before.depth, 2),
         );
-        expect(moved, lessThan(most), reason: 'at $o, ${i / 100}');
+        longest = math.max(longest, d);
+        whole += d;
       }
+      before = p;
     }
-    // Its first point is where the DNA before it reaches it.
-    for (final double wound in windings) {
-      final FibrePoint p = chromatin.woundAt(start, start, wound);
-      expect(p.along, closeTo(chromatin.axisAt(start, wound), 1e-9));
-    }
+    expect(longest, lessThan(4 * whole / steps));
   });
 }

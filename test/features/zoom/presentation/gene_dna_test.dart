@@ -114,13 +114,15 @@ void main() {
       expect(after.any(((ZoomScene, ZoomFrame) f) => f.$1 is DnaScene), isTrue);
       final Uint8List a = await _pixels(tester, stage, at - 1e-9, inks, labels);
       final Uint8List b = await _pixels(tester, stage, at, inks, labels);
-      // To the rasteriser's own rounding: four levels, as the chromosome's
-      // hand-over is held to.
+      // To the rasteriser's own rounding: a pixel or two of a nucleosome
+      // the canvas's edge cuts differs by five levels between the gene's
+      // scene and itself a hair further on, so eight, where a bead or a
+      // colour gone wrong differs by tens.
       int worst = 0;
       for (int i = 0; i < a.length; i++) {
         worst = math.max(worst, (a[i] - b[i]).abs());
       }
-      expect(worst, lessThanOrEqualTo(4), reason: t.slug);
+      expect(worst, lessThanOrEqualTo(8), reason: t.slug);
     }
   });
 
@@ -188,7 +190,7 @@ void main() {
         );
       }
       // At the gene's stop the gene is a stretch of chromatin, its DNA
-      // going on either side of it; nothing has sunk, wound or opened.
+      // going on either side of it; nothing has sunk, packed or opened.
       for (final (ZoomScene scene, ZoomFrame frame) in stage.frames(
         gene,
         _canvas,
@@ -198,7 +200,7 @@ void main() {
           final double span = depth.widthOf(ZoomStop.gene);
           expect(scene.contextAt(span), 1, reason: t.slug);
           expect(scene.sunkAt(span), 0, reason: t.slug);
-          expect(scene.woundShown(frame), 0, reason: t.slug);
+          expect(scene.packedShown(frame), 0, reason: t.slug);
           expect(scene.helixShown(frame), (0, 0), reason: t.slug);
         }
       }
@@ -213,14 +215,15 @@ void main() {
       final double winds = DnaDive.windsFrom(gene);
       final double sinks = math.min(gene, 10 * winds);
       // What happens where, by the view's width, and the least time each
-      // is given: the exons sinking, the DNA winding, the beads named, the
-      // bare start becoming the helix, its bases coming in. The user would
+      // is given: the exons sinking, the beads winding in the DNA between
+      // them, the beads named, the bare start becoming the helix, its bases
+      // coming in. The user would
       // have the step really slow: three times as long as when it took
       // 2.7 s, a second or more each.
       final List<(String, double, double, double)> stages =
           <(String, double, double, double)>[
             if (sinks > winds) ('the exons sinking', sinks, winds, 0.9),
-            ('the DNA winding', winds, winds / DnaScene.windsOver, 1.2),
+            ('the beads winding in', winds, winds / DnaScene.windsOver, 1.2),
             ('the beads named', 600, 220, 1.2),
             ('the helix coming', 800, 300, 1.2),
             ('its bases coming', 220, 40, 1.2),
@@ -308,8 +311,8 @@ void main() {
   });
 
   testWidgets('the gene’s beads are its own nucleosomes, at their places in '
-      'the packing, as many as the view can tell apart, the first past its '
-      'start always', (WidgetTester tester) async {
+      'the packing, as many as stand apart, each one whole, the first past '
+      'its start always', (WidgetTester tester) async {
     const ChromatinLayout chromatin = ChromatinLayout();
     for (final Size size in <Size>[_canvas, const Size(320, 420)]) {
       for (final ProteinTarget t in TestCatalog.all) {
@@ -328,38 +331,57 @@ void main() {
           ))
             start,
         };
-        final List<(double, int, double)> beads = ChromatinBeads.within(
-          from,
-          to,
-          ChromatinBeads.levelAt(perBase),
-        );
+        final int depth = ChromatinBeads.depthAt(gene, size.width);
+        final List<int> beads = ChromatinBeads.within(from, to, depth);
         expect(beads, isNotEmpty, reason: what);
+        expect(beads, contains(0), reason: what);
         double? last;
-        for (final (double at, int index, double shown) in beads) {
+        for (final int index in beads) {
           expect(
-            starts.any(
-              (double start) =>
-                  (start - (at - ChromatinLayout.across / 2)).abs() < 1e-6,
-            ),
+            starts.contains(ChromatinBeads.startOf(index)),
             isTrue,
             reason: '$what: bead $index',
           );
-          if (shown > 0.999) {
-            if (last != null) {
+          // Whole at the stop, and no nearer the last than they stand apart.
+          expect(
+            ChromatinBeads.shownAt(
+              index,
+              0,
+              gene: gene,
+              width: size.width,
+              dive: stage.depth.dive,
+            ),
+            1,
+            reason: '$what: bead $index',
+          );
+          final double at = ChromatinBeads.placeOf(index);
+          if (last != null) {
+            expect(
+              (at - last) * perBase,
+              greaterThanOrEqualTo(ChromatinBeads.apart - 1e-6),
+              reason: '$what: bead $index',
+            );
+          }
+          last = at;
+        }
+        // The ones between are not drawn at all there.
+        if (depth > 0) {
+          for (final int index in ChromatinBeads.within(from, to, 0)) {
+            if (!beads.contains(index)) {
               expect(
-                (at - last) * perBase,
-                greaterThanOrEqualTo(ChromatinBeads.apart - 1e-6),
+                ChromatinBeads.shownAt(
+                  index,
+                  0,
+                  gene: gene,
+                  width: size.width,
+                  dive: stage.depth.dive,
+                ),
+                0,
                 reason: '$what: bead $index',
               );
             }
-            last = at;
           }
         }
-        expect(
-          beads.where(((double, int, double) b) => b.$2 == 0).single.$3,
-          1,
-          reason: what,
-        );
       }
     }
   });
@@ -388,26 +410,31 @@ void main() {
           final double span = depth.widthAt(d);
           if (scene is GeneScene && frame.isChild) {
             // The beads its stop shows, coming up with the gene.
-            for (final (double _, int index, double alpha)
-                in ChromatinBeads.within(
-                  -gene,
-                  2 * gene,
-                  ChromatinBeads.levelAt(_canvas.width / gene),
-                )) {
-              out[index] =
-                  alpha * frame.opacity * scene.annotationsShown(frame);
+            for (final int index in ChromatinBeads.within(
+              -gene,
+              2 * gene,
+              ChromatinBeads.depthAt(gene, _canvas.width),
+            )) {
+              out[index] = frame.opacity * scene.annotationsShown(frame);
             }
           }
           if (scene is DnaScene) {
             final double around = scene.contextAt(span);
-            for (final (double at, int index, double alpha)
-                in ChromatinBeads.within(
-                  -gene,
-                  2 * gene,
-                  scene.beadLevel(frame),
-                )) {
+            for (final int index in ChromatinBeads.within(
+              -gene,
+              2 * gene,
+              ChromatinBeads.depthShownAt(
+                frame.progress,
+                gene: gene,
+                width: _canvas.width,
+                dive: depth.dive,
+              ),
+            )) {
+              final double at = ChromatinBeads.placeOf(index);
               out[index] =
-                  alpha * frame.opacity * (at < 0 || at > end ? around : 1);
+                  scene.beadShown(index, frame) *
+                  frame.opacity *
+                  (at < 0 || at > end ? around : 1);
             }
           }
         }

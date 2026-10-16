@@ -112,6 +112,26 @@ final class GeneLayout {
   /// The gene's real length, in base pairs.
   final double length;
 
+  /// What the gene is at [offset] base pairs from its 5′ end: an exon's
+  /// coding or untranslated part, or an intron, as the DNA either side of it
+  /// is taken to be too.
+  GenePieceKind kindAt(double offset) {
+    int low = 0;
+    int high = pieces.length - 1;
+    while (low <= high) {
+      final int m = (low + high) >> 1;
+      final GenePiece piece = pieces[m];
+      if (offset < piece.start) {
+        high = m - 1;
+      } else if (offset >= piece.end) {
+        low = m + 1;
+      } else {
+        return piece.kind;
+      }
+    }
+    return GenePieceKind.intron;
+  }
+
   /// How many exons it has.
   int get exonCount {
     int count = 0;

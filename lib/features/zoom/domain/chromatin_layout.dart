@@ -8,13 +8,14 @@ import 'package:flutter/foundation.dart';
 final class FibrePoint {
   const FibrePoint(this.along, this.across, this.depth);
 
-  /// Along the fibre's axis, from the gene's 5′ end.
+  /// Along the fibre's axis: from the gene's 5′ end, or for a point of a
+  /// nucleosome's DNA ([ChromatinLayout.coilAt]) from its core's middle.
   final double along;
 
   /// Across it, down the screen.
   final double across;
 
-  /// Toward the reader, from the fibre's axis: a point of a wound stretch
+  /// Toward the reader, from the fibre's axis: a point of a nucleosome's DNA
   /// with a positive depth passes in front of its histone core.
   final double depth;
 }
@@ -24,13 +25,14 @@ final class FibrePoint {
 /// one every 200 base pairs, with the stretch round the gene's start bare
 /// (Schones et al. 2008): the textbook's packing, not this gene's.
 ///
-/// It lies along the zoom's genome first, every base pair a base pair's
-/// length along the view, as the gene's stop lays it out; and as the view
-/// closes in, it winds: [wound] from 0 to 1, each nucleosome's stretch
-/// coiling round its core, the linkers between drawing the cores together,
-/// until each nucleosome takes the length along the fibre its core does.
-/// The bare stretch at the start never moves, so the gene's 5′ end stays
-/// where it is.
+/// Every nucleosome's DNA is wound round its core, from the gene's stop on
+/// ([coilAt]; the user's choice of 2026-10-16: the gene's stop shows its
+/// nucleosomes as DNA wound round histones). Along the fibre the DNA lies as
+/// the zoom's genome first, every base pair a base pair's length along the
+/// view, as the gene's stop lays it out; and as the view closes in, it
+/// packs: [packed] from 0 to 1, the line between the cores drawn in until
+/// each nucleosome takes the length along the fibre its core does. The bare
+/// stretch at the start never moves, so the gene's 5′ end stays where it is.
 @immutable
 final class ChromatinLayout {
   const ChromatinLayout();
@@ -56,11 +58,16 @@ final class ChromatinLayout {
 
   /// How far the core's face is tilted toward the reader: seen three
   /// quarters on, its DNA's turns both show.
-  static const double tilt = 0.95;
+  static const double tilt = 1.25;
 
-  /// How much length along the fibre a wound nucleosome takes: its DNA's
+  /// How much length along the fibre a packed nucleosome takes: its DNA's
   /// superhelix, edge to edge.
   static const double across = 2 * radius;
+
+  /// How far either side of a core's middle, along the fibre's axis, its DNA
+  /// leaves the axis to wind round the core and comes back to it, in base
+  /// pairs' lengths: a little past the superhelix's edge.
+  static const double reach = 16;
 
   /// The stretches each nucleosome winds, from and to, in base pairs from
   /// the gene's 5′ end, that reach into [from] to [to].
@@ -89,55 +96,193 @@ final class ChromatinLayout {
     return out;
   }
 
-  /// How much shorter than its base pairs a wound nucleosome lies.
+  /// How much shorter than its base pairs a packed nucleosome lies.
   static const double _gain = wrapped - across;
 
   /// Where along the fibre's axis the point [offset] base pairs from the
-  /// gene's 5′ end lies, [wound] of the way wound, where it is not in a
+  /// gene's 5′ end lies, [packed] of the way packed, where it is not in a
   /// nucleosome's stretch: each nucleosome between it and the start draws
   /// it in by the length its winding saves.
-  double axisAt(double offset, double wound) {
+  double axisAt(double offset, double packed) {
     if (offset >= first) {
-      final double passed = ((offset - first) / period).floor() + 0.0;
-      final double into = offset - first - passed * period;
-      final double whole = passed + math.min(into / wrapped, 1);
-      return offset - wound * _gain * whole;
+      return first + _drawnIn(offset - first, packed);
     }
     if (offset <= bareUpstream) {
-      final double passed = ((bareUpstream - offset) / period).floor() + 0.0;
-      final double into = bareUpstream - offset - passed * period;
-      final double whole = passed + math.min(into / wrapped, 1);
-      return offset + wound * _gain * whole;
+      return bareUpstream - _drawnIn(bareUpstream - offset, packed);
     }
     return offset;
   }
 
-  /// The point [offset] base pairs from the 5′ end in the nucleosome that
-  /// winds [start] to [start] + [wrapped], [wound] of the way wound: on the
-  /// line the gene's stop lays it on, eased onto its turns round the core.
-  FibrePoint woundAt(double start, double offset, double wound) {
-    final double u = ((offset - start) / wrapped).clamp(0.0, 1.0);
-    final double entry = axisAt(start, wound);
-    final double straight =
-        entry + (offset - start) * (1 - wound) + u * across * wound;
-    if (wound <= 0) {
-      return FibrePoint(offset, 0, 0);
+  /// The point whose place along the fibre's axis is [along], [packed] of
+  /// the way packed, in base pairs from the gene's 5′ end: where [axisAt]
+  /// lays it, which only ever draws the DNA in.
+  double offsetAt(double along, double packed) {
+    if (along >= first) {
+      return first + _drawnOut(along - first, packed);
     }
-    // Round a core whose centre lies half its length along from where the
-    // DNA comes in, seen from above and in front as a coin on a table is:
-    // its face tilted [tilt] toward the reader. Left-handed: the DNA steps
-    // down the core's axis as it goes round it, from the core's left.
-    final double phi = math.pi + u * turns * 2 * math.pi;
-    final double centre = entry + across / 2;
-    final double x = centre + radius * math.cos(phi);
+    if (along <= bareUpstream) {
+      return bareUpstream - _drawnOut(bareUpstream - along, packed);
+    }
+    return along;
+  }
+
+  /// How far along the fibre lies the point [d] base pairs past where the
+  /// nucleosomes start, going away from the bare start: each period winds a
+  /// stretch first, which packs, and then a linker, which does not.
+  static double _drawnIn(double d, double packed) {
+    final double passed = (d / period).floor().toDouble();
+    final double into = d - passed * period;
+    final double whole = passed + math.min(into / wrapped, 1);
+    return d - packed * _gain * whole;
+  }
+
+  /// The inverse of [_drawnIn].
+  static double _drawnOut(double along, double packed) {
+    final double perPeriod = period - packed * _gain;
+    final double passed = (along / perPeriod).floor().toDouble();
+    final double rest = along - passed * perPeriod;
+    final double stretch = wrapped - packed * _gain;
+    final double into = rest < stretch
+        ? rest * wrapped / stretch
+        : rest + packed * _gain;
+    return passed * period + into;
+  }
+
+  /// Where the middle of the core lies along the fibre's axis, [packed] of
+  /// the way packed, for the nucleosome that winds [start] to [start] +
+  /// [wrapped].
+  double coreAt(double start, double packed) =>
+      axisAt(start, packed) + across / 2;
+
+  /// Where its turns start, round the core: at its front, toward its left.
+  static const double _phase = 5 * math.pi / 6;
+
+  /// A point of the superhelix [v] of the way along its turns, about the
+  /// core's middle: seen from above and in front as a coin on a table is,
+  /// its face tilted [tilt] toward the reader. Left-handed: going round, it
+  /// steps up the core's axis, the turns crossing the core's front left to
+  /// right.
+  static FibrePoint _turnAt(double v) {
+    final double phi = _phase - v * turns * 2 * math.pi;
+    final double x = radius * math.cos(phi);
     final double round = radius * math.sin(phi);
-    final double up = -(u - 0.5) * turns * pitch;
-    final double down = round * math.cos(tilt) - up * math.sin(tilt);
-    final double near = round * math.sin(tilt) + up * math.cos(tilt);
+    final double up = (v - 0.5) * turns * pitch;
     return FibrePoint(
-      straight + (x - straight) * wound,
-      down * wound,
-      near * wound,
+      x,
+      round * math.cos(tilt) - up * math.sin(tilt),
+      round * math.sin(tilt) + up * math.cos(tilt),
+    );
+  }
+
+  /// [_turnAt]'s way at [v], as a unit step.
+  static FibrePoint _turnWay(double v) {
+    const double h = 1e-4;
+    final FibrePoint a = _turnAt(v - h);
+    final FibrePoint b = _turnAt(v + h);
+    final double dx = b.along - a.along;
+    final double dy = b.across - a.across;
+    final double dz = b.depth - a.depth;
+    final double n = math.sqrt(dx * dx + dy * dy + dz * dz);
+    return FibrePoint(dx / n, dy / n, dz / n);
+  }
+
+  static double _distance(FibrePoint a, FibrePoint b) => math.sqrt(
+    math.pow(b.along - a.along, 2) +
+        math.pow(b.across - a.across, 2) +
+        math.pow(b.depth - a.depth, 2),
+  );
+
+  /// Where the DNA leaves the fibre's axis before the core and comes back
+  /// to it after.
+  static const FibrePoint _leaves = FibrePoint(-reach, 0, 0);
+  static const FibrePoint _returns = FibrePoint(reach, 0, 0);
+
+  /// How long the way in, the turns and the way out are, in base pairs'
+  /// lengths: the share of a nucleosome's DNA each takes.
+  static final (double, double, double) _lengths = () {
+    final double turnsLong = math.sqrt(
+      math.pow(turns * 2 * math.pi * radius, 2) + math.pow(turns * pitch, 2),
+    );
+    return (
+      _distance(_leaves, _turnAt(0)),
+      turnsLong,
+      _distance(_turnAt(1), _returns),
+    );
+  }();
+
+  /// The share of a nucleosome's DNA on its way in to the turns, and on
+  /// its way out of them.
+  @visibleForTesting
+  static final double wayIn =
+      _lengths.$1 / (_lengths.$1 + _lengths.$2 + _lengths.$3);
+  @visibleForTesting
+  static final double wayOut =
+      _lengths.$3 / (_lengths.$1 + _lengths.$2 + _lengths.$3);
+
+  /// The turns' way where they start.
+  static final FibrePoint _inWay = _turnWay(0);
+
+  /// The point [u] of the way along a nucleosome's DNA, about its core's
+  /// middle, from where it leaves the fibre's axis before the core ([reach]
+  /// to its left, u = 0) to where it comes back to it after ([reach] to its
+  /// right, u = 1): in round the core's front from its left, 1.65 turns
+  /// round it ([turns]), and out from behind it to the right.
+  static FibrePoint coilAt(double u) {
+    final double t = u.clamp(0.0, 1.0);
+    final double a = wayIn;
+    final double c = wayOut;
+    if (t < a) {
+      // In off the axis along it, meeting the turns along their way.
+      return _hermite(
+        _leaves,
+        const FibrePoint(1, 0, 0),
+        _turnAt(0),
+        _inWay,
+        _lengths.$1,
+        t / a,
+      );
+    }
+    if (t > 1 - c) {
+      // Out from behind the core onto the axis, along it: it turns back
+      // where the core hides it.
+      final FibrePoint from = _turnAt(1);
+      final double long = _lengths.$3;
+      return _hermite(
+        from,
+        FibrePoint(
+          (_returns.along - from.along) / long,
+          (_returns.across - from.across) / long,
+          (_returns.depth - from.depth) / long,
+        ),
+        _returns,
+        const FibrePoint(1, 0, 0),
+        long,
+        (t - (1 - c)) / c,
+      );
+    }
+    return _turnAt((t - a) / (1 - a - c));
+  }
+
+  /// The cubic from [p0] going [w0] to [p1] going [w1] (unit ways, scaled
+  /// by [long]), [s] of the way along.
+  static FibrePoint _hermite(
+    FibrePoint p0,
+    FibrePoint w0,
+    FibrePoint p1,
+    FibrePoint w1,
+    double long,
+    double s,
+  ) {
+    final double s2 = s * s;
+    final double s3 = s2 * s;
+    final double h00 = 2 * s3 - 3 * s2 + 1;
+    final double h10 = (s3 - 2 * s2 + s) * long;
+    final double h01 = -2 * s3 + 3 * s2;
+    final double h11 = (s3 - s2) * long;
+    return FibrePoint(
+      h00 * p0.along + h10 * w0.along + h01 * p1.along + h11 * w1.along,
+      h00 * p0.across + h10 * w0.across + h01 * p1.across + h11 * w1.across,
+      h00 * p0.depth + h10 * w0.depth + h01 * p1.depth + h11 * w1.depth,
     );
   }
 }

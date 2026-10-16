@@ -79,6 +79,20 @@ final class ZoomSubject {
     return track.strand < 0 ? track.spanEnd - along : track.spanStart + along;
   }
 
+  /// Where the colour of the gene's DNA may change, in base pairs of the
+  /// genome from its 5′ end: its two ends and the ends of its every piece.
+  late final List<double> fibreMarks = () {
+    final double scale = track.geneLengthBp / layout.length;
+    return List<double>.unmodifiable(<double>[
+      0,
+      track.geneLengthBp.toDouble(),
+      for (final GenePiece piece in layout.pieces) ...<double>[
+        piece.start * scale,
+        piece.end * scale,
+      ],
+    ]);
+  }();
+
   /// The middle of the gene's span, on the genome.
   double get geneMiddle => (track.spanStart + track.spanEnd) / 2;
 

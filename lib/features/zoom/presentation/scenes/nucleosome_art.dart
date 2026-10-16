@@ -9,28 +9,25 @@ import 'sculpt.dart';
 /// A nucleosome's core, the histone octamer the DNA winds round: a lit puck
 /// about 6.5 nm across and 5.7 nm thick (Luger et al. 1997), seen from
 /// above and in front as [ChromatinLayout] lays its DNA round it, in the
-/// zoom's warm neutrals.
+/// zoom's warm neutrals: its face in the light and its side, which the DNA
+/// crosses, a shade down, both clear of the ground.
 abstract final class NucleosomeArt {
   /// The octamer's radius and half its thickness, in base pairs' lengths.
   static const double radius = 3.2 / 0.34;
   static const double half = 2.85 / 0.34;
 
-  /// Draws a core about [centre], [perBase] pixels to a base pair's length,
-  /// [grown] of its size, at [alpha], and never smaller across than [least]
-  /// pixels from its middle: a bead the eye can see where the gene is far.
+  /// Draws a core about [centre], [r] pixels across from its middle, at
+  /// [alpha].
   static void paint(
     Canvas canvas,
     Offset centre,
-    double perBase,
+    double r,
     ZoomInks inks, {
-    double grown = 1,
     double alpha = 1,
-    double least = 0,
   }) {
-    if (alpha <= 0.002 || grown <= 0) {
+    if (alpha <= 0.002 || r <= 0) {
       return;
     }
-    final double r = math.max(radius * perBase * grown, least);
     final double thick = r * half / radius;
     const double tilt = ChromatinLayout.tilt;
     final double faceTall = r * math.cos(tilt);
@@ -59,18 +56,23 @@ abstract final class NucleosomeArt {
       );
     }
     Sculpt.shadowUnder(canvas, whole, inks, strength: 0.45, spread: 1.08);
-    // Its side, from the face's edge down to its foot, in shade below.
+    // Its side, from the face's edge down to its foot: lit at the top,
+    // turning from the light below.
     final Path side = Path()
       ..addOval(foot)
-      ..addRect(Rect.fromLTRB(face.left, face.center.dy, face.right, foot.center.dy));
+      ..addRect(
+        Rect.fromLTRB(face.left, face.center.dy, face.right, foot.center.dy),
+      );
     canvas.drawPath(
       side,
       Paint()
         ..shader = LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: <Color>[inks.lit(0.22), inks.shade(0.7)],
-        ).createShader(whole),
+          colors: <Color>[inks.lit(0.38), inks.lit(0.2), inks.lit(0.05)],
+          stops: const <double>[0, 0.55, 1],
+        ).createShader(Rect.fromLTRB(whole.left, face.center.dy, whole.right,
+            whole.bottom)),
     );
     // Its face, lit from the upper left.
     canvas.drawOval(
@@ -79,7 +81,7 @@ abstract final class NucleosomeArt {
         ..shader = RadialGradient(
           center: Sculpt.highlight,
           radius: 1.1,
-          colors: <Color>[inks.lit(0.66), inks.lit(0.36), inks.lit(0.12)],
+          colors: <Color>[inks.lit(0.72), inks.lit(0.5), inks.lit(0.3)],
           stops: const <double>[0, 0.55, 1],
         ).createShader(face),
     );

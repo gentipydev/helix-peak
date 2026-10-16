@@ -606,7 +606,7 @@ void main() {
           if (scene is DnaScene) {
             final (double helix, double bases) = scene.helixShown(frame);
             out['the exons'] = frame.opacity * scene.exonsShown(frame);
-            out['the winding'] = frame.opacity * scene.woundShown(frame);
+            out['the packing'] = frame.opacity * scene.packedShown(frame);
             out['the helix'] = frame.opacity * helix;
             out['its bases'] = frame.opacity * bases;
           }

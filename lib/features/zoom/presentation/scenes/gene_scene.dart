@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../domain/chromatin_layout.dart';
 import '../../domain/dna_dive.dart';
 import '../../domain/gene_layout.dart';
 import '../../domain/zoom_camera.dart';
@@ -10,13 +11,15 @@ import '../zoom_inks.dart';
 import 'band_scene.dart';
 import 'body_scene.dart';
 import 'chromatin_beads.dart';
+import 'chromatin_fibre.dart';
 import 'gene_strand.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
 
 /// The gene as a stretch of chromatin, still: its DNA a line beaded with its
-/// nucleosomes ([ChromatinBeads]), going on either side of it, and its
-/// exons, as a genome browser draws a transcript, lit blocks in the walk's
+/// nucleosomes, each its DNA wound round a histone core, larger than life
+/// ([ChromatinFibre]; the user's choice of 2026-10-16, to see them), going
+/// on either side of it, and its exons, as a genome browser draws a transcript, lit blocks in the walk's
 /// own colours, coding parts tall and untranslated ends short, every part
 /// at its real length along the span MANE gives it; a ruler from its 5′ end
 /// and the bent arrow where transcription starts (the user's choice of
@@ -75,26 +78,28 @@ final class GeneScene extends ZoomScene {
 
   // On the way to the DNA the DNA's scene draws the gene's DNA from the
   // first ([DnaScene]); this one draws only what names it, gone before the
-  // DNA winds, and goes after it.
+  // nucleosomes wind in their DNA, and goes after it.
   @override
   double asParent(double progress) => 1 - smoothstep((progress - 0.5) / 0.45);
 
   /// How much the ruler, the exons' numbers, the start and the 3′ end show
   /// at [frame]: they come up over the end of the step that reaches the
   /// gene, once the band's map has given way, and go first on the way to
-  /// the DNA, gone before the DNA starts to wind ([DnaDive.windsFrom]).
+  /// the DNA, gone before the nucleosomes start to wind in their DNA
+  /// ([DnaDive.windsFrom]).
   @visibleForTesting
   double annotationsShown(ZoomFrame frame) => frame.isChild
       ? smoothstep((frame.progress - 0.55) / 0.45)
       : 1 - _leaving(frame);
 
   /// How far the step has gone, at [frame] on the way to the DNA, from the
-  /// gene's stop to where its DNA starts to wind, in the step's own depth:
+  /// gene's stop to where its nucleosomes start to wind in their DNA, in
+  /// the step's own depth:
   /// a long gene's empty decades go by fast, and a fade keyed to them would
   /// go as fast.
   double _leaving(ZoomFrame frame) {
     final DnaDive dive = subject.depth.dive;
-    // Over a sixth of the step at the least, so a gene whose DNA winds soon
+    // Over a sixth of the step at the least, so a gene whose DNA packs soon
     // after its stop does not drop them in a few frames; they are faint by
     // then.
     return smoothstep(
@@ -140,9 +145,9 @@ final class GeneScene extends ZoomScene {
     }
   }
 
-  /// The gene's DNA, as the DNA's scene draws it from the gene's stop on: the
-  /// DNA either side of it and its beads [around] of the way up, its line,
-  /// its beads, and its exons over them.
+  /// The gene's DNA, as the DNA's scene draws it from the gene's stop on
+  /// ([ChromatinFibre]): its line, the DNA either side of it and its
+  /// nucleosomes [around] of the way up, and its exons over them.
   void _strand(Canvas canvas, ZoomFrame frame, double mid, double around) {
     final ZoomInks inks = frame.inks;
     final double w = frame.size.width;
@@ -150,14 +155,37 @@ final class GeneScene extends ZoomScene {
     final double scale = subject.track.geneLengthBp / subject.layout.length;
     double x(double offset) => _x(frame, offset / scale);
     final double end = subject.track.geneLengthBp.toDouble();
-    GeneStrand.flanks(
+    // The nucleosomes its stop shows, coming up with it: which they are
+    // does not change as the gene opens out, and they grow with it, never
+    // larger than the room between them.
+    final int depth = ChromatinBeads.depthAt(_width, w);
+    final double perBase = (x(1000) - x(0)).abs() / 1000;
+    final double room = (1 << depth) * ChromatinLayout.period * perBase;
+    ChromatinFibre.paint(
       canvas,
       inks,
-      start: x(0),
-      end: x(end),
+      x: x,
+      perBase: perBase,
+      grown: math.min(1, room / ChromatinBeads.apart),
       mid: mid,
       width: w,
-      alpha: around,
+      packed: 0,
+      thick: GeneStrand.line,
+      twist: 0,
+      marks: subject.fibreMarks,
+      colourAt: (double offset) {
+        final Color ink = GeneStrand.ink(
+          inks,
+          subject.layout.kindAt(offset / scale),
+          0,
+        );
+        return offset < 0 || offset > end
+            ? ink.withValues(alpha: ink.a * around)
+            : ink;
+      },
+      depth: depth,
+      shownOf: (int index) =>
+          ChromatinBeads.depthOf(index) >= depth ? around : 0,
     );
     GeneStrand.paint(
       canvas,
@@ -166,33 +194,6 @@ final class GeneScene extends ZoomScene {
       x: (double offset) => _x(frame, offset),
       mid: mid,
       width: w,
-      blocks: false,
-    );
-    if (around > 0) {
-      final double a = _along(frame, -24) * scale;
-      final double b = _along(frame, w + 24) * scale;
-      ChromatinBeads.paint(
-        canvas,
-        inks,
-        x: x,
-        mid: mid,
-        from: math.min(a, b),
-        to: math.max(a, b),
-        perBase: (x(1000) - x(0)).abs() / 1000,
-        // The beads its stop shows, coming up with it: which they are does
-        // not change as the gene opens out.
-        level: ChromatinBeads.levelAt(frame.size.width / _width),
-        alphaAt: (double _) => around,
-      );
-    }
-    GeneStrand.paint(
-      canvas,
-      inks,
-      subject.layout,
-      x: (double offset) => _x(frame, offset),
-      mid: mid,
-      width: w,
-      line: false,
     );
   }
 

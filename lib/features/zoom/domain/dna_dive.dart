@@ -7,13 +7,13 @@ import 'package:flutter/foundation.dart';
 /// Every other step narrows the view by the same factor for each equal step
 /// of depth. This one crosses up to five decades, from a whole gene to 14
 /// base pairs, and five things happen in it at their own scales: a long
-/// gene's empty introns go by; its exons sink into its DNA; the DNA winds
-/// onto its histones and the beads are read; and the bare start opens into
-/// the helix. Narrowed evenly, the beads passed in a quarter of a second at
-/// the step's fastest. So the step weighs each decade by what happens in it,
-/// and spends its depth in proportion: a decade of empty gene weighs a
-/// quarter of one where the exons sink, and a decade where the DNA winds and
-/// its beads are read three and a half.
+/// gene's empty introns go by; its exons sink into its DNA; its nucleosomes
+/// wind in the DNA between them and are named; and the bare start opens
+/// into the helix. Narrowed evenly, the beads passed in a quarter of a
+/// second at the step's fastest. So the step weighs each decade by what
+/// happens in it, and spends its depth in proportion: a decade of empty gene
+/// weighs a quarter of one where the exons sink, and a decade where the
+/// nucleosomes wind in their DNA and are named three and a half.
 ///
 /// Widths are in base pairs, read as their common logarithm; [narrowedAt]
 /// is the share of the step's decades narrowed at a share of its depth.
@@ -32,10 +32,10 @@ final class DnaDive {
   /// The weight of the whole step.
   late final double _whole;
 
-  /// The view's width, in base pairs, at which the DNA starts to wind onto
-  /// its histones on the way in from a gene whose stop is [geneWidth] wide:
-  /// 2.5 kb, or sooner where the gene's own view is not much wider. What the
-  /// gene's stop names and what reads it are gone by then.
+  /// The view's width, in base pairs, at which the nucleosomes start to wind
+  /// in the DNA between them on the way in from a gene whose stop is
+  /// [geneWidth] wide: 2.5 kb, or sooner where the gene's own view is not
+  /// much wider. What the gene's stop names is gone by then.
   static double windsFrom(double geneWidth) => math.min(2500, 0.6 * geneWidth);
 
   /// What a decade weighs where nothing but the gene's introns goes by.
@@ -43,10 +43,10 @@ final class DnaDive {
 
   /// Where the weight changes, as the view narrows past each width (base
   /// pairs), over how many decades, and by how much: up to a decade's worth
-  /// where the exons sink into the DNA, below about 40 kb; up where the DNA
-  /// winds, below about 2.8 kb, and again where its beads are read and named
-  /// and the bare start becomes the helix, below about 700 bp; and down where
-  /// the helix's bases come in, below about 160 bp.
+  /// where the exons sink into the DNA, below about 40 kb; up where the
+  /// nucleosomes wind in their DNA, below about 2.8 kb, and again where they
+  /// are named and the bare start becomes the helix, below about 700 bp; and
+  /// down where the helix's bases come in, below about 160 bp.
   static const List<(double, double, double)> _changes =
       <(double, double, double)>[
         (40000, 0.4, 1.85),
