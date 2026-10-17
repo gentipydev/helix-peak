@@ -39,7 +39,8 @@ void main() {
     );
     await catalog.refresh();
     expect(catalog.status.value, CatalogStatus.ready);
-    expect(catalog.all, hasLength(20));
+    // The curated list only grows: the twenty it began with never leave it.
+    expect(catalog.all.length, greaterThanOrEqualTo(20));
   });
 
   /// Every track of every protein, fetched and parsed the way the walk does.

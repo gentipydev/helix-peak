@@ -283,7 +283,9 @@ every scientific claim in them was wrong somewhere:
 - *Captions fit two lines* (about 80 characters on a phone; a test enforces it
   for insulin's).
 
-*Status: open* for the twenty, whose prose is still written. *Baked* for a
+*Status: open* for curated proteins (the twenty, and those added to the list
+since 2026-10-17), whose prose is still written, and checked by hand against
+these points. *Baked* for a
 protein built on demand: its `sentence` and `semantics` are templated from its
 model's own numbers and never written (`pipeline/structure/alphafold.py`,
 `describe`): the mean pLDDT over the span drawn, the share of residues at 70 or

@@ -131,7 +131,7 @@ void main() {
     expect(target.structure, isNull);
     expect(target.chains, isEmpty);
     expect(target.impactExplanationsAvailable, isFalse);
-    expect(catalog.all, hasLength(20));
+    expect(catalog.all, hasLength((catalogFixture()['proteins'] as List).length));
   });
 
   test('details outside the list are fetched once and held only in memory', () async {
@@ -145,7 +145,7 @@ void main() {
     final target = await catalog.protein('new-protein');
     expect(await catalog.protein('new-protein'), same(target));
     expect(catalog.bySlug('new-protein'), same(target));
-    expect(catalog.all, hasLength(20));
+    expect(catalog.all, hasLength((catalogFixture()['proteins'] as List).length));
     final restarted = ProteinCatalogRepository(api, cache);
     addTearDown(restarted.dispose);
     await restarted.hydrate();

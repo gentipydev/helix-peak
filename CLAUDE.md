@@ -2,7 +2,7 @@
 
 Helix Peek is a Flutter app that walks one protein from its gene to its fold:
 a grid of squares morphs through gene, mRNA, protein and mature chains, then
-ends on the 3D structure. Each of the twenty curated proteins is drawn from a
+ends on the 3D structure. Each curated protein is drawn from a
 stored GenBank record plus its evidence tracks (ESM-2 constraint, AlphaGenome
 variant impact, ClinVar, fold). Any other reviewed human protein can be built
 on demand, with its record, its ESM-2 track, its AlphaGenome and ClinVar
@@ -49,9 +49,13 @@ user asks for it by name. The tests read internals (`AnatomyPainter`'s `scene`,
 `maskedIndex`, `groove` and `tracer`, panel and strip fields, over 40
 `ValueKey`s), so a rename or reshaped field that a test names falls under this
 rule too: list it for its own session and make the test edit there, with the
-user's approval. Adding a test is always allowed. Before committing,
+user's approval. Adding a test is always allowed. So is adding a curated
+protein to `test/fixtures/`: its files, and its row in `catalog.json`, after
+the rows already there (the curated list grows, the user's decision of
+2026-10-17); the walk's tests then run on it too, and a new protein's golden
+pages are added PNGs. Before committing,
 `git diff -M -U0 --diff-filter=MRD <start> -- test/features/gene_lookup test/core test/support test/goldens | grep -E '^[+-]' | grep -vE '^(\+\+\+|---) |^[+-]import '`
-must print nothing, and `git diff --quiet <start> -- test/fixtures` and
+must print nothing, and `python3 tool/fixtures_added_only.py <start>` and
 `git diff --quiet --diff-filter=MRD <start> -- 'test/goldens/**/*.png'` must
 exit 0 (the first command cannot see a PNG change: git prints "Binary files
 differ" for it, with no `+` or `-` line), where `<start>` is the commit the
@@ -240,7 +244,7 @@ to give it, and it reads through the app's own `TrackSource`, the walk's: a
 `locus` payload is a few kilobytes, and its record is the one the walk holds.
 
 It is reached from the walk's gene page, which offers "Zoom ›" on its strip
-for a protein whose `locus` track is `ready`: the twenty curated ones today,
+for a protein whose `locus` track is `ready`: every curated one today,
 by their rows and by no list, so a protein built on demand gets it the day it
 gets a locus. The walk opens it by route (`RoutePaths.zoomFor(target,
 overWalk: true)`, `?over=walk`), never by import. At the DNA, "Walk ›" unzips
@@ -491,9 +495,11 @@ demand that neither the PDB nor AlphaFold DB has a model of says so there.
 
 - **No per-protein code.** Nothing branches on a slug, gene or accession.
 - **No per-protein prose.** Captions are built from the record. The structure
-  page's `sentence` and `semantics` are the only exception (see R4.5), and
-  only for the twenty: a protein built on demand has its two templated by the
-  backend from its model's own numbers.
+  page's `sentence` and `semantics` are the only exception (see R4.5), with
+  a curated protein's one-line summary, and only for curated proteins (the
+  twenty, and those added to the list since, the user's decision of
+  2026-10-17): a protein built on demand has its words templated by the
+  backend from its index row and its model's own numbers.
 - **Every claim traceable to the record.** Numbers come from data, never from
   a literal: no hard-coded lengths and no count of the catalog (R4.1).
   Captions agree with their own numbers via `grouped`, `spelled` and
