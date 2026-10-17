@@ -254,6 +254,15 @@ void main() {
       expect(_path(TestCatalog.insulin).cellName, 'Beta cells');
     });
 
+    test('names a cell without the number of the Atlas cluster it is', () {
+      expect(const ZoomPath(cellType: 'Neutrophils_2').cellName, 'Neutrophils');
+      expect(const ZoomPath(cellType: 'Fibroblasts_1').cellName, 'Fibroblasts');
+      expect(
+        const ZoomPath(cellType: 'Alveolar cells type 1').cellName,
+        'Alveolar cells type 1',
+      );
+    });
+
     test('names a tissue without the sample number the Atlas gives some', () {
       expect(ZoomPath.tissueName('stomach 1'), 'stomach');
       expect(ZoomPath.tissueName('bone marrow'), 'bone marrow');

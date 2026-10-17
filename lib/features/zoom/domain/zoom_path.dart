@@ -151,12 +151,15 @@ final class ZoomPath {
 
   static final RegExp _sample = RegExp(r'\s+\d+$');
   static final RegExp _qualifier = RegExp(r'\s*\([^)]*\)$');
+  static final RegExp _cluster = RegExp(r'_\d+$');
 
   /// [name] as a consensus tissue: `stomach 1` is the stomach.
   static String tissueName(String name) =>
       name.replaceFirst(_sample, '').toLowerCase();
 
   /// [cellType] as it reads in a sentence, without the qualifier the Atlas
-  /// sometimes puts after a pair's cell (`Mitotic cells (Stomach)`).
-  String? get cellName => cellType?.replaceFirst(_qualifier, '');
+  /// sometimes puts after a pair's cell (`Mitotic cells (Stomach)`) or the
+  /// number of one of its clusters (`Neutrophils_2`).
+  String? get cellName =>
+      cellType?.replaceFirst(_qualifier, '').replaceFirst(_cluster, '');
 }
