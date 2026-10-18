@@ -95,6 +95,10 @@ void main() {
       expect(
         <String>[for (final ProteinTarget t in _drawn()) t.slug]..sort(),
         <String>[
+          // A cell of the adrenal cortex, drawn as the endocrine cell it is.
+          'cyp17a1',
+          // An excitatory neuron of the brain, drawn as the neuron it is.
+          'dynamin1',
           'glucagon',
           'insulin',
           'oxytocin',

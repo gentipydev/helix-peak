@@ -176,6 +176,39 @@ const Map<String, (String, TissueFrom, String?, CellFrom?)> bakedPaths =
         'Ascending Loop of Henle cells',
         CellFrom.pair,
       ),
+      'izumo1': ('testis', TissueFrom.reading, 'Early spermatids', CellFrom.pair),
+      'gapdhs': ('testis', TissueFrom.reading, 'Late spermatids', CellFrom.pair),
+      'fpr1': (
+        'bone marrow',
+        TissueFrom.reading,
+        'Neutrophils',
+        CellFrom.singleCell,
+      ),
+      'cyp17a1': (
+        'adrenal gland',
+        TissueFrom.reading,
+        'Adrenal cortex cells',
+        CellFrom.pair,
+      ),
+      'b3gat1': (
+        'brain',
+        TissueFrom.reading,
+        'Oligodendrocytes',
+        CellFrom.singleCell,
+      ),
+      'dmc1': ('testis', TissueFrom.reading, 'Spermatocytes', CellFrom.pair),
+      'dynamin1': (
+        'brain',
+        TissueFrom.reading,
+        'Brain excitatory neurons',
+        CellFrom.singleCell,
+      ),
+      'lgi1': (
+        'choroid plexus',
+        TissueFrom.reading,
+        'Choroid plexus epithelial cells',
+        CellFrom.singleCell,
+      ),
     };
 
 ZoomPath _path(ProteinTarget t) => ZoomPath.of(locusOf(t));
@@ -514,6 +547,14 @@ void main() {
         'recoverin': CellShape.neuron,
         'thyroglobulin': CellShape.acinar,
         'uromodulin': CellShape.epithelial,
+        'izumo1': CellShape.germ,
+        'gapdhs': CellShape.germ,
+        'fpr1': CellShape.leukocyte,
+        'cyp17a1': CellShape.endocrine,
+        'b3gat1': CellShape.glial,
+        'dmc1': CellShape.germ,
+        'dynamin1': CellShape.neuron,
+        'lgi1': CellShape.ciliated,
       };
       for (final ProteinTarget t in TestCatalog.all) {
         expect(
