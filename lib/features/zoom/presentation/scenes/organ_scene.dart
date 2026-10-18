@@ -68,7 +68,7 @@ final class OrganScene extends ZoomScene {
   }
 
   @override
-  void prepare(ZoomInks inks) => _art.outline;
+  void prepare(ZoomInks inks) => _art.prepare(inks);
 
   @override
   bool wantsClock(ZoomFrame frame) => !frame.isChild && frame.dwell < 2;

@@ -91,6 +91,10 @@ abstract class OrganArt {
   /// it as it is reached; none where it has no one outline.
   Path get outline => Path();
 
+  /// Builds what the organ caches for its drawing in [inks] ahead of its
+  /// first frame, as its scene's own preparing asks: by default its outline.
+  void prepare(ZoomInks inks) => outline;
+
   /// Draws the organ at [scale] times its real size; [pixel] is one screen
   /// pixel in the scene's units. [detail], from 0 to 1, is how far it has
   /// become the organ from the body's drawing of it: at 0 the flat shape,
@@ -201,6 +205,81 @@ _Look _lookOf(OrganKind kind) => switch (kind) {
 /// itself, and fat lies over everything.
 const Set<String> _notAround = <String>{'UBERON_0000014', 'UBERON_0001013'};
 
+/// The figure's parts round an organ, faint, as the body drew them: as far
+/// out as the view reaches, and a little beyond for the way in. [placed]
+/// takes a point of the figure into the organ's scene.
+final class _Surroundings {
+  _Surroundings(
+    AnatomyPart part,
+    AnatomyFigure? figure,
+    Offset Function(Offset) placed,
+  ) {
+    if (figure == null) {
+      return;
+    }
+    final Rect reach = Rect.fromCenter(
+      center: Offset.zero,
+      width: 1.6,
+      height: 2.6,
+    );
+    for (final MapEntry<String, AnatomyPart> other in figure.parts.entries) {
+      if (_notAround.contains(other.key) || identical(other.value, part)) {
+        continue;
+      }
+      for (final List<Offset> contour in other.value.contours) {
+        final Path path = OrganArt._closed(<Offset>[
+          for (final Offset p in contour) placed(p),
+        ]);
+        if (path.getBounds().overlaps(reach)) {
+          _path.addPath(path, Offset.zero);
+        }
+      }
+    }
+  }
+
+  final Path _path = Path();
+
+  /// Draws them round an organ whose box is [box], [detail] of the way from
+  /// the body's drawing of it to the organ, fading out with their distance
+  /// from it once it is its own: the organ in its place, not a map. [fade]
+  /// takes them away altogether, for an organ drawn among its own
+  /// neighbours.
+  void paint(
+    Canvas canvas,
+    ZoomInks inks,
+    double line,
+    Rect box,
+    double detail, {
+    double fade = 1,
+  }) {
+    if (fade <= 0.002) {
+      return;
+    }
+    final double near = box.longestSide * (1.6 - 0.75 * detail);
+    final Rect area = Rect.fromCircle(center: box.center, radius: near);
+    Paint around(Color colour, double alpha) =>
+        Paint()
+          ..shader = RadialGradient(
+            colors: <Color>[
+              colour.withValues(alpha: alpha),
+              colour.withValues(alpha: alpha * 0.5),
+              colour.withValues(alpha: 0),
+            ],
+            stops: const <double>[0, 0.55, 1],
+          ).createShader(area);
+    canvas.drawPath(
+      _path,
+      around(inks.lit(0.14), 0.42 * (1 - 0.6 * detail) * fade),
+    );
+    canvas.drawPath(
+      _path,
+      around(inks.lit(0.32), 0.45 * (1 - 0.3 * detail) * fade)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.8 * line,
+    );
+  }
+}
+
 /// An organ the anatomogram outlines: its own outline, sculpted, the others
 /// of its part beside it (the other lung, the other kidney), and the
 /// figure's parts round it, faint, as the body drew them.
@@ -236,29 +315,7 @@ final class _DrawnOrgan extends OrganArt {
       shape,
     );
     _detail = _surface();
-    // Round it, what the figure draws there: as far out as the view
-    // reaches, and a little beyond for the way in.
-    _around = Path();
-    if (figure != null) {
-      final Rect reach = Rect.fromCenter(
-        center: Offset.zero,
-        width: 1.6,
-        height: 2.6,
-      );
-      for (final MapEntry<String, AnatomyPart> other in figure.parts.entries) {
-        if (_notAround.contains(other.key) || identical(other.value, part)) {
-          continue;
-        }
-        for (final List<Offset> contour in other.value.contours) {
-          final Path path = OrganArt._closed(<Offset>[
-            for (final Offset p in contour) placed(p),
-          ]);
-          if (path.getBounds().overlaps(reach)) {
-            _around.addPath(path, Offset.zero);
-          }
-        }
-      }
-    }
+    _around = _Surroundings(part, figure, placed);
   }
 
   @override
@@ -282,7 +339,7 @@ final class _DrawnOrgan extends OrganArt {
   late final Path _shape;
   late final List<Offset> _points;
   late final Path _others;
-  late final Path _around;
+  late final _Surroundings _around;
   late final Rect _box;
   late final double _midline;
   late final OrganStudy? _study;
@@ -419,28 +476,7 @@ final class _DrawnOrgan extends OrganArt {
     canvas.save();
     canvas.scale(scale);
     final double line = pixel / scale;
-    // Round it, the figure's parts, as the body drew them, fading out with
-    // their distance from the organ once it is its own: the organ in its
-    // place, not a map.
-    final double near = _box.longestSide * (1.6 - 0.75 * detail);
-    final Rect fade = Rect.fromCircle(center: _box.center, radius: near);
-    Paint around(Color colour, double alpha) =>
-        Paint()
-          ..shader = RadialGradient(
-            colors: <Color>[
-              colour.withValues(alpha: alpha),
-              colour.withValues(alpha: alpha * 0.5),
-              colour.withValues(alpha: 0),
-            ],
-            stops: const <double>[0, 0.55, 1],
-          ).createShader(fade);
-    canvas.drawPath(_around, around(inks.lit(0.14), 0.42 * (1 - 0.6 * detail)));
-    canvas.drawPath(
-      _around,
-      around(inks.lit(0.32), 0.45 * (1 - 0.3 * detail))
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.8 * line,
-    );
+    _around.paint(canvas, inks, line, _box, detail);
     canvas.drawPath(_others, Paint()..color = inks.lit(0.16));
     canvas.drawPath(
       _others,

@@ -170,18 +170,44 @@ void main() {
         ),
       ),
     );
-    for (final MapEntry<String, TissueAnatomy> tissue
-        in tissueAnatomy.entries) {
-      final AnatomyFigure body = AnatomyFigure.bodyFor(
-        tissue.key,
-        const <String>[],
-      );
+    // Every tissue on the figure it is shown on, about its own kind of cell;
+    // then the pancreas on both figures about each kind of cell that lights
+    // a part of it of its own.
+    final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
+    final List<(String, TissueAnatomy, AnatomyFigure, CellShape)> organs =
+        <(String, TissueAnatomy, AnatomyFigure, CellShape)>[
+          for (final MapEntry<String, TissueAnatomy> tissue
+              in tissueAnatomy.entries)
+            (
+              tissue.key,
+              tissue.value,
+              AnatomyFigure.bodyFor(tissue.key, const <String>[]),
+              shapeOfTissue(tissue.value.recipe),
+            ),
+          for (final AnatomyFigure body in <AnatomyFigure>[
+            AnatomyFigure.female,
+            AnatomyFigure.male,
+          ])
+            for (final CellShape shape in <CellShape>[
+              CellShape.endocrine,
+              CellShape.epithelial,
+              CellShape.acinar,
+            ])
+              ('pancreas-${body.name}-${shape.name}', pancreas, body, shape),
+        ];
+    for (final (
+          String name,
+          TissueAnatomy tissue,
+          AnatomyFigure body,
+          CellShape shape,
+        )
+        in organs) {
       final OrganArt art = OrganArt.forTissue(
-        tissue.value,
-        body.parts[tissue.value.uberon],
-        tissue.value.metres * ZoomDepth.organMargin,
+        tissue,
+        body.parts[tissue.uberon],
+        tissue.metres * ZoomDepth.organMargin,
         figure: body,
-        shape: shapeOfTissue(tissue.value.recipe),
+        shape: shape,
       );
       await tester.pumpWidget(
         RepaintBoundary(
@@ -192,7 +218,7 @@ void main() {
           ),
         ),
       );
-      expect(tester.takeException(), isNull, reason: tissue.key);
+      expect(tester.takeException(), isNull, reason: name);
       if (atlas.isNotEmpty) {
         await tester.runAsync(() async {
           Directory(atlas).createSync(recursive: true);
@@ -204,7 +230,7 @@ void main() {
             format: ui.ImageByteFormat.png,
           ))!;
           image.dispose();
-          File('$atlas/${tissue.key.replaceAll(' ', '_')}.png')
+          File('$atlas/${name.replaceAll(' ', '_')}.png')
               .writeAsBytesSync(data.buffer.asUint8List());
         });
       }
