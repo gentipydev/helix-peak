@@ -14,6 +14,8 @@ import 'package:helixpeek/features/zoom/domain/zoom_motion.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/band_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/dna_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/gene_scene.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organ_art.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organ_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
@@ -764,9 +766,12 @@ void main() {
           }
           // A stop names what it follows only where the card does not:
           // the card names the organ and the territory, and the cell where
-          // the Atlas says nothing of where its protein sits.
+          // the Atlas says nothing of where its protein sits. An organ
+          // names where in it the zoom's cell lives, where it draws that.
+          final List<OrganName> organ = (stage.scenes[1] as OrganScene).names;
           final bool named = switch (stop) {
-            ZoomStop.body || ZoomStop.organ || ZoomStop.nucleus => false,
+            ZoomStop.body || ZoomStop.nucleus => false,
+            ZoomStop.organ => organ.any((OrganName n) => n.home),
             ZoomStop.cell => locusOf(t).subcellular.main.isNotEmpty,
             _ => true,
           };
@@ -777,11 +782,12 @@ void main() {
             named ? isNotEmpty : isEmpty,
             reason: '${t.slug} at ${stop.name}',
           );
-          // A landmark is named where it is seen: a cell drawn part by
-          // part names the parts that tell it apart, and the gene its own;
-          // the nucleolus is named nowhere (the user's choice of
-          // 2026-10-18).
+          // A landmark is named where it is seen: an organ drawn among its
+          // neighbours names them, a cell drawn part by part the parts that
+          // tell it apart, and the gene its own; the nucleolus is named
+          // nowhere (the user's choice of 2026-10-18).
           final bool landmarks = switch (stop) {
+            ZoomStop.organ => organ.any((OrganName n) => !n.home),
             ZoomStop.cell => partsToName(
               recipeOf(stage.depth.archetype.shape),
               locusOf(t).subcellular.main,

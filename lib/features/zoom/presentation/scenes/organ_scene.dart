@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../domain/zoom_camera.dart';
 import '../../domain/zoom_depth.dart';
 import '../zoom_inks.dart';
+import 'body_scene.dart';
 import 'organ_art.dart';
 import 'sculpt.dart';
 import 'zoom_scene.dart';
@@ -31,6 +32,20 @@ final class OrganScene extends ZoomScene {
 
   /// Whether the organ is the body's own outline of it, seen closer.
   bool get followsBody => _art.followsBody;
+
+  /// What it names at its stop: where the zoom's cell lives, and the
+  /// neighbours drawn round it.
+  List<OrganName> get names => _art.names;
+
+  /// How much of its names shows at [frame]: coming in as every stop's do
+  /// ([calloutPresence]), and gone by [leaving] of the step on to the
+  /// tissue, before the view's narrowing carries their plates off the
+  /// canvas and leaves their lines across the field opening there.
+  static double namesShown(ZoomFrame frame) => frame.isChild
+      ? calloutPresence(frame)
+      : math.min(frame.opacity, 1 - smoothstep(frame.progress / leaving));
+
+  static const double leaving = 0.24;
 
   /// How much of the organ's own scene shows, [progress] of the way in from
   /// the body: it takes the organ over from the body's drawing early.
@@ -60,14 +75,31 @@ final class OrganScene extends ZoomScene {
   @override
   Offset get portal => _art.site;
 
-  // The organ is not named here: the card names it.
+  // The organ is not named here: the card names it. What is named is where
+  // the zoom's cell lives in it, its line in the mark, and the neighbours
+  // drawn round it, in the quiet ink: set round all of it, out at the
+  // canvas's corners, so they hide none of it.
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
-    out.item(
-      'organ:target',
-      frame.toScreen(_art.site * _grown(frame)),
-      frame.opacity,
-    );
+    final double grown = _grown(frame);
+    out.item('organ:target', frame.toScreen(_art.site * grown), frame.opacity);
+    final double shown = namesShown(frame);
+    if (shown <= 0 || _art.names.isEmpty) {
+      return;
+    }
+    final ZoomRing ring = ZoomRing('organ', <Offset>[
+      for (final Offset p in _art.named) frame.toScreen(p * grown),
+    ]);
+    for (final OrganName name in _art.names) {
+      out.callout(
+        'organ:${name.key}',
+        name.word,
+        frame.toScreen(name.at * grown),
+        shown,
+        quiet: !name.home,
+        ring: ring,
+      );
+    }
   }
 
   @override

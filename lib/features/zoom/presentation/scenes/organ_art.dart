@@ -9,10 +9,17 @@ import '../../domain/zoom_depth.dart';
 import '../zoom_inks.dart';
 import 'contour.dart';
 import 'organ_studies.dart';
+import 'pancreas/pancreas_anatomy.dart';
 import 'pancreas/pancreas_art.dart';
 import 'pancreas/pancreas_form.dart';
+import 'pancreas/pancreas_style.dart';
 import 'sculpt.dart';
 import 'zoom_subject.dart';
+
+/// A name an organ's scene sets: its [key] among the scene's, its [word],
+/// what it names, at the organ's real size, and whether that is where the
+/// zoom's cell lives ([home]), its line then in the mark.
+typedef OrganName = ({String key, String word, Offset at, bool home});
 
 /// An organ as its own scene draws it: in the scene's units, at its real
 /// size, its middle at the origin, and where in it its tissue is sampled
@@ -100,6 +107,15 @@ abstract class OrganArt {
   /// The organ's outline at its real size, for the light that passes over
   /// it as it is reached; none where it has no one outline.
   Path get outline => Path();
+
+  /// What its scene names in it, at its real size: the part of it the
+  /// zoom's cell lives in, and the neighbours drawn round it. None where
+  /// it draws nothing to name.
+  List<OrganName> get names => const <OrganName>[];
+
+  /// The points its [names] are set round, at its real size: it and what
+  /// is drawn round it.
+  List<Offset> get named => const <Offset>[];
 
   /// Builds what the organ caches for its drawing in [inks] ahead of its
   /// first frame, as its scene's own preparing asks: by default its outline.
@@ -597,6 +613,59 @@ final class _PancreasOrgan extends OrganArt {
 
   @override
   Offset get site => _form.site;
+
+  // Where the cell lives, at the place the tissue is sampled: an islet for
+  // an endocrine cell, a duct for a duct cell. For any other it is the
+  // gland itself, which the card names.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    if (switch (cell) {
+          CellShape.endocrine => 'islets',
+          CellShape.epithelial => 'ducts',
+          _ => null,
+        }
+        case final String word)
+      (key: 'home', word: word, at: _form.site, home: true),
+    (
+      key: 'duodenum',
+      word: 'duodenum',
+      at: _form.place(PancreasAnatomy.duodenumName),
+      home: false,
+    ),
+    (
+      key: 'spleen',
+      word: 'spleen',
+      at: _form.place(PancreasAnatomy.spleenName),
+      home: false,
+    ),
+  ];
+
+  // The gland, the spleen, and every tube where it shows, with room to
+  // either side: a vessel hanging down beside a name's plate leaves it
+  // room, and so does its fading end.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(PancreasStyle.nameClear);
+    return <Offset>[
+      ..._form.outlinePoints,
+      ..._form.spleenPoints,
+      for (final TubeCourse tube in <TubeCourse>[
+        _form.duodenum,
+        _form.coeliacTrunk,
+        _form.splenicArtery,
+        ..._form.hilarBranches,
+        _form.hepaticArtery,
+        _form.mesentericVein,
+        _form.mesentericArtery,
+        _form.bileDuct,
+      ])
+        for (int i = 0; i < tube.length; i++)
+          if (tube.shown[i] > PancreasStyle.nameShown) ...<Offset>[
+            tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+            tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+          ],
+    ];
+  }();
 
   PancreasArt? _art;
 

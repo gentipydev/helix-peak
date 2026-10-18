@@ -32,7 +32,9 @@ import 'support/test_catalog.dart';
 /// second), `dive` (the step from the gene to the DNA as the screen flies
 /// it, then a second there, 30 frames a second, the clock running on);
 /// `cell` (the step from the tissue to the cell, then two rounds of its
-/// vesicles there, 30 frames a second); `arrive,dive` by default. The
+/// vesicles there, 30 frames a second); `organ` (the step from the body to
+/// the organ, a second and a half there, and the step on to the tissue, 30
+/// frames a second); `arrive,dive` by default. The
 /// gene's stop itself is still: the design
 /// render check draws it. ZOOM_MOTION_WIDTH sets the canvas's width (390).
 /// Without ZOOM_MOTION_SHOTS it draws nothing and passes.
@@ -84,6 +86,27 @@ void main() {
                 ),
               for (int f = 1; f <= rounds; f++)
                 ('cell', to, (count + f) / 30),
+            ];
+          }(),
+        if (takes.contains('organ'))
+          ...() {
+            final double body = depth.depthOf(ZoomStop.body);
+            final double organ = depth.depthOf(ZoomStop.organ);
+            final double tissue = depth.depthOf(ZoomStop.tissue);
+            final ZoomFlight come = ZoomFlight(body, organ);
+            final ZoomFlight leave = ZoomFlight(organ, tissue);
+            int countOf(ZoomFlight flight) =>
+                (flight.duration.inMicroseconds / 1e6 * 30).ceil();
+            Duration at(int f) =>
+                Duration(microseconds: (f * 1e6 / 30).round());
+            // The clock is the dwell here: long past the body's beats on
+            // the way in, from the organ's arrival on.
+            return <(String, double, double)>[
+              for (int f = 0; f <= countOf(come); f++)
+                ('organ', come.at(at(f)), 100 + f / 30),
+              for (int f = 1; f <= 45; f++) ('organ', organ, f / 30),
+              for (int f = 1; f <= countOf(leave); f++)
+                ('organ', leave.at(at(f)), (45 + f) / 30),
             ];
           }(),
         if (takes.contains('arrive'))

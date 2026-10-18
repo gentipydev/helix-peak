@@ -122,6 +122,12 @@ abstract final class PancreasStyle {
   /// the bend's radius.
   static const double bend = 0.9;
 
+  /// How far the names set round the gland keep clear of a tube, in
+  /// millimetres, and how faint a tube's end may be and still keep them
+  /// clear of it.
+  static const double nameClear = 6;
+  static const double nameShown = 0.5;
+
   // The shadows the gland and its neighbours cast, in centimetres.
 
   static const double shadowX = 0.25;

@@ -149,6 +149,14 @@ abstract final class PancreasAnatomy {
 
   static const int duodenumFront = 4;
 
+  /// Where the duodenum is named: on its third part, as it leaves the
+  /// corner of its C, so the name's line is short.
+  static const Offset duodenumName = Offset(-7.50, 5.35);
+
+  /// Where the spleen is named: in its middle, toward its hilum, where the
+  /// narrowest view still shows it.
+  static const Offset spleenName = Offset(10.50, -6.40);
+
   /// Where the bile duct and the main duct open into the duodenum, and the
   /// accessory duct above it.
   static const Offset majorPapilla = Offset(-7.85, 1.00);
