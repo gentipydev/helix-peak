@@ -159,6 +159,15 @@ void _expectSmooth(
       for (final ZoomCallout c in staging.callouts)
         if (c.row != null) 'callout:${c.key}',
     };
+    // What a name set round a shape names is a point of the shape, and it
+    // may lie well away from where the view closes in, however near the
+    // canvas's middle (a brain's thalamus, as the view closes in on its
+    // cortex): it flies outward with the shape as the view narrows, so it
+    // is held to the check for a break, as anything away from the focus is.
+    final Set<String> round = <String>{
+      for (final ZoomCallout c in staging.callouts)
+        if (c.ring != null) 'callout:${c.key}',
+    };
     if (last != null) {
       for (final String key in <String>{...now.keys, ...last.keys}) {
         final double a = last[key]?.$2 ?? 0;
@@ -185,7 +194,8 @@ void _expectSmooth(
           }
           final Offset second = p2.$1 - p1.$1 * 2 + p0.$1;
           final Offset centre = _canvas.center(Offset.zero);
-          final bool focus = (p1.$1 - centre).distance < 160;
+          final bool focus =
+              !round.contains(key) && (p1.$1 - centre).distance < 160;
           // Near the focus nothing may jolt. Further out, things fly outward
           // as the view narrows, faster the further they are, so there the
           // check is for a break: a step that is not of a piece with the

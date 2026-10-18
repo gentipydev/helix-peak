@@ -7,6 +7,10 @@ import '../../domain/anatomy_tables.dart';
 import '../../domain/cell_archetypes.dart';
 import '../../domain/zoom_depth.dart';
 import '../zoom_inks.dart';
+import 'brain/brain_anatomy.dart';
+import 'brain/brain_art.dart';
+import 'brain/brain_form.dart';
+import 'brain/brain_style.dart';
 import 'contour.dart';
 import 'organ_studies.dart';
 import 'pancreas/pancreas_anatomy.dart';
@@ -33,7 +37,7 @@ typedef OrganName = ({String key, String word, Offset at, bool home});
 /// size it really is ([real]): the scene grows it to that on the way in. A
 /// few have no outline of their own there, or none that shows the tissue (a
 /// lymph node, a vessel, the skin, a parathyroid gland, the retina), and are
-/// drawn from general anatomy. The brain is the anatomogram's brain cut down
+/// drawn from general anatomy, as are the pancreas and the brain, cut down
 /// its middle.
 ///
 /// Where the gene is, the organ glows in the mark: the part of it the
@@ -782,152 +786,102 @@ final class _PancreasOrgan extends OrganArt {
   }
 }
 
-/// The brain cut down its middle, as the anatomogram draws it, sculpted:
-/// the sulci folding its cortex, the cerebellum's folia round the white
-/// tree of its arbor vitae, and the part the tissue is in glowing. For the
-/// cortex, the cortex itself; for the choroid plexus, the lateral
-/// ventricle opened, dark with its fluid, the plexus's fronds along its
-/// floor in the mark.
+/// The brain cut down its middle, drawn from anatomy as a fresh specimen
+/// among its arteries (`BrainArt`): the medial face's gyri and sulci, the
+/// cut core with the corpus callosum, the third ventricle's walls and the
+/// brainstem, the vermis's arbor vitae. For a cell of the cortex its gyri
+/// are washed in the mark; for one of the choroid plexus the lateral
+/// ventricle is opened through the septum, the plexus in it in the mark.
+/// The body draws the brain from the front, so the step from it is a
+/// crossfade, as before.
 final class _BrainOrgan extends OrganArt {
   _BrainOrgan(TissueAnatomy anatomy, double view)
-    : _plexus = anatomy.inBrain == _ventricle {
-    final AnatomyFigure figure = AnatomyFigure.brain;
-    final AnatomyPart lit = figure.parts[anatomy.inBrain]!;
-    Offset placed(Offset p) => p / view;
-    _site = placed(lit.site);
-    Path all(List<List<Offset>> outlines) {
-      final Path path = Path();
-      for (final List<Offset> outline in outlines) {
-        path.addPath(
-          OrganArt._closed(<Offset>[for (final Offset p in outline) placed(p)]),
-          Offset.zero,
-        );
-      }
-      return path;
-    }
+    : _home = anatomy.inBrain == _ventricle
+          ? BrainHome.plexus
+          : BrainHome.cortex,
+      _form = BrainForm(length: anatomy.metres / view, view: view);
 
-    _silhouette = all(<List<Offset>>[figure.silhouette]);
-    _lines = all(figure.lines)..fillType = PathFillType.evenOdd;
-    _lit = all(lit.contours);
-    _rest = <Path>[
-      for (final MapEntry<String, AnatomyPart> part in figure.parts.entries)
-        if (part.key != anatomy.inBrain) all(part.value.contours),
-    ];
-    _box = _silhouette.getBounds();
-    final double size = _box.longestSide;
-    final math.Random random = math.Random(43);
-    // Sulci: folds running in from the cortex's surface.
-    _sulci = Path();
-    final AnatomyPart? cortex = figure.parts[_cortex];
-    if (cortex != null) {
-      final List<Offset> rim = <Offset>[
-        for (final Offset p in cortex.followed) placed(p),
-      ];
-      Offset middle = Offset.zero;
-      for (final Offset p in rim) {
-        middle += p;
-      }
-      middle = middle / rim.length.toDouble();
-      // Sulci running in from the rim, gently curved, of a few depths.
-      int i = 0;
-      while (i < rim.length) {
-        final Offset p = rim[i];
-        final Offset inward = middle - p;
-        final double d = inward.distance;
-        i += math.max(1, rim.length ~/ 20) + random.nextInt(2);
-        if (d == 0) {
-          continue;
-        }
-        final Offset way = inward / d;
-        final Offset side = Offset(-way.dy, way.dx);
-        final double depth = size * (0.04 + 0.07 * random.nextDouble());
-        final double lean = (random.nextDouble() - 0.5) * 0.5;
-        final Offset bend =
-            p + way * (depth * 0.55) + side * (depth * lean * 0.5);
-        final Offset end = p + way * depth + side * (depth * lean);
-        _sulci
-          ..moveTo(p.dx, p.dy)
-          ..quadraticBezierTo(bend.dx, bend.dy, end.dx, end.dy);
-      }
-      _cortexPath = all(cortex.contours);
-    } else {
-      _cortexPath = Path();
-    }
-    // The cerebellum's folia, and its arbor vitae.
-    _folia = Path();
-    _arbor = Path();
-    final AnatomyPart? cerebellum = figure.parts[_cerebellum];
-    if (cerebellum != null) {
-      final List<Offset> outline = <Offset>[
-        for (final Offset p in cerebellum.followed) placed(p),
-      ];
-      final Path shape = OrganArt._closed(outline);
-      _cerebellumPath = shape;
-      final Rect box = shape.getBounds();
-      for (int k = 1; k < 9; k++) {
-        final Rect ring = Rect.fromCenter(
-          center: box.centerLeft + Offset(box.width * 0.1, 0),
-          width: box.width * 1.9 * k / 8,
-          height: box.height * 1.7 * k / 8,
-        );
-        _folia.addArc(ring, -math.pi * 0.48, math.pi * 0.96);
-      }
-      for (final Path generation in Sculpt.tree(
-        box.centerLeft + Offset(box.width * 0.12, 0),
-        0,
-        box.width * 0.32,
-        3,
-        random,
-        spread: 0.55,
-        shrink: 0.68,
-      )) {
-        _arbor.addPath(generation, Offset.zero);
-      }
-    } else {
-      _cerebellumPath = Path();
-    }
-    // The plexus's fronds, along the ventricle's floor.
-    _fronds = <(Offset, double)>[];
-    if (_plexus) {
-      final List<Offset> rim = <Offset>[
-        for (final Offset p in lit.followed) placed(p),
-      ];
-      final Rect box = _lit.getBounds();
-      for (int i = 0; i < rim.length; i += 2) {
-        final Offset p = rim[i];
-        if (p.dy < box.center.dy) {
-          continue;
-        }
-        final Offset up = Offset(0, -box.height * 0.08);
-        _fronds.add((p + up, size * (0.008 + 0.006 * random.nextDouble())));
-      }
-      _fronds.add((_site, size * 0.016));
-    }
-  }
-
-  static const String _cortex = 'UBERON_0000956';
-  static const String _cerebellum = 'UBERON_0002037';
   static const String _ventricle = 'UBERON_0002285';
 
-  final bool _plexus;
-  late final Path _silhouette;
-  late final Path _lines;
-  late final Path _lit;
-  late final List<Path> _rest;
-  late final Offset _site;
-  late final Rect _box;
-  late final Path _sulci;
-  late final Path _cortexPath;
-  late final Path _folia;
-  late final Path _arbor;
-  late final Path _cerebellumPath;
-  late final List<(Offset, double)> _fronds;
+  final BrainHome _home;
+  final BrainForm _form;
 
   @override
-  Offset get site => _site;
+  late final Offset site = _form.place(
+    _home == BrainHome.plexus
+        ? BrainAnatomy.plexusSite
+        : BrainAnatomy.cortexSite,
+  );
 
   @override
-  Path get outline => _silhouette;
+  Path get outline => _form.outline;
+
+  // Where the cell lives, for a cell of the cortex; the plexus the card
+  // names. And the main parts, round it.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    if (_home == BrainHome.cortex)
+      (key: 'home', word: 'cortex', at: site, home: true),
+    (
+      key: 'callosum',
+      word: 'corpus callosum',
+      at: _form.place(BrainAnatomy.callosumName),
+      home: false,
+    ),
+    (
+      key: 'thalamus',
+      word: 'thalamus',
+      at: _form.place(BrainAnatomy.thalamusName),
+      home: false,
+    ),
+    (
+      key: 'hypothalamus',
+      word: 'hypothalamus',
+      at: _form.place(BrainAnatomy.hypothalamusName),
+      home: false,
+    ),
+    (
+      key: 'cerebellum',
+      word: 'cerebellum',
+      at: _form.place(BrainAnatomy.cerebellumName),
+      home: false,
+    ),
+    (
+      key: 'brainstem',
+      word: 'brainstem',
+      at: _form.place(BrainAnatomy.brainstemName),
+      home: false,
+    ),
+  ];
+
+  // The brain, and the arteries of the posterior fossa where they show
+  // beyond it, with room to either side.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(BrainStyle.nameClear);
+    return <Offset>[
+      ..._form.outlinePoints,
+      for (final TubeCourse tube in _form.fossaArteries)
+        for (int i = 0; i < tube.length; i++)
+          if (tube.shown[i] > BrainStyle.nameShown) ...<Offset>[
+            tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+            tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+          ],
+    ];
+  }();
+
+  BrainArt? _art;
+
+  BrainArt _artFor(ZoomInks inks) {
+    final BrainArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = BrainArt(_form, inks, home: _home)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
 
   @override
   void paint(
@@ -939,96 +893,7 @@ final class _BrainOrgan extends OrganArt {
   }) {
     canvas.save();
     canvas.scale(scale);
-    final double line = pixel / scale;
-    OrganArt._sculpted(canvas, _silhouette, _box, inks, line, 1);
-    for (final Path part in _rest) {
-      canvas.drawPath(
-        part,
-        Paint()..color = inks.shade(0.62).withValues(alpha: 0.55),
-      );
-      canvas.drawPath(
-        part,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 0.9 * line
-          ..color = inks.lit(0.34).withValues(alpha: 0.5),
-      );
-    }
-    canvas.drawPath(
-      _lines,
-      Paint()..color = inks.label.withValues(alpha: 0.32),
-    );
-    // The cerebellum's folia and its white tree.
-    canvas.save();
-    canvas.clipPath(_cerebellumPath);
-    canvas.drawPath(
-      _folia,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1 * line
-        ..color = inks.shade(0.45).withValues(alpha: 0.8),
-    );
-    canvas.drawPath(
-      _arbor,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2 * line
-        ..strokeCap = StrokeCap.round
-        ..color = inks.lit(0.62).withValues(alpha: 0.7),
-    );
-    canvas.restore();
-    final Rect litBox = _lit.getBounds();
-    if (_plexus) {
-      // The ventricle opened, dark with its fluid; the fronds glowing.
-      canvas.drawPath(_lit, Paint()..color = inks.shade(0.3));
-      canvas.drawPath(
-        _lit,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2.2 * line
-          ..color = inks.lit(0.6).withValues(alpha: 0.8),
-      );
-      canvas.save();
-      canvas.clipPath(_lit);
-      for (final (Offset at, double r) in _fronds) {
-        Sculpt.glow(canvas, at, r * 2.6, inks, 0.35);
-        canvas.drawCircle(at, r, Paint()..color = inks.glow(0.9));
-      }
-      canvas.restore();
-    } else {
-      Sculpt.glow(canvas, litBox.center, litBox.longestSide * 0.8, inks, 0.22);
-      canvas.drawPath(_lit, Paint()..color = inks.glow(0.42));
-      Sculpt.glowingStroke(canvas, _lit, inks, width: 1.4 * line);
-    }
-    // The sulci folding the cortex, over whatever it is drawn in, and one
-    // running the length of it, as the cingulate sulcus does.
-    canvas.save();
-    canvas.clipPath(_cortexPath);
-    final Paint sulcus = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-    canvas.drawPath(
-      _sulci,
-      sulcus
-        ..strokeWidth = 1.3 * line
-        ..color = inks.shade(0.45).withValues(alpha: 0.6),
-    );
-    final double band = _box.longestSide * 0.075;
-    canvas.drawPath(
-      _cortexPath,
-      sulcus
-        ..strokeWidth = 2 * band + 1.3 * line
-        ..color = inks.shade(0.45).withValues(alpha: 0.5),
-    );
-    canvas.drawPath(
-      _cortexPath,
-      sulcus
-        ..strokeWidth = 2 * band - 1.3 * line
-        ..color = _plexus ? inks.lit(0.14) : inks.glow(0.42),
-    );
-    canvas.restore();
-    OrganArt._edged(canvas, _silhouette, _box, inks, line, 1);
+    _artFor(inks).paint(canvas, pixel / scale);
     canvas.restore();
   }
 }
