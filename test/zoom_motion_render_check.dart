@@ -10,6 +10,7 @@ import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/core/theme/app_typography.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_motion.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/cell_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_painter.dart';
@@ -30,7 +31,9 @@ import 'support/test_catalog.dart';
 /// from the band to the gene, then half a second there, 30 frames a
 /// second), `dive` (the step from the gene to the DNA as the screen flies
 /// it, then a second there, 30 frames a second, the clock running on);
-/// `arrive,dive` by default. The gene's stop itself is still: the design
+/// `cell` (the step from the tissue to the cell, then two rounds of its
+/// vesicles there, 30 frames a second); `arrive,dive` by default. The
+/// gene's stop itself is still: the design
 /// render check draws it. ZOOM_MOTION_WIDTH sets the canvas's width (390).
 /// Without ZOOM_MOTION_SHOTS it draws nothing and passes.
 void main() {
@@ -64,6 +67,25 @@ void main() {
       final ZoomDepth depth = stage.depth;
       // Each frame: its depth, its ambient clock and its dwell.
       final List<(String, double, double)> frames = <(String, double, double)>[
+        if (takes.contains('cell'))
+          ...() {
+            final double from = depth.depthOf(ZoomStop.tissue);
+            final double to = depth.depthOf(ZoomStop.cell);
+            final ZoomFlight flight = ZoomFlight(from, to);
+            final int count = (flight.duration.inMicroseconds / 1e6 * 30)
+                .ceil();
+            final int rounds = (2 * CellScene.vesiclePeriod * 30).round();
+            return <(String, double, double)>[
+              for (int f = 0; f <= count; f++)
+                (
+                  'cell',
+                  flight.at(Duration(microseconds: (f * 1e6 / 30).round())),
+                  f / 30,
+                ),
+              for (int f = 1; f <= rounds; f++)
+                ('cell', to, (count + f) / 30),
+            ];
+          }(),
         if (takes.contains('arrive'))
           ...() {
             final double from = depth.depthOf(ZoomStop.band);
