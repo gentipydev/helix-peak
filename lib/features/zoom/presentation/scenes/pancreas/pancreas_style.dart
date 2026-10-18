@@ -156,7 +156,7 @@ abstract final class PancreasStyle {
   static const double windowTail = 0.45;
   static const double windowBody = 0.6;
   static const double windowHeadBelow = 0.95;
-  static const double windowHeadAbove = 1.6;
+  static const double windowHeadAbove = 2.1;
 
   /// Where along the gland, in centimetres across, the tail gives way to
   /// the body and the body to the head, and over how far.
@@ -191,12 +191,11 @@ abstract final class PancreasStyle {
   // The step from the body.
 
   /// Over how much of its detail the outline morphs from the body's to its
-  /// own; when, and over how much, the gland and its neighbours come up;
-  /// when the figure's own parts start to go; how far in the flat shape is
+  /// own; how the gland and its neighbours come up with the detail (as its
+  /// power: slow at first, while the outline settles, and never faster a
+  /// frame than the detail itself rises); how far in the flat shape is
   /// drawn as it becomes the gland's bed, a share of [lobule].
   static const double settle = 0.45;
-  static const double comeFrom = 0.4;
-  static const double comeOver = 0.6;
-  static const double figureFrom = 0.2;
+  static const double comePower = 1.25;
   static const double bed = 0.12;
 }

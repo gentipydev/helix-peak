@@ -46,6 +46,9 @@ final class OrganScene extends ZoomScene {
 
   /// How large the organ is drawn at [frame], against its real size: the
   /// anatomogram's size while the body still shows, its own by the stop.
+  @visibleForTesting
+  double grownAt(ZoomFrame frame) => _grown(frame);
+
   double _grown(ZoomFrame frame) => frame.isChild
       ? math
             .pow(_art.real, smootherstep((frame.progress - 0.45) / 0.55) - 1)

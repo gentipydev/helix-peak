@@ -482,7 +482,8 @@ final class PancreasForm {
       up.add(duct.centres[i] + duct.across[i] * (above(x) * scale));
       down.add(duct.centres[i] - duct.across[i] * (below(x) * scale));
     }
-    // Each end rounded.
+    // The tail's end rounded; at the head's the strip runs on past the
+    // ampulla, square, for the gland's own edge to end it.
     List<Offset> cap(int i, double sign) {
       final Offset c = duct.centres[i];
       final Offset m = duct.across[i];
@@ -498,9 +499,21 @@ final class PancreasForm {
       ];
     }
 
+    List<Offset> past(int i) {
+      final Offset c = duct.centres[i];
+      final Offset m = duct.across[i];
+      final Offset t = Offset(m.dy, -m.dx);
+      final double x = toCm(c).dx;
+      final double r = math.max(above(x), below(x)) * scale;
+      return <Offset>[
+        c + m * (above(x) * scale) + t * r,
+        c - m * (below(x) * scale) + t * r,
+      ];
+    }
+
     return Path()..addPolygon(<Offset>[
       ...up,
-      ...cap(duct.length - 1, 1),
+      ...past(duct.length - 1),
       ...down.reversed,
       ...cap(0, -1),
     ], true);

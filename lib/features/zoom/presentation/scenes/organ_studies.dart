@@ -115,14 +115,6 @@ final class OrganForm {
     return path;
   }
 
-  Path get spinePath {
-    final Path path = Path()..moveTo(spine.first.dx, spine.first.dy);
-    for (final Offset p in spine.skip(1)) {
-      path.lineTo(p.dx, p.dy);
-    }
-    return path;
-  }
-
   /// The point [t] of the way along the spine.
   Offset along(double t) {
     final double x = t.clamp(0.0, 1.0) * (spine.length - 1);
@@ -201,16 +193,16 @@ final class OrganForm {
 }
 
 /// What lies inside an organ of one kind, and the part of it the zoom's
-/// cell lives in, in the mark: the islets of a pancreas for an endocrine
-/// cell, its ducts for a duct cell, the red marrow of a femur, the tubules
-/// of a testis. By the kind of organ and of cell, never by gene.
+/// cell lives in, in the mark: the acini of a salivary gland, or its ducts
+/// for a duct cell, the red marrow of a femur, the tubules of a testis. By
+/// the kind of organ and of cell, never by gene. (The pancreas is drawn
+/// from anatomy instead, among its neighbours: `PancreasArt`.)
 abstract class OrganStudy {
   const OrganStudy();
 
   /// The kinds of organ outlined by the anatomogram that have a study of
   /// their own; the rest are sculpted with a surface for their kind.
   static const Set<OrganKind> studied = <OrganKind>{
-    OrganKind.pancreas,
     OrganKind.salivaryGland,
     OrganKind.boneMarrow,
     OrganKind.liver,
@@ -226,8 +218,7 @@ abstract class OrganStudy {
   /// [cell], or none where the organ has no study of its own.
   static OrganStudy? of(OrganKind kind, OrganForm form, CellShape cell) =>
       switch (kind) {
-        OrganKind.pancreas => _Gland(form, cell, duct: _Duct.spine),
-        OrganKind.salivaryGland => _Gland(form, cell, duct: _Duct.hilum),
+        OrganKind.salivaryGland => _Gland(form, cell),
         OrganKind.boneMarrow => _Femur(form),
         OrganKind.liver => _Liver(form),
         OrganKind.adipose => _Fat(form),
@@ -255,84 +246,53 @@ Paint _stroke(Color colour, double width) => Paint()
   ..strokeJoin = StrokeJoin.round
   ..color = colour;
 
-/// Where a gland's main duct runs: along its middle (a pancreas), or out
-/// from a hilum on the side facing the body's midline (a parotid).
-enum _Duct { spine, hilum }
-
-/// A gland: its lobules, its ducts, and where the zoom's cell lives glowing.
-/// The islets scattered through it, more of them toward the tail, for an
-/// endocrine cell; the duct tree for a duct cell; the acini, the gland
-/// itself, for any other. An islet, or a branch of the ducts, lies at the
-/// place it is sampled.
+/// A salivary gland: its lobules, its ducts out of its hilum on the side
+/// facing the body's midline, and where the zoom's cell lives glowing. The
+/// acini, the gland itself, for most cells; the duct tree for a duct cell;
+/// islands of cells scattered through it for an endocrine one. A branch of
+/// the ducts, or an island, lies at the place it is sampled.
 final class _Gland extends OrganStudy {
-  _Gland(this.form, this.cell, {required this.duct}) {
+  _Gland(this.form, this.cell) {
     final math.Random random = math.Random(7);
     final double size = form.size;
     _lobules = <Rect>[
-      for (final Rect lobule in Sculpt.cobble(
-        form.box,
-        size * (duct == _Duct.spine ? 0.055 : 0.075),
-        random,
-      ))
+      for (final Rect lobule in Sculpt.cobble(form.box, size * 0.075, random))
         if (form.shape.contains(lobule.center)) lobule,
     ];
     _main = Path();
     _branches = Path();
     _out = Path();
-    if (duct == _Duct.spine) {
-      _main.addPath(form.spinePath, Offset.zero);
-      for (int k = 1; k < 9; k++) {
-        final double t = k / 9;
-        final Offset at = form.along(t);
-        final Offset ahead = form.along(math.min(1, t + 0.02));
-        final double heading = math.atan2(ahead.dy - at.dy, ahead.dx - at.dx);
-        for (final double side in <double>[-1, 1]) {
-          for (final Path generation in Sculpt.tree(
-            at,
-            heading + side * (1.0 + 0.3 * random.nextDouble()),
-            size * 0.05,
-            2,
-            random,
-            spread: 0.6,
-            shrink: 0.7,
-          )) {
-            _branches.addPath(generation, Offset.zero);
-          }
-        }
-      }
-    } else {
-      // The duct leaves on the side facing the midline, half way down.
-      final Offset hilum = form.nearestEdge(
-        Offset(form.midline, form.box.center.dy),
+    // The duct leaves on the side facing the midline, half way down.
+    final Offset hilum = form.nearestEdge(
+      Offset(form.midline, form.box.center.dy),
+    );
+    final Offset inner = Offset.lerp(hilum, form.middle, 0.7)!;
+    _main
+      ..moveTo(inner.dx, inner.dy)
+      ..lineTo(hilum.dx, hilum.dy);
+    final double out = (form.midline - hilum.dx).sign;
+    _out
+      ..moveTo(hilum.dx, hilum.dy)
+      ..quadraticBezierTo(
+        hilum.dx + out * size * 0.25,
+        hilum.dy - size * 0.04,
+        hilum.dx + out * size * 0.55,
+        hilum.dy + size * 0.02,
       );
-      final Offset inner = Offset.lerp(hilum, form.middle, 0.7)!;
-      _main
-        ..moveTo(inner.dx, inner.dy)
-        ..lineTo(hilum.dx, hilum.dy);
-      final double out = (form.midline - hilum.dx).sign;
-      _out
-        ..moveTo(hilum.dx, hilum.dy)
-        ..quadraticBezierTo(
-          hilum.dx + out * size * 0.25,
-          hilum.dy - size * 0.04,
-          hilum.dx + out * size * 0.55,
-          hilum.dy + size * 0.02,
-        );
-      for (int k = 0; k < 6; k++) {
-        final double heading =
-            math.atan2(inner.dy - hilum.dy, inner.dx - hilum.dx) +
-            (k - 2.5) * 0.55;
-        for (final Path generation in Sculpt.tree(
-          inner,
-          heading,
-          size * 0.16,
-          3,
-          random,
-          spread: 0.55,
-          shrink: 0.68,
-        )) {
-          _branches.addPath(generation, Offset.zero);
-        }
+    for (int k = 0; k < 6; k++) {
+      final double heading =
+          math.atan2(inner.dy - hilum.dy, inner.dx - hilum.dx) +
+          (k - 2.5) * 0.55;
+      for (final Path generation in Sculpt.tree(
+        inner,
+        heading,
+        size * 0.16,
+        3,
+        random,
+        spread: 0.55,
+        shrink: 0.68,
+      )) {
+        _branches.addPath(generation, Offset.zero);
       }
     }
     // A branch reaching the place it is sampled.
@@ -348,8 +308,7 @@ final class _Gland extends OrganStudy {
         form.site.dx,
         form.site.dy,
       );
-    // Islets: a million in a pancreas, drawn as a few dozen, more toward
-    // the tail, where they are more.
+    // Islands of the cell, a few dozen, more toward one end.
     _islets = <(Offset, double)>[
       (form.site, size * 0.016),
       for (final Offset p in form.scatter(
@@ -365,7 +324,6 @@ final class _Gland extends OrganStudy {
 
   final OrganForm form;
   final CellShape cell;
-  final _Duct duct;
 
   late final List<Rect> _lobules;
   late final Path _main;

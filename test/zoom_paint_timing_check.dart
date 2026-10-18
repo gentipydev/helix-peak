@@ -58,6 +58,7 @@ void main() {
       TestCatalog.amylase,
       TestCatalog.sod1,
       TestCatalog.oxytocin,
+      TestCatalog.cftr,
     ]) {
       final ZoomStage stage = ZoomStage(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),
