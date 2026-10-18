@@ -36,6 +36,8 @@ final class CellParts {
     this.golgiCentre,
     this.golgiAngle,
     this.centrosome,
+    this.buds,
+    this.granules,
   );
 
   /// The parts of a cell of [shape] whose outline is [body] and its
@@ -69,6 +71,8 @@ final class CellParts {
       lay.golgiCentre,
       lay.golgiAngle,
       lay.centrosome,
+      List<Offset>.unmodifiable(lay.buds),
+      List<Offset>.unmodifiable(lay.granules),
     );
   }
 
@@ -85,6 +89,14 @@ final class CellParts {
 
   /// Where the centrosome is: the microtubules leave from it.
   final Offset centrosome;
+
+  /// The vesicles budding off the Golgi's trans face, where a protein the
+  /// cell secretes sets out from; none in a cell with no stack drawn so.
+  final List<Offset> buds;
+
+  /// The middles of the secretory granules, where a cell that stores what
+  /// it secretes keeps it; none in a cell with none.
+  final List<Offset> granules;
 
   /// What a protein in [part] glows on, and whether that is a line to
   /// stroke (a stack's sacs) rather than shapes to fill.
@@ -127,6 +139,8 @@ final class _Lay {
   Offset golgiCentre = Offset.zero;
   double golgiAngle = -math.pi / 4;
   Offset centrosome = Offset.zero;
+  final List<Offset> buds = <Offset>[];
+  final List<Offset> granules = <Offset>[];
 
   static Offset _way(double angle) => Offset(math.cos(angle), math.sin(angle));
 
@@ -393,6 +407,7 @@ final class _Lay {
           Rect.fromCircle(center: at, radius: 0.08 * um),
         );
         _take(at, 0.09 * um);
+        buds.add(at);
       }
     }
     _centrioles(_way(golgiAngle + 0.62) * (n + 0.75 * um), golgiAngle);
@@ -419,7 +434,6 @@ final class _Lay {
     _bodies(PartLayer.vesicles, CellPart.vesicles, 10, 0.07 * um, pick);
     // The granules, by a Poisson-disc throw: densest away from the Golgi.
     final Offset pole = -_way(golgiAngle);
-    final List<Offset> granules = <Offset>[];
     for (int i = 0; i < 6000 && granules.length < 140; i++) {
       final Offset p = _anywhere(box);
       final double toward = (p.dx * pole.dx + p.dy * pole.dy) / box.width;

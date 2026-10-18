@@ -13,6 +13,7 @@ import 'body_scene.dart';
 import 'cell/cell_parts.dart';
 import 'cell/cell_parts_art.dart';
 import 'cell/neuron_form.dart';
+import 'cell/vesicle_routes.dart';
 import 'contour.dart';
 import 'nucleolus.dart';
 import 'nucleus_shape.dart';
@@ -33,7 +34,10 @@ import 'zoom_subject.dart';
 /// The protein glows in the mark where
 /// the Human Protein Atlas finds it in a cell: brighter where it calls a
 /// location main, fainter where additional. A protein the Atlas finds
-/// secreted leaves the cell in vesicles. Where the Atlas gives no location,
+/// secreted is carried in vesicles budding off the Golgi: to the granules
+/// where a cell that has them stores it, or else to the membrane, through
+/// the cytoplasm only, never into the nucleus nor out of the cell (the
+/// user's choice of 2026-10-18). Where the Atlas gives no location,
 /// nothing glows.
 ///
 /// The cell's shape is its kind's ([CellArchetype]), its nucleus at the
@@ -142,6 +146,81 @@ final class CellScene extends ZoomScene {
   @visibleForTesting
   Path get nucleoplasm => _cell.nucleoplasm;
 
+  /// How many vesicles are on their way at once, and how long each takes,
+  /// in seconds, from budding to merging.
+  static const int vesicleCount = 6;
+  static const double vesiclePeriod = 3.2;
+
+  /// How much of its time a vesicle takes to bud off the Golgi, and to
+  /// merge with its granule or the membrane.
+  static const double vesicleBud = 0.12;
+  static const double vesicleMerge = 0.15;
+
+  /// How near a membrane a vesicle's middle may come, in the cell's units:
+  /// its own radius on the narrowest canvas, 2.4 of 320 pixels. And how
+  /// near one its way keeps no nearer, where the room allows: clear of its
+  /// glow.
+  static const double vesicleLeast = 0.0075;
+  static const double vesicleRoom = 0.02;
+
+  /// How far a vesicle strays either side of its way as it diffuses, at the
+  /// most, in the cell's units.
+  static const double vesicleWander = 0.012;
+
+  /// The ways the cell's vesicles go: from its Golgi's trans face to its
+  /// granules, or to its membrane, through its cytoplasm only.
+  @visibleForTesting
+  List<VesicleRoute> get vesicleRoutes => _cell.routes.routes;
+
+  /// The cytoplasm the vesicles are drawn in, clipped to it: the cell less
+  /// its nucleus and any lipid droplet.
+  @visibleForTesting
+  Path get vesicleSpace => _cell.vesicleSpace;
+
+  /// The vesicles at [clock], in the cell's units, and how much of each
+  /// shows: it buds off the Golgi, goes its way wandering a little either
+  /// side of it as it diffuses, and merges where it ends, each time by
+  /// another way.
+  @visibleForTesting
+  List<(Offset, double)> vesiclesAt(double clock) {
+    final List<VesicleRoute> routes = _cell.routes.routes;
+    if (routes.isEmpty) {
+      return const <(Offset, double)>[];
+    }
+    return <(Offset, double)>[
+      for (int i = 0; i < vesicleCount; i++)
+        () {
+          final double t = clock / vesiclePeriod + i / vesicleCount;
+          final int cycle = t.floor();
+          final double u = t - cycle;
+          final int pick = ((i + 1) * 2654435761) ^ ((cycle + 7) * 40503);
+          final VesicleRoute route = routes[pick % routes.length];
+          if (u < vesicleBud) {
+            return (route.start, smoothstep(u / vesicleBud));
+          }
+          if (u > 1 - vesicleMerge) {
+            return (
+              route.end,
+              1 - smoothstep((u - (1 - vesicleMerge)) / vesicleMerge),
+            );
+          }
+          final double v = smoothstep(
+            (u - vesicleBud) / (1 - vesicleBud - vesicleMerge),
+          );
+          final (Offset at, Offset along, double room) = route.at(v);
+          // Two slow swings out of step, none at either end of the way, and
+          // never nearer a membrane than the least.
+          final double reach =
+              math.min(vesicleWander, math.max(0.0, room - vesicleLeast)) *
+              math.sin(math.pi * v);
+          final double swing =
+              0.6 * math.sin(2 * math.pi * (0.53 * t + 0.37 * i)) +
+              0.4 * math.sin(2 * math.pi * (0.91 * t + 0.61 * i));
+          return (at + Offset(-along.dy, along.dx) * (reach * swing), 1.0);
+        }(),
+    ];
+  }
+
   @override
   void prepare(ZoomInks inks) => <Object?>[
     _cell.body,
@@ -149,20 +228,22 @@ final class CellScene extends ZoomScene {
     _cell.nucleolus.path,
     _cell.nucleoplasm,
     _cell.cytoplasm,
+    if (_secreted) _cell.routes,
+    if (_secreted) _cell.vesicleSpace,
   ];
 
   @override
   bool wantsClock(ZoomFrame frame) =>
       _secreted || (!frame.isChild && frame.dwell < 1.4);
 
-  // Vesicles leave a cell that secretes the protein, on the ambient clock;
+  // Vesicles cross a cell that secretes the protein, on the ambient clock;
   // and as the cell is reached its nucleus, where the gene is, pings once.
   @override
   void paintAmbient(Canvas canvas, ZoomFrame frame) {
     canvas.save();
     frame.enter(canvas);
     if (_secreted) {
-      _secretion(canvas, frame, _cell);
+      _secretion(canvas, frame);
     }
     if (!frame.isChild) {
       Sculpt.ping(
@@ -478,28 +559,27 @@ final class CellScene extends ZoomScene {
     }
   }
 
-  /// Vesicles carrying the protein from the Golgi to the membrane, and out:
-  /// moving with the ambient clock, still under reduced motion.
-  void _secretion(Canvas canvas, ZoomFrame frame, _Cell cell) {
+  /// Vesicles carrying the protein from the Golgi ([vesiclesAt]): moving
+  /// with the ambient clock, still under reduced motion. Drawn over the
+  /// scene, not in it, they fade with the scene itself; and drawn in the
+  /// cytoplasm alone, so nothing of one, its glow included, ever shows in
+  /// the nucleus, a droplet or past the membrane, however small the cell is
+  /// drawn.
+  void _secretion(Canvas canvas, ZoomFrame frame) {
     final double pixel = frame.pixel;
     final ZoomInks inks = frame.inks;
-    for (int i = 0; i < cell.exits.length; i++) {
-      final double t = (frame.clock / 3.2 + i / cell.exits.length) % 1;
-      final Offset from = cell.golgiCentre;
-      final Offset to = cell.exits[i];
-      // Out past the membrane over the last fifth, fading as it goes.
-      final Offset at = t < 0.8
-          ? Offset.lerp(from, to, smoothstep(t / 0.8))!
-          : to + (to - from) * ((t - 0.8) * 0.6);
-      // Drawn over the scene, not in it: it fades with the scene itself.
-      final double fade = (t < 0.8 ? 1 : 1 - (t - 0.8) / 0.2) * frame.opacity;
-      Sculpt.glow(canvas, at, 6 * pixel, inks, 0.45 * fade);
+    canvas.save();
+    canvas.clipPath(_cell.vesicleSpace);
+    for (final (Offset at, double shown) in vesiclesAt(frame.clock)) {
+      final double fade = shown * frame.opacity;
+      Sculpt.glow(canvas, at, 6 * pixel * shown, inks, 0.45 * fade);
       canvas.drawCircle(
         at,
-        2.4 * pixel,
+        2.4 * pixel * (0.4 + 0.6 * shown),
         Paint()..color = inks.glow(0.9 * fade),
       );
     }
+    canvas.restore();
   }
 }
 
@@ -522,8 +602,11 @@ final class _Cell {
     required this.centrosome,
     required this.cortex,
     required this.cap,
-    required this.exits,
+    required this.vesicleStarts,
+    required this.vesicleEnds,
+    required this.nucleusPoints,
     required this.membranePoint,
+    this.dropletPoints,
     this.parts,
     this.striations,
     this.droplet,
@@ -673,8 +756,16 @@ final class _Cell {
       }
       placed++;
     }
-    // Where secreted vesicles leave: points on the membrane away from the
-    // nucleus side the Golgi faces.
+    // Where secreted vesicles bud: the Golgi's trans face, three of its
+    // buds where it is drawn so, or else its middle.
+    final List<Offset> buds = parts?.buds ?? const <Offset>[];
+    final List<Offset> starts = buds.isEmpty
+        ? <Offset>[golgiCentre]
+        : <Offset>{buds.first, buds[buds.length ~/ 2], buds.last}.toList();
+    // Where they go: into a granule, a dozen of them across the cell, where
+    // the cell stores what it secretes; or else to the membrane, at points
+    // away from the nucleus side the Golgi faces.
+    final List<Offset> granules = parts?.granules ?? const <Offset>[];
     final List<Offset> exits = <Offset>[
       for (int k = 0; k < 6; k++)
         rim[(rim.length * (0.62 + 0.06 * k) +
@@ -801,8 +892,23 @@ final class _Cell {
       centrosome: centrosome,
       cortex: cortex,
       cap: cap,
-      exits: exits,
+      vesicleStarts: starts,
+      vesicleEnds: granules.isEmpty
+          ? exits
+          : _spread(granules, 12, golgiCentre),
+      nucleusPoints: NucleusShape(shape).outline(n).points,
       membranePoint: membranePoint,
+      dropletPoints: lipid == null
+          ? null
+          : <Offset>[
+              for (int k = 0; k < 96; k++)
+                Offset(0, r * 0.84) +
+                    Offset(
+                          math.cos(2 * math.pi * k / 96),
+                          math.sin(2 * math.pi * k / 96),
+                        ) *
+                        (r * 0.9),
+            ],
       striations: striations,
       droplet: droplet,
       chromatin: chromatin,
@@ -941,7 +1047,12 @@ final class _Cell {
   final Offset centrosome;
   final Path cortex;
   final Path cap;
-  final List<Offset> exits;
+  /// Where secreted vesicles bud and where they go, and the nucleus and
+  /// any lipid droplet as points: what the vesicles' ways go round.
+  final List<Offset> vesicleStarts;
+  final List<Offset> vesicleEnds;
+  final List<Offset> nucleusPoints;
+  final List<Offset>? dropletPoints;
   final Offset membranePoint;
   final Path? striations;
   final Path? droplet;
@@ -964,6 +1075,45 @@ final class _Cell {
     body,
     nucleus,
   );
+
+  /// Where vesicles may show: the cytoplasm less any lipid droplet.
+  late final Path vesicleSpace = droplet == null
+      ? cytoplasm
+      : Path.combine(PathOperation.difference, cytoplasm, droplet!);
+
+  /// The ways the vesicles go, round the nucleus and any droplet, in the
+  /// part of the cell the view can show.
+  late final VesicleRoutes routes = VesicleRoutes.lay(
+    body: outline,
+    holes: <List<Offset>>[nucleusPoints, ?dropletPoints],
+    starts: vesicleStarts,
+    ends: vesicleEnds,
+    least: CellScene.vesicleLeast,
+    room: CellScene.vesicleRoom,
+    view: const Rect.fromLTRB(-0.6, -0.85, 0.6, 0.85),
+  );
+
+  /// [count] of [points], spread over them: each the one farthest from
+  /// those chosen before, the first the farthest from [from].
+  static List<Offset> _spread(List<Offset> points, int count, Offset from) {
+    final List<Offset> chosen = <Offset>[];
+    final List<double> gap = <double>[
+      for (final Offset p in points) (p - from).distance,
+    ];
+    while (chosen.length < math.min(count, points.length)) {
+      int best = 0;
+      for (int i = 1; i < points.length; i++) {
+        if (gap[i] > gap[best]) {
+          best = i;
+        }
+      }
+      chosen.add(points[best]);
+      for (int i = 0; i < points.length; i++) {
+        gap[i] = math.min(gap[i], (points[i] - points[best]).distance);
+      }
+    }
+    return chosen;
+  }
 
   /// Where the protein's name lands, for the Atlas's [word]: on the part it
   /// is in, where the cell is drawn part by part, or else where its

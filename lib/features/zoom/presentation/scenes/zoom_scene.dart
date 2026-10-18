@@ -198,7 +198,7 @@ abstract class ZoomScene {
   void paint(Canvas canvas, ZoomFrame frame);
 
   /// Draws, over [paint], what moves at rest: a helix turning, vesicles
-  /// leaving a cell, the beats a stop plays as it is reached. Drawn on a
+  /// crossing a cell, the beats a stop plays as it is reached. Drawn on a
   /// layer of its own, so a stop at rest repaints only this.
   void paintAmbient(Canvas canvas, ZoomFrame frame) {}
 

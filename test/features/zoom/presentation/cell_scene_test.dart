@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:math' as math;
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -12,6 +14,7 @@ import 'package:helixpeek/features/zoom/domain/locus_track.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/cell/cell_parts.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/cell/neuron_form.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/cell/vesicle_routes.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/cell_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/contour.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/nucleus_shape.dart';
@@ -87,6 +90,49 @@ class _Paths implements Canvas {
   // Everything else is not a path.
   @override
   dynamic noSuchMethod(Invocation invocation) => null;
+}
+
+/// A canvas that keeps, in order, what is clipped to and how many round
+/// shapes are drawn after each clip.
+class _Clips implements Canvas {
+  final List<Object> calls = <Object>[];
+
+  @override
+  void clipPath(Path path, {bool doAntiAlias = true}) => calls.add(path);
+
+  @override
+  void drawCircle(Offset c, double radius, Paint paint) => calls.add('round');
+
+  @override
+  void drawOval(Rect rect, Paint paint) => calls.add('round');
+
+  @override
+  void restore() => calls.add('restore');
+
+  // Everything else is neither.
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
+}
+
+/// The proteins whose cells the Atlas finds them secreted from.
+List<ProteinTarget> _secreting() => <ProteinTarget>[
+  for (final ProteinTarget t in TestCatalog.all)
+    if ((locusOf(t).secretome ?? '').startsWith('Secreted')) t,
+];
+
+/// How far [p] lies from the nearest edge of the polygon [points].
+double _distanceTo(List<Offset> points, Offset p) {
+  double best = double.infinity;
+  for (int i = 0, j = points.length - 1; i < points.length; j = i++) {
+    final Offset a = points[j];
+    final Offset ab = points[i] - a;
+    final double length = ab.distanceSquared;
+    final double t = length == 0
+        ? 0
+        : (((p - a).dx * ab.dx + (p - a).dy * ab.dy) / length).clamp(0.0, 1.0);
+    best = math.min(best, (a + ab * t - p).distance);
+  }
+  return best;
 }
 
 void main() {
@@ -425,6 +471,183 @@ void main() {
         );
       }
     }
+  });
+
+  test('every secreting cell sends its vesicles from its Golgi, into its '
+      'granules where it has them, or else to its membrane', () {
+    final List<ProteinTarget> secreting = _secreting();
+    expect(secreting.length, greaterThanOrEqualTo(15));
+    for (final ProteinTarget t in secreting) {
+      final CellScene cell = _cellOf(_stage(t));
+      final String where = '${t.slug} (${cell.archetype.shape.name})';
+      expect(cell.vesicleRoutes, isNotEmpty, reason: where);
+      final CellParts? parts = cell.parts;
+      final List<Offset> buds = parts?.buds ?? const <Offset>[];
+      final List<Offset> granules = parts?.granules ?? const <Offset>[];
+      for (final VesicleRoute route in cell.vesicleRoutes) {
+        // Off the Golgi: one of its buds, or near its middle.
+        final double fromGolgi = <Offset>[
+          ...buds,
+          if (buds.isEmpty) parts?.golgiCentre ?? route.start,
+        ].map((Offset b) => (b - route.start).distance).reduce(math.min);
+        expect(fromGolgi, lessThan(0.06), reason: where);
+        if (granules.isNotEmpty) {
+          expect(granules, contains(route.end), reason: where);
+        } else {
+          expect(
+            _distanceTo(cell.outline, route.end),
+            lessThan(CellScene.vesicleRoom + 0.02),
+            reason: '$where: ends at the membrane',
+          );
+        }
+      }
+    }
+    // A beta cell's go to a dozen granules spread through it.
+    final CellScene insulin = _cellOf(_stage(TestCatalog.insulin));
+    expect(
+      <Offset>{for (final VesicleRoute r in insulin.vesicleRoutes) r.end},
+      hasLength(12),
+    );
+  });
+
+  test('every vesicle stays in the cytoplasm, never in the nucleus, a lipid '
+      'droplet or out past the membrane, nor nearer any than its own '
+      'radius, as it buds, goes and merges, at 60 fps', () {
+    for (final ProteinTarget t in _secreting()) {
+      final CellScene cell = _cellOf(_stage(t));
+      final String where = '${t.slug} (${cell.archetype.shape.name})';
+      final List<Offset> nucleus = cell.nucleusShape
+          .outline(cell.nucleus)
+          .points;
+      final Path inNucleus = cell.nucleusShape.outline(cell.nucleus).toPath();
+      final Path space = cell.vesicleSpace;
+      List<(Offset, double)>? last;
+      for (int f = 0; f <= 2 * 60 * CellScene.vesiclePeriod; f++) {
+        final List<(Offset, double)> now = cell.vesiclesAt(f / 60);
+        expect(now, hasLength(CellScene.vesicleCount), reason: where);
+        for (int i = 0; i < now.length; i++) {
+          final (Offset at, double shown) = now[i];
+          final String which = '$where, vesicle $i at frame $f';
+          expect(space.contains(at), isTrue, reason: which);
+          expect(cell.body.contains(at), isTrue, reason: which);
+          expect(inNucleus.contains(at), isFalse, reason: which);
+          expect(
+            math.min(_distanceTo(cell.outline, at), _distanceTo(nucleus, at)),
+            greaterThan(CellScene.vesicleLeast - 1e-9),
+            reason: which,
+          );
+          if (last != null) {
+            final (Offset was, double then) = last[i];
+            // No pop: it fades in and out, and moves only while it shows.
+            expect((shown - then).abs(), lessThan(0.08), reason: which);
+            if (shown > 0.01 && then > 0.01) {
+              expect((at - was).distance, lessThan(0.02), reason: which);
+            }
+          }
+        }
+        last = now;
+      }
+    }
+  });
+
+  testWidgets('the vesicles are drawn clipped to the cytoplasm, in the '
+      'cell\'s own units, at rest and through the steps either side', (
+    WidgetTester tester,
+  ) async {
+    final ZoomInks inks = await _inks(tester);
+    const Size size = Size(390, 560);
+    for (final ProteinTarget t in _secreting()) {
+      final ZoomStage stage = _stage(t);
+      final CellScene cell = _cellOf(stage);
+      final double tissue = stage.depth.depthOf(ZoomStop.tissue);
+      final double nucleus = stage.depth.depthOf(ZoomStop.nucleus);
+      for (int i = 0; i <= 20; i++) {
+        final double d = tissue + (nucleus - tissue) * i / 20;
+        final ZoomFrame? frame = _frameOf(stage, cell, d, size, inks);
+        if (frame == null) {
+          continue;
+        }
+        final _Clips canvas = _Clips();
+        cell.paintAmbient(canvas, frame);
+        final int clip = canvas.calls.indexWhere(
+          (Object c) => identical(c, cell.vesicleSpace),
+        );
+        expect(clip, greaterThanOrEqualTo(0), reason: '${t.slug} at $i/20');
+        final int drawn = canvas.calls.indexOf('round');
+        expect(drawn, greaterThan(clip), reason: '${t.slug} at $i/20');
+        expect(
+          canvas.calls.indexOf('restore', clip),
+          greaterThan(canvas.calls.lastIndexOf('round')),
+          reason: '${t.slug} at $i/20',
+        );
+      }
+    }
+  });
+
+  testWidgets('nothing of a beta cell\'s vesicles, glow and all, shows in its '
+      'nucleus or past its membrane', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    const Size size = Size(390, 560);
+    final ZoomStage stage = _stage(TestCatalog.insulin);
+    final CellScene cell = _cellOf(stage);
+    final double d = stage.depth.depthOf(ZoomStop.cell);
+    final ui.PictureRecorder recorder = ui.PictureRecorder();
+    final Canvas canvas = Canvas(recorder);
+    late ZoomFrame rest;
+    for (int k = 0; k < 60; k++) {
+      for (final (ZoomScene s, ZoomFrame frame) in stage.frames(
+        d,
+        size,
+        inks,
+        clock: k * 2 * CellScene.vesiclePeriod / 60,
+      )) {
+        if (identical(s, cell)) {
+          rest = frame;
+          cell.paintAmbient(canvas, frame);
+        }
+      }
+    }
+    final ui.Picture picture = recorder.endRecording();
+    final ByteData data = (await tester.runAsync<ByteData?>(() async {
+      final ui.Image image = await picture.toImage(
+        size.width.toInt(),
+        size.height.toInt(),
+      );
+      final ByteData? bytes = await image.toByteData();
+      image.dispose();
+      return bytes;
+    }))!;
+    final Path nucleus = Contour(<Offset>[
+      for (final Offset p in cell.nucleusShape.outline(cell.nucleus).points)
+        rest.toScreen(p),
+    ]).toPath();
+    final Path body = Contour(<Offset>[
+      for (final Offset p in cell.outline) rest.toScreen(p),
+    ]).toPath();
+    int lit = 0;
+    for (int y = 0; y < size.height; y++) {
+      for (int x = 0; x < size.width; x++) {
+        final Offset p = Offset(x + 0.5, y + 0.5);
+        final List<Offset> round = <Offset>[
+          for (final Offset o in const <Offset>[
+            Offset.zero,
+            Offset(1.5, 0),
+            Offset(-1.5, 0),
+            Offset(0, 1.5),
+            Offset(0, -1.5),
+          ])
+            p + o,
+        ];
+        final int alpha = data.getUint8((y * size.width.toInt() + x) * 4 + 3);
+        if (alpha > 0) {
+          lit++;
+        }
+        if (round.every(nucleus.contains) || !round.any(body.contains)) {
+          expect(alpha, 0, reason: 'at $p');
+        }
+      }
+    }
+    expect(lit, greaterThan(500));
   });
 
   test('a neuron is one outline round its body, its dendrites and its axon, '
