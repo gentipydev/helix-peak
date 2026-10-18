@@ -404,43 +404,16 @@ final class PancreasArt {
     int from = 0,
     int? to,
     double light = 1,
-  }) {
-    final int end = to ?? tube.length - 1;
-    final int across = _columns.length;
-    final int rows = end - from + 1;
-    if (rows < 2) {
-      return;
-    }
-    mesh.begin(rows * across);
-    final int first = mesh.next;
-    for (int i = from; i <= end; i++) {
-      final Offset m = tube.across[i];
-      for (final double u in _columns) {
-        final Offset p = tube.at(i, u);
-        final double nz = math.sqrt(math.max(0, 1 - u * u));
-        final double nx = m.dx * u;
-        final double ny = m.dy * u;
-        mesh.vertex(
-          p.dx,
-          p.dy,
-          _palette.colour(
-            tone,
-            _light.light(nx, ny, nz, form: nz) * light,
-            sheen: _light.sheen(nx, ny, nz) * light,
-            alpha: tube.shown[i],
-          ),
-        );
-      }
-    }
-    for (int i = 0; i + 1 < rows; i++) {
-      for (int j = 0; j + 1 < across; j++) {
-        final int a = first + i * across + j;
-        final int c = a + across;
-        mesh.triangle(a, a + 1, c);
-        mesh.triangle(a + 1, c + 1, c);
-      }
-    }
-  }
+  }) => tube.lay(
+    mesh,
+    tone,
+    _light,
+    _palette,
+    _columns,
+    from: from,
+    to: to,
+    brightness: light,
+  );
 
   /// A cut end of [tube] at [row]: its wall, cut, round its dark lumen.
   void _paintCut(Canvas canvas, TubeCourse tube, int row, SpecimenTone tone) {

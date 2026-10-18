@@ -2,6 +2,9 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'coloured_mesh.dart';
+import 'specimen_light.dart';
+
 /// A tube of an organ's anatomy: a duct, a vessel, a length of gut. Its
 /// course runs through [points], [radii] wide at each, in the anatomy's own
 /// units.
@@ -172,6 +175,56 @@ final class TubeCourse {
       path.lineTo(p.dx, p.dy);
     }
     return path;
+  }
+
+  /// Its rows [from] to [to] laid in [mesh] as a lit tube in [tone]: round
+  /// it at [columns], each from -1 on one side through its middle to 1 on
+  /// the other, lit by [light] at [brightness] of it and mixed by [palette].
+  void lay(
+    ColouredMesh mesh,
+    SpecimenTone tone,
+    SpecimenLight light,
+    SpecimenPalette palette,
+    List<double> columns, {
+    int from = 0,
+    int? to,
+    double brightness = 1,
+  }) {
+    final int end = to ?? length - 1;
+    final int around = columns.length;
+    final int rows = end - from + 1;
+    if (rows < 2) {
+      return;
+    }
+    mesh.begin(rows * around);
+    final int first = mesh.next;
+    for (int i = from; i <= end; i++) {
+      final Offset m = across[i];
+      for (final double u in columns) {
+        final Offset p = at(i, u);
+        final double nz = math.sqrt(math.max(0, 1 - u * u));
+        final double nx = m.dx * u;
+        final double ny = m.dy * u;
+        mesh.vertex(
+          p.dx,
+          p.dy,
+          palette.colour(
+            tone,
+            light.light(nx, ny, nz, form: nz) * brightness,
+            sheen: light.sheen(nx, ny, nz) * brightness,
+            alpha: shown[i],
+          ),
+        );
+      }
+    }
+    for (int i = 0; i + 1 < rows; i++) {
+      for (int j = 0; j + 1 < around; j++) {
+        final int a = first + i * around + j;
+        final int c = a + around;
+        mesh.triangle(a, a + 1, c);
+        mesh.triangle(a + 1, c + 1, c);
+      }
+    }
   }
 }
 
