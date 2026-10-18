@@ -82,6 +82,35 @@ final class Contour {
       Offset.lerp(points[i], other.points[i % other.points.length], t)!,
   ]);
 
+  /// Points along the curve [toPath] draws: [perSpan] of them from each
+  /// point to the next, the first the point itself.
+  Contour sampled(int perSpan) {
+    final int n = points.length;
+    if (n < 3) {
+      return this;
+    }
+    final List<Offset> out = <Offset>[];
+    for (int i = 0; i < n; i++) {
+      final Offset p0 = points[(i - 1 + n) % n];
+      final Offset p1 = points[i];
+      final Offset p2 = points[(i + 1) % n];
+      final Offset p3 = points[(i + 2) % n];
+      final Offset c1 = p1 + (p2 - p0) / 6;
+      final Offset c2 = p2 - (p3 - p1) / 6;
+      for (int k = 0; k < perSpan; k++) {
+        final double t = k / perSpan;
+        final double u = 1 - t;
+        out.add(
+          p1 * (u * u * u) +
+              c1 * (3 * u * u * t) +
+              c2 * (3 * u * t * t) +
+              p2 * (t * t * t),
+        );
+      }
+    }
+    return Contour(out);
+  }
+
   /// A smooth closed path through the points: each corner rounded by a
   /// Catmull-Rom spline, so a polygon of a hundred points reads as a curve.
   Path toPath() {
