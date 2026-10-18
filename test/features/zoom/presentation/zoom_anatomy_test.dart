@@ -40,6 +40,19 @@ Future<ZoomInks> _inks(WidgetTester tester) async {
   return inks;
 }
 
+/// A canvas that keeps the circles drawn on it, filled or stroked.
+class _Circles implements Canvas {
+  final List<(Offset, PaintingStyle)> circles = <(Offset, PaintingStyle)>[];
+
+  @override
+  void drawCircle(Offset c, double radius, Paint paint) =>
+      circles.add((c, paint.style));
+
+  // Nothing else is looked at.
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
+}
+
 void main() {
   test('every protein’s organ is found on a figure that has it', () {
     for (final ProteinTarget t in TestCatalog.all) {
@@ -153,6 +166,46 @@ void main() {
     }
     // Most organs are the body's own outline.
     expect(followed, greaterThan(TestCatalog.all.length ~/ 2));
+  });
+
+  testWidgets('the body marks the organ it goes into by its lit shape alone, '
+      'with no dot on it, and the ping still spreads from inside it', (
+    WidgetTester tester,
+  ) async {
+    final ZoomInks inks = await _inks(tester);
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ZoomStage stage = _stage(t);
+      final BodyScene body = stage.scenes.first as BodyScene;
+      final Offset site = BodyScene.place(stage.subject.bodyPart!.site);
+      final double d = stage.depth.depthOf(ZoomStop.body);
+      const double beats = BodyScene.scanTime + BodyScene.pingTime;
+      bool pinged = false;
+      for (final double dwell in <double>[
+        for (int i = 0; i * 0.05 <= beats; i++) i * 0.05,
+        ZoomFrame.settled,
+      ]) {
+        final ZoomFrame frame = stage
+            .frames(d, _canvas, inks, dwell: dwell)
+            .firstWhere(((ZoomScene, ZoomFrame) f) => identical(f.$1, body))
+            .$2;
+        final _Circles canvas = _Circles();
+        body.paintAmbient(canvas, frame);
+        // No dot: the user's choice of 2026-10-18. The glow behind a lit
+        // organ is an oval, and the ping a ring.
+        expect(
+          canvas.circles.where(
+            ((Offset, PaintingStyle) c) => c.$2 == PaintingStyle.fill,
+          ),
+          isEmpty,
+          reason: '${t.slug} at ${dwell}s',
+        );
+        pinged |= canvas.circles.any(
+          ((Offset, PaintingStyle) c) =>
+              c.$2 == PaintingStyle.stroke && (c.$1 - site).distance < 1e-9,
+        );
+      }
+      expect(pinged, isTrue, reason: '${t.slug}: no ping');
+    }
   });
 
   testWidgets('at its stop an organ is the size it is, whole in the view', (

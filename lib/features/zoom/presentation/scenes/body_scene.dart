@@ -303,8 +303,8 @@ final class BodyScene extends ZoomScene {
       );
       canvas.restore();
     }
-    // What the zoom follows: ringed, and marked by a beacon while it is too
-    // small to see, which pings once the scan has passed it.
+    // What the zoom follows: ringed, its lit shape the only mark on it, and
+    // pinging from where the zoom goes in once the scan has passed it.
     final AnatomyPart? part = subject.bodyPart;
     if (part != null) {
       final Offset at = place(part.site);
@@ -317,13 +317,6 @@ final class BodyScene extends ZoomScene {
             ..strokeJoin = StrokeJoin.round
             ..color = inks.glow((1 - handed) * opacity),
         );
-      }
-      final double across = part.extent / _width * frame.view.pixelsPerUnit;
-      final double lost = own == _skin
-          ? 1 - handed
-          : 1 - smoothstep((across - 14) / 26);
-      if (lost > 0) {
-        Sculpt.beacon(canvas, at, pixel, inks, opacity: lost * opacity);
       }
       // The ping: a ring that spreads and fades once the scan reaches it.
       final double reached =
