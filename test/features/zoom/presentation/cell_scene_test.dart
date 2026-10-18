@@ -153,7 +153,10 @@ void main() {
   });
 
   testWidgets('at rest every name round the cell sits outside it and on the '
-      'canvas, for all twenty, at two widths', (WidgetTester tester) async {
+      'canvas, its line crossing no other, for every curated protein, at '
+      'two widths', (
+    WidgetTester tester,
+  ) async {
     final ZoomInks inks = await _inks(tester);
     final TextStyle labels = AppTheme.analysis.textTheme.labelSmall!;
     for (final Size size in _canvases) {
@@ -199,6 +202,19 @@ void main() {
           expect(plate.right, lessThanOrEqualTo(size.width), reason: where);
           expect(plate.top, greaterThanOrEqualTo(0), reason: where);
           expect(plate.bottom, lessThanOrEqualTo(size.height), reason: where);
+        }
+        for (int i = 0; i < named.length; i++) {
+          for (int j = i + 1; j < named.length; j++) {
+            expect(
+              linesCross(
+                lineFrom(plates[named[i].key]!.plate, named[i].target),
+                lineFrom(plates[named[j].key]!.plate, named[j].target),
+              ),
+              isFalse,
+              reason: '${t.slug} at ${size.width}: '
+                  '${named[i].text} and ${named[j].text}',
+            );
+          }
         }
       }
     }

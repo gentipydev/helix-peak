@@ -80,6 +80,22 @@ void _expectOff(Rect plate, List<Offset> outline, String reason) {
   }
 }
 
+/// No two of the lines from [plates] to what [names] name cross.
+void _expectUncrossed(List<ZoomCallout> names, Map<String, RingPlate> plates) {
+  for (int i = 0; i < names.length; i++) {
+    for (int j = i + 1; j < names.length; j++) {
+      expect(
+        linesCross(
+          lineFrom(plates[names[i].key]!.plate, names[i].target),
+          lineFrom(plates[names[j].key]!.plate, names[j].target),
+        ),
+        isFalse,
+        reason: '${names[i].key} and ${names[j].key}',
+      );
+    }
+  }
+}
+
 void main() {
   setUpAll(
     () => _loadFont(AppTypography.sansFamily, <String>[
@@ -95,19 +111,18 @@ void main() {
     expect(twoLines('nucleolus'), 'nucleolus');
   });
 
-  testWidgets('round a shape, each name is set beside it on the side nearer '
-      'what it names, off it, on the canvas, clear of the others', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('round a shape, each name is set in the corner nearer what it '
+      'names: above or below it, out at the canvas\'s edge on its side, off '
+      'it, on the canvas, clear of the others', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
     const Size size = Size(390, 560);
     final Offset middle = size.center(Offset.zero);
-    final List<Offset> outline = _round(middle, 80);
+    final List<Offset> outline = _round(middle, 130);
     final List<ZoomCallout> names = _names(outline, <(String, Offset)>[
-      ('left', middle + const Offset(-40, -20)),
-      ('right', middle + const Offset(50, 10)),
-      ('high', middle + const Offset(-20, -60)),
-      ('low', middle + const Offset(30, 55)),
+      ('high left', middle + const Offset(-60, -40)),
+      ('high right', middle + const Offset(70, -20)),
+      ('low left', middle + const Offset(-80, 10)),
+      ('low right', middle + const Offset(30, 75)),
     ]);
     final Map<String, RingHold> held = ringHolds(names, _labels, inks, size);
     final Map<String, RingPlate> plates = ringPlates(
@@ -116,12 +131,66 @@ void main() {
       inks,
       size,
     );
-    expect(held['left']!.side, RingSide.left);
-    expect(held['high']!.side, RingSide.left);
-    expect(held['right']!.side, RingSide.right);
-    expect(held['low']!.side, RingSide.right);
+    expect(held['high left']!.side, RingSide.above);
+    expect(held['high right']!.side, RingSide.above);
+    expect(held['low left']!.side, RingSide.below);
+    expect(held['low right']!.side, RingSide.below);
+    const double margin = ZoomOverlayPainter.margin;
     final List<Rect> placed = <Rect>[];
     for (final ZoomCallout c in names) {
+      final Rect plate = plates[c.key]!.plate;
+      _expectOff(plate, outline, c.key);
+      expect(plate.top, greaterThanOrEqualTo(margin), reason: c.key);
+      expect(plate.bottom, lessThanOrEqualTo(size.height - 50), reason: c.key);
+      // Against the canvas's edge on its side.
+      if (c.key.endsWith('left')) {
+        expect(plate.left, closeTo(margin, 1e-6), reason: c.key);
+      } else {
+        expect(plate.right, closeTo(size.width - margin, 1e-6), reason: c.key);
+      }
+      // In its band: wholly above what it names, or wholly below.
+      if (held[c.key]!.side == RingSide.above) {
+        expect(plate.bottom, lessThan(c.target.dy), reason: c.key);
+      } else {
+        expect(plate.top, greaterThan(c.target.dy), reason: c.key);
+      }
+      for (final Rect other in placed) {
+        expect(plate.overlaps(other), isFalse, reason: c.key);
+      }
+      placed.add(plate);
+    }
+    _expectUncrossed(names, plates);
+  });
+
+  testWidgets('a name with no room on one line goes on two; a band with no '
+      'room left sends a name a row further out, and a shape with no room '
+      'above it sends its names below', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    const Size size = Size(320, 420);
+    final Offset middle = size.center(Offset.zero);
+    final List<Offset> outline = _round(middle, 100);
+    // Five names over the top of the shape: one row cannot hold them.
+    final List<ZoomCallout> many = _names(outline, <(String, Offset)>[
+      ('secretory granules', middle + const Offset(-70, -30)),
+      ('endoplasmic reticulum', middle + const Offset(-40, -50)),
+      ('mitochondria', middle + const Offset(10, -60)),
+      ('lysosomes', middle + const Offset(40, -40)),
+      ('Golgi apparatus', middle + const Offset(60, -20)),
+    ]);
+    final Map<String, RingHold> held = ringHolds(many, _labels, inks, size);
+    final Map<String, RingPlate> plates = ringPlates(
+      many,
+      _labels,
+      inks,
+      size,
+    );
+    expect(
+      held.values.map((RingHold h) => h.row).reduce(math.max),
+      greaterThan(0),
+    );
+    expect(held.values.any((RingHold h) => h.wrapped), isTrue);
+    final List<Rect> placed = <Rect>[];
+    for (final ZoomCallout c in many) {
       final Rect plate = plates[c.key]!.plate;
       _expectOff(plate, outline, c.key);
       expect(plate.left, greaterThanOrEqualTo(ZoomOverlayPainter.margin));
@@ -129,67 +198,59 @@ void main() {
         plate.right,
         lessThanOrEqualTo(size.width - ZoomOverlayPainter.margin),
       );
+      expect(plate.top, greaterThanOrEqualTo(ZoomOverlayPainter.margin));
       for (final Rect other in placed) {
         expect(plate.overlaps(other), isFalse, reason: c.key);
       }
       placed.add(plate);
-      // Beside: level with what it names, its plate hugging the outline.
-      expect((plate.center.dy - c.target.dy).abs(), lessThan(14));
-      final double gap = held[c.key]!.side == RingSide.left
-          ? outline.map((Offset p) => p.dx).reduce(math.min) - plate.right
-          : plate.left - outline.map((Offset p) => p.dx).reduce(math.max);
-      expect(gap, lessThanOrEqualTo(ringGap + 0.5), reason: c.key);
     }
-  });
-
-  testWidgets('a name with no room beside the shape on one line goes on two '
-      'there, and one with room on neither goes to the row above or below '
-      'it, the nearer first', (WidgetTester tester) async {
-    final ZoomInks inks = await _inks(tester);
-    const Size size = Size(320, 420);
-    final Offset middle = size.center(Offset.zero);
-    // A shape that leaves 78 px beside it, past its gap and the margin:
-    // room for 'secretory' (a 75 px plate), not for 'mitochondrion'.
-    final List<Offset> outline = _round(middle, 64);
-    final List<ZoomCallout> names = _names(outline, <(String, Offset)>[
-      // Two lines of 'secretory' fit beside it; one line does not.
-      ('secretory granules', middle + const Offset(40, 0)),
-      // One word, too wide for the side: above, its target being high.
-      ('mitochondrion', middle + const Offset(-30, -40)),
-      // And below, its target being low, but not so low that the shape
-      // narrows enough to leave it room beside it.
-      ('peroxisomes', middle + const Offset(-30, 25)),
+    // A shape against the top of the canvas: its high names go below it.
+    final List<Offset> high = _round(Offset(middle.dx, 110), 100);
+    final List<ZoomCallout> under = _names(high, <(String, Offset)>[
+      ('Golgi', Offset(middle.dx - 40, 80)),
     ]);
-    final Map<String, RingHold> held = ringHolds(names, _labels, inks, size);
-    final Map<String, RingPlate> plates = ringPlates(
-      names,
-      _labels,
-      inks,
-      size,
+    final RingHold golgi = ringHolds(under, _labels, inks, size)['Golgi']!;
+    expect(golgi.side, RingSide.below);
+    _expectOff(
+      ringPlates(under, _labels, inks, size)['Golgi']!.plate,
+      high,
+      'Golgi',
     );
-    expect(held['secretory granules']!.side, RingSide.right);
-    expect(held['secretory granules']!.wrapped, isTrue);
-    expect(plates['secretory granules']!.wrapped, isTrue);
-    expect(held['mitochondrion']!.side, RingSide.above);
-    expect(held['peroxisomes']!.side, RingSide.below);
-    final double top = outline.map((Offset p) => p.dy).reduce(math.min);
-    final double bottom = outline.map((Offset p) => p.dy).reduce(math.max);
-    expect(plates['mitochondrion']!.plate.bottom, lessThanOrEqualTo(top));
-    expect(plates['peroxisomes']!.plate.top, greaterThanOrEqualTo(bottom));
-    for (final RingPlate r in plates.values) {
-      _expectOff(r.plate, outline, '${r.plate}');
-    }
   });
 
-  testWidgets('names on one side are stacked in the order of what they name, '
-      'so no two lines cross', (WidgetTester tester) async {
+  testWidgets('a corner of a shape that runs on down its middle, as a '
+      'neuron\'s axon does, still has room beside it for a name', (
+    WidgetTester tester,
+  ) async {
     final ZoomInks inks = await _inks(tester);
     const Size size = Size(390, 560);
     final Offset middle = size.center(Offset.zero);
-    final List<Offset> outline = _round(middle, 90);
+    // A body with a thin process down to the canvas's foot.
+    final List<Offset> outline = <Offset>[
+      for (final Offset p in _round(middle, 90))
+        if (p.dy < middle.dy + 80 || (p.dx - middle.dx).abs() > 8) p,
+      Offset(middle.dx + 6, size.height),
+      Offset(middle.dx - 6, size.height),
+    ];
+    final List<ZoomCallout> names = _names(outline, <(String, Offset)>[
+      ('axon', Offset(middle.dx - 2, middle.dy + 150)),
+    ]);
+    final Map<String, RingHold> held = ringHolds(names, _labels, inks, size);
+    expect(held['axon']!.side, RingSide.below);
+    final Rect plate = ringPlates(names, _labels, inks, size)['axon']!.plate;
+    expect(plate.bottom, lessThanOrEqualTo(size.height - 50));
+    expect(plate.left, closeTo(ZoomOverlayPainter.margin, 1e-6));
+  });
+
+  testWidgets('in a band the plates follow what they name across it, so no '
+      'two lines cross', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    const Size size = Size(390, 560);
+    final Offset middle = size.center(Offset.zero);
+    final List<Offset> outline = _round(middle, 120);
     final List<ZoomCallout> names = _names(outline, <(String, Offset)>[
       for (int i = 0; i < 6; i++)
-        ('n$i', middle + Offset(40 + (i % 2) * 10, -50 + i * 6.0)),
+        ('n$i', middle + Offset(-90 + i * 36.0, -30 - (i % 3) * 25.0)),
     ]);
     final Map<String, RingPlate> plates = ringPlates(
       names,
@@ -197,11 +258,7 @@ void main() {
       inks,
       size,
     );
-    for (int i = 1; i < 6; i++) {
-      final Rect above = plates['n${i - 1}']!.plate;
-      final Rect below = plates['n$i']!.plate;
-      expect(below.top, greaterThanOrEqualTo(above.bottom + ringStack - 1e-6));
-    }
+    _expectUncrossed(names, plates);
   });
 
   testWidgets('held, the plates move as the shape is scaled about a point, '

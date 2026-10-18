@@ -71,9 +71,9 @@ final class ZoomFrame {
   }
 }
 
-/// A shape whose names are set round it, outside it, each on the side of it
-/// nearest what it names ([ZoomCallout.ring]): a cell, and the names of its
-/// parts.
+/// A shape whose names are set round it, outside it, each in the corner of
+/// the canvas nearest what it names ([ZoomCallout.ring]): a cell, and the
+/// names of its parts.
 @immutable
 final class ZoomRing {
   const ZoomRing(this.key, this.outline);
@@ -121,10 +121,10 @@ final class ZoomCallout {
   /// plate. Null for a name the painter places on its own.
   final double? row;
 
-  /// The shape the name is set round, outside it ([ringPlates]): beside it
-  /// on the side nearest what it names, hugging its outline, its words on
-  /// two lines where one would not fit there, or else in a row above or
-  /// below it. Null for a name set otherwise.
+  /// The shape the name is set round, outside it ([ringPlates]): in the
+  /// band above or below it nearer what it names, out at the canvas's edge
+  /// on the side of it what it names is on, its words on two lines where
+  /// one would not fit there. Null for a name set otherwise.
   final ZoomRing? ring;
 }
 
