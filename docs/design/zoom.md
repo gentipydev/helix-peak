@@ -79,6 +79,21 @@ convention is, where it comes from, and what it decided:
   standing figure with a shape for each tissue, named by its UBERON id.
   *Consequence:* the body and the organ are those shapes, glowing by the
   Atlas's level.
+- **The pancreas.** Anatomy plates show it from the front with the stomach
+  taken away: its head in the C of the duodenum, the uncinate process
+  hooked behind the superior mesenteric vessels, the neck over them, the
+  body across the spine and the tail at the spleen's hilum; the splenic
+  artery winding along its upper border from the coeliac trunk; the bile
+  duct coming down behind the duodenum's first part and the head to the
+  ampulla on the second part, where the main duct meets it, the accessory
+  duct opening above (Standring 2020). Its surface is lobulated. Its
+  islets, a million or more, are each some 150 µm across, the size islet
+  isolation counts them by (Ricordi et al. 1990), and lie more than twice
+  as densely in the tail as in the head or the body (Wang et al. 2013).
+  Its main duct narrows from about 3 mm in the head to 1 mm in the tail
+  (Sivak and Sullivan 1976). *Consequence:* the pancreas is drawn so, from
+  anatomy rather than from the anatomogram's outline ("The pancreas"
+  below).
 - **Histology.** Haematoxylin stains nuclei and ribosome-rich cytoplasm;
   eosin stains protein; fat, mucus and lumens take neither. A ×40 objective
   under a standard eyepiece shows a field about half a millimetre across.
@@ -223,6 +238,8 @@ Sources:
   chromosomes. Cell 1977;12:817–828.
 - Poonperm R et al. Chromosome scaffold is a double-stranded assembly of
   scaffold proteins. Sci Rep 2015;5:11916.
+- Ricordi C et al. Islet isolation assessment in man and large animals.
+  Acta Diabetol Lat 1990;27:185–195.
 - Schones DE et al. Dynamic regulation of nucleosome positioning in the
   human genome. Cell 2008;132:887–898.
 - Schröck E et al. Multicolor spectral karyotyping of human chromosomes.
@@ -230,8 +247,12 @@ Sources:
 - Shemilt LA et al. Scanning electron microscope studies of human
   metaphase chromosomes. Philos Trans A Math Phys Eng Sci
   2014;372:20130144.
+- Sivak MV, Sullivan BH. Endoscopic retrograde pancreatography. Am J Dig
+  Dis 1976;21:263–269.
 - Speicher MR, Ballard SG, Ward DC. Karyotyping human chromosomes by
   combinatorial multi-fluor FISH. Nat Genet 1996;12:368–375.
+- Standring S (ed.). Gray's Anatomy: The Anatomical Basis of Clinical
+  Practice, 42nd edn. Elsevier, 2020.
 - Sumner AT. Scanning electron microscopy of mammalian chromosomes from
   prophase to telophase. Chromosoma 1991;100:410–418.
 - Thul PJ et al. A subcellular map of the human proteome. Science
@@ -247,6 +268,9 @@ Sources:
 - Walther N et al. A quantitative map of human Condensins provides new
   insights into mitotic chromosome architecture. J Cell Biol
   2018;217:2309–2328.
+- Wang X et al. Regional differences in islet distribution in the human
+  pancreas: preferential beta-cell loss in the head region in patients
+  with type 2 diabetes. PLoS One 2013;8:e67454.
 
 ## Visual language
 
@@ -388,7 +412,9 @@ own edge.
 body drew for it (`OrganArt`), so the step is one shape seen closer. It
 comes up over the body's own drawing of the organ early in the step, and
 `zoom_anatomy_test` holds the two to the same point of the screen while both
-show. On the way in, the body's line art and its unlit organs give way.
+show. On the way in, the body's line art and its unlit organs give way. The
+pancreas alone then draws in to an outline of its own ("The pancreas"
+below).
 
 **Its real size.** The anatomogram is a diagram: it draws a stomach 11 cm
 long and a pancreas 9. Each organ therefore knows how many times its drawn
@@ -399,15 +425,16 @@ shows where in it the tissue is sampled, and gives way to the loupe as it
 opens there.
 
 **In place.** The figure's own parts near the organ are drawn faintly round
-it, fading with their distance from it.
+it, fading with their distance from it. The pancreas has its own neighbours
+instead, and the figure's parts go as they come up.
 
-**Its anatomy.** The twenty's paths reach thirteen organs. Ten kinds have a
-study of their own (`OrganStudy`), and in each the part the zoom's cell
-lives in is in the accent, by the kind of organ and of cell, never by gene:
+**Its anatomy.** The twenty's paths reach thirteen organs. Nine kinds have a
+study of their own (`OrganStudy`), and the pancreas a drawing of its own
+(below); in each the part the zoom's cell lives in is in the accent, by the
+kind of organ and of cell, never by gene:
 
 | Organ (proteins) | Drawn | In the accent |
 |---|---|---|
-| Pancreas (INS, GCG, CFTR) | lobules, the main duct along its length | the islets, more toward the tail (INS, GCG); the duct tree (CFTR) |
 | Salivary gland (AMY1A, LYZ) | lobules, the duct out of its hilum | the acini |
 | Bone marrow (HBB, TNF) | the anatomogram's femur cut along its length: cortex, spongy ends, the shaft's cavity | the red marrow in the spongy ends |
 | Liver (EPO, SOD1) | two lobes either side of the falciform ligament, portal vessels from the hilum | the lobules, as a honeycomb |
@@ -441,6 +468,50 @@ Where the anatomogram has no outline that shows a tissue, the organ is
 drawn from general anatomy: a length of artery, a block of skin, a
 parathyroid gland on the back of the thyroid, the eye cut level with the
 retina lining it.
+
+**The pancreas.** It is drawn as a fresh specimen under the zoom's one lamp,
+with the stomach taken away (`presentation/scenes/pancreas/`, the user's
+choices of 2026-10-18), and in the neutrals but for its vessels and the
+accent:
+
+- *Its shape* is an anatomy plate's (`pancreas_anatomy.dart`, in
+  centimetres on a gland 16 cm long): head, uncinate process, neck, body
+  and tail. It is as wide as the anatomogram's outline grows to and about
+  its middle, and the anatomogram's site stays its site, in the head on
+  either figure.
+- *Its surface.* The outline is inflated into a rounded relief (φ with
+  ∇²φ = −1 inside and 0 outside, the height √(2φ): round in section, the
+  head thicker). Some three hundred lobules of about 4.6 mm lie on it,
+  their true size (the user's choice over an exaggerated 7 mm), gathered
+  into lobes about a centimetre across with deeper clefts between them.
+  Each lobule is a lit dome with a moist sheen, the gland darker toward its
+  silhouette. They are meshes (`ColouredMesh`, which the chromosome's are
+  laid with too), built once for a set of inks, ahead of the stop.
+- *Round it,* dimmer than the gland: the duodenum's C, its first part in
+  front of the head and its cut ends open; the spleen beyond the tail; the
+  coeliac trunk, the splenic artery winding in and out along the upper
+  border, the hepatic arteries; the superior mesenteric vein and artery
+  coming from under the neck, over the uncinate process and the duodenum's
+  third part; the bile duct, seen where it really shows from the front,
+  above the duodenum and in the crease beside the head (the user's choice
+  over a faint course through the head). The vessels are in the blood red,
+  the veins darker. Nothing is named: the card names the organ.
+- *In the accent,* by the zoom's cell: for an endocrine cell its islets, a
+  few hundred drawn at their true size (80 to 240 µm across, never less
+  than a pixel), more of them toward the tail and where the gland is
+  thicker; for a duct cell the gland's front cut away along the main duct,
+  its ducts in the accent over the cut face's septa, the accessory duct to
+  its papilla and the bile duct joining at the ampulla, the cut's wall in
+  shade on the side facing the light and lit on the other; for any other
+  cell its lobules washed in the accent.
+- *On the step from the body* the hand-over is the anatomogram's flat lit
+  outline, drawn as every organ's is. It then draws in to the gland's
+  outline, matched at the top of the tail and the outer edge of the head,
+  and becomes the bed the lobules lie on, while the gland and its
+  neighbours come up over it in one layer and the figure's parts go. Both
+  follow the organ's detail itself (the gland as its 1.25th power), which
+  rises at most 0.074 a frame: a fade over part of it would change faster
+  than the 0.08 a frame the zoom allows.
 
 **The glide.** The camera carries the organ from where it lies in the body
 to the middle of the view over the first three fifths of the step. From the
@@ -884,6 +955,12 @@ frame (0.4 to 0.8 ms).
 - **An organ's anatomy is its kind's.** Islets, red marrow and tubules are
   drawn where general anatomy puts them, by the kind of organ and cell,
   not measured for the gene.
+- **A pancreas from a plate.** Its shape is the same on every figure, only
+  scaled to the outline the figure draws and sampled where the figure
+  says. Its neighbours are those a plate shows with the stomach, the liver
+  and the colon taken away. A million islets are a few hundred, at true
+  size, placed by chance weighted to the tail; the ducts show only for a
+  duct cell, through a cut cleaner than any dissection.
 - **One field a tissue.** Wherever in the organ it is cut, and for every
   gene that goes there with the same kind of cell. "Lymphoid tissue" is a
   lymph node, and skin has no keratin layer of its own.
@@ -930,7 +1007,14 @@ frame (0.4 to 0.8 ms).
   and their light and palette (`chromosome_shading.dart`), and the tube it
   turns into the band's strip as (`chromosome_tube.dart`).
 - `presentation/scenes/organ_art.dart`: every organ's drawing, and
-  `organ_studies.dart`, the ten studies.
+  `organ_studies.dart`, the nine studies.
+- `presentation/scenes/pancreas/`: the pancreas and its neighbours in
+  centimetres (`pancreas_anatomy.dart`), every number its look is tuned by
+  (`pancreas_style.dart`), its form in the organ's scene, with the relief,
+  lobules, islets, tubes and window (`pancreas_form.dart`), the light and
+  palette (`pancreas_shading.dart`) and the meshes and how the step comes
+  up (`pancreas_art.dart`). `presentation/scenes/coloured_mesh.dart`: the
+  coloured meshes it and the chromosome are laid with.
 - `presentation/scenes/tissue/`: the slide (`tissue_slide.dart`), the engine
   (`slide_builder.dart`) and the recipes (`recipes_glands.dart`,
   `recipes_linings.dart`, `recipes_bulk.dart`).
@@ -953,7 +1037,8 @@ frame (0.4 to 0.8 ms).
   moments; `ZOOM_MOMENTS=nucleus+2,nucleus+10,chromosome` draws those
   moments and no others (a stop, or a share of the step that leaves it). `ZOOM_TISSUE_ATLAS=/tmp/atlas` writes every recipe's slide on
   its own and `ZOOM_ORGAN_ATLAS=/tmp/organs` every tissue's organ, the ones
-  no catalog protein reaches included. The picture at the top of this page
+  no catalog protein reaches included, and the pancreas on both figures
+  about each kind of cell that lights a part of it of its own. The picture at the top of this page
   is insulin's nine stops from it.
 - The chromosome's tests: `chromosome_scene_test` (nothing narrower than
   its arms but the centromere and the ends), `chromosome_form_test` (the
@@ -990,6 +1075,18 @@ frame (0.4 to 0.8 ms).
   with its site and its accent inside its outline. `zoom_domain_test` holds
   the figures themselves: 1.70 m tall, every part inside its figure with its
   site inside it, and the generated file to its source, commit and licence.
+- `pancreas_form_test` holds the pancreas's site to the anatomogram's, well
+  inside the head at every stage of the step, the gland to its real size
+  about the same middle, the step's outline to the very curve the body drew
+  at its start, the lobules tiling the gland (none in two, few in none, the
+  edge knobbly by at most half a lobule), the mesenteric vessels over the
+  uncinate process from under the neck, the duodenum round the head with
+  both ducts meeting at its wall, the islets denser in the tail third by
+  at least half again, the window holding the site and the main duct, and
+  the same gland every time. `pancreas_art_test` holds the hand-over to the
+  body's own outline with no layer, mesh or islet drawn, the accent to
+  where the cell lives and never round the gland, the meshes the same every
+  time, and the steps to it and back to 0.08 a frame and 1.5 px.
 - `zoom_routes_test` holds the route outside the lab, the redirects, and the
   whole trip from the walk and back under the app's own routes.
   `zoom_entry_test`, among the walk's tests, holds where the gene page

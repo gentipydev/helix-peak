@@ -272,7 +272,10 @@ seen:
   `tool/zoom/anatomogram.py` generates `anatomy_figures.g.dart` from it,
   and the body carries its credit, with the Atlas's, in one caption line;
 - the organ as the same outline, grown to its real size and sculpted, the
-  figure's parts faint round it, and inside it the gene's place;
+  figure's parts faint round it, and inside it the gene's place; the
+  pancreas alone is drawn from anatomy (`presentation/scenes/pancreas/`), a
+  lit specimen of lobules among its duodenum, spleen and vessels, which its
+  scene draws in to from the body's outline;
 - the tissue as a section under an eyepiece (`TissueSlide`: one engine, a
   recipe a tissue architecture, the zoom's cell laid where it lives);
 - the cell, the protein glowing where the Atlas finds it, and the nucleus
