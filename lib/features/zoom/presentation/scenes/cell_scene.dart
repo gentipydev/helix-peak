@@ -22,7 +22,7 @@ import 'zoom_subject.dart';
 
 /// The cell the zoom lands in, sculpted in the app's neutrals: its body lit
 /// from the upper left with a rim, its nucleus a lit sphere ringed in the
-/// mark, the gene being in it, its nucleolus named in the quiet ink. A kind
+/// mark, the gene being in it, its nucleolus a dark body in it. A kind
 /// of cell with a recipe ([recipeOf]) is drawn with its own parts, and the
 /// ones that tell it apart are named round it (the user's choice of
 /// 2026-10-16): a beta cell its secretory granules, Golgi, rough ER and
@@ -72,9 +72,10 @@ final class CellScene extends ZoomScene {
 
   // The cell is named by the card, and so is a red cell's want of a
   // nucleus: what is named here is where the protein is, where the Atlas
-  // finds it, and the nucleolus, in the quiet ink. Where the protein is in
-  // the nucleolus, its own name says so. The names are set round the cell,
-  // outside it, so they hide none of it.
+  // finds it, and the parts that tell the cell apart, in the quiet ink. The
+  // nucleolus is named nowhere (the user's choice of 2026-10-18); where the
+  // protein is in it, its own name says so. The names are set round the
+  // cell, outside it, so they hide none of it.
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
     out.item('cell:target', frame.toScreen(Offset.zero), frame.opacity);
@@ -116,17 +117,6 @@ final class CellScene extends ZoomScene {
         }
       }
     }
-    if (main.any((String w) => compartmentOf[w] == Compartment.nucleoli)) {
-      return;
-    }
-    out.callout(
-      'cell:nucleolus',
-      'nucleolus',
-      frame.toScreen(_cell.nucleolus.centre),
-      calloutPresence(frame),
-      quiet: true,
-      ring: ring,
-    );
   }
 
   /// The nucleolus, as the nucleus's scene draws it too.

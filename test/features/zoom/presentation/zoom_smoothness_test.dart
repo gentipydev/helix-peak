@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/core/theme/app_typography.dart';
+import 'package:helixpeek/features/zoom/domain/cell_parts.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_motion.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/band_scene.dart';
@@ -775,20 +776,25 @@ void main() {
             named ? isNotEmpty : isEmpty,
             reason: '${t.slug} at ${stop.name}',
           );
-          // A landmark is named where it is seen: the nucleolus, at the
-          // cell, unless the protein's own name says it is there; and the
-          // gene's parts at the gene.
-          if (!(stop == ZoomStop.cell && inNucleoli(t))) {
-            expect(
-              staging.callouts.where(
-                (ZoomCallout c) => c.opacity > 0.5 && c.quiet,
-              ),
-              stop == ZoomStop.cell || stop == ZoomStop.gene
-                  ? isNotEmpty
-                  : isEmpty,
-              reason: '${t.slug} at ${stop.name}',
-            );
-          }
+          // A landmark is named where it is seen: a cell drawn part by
+          // part names the parts that tell it apart, and the gene its own;
+          // the nucleolus is named nowhere (the user's choice of
+          // 2026-10-18).
+          final bool landmarks = switch (stop) {
+            ZoomStop.cell => partsToName(
+              recipeOf(stage.depth.archetype.shape),
+              locusOf(t).subcellular.main,
+            ).isNotEmpty,
+            ZoomStop.gene => true,
+            _ => false,
+          };
+          expect(
+            staging.callouts.where(
+              (ZoomCallout c) => c.opacity > 0.5 && c.quiet,
+            ),
+            landmarks ? isNotEmpty : isEmpty,
+            reason: '${t.slug} at ${stop.name}',
+          );
         }
       }
     }

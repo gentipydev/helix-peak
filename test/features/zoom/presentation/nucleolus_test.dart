@@ -63,24 +63,6 @@ ZoomFrame? _frameOf(
   return null;
 }
 
-/// [contour] on screen, as [frame] draws it.
-Path _onScreen(Contour contour, ZoomFrame frame) =>
-    Contour(<Offset>[for (final Offset p in contour.points) frame.toScreen(p)])
-        .toPath();
-
-/// A canvas that keeps the lines drawn on it.
-class _Lines implements Canvas {
-  final List<(Offset, Offset, Color)> lines = <(Offset, Offset, Color)>[];
-
-  @override
-  void drawLine(Offset p1, Offset p2, Paint paint) =>
-      lines.add((p1, p2, paint.color));
-
-  // Everything else it draws is not a line.
-  @override
-  dynamic noSuchMethod(Invocation invocation) => null;
-}
-
 /// A canvas that counts the round shapes drawn on it.
 class _Rounds implements Canvas {
   int rounds = 0;
@@ -124,8 +106,8 @@ Future<Uint8List> _pixels(
 }
 
 void main() {
-  testWidgets('the nucleolus is named at the cell, and nowhere else, for every '
-      'curated protein; the nucleus names nothing', (WidgetTester tester) async {
+  testWidgets('the nucleolus is named nowhere, for every curated protein; the '
+      'nucleus names nothing', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
     for (final Size size in _canvases) {
       for (final ProteinTarget t in TestCatalog.all) {
@@ -141,14 +123,9 @@ void main() {
           if (stop == ZoomStop.nucleus) {
             expect(callouts, isEmpty, reason: '${t.slug} at the nucleus');
           }
-          // Where the Atlas finds the protein in the nucleolus, its own name
-          // says so, and the nucleolus is not named again.
-          final bool seen = stop == ZoomStop.cell && !inNucleoli(t);
-          expect(
-            named,
-            hasLength(seen ? 1 : 0),
-            reason: '${t.slug} at ${stop.name}',
-          );
+          // Not even at the cell (the user's choice of 2026-10-18); where the
+          // Atlas finds the protein in it, the protein's own name says so.
+          expect(named, isEmpty, reason: '${t.slug} at ${stop.name}');
           if (stop == ZoomStop.cell && inNucleoli(t)) {
             expect(
               <ZoomCallout>[
@@ -159,64 +136,15 @@ void main() {
               reason: '${t.slug}: its own name says the nucleolus',
             );
           }
-          if (seen) {
-            expect(named.single.quiet, isTrue, reason: t.slug);
-            expect(named.single.opacity, closeTo(1, 1e-9), reason: t.slug);
-          }
         }
       }
     }
   });
 
-  testWidgets('its name at the cell lands on it and is set off the cell, '
-      'hiding none of it, at two widths', (WidgetTester tester) async {
-    final ZoomInks inks = await _inks(tester);
-    final TextStyle labels = AppTheme.analysis.textTheme.labelSmall!;
-    for (final Size size in _canvases) {
-      for (final ProteinTarget t in TestCatalog.all) {
-        final ZoomStage stage = _stage(t);
-        final CellScene cell = stage.scenes[ZoomStop.cell.index] as CellScene;
-        final double d = stage.depth.depthOf(ZoomStop.cell);
-        final ZoomFrame frame = _frameOf(stage, cell, d, size, inks)!;
-        final ZoomCallout? named = stage
-            .stage(d, size, inks)
-            .callouts
-            .where((ZoomCallout c) => c.text == 'nucleolus')
-            .firstOrNull;
-        if (named == null) {
-          continue;
-        }
-        final String where = '${t.slug}, ${size.width}';
-        expect(
-          _onScreen(cell.nucleolus.outline, frame).contains(named.target),
-          isTrue,
-          reason: where,
-        );
-        final Rect plate = stage
-            .ringsAt(d, size, inks, labels)[named.key]!
-            .plate;
-        final Contour body = Contour(<Offset>[
-          for (final Offset p in cell.outline) frame.toScreen(p),
-        ]);
-        final Path round = body.toPath();
-        for (final Offset corner in <Offset>[
-          plate.topLeft,
-          plate.topRight,
-          plate.bottomLeft,
-          plate.bottomRight,
-          plate.center,
-        ]) {
-          expect(round.contains(corner), isFalse, reason: where);
-        }
-        for (final Offset p in body.points) {
-          expect(plate.contains(p), isFalse, reason: where);
-        }
-      }
-    }
-  });
-
-  testWidgets('its name keeps its place by it as the view moves, from the '
-      'tissue to the chromosome, at two widths', (WidgetTester tester) async {
+  testWidgets('every name keeps its place by what it names as the view moves, '
+      'from the tissue to the chromosome, at two widths', (
+    WidgetTester tester,
+  ) async {
     final ZoomInks inks = await _inks(tester);
     final TextStyle labels = AppTheme.analysis.textTheme.labelSmall!;
     for (final Size size in _canvases) {
@@ -294,43 +222,6 @@ void main() {
         expect(worst, lessThan(0.5), reason: '${t.slug} at $i/40');
       }
       expect(both, greaterThan(5), reason: t.slug);
-    }
-  });
-
-  testWidgets('its line is in the quiet ink: the mark is the gene\'s', (
-    WidgetTester tester,
-  ) async {
-    final ZoomInks inks = await _inks(tester);
-    const Size size = Size(390, 560);
-    const TextStyle labels = TextStyle(fontSize: 12);
-    for (final ProteinTarget t in TestCatalog.all.where(
-      (ProteinTarget t) => !inNucleoli(t),
-    )) {
-      final ZoomStage stage = _stage(t);
-      for (final ZoomStop stop in <ZoomStop>[ZoomStop.cell]) {
-        final double d = stage.depth.depthOf(stop);
-        final ZoomCallout named = stage
-            .stage(d, size, inks)
-            .callouts
-            .singleWhere((ZoomCallout c) => c.text == 'nucleolus');
-        final _Lines canvas = _Lines();
-        ZoomOverlayPainter(
-          stage: stage,
-          at: () => d,
-          inks: inks,
-          labels: labels,
-          caption: labels,
-          credit: '',
-        ).paint(canvas, size);
-        final Color line = canvas.lines
-            .singleWhere(((Offset, Offset, Color) l) => l.$2 == named.target)
-            .$3;
-        expect(
-          line.toARGB32(),
-          inks.label.toARGB32(),
-          reason: '${t.slug} at ${stop.name}',
-        );
-      }
     }
   });
 

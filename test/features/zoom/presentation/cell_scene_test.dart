@@ -226,7 +226,6 @@ void main() {
           locusOf(t).subcellular.main,
         ))
           part.word,
-        'nucleolus',
       ], reason: t.slug);
     }
     final List<String> glucagon = <String>[
