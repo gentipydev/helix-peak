@@ -456,3 +456,274 @@ What the catalog actually needs, at 360×676, 360×480 and 820×960:
 No region of any catalog gene goes unnamed at any of the three viewports without
 another piece of it carrying the name. The smallest any name is set is 8.0pt —
 EPO's signal peptide, thirteen cells of it, on a 360-point phone.
+
+## The third ten, 2026-10-17
+
+Ten more curated proteins, each landing in a cell type none of the twenty
+reach (the zoom's path, Protein Atlas 25.1). Each was drafted from its gene by
+the backend's `scripts/draft_curated.py`: the resolver's own reading of its
+index row, UniProt and MANE (source, regions, disulfides), and its fold chosen
+by policy 1, baked and passed by the app's own check of a fold
+(`test/fold_bundle_check.dart`). The model is cut from the working copy that
+bake was made from (`structure/structures/working/<slug>.pdb`), in the record's
+numbering. Then each gene was checked against its record, as the second ten
+were, with the same seven checks.
+
+Checked 2026-10-17, live: NCBI `efetch`, UniProt release 2026_03, RCSB and
+PDBe. As for the twenty, `targets.py` names a RefSeqGene without its version,
+so a later revision is caught by the bake's gates; a chromosome slice keeps its
+version and coordinates.
+
+### Summary
+
+| gene | record | record bp | gene span (× INS record) | exons | neighbours in the record | processing in the record | walk |
+|---|---|---:|---:|---:|---|---|---|
+| PLN | NG_009082.1 | 19,146 | 12,146 (1.4×) | 2 | CEP85L, around it | none | uncut |
+| S100B | NC_000021.9 slice | 6,479 | 6,479 (0.8×) | 3 | none | none | uncut |
+| CGB3 | NC_000019.10 slice | 1,465 | 1,465 (0.2×) | 3 | none | signal, 1 chain | cut |
+| PPBP | NC_000004.12 slice | 1,752 | 1,752 (0.2×) | 3 | none | signal, proprotein, 4 nested products | stops at the precursor |
+| PAPPA | NC_000009.12 slice | 248,531 | **248,531 (29.5×)** | 22 | PAPPA-AS1, PAPPA-AS2 | signal, 1 chain | shortened; cut |
+| CSTB | NG_011545.1 | 9,429 | 2,711 (0.3×) | 3 | none | none | uncut |
+| TYRP1 | NG_011705.1 | 23,881 | 16,901 (2.0×) | 8 | LURAP1L-AS1 | signal, 1 chain | cut |
+| RCVRN | NC_000017.11 slice | 8,952 | 8,952 (1.1×) | 3 | none | none | uncut |
+| TG | NG_015832.2 | 274,942 | **267,942 (31.8×)** | 48 | RPL21P78, SLA, MIR7848, PTCSC1 | signal, 1 chain | shortened; cut |
+| UMOD | NG_008151.1 | 26,665 | 19,665 (2.3×) | 11 | none | signal, proprotein, 2 nested chains | stops at the precursor |
+
+Across all ten:
+
+- **The record's protein equals UniProt's**, residue for residue, so no row
+  declares `uniprot_variants`.
+- **Every intron is a class R2.3 accepts**: the record of each re-proves its
+  splice sites as it is built (`check_assets.py`).
+- **Exact `/gene` matching held on every record.** Nothing of a neighbour's
+  came back, the genes lying inside the gene's own introns included (PLN inside
+  CEP85L, four genes inside TG).
+- **The slices are MANE's span**, the resolver's rule, not NCBI Gene's
+  coordinates and 500 bases either side, which the twenty's four slices are. A
+  record is clipped to its transcript either way (R1.4).
+- **Two RefSeqGenes hold an older version of the MANE transcript**, with the
+  same CDS: PLN's NM_002667.3 (MANE NM_002667.5) and CSTB's NM_000100.3
+  (NM_000100.4). The pages draw the RefSeqGene's, as for AVP, CFTR and SOD1.
+- **Two of the ten planned did not pass their bakes.** PLN's ESM-2 track fails
+  the alignment gate, and PLN is drawn unscored; PF4's AVI track fails the
+  biology check, and PPBP took its place. Both are the user's choices of
+  2026-10-17 (Flags).
+
+### Per gene
+
+#### PLN · phospholamban
+
+- **Record.** NG_009082.1. UniProt P26678. One CDS, NP_002658.1.
+- **Neighbours.** CEP85L spans the whole record on the other strand: PLN lies
+  in one of its introns. Excluded by exact match.
+- **Processing.** None. UniProt's one chain is 1–52, with a cytoplasmic part
+  (1–31) and one helix through the membrane (32–52).
+- **Assembly.** A homopentamer; it also binds the calcium pump ATP2A2 as a
+  monomer. The fold page draws one chain of the NMR pentamer, and says so.
+
+#### S100B
+
+- **Record.** No RefSeqGene, so a slice: NC_000021.9:46,598,604–46,605,082,
+  minus strand, no `exon` features (exons named from the mRNA's three
+  segments). NM_006272.3 is MANE Select. UniProt P04271.
+- **Processing.** None in the record. UniProt removes the initiator
+  methionine and names the chain 2–92: hemoglobin's and myoglobin's case,
+  uncut, with the methionine its own region.
+- **Assembly.** A dimer. Its entry, 5D7F, holds the calcium-bound pair with a
+  peptide of RAGE; one chain is drawn.
+
+#### CGB3 · hCG beta subunit
+
+- **Record.** A slice: NC_000019.10:49,022,869–49,024,333, minus strand, 1,465
+  bases, nothing else in it. NM_000737.5 is MANE Select. UniProt P0DN86.
+- **One protein from three genes.** UniProt's entry names CGB3, CGB5 and CGB8:
+  identical copies in the beta-subunit cluster on 19q13.33. The record is
+  unambiguous and the page shows the CGB3 locus: amylase's case.
+- **Processing.** Signal peptide 1–20; the beta chain 21–165. Its `/product`
+  carries UniProt's `/id=` qualifier, which `tidy` already cuts.
+- **Assembly.** hCG is a heterodimer of this chain and the alpha chain it
+  shares with LH, FSH and TSH (CGA). Only this gene's chain is drawn (R5.1).
+
+#### PPBP · pro-platelet basic protein (CXCL7)
+
+- **In place of PF4.** Platelet factor 4 (NG_032897.1, P02776) was verified
+  and baked first. Its AVI track fails the bake's biology check: its exons'
+  median score equals its intron interiors' (7.4 and 7.4), though every one of
+  its 1,217 reference bases agrees, so its map is right. Without AVI there is
+  no ClinVar either. PPBP, the next gene of the chemokine cluster and the
+  handoff's alternate, lands in the same platelets and passes.
+- **Record.** No RefSeqGene, so a slice: NC_000004.12:73,986,439–73,988,190,
+  minus strand, no `exon` features. NM_002704.3 is MANE Select. UniProt
+  P02775.
+- **Processing.** Signal peptide 1–34; the proprotein 35–128 ("pro-platelet
+  basic protein"); and four products, one inside another: LA-PF4/CTAP-III and
+  thrombocidin-2 (44–128), beta-thromboglobulin (48–128), thrombocidin-1
+  (59–126). UniProt names eleven such forms, NAP-2 among them.
+- **Consequence.** Alternatives, cut by different proteases:
+  `mature_peptides=False` and the walk stops at the precursor, named by the
+  record's own proprotein.
+- **Structure.** 1F9P is CTAP-III (44–128), one chain, solved with
+  polyvinylsulfonic acid.
+
+#### PAPPA · pappalysin-1
+
+- **Record.** A slice: NC_000009.12:116,153,791–116,402,321, 248,531 bases.
+  NM_002581.5 is MANE Select. UniProt Q13219, 1,627 residues.
+- **Span.** **29.5× insulin's record, over the threshold.** The exons total
+  10,971 bases, inside the page: dystrophin's treatment, introns shortened.
+- **Neighbours.** PAPPA-AS1 and PAPPA-AS2, antisense inside the gene. Excluded
+  by exact match.
+- **Processing.** Signal peptide 1–22; pappalysin-1, 82–1627. UniProt's
+  propeptide between them, 23–81, is not in the record.
+- **Consequence.** The gene and mature pages draw 23–81 as the N-terminal
+  extension (R3.6), as the prion protein's GPI-anchor signal is drawn as the
+  C-terminal one; the table names it "Propeptide" for the residue panel. What
+  the signal peptide leaves is named "pro-PAPP-A" in the table (R3.3).
+- **Assembly.** A disulfide-linked homodimer, and in pregnancy serum a 2:2
+  complex with proMBP, which is the entry drawn (8HGG).
+
+#### CSTB · cystatin B
+
+- **Record.** NG_011545.1. Its transcript is NM_000100.3; MANE Select is
+  NM_000100.4, with the same CDS. UniProt P04080.
+- **Processing.** None: UniProt's chain is 1–98, the methionine kept.
+- **Assembly.** Monomeric, able to dimerise. Its entry, 4N6V, holds ten chains;
+  the one drawn is the compact cystatin fold, its helix packed on its own sheet
+  (measured: radius of gyration 12.4 Å over 91 CA atoms), not a domain-swapped
+  one.
+
+#### TYRP1
+
+- **Record.** NG_011705.1. NM_000550.3 is MANE Select. UniProt P17643.
+- **Neighbours.** LURAP1L-AS1, antisense over the gene's 3′ part. Excluded by
+  exact match.
+- **Processing.** Signal peptide 1–24; the chain 25–537, which crosses the
+  melanosome's membrane at 478–501.
+- **Structure.** 9EY8 holds the part inside the melanosome, 25–471: the
+  membrane helix and the tail were not in the crystal.
+
+#### RCVRN · recoverin
+
+- **Record.** A slice: NC_000017.11:9,896,320–9,905,271, minus strand.
+  NM_002903.3 is MANE Select. UniProt P35243.
+- **Processing.** None in the record; UniProt removes the methionine and
+  myristoylates Gly2. Uncut, as S100B.
+- **Structure.** 2D8N is a selenomethionine crystal: its four MSE residues are
+  drawn as the methionines the gene makes. No calcium and no myristoyl group
+  are in the entry.
+
+#### TG · thyroglobulin
+
+- **Record.** NG_015832.2. NM_003235.5 is MANE Select. UniProt P01266, 2,768
+  residues.
+- **Span.** **31.8×, over the threshold.** The exons total 8,455 bases:
+  introns shortened.
+- **Neighbours.** RPL21P78, SLA (with MIR7848 inside it) and PTCSC1, all inside
+  TG's introns. Excluded by exact match.
+- **Processing.** Signal peptide 1–19; thyroglobulin 20–2768.
+- **Assembly.** A homodimer, stored in the follicle as disulfide-linked
+  oligomers; 7B75 is the dimer, one chain drawn.
+
+#### UMOD · uromodulin
+
+- **Record.** NG_008151.1. NM_003361.4 is MANE Select. UniProt P07911.
+- **Processing.** Signal peptide 1–24; the proprotein 25–640 ("uromodulin
+  isoform a proprotein"); and two chains, uromodulin 25–614 and its secreted
+  form 25–587, one inside the other. UniProt: GPI-anchored at Ser614 (615–640
+  removed), and cut by hepsin at 587–588 to release the secreted form.
+- **Consequence.** Alternatives, as glucagon's and APP's: `mature_peptides=False`
+  and the walk stops at the precursor. The table names 615–640 the GPI-anchor
+  signal, as the prion protein's.
+- **Assembly.** Polymerises into filaments in urine. The fold page draws the
+  ZP domain from those filaments.
+
+### Structures
+
+| protein | entry · chain | method | residues drawn | deviations from UniProt | why this one |
+|---|---|---|---|---|---|
+| PLN | 1ZLL · A | NMR, model 9 | 1–52 | none | the region drawn is measured residue by residue; 2HYN's is not |
+| S100B | 5D7F · A | X-ray 1.3 Å | 2–91 | none | finer than 3CZT (1.4 Å) |
+| CGB3 | 7FIG · Y | cryo-EM 3.9 Å | 22–131, 6 bridges | none | measured residue by residue; 1HCN is not |
+| PPBP | 1F9P · A | X-ray 1.93 Å | 44–124 (CTAP-III), 2 bridges | none | policy 1's first |
+| PAPPA | 8HGG · C | cryo-EM 3.64 Å | 93–1616, 36 bridges | none | 96% of it placed against 72%; chain D, its twin, narrowly fails the app's check |
+| CSTB | 4N6V · 2 | X-ray 1.8 Å | 8–98 | none | the only one eligible; 1STF and 2OCT carry substitutions |
+| TYRP1 | 9EY8 · AA | X-ray 2.2 Å | 25–471, 7 bridges | none | finer than 9EY6 (2.23 Å) |
+| RCVRN | 2D8N · A | X-ray 2.2 Å | 2–197 | none; four selenomethionines drawn as Met | the only one eligible |
+| TG | 7B75 · A | cryo-EM 3.2 Å | 30–2727, 57 bridges | none | finer than 6SCJ (3.6 Å) |
+| UMOD | 9NU1 · A | cryo-EM 3.6 Å | 329–580 (the ZP domain), 4 bridges | none | 6TQL, ranked first (292–584), fails the app's check of its fold (a step of 1.16 where 1.1 is allowed); the user's choice |
+
+### Flags
+
+1. **PAPPA and TG are over the span threshold.** Their exons fit the page, so
+   they take dystrophin's treatment, introns shortened, as APP and CFTR do.
+2. **PPBP and UMOD stop at the precursor**, by R3.4: their records name
+   products one inside another. PF4's would have too: its record names a short
+   form inside its chain, a fragment of the finished chain rather than an
+   alternative, which a rule dropping such fragments would have let through to
+   a mature page; R3.4's generic rule is still open.
+3. **PAPPA's N-terminal propeptide is drawn as an extension** (R3.6). Naming a
+   propeptide between the leader and the chain on the walk, as R3.5 names a
+   connecting one, is open, beside the C-terminal propeptides of §8.
+4. **UMOD's entry is not the one first planned.** The handoff's 6TQL came from
+   a dry run that chose without baking; baked, its fold fails the app's own
+   check, and policy 1's next entry, 9NU1, passes.
+5. **CGB3 is one protein from three genes**, the case AMY1A brought in.
+6. **The zoom.** Six of the ten land in organs with no study: the heart (PLN),
+   the placenta (CGB3, PAPPA), the esophagus (CSTB), the thyroid (TG) and the
+   kidney (UMOD), each drawn as the body's own outline with its plain surface.
+   PPBP's platelets have no nucleus, so the zoom lands in the megakaryocyte;
+   recoverin's rod is drawn as a neuron, part by part.
+7. **PLN is drawn unscored.** ESM-2 prefers the residue there over its
+   neighbour 40.0% of the time (before) and 46.7% (after) across its 52
+   residues, under the half the alignment gate asks: the short-protein case SLN
+   met on demand. Its protein page has no conservation toolbar, a state the walk
+   already draws; the gate is unchanged (the user's choice, 2026-10-17).
+8. **PF4 gave way to PPBP** (above): AVI's biology check is a smoke alarm for a
+   misplaced map, and is kept as it is.
+
+### After integration
+
+Baked 2026-10-17 by `pipeline/bake_curated.py`: every step for every row, in
+its own environment, then `check_assets.py`, `check_folding.py` and
+`check_locus.py` over all thirty rows. Each model is the `.glb` the draft's bake
+made from the same working copy, and passed the app's check of its fold again
+(`structure/check_bundle.py`). ESM-2 took 35 minutes for TG and 20 for PAPPA;
+nine of the ten are scored.
+
+| protein | pages | protein page | mature page |
+|---|---|---|---|
+| phospholamban | gene, mRNA, protein, fold | one block, 52 | — |
+| S100B | gene, mRNA, protein, fold | one block, 92 | — |
+| hCG beta | gene, mRNA, protein, mature, fold | signal peptide 1–20 · Choriogonadotropin subunit beta 3 21–165 | Choriogonadotropin subunit beta 3 (145) |
+| PPBP | gene, mRNA, protein, fold | signal peptide 1–34 · pro-platelet basic protein 35–128 | — |
+| PAPP-A | gene (shortened), mRNA, protein, mature, fold | signal peptide 1–22 · pro-PAPP-A 23–1,627 | Pappalysin-1 (1,546) |
+| cystatin B | gene, mRNA, protein, fold | one block, 98 | — |
+| TYRP1 | gene, mRNA, protein, mature, fold | signal peptide 1–24 · 5,6-dihydroxyindole-2-carboxylic acid oxidase 25–537 | the same chain (513) |
+| recoverin | gene, mRNA, protein, fold | one block, 200 | — |
+| thyroglobulin | gene (shortened), mRNA, protein, mature, fold | signal peptide 1–19 · thyroglobulin 20–2,768 | thyroglobulin (2,749) |
+| uromodulin | gene, mRNA, protein, fold | signal peptide 1–24 · uromodulin isoform a proprotein 25–640 | — |
+
+The two shortened genes' pages read "22 exons · 21 introns · introns 95.6% of
+span, drawn shortened" (PAPP-A, 1:18) and "48 exons · 47 introns · introns
+96.8% of span, drawn shortened" (thyroglobulin, 1:17).
+
+Checked, and how:
+
+- **Live.** Seeded, then every track uploaded (the seed first: a track row
+  names its protein's). `seed_catalog.py --check`: 30 rows, 0 differences;
+  `check_assets.py --against` the service: 30 rows agree with both tables,
+  every record byte for byte, every scene by its digest; `/catalog` 30 rows in
+  order; `live_backend_check.dart` reads every track of every row through the
+  production client.
+- **The app.** The ten's fixtures, written from the bakes before anything was
+  live and compared with storage's after (`pipeline/sync_fixtures.py`, 70
+  files the same); `flutter analyze` clean; `flutter test` 1,748 passed, the
+  walk's tests running on all thirty.
+- **What the tests met that the twenty never had.** An unscored curated
+  protein (phospholamban): five walk tests read a constraint track only where a
+  protein is scored (R6). A mature chain of over a thousand residues, whose
+  caption groups its count (R4.4): the caption test reads "(1,546)". A protein
+  the Atlas finds in the nucleoli (cystatin B): the zoom names the nucleolus by
+  the protein's own name, and its tests now say so. Organs reached for the
+  first time, the skin (TYRP1) and the eye (recoverin): their drawings had no
+  outline, and now have the one they draw. Each was the user's call.

@@ -82,6 +82,8 @@ dystrophin's 78 introns sit at the 60-base floor, so no single ratio is true.
 A gene whose exons alone exceed the budget (titin) has no honest gene page, and
 the bake refuses it. APP (290,221 bases, 18 exons) and CFTR (188,703, 27 exons)
 take dystrophin's treatment: introns at 1:14 and 1:10, "Introns are 98.8%" and
+"96.8% of the gene". So, since 2026-10-17, do PAPPA (248,531 bases, 22 exons)
+and TG (267,942, 48 exons): introns at 1:18 and 1:17, "Introns are 95.6%" and
 "96.8% of the gene". *Status: enforced.*
 
 **R2.5 A drawn base has to be findable on the chromosome.** The per-base
@@ -332,7 +334,10 @@ residue by residue as well: `SEQADV` can be wrong itself, and 1TNF files its one
 deviation against residue 45 when it sits at 143 (UniProt's Asp219).
 AlphaFold is rejected for insulin because it predicts the 110-residue precursor
 at a mean pLDDT of 52.9; if used at all, use it only over the mature span and
-gate on pLDDT. The twenty keep the entries chosen for them by hand.
+gate on pLDDT. The twenty keep the entries chosen for them by hand. A curated
+protein added since takes the entry policy 1 chooses (below), passed by the
+app's own check of its fold, and is cut from the working copy of it that check
+passed (`scripts/draft_curated.py`, the backend's `structure/README.md`).
 
 **An experimental entry, chosen by rule, is the source for a protein built on
 demand**, which has nobody to choose one for it, and it folds on its page as
@@ -564,6 +569,21 @@ Cases the second ten brought in, and what the walk does with each:
 - **A signal peptide and no chain** (erythropoietin): filled (R3.9).
 - **A monobasic cut** (vasopressin): named as its residue, captioned without
   "dibasic" (R3.5).
+
+Cases the third ten brought in (2026-10-17, protein-verification.md), and what
+the walk does with each:
+
+- **Nested products** (PPBP's CTAP-III, beta-thromboglobulin and
+  thrombocidins; uromodulin's secreted form inside its anchored one):
+  alternatives, so the walk stops at the precursor (R3.4). PF4, drafted first,
+  names a fragment cut back out of its finished chain, which the same rule
+  stops at the precursor; dropping such a fragment by rule is open.
+- **A propeptide between the leader and the chain that the record leaves out**
+  (PAPPA's 23–81): drawn as the N-terminal extension (R3.6); the table names it
+  for the residue panel.
+- **A fold whose entry fails the app's own check** (uromodulin's 6TQL): the
+  next entry policy 1 ranks (9NU1), as on demand.
+- **One protein from several genes** again (CGB3, CGB5, CGB8): the locus named.
 
 Cases none of the twenty exercise, which a search will meet: non-human proteins;
 one protein from two genes that differ (HBA1 and HBA2); selenocysteine (an

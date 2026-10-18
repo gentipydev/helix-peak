@@ -507,10 +507,12 @@ demand that neither the PDB nor AlphaFold DB has a model of says so there.
 - ClinVar (§9): clinical words appear only inside `ClinVarSourced`, hue belongs
   to ClinVar alone, and absence is never called benign.
 
-## The compressed-intron genes: DMD, APP, CFTR
+## The compressed-intron genes: DMD, APP, CFTR, PAPPA, TG
 
-These three genes exceed the gene page's 24,000-base budget, so their introns
-arrive shortened and their exons whole (R2.4). `GeneRecord.isIntronCompressed`
+These five genes exceed the gene page's 24,000-base budget, so their introns
+arrive shortened and their exons whole (R2.4). PAPPA and TG joined the list
+with the third ten (2026-10-17); a curated protein added later may join it too,
+by its record and not by a list: `GeneRecord.isIntronCompressed` says which. `GeneRecord.isIntronCompressed`
 is true, and `realSpanBp` and `realIntronBp` hold the real lengths. A shortened
 intron keeps its own first and last bases and drops its middle. The transcript
 and protein pages show the real molecule.
@@ -558,7 +560,7 @@ It runs `flutter test` in the one environment the goldens are made and checked
 in: `tool/goldens/Dockerfile`, Ubuntu 24.04 pinned by digest, Flutter 3.47.5,
 x86-64. The zero-diff proof is `tool/goldens/goldens.sh test/goldens`; the
 whole suite, as CI runs it, is `tool/goldens/goldens.sh`. A native
-`flutter test` skips the 32 golden tests with that reason, because text is
+`flutter test` skips every golden test with that reason, because text is
 rasterised by the host and a native Windows run differs at every glyph edge.
 A failed golden leaves its diff in `test/goldens/failures/`. Regenerating is
 session 99's job alone: `docs/goldens.md` has the environment, the commands

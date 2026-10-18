@@ -7,7 +7,7 @@ The render baseline: 120 PNGs under `test/goldens/`, compared pixel for pixel
 |---|---|---|
 | `walk_surfaces_test.dart` | `surfaces/` (10) | The surfaces no assertion pins, in insulin with every track: the gene page, a region opened into its DNA, the mRNA page, a base sheet, the protein page with its conservation toolbar, in conservation colours, and unscored with no toolbar, a residue sheet, the ClinVar overview, the fold page. |
 | `screen_render_test.dart` | `screens/` (18) | What `test/screen_render_check.dart` used to write and not compare: the home screen and the insulin walk through `GeneScreen`, including the frames caught mid-transition (splicing, the groove, translation, cleavage), the selected runs and the tracer. |
-| `catalog_pages_test.dart` | `catalog/` (92) | Every page of every catalog protein, as `catalog_walk_test.dart` writes them to `SHOT_DIR`. The walk test itself is unchanged; this is its forward pass, compared. |
+| `catalog_pages_test.dart` | `catalog/` (92) | Every page of every catalog protein, as `catalog_walk_test.dart` writes them to `SHOT_DIR`. The walk test itself is unchanged; this is its forward pass, compared. The third ten's 44 pages, in the fixtures since 2026-10-18, are owed to the x86 host; the counts here change with that commit. |
 
 The fold page is drawn headless, where there is no Flutter GPU, so its
 goldens pin the page around the model and the sentence that says it cannot be
