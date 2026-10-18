@@ -29,8 +29,8 @@ abstract final class BrainStyle {
   static const double sulcusWidth = 4.2;
   static const double minorDepth = 1.9;
   static const double minorWidth = 3.0;
-  static const double sulcusShade = 0.62;
-  static const double shadePower = 2.4;
+  static const double sulcusShade = 0.42;
+  static const double shadePower = 1.4;
   static const double sulcusTaper = 4;
 
   /// How a sulcus wanders from the line drawn for it: how far to either
