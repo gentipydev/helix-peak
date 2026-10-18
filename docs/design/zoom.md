@@ -324,7 +324,7 @@ reduced motion.
 
 | Stop | Beat |
 |---|---|
-| Body | a band of the accent passes from head to foot in 1.1 s, then the followed organ's marker pings (0.9 s) |
+| Body | a band of the accent passes from head to foot in 1.1 s, then a ring pings from where the zoom goes into the followed organ (0.9 s) |
 | Organ | a band of light passes over it (1.2 s), and the place it is sampled pings |
 | Tissue, cell, nucleus | the zoom's cell, its nucleus, the gene's territory ping once (1.1 s) |
 | Chromosome | the gene's two FISH spots flare once (1.1 s) |
@@ -403,10 +403,9 @@ art in the quiet ink, and every organ inside it a faint outline. Lit are
 the tissues the Atlas reads the gene's RNA raised in, glowing in the accent,
 each as bright as its level against the highest: myoglobin's skeletal
 muscle fully, its heart and tongue less. The one the zoom goes into is
-ringed, and marked while it is too small to see. The marker is the one a
-map uses for where you are: a dot of the accent in a thin ring of the
-bright ink, in a soft glow (`Sculpt.beacon`). Skin is lit as the figure's
-own edge.
+ringed, and its lit shape is the only mark on it, however small it is
+drawn: no dot is set on it (the user's choice of 2026-10-18). Skin is lit
+as the figure's own edge.
 
 **One outline, two scenes.** The organ's scene draws the very outline the
 body drew for it (`OrganArt`), so the step is one shape seen closer. It
@@ -420,9 +419,10 @@ below).
 long and a pancreas 9. Each organ therefore knows how many times its drawn
 size it really is, and grows to that over the second half of the step, as
 the body fades round it, its sculpting and its inner anatomy coming up as
-it grows. At the organ's stop the scale bar is true of it. The same marker
-shows where in it the tissue is sampled, and gives way to the loupe as it
-opens there.
+it grows. At the organ's stop the scale bar is true of it. A marker shows
+where in it the tissue is sampled, the one a map uses for where you are: a
+dot of the accent in a thin ring of the bright ink, in a soft glow
+(`Sculpt.beacon`). It gives way to the loupe as it opens there.
 
 **In place.** The figure's own parts near the organ are drawn faintly round
 it, fading with their distance from it. The pancreas has its own neighbours
