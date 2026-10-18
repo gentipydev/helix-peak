@@ -727,3 +727,124 @@ Checked, and how:
   the protein's own name, and its tests now say so. Organs reached for the
   first time, the skin (TYRP1) and the eye (recoverin): their drawings had no
   outline, and now have the one they draw. Each was the user's call.
+
+## The fourth batch: eight cell types, 2026-10-18
+
+Eight more curated proteins, one for each of the eight cell types most human
+proteins land in that no curated protein reached (the zoom's path over the
+Protein Atlas; `zoom-cell-coverage` counts 204 cell types, of which the thirty
+used 26). Picked by running the locus bake's own path rule over all 19,300
+proteins, then the structure choice (`scripts/dry_fold.py`) over about ninety
+candidates: 73 in the first pass and 18 more for oligodendrocytes. Drafted,
+verified, worded and baked exactly as the third ten were.
+
+Checked 2026-10-18, live: NCBI `efetch`, UniProt release 2026_03, RCSB and
+PDBe.
+
+### Summary
+
+| cell type | gene | record | gene span (× INS record) | exons | neighbours in the record | processing in the record | walk |
+|---|---|---|---:|---:|---|---|---|
+| Early spermatids | IZUMO1 | NC_000019.10 slice | 6,058 (0.7×) | 10 | none | signal, 1 chain | cut |
+| Late spermatids | GAPDHS | NG_046898.1 | 11,864 (1.4×) | 11 | TMEM147, TMEM147-AS1 | none | uncut |
+| Neutrophils | FPR1 | NG_023426.1 | 6,125 (0.7×) | 2 | none | none | uncut |
+| Adrenal cortex cells | CYP17A1 | NG_007955.1 | 6,883 (0.8×) | 8 | none | none | uncut |
+| Oligodendrocytes | B3GAT1 | NC_000011.10 slice | **33,735 (4.0×)** | 6 | none | none | shortened; uncut |
+| Spermatocytes | DMC1 | NG_017203.2 | **51,236 (6.1×)** | 14 | RPS29P31, LOC105373031 | none | shortened; uncut |
+| Brain excitatory neurons | DNM1 | NG_029726.1 | **51,866 (6.2×)** | 22 | CIZ1, GOLGA2, MIR199B, MIR3154 | none | shortened; uncut |
+| Choroid plexus epithelial cells | LGI1 | NG_011832.2 | **40,224 (4.8×)** | 8 | none | signal, 1 chain | shortened; cut |
+
+Every translation equals its UniProt sequence exactly, and every record's
+`/gene` match is exact: a neighbour sharing the record is excluded by name, as
+CEP85L is for PLN.
+
+### Structures
+
+| protein | entry · chain | method | residues drawn | why this one |
+|---|---|---|---|---|
+| IZUMO1 | 5JK9 · A | X-ray 2.1 Å | 22–255, 5 bridges | policy 1's first; the crystal's other five copies are not drawn |
+| GAPDHS | 3H9E · A | X-ray 1.72 Å | 74–407 | one chain of the tetramer, solved with NAD |
+| FPR1 | 7VFX · A | cryo-EM 2.8 Å | 22–316, 1 bridge | the receptor alone, from its complex with fMIFL and a G protein |
+| CYP17A1 | 6WW0 · A | X-ray 2.01 Å | 31–503 | solved with its heme and an abiraterone analogue |
+| B3GAT1 | 1V84 · A | X-ray 1.82 Å | 83–334 | one chain of two, with UDP, manganese and its substrate sugar |
+| DMC1 | 7C9C · A | cryo-EM 3.3 Å | 22–337 | one chain of the pre-synaptic filament on single-stranded DNA |
+| DNM1 | 8SXZ · A | cryo-EM 3.3 Å | 693 of 864 placed | the polymer in its constricted state on a membrane neck |
+| LGI1 | 9KZT · A | cryo-EM 3.8 Å | 35–557 | one LGI1 chain of the 3:3 complex with ADAM22 |
+
+### Flags
+
+1. **Four genes are over the span threshold** and take dystrophin's treatment,
+   introns shortened (R2.4): B3GAT1, DMC1, DNM1 and LGI1. B3GAT1's 1:1.5 is the
+   mildest shortening in the catalog.
+2. **Two candidates were swapped after the app's own tests refused them**, and
+   both refusals are limits of the pages, not of the data:
+   - **Autotaxin (ENPP2)** for the choroid plexus. Its propeptide, which furin
+     removes, is 8 residues: 24 bases on the gene page, too narrow to carry even
+     "N-ter. ext.", and the feature appears nowhere else, so
+     `anatomy_run_labels_test` found a region with no name. PAPP-A's extension
+     is 59 residues and fits. LGI1 took its place. **Open:** a region above
+     `regionFloor` but under about 30 bases, appearing once, cannot be named;
+     any protein built on demand with a short propeptide meets it.
+   - **Cerebellin-1 (CBLN1)** for excitatory neurons. The Atlas gives it six
+     subcellular locations (cytosol, flagellar centriole, mid piece, principal
+     piece, perinuclear theca, calyx), and the sixth name falls 336 px off the
+     left of the canvas, which `cell_scene_test` caught. Recoverin's two fit.
+     Dynamin-1, with none, took its place. **Open:** the names round the cell
+     fit three or four, not six.
+3. **IZUMO1's and LGI1's summaries were reworded** to keep "ins" out of them:
+   `search_surface_test` pins how many rows the phone shows for that query, and
+   "joins" and "against" both carry it. A fifth curated match pushed a
+   suggestion below the fold.
+4. **LGI1's bridges are the entry's, not the knowledgebase's.** 9KZT places
+   five disulfide bridges; UniProt annotates none. The row lists none, so the
+   facts say none and the fold draws none, and the screen-reader text says the
+   entry's five are not drawn.
+5. **Three cell types are germ cells** (early spermatids, late spermatids,
+   spermatocytes), which the zoom draws with one recipe: the three pages name
+   different Atlas cells and draw the same meiotic cell.
+6. **The zoom needed no change.** Testis and bone marrow already have organ
+   studies, the adrenal gland is outlined on the body figure, and the brain and
+   choroid plexus are drawn as the brain.
+7. **Cell types with no protein to pick.** Late spermatids had exactly one
+   candidate with any experimental entry (GAPDHS): protamines 1 and 2, the
+   genes most raised there, are drawn by no structure.
+
+### After integration
+
+Baked 2026-10-18 by `pipeline/bake_curated.py`, eleven steps each in its own
+environment, then `check_assets.py`, `check_folding.py` and `check_locus.py`
+over all thirty-eight rows. Every model is the one the draft's bake made and the
+app's own fold check passed (`structure/check_bundle.py`); every ESM-2
+alignment gate passed with room (78.2% at the lowest, LGI1's 91.6% at the
+highest, against the 50% it asks).
+
+| protein | pages | protein page | mature page |
+|---|---|---|---|
+| IZUMO1 | gene, mRNA, protein, mature, fold | signal peptide 1–21 · Izumo sperm-egg fusion protein 1 22–350 | the same chain (329) |
+| GAPDHS | gene, mRNA, protein, fold | one block, 408 | — |
+| FPR1 | gene, mRNA, protein, fold | one block, 350 | — |
+| CYP17A1 | gene, mRNA, protein, fold | one block, 508 | — |
+| B3GAT1 | gene (shortened), mRNA, protein, fold | one block, 334 | — |
+| DMC1 | gene (shortened), mRNA, protein, fold | one block, 340 | — |
+| Dynamin-1 | gene (shortened), mRNA, protein, fold | one block, 864 | — |
+| LGI1 | gene (shortened), mRNA, protein, mature, fold | signal peptide 1–34 · Leucine-rich glioma-inactivated protein 1 35–557 | the same chain (523) |
+
+Checked, and how:
+
+- **Live.** Seeded first, then every kind uploaded (a track row names its
+  protein's): 8 proteins, 43 aliases, 48 track rows, and 64 objects.
+  `seed_catalog.py --check`: 38 rows, 0 differences; `check_assets.py --against`
+  the service: 38 rows agree with both tables; `/catalog` is 38 rows, orders 0
+  to 37 complete; `/proteins/resolve/DNM1` reads `ready` at `dynamin1`;
+  `fetch_tracks.py --check` 268 files as stored; `live_backend_check.dart` reads
+  every track of every row through the production client.
+- **The app.** The eight's fixtures written from the bakes before anything was
+  live, and compared with storage's afterwards (`sync_fixtures.py --check`: 57
+  files, 0 differ). `flutter analyze` clean; `flutter test` 1,860 passed.
+- **No walk test changed.** The guard prints nothing against the batch's start
+  commit, `tool/fixtures_added_only.py` exits 0 (8 proteins added, 40 files,
+  nothing else), and no golden PNG moved. The two proteins whose pages the walk
+  tests refused were swapped instead (Flags 2).
+- **The zoom** gained the eight in its own tables (the baked paths, the cell
+  shapes, and the two cells drawn part by part: CYP17A1's adrenal cortex cell
+  and dynamin-1's neuron) and needed no code change.

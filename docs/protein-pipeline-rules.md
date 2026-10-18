@@ -84,7 +84,10 @@ the bake refuses it. APP (290,221 bases, 18 exons) and CFTR (188,703, 27 exons)
 take dystrophin's treatment: introns at 1:14 and 1:10, "Introns are 98.8%" and
 "96.8% of the gene". So, since 2026-10-17, do PAPPA (248,531 bases, 22 exons)
 and TG (267,942, 48 exons): introns at 1:18 and 1:17, "Introns are 95.6%" and
-"96.8% of the gene". *Status: enforced.*
+"96.8% of the gene". Since 2026-10-18, so do four of the fourth batch: DMC1
+(51,236 bases, 14 exons), DNM1 (51,866, 22), LGI1 (40,224, 8) and B3GAT1
+(33,735, 6), the mildest shortening in the catalog at 1:1.5.
+*Status: enforced.*
 
 **R2.5 A drawn base has to be findable on the chromosome.** The per-base
 AlphaGenome track is indexed by GRCh38 `chr:pos`, and nothing in the app is:
