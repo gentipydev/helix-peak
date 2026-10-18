@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import '../../zoom_inks.dart';
+import '../coloured_mesh.dart';
 import '../sculpt.dart';
 import '../zoom_scene.dart';
 import 'chromosome_form.dart';
@@ -404,9 +405,9 @@ final class ChromosomeArt {
     final List<({Float32List positions, Int32List colours})> out =
         <({Float32List positions, Int32List colours})>[];
     for (final double side in <double>[-1, 1]) {
-      for (final void Function(_Mesh, double) lay
-          in <void Function(_Mesh, double)>[_laySister, _layGrains]) {
-        final _Mesh mesh = _Mesh(keep: true);
+      for (final void Function(ColouredMesh, double) lay
+          in <void Function(ColouredMesh, double)>[_laySister, _layGrains]) {
+        final ColouredMesh mesh = ColouredMesh(keep: true);
         lay(mesh, side);
         mesh.build();
         out.addAll(mesh.kept);
@@ -416,12 +417,12 @@ final class ChromosomeArt {
   }
 
   List<ui.Vertices> _sister(double side) {
-    final _Mesh mesh = _Mesh();
+    final ColouredMesh mesh = ColouredMesh();
     _laySister(mesh, side);
     return mesh.build();
   }
 
-  void _laySister(_Mesh mesh, double side) {
+  void _laySister(ColouredMesh mesh, double side) {
     final Float64List rows = form.bodyRows;
     final List<double> columns = _columns;
     final int across = columns.length;
@@ -503,7 +504,7 @@ final class ChromosomeArt {
     );
   }
 
-  void _skirt(_Mesh mesh, double side, KnobField knobs, int k) {
+  void _skirt(ColouredMesh mesh, double side, KnobField knobs, int k) {
     const int ring = 12;
     final _Knob p = _place(side, knobs, k);
     mesh.begin(ring * 2);
@@ -527,7 +528,7 @@ final class ChromosomeArt {
     }
   }
 
-  void _dome(_Mesh mesh, double side, KnobField knobs, int k) {
+  void _dome(ColouredMesh mesh, double side, KnobField knobs, int k) {
     const int ring = 14;
     final _Knob p = _place(side, knobs, k);
     final double y = knobs.y[k];
@@ -599,7 +600,7 @@ final class ChromosomeArt {
 
   /// The kinetochore: a small plate on the sister's outer face at the
   /// waist, a little lighter than the chromatin under it.
-  void _plate(_Mesh mesh, double side) {
+  void _plate(ColouredMesh mesh, double side) {
     const int ring = 12;
     final Offset at = form.kinetochore(side);
     final double rx = ChromosomeStyle.plateX * _half;
@@ -642,12 +643,12 @@ final class ChromosomeArt {
   }
 
   List<ui.Vertices> _grains(double side) {
-    final _Mesh mesh = _Mesh();
+    final ColouredMesh mesh = ColouredMesh();
     _layGrains(mesh, side);
     return mesh.build();
   }
 
-  void _layGrains(_Mesh mesh, double side) {
+  void _layGrains(ColouredMesh mesh, double side) {
     const int ring = 6;
     final KnobField knobs = form.knobs(side);
     final int bump = _palette.text(ChromosomeStyle.bumpAlpha);
@@ -707,74 +708,5 @@ final class _Knob {
     final double c = math.cos(a) * scale;
     final double s = math.sin(a) * scale;
     return Offset(x + ax * c + bx * s, y + ay * c + by * s);
-  }
-}
-
-/// Triangles with a colour at every vertex, gathered into as many meshes as
-/// their 16-bit indices need.
-final class _Mesh {
-  _Mesh({this.keep = false});
-
-  /// Whether to keep each mesh's vertices as well, for tests.
-  final bool keep;
-
-  /// Each mesh's vertices, when [keep]: where each lies and its colour.
-  final List<({Float32List positions, Int32List colours})> kept =
-      <({Float32List positions, Int32List colours})>[];
-
-  static const int _limit = 65000;
-
-  final List<ui.Vertices> _done = <ui.Vertices>[];
-  final List<double> _positions = <double>[];
-  final List<int> _colours = <int>[];
-  final List<int> _indices = <int>[];
-
-  /// The index the next vertex takes.
-  int get next => _colours.length;
-
-  /// Starts a shape of [count] vertices, in a mesh of its own if this one
-  /// has no room left for it.
-  void begin(int count) {
-    if (_colours.length + count > _limit) {
-      _flush();
-    }
-  }
-
-  void vertex(double x, double y, int colour) {
-    _positions
-      ..add(x)
-      ..add(y);
-    _colours.add(colour);
-  }
-
-  void triangle(int a, int b, int c) => _indices
-    ..add(a)
-    ..add(b)
-    ..add(c);
-
-  void _flush() {
-    if (_indices.isNotEmpty) {
-      final Float32List positions = Float32List.fromList(_positions);
-      final Int32List colours = Int32List.fromList(_colours);
-      _done.add(
-        ui.Vertices.raw(
-          VertexMode.triangles,
-          positions,
-          colors: colours,
-          indices: Uint16List.fromList(_indices),
-        ),
-      );
-      if (keep) {
-        kept.add((positions: positions, colours: colours));
-      }
-    }
-    _positions.clear();
-    _colours.clear();
-    _indices.clear();
-  }
-
-  List<ui.Vertices> build() {
-    _flush();
-    return List<ui.Vertices>.unmodifiable(_done);
   }
 }
