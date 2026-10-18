@@ -9,6 +9,7 @@ import 'package:helixpeek/features/zoom/presentation/scenes/contour.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/pancreas/pancreas_anatomy.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/pancreas/pancreas_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/pancreas/pancreas_style.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/tube_course.dart';
 
 final TissueAnatomy _anatomy = tissueAnatomy['pancreas']!;
 final double _view = _anatomy.metres * ZoomDepth.organMargin;

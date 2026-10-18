@@ -67,20 +67,8 @@ abstract final class PancreasStyle {
   static const double lobeTone = 0.06;
   static const double lobuleTone = 0.03;
 
-  // The light, from the upper left and in front, as the chromosome's.
-
-  static const double lightX = -0.48;
-  static const double lightY = -0.57;
-  static const double lightZ = 0.66;
-
-  /// What every surface has, what the light adds, how much darker the
-  /// gland is toward its silhouette, and its sheen.
-  static const double ambient = 0.3;
-  static const double diffuse = 0.7;
-  static const double edgeDark = 0.45;
-  static const double edgePower = 0.6;
-  static const double sheen = 0.3;
-  static const int sheenPower = 24;
+  // The light is the zoom's one lamp (`SpecimenLamp.zoom`), which the brain
+  // is drawn under too.
 
   // The tones, each a share of the way from the outline toward the bright
   // ink (`ZoomInks.lit`), or into the shade (`ZoomInks.shade`).

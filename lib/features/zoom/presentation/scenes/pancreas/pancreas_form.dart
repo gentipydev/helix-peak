@@ -5,6 +5,8 @@ import 'dart:ui';
 import '../../../domain/anatomy_figure.dart';
 import '../../../domain/anatomy_tables.dart';
 import '../contour.dart';
+import '../relief.dart';
+import '../tube_course.dart';
 import 'pancreas_anatomy.dart';
 import 'pancreas_style.dart';
 
@@ -144,6 +146,7 @@ final class PancreasForm {
     outlinePoints,
     cell: mm(PancreasStyle.reliefCell),
     inflation: PancreasStyle.inflation,
+    sweeps: PancreasStyle.reliefSweeps,
   );
 
   // The lobules.
@@ -408,7 +411,7 @@ final class PancreasForm {
   /// A tube of the anatomy laid in the scene, its rows at most [row]
   /// millimetres apart.
   TubeCourse tube(AnatomyTube tube, {double row = PancreasStyle.tubeRow}) =>
-      TubeCourse(tube, place, scale, mm(row));
+      TubeCourse(tube, place, scale, mm(row), bend: PancreasStyle.bend);
 
   late final TubeCourse duodenum = tube(PancreasAnatomy.duodenum);
   late final TubeCourse coeliacTrunk = tube(PancreasAnatomy.coeliacTrunk);
@@ -448,6 +451,7 @@ final class PancreasForm {
     spleenPoints,
     cell: mm(PancreasStyle.reliefCell),
     inflation: PancreasStyle.inflation,
+    sweeps: PancreasStyle.reliefSweeps,
   );
 
   // The window, for a duct cell.
@@ -818,145 +822,6 @@ final class _Buckets {
   }
 }
 
-/// A shape inflated into a rounded form, as a cushion is: how far it stands
-/// up off the page at each point, highest where the shape is widest round
-/// it, and the way its surface faces there.
-///
-/// It is solved on a grid: φ with ∇²φ = −1 inside and 0 outside, the height
-/// √(2φ) times [inflation]. Over a disc that is a dome, over a strip a
-/// cylinder: round in section wherever the shape goes, and higher where it
-/// is wide.
-final class Relief {
-  Relief(
-    List<Offset> shape, {
-    required double cell,
-    required double inflation,
-    int sweeps = PancreasStyle.reliefSweeps,
-  }) : _cell = cell {
-    final Rect box = PancreasForm._bounds(shape).inflate(2 * cell);
-    _left = box.left;
-    _top = box.top;
-    _columns = (box.width / cell).ceil() + 1;
-    _rows = (box.height / cell).ceil() + 1;
-    final int count = _columns * _rows;
-    final Uint8List inside = Uint8List(count);
-    // Inside: by the outline's crossings along each row.
-    final int n = shape.length;
-    for (int j = 0; j < _rows; j++) {
-      final double y = _top + j * cell;
-      final List<double> crossings = <double>[];
-      for (int i = 0; i < n; i++) {
-        final Offset a = shape[i];
-        final Offset b = shape[(i + 1) % n];
-        if ((a.dy <= y) != (b.dy <= y)) {
-          crossings.add(a.dx + (y - a.dy) * (b.dx - a.dx) / (b.dy - a.dy));
-        }
-      }
-      crossings.sort();
-      for (int k = 0; k + 1 < crossings.length; k += 2) {
-        final int from = ((crossings[k] - _left) / cell).ceil();
-        final int to = ((crossings[k + 1] - _left) / cell).floor();
-        for (int i = math.max(1, from); i <= math.min(_columns - 2, to); i++) {
-          inside[j * _columns + i] = 1;
-        }
-      }
-    }
-    // ∇²φ = −1 inside, φ = 0 outside, by successive over-relaxation.
-    final Float64List phi = Float64List(count);
-    const double omega = 1.85;
-    final double source = cell * cell;
-    for (int sweep = 0; sweep < sweeps; sweep++) {
-      for (int colour = 0; colour < 2; colour++) {
-        for (int j = 1; j < _rows - 1; j++) {
-          for (int i = 1 + (j + colour) % 2; i < _columns - 1; i += 2) {
-            final int k = j * _columns + i;
-            if (inside[k] == 0) {
-              continue;
-            }
-            final double mean =
-                (phi[k - 1] +
-                    phi[k + 1] +
-                    phi[k - _columns] +
-                    phi[k + _columns] +
-                    source) /
-                4;
-            phi[k] += omega * (mean - phi[k]);
-          }
-        }
-      }
-    }
-    _height = Float64List(count);
-    double highest = 0;
-    for (int k = 0; k < count; k++) {
-      final double h = inflation * math.sqrt(2 * math.max(0, phi[k]));
-      _height[k] = h;
-      highest = math.max(highest, h);
-    }
-    this.highest = highest;
-    _nx = Float64List(count);
-    _ny = Float64List(count);
-    _nz = Float64List(count);
-    for (int j = 0; j < _rows; j++) {
-      for (int i = 0; i < _columns; i++) {
-        final int k = j * _columns + i;
-        final double dx =
-            (_height[j * _columns + math.min(_columns - 1, i + 1)] -
-                _height[j * _columns + math.max(0, i - 1)]) /
-            (2 * cell);
-        final double dy =
-            (_height[math.min(_rows - 1, j + 1) * _columns + i] -
-                _height[math.max(0, j - 1) * _columns + i]) /
-            (2 * cell);
-        final double length = math.sqrt(dx * dx + dy * dy + 1);
-        _nx[k] = -dx / length;
-        _ny[k] = -dy / length;
-        _nz[k] = 1 / length;
-      }
-    }
-  }
-
-  final double _cell;
-  late final double _left;
-  late final double _top;
-  late final int _columns;
-  late final int _rows;
-  late final Float64List _height;
-  late final Float64List _nx;
-  late final Float64List _ny;
-  late final Float64List _nz;
-
-  /// The height of its highest point.
-  late final double highest;
-
-  /// How high the surface stands at [p].
-  double heightAt(Offset p) => _sample(_height, p);
-
-  /// The way the surface faces at [p]: x across the screen, y down it, z
-  /// out of it.
-  (double, double, double) normalAt(Offset p) {
-    final double x = _sample(_nx, p);
-    final double y = _sample(_ny, p);
-    final double z = _sample(_nz, p);
-    final double length = math.sqrt(x * x + y * y + z * z);
-    return length <= 0 ? (0, 0, 1) : (x / length, y / length, z / length);
-  }
-
-  double _sample(Float64List values, Offset p) {
-    final double fx = ((p.dx - _left) / _cell).clamp(0.0, _columns - 1.001);
-    final double fy = ((p.dy - _top) / _cell).clamp(0.0, _rows - 1.001);
-    final int i = fx.floor();
-    final int j = fy.floor();
-    final double tx = fx - i;
-    final double ty = fy - j;
-    final int k = j * _columns + i;
-    final double top = values[k] + (values[k + 1] - values[k]) * tx;
-    final double bottom =
-        values[k + _columns] +
-        (values[k + _columns + 1] - values[k + _columns]) * tx;
-    return top + (bottom - top) * ty;
-  }
-}
-
 /// One of the gland's lobules: its middle, and how far it reaches from it
 /// toward each of [PancreasStyle.rays] ways round, the first to the right.
 final class Lobule {
@@ -1053,150 +918,4 @@ final class Islet {
   final Offset at;
   final double radius;
   final bool uncinate;
-}
-
-/// A tube of the anatomy laid in the scene: rows along it, each its middle,
-/// the way across it, how far it reaches to either side, and how much of
-/// it shows.
-final class TubeCourse {
-  TubeCourse(
-    AnatomyTube tube,
-    Offset Function(Offset) place,
-    double scale,
-    double row,
-  ) : cutStart = tube.cutStart,
-      cutEnd = tube.cutEnd {
-    final List<Offset> knots = <Offset>[
-      for (final Offset p in tube.points) place(p),
-    ];
-    final int n = knots.length;
-    Offset knot(int i) => i < 0
-        ? knots[0] * 2 - knots[1]
-        : i >= n
-        ? knots[n - 1] * 2 - knots[n - 2]
-        : knots[i];
-    final List<Offset> points = <Offset>[];
-    final List<double> radii = <double>[];
-    final List<int> starts = <int>[];
-    for (int i = 0; i < n - 1; i++) {
-      final Offset p0 = knot(i - 1);
-      final Offset p1 = knot(i);
-      final Offset p2 = knot(i + 1);
-      final Offset p3 = knot(i + 2);
-      final Offset c1 = p1 + (p2 - p0) / 6;
-      final Offset c2 = p2 - (p3 - p1) / 6;
-      final int steps = math.max(
-        2,
-        ((p1 - c1).distance + (c1 - c2).distance + (c2 - p2).distance) ~/ row +
-            1,
-      );
-      starts.add(points.length);
-      final bool last = i == n - 2;
-      for (int k = 0; k < (last ? steps + 1 : steps); k++) {
-        final double t = k / steps;
-        final double u = 1 - t;
-        points.add(
-          p1 * (u * u * u) +
-              c1 * (3 * u * u * t) +
-              c2 * (3 * u * t * t) +
-              p2 * (t * t * t),
-        );
-        radii.add(
-          (tube.radii[i] + (tube.radii[i + 1] - tube.radii[i]) * t) * scale,
-        );
-      }
-    }
-    starts.add(points.length - 1);
-    knotRows = List<int>.unmodifiable(starts);
-    centres = List<Offset>.unmodifiable(points);
-    final int count = points.length;
-    final List<Offset> across = <Offset>[];
-    arc = Float64List(count);
-    for (int i = 0; i < count; i++) {
-      final Offset t =
-          points[math.min(count - 1, i + 1)] - points[math.max(0, i - 1)];
-      final double length = t.distance;
-      across.add(
-        length <= 0 ? const Offset(0, 1) : Offset(-t.dy, t.dx) / length,
-      );
-      if (i > 0) {
-        arc[i] = arc[i - 1] + (points[i] - points[i - 1]).distance;
-      }
-    }
-    this.across = List<Offset>.unmodifiable(across);
-    radius = Float64List.fromList(radii);
-    plus = Float64List.fromList(radii);
-    minus = Float64List.fromList(radii);
-    // Round a bend the inner side comes no nearer its middle than the bend
-    // lets it, so the tube never folds over itself.
-    for (int i = 2; i < count - 2; i++) {
-      final Offset a = points[i] - points[i - 2];
-      final Offset b = points[i + 2] - points[i];
-      final double la = a.distance;
-      final double lb = b.distance;
-      if (la <= 0 || lb <= 0) {
-        continue;
-      }
-      final double turn = (a.dx * b.dy - a.dy * b.dx) / (la * lb);
-      final double curvature = turn / ((la + lb) / 2);
-      if (curvature.abs() < 1e-9) {
-        continue;
-      }
-      final double limit = PancreasStyle.bend / curvature.abs();
-      if (curvature > 0) {
-        plus[i] = math.min(plus[i], limit);
-      } else {
-        minus[i] = math.min(minus[i], limit);
-      }
-    }
-    // Coming up out of nothing at an end that runs on out of view.
-    shown = Float64List(count);
-    final double total = arc[count - 1];
-    for (int i = 0; i < count; i++) {
-      double alpha = 1;
-      if (tube.fadeIn > 0) {
-        alpha *= _smooth(arc[i] / (tube.fadeIn * scale));
-      }
-      if (tube.fadeOut > 0) {
-        alpha *= _smooth((total - arc[i]) / (tube.fadeOut * scale));
-      }
-      shown[i] = alpha;
-    }
-  }
-
-  late final List<Offset> centres;
-
-  /// The way across each row, a unit: the left hand of the way along.
-  late final List<Offset> across;
-
-  /// Its radius at each row, and how far it reaches to either side of its
-  /// middle, a bend's inner side drawn in.
-  late final Float64List radius;
-  late final Float64List plus;
-  late final Float64List minus;
-
-  /// How far along it each row lies, and how much of it shows there.
-  late final Float64List arc;
-  late final Float64List shown;
-
-  /// The row each of the anatomy's points lies at.
-  late final List<int> knotRows;
-
-  final bool cutStart;
-  final bool cutEnd;
-
-  int get length => centres.length;
-
-  /// The point [u] of the way across row [i], from -1 to 1.
-  Offset at(int i, double u) =>
-      centres[i] + across[i] * (u >= 0 ? plus[i] * u : minus[i] * u);
-
-  /// Its middle line.
-  Path get line {
-    final Path path = Path()..moveTo(centres.first.dx, centres.first.dy);
-    for (final Offset p in centres.skip(1)) {
-      path.lineTo(p.dx, p.dy);
-    }
-    return path;
-  }
 }

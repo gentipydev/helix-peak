@@ -14,6 +14,7 @@ import 'pancreas/pancreas_art.dart';
 import 'pancreas/pancreas_form.dart';
 import 'pancreas/pancreas_style.dart';
 import 'sculpt.dart';
+import 'tube_course.dart';
 import 'zoom_subject.dart';
 
 /// A name an organ's scene sets: its [key] among the scene's, its [word],

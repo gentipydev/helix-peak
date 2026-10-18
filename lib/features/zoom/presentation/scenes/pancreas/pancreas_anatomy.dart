@@ -1,29 +1,6 @@
 import 'dart:ui';
 
-/// A tube of the pancreas's anatomy: a duct, a vessel, a length of gut. Its
-/// course runs through [points], [radii] wide at each, in centimetres.
-///
-/// [fadeIn] and [fadeOut] are how far from each end it comes up out of
-/// nothing, where it runs on beyond what the view needs; [cutStart] and
-/// [cutEnd] mark an end that is cut, as an anatomy plate cuts what it has
-/// taken away, and is drawn open.
-final class AnatomyTube {
-  const AnatomyTube(
-    this.points,
-    this.radii, {
-    this.fadeIn = 0,
-    this.fadeOut = 0,
-    this.cutStart = false,
-    this.cutEnd = false,
-  });
-
-  final List<Offset> points;
-  final List<double> radii;
-  final double fadeIn;
-  final double fadeOut;
-  final bool cutStart;
-  final bool cutEnd;
-}
+import '../tube_course.dart';
 
 /// The pancreas and what lies round it, drawn from general anatomy: in
 /// centimetres on a gland 16 cm long, seen from the front with the stomach

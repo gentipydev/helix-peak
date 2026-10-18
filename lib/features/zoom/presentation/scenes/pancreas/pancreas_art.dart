@@ -9,8 +9,9 @@ import '../../../domain/zoom_camera.dart';
 import '../../zoom_inks.dart';
 import '../coloured_mesh.dart';
 import '../sculpt.dart';
+import '../specimen_light.dart';
+import '../tube_course.dart';
 import 'pancreas_form.dart';
-import 'pancreas_shading.dart';
 import 'pancreas_style.dart';
 
 /// How the pancreas comes up on the step from the body, by how far the
@@ -46,14 +47,14 @@ abstract final class PancreasStep {
 /// set of inks: meshes in the scene's units, so a frame only hands them on.
 final class PancreasArt {
   PancreasArt(this.form, this.inks, {required this.cell})
-    : _light = PancreasLight(),
-      _palette = PancreasPalette(inks);
+    : _light = SpecimenLight(SpecimenLamp.zoom),
+      _palette = SpecimenPalette(inks);
 
   final PancreasForm form;
   final ZoomInks inks;
   final CellShape cell;
-  final PancreasLight _light;
-  final PancreasPalette _palette;
+  final SpecimenLight _light;
+  final SpecimenPalette _palette;
 
   bool get _islets => cell == CellShape.endocrine;
   bool get _ducts => cell == CellShape.epithelial;
@@ -68,31 +69,31 @@ final class PancreasArt {
 
   late final Color _crevice = creviceOf(inks);
 
-  late final PancreasTone _gland = PancreasTone(
+  late final SpecimenTone _gland = SpecimenTone(
     inks.lit(PancreasStyle.glandLit),
     inks.shadow,
   );
-  late final PancreasTone _duodenumTone = PancreasTone(
+  late final SpecimenTone _duodenumTone = SpecimenTone(
     inks.lit(PancreasStyle.duodenumLit),
     inks.shadow,
   );
-  late final PancreasTone _spleenTone = PancreasTone(
+  late final SpecimenTone _spleenTone = SpecimenTone(
     inks.lit(PancreasStyle.spleenLit),
     inks.shadow,
   );
-  late final PancreasTone _bileTone = PancreasTone(
+  late final SpecimenTone _bileTone = SpecimenTone(
     inks.lit(PancreasStyle.bileLit),
     inks.shadow,
   );
-  late final PancreasTone _arteryTone = PancreasTone(
+  late final SpecimenTone _arteryTone = SpecimenTone(
     Color.lerp(inks.blood, inks.ground, PancreasStyle.artery)!,
     inks.shadow,
   );
-  late final PancreasTone _veinTone = PancreasTone(
+  late final SpecimenTone _veinTone = SpecimenTone(
     Color.lerp(inks.blood, inks.ground, PancreasStyle.vein)!,
     inks.shadow,
   );
-  late final PancreasTone _ductTone = PancreasTone(inks.mark, inks.markDeep);
+  late final SpecimenTone _ductTone = SpecimenTone(inks.mark, inks.markDeep);
 
   static final List<double> _columns = <double>[
     for (final double u in PancreasStyle.columns.reversed) -u,
@@ -399,7 +400,7 @@ final class PancreasArt {
   void _layTube(
     ColouredMesh mesh,
     TubeCourse tube,
-    PancreasTone tone, {
+    SpecimenTone tone, {
     int from = 0,
     int? to,
     double light = 1,
@@ -442,7 +443,7 @@ final class PancreasArt {
   }
 
   /// A cut end of [tube] at [row]: its wall, cut, round its dark lumen.
-  void _paintCut(Canvas canvas, TubeCourse tube, int row, PancreasTone tone) {
+  void _paintCut(Canvas canvas, TubeCourse tube, int row, SpecimenTone tone) {
     final Offset c = tube.centres[row];
     final Offset m = tube.across[row];
     final double r = tube.radius[row];
@@ -541,7 +542,7 @@ final class PancreasArt {
 
   late final Color _cut = Color(
     _palette.colour(
-      PancreasTone(inks.lit(PancreasStyle.cutLit), inks.shadow),
+      SpecimenTone(inks.lit(PancreasStyle.cutLit), inks.shadow),
       _light.light(0, 0, 1),
     ),
   );
@@ -593,11 +594,11 @@ final class PancreasArt {
           facing > 0 ? PancreasStyle.lipShadow : PancreasStyle.lipWall,
         );
         final int colour = facing > 0
-            ? PancreasPalette.packColour(
+            ? SpecimenPalette.packColour(
                 inks.shadow,
                 PancreasStyle.lipShadowAlpha * facing,
               )
-            : PancreasPalette.packColour(
+            : SpecimenPalette.packColour(
                 wall,
                 PancreasStyle.lipWallAlpha * -facing,
               );
