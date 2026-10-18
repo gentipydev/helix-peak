@@ -978,6 +978,25 @@ final class _SkinOrgan extends OrganArt {
   @override
   Offset get site => Offset(-size * 0.04, -size * 0.13);
 
+  // The block as it is drawn: its cut face, and the top and side seen behind
+  // it, about the place it is sampled.
+  @override
+  Path get outline => _outline;
+
+  late final Path _outline = () {
+    final double s = size;
+    final Rect face = Rect.fromLTRB(-s * 0.45, -s * 0.03, s * 0.55, s * 0.6);
+    final Offset back = Offset(-s * 0.22, -s * 0.34);
+    return OrganArt._closed(<Offset>[
+      face.bottomLeft + back,
+      face.topLeft + back,
+      face.topRight + back,
+      face.topRight,
+      face.bottomRight,
+      face.bottomLeft,
+    ]).shift(site);
+  }();
+
   @override
   void paint(
     Canvas canvas,
@@ -1159,6 +1178,24 @@ final class _EyeOrgan extends OrganArt {
   // eye, where it is sampled.
   @override
   Offset get site => Offset(size * 0.42, 0);
+
+  // The globe and the cornea bulging forward of it, as they are drawn, about
+  // the back of the eye.
+  @override
+  Path get outline => _outline;
+
+  late final Path _outline = () {
+    final double r = size / 2;
+    final Offset centre = Offset(-r * 0.93, 0);
+    return Path.combine(
+      PathOperation.union,
+      Path()..addOval(Rect.fromCircle(center: centre, radius: r)),
+      Path()
+        ..addOval(
+          Rect.fromCircle(center: centre + Offset(-r * 0.56, 0), radius: r * 0.62),
+        ),
+    ).shift(site);
+  }();
 
   @override
   void paint(
