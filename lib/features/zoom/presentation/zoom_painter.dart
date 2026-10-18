@@ -529,13 +529,16 @@ const double scaleBarLeft = 16;
 /// next one's as the depth moves, and reads the length it spans as it goes,
 /// to two figures. Held to round lengths all the way, it shrank with the
 /// view and sprang back long at every 1, 2 and 5 it passed, as many as
-/// nineteen times in one step.
+/// nineteen times in one step. It glides at the depth's own pace, which
+/// the flight eases: eased again on top, it outran two pixels a frame
+/// where the cell's bar, drawn longer since 2026-10-18, meets the nucleus's.
 (double, String) scaleBarAt(ZoomDepth depth, double d, Size size) {
   double roundAt(ZoomStop stop) {
     final (double _, double pixels, String _) = scaleBar(
       depth.widthOf(stop),
       size.width,
       unit: ZoomDepth.unitOf(stop),
+      share: ZoomDepth.barShareOf(stop),
     );
     return pixels;
   }
@@ -543,7 +546,7 @@ const double scaleBarLeft = 16;
   final (int k, double s) = depth.segmentAt(d);
   final double from = roundAt(ZoomStop.values[k]);
   final double to = roundAt(ZoomStop.values[k + 1]);
-  final double pixels = from + (to - from) * smoothstep(s);
+  final double pixels = from + (to - from) * s;
   return (pixels, depth.labelAt(d, pixels / size.width * depth.widthAt(d)));
 }
 

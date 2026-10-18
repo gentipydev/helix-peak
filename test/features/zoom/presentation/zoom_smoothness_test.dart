@@ -280,6 +280,7 @@ void main() {
             depth.widthOf(stop),
             size.width,
             unit: ZoomDepth.unitOf(stop),
+            share: ZoomDepth.barShareOf(stop),
           );
           final (double pixels, String reads) = scaleBarAt(
             depth,

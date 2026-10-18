@@ -14,6 +14,7 @@ import 'package:helixpeek/features/zoom/presentation/scenes/cell/cell_parts.dart
 import 'package:helixpeek/features/zoom/presentation/scenes/cell/neuron_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/cell_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/contour.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/nucleus_shape.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
@@ -307,6 +308,123 @@ void main() {
       ),
       <PartLayer>{PartLayer.lysosomes},
     );
+  });
+
+  test('each kind of cell reaches from its nucleus as far as its archetype '
+      'says: its outline and nucleus, a neuron less its axon', () {
+    for (final CellShape shape in CellShape.values) {
+      final CellArchetype archetype = archetypeFor(shape);
+      final double n = archetype.nucleus / archetype.metres;
+      final Rect box;
+      if (shape == CellShape.neuron) {
+        final NeuronForm form = NeuronForm(1);
+        final Path all = Path()..addPath(form.body.toPath(), Offset.zero);
+        for (final NeuronBranch b in <NeuronBranch>[
+          ...form.dendrites,
+          form.hillock,
+        ]) {
+          all.addPath(b.path, Offset.zero);
+        }
+        box = all.getBounds();
+      } else {
+        // As drawn: the smooth path through the outline's points bulges a
+        // little past them.
+        box = _along(
+          Path()
+            ..addPath(cellOutline(shape, 1, n).toPath(), Offset.zero)
+            ..addPath(NucleusShape(shape).outline(n).toPath(), Offset.zero),
+          each: 400,
+        ).fold<Rect?>(
+              null,
+              (Rect? b, Offset p) => b == null
+                  ? Rect.fromPoints(p, p)
+                  : b.expandToInclude(Rect.fromPoints(p, p)),
+            )!;
+      }
+      final CellReach reach = archetype.reach;
+      void holds(double? said, double measured, String what) {
+        expect(said, isNotNull, reason: '${shape.name} $what');
+        expect(
+          said!,
+          inInclusiveRange(measured - 1e-3, measured + 0.02),
+          reason: '${shape.name} $what',
+        );
+      }
+
+      if (shape == CellShape.myofibre) {
+        // A fibre runs off both sides of the view: two views either way.
+        expect(reach.across, isNull);
+        expect(box.width, greaterThan(3));
+      } else {
+        holds(reach.across, math.max(-box.left, box.right), 'across');
+      }
+      holds(reach.up, -box.top, 'up');
+      holds(reach.down, box.bottom, 'down');
+    }
+  });
+
+  test('every cell is framed as big as its room lets it: across seven '
+      'tenths of the view, or as far up or down as a squat canvas leaves '
+      'it, or as near as its nucleus\'s own view lets it', () {
+    const double fill = CellArchetype.fill;
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ZoomStage stage = _stage(t);
+      final CellScene cell = _cellOf(stage);
+      final CellReach reach = cell.archetype.reach;
+      final double half = cell.size;
+      final String where = '${t.slug} (${cell.archetype.shape.name})';
+      final double? across = reach.across;
+      if (across != null) {
+        expect(2 * across * half, lessThanOrEqualTo(fill + 1e-9), reason: where);
+      }
+      expect(
+        reach.up * half,
+        lessThanOrEqualTo(CellArchetype.roomAbove + 1e-9),
+        reason: where,
+      );
+      expect(
+        reach.down * half,
+        lessThanOrEqualTo(CellArchetype.roomBelow + 1e-9),
+        reason: where,
+      );
+      final bool bound =
+          (across != null && 2 * across * half > fill - 1e-6) ||
+          reach.up * half > CellArchetype.roomAbove - 1e-6 ||
+          reach.down * half > CellArchetype.roomBelow - 1e-6 ||
+          (stage.depth.widthOf(ZoomStop.cell) -
+                      1.3 * stage.depth.widthOf(ZoomStop.nucleus))
+                  .abs() <
+              1e-15;
+      expect(bound, isTrue, reason: where);
+    }
+    // The beta cell, as the user saw it: seven tenths across, not half.
+    final CellScene insulin = _cellOf(_stage(TestCatalog.insulin));
+    final Rect box = Contour(insulin.outline).toPath().getBounds();
+    expect(box.width, inInclusiveRange(0.66, 0.72));
+  });
+
+  testWidgets('the scale bar at the cell reads what it did, drawn as much '
+      'longer as the cell is drawn bigger: a beta cell\'s and an alpha '
+      'cell\'s 5 µm', (WidgetTester tester) async {
+    for (final ProteinTarget t in <ProteinTarget>[
+      TestCatalog.insulin,
+      TestCatalog.glucagon,
+    ]) {
+      final ZoomDepth depth = _stage(t).depth;
+      for (final Size size in _canvases) {
+        final (double pixels, String label) = scaleBarAt(
+          depth,
+          depth.depthOf(ZoomStop.cell),
+          size,
+        );
+        expect(label, '5 µm', reason: t.slug);
+        expect(
+          pixels,
+          closeTo(5e-6 / depth.widthOf(ZoomStop.cell) * size.width, 1e-6),
+          reason: t.slug,
+        );
+      }
+    }
   });
 
   test('a neuron is one outline round its body, its dendrites and its axon, '

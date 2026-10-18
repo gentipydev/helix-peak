@@ -180,6 +180,14 @@ final class ZoomDepth {
     ZoomStop.dna => dnaBasePairs,
   };
 
+  /// How much of the view at [stop] its scale bar may span: a fifth and a
+  /// little more, but at the cell, which fills the view more tightly than it
+  /// did, a third or a little less, so its bar reads the length it read
+  /// before, drawn as much longer as the cell is drawn bigger: a beta cell's
+  /// 5 µm.
+  static double barShareOf(ZoomStop stop) =>
+      stop == ZoomStop.cell ? 0.32 : 0.22;
+
   /// What [stop]'s width is measured in. The chromosome is both: its view
   /// is [chromosomeBasePairs] of the genome as well as [widthOf] metres.
   static ZoomUnit unitOf(ZoomStop stop) =>
@@ -336,12 +344,14 @@ final class ZoomDepth {
 
 /// A scale bar for a view [width] wide drawn [pixels] wide: the round length
 /// it shows, in the view's own unit, what that is in pixels, and its label.
+/// It is the longest round length within [share] of the view.
 (double, double, String) scaleBar(
   double width,
   double pixels, {
   ZoomUnit unit = ZoomUnit.metres,
+  double share = 0.22,
 }) {
-  final double target = width * 0.22;
+  final double target = width * share;
   final double power = math
       .pow(10, (math.log(target) / math.ln10).floor())
       .toDouble();

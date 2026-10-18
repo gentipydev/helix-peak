@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart';
 
 import 'anatomy_tables.dart';
@@ -63,11 +65,36 @@ enum CellShape {
   trophoblast,
 }
 
+/// How far a kind of cell reaches from its nucleus, which the view at the
+/// cell centres, as multiples of its half-size: across, either way, up and
+/// down. What must be seen of it, so a neuron's axon, which runs on down out
+/// of view, does not count, nor an erythroblast's island; and a muscle
+/// fibre, which runs off both sides, reaches no distance across that counts.
+/// Read off the outline the cell's scene draws, its nucleus included, and
+/// held to it by cell_scene_test.
+@immutable
+final class CellReach {
+  const CellReach(this.across, this.up, this.down);
+
+  /// A fibre's: running off both sides of the view.
+  const CellReach.runsOff(this.up, this.down) : across = null;
+
+  final double? across;
+  final double up;
+  final double down;
+}
+
 /// How a kind of cell is drawn: its shape, how big it is, how big its
-/// nucleus is, and so how wide the view is at the cell and at the nucleus.
+/// nucleus is, how far it reaches from its nucleus, and so how wide the view
+/// is at the cell and at the nucleus.
 @immutable
 final class CellArchetype {
-  const CellArchetype(this.shape, {required this.metres, required this.nucleus});
+  const CellArchetype(
+    this.shape, {
+    required this.metres,
+    required this.nucleus,
+    required this.reach,
+  });
 
   final CellShape shape;
 
@@ -77,100 +104,148 @@ final class CellArchetype {
   /// Its nucleus's diameter, in metres.
   final double nucleus;
 
-  /// How wide the view is at the cell: the cell whole, with room round it;
-  /// for a red cell's precursor, room for the island of the marrow it sits in.
-  double get viewMetres => metres * (shape == CellShape.erythroid ? 3.2 : 1.9);
+  /// How far it reaches from its nucleus.
+  final CellReach reach;
+
+  /// How much of the view's width the cell spans across: seven tenths, so
+  /// its parts read (the user's choice of 2026-10-18; it was about half).
+  static const double fill = 0.7;
+
+  /// How far above and below the middle of the view the cell may reach, as
+  /// shares of its width: a phone's canvas at its squattest, 320 by 420, is
+  /// 0.65 of its width either side of the middle; a row of names and the
+  /// margin take 0.13 of that above, the scale bar 0.15 below.
+  static const double roomAbove = 0.52;
+  static const double roomBelow = 0.5;
+
+  /// How wide the view is at the cell: the cell spanning [fill] of it, but
+  /// where a cell taller than it is wide, or hanging below its nucleus,
+  /// would then run past the room above or below its middle: there it is as
+  /// big as that room lets it be.
+  double get viewMetres {
+    final double? across = reach.across;
+    final double half = math.min(
+      across == null ? double.infinity : fill / 2 / across,
+      math.min(roomAbove / reach.up, roomBelow / reach.down),
+    );
+    return metres / 2 / half;
+  }
 
   /// How wide the view is at the nucleus.
   double get nucleusViewMetres => nucleus * 1.5;
 }
+
+/// The reach of a round cell drawn as a blob about its nucleus.
+const CellReach _round = CellReach(0.97, 0.9, 0.93);
 
 const Map<CellShape, CellArchetype> _archetypes = <CellShape, CellArchetype>{
   CellShape.epithelial: CellArchetype(
     CellShape.epithelial,
     metres: 1.5e-5,
     nucleus: 7e-6,
+    reach: _round,
   ),
   CellShape.hepatocyte: CellArchetype(
     CellShape.hepatocyte,
     metres: 2.5e-5,
     nucleus: 9e-6,
+    reach: CellReach(1.07, 0.85, 0.97),
   ),
   CellShape.acinar: CellArchetype(
     CellShape.acinar,
     metres: 1.6e-5,
     nucleus: 6e-6,
+    reach: CellReach(0.8, 1.06, 0.72),
   ),
   CellShape.endocrine: CellArchetype(
     CellShape.endocrine,
     metres: 1.3e-5,
     nucleus: 6e-6,
+    reach: _round,
   ),
   CellShape.ciliated: CellArchetype(
     CellShape.ciliated,
     metres: 2e-5,
     nucleus: 6e-6,
+    reach: CellReach(0.43, 1.21, 0.81),
   ),
   CellShape.endothelial: CellArchetype(
     CellShape.endothelial,
     metres: 3e-5,
     nucleus: 9e-6,
+    reach: CellReach(1.01, 0.25, 0.24),
   ),
   CellShape.neuron: CellArchetype(
     CellShape.neuron,
     metres: 4e-5,
     nucleus: 1e-5,
+    reach: CellReach(1.02, 1.01, 0.58),
   ),
   CellShape.glial: CellArchetype(
     CellShape.glial,
     metres: 2.5e-5,
     nucleus: 6e-6,
+    reach: CellReach(0.49, 0.41, 0.33),
   ),
   CellShape.myofibre: CellArchetype(
     CellShape.myofibre,
     metres: 5e-5,
     nucleus: 9e-6,
+    reach: CellReach.runsOff(0.12, 1.31),
   ),
   CellShape.cardiomyocyte: CellArchetype(
     CellShape.cardiomyocyte,
     metres: 6e-5,
     nucleus: 1e-5,
+    reach: CellReach(1.1, 0.75, 0.36),
   ),
   CellShape.spindle: CellArchetype(
     CellShape.spindle,
     metres: 4e-5,
     nucleus: 8e-6,
+    reach: CellReach(1, 0.22, 0.22),
   ),
   CellShape.adipocyte: CellArchetype(
     CellShape.adipocyte,
     metres: 6e-5,
     nucleus: 8e-6,
+    reach: CellReach(1.01, 0.17, 1.84),
   ),
   CellShape.erythroid: CellArchetype(
     CellShape.erythroid,
     metres: 1.2e-5,
     nucleus: 7e-6,
+    reach: _round,
   ),
   CellShape.megakaryocyte: CellArchetype(
     CellShape.megakaryocyte,
     metres: 5e-5,
     nucleus: 2e-5,
+    reach: CellReach(1.05, 0.94, 1),
   ),
   CellShape.leukocyte: CellArchetype(
     CellShape.leukocyte,
     metres: 1.2e-5,
     nucleus: 7e-6,
+    reach: _round,
   ),
-  CellShape.germ: CellArchetype(CellShape.germ, metres: 1.8e-5, nucleus: 1e-5),
+  CellShape.germ: CellArchetype(
+    CellShape.germ,
+    metres: 1.8e-5,
+    nucleus: 1e-5,
+    reach: _round,
+  ),
   CellShape.dividing: CellArchetype(
     CellShape.dividing,
     metres: 1.6e-5,
     nucleus: 9e-6,
+    reach: _round,
   ),
   CellShape.trophoblast: CellArchetype(
     CellShape.trophoblast,
     metres: 3e-5,
     nucleus: 8e-6,
+    reach: CellReach(1.1, 0.69, 0.8),
   ),
 };
 
