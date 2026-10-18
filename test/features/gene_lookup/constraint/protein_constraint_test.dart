@@ -171,7 +171,9 @@ void main() {
     });
 
     test('every disulfide names its partner by precursor number', () {
-      for (final ProteinTarget target in TestCatalog.all) {
+      for (final ProteinTarget target in TestCatalog.all.where(
+        (ProteinTarget t) => t.scored,
+      )) {
         final Map<String, dynamic> json =
             jsonDecode(File(target.constraintAsset).readAsStringSync())
                 as Map<String, dynamic>;

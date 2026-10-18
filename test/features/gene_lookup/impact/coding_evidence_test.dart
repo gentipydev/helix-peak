@@ -73,10 +73,9 @@ void main() {
         GeneRecordDto.fromJson(_json(target.mockAsset)).toEntity(),
         chain: target.chain,
       );
-      final ProteinConstraint scores = ProteinConstraint.fromJson(
-        _json(target.constraintAsset),
-        target,
-      );
+      final ProteinConstraint? scores = target.scored
+          ? ProteinConstraint.fromJson(_json(target.constraintAsset), target)
+          : null;
       final AnatomyStage protein = gene.stages.firstWhere(
         (AnatomyStage stage) => stage.kind == StageKind.protein,
       );
@@ -95,7 +94,7 @@ void main() {
           expect(evidence, isNull, reason: '${target.slug} UTR/stop $i');
         } else {
           expect(evidence, isNotNull, reason: '${target.slug} coding $offset');
-          expect(evidence!.constraint, same(scores.positions[offset ~/ 3]));
+          expect(evidence!.constraint, same(scores?.positions[offset ~/ 3]));
           expect(evidence.offset, offset % 3);
         }
       }

@@ -1,0 +1,229 @@
+{
+  "slug": "hcgbeta",
+  "gene": "CGB3",
+  "uniprot": "P0DN86",
+  "assembly": "GRCh38",
+  "genome": "hg38",
+  "chromosome": "19",
+  "sequence": "NC_000019.10",
+  "length": 58617616,
+  "span": {
+    "start": 49022869,
+    "end": 49024333,
+    "strand": -1
+  },
+  "transcript": {
+    "refseq": "NM_000737.5",
+    "ensembl": "ENST00000357383.4"
+  },
+  "band": {
+    "names": [
+      "q13.33"
+    ],
+    "start": 47500001,
+    "end": 50900000
+  },
+  "locus": "19q13.33",
+  "bands": [
+    {
+      "name": "p13.3",
+      "start": 1,
+      "end": 6900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p13.2",
+      "start": 6900001,
+      "end": 12600000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "p13.13",
+      "start": 12600001,
+      "end": 13800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p13.12",
+      "start": 13800001,
+      "end": 16100000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "p13.11",
+      "start": 16100001,
+      "end": 19900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p12",
+      "start": 19900001,
+      "end": 24200000,
+      "stain": "gvar"
+    },
+    {
+      "name": "p11",
+      "start": 24200001,
+      "end": 26200000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11",
+      "start": 26200001,
+      "end": 28100000,
+      "stain": "acen"
+    },
+    {
+      "name": "q12",
+      "start": 28100001,
+      "end": 31900000,
+      "stain": "gvar"
+    },
+    {
+      "name": "q13.11",
+      "start": 31900001,
+      "end": 35100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q13.12",
+      "start": 35100001,
+      "end": 37800000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q13.13",
+      "start": 37800001,
+      "end": 38200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q13.2",
+      "start": 38200001,
+      "end": 42900000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q13.31",
+      "start": 42900001,
+      "end": 44700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q13.32",
+      "start": 44700001,
+      "end": 47500000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q13.33",
+      "start": 47500001,
+      "end": 50900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q13.41",
+      "start": 50900001,
+      "end": 53100000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q13.42",
+      "start": 53100001,
+      "end": 55800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q13.43",
+      "start": 55800001,
+      "end": 58617616,
+      "stain": "gpos25"
+    }
+  ],
+  "expression": {
+    "ensembl_gene": "ENSG00000104827",
+    "tissue": {
+      "specificity": "Tissue enhanced",
+      "distribution": "Detected in some",
+      "specific": [
+        {
+          "name": "placenta",
+          "ntpm": 9.3
+        },
+        {
+          "name": "pituitary gland",
+          "ntpm": 2.5
+        },
+        {
+          "name": "pancreas",
+          "ntpm": 2.2
+        }
+      ]
+    },
+    "cell_type": {
+      "specificity": "Cell type enriched",
+      "distribution": "Detected in some",
+      "specific": [
+        {
+          "name": "Syncytiotrophoblasts",
+          "ncpm": 952.9
+        }
+      ]
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Pituitary gland",
+        "cell_type": "Gonadotropes"
+      }
+    ],
+    "subcellular": {
+      "main": [],
+      "additional": []
+    },
+    "secretome": "Secreted to blood"
+  },
+  "path": {
+    "tissue": "placenta",
+    "tissue_from": "tissue",
+    "cell_type": "Syncytiotrophoblasts",
+    "cell_class": "Trophoblast cells",
+    "cell_from": "single_cell_type",
+    "lands_in": null
+  },
+  "sources": {
+    "cytoband": {
+      "table": "cytoBand",
+      "genome": "hg38",
+      "updated": "2022-10-28T15:06:46",
+      "rows": 1549,
+      "sha256": "50366db9b20881ddcd5679fefa6f8ee5eeb920ce61a7889e0ee0c52853b034c7",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=cytoBand"
+    },
+    "chrom_alias": {
+      "table": "chromAlias",
+      "genome": "hg38",
+      "updated": "2023-01-24T12:46:47",
+      "rows": 2129,
+      "sha256": "df04264a4bcb6dc6b5a6334b42d09270abc894ac2ebbd8ca68a51a12b7076f02",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=chromAlias"
+    },
+    "mane": {
+      "release": "v1.5"
+    },
+    "uniprot": {
+      "release": "2026_03",
+      "release_date": "2026-09-02",
+      "entry_version": 61
+    },
+    "hpa": {
+      "version": "25.1",
+      "release_date": "2026-05-25",
+      "ensembl": "109",
+      "licence": "CC BY 4.0",
+      "url": "https://www.proteinatlas.org/ENSG00000104827.json"
+    }
+  },
+  "retrieved": "2026-10-18",
+  "schema_version": 2,
+  "built_by": "pipeline/locus/bake_locus.py"
+}

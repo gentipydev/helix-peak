@@ -776,16 +776,19 @@ void main() {
             reason: '${t.slug} at ${stop.name}',
           );
           // A landmark is named where it is seen: the nucleolus, at the
-          // cell; and the gene's parts at the gene.
-          expect(
-            staging.callouts.where(
-              (ZoomCallout c) => c.opacity > 0.5 && c.quiet,
-            ),
-            stop == ZoomStop.cell || stop == ZoomStop.gene
-                ? isNotEmpty
-                : isEmpty,
-            reason: '${t.slug} at ${stop.name}',
-          );
+          // cell, unless the protein's own name says it is there; and the
+          // gene's parts at the gene.
+          if (!(stop == ZoomStop.cell && inNucleoli(t))) {
+            expect(
+              staging.callouts.where(
+                (ZoomCallout c) => c.opacity > 0.5 && c.quiet,
+              ),
+              stop == ZoomStop.cell || stop == ZoomStop.gene
+                  ? isNotEmpty
+                  : isEmpty,
+              reason: '${t.slug} at ${stop.name}',
+            );
+          }
         }
       }
     }

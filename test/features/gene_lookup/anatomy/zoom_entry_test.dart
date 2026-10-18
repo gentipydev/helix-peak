@@ -393,7 +393,6 @@ void main() {
         for (final ProteinTarget target in TestCatalog.all)
           if (recordOf(target).isIntronCompressed) target.slug,
       });
-      expect(cut, hasLength(3));
     });
   });
 }

@@ -498,9 +498,10 @@ void main() {
         }
         int listed = 0;
         for (final RegExpMatch m in RegExp(
-          r'(?:(\d+) × )?[^·()]+\((\d+)\)',
+          r'(?:(\d+) × )?[^·()]+\(([\d,]+)\)',
         ).allMatches(stage.sentence)) {
-          listed += int.parse(m.group(1) ?? '1') * int.parse(m.group(2)!);
+          listed += int.parse(m.group(1) ?? '1') *
+              int.parse(m.group(2)!.replaceAll(',', ''));
         }
         expect(listed, stage.count, reason: '${target.slug}: ${stage.sentence}');
       }
@@ -732,7 +733,7 @@ void main() {
     for (final ProteinTarget target in TestCatalog.all) {
       for (final String path in <String>[
         target.structureAsset,
-        target.constraintAsset,
+        if (target.scored) target.constraintAsset,
         target.impactAsset,
         target.clinvarAsset,
       ]) {
@@ -856,11 +857,13 @@ void main() {
         mature.isEmpty ? 1 : mature.single.blocks.length,
         reason: target.slug,
       );
-      expect(
-        facts.bridges,
-        (_json(target.constraintAsset)['disulfides'] as List<dynamic>).length,
-        reason: target.slug,
-      );
+      if (target.scored) {
+        expect(
+          facts.bridges,
+          (_json(target.constraintAsset)['disulfides'] as List<dynamic>).length,
+          reason: target.slug,
+        );
+      }
       if (target.structure!.modelled case (final int from, final int to)) {
         expect(to - from + 1, target.structure!.count, reason: target.slug);
         expect(to, lessThanOrEqualTo(facts.residues), reason: target.slug);

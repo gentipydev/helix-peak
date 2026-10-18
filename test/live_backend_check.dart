@@ -73,11 +73,14 @@ void main() {
       ).fetchGene(target.query);
       expect(record.toEntity().gene, target.gene, reason: target.slug);
 
-      final ProteinConstraint constraint = await ProteinConstraint.load(
-        target,
-        tracks: tracks,
-      );
-      expect(constraint.positions.length, target.facts.residues, reason: target.slug);
+      // A protein ESM-2 has not scored has no constraint track (R6).
+      if (target.scored) {
+        final ProteinConstraint constraint = await ProteinConstraint.load(
+          target,
+          tracks: tracks,
+        );
+        expect(constraint.positions.length, target.facts.residues, reason: target.slug);
+      }
 
       final GeneImpact impact = await GeneImpact.load(target, tracks: tracks);
       expect(impact.gene, target.gene, reason: target.slug);

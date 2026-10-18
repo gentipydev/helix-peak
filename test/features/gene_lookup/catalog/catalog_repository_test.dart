@@ -167,14 +167,14 @@ void main() {
 
   testWidgets('the app graph hands over its hydrated repository', (tester) async {
     await tester.runAsync(catalog.refresh);
-    await tester.binding.setSurfaceSize(const Size(400, 6000));
+    await tester.binding.setSurfaceSize(Size(400, 260.0 * TestCatalog.all.length));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(MultiRepositoryProvider(
       providers: buildAppProviders(api: api, catalog: catalog),
       child: const MaterialApp(home: SearchScreen()),
     ));
     await tester.pump();
-    expect(find.byType(ProteinCard), findsNWidgets(20));
+    expect(find.byType(ProteinCard), findsNWidgets(TestCatalog.all.length));
     expect(find.text('Insulin'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
   });

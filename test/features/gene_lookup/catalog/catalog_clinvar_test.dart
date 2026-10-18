@@ -84,13 +84,15 @@ void main() {
           _json(target.impactAsset),
           target,
         );
-        final ProteinConstraint constraint = ProteinConstraint.fromJson(
-          _json(target.constraintAsset),
-          target,
-        );
+        // A protein ESM-2 has not scored has no constraint track (R6).
+        final ProteinConstraint? constraint = target.scored
+            ? ProteinConstraint.fromJson(_json(target.constraintAsset), target)
+            : null;
         expect(snapshot.matchesRecord(record), isTrue);
         expect(snapshot.matchesImpact(impact), isTrue);
-        expect(snapshot.proteinSequence, constraint.sequence);
+        if (constraint != null) {
+          expect(snapshot.proteinSequence, constraint.sequence);
+        }
 
         final List<VariantEvidence> evidence = VariantEvidence.build(
           snapshot,
@@ -108,7 +110,7 @@ void main() {
         expect(exact, greaterThanOrEqualTo(evidence.length * 0.99));
         for (final VariantEvidence e in evidence) {
           // A missense record reads its own amino acid's ESM score.
-          if (e.variant.consequence == 'missense') {
+          if (constraint != null && e.variant.consequence == 'missense') {
             expect(e.esm, isNotNull, reason: e.variant.id);
           }
           // And every record with its model numbers has its one-line reading.

@@ -1,0 +1,5953 @@
+{
+  "schema_version": 1,
+  "source": "NCBI ClinVar",
+  "gene": "CSTB",
+  "accession": "NG_011545",
+  "assembly": "GRCh38",
+  "chromosome": "chr21",
+  "scope": "reference-matched single nucleotide variants in the drawn gene",
+  "start": 5004,
+  "sequence": "CTTGGTTCCGCCCGCGCGTCACGTGACCCCAGCGCCTACTTGGGCTGAGGAGCCGCCGCGTCCCCTCGCCGAGTCCCCTCGCCAGATTCCCTCCGTCGCCGCCAAGATGATGTGCGGGGCGCCCTCCGCCACGCAGCCGGCCACCGCCGAGACCCAGCACATCGCCGACCAGGTGGGTGGGCCGCGGGGACGGGGCCGGCCCGGAGTCCTGCCTTAGCCTCAGGGCGCGGCCGCGGCTCCTGGAGCGAAAGAAGCCGCTTTGGCCCCGCTGCGCACCCCTGGGCTGGCCCGGGCTGTGGCCGTGAGAGGCCTCCCTCCGCTCGGGCGCTGCGCGCGAGTGAGCAGCGGGGGGCCGCGCCTGGGGCGCCGCTGGGGAGACATTGGGCTCCGCTGAATACAGCAAGGGCGAGTGGGAATTGATAGCCCGGAGCAGGGTGCGGTCCCTGCATGGACAGTCTCTGAGAGGAAACCCCAGGGATGAGGCGCTTCTGGTTTCAGGCAGGCAGGGTGATCGGGCGTCGCCGGCGATGGCGCAGGTGAGCAGCCGGCTCCGATCTCCACGGTGATCCGATAGCAAGCGGGTGGGAAGGGTCTGGCTAAACTGACTTAGCCAGGCTTCTTGCTAAAAGTGGATTTTACAAGGAAGTGCGCAGGTGGCCTAGGCGCTTCAGGAGCCCGACTACAGTTTGGCCAAGCAAGAATCTTTGTCAATATCCTCATCTAGTTCGGGAAAAAAATCATGAGAGAGAGTGCAAGAGGTCCCCAGTGATAAGGCACATGGGTTAAAAACTTAAGTGTATCTGCATAAAAGGTCCACAGGTTTCTTTACATGCTTCCGATTCTAGCACTGTTTCAAACTGTAAGTCTAAATAAAAAGTTAAAACACAGAAAAACAAGATAAAAACCGGGCTGGGTTGCAGATGGCAACCTTCCCTGTGTCTCGGTTTCCTCGTCTGTAAAATGGACGTCCTGTTGCTCTGCGCCTGCCAGAAGATTCTGGAGGGGCTGAAATGAGCAGGTCATCTGTGCAAGAAGCCCCCTCCGGTGGAGCACAGGCCAGGCCCGCCTCGCTGTCATGGTTGGTGACCGACGGGATGCCCCAAGCAAGAACAGGTCCAGGCGATGCTGAGGCCTGTGTTTTTTTTTTTTGTTTTTGAGACTCAGTCTCACTCTTGCCCAGGGTGGAGTGCAGTGGCACAATCTCGGCCCACTGCAACCTCCGCTTCCCAGGTTCAAGGGATTCTCCTGCCTTAGCCTCCCGAGTAGCTGGGATTGCAGGTGCTCGCCACCACGCCCAGCTAATTTTTGTATTTTTAGTAGAAACGGGGTTTTGCCATTTGGCTAGGCTGGTCTCAAACTCCTGACCTCAAGTGATCCGCCCACCTCAGCCTCCCAAAGTTCTGGGATTACATCCTTGAGCCACCGTACCCAGCTGGAACTGTTTTTTTCTACTTTATTATTAGGCTGACAGTTTAAATGTCCCTTCAGTTGTAAGAGACAATTGTGTGAAGAGCCAGTGTCAGAATCGTGTGTGTGCTCACATGCGTGCAAGTTACTCTAGCAGGAGGGAATCCAAGAAGCCACTGAGACATCCTCATTCTGTCCCTTCTGTCTAGGTGAGGTCCCAGCTTGAAGAGAAAGAAAACAAGAAGTTCCCTGTGTTTAAGGCCGTGTCATTCAAGAGCCAGGTGGTCGCGGGGACAAACTACTTCATCAAGGTAGAGTGTGGGCCTCAGGAGGGCCTGCCCCGAACGGGTGCTGGTAGGAAACCGCCTGTGCAGGCCCGGGCTGTGTGGTCTTAGGTGCTGGGGCGCCCTGTGGCTGCCCCCTGAGATAAGCATCCTACTGTGTGTGTCCATCGGCCTTTCAGGAGGACTAGGGCTTCTGGGGAGCTAAGAACCCCAAGGAAACAAGTGTGGGATGTGAGGCATCCCCTGCACATGCAGGAGAAGACAAGATTGTCTTCAGCTGGCTGCTAATGACCTGGAGGGGCGCAGCAAGGTGACTTGGGATCAGAGGCTTCGCTCACTCCGCTCTCTTCCCAGGTGCACGTCGGCGACGAGGACTTCGTACACCTGCGAGTGTTCCAATCTCTCCCTCATGAAAACAAGCCCTTGACCTTATCTAACTACCAGACCAACAAAGCCAAGCATGATGAGCTGACCTATTTCTGATCCTGACTTTGGACAAGGCCCTTCAGCCAGAAGACTGACAAAGTCATCCTCCGTCTACCAGAGCGTGCACTTGTGATCCTAAAATAAGCTTCATCTCCGGGCTGTGCCCCTTGGGGTGGAAGGGGCAGGATTCTGCAGCTGCTTTTGCATTTCTCTTCCTAAATTTCATTGTGTTGATTTCTTTCCTTCCCAATAGGTGATCTTAATTACTTTCAGAATATTTTCAAAATAGATATATTTTTAAAATCCTTACAGATTGCCTCCTTTGTTTTAGACTTTTTTCTTCGTCTGAACCACCCCGGGCAGGTCCTTCCCCTCGGGGGCATGGAGGGCGGAGAGACTGCCTGGCTCACACAGCAAGCAGGTGGTGGACCCAGGATTCACACCTGCCCACTCCGGCCCGCGTTCCTAACCACCACTCTTTACATGTTGGTGCTTTGACTCTTAGGTCCTGGCCCCAAGCTTCAGTTTCTCCCATAAAATAAAAGAGTGTGAGTAAATCCAATTCCAGAGCATAACTGGCTCCAGATCTCAGAT",
+  "protein_sequence": "MMCGAPSATQPATAETQHIADQVRSQLEEKENKKFPVFKAVSFKSQVVAGTNYFIKVHVGDEDFVHLRVFQSLPHENKPLTLSNYQTNKAKHDELTYF",
+  "complemented": true,
+  "runs": [
+    {
+      "local": 5004,
+      "genomic": 43776375,
+      "step": -1,
+      "length": 2711
+    }
+  ],
+  "retrieved_at": "2026-10-18T00:19:59.600591+00:00",
+  "query": "CSTB[gene]",
+  "searched_records": 295,
+  "excluded": {
+    "no_germline_classification": 3,
+    "no_unique_GRCh38_location": 68,
+    "not_a_single_base_substitution": 66,
+    "outside_drawn_gene": 4
+  },
+  "source_batches": [
+    {
+      "file": "batch-0.xml",
+      "sha256": "ddbcccebc57f05e9be2847c288e920079b3dbe1b6f547bd9c8e1fe244fc05b1e"
+    },
+    {
+      "file": "batch-1.xml",
+      "sha256": "27a6296d9c5bf2c3abd0aa3b276d66da742cf74656c610e4e1327714cec2cb88"
+    },
+    {
+      "file": "batch-2.xml",
+      "sha256": "113c6da5d9624817f3d30b30ffdba5a41ef76ce84288c665b967f7d0db51dd36"
+    }
+  ],
+  "traits": {
+    "Aplasia/Hypoplasia of the corpus callosum": {
+      "medgen": "C1861866"
+    },
+    "Cerebral dysmyelination": {
+      "medgen": "C1854885"
+    },
+    "Chorea": {
+      "medgen": "C0008489",
+      "mondo": "MONDO:0001595"
+    },
+    "Dyskinesia": {
+      "medgen": "C0013384"
+    },
+    "Dystonic disorder": {
+      "medgen": "C0013421",
+      "mondo": "MONDO:0003441"
+    },
+    "Encephalopathy": {
+      "medgen": "C0085584"
+    },
+    "Global brain atrophy": {
+      "medgen": "C0241816"
+    },
+    "Inborn genetic diseases": {
+      "medgen": "C0950123"
+    },
+    "Microcephaly": {
+      "medgen": "C4551563",
+      "mondo": "MONDO:0001149"
+    },
+    "Motor delay": {
+      "medgen": "C1854301"
+    },
+    "Progressive microcephaly": {
+      "medgen": "C1850456"
+    },
+    "Progressive myoclonic epilepsy": {
+      "medgen": "C0751778",
+      "omim": "PS254800",
+      "mondo": "MONDO:0020074"
+    },
+    "Self-limited epilepsy with centrotemporal spikes": {
+      "medgen": "C0376532",
+      "mondo": "MONDO:0007295"
+    },
+    "Severe global developmental delay": {
+      "medgen": "C1837397"
+    },
+    "Severe intellectual disability": {
+      "medgen": "C0036857"
+    },
+    "Unverricht-Lundborg syndrome": {
+      "medgen": "C0751785",
+      "symbol": "PME",
+      "omim": "254800",
+      "mondo": "MONDO:0009698"
+    }
+  },
+  "variants": [
+    {
+      "variation_id": "340125",
+      "accession": "VCV000340125.7",
+      "name": "NM_000100.3(CSTB):c.-55G>A",
+      "position": 5055,
+      "genomic": 43776324,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-10-10",
+      "conditions": [
+        {
+          "accession": "RCV000297601.14",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "340124",
+      "accession": "VCV000340124.9",
+      "name": "NM_000100.3(CSTB):c.-54C>T",
+      "position": 5056,
+      "genomic": 43776323,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-06-19",
+      "last_updated": "2026-10-10",
+      "conditions": [
+        {
+          "accession": "RCV000396093.14",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV000829291.11",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-06-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "385562",
+      "accession": "VCV000385562.3",
+      "name": "NM_000100.3(CSTB):c.-50C>G",
+      "position": 5060,
+      "genomic": 43776319,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2016-04-26",
+      "last_updated": "2026-10-10",
+      "conditions": [
+        {
+          "accession": "RCV000421126.10",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2016-04-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "381777",
+      "accession": "VCV000381777.3",
+      "name": "NM_000100.3(CSTB):c.-50C>T",
+      "position": 5060,
+      "genomic": 43776319,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2017-10-09",
+      "last_updated": "2026-10-10",
+      "conditions": [
+        {
+          "accession": "RCV000434060.11",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-10-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "384017",
+      "accession": "VCV000384017.3",
+      "name": "NM_000100.3(CSTB):c.-47G>T",
+      "position": 5063,
+      "genomic": 43776316,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2016-03-04",
+      "last_updated": "2026-10-10",
+      "conditions": [
+        {
+          "accession": "RCV000418034.10",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2016-03-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "340123",
+      "accession": "VCV000340123.7",
+      "name": "NM_000100.3(CSTB):c.-43C>G",
+      "position": 5067,
+      "genomic": 43776312,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-10-10",
+      "conditions": [
+        {
+          "accession": "RCV000337246.14",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "340122",
+      "accession": "VCV000340122.9",
+      "name": "NM_000100.3(CSTB):c.-42C>T",
+      "position": 5068,
+      "genomic": 43776311,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-10-10",
+      "conditions": [
+        {
+          "accession": "RCV000303313.14",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        },
+        {
+          "accession": "RCV000444078.10",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2015-03-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "in vitro"
+      ]
+    },
+    {
+      "variation_id": "511262",
+      "accession": "VCV000511262.1",
+      "name": "NM_000100.4(CSTB):c.-30C>T",
+      "position": 5080,
+      "genomic": 43776299,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2017-08-04",
+      "last_updated": "2025-04-08",
+      "conditions": [
+        {
+          "accession": "RCV000606253.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-08-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "205324",
+      "accession": "VCV000205324.1",
+      "name": "NM_000100.4(CSTB):c.-13C>G",
+      "position": 5097,
+      "genomic": 43776282,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2017-09-20",
+      "last_updated": "2025-04-08",
+      "conditions": [
+        {
+          "accession": "RCV000187276.3",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-09-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "510088",
+      "accession": "VCV000510088.6",
+      "name": "NM_000100.4(CSTB):c.-12G>A",
+      "position": 5098,
+      "genomic": 43776281,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2024-09-02",
+      "last_updated": "2026-09-27",
+      "conditions": [
+        {
+          "accession": "RCV000612920.2",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2024-09-02"
+        },
+        {
+          "accession": "RCV001138241.4",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1436616",
+      "accession": "VCV001436616.6",
+      "name": "NM_000100.4(CSTB):c.9C>G (p.Cys3Trp)",
+      "position": 5118,
+      "genomic": 43776261,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 3,
+      "protein_change": "p.C3W",
+      "coding_change": "c.9C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-09-03",
+      "last_updated": "2026-02-24",
+      "conditions": [
+        {
+          "accession": "RCV001931674.6",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-09-03"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "895890",
+      "accession": "VCV000895890.11",
+      "name": "NM_000100.4(CSTB):c.9C>T (p.Cys3=)",
+      "position": 5118,
+      "genomic": 43776261,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 3,
+      "protein_change": "p.C3=",
+      "coding_change": "c.9C>T",
+      "consequence": "synonymous",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2025-07-20",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV002070623.8",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-07-20"
+        },
+        {
+          "accession": "RCV001138240.4",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-04-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "8397",
+      "accession": "VCV000008397.5",
+      "name": "NM_000100.4(CSTB):c.10G>C (p.Gly4Arg)",
+      "position": 5119,
+      "genomic": 43776260,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 4,
+      "protein_change": "p.G4R",
+      "coding_change": "c.10G>C",
+      "consequence": "missense",
+      "classification": "Likely pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-07-21",
+      "last_updated": "2026-06-27",
+      "conditions": [
+        {
+          "accession": "RCV000008905.10",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-07-21"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "431700",
+      "accession": "VCV000431700.3",
+      "name": "NM_000100.4(CSTB):c.10G>T (p.Gly4Trp)",
+      "position": 5119,
+      "genomic": 43776260,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 4,
+      "protein_change": "p.G4W",
+      "coding_change": "c.10G>T",
+      "consequence": "missense",
+      "classification": "Likely pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": null,
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000655934.3",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "research"
+      ]
+    },
+    {
+      "variation_id": "462912",
+      "accession": "VCV000462912.9",
+      "name": "NM_000100.4(CSTB):c.12G>A (p.Gly4=)",
+      "position": 5121,
+      "genomic": 43776258,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 4,
+      "protein_change": "p.G4=",
+      "coding_change": "c.12G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-11-16",
+      "last_updated": "2026-02-24",
+      "conditions": [
+        {
+          "accession": "RCV000530519.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-11-16"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2168137",
+      "accession": "VCV002168137.4",
+      "name": "NM_000100.4(CSTB):c.15G>A (p.Ala5=)",
+      "position": 5124,
+      "genomic": 43776255,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 5,
+      "protein_change": "p.A5=",
+      "coding_change": "c.15G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-12-03",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV003100277.5",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-03"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "128858",
+      "accession": "VCV000128858.31",
+      "name": "NM_000100.4(CSTB):c.15G>T (p.Ala5=)",
+      "position": 5124,
+      "genomic": 43776255,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 5,
+      "protein_change": "p.A5=",
+      "coding_change": "c.15G>T",
+      "consequence": "synonymous",
+      "classification": "Benign/Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-02-03",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000116838.28",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2020-09-29"
+        },
+        {
+          "accession": "RCV000232779.23",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-02-03"
+        },
+        {
+          "accession": "RCV000402934.14",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2021-10-13"
+        },
+        {
+          "accession": "RCV002312081.9",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2016-03-21"
+        },
+        {
+          "accession": "RCV004703383.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "1380284",
+      "accession": "VCV001380284.6",
+      "name": "NM_000100.4(CSTB):c.16C>G (p.Pro6Ala)",
+      "position": 5125,
+      "genomic": 43776254,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 6,
+      "protein_change": "p.P6A",
+      "coding_change": "c.16C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-11-23",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001886291.6",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-11-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1898278",
+      "accession": "VCV001898278.5",
+      "name": "NM_000100.4(CSTB):c.17C>T (p.Pro6Leu)",
+      "position": 5126,
+      "genomic": 43776253,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 6,
+      "protein_change": "p.P6L",
+      "coding_change": "c.17C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-05-30",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002573864.5",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-05-30"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1036373",
+      "accession": "VCV001036373.9",
+      "name": "NM_000100.4(CSTB):c.21C>A (p.Ser7=)",
+      "position": 5130,
+      "genomic": 43776249,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 7,
+      "protein_change": "p.S7=",
+      "coding_change": "c.21C>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-05-15",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV001339376.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1472370",
+      "accession": "VCV001472370.6",
+      "name": "NM_000100.4(CSTB):c.26C>A (p.Thr9Lys)",
+      "position": 5135,
+      "genomic": 43776244,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 9,
+      "protein_change": "p.T9K",
+      "coding_change": "c.26C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-11-16",
+      "last_updated": "2026-02-24",
+      "conditions": [
+        {
+          "accession": "RCV001975976.6",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-11-16"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "999402",
+      "accession": "VCV000999402.10",
+      "name": "NM_000100.4(CSTB):c.26C>T (p.Thr9Met)",
+      "position": 5135,
+      "genomic": 43776244,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 9,
+      "protein_change": "p.T9M",
+      "coding_change": "c.26C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2023-05-08",
+      "last_updated": "2026-09-27",
+      "conditions": [
+        {
+          "accession": "RCV001295398.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-02-21"
+        },
+        {
+          "accession": "RCV006913874.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-05-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "414880",
+      "accession": "VCV000414880.12",
+      "name": "NM_000100.4(CSTB):c.27G>C (p.Thr9=)",
+      "position": 5136,
+      "genomic": 43776243,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 9,
+      "protein_change": "p.T9=",
+      "coding_change": "c.27G>C",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2026-02-03",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV000461121.12",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-02-03"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "579288",
+      "accession": "VCV000579288.9",
+      "name": "NM_000100.4(CSTB):c.28C>G (p.Gln10Glu)",
+      "position": 5137,
+      "genomic": 43776242,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 10,
+      "protein_change": "p.Q10E",
+      "coding_change": "c.28C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2023-10-13",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV000702531.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-10-13"
+        },
+        {
+          "accession": "RCV002536359.2",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-11-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "193045",
+      "accession": "VCV000193045.20",
+      "name": "NM_000100.4(CSTB):c.29A>C (p.Gln10Pro)",
+      "position": 5138,
+      "genomic": 43776241,
+      "ref": "A",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": 10,
+      "protein_change": "p.Q10P",
+      "coding_change": "c.29A>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-01-12",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV000638323.10",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-12"
+        },
+        {
+          "accession": "RCV000724370.12",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2023-08-10"
+        },
+        {
+          "accession": "RCV004975305.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-11-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1009881",
+      "accession": "VCV001009881.9",
+      "name": "NM_000100.4(CSTB):c.31C>T (p.Pro11Ser)",
+      "position": 5140,
+      "genomic": 43776239,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 11,
+      "protein_change": "p.P11S",
+      "coding_change": "c.31C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2020-08-11",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001307436.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-08-11"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1142711",
+      "accession": "VCV001142711.9",
+      "name": "NM_000100.4(CSTB):c.33G>A (p.Pro11=)",
+      "position": 5142,
+      "genomic": 43776237,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 11,
+      "protein_change": "p.P11=",
+      "coding_change": "c.33G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-11-10",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001480620.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1965913",
+      "accession": "VCV001965913.2",
+      "name": "NM_000100.4(CSTB):c.34G>A (p.Ala12Thr)",
+      "position": 5143,
+      "genomic": 43776236,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 12,
+      "protein_change": "p.A12T",
+      "coding_change": "c.34G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-07-11",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV002711461.2",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-07-11"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1179990",
+      "accession": "VCV001179990.2",
+      "name": "NM_000100.4(CSTB):c.36C>T (p.Ala12=)",
+      "position": 5145,
+      "genomic": 43776234,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 12,
+      "protein_change": "p.A12=",
+      "coding_change": "c.36C>T",
+      "consequence": "synonymous",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-03-22",
+      "last_updated": "2025-04-08",
+      "conditions": [
+        {
+          "accession": "RCV001537094.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-03-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3371794",
+      "accession": "VCV003371794.1",
+      "name": "NM_000100.4(CSTB):c.37A>G (p.Thr13Ala)",
+      "position": 5146,
+      "genomic": 43776233,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 13,
+      "protein_change": "p.T13A",
+      "coding_change": "c.37A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-04-19",
+      "last_updated": "2025-04-08",
+      "conditions": [
+        {
+          "accession": "RCV004779558.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1126007",
+      "accession": "VCV001126007.9",
+      "name": "NM_000100.4(CSTB):c.39C>G (p.Thr13=)",
+      "position": 5148,
+      "genomic": 43776231,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 13,
+      "protein_change": "p.T13=",
+      "coding_change": "c.39C>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-04-28",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001457926.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-04-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2428833",
+      "accession": "VCV002428833.4",
+      "name": "NM_000100.4(CSTB):c.40G>T (p.Ala14Ser)",
+      "position": 5149,
+      "genomic": 43776230,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 14,
+      "protein_change": "p.A14S",
+      "coding_change": "c.40G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-08-04",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003120434.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-08-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1652345",
+      "accession": "VCV001652345.10",
+      "name": "NM_000100.4(CSTB):c.42C>G (p.Ala14=)",
+      "position": 5151,
+      "genomic": 43776228,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 14,
+      "protein_change": "p.A14=",
+      "coding_change": "c.42C>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2020-11-16",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002156108.8",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-11-16"
+        },
+        {
+          "accession": "RCV003895999.2",
+          "names": [
+            "CSTB-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-02-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "809294",
+      "accession": "VCV000809294.41",
+      "name": "NM_000100.4(CSTB):c.43G>T (p.Glu15Ter)",
+      "position": 5152,
+      "genomic": 43776227,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 15,
+      "protein_change": "p.E15*",
+      "coding_change": "c.43G>T",
+      "consequence": "stop gained",
+      "classification": "Likely pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-08-01",
+      "last_updated": "2026-07-27",
+      "conditions": [
+        {
+          "accession": "RCV000997835.36",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-08-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "382295",
+      "accession": "VCV000382295.19",
+      "name": "NM_000100.4(CSTB):c.45G>A (p.Glu15=)",
+      "position": 5154,
+      "genomic": 43776225,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 15,
+      "protein_change": "p.E15=",
+      "coding_change": "c.45G>A",
+      "consequence": "synonymous",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2025-02-04",
+      "last_updated": "2026-09-27",
+      "conditions": [
+        {
+          "accession": "RCV000638335.20",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-02-04"
+        },
+        {
+          "accession": "RCV001142991.12",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV001712232.10",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-04-02"
+        },
+        {
+          "accession": "RCV006909443.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-09-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1023817",
+      "accession": "VCV001023817.9",
+      "name": "NM_000100.4(CSTB):c.47C>T (p.Thr16Ile)",
+      "position": 5156,
+      "genomic": 43776223,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 16,
+      "protein_change": "p.T16I",
+      "coding_change": "c.47C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-08-09",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001323923.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-08-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "205325",
+      "accession": "VCV000205325.15",
+      "name": "NM_000100.4(CSTB):c.54C>T (p.His18=)",
+      "position": 5163,
+      "genomic": 43776216,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 18,
+      "protein_change": "p.H18=",
+      "coding_change": "c.54C>T",
+      "consequence": "synonymous",
+      "classification": "Benign/Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-06-05",
+      "last_updated": "2026-10-04",
+      "conditions": [
+        {
+          "accession": "RCV000187277.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2014-12-12"
+        },
+        {
+          "accession": "RCV000467589.14",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-05"
+        },
+        {
+          "accession": "RCV002345668.2",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-03-29"
+        },
+        {
+          "accession": "RCV007046885.1",
+          "names": [
+            "CSTB-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-06-05"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "575503",
+      "accession": "VCV000575503.9",
+      "name": "NM_000100.4(CSTB):c.55A>G (p.Ile19Val)",
+      "position": 5164,
+      "genomic": 43776215,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 19,
+      "protein_change": "p.I19V",
+      "coding_change": "c.55A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-10-13",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV000697736.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-10-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "575156",
+      "accession": "VCV000575156.11",
+      "name": "NM_000100.4(CSTB):c.64C>T (p.Gln22Ter)",
+      "position": 5173,
+      "genomic": 43776206,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 22,
+      "protein_change": "p.Q22*",
+      "coding_change": "c.64C>T",
+      "consequence": "stop gained",
+      "classification": "Pathogenic/Likely pathogenic",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2022-11-01",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000697295.7",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-05-03"
+        },
+        {
+          "accession": "RCV001784328.7",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2022-11-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "55961",
+      "accession": "VCV000055961.3",
+      "name": "NM_000100.4(CSTB):c.66G>A (p.Gln22=)",
+      "position": 5175,
+      "genomic": 43776204,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 22,
+      "protein_change": "p.Q22=",
+      "coding_change": "c.66G>A",
+      "consequence": "synonymous",
+      "classification": "Likely pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": null,
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000049370.4",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "literature only",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "2152912",
+      "accession": "VCV002152912.4",
+      "name": "NM_000100.4(CSTB):c.66+3G>C",
+      "position": 5178,
+      "genomic": 43776201,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-08-08",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV003085396.5",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-08-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2751069",
+      "accession": "VCV002751069.3",
+      "name": "NM_000100.4(CSTB):c.66+10C>A",
+      "position": 5185,
+      "genomic": 43776194,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-10-07",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003583813.4",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-10-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2129691",
+      "accession": "VCV002129691.4",
+      "name": "NM_000100.4(CSTB):c.66+11C>T",
+      "position": 5186,
+      "genomic": 43776193,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-10-31",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003044164.5",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2139270",
+      "accession": "VCV002139270.4",
+      "name": "NM_000100.4(CSTB):c.66+14G>A",
+      "position": 5189,
+      "genomic": 43776190,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-02-24",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV003066552.5",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-02-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2879355",
+      "accession": "VCV002879355.3",
+      "name": "NM_000100.4(CSTB):c.66+15G>C",
+      "position": 5190,
+      "genomic": 43776189,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-11-27",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV003746338.4",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-11-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1648069",
+      "accession": "VCV001648069.8",
+      "name": "NM_000100.4(CSTB):c.66+20G>C",
+      "position": 5195,
+      "genomic": 43776184,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-07-26",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002153874.8",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-07-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "670906",
+      "accession": "VCV000670906.2",
+      "name": "NM_000100.4(CSTB):c.66+89T>C",
+      "position": 5264,
+      "genomic": 43776115,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-06-18",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000830077.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-06-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "677583",
+      "accession": "VCV000677583.2",
+      "name": "NM_000100.4(CSTB):c.66+108T>C",
+      "position": 5283,
+      "genomic": 43776096,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-06-14",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000837140.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-06-14"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "1214309",
+      "accession": "VCV001214309.3",
+      "name": "NM_000100.4(CSTB):c.66+169A>T",
+      "position": 5344,
+      "genomic": 43776035,
+      "ref": "A",
+      "alt": "T",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-09-22",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001582043.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-09-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1212314",
+      "accession": "VCV001212314.3",
+      "name": "NM_000100.4(CSTB):c.67-324G>A",
+      "position": 6296,
+      "genomic": 43775083,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-07-17",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001589552.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-07-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "677584",
+      "accession": "VCV000677584.2",
+      "name": "NM_000100.4(CSTB):c.67-150G>A",
+      "position": 6470,
+      "genomic": 43774909,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-06-14",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000837141.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-06-14"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "1223821",
+      "accession": "VCV001223821.9",
+      "name": "NM_000100.4(CSTB):c.67-12C>T",
+      "position": 6608,
+      "genomic": 43774771,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-03-03",
+      "last_updated": "2026-09-27",
+      "conditions": [
+        {
+          "accession": "RCV001596615.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-07-18"
+        },
+        {
+          "accession": "RCV002592512.5",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-03-03"
+        },
+        {
+          "accession": "RCV006906471.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-03-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1145727",
+      "accession": "VCV001145727.9",
+      "name": "NM_000100.4(CSTB):c.67-10T>G",
+      "position": 6610,
+      "genomic": 43774769,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-10-22",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV001484703.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "944340",
+      "accession": "VCV000944340.10",
+      "name": "NM_000100.4(CSTB):c.67-4C>G",
+      "position": 6616,
+      "genomic": 43774763,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2024-08-05",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001214713.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-08-05"
+        },
+        {
+          "accession": "RCV001288966.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-11-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3692796",
+      "accession": "VCV003692796.2",
+      "name": "NM_000100.4(CSTB):c.67-4C>T",
+      "position": 6616,
+      "genomic": 43774763,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-12-30",
+      "last_updated": "2026-02-25",
+      "conditions": [
+        {
+          "accession": "RCV005171186.2",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-12-30"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "137037",
+      "accession": "VCV000137037.59",
+      "name": "NM_000100.4(CSTB):c.67-3T>C",
+      "position": 6617,
+      "genomic": 43774762,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign/Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-01-26",
+      "last_updated": "2026-09-27",
+      "conditions": [
+        {
+          "accession": "RCV000124619.17",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Benign/Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2024-11-01"
+        },
+        {
+          "accession": "RCV000343250.12",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        },
+        {
+          "accession": "RCV000559998.22",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-26"
+        },
+        {
+          "accession": "RCV002312556.9",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-12-04"
+        },
+        {
+          "accession": "RCV004703398.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "4725737",
+      "accession": "VCV004725737.1",
+      "name": "NM_000100.4(CSTB):c.67-1G>A",
+      "position": 6619,
+      "genomic": 43774760,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-08-20",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006513891.1",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "8395",
+      "accession": "VCV000008395.52",
+      "name": "NM_000100.4(CSTB):c.67-1G>C",
+      "position": 6619,
+      "genomic": 43774760,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-12-30",
+      "last_updated": "2026-10-04",
+      "conditions": [
+        {
+          "accession": "RCV000008903.40",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2025-05-06"
+        },
+        {
+          "accession": "RCV000187278.28",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2024-05-16"
+        },
+        {
+          "accession": "RCV000622443.13",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-05-04"
+        },
+        {
+          "accession": "RCV000638304.18",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-30"
+        },
+        {
+          "accession": "RCV001003638.10",
+          "names": [
+            "Chorea",
+            "Dyskinesia"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": null
+        },
+        {
+          "accession": "RCV001254919.12",
+          "names": [
+            "Cerebral dysmyelination",
+            "Encephalopathy",
+            "Microcephaly"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        },
+        {
+          "accession": "RCV006905031.2",
+          "names": [
+            "CSTB-related disorder"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2025-07-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "in vitro",
+        "literature only",
+        "phenotyping only",
+        "research"
+      ]
+    },
+    {
+      "variation_id": "3376548",
+      "accession": "VCV003376548.1",
+      "name": "NM_000100.4(CSTB):c.76C>T (p.Gln26Ter)",
+      "position": 6629,
+      "genomic": 43774750,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 26,
+      "protein_change": "p.Q26*",
+      "coding_change": "c.76C>T",
+      "consequence": "stop gained",
+      "classification": "Likely pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-11-19",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV004787181.1",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-11-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "958189",
+      "accession": "VCV000958189.8",
+      "name": "NM_000100.4(CSTB):c.85G>A (p.Glu29Lys)",
+      "position": 6638,
+      "genomic": 43774741,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 29,
+      "protein_change": "p.E29K",
+      "coding_change": "c.85G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2021-08-31",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV001231306.6",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-08-31"
+        },
+        {
+          "accession": "RCV002447155.2",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-02-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "588247",
+      "accession": "VCV000588247.16",
+      "name": "NM_000100.4(CSTB):c.96C>T (p.Asn32=)",
+      "position": 6649,
+      "genomic": 43774730,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 32,
+      "protein_change": "p.N32=",
+      "coding_change": "c.96C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-01-21",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV000932412.18",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-21"
+        },
+        {
+          "accession": "RCV002316164.9",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2016-09-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4235355",
+      "accession": "VCV004235355.1",
+      "name": "NM_000100.4(CSTB):c.99G>C (p.Lys33Asn)",
+      "position": 6652,
+      "genomic": 43774727,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 33,
+      "protein_change": "p.K33N",
+      "coding_change": "c.99G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-08-15",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV005810204.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1000194",
+      "accession": "VCV001000194.8",
+      "name": "NM_000100.4(CSTB):c.100A>G (p.Lys34Glu)",
+      "position": 6653,
+      "genomic": 43774726,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 34,
+      "protein_change": "p.K34E",
+      "coding_change": "c.100A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2020-06-03",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001296290.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-06-03"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "967842",
+      "accession": "VCV000967842.9",
+      "name": "NM_000100.4(CSTB):c.106C>T (p.Pro36Ser)",
+      "position": 6659,
+      "genomic": 43774720,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 36,
+      "protein_change": "p.P36S",
+      "coding_change": "c.106C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2020-01-28",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001242850.10",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-01-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3497993",
+      "accession": "VCV003497993.1",
+      "name": "NM_000100.4(CSTB):c.110T>G (p.Val37Gly)",
+      "position": 6663,
+      "genomic": 43774716,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": 37,
+      "protein_change": "p.V37G",
+      "coding_change": "c.110T>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-09-04",
+      "last_updated": "2025-04-08",
+      "conditions": [
+        {
+          "accession": "RCV004979279.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-09-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2182112",
+      "accession": "VCV002182112.4",
+      "name": "NM_000100.4(CSTB):c.111G>A (p.Val37=)",
+      "position": 6664,
+      "genomic": 43774715,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 37,
+      "protein_change": "p.V37=",
+      "coding_change": "c.111G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-09-25",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV002610684.5",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-09-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1018479",
+      "accession": "VCV001018479.7",
+      "name": "NM_000100.4(CSTB):c.113T>A (p.Phe38Tyr)",
+      "position": 6666,
+      "genomic": 43774713,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "A",
+      "genomic_alt": "T",
+      "residue": 38,
+      "protein_change": "p.F38Y",
+      "coding_change": "c.113T>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-10-23",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV001317786.7",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2149845",
+      "accession": "VCV002149845.1",
+      "name": "NM_000100.4(CSTB):c.116A>G (p.Lys39Arg)",
+      "position": 6669,
+      "genomic": 43774710,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 39,
+      "protein_change": "p.K39R",
+      "coding_change": "c.116A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-07-27",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003065688.2",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-07-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "760847",
+      "accession": "VCV000760847.12",
+      "name": "NM_000100.4(CSTB):c.120C>T (p.Ala40=)",
+      "position": 6673,
+      "genomic": 43774706,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 40,
+      "protein_change": "p.A40=",
+      "coding_change": "c.120C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2026-01-11",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV000938835.11",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-11"
+        },
+        {
+          "accession": "RCV003942949.2",
+          "names": [
+            "CSTB-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2019-02-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "195015",
+      "accession": "VCV000195015.32",
+      "name": "NM_000100.4(CSTB):c.121G>A (p.Val41Met)",
+      "position": 6674,
+      "genomic": 43774705,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 41,
+      "protein_change": "p.V41M",
+      "coding_change": "c.121G>A",
+      "consequence": "missense",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2026-01-13",
+      "last_updated": "2026-09-27",
+      "conditions": [
+        {
+          "accession": "RCV000175522.12",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Conflicting classifications of pathogenicity",
+          "review_status": "criteria provided, conflicting classifications",
+          "last_evaluated": "2021-04-28"
+        },
+        {
+          "accession": "RCV000187274.14",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Benign/Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2024-11-06"
+        },
+        {
+          "accession": "RCV000624931.10",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Conflicting classifications of pathogenicity",
+          "review_status": "criteria provided, conflicting classifications",
+          "last_evaluated": "2017-07-28"
+        },
+        {
+          "accession": "RCV001084812.12",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-13"
+        },
+        {
+          "accession": "RCV002362892.2",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-11-23"
+        },
+        {
+          "accession": "RCV003947486.2",
+          "names": [
+            "CSTB-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2022-05-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "55957",
+      "accession": "VCV000055957.4",
+      "name": "NM_000100.4(CSTB):c.125C>A (p.Ser42Ter)",
+      "position": 6678,
+      "genomic": 43774701,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 42,
+      "protein_change": "p.S42*",
+      "coding_change": "c.125C>A",
+      "consequence": "stop gained",
+      "classification": "Likely pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-03-29",
+      "last_updated": "2026-09-27",
+      "conditions": [
+        {
+          "accession": "RCV000049366.4",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": null
+        },
+        {
+          "accession": "RCV006905148.1",
+          "names": [
+            "CSTB-related disorder"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-03-29"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "literature only",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "1769309",
+      "accession": "VCV001769309.2",
+      "name": "NM_000100.4(CSTB):c.129C>G (p.Phe43Leu)",
+      "position": 6682,
+      "genomic": 43774697,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 43,
+      "protein_change": "p.F43L",
+      "coding_change": "c.129C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-07-06",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV002380747.2",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-07-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1637839",
+      "accession": "VCV001637839.8",
+      "name": "NM_000100.4(CSTB):c.135C>T (p.Ser45=)",
+      "position": 6688,
+      "genomic": 43774691,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 45,
+      "protein_change": "p.S45=",
+      "coding_change": "c.135C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-10-17",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002133657.8",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "161418",
+      "accession": "VCV000161418.29",
+      "name": "NM_000100.4(CSTB):c.136C>T (p.Gln46Ter)",
+      "position": 6689,
+      "genomic": 43774690,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 46,
+      "protein_change": "p.Q46*",
+      "coding_change": "c.136C>T",
+      "consequence": "stop gained",
+      "classification": "Pathogenic/Likely pathogenic",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-12-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000187279.10",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic/Likely pathogenic",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2025-12-12"
+        },
+        {
+          "accession": "RCV000202565.9",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-05-20"
+        },
+        {
+          "accession": "RCV000622652.4",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-06-13"
+        },
+        {
+          "accession": "RCV000811370.11",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-03-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "2062609",
+      "accession": "VCV002062609.2",
+      "name": "NM_000100.4(CSTB):c.137A>G (p.Gln46Arg)",
+      "position": 6690,
+      "genomic": 43774689,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 46,
+      "protein_change": "p.Q46R",
+      "coding_change": "c.137A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-12-27",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV002957860.3",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-12-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "947718",
+      "accession": "VCV000947718.6",
+      "name": "NM_000100.4(CSTB):c.139G>C (p.Val47Leu)",
+      "position": 6692,
+      "genomic": 43774687,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 47,
+      "protein_change": "p.V47L",
+      "coding_change": "c.139G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-07-22",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV001218847.6",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-07-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "950667",
+      "accession": "VCV000950667.9",
+      "name": "NM_000100.4(CSTB):c.140T>G (p.Val47Gly)",
+      "position": 6693,
+      "genomic": 43774686,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": 47,
+      "protein_change": "p.V47G",
+      "coding_change": "c.140T>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-07-31",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001222425.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-07-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2965768",
+      "accession": "VCV002965768.3",
+      "name": "NM_000100.4(CSTB):c.144C>T (p.Val48=)",
+      "position": 6697,
+      "genomic": 43774682,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 48,
+      "protein_change": "p.V48=",
+      "coding_change": "c.144C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-07-06",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV003825918.4",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-07-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "960423",
+      "accession": "VCV000960423.6",
+      "name": "NM_000100.4(CSTB):c.145G>A (p.Ala49Thr)",
+      "position": 6698,
+      "genomic": 43774681,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 49,
+      "protein_change": "p.A49T",
+      "coding_change": "c.145G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2023-11-27",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001233947.5",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-10-25"
+        },
+        {
+          "accession": "RCV004768951.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-11-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1486165",
+      "accession": "VCV001486165.6",
+      "name": "NM_000100.4(CSTB):c.146C>A (p.Ala49Glu)",
+      "position": 6699,
+      "genomic": 43774680,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 49,
+      "protein_change": "p.A49E",
+      "coding_change": "c.146C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-11-12",
+      "last_updated": "2026-02-24",
+      "conditions": [
+        {
+          "accession": "RCV002001278.6",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-11-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "205326",
+      "accession": "VCV000205326.2",
+      "name": "NM_000100.4(CSTB):c.146C>T (p.Ala49Val)",
+      "position": 6699,
+      "genomic": 43774680,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 49,
+      "protein_change": "p.A49V",
+      "coding_change": "c.146C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-03-27",
+      "last_updated": "2025-04-08",
+      "conditions": [
+        {
+          "accession": "RCV000187280.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-03-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1095605",
+      "accession": "VCV001095605.9",
+      "name": "NM_000100.4(CSTB):c.147G>A (p.Ala49=)",
+      "position": 6700,
+      "genomic": 43774679,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 49,
+      "protein_change": "p.A49=",
+      "coding_change": "c.147G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-02-24",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV001416522.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-02-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "161419",
+      "accession": "VCV000161419.2",
+      "name": "NM_000100.4(CSTB):c.149G>A (p.Gly50Glu)",
+      "position": 6702,
+      "genomic": 43774677,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 50,
+      "protein_change": "p.G50E",
+      "coding_change": "c.149G>A",
+      "consequence": "missense",
+      "classification": "not provided",
+      "review_status": "no classification provided",
+      "last_evaluated": null,
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000202469.2",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "not provided",
+          "review_status": "no classification provided",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "205327",
+      "accession": "VCV000205327.10",
+      "name": "NM_000100.4(CSTB):c.155A>T (p.Asn52Ile)",
+      "position": 6708,
+      "genomic": 43774671,
+      "ref": "A",
+      "alt": "T",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": 52,
+      "protein_change": "p.N52I",
+      "coding_change": "c.155A>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-05-05",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV000187281.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2014-12-16"
+        },
+        {
+          "accession": "RCV001064790.6",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-09-01"
+        },
+        {
+          "accession": "RCV005540027.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-05-05"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "566232",
+      "accession": "VCV000566232.11",
+      "name": "NM_000100.4(CSTB):c.158A>G (p.Tyr53Cys)",
+      "position": 6711,
+      "genomic": 43774668,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 53,
+      "protein_change": "p.Y53C",
+      "coding_change": "c.158A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-06-06",
+      "last_updated": "2026-09-22",
+      "conditions": [
+        {
+          "accession": "RCV000685991.6",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-10-17"
+        },
+        {
+          "accession": "RCV001270073.2",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-04-19"
+        },
+        {
+          "accession": "RCV002544735.2",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-12-28"
+        },
+        {
+          "accession": "RCV005411536.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2025-06-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1347664",
+      "accession": "VCV001347664.6",
+      "name": "NM_000100.4(CSTB):c.160T>G (p.Phe54Val)",
+      "position": 6713,
+      "genomic": 43774666,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": 54,
+      "protein_change": "p.F54V",
+      "coding_change": "c.160T>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-10-29",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002041812.6",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-10-29"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "373528",
+      "accession": "VCV000373528.10",
+      "name": "NM_000100.4(CSTB):c.167A>G (p.Lys56Arg)",
+      "position": 6720,
+      "genomic": 43774659,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 56,
+      "protein_change": "p.K56R",
+      "coding_change": "c.167A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2023-08-10",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000414490.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2016-11-21"
+        },
+        {
+          "accession": "RCV001662367.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-10-08"
+        },
+        {
+          "accession": "RCV001215635.10",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-08-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "55958",
+      "accession": "VCV000055958.4",
+      "name": "NM_000100.4(CSTB):c.168G>A (p.Lys56=)",
+      "position": 6721,
+      "genomic": 43774658,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 56,
+      "protein_change": "p.K56=",
+      "coding_change": "c.168G>A",
+      "consequence": "synonymous",
+      "classification": "Likely pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": null,
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000049367.4",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "in vitro",
+        "literature only",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "1923544",
+      "accession": "VCV001923544.5",
+      "name": "NM_000100.4(CSTB):c.168+5A>G",
+      "position": 6726,
+      "genomic": 43774653,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-03-01",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002604729.5",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-03-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2201814",
+      "accession": "VCV002201814.2",
+      "name": "NM_000100.4(CSTB):c.168+6G>C",
+      "position": 6727,
+      "genomic": 43774652,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-12-11",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV002663927.3",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-12-11"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2078442",
+      "accession": "VCV002078442.4",
+      "name": "NM_000100.4(CSTB):c.168+7T>C",
+      "position": 6728,
+      "genomic": 43774651,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-02-17",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV002988635.5",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-02-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1109460",
+      "accession": "VCV001109460.9",
+      "name": "NM_000100.4(CSTB):c.168+8G>A",
+      "position": 6729,
+      "genomic": 43774650,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2020-10-19",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001435297.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-10-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1395020",
+      "accession": "VCV001395020.8",
+      "name": "NM_000100.4(CSTB):c.168+13C>T",
+      "position": 6734,
+      "genomic": 43774645,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-11-04",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001884944.8",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-11-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3009560",
+      "accession": "VCV003009560.3",
+      "name": "NM_000100.4(CSTB):c.168+19G>T",
+      "position": 6740,
+      "genomic": 43774639,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-10-17",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV003864671.4",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1219722",
+      "accession": "VCV001219722.4",
+      "name": "NM_000100.4(CSTB):c.168+53C>T",
+      "position": 6774,
+      "genomic": 43774605,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-07-17",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001590397.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-07-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "4745673",
+      "accession": "VCV004745673.1",
+      "name": "NM_000100.4(CSTB):c.169-18A>T",
+      "position": 7031,
+      "genomic": 43774348,
+      "ref": "A",
+      "alt": "T",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-12-19",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV006540202.1",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "340121",
+      "accession": "VCV000340121.7",
+      "name": "NM_000100.4(CSTB):c.169-14C>T",
+      "position": 7035,
+      "genomic": 43774344,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2025-08-29",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000285857.5",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        },
+        {
+          "accession": "RCV005090541.2",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-29"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2055402",
+      "accession": "VCV002055402.4",
+      "name": "NM_000100.4(CSTB):c.169-13G>A",
+      "position": 7036,
+      "genomic": 43774343,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-12-28",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV002947238.5",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-12-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1584661",
+      "accession": "VCV001584661.8",
+      "name": "NM_000100.4(CSTB):c.169-10C>G",
+      "position": 7039,
+      "genomic": 43774340,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-01-06",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002102752.8",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-01-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "587923",
+      "accession": "VCV000587923.5",
+      "name": "NM_000100.4(CSTB):c.169-5C>G",
+      "position": 7044,
+      "genomic": 43774335,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2016-10-31",
+      "last_updated": "2025-04-08",
+      "conditions": [
+        {
+          "accession": "RCV002312406.9",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2016-10-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "55959",
+      "accession": "VCV000055959.3",
+      "name": "NM_000100.4(CSTB):c.169-2A>G",
+      "position": 7047,
+      "genomic": 43774332,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": null,
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000049368.4",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "literature only",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "205330",
+      "accession": "VCV000205330.7",
+      "name": "NM_000100.4(CSTB):c.169G>A (p.Val57Met)",
+      "position": 7049,
+      "genomic": 43774330,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 57,
+      "protein_change": "p.V57M",
+      "coding_change": "c.169G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2022-08-15",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV000187285.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2014-09-23"
+        },
+        {
+          "accession": "RCV000542984.7",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-08-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "898861",
+      "accession": "VCV000898861.13",
+      "name": "NM_000100.4(CSTB):c.169G>T (p.Val57Leu)",
+      "position": 7049,
+      "genomic": 43774330,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 57,
+      "protein_change": "p.V57L",
+      "coding_change": "c.169G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2024-01-02",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001142990.4",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        },
+        {
+          "accession": "RCV001205958.10",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-01-02"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1021172",
+      "accession": "VCV001021172.9",
+      "name": "NM_000100.4(CSTB):c.172C>T (p.His58Tyr)",
+      "position": 7052,
+      "genomic": 43774327,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 58,
+      "protein_change": "p.H58Y",
+      "coding_change": "c.172C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-08-21",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001320883.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-03-20"
+        },
+        {
+          "accession": "RCV005809534.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-21"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "507395",
+      "accession": "VCV000507395.13",
+      "name": "NM_000100.4(CSTB):c.174C>T (p.His58=)",
+      "position": 7054,
+      "genomic": 43774325,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 58,
+      "protein_change": "p.H58=",
+      "coding_change": "c.174C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2023-10-16",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV000613611.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-02-20"
+        },
+        {
+          "accession": "RCV000864989.11",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-10-16"
+        },
+        {
+          "accession": "RCV002404626.2",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-10-11"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "581672",
+      "accession": "VCV000581672.6",
+      "name": "NM_000100.4(CSTB):c.175G>A (p.Val59Ile)",
+      "position": 7055,
+      "genomic": 43774324,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 59,
+      "protein_change": "p.V59I",
+      "coding_change": "c.175G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-08-17",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000705573.6",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-08-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1155699",
+      "accession": "VCV001155699.9",
+      "name": "NM_000100.4(CSTB):c.177C>T (p.Val59=)",
+      "position": 7057,
+      "genomic": 43774322,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 59,
+      "protein_change": "p.V59=",
+      "coding_change": "c.177C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-10-24",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001498126.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1308695",
+      "accession": "VCV001308695.2",
+      "name": "NM_000100.4(CSTB):c.178G>A (p.Gly60Ser)",
+      "position": 7058,
+      "genomic": 43774321,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 60,
+      "protein_change": "p.G60S",
+      "coding_change": "c.178G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-09-25",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001754583.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-09-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "382348",
+      "accession": "VCV000382348.8",
+      "name": "NM_000100.4(CSTB):c.180C>T (p.Gly60=)",
+      "position": 7060,
+      "genomic": 43774319,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 60,
+      "protein_change": "p.G60=",
+      "coding_change": "c.180C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2023-12-17",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV000439375.2",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-12-19"
+        },
+        {
+          "accession": "RCV001861520.8",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-12-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "386806",
+      "accession": "VCV000386806.12",
+      "name": "NM_000100.4(CSTB):c.183C>T (p.Asp61=)",
+      "position": 7063,
+      "genomic": 43774316,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 61,
+      "protein_change": "p.D61=",
+      "coding_change": "c.183C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-07-21",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV000868680.11",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-07-21"
+        },
+        {
+          "accession": "RCV001704354.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-04-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1443033",
+      "accession": "VCV001443033.5",
+      "name": "NM_000100.4(CSTB):c.184G>A (p.Glu62Lys)",
+      "position": 7064,
+      "genomic": 43774315,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 62,
+      "protein_change": "p.E62K",
+      "coding_change": "c.184G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-08-30",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV001960419.5",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-08-30"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2128037",
+      "accession": "VCV002128037.4",
+      "name": "NM_000100.4(CSTB):c.189C>G (p.Asp63Glu)",
+      "position": 7069,
+      "genomic": 43774310,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 63,
+      "protein_change": "p.D63E",
+      "coding_change": "c.189C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-08-21",
+      "last_updated": "2026-03-01",
+      "conditions": [
+        {
+          "accession": "RCV003055791.5",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-21"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "570980",
+      "accession": "VCV000570980.8",
+      "name": "NM_000100.4(CSTB):c.191T>G (p.Phe64Cys)",
+      "position": 7071,
+      "genomic": 43774308,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": 64,
+      "protein_change": "p.F64C",
+      "coding_change": "c.191T>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-04-25",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV000691989.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-04-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1090993",
+      "accession": "VCV001090993.9",
+      "name": "NM_000100.4(CSTB):c.192C>T (p.Phe64=)",
+      "position": 7072,
+      "genomic": 43774307,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 64,
+      "protein_change": "p.F64=",
+      "coding_change": "c.192C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-03-24",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV001410298.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-03-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "205323",
+      "accession": "VCV000205323.12",
+      "name": "NM_000100.4(CSTB):c.193G>A (p.Val65Ile)",
+      "position": 7073,
+      "genomic": 43774306,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 65,
+      "protein_change": "p.V65I",
+      "coding_change": "c.193G>A",
+      "consequence": "missense",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2021-08-30",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000187275.2",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2015-05-15"
+        },
+        {
+          "accession": "RCV000700615.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-08-30"
+        },
+        {
+          "accession": "RCV001142989.4",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "855755",
+      "accession": "VCV000855755.6",
+      "name": "NM_000100.4(CSTB):c.193G>C (p.Val65Leu)",
+      "position": 7073,
+      "genomic": 43774306,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 65,
+      "protein_change": "p.V65L",
+      "coding_change": "c.193G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2023-11-14",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV001061086.5",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-08-02"
+        },
+        {
+          "accession": "RCV004768837.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-11-14"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1479565",
+      "accession": "VCV001479565.8",
+      "name": "NM_000100.4(CSTB):c.196C>T (p.His66Tyr)",
+      "position": 7076,
+      "genomic": 43774303,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 66,
+      "protein_change": "p.H66Y",
+      "coding_change": "c.196C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-02-12",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002009838.8",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-02-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1110455",
+      "accession": "VCV001110455.9",
+      "name": "NM_000100.4(CSTB):c.201G>A (p.Leu67=)",
+      "position": 7081,
+      "genomic": 43774298,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 67,
+      "protein_change": "p.L67=",
+      "coding_change": "c.201G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-03-18",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV001436662.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-03-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "8396",
+      "accession": "VCV000008396.20",
+      "name": "NM_000100.4(CSTB):c.202C>T (p.Arg68Ter)",
+      "position": 7082,
+      "genomic": 43774297,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 68,
+      "protein_change": "p.R68*",
+      "coding_change": "c.202C>T",
+      "consequence": "stop gained",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-06-19",
+      "last_updated": "2026-09-27",
+      "conditions": [
+        {
+          "accession": "RCV000008904.20",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2024-01-25"
+        },
+        {
+          "accession": "RCV000626611.3",
+          "names": [
+            "Aplasia/Hypoplasia of the corpus callosum",
+            "Dyskinesia",
+            "Dystonic disorder",
+            "Global brain atrophy",
+            "Motor delay",
+            "Progressive microcephaly",
+            "Severe global developmental delay",
+            "Severe intellectual disability"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-01-01"
+        },
+        {
+          "accession": "RCV000656065.3",
+          "names": [
+            "Self-limited epilepsy with centrotemporal spikes"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2017-01-01"
+        },
+        {
+          "accession": "RCV001387303.8",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-19"
+        },
+        {
+          "accession": "RCV002472925.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-06-17"
+        },
+        {
+          "accession": "RCV006905032.1",
+          "names": [
+            "CSTB-related disorder"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-07"
+        }
+      ],
+      "collection_methods": [
+        "case-control",
+        "clinical testing",
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "531794",
+      "accession": "VCV000531794.4",
+      "name": "NM_000100.4(CSTB):c.203G>C (p.Arg68Pro)",
+      "position": 7083,
+      "genomic": 43774296,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 68,
+      "protein_change": "p.R68P",
+      "coding_change": "c.203G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-09-01",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV000638303.5",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-09-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2173065",
+      "accession": "VCV002173065.4",
+      "name": "NM_000100.4(CSTB):c.207G>T (p.Val69=)",
+      "position": 7087,
+      "genomic": 43774292,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 69,
+      "protein_change": "p.V69=",
+      "coding_change": "c.207G>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-06-16",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002574508.5",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-06-16"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "8400",
+      "accession": "VCV000008400.4",
+      "name": "NM_000100.4(CSTB):c.212A>C (p.Gln71Pro)",
+      "position": 7092,
+      "genomic": 43774287,
+      "ref": "A",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": 71,
+      "protein_change": "p.Q71P",
+      "coding_change": "c.212A>C",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "no assertion criteria provided",
+      "last_evaluated": "2005-02-01",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000008908.11",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2005-02-01"
+        }
+      ],
+      "collection_methods": [
+        "literature only"
+      ]
+    },
+    {
+      "variation_id": "767341",
+      "accession": "VCV000767341.10",
+      "name": "NM_000100.4(CSTB):c.213A>G (p.Gln71=)",
+      "position": 7093,
+      "genomic": 43774286,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 71,
+      "protein_change": "p.Q71=",
+      "coding_change": "c.213A>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-12-26",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV001458640.17",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "205328",
+      "accession": "VCV000205328.10",
+      "name": "NM_000100.4(CSTB):c.214T>C (p.Ser72Pro)",
+      "position": 7094,
+      "genomic": 43774285,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 72,
+      "protein_change": "p.S72P",
+      "coding_change": "c.214T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2024-01-22",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV000187282.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-01-17"
+        },
+        {
+          "accession": "RCV001210955.7",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-01-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3061122",
+      "accession": "VCV003061122.3",
+      "name": "NM_000100.4(CSTB):c.219C>T (p.Leu73=)",
+      "position": 7099,
+      "genomic": 43774280,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 73,
+      "protein_change": "p.L73=",
+      "coding_change": "c.219C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-04-29",
+      "last_updated": "2026-02-17",
+      "conditions": [
+        {
+          "accession": "RCV003982634.2",
+          "names": [
+            "CSTB-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2024-02-20"
+        },
+        {
+          "accession": "RCV006483683.1",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-04-29"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "666012",
+      "accession": "VCV000666012.6",
+      "name": "NM_000100.4(CSTB):c.221C>T (p.Pro74Leu)",
+      "position": 7101,
+      "genomic": 43774278,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 74,
+      "protein_change": "p.P74L",
+      "coding_change": "c.221C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-08-09",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000824412.6",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-08-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4077324",
+      "accession": "VCV004077324.2",
+      "name": "NM_000100.4(CSTB):c.223C>T (p.His75Tyr)",
+      "position": 7103,
+      "genomic": 43774276,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 75,
+      "protein_change": "p.H75Y",
+      "coding_change": "c.223C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-10-09",
+      "last_updated": "2026-09-27",
+      "conditions": [
+        {
+          "accession": "RCV005630176.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1306155",
+      "accession": "VCV001306155.6",
+      "name": "NM_000100.4(CSTB):c.224A>G (p.His75Arg)",
+      "position": 7104,
+      "genomic": 43774275,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 75,
+      "protein_change": "p.H75R",
+      "coding_change": "c.224A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-07-15",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV001767108.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-05-31"
+        },
+        {
+          "accession": "RCV003120669.4",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-09-15"
+        },
+        {
+          "accession": "RCV005809611.1",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-07-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1005500",
+      "accession": "VCV001005500.8",
+      "name": "NM_000100.4(CSTB):c.232A>C (p.Lys78Gln)",
+      "position": 7112,
+      "genomic": 43774267,
+      "ref": "A",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": 78,
+      "protein_change": "p.K78Q",
+      "coding_change": "c.232A>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2020-04-09",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001302382.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-04-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1401706",
+      "accession": "VCV001401706.8",
+      "name": "NM_000100.4(CSTB):c.235C>T (p.Pro79Ser)",
+      "position": 7115,
+      "genomic": 43774264,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 79,
+      "protein_change": "p.P79S",
+      "coding_change": "c.235C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2021-07-14",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV001913057.6",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-07-14"
+        },
+        {
+          "accession": "RCV002449556.2",
+          "names": [
+            "Inborn genetic diseases"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-07-16"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1134631",
+      "accession": "VCV001134631.9",
+      "name": "NM_000100.4(CSTB):c.243C>T (p.Thr81=)",
+      "position": 7123,
+      "genomic": 43774256,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 81,
+      "protein_change": "p.T81=",
+      "coding_change": "c.243C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2020-10-07",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001469600.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-10-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1153455",
+      "accession": "VCV001153455.9",
+      "name": "NM_000100.4(CSTB):c.246A>G (p.Leu82=)",
+      "position": 7126,
+      "genomic": 43774253,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 82,
+      "protein_change": "p.L82=",
+      "coding_change": "c.246A>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2020-03-18",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001495115.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-03-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1546752",
+      "accession": "VCV001546752.8",
+      "name": "NM_000100.4(CSTB):c.264C>T (p.Asn88=)",
+      "position": 7144,
+      "genomic": 43774235,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 88,
+      "protein_change": "p.N88=",
+      "coding_change": "c.264C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-07-31",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002173106.8",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-07-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "546536",
+      "accession": "VCV000546536.11",
+      "name": "NM_000100.4(CSTB):c.268G>A (p.Ala90Thr)",
+      "position": 7148,
+      "genomic": 43774231,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 90,
+      "protein_change": "p.A90T",
+      "coding_change": "c.268G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2019-03-14",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV000658431.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-05-31"
+        },
+        {
+          "accession": "RCV001041955.11",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-03-14"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "840825",
+      "accession": "VCV000840825.5",
+      "name": "NM_000100.4(CSTB):c.269C>G (p.Ala90Gly)",
+      "position": 7149,
+      "genomic": 43774230,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 90,
+      "protein_change": "p.A90G",
+      "coding_change": "c.269C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-01-15",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001042918.6",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-01-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1095761",
+      "accession": "VCV001095761.9",
+      "name": "NM_000100.4(CSTB):c.273G>A (p.Lys91=)",
+      "position": 7153,
+      "genomic": 43774226,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 91,
+      "protein_change": "p.K91=",
+      "coding_change": "c.273G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-11-01",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV001416781.9",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-11-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "205329",
+      "accession": "VCV000205329.9",
+      "name": "NM_000100.4(CSTB):c.274C>T (p.His92Tyr)",
+      "position": 7154,
+      "genomic": 43774225,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 92,
+      "protein_change": "p.H92Y",
+      "coding_change": "c.274C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2022-04-16",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000187283.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2013-06-03"
+        },
+        {
+          "accession": "RCV001246643.8",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-04-16"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "566823",
+      "accession": "VCV000566823.6",
+      "name": "NM_000100.4(CSTB):c.290A>G (p.Tyr97Cys)",
+      "position": 7170,
+      "genomic": 43774209,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 97,
+      "protein_change": "p.Y97C",
+      "coding_change": "c.290A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2020-12-17",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000686740.7",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-12-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1087188",
+      "accession": "VCV001087188.4",
+      "name": "NM_000100.4(CSTB):c.294C>T (p.Phe98=)",
+      "position": 7174,
+      "genomic": 43774205,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 98,
+      "protein_change": "p.F98=",
+      "coding_change": "c.294C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-05-04",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001405223.5",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-05-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1507113",
+      "accession": "VCV001507113.6",
+      "name": "NM_000100.4(CSTB):c.295T>C (p.Ter99Arg)",
+      "position": 7175,
+      "genomic": 43774204,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": "c.295T>C",
+      "consequence": "stop lost",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2020-12-09",
+      "last_updated": "2026-02-15",
+      "conditions": [
+        {
+          "accession": "RCV002009325.6",
+          "names": [
+            "Progressive myoclonic epilepsy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-12-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "377757",
+      "accession": "VCV000377757.5",
+      "name": "NM_000100.4(CSTB):c.*7C>G",
+      "position": 7184,
+      "genomic": 43774195,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign/Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2017-09-15",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000421663.5",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Benign/Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2017-09-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1208604",
+      "accession": "VCV001208604.3",
+      "name": "NM_000100.4(CSTB):c.*19C>T",
+      "position": 7196,
+      "genomic": 43774183,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2017-12-06",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001576989.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-12-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "340120",
+      "accession": "VCV000340120.7",
+      "name": "NM_000100.4(CSTB):c.*69A>G",
+      "position": 7246,
+      "genomic": 43774133,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-07-07",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000344483.5",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV001527858.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-07-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "340119",
+      "accession": "VCV000340119.8",
+      "name": "NM_000100.4(CSTB):c.*74T>C",
+      "position": 7251,
+      "genomic": 43774128,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-07-07",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000291858.5",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV001672607.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-07-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "897702",
+      "accession": "VCV000897702.5",
+      "name": "NM_000100.4(CSTB):c.*93A>G",
+      "position": 7270,
+      "genomic": 43774109,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001141142.4",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        },
+        {
+          "accession": "RCV004704450.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "897701",
+      "accession": "VCV000897701.4",
+      "name": "NM_000100.4(CSTB):c.*209A>T",
+      "position": 7386,
+      "genomic": 43773993,
+      "ref": "A",
+      "alt": "T",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-03-02",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001141141.4",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-03-02"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "340118",
+      "accession": "VCV000340118.5",
+      "name": "NM_000100.4(CSTB):c.*227A>G",
+      "position": 7404,
+      "genomic": 43773975,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000383928.5",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "897700",
+      "accession": "VCV000897700.6",
+      "name": "NM_000100.3(CSTB):c.*287G>A",
+      "position": 7464,
+      "genomic": 43773915,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-10-10",
+      "conditions": [
+        {
+          "accession": "RCV001141140.13",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "340117",
+      "accession": "VCV000340117.7",
+      "name": "NM_000100.3(CSTB):c.*301G>A",
+      "position": 7478,
+      "genomic": 43773901,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-10-10",
+      "conditions": [
+        {
+          "accession": "RCV000331765.14",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "897699",
+      "accession": "VCV000897699.6",
+      "name": "NM_000100.3(CSTB):c.*319G>A",
+      "position": 7496,
+      "genomic": 43773883,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-10-10",
+      "conditions": [
+        {
+          "accession": "RCV001141139.13",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "340116",
+      "accession": "VCV000340116.9",
+      "name": "NM_000100.3(CSTB):c.*325A>G",
+      "position": 7502,
+      "genomic": 43773877,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-06-19",
+      "last_updated": "2026-10-10",
+      "conditions": [
+        {
+          "accession": "RCV000274357.14",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV001691970.11",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-06-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "896110",
+      "accession": "VCV000896110.6",
+      "name": "NM_000100.3(CSTB):c.*334G>A",
+      "position": 7511,
+      "genomic": 43773868,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-10-10",
+      "conditions": [
+        {
+          "accession": "RCV001138573.13",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "340115",
+      "accession": "VCV000340115.29",
+      "name": "NM_000100.3(CSTB):c.*355C>G",
+      "position": 7532,
+      "genomic": 43773847,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2023-02-01",
+      "last_updated": "2026-10-10",
+      "conditions": [
+        {
+          "accession": "RCV000388869.14",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV003437082.25",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Conflicting classifications of pathogenicity",
+          "review_status": "criteria provided, conflicting classifications",
+          "last_evaluated": "2023-02-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "340114",
+      "accession": "VCV000340114.7",
+      "name": "NM_000100.3(CSTB):c.*435G>A",
+      "position": 7612,
+      "genomic": 43773767,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-10-10",
+      "conditions": [
+        {
+          "accession": "RCV000331960.14",
+          "names": [
+            "Unverricht-Lundborg syndrome"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    }
+  ]
+}

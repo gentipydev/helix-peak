@@ -193,10 +193,14 @@ void main() {
     }
   });
 
-  test('every organ the twenty reach is drawn as itself, the place its '
-      'tissue is sampled inside it', () {
+  test('every organ the curated proteins reach is drawn as itself, the place '
+      'its tissue is sampled inside it', () {
     // The organs drawn from general anatomy or from the brain's own figure
-    // are each a drawing of their own; the rest have a study.
+    // are each a drawing of their own; the twenty's others have a study. An
+    // organ no study has been made for yet is the body's own outline of it,
+    // seen closer, with its plain surface (the user's choice of 2026-10-17,
+    // for the heart, placenta, esophagus, thyroid and kidney the third ten
+    // reach): never the organ drawn for no tissue at all.
     const Set<OrganKind> drawn = <OrganKind>{
       OrganKind.brain,
       OrganKind.lymphNode,
@@ -208,12 +212,14 @@ void main() {
     for (final ProteinTarget t in TestCatalog.all) {
       final ZoomSubject subject = _stage(t).subject;
       final OrganKind kind = subject.anatomy!.organ;
+      final OrganArt art = OrganArt.of(subject);
       expect(
-        drawn.contains(kind) || OrganStudy.studied.contains(kind),
+        drawn.contains(kind) ||
+            OrganStudy.studied.contains(kind) ||
+            art.followsBody,
         isTrue,
         reason: '${t.slug}: $kind has no drawing of its own',
       );
-      final OrganArt art = OrganArt.of(subject);
       expect(
         art.outline.contains(art.site),
         isTrue,

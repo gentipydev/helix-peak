@@ -1,0 +1,5021 @@
+{
+  "schema_version": 1,
+  "source": "NCBI ClinVar",
+  "gene": "PLN",
+  "accession": "NG_009082",
+  "assembly": "GRCh38",
+  "chromosome": "chr6",
+  "scope": "reference-matched single nucleotide variants in the drawn gene",
+  "start": 5001,
+  "sequence": "CTACTGCAACTGTTCCCATAAACTGGGTGACAGAGTCAGAAAACTCCCCAGCTAAACACCCGTAAGACTTCATACAACACAATACTCTATACTGTGATGATCACAGCTGCCAAGGTAAGAAACAGATTTCGCTGACTTTGGTAATTCTTACTTTCTATAATTCTTAATTCCTATAATTTCTATAATCTGAACTTTTAAAATGAGTTAATTTTATGAATATCAGTTCAATCTTAGGCAATAAAATGACATGACAAAGTGCTTAAATTTATAAATGCTTATCCATTTAGTGACAGGAAAAATGAGACAACTTTGAAATGAAAAAGGTCATATTCATCTTTGATCCTGGTTACTGGTTTGTCATTTAAATTTATCTTTCACTTTTATTTTGCTTTTCAAATGTGAATTTCTGCCAATTAAAAAATCTTCCAATTATGTTACCATATTTGGTAGTAGTGGTTAATTTCTCCATGCAAAAACAATGACTTAATTTTGTTATTTATTGCTCTGCTGAGAAACAGTGCAGAACTGAGCTATTTACATCTGAACTAATATGAATAGTCATTTGACTACAACATGCACATTATCAGCATGCCTATTCCAATATTATCATAATTTCATACAGTGAATAATGAAATGGAGTTTCAGAATATATAATACAAGCTACTTTTAAAGTGCCCTTGAGGATGTTTCCCCTCTAAAGTCCAGTCAACTTTTAACAAACATTTCTAAAAAAATTCCATGCTATTAATAAATTGAGTTACTGATATTAAATTCAATATTGTATCATAAAGAAGTTTAGAAATTTTAAAACAATGTTCACAAACACAAAAAATCTGACGTTAGAGAATAATTTGATACTTTAAAAAGTTATTTTGACACACGAATATTCTTAACTATCTTATTTTCACACAAATTTGATTAAATGGATTTCTGCCTATTAATGCCTATAGTTTTGTCAAGTTATTATCCTCCAGTGGTACTCCATTTCCTCTCTCGGATTTAGAAAGAAAGGAAAAAATAAAATAAATGCCAGGAATGGAGATGCCACAATCAATTTTATGACTTCTGTTTGAATTCTACCCTATTCTTTATGTTACAATCCTCAATTTAGTAAATGAAACGTTTCCTCATTCTTAGATCTCTGTCAGGGCATACAGAAAATTACATATATTTTATTTATTTTGATTTTCATATTTCATATATATGTTAAAATAAAATTTATCTCTAAAATTCTCAATTCCTATGACAAATGTTAATTCTATTGCTCACTACAAATAAGAACTTTGTAACTCTGTAAGCAGCTTTCCTTAAGACATAAAAAAACATAATTTTTGTCTACCACTGAGGTATCCTAATTGTGTCTCCATATCTCTATACTCATATTTTTCCTTTGATAGTACATAAAAGTCATTCAGTGTAGGTGTCTTATGTTATTTGTGCATTTTTATTCAAATATCTATCAAATTACATTCTCACACTTCAAATTGGGTGTTCACGAGTTATTTTATTGTATCAGAATTTTGCTATATCACATATTACTCTAAAAAGTACACATACTTCTGGATAGAGCAGAAATTATATTAAACTTACCCTTAGCTCACTAGTATGTCTCAGTTAACAGAAATTACAGTTACAGAGACTGCTAAAATTTCAAATATAATGTGGTAGTACCATACATTGTGTCCCAACTAGTTCATCTATACCTTAAGGTGCAAGTTAAGTATTATCTTTGTTTATGAAGACATGTGGTTTCAAAGTAAGTGCTAAAAAAAGTGTTAGATGAAATCAAATGGAAAAAATATGAAAGATGTTTAAATTAAGAAGCATTAAGTTTTAAAAACGCATGAAAGAGCCAGAGTACTTGCTTTACTAAAAGGCGTGACAGCACTATCATTTCCTAAAACTCAAATATCAAATCCATTTTATTTGTATTTTAGTAGGCATAAAGGAAAATGATCACATTTGGGTATATAATCATATCTTTAATTAGTGAGATTAAGAAATAATAAAATATTGCATAAATACAATAGTTTCAGAAAATTTTAATGTATTTTAATGTTTTAATGTACTCATTACACATGTACACTAAATTATGTAATATATTAAATTTTTAATTAAAAAACCTAAAGTCTAGTTACCTCTCCAAATTAGACAATATATTACCAATCCCAGAAATGAGGAGGGCCAATGAACACTTCTTTTTTATTCTTAAAGAGCAATTTCCTAATATACTCGTGTACACAAATATTTCATTTGGTCCTCTTAATTATATATTTGATACTGCATCCCTATTCTACAATTTAGGAAAGATGCAAAAAGGTGAACTGCTCAAGATCACAGAACTAAGAAAACAGGGAAACCTTGGCAGAAGTTTAGGTTTTGTCACTAAGCCACATGCACATCCTCTATATACTGATCAGCATGGCTTAAAGTAAACCATGACACTGACAAACAAAATTTGAAAGCCCCCAAATACTGTAAATGATATTCTAAAAGGCAAAAGGCAAATTCAGAGAATACAAACTTCTATTTTAATTAAAAGCCATTCCACTCCATTTAAATTCAATTTATGCATAGCATTACATTCTTAATAGTCTAAATTATATTCTACTGATCATTTTCAAAACCAGAAATATACGAAAATTACAGATGCCCTTAGTTATTAAGCAATACCTCCTGGAAGGCAAAATTCAAACTAACTGCACAGACTTTAAAAAAAATAACACACCCCAATCAATCAAAGTTTCCTTTTATTTGTTTCATTGCTAAAATACTCATGCCTTCAATTCATCTGATACCTAAAATCCAAGTTAACATCTCCTCAAAACTTTCACAAAAATCACATTTCGATACTTTATTCTAGGTTCCCTAGAATCAAGTAGTCTCTTTGTACAATTTCAAAGTTCTTACCCAGAGTAATTCTGAAGCATGTGTTACCAAATAAACACATGAAAATGAAGCCTGGATGTACAGCATACTCATAGTCAACTGAGGACCTCTAGTGCCTTTGAAAAGGTACTCCATCTTTAGTTTTCAACCCCCAACCCCCGCACAAAAAAAAAGGTTGACTAACTCACTCACATTAATAGGGGGTATATTTATTAAGTGGCATTCATTTTAAATCCTTAAGACTTTCTCAATACTACCTCCCCATATTCTCTTCCCCCAGAAAAGATTCTGAATTTCCAACTCCTACAGGGTTAAGAAGAATATTTTACTTGTAAATACACTTGTAAAGCATTGTTTCAATATTTAAAAAACAATAATGAAGGCAAACCTACAGACAATATAGCAACAGCAATAAGCTAAATTGTCAGTTTTAGAGAGAAAAATATCTCTGTGCTGTTGTTTAATGAATTCTCCTCAAGACAGAGCTTTAACATGAGAAGCACTTCATTATGGGTCAATTTAGGAATGAGAATATATTGATTTTTATGCATATACAATTATTTTCATAACCAGACAGAAGCAGCTTGAAGATTCTTTCAAACAGCCAGTCTGGACCAACAAAGCTCTGGAATGTTGCTACCACAAAGTAACTTCAAATAGAATGTCCAAGTTTAGTATTAGGCAATCTCAAAAGGAAAATGACTCCACTGGAGTGAACTTTTGTAAGCCAACAGATTCATCGTAAATCTAATGATGAACTGTCCTAATTTATTACCACAAGTCCAAAAAAGGGTATATGCACATTCACTTATGGCTTATCAGTGGAAATGTCAGAAAGTAGTAGAAAAATAAAATTCCAAACAATCCAAATATAGACAAGTCCTGTTTATTCAATCTATAGAAAATTCTAATCTTCTAAACCAATTAGATGGAAAAAACATCCTAGAGTATATCAGACTGTAGCCTTAGATATTACTTGAATTCAATTTAATAAAGTATTTCTTCAGTACTCCCATGTTTACTAAAAGAATAAACAAAATTAAAAGGAGAAAAGCAAAATTCTAAATTCTACAAACATAAAGAATCCCAGGAATTTATTATTTCAGCAAAAGGAATACCACCAAAAATACTGAAGTTTGAGAAGTTCTGCAAGAAGTGAACATACTTAAAGTATAGATGGAGATTAATGCTCAGCATATACAACATCATTAAAGTATCAATTGTCTAGCAAGTCATAAAGCAGGCCACCAAAAGTTTTCAGAAGACTATTGAGGTTCCTTCCGCACAAGAATGCATCTGATATTACATTGCTAAAACAGGACTCACTGCAGACAAAGTAAGGACTCCTGAAGGAGTTGATATATAGTAGCTTCCACCAAACATGTTGCCTAACATGGTATATGACATTAGTCAAAAGATTAGAGTTGCCTAATGGCTTTTCTATTTCCTTCTTCCACCTCAAAAAAAAAACCAGAATACCATCTTGAACTTGATTTTTTTTTTAATTTCCAGCGTTACTTTTCTTGAGGAAAGGACGACAACCAAAGGATTTATAAATCCCACAAAGAATAGTAAAGAATTCTTTATTTTTATTCTTCTCATTCCCCTAAAAAGTAGAGTAATCATGGATCCACAGACATAAGATACTCTGTGGATACTTTCCTGCCTCTGACATGTAACTCAAGAGACAGGAGTCTGGCATTTCTACACCCAAACTCCTAACAAGCACCTTTCATGTTTTCAATACTCTTGATTCTAGGGCCTAGAAGACAATTTGATTTTAAAATTCATCTATAAATGAATACCACTCTTGTGTCAAAACAACCAATTTATATATATTGTCATTCTTTTAATAAAAGGGTGGAGAGCAGCTTCAGTTTCCATGGTTGTTTAGGCCATATACAAGTTCAGAAAATCCCAAAACTATTTATGATTAGACTAACAGAATGCTCTAAAAAGATCAGATAACATGAAAATAAAACTAAACTATTTTTGTATGCTTTCCATCGAAAAAGTACTCTATTAAACAGCTTAGCTGTTAAGAAATTAAAAAAAAAAAAAAAAAGGAAACTCATACAGTGGTTGTCAGTGCAGAGAAGAGAATGATAAACATCTGACAACCATGCCATAAATTATAATGTAGTAAAGGTCACAGACAACTCCAAAAATAGGATTCTGCTGTTCCCACAACAAAGGTTTTCAATTCTCAATGTATGACAGGAAGCCCCATCTTCTATGGATAAAATCTGGCCTAATTATCATCATACAAATGTTGGTATTCAGTAGAACTAGGATTCCACACATTTCAGATGATAACTGTAAAAAATTGAGCCCAATAAATTAAATGTATATCATTAACATTTTAGCGTGTAAAGCAGATTTAAGTTTAGGCATAAAATCATAAAGTAGTTACAAATAACTTTAGGATTATGGCATATTTCTAAATCTGACAAGAAACAGGATACTATTTTTGGTCATCTCCTTTACACCCAATTTGTTTCCAGAAACAAACTCTTCTTTTTCAATAACAGTTAGCTGTTGTAGGATTATAAGATCATCTTTAAAGTATGTTAACTATGCTTTAAACAGTAAAGAGCTCATCTCTTTAGGGCATATCTCTGTATTTCACAAATACTAAAAACCCATTTATACAAAGCCTAGTTCAGGTTAATACTGTGTTAATCAGGTAACCATTAATTTAGGTGAATCCTCTAAGCCTCATTTTTCTCACCTGTGATAGAAAGAGACTTGAGGAAAATATTAGAGCTTACATGTCCAACTAACAAATTGTTATTAGAACTAGTTAATCTGTCAATCACAGCATTATTTTTAAAATTGTTTAACTTATTATTAAAAATGAGGGCCAGGCATGGTCATTCACACTTGTAATCCCAGGAATTACCTGAGCTCAGGAGTTTGAGACCAGCCTGTGCAGCACAGTGAAACCCTGTCCCTACCAAAAATACAAAAATTAGCCAGGCATGGTGGCGCACACCTGTGGTCTCAGCTACTCAGGAGGCTGAGGCAGGGAGATCGCTAGAGCCTGGGAAGTTGAGGTGCAGTGAGCCACGATTGCACAACTGCACTCCAGCCTGGGTGACAGAGCAAGACCCTGTCAGTCATTCATTCATCCATTCATAAAAACAATTAATTAATTAAAAATGAGATGGGGTCTCATTATGTTGCCCAAGCTGGTCTCGAACTCCTGGGCTCAAACATTCGTCCCGCCTAGGCCTTCCAAAGTGTTGGAATTATAGATGTGAGCCACCATGCCCTGCCCACAGCATTATTTTTAATTAACAATTTTCTAATAGTTTTAGTCATAAAAATCCCTTATTTAACTTTAGTGATTTATTGAAGCATACCAATTATGCACTAAGTACTAGGATACTAAATAAACACACAGTTTCTTTACTTCAGAAACTATCAGTCTAGCTGGGGATACAAACATGTAAATTGAAATTGTGCTATAATCTGACAGATATCCTCATATAGATAACACTAAAGCCCTATTAAAAACCAGTAGAGGTGACAACCAATTCCACCTTAATAACTAATGAAAGGTTTCACTAGGAAGTGATATTTAAACTGAACCTTAAGAATCAACTGAAGCTTGCATGGCAGACAATCAAAAGGTGGAGAACACATTCCAGGCAGAGATAGAACAACATGTGCAAAGAACAAAATCACAAAAGGGAATGGAGTATTTATGGAAAGGTGACATGTTTCATGTGACTGAAGTACAACTTACCAGTGTCAACGTAGGGGATGACTCCTGTATATGCTTCATGATAAACTCCTGGCCAACTCCCTCCTTTCCCATGTTTTGTCTCAAAATAATTTTTAAAATTTCTGACCTTTTAAGACCACTTAAGCCCAAAAACCTCACAAAACCATATGTTCAAATAGGAATTACCAAGTCTAATTATTATTCCTTTCTTAACTGTATTCTGCTACACATCTTCATAAAAGGTGACTACTCGGCCAGGTGCAGTGGCTCACGCCTGCAATCCCAGCACTTTGGGAGGCCGAGGCGGGTGGATCACGAGGTCGGGAGATCGAGACCATCCTGGCTAACATGGTGAAACCCCGTCTCTACTAAAAACACAAAAAAATTAGGCATGGTGGCGGGCACCTGTAGTCCCAGCTACTCGGGAGGCTAAGGCAGGAGAATGGCGTGAACCCGGGAGGTGGAGCTTGCAGTGAGCCGAGATCGTGCCACTGCACTCCAGCCTGGGCAACACAGCAAGACTGTCTCAAAAAAAAAAAAAAAAAGTGACTACTCAAATATAAATAAAATCTTCCCATAATTTTCCAATCCACTAGATCTACAATAAGCAAATATCAACATAAGCAAATATCAACATAAGCAACTTAAAGGATGAATCTCAATAAAGAACAAAAGAAAATCTATTTATATTTTACCTGAAGAATTCAAACAAAAGTCATTAAATATATGTCAAGTTTAAGCTGCTATGTCCCTTATTTTTAACTTTTGTTTTAAGTTTGGGGGTATGTGTGAAGGTTTGTTACACAGGTAAACACATGTCATGGGGAGCTTGTTGTATGTATTACTTCATCATCCCGTTATTAAGCCCAGTACCCAACAGTTTTCTGCTCCTCTGCCTCCTCCCATCCTCCCCGCTCAAGTAGACCCCAGCGTCTGTTGTTTCCTTCTTTGTGTTCATAAGTTCTTATCATCTTGCTCCCACCTGTAAGTGAGAACCTGTGGTATTTGGTTTTCTTTTCCTATGTTAGTTTGCTAGGGATAATGACCTCCAGCTCCATCCATGTTCCCGCAAAAGACATGATATCATTCTTTTTTATGGCTGCATAGTATTGCATGGTGTATATGTACCACATTTTCTTTATCCAGTCTGTCACTGATGAGCACTTAGGCCGGTTCATGTCTTTGCTATTGTGAATAGTGCTGCAATGAATATTCATGGGTGTATGTCTTTACGGCAGAAAGATTTACACTCCTCTGGATATATACCCAGTAATGGGATTGTTGGGTCGAATGGTAGTTCTGCTTTTATAAGCTGCTATTTTCTAAGTAGAAGTGTTATAGACAACCTAAATAACAGCCTTTAGCCACCTGTTTAGACAATGAAGAATATATGCTAGAAAAATACAGGTAGTTAATAACTCTTTAAGGAAAGAAAATTTGATAGAAGTTGAGTGTTTGGAACTCCTTGCTACAGACCAATATTATGAAGGGGGACAGAGTCTCAAGCCAAAAATGCCCAGTCTACTATATAATTCAGAATATAATAGACCCAAGTTGAACACTACAGAATCTAAACACCATAAACCATATGGTTTCTTTGCCAAAGTAAATGCCGGGTTCTAACTAGTCATGCCTGATACTTACCTTCCCCTTTGCCATTCTTTCAGCACTTCCTTCTGCTCCCTTCAGCACTTTCCTCTCTCAGGAATGGGCTAACAGGTTGAGATGGGCTTTTATGGGATGTATAAAAGGACTTAGGAGAAAATAAAATCTGACACCTGGGGTAAGGTAGTAATATGTTGATTAACAATAATATATCAACAAATGTTAACAGTCACTATGTCTGGCAGTTAATTACTGACTTTTTTTCTCCGTTTTTCATTTTTCTTATTTCAAAATTGACACATAAGTATACTGATTGAAAACAAAATGTCCCCAAGTGTTAATAACGATTATCTCTGGACAGTTAATACAGTTAATTTTCAGTCTATATATAATTTTTCTGTAATGACATGTAAATTCTTATTTTATTAATCATCAAAGTATAGGCCCCACAGGCAGCAATAGCTTGTGGGATCTCTGAAAGAAGGCATGATGGAAACTACTACTATTAAGTAGAAGTCTGTAAATAGGATATGTCTGTGGTAGTGAGATAATAATAATTACTATGTGTTCCAAGCTTGACAGTCTTCAGTACTTAACATCAAATCTTATTAAAATGTTACTTAAGATAACATTCTATAAAACTATAAAATCATAAAAAGGAATAACAATTTGAATCTATATTTTTGGTAAAACACTTCCCATTTAACACTATTTTATTTTAGATTAAAATTAAGATCCAGGGAACAATTTGTTGTATGCATTTCCTTTTTATGAGATTGGCTCTGGAGCTATTAATACAGTGACTGATCAAACCAATTACATCTACAGAGTAACAGATTTAAAGAAACTATATGTTAGAACTTTTACCCAAAAGAATAACCCAAAACAAGCTGTACCTTAAACCAAATACAGCAGGTCCTCAAATAACATCATTTCTATGTCATTTTGTTATAACATTTAAGTATGTGTGGGGCTTGCATATTCTCCCCACATCTGTGGGACTCTGGTTTCCTCCCATATCCCAAAACAGTGCACATTAGGTTCACTGGCATGTTTAAGTTGTCCTGGGTTGAGTGTGAGTGTGTACATGAGTGTATCCTGTGATGGAGTGGCCTCCTATCCAAGGTGGGTTCCTCCCTCCTTGAGCTGCTGGGATTGGCTCCAGCCACCAGCACCCCAAACCAGAATAAGAGGGTTGAAAAATGAATGAATGGATGAATACAAATTATTATCGAATAAAAATTGGTAAAGTCTACGGTGATCATACAAATGCATGACAATAAACGCTATGGCACAAAAGCACTCAGAGATCCCACCGTATTTGAATTGTTTTTGATCTGCATGGAGCTGGATGTGCTCCTGACAATTTTCATTTCTCAAACATGATTCCATGTTTTTAATAGACCACCACAACCACTGTTACTCACTGATTCACCAAATACTGGGTAATTATCTTTGTTGGCTTTTTTTTTTTTTTCCTGGGACAGAGTTTTGCTCTGTCACCCAGGCTGGAGTACAGTGGCATGATCTGGGCTCAATGCAACCCCTGCCTCCTGGGCTCCAGCGATCCTCCCAAGTAGCTAGGATTACAGGCACATGCCACCAGCCTAGCTAATTTTTATATTTTTAGTAGAGACAGGGTTTCACCATGTTGGCCAGGCTGGTCTCAAACTCCTGACCTCAGGGGAACTGCCCGCCTTGGCCTCCCAAAGTGCTGGGATTACAGGCATGAGCCACTGCACCTGGCCTATCTGGTTTTTATTAATCTTTCTTAAATGTATACATAGTTCATATTTCTCTCAACGTTTAATATTAGAAGTGTTTGGGGTCTTTATTGAGAAGTTTGGTGATGTTTTTGTGACCAGAAATATGCTATAGGAACTTAACTCTTGTTTACATCAATCAGCCTAGGGTAAAAATGGTTTTGTTATATGTTGTTTTGCGTAAAGTCATGGTTTCCAGGAACTTATGGAAGACACTGAGGATTACTCCAATACTTGTAGTAAATTTGGGAGAAAAAGGCAAGGACTAAAGTTACTACTCCTAACACAAATGAGACGGTCATGGTGTGCCCCATCAAAAAAGGAGAGAAAGAGAGACAGACACATAGAAACACGTGCACATACACACACACACACACACACACACACACACACACAGAGAGAGAGAGAGAGAGAGAGAGAGAGGGAGAGAGACTATAGAAACATGATGTTATAAATAACAATAGTGCTGAGGAAGATGAATTAGTGTAAAATTGTATTTTTTGTTCTGAGGATAGGTTACATAGATGATTCTAATCCATTTATTATTTTTACATTCCAGGCTACCTAAAAGAAGACAGTTATCTCATATTTGGCTGCCAGCTTTTTATCTTTCTCTCGACCACTTAAAACTTCAGACTTCCTGTCCTGCTGGTATCATGGAGAAAGTCCAATACCTCACTCGCTCAGCTATAAGAAGAGCCTCAACCATTGAAATGCCTCAACAAGCACGTCAAAAGCTACAGAATCTATTTATCAATTTCTGTCTCATCTTAATATGTCTCTTGCTGATCTGTATCATCGTGATGCTTCTCTGAAGTTCTGCTACAACCTCTAGATCTGCAGCTTGCCACATCAGCTTAAAATCTGTCATCCCATGCAGACAGGAAAACAATATTGTATAACAGACCACTTCCTGAGTAGAAGAGTTTCTTTGTGAAAAGGTCAAGATTAAGACTAAAACTTATTGTTACCATATGTATTCATCTGTTGGATCTTGTAAACATGAAAAGGGCTTTATTTTCAAAAATTAACTTCAAAATAAGTGTATAAAATGCAACTGTTGATTTCCTCAACATGGCTCACAAATTTCTATCCCAAATCTTTTCTGAAGATGAAGAGTTTAGTTTTAAAACTGCACTGCCAACAAGTTCACTTCATATATAAAGCATTATTTTTACTCTTTTGAGGTGAATATAATTTATATTACAATGTAAAAGCTTCTTTAATACTAAGTATTTTTCAGGTCTTCACCAAGTATCAAAGTAATAACACAAATGAAGTGTCATTATTCAAAATAGTCCACTGACTCCTCACATCTGTTATCTTATTATAAAGAACTATTTGTAGTAACTATCAGAATCTACATTCTAAAACAGAAATTGTATTTTTTCTATGCCACATTAACATCTTTTAAAGTTGATGAGAATCAAGTATGGAAAAGTAAGGCCATACTCTTACATAATAAAATTCCTTTTAAGTAATTTTTTCAAAGAATCACAGAATTCTAGTACATGTAGGTAAATCATAAATCTGTTCTAAGACATATGATCAACAGATGAGAACTGGTGGTTAATATGTGACAGTGAGATTAGTCATATCACTAATATACTAACAACAGAATCTAATCTTCATTTAAGGCACTGTAGTGAATTATCTGAGCTAGAGTTACCTAGCTTACCATACTATATCTTTGGAATCATGAAACCTTAAGACTTCAGAATGATTTTGCAGGTTGTCTTCCATTCCAGCCTAACATCCAATGCAGGCAAGGAAAATAAAAGATTTCCAGTGACAGAAAAATATATTATCTCAAGTATTTTTTAAAAATATATGAATTCTCTCTCCAAATATTAACTAATTATTAGATTATATTTTGAAATGAACTTGTTGGCCCATCTATTACATCTACAGCTGACCCTTGAACATGGGGGTTAGGGGAGCTGACAATTCGTGGGTCCGCAAAATCTTAACTACCTAATAGCCTACTATTGACCATAAACCTTACTGATAACATAAACAGTAAATTAACACATATTTTGCGTGTTATATGTATTATACACTATATTCCTACAATAAAGTAAGCTAGAGAAAATGTTATTTAGAAAATCATAAGAAAGAGAAAATATATTTACTATTCATTAAATGGAAGTGGGTCAACA",
+  "protein_sequence": "MEKVQYLTRSAIRRASTIEMPQQARQKLQNLFINFCLILICLLLICIIVMLL",
+  "complemented": false,
+  "runs": [
+    {
+      "local": 5001,
+      "genomic": 118548279,
+      "step": 1,
+      "length": 12146
+    }
+  ],
+  "retrieved_at": "2026-10-18T07:27:24.823712+00:00",
+  "query": "PLN[gene]",
+  "searched_records": 216,
+  "excluded": {
+    "no_unique_GRCh38_location": 39,
+    "not_a_single_base_substitution": 46,
+    "outside_drawn_gene": 7
+  },
+  "source_batches": [
+    {
+      "file": "batch-0.xml",
+      "sha256": "f039d365aea2322bc37fb5790b780429de5ed6de9d83062db4d44d78b6373e7f"
+    },
+    {
+      "file": "batch-1.xml",
+      "sha256": "0413f2b484aae2502d569faaa3447534afa7a7e3ad1034caaa4c6f2364030057"
+    },
+    {
+      "file": "batch-2.xml",
+      "sha256": "ce16ef2057272f0ebaa35af9293961a51a7d0edcb8cd900f91b790025f190973"
+    }
+  ],
+  "traits": {
+    "Cardiac arrest": {
+      "medgen": "C0018790",
+      "mondo": "MONDO:0000745"
+    },
+    "Cardiomyopathy": {
+      "medgen": "C0878544",
+      "symbol": "CMYO",
+      "mondo": "MONDO:0004994"
+    },
+    "Cardiovascular phenotype": {
+      "medgen": "CN230736"
+    },
+    "Dilated cardiomyopathy 1P": {
+      "medgen": "C1835928",
+      "symbol": "CMD1P",
+      "omim": "609909",
+      "mondo": "MONDO:0012362"
+    },
+    "Hypertrophic cardiomyopathy": {
+      "medgen": "C0007194",
+      "mondo": "MONDO:0005045"
+    },
+    "Hypertrophic cardiomyopathy 18": {
+      "medgen": "C3151265",
+      "symbol": "CMH18",
+      "omim": "613874",
+      "mondo": "MONDO:0013475"
+    },
+    "Intrinsic cardiomyopathy": {
+      "medgen": "CN305117",
+      "mondo": "MONDO:0000591"
+    },
+    "Primary dilated cardiomyopathy": {
+      "medgen": "C0007193",
+      "symbol": "DCM",
+      "mondo": "MONDO:0005021"
+    },
+    "Sudden cardiac death": {
+      "medgen": "C0085298",
+      "symbol": "SCD"
+    }
+  },
+  "variants": [
+    {
+      "variation_id": "355133",
+      "accession": "VCV000355133.7",
+      "name": "NM_002667.5(PLN):c.-150G>A",
+      "position": 5062,
+      "genomic": 118548340,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign/Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000312021.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV001672670.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2015-03-03"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "355134",
+      "accession": "VCV000355134.6",
+      "name": "NM_002667.5(PLN):c.-142T>A",
+      "position": 5070,
+      "genomic": 118548348,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-08-27",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV002502372.1",
+          "names": [
+            "Dilated cardiomyopathy 1P",
+            "Hypertrophic cardiomyopathy 18"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-08-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "355135",
+      "accession": "VCV000355135.6",
+      "name": "NM_002667.5(PLN):c.-120C>T",
+      "position": 5092,
+      "genomic": 118548370,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2021-07-29",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000308484.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        },
+        {
+          "accession": "RCV002488788.1",
+          "names": [
+            "Dilated cardiomyopathy 1P",
+            "Hypertrophic cardiomyopathy 18"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-07-29"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "682277",
+      "accession": "VCV000682277.2",
+      "name": "NM_002667.5(PLN):c.-98+15T>A",
+      "position": 5129,
+      "genomic": 118548407,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-04-25",
+      "last_updated": "2024-09-01",
+      "conditions": [
+        {
+          "accession": "RCV000842326.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-04-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "384450",
+      "accession": "VCV000384450.2",
+      "name": "NM_002667.5(PLN):c.-98+17G>A",
+      "position": 5131,
+      "genomic": 118548409,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2016-03-01",
+      "last_updated": "2024-09-01",
+      "conditions": [
+        {
+          "accession": "RCV000440363.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2016-03-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1194293",
+      "accession": "VCV001194293.3",
+      "name": "NM_002667.5(PLN):c.-97-293T>C",
+      "position": 15254,
+      "genomic": 118558532,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-06-30",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001556974.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-06-30"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1269771",
+      "accession": "VCV001269771.2",
+      "name": "NM_002667.5(PLN):c.-97-206G>T",
+      "position": 15341,
+      "genomic": 118558619,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-08-13",
+      "last_updated": "2024-09-01",
+      "conditions": [
+        {
+          "accession": "RCV001683929.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-08-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1223914",
+      "accession": "VCV001223914.4",
+      "name": "NM_002667.5(PLN):c.-97-169C>G",
+      "position": 15378,
+      "genomic": 118558656,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-08-10",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001596708.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-08-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1240427",
+      "accession": "VCV001240427.3",
+      "name": "NM_002667.5(PLN):c.-97-167C>G",
+      "position": 15380,
+      "genomic": 118558658,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-08-10",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001640815.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-08-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1260729",
+      "accession": "VCV001260729.3",
+      "name": "NM_002667.5(PLN):c.-97-163G>C",
+      "position": 15384,
+      "genomic": 118558662,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-08-18",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001669546.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-08-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1225868",
+      "accession": "VCV001225868.4",
+      "name": "NM_002667.5(PLN):c.-97-161G>C",
+      "position": 15386,
+      "genomic": 118558664,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-08-18",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001613543.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-08-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1238034",
+      "accession": "VCV001238034.4",
+      "name": "NM_002667.5(PLN):c.-97-159G>C",
+      "position": 15388,
+      "genomic": 118558666,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-08-18",
+      "last_updated": "2024-09-01",
+      "conditions": [
+        {
+          "accession": "RCV001637582.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-08-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "675990",
+      "accession": "VCV000675990.2",
+      "name": "NM_002667.5(PLN):c.-97-105A>G",
+      "position": 15442,
+      "genomic": 118558720,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-06-19",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000835377.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-06-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "675329",
+      "accession": "VCV000675329.3",
+      "name": "NM_002667.5(PLN):c.-97-53T>A",
+      "position": 15494,
+      "genomic": 118558772,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-06-19",
+      "last_updated": "2025-11-02",
+      "conditions": [
+        {
+          "accession": "RCV000834683.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-06-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "in vitro"
+      ]
+    },
+    {
+      "variation_id": "993418",
+      "accession": "VCV000993418.8",
+      "name": "NM_002667.5(PLN):c.-97-9A>G",
+      "position": 15538,
+      "genomic": 118558816,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2019-12-27",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001812314.13",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-12-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4796657",
+      "accession": "VCV004796657.1",
+      "name": "NM_002667.5(PLN):c.-97-6T>A",
+      "position": 15541,
+      "genomic": 118558819,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-08-19",
+      "last_updated": "2026-03-08",
+      "conditions": [
+        {
+          "accession": "RCV006606119.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "355136",
+      "accession": "VCV000355136.7",
+      "name": "NM_002667.5(PLN):c.-97-5T>C",
+      "position": 15542,
+      "genomic": 118558820,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2024-03-28",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000272845.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV001764320.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-03-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3252377",
+      "accession": "VCV003252377.1",
+      "name": "NM_002667.5(PLN):c.-97G>A",
+      "position": 15547,
+      "genomic": 118558825,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-02-09",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004588863.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "906401",
+      "accession": "VCV000906401.9",
+      "name": "NM_002667.5(PLN):c.-56C>T",
+      "position": 15588,
+      "genomic": 118558866,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2017-04-27",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001155537.4",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-04-27"
+        },
+        {
+          "accession": "RCV001655686.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2015-03-03"
+        },
+        {
+          "accession": "RCV001702768.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "384083",
+      "accession": "VCV000384083.2",
+      "name": "NM_002667.5(PLN):c.-40C>T",
+      "position": 15604,
+      "genomic": 118558882,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2016-03-01",
+      "last_updated": "2024-09-01",
+      "conditions": [
+        {
+          "accession": "RCV000435738.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2016-03-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "384911",
+      "accession": "VCV000384911.2",
+      "name": "NM_002667.5(PLN):c.-14G>A",
+      "position": 15630,
+      "genomic": 118558908,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2016-03-17",
+      "last_updated": "2024-09-01",
+      "conditions": [
+        {
+          "accession": "RCV000438695.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2016-03-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "520337",
+      "accession": "VCV000520337.5",
+      "name": "NM_002667.5(PLN):c.-4T>A",
+      "position": 15640,
+      "genomic": 118558918,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2017-01-20",
+      "last_updated": "2024-09-01",
+      "conditions": [
+        {
+          "accession": "RCV000617775.3",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-01-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "164971",
+      "accession": "VCV000164971.9",
+      "name": "NM_002667.5(PLN):c.2T>C (p.Met1Thr)",
+      "position": 15645,
+      "genomic": 118558923,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 1,
+      "protein_change": "p.M1T",
+      "coding_change": "c.2T>C",
+      "consequence": "start codon",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2025-10-30",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000151663.5",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2013-11-20"
+        },
+        {
+          "accession": "RCV005089739.2",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-27"
+        },
+        {
+          "accession": "RCV006342115.1",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-30"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3655536",
+      "accession": "VCV003655536.2",
+      "name": "NM_002667.5(PLN):c.2T>G (p.Met1Arg)",
+      "position": 15645,
+      "genomic": 118558923,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": 1,
+      "protein_change": "p.M1R",
+      "coding_change": "c.2T>G",
+      "consequence": "start codon",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-06-04",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005133943.2",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3706363",
+      "accession": "VCV003706363.2",
+      "name": "NM_002667.5(PLN):c.4G>T (p.Glu2Ter)",
+      "position": 15647,
+      "genomic": 118558925,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 2,
+      "protein_change": "p.E2*",
+      "coding_change": "c.4G>T",
+      "consequence": "stop gained",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-05-08",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005179708.2",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3654228",
+      "accession": "VCV003654228.2",
+      "name": "NM_002667.5(PLN):c.6G>A (p.Glu2=)",
+      "position": 15649,
+      "genomic": 118558927,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 2,
+      "protein_change": "p.E2=",
+      "coding_change": "c.6G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-05-22",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005126604.2",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4293611",
+      "accession": "VCV004293611.1",
+      "name": "NM_002667.5(PLN):c.7A>G (p.Lys3Glu)",
+      "position": 15650,
+      "genomic": 118558928,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 3,
+      "protein_change": "p.K3E",
+      "coding_change": "c.7A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-04-09",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005880946.1",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-04-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "229152",
+      "accession": "VCV000229152.5",
+      "name": "NM_002667.5(PLN):c.14A>G (p.Gln5Arg)",
+      "position": 15657,
+      "genomic": 118558935,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 5,
+      "protein_change": "p.Q5R",
+      "coding_change": "c.14A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2015-06-23",
+      "last_updated": "2024-09-01",
+      "conditions": [
+        {
+          "accession": "RCV000222681.4",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2015-06-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2181774",
+      "accession": "VCV002181774.4",
+      "name": "NM_002667.5(PLN):c.16T>C (p.Tyr6His)",
+      "position": 15659,
+      "genomic": 118558937,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 6,
+      "protein_change": "p.Y6H",
+      "coding_change": "c.16T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-03-30",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV002595829.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-03-30"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4738817",
+      "accession": "VCV004738817.1",
+      "name": "NM_002667.5(PLN):c.19C>T (p.Leu7Phe)",
+      "position": 15662,
+      "genomic": 118558940,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 7,
+      "protein_change": "p.L7F",
+      "coding_change": "c.19C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-09-29",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV006532085.1",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-09-29"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2884459",
+      "accession": "VCV002884459.3",
+      "name": "NM_002667.5(PLN):c.21C>T (p.Leu7=)",
+      "position": 15664,
+      "genomic": 118558942,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 7,
+      "protein_change": "p.L7=",
+      "coding_change": "c.21C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-01-16",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV003626565.4",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-01-16"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "410617",
+      "accession": "VCV000410617.9",
+      "name": "NM_002667.5(PLN):c.22A>C (p.Thr8Pro)",
+      "position": 15665,
+      "genomic": 118558943,
+      "ref": "A",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": 8,
+      "protein_change": "p.T8P",
+      "coding_change": "c.22A>C",
+      "consequence": "missense",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2017-06-14",
+      "last_updated": "2026-09-27",
+      "conditions": [
+        {
+          "accession": "RCV000466823.9",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2016-10-12"
+        },
+        {
+          "accession": "RCV006766972.1",
+          "names": [
+            "PLN-related disorders"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-06-14"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "13636",
+      "accession": "VCV000013636.23",
+      "name": "NM_002667.5(PLN):c.25C>T (p.Arg9Cys)",
+      "position": 15668,
+      "genomic": 118558946,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 9,
+      "protein_change": "p.R9C",
+      "coding_change": "c.25C>T",
+      "consequence": "missense",
+      "classification": "Pathogenic",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-07-15",
+      "last_updated": "2026-08-04",
+      "conditions": [
+        {
+          "accession": "RCV000014606.36",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-07-15"
+        },
+        {
+          "accession": "RCV000183815.9",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2022-08-29"
+        },
+        {
+          "accession": "RCV000211844.4",
+          "names": [
+            "Primary dilated cardiomyopathy"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2015-06-03"
+        },
+        {
+          "accession": "RCV000769213.2",
+          "names": [
+            "Cardiomyopathy"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2015-12-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "literature only",
+        "provider interpretation"
+      ]
+    },
+    {
+      "variation_id": "202037",
+      "accession": "VCV000202037.17",
+      "name": "NM_002667.5(PLN):c.26G>A (p.Arg9His)",
+      "position": 15669,
+      "genomic": 118558947,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 9,
+      "protein_change": "p.R9H",
+      "coding_change": "c.26G>A",
+      "consequence": "missense",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2025-10-28",
+      "last_updated": "2026-09-13",
+      "conditions": [
+        {
+          "accession": "RCV000183816.2",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2013-01-24"
+        },
+        {
+          "accession": "RCV001207506.12",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2025-10-28"
+        },
+        {
+          "accession": "RCV001701633.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic/Likely pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": null
+        },
+        {
+          "accession": "RCV002433818.2",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-06-30"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3720713",
+      "accession": "VCV003720713.2",
+      "name": "NM_002667.5(PLN):c.26G>T (p.Arg9Leu)",
+      "position": 15669,
+      "genomic": 118558947,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 9,
+      "protein_change": "p.R9L",
+      "coding_change": "c.26G>T",
+      "consequence": "missense",
+      "classification": "Likely pathogenic",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-02-05",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005200583.2",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-05"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "511655",
+      "accession": "VCV000511655.4",
+      "name": "NM_002667.5(PLN):c.27C>A (p.Arg9=)",
+      "position": 15670,
+      "genomic": 118558948,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 9,
+      "protein_change": "p.R9=",
+      "coding_change": "c.27C>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2022-11-10",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000612478.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-08-29"
+        },
+        {
+          "accession": "RCV003626632.4",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "44578",
+      "accession": "VCV000044578.64",
+      "name": "NM_002667.5(PLN):c.27C>T (p.Arg9=)",
+      "position": 15670,
+      "genomic": 118558948,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 9,
+      "protein_change": "p.R9=",
+      "coding_change": "c.27C>T",
+      "consequence": "synonymous",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2026-02-03",
+      "last_updated": "2026-09-27",
+      "conditions": [
+        {
+          "accession": "RCV000037580.18",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Benign/Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2024-10-04"
+        },
+        {
+          "accession": "RCV000465487.29",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Conflicting classifications of pathogenicity",
+          "review_status": "criteria provided, conflicting classifications",
+          "last_evaluated": "2026-02-03"
+        },
+        {
+          "accession": "RCV000621419.11",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2016-10-28"
+        },
+        {
+          "accession": "RCV000769214.10",
+          "names": [
+            "Cardiomyopathy"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-10-06"
+        },
+        {
+          "accession": "RCV001529611.43",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2026-02-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "464269",
+      "accession": "VCV000464269.8",
+      "name": "NM_002667.5(PLN):c.29C>T (p.Ser10Leu)",
+      "position": 15672,
+      "genomic": 118558950,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 10,
+      "protein_change": "p.S10L",
+      "coding_change": "c.29C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2017-06-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000539278.9",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-06-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1385567",
+      "accession": "VCV001385567.6",
+      "name": "NM_002667.5(PLN):c.31G>A (p.Ala11Thr)",
+      "position": 15674,
+      "genomic": 118558952,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 11,
+      "protein_change": "p.A11T",
+      "coding_change": "c.31G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-09-06",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001888883.7",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-09-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2090664",
+      "accession": "VCV002090664.4",
+      "name": "NM_002667.5(PLN):c.31G>C (p.Ala11Pro)",
+      "position": 15674,
+      "genomic": 118558952,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 11,
+      "protein_change": "p.A11P",
+      "coding_change": "c.31G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-01-28",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV003013219.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-01-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2742841",
+      "accession": "VCV002742841.3",
+      "name": "NM_002667.5(PLN):c.33T>C (p.Ala11=)",
+      "position": 15676,
+      "genomic": 118558954,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 11,
+      "protein_change": "p.A11=",
+      "coding_change": "c.33T>C",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-07-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV003516589.4",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-07-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "234806",
+      "accession": "VCV000234806.23",
+      "name": "NM_002667.5(PLN):c.34A>G (p.Ile12Val)",
+      "position": 15677,
+      "genomic": 118558955,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 12,
+      "protein_change": "p.I12V",
+      "coding_change": "c.34A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-08-31",
+      "last_updated": "2026-10-04",
+      "conditions": [
+        {
+          "accession": "RCV000214972.7",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2024-11-15"
+        },
+        {
+          "accession": "RCV000229704.14",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-27"
+        },
+        {
+          "accession": "RCV001170908.2",
+          "names": [
+            "Cardiomyopathy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-02"
+        },
+        {
+          "accession": "RCV002450652.3",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-13"
+        },
+        {
+          "accession": "RCV006994391.1",
+          "names": [
+            "PLN-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-08-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1733083",
+      "accession": "VCV001733083.6",
+      "name": "NM_002667.5(PLN):c.35T>C (p.Ile12Thr)",
+      "position": 15678,
+      "genomic": 118558956,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 12,
+      "protein_change": "p.I12T",
+      "coding_change": "c.35T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-02-18",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV002455196.2",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-11-15"
+        },
+        {
+          "accession": "RCV003234177.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-12-07"
+        },
+        {
+          "accession": "RCV003626708.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-02-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "626483",
+      "accession": "VCV000626483.11",
+      "name": "NM_002667.5(PLN):c.36A>G (p.Ile12Met)",
+      "position": 15679,
+      "genomic": 118558957,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 12,
+      "protein_change": "p.I12M",
+      "coding_change": "c.36A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-01-25",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000769215.2",
+          "names": [
+            "Cardiomyopathy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2016-03-14"
+        },
+        {
+          "accession": "RCV001214646.10",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1736005",
+      "accession": "VCV001736005.2",
+      "name": "NM_002667.5(PLN):c.38G>A (p.Arg13Lys)",
+      "position": 15681,
+      "genomic": 118558959,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 13,
+      "protein_change": "p.R13K",
+      "coding_change": "c.38G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-06-23",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV002357459.2",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-06-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "464270",
+      "accession": "VCV000464270.12",
+      "name": "NM_002667.5(PLN):c.41G>T (p.Arg14Ile)",
+      "position": 15684,
+      "genomic": 118558962,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 14,
+      "protein_change": "p.R14I",
+      "coding_change": "c.41G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-07-14",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000551751.8",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-07-14"
+        },
+        {
+          "accession": "RCV002330878.3",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-02-27"
+        },
+        {
+          "accession": "RCV005416365.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-12-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3728858",
+      "accession": "VCV003728858.2",
+      "name": "NM_002667.5(PLN):c.42A>G (p.Arg14=)",
+      "position": 15685,
+      "genomic": 118558963,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 14,
+      "protein_change": "p.R14=",
+      "coding_change": "c.42A>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-01-29",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005205169.2",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-01-29"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "44581",
+      "accession": "VCV000044581.10",
+      "name": "NM_002667.5(PLN):c.43G>A (p.Ala15Thr)",
+      "position": 15686,
+      "genomic": 118558964,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 15,
+      "protein_change": "p.A15T",
+      "coding_change": "c.43G>A",
+      "consequence": "missense",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2025-10-01",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000037583.5",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2012-05-01"
+        },
+        {
+          "accession": "RCV001852781.6",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2145755",
+      "accession": "VCV002145755.6",
+      "name": "NM_002667.5(PLN):c.45C>A (p.Ala15=)",
+      "position": 15688,
+      "genomic": 118558966,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 15,
+      "protein_change": "p.A15=",
+      "coding_change": "c.45C>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2023-06-14",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV003074216.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-01-19"
+        },
+        {
+          "accession": "RCV003274189.2",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-06-14"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2804319",
+      "accession": "VCV002804319.4",
+      "name": "NM_002667.5(PLN):c.51C>A (p.Thr17=)",
+      "position": 15694,
+      "genomic": 118558972,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 17,
+      "protein_change": "p.T17=",
+      "coding_change": "c.51C>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2024-05-05",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV003627724.4",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-16"
+        },
+        {
+          "accession": "RCV004654275.1",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-05"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "573774",
+      "accession": "VCV000573774.15",
+      "name": "NM_002667.5(PLN):c.53T>C (p.Ile18Thr)",
+      "position": 15696,
+      "genomic": 118558974,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 18,
+      "protein_change": "p.I18T",
+      "coding_change": "c.53T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-11-18",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001798961.2",
+          "names": [
+            "Cardiomyopathy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-07-05"
+        },
+        {
+          "accession": "RCV002343489.3",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-11-29"
+        },
+        {
+          "accession": "RCV005054250.1",
+          "names": [
+            "Hypertrophic cardiomyopathy 18"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-10-15"
+        },
+        {
+          "accession": "RCV000695526.10",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-11-18"
+        },
+        {
+          "accession": "RCV002485687.1",
+          "names": [
+            "Dilated cardiomyopathy 1P",
+            "Hypertrophic cardiomyopathy 18"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-08-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "research"
+      ]
+    },
+    {
+      "variation_id": "1415631",
+      "accession": "VCV001415631.7",
+      "name": "NM_002667.5(PLN):c.56A>G (p.Glu19Gly)",
+      "position": 15699,
+      "genomic": 118558977,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 19,
+      "protein_change": "p.E19G",
+      "coding_change": "c.56A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2022-05-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001921033.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-05-12"
+        },
+        {
+          "accession": "RCV002344034.2",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-11-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "44582",
+      "accession": "VCV000044582.20",
+      "name": "NM_002667.5(PLN):c.61C>A (p.Pro21Thr)",
+      "position": 15704,
+      "genomic": 118558982,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 21,
+      "protein_change": "p.P21T",
+      "coding_change": "c.61C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-01-25",
+      "last_updated": "2026-10-04",
+      "conditions": [
+        {
+          "accession": "RCV000037584.5",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2008-03-01"
+        },
+        {
+          "accession": "RCV001237789.8",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-25"
+        },
+        {
+          "accession": "RCV002496596.1",
+          "names": [
+            "Dilated cardiomyopathy 1P",
+            "Hypertrophic cardiomyopathy 18"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-12-30"
+        },
+        {
+          "accession": "RCV006998881.1",
+          "names": [
+            "PLN-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-04"
+        },
+        {
+          "accession": "RCV006766677.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-10-19"
+        },
+        {
+          "accession": "RCV005400697.2",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2025-05-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1029623",
+      "accession": "VCV001029623.2",
+      "name": "NM_002667.5(PLN):c.61C>T (p.Pro21Ser)",
+      "position": 15704,
+      "genomic": 118558982,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 21,
+      "protein_change": "p.P21S",
+      "coding_change": "c.61C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-06-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001330958.1",
+          "names": [
+            "Hypertrophic cardiomyopathy 18"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-02-14"
+        },
+        {
+          "accession": "RCV006557374.1",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "229153",
+      "accession": "VCV000229153.5",
+      "name": "NM_002667.5(PLN):c.67C>G (p.Gln23Glu)",
+      "position": 15710,
+      "genomic": 118558988,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 23,
+      "protein_change": "p.Q23E",
+      "coding_change": "c.67C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2015-03-11",
+      "last_updated": "2024-09-01",
+      "conditions": [
+        {
+          "accession": "RCV000216465.4",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2015-03-11"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2186050",
+      "accession": "VCV002186050.27",
+      "name": "NM_002667.5(PLN):c.69A>G (p.Gln23=)",
+      "position": 15712,
+      "genomic": 118558990,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 23,
+      "protein_change": "p.Q23=",
+      "coding_change": "c.69A>G",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-05-11",
+      "last_updated": "2026-07-27",
+      "conditions": [
+        {
+          "accession": "RCV002619970.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-05-11"
+        },
+        {
+          "accession": "RCV003434583.23",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-09-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "202038",
+      "accession": "VCV000202038.10",
+      "name": "NM_002667.5(PLN):c.73C>G (p.Arg25Gly)",
+      "position": 15716,
+      "genomic": 118558994,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 25,
+      "protein_change": "p.R25G",
+      "coding_change": "c.73C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-12-20",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000183817.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-05-08"
+        },
+        {
+          "accession": "RCV001852372.8",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "202040",
+      "accession": "VCV000202040.19",
+      "name": "NM_002667.5(PLN):c.73C>T (p.Arg25Cys)",
+      "position": 15716,
+      "genomic": 118558994,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 25,
+      "protein_change": "p.R25C",
+      "coding_change": "c.73C>T",
+      "consequence": "missense",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2026-07-22",
+      "last_updated": "2026-10-04",
+      "conditions": [
+        {
+          "accession": "RCV000183820.5",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-21"
+        },
+        {
+          "accession": "RCV001378976.9",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-27"
+        },
+        {
+          "accession": "RCV001257942.1",
+          "names": [
+            "Primary dilated cardiomyopathy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": null
+        },
+        {
+          "accession": "RCV002381610.6",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2026-03-27"
+        },
+        {
+          "accession": "RCV006989322.1",
+          "names": [
+            "PLN-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-07-22"
+        },
+        {
+          "accession": "RCV006259147.1",
+          "names": [
+            "Hypertrophic cardiomyopathy 18"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "research"
+      ]
+    },
+    {
+      "variation_id": "410616",
+      "accession": "VCV000410616.18",
+      "name": "NM_002667.5(PLN):c.74G>A (p.Arg25His)",
+      "position": 15717,
+      "genomic": 118558995,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 25,
+      "protein_change": "p.R25H",
+      "coding_change": "c.74G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-07-09",
+      "last_updated": "2026-08-04",
+      "conditions": [
+        {
+          "accession": "RCV000460010.8",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-11-06"
+        },
+        {
+          "accession": "RCV000786193.8",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2022-08-05"
+        },
+        {
+          "accession": "RCV002393144.3",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-07-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "provider interpretation"
+      ]
+    },
+    {
+      "variation_id": "3644697",
+      "accession": "VCV003644697.2",
+      "name": "NM_002667.5(PLN):c.77A>G (p.Gln26Arg)",
+      "position": 15720,
+      "genomic": 118558998,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 26,
+      "protein_change": "p.Q26R",
+      "coding_change": "c.77A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-03-06",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005121624.2",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-03-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1346972",
+      "accession": "VCV001346972.6",
+      "name": "NM_002667.5(PLN):c.79A>G (p.Lys27Glu)",
+      "position": 15722,
+      "genomic": 118559000,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 27,
+      "protein_change": "p.K27E",
+      "coding_change": "c.79A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-08-18",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV002050246.6",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-08-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3420913",
+      "accession": "VCV003420913.1",
+      "name": "NM_002667.5(PLN):c.84A>C (p.Leu28=)",
+      "position": 15727,
+      "genomic": 118559005,
+      "ref": "A",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": 28,
+      "protein_change": "p.L28=",
+      "coding_change": "c.84A>C",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-10-22",
+      "last_updated": "2025-01-19",
+      "conditions": [
+        {
+          "accession": "RCV004989357.1",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "949832",
+      "accession": "VCV000949832.10",
+      "name": "NM_002667.5(PLN):c.85C>T (p.Gln29Ter)",
+      "position": 15728,
+      "genomic": 118559006,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 29,
+      "protein_change": "p.Q29*",
+      "coding_change": "c.85C>T",
+      "consequence": "stop gained",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2023-12-26",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001221395.9",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-12-24"
+        },
+        {
+          "accession": "RCV004032418.1",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-12-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4843045",
+      "accession": "VCV004843045.1",
+      "name": "NM_002667.5(PLN):c.87G>C (p.Gln29His)",
+      "position": 15730,
+      "genomic": 118559008,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 29,
+      "protein_change": "p.Q29H",
+      "coding_change": "c.87G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2026-01-10",
+      "last_updated": "2026-05-03",
+      "conditions": [
+        {
+          "accession": "RCV006676248.1",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-01-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2586350",
+      "accession": "VCV002586350.2",
+      "name": "NM_002667.5(PLN):c.87G>T (p.Gln29His)",
+      "position": 15730,
+      "genomic": 118559008,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 29,
+      "protein_change": "p.Q29H",
+      "coding_change": "c.87G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-08-11",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003368294.2",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-08-11"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "906402",
+      "accession": "VCV000906402.8",
+      "name": "NM_002667.5(PLN):c.90T>C (p.Asn30=)",
+      "position": 15733,
+      "genomic": 118559011,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 30,
+      "protein_change": "p.N30=",
+      "coding_change": "c.90T>C",
+      "consequence": "synonymous",
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2024-10-22",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001155538.9",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Conflicting classifications of pathogenicity",
+          "review_status": "criteria provided, conflicting classifications",
+          "last_evaluated": "2023-01-16"
+        },
+        {
+          "accession": "RCV004986849.1",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2830094",
+      "accession": "VCV002830094.3",
+      "name": "NM_002667.5(PLN):c.94T>C (p.Phe32Leu)",
+      "position": 15737,
+      "genomic": 118559015,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 32,
+      "protein_change": "p.F32L",
+      "coding_change": "c.94T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-12-24",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV003628192.4",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3934555",
+      "accession": "VCV003934555.1",
+      "name": "NM_002667.5(PLN):c.97A>G (p.Ile33Val)",
+      "position": 15740,
+      "genomic": 118559018,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 33,
+      "protein_change": "p.I33V",
+      "coding_change": "c.97A>G",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-03-20",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005464225.1",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-03-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3633344",
+      "accession": "VCV003633344.2",
+      "name": "NM_002667.5(PLN):c.98T>C (p.Ile33Thr)",
+      "position": 15741,
+      "genomic": 118559019,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 33,
+      "protein_change": "p.I33T",
+      "coding_change": "c.98T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-06-29",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV005113401.2",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-29"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4541208",
+      "accession": "VCV004541208.1",
+      "name": "NM_002667.5(PLN):c.107G>A (p.Cys36Tyr)",
+      "position": 15750,
+      "genomic": 118559028,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 36,
+      "protein_change": "p.C36Y",
+      "coding_change": "c.107G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-09-06",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV006280042.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-09-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "532920",
+      "accession": "VCV000532920.8",
+      "name": "NM_002667.5(PLN):c.113T>C (p.Ile38Thr)",
+      "position": 15756,
+      "genomic": 118559034,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 38,
+      "protein_change": "p.I38T",
+      "coding_change": "c.113T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-11-04",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000639860.9",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-11-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1733517",
+      "accession": "VCV001733517.2",
+      "name": "NM_002667.5(PLN):c.114C>G (p.Ile38Met)",
+      "position": 15757,
+      "genomic": 118559035,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 38,
+      "protein_change": "p.I38M",
+      "coding_change": "c.114C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-10-21",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV002346612.2",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-10-21"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "13637",
+      "accession": "VCV000013637.44",
+      "name": "NM_002667.5(PLN):c.116T>G (p.Leu39Ter)",
+      "position": 15759,
+      "genomic": 118559037,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": 39,
+      "protein_change": "p.L39*",
+      "coding_change": "c.116T>G",
+      "consequence": "stop gained",
+      "classification": "Pathogenic/Likely pathogenic",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-06-01",
+      "last_updated": "2026-10-04",
+      "conditions": [
+        {
+          "accession": "RCV000014607.40",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2026-01-19"
+        },
+        {
+          "accession": "RCV000022712.35",
+          "names": [
+            "Hypertrophic cardiomyopathy 18"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-03-25"
+        },
+        {
+          "accession": "RCV000151666.5",
+          "names": [
+            "Hypertrophic cardiomyopathy"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2015-06-11"
+        },
+        {
+          "accession": "RCV000157419.1",
+          "names": [
+            "Sudden cardiac death"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2014-10-14"
+        },
+        {
+          "accession": "RCV000157420.1",
+          "names": [
+            "Cardiac arrest"
+          ],
+          "classification": "Likely pathogenic",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2014-10-14"
+        },
+        {
+          "accession": "RCV000171826.2",
+          "names": [
+            "Primary dilated cardiomyopathy"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2013-06-24"
+        },
+        {
+          "accession": "RCV000523391.12",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Pathogenic/Likely pathogenic",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2022-05-27"
+        },
+        {
+          "accession": "RCV000621703.4",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2025-01-03"
+        },
+        {
+          "accession": "RCV000770226.4",
+          "names": [
+            "Cardiomyopathy"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2024-09-20"
+        },
+        {
+          "accession": "RCV002467493.3",
+          "names": [
+            "Dilated cardiomyopathy 1P",
+            "Hypertrophic cardiomyopathy 18"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-07-31"
+        },
+        {
+          "accession": "RCV003389232.1",
+          "names": [
+            "Intrinsic cardiomyopathy"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-09-06"
+        },
+        {
+          "accession": "RCV005862714.2",
+          "names": [
+            "PLN-related disorder"
+          ],
+          "classification": "Pathogenic",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2026-06-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "literature only",
+        "research"
+      ]
+    },
+    {
+      "variation_id": "4763063",
+      "accession": "VCV004763063.1",
+      "name": "NM_002667.5(PLN):c.119T>C (p.Ile40Thr)",
+      "position": 15762,
+      "genomic": 118559040,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 40,
+      "protein_change": "p.I40T",
+      "coding_change": "c.119T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-11-11",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV006575814.1",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-11-11"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2136456",
+      "accession": "VCV002136456.1",
+      "name": "NM_002667.5(PLN):c.121T>A (p.Cys41Ser)",
+      "position": 15764,
+      "genomic": 118559042,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": 41,
+      "protein_change": "p.C41S",
+      "coding_change": "c.121T>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-09-01",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV003037184.2",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-09-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1375385",
+      "accession": "VCV001375385.8",
+      "name": "NM_002667.5(PLN):c.124C>A (p.Leu42Ile)",
+      "position": 15767,
+      "genomic": 118559045,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 42,
+      "protein_change": "p.L42I",
+      "coding_change": "c.124C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-02-23",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001883333.8",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-02-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2700866",
+      "accession": "VCV002700866.3",
+      "name": "NM_002667.5(PLN):c.126C>T (p.Leu42=)",
+      "position": 15769,
+      "genomic": 118559047,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 42,
+      "protein_change": "p.L42=",
+      "coding_change": "c.126C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-12-04",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV003515384.4",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-12-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2831857",
+      "accession": "VCV002831857.3",
+      "name": "NM_002667.5(PLN):c.129G>C (p.Leu43Phe)",
+      "position": 15772,
+      "genomic": 118559050,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 43,
+      "protein_change": "p.L43F",
+      "coding_change": "c.129G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-01-25",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV003628221.4",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-01-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4139842",
+      "accession": "VCV004139842.1",
+      "name": "NM_002667.5(PLN):c.130C>T (p.Leu44=)",
+      "position": 15773,
+      "genomic": 118559051,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 44,
+      "protein_change": "p.L44=",
+      "coding_change": "c.130C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-07-12",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV005706526.1",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-07-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "202184",
+      "accession": "VCV000202184.9",
+      "name": "NM_002667.5(PLN):c.131T>C (p.Leu44Pro)",
+      "position": 15774,
+      "genomic": 118559052,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 44,
+      "protein_change": "p.L44P",
+      "coding_change": "c.131T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-08-06",
+      "last_updated": "2026-10-04",
+      "conditions": [
+        {
+          "accession": "RCV000184030.3",
+          "names": [
+            "Hypertrophic cardiomyopathy 18"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-08-06"
+        },
+        {
+          "accession": "RCV002381614.2",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-06-29"
+        },
+        {
+          "accession": "RCV001852380.6",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4614735",
+      "accession": "VCV004614735.1",
+      "name": "NM_002667.5(PLN):c.132G>A (p.Leu44=)",
+      "position": 15775,
+      "genomic": 118559053,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 44,
+      "protein_change": "p.L44=",
+      "coding_change": "c.132G>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-11-15",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV006351280.1",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-11-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2899578",
+      "accession": "VCV002899578.3",
+      "name": "NM_002667.5(PLN):c.136T>C (p.Cys46Arg)",
+      "position": 15779,
+      "genomic": 118559057,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 46,
+      "protein_change": "p.C46R",
+      "coding_change": "c.136T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-12-02",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV003627284.4",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-02"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1627181",
+      "accession": "VCV001627181.9",
+      "name": "NM_002667.5(PLN):c.138T>C (p.Cys46=)",
+      "position": 15781,
+      "genomic": 118559059,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 46,
+      "protein_change": "p.C46=",
+      "coding_change": "c.138T>C",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2024-10-21",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV002114122.8",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-03"
+        },
+        {
+          "accession": "RCV004982916.1",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-21"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1399599",
+      "accession": "VCV001399599.9",
+      "name": "NM_002667.5(PLN):c.141C>G (p.Ile47Met)",
+      "position": 15784,
+      "genomic": 118559062,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 47,
+      "protein_change": "p.I47M",
+      "coding_change": "c.141C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2026-03-02",
+      "last_updated": "2026-10-04",
+      "conditions": [
+        {
+          "accession": "RCV001917766.8",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-07-13"
+        },
+        {
+          "accession": "RCV007033879.1",
+          "names": [
+            "PLN-related disorder"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-03-02"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1949066",
+      "accession": "VCV001949066.5",
+      "name": "NM_002667.5(PLN):c.143T>G (p.Ile48Ser)",
+      "position": 15786,
+      "genomic": 118559064,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": 48,
+      "protein_change": "p.I48S",
+      "coding_change": "c.143T>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-06-20",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV002676002.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "700703",
+      "accession": "VCV000700703.16",
+      "name": "NM_002667.5(PLN):c.144C>T (p.Ile48=)",
+      "position": 15787,
+      "genomic": 118559065,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 48,
+      "protein_change": "p.I48=",
+      "coding_change": "c.144C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-08-26",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000868990.11",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-26"
+        },
+        {
+          "accession": "RCV001593085.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-10-09"
+        },
+        {
+          "accession": "RCV003965727.2",
+          "names": [
+            "PLN-related disorder"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": "2020-04-13"
+        },
+        {
+          "accession": "RCV004027745.1",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-10-29"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "202036",
+      "accession": "VCV000202036.13",
+      "name": "NM_002667.5(PLN):c.145G>A (p.Val49Met)",
+      "position": 15788,
+      "genomic": 118559066,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 49,
+      "protein_change": "p.V49M",
+      "coding_change": "c.145G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2024-08-07",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001309721.6",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-08-07"
+        },
+        {
+          "accession": "RCV001704888.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2022-02-17"
+        },
+        {
+          "accession": "RCV001798641.2",
+          "names": [
+            "Cardiomyopathy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-06-14"
+        },
+        {
+          "accession": "RCV002485230.1",
+          "names": [
+            "Dilated cardiomyopathy 1P",
+            "Hypertrophic cardiomyopathy 18"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-08-05"
+        },
+        {
+          "accession": "RCV003165407.2",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-01-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "626734",
+      "accession": "VCV000626734.2",
+      "name": "NM_002667.5(PLN):c.148A>C (p.Met50Leu)",
+      "position": 15791,
+      "genomic": 118559069,
+      "ref": "A",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": 50,
+      "protein_change": "p.M50L",
+      "coding_change": "c.148A>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2016-10-19",
+      "last_updated": "2025-07-28",
+      "conditions": [
+        {
+          "accession": "RCV000770227.2",
+          "names": [
+            "Cardiomyopathy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2016-10-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1017276",
+      "accession": "VCV001017276.10",
+      "name": "NM_002667.5(PLN):c.149T>C (p.Met50Thr)",
+      "position": 15792,
+      "genomic": 118559070,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 50,
+      "protein_change": "p.M50T",
+      "coding_change": "c.149T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2020-06-04",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001316405.9",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-06-04"
+        },
+        {
+          "accession": "RCV001799063.2",
+          "names": [
+            "Cardiomyopathy"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-01-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2566092",
+      "accession": "VCV002566092.2",
+      "name": "NM_002667.5(PLN):c.150G>A (p.Met50Ile)",
+      "position": 15793,
+      "genomic": 118559071,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 50,
+      "protein_change": "p.M50I",
+      "coding_change": "c.150G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-04-14",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003306374.2",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-04-14"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "839623",
+      "accession": "VCV000839623.9",
+      "name": "NM_002667.5(PLN):c.151C>A (p.Leu51Ile)",
+      "position": 15794,
+      "genomic": 118559072,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 51,
+      "protein_change": "p.L51I",
+      "coding_change": "c.151C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-03-18",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001041423.10",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-03-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1315107",
+      "accession": "VCV001315107.5",
+      "name": "NM_002667.5(PLN):c.151C>T (p.Leu51Phe)",
+      "position": 15794,
+      "genomic": 118559072,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 51,
+      "protein_change": "p.L51F",
+      "coding_change": "c.151C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-09-10",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001773301.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-01-24"
+        },
+        {
+          "accession": "RCV005095045.3",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2025-09-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "44577",
+      "accession": "VCV000044577.10",
+      "name": "NM_002667.5(PLN):c.152T>C (p.Leu51Pro)",
+      "position": 15795,
+      "genomic": 118559073,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 51,
+      "protein_change": "p.L51P",
+      "coding_change": "c.152T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-02-12",
+      "last_updated": "2026-09-27",
+      "conditions": [
+        {
+          "accession": "RCV000037579.5",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2012-08-24"
+        },
+        {
+          "accession": "RCV002513479.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-02-12"
+        },
+        {
+          "accession": "RCV006766675.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2020-10-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1059005",
+      "accession": "VCV001059005.12",
+      "name": "NM_002667.5(PLN):c.154C>A (p.Leu52Ile)",
+      "position": 15797,
+      "genomic": 118559075,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 52,
+      "protein_change": "p.L52I",
+      "coding_change": "c.154C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2025-08-25",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001368208.9",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-25"
+        },
+        {
+          "accession": "RCV002404877.3",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-05-14"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1151456",
+      "accession": "VCV001151456.11",
+      "name": "NM_002667.5(PLN):c.156C>A (p.Leu52=)",
+      "position": 15799,
+      "genomic": 118559077,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 52,
+      "protein_change": "p.L52=",
+      "coding_change": "c.156C>A",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2021-04-08",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001492403.9",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2019-08-22"
+        },
+        {
+          "accession": "RCV002405160.2",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-04-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2507292",
+      "accession": "VCV002507292.1",
+      "name": "NM_002667.5(PLN):c.157T>G (p.Ter53Gly)",
+      "position": 15800,
+      "genomic": 118559078,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": "c.157T>G",
+      "consequence": "stop lost",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-12-28",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV003239183.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-12-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4862061",
+      "accession": "VCV004862061.1",
+      "name": "NM_002667.5(PLN):c.159A>C (p.Ter53Cys)",
+      "position": 15802,
+      "genomic": 118559080,
+      "ref": "A",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": "c.159A>C",
+      "consequence": "stop lost",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2026-05-20",
+      "last_updated": "2026-07-27",
+      "conditions": [
+        {
+          "accession": "RCV006711411.1",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2026-05-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "44576",
+      "accession": "VCV000044576.5",
+      "name": "NM_002667.5(PLN):c.*4T>A",
+      "position": 15806,
+      "genomic": 118559084,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2012-02-15",
+      "last_updated": "2024-09-01",
+      "conditions": [
+        {
+          "accession": "RCV000037578.5",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2012-02-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3895155",
+      "accession": "VCV003895155.1",
+      "name": "NM_002667.5(PLN):c.*9T>G",
+      "position": 15811,
+      "genomic": 118559089,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-04-09",
+      "last_updated": "2025-05-03",
+      "conditions": [
+        {
+          "accession": "RCV005404876.1",
+          "names": [
+            "Cardiovascular phenotype"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-04-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "379747",
+      "accession": "VCV000379747.4",
+      "name": "NM_002667.5(PLN):c.*17C>G",
+      "position": 15819,
+      "genomic": 118559097,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Conflicting classifications of pathogenicity",
+      "review_status": "criteria provided, conflicting classifications",
+      "last_evaluated": "2025-04-25",
+      "last_updated": "2025-06-29",
+      "conditions": [
+        {
+          "accession": "RCV000433383.3",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Conflicting classifications of pathogenicity",
+          "review_status": "criteria provided, conflicting classifications",
+          "last_evaluated": "2025-04-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "906403",
+      "accession": "VCV000906403.4",
+      "name": "NM_002667.5(PLN):c.*80T>C",
+      "position": 15882,
+      "genomic": 118559160,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001155539.4",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "355137",
+      "accession": "VCV000355137.5",
+      "name": "NM_002667.5(PLN):c.*89A>G",
+      "position": 15891,
+      "genomic": 118559169,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000264598.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "355138",
+      "accession": "VCV000355138.5",
+      "name": "NM_002667.5(PLN):c.*90G>A",
+      "position": 15892,
+      "genomic": 118559170,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2017-04-27",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000324565.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2017-04-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "906404",
+      "accession": "VCV000906404.4",
+      "name": "NM_002667.5(PLN):c.*152G>A",
+      "position": 15954,
+      "genomic": 118559232,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-03-23",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001155540.4",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-03-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "355140",
+      "accession": "VCV000355140.5",
+      "name": "NM_002667.5(PLN):c.*250T>C",
+      "position": 16052,
+      "genomic": 118559330,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000280631.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "907406",
+      "accession": "VCV000907406.5",
+      "name": "NM_002667.5(PLN):c.*277A>G",
+      "position": 16079,
+      "genomic": 118559357,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2021-10-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001157225.4",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        },
+        {
+          "accession": "RCV002483901.1",
+          "names": [
+            "Dilated cardiomyopathy 1P",
+            "Hypertrophic cardiomyopathy 18"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-10-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "355141",
+      "accession": "VCV000355141.5",
+      "name": "NM_002667.5(PLN):c.*397T>G",
+      "position": 16199,
+      "genomic": 118559477,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000385448.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "355142",
+      "accession": "VCV000355142.6",
+      "name": "NM_002667.5(PLN):c.*415T>C",
+      "position": 16217,
+      "genomic": 118559495,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2021-07-16",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000295748.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV002487552.1",
+          "names": [
+            "Dilated cardiomyopathy 1P",
+            "Hypertrophic cardiomyopathy 18"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-07-16"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "355144",
+      "accession": "VCV000355144.5",
+      "name": "NM_002667.5(PLN):c.*581C>T",
+      "position": 16383,
+      "genomic": 118559661,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000347568.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "355146",
+      "accession": "VCV000355146.5",
+      "name": "NM_002667.5(PLN):c.*877T>C",
+      "position": 16679,
+      "genomic": 118559957,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000304417.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "355147",
+      "accession": "VCV000355147.6",
+      "name": "NM_002667.5(PLN):c.*891C>T",
+      "position": 16693,
+      "genomic": 118559971,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2021-08-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000354543.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        },
+        {
+          "accession": "RCV002502373.1",
+          "names": [
+            "Dilated cardiomyopathy 1P",
+            "Hypertrophic cardiomyopathy 18"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-08-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "907407",
+      "accession": "VCV000907407.4",
+      "name": "NM_002667.5(PLN):c.*903G>A",
+      "position": 16705,
+      "genomic": 118559983,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001157226.4",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "907408",
+      "accession": "VCV000907408.5",
+      "name": "NM_002667.5(PLN):c.*1007T>A",
+      "position": 16809,
+      "genomic": 118560087,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2021-07-08",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001157227.4",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV002480561.1",
+          "names": [
+            "Dilated cardiomyopathy 1P",
+            "Hypertrophic cardiomyopathy 18"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-07-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "904073",
+      "accession": "VCV000904073.4",
+      "name": "NM_002667.5(PLN):c.*1012A>T",
+      "position": 16814,
+      "genomic": 118560092,
+      "ref": "A",
+      "alt": "T",
+      "genomic_ref": "A",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001151762.4",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "355148",
+      "accession": "VCV000355148.5",
+      "name": "NM_002667.5(PLN):c.*1070T>A",
+      "position": 16872,
+      "genomic": 118560150,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000318589.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "904074",
+      "accession": "VCV000904074.4",
+      "name": "NM_002667.5(PLN):c.*1098T>C",
+      "position": 16900,
+      "genomic": 118560178,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001151763.4",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "355149",
+      "accession": "VCV000355149.6",
+      "name": "NM_002667.5(PLN):c.*1135C>T",
+      "position": 16937,
+      "genomic": 118560215,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2021-07-01",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000274039.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        },
+        {
+          "accession": "RCV002487553.1",
+          "names": [
+            "Dilated cardiomyopathy 1P",
+            "Hypertrophic cardiomyopathy 18"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-07-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "355150",
+      "accession": "VCV000355150.5",
+      "name": "NM_002667.5(PLN):c.*1172T>C",
+      "position": 16974,
+      "genomic": 118560252,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000388373.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "355151",
+      "accession": "VCV000355151.5",
+      "name": "NM_002667.5(PLN):c.*1180A>G",
+      "position": 16982,
+      "genomic": 118560260,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000384994.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "904075",
+      "accession": "VCV000904075.4",
+      "name": "NM_002667.5(PLN):c.*1199T>C",
+      "position": 17001,
+      "genomic": 118560279,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-12",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001151764.4",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "355152",
+      "accession": "VCV000355152.6",
+      "name": "NM_002667.5(PLN):c.*1225C>T",
+      "position": 17027,
+      "genomic": 118560305,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2021-09-03",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000290070.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV002487554.1",
+          "names": [
+            "Dilated cardiomyopathy 1P",
+            "Hypertrophic cardiomyopathy 18"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-09-03"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "355153",
+      "accession": "VCV000355153.9",
+      "name": "NM_002667.5(PLN):c.*1243C>T",
+      "position": 17045,
+      "genomic": 118560323,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2021-09-17",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV000393417.5",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV002487555.1",
+          "names": [
+            "Dilated cardiomyopathy 1P",
+            "Hypertrophic cardiomyopathy 18"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-09-17"
+        },
+        {
+          "accession": "RCV001723957.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": null
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "904851",
+      "accession": "VCV000904851.8",
+      "name": "NM_002667.5(PLN):c.*1279G>A",
+      "position": 17081,
+      "genomic": 118560359,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2021-08-11",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001153002.4",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        },
+        {
+          "accession": "RCV001724258.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "no assertion criteria provided",
+          "last_evaluated": null
+        },
+        {
+          "accession": "RCV002491446.1",
+          "names": [
+            "Dilated cardiomyopathy 1P",
+            "Hypertrophic cardiomyopathy 18"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-08-11"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "904852",
+      "accession": "VCV000904852.4",
+      "name": "NM_002667.5(PLN):c.*1322C>T",
+      "position": 17124,
+      "genomic": 118560402,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-01-13",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001153003.4",
+          "names": [
+            "Dilated cardiomyopathy 1P"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-01-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    }
+  ]
+}

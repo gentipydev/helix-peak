@@ -90,7 +90,7 @@ class _Paths implements Canvas {
 
 void main() {
   test(
-    'the beta cells and the neurons of the twenty are drawn part by part',
+    'the endocrine cells and the neurons of the catalog are drawn part by part',
     () {
       expect(
         <String>[for (final ProteinTarget t in _drawn()) t.slug]..sort(),
@@ -98,6 +98,8 @@ void main() {
           'glucagon',
           'insulin',
           'oxytocin',
+          // A rod photoreceptor of the retina, drawn as the neuron it is.
+          'recoverin',
           'somatotropin',
           'vasopressin',
         ],

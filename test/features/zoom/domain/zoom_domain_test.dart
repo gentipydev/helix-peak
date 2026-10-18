@@ -130,6 +130,52 @@ const Map<String, (String, TissueFrom, String?, CellFrom?)> bakedPaths =
         CellFrom.singleCell,
       ),
       'p53': ('stomach', TissueFrom.pair, 'Mitotic cells (Stomach)', CellFrom.pair),
+      // The third ten (2026-10-17), each in a cell type the twenty do not reach.
+      'phospholamban': (
+        'heart muscle',
+        TissueFrom.reading,
+        'Cardiomyocytes',
+        CellFrom.pair,
+      ),
+      's100b': ('brain', TissueFrom.reading, 'Bergmann glia', CellFrom.singleCell),
+      'hcgbeta': (
+        'placenta',
+        TissueFrom.reading,
+        'Syncytiotrophoblasts',
+        CellFrom.singleCell,
+      ),
+      'ppbp': ('bone marrow', TissueFrom.reading, 'Platelets', CellFrom.singleCell),
+      'pappa': (
+        'placenta',
+        TissueFrom.reading,
+        'Decidual stromal cells',
+        CellFrom.singleCell,
+      ),
+      'cystatinb': (
+        'esophagus',
+        TissueFrom.reading,
+        'Esophageal apical cells',
+        CellFrom.singleCell,
+      ),
+      'tyrp1': ('skin', TissueFrom.reading, 'Melanocytes', CellFrom.pair),
+      'recoverin': (
+        'retina',
+        TissueFrom.reading,
+        'Rod photoreceptor cells',
+        CellFrom.singleCell,
+      ),
+      'thyroglobulin': (
+        'thyroid gland',
+        TissueFrom.reading,
+        'Thyroid glandular cells',
+        CellFrom.pair,
+      ),
+      'uromodulin': (
+        'kidney',
+        TissueFrom.reading,
+        'Ascending Loop of Henle cells',
+        CellFrom.pair,
+      ),
     };
 
 ZoomPath _path(ProteinTarget t) => ZoomPath.of(locusOf(t));
@@ -244,7 +290,9 @@ void main() {
           for (final ProteinTarget t in TestCatalog.all)
             if (_path(t).anucleate != null) t.slug,
         ],
-        <String>[TestCatalog.hemoglobin.slug],
+        // Hemoglobin's red cells, and PPBP's platelets, which land in the
+        // megakaryocyte that makes them.
+        <String>[TestCatalog.hemoglobin.slug, 'ppbp'],
       );
     });
 
@@ -456,6 +504,16 @@ void main() {
         'ubiquitin': CellShape.germ,
         'app': CellShape.endothelial,
         'p53': CellShape.dividing,
+        'phospholamban': CellShape.cardiomyocyte,
+        's100b': CellShape.glial,
+        'hcgbeta': CellShape.trophoblast,
+        'ppbp': CellShape.megakaryocyte,
+        'pappa': CellShape.spindle,
+        'cystatinb': CellShape.epithelial,
+        'tyrp1': CellShape.epithelial,
+        'recoverin': CellShape.neuron,
+        'thyroglobulin': CellShape.acinar,
+        'uromodulin': CellShape.epithelial,
       };
       for (final ProteinTarget t in TestCatalog.all) {
         expect(

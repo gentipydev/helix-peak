@@ -124,8 +124,8 @@ Future<Uint8List> _pixels(
 }
 
 void main() {
-  testWidgets('the nucleolus is named at the cell, and nowhere else, for all '
-      'twenty; the nucleus names nothing', (WidgetTester tester) async {
+  testWidgets('the nucleolus is named at the cell, and nowhere else, for every '
+      'curated protein; the nucleus names nothing', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
     for (final Size size in _canvases) {
       for (final ProteinTarget t in TestCatalog.all) {
@@ -141,12 +141,24 @@ void main() {
           if (stop == ZoomStop.nucleus) {
             expect(callouts, isEmpty, reason: '${t.slug} at the nucleus');
           }
-          final bool seen = stop == ZoomStop.cell;
+          // Where the Atlas finds the protein in the nucleolus, its own name
+          // says so, and the nucleolus is not named again.
+          final bool seen = stop == ZoomStop.cell && !inNucleoli(t);
           expect(
             named,
             hasLength(seen ? 1 : 0),
             reason: '${t.slug} at ${stop.name}',
           );
+          if (stop == ZoomStop.cell && inNucleoli(t)) {
+            expect(
+              <ZoomCallout>[
+                for (final ZoomCallout c in callouts)
+                  if (!c.quiet && c.text.contains('nucleoli')) c,
+              ],
+              hasLength(1),
+              reason: '${t.slug}: its own name says the nucleolus',
+            );
+          }
           if (seen) {
             expect(named.single.quiet, isTrue, reason: t.slug);
             expect(named.single.opacity, closeTo(1, 1e-9), reason: t.slug);
@@ -291,7 +303,9 @@ void main() {
     final ZoomInks inks = await _inks(tester);
     const Size size = Size(390, 560);
     const TextStyle labels = TextStyle(fontSize: 12);
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in TestCatalog.all.where(
+      (ProteinTarget t) => !inNucleoli(t),
+    )) {
       final ZoomStage stage = _stage(t);
       for (final ZoomStop stop in <ZoomStop>[ZoomStop.cell]) {
         final double d = stage.depth.depthOf(stop);

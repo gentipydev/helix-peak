@@ -5,12 +5,13 @@ import 'dart:typed_data';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/catalog/protein_track.dart';
 import 'package:helixpeek/core/network/track_source.dart';
+import 'package:helixpeek/features/zoom/domain/cell_archetypes.dart';
 import 'package:helixpeek/features/zoom/domain/locus_track.dart';
 
 import '../../support/test_catalog.dart';
 
-/// The twenty `locus` payloads `pipeline/locus/` baked, kept beside these
-/// tests rather than in `test/fixtures/`, which belongs to the walk.
+/// The curated rows' `locus` payloads `pipeline/locus/` baked, kept beside
+/// these tests rather than in `test/fixtures/`, which belongs to the walk.
 String locusAsset(ProteinTarget target) =>
     'test/features/zoom/fixtures/${target.slug}_locus.json';
 
@@ -23,6 +24,13 @@ final Map<String, LocusTrack> _tracks = <String, LocusTrack>{};
 LocusTrack locusOf(ProteinTarget target) => _tracks.putIfAbsent(
   target.slug,
   () => LocusTrack.fromJson(locusJson(target), target),
+);
+
+/// Whether the Atlas finds [target]'s protein in the nucleolus: its own name
+/// at the cell then says so, and the nucleolus is not named again
+/// (`CellScene`).
+bool inNucleoli(ProteinTarget target) => locusOf(target).subcellular.main.any(
+  (String word) => compartmentOf[word] == Compartment.nucleoli,
 );
 
 /// [target], with its row saying [state] for the locus track.

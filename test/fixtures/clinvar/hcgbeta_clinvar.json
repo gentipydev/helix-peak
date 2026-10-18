@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "source": "NCBI ClinVar",
+  "gene": "CGB3",
+  "accession": "NC_000019.10",
+  "assembly": "GRCh38",
+  "chromosome": "chr19",
+  "scope": "reference-matched single nucleotide variants in the drawn gene",
+  "start": 1,
+  "sequence": "ACGCCTAACTCTTCGGAAATAACACCCTCCTAGCCCCACAGGCTCCCGGGGCCCTCAGCCCTACCCGAACCTTCCGACCCCCCTCCCCGGAAACTCCTTCTCCTCAGGACCTTCGCCCCCAGTAGTGTCCAGTTCCCCACCAGGAACCCTGGGGGCGTCAGTCACCACGACGCCGCCGTCTCACGTGTAACTGTCGACTCTCGGTGCCGCATCCTCTGGTGCCCCAAGTGCGGCGCGCCCGTCGGTCCCTCGGCCTACCTGAGCTTCGCGTGTAGCGCCATCAACGTGTGGTGGACTCCGTCCCGGCCGTCCTGGGGGACGTCGTGCGCCCAGACCTTCGGCACACTCACCCCCTTACTCGTACACGGACCCCGGTCGCGGAGTCGACTCGAGGGGTCGACGGGGGTGTCCAGAGTCTGAGTCCCCAGGTCCTTCGGGAGACAAGGACGGGAGGGTGTGGGGTAAGGCGTCGGGGACTGGTCTCTCCGTCTGGTGGGAAGGAGGGGGCGACGGAGACACCCAGACCGGGACTCCACCGTCGTGGACGGGGCCGGGGCCCGTCGAGTGGTACCACCCCGTCATCGGCCGTGTCTACCACCACAACTGCCACTACGTGTGCCCCGTCGGGAGGAAGAGGTGTCGGTCCCACCGTAACTACCCCGCCGTGGCACCGGCTTCGCCGAGGAACCTACGGGTACAGGGCGGGTACGAGTCGTCGTCGTTGTCGTCGTCGGGGACCCTGTTCCTGTGACGAAGTGGGCCCAGACTCTGGCGTCGGGGCTCAGGACCGGAAGGGTAGGGCGCACCATGTGGTGGGTGTTTCTGGGTCTCTGGGAAGGGCCGTAGAGGATAAGTCCTGGGTGGTGGGCCTGTGGACGGAAAGTCTCGGGTGGGGTGTCGGGTCTCCTGGACTCTATGGGGTTGTAAAGTCTAGGCGTGGAAGTCCTTTACGGGGTGGACTTCGAATGACCCCCAGTGCGAGGAGGTCTTTCTCCGGAGGAAGGTGTCGAGTGTGACCAGACTGGGGAAGAGTACGGTCACTAACGGACCTTCCTCCACCTTCCACGGGTCCCCGGGACGTCAGAATGGACCTTGTAGAGGTAGGAACCACGCAGGGGACGGAGCACATGGACCGAAATATGGAGCCCCAACACCCCCGCCGTTCCGGTGGTCCTCCACTATCCTACGACCCCACTCGAGCTGTGATTGGGGAGCCCCCCGTTCTCCATCTGTTCCGGTCCCCCCGCGTCCTCACCGAGTCGCCTCGCGGGGTCGGGAGAGGAGAGTGACCAGGTCGCGGTTCCCACTCCGCCTCTGGTGCCACTTCACTGGAGTCTCTGAGTCAGCAGCTCACGATCCCTGATCAGCTCCGACCTCCGTGTCCCTCATCCCACATCCTTCCGGACGGAGACGGATACCACCCCAGGACCCTCGGTCCTCCTCCGGCACTGGGCTCTTTCCACGA",
+  "protein_sequence": "MEMFQGLLLLLLLSMGGTWASKEPLRPRCRPINATLAVEKEGCPVCITVNTTICAGYCPTMTRVLQGVLPALPQVVCNYRDVRFESIRLPGCPRGVNPVVSYAVALSCQCALCRRSTTDCGGPKDHPLTCDDPRFQDSSSSKAPPPSLPSPSRLPGPSDTPILPQ",
+  "complemented": true,
+  "runs": [
+    {
+      "local": 1,
+      "genomic": 49022869,
+      "step": 1,
+      "length": 1465
+    }
+  ],
+  "retrieved_at": "2026-10-18T00:18:59.871807+00:00",
+  "query": "CGB3[gene]",
+  "searched_records": 20,
+  "excluded": {
+    "no_germline_classification": 1,
+    "no_unique_GRCh38_location": 11,
+    "not_a_single_base_substitution": 3
+  },
+  "source_batches": [
+    {
+      "file": "batch-0.xml",
+      "sha256": "7c39b9a54ed552e549e64ec060cac2337ec37f2c6d793b6ba2dfcb10855b7ee3"
+    }
+  ],
+  "traits": {},
+  "variants": [
+    {
+      "variation_id": "2213027",
+      "accession": "VCV002213027.2",
+      "name": "NM_000737.5(CGB3):c.410A>G (p.Asp137Gly)",
+      "position": 106,
+      "genomic": 49022974,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 137,
+      "protein_change": "p.D137G",
+      "coding_change": "c.410A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-09-17",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004077709.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-09-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2650229",
+      "accession": "VCV002650229.23",
+      "name": "NM_000737.5(CGB3):c.378C>T (p.His126=)",
+      "position": 138,
+      "genomic": 49023006,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 126,
+      "protein_change": "p.H126=",
+      "coding_change": "c.378C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-01-01",
+      "last_updated": "2026-07-27",
+      "conditions": [
+        {
+          "accession": "RCV003425318.23",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-01-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2650230",
+      "accession": "VCV002650230.23",
+      "name": "NM_000737.5(CGB3):c.360C>T (p.Cys120=)",
+      "position": 156,
+      "genomic": 49023024,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 120,
+      "protein_change": "p.C120=",
+      "coding_change": "c.360C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-12-01",
+      "last_updated": "2026-07-27",
+      "conditions": [
+        {
+          "accession": "RCV003425319.23",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-12-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3143882",
+      "accession": "VCV003143882.1",
+      "name": "NM_000737.5(CGB3):c.89G>A (p.Arg30His)",
+      "position": 662,
+      "genomic": 49023530,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 30,
+      "protein_change": "p.R30H",
+      "coding_change": "c.89G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-08-12",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004436688.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-08-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2407461",
+      "accession": "VCV002407461.2",
+      "name": "NM_000737.5(CGB3):c.10T>C (p.Phe4Leu)",
+      "position": 1094,
+      "genomic": 49023962,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 4,
+      "protein_change": "p.F4L",
+      "coding_change": "c.10T>C",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-10-22",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004237734.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-10-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    }
+  ]
+}

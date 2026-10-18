@@ -1,0 +1,499 @@
+{
+  "schema_version": 1,
+  "source": "NCBI ClinVar",
+  "gene": "PPBP",
+  "accession": "NC_000004.12",
+  "assembly": "GRCh38",
+  "chromosome": "chr4",
+  "scope": "reference-matched single nucleotide variants in the drawn gene",
+  "start": 1,
+  "sequence": "AGTTATCGTTTAAAAATAAAGTACACTTATAAAAACATTCTTATCACACCCATATTCAAAATCCCAAATTTTTTACTTACTTTCAAGACAACTACTTTTTTCATCTTAAATCTTAATCCTCAGATCATTCCAACTTCAGGATATAACATGAATAAATATTCCGAGTAAGATTACTATCTTAATATTGATACATCTATACAATTAAGTAAAAGTAGTAGATAAAAACAAGATGATCACCGTTTATATAAGTGAAATTTGGTCGATTGGTGTCAAATATTCTAAGTATAAGTGGTTAAATAATAAAATCACAAACTACCGATTTTATTTGTAGTCTTATTTGAAAGTCCCTCATAAAATTTATTCTGTAGGATCCTGATTCTGTGACTCTCTGAGGTAATTCAAGGATTTATATAATTGTTTTTACATAACTCGTTTATAAGAGACAACCCGAGGTACATTAAGGATAATAGTAACTGGTAATACTTTAGATTATTATGGGTACTCATACAGATTATTGGTATTTCATCTGGTCCTTTTTAGTTGGTTCAACACAATCTTATCTTTAAAAATTTCTTTTTTTACGTTTCATGTCAGGTTACAAATCCGTTCTTAATCTCCCAACTTTGGTCCGAATAAATAAAAGTAGAAGAAAGACGGTAGAAAATTGGTTGGAAGAGTCTTATTTTACACTAAAAACTCTGTCTTACTTTGTGTATAGGTTTAAAATTATGTCATTCTTATCCATAGGACTTATTTACTCTTGAGATCTTTTAGTTCCAAAGTTTTAAGATGGGAAGGACCCTCAATTTCTTCAAACCGTCTTTGTCTTGTTTAATTAGTCGTCTAAGTAGTGGACGGTTAAAAAAGACATGTTAAAAGAACTAAGACCCTCGTAGACCCAGGTCCGTCTAAAAGGAGGGTAGGAAGTCACACCGAGACGTTTTCTCTTGTCCCAATAGACACCCACAGGACTAGACTTATAGTCTTGATTAGGTACTCTGACCTCCTTTGCTCACGTATACACCTACCTCCATCTCCCAAAGAGACTATTCCGTTATCGTGTCTTTGTCGTTGAATGTAGTGAAGCTGAACCAACGTTACCCAAGGAAAGGGCTAGTGAAGGTTTGAAACCTACAAAAACCCTACTTAAGGTCTCCAACAGAAATATGTGTACGTCGCCTCAAGTCGTATGTTCAGTGACAGATCTGAAAGGAGATCCCATCTTTTACACTGGATAACCACCAGTACTTATAAAAGGAGTCCAGAGAATAAACGTCTAACTCCCGTTAACATGGAGAGAGTATTTCGGTAACACTTATACTAGACATTGCGAAATCATTTCACGGGTCTTCTAACGGGTCGTGTGTTCTTCACTCTTCACTGGGGGGACACACAGAGGAGGTTAACCTCAATAACCATATTACCGGGAGAGGTCGGGGTTTCCGTGGTTCGATCAGAAATGGGGTCTCTGTCCACATCGTCTTCGTCGTTGTTCACGTCTCTTCGTCCCGGAGATGGAAACGGAAAGCGGTTCAAAGAGAATCAAACAGGAAACCACCTCCTTCGGTCTCGTCAGTCGTCGTTACTGTCTTCGTCGTCGTGGACGTTCCGTACTTCACCAGAGCGTGACAATGTCCTTCCCCACCATAGTTCAGACTCCGAGTACCACCTCTTCCGACTCGATCTCAACAAAGGTCTTGGTCTTCTGGAGACTCACTCCCACTCAACGACGGATGTTCAGACGTCTATTCA",
+  "protein_sequence": "MSLRLDTTPSCNSARPLHALQVLLLLSLLLTALASSTKGQTKRNLAKGKEESLDSDLYAELRCMCIKTTSGIHPKNIQSLEVIGKGTHCNQVEVIATLKDGRKICLDPDAPRIKKIVQKKLAGDESAD",
+  "complemented": true,
+  "runs": [
+    {
+      "local": 1,
+      "genomic": 73986439,
+      "step": 1,
+      "length": 1752
+    }
+  ],
+  "retrieved_at": "2026-10-18T07:29:35.939524+00:00",
+  "query": "PPBP[gene]",
+  "searched_records": 40,
+  "excluded": {
+    "no_unique_GRCh38_location": 17,
+    "not_a_single_base_substitution": 9
+  },
+  "source_batches": [
+    {
+      "file": "batch-0.xml",
+      "sha256": "47917cc8c4dae93618c553a564dda6e7e5ea08d7502dcdb34e9f9db3e4b362a9"
+    }
+  ],
+  "traits": {},
+  "variants": [
+    {
+      "variation_id": "3217050",
+      "accession": "VCV003217050.1",
+      "name": "NM_002704.3(PPBP):c.343A>G (p.Lys115Glu)",
+      "position": 878,
+      "genomic": 73987316,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 115,
+      "protein_change": "p.K115E",
+      "coding_change": "c.343A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-12-09",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004506892.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-12-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2308128",
+      "accession": "VCV002308128.2",
+      "name": "NM_002704.3(PPBP):c.325G>A (p.Asp109Asn)",
+      "position": 896,
+      "genomic": 73987334,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 109,
+      "protein_change": "p.D109N",
+      "coding_change": "c.325G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-08-17",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004153684.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-08-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3782165",
+      "accession": "VCV003782165.1",
+      "name": "NM_002704.3(PPBP):c.292C>G (p.Leu98Val)",
+      "position": 929,
+      "genomic": 73987367,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 98,
+      "protein_change": "p.L98V",
+      "coding_change": "c.292C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-12-24",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005260830.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-12-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4142217",
+      "accession": "VCV004142217.1",
+      "name": "NM_002704.3(PPBP):c.265T>C (p.Cys89Arg)",
+      "position": 1098,
+      "genomic": 73987536,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 89,
+      "protein_change": "p.C89R",
+      "coding_change": "c.265T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-09-04",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV005712821.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-09-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3782168",
+      "accession": "VCV003782168.1",
+      "name": "NM_002704.3(PPBP):c.202A>G (p.Thr68Ala)",
+      "position": 1161,
+      "genomic": 73987599,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 68,
+      "protein_change": "p.T68A",
+      "coding_change": "c.202A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-02-13",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005260833.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-02-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3782166",
+      "accession": "VCV003782166.1",
+      "name": "NM_002704.3(PPBP):c.193T>C (p.Cys65Arg)",
+      "position": 1170,
+      "genomic": 73987608,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 65,
+      "protein_change": "p.C65R",
+      "coding_change": "c.193T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-03-06",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005260831.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-03-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2589365",
+      "accession": "VCV002589365.2",
+      "name": "NM_002704.3(PPBP):c.184C>T (p.Arg62Cys)",
+      "position": 1179,
+      "genomic": 73987617,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 62,
+      "protein_change": "p.R62C",
+      "coding_change": "c.184C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-08-28",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004338953.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-08-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3423367",
+      "accession": "VCV003423367.1",
+      "name": "NM_002704.3(PPBP):c.173A>G (p.Tyr58Cys)",
+      "position": 1190,
+      "genomic": 73987628,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 58,
+      "protein_change": "p.Y58C",
+      "coding_change": "c.173A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-09-08",
+      "last_updated": "2025-01-19",
+      "conditions": [
+        {
+          "accession": "RCV004848240.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-09-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3936507",
+      "accession": "VCV003936507.1",
+      "name": "NM_002704.3(PPBP):c.170T>C (p.Leu57Ser)",
+      "position": 1193,
+      "genomic": 73987631,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 57,
+      "protein_change": "p.L57S",
+      "coding_change": "c.170T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-06-06",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005464609.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4142216",
+      "accession": "VCV004142216.1",
+      "name": "NM_002704.3(PPBP):c.155G>A (p.Ser52Asn)",
+      "position": 1208,
+      "genomic": 73987646,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 52,
+      "protein_change": "p.S52N",
+      "coding_change": "c.155G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-09-01",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV005712820.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-09-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4570723",
+      "accession": "VCV004570723.1",
+      "name": "NM_002704.3(PPBP):c.132C>G (p.Asn44Lys)",
+      "position": 1534,
+      "genomic": 73987972,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 44,
+      "protein_change": "p.N44K",
+      "coding_change": "c.132C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-10-23",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV006304473.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3423368",
+      "accession": "VCV003423368.1",
+      "name": "NM_002704.3(PPBP):c.80C>T (p.Ser27Leu)",
+      "position": 1586,
+      "genomic": 73988024,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 27,
+      "protein_change": "p.S27L",
+      "coding_change": "c.80C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-07-10",
+      "last_updated": "2025-01-13",
+      "conditions": [
+        {
+          "accession": "RCV004848241.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-07-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2521787",
+      "accession": "VCV002521787.3",
+      "name": "NM_002704.3(PPBP):c.71T>G (p.Leu24Arg)",
+      "position": 1595,
+      "genomic": 73988033,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": 24,
+      "protein_change": "p.L24R",
+      "coding_change": "c.71T>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-12-10",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV004292932.2",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3782167",
+      "accession": "VCV003782167.1",
+      "name": "NM_002704.3(PPBP):c.44G>A (p.Arg15Lys)",
+      "position": 1622,
+      "genomic": 73988060,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 15,
+      "protein_change": "p.R15K",
+      "coding_change": "c.44G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-02-13",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005260832.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-02-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    }
+  ]
+}

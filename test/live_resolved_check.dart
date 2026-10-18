@@ -165,7 +165,8 @@ void main() {
       markTestSkipped('set LIVE_BACKEND and LIVE_RESOLVED');
       return;
     }
-    expect(listed, 20);
+    // The curated list only grows: the twenty it began with never leave it.
+    expect(listed, greaterThanOrEqualTo(20));
     expect(inList, isFalse);
     expect((target.slug, target.gene), (slug, gene));
     expect(target.summary, contains('Built on demand from UniProt'));
