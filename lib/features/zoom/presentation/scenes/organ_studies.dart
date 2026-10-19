@@ -193,18 +193,16 @@ final class OrganForm {
 }
 
 /// What lies inside an organ of one kind, and the part of it the zoom's
-/// cell lives in, in the mark: the acini of a salivary gland, or its ducts
-/// for a duct cell, the red marrow of a femur, the lobules of a liver. By
-/// the kind of organ and of cell, never by gene. (The pancreas and the
-/// testis are drawn from anatomy instead, among their neighbours:
-/// `PancreasArt`, `TestisArt`.)
+/// cell lives in, in the mark: the red marrow of a femur, the lobules of a
+/// liver. By the kind of organ and of cell, never by gene. (The pancreas,
+/// the testis and the salivary gland are drawn from anatomy instead, among
+/// their neighbours: `PancreasArt`, `TestisArt`, `SalivaryArt`.)
 abstract class OrganStudy {
   const OrganStudy();
 
   /// The kinds of organ outlined by the anatomogram that have a study of
   /// their own; the rest are sculpted with a surface for their kind.
   static const Set<OrganKind> studied = <OrganKind>{
-    OrganKind.salivaryGland,
     OrganKind.boneMarrow,
     OrganKind.liver,
     OrganKind.adipose,
@@ -218,7 +216,6 @@ abstract class OrganStudy {
   /// [cell], or none where the organ has no study of its own.
   static OrganStudy? of(OrganKind kind, OrganForm form, CellShape cell) =>
       switch (kind) {
-        OrganKind.salivaryGland => _Gland(form, cell),
         OrganKind.boneMarrow => _Femur(form),
         OrganKind.liver => _Liver(form),
         OrganKind.adipose => _Fat(form),
@@ -244,161 +241,6 @@ Paint _stroke(Color colour, double width) => Paint()
   ..strokeCap = StrokeCap.round
   ..strokeJoin = StrokeJoin.round
   ..color = colour;
-
-/// A salivary gland: its lobules, its ducts out of its hilum on the side
-/// facing the body's midline, and where the zoom's cell lives glowing. The
-/// acini, the gland itself, for most cells; the duct tree for a duct cell;
-/// islands of cells scattered through it for an endocrine one. A branch of
-/// the ducts, or an island, lies at the place it is sampled.
-final class _Gland extends OrganStudy {
-  _Gland(this.form, this.cell) {
-    final math.Random random = math.Random(7);
-    final double size = form.size;
-    _lobules = <Rect>[
-      for (final Rect lobule in Sculpt.cobble(form.box, size * 0.075, random))
-        if (form.shape.contains(lobule.center)) lobule,
-    ];
-    _main = Path();
-    _branches = Path();
-    _out = Path();
-    // The duct leaves on the side facing the midline, half way down.
-    final Offset hilum = form.nearestEdge(
-      Offset(form.midline, form.box.center.dy),
-    );
-    final Offset inner = Offset.lerp(hilum, form.middle, 0.7)!;
-    _main
-      ..moveTo(inner.dx, inner.dy)
-      ..lineTo(hilum.dx, hilum.dy);
-    final double out = (form.midline - hilum.dx).sign;
-    _out
-      ..moveTo(hilum.dx, hilum.dy)
-      ..quadraticBezierTo(
-        hilum.dx + out * size * 0.25,
-        hilum.dy - size * 0.04,
-        hilum.dx + out * size * 0.55,
-        hilum.dy + size * 0.02,
-      );
-    for (int k = 0; k < 6; k++) {
-      final double heading =
-          math.atan2(inner.dy - hilum.dy, inner.dx - hilum.dx) +
-          (k - 2.5) * 0.55;
-      for (final Path generation in Sculpt.tree(
-        inner,
-        heading,
-        size * 0.16,
-        3,
-        random,
-        spread: 0.55,
-        shrink: 0.68,
-      )) {
-        _branches.addPath(generation, Offset.zero);
-      }
-    }
-    // A branch reaching the place it is sampled.
-    final Offset near = form.spine.reduce(
-      (Offset a, Offset b) =>
-          (a - form.site).distance <= (b - form.site).distance ? a : b,
-    );
-    _branches
-      ..moveTo(near.dx, near.dy)
-      ..quadraticBezierTo(
-        (near.dx + form.site.dx) / 2 + size * 0.01,
-        (near.dy + form.site.dy) / 2,
-        form.site.dx,
-        form.site.dy,
-      );
-    // Islands of the cell, a few dozen, more toward one end.
-    _islets = <(Offset, double)>[
-      (form.site, size * 0.016),
-      for (final Offset p in form.scatter(
-        45,
-        random,
-        apart: size * 0.03,
-        chance: (Offset p) =>
-            0.45 + 0.55 * (p.dx - form.box.left) / form.box.width,
-      ))
-        (p, size * (0.006 + 0.008 * random.nextDouble())),
-    ];
-  }
-
-  final OrganForm form;
-  final CellShape cell;
-
-  late final List<Rect> _lobules;
-  late final Path _main;
-  late final Path _branches;
-  late final Path _out;
-  late final List<(Offset, double)> _islets;
-
-  bool get _ducts => cell == CellShape.epithelial;
-  bool get _islands => cell == CellShape.endocrine;
-
-  @override
-  void behind(Canvas canvas, ZoomInks inks, double line, double detail) {
-    if (detail <= 0) {
-      return;
-    }
-    if (_ducts) {
-      Sculpt.glowingStroke(
-        canvas,
-        _out,
-        inks,
-        width: 2.4 * line,
-        alpha: detail,
-      );
-    } else {
-      canvas.drawPath(
-        _out,
-        _stroke(inks.lit(0.55).withValues(alpha: 0.6 * detail), 2.8 * line),
-      );
-    }
-  }
-
-  @override
-  void inside(Canvas canvas, ZoomInks inks, double line, double detail) {
-    final bool acini = !_ducts && !_islands;
-    for (final Rect lobule in _lobules) {
-      Sculpt.dome(canvas, lobule, inks, 0.38 * detail);
-      if (acini) {
-        canvas.drawOval(
-          lobule.deflate(lobule.width * 0.12),
-          Paint()..color = inks.glow(0.24 * detail),
-        );
-      }
-    }
-    if (_ducts) {
-      Sculpt.glowingStroke(
-        canvas,
-        _branches,
-        inks,
-        width: 1.1 * line,
-        alpha: detail,
-      );
-      Sculpt.glowingStroke(
-        canvas,
-        _main,
-        inks,
-        width: 2.4 * line,
-        alpha: detail,
-      );
-      return;
-    }
-    canvas.drawPath(
-      _branches,
-      _stroke(inks.lit(0.55).withValues(alpha: 0.35 * detail), 1 * line),
-    );
-    canvas.drawPath(
-      _main,
-      _stroke(inks.lit(0.6).withValues(alpha: 0.55 * detail), 2.6 * line),
-    );
-    if (_islands) {
-      for (final (Offset at, double r) in _islets) {
-        Sculpt.glow(canvas, at, r * 3.2, inks, 0.42 * detail);
-        canvas.drawCircle(at, r, Paint()..color = inks.glow(0.95 * detail));
-      }
-    }
-  }
-}
 
 /// A femur, the anatomogram's bone for marrow, cut along its length: the
 /// cortex bright, the spongy bone of its ends a lattice of trabeculae, the

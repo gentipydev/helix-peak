@@ -20,9 +20,11 @@ import '../../../core/theme/nucleotide_colors.dart';
 /// Data keeps its own colours where it has them: the gene's parts are the
 /// walk's, the bases the home helix's, blood the thymine red.
 ///
-/// One form has colours of its own: a chromosome's centromere and its
+/// Two forms have colours of their own: a chromosome's centromere and its
 /// telomeres are tinted, lightly, in the home helix's clay and honey (the
-/// user's ask of 2026-10-19), so they read apart from its arms.
+/// user's ask of 2026-10-19), so they read apart from its arms; and a
+/// nerve is in the honey, as anatomy plates draw nerves in yellow (the
+/// user's choice of 2026-10-19).
 @immutable
 final class ZoomInks {
   const ZoomInks({
@@ -103,6 +105,9 @@ final class ZoomInks {
   final Color telomere;
 
   final NucleotideColors bases;
+
+  /// A nerve, in the home helix's honey.
+  Color get nerve => bases.guanine;
 
   /// The gene's parts, in the walk's own colours.
   final Color cds;

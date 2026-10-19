@@ -17,6 +17,9 @@ import 'organs/pancreas/pancreas_anatomy.dart';
 import 'organs/pancreas/pancreas_art.dart';
 import 'organs/pancreas/pancreas_form.dart';
 import 'organs/pancreas/pancreas_style.dart';
+import 'organs/salivary_gland/salivary_art.dart';
+import 'organs/salivary_gland/salivary_form.dart';
+import 'organs/salivary_gland/salivary_style.dart';
 import 'organs/testis/testis_anatomy.dart';
 import 'organs/testis/testis_art.dart';
 import 'organs/testis/testis_form.dart';
@@ -43,7 +46,8 @@ typedef OrganName = ({String key, String word, Offset at, bool home});
 /// few have no outline of their own there, or none that shows the tissue (a
 /// lymph node, a vessel, the skin, a parathyroid gland, the retina), and are
 /// drawn from general anatomy, as are the pancreas, the testis, cut down its
-/// length, and the brain, cut down its middle.
+/// length, the salivary gland, its parotid in place, and the brain, cut
+/// down its middle.
 ///
 /// Where the gene is, the organ glows in the mark: the part of it the
 /// zoom's cell lives in (the islets of a pancreas for an endocrine cell, its
@@ -92,6 +96,14 @@ abstract class OrganArt {
         level: level,
       ),
       OrganKind.testis when part != null => _TestisOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        cell: shape,
+        level: level,
+      ),
+      OrganKind.salivaryGland when part != null => _SalivaryOrgan(
         part,
         anatomy,
         view,
@@ -947,6 +959,110 @@ final class _TestisOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => TestisArt.bedOf(inks);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The salivary gland, drawn from general anatomy as its parotid in place,
+/// seen from the side among the masseter, the ear, the facial nerve and the
+/// submandibular gland (`SalivaryArt`), reached from the body's own outline
+/// of the parotid (`_SpecimenOrgan`): that outline draws in toward the
+/// parotid's own and becomes the bed its lobules come up on.
+final class _SalivaryOrgan extends _SpecimenOrgan {
+  _SalivaryOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    CellShape cell = CellShape.acinar,
+    super.level,
+  }) : home = SalivaryHome.of(cell),
+       _form = SalivaryForm.place(part: part, anatomy: anatomy, view: view);
+
+  /// Where the kind of cell the zoom goes on into lives, which the gland
+  /// lights.
+  final SalivaryHome home;
+
+  final SalivaryForm _form;
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the cell lives, at the place the tissue is sampled, where it is a
+  // part of the gland of its own; and the duct, the facial nerve and the
+  // submandibular gland (the user's choice of 2026-10-19).
+  @override
+  late final List<OrganName> names = <OrganName>[
+    if (switch (home) {
+          SalivaryHome.acini => 'acini',
+          SalivaryHome.ducts => 'ducts',
+          SalivaryHome.gland => null,
+        }
+        case final String word)
+      (key: 'home', word: word, at: _form.site, home: true),
+    (key: 'duct', word: 'parotid duct', at: _form.ductName, home: false),
+    (key: 'nerve', word: 'facial nerve', at: _form.nerveName, home: false),
+    (
+      key: 'submandibular',
+      word: 'submandibular gland',
+      at: _form.submandibularName,
+      home: false,
+    ),
+  ];
+
+  // The glands, the masseter and the ear, and every tube where it shows,
+  // with room to either side.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(SalivaryStyle.nameClear);
+    return <Offset>[
+      ..._form.outlinePoints,
+      ..._form.accessoryPoints,
+      ..._form.masseterPoints,
+      ..._form.earPoints,
+      ..._form.submandibularPoints,
+      for (final TubeCourse tube in <TubeCourse>[
+        _form.duct,
+        ..._form.nerves,
+        _form.artery,
+        _form.vein,
+        _form.arch,
+        _form.mandible,
+      ])
+        for (int i = 0; i < tube.length; i++)
+          if (tube.shown[i] > SalivaryStyle.nameShown) ...<Offset>[
+            tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+            tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+          ],
+    ];
+  }();
+
+  SalivaryArt? _art;
+
+  SalivaryArt _artFor(ZoomInks inks) {
+    final SalivaryArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = SalivaryArt(_form, inks, home: home)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => SalivaryArt.bedOf(inks);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

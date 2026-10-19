@@ -40,15 +40,15 @@ void main() {
   });
 
   test('no colour is packed as a number where meshes are coloured', () {
-    // The chromosome's and the pancreas's meshes take their colours as
-    // packed integers, worked out from the inks: a literal there would be a
-    // colour of its own.
+    // The chromosome's and the organs' meshes take their colours as packed
+    // integers, worked out from the inks: a literal there would be a colour
+    // of its own.
     final RegExp literal = RegExp(r'0x[0-9A-Fa-f]{6,}');
     final List<String> found = <String>[];
     for (final FileSystemEntity entity in <FileSystemEntity>[
       ...Directory('lib/features/zoom/presentation/scenes/chromosome')
           .listSync(recursive: true),
-      ...Directory('lib/features/zoom/presentation/scenes/organs/pancreas')
+      ...Directory('lib/features/zoom/presentation/scenes/organs')
           .listSync(recursive: true),
       File('lib/features/zoom/presentation/scenes/coloured_mesh.dart'),
       File('lib/features/zoom/presentation/scenes/lobule_domes.dart'),
@@ -100,6 +100,8 @@ void main() {
     final NucleotideColors helix = AppTheme.home.extension<NucleotideColors>()!;
     expect(inks.centromere, helix.thymine);
     expect(inks.telomere, helix.guanine);
+    // A nerve in its honey too.
+    expect(inks.nerve, helix.guanine);
     final AnatomyColors anatomy = theme.extension<AnatomyColors>()!;
     expect(inks.cds, anatomy.roleCds);
     expect(inks.utr, anatomy.roleUtr5);
