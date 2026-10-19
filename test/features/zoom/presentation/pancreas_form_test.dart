@@ -6,6 +6,7 @@ import 'package:helixpeek/features/zoom/domain/anatomy_figure.dart';
 import 'package:helixpeek/features/zoom/domain/anatomy_tables.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/contour.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/lobules.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/pancreas/pancreas_anatomy.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/pancreas/pancreas_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/pancreas/pancreas_style.dart';
@@ -248,7 +249,7 @@ void main() {
     final PancreasForm form = _form(AnatomyFigure.female);
     final List<Lobule> uncinate = <Lobule>[
       for (final Lobule lobule in form.lobules)
-        if (lobule.uncinate) lobule,
+        if (lobule.behind) lobule,
     ];
     expect(uncinate.length, greaterThan(10));
     for (final TubeCourse vessel in <TubeCourse>[

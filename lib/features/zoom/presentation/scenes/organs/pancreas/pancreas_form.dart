@@ -1,10 +1,10 @@
 import 'dart:math' as math;
-import 'dart:typed_data';
 import 'dart:ui';
 
 import '../../../../domain/anatomy_figure.dart';
 import '../../../../domain/anatomy_tables.dart';
 import '../../contour.dart';
+import '../../lobules.dart';
 import '../../outline_morph.dart';
 import '../../relief.dart';
 import '../../tube_course.dart';
@@ -132,200 +132,24 @@ final class PancreasForm {
 
   // The lobules.
 
-  double get _spacing => mm(PancreasStyle.lobule);
+  late final Lobules _lobules = Lobules.lay(
+    outlinePoints,
+    box: box,
+    inward: _inward,
+    style: PancreasStyle.lobules,
+    mm: mm,
+    seed: 47,
+    behind: (Offset c) => PancreasAnatomy.inUncinate(toCm(c)),
+  );
 
   /// The gland's lobules: a row of them round its edge, a little in from
-  /// it, and the rest on a loose lattice inside.
-  late final List<Lobule> lobules = _layLobules();
-
-  List<Lobule> _layLobules() {
-    final double s = _spacing;
-    final math.Random random = math.Random(47);
-    final List<Offset> seeds = <Offset>[];
-    // Round the edge.
-    final double step = PancreasStyle.edgeStep * s;
-    final int n = outlinePoints.length;
-    double carried = 0;
-    for (int i = 0; i < n; i++) {
-      final Offset a = outlinePoints[i];
-      final Offset b = outlinePoints[(i + 1) % n];
-      final double length = (b - a).distance;
-      if (length <= 0) {
-        continue;
-      }
-      final Offset t = (b - a) / length;
-      final Offset inward = Offset(-t.dy, t.dx) * _inward;
-      double at = step - carried;
-      while (at <= length) {
-        final Offset p = a + t * at + inward * (PancreasStyle.edgeInset * s);
-        if (_inside(outlinePoints, p) &&
-            seeds.every((Offset q) => (q - p).distance >= 0.75 * s)) {
-          seeds.add(p);
-        }
-        at += step;
-      }
-      carried = length - (at - step);
-    }
-    final int edge = seeds.length;
-    // Inside, on a loose lattice.
-    int row = 0;
-    for (double y = box.top; y <= box.bottom; y += s * 0.866) {
-      for (
-        double x = box.left - (row.isOdd ? s / 2 : 0);
-        x <= box.right;
-        x += s
-      ) {
-        final Offset p =
-            Offset(x, y) +
-            Offset(random.nextDouble() - 0.5, random.nextDouble() - 0.5) *
-                (2 * PancreasStyle.jitter * s);
-        if (!_inside(outlinePoints, p)) {
-          continue;
-        }
-        bool clear = true;
-        for (int k = 0; k < edge; k++) {
-          if ((seeds[k] - p).distance < PancreasStyle.clearOfEdge * s) {
-            clear = false;
-            break;
-          }
-        }
-        if (clear) {
-          seeds.add(p);
-        }
-      }
-      row++;
-    }
-    // The lobules gather into lobes, a centimetre or so across, parted by
-    // deeper clefts than part the lobules in each.
-    final double apart = mm(PancreasStyle.lobe);
-    final List<Offset> lobes = <Offset>[];
-    int lobeRow = 0;
-    for (double y = box.top; y <= box.bottom + apart; y += apart * 0.866) {
-      for (
-        double x = box.left - (lobeRow.isOdd ? apart / 2 : 0);
-        x <= box.right + apart;
-        x += apart
-      ) {
-        lobes.add(
-          Offset(x, y) +
-              Offset(random.nextDouble() - 0.5, random.nextDouble() - 0.5) *
-                  (0.5 * apart),
-        );
-      }
-      lobeRow++;
-    }
-    int lobeOf(Offset p) {
-      int best = 0;
-      for (int k = 1; k < lobes.length; k++) {
-        if ((lobes[k] - p).distanceSquared <
-            (lobes[best] - p).distanceSquared) {
-          best = k;
-        }
-      }
-      return best;
-    }
-
-    final List<int> lobe = <int>[for (final Offset p in seeds) lobeOf(p)];
-    // Each lobule reaches toward its neighbours as far as the line half
-    // way to each, and no further than its cap.
-    final _Buckets near = _Buckets(seeds, 2.2 * s);
-    final double cap = PancreasStyle.cap * s;
-    final double fine = mm(PancreasStyle.crevice) / 2;
-    final double deep = mm(PancreasStyle.cleft) / 2;
-    const int rays = PancreasStyle.rays;
-    return <Lobule>[
-      for (int i = 0; i < seeds.length; i++)
-        () {
-          final Offset c = seeds[i];
-          final List<int> close = List<int>.of(near.around(c));
-          final Float64List raw = Float64List(rays);
-          final Float64List cleft = Float64List(rays);
-          for (int k = 0; k < rays; k++) {
-            final Offset u = Lobule.direction(k);
-            double reach = cap;
-            int by = -1;
-            for (final int j in close) {
-              if (j == i) {
-                continue;
-              }
-              final Offset d = seeds[j] - c;
-              final double toward = d.dx * u.dx + d.dy * u.dy;
-              if (toward > 1e-12) {
-                final double half = d.distanceSquared / (2 * toward);
-                if (half < reach) {
-                  reach = half;
-                  by = j;
-                }
-              }
-            }
-            raw[k] = reach;
-            // A cleft where the lobule meets another lobe, or the gland's
-            // edge.
-            cleft[k] = by < 0 || lobe[by] != lobe[i] ? 1 : 0;
-          }
-          // Its corners rounded, its sides kept to the half-way lines, and
-          // its clefts eased round it.
-          Float64List smooth = raw;
-          for (int pass = 0; pass < 2; pass++) {
-            smooth = _eased(smooth);
-          }
-          final Float64List depth = _eased(cleft);
-          final Float64List reach = Float64List(rays);
-          for (int k = 0; k < rays; k++) {
-            reach[k] = math.max(
-              0.25 * s,
-              math.min(smooth[k], raw[k]) - (fine + (deep - fine) * depth[k]),
-            );
-          }
-          return Lobule(
-            c,
-            reach,
-            uncinate: PancreasAnatomy.inUncinate(toCm(c)),
-            depth: depth,
-            lobe: lobes[lobe[i]],
-            lobeIndex: lobe[i],
-          );
-        }(),
-    ];
-  }
-
-  /// [values] round a lobule, each eased toward its neighbours.
-  static Float64List _eased(Float64List values) {
-    final int n = values.length;
-    final Float64List out = Float64List(n);
-    for (int k = 0; k < n; k++) {
-      out[k] =
-          (values[(k - 1 + n) % n] + 2 * values[k] + values[(k + 1) % n]) / 4;
-    }
-    return out;
-  }
-
-  late final _Buckets _lobuleBuckets = _Buckets(<Offset>[
-    for (final Lobule lobule in lobules) lobule.centre,
-  ], 1.5 * _spacing);
+  /// it, and the rest on a loose lattice inside, gathered into lobes a
+  /// centimetre or so across. Those behind the mesenteric vessels are the
+  /// uncinate process's.
+  late final List<Lobule> lobules = _lobules.all;
 
   /// The lobule whose middle lies nearest [p].
-  Lobule nearestLobule(Offset p) {
-    int best = 0;
-    double least = double.infinity;
-    for (final int i in _lobuleBuckets.around(p)) {
-      final double d = (lobules[i].centre - p).distanceSquared;
-      if (d < least) {
-        least = d;
-        best = i;
-      }
-    }
-    if (least == double.infinity) {
-      for (int i = 0; i < lobules.length; i++) {
-        final double d = (lobules[i].centre - p).distanceSquared;
-        if (d < least) {
-          least = d;
-          best = i;
-        }
-      }
-    }
-    return lobules[best];
-  }
+  Lobule nearestLobule(Offset p) => _lobules.nearest(p);
 
   // The islets, for an endocrine cell.
 
@@ -382,7 +206,7 @@ final class PancreasForm {
       if (!lobule.holds(p, margin: 1.5 * r)) {
         continue;
       }
-      out.add(Islet(p, r, uncinate: lobule.uncinate));
+      out.add(Islet(p, r, uncinate: lobule.behind));
     }
     return out;
   }
@@ -679,131 +503,6 @@ bool _inside(List<Offset> points, Offset p) {
 double _smooth(double t) {
   final double x = t.clamp(0.0, 1.0);
   return x * x * (3 - 2 * x);
-}
-
-/// Points sorted into square buckets [size] across, to find the ones near
-/// a place without looking at all of them.
-final class _Buckets {
-  _Buckets(this.points, this.size) {
-    for (int i = 0; i < points.length; i++) {
-      _cells.putIfAbsent(_key(points[i]), () => <int>[]).add(i);
-    }
-  }
-
-  final List<Offset> points;
-  final double size;
-  final Map<int, List<int>> _cells = <int, List<int>>{};
-
-  static int _pack(int x, int y) => (x + 4096) * 8192 + (y + 4096);
-
-  int _key(Offset p) => _pack((p.dx / size).floor(), (p.dy / size).floor());
-
-  final List<int> _found = <int>[];
-
-  /// The points in [p]'s bucket and the eight round it. The list is reused
-  /// by the next call.
-  List<int> around(Offset p) {
-    _found.clear();
-    final int x = (p.dx / size).floor();
-    final int y = (p.dy / size).floor();
-    for (int dx = -1; dx <= 1; dx++) {
-      for (int dy = -1; dy <= 1; dy++) {
-        final List<int>? cell = _cells[_pack(x + dx, y + dy)];
-        if (cell != null) {
-          _found.addAll(cell);
-        }
-      }
-    }
-    return _found;
-  }
-}
-
-/// One of the gland's lobules: its middle, and how far it reaches from it
-/// toward each of [PancreasStyle.rays] ways round, the first to the right.
-final class Lobule {
-  Lobule(
-    this.centre,
-    this.reach, {
-    required this.uncinate,
-    Float64List? depth,
-    Offset? lobe,
-    this.lobeIndex = 0,
-  }) : depth = depth ?? Float64List(reach.length),
-       lobe = lobe ?? centre;
-
-  final Offset centre;
-  final Float64List reach;
-
-  /// Whether it lies in the uncinate process, behind the mesenteric
-  /// vessels.
-  final bool uncinate;
-
-  /// How deep the crevice is on each way round, from 0, between two
-  /// lobules of one lobe, to 1, a cleft between two lobes or the gland's
-  /// edge.
-  final Float64List depth;
-
-  /// The middle of the lobe it is part of, and which lobe that is.
-  final Offset lobe;
-  final int lobeIndex;
-
-  static final List<Offset> _directions = <Offset>[
-    for (int k = 0; k < PancreasStyle.rays; k++)
-      Offset(
-        math.cos(2 * math.pi * k / PancreasStyle.rays),
-        math.sin(2 * math.pi * k / PancreasStyle.rays),
-      ),
-  ];
-
-  /// The [k]th way round.
-  static Offset direction(int k) => _directions[k];
-
-  /// The point [share] of the way out toward its edge the [k]th way round.
-  Offset at(int k, double share) =>
-      centre + _directions[k] * (reach[k] * share);
-
-  /// Its mean radius.
-  double get radius {
-    double sum = 0;
-    for (final double r in reach) {
-      sum += r;
-    }
-    return sum / reach.length;
-  }
-
-  /// Its outline, [share] of the way out, as one closed path.
-  void addTo(Path path, {double share = 1, double grow = 0}) {
-    path.moveTo(
-      centre.dx + _directions[0].dx * (reach[0] * share + grow),
-      centre.dy + _directions[0].dy * (reach[0] * share + grow),
-    );
-    for (int k = 1; k < reach.length; k++) {
-      path.lineTo(
-        centre.dx + _directions[k].dx * (reach[k] * share + grow),
-        centre.dy + _directions[k].dy * (reach[k] * share + grow),
-      );
-    }
-    path.close();
-  }
-
-  /// Whether [p] lies inside it, at least [margin] in from its edge.
-  bool holds(Offset p, {double margin = 0}) {
-    final Offset d = p - centre;
-    final double distance = d.distance;
-    if (distance == 0) {
-      return true;
-    }
-    double angle = math.atan2(d.dy, d.dx);
-    if (angle < 0) {
-      angle += 2 * math.pi;
-    }
-    final double f = angle / (2 * math.pi) * reach.length;
-    final int k = f.floor() % reach.length;
-    final double t = f - f.floor();
-    final double edge =
-        reach[k] + (reach[(k + 1) % reach.length] - reach[k]) * t;
-    return distance <= edge - margin;
-  }
 }
 
 /// An islet: where it lies, its true radius, and whether it lies in the

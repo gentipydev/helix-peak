@@ -1,3 +1,5 @@
+import '../../lobules.dart';
+
 /// Every number the pancreas's look is tuned by, in one place. Lengths are
 /// in millimetres of the real gland unless they say otherwise; the anatomy
 /// itself is in `pancreas_anatomy.dart`.
@@ -25,47 +27,28 @@ abstract final class PancreasStyle {
   /// How far apart the lobules lie, centre to centre.
   static const double lobule = 4.6;
 
-  /// The seeds round the edge: how far apart along it, and how far in.
-  static const double edgeStep = 0.92;
-  static const double edgeInset = 0.48;
-
-  /// The seeds inside: how far each strays from its lattice, and how far
-  /// it keeps from those round the edge. Shares of [lobule].
-  static const double jitter = 0.15;
-  static const double clearOfEdge = 0.8;
-
-  /// How far a lobule reaches at most, a share of [lobule]: past the edge
-  /// it bulges out by this less [edgeInset], which makes the edge knobbly.
-  static const double cap = 0.6;
-
-  /// How far round a lobule its outline is followed; the crevice between
-  /// two lobules of one lobe, and the deeper cleft between two lobes; and
-  /// how far apart the lobes lie.
-  static const int rays = 24;
-  static const double crevice = 0.15;
-  static const double cleft = 0.7;
-  static const double lobe = 12;
-
-  /// A lobule's rings, out from its middle, and how far each tilts its
-  /// normal outward; its middle's nudge toward the light, a share of its
-  /// radius; its feathered edge, a share of [lobule].
-  static const List<double> rings = <double>[0.4, 0.75, 1];
-  static const List<double> tilts = <double>[0.3, 0.7, 1];
-
-  /// How far a lobule's edge turns away, inside its lobe and at a cleft;
-  /// and how far each lobe rounds off toward its own edge.
-  static const double tilt = 0.12;
-  static const double cleftTilt = 0.45;
-  static const double lobeTilt = 0.35;
-  static const double nudge = 0.25;
-  static const double feather = 0.12;
-
-  /// How dark a lobule's rim is drawn at a cleft, in its shade; how much
-  /// lighter or darker one lobe is than the next, and one lobule than the
-  /// next, at most.
-  static const double rimShade = 0.22;
-  static const double lobeTone = 0.06;
-  static const double lobuleTone = 0.03;
+  /// How the lobules are laid and lit, the lobes about a centimetre across.
+  static const LobuleStyle lobules = LobuleStyle(
+    spacing: lobule,
+    edgeStep: 0.92,
+    edgeInset: 0.48,
+    jitter: 0.15,
+    clearOfEdge: 0.8,
+    cap: 0.6,
+    crevice: 0.15,
+    cleft: 0.7,
+    lobe: 12,
+    rings: <double>[0.4, 0.75, 1],
+    tilts: <double>[0.3, 0.7, 1],
+    tilt: 0.12,
+    cleftTilt: 0.45,
+    lobeTilt: 0.35,
+    nudge: 0.25,
+    feather: 0.12,
+    rimShade: 0.22,
+    lobeTone: 0.06,
+    lobuleTone: 0.03,
+  );
 
   // The light is the zoom's one lamp (`SpecimenLamp.zoom`), which the brain
   // is drawn under too.

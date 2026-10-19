@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import '../../../../domain/cell_archetypes.dart';
 import '../../../zoom_inks.dart';
 import '../../coloured_mesh.dart';
+import '../../lobule_domes.dart';
+import '../../lobules.dart';
 import '../../sculpt.dart';
 import '../../specimen_light.dart';
 import '../../tube_course.dart';
@@ -96,130 +98,24 @@ final class PancreasArt {
   late final Path _uncinateBed = _bed(uncinate: true);
   late final Path _mainBed = _bed(uncinate: false);
 
-  Path _bed({required bool uncinate}) {
-    final Path path = Path();
-    final double grow = form.mm(PancreasStyle.cleft);
-    for (final Lobule lobule in form.lobules) {
-      if (lobule.uncinate == uncinate) {
-        lobule.addTo(path, grow: grow);
-      }
-    }
-    return path;
-  }
+  Path _bed({required bool uncinate}) => Lobules.bed(
+    form.lobules.where((Lobule lobule) => lobule.behind == uncinate),
+    form.mm(PancreasStyle.lobules.cleft),
+  );
 
-  void _layLobules(ColouredMesh mesh, {required bool uncinate}) {
-    const int rays = PancreasStyle.rays;
-    const List<double> rings = PancreasStyle.rings;
-    final math.Random random = math.Random(uncinate ? 71 : 73);
-    final double feather =
-        PancreasStyle.feather * form.mm(PancreasStyle.lobule);
-    final double lobeRadius = form.mm(PancreasStyle.lobe) / 2;
-    final double wash = _wash;
-    final List<int> rim = List<int>.filled(rays, 0);
-    for (final Lobule lobule in form.lobules) {
-      if (lobule.uncinate != uncinate) {
-        continue;
-      }
-      // Each lobe a little lighter or darker than the next, and each lobule
-      // than the next in its lobe.
-      final double tone =
-          (1 + PancreasStyle.lobeTone * _jitter(lobule.lobeIndex)) *
-          (1 + PancreasStyle.lobuleTone * (2 * random.nextDouble() - 1));
-      // The lobe's own rounding, toward its edge.
-      (double, double, double) rounded(
-        Offset p,
-        double nx,
-        double ny,
-        double nz,
-        double tx,
-        double ty,
-      ) {
-        Offset off = (p - lobule.lobe) / lobeRadius;
-        if (off.distance > 1) {
-          off = off / off.distance;
-        }
-        return _unit(
-          nx + PancreasStyle.lobeTilt * off.dx + tx,
-          ny + PancreasStyle.lobeTilt * off.dy + ty,
-          nz,
-        );
-      }
-
-      mesh.begin(1 + rays * (rings.length + 1));
-      final int first = mesh.next;
-      // Its top, nudged toward the light, where its sheen is.
-      final (double, double, double) up = form.relief.normalAt(lobule.centre);
-      final (double ux, double uy, double uz) = rounded(
-        lobule.centre,
-        up.$1,
-        up.$2,
-        up.$3,
-        0,
-        0,
+  void _layLobules(ColouredMesh mesh, {required bool uncinate}) =>
+      LobuleDomes.lay(
+        mesh,
+        form.lobules.where((Lobule lobule) => lobule.behind == uncinate),
+        style: PancreasStyle.lobules,
+        relief: form.relief,
+        mm: form.mm,
+        light: _light,
+        palette: _palette,
+        tone: _gland,
+        wash: _wash,
+        seed: uncinate ? 71 : 73,
       );
-      final Offset top =
-          lobule.centre + _light.screen * (PancreasStyle.nudge * lobule.radius);
-      mesh.vertex(
-        top.dx,
-        top.dy,
-        _palette.colour(
-          _gland,
-          _light.light(ux, uy, uz, form: up.$3) * tone,
-          sheen: _light.sheen(ux, uy, uz),
-          wash: wash,
-        ),
-      );
-      for (int ring = 0; ring < rings.length; ring++) {
-        final bool outer = ring == rings.length - 1;
-        for (int k = 0; k < rays; k++) {
-          final double depth = lobule.depth[k];
-          final double tilt =
-              (PancreasStyle.tilt +
-                  (PancreasStyle.cleftTilt - PancreasStyle.tilt) * depth) *
-              PancreasStyle.tilts[ring];
-          final Offset p = lobule.at(k, rings[ring]);
-          final Offset out = Lobule.direction(k);
-          final (double nx, double ny, double nz) = form.relief.normalAt(p);
-          final (double tx, double ty, double tz) = rounded(
-            p,
-            nx,
-            ny,
-            nz,
-            tilt * out.dx,
-            tilt * out.dy,
-          );
-          final int colour = _palette.colour(
-            _gland,
-            _light.light(tx, ty, tz, form: nz) * tone,
-            occlusion: outer ? PancreasStyle.rimShade * depth : 0,
-            sheen: _light.sheen(tx, ty, tz),
-            wash: wash,
-          );
-          if (outer) {
-            rim[k] = colour;
-          }
-          mesh.vertex(p.dx, p.dy, colour);
-        }
-      }
-      // A feathered edge: the rim fading out across the crevice.
-      for (int k = 0; k < rays; k++) {
-        final Offset p =
-            lobule.centre + Lobule.direction(k) * (lobule.reach[k] + feather);
-        mesh.vertex(p.dx, p.dy, _clear(rim[k]));
-      }
-      for (int k = 0; k < rays; k++) {
-        final int a = first + 1 + k;
-        final int b = first + 1 + (k + 1) % rays;
-        mesh.triangle(first, a, b);
-        for (int band = 0; band < rings.length; band++) {
-          final int a0 = a + band * rays;
-          final int b0 = b + band * rays;
-          mesh.triangle(a0, b0, a0 + rays);
-          mesh.triangle(b0, b0 + rays, a0 + rays);
-        }
-      }
-    }
-  }
 
   // The islets, for an endocrine cell.
 
@@ -761,16 +657,4 @@ double _mean(Float64List values) {
   return values.isEmpty ? 0 : sum / values.length;
 }
 
-(double, double, double) _unit(double x, double y, double z) {
-  final double length = math.sqrt(x * x + y * y + z * z);
-  return length <= 0 ? (0, 0, 1) : (x / length, y / length, z / length);
-}
-
 int _clear(int colour) => colour & ((1 << 24) - 1);
-
-/// A number from -1 to 1 that is the same for [i] every time, and unlike
-/// its neighbours'.
-double _jitter(int i) {
-  final double x = math.sin(i * 12.9898 + 78.233) * 43758.5453;
-  return 2 * (x - x.floorToDouble()) - 1;
-}

@@ -51,6 +51,7 @@ void main() {
       ...Directory('lib/features/zoom/presentation/scenes/organs/pancreas')
           .listSync(recursive: true),
       File('lib/features/zoom/presentation/scenes/coloured_mesh.dart'),
+      File('lib/features/zoom/presentation/scenes/lobule_domes.dart'),
     ]) {
       if (entity is! File || !entity.path.endsWith('.dart')) {
         continue;
