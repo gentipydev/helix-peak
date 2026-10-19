@@ -139,6 +139,13 @@ final class ZoomDepth {
   /// makes it, and down to 440.
   static const double salivaryUpright = 0.7;
 
+  /// How much taller than wide the eye is framed: cut level through its
+  /// optic nerve, the nerve leaving it behind and the recti beside it, it
+  /// is taller than the body's circle of it, and its names need room above
+  /// and below it on an iPhone SE's canvas, 375 by 492 under the card the
+  /// retina's words make it.
+  static const double eyeUpright = 0.8;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -156,8 +163,9 @@ final class ZoomDepth {
   /// that a wide one's takes of its width. Read from the anatomogram's own
   /// outline, the one the organ's scene draws; an organ drawn from general
   /// anatomy, or the brain, is framed by its width, the testis, drawn from
-  /// anatomy among its epididymis and its cord, as [testisUpright], and the
-  /// salivary gland, its parotid in place, as [salivaryUpright].
+  /// anatomy among its epididymis and its cord, as [testisUpright], the
+  /// salivary gland, its parotid in place, as [salivaryUpright], and the
+  /// eye, cut level through its optic nerve, as [eyeUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -167,8 +175,7 @@ final class ZoomDepth {
         anatomy.organ == OrganKind.lymphNode ||
         anatomy.organ == OrganKind.vessel ||
         anatomy.organ == OrganKind.skin ||
-        anatomy.organ == OrganKind.parathyroid ||
-        anatomy.organ == OrganKind.eye) {
+        anatomy.organ == OrganKind.parathyroid) {
       return 1;
     }
     if (anatomy.organ == OrganKind.testis) {
@@ -176,6 +183,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.salivaryGland) {
       return salivaryUpright;
+    }
+    if (anatomy.organ == OrganKind.eye) {
+      return eyeUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)
