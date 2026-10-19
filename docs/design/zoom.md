@@ -528,9 +528,9 @@ parathyroid gland on the back of the thyroid, the eye cut level with the
 retina lining it.
 
 **The pancreas.** It is drawn as a fresh specimen under the zoom's one lamp,
-with the stomach taken away (`presentation/scenes/pancreas/`, the user's
-choices of 2026-10-18), and in the neutrals but for its vessels and the
-accent:
+with the stomach taken away (`presentation/scenes/organs/pancreas/`, the
+user's choices of 2026-10-18), and in the neutrals but for its vessels and
+the accent:
 
 - *Its shape* is an anatomy plate's (`pancreas_anatomy.dart`, in
   centimetres on a gland 16 cm long): head, uncinate process, neck, body
@@ -573,9 +573,9 @@ accent:
 
 **The testis.** It is drawn as a fresh specimen under the same lamp: the
 right testis seen from its lateral side and cut down its length, as the
-plate the user gave for reference shows it (`presentation/scenes/testis/`,
-the user's choices of 2026-10-19), in the neutrals but for its vessels and
-the accent:
+plate the user gave for reference shows it
+(`presentation/scenes/organs/testis/`, the user's choices of 2026-10-19), in
+the neutrals but for its vessels and the accent:
 
 - *Its shape* is a plate's (`testis_anatomy.dart`, in millimetres on a
   testis 50 mm long): an egg 29 mm across the cut, flatter at the back,
@@ -1158,14 +1158,14 @@ frame (0.4 to 0.8 ms).
   turns into the band's strip as (`chromosome_tube.dart`).
 - `presentation/scenes/organ_art.dart`: every organ's drawing, and
   `organ_studies.dart`, the eight studies.
-- `presentation/scenes/pancreas/`: the pancreas and its neighbours in
+- `presentation/scenes/organs/pancreas/`: the pancreas and its neighbours in
   centimetres (`pancreas_anatomy.dart`), every number its look is tuned by
   (`pancreas_style.dart`), its form in the organ's scene, with the relief,
   lobules, islets, tubes and window (`pancreas_form.dart`), the light and
   palette (`pancreas_shading.dart`) and the meshes and how the step comes
   up (`pancreas_art.dart`). `presentation/scenes/coloured_mesh.dart`: the
   coloured meshes it and the chromosome are laid with.
-- `presentation/scenes/testis/`: the testis and what lies round it in
+- `presentation/scenes/organs/testis/`: the testis and what lies round it in
   millimetres (`testis_anatomy.dart`), every number its look is tuned by
   (`testis_style.dart`), its form, with the septa, lobules, tubules, rete,
   ductules, epididymis and cord (`testis_form.dart`), and its meshes and

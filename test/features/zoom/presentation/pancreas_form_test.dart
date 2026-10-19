@@ -6,9 +6,9 @@ import 'package:helixpeek/features/zoom/domain/anatomy_figure.dart';
 import 'package:helixpeek/features/zoom/domain/anatomy_tables.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/contour.dart';
-import 'package:helixpeek/features/zoom/presentation/scenes/pancreas/pancreas_anatomy.dart';
-import 'package:helixpeek/features/zoom/presentation/scenes/pancreas/pancreas_form.dart';
-import 'package:helixpeek/features/zoom/presentation/scenes/pancreas/pancreas_style.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/pancreas/pancreas_anatomy.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/pancreas/pancreas_form.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/pancreas/pancreas_style.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/tube_course.dart';
 
 final TissueAnatomy _anatomy = tissueAnatomy['pancreas']!;

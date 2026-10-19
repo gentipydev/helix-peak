@@ -279,10 +279,11 @@ seen:
   figure's parts faint round it, and inside it the gene's place; the
   pancreas and the testis are drawn from anatomy as lit specimens among
   their neighbours, which their scene draws in to from the body's outline
-  (`presentation/scenes/pancreas/`: lobules among the duodenum, spleen and
-  vessels; `presentation/scenes/testis/`: cut down its length, its coiled
-  tubules at their true size, among its epididymis, ductules and cord), and
-  so is the brain, cut down its middle (`presentation/scenes/brain/`);
+  (`presentation/scenes/organs/pancreas/`: lobules among the duodenum,
+  spleen and vessels; `presentation/scenes/organs/testis/`: cut down its
+  length, its coiled tubules at their true size, among its epididymis,
+  ductules and cord), and so is the brain, cut down its middle
+  (`presentation/scenes/organs/brain/`);
 - the tissue as a section under an eyepiece (`TissueSlide`: one engine, a
   recipe a tissue architecture, the zoom's cell laid where it lives);
 - the cell, the protein glowing where the Atlas finds it, and the nucleus

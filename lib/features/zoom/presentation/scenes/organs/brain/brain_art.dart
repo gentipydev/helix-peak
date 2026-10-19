@@ -4,11 +4,11 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-import '../../zoom_inks.dart';
-import '../coloured_mesh.dart';
-import '../sculpt.dart';
-import '../specimen_light.dart';
-import '../tube_course.dart';
+import '../../../zoom_inks.dart';
+import '../../coloured_mesh.dart';
+import '../../sculpt.dart';
+import '../../specimen_light.dart';
+import '../../tube_course.dart';
 import 'brain_anatomy.dart';
 import 'brain_form.dart';
 import 'brain_style.dart';

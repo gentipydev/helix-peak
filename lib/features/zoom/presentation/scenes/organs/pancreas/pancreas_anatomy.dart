@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import '../tube_course.dart';
+import '../../tube_course.dart';
 
 /// The pancreas and what lies round it, drawn from general anatomy: in
 /// centimetres on a gland 16 cm long, seen from the front with the stomach

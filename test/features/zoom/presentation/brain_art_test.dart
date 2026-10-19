@@ -6,9 +6,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/zoom/domain/anatomy_tables.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
-import 'package:helixpeek/features/zoom/presentation/scenes/brain/brain_art.dart';
-import 'package:helixpeek/features/zoom/presentation/scenes/brain/brain_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organ_art.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/brain/brain_art.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/brain/brain_form.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
 
 final TissueAnatomy _brain = tissueAnatomy['brain']!;

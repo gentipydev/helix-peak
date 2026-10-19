@@ -2,12 +2,12 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui';
 
-import '../../../domain/anatomy_figure.dart';
-import '../../../domain/anatomy_tables.dart';
-import '../contour.dart';
-import '../outline_morph.dart';
-import '../relief.dart';
-import '../tube_course.dart';
+import '../../../../domain/anatomy_figure.dart';
+import '../../../../domain/anatomy_tables.dart';
+import '../../contour.dart';
+import '../../outline_morph.dart';
+import '../../relief.dart';
+import '../../tube_course.dart';
 import 'testis_anatomy.dart';
 import 'testis_style.dart';
 

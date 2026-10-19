@@ -4,12 +4,12 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-import '../../../domain/cell_archetypes.dart';
-import '../../zoom_inks.dart';
-import '../coloured_mesh.dart';
-import '../sculpt.dart';
-import '../specimen_light.dart';
-import '../tube_course.dart';
+import '../../../../domain/cell_archetypes.dart';
+import '../../../zoom_inks.dart';
+import '../../coloured_mesh.dart';
+import '../../sculpt.dart';
+import '../../specimen_light.dart';
+import '../../tube_course.dart';
 import 'pancreas_form.dart';
 import 'pancreas_style.dart';
 

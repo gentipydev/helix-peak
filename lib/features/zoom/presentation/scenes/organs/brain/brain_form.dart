@@ -2,9 +2,9 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui';
 
-import '../contour.dart';
-import '../relief.dart';
-import '../tube_course.dart';
+import '../../contour.dart';
+import '../../relief.dart';
+import '../../tube_course.dart';
 import 'brain_anatomy.dart';
 import 'brain_style.dart';
 

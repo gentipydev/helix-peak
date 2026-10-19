@@ -48,7 +48,7 @@ void main() {
     for (final FileSystemEntity entity in <FileSystemEntity>[
       ...Directory('lib/features/zoom/presentation/scenes/chromosome')
           .listSync(recursive: true),
-      ...Directory('lib/features/zoom/presentation/scenes/pancreas')
+      ...Directory('lib/features/zoom/presentation/scenes/organs/pancreas')
           .listSync(recursive: true),
       File('lib/features/zoom/presentation/scenes/coloured_mesh.dart'),
     ]) {

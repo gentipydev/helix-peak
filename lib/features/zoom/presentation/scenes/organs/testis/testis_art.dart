@@ -4,11 +4,11 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-import '../../../domain/cell_archetypes.dart';
-import '../../zoom_inks.dart';
-import '../coloured_mesh.dart';
-import '../specimen_light.dart';
-import '../tube_course.dart';
+import '../../../../domain/cell_archetypes.dart';
+import '../../../zoom_inks.dart';
+import '../../coloured_mesh.dart';
+import '../../specimen_light.dart';
+import '../../tube_course.dart';
 import 'testis_anatomy.dart';
 import 'testis_form.dart';
 import 'testis_style.dart';

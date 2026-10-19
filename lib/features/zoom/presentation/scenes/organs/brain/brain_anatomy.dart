@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import '../tube_course.dart';
+import '../../tube_course.dart';
 
 /// A sulcus of the brain's medial face: its course, and whether it is one of
 /// the major sulci, deep, or a minor one, shallower.

@@ -5,9 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/features/zoom/domain/anatomy_figure.dart';
 import 'package:helixpeek/features/zoom/domain/anatomy_tables.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
-import 'package:helixpeek/features/zoom/presentation/scenes/testis/testis_anatomy.dart';
-import 'package:helixpeek/features/zoom/presentation/scenes/testis/testis_form.dart';
-import 'package:helixpeek/features/zoom/presentation/scenes/testis/testis_style.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/testis/testis_anatomy.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/testis/testis_form.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/testis/testis_style.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/tube_course.dart';
 
 final TissueAnatomy _anatomy = tissueAnatomy['testis']!;

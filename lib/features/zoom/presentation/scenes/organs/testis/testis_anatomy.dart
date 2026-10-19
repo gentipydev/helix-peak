@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import '../tube_course.dart';
+import '../../tube_course.dart';
 
 /// The right testis seen from its lateral side and cut down its length, as
 /// an anatomy plate shows it, drawn from general anatomy: in millimetres on
