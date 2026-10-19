@@ -13,6 +13,9 @@ import 'organs/brain/brain_anatomy.dart';
 import 'organs/brain/brain_art.dart';
 import 'organs/brain/brain_form.dart';
 import 'organs/brain/brain_style.dart';
+import 'organs/eye/eye_art.dart';
+import 'organs/eye/eye_form.dart';
+import 'organs/eye/eye_style.dart';
 import 'organs/pancreas/pancreas_anatomy.dart';
 import 'organs/pancreas/pancreas_art.dart';
 import 'organs/pancreas/pancreas_form.dart';
@@ -46,8 +49,8 @@ typedef OrganName = ({String key, String word, Offset at, bool home});
 /// few have no outline of their own there, or none that shows the tissue (a
 /// lymph node, a vessel, the skin, a parathyroid gland, the retina), and are
 /// drawn from general anatomy, as are the pancreas, the testis, cut down its
-/// length, the salivary gland, its parotid in place, and the brain, cut
-/// down its middle.
+/// length, the salivary gland, its parotid in place, the brain, cut down
+/// its middle, and the eye, cut level through its optic nerve.
 ///
 /// Where the gene is, the organ glows in the mark: the part of it the
 /// zoom's cell lives in (the islets of a pancreas for an endocrine cell, its
@@ -86,7 +89,7 @@ abstract class OrganArt {
       OrganKind.vessel => _VesselOrgan(size),
       OrganKind.skin => _SkinOrgan(size),
       OrganKind.parathyroid => _ParathyroidOrgan(size),
-      OrganKind.eye => _EyeOrgan(size),
+      OrganKind.eye => _EyeOrgan(anatomy, view, part: part, cell: shape),
       OrganKind.pancreas when part != null => _PancreasOrgan(
         part,
         anatomy,
@@ -1590,37 +1593,81 @@ final class _ParathyroidOrgan extends OrganArt {
   }
 }
 
-/// The eye cut level, the cornea to the left: the lens and iris, the
-/// sclera, and lining the back of it the retina. The tissue is sampled at
-/// the back of the eye.
+/// The right eye cut level through its optic nerve, drawn from anatomy as
+/// a specimen among its recti (`EyeArt`): the retina flat in its one tone,
+/// the coats, the cornea, the iris on the lens and the ciliary body lit
+/// softly, the optic nerve leaving through the lamina cribrosa in its
+/// sheath. For a cell of the retina the retina is drawn in the mark; for a
+/// pigment epithelial cell the pigment epithelium under it.
+/// The body draws the eye from the front, so the step from it is a
+/// crossfade, as the brain's is: the section is drawn about the body's
+/// circle of the eye at its size as the step begins, and grows to the
+/// eye's own.
 final class _EyeOrgan extends OrganArt {
-  _EyeOrgan(this.size);
+  _EyeOrgan(
+    TissueAnatomy anatomy,
+    double view, {
+    AnatomyPart? part,
+    CellShape cell = CellShape.neuron,
+  }) : real = part == null ? 1 : anatomy.metres / part.extent,
+       _home = EyeHome.of(cell),
+       _form = EyeForm(length: anatomy.metres / view, view: view);
 
-  /// The eye's diameter, in the scene's units.
-  final double size;
-
-  // The eye's middle is near the origin; it is drawn about the back of the
-  // eye, where it is sampled.
   @override
-  Offset get site => Offset(size * 0.42, 0);
+  final double real;
 
-  // The globe and the cornea bulging forward of it, as they are drawn, about
-  // the back of the eye.
+  final EyeHome _home;
+  final EyeForm _form;
+
   @override
-  Path get outline => _outline;
+  Offset get site => _form.site;
 
-  late final Path _outline = () {
-    final double r = size / 2;
-    final Offset centre = Offset(-r * 0.93, 0);
-    return Path.combine(
-      PathOperation.union,
-      Path()..addOval(Rect.fromCircle(center: centre, radius: r)),
-      Path()
-        ..addOval(
-          Rect.fromCircle(center: centre + Offset(-r * 0.56, 0), radius: r * 0.62),
-        ),
-    ).shift(site);
+  @override
+  Path get outline => _form.outline;
+
+  // Where the cell lives, for a pigment epithelial cell; the retina the
+  // card names. And the main parts, no more (the user's choice of
+  // 2026-10-19).
+  @override
+  late final List<OrganName> names = <OrganName>[
+    if (_home == EyeHome.pigmentEpithelium)
+      (key: 'home', word: 'pigment epithelium', at: site, home: true),
+    (key: 'cornea', word: 'cornea', at: _form.corneaName, home: false),
+    (key: 'lens', word: 'lens', at: _form.lensName, home: false),
+    (key: 'nerve', word: 'optic nerve', at: _form.nerveName, home: false),
+  ];
+
+  // The globe, and the nerve's sheath and the recti where they show behind
+  // it, with room to either side.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(EyeStyle.nameClear);
+    return <Offset>[
+      ..._form.outlinePoints,
+      for (final TubeCourse tube in <TubeCourse>[
+        _form.sheath,
+        ..._form.recti,
+      ])
+        for (int i = 0; i < tube.length; i++)
+          if (tube.shown[i] > EyeStyle.nameShown) ...<Offset>[
+            tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+            tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+          ],
+    ];
   }();
+
+  EyeArt? _art;
+
+  EyeArt _artFor(ZoomInks inks) {
+    final EyeArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = EyeArt(_form, inks, home: _home)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
 
   @override
   void paint(
@@ -1632,64 +1679,7 @@ final class _EyeOrgan extends OrganArt {
   }) {
     canvas.save();
     canvas.scale(scale);
-    canvas.translate(site.dx, site.dy);
-    final double line = pixel / scale;
-    final double r = size / 2;
-    // The retina at the back of the eye lies on the origin.
-    final Offset centre = Offset(-r * 0.93, 0);
-    final Rect globe = Rect.fromCircle(center: centre, radius: r);
-    // The optic nerve, leaving the back of the eye.
-    canvas.drawLine(
-      centre + OrganArt._unit(0.22) * r,
-      centre + OrganArt._unit(0.3) * (r * 1.7),
-      Paint()
-        ..strokeWidth = r * 0.24
-        ..color = inks.shade(0.85),
-    );
-    // The cornea, bulging forward of the globe.
-    final Rect cornea = Rect.fromCircle(
-      center: centre + Offset(-r * 0.56, 0),
-      radius: r * 0.62,
-    );
-    canvas.drawOval(cornea, Paint()..color = inks.shade(0.5));
-    canvas.drawOval(
-      cornea,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5 * line
-        ..color = inks.lit(0.5).withValues(alpha: 0.8),
-    );
-    final Path ball = Path()..addOval(globe);
-    OrganArt._sculpted(canvas, ball, globe, inks, line, 1, light: 0.22);
-    // The retina, lining the back two thirds.
-    canvas.drawArc(
-      Rect.fromCircle(center: centre, radius: r * 0.93),
-      -2.15,
-      4.3,
-      false,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = r * 0.085
-        ..color = inks.lit(0.4),
-    );
-    // The lens, hung behind the iris.
-    final Offset lens = centre + Offset(-r * 0.66, 0);
-    canvas.drawOval(
-      Rect.fromCenter(center: lens, width: r * 0.36, height: r * 0.8),
-      Paint()..color = inks.lit(0.55).withValues(alpha: 0.5),
-    );
-    final Paint iris = Paint()
-      ..strokeWidth = 2.6 * line
-      ..strokeCap = StrokeCap.round
-      ..color = inks.lit(0.5);
-    for (final double side in <double>[-1, 1]) {
-      canvas.drawLine(
-        centre + Offset(-r * 0.74, side * r * 0.66),
-        lens + Offset(-r * 0.12, side * r * 0.24),
-        iris,
-      );
-    }
-    OrganArt._edged(canvas, ball, globe, inks, line, 1);
+    _artFor(inks).paint(canvas, pixel / scale);
     canvas.restore();
   }
 }

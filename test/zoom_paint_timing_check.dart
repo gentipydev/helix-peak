@@ -60,6 +60,7 @@ void main() {
       TestCatalog.oxytocin,
       TestCatalog.cftr,
       TestCatalog.ubiquitin,
+      TestCatalog.bySlug('recoverin')!,
     ]) {
       final ZoomStage stage = ZoomStage(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),
