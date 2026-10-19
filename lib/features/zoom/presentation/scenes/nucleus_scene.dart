@@ -27,7 +27,8 @@ const List<String> chromosomeNames = <String>[
 /// territory as big as its chromosome's DNA, the gene-dense ones toward the
 /// centre and the gene-poor at the rim, the five that carry ribosomal genes
 /// gathered round the nucleolus. They are drawn in one neutral, a step
-/// apart, and the gene's own chromosome in the mark. Nothing is named: the
+/// apart, the gene's own chromosome in the mark and its other copy, where
+/// the body has one, faintly in it. Nothing is named: the
 /// card names the territory, and the nucleolus, dark among them, goes
 /// unnamed here (the user's choice of 2026-10-16; the cell names it).
 ///
@@ -96,6 +97,16 @@ final class NucleusScene extends ZoomScene {
   /// The territory that is spot [spot] of the scene's own: the followed one.
   double get spot => spotOf(subject.track.chromosome);
 
+  /// Whether the gene's chromosome has a second copy in this body: every
+  /// autosome does, and the X in the female figure's cells.
+  bool get paired =>
+      kindOf(subject.track.chromosome, 1) == subject.track.chromosome;
+
+  /// How far territory [copy] of [name] has drifted out from the followed
+  /// one, [away] of the way to gone.
+  Offset _drift(String name, int copy, double away) =>
+      (territory(name, copy) - portal) * (0.35 * away);
+
   @override
   Offset get portal => territory(subject.track.chromosome, 0);
 
@@ -111,12 +122,27 @@ final class NucleusScene extends ZoomScene {
       out.item('territory:followed', at, shown);
       out.item('territory:halo', at, shown);
     }
+    // Its other copy resolves, drifts and fades with the rest.
+    if (paired) {
+      final String name = subject.track.chromosome;
+      final double away = _away(frame);
+      out.item(
+        'territory:homologue',
+        frame.toScreen(territory(name, 1) + _drift(name, 1, away)),
+        math.min(frame.opacity, _painted(frame) * (1 - away)),
+      );
+    }
   }
 
   /// How far the territories have resolved out of the nucleus's even tone:
   /// all of them once it is reached.
   static double _painted(ZoomFrame frame) =>
       frame.isChild ? smoothstep((frame.progress - 0.35) / 0.45) : 1;
+
+  /// How far the territories have given way as the gene's condenses into
+  /// its chromosome: none of them until the step to it is under way.
+  static double _away(ZoomFrame frame) =>
+      frame.isChild ? 0 : smoothstep(frame.progress / 0.6);
 
   /// The gene's territory as the nucleus draws it, along [path] in a box
   /// [box], [pixel] the scene's pixel: filled in [fill], its glow [halo] of
@@ -224,7 +250,7 @@ final class NucleusScene extends ZoomScene {
     final String followed = subject.track.chromosome;
     // As the gene's territory condenses into its chromosome, the others
     // drift out from it and fade.
-    final double away = frame.isChild ? 0 : smoothstep(frame.progress / 0.6);
+    final double away = _away(frame);
     final double shown = painted * (1 - away);
     if (shown > 0) {
       final Paint fill = Paint();
@@ -232,10 +258,9 @@ final class NucleusScene extends ZoomScene {
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1 * pixel
         ..color = inks.shade(0.55).withValues(alpha: 0.9 * shown);
-      final Offset from = portal;
       for (final String name in chromosomeNames) {
         for (int copy = 0; copy < 2; copy++) {
-          if (name == followed && copy == 0) {
+          if (name == followed && (copy == 0 || paired)) {
             continue;
           }
           final Path territory = _territories[(name, copy)]!;
@@ -244,14 +269,37 @@ final class NucleusScene extends ZoomScene {
             inks.label,
             _tone(kindOf(name, copy), copy),
           )!.withValues(alpha: 0.9 * shown);
-          final Offset drift =
-              (this.territory(name, copy) - from) * (0.35 * away);
+          final Offset drift = _drift(name, copy, away);
           canvas.save();
           canvas.translate(drift.dx, drift.dy);
           canvas.drawPath(territory, fill);
           canvas.drawPath(territory, edge);
           canvas.restore();
         }
+      }
+      // The gene's chromosome's other copy, over the rest so it shows whole,
+      // faintly in the mark: the followed territory is one of two.
+      if (paired) {
+        final Path other = _territories[(followed, 1)]!;
+        final Offset drift = _drift(followed, 1, away);
+        canvas.save();
+        canvas.translate(drift.dx, drift.dy);
+        canvas.drawPath(
+          other,
+          fill
+            ..color = Color.lerp(
+              Color.lerp(inks.high, inks.label, _tone(followed, 1)),
+              inks.mark,
+              0.3,
+            )!.withValues(alpha: 0.9 * shown),
+        );
+        canvas.drawPath(
+          other,
+          edge
+            ..strokeWidth = 1.2 * pixel
+            ..color = inks.glow(0.6 * shown),
+        );
+        canvas.restore();
       }
     }
     // The light falling across the whole of it.

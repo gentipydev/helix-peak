@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/zoom/domain/anatomy_tables.dart';
+import 'package:helixpeek/features/zoom/domain/locus_track.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_path.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/body_scene.dart';
@@ -96,6 +97,43 @@ void main() {
       },
       <String>{'female', 'male'},
     );
+  });
+
+  testWidgets('a nucleus shows the gene’s chromosome’s other copy where the '
+      'body has one, and no other where it has none', (
+    WidgetTester tester,
+  ) async {
+    final ZoomInks inks = await _inks(tester);
+    double homologue(ZoomStage stage) =>
+        stage
+            .stage(stage.depth.depthOf(ZoomStop.nucleus), _canvas, inks)
+            .items['territory:homologue']
+            ?.$2 ??
+        0;
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ZoomStage stage = _stage(t);
+      final NucleusScene nucleus =
+          stage.scenes[ZoomStop.nucleus.index] as NucleusScene;
+      final bool male = stage.subject.body.name == 'male';
+      final bool paired = locusOf(t).chromosome != 'X' || !male;
+      expect(nucleus.paired, paired, reason: t.slug);
+      expect(homologue(stage), paired ? 1 : 0, reason: t.slug);
+    }
+    // A gene on the X in a male figure's cell: its second sex chromosome is
+    // a Y, which is not the gene's.
+    final ProteinTarget testis = TestCatalog.bySlug('izumo1')!;
+    final ZoomStage onX = ZoomStage(
+      ZoomSubject(
+        track: LocusTrack.fromJson(<String, dynamic>{
+          ...locusJson(testis),
+          'chromosome': 'X',
+        }, testis),
+        record: recordOf(testis),
+      ),
+    );
+    expect(onX.subject.body.name, 'male');
+    expect((onX.scenes[ZoomStop.nucleus.index] as NucleusScene).paired, false);
+    expect(homologue(onX), 0);
   });
 
   test('the body lights the tissues the Atlas reads the gene raised in, '

@@ -148,7 +148,10 @@ convention is, where it comes from, and what it decided:
   its own colour shows them (Speicher et al. 1996; Schröck et al. 1996).
   *Consequence:* 46 territories, sized by their DNA and placed in that
   order, each a step lighter or darker than its neighbour, the gene's
-  chromosome in the accent.
+  chromosome in the accent and its homologue faintly in it: a nucleus holds
+  two copies of every autosome, and of the X in a female cell, so the
+  territory followed is one of two. A male cell's X has none, its second
+  sex chromosome being the Y.
 - **Bands.** A chromosome is seen whole only when it condenses to divide,
   some ten-thousandfold. Giemsa stain then bands it, and a band's name
   (11p15.5) is the address cytogenetics gives a gene (ISCN 2020). The bands
@@ -744,7 +747,10 @@ territories, and the gene's comes up in the accent.
 - the five acrocentrics round the nucleolus, which the cell drew and the
   nucleus draws again, the same shape in the same place and the same near
   black, over the nucleus's light (`Nucleolus`), unnamed here;
-- in nine tones of one neutral, the gene's chromosome in the accent;
+- in nine tones of one neutral, the gene's chromosome in the accent, and
+  its other copy, where the body has one, drawn whole over the rest in a
+  neutral 30% of the way to the accent with an edge in it, no glow and
+  no ping;
 - pores in the envelope once there is room to see them.
 
 The followed territory is the outline the chromosome condenses from. As it
