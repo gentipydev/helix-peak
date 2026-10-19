@@ -5,7 +5,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import '../../../domain/cell_archetypes.dart';
-import '../../../domain/zoom_camera.dart';
 import '../../zoom_inks.dart';
 import '../coloured_mesh.dart';
 import '../sculpt.dart';
@@ -13,24 +12,6 @@ import '../specimen_light.dart';
 import '../tube_course.dart';
 import 'pancreas_form.dart';
 import 'pancreas_style.dart';
-
-/// How the pancreas comes up on the step from the body, by how far the
-/// organ has become its own (its scene's detail, 0 at the hand-over and 1
-/// at its stop): its outline drawn in from the body's, the gland and its
-/// neighbours coming up over it, and the figure's own parts giving way.
-abstract final class PancreasStep {
-  /// How far the outline has been drawn in from the body's to the gland's.
-  static double settle(double detail) =>
-      detail <= 0 ? 0 : smootherstep(detail / PancreasStyle.settle);
-
-  /// How much of the gland and its neighbours shows.
-  static double come(double detail) => detail <= 0
-      ? 0
-      : math.pow(math.min(1, detail), PancreasStyle.comePower).toDouble();
-
-  /// How much of the figure's own parts round it still shows.
-  static double figure(double detail) => 1 - detail.clamp(0.0, 1.0);
-}
 
 /// The pancreas drawn as a fresh specimen under one lamp, among the organs
 /// and vessels round it, with the stomach taken away: its lobules each a lit

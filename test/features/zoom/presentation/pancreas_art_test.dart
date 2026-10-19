@@ -16,6 +16,7 @@ import 'package:helixpeek/features/zoom/presentation/scenes/organ_art.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organ_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/pancreas/pancreas_art.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/pancreas/pancreas_form.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/specimen_step.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
@@ -276,8 +277,8 @@ void main() {
           }
           final double detail = OrganScene.detailAt(frame);
           final (double, double) shown = (
-            frame.opacity * PancreasStep.come(detail),
-            frame.opacity * PancreasStep.figure(detail),
+            frame.opacity * SpecimenStep.come(detail),
+            frame.opacity * SpecimenStep.figure(detail),
           );
           final String where =
               '${t.slug} from ${flight.from} to ${flight.to}, frame $f';
@@ -296,7 +297,7 @@ void main() {
           lastShown = shown;
           final double grown = scene.grownAt(frame);
           final List<Offset> outline = form.outlineAt(
-            PancreasStep.settle(detail),
+            SpecimenStep.settle(detail),
           );
           final List<Offset> now = <Offset>[
             for (int i = 0; i < outline.length; i += 12)

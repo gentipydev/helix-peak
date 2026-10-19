@@ -18,6 +18,7 @@ import 'pancreas/pancreas_art.dart';
 import 'pancreas/pancreas_form.dart';
 import 'pancreas/pancreas_style.dart';
 import 'sculpt.dart';
+import 'specimen_step.dart';
 import 'tube_course.dart';
 import 'zoom_subject.dart';
 
@@ -576,42 +577,169 @@ final class _DrawnOrgan extends OrganArt {
   }
 }
 
-/// The pancreas, drawn from general anatomy as a fresh specimen among the
-/// organs and vessels round it (`PancreasArt`), reached from the body's own
-/// outline of it: at the hand-over that outline, flat and lit in the mark,
-/// as `_DrawnOrgan` draws an organ, which then draws in toward the gland's
-/// own outline and becomes the bed its lobules come up on, while the
-/// figure's parts round it give way to its own neighbours.
-final class _PancreasOrgan extends OrganArt {
-  _PancreasOrgan(
+/// An organ drawn from general anatomy as a specimen among its own
+/// neighbours, reached from the body's own outline of it: at the hand-over
+/// that outline, flat and lit in the mark, as `_DrawnOrgan` draws an organ,
+/// which then draws in toward the organ's own outline and becomes the bed
+/// it lies on, while the figure's parts round it give way to its own
+/// neighbours, which come up with it in one layer (`SpecimenStep`).
+abstract class _SpecimenOrgan extends OrganArt {
+  _SpecimenOrgan(
     AnatomyPart part,
     TissueAnatomy anatomy,
     double view, {
     AnatomyFigure? figure,
-    this.cell = CellShape.epithelial,
     this.level = 1,
-  }) : real = anatomy.metres / part.extent,
-       _form = PancreasForm.place(part: part, anatomy: anatomy, view: view) {
+  }) : real = anatomy.metres / part.extent {
     Offset placed(Offset p) => (p - part.centre) * (real / view);
-    _box = _form.pathAt(0).getBounds();
     _around = _Surroundings(part, figure, placed);
   }
 
   @override
   final double real;
 
-  /// How strongly the body lit the gland: the mark it is handed over in.
+  /// How strongly the body lit the organ: the mark it is handed over in.
   final double level;
+
+  late final Rect _box = _flatAt(0, 0).getBounds();
+  late final _Surroundings _around;
+
+  @override
+  bool get followsBody => true;
+
+  /// The flat shape the body hands over, [settle] of the way drawn in from
+  /// the body's outline to the organ's own and [bed] of the way on toward
+  /// the bed it lies on.
+  Path _flatAt(double settle, double bed);
+
+  /// What the bed is drawn in once the specimen is up over it.
+  Color _bedOf(ZoomInks inks);
+
+  /// The room a layer of the specimen and its neighbours needs, in [inks].
+  Rect _specimenBounds(ZoomInks inks);
+
+  /// The specimen and its neighbours, at the organ's real size; [line] is a
+  /// pixel.
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line);
+
+  @override
+  void paint(
+    Canvas canvas,
+    ZoomInks inks,
+    double pixel,
+    double scale, {
+    double detail = 1,
+  }) {
+    canvas.save();
+    canvas.scale(scale);
+    final double line = pixel / scale;
+    // The body's outline drawn in toward the organ's, and the organ coming
+    // up over it.
+    final double settle = SpecimenStep.settle(detail);
+    final double come = SpecimenStep.come(detail);
+    _around.paint(
+      canvas,
+      inks,
+      line,
+      _box,
+      detail,
+      fade: SpecimenStep.figure(detail),
+    );
+    // The flat shape the body hands over, which becomes the organ's bed:
+    // opaque all the while, so nothing shows through as the organ comes
+    // up.
+    final Path flat = _flatAt(settle, come);
+    final Rect box = flat.getBounds();
+    final double sculpted = detail * (1 - come);
+    if (sculpted > 0) {
+      Sculpt.shadowUnder(canvas, box, inks, strength: 0.55 * sculpted);
+    }
+    canvas.drawPath(
+      flat,
+      Paint()
+        ..color = come <= 0
+            ? inks.lit(0.14)
+            : Color.lerp(inks.lit(0.14), _bedOf(inks), come)!,
+    );
+    if (sculpted > 0) {
+      canvas.drawPath(
+        flat,
+        Paint()..shader = Sculpt.body(box, inks, light: 0.3, opacity: sculpted),
+      );
+    }
+    final double handed = (1 - detail) * (0.2 + 0.55 * level);
+    if (handed > 0.002) {
+      canvas.drawPath(flat, Paint()..color = inks.glow(handed));
+    }
+    final double edge = 1 - come;
+    if (edge > 0.002) {
+      canvas.drawPath(
+        flat,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.1 * line
+          ..strokeJoin = StrokeJoin.round
+          ..color = inks
+              .lit(0.42)
+              .withValues(alpha: (0.55 + 0.4 * detail) * edge),
+      );
+      if (detail > 0) {
+        Sculpt.rim(
+          canvas,
+          flat,
+          box,
+          inks,
+          width: 1.8 * line,
+          strength: 0.5 * detail * edge,
+        );
+      }
+    }
+    if (handed > 0.002) {
+      canvas.drawPath(
+        flat,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.1 * line
+          ..strokeJoin = StrokeJoin.round
+          ..color = inks.glow((1 - detail) * (0.5 + 0.5 * level)),
+      );
+    }
+    // The organ and its neighbours, in one layer as they come up.
+    if (come > 0.002) {
+      final bool layered = come < 0.998;
+      if (layered) {
+        canvas.saveLayer(
+          _specimenBounds(inks),
+          Paint()..color = Color.fromRGBO(0, 0, 0, come),
+        );
+      }
+      _paintSpecimen(canvas, inks, line);
+      if (layered) {
+        canvas.restore();
+      }
+    }
+    canvas.restore();
+  }
+}
+
+/// The pancreas, drawn from general anatomy as a fresh specimen among the
+/// organs and vessels round it (`PancreasArt`), reached from the body's own
+/// outline of it (`_SpecimenOrgan`): that outline draws in toward the
+/// gland's own and becomes the bed its lobules come up on.
+final class _PancreasOrgan extends _SpecimenOrgan {
+  _PancreasOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    this.cell = CellShape.epithelial,
+    super.level,
+  }) : _form = PancreasForm.place(part: part, anatomy: anatomy, view: view);
 
   /// The kind of cell the zoom goes on into, which the gland lights.
   final CellShape cell;
 
   final PancreasForm _form;
-  late final Rect _box;
-  late final _Surroundings _around;
-
-  @override
-  bool get followsBody => true;
 
   @override
   Path get outline => _form.outline;
@@ -686,104 +814,17 @@ final class _PancreasOrgan extends OrganArt {
   void prepare(ZoomInks inks) => _artFor(inks);
 
   @override
-  void paint(
-    Canvas canvas,
-    ZoomInks inks,
-    double pixel,
-    double scale, {
-    double detail = 1,
-  }) {
-    canvas.save();
-    canvas.scale(scale);
-    final double line = pixel / scale;
-    // The body's outline drawn in toward the gland's, and the gland coming
-    // up over it.
-    final double settle = PancreasStep.settle(detail);
-    final double come = PancreasStep.come(detail);
-    _around.paint(
-      canvas,
-      inks,
-      line,
-      _box,
-      detail,
-      fade: PancreasStep.figure(detail),
-    );
-    // The flat shape the body hands over, which becomes the gland's bed:
-    // opaque all the while, so nothing shows through as the gland comes
-    // up.
-    final Path flat = _form.pathAt(settle, bed: come);
-    final Rect box = flat.getBounds();
-    final double sculpted = detail * (1 - come);
-    if (sculpted > 0) {
-      Sculpt.shadowUnder(canvas, box, inks, strength: 0.55 * sculpted);
-    }
-    canvas.drawPath(
-      flat,
-      Paint()
-        ..color = come <= 0
-            ? inks.lit(0.14)
-            : Color.lerp(inks.lit(0.14), PancreasArt.creviceOf(inks), come)!,
-    );
-    if (sculpted > 0) {
-      canvas.drawPath(
-        flat,
-        Paint()..shader = Sculpt.body(box, inks, light: 0.3, opacity: sculpted),
-      );
-    }
-    final double handed = (1 - detail) * (0.2 + 0.55 * level);
-    if (handed > 0.002) {
-      canvas.drawPath(flat, Paint()..color = inks.glow(handed));
-    }
-    final double edge = 1 - come;
-    if (edge > 0.002) {
-      canvas.drawPath(
-        flat,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.1 * line
-          ..strokeJoin = StrokeJoin.round
-          ..color = inks
-              .lit(0.42)
-              .withValues(alpha: (0.55 + 0.4 * detail) * edge),
-      );
-      if (detail > 0) {
-        Sculpt.rim(
-          canvas,
-          flat,
-          box,
-          inks,
-          width: 1.8 * line,
-          strength: 0.5 * detail * edge,
-        );
-      }
-    }
-    if (handed > 0.002) {
-      canvas.drawPath(
-        flat,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.1 * line
-          ..strokeJoin = StrokeJoin.round
-          ..color = inks.glow((1 - detail) * (0.5 + 0.5 * level)),
-      );
-    }
-    // The gland and its neighbours, in one layer as they come up.
-    if (come > 0.002) {
-      final PancreasArt art = _artFor(inks);
-      final bool layered = come < 0.998;
-      if (layered) {
-        canvas.saveLayer(
-          art.bounds,
-          Paint()..color = Color.fromRGBO(0, 0, 0, come),
-        );
-      }
-      art.paint(canvas, line);
-      if (layered) {
-        canvas.restore();
-      }
-    }
-    canvas.restore();
-  }
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => PancreasArt.creviceOf(inks);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
 }
 
 /// The brain cut down its middle, drawn from anatomy as a specimen among

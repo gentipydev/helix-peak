@@ -182,14 +182,10 @@ abstract final class PancreasStyle {
   /// The septa the cut face shows, in pixels.
   static const double septum = 0.7;
 
-  // The step from the body.
+  // The step from the body, which comes up as every specimen's does
+  // (`SpecimenStep`).
 
-  /// Over how much of its detail the outline morphs from the body's to its
-  /// own; how the gland and its neighbours come up with the detail (as its
-  /// power: slow at first, while the outline settles, and never faster a
-  /// frame than the detail itself rises); how far in the flat shape is
-  /// drawn as it becomes the gland's bed, a share of [lobule].
-  static const double settle = 0.45;
-  static const double comePower = 1.25;
+  /// How far in the flat shape is drawn as it becomes the gland's bed, a
+  /// share of [lobule].
   static const double bed = 0.12;
 }

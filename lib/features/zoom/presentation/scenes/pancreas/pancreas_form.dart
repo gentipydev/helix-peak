@@ -5,6 +5,7 @@ import 'dart:ui';
 import '../../../domain/anatomy_figure.dart';
 import '../../../domain/anatomy_tables.dart';
 import '../contour.dart';
+import '../outline_morph.dart';
 import '../relief.dart';
 import '../tube_course.dart';
 import 'pancreas_anatomy.dart';
@@ -48,18 +49,15 @@ final class PancreasForm {
     outlinePoints = Contour(template).sampled(PancreasStyle.outlineSpan).points;
     box = _bounds(outlinePoints);
     _inward = _area(outlinePoints) > 0 ? 1.0 : -1.0;
-    _diagramPath = Contour(diagram).toPath();
     // The two outlines met at two places they both have: the top of the
     // tail and the outer edge of the head.
-    final (List<Offset> along, List<Offset> round) = _halves(outlinePoints);
-    final double first = _length(along);
-    final double second = _length(round);
-    final int a = (PancreasStyle.morphPoints * first / (first + second))
-        .round();
-    final int b = PancreasStyle.morphPoints - a;
-    _template = _matched(outlinePoints, a, b);
-    _diagram = _matched(diagramDense, a, b);
-    _bed = _inset(_template, mm(PancreasStyle.bed * PancreasStyle.lobule));
+    _morph = OutlineMorph(
+      template: outlinePoints,
+      diagram: diagramDense,
+      diagramPath: Contour(diagram).toPath(),
+      count: PancreasStyle.morphPoints,
+      bed: mm(PancreasStyle.bed * PancreasStyle.lobule),
+    );
   }
 
   /// The form for [anatomy]'s pancreas, where the body draws it as [part],
@@ -98,13 +96,8 @@ final class PancreasForm {
   /// Which way into the gland the outline's left hand points: 1 or -1.
   late final double _inward;
 
-  /// The body's outline of the gland, as the step from the body hands it
-  /// over.
-  late final Path _diagramPath;
-
-  late final List<Offset> _template;
-  late final List<Offset> _diagram;
-  late final List<Offset> _bed;
+  /// The body's outline of the gland drawn in toward the gland's.
+  late final OutlineMorph _morph;
 
   /// A point of the anatomy, in centimetres, in the scene.
   Offset place(Offset cm) => (cm - _centre) * scale;
@@ -118,25 +111,13 @@ final class PancreasForm {
   /// The outline the step from the body draws: the body's own at [settle]
   /// 0, the gland's at 1, drawn in by [bed] toward the bed its lobules lie
   /// on.
-  List<Offset> outlineAt(double settle, {double bed = 0}) {
-    if (settle <= 0) {
-      return _diagram;
-    }
-    return <Offset>[
-      for (int i = 0; i < _template.length; i++)
-        Offset.lerp(
-          _diagram[i],
-          bed <= 0 ? _template[i] : Offset.lerp(_template[i], _bed[i], bed)!,
-          settle,
-        )!,
-    ];
-  }
+  List<Offset> outlineAt(double settle, {double bed = 0}) =>
+      _morph.at(settle, bed: bed);
 
   /// The path [outlineAt] draws: at [settle] 0 the very curve the body's
   /// outline is drawn by.
-  Path pathAt(double settle, {double bed = 0}) => settle <= 0
-      ? _diagramPath
-      : Contour(outlineAt(settle, bed: bed)).toPath();
+  Path pathAt(double settle, {double bed = 0}) =>
+      _morph.pathAt(settle, bed: bed);
 
   /// Whether [p] lies inside the gland's outline.
   bool contains(Offset p) => _inside(outlinePoints, p);
@@ -654,91 +635,6 @@ final class PancreasForm {
   }();
 
   // Helpers.
-
-  /// [points] drawn in by [by] toward the inside of the outline they go
-  /// round, which runs the way the gland's does.
-  List<Offset> _inset(List<Offset> points, double by) {
-    final int n = points.length;
-    return <Offset>[
-      for (int i = 0; i < n; i++)
-        () {
-          final Offset t = points[(i + 1) % n] - points[(i - 1 + n) % n];
-          final double length = t.distance;
-          if (length <= 0) {
-            return points[i];
-          }
-          return points[i] + Offset(-t.dy, t.dx) / length * (by * _inward);
-        }(),
-    ];
-  }
-
-  /// [points] cut at their topmost point and their leftmost: the way round
-  /// from the first to the second, and on back to the first.
-  static (List<Offset>, List<Offset>) _halves(List<Offset> points) {
-    final int n = points.length;
-    int top = 0;
-    int left = 0;
-    for (int i = 1; i < n; i++) {
-      if (points[i].dy < points[top].dy) {
-        top = i;
-      }
-      if (points[i].dx < points[left].dx) {
-        left = i;
-      }
-    }
-    final List<Offset> first = <Offset>[];
-    for (int i = top; ; i = (i + 1) % n) {
-      first.add(points[i]);
-      if (i == left) {
-        break;
-      }
-    }
-    final List<Offset> second = <Offset>[];
-    for (int i = left; ; i = (i + 1) % n) {
-      second.add(points[i]);
-      if (i == top) {
-        break;
-      }
-    }
-    return (first, second);
-  }
-
-  /// [points], a closed outline, as [a] points evenly along it from its top
-  /// to its leftmost point and [b] on round to its top again.
-  static List<Offset> _matched(List<Offset> points, int a, int b) {
-    final (List<Offset> first, List<Offset> second) = _halves(points);
-    return <Offset>[..._even(first, a), ..._even(second, b)];
-  }
-
-  /// [count] points evenly along the open line [points], from its first
-  /// point and short of its last.
-  static List<Offset> _even(List<Offset> points, int count) {
-    final List<double> along = <double>[0];
-    for (int i = 1; i < points.length; i++) {
-      along.add(along.last + (points[i] - points[i - 1]).distance);
-    }
-    final double total = along.last;
-    final List<Offset> out = <Offset>[];
-    int j = 1;
-    for (int k = 0; k < count; k++) {
-      final double at = total * k / count;
-      while (j < points.length - 1 && along[j] < at) {
-        j++;
-      }
-      final double span = along[j] - along[j - 1];
-      final double t = span <= 0 ? 0 : (at - along[j - 1]) / span;
-      out.add(Offset.lerp(points[j - 1], points[j], t)!);
-    }
-    return out;
-  }
-
-  static double _length(List<Offset> points) {
-    double sum = 0;
-    for (int i = 1; i < points.length; i++) {
-      sum += (points[i] - points[i - 1]).distance;
-    }
-    return sum;
-  }
 
   static double _area(List<Offset> points) {
     double sum = 0;
