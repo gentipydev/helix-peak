@@ -18,18 +18,21 @@ import '../tube_course.dart';
 /// which rises behind it into the spermatic cord with the testicular artery
 /// and the pampiniform plexus; the tunica vaginalis round them all.
 ///
-/// Sizes keep to what is measured: the testis 4–5 cm long, 2–3 cm broad and
-/// about 3 cm from front to back (Gray's Anatomy, Standring 2020; on
-/// ultrasound 3–5 cm by 2–4 by about 3); the tunica albuginea about half a
-/// millimetre thick; the mediastinum along the upper back, wider above than
-/// below; 250–350 lobules, each of one to four seminiferous tubules about
-/// 185 µm across where spermatogenesis is normal; 12 to 20 efferent
-/// ductules leaving the rete at the mediastinum's upper end. On ultrasound
-/// the epididymis's head is 5–12 mm, its body 2–4 and its tail 2–5; the vas
+/// Sizes keep to what is measured: the testis 4–5 cm long, 2.5 cm broad and
+/// 3 cm from front to back (Gray 1918; on ultrasound 3–5 cm by 2–4 by about
+/// 3); the mediastinum along the upper back, wider above than below; 250 to
+/// 400 lobules (Gray 1918), each of one to four seminiferous tubules
+/// 150–250 µm across (Junqueira's Basic Histology); twelve to fifteen or
+/// twenty efferent ductules leaving the rete at the mediastinum's upper end
+/// (Gray 1918). On ultrasound the epididymis's head is up to 12 mm across
+/// and its tail up to 6 (Lotti et al. 2021, Andrology 9:559); the vas
 /// deferens is 1.5–2.7 mm thick, its lumen 0.2–0.7 (Middleton et al. 2009,
-/// J Ultrasound Med 28:839); the testicular artery is about 1 mm across in
-/// the cord (0.2–1.9 mm in 120 cords, at the external ring) and a vein of
-/// the pampiniform plexus under 2 mm, past which it is a varicocele.
+/// J Ultrasound Med 28:839). The testicular artery is about 1 mm across in
+/// the cord, 0.2–1.9 mm in 120 cords at the external ring (Raman and
+/// Goldstein 2004, Urology 64:561); a vein of the pampiniform plexus 3 mm
+/// across or more is read as a varicocele (Bertolotto et al. 2020, J
+/// Ultrasound 23:487). The tunica albuginea is drawn half a millimetre
+/// thick.
 abstract final class TestisAnatomy {
   /// How long the testis is, pole to pole.
   static const double length = 50;

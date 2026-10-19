@@ -120,13 +120,13 @@ void main() {
       across.reduce(math.max) - across.reduce(math.min),
       inInclusiveRange(25, 35),
     );
-    // The tunica about half a millimetre thick; the tubules 150–250 µm
-    // across, packed closer than twice their width.
+    // The tunica drawn about half a millimetre thick; the tubules 150–250
+    // µm across (Junqueira), packed closer than twice their width.
     expect(TestisAnatomy.tunica, inInclusiveRange(0.4, 1));
     expect(TestisStyle.tubule, inInclusiveRange(0.15, 0.25));
     expect(TestisStyle.pitch, lessThan(2 * TestisStyle.tubule));
-    // On ultrasound the epididymis's head is 5–12 mm, its body 2–4 and its
-    // tail 2–5, at most 6.
+    // On ultrasound the epididymis's head is up to 12 mm across and its
+    // tail up to 6 (Lotti et al. 2021); its body is the narrowest.
     final List<double> epididymis = TestisAnatomy.epididymis.radii;
     expect(
       epididymis.take(TestisAnatomy.epididymisHead).reduce(math.max) * 2,
@@ -135,7 +135,8 @@ void main() {
     for (final double r in epididymis.skip(TestisAnatomy.epididymisHead)) {
       expect(2 * r, inInclusiveRange(2, 6));
     }
-    // The vas 1.5–2.7 mm thick; the artery 0.2–1.9 mm; a vein under 2.
+    // The vas 1.5–2.7 mm thick; the artery 0.2–1.9 mm; a vein short of the
+    // 3 mm a varicocele is read at.
     for (final double r in TestisAnatomy.vas.radii) {
       expect(2 * r, inInclusiveRange(1.5, 2.7));
     }
@@ -144,10 +145,10 @@ void main() {
     }
     for (final AnatomyTube vein in TestisAnatomy.veins) {
       for (final double r in vein.radii) {
-        expect(2 * r, lessThan(2));
+        expect(2 * r, lessThan(3));
       }
     }
-    // Twelve to twenty efferent ductules.
+    // Twelve to fifteen or twenty efferent ductules (Gray 1918).
     expect(form.ductules.length, inInclusiveRange(12, 20));
     // Every tube as wide at each of its points as it is given.
     for (final AnatomyTube tube in <AnatomyTube>[
