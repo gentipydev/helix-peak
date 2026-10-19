@@ -55,9 +55,10 @@ void main() {
   // glyphs set every word half as wide again.
   setUpAll(loadAppFonts);
 
-  testWidgets('the chromosome names its parts beside it, each level with '
-      'what it names on its own side, clear of the drawing, for every '
-      'curated protein', (WidgetTester tester) async {
+  testWidgets('the chromosome names its parts in a column at either edge, '
+      'each level with what it names on its own side, clear of the drawing, '
+      'the band’s name at the head of the right one, for every curated '
+      'protein', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
     final TextStyle labels = AppTheme.analysis.textTheme.labelSmall!;
     for (final Size size in _canvases) {
@@ -107,10 +108,16 @@ void main() {
           );
           text.dispose();
           placed.add(plate);
+          final String what = '${t.slug} at $size: ${c.text}, $plate';
           if (!c.quiet) {
+            // Out at the canvas's right edge, over or under its band.
+            expect(
+              plate.right,
+              closeTo(size.width - ZoomOverlayPainter.margin, 1e-9),
+              reason: what,
+            );
             continue;
           }
-          final String what = '${t.slug} at $size: ${c.text}, $plate';
           expect(c.opacity, 1, reason: what);
           expect(drawn.contains(c.target), isTrue, reason: what);
           // Level with what it names on its own side, or a step off it
@@ -119,6 +126,12 @@ void main() {
           expect(
             (plate.center.dx - frame.toScreen(Offset.zero).dx).sign,
             _sides[c.text],
+            reason: what,
+          );
+          // In a column at the canvas's edge on that side.
+          expect(
+            _sides[c.text]! < 0 ? plate.left : size.width - plate.right,
+            closeTo(ZoomOverlayPainter.margin, 1e-9),
             reason: what,
           );
           // Over none of the chromosome.

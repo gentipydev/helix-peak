@@ -169,6 +169,7 @@ final class ZoomStage {
         size,
         placed,
         anchors: c.anchors,
+        flush: c.flush,
       );
       text.dispose();
       placed.add(plate);
@@ -1200,7 +1201,13 @@ Rect calloutPlate(
       ? null
       : stage.restingAnchors(d, size, inks, labels)[callout.key];
   if (resting != null && resting >= 0) {
-    return plateBeyond(callout.target, callout.anchors[resting], text, size);
+    return plateBeyond(
+      callout.target,
+      callout.anchors[resting],
+      text,
+      size,
+      flush: callout.flush,
+    );
   }
   // Where none of its anchors had room at rest, it keeps the place by its
   // target it took there instead.
@@ -1213,24 +1220,34 @@ Rect calloutPlate(
     size,
     placed,
     anchors: callout.anchors,
+    flush: callout.flush,
   );
 }
 
 /// A plate for words of [text] size naming [target], its corner or edge
 /// that faces the target at [anchor] and reaching on away from it: a corner
 /// where the way out is aslant, the middle of an edge where it is straight
-/// across or down. Kept on a canvas of [size].
-Rect plateBeyond(Offset target, Offset anchor, Size text, Size size) {
-  final Rect plate = _plateBeyond(target, anchor, text);
+/// across or down; or, [flush], set out from there against the canvas's
+/// edge on the anchor's side. Kept on a canvas of [size].
+Rect plateBeyond(
+  Offset target,
+  Offset anchor,
+  Size text,
+  Size size, {
+  bool flush = false,
+}) {
+  final Rect plate = _plateBeyond(target, anchor, text, flush ? size : null);
   return _onCanvas(plate.left, plate.top, plate.size, size);
 }
 
-Rect _plateBeyond(Offset target, Offset anchor, Size text) {
+/// [plateBeyond]'s plate before it is kept on the canvas, set out against
+/// the edge of a canvas of [edge] size where one is given.
+Rect _plateBeyond(Offset target, Offset anchor, Size text, [Size? edge]) {
   final double plateW = text.width + 2 * plateTextPadding;
   final double plateH = text.height + plateTextPadding;
   final Offset out = anchor - target;
   final Offset way = out.distance == 0 ? out : out / out.distance;
-  return Rect.fromCenter(
+  final Rect plate = Rect.fromCenter(
     center:
         anchor +
         Offset(
@@ -1240,7 +1257,24 @@ Rect _plateBeyond(Offset target, Offset anchor, Size text) {
     width: plateW,
     height: plateH,
   );
+  if (edge == null) {
+    return plate;
+  }
+  return Rect.fromLTWH(
+    anchor.dx < target.dx
+        ? ZoomOverlayPainter.margin
+        : edge.width - ZoomOverlayPainter.margin - plateW,
+    plate.top,
+    plateW,
+    plateH,
+  );
 }
+
+/// Whether a plate set out against the canvas's edge keeps from [target]
+/// at least as far as its [anchor] does: one too wide for the room between
+/// the two would reach back over what the anchor keeps it off.
+bool _keepsOff(Rect plate, Offset target, Offset anchor) =>
+    anchor.dx < target.dx ? plate.right <= anchor.dx : plate.left >= anchor.dx;
 
 /// A plate of [plate] size at [x], [y], moved as little as keeps it on a
 /// canvas of [size], clear of its edges and the card's.
@@ -1264,15 +1298,19 @@ Rect _onCanvas(double x, double y, Size plate, Size size) {
 /// Where a callout's plate goes for words of [text] size naming [target] on
 /// a canvas of [size], clear of the plates already [placed]: at the first of
 /// its [anchors] where it fits on the canvas as it is, reaching on away from
-/// the target; else up and to the right where there is room, else at the
-/// first corner that keeps it on the canvas.
+/// the target, or, [flush], set out from there against the canvas's edge
+/// where it keeps as far from the target as the anchor does; else up and to
+/// the right where there is room, else at the first corner that keeps it on
+/// the canvas.
 Rect placePlate(
   Offset target,
   Size text,
   Size size,
   List<Rect> placed, {
   List<Offset> anchors = const <Offset>[],
-}) => placePlateAt(target, text, size, placed, anchors: anchors).$1;
+  bool flush = false,
+}) =>
+    placePlateAt(target, text, size, placed, anchors: anchors, flush: flush).$1;
 
 /// [placePlate]'s plate, and which of the [anchors] it is set at; where
 /// none had room, -1 less the index of the place of its own it took
@@ -1283,15 +1321,22 @@ Rect placePlate(
   Size size,
   List<Rect> placed, {
   List<Offset> anchors = const <Offset>[],
+  bool flush = false,
 }) {
   bool clear(Rect plate) =>
       placed.every((Rect r) => !r.inflate(4).overlaps(plate));
   // A plate moved to stay on the canvas would reach back over what the
   // anchor keeps it off, so only one that fits as it is is taken.
   for (int i = 0; i < anchors.length; i++) {
-    final Rect plate = _plateBeyond(target, anchors[i], text);
+    final Rect plate = _plateBeyond(
+      target,
+      anchors[i],
+      text,
+      flush ? size : null,
+    );
     if (_onCanvas(plate.left, plate.top, plate.size, size).topLeft ==
             plate.topLeft &&
+        (!flush || _keepsOff(plate, target, anchors[i])) &&
         clear(plate)) {
       return (plate, i);
     }

@@ -772,6 +772,7 @@ void main() {
                   size,
                   placed,
                   anchors: callout.anchors,
+                  flush: callout.flush,
                 );
             text.dispose();
             for (final Rect other in placed) {
@@ -848,5 +849,44 @@ void main() {
       math.max(second.top - plate.bottom, plate.top - second.bottom),
       greaterThan(-1),
     );
+  });
+
+  test('a plate set flush lies against the canvas’s edge, level with its '
+      'anchor, and only where it keeps as far from its target', () {
+    const Size size = Size(390, 560);
+    const Offset target = Offset(200, 300);
+    const Size text = Size(60, 16);
+    const double margin = ZoomOverlayPainter.margin;
+    final Rect left = placePlate(
+      target,
+      text,
+      size,
+      <Rect>[],
+      anchors: <Offset>[const Offset(150, 300)],
+      flush: true,
+    );
+    expect(left.left, margin);
+    expect(left.center.dy, closeTo(300, 1e-9));
+    final Rect right = placePlate(
+      target,
+      text,
+      size,
+      <Rect>[],
+      anchors: <Offset>[const Offset(250, 300)],
+      flush: true,
+    );
+    expect(right.right, closeTo(size.width - margin, 1e-9));
+    expect(right.center.dy, closeTo(300, 1e-9));
+    // With no room between the edge and the anchor, the next anchor.
+    final (Rect plate, int anchor) = placePlateAt(
+      target,
+      text,
+      size,
+      <Rect>[],
+      anchors: <Offset>[const Offset(40, 300), const Offset(250, 300)],
+      flush: true,
+    );
+    expect(anchor, 1);
+    expect(plate.right, closeTo(size.width - margin, 1e-9));
   });
 }

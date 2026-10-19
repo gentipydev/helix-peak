@@ -26,7 +26,8 @@ import 'zoom_subject.dart';
 /// gene: a spot on each sister at its height, over its band, which is
 /// bracketed and named. The spots are a probe's, never the gene, which is
 /// far too small to see at this scale. Its parts are named in the quiet ink
-/// beside it, level with each ([parts]).
+/// in a column at the canvas's edge either side of it, level with each
+/// ([parts]), the band's name at the head of the column on the right.
 ///
 /// On the way in it condenses out of its territory in the nucleus. On the
 /// way out it turns to lie along the genome, its chromatids merge into one
@@ -146,6 +147,8 @@ final class ChromosomeScene extends ZoomScene {
         _track.locus,
         target,
         math.min(calloutPresence(frame), formed),
+        anchors: _bandAnchors(target),
+        flush: true,
       );
       _nameParts(frame, out, math.min(calloutPresence(frame), formed));
       // Before the step is under way the nucleus draws the territory.
@@ -168,7 +171,14 @@ final class ChromosomeScene extends ZoomScene {
     // middle of the view.
     final Offset target = frame.toScreen(_bandEdge(frame, 0));
     out.item('chromosome:target', target, frame.opacity);
-    out.callout('chromosome', _track.locus, target, calloutPresence(frame));
+    out.callout(
+      'chromosome',
+      _track.locus,
+      target,
+      calloutPresence(frame),
+      anchors: _bandAnchors(target),
+      flush: true,
+    );
     _nameParts(frame, out, calloutPresence(frame));
     out.item('chromosome:art', band, math.min(frame.opacity, t.art));
     out.item('chromosome:bracket', band, math.min(frame.opacity, t.art));
@@ -213,10 +223,22 @@ final class ChromosomeScene extends ZoomScene {
     ];
   }();
 
-  /// Names the chromosome's [parts], [presence] of the way there, each just
-  /// off the chromosome's outer edge on its side: level with what it names,
-  /// or a little below or above it where another name is there, and only
-  /// then on the other side.
+  /// Where the band's name, which points at [target], may be set: above
+  /// the band and then below it, at the heights the painter would set it,
+  /// then higher, for a band at the foot of a squat canvas; each out at the
+  /// canvas's right edge (the user's ask of 2026-10-19), at the head of the
+  /// column the names on that side are set in.
+  static List<Offset> _bandAnchors(Offset target) => <Offset>[
+    target + const Offset(24, -20),
+    target + const Offset(24, 20),
+    target + const Offset(24, -50),
+  ];
+
+  /// Names the chromosome's [parts], [presence] of the way there, each in a
+  /// column at the canvas's edge on its side (the user's ask of
+  /// 2026-10-19), but no nearer the chromosome than 14 px off its outer
+  /// edge: level with what it names, or a little below or above it where
+  /// another name is there, and only then on the other side.
   void _nameParts(ZoomFrame frame, ZoomStaging out, double presence) {
     for (final (String name, Offset at, double side) in parts) {
       Offset beside(double s, double dy) =>
@@ -235,6 +257,7 @@ final class ChromosomeScene extends ZoomScene {
           beside(side, -34),
           beside(-side, 0),
         ],
+        flush: true,
         quiet: true,
       );
     }
