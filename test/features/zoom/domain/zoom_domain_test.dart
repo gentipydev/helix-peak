@@ -1045,7 +1045,7 @@ void main() {
       }
     });
 
-    test('say data, and explain nothing', () {
+    test('say data, and explain nothing but at the cell', () {
       final RegExp explains = RegExp(
         r'condensed for division|one of 46|territory of its own|stained|'
         r'so its precursor|elsewhere|home of its top|cell type pair|'
@@ -1056,6 +1056,12 @@ void main() {
         final ZoomFacts facts = _facts(t);
         for (final ZoomStop stop in ZoomStop.values) {
           final ZoomFact fact = facts.of(stop);
+          // The cell's line says what its drawing shows (the user's ask,
+          // 2026-10-19); its title is still only the place.
+          if (stop == ZoomStop.cell) {
+            expect(explains.hasMatch(fact.title), isFalse, reason: t.slug);
+            continue;
+          }
           expect(
             explains.hasMatch('${fact.title} ${fact.line}'),
             isFalse,
@@ -1073,8 +1079,112 @@ void main() {
       expect(
         _facts(TestCatalog.insulin).of(ZoomStop.cell),
         isA<ZoomFact>()
-            .having((ZoomFact f) => f.title, 'title', 'Beta cells')
-            .having((ZoomFact f) => f.line, 'line', 'Tissue cell type enriched'),
+            .having(
+              (ZoomFact f) => f.title,
+              'title',
+              'Endocrine cells · Beta cells',
+            )
+            .having(
+              (ZoomFact f) => f.line,
+              'line',
+              'Its gene is transcribed in the ringed nucleus. Vesicles carry '
+                  'the protein from the Golgi to secretory granules; it is '
+                  'secreted to the blood.',
+            ),
+      );
+    });
+
+    test('name the cell under the Atlas’s class for it, and say no level '
+        'of it', () {
+      for (final ProteinTarget t in TestCatalog.all) {
+        final ZoomPath path = _path(t);
+        final ZoomFact cell = _facts(t).of(ZoomStop.cell);
+        final String words = '${cell.title} ${cell.line}';
+        expect(words, isNot(contains('cell type enriched')), reason: t.slug);
+        expect(words, isNot(contains('nCPM')), reason: t.slug);
+        if (path.cellName != null && path.cellClass != null) {
+          expect(
+            cell.title,
+            startsWith('${path.cellClass} · '),
+            reason: t.slug,
+          );
+        }
+      }
+      expect(
+        _facts(TestCatalog.glucagon).of(ZoomStop.cell).title,
+        'Endocrine cells · Alpha cells',
+      );
+      expect(
+        _facts(TestCatalog.leptin).of(ZoomStop.cell).title,
+        'Mesenchymal cells · Adipocytes',
+      );
+    });
+
+    test('say at the cell what its drawing shows: the gene in the ringed '
+        'nucleus, the protein where the Atlas finds it, and where it is '
+        'carried if it is secreted', () {
+      for (final ProteinTarget t in TestCatalog.all) {
+        final LocusTrack track = locusOf(t);
+        final String story = _facts(t).cellStory;
+        final String why = '${t.slug}: $story';
+        expect(
+          story,
+          contains('transcribed in the ringed nucleus'),
+          reason: why,
+        );
+        expect(
+          story.contains('glows'),
+          !track.subcellular.isEmpty,
+          reason: why,
+        );
+        expect(
+          story.contains('has not placed the protein'),
+          track.subcellular.isEmpty && !track.secreted,
+          reason: why,
+        );
+        expect(story.contains('Vesicles carry'), track.secreted, reason: why);
+        expect(_facts(t).of(ZoomStop.cell).line, story, reason: t.slug);
+      }
+      expect(
+        _facts(TestCatalog.glucagon).cellStory,
+        'Its gene is transcribed in the ringed nucleus. The protein glows '
+        'where the Atlas finds it, fainter at its additional locations. '
+        'Vesicles carry it from the Golgi to secretory granules; it is '
+        'secreted to the blood.',
+      );
+      expect(
+        _facts(TestCatalog.cftr).cellStory,
+        'Its gene is transcribed in the ringed nucleus. The Atlas has not '
+        'placed the protein in the cell.',
+      );
+    });
+
+    test('end a secreted protein’s story where the Atlas finds it secreted '
+        'to, for each of its words that says secreted', () {
+      // The Atlas's secretome words, version 25.1.
+      const List<String> secretome = <String>[
+        'Immunoglobulin genes',
+        'Intracellular and membrane',
+        'Secreted - unknown location',
+        'Secreted in brain',
+        'Secreted in female reproductive system',
+        'Secreted in male reproductive system',
+        'Secreted in other tissues',
+        'Secreted to blood',
+        'Secreted to digestive system',
+        'Secreted to extracellular matrix',
+      ];
+      expect(ZoomFacts.secretedTo.keys.toSet(), <String>{
+        for (final String word in secretome)
+          if (word.startsWith('Secreted')) word,
+      });
+      expect(
+        _facts(TestCatalog.bySlug('s100b')!).cellStory,
+        endsWith('the Atlas does not say where it is secreted to.'),
+      );
+      expect(
+        _facts(TestCatalog.amylase).cellStory,
+        endsWith('it is secreted to the digestive system.'),
       );
     });
 
@@ -1108,9 +1218,18 @@ void main() {
 
     test('say out loud where the zoom lands instead of a nucleus it lacks', () {
       final ZoomFact cell = _facts(TestCatalog.hemoglobin).of(ZoomStop.cell);
-      expect(cell.title, 'Erythroblasts');
-      expect(cell.line, contains('Erythrocytes · 521,403 nCPM'));
-      expect(cell.line, contains('no nucleus'));
+      expect(cell.title, 'Blood and immune cells · Erythroblasts');
+      expect(
+        cell.line,
+        startsWith(
+          'Erythrocytes have no nucleus; the gene is transcribed in the '
+          'ringed nucleus of the erythroblasts they come from.',
+        ),
+      );
+      expect(
+        _facts(TestCatalog.bySlug('ppbp')!).of(ZoomStop.cell).line,
+        startsWith('Platelets have no nucleus;'),
+      );
       expect(
         _facts(TestCatalog.insulin).of(ZoomStop.cell).line,
         isNot(contains('no nucleus')),
@@ -1121,7 +1240,7 @@ void main() {
         'out', () {
       final ZoomFact tnf = _facts(TestCatalog.tnf).of(ZoomStop.cell);
       expect(tnf.title, 'Bone marrow cell');
-      expect(tnf.line, 'Top cell type: microglia');
+      expect(tnf.line, startsWith('Top cell type: microglia. Its gene is'));
     });
 
     test('give the gene’s length as its record does, the walk’s', () {

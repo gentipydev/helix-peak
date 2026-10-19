@@ -8,7 +8,8 @@ import '../domain/zoom_depth.dart';
 import '../domain/zoom_facts.dart';
 
 /// The card under the canvas: the stop's place, one line of what is known
-/// of it, and a step either way, `Walk ›` at the last.
+/// of it (at the cell, what its drawing shows), and a step either way,
+/// `Walk ›` at the last.
 ///
 /// Its height is the tallest stop's words at the reader's text size, so the
 /// canvas above it keeps its size as the zoom moves from stop to stop. As
@@ -51,16 +52,24 @@ class ZoomCard extends StatelessWidget {
         color: theme.colorScheme.onSurface,
       );
 
+  /// The line's style: the DNA's bases in the sequence face, the cell's
+  /// sentences as prose on a card, and every other line's data with figures
+  /// of one width.
   static TextStyle lineOf(ThemeData theme, ZoomStop stop) {
     final TextStyle base =
         theme.textTheme.bodyMedium ?? const TextStyle(fontSize: 14);
-    return stop == ZoomStop.dna
-        ? AppTypography.sequenceSmall(theme.colorScheme.onSurfaceVariant)
-              .copyWith(letterSpacing: 0.5)
-        : base.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-            fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
-          );
+    return switch (stop) {
+      ZoomStop.dna => AppTypography.sequenceSmall(
+        theme.colorScheme.onSurfaceVariant,
+      ).copyWith(letterSpacing: 0.5),
+      ZoomStop.cell => (theme.cardBody ?? base).copyWith(
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
+      _ => base.copyWith(
+        color: theme.colorScheme.onSurfaceVariant,
+        fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+      ),
+    };
   }
 
   /// The height every stop's words take at [width], at the reader's text

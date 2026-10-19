@@ -7,6 +7,7 @@ import '../../../shared/format.dart';
 import 'anatomy_figure.dart';
 import 'anatomy_tables.dart';
 import 'cell_archetypes.dart';
+import 'cell_parts.dart';
 import 'locus_track.dart';
 import 'zoom_depth.dart';
 import 'zoom_path.dart';
@@ -22,8 +23,9 @@ final class ZoomFact {
   /// The place: `Bone marrow`, `Chromosome 11`, `HBB · 1,606 bases`.
   final String title;
 
-  /// One line, data only: `Tissue enriched · 125,481 nTPM`. Empty where the
-  /// stop has none.
+  /// One line, data only: `Tissue enriched · 125,481 nTPM`; at the cell,
+  /// what its drawing shows ([ZoomFacts.cellStory]). Empty where the stop
+  /// has none.
   final String line;
 }
 
@@ -31,8 +33,10 @@ final class ZoomFact {
 /// body carries. Every number about the protein comes from its locus track
 /// or its record; the rest are what bodies, cells and DNA measure, said once
 /// for every protein. Only the gene's own stop names the gene, as its record
-/// does; no other line names a gene or a protein. Nothing explains: what a
-/// stop shows is drawn, and the card names it.
+/// does; no other line names a gene or a protein. Nothing explains, but at
+/// the cell: what a stop shows is drawn, and the card names it; the cell's
+/// line says what its drawing shows, which a reader could not tell at first
+/// sight (the user's ask, 2026-10-19).
 final class ZoomFacts {
   ZoomFacts({required this.track, required this.path, required this.record});
 
@@ -199,49 +203,86 @@ final class ZoomFacts {
     );
   }
 
-  /// The single cell reading's level for [name], or null where it names none.
-  double? _ncpm(String name) {
-    for (final (String n, double value) in track.cellType.specific) {
-      if (n.toLowerCase() == name.toLowerCase()) {
-        return value;
-      }
-    }
-    return null;
-  }
-
   ZoomFact _cell() {
     final String? cell = path.cellName;
-    final Anucleate? anucleate = path.anucleate;
-    final LandsIn? lands = path.landsIn;
-    if (cell != null && (anucleate != null || lands != null)) {
-      final double? ncpm = _ncpm(path.cellType!);
-      final String precursor = lands?.cell ?? anucleate!.precursor;
-      return ZoomFact(
-        stop: ZoomStop.cell,
-        title: capital(precursor),
-        line:
-            '${capital(cell)}${ncpm == null ? '' : ' · ${grouped(ncpm.round())} nCPM'}'
-            ' · no nucleus',
-      );
-    }
-    if (cell != null) {
-      final double? ncpm = _ncpm(path.cellType!);
-      return ZoomFact(
-        stop: ZoomStop.cell,
-        title: capital(cell),
-        line: path.cellFrom == CellFrom.pair || ncpm == null
-            ? 'Tissue cell type enriched'
-            : '${grouped(ncpm.round())} nCPM · ${track.cellType.specificity}',
-      );
-    }
-    final String? top = track.cellType.first;
+    final String? cellClass = path.cellClass;
     final String? tissue = path.tissue;
+    final String? precursor = path.landsIn?.cell ?? path.anucleate?.precursor;
+    final String title = cell == null
+        ? (tissue == null ? 'A cell' : '${capital(tissue)} cell')
+        : capital(precursor ?? cell);
     return ZoomFact(
       stop: ZoomStop.cell,
-      title: tissue == null ? 'A cell' : '${capital(tissue)} cell',
-      line: top == null
-          ? track.cellType.specificity
-          : 'Top cell type: ${lower(top)}',
+      title: cell == null || cellClass == null ? title : '$cellClass · $title',
+      line: cellStory,
     );
+  }
+
+  /// The Atlas's words for where it finds a protein secreted to, as each
+  /// ends the cell's story. Every one of its secretome words that says
+  /// secreted has one; the others say the protein stays in the cell.
+  static const Map<String, String> secretedTo = <String, String>{
+    'Secreted to blood': 'it is secreted to the blood',
+    'Secreted to digestive system': 'it is secreted to the digestive system',
+    'Secreted in brain': 'it is secreted in the brain',
+    'Secreted in female reproductive system':
+        'it is secreted in the female reproductive system',
+    'Secreted in male reproductive system':
+        'it is secreted in the male reproductive system',
+    'Secreted in other tissues': 'it is secreted in other tissues',
+    'Secreted to extracellular matrix':
+        'it is secreted to the extracellular matrix',
+    'Secreted - unknown location':
+        'the Atlas does not say where it is secreted to',
+  };
+
+  /// What the cell's drawing shows, in a few sentences, from the track
+  /// alone (the user's ask, 2026-10-19): the nucleus ringed in the mark,
+  /// where its gene is transcribed; the protein glowing where the Atlas
+  /// finds it; and, where the Atlas finds it secreted, the vesicles carrying
+  /// it from the Golgi to the granules that store it, or else to the
+  /// membrane, as the cell's scene draws them.
+  String get cellStory {
+    final List<String> said = <String>[];
+    final String? cell = path.cellName;
+    final String? precursor = path.landsIn?.cell ?? path.anucleate?.precursor;
+    if (cell == null) {
+      final String? top = track.cellType.first;
+      said.add(
+        top == null
+            ? '${track.cellType.specificity}.'
+            : 'Top cell type: ${lower(top)}.',
+      );
+    }
+    said.add(
+      cell != null && precursor != null
+          ? '${capital(cell)} have no nucleus; the gene is transcribed in the '
+                'ringed nucleus of the $precursor they come from.'
+          : 'Its gene is transcribed in the ringed nucleus.',
+    );
+    final SubcellularReading where = track.subcellular;
+    if (where.main.isNotEmpty) {
+      said.add(
+        where.additional.isEmpty
+            ? 'The protein glows where the Atlas finds it.'
+            : 'The protein glows where the Atlas finds it, fainter at its '
+                  'additional locations.',
+      );
+    } else if (where.additional.isNotEmpty) {
+      said.add('The protein glows faintly where the Atlas finds it.');
+    } else if (!track.secreted) {
+      said.add('The Atlas has not placed the protein in the cell.');
+    }
+    if (track.secreted) {
+      final String word = track.secretome!;
+      final bool granules = recipeOf(archetypeOf(path).shape).drawn
+          .contains(CellPart.secretoryGranules);
+      said.add(
+        'Vesicles carry ${where.isEmpty ? 'the protein' : 'it'} from the '
+        'Golgi to ${granules ? 'secretory granules' : 'the membrane'}; '
+        '${secretedTo[word] ?? 'it is ${lower(word)}'}.',
+      );
+    }
+    return said.join(' ');
   }
 }

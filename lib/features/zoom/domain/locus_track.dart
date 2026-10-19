@@ -420,4 +420,8 @@ final class LocusTrack {
 
   /// The band or bands' length, in base pairs.
   int get bandLengthBp => bandEnd - bandStart + 1;
+
+  /// Whether the Atlas finds the protein secreted: its secretome word says
+  /// so (`Secreted to blood`), where the others keep it in the cell.
+  bool get secreted => (secretome ?? '').startsWith('Secreted');
 }

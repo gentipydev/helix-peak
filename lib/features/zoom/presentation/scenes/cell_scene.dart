@@ -72,7 +72,7 @@ final class CellScene extends ZoomScene {
 
   SubcellularReading get _reading => subject.track.subcellular;
 
-  bool get _secreted => (subject.track.secretome ?? '').startsWith('Secreted');
+  bool get _secreted => subject.track.secreted;
 
   // The cell is named by the card, and so is a red cell's want of a
   // nucleus: what is named here is where the protein is, where the Atlas

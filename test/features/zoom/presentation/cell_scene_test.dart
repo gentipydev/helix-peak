@@ -12,6 +12,7 @@ import 'package:helixpeek/features/zoom/domain/cell_archetypes.dart';
 import 'package:helixpeek/features/zoom/domain/cell_parts.dart';
 import 'package:helixpeek/features/zoom/domain/locus_track.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
+import 'package:helixpeek/features/zoom/domain/zoom_facts.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/cell/cell_parts.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/cell/neuron_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/cell/vesicle_routes.dart';
@@ -508,6 +509,32 @@ void main() {
       <Offset>{for (final VesicleRoute r in insulin.vesicleRoutes) r.end},
       hasLength(12),
     );
+  });
+
+  test('the card says what the cell draws: vesicles where it secretes, into '
+      'its granules where it has them, or else to its membrane', () {
+    for (final ProteinTarget t in TestCatalog.all) {
+      final CellScene cell = _cellOf(_stage(t));
+      final String story = ZoomFacts(
+        track: cell.subject.track,
+        path: cell.subject.path,
+        record: recordOf(t),
+      ).cellStory;
+      final bool secreted = _secreting().contains(t);
+      final bool granules = cell.parts?.granules.isNotEmpty ?? false;
+      final String where = '${t.slug}: $story';
+      expect(story.contains('Vesicles carry'), secreted, reason: where);
+      expect(
+        story.contains('to secretory granules'),
+        secreted && granules,
+        reason: where,
+      );
+      expect(
+        story.contains('to the membrane'),
+        secreted && !granules,
+        reason: where,
+      );
+    }
   });
 
   test('every vesicle stays in the cytoplasm, never in the nucleus, a lipid '
