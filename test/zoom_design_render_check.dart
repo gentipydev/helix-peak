@@ -172,8 +172,10 @@ void main() {
     );
     // Every tissue on the figure it is shown on, about its own kind of cell;
     // then the pancreas on both figures about each kind of cell that lights
-    // a part of it of its own.
+    // a part of it of its own, and the testis about each kind of cell that
+    // lives in it.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
+    final TissueAnatomy testis = tissueAnatomy['testis']!;
     final List<(String, TissueAnatomy, AnatomyFigure, CellShape)> organs =
         <(String, TissueAnatomy, AnatomyFigure, CellShape)>[
           for (final MapEntry<String, TissueAnatomy> tissue
@@ -194,6 +196,13 @@ void main() {
               CellShape.acinar,
             ])
               ('pancreas-${body.name}-${shape.name}', pancreas, body, shape),
+          for (final CellShape shape in <CellShape>[
+            CellShape.germ,
+            CellShape.epithelial,
+            CellShape.endocrine,
+            CellShape.spindle,
+          ])
+            ('testis-${shape.name}', testis, AnatomyFigure.male, shape),
         ];
     for (final (
           String name,

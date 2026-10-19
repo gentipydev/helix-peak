@@ -194,9 +194,10 @@ final class OrganForm {
 
 /// What lies inside an organ of one kind, and the part of it the zoom's
 /// cell lives in, in the mark: the acini of a salivary gland, or its ducts
-/// for a duct cell, the red marrow of a femur, the tubules of a testis. By
-/// the kind of organ and of cell, never by gene. (The pancreas is drawn
-/// from anatomy instead, among its neighbours: `PancreasArt`.)
+/// for a duct cell, the red marrow of a femur, the lobules of a liver. By
+/// the kind of organ and of cell, never by gene. (The pancreas and the
+/// testis are drawn from anatomy instead, among their neighbours:
+/// `PancreasArt`, `TestisArt`.)
 abstract class OrganStudy {
   const OrganStudy();
 
@@ -209,7 +210,6 @@ abstract class OrganStudy {
     OrganKind.adipose,
     OrganKind.skeletalMuscle,
     OrganKind.fallopianTube,
-    OrganKind.testis,
     OrganKind.stomach,
     OrganKind.pituitary,
   };
@@ -224,7 +224,6 @@ abstract class OrganStudy {
         OrganKind.adipose => _Fat(form),
         OrganKind.skeletalMuscle => _Muscle(form),
         OrganKind.fallopianTube => _Tube(form),
-        OrganKind.testis => _Testis(form),
         OrganKind.stomach => _Stomach(form),
         OrganKind.pituitary => _Pituitary(form),
         _ => null,
@@ -806,81 +805,6 @@ final class _Tube extends OrganStudy {
     canvas.drawPath(
       form.shape,
       band(inks.lit(0.3).withValues(alpha: detail), t * 0.3),
-    );
-  }
-}
-
-/// A testis: its tunica, the septa running in from the mediastinum at its
-/// back and top, and in each lobule the coiled seminiferous tubules where
-/// sperm is made, in the mark.
-final class _Testis extends OrganStudy {
-  _Testis(this.form) {
-    final math.Random random = math.Random(31);
-    final Rect box = form.box;
-    final double size = form.size;
-    _hub = Offset(box.left + box.width * 0.72, box.top + box.height * 0.3);
-    _septa = Path();
-    for (int k = 0; k < 11; k++) {
-      final double a = math.pi * (0.55 + 1.5 * k / 11);
-      final Offset end = form.nearestEdge(
-        _hub + Offset(math.cos(a), math.sin(a)) * size,
-      );
-      _septa
-        ..moveTo(_hub.dx, _hub.dy)
-        ..lineTo(end.dx, end.dy);
-    }
-    _tubules = Path();
-    for (final Offset start in form.scatter(
-      70,
-      random,
-      apart: size * 0.06,
-      within: form.inset(0.88),
-    )) {
-      Offset p = start;
-      double heading = random.nextDouble() * math.pi * 2;
-      _tubules.moveTo(p.dx, p.dy);
-      for (int i = 0; i < 14; i++) {
-        heading += (random.nextDouble() - 0.5) * 2.2;
-        final Offset next =
-            p + Offset(math.cos(heading), math.sin(heading)) * (size * 0.012);
-        final Offset mid =
-            p +
-            Offset(math.cos(heading + 0.9), math.sin(heading + 0.9)) *
-                (size * 0.009);
-        _tubules.quadraticBezierTo(mid.dx, mid.dy, next.dx, next.dy);
-        p = next;
-      }
-    }
-    _tunica = form.inset(0.95);
-  }
-
-  final OrganForm form;
-  late final Offset _hub;
-  late final Path _septa;
-  late final Path _tubules;
-  late final Path _tunica;
-
-  @override
-  void inside(Canvas canvas, ZoomInks inks, double line, double detail) {
-    Sculpt.glowingStroke(
-      canvas,
-      _tubules,
-      inks,
-      width: 1.2 * line,
-      alpha: 0.75 * detail,
-    );
-    canvas.drawPath(
-      _septa,
-      _stroke(inks.lit(0.55).withValues(alpha: 0.5 * detail), 1.4 * line),
-    );
-    canvas.drawCircle(
-      _hub,
-      form.size * 0.04,
-      Paint()..color = inks.lit(0.5).withValues(alpha: 0.7 * detail),
-    );
-    canvas.drawPath(
-      _tunica,
-      _stroke(inks.lit(0.68).withValues(alpha: 0.65 * detail), 2.4 * line),
     );
   }
 }

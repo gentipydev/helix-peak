@@ -59,6 +59,7 @@ void main() {
       TestCatalog.sod1,
       TestCatalog.oxytocin,
       TestCatalog.cftr,
+      TestCatalog.ubiquitin,
     ]) {
       final ZoomStage stage = ZoomStage(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),

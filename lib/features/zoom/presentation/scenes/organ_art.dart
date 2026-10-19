@@ -19,6 +19,10 @@ import 'pancreas/pancreas_form.dart';
 import 'pancreas/pancreas_style.dart';
 import 'sculpt.dart';
 import 'specimen_step.dart';
+import 'testis/testis_anatomy.dart';
+import 'testis/testis_art.dart';
+import 'testis/testis_form.dart';
+import 'testis/testis_style.dart';
 import 'tube_course.dart';
 import 'zoom_subject.dart';
 
@@ -38,12 +42,13 @@ typedef OrganName = ({String key, String word, Offset at, bool home});
 /// size it really is ([real]): the scene grows it to that on the way in. A
 /// few have no outline of their own there, or none that shows the tissue (a
 /// lymph node, a vessel, the skin, a parathyroid gland, the retina), and are
-/// drawn from general anatomy, as are the pancreas and the brain, cut down
-/// its middle.
+/// drawn from general anatomy, as are the pancreas, the testis, cut down its
+/// length, and the brain, cut down its middle.
 ///
 /// Where the gene is, the organ glows in the mark: the part of it the
 /// zoom's cell lives in (the islets of a pancreas for an endocrine cell, its
-/// ducts for a duct cell), by the kind of organ and of cell, never by gene.
+/// ducts for a duct cell, the interstitium of a testis for a Leydig cell),
+/// by the kind of organ and of cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -79,6 +84,14 @@ abstract class OrganArt {
       OrganKind.parathyroid => _ParathyroidOrgan(size),
       OrganKind.eye => _EyeOrgan(size),
       OrganKind.pancreas when part != null => _PancreasOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        cell: shape,
+        level: level,
+      ),
+      OrganKind.testis when part != null => _TestisOrgan(
         part,
         anatomy,
         view,
@@ -818,6 +831,122 @@ final class _PancreasOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => PancreasArt.creviceOf(inks);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The testis, drawn from general anatomy as a fresh specimen cut down its
+/// length, among its epididymis and its cord (`TestisArt`), reached from
+/// the body's own outline of it (`_SpecimenOrgan`): that outline draws in
+/// toward the testis's own and becomes the bed it lies on.
+final class _TestisOrgan extends _SpecimenOrgan {
+  _TestisOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    CellShape cell = CellShape.germ,
+    super.level,
+  }) : home = TestisHome.of(cell),
+       _form = TestisForm.place(part: part, anatomy: anatomy, view: view);
+
+  /// Where the kind of cell the zoom goes on into lives, which the testis
+  /// lights.
+  final TestisHome home;
+
+  final TestisForm _form;
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the cell lives, at the place the tissue is sampled, and the main
+  // parts round it, no more (the user's choice of 2026-10-19).
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (
+      key: 'home',
+      word: home == TestisHome.interstitium
+          ? 'interstitium'
+          : 'seminiferous tubules',
+      at: _form.site,
+      home: true,
+    ),
+    (
+      key: 'epididymis',
+      word: 'epididymis',
+      at: _form.place(TestisAnatomy.epididymisName),
+      home: false,
+    ),
+    (
+      key: 'rete',
+      word: 'rete testis',
+      at: _form.place(TestisAnatomy.reteName),
+      home: false,
+    ),
+    (
+      key: 'vas',
+      word: 'vas deferens',
+      at: _form.place(TestisAnatomy.vasName),
+      home: false,
+    ),
+  ];
+
+  // The testis, the epididymis, and the cord's tubes where they show beside
+  // them, with room to either side. Above the epididymis's head the cord
+  // only fades, and the names may lie beside its end.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(TestisStyle.nameClear);
+    double top = double.infinity;
+    for (final Offset p in <Offset>[
+      ..._form.outlinePoints,
+      ..._form.epididymisPoints,
+    ]) {
+      top = math.min(top, p.dy);
+    }
+    return <Offset>[
+      ..._form.outlinePoints,
+      ..._form.epididymisPoints,
+      for (final TubeCourse tube in <TubeCourse>[
+        _form.vas,
+        _form.artery,
+        ..._form.veins,
+      ])
+        for (int i = 0; i < tube.length; i++)
+          if (tube.shown[i] > TestisStyle.nameShown &&
+              tube.centres[i].dy >= top) ...<Offset>[
+            tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+            tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+          ],
+    ];
+  }();
+
+  TestisArt? _art;
+
+  TestisArt _artFor(ZoomInks inks) {
+    final TestisArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = TestisArt(_form, inks, home: home)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => TestisArt.bedOf(inks);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
