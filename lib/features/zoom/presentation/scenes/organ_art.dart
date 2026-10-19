@@ -1594,11 +1594,12 @@ final class _ParathyroidOrgan extends OrganArt {
 }
 
 /// The right eye cut level through its optic nerve, drawn from anatomy as
-/// a specimen among its recti (`EyeArt`): the retina flat in its one tone,
-/// the coats, the cornea, the iris on the lens and the ciliary body lit
-/// softly, the optic nerve leaving through the lamina cribrosa in its
-/// sheath. For a cell of the retina the retina is drawn in the mark; for a
-/// pigment epithelial cell the pigment epithelium under it.
+/// a specimen among its recti (`EyeArt`), seen from above and turned with
+/// its cornea to the left: the retina flat in its one tone, the coats, the
+/// cornea, the iris on the lens and the ciliary body lit softly, the optic
+/// nerve leaving through the lamina cribrosa in its sheath. For a cell of
+/// the retina the retina is drawn in the mark; for a pigment epithelial
+/// cell the pigment epithelium under it.
 /// The body draws the eye from the front, so the step from it is a
 /// crossfade, as the brain's is: the section is drawn about the body's
 /// circle of the eye at its size as the step begins, and grows to the

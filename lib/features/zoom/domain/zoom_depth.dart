@@ -140,10 +140,11 @@ final class ZoomDepth {
   static const double salivaryUpright = 0.7;
 
   /// How much taller than wide the eye is framed: cut level through its
-  /// optic nerve, the nerve leaving it behind and the recti beside it, it
-  /// is taller than the body's circle of it, and its names need room above
-  /// and below it on an iPhone SE's canvas, 375 by 492 under the card the
-  /// retina's words make it.
+  /// optic nerve and turned with its cornea to the left, the nerve leaving
+  /// it to the right and the recti above and below it, it is wider than the
+  /// body's circle of it, and its names need room above and below it on an
+  /// iPhone SE's canvas, 375 by 492 under the card the retina's words make
+  /// it.
   static const double eyeUpright = 0.8;
 
   static double _organOf(LocusTrack track, ZoomPath path) {

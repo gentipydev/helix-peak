@@ -442,7 +442,7 @@ void main() {
   });
 
   test('the tissue is sampled in the retina’s middle at the posterior pole, '
-      'between the disc and the fovea, where it lies level', () {
+      'between the disc and the fovea', () {
     final EyeForm form = _form();
     final Offset site = EyeForm.siteMm;
     expect(site.dx, 0);
@@ -456,9 +456,34 @@ void main() {
     );
     expect(site.dy, lessThan(EyeForm.pigmentAt(0).dy));
     expect(site.dy, greaterThan(EyeForm.retinaInner(0).dy));
-    // Level: the way out of the globe there is straight back.
+    // At the posterior pole: the way out of the globe there is straight
+    // back.
     expect(EyeForm.outward(0).dx, 0);
     expect(form.contains(form.site), isTrue);
+  });
+
+  test('it is drawn turned a quarter to the left: the cornea to the left of '
+      'the globe’s middle, the nerve leaving to the right, the temporal side '
+      'up', () {
+    final EyeForm form = _form();
+    final Offset apex = form.place(const Offset(0, -EyeAnatomy.length / 2));
+    expect(apex.dx, closeTo(-form.mm(EyeAnatomy.length / 2), 1e-12));
+    expect(apex.dy.abs(), lessThan(1e-12));
+    expect(form.site.dx, greaterThan(0));
+    expect(
+      form.nerve.centres.last.dx,
+      greaterThan(form.mm(EyeAnatomy.length / 2)),
+    );
+    // The lateral rectus above the globe, the medial below.
+    expect(form.recti[0].centres.first.dy, lessThan(0));
+    expect(form.recti[1].centres.first.dy, greaterThan(0));
+    for (final Offset p in <Offset>[
+      const Offset(3, -7),
+      EyeForm.siteMm,
+      EyeForm.discFace,
+    ]) {
+      expect((form.toMm(form.place(p)) - p).distance, lessThan(1e-9));
+    }
   });
 
   test('each part is named on what it names', () {

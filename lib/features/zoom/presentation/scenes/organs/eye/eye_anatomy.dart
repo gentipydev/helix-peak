@@ -1,9 +1,10 @@
 /// The right eye cut level through its optic nerve and seen from above, as
 /// Gray's and Netter's plates draw its horizontal section, drawn from
-/// general anatomy: in millimetres, the cornea up, the temporal side to the
-/// right. The origin is the middle of the globe, front to back and side to
-/// side, where the body's circle of the eye has its middle; x runs to the
-/// temple, y back.
+/// general anatomy: in millimetres, laid with the cornea up and the temporal
+/// side to the right, and drawn turned a quarter to the left, the cornea to
+/// the left (`EyeForm`). The origin is the middle of the globe, front to
+/// back and side to side, where the body's circle of the eye has its
+/// middle; x runs to the temple, y back.
 ///
 /// The cut shows the coats: the sclera, the choroid and the retina, from
 /// the ora serrata back to the optic disc, the retina thinning into the

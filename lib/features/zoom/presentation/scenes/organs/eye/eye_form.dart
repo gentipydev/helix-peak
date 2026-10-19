@@ -28,7 +28,10 @@ final class EyeBand {
 /// and what lies round it: every shape in the scene's units at the eye's
 /// real size, the middle of the globe at the origin, where the body's
 /// circle of the eye has its middle. The anatomy is `EyeAnatomy`'s, in
-/// millimetres, its origin there too.
+/// millimetres, its origin there too, laid with the cornea up and the
+/// temporal side to the right; the scene draws it turned a quarter to the
+/// left ([turn]), the cornea to the left and the nerve leaving to the
+/// right, the temporal side up.
 ///
 /// The globe's back is an ellipse the sclera follows, as broad as the
 /// globe and as long as leaves the cornea's bulge in front of it; the
@@ -39,8 +42,7 @@ final class EyeBand {
 /// positive; lengths along a coat are millimetres from the posterior pole.
 ///
 /// The place its tissue is sampled is the retina's middle at the posterior
-/// pole ([site]), between the disc and the fovea, where the retina lies
-/// level, the vitreous above it and the choroid below. Everything here is
+/// pole ([site]), between the disc and the fovea. Everything here is
 /// geometry: what it is drawn in is `EyeArt`'s.
 final class EyeForm {
   EyeForm({required double length, required this.view})
@@ -53,10 +55,16 @@ final class EyeForm {
   final double scale;
 
   /// A point of the anatomy, in millimetres, in the scene.
-  Offset place(Offset mm) => mm * scale;
+  Offset place(Offset mm) => turn(mm) * scale;
 
   /// A point of the scene, in the anatomy's millimetres.
-  Offset toMm(Offset p) => p / scale;
+  Offset toMm(Offset p) => _unturn(p / scale);
+
+  /// [p], a point or a way of the anatomy, turned a quarter to the left,
+  /// as the scene draws the eye: its cornea to the left and the nerve
+  /// leaving to the right (the user's choice of 2026-10-19).
+  static Offset turn(Offset p) => Offset(p.dy, -p.dx);
+  static Offset _unturn(Offset p) => Offset(-p.dy, p.dx);
 
   /// [millimetres] of the real eye, in the scene's units.
   double mm(double millimetres) => millimetres * scale;
@@ -708,7 +716,8 @@ final class EyeForm {
 
   /// The central retinal artery and vein, the artery the nasal: from where
   /// they come into the nerve, up out of nothing, along its middle to the
-  /// disc's face.
+  /// disc's face; where that lies past the nerve as it is drawn, from its
+  /// end, fading with it.
   static final List<AnatomyTube> centralTubes = <AnatomyTube>[
     for (final (double side, double across) in <(double, double)>[
       (-1, EyeStyle.centralArtery),
@@ -722,17 +731,27 @@ final class EyeForm {
                 way.distance *
                 (side * EyeStyle.centralApart);
         final List<Offset> points = <Offset>[
-          for (double d = EyeAnatomy.vesselsJoin; d > 1e-9; d -= _knot)
+          for (double d = _vesselsFrom; d > 1e-9; d -= _knot)
             beside(axisAt(d), axisAt(d - _axisStep) - axisAt(d)),
           beside(_exit, -_leaving),
           beside(scleraInner(nerveAngle), -_leaving),
           beside(discFace, -_leaving),
         ];
-        return AnatomyTube(points, <double>[
-          for (final Offset _ in points) across / 2,
-        ], fadeIn: EyeStyle.centralFade);
+        return AnatomyTube(
+          points,
+          <double>[for (final Offset _ in points) across / 2],
+          fadeIn: _vesselsFrom < EyeAnatomy.vesselsJoin
+              ? EyeStyle.nerveFade
+              : EyeStyle.centralFade,
+        );
       }(),
   ];
+
+  /// How far behind the globe the central vessels are drawn from.
+  static const double _vesselsFrom =
+      EyeAnatomy.vesselsJoin < EyeStyle.nerveShown
+      ? EyeAnatomy.vesselsJoin
+      : EyeStyle.nerveShown;
 
   /// The long posterior ciliary arteries, nasal then temporal: up out of
   /// nothing beside the sheath, through the sclera to either side of the

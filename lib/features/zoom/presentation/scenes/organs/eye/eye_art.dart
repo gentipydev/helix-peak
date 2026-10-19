@@ -617,7 +617,8 @@ final class EyeArt {
       canvas.save();
       final Offset c = form.place(at);
       canvas.translate(c.dx, c.dy);
-      canvas.rotate(math.atan2(along.dy, along.dx));
+      final Offset way = EyeForm.turn(along);
+      canvas.rotate(math.atan2(way.dy, way.dx));
       canvas.drawOval(
         Rect.fromCenter(
           center: Offset.zero,

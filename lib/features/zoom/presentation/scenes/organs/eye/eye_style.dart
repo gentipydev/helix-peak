@@ -71,8 +71,8 @@ abstract final class EyeStyle {
   /// that it fades out, and how far it waves to either side of its way
   /// toward the orbit's apex, which lies about 23° nasal of straight back,
   /// along the orbit's axis.
-  static const double nerveShown = 12;
-  static const double nerveFade = 5;
+  static const double nerveShown = 9;
+  static const double nerveFade = 4;
   static const double nerveWave = 0.45;
   static const double heading = 23 * math.pi / 180;
 
