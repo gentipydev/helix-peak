@@ -131,6 +131,14 @@ final class ZoomDepth {
   /// choice of 2026-10-19; it was 1.2, for 320 by 420).
   static const double testisUpright = 1.1;
 
+  /// How much taller than wide the salivary gland is framed: its parotid
+  /// drawn in place, the ear behind it, the masseter, the duct and the
+  /// facial nerve in front and the submandibular gland below, the scene is
+  /// wider than it is tall, and its names need room above and below it on
+  /// an iPhone SE's canvas, 375 by 459 under the card lysozyme's cell
+  /// makes it, and down to 440.
+  static const double salivaryUpright = 0.7;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -147,8 +155,9 @@ final class ZoomDepth {
   /// side, standing upright, then takes the share of the canvas's height
   /// that a wide one's takes of its width. Read from the anatomogram's own
   /// outline, the one the organ's scene draws; an organ drawn from general
-  /// anatomy, or the brain, is framed by its width, and the testis, drawn
-  /// from anatomy among its epididymis and its cord, as [testisUpright].
+  /// anatomy, or the brain, is framed by its width, the testis, drawn from
+  /// anatomy among its epididymis and its cord, as [testisUpright], and the
+  /// salivary gland, its parotid in place, as [salivaryUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -164,6 +173,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.testis) {
       return testisUpright;
+    }
+    if (anatomy.organ == OrganKind.salivaryGland) {
+      return salivaryUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)

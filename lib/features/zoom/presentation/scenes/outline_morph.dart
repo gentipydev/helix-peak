@@ -8,31 +8,38 @@ import 'contour.dart';
 /// outline the body drew (`PancreasForm`).
 ///
 /// The two outlines are met at two places they both have, their topmost
-/// point and their leftmost, and laid with as many points between those as
-/// each is long, so the one draws in to the other without turning inside
-/// out.
+/// point and their leftmost (or, for two tall ones, their bottommost), and
+/// laid with as many points between those as each is long, so the one
+/// draws in to the other without turning inside out.
 final class OutlineMorph {
   /// [template] is the organ's own outline and [diagram] the body's, each
   /// followed closely and both the same way round; [diagramPath] is the
   /// very curve the body draws its outline by. The morph is laid with
   /// [count] points, and the bed lies [bed] in from the organ's outline.
+  /// The two are met at their tops and their leftmost points, or their
+  /// bottommost where [bottoms].
   OutlineMorph({
     required List<Offset> template,
     required List<Offset> diagram,
     required this.diagramPath,
     required int count,
     required double bed,
+    bool bottoms = false,
   }) {
     _inward = _area(template) > 0 ? 1.0 : -1.0;
-    final (List<Offset> along, List<Offset> round) = _halves(template);
+    final (List<Offset> along, List<Offset> round) = _halves(
+      template,
+      bottoms: bottoms,
+    );
     final double first = _length(along);
     final double second = _length(round);
     final int a = (count * first / (first + second)).round();
     final int b = count - a;
-    _template = _matched(template, a, b);
-    _diagram = _matched(diagram, a, b);
+    _template = _matched(template, a, b, bottoms: bottoms);
+    _diagram = _matched(diagram, a, b, bottoms: bottoms);
     _bed = _inset(_template, bed);
   }
+
 
   /// The body's outline of the organ, as the step from the body hands it
   /// over.
@@ -84,9 +91,13 @@ final class OutlineMorph {
     ];
   }
 
-  /// [points] cut at their topmost point and their leftmost: the way round
-  /// from the first to the second, and on back to the first.
-  static (List<Offset>, List<Offset>) _halves(List<Offset> points) {
+  /// [points] cut at their topmost point and their leftmost, or their
+  /// bottommost where [bottoms]: the way round from the first to the
+  /// second, and on back to the first.
+  static (List<Offset>, List<Offset>) _halves(
+    List<Offset> points, {
+    required bool bottoms,
+  }) {
     final int n = points.length;
     int top = 0;
     int left = 0;
@@ -94,7 +105,9 @@ final class OutlineMorph {
       if (points[i].dy < points[top].dy) {
         top = i;
       }
-      if (points[i].dx < points[left].dx) {
+      if (bottoms
+          ? points[i].dy > points[left].dy
+          : points[i].dx < points[left].dx) {
         left = i;
       }
     }
@@ -116,9 +129,18 @@ final class OutlineMorph {
   }
 
   /// [points], a closed outline, as [a] points evenly along it from its top
-  /// to its leftmost point and [b] on round to its top again.
-  static List<Offset> _matched(List<Offset> points, int a, int b) {
-    final (List<Offset> first, List<Offset> second) = _halves(points);
+  /// to its leftmost point, or its bottommost where [bottoms], and [b] on
+  /// round to its top again.
+  static List<Offset> _matched(
+    List<Offset> points,
+    int a,
+    int b, {
+    required bool bottoms,
+  }) {
+    final (List<Offset> first, List<Offset> second) = _halves(
+      points,
+      bottoms: bottoms,
+    );
     return <Offset>[..._even(first, a), ..._even(second, b)];
   }
 

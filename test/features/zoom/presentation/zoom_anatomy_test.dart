@@ -255,13 +255,24 @@ void main() {
       final ZoomSubject subject = stage.subject;
       final ZoomDepth depth = stage.depth;
       // The view is the organ with its margin round it, a tall one's
-      // standing on the canvas's height.
+      // standing on the canvas's height; the salivary gland, its parotid
+      // drawn with the ear, the masseter and the submandibular gland round
+      // it, framed wider than its margin.
       final double upright = ZoomDepth.uprightOf(
         subject.track,
         subject.path,
         subject.anatomy!,
       );
-      expect(upright, inInclusiveRange(1.0, ZoomDepth.phoneAspect));
+      expect(
+        upright,
+        inInclusiveRange(
+          subject.anatomy!.organ == OrganKind.salivaryGland
+              ? ZoomDepth.salivaryUpright
+              : 1.0,
+          ZoomDepth.phoneAspect,
+        ),
+        reason: t.slug,
+      );
       expect(
         depth.widthOf(ZoomStop.organ),
         closeTo(
