@@ -13,7 +13,7 @@
         "chains": 1,
         "bridges": 5
       },
-      "catalog_order": 18,
+      "catalog_order": 19,
       "chain": null,
       "chains": [
         {
@@ -56,7 +56,7 @@
         "chains": 1,
         "bridges": 9
       },
-      "catalog_order": 12,
+      "catalog_order": 13,
       "chain": "APP",
       "chains": [
         {
@@ -99,7 +99,7 @@
         "chains": 1,
         "bridges": 0
       },
-      "catalog_order": 13,
+      "catalog_order": 14,
       "chain": "CFTR",
       "chains": [
         {
@@ -138,7 +138,7 @@
         "chains": 1,
         "bridges": 0
       },
-      "catalog_order": 9,
+      "catalog_order": 10,
       "chain": "dystrophin",
       "chains": [
         {
@@ -180,7 +180,7 @@
         "chains": 1,
         "bridges": 2
       },
-      "catalog_order": 14,
+      "catalog_order": 15,
       "chain": null,
       "chains": [
         {
@@ -223,7 +223,7 @@
         "chains": 1,
         "bridges": 0
       },
-      "catalog_order": 11,
+      "catalog_order": 12,
       "chain": "pro-glucagon",
       "chains": [
         {
@@ -262,7 +262,7 @@
         "chains": 1,
         "bridges": 0
       },
-      "catalog_order": 4,
+      "catalog_order": 5,
       "chain": "hemoglobin beta chain",
       "chains": [
         {
@@ -348,7 +348,7 @@
         "chains": 1,
         "bridges": 1
       },
-      "catalog_order": 15,
+      "catalog_order": 16,
       "chain": null,
       "chains": [
         {
@@ -434,7 +434,7 @@
         "chains": 1,
         "bridges": 0
       },
-      "catalog_order": 5,
+      "catalog_order": 6,
       "chain": "myoglobin",
       "chains": [
         {
@@ -516,7 +516,7 @@
         "chains": 1,
         "bridges": 0
       },
-      "catalog_order": 8,
+      "catalog_order": 9,
       "chain": "p53",
       "chains": [
         {
@@ -558,7 +558,7 @@
         "chains": 1,
         "bridges": 1
       },
-      "catalog_order": 19,
+      "catalog_order": 20,
       "chain": null,
       "chains": [
         {
@@ -601,7 +601,7 @@
         "chains": 3,
         "bridges": 3
       },
-      "catalog_order": 6,
+      "catalog_order": 7,
       "chain": null,
       "chains": [
         {
@@ -648,7 +648,7 @@
         "chains": 1,
         "bridges": 1
       },
-      "catalog_order": 17,
+      "catalog_order": 18,
       "chain": "superoxide dismutase",
       "chains": [
         {
@@ -691,7 +691,7 @@
         "chains": 1,
         "bridges": 2
       },
-      "catalog_order": 7,
+      "catalog_order": 8,
       "chain": null,
       "chains": [
         {
@@ -734,7 +734,7 @@
         "chains": 2,
         "bridges": 1
       },
-      "catalog_order": 16,
+      "catalog_order": 17,
       "chain": null,
       "chains": [
         {
@@ -816,7 +816,7 @@
         "chains": 3,
         "bridges": 8
       },
-      "catalog_order": 10,
+      "catalog_order": 11,
       "chain": null,
       "chains": [
         {
@@ -859,7 +859,7 @@
         "chains": 1,
         "bridges": 0
       },
-      "catalog_order": 20,
+      "catalog_order": 21,
       "chain": "phospholamban",
       "chains": [
         {
@@ -898,7 +898,7 @@
         "chains": 1,
         "bridges": 0
       },
-      "catalog_order": 21,
+      "catalog_order": 22,
       "chain": "S100B",
       "chains": [
         {
@@ -937,7 +937,7 @@
         "chains": 1,
         "bridges": 6
       },
-      "catalog_order": 22,
+      "catalog_order": 23,
       "chain": null,
       "chains": [
         {
@@ -980,7 +980,7 @@
         "chains": 1,
         "bridges": 2
       },
-      "catalog_order": 23,
+      "catalog_order": 24,
       "chain": "pro-platelet basic protein",
       "chains": [
         {
@@ -1023,7 +1023,7 @@
         "chains": 1,
         "bridges": 36
       },
-      "catalog_order": 24,
+      "catalog_order": 25,
       "chain": null,
       "chains": [
         {
@@ -1066,7 +1066,7 @@
         "chains": 1,
         "bridges": 0
       },
-      "catalog_order": 25,
+      "catalog_order": 26,
       "chain": "cystatin B",
       "chains": [
         {
@@ -1105,7 +1105,7 @@
         "chains": 1,
         "bridges": 7
       },
-      "catalog_order": 26,
+      "catalog_order": 27,
       "chain": null,
       "chains": [
         {
@@ -1148,7 +1148,7 @@
         "chains": 1,
         "bridges": 0
       },
-      "catalog_order": 27,
+      "catalog_order": 4,
       "chain": "recoverin",
       "chains": [
         {
