@@ -237,11 +237,13 @@ final class ZoomFacts {
   };
 
   /// What the cell's drawing shows, in a few sentences, from the track
-  /// alone (the user's ask, 2026-10-19): the nucleus ringed in the mark,
-  /// where its gene is transcribed; the protein glowing where the Atlas
-  /// finds it; and, where the Atlas finds it secreted, the vesicles carrying
-  /// it from the Golgi to the granules that store it, or else to the
-  /// membrane, as the cell's scene draws them.
+  /// alone (the user's ask, 2026-10-19): the protein glowing where the
+  /// Atlas finds it, and, where the Atlas finds it secreted, the vesicles
+  /// carrying it from the Golgi to the granules that store it, or else to
+  /// the membrane, as the cell's scene draws them. What any reader in the
+  /// field knows goes unsaid: that its gene is transcribed in the nucleus
+  /// (the user's word, the same day); a cell with no nucleus says only that
+  /// it has none, which is why the card names the cell it comes from.
   String get cellStory {
     final List<String> said = <String>[];
     final String? cell = path.cellName;
@@ -253,13 +255,9 @@ final class ZoomFacts {
             ? '${track.cellType.specificity}.'
             : 'Top cell type: ${lower(top)}.',
       );
+    } else if (precursor != null) {
+      said.add('${capital(cell)} have no nucleus.');
     }
-    said.add(
-      cell != null && precursor != null
-          ? '${capital(cell)} have no nucleus; the gene is transcribed in the '
-                'ringed nucleus of the $precursor they come from.'
-          : 'Its gene is transcribed in the ringed nucleus.',
-    );
     final SubcellularReading where = track.subcellular;
     if (where.main.isNotEmpty) {
       said.add(

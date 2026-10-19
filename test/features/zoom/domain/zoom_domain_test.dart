@@ -1087,9 +1087,8 @@ void main() {
             .having(
               (ZoomFact f) => f.line,
               'line',
-              'Its gene is transcribed in the ringed nucleus. Vesicles carry '
-                  'the protein from the Golgi to secretory granules; it is '
-                  'secreted to the blood.',
+              'Vesicles carry the protein from the Golgi to secretory '
+                  'granules; it is secreted to the blood.',
             ),
       );
     });
@@ -1120,16 +1119,19 @@ void main() {
       );
     });
 
-    test('say at the cell what its drawing shows: the gene in the ringed '
-        'nucleus, the protein where the Atlas finds it, and where it is '
-        'carried if it is secreted', () {
+    test('say at the cell what its drawing shows: the protein where the '
+        'Atlas finds it, and where it is carried if it is secreted, and not '
+        'what a reader in the field knows', () {
       for (final ProteinTarget t in TestCatalog.all) {
         final LocusTrack track = locusOf(t);
         final String story = _facts(t).cellStory;
         final String why = '${t.slug}: $story';
+        // Where a gene is transcribed goes unsaid; a cell with no nucleus
+        // says only that.
+        expect(story, isNot(contains('transcribed')), reason: why);
         expect(
-          story,
-          contains('transcribed in the ringed nucleus'),
+          story.contains('nucleus'),
+          _path(t).landsIn != null,
           reason: why,
         );
         expect(
@@ -1147,15 +1149,13 @@ void main() {
       }
       expect(
         _facts(TestCatalog.glucagon).cellStory,
-        'Its gene is transcribed in the ringed nucleus. The protein glows '
-        'where the Atlas finds it, fainter at its additional locations. '
-        'Vesicles carry it from the Golgi to secretory granules; it is '
-        'secreted to the blood.',
+        'The protein glows where the Atlas finds it, fainter at its '
+        'additional locations. Vesicles carry it from the Golgi to secretory '
+        'granules; it is secreted to the blood.',
       );
       expect(
         _facts(TestCatalog.cftr).cellStory,
-        'Its gene is transcribed in the ringed nucleus. The Atlas has not '
-        'placed the protein in the cell.',
+        'The Atlas has not placed the protein in the cell.',
       );
     });
 
@@ -1221,14 +1221,12 @@ void main() {
       expect(cell.title, 'Blood and immune cells · Erythroblasts');
       expect(
         cell.line,
-        startsWith(
-          'Erythrocytes have no nucleus; the gene is transcribed in the '
-          'ringed nucleus of the erythroblasts they come from.',
-        ),
+        'Erythrocytes have no nucleus. The Atlas has not placed the protein '
+        'in the cell.',
       );
       expect(
         _facts(TestCatalog.bySlug('ppbp')!).of(ZoomStop.cell).line,
-        startsWith('Platelets have no nucleus;'),
+        startsWith('Platelets have no nucleus. Vesicles carry'),
       );
       expect(
         _facts(TestCatalog.insulin).of(ZoomStop.cell).line,
@@ -1240,7 +1238,7 @@ void main() {
         'out', () {
       final ZoomFact tnf = _facts(TestCatalog.tnf).of(ZoomStop.cell);
       expect(tnf.title, 'Bone marrow cell');
-      expect(tnf.line, startsWith('Top cell type: microglia. Its gene is'));
+      expect(tnf.line, startsWith('Top cell type: microglia. Vesicles'));
     });
 
     test('give the gene’s length as its record does, the walk’s', () {
