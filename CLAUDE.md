@@ -293,7 +293,9 @@ seen:
   its left;
 - a metaphase chromosome drawn as a scanning micrograph shows one
   (`presentation/scenes/chromosome/`): two knobbly sisters, its G-bands
-  soft changes of tone, the gene two FISH spots in the accent. It condenses
+  soft changes of tone, the gene two FISH spots in the accent, its parts
+  (p arm, centromere, q arm, chromatid, telomere) named in the quiet ink
+  beside it, level with each (the user's ask of 2026-10-19). It condenses
   out of its territory, and on the way out turns into a smooth tube that
   is, by the time it lies along the genome, the band map's strip pixel for
   pixel;

@@ -168,6 +168,20 @@ void _expectSmooth(
       for (final ZoomCallout c in staging.callouts)
         if (c.ring != null) 'callout:${c.key}',
     };
+    // So does a landmark's name well away from what the zoom follows, which
+    // the mark alone names (a chromosome's centromere, as the view closes in
+    // on its band).
+    final List<Offset> followed = <Offset>[
+      for (final ZoomCallout c in staging.callouts)
+        if (!c.quiet) c.target,
+    ];
+    final Set<String> landmark = <String>{
+      for (final ZoomCallout c in staging.callouts)
+        if (c.quiet &&
+            followed.isNotEmpty &&
+            followed.every((Offset f) => (c.target - f).distance >= 160))
+          'callout:${c.key}',
+    };
     if (last != null) {
       for (final String key in <String>{...now.keys, ...last.keys}) {
         final double a = last[key]?.$2 ?? 0;
@@ -195,7 +209,9 @@ void _expectSmooth(
           final Offset second = p2.$1 - p1.$1 * 2 + p0.$1;
           final Offset centre = _canvas.center(Offset.zero);
           final bool focus =
-              !round.contains(key) && (p1.$1 - centre).distance < 160;
+              !round.contains(key) &&
+              !landmark.contains(key) &&
+              (p1.$1 - centre).distance < 160;
           // Near the focus nothing may jolt. Further out, things fly outward
           // as the view narrows, faster the further they are, so there the
           // check is for a break: a step that is not of a piece with the
@@ -794,16 +810,16 @@ void main() {
           );
           // A landmark is named where it is seen: an organ drawn among its
           // neighbours names them, a cell drawn part by part the parts that
-          // tell it apart, and the gene its own; the nucleolus is named at
-          // the nucleus alone (the user's choices of 2026-10-18 and
-          // 2026-10-19).
+          // tell it apart, the chromosome its parts, and the gene its own;
+          // the nucleolus is named at the nucleus alone (the user's choices
+          // of 2026-10-18 and 2026-10-19).
           final bool landmarks = switch (stop) {
             ZoomStop.organ => organ.any((OrganName n) => !n.home),
             ZoomStop.cell => partsToName(
               recipeOf(stage.depth.archetype.shape),
               locusOf(t).subcellular.main,
             ).isNotEmpty,
-            ZoomStop.nucleus || ZoomStop.gene => true,
+            ZoomStop.nucleus || ZoomStop.chromosome || ZoomStop.gene => true,
             _ => false,
           };
           expect(

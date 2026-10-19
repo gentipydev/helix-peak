@@ -116,11 +116,12 @@ final class ZoomStage {
   }
 
   /// Which of its anchors each anchored callout on screen at depth [d] is
-  /// set at, at rest at the stop that shows it, by key; -1 where none had
-  /// room there. A plate keeps the anchor it has at rest for the whole of
-  /// the steps either side, so it never jumps from one to another as the
-  /// view moves. Only the stops either side of [d] are laid out: their
-  /// scenes are the ones being drawn.
+  /// set at, at rest at the stop that shows it, by key; where none had room
+  /// there, which of [placePlate]'s own places it took, as -1 less its
+  /// index (-1 the first). A plate keeps the place it has at rest for the
+  /// whole of the steps either side, so it never jumps from one to another
+  /// as the view moves. Only the stops either side of [d] are laid out:
+  /// their scenes are the ones being drawn.
   Map<String, int> restingAnchors(
     double d,
     Size size,
@@ -1201,13 +1202,17 @@ Rect calloutPlate(
   if (resting != null && resting >= 0) {
     return plateBeyond(callout.target, callout.anchors[resting], text, size);
   }
+  // Where none of its anchors had room at rest, it keeps the place by its
+  // target it took there instead.
+  if (resting != null) {
+    return _choices(callout.target, text, size)[-1 - resting];
+  }
   return placePlate(
     callout.target,
     text,
     size,
     placed,
-    // Where none of its anchors had room at rest, none is tried on the way.
-    anchors: resting == null ? callout.anchors : const <Offset>[],
+    anchors: callout.anchors,
   );
 }
 
@@ -1269,8 +1274,9 @@ Rect placePlate(
   List<Offset> anchors = const <Offset>[],
 }) => placePlateAt(target, text, size, placed, anchors: anchors).$1;
 
-/// [placePlate]'s plate, and which of the [anchors] it is set at: -1 where
-/// none had room.
+/// [placePlate]'s plate, and which of the [anchors] it is set at; where
+/// none had room, -1 less the index of the place of its own it took
+/// ([_choices]).
 (Rect, int) placePlateAt(
   Offset target,
   Size text,
@@ -1278,14 +1284,6 @@ Rect placePlate(
   List<Rect> placed, {
   List<Offset> anchors = const <Offset>[],
 }) {
-  final double plateW = text.width + 2 * plateTextPadding;
-  final double plateH = text.height + plateTextPadding;
-  Rect at(double dx, double dy) => _onCanvas(
-    dx >= 0 ? target.dx + dx : target.dx + dx - plateW,
-    target.dy + dy - plateH / 2,
-    Size(plateW, plateH),
-    size,
-  );
   bool clear(Rect plate) =>
       placed.every((Rect r) => !r.inflate(4).overlaps(plate));
   // A plate moved to stay on the canvas would reach back over what the
@@ -1299,7 +1297,28 @@ Rect placePlate(
     }
   }
 
-  final List<Rect> choices = <Rect>[
+  final List<Rect> choices = _choices(target, text, size);
+  for (int i = 0; i < choices.length; i++) {
+    if (clear(choices[i])) {
+      return (choices[i], -1 - i);
+    }
+  }
+  return (choices.first, -1);
+}
+
+/// The places a plate for words of [text] size naming [target] is tried in
+/// where it has no anchor with room, in order: up and to the right, then
+/// down, then to the left, then further out.
+List<Rect> _choices(Offset target, Size text, Size size) {
+  final double plateW = text.width + 2 * plateTextPadding;
+  final double plateH = text.height + plateTextPadding;
+  Rect at(double dx, double dy) => _onCanvas(
+    dx >= 0 ? target.dx + dx : target.dx + dx - plateW,
+    target.dy + dy - plateH / 2,
+    Size(plateW, plateH),
+    size,
+  );
+  return <Rect>[
     at(24, -30),
     at(24, 30),
     at(-24, -30),
@@ -1309,10 +1328,4 @@ Rect placePlate(
     at(-24, -36 - plateH),
     at(-24, 36 + plateH),
   ];
-  for (final Rect choice in choices) {
-    if (clear(choice)) {
-      return (choice, -1);
-    }
-  }
-  return (choices.first, -1);
 }

@@ -29,9 +29,10 @@ chromosome, band, gene and DNA. It is one continuous depth.
   the stop's name, its place and its line.
 - **The canvas** names only what the card does not say: the cell in the
   tissue, where the protein sits, the band on the chromosome, the gene on
-  the map, the gene's 5′ end; and the one landmark a reader asked after, the
+  the map, the gene's 5′ end; and the landmarks a reader asked after: the
   nucleolus, at the nucleus (the user's ask, 2026-10-19; named at the cell
-  from 2026-10-15 to 2026-10-18, and at the nucleus too until 2026-10-16). A
+  from 2026-10-15 to 2026-10-18, and at the nucleus too until 2026-10-16),
+  and the chromosome's parts, at the chromosome (the same day). A
   scale bar is always at its lower left: a
   round length at each stop, and between two stops a bar that glides from
   the one's length to the next, reading the length it spans as it goes, so
@@ -54,7 +55,7 @@ What each stop says, for insulin:
 | Tissue | Islet (the recipe's architecture) | none | beta cells |
 | Cell | Beta cells | Tissue cell type enriched | nucleolus: the Atlas names no place in the cell for it, and its vesicles leave the cell |
 | Nucleus | Chromosome 11 territory | none | nucleolus |
-| Chromosome | Chromosome 11 | 135,086,622 bp · 36 bands | 11p15.5 |
+| Chromosome | Chromosome 11 | 135,086,622 bp · 36 bands | 11p15.5; p arm, centromere, q arm, chromatid, telomere |
 | Band | 11p15.5 | 2.8 Mb · gene at 2,159,779–2,161,209 | INS |
 | Gene | INS · 1,431 bases | Three exons · reverse strand | 5′, 3′, the exons' numbers |
 | DNA | First 33 bases | 5′ AGCCCTCCAGGACAGGCTGCATCAGAAGAGGCC 3′ | 5′ |
@@ -324,13 +325,16 @@ Sources:
 - **Glows** are gradients and wide faint strokes, never a blur.
 - **Names.** One plate a name, with a line to what it names, set clear of
   each other and 8 pt in from the edges. The card says the rest. The
-  line is in the accent, but for a landmark's (the nucleolus), which is in
-  the quiet ink. A landmark's plate is set off what holds it, so it hides
-  none of it: round the nucleus as a cell's names are round the cell, in
-  the band above or below it nearer the nucleolus, out at the canvas's edge
-  on the nucleolus's side, which is the left, the nucleolus lying toward
-  the light (the user's ask, 2026-10-19); and it keeps that place through
-  the steps either side, so it never jumps.
+  line is in the accent, but for a landmark's (the nucleolus, a
+  chromosome's parts), which is in the quiet ink. A landmark's plate is set
+  off what holds it, so it hides none of it: round the nucleus as a cell's
+  names are round the cell, in the band above or below it nearer the
+  nucleolus, out at the canvas's edge on the nucleolus's side, which is the
+  left, the nucleolus lying toward the light (the user's ask, 2026-10-19);
+  beside the chromosome, level with each part (see "Chromosome" below).
+  Each keeps the place it has at rest through the steps either side, so it
+  never jumps: an anchored name its anchor, or, where none of its anchors
+  had room at rest, the place of the painter's own it took there.
 - **Lines** are set in screen pixels, so they keep their weight at any
   magnification.
 
@@ -782,6 +786,16 @@ proteins on one chromosome share it and only their gene tells them apart.
 - The gene as FISH marks one: two soft spots in the accent, one on each
   sister at its height, over a faint wash of its band, which is bracketed
   and named. The spots flare once as the stop is reached.
+- Its parts named in the quiet ink (the user's ask, 2026-10-19), each
+  just off the chromosome's outer edge, level with what it names: the p
+  arm (its middle), the centromere and the q arm (its middle) on the left;
+  a chromatid and a telomere on the right, where the band's name is too.
+  The telomere named is at the end further from the gene's band, and the
+  chromatid at whichever of a quarter, 45% and 65% of the way down the q
+  arm is furthest from both, so no name on the right crowds another. A
+  name with no room level with its part is set a little below it or
+  above, and only then on the other side. They come and go with the
+  band's name.
 
 It is never the gene: the band is millions of base pairs, a stain pattern
 seen at low resolution, and the spots are a probe's. Each sister is a mesh
@@ -1160,7 +1174,11 @@ frame (0.4 to 0.8 ms).
   turned chromosome on the strip's to half a pixel and its colours the
   strip's, nothing changing with the clock, and every moment drawn for all
   twenty). `test/zoom_paint_timing_check.dart` times closer moments through
-  the chromosome's two steps.
+  the chromosome's two steps. `chromosome_names_test` sets the parts'
+  names in the app's own type for every curated protein, on a phone's
+  canvas, an iPhone SE's and a 320 pt one: each on its own side, level with
+  its part or a step off it, its point on the chromosome, its plate over
+  none of it.
 - `nucleolus_test` holds the nucleolus to one shape in one place across the
   step from the cell to the nucleus (to half a pixel), its name to the
   nucleus and no other stop (which names nothing else), landing on it, set

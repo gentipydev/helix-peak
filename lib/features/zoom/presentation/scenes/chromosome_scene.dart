@@ -25,7 +25,8 @@ import 'zoom_subject.dart';
 /// cytoBand G-bands soft changes of tone. The gene is marked as FISH marks a
 /// gene: a spot on each sister at its height, over its band, which is
 /// bracketed and named. The spots are a probe's, never the gene, which is
-/// far too small to see at this scale.
+/// far too small to see at this scale. Its parts are named in the quiet ink
+/// beside it, level with each ([parts]).
 ///
 /// On the way in it condenses out of its territory in the nucleus. On the
 /// way out it turns to lie along the genome, its chromatids merge into one
@@ -146,6 +147,7 @@ final class ChromosomeScene extends ZoomScene {
         target,
         math.min(calloutPresence(frame), formed),
       );
+      _nameParts(frame, out, math.min(calloutPresence(frame), formed));
       // Before the step is under way the nucleus draws the territory.
       if (s <= 0) {
         return;
@@ -167,6 +169,7 @@ final class ChromosomeScene extends ZoomScene {
     final Offset target = frame.toScreen(_bandEdge(frame, 0));
     out.item('chromosome:target', target, frame.opacity);
     out.callout('chromosome', _track.locus, target, calloutPresence(frame));
+    _nameParts(frame, out, calloutPresence(frame));
     out.item('chromosome:art', band, math.min(frame.opacity, t.art));
     out.item('chromosome:bracket', band, math.min(frame.opacity, t.art));
     out.item('chromosome:ring', band, math.min(frame.opacity, t.ring));
@@ -175,6 +178,66 @@ final class ChromosomeScene extends ZoomScene {
       _onScreen(frame, _spotsAt(t.merge), t.turn),
       math.min(frame.opacity, 1 - t.mark),
     );
+  }
+
+  /// The parts of the chromosome a reader looks for, named in the quiet ink
+  /// (the user's ask of 2026-10-19): each by its name, the point it names at
+  /// rest, and the side its name is set on: the arms and the centromere on
+  /// the left, a chromatid and a telomere on the right, where the band's
+  /// name is too. The telomere named is at the end further from the band,
+  /// and the chromatid at whichever of three heights on the long arm is
+  /// furthest from both, so no two of the names on the right crowd.
+  late final List<(String, Offset, double)> parts = () {
+    final double c = centromere;
+    Offset on(double side, double y) =>
+        Offset(form.centreAt(side, y) + side * form.widthAt(y) * 0.5, y);
+    final double end = _bandY - form.top > form.bottom - _bandY
+        ? form.top + half * 0.3
+        : form.bottom - half * 0.3;
+    double room(double y) =>
+        math.min((y - _bandY).abs(), (y - end).abs());
+    final double sister = <double>[
+      for (final double f in <double>[0.25, 0.45, 0.65])
+        c + (form.bottom - c) * f,
+    ].reduce((double a, double b) => room(b) > room(a) ? b : a);
+    return <(String, Offset, double)>[
+      ('p arm', on(-1, (form.top + c) / 2), -1),
+      (
+        'centromere',
+        Offset((form.centreAt(-1, c) + form.centreAt(1, c)) / 2, c),
+        -1,
+      ),
+      ('q arm', on(-1, (c + form.bottom) / 2), -1),
+      ('chromatid', on(1, sister), 1),
+      ('telomere', Offset(form.centreAt(1, end), end), 1),
+    ];
+  }();
+
+  /// Names the chromosome's [parts], [presence] of the way there, each just
+  /// off the chromosome's outer edge on its side: level with what it names,
+  /// or a little below or above it where another name is there, and only
+  /// then on the other side.
+  void _nameParts(ZoomFrame frame, ZoomStaging out, double presence) {
+    for (final (String name, Offset at, double side) in parts) {
+      Offset beside(double s, double dy) =>
+          frame.toScreen(
+            Offset(form.centreAt(s, at.dy) + s * form.widthAt(at.dy), at.dy),
+          ) +
+          Offset(s * 14, dy);
+      out.callout(
+        'chromosome:$name',
+        name,
+        frame.toScreen(at),
+        presence,
+        anchors: <Offset>[
+          beside(side, 0),
+          beside(side, 34),
+          beside(side, -34),
+          beside(-side, 0),
+        ],
+        quiet: true,
+      );
+    }
   }
 
   /// The gene's band's outer edge, which its name points at: [merge] of the
