@@ -3,34 +3,22 @@
 /// itself is in `brain_anatomy.dart`, and the light is the zoom's one lamp
 /// (`SpecimenLamp.zoom`), the pancreas's.
 ///
-/// The look is a fresh specimen's, cut down its middle: the medial face's
-/// gyri lit as rounded ridges with a moist sheen, dark in their sulci and
-/// rolling away at the superior border; the cut faces flat and cushioned a
-/// little, white matter bright and grey matter darker; the third
-/// ventricle's walls smooth domes; the vermis's arbor vitae white in its
-/// grey; its arteries in the blood red, dimmer than the brain.
+/// The look is a specimen's, cut down its middle: the medial face, the
+/// cortex, flat in one tone and cut dark along its sulci; the cut faces
+/// flat and cushioned a little, white matter bright and grey matter darker;
+/// the third ventricle's walls smooth domes; the vermis's arbor vitae white
+/// in its grey; its arteries in the blood red, dimmer than the brain.
 abstract final class BrainStyle {
-  // The medial face.
+  // The medial face: the cortex.
 
-  /// The grid its surface is laid on.
-  static const double faceCell = 0.6;
+  /// Its one tone, a share of the way toward the bright ink, and the share
+  /// of the mark over it for a cell that lives in the cortex: flat, as the
+  /// anatomogram's brain had it.
+  static const double cortexLit = 0.2;
+  static const double cortexMark = 0.42;
 
-  /// How high the face stands where it has turned to face the eye, and how
-  /// soft its rolling away toward its edge is.
-  static const double faceHeight = 9;
-  static const double faceRoll = 4.5;
-
-  /// A sulcus: how deep and how wide to either side the gyri round down
-  /// into it, a major one and a minor; how far into the shade its floor
-  /// goes, the shade gathered toward its middle by [shadePower]; and over
-  /// how much of its length an end inside the face comes up out of
-  /// nothing.
-  static const double sulcusDepth = 3.6;
-  static const double sulcusWidth = 4.2;
-  static const double minorDepth = 1.9;
-  static const double minorWidth = 3.0;
-  static const double sulcusShade = 0.42;
-  static const double shadePower = 1.4;
+  /// Over how much of its length a sulcus's end inside the face comes up
+  /// out of nothing.
   static const double sulcusTaper = 4;
 
   /// How a sulcus wanders from the line drawn for it: how far to either
@@ -45,16 +33,6 @@ abstract final class BrainStyle {
   static const double minorCrease = 0.36;
   static const double creaseFloor = 0.9;
   static const double creaseAlpha = 0.62;
-
-  /// How far the face darkens toward the cut core it lies behind, and over
-  /// how far.
-  static const double coreShade = 0.5;
-  static const double coreReach = 2.6;
-
-  /// The gyri's tone, a share of the way toward the bright ink, and the
-  /// share of the mark in it for a cell that lives in the cortex.
-  static const double faceLit = 0.52;
-  static const double cortexWash = 0.34;
 
   // The core: the cut and what the cut lays open.
 

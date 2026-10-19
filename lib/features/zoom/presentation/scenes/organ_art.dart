@@ -786,12 +786,13 @@ final class _PancreasOrgan extends OrganArt {
   }
 }
 
-/// The brain cut down its middle, drawn from anatomy as a fresh specimen
-/// among its arteries (`BrainArt`): the medial face's gyri and sulci, the
-/// cut core with the corpus callosum, the third ventricle's walls and the
-/// brainstem, the vermis's arbor vitae. For a cell of the cortex its gyri
-/// are washed in the mark; for one of the choroid plexus the lateral
-/// ventricle is opened through the septum, the plexus in it in the mark.
+/// The brain cut down its middle, drawn from anatomy as a specimen among
+/// its arteries (`BrainArt`): the medial face, the cortex, flat and cut
+/// along its sulci, the cut core with the corpus callosum, the third
+/// ventricle's walls and the brainstem, the vermis's arbor vitae. For a
+/// cell of the cortex the cortex is drawn in the mark; for one of the
+/// choroid plexus the lateral ventricle is opened through the septum, the
+/// plexus in it in the mark.
 /// The body draws the brain from the front, so the step from it is a
 /// crossfade, as before.
 final class _BrainOrgan extends OrganArt {

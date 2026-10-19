@@ -45,15 +45,22 @@ double _tealness(int colour) {
 }
 
 /// A canvas that keeps what is drawn on it: the circles, each its middle
-/// and its colour, and how many layers and meshes.
+/// and its colour; the paths, each filled or stroked, and its colour; and
+/// how many layers and meshes.
 class _Record implements Canvas {
   final List<(Offset, Color)> circles = <(Offset, Color)>[];
+  final List<(Path, PaintingStyle, Color)> paths =
+      <(Path, PaintingStyle, Color)>[];
   int layers = 0;
   int meshes = 0;
 
   @override
   void drawCircle(Offset c, double radius, Paint paint) =>
       circles.add((c, paint.color));
+
+  @override
+  void drawPath(Path path, Paint paint) =>
+      paths.add((path, paint.style, paint.color));
 
   @override
   void saveLayer(Rect? bounds, Paint paint) => layers++;
@@ -68,45 +75,54 @@ class _Record implements Canvas {
 }
 
 void main() {
-  testWidgets('the mark shows only where the zoom’s cell lives: the cortex’s '
-      'gyri, or the choroid plexus in the ventricles; never the cut, the '
+  testWidgets('the mark shows only where the zoom’s cell lives: the cortex, '
+      'flat, or the choroid plexus in the ventricles; never the cut, the '
       'cerebellum or the arteries', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
     final BrainForm form = _form();
     for (final BrainHome home in BrainHome.values) {
-      final Map<String, (int, int)> teal = <String, (int, int)>{};
+      // The meshes: the cut, the cerebellum and the arteries.
       for (final (String part, Float32List _, Int32List colours) in BrainArt(
         form,
         inks,
         home: home,
       ).meshData) {
         int leaning = 0;
-        int drawn = 0;
         for (final int colour in colours) {
-          if (colour >>> 24 == 0) {
-            continue;
-          }
-          drawn++;
-          if (_tealness(colour) > 0.01) {
+          if (colour >>> 24 != 0 && _tealness(colour) > 0.01) {
             leaning++;
           }
         }
-        final (int a, int b) = teal[part] ?? (0, 0);
-        teal[part] = (a + leaning, b + drawn);
+        expect(leaning, 0, reason: '${home.name}: $part');
       }
-      for (final MapEntry<String, (int, int)> part in teal.entries) {
-        final String what = '${home.name}: ${part.key}';
-        if (home == BrainHome.cortex && part.key == 'face') {
-          // The gyri, every point of them drawn.
-          expect(part.value.$1, part.value.$2, reason: what);
-        } else {
-          expect(part.value.$1, 0, reason: what);
-        }
-      }
-      // What else is drawn in the mark: the plexus, for its own cells, in
-      // the ventricles, the lateral seen through the window.
       final _Record canvas = _Record();
       BrainArt(form, inks, home: home).paint(canvas, form.mm(0.7));
+      // The cortex, filled in one tone: the mark's for a cell of it. No
+      // other path is drawn in the mark.
+      bool cortex((Path, PaintingStyle, Color) drawn) =>
+          identical(drawn.$1, form.hemisphere) &&
+          drawn.$2 == PaintingStyle.fill;
+      final List<Color> fills = <Color>[
+        for (final (Path, PaintingStyle, Color) drawn in canvas.paths)
+          if (cortex(drawn)) drawn.$3,
+      ];
+      expect(fills, hasLength(1), reason: home.name);
+      expect(
+        _tealness(fills.single.toARGB32()) > 0.01,
+        home == BrainHome.cortex,
+        reason: home.name,
+      );
+      expect(
+        <Color>[
+          for (final (Path, PaintingStyle, Color) drawn in canvas.paths)
+            if (!cortex(drawn) && _tealness(drawn.$3.toARGB32()) > 0.01)
+              drawn.$3,
+        ],
+        isEmpty,
+        reason: home.name,
+      );
+      // What else is drawn in the mark: the plexus, for its own cells, in
+      // the ventricles, the lateral seen through the window.
       final List<(Offset, Color)> marked = <(Offset, Color)>[
         for (final (Offset, Color) circle in canvas.circles)
           if (_tealness(circle.$2.toARGB32()) > 0.01) circle,

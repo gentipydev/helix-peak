@@ -290,8 +290,8 @@ void main() {
     final BrainForm a = _form();
     final BrainForm b = _form();
     expect(a.outlinePoints, b.outlinePoints);
-    expect(a.face.normals, b.face.normals);
-    expect(a.face.occlusion, b.face.occlusion);
+    expect(a.creases.$1.getBounds(), b.creases.$1.getBounds());
+    expect(a.creases.$2.getBounds(), b.creases.$2.getBounds());
     for (final BrainPart part in BrainForm.meshed) {
       expect(a.surfaceOf(part).normals, b.surfaceOf(part).normals);
     }

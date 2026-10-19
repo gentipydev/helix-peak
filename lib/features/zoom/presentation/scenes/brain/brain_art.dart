@@ -18,20 +18,19 @@ import 'brain_style.dart';
 /// plexus, for a cell of the plexus.
 enum BrainHome { cortex, plexus }
 
-/// The brain cut down its middle, drawn as a fresh specimen under the zoom's
-/// one lamp, among its arteries: the medial face's gyri lit as rounded
-/// ridges with a moist sheen, creased dark along their sulci; the cut faces
-/// of the corpus callosum, the fornix and the brainstem flat and cushioned
-/// a little, white matter bright and grey matter darker; the thalamus and
-/// the hypothalamus, the third ventricle's walls, smooth domes; the
-/// vermis's white arbor vitae in its grey; the arteries in the blood red,
-/// dimmer than the brain.
+/// The brain cut down its middle, drawn as a specimen under the zoom's one
+/// lamp, among its arteries: the medial face, the cortex, flat in one tone
+/// and cut dark along its sulci; the cut faces of the corpus callosum, the
+/// fornix and the brainstem flat and cushioned a little, white matter
+/// bright and grey matter darker; the thalamus and the hypothalamus, the
+/// third ventricle's walls, smooth domes; the vermis's white arbor vitae in
+/// its grey; the arteries in the blood red, dimmer than the brain.
 ///
 /// Where the zoom's cell lives is in the mark, by its kind and never by
-/// gene: for a cell of the cortex the medial face's gyri washed in it; for
-/// one of the choroid plexus the septum cut away to show the lateral
-/// ventricle, the plexus in it along the fornix, and the third and fourth
-/// ventricles' plexus.
+/// gene: for a cell of the cortex the cortex drawn in it; for one of the
+/// choroid plexus the septum cut away to show the lateral ventricle, the
+/// plexus in it along the fornix, and the third and fourth ventricles'
+/// plexus.
 ///
 /// Everything costly is built once, for one form, one home and one set of
 /// inks: meshes in the scene's units, so a frame only hands them on.
@@ -50,7 +49,6 @@ final class BrainArt {
 
   SpecimenTone _tone(Color colour) => SpecimenTone(colour, inks.shadow);
 
-  late final SpecimenTone _faceTone = _tone(inks.lit(BrainStyle.faceLit));
   late final SpecimenTone _white = _tone(inks.lit(BrainStyle.whiteLit));
   late final SpecimenTone _grey = _tone(inks.lit(BrainStyle.greyLit));
   late final SpecimenTone _cerebellar = _tone(
@@ -91,24 +89,13 @@ final class BrainArt {
 
   // The medial face.
 
-  late final List<ui.Vertices> _face = _build(_layFace);
-
-  void _layFace(ColouredMesh mesh) {
-    final BrainSurface s = form.face;
-    final double wash = home == BrainHome.cortex ? BrainStyle.cortexWash : 0;
-    _layGrid(mesh, s, (int k) {
-      final double nx = s.normals[3 * k];
-      final double ny = s.normals[3 * k + 1];
-      final double nz = s.normals[3 * k + 2];
-      return _palette.colour(
-        _faceTone,
-        _light.light(nx, ny, nz, form: s.form[k]),
-        occlusion: s.occlusion[k],
-        sheen: _light.sheen(nx, ny, nz) * (1 - s.occlusion[k]),
-        wash: wash,
-      );
-    });
-  }
+  /// The cortex's one tone, the mark over it for a cell that lives there.
+  late final Color _cortex = home == BrainHome.cortex
+      ? Color.alphaBlend(
+          inks.glow(BrainStyle.cortexMark),
+          inks.lit(BrainStyle.cortexLit),
+        )
+      : inks.lit(BrainStyle.cortexLit);
 
   // The core.
 
@@ -271,7 +258,6 @@ final class BrainArt {
 
   /// Builds every mesh and path a frame will draw.
   void prepare() => <Object?>[
-    _face,
     _parts,
     _faceVessels,
     _fossaVessels,
@@ -339,13 +325,13 @@ final class BrainArt {
     canvas.restore();
   }
 
-  /// The medial face, rolling away at its edge, creased along its sulci,
+  /// The medial face, the cortex, in its one tone and cut along its sulci,
   /// and its arteries on it with their shadows, ending at its edge where
   /// they go on over it.
   void _paintFace(Canvas canvas, double line) {
+    canvas.drawPath(form.hemisphere, Paint()..color = _cortex);
     canvas.save();
     canvas.clipPath(form.hemisphere);
-    _draw(canvas, _face);
     final (Path major, Path minor) = form.creases;
     final Color cleft = inks.shadow.withValues(alpha: BrainStyle.creaseAlpha);
     canvas.drawPath(major, Paint()..color = cleft);
@@ -388,14 +374,6 @@ final class BrainArt {
         ..strokeWidth = line
         ..strokeJoin = StrokeJoin.round
         ..color = inks.lit(0.42).withValues(alpha: 0.45),
-    );
-    Sculpt.rim(
-      canvas,
-      form.hemisphere,
-      form.hemisphere.getBounds(),
-      inks,
-      width: 1.6 * line,
-      strength: 0.35,
     );
   }
 
@@ -568,7 +546,6 @@ final class BrainArt {
       }
     }
 
-    add('face', _layFace);
     for (final BrainPart part in BrainForm.meshed) {
       add(part.name, (ColouredMesh mesh) => _layPart(mesh, part));
     }

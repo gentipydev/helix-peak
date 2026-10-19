@@ -28,13 +28,12 @@ enum BrainPart {
 
 /// A surface laid on a grid: where each of its points is, in the scene's
 /// units, which way it faces there (x across the screen, y down it, z out of
-/// it), how far the form it is part of faces the eye, and how shut in it is.
+/// it), and how far the form it is part of faces the eye.
 final class BrainSurface {
   BrainSurface(this.columns, this.rows)
     : positions = Float32List(2 * columns * rows),
       normals = Float32List(3 * columns * rows),
       form = Float32List(columns * rows),
-      occlusion = Float32List(columns * rows),
       inside = Uint8List(columns * rows);
 
   final int columns;
@@ -42,7 +41,6 @@ final class BrainSurface {
   final Float32List positions;
   final Float32List normals;
   final Float32List form;
-  final Float32List occlusion;
 
   /// Whether each point lies inside what the surface draws: 1 if it does.
   final Uint8List inside;
@@ -248,101 +246,6 @@ final class BrainForm {
 
   // The medial face.
 
-  /// The medial face's surface: the hemisphere's outline turned to face the
-  /// eye a little way in from its edge, the sulci carved into it, and shut
-  /// in toward the core it lies behind.
-  late final BrainSurface face = _layFace();
-
-  /// How deep each point of the face's surface lies in a sulcus, a share of
-  /// a major sulcus's depth: for tests.
-  Float32List get grooves {
-    face;
-    return _grooves;
-  }
-
-  late final Float32List _grooves;
-
-  BrainSurface _layFace() {
-    const double cell = BrainStyle.faceCell;
-    final Rect box = _bounds(_hemisphereMm).inflate(3 * cell);
-    final int columns = (box.width / cell).ceil() + 1;
-    final int rows = (box.height / cell).ceil() + 1;
-    final BrainSurface surface = BrainSurface(columns, rows);
-    final int count = columns * rows;
-    Offset at(int i, int j) => Offset(box.left + i * cell, box.top + j * cell);
-    // Inside the hemisphere, and its edge eased into a rounded roll.
-    final Uint8List inside = _raster(_hemisphereMm, box, cell, columns, rows);
-    final Float32List base = Float32List(count);
-    for (int k = 0; k < count; k++) {
-      base[k] = inside[k].toDouble();
-    }
-    _blur(base, columns, rows, BrainStyle.faceRoll / cell);
-    // Shut in toward the core.
-    final Uint8List core = Uint8List(count);
-    for (final List<Offset> part in _coreOutlines) {
-      final Uint8List mask = _raster(part, box, cell, columns, rows);
-      for (int k = 0; k < count; k++) {
-        core[k] |= mask[k];
-      }
-    }
-    final Float32List shut = Float32List(count);
-    for (int k = 0; k < count; k++) {
-      shut[k] = core[k].toDouble();
-    }
-    _blur(shut, columns, rows, BrainStyle.coreReach / cell);
-    // The sulci.
-    final Float32List groove = _carve(box, cell, columns, rows);
-    final Float32List height = Float32List(count);
-    final Float32List grooves = _grooves = Float32List(count);
-    for (int k = 0; k < count; k++) {
-      base[k] *= BrainStyle.faceHeight;
-      height[k] = base[k] - groove[k];
-      grooves[k] = groove[k] / BrainStyle.sulcusDepth;
-    }
-    for (int j = 0; j < rows; j++) {
-      for (int i = 0; i < columns; i++) {
-        final int k = j * columns + i;
-        final Offset p = place(at(i, j));
-        surface.positions[2 * k] = p.dx;
-        surface.positions[2 * k + 1] = p.dy;
-        final (double nx, double ny, double nz) = _normal(
-          height,
-          columns,
-          rows,
-          i,
-          j,
-          cell,
-        );
-        surface.normals[3 * k] = nx;
-        surface.normals[3 * k + 1] = ny;
-        surface.normals[3 * k + 2] = nz;
-        surface.form[k] = _normal(base, columns, rows, i, j, cell).$3;
-        surface.occlusion[k] = math.min(
-          1,
-          BrainStyle.sulcusShade *
-                  math.pow(grooves[k], BrainStyle.shadePower).toDouble() +
-              BrainStyle.coreShade * shut[k] * (1 - core[k]),
-        );
-        surface.inside[k] = inside[k];
-      }
-    }
-    return surface;
-  }
-
-  /// The outlines the core is made of, in millimetres: what the face lies
-  /// behind.
-  late final List<List<Offset>> _coreOutlines = <List<Offset>>[
-    _dense(BrainAnatomy.callosum),
-    _dense(BrainAnatomy.septum),
-    _dense(BrainAnatomy.thalamus),
-    _dense(BrainAnatomy.hypothalamus),
-    _dense(BrainAnatomy.brainstem),
-    _dense(BrainAnatomy.vermis),
-    _dense(BrainAnatomy.pineal),
-    _dense(BrainAnatomy.chiasm),
-    _fornixMm,
-  ];
-
   /// Each sulcus's course: a curve through its points, wandering a little to
   /// either side as a sulcus does, the same every time.
   late final List<List<Offset>> _sulcusLines = <List<Offset>>[
@@ -392,95 +295,6 @@ final class BrainForm {
     }
     if ((out.last - points.last).distance > step * 0.3) {
       out.add(points.last);
-    }
-    return out;
-  }
-
-  /// How deep each point of a grid lies in a sulcus, in millimetres: the
-  /// gyri either side rounding smoothly down into it, the cleft itself
-  /// drawn over it ([creases]). Each sulcus is followed every millimetre,
-  /// and each of its stretches marks the points within its reach.
-  Float32List _carve(Rect box, double cell, int columns, int rows) {
-    final int count = columns * rows;
-    final Float32List out = Float32List(count);
-    // The nearest a point has come to the sulcus at hand, and how far
-    // along it that was; and the points it has come near.
-    final Float32List nearest = Float32List(count)
-      ..fillRange(0, count, double.infinity);
-    final Float32List where = Float32List(count);
-    final List<int> touched = <int>[];
-    for (int index = 0; index < BrainAnatomy.sulci.length; index++) {
-      final BrainSulcus sulcus = BrainAnatomy.sulci[index];
-      final double depth = sulcus.major
-          ? BrainStyle.sulcusDepth
-          : BrainStyle.minorDepth;
-      final double width = sulcus.major
-          ? BrainStyle.sulcusWidth
-          : BrainStyle.minorWidth;
-      final List<Offset> line = _even(_sulcusLines[index], 1);
-      // An end inside the face comes up out of nothing; one at the edge
-      // runs over it.
-      final bool startOpen = _edgeDistance(line.first) > BrainStyle.sulcusTaper;
-      final bool endOpen = _edgeDistance(line.last) > BrainStyle.sulcusTaper;
-      double along = 0;
-      for (int s = 1; s < line.length; s++) {
-        final Offset a = line[s - 1];
-        final Offset b = line[s];
-        final Offset ab = b - a;
-        final double length = ab.distance;
-        final double l2 = ab.distanceSquared;
-        final Rect reach = Rect.fromPoints(a, b).inflate(width);
-        final int i0 = math.max(0, ((reach.left - box.left) / cell).floor());
-        final int i1 = math.min(
-          columns - 1,
-          ((reach.right - box.left) / cell).ceil(),
-        );
-        final int j0 = math.max(0, ((reach.top - box.top) / cell).floor());
-        final int j1 = math.min(
-          rows - 1,
-          ((reach.bottom - box.top) / cell).ceil(),
-        );
-        for (int j = j0; j <= j1; j++) {
-          final double y = box.top + j * cell;
-          for (int i = i0; i <= i1; i++) {
-            final double x = box.left + i * cell;
-            final double px = x - a.dx;
-            final double py = y - a.dy;
-            final double t = l2 <= 0
-                ? 0
-                : ((px * ab.dx + py * ab.dy) / l2).clamp(0.0, 1.0);
-            final double dx = px - ab.dx * t;
-            final double dy = py - ab.dy * t;
-            final double d = math.sqrt(dx * dx + dy * dy);
-            if (d >= width) {
-              continue;
-            }
-            final int k = j * columns + i;
-            if (nearest[k] == double.infinity) {
-              touched.add(k);
-            }
-            if (d < nearest[k]) {
-              nearest[k] = d;
-              where[k] = along + length * t;
-            }
-          }
-        }
-        along += length;
-      }
-      final double total = along;
-      for (final int k in touched) {
-        final double u = nearest[k] / width;
-        double g = depth * (1 - u * u) * (1 - u * u);
-        if (startOpen) {
-          g *= _smooth(where[k] / BrainStyle.sulcusTaper);
-        }
-        if (endOpen) {
-          g *= _smooth((total - where[k]) / BrainStyle.sulcusTaper);
-        }
-        out[k] = math.max(out[k], g);
-        nearest[k] = double.infinity;
-      }
-      touched.clear();
     }
     return out;
   }
@@ -984,57 +798,6 @@ final class BrainForm {
       }
     }
     return inside;
-  }
-
-  /// [values] on a grid blurred about as a Gaussian [sigma] cells wide
-  /// would: three box blurs each way.
-  static void _blur(Float32List values, int columns, int rows, double sigma) {
-    final int r = math.max(1, (math.sqrt(sigma * sigma + 0.25) - 0.5).round());
-    final Float32List row = Float32List(math.max(columns, rows));
-    void pass(int length, int Function(int) index) {
-      double sum = 0;
-      for (int i = -r; i <= r; i++) {
-        sum += values[index(i.clamp(0, length - 1))];
-      }
-      for (int i = 0; i < length; i++) {
-        row[i] = sum / (2 * r + 1);
-        sum += values[index(math.min(length - 1, i + r + 1))];
-        sum -= values[index(math.max(0, i - r))];
-      }
-      for (int i = 0; i < length; i++) {
-        values[index(i)] = row[i];
-      }
-    }
-
-    for (int repeat = 0; repeat < 3; repeat++) {
-      for (int j = 0; j < rows; j++) {
-        pass(columns, (int i) => j * columns + i);
-      }
-      for (int i = 0; i < columns; i++) {
-        pass(rows, (int j) => j * columns + i);
-      }
-    }
-  }
-
-  /// The way a height field faces at a point of its grid.
-  static (double, double, double) _normal(
-    Float32List height,
-    int columns,
-    int rows,
-    int i,
-    int j,
-    double cell,
-  ) {
-    final double dx =
-        (height[j * columns + math.min(columns - 1, i + 1)] -
-            height[j * columns + math.max(0, i - 1)]) /
-        (2 * cell);
-    final double dy =
-        (height[math.min(rows - 1, j + 1) * columns + i] -
-            height[math.max(0, j - 1) * columns + i]) /
-        (2 * cell);
-    final double length = math.sqrt(dx * dx + dy * dy + 1);
-    return (-dx / length, -dy / length, 1 / length);
   }
 
   static bool _inside(List<Offset> points, Offset p) {
