@@ -123,6 +123,12 @@ final class ZoomDepth {
   /// framed by the canvas's height, not its width.
   static const double phoneAspect = 1.45;
 
+  /// How much taller than wide the testis is framed: drawn with its
+  /// epididymis's head lifted above it and the tail below, it is taller
+  /// than the body's oval of it but still leaves room for its names above
+  /// and below on the squattest canvas, 320 by 420.
+  static const double testisUpright = 1.2;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -139,7 +145,8 @@ final class ZoomDepth {
   /// side, standing upright, then takes the share of the canvas's height
   /// that a wide one's takes of its width. Read from the anatomogram's own
   /// outline, the one the organ's scene draws; an organ drawn from general
-  /// anatomy, or the brain, is framed by its width.
+  /// anatomy, or the brain, is framed by its width, and the testis, drawn
+  /// from anatomy among its epididymis and its cord, as [testisUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -152,6 +159,9 @@ final class ZoomDepth {
         anatomy.organ == OrganKind.parathyroid ||
         anatomy.organ == OrganKind.eye) {
       return 1;
+    }
+    if (anatomy.organ == OrganKind.testis) {
+      return testisUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)
