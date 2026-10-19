@@ -794,15 +794,16 @@ void main() {
           );
           // A landmark is named where it is seen: an organ drawn among its
           // neighbours names them, a cell drawn part by part the parts that
-          // tell it apart, and the gene its own; the nucleolus is named
-          // nowhere (the user's choice of 2026-10-18).
+          // tell it apart, and the gene its own; the nucleolus is named at
+          // the nucleus alone (the user's choices of 2026-10-18 and
+          // 2026-10-19).
           final bool landmarks = switch (stop) {
             ZoomStop.organ => organ.any((OrganName n) => !n.home),
             ZoomStop.cell => partsToName(
               recipeOf(stage.depth.archetype.shape),
               locusOf(t).subcellular.main,
             ).isNotEmpty,
-            ZoomStop.gene => true,
+            ZoomStop.nucleus || ZoomStop.gene => true,
             _ => false,
           };
           expect(

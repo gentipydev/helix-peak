@@ -106,24 +106,81 @@ Future<Uint8List> _pixels(
 }
 
 void main() {
-  testWidgets('the nucleolus is named nowhere, for every curated protein; the '
-      'nucleus names nothing', (WidgetTester tester) async {
+  testWidgets('the nucleolus is named at the nucleus alone, quietly, for every '
+      'curated protein; the nucleus names nothing else', (
+    WidgetTester tester,
+  ) async {
     final ZoomInks inks = await _inks(tester);
+    final TextStyle labels = AppTheme.analysis.textTheme.labelSmall!;
     for (final Size size in _canvases) {
       for (final ProteinTarget t in TestCatalog.all) {
         final ZoomStage stage = _stage(t);
         for (final ZoomStop stop in ZoomStop.values) {
+          final double d = stage.depth.depthOf(stop);
           final List<ZoomCallout> callouts = stage
-              .stage(stage.depth.depthOf(stop), size, inks)
+              .stage(d, size, inks)
               .callouts;
           final List<ZoomCallout> named = <ZoomCallout>[
             for (final ZoomCallout c in callouts)
               if (c.text == 'nucleolus') c,
           ];
+          // At the nucleus (the user's ask of 2026-10-19), set round it, its
+          // line on the nucleolus.
           if (stop == ZoomStop.nucleus) {
-            expect(callouts, isEmpty, reason: '${t.slug} at the nucleus');
+            expect(callouts, hasLength(1), reason: '${t.slug} at the nucleus');
+            expect(named, hasLength(1), reason: '${t.slug} at the nucleus');
+            final ZoomCallout name = named.single;
+            expect(name.quiet, isTrue, reason: t.slug);
+            expect(name.opacity, 1, reason: t.slug);
+            expect(name.ring?.key, 'nucleus', reason: t.slug);
+            final NucleusScene nucleus =
+                stage.scenes[ZoomStop.nucleus.index] as NucleusScene;
+            final ZoomFrame frame = _frameOf(stage, nucleus, d, size, inks)!;
+            expect(
+              (name.target - frame.toScreen(nucleus.nucleolus.centre)).distance,
+              lessThan(1e-6),
+              reason: t.slug,
+            );
+            // Its plate outside the nucleus, on its left (the user's ask of
+            // 2026-10-19): the nucleolus lies toward the light, upper left.
+            final Rect plate = stage
+                .ringsAt(d, size, inks, labels)[name.key]!
+                .plate;
+            final List<Offset> rim = name.ring!.outline;
+            final Rect box = Rect.fromLTRB(
+              rim.map((Offset p) => p.dx).reduce(math.min),
+              rim.map((Offset p) => p.dy).reduce(math.min),
+              rim.map((Offset p) => p.dx).reduce(math.max),
+              rim.map((Offset p) => p.dy).reduce(math.max),
+            );
+            // Clear of the nucleus itself: no point of the plate in it, and
+            // no point of its outline in the plate.
+            final Path inside = Path()..addPolygon(rim, true);
+            expect(
+              <Offset>[
+                for (int i = 0; i <= 8; i++)
+                  for (int j = 0; j <= 4; j++)
+                    Offset(
+                      plate.left + plate.width * i / 8,
+                      plate.top + plate.height * j / 4,
+                    ),
+              ].where(inside.contains),
+              isEmpty,
+              reason: '${t.slug} at ${size.width}: $plate',
+            );
+            expect(
+              rim.where(plate.contains),
+              isEmpty,
+              reason: '${t.slug} at ${size.width}: $plate',
+            );
+            expect(
+              plate.center.dx,
+              lessThan(box.center.dx),
+              reason: '${t.slug} at ${size.width}',
+            );
+            continue;
           }
-          // Not even at the cell (the user's choice of 2026-10-18); where the
+          // Not at the cell (the user's choice of 2026-10-18); where the
           // Atlas finds the protein in it, the protein's own name says so.
           expect(named, isEmpty, reason: '${t.slug} at ${stop.name}');
           if (stop == ZoomStop.cell && inNucleoli(t)) {
@@ -260,10 +317,17 @@ void main() {
       (loud.single.target - frame.toScreen(cell.nucleolus.centre)).distance,
       lessThan(1e-6),
     );
-    // The nucleus, where the Atlas reading is not drawn, names nothing.
+    // The nucleus, where the Atlas reading is not drawn, names the
+    // nucleolus alone, quietly.
     expect(
-      stage.stage(stage.depth.depthOf(ZoomStop.nucleus), size, inks).callouts,
-      isEmpty,
+      <(String, bool)>[
+        for (final ZoomCallout c
+            in stage
+                .stage(stage.depth.depthOf(ZoomStop.nucleus), size, inks)
+                .callouts)
+          (c.text, c.quiet),
+      ],
+      <(String, bool)>[('nucleolus', true)],
     );
   });
 

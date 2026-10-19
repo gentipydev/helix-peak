@@ -30,8 +30,8 @@ chromosome, band, gene and DNA. It is one continuous depth.
 - **The canvas** names only what the card does not say: the cell in the
   tissue, where the protein sits, the band on the chromosome, the gene on
   the map, the gene's 5′ end; and the one landmark a reader asked after, the
-  nucleolus, at the cell (the user's ask, 2026-10-15; at the nucleus too
-  until 2026-10-16, when the user asked for the nucleus to name nothing). A
+  nucleolus, at the nucleus (the user's ask, 2026-10-19; named at the cell
+  from 2026-10-15 to 2026-10-18, and at the nucleus too until 2026-10-16). A
   scale bar is always at its lower left: a
   round length at each stop, and between two stops a bar that glides from
   the one's length to the next, reading the length it spans as it goes, so
@@ -53,7 +53,7 @@ What each stop says, for insulin:
 | Organ | Pancreas | About 16 cm | a marker where the tissue is sampled |
 | Tissue | Islet (the recipe's architecture) | none | beta cells |
 | Cell | Beta cells | Tissue cell type enriched | nucleolus: the Atlas names no place in the cell for it, and its vesicles leave the cell |
-| Nucleus | Chromosome 11 territory | none | nothing |
+| Nucleus | Chromosome 11 territory | none | nucleolus |
 | Chromosome | Chromosome 11 | 135,086,622 bp · 36 bands | 11p15.5 |
 | Band | 11p15.5 | 2.8 Mb · gene at 2,159,779–2,161,209 | INS |
 | Gene | INS · 1,431 bases | Three exons · reverse strand | 5′, 3′, the exons' numbers |
@@ -326,9 +326,11 @@ Sources:
   each other and 8 pt in from the edges. The card says the rest. The
   line is in the accent, but for a landmark's (the nucleolus), which is in
   the quiet ink. A landmark's plate is set off what holds it, so it hides
-  none of it: beyond the nucleus's rim nearest the nucleolus, or else above
-  or below the nucleus, the first with room at rest; and it keeps that
-  place through the steps either side, so it never jumps.
+  none of it: round the nucleus as a cell's names are round the cell, in
+  the band above or below it nearer the nucleolus, out at the canvas's edge
+  on the nucleolus's side, which is the left, the nucleolus lying toward
+  the light (the user's ask, 2026-10-19); and it keeps that place through
+  the steps either side, so it never jumps.
 - **Lines** are set in screen pixels, so they keep their weight at any
   magnification.
 
@@ -746,7 +748,8 @@ territories, and the gene's comes up in the accent.
 - gene-dense chromosomes toward the centre and gene-poor ones at the rim;
 - the five acrocentrics round the nucleolus, which the cell drew and the
   nucleus draws again, the same shape in the same place and the same near
-  black, over the nucleus's light (`Nucleolus`), unnamed here;
+  black, over the nucleus's light (`Nucleolus`), named here, outside the
+  nucleus on its left, in the quiet ink;
 - in nine tones of one neutral, the gene's chromosome in the accent, and
   its other copy, where the body has one, drawn whole over the rest in a
   neutral 30% of the way to the accent with an edge in it, no glow and
@@ -1159,9 +1162,10 @@ frame (0.4 to 0.8 ms).
   twenty). `test/zoom_paint_timing_check.dart` times closer moments through
   the chromosome's two steps.
 - `nucleolus_test` holds the nucleolus to one shape in one place across the
-  step from the cell to the nucleus (to half a pixel), its name to the cell
-  and no other stop (the nucleus names nothing), landing on it, set off the
-  nucleus at two widths, in the quiet ink, never jumping from the tissue to
+  step from the cell to the nucleus (to half a pixel), its name to the
+  nucleus and no other stop (which names nothing else), landing on it, set
+  outside the nucleus on its left at two widths, in the quiet ink, never
+  jumping from the tissue to
   the chromosome, and said once where the Atlas puts the protein in it; and
   the body plain (no round shape drawn at any size), darker at the nucleus
   than everything round it for all twenty, and no lighter than the app's

@@ -288,8 +288,9 @@ seen:
 - the cell, the protein glowing where the Atlas finds it, and the nucleus
   with its chromosome territories; the nucleolus, lobed, plain and near
   black, is one shape in one tone at both (`scenes/nucleolus.dart`), named
-  at the cell, its line in the quiet ink and its plate off the nucleus;
-  the nucleus names nothing (the user's choice of 2026-10-16);
+  at the nucleus alone (the user's ask of 2026-10-19; the cell names it
+  nowhere), its line in the quiet ink, its plate outside the nucleus on
+  its left;
 - a metaphase chromosome drawn as a scanning micrograph shows one
   (`presentation/scenes/chromosome/`): two knobbly sisters, its G-bands
   soft changes of tone, the gene two FISH spots in the accent. It condenses
