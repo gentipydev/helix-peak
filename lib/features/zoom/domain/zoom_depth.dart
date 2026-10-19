@@ -126,8 +126,10 @@ final class ZoomDepth {
   /// How much taller than wide the testis is framed: drawn with its
   /// epididymis's head lifted above it and the tail below, it is taller
   /// than the body's oval of it but still leaves room for its names above
-  /// and below on the squattest canvas, 320 by 420.
-  static const double testisUpright = 1.2;
+  /// and below on the squattest canvas a phone gives it: an iPhone SE's,
+  /// 375 by 459 under the card a germ cell's words make it (the user's
+  /// choice of 2026-10-19; it was 1.2, for 320 by 420).
+  static const double testisUpright = 1.1;
 
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
