@@ -39,16 +39,18 @@ abstract final class AppTheme {
     anatomy: AnatomyColors.kaleido,
   );
 
-  /// The home screen: [analysis]'s ground, with the bases at full strength.
+  /// The home screen: [analysis]'s ground, with the bases as the helix draws
+  /// them.
   ///
   /// [NucleotideColors.muted] is for a sequence that is read, letter by
   /// letter. The helix on the home screen is a drawing of one, and is drawn in
-  /// the convention as a genome browser shows it. The ground is the one every
+  /// [NucleotideColors.helix]: the convention, warmed and softened to sit
+  /// beside the accent rather than over it. The ground is the one every
   /// screen it leads to is on, so it no longer changes hue under the reader on
   /// the way in.
   static final ThemeData home = _build(
     tokens: AppColorTokens.warm,
-    nucleotides: NucleotideColors.dark,
+    nucleotides: NucleotideColors.helix,
     anatomy: AnatomyColors.kaleido,
   );
 

@@ -14,9 +14,9 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // The ground every screen this one leads to is on, so it does not change
-    // hue under the reader on the way in; and, on it, the helix in the bases
-    // at full strength. Put around itself, as every flow puts its own, so the
-    // screen is drawn the same wherever it is pumped.
+    // hue under the reader on the way in; and, on it, the helix in its own
+    // bases. Put around itself, as every flow puts its own, so the screen is
+    // drawn the same wherever it is pumped.
     return Theme(
       data: AppTheme.home,
       child: Scaffold(

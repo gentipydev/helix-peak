@@ -244,13 +244,16 @@ void main() {
     });
   }
 
-  test('the home screen is on the app\'s ground, its bases at full strength', () {
+  test('the home screen is on the app\'s ground, its helix in its own bases', () {
     expect(
       AppTheme.home.scaffoldBackgroundColor,
       AppTheme.analysis.scaffoldBackgroundColor,
     );
     expect(AppTheme.home.colorScheme.surface, AppColorTokens.warm.surfaceBase);
-    expect(AppTheme.home.extension<NucleotideColors>(), NucleotideColors.dark);
+    expect(
+      AppTheme.home.extension<NucleotideColors>(),
+      NucleotideColors.helix,
+    );
     // The walk's own are the muted ones, on the same ground.
     expect(
       AppTheme.analysis.extension<NucleotideColors>(),

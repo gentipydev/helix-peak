@@ -27,7 +27,7 @@ void main() {
     );
   });
 
-  testWidgets('its helix keeps the bases at full strength', (
+  testWidgets('its helix is drawn in its own bases', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
@@ -36,7 +36,7 @@ void main() {
     await tester.pump();
 
     final ThemeData worn = Theme.of(tester.element(find.byType(DnaHelix)));
-    expect(worn.extension<NucleotideColors>(), NucleotideColors.dark);
+    expect(worn.extension<NucleotideColors>(), NucleotideColors.helix);
     // The helix is drawn on its ground and nothing else: it mixes its colours
     // toward it, and knocks its nodes out in it.
     expect(worn.colorScheme.surface, AppColorTokens.warm.surfaceBase);

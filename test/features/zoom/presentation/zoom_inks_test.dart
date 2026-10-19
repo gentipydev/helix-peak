@@ -94,7 +94,7 @@ void main() {
     expect(inks.mark, scheme.primary);
     expect(inks.markDeep, scheme.primaryContainer);
     // The helix is drawn as the home screen draws its own.
-    expect(inks.bases, NucleotideColors.dark);
+    expect(inks.bases, AppTheme.home.extension<NucleotideColors>());
     final AnatomyColors anatomy = theme.extension<AnatomyColors>()!;
     expect(inks.cds, anatomy.roleCds);
     expect(inks.utr, anatomy.roleUtr5);

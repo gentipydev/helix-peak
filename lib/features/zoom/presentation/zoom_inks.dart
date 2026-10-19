@@ -58,8 +58,8 @@ final class ZoomInks {
       // has, quiet enough to sit in a stained field.
       blood: context.nucleotideColors.thymine,
       // The helix is a drawing of one, as the home screen's is, in the
-      // bases at full strength (`AppTheme.home`).
-      bases: NucleotideColors.dark,
+      // home helix's own bases (`AppTheme.home`).
+      bases: NucleotideColors.helix,
       cds: anatomy.roleCds,
       utr: anatomy.roleUtr5,
       intron: anatomy.roleIntron,
