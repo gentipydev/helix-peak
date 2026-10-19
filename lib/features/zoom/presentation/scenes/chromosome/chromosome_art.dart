@@ -16,7 +16,9 @@ import 'chromosome_style.dart';
 /// velvety sisters, their surface knobbly with chromatin, bright at the
 /// edges that face the light and dark in the crevices and along the groove
 /// where they touch, a soft coat round them, the bands soft changes of tone,
-/// and the gene as two FISH spots, one on each sister.
+/// the centromere's waist and its two kinetochores tinted in its ink and
+/// every chromatid's ends in the telomeres', and the gene as two FISH
+/// spots, one on each sister.
 ///
 /// Everything costly is built once, for one form in one set of inks: the
 /// body and its relief are meshes in the scene's units, so a frame only
@@ -106,8 +108,9 @@ final class ChromosomeArt {
       .inflate(1.2 * _half);
 
   /// The body's colour averaged over its area on both sisters, lit as it
-  /// is, the gene's wash left out: what the territory's mark gives way to as
-  /// the chromosome condenses out of it.
+  /// is, the gene's wash and the centromere's and telomeres' tints left out:
+  /// what the territory's mark gives way to as the chromosome condenses out
+  /// of it.
   late final Color meanTone = () {
     final Float64List rows = form.bodyRows;
     final List<double> columns = _columns;
@@ -391,6 +394,13 @@ final class ChromosomeArt {
     );
   }
 
+  /// How far the chromatin at [y] is tinted toward the centromere's ink and
+  /// toward the telomeres'.
+  ({double centromere, double telomere}) _tints(double y) => (
+    centromere: ChromosomeStyle.centromereTint * form.centromereAt(y),
+    telomere: ChromosomeStyle.telomereTint * form.telomereAt(y),
+  );
+
   /// How far across the tube each of the body's columns lies, from one
   /// edge to the other: the sine of its angle round it.
   static final List<double> _columns = <double>[
@@ -436,6 +446,7 @@ final class ChromosomeArt {
       final double slope = form.slope(y);
       final double tone = form.toneAt(y);
       final double gene = form.geneAt(y);
+      final ({double centromere, double telomere}) tint = _tints(y);
       for (final double u in columns) {
         final double nz = math.sqrt(math.max(0, 1 - u * u));
         final SurfaceNormal n = SurfaceNormal(u, -slope, nz);
@@ -450,7 +461,15 @@ final class ChromosomeArt {
         mesh.vertex(
           centre + w * u,
           y + bow * u * u,
-          _palette.colour(tone, s.light, s.occlusion, gene, 1),
+          _palette.colour(
+            tone,
+            s.light,
+            s.occlusion,
+            gene,
+            1,
+            centromere: tint.centromere,
+            telomere: tint.telomere,
+          ),
         );
       }
     }
@@ -504,9 +523,12 @@ final class ChromosomeArt {
     );
   }
 
-  void _skirt(ColouredMesh mesh, double side, KnobField knobs, int k) {
+  void _skirt(ColouredMesh mesh, double side, KnobField knobs, int k) =>
+      _skirtOf(mesh, _place(side, knobs, k));
+
+  /// The crevice round [p]: shade falling away from its edge.
+  void _skirtOf(ColouredMesh mesh, _Knob p) {
     const int ring = 12;
-    final _Knob p = _place(side, knobs, k);
     mesh.begin(ring * 2);
     final int first = mesh.next;
     final int dark = _palette.shadow(ChromosomeStyle.skirtAlpha);
@@ -529,14 +551,37 @@ final class ChromosomeArt {
   }
 
   void _dome(ColouredMesh mesh, double side, KnobField knobs, int k) {
-    const int ring = 14;
-    final _Knob p = _place(side, knobs, k);
     final double y = knobs.y[k];
+    _domeOf(
+      mesh,
+      side,
+      _place(side, knobs, k),
+      y,
+      math.sin(knobs.phi[k]),
+      knobs.radius[k],
+      form.geneAt(y),
+      _tints(y),
+    );
+  }
+
+  /// [p] as a small dome at [y], [u] of the way across the tube and [r]
+  /// across: lit as the surface under it is, brighter at its top by [lift],
+  /// its rim tilted out from there, [gene] of the way into the gene's band
+  /// and tinted by [tint].
+  void _domeOf(
+    ColouredMesh mesh,
+    double side,
+    _Knob p,
+    double y,
+    double u,
+    double r,
+    double gene,
+    ({double centromere, double telomere}) tint, {
+    double lift = 0.1,
+  }) {
+    const int ring = 14;
     final double tone = form.toneAt(y);
-    final double gene = form.geneAt(y);
-    final double u = math.sin(knobs.phi[k]);
     final SurfaceNormal base = p.normal;
-    final double r = knobs.radius[k];
     ({double light, double occlusion}) lit(double tilt, double a) {
       // The ring's normal, tilted out from the dome's top toward [a].
       final Offset out = p.at(a, 1) - Offset(p.x, p.y);
@@ -557,7 +602,15 @@ final class ChromosomeArt {
     mesh.vertex(
       p.x + _light.screenX * 0.22 * r,
       p.y + _light.screenY * 0.22 * r,
-      _palette.colour(tone, top.light + 0.1, top.occlusion, gene, 1),
+      _palette.colour(
+        tone,
+        top.light + lift,
+        top.occlusion,
+        gene,
+        1,
+        centromere: tint.centromere,
+        telomere: tint.telomere,
+      ),
     );
     final List<int> rim = <int>[];
     for (final (double scale, double tilt) in <(double, double)>[
@@ -573,6 +626,8 @@ final class ChromosomeArt {
           s.occlusion,
           gene,
           scale < 1 ? 1 : 0.9,
+          centromere: tint.centromere,
+          telomere: tint.telomere,
         );
         if (scale == 1) {
           rim.add(colour);
@@ -599,47 +654,27 @@ final class ChromosomeArt {
   }
 
   /// The kinetochore: a small plate on the sister's outer face at the
-  /// waist, a little lighter than the chromatin under it.
+  /// waist, in the centromere's ink, seated in a crevice of its own and lit
+  /// as a lobe is, a little brighter at its top.
   void _plate(ColouredMesh mesh, double side) {
-    const int ring = 12;
     final Offset at = form.kinetochore(side);
     final double rx = ChromosomeStyle.plateX * _half;
     final double ry = ChromosomeStyle.plateY * _half;
     final double u = side * ChromosomeStyle.plateOut;
-    final double y = form.centromere;
-    final SurfaceNormal n = SurfaceNormal(u, 0, math.sqrt(1 - u * u));
-    final ({double light, double occlusion}) s = _surface(
-      side,
-      y,
-      u,
-      n.x,
-      n.y,
-      n.z,
+    final _Knob plate = _Knob(
+      x: at.dx,
+      y: at.dy,
+      normal: SurfaceNormal(u, 0, math.sqrt(1 - u * u)),
+      ax: rx,
+      ay: 0,
+      bx: 0,
+      by: ry,
     );
-    final double tone = form.toneAt(y);
-    mesh.begin(1 + ring * 2);
-    final int centre = mesh.next;
-    mesh.vertex(at.dx, at.dy, _palette.colour(tone, s.light + 0.14, 0, 0, 1));
-    final int rim = _palette.colour(tone, s.light + 0.06, 0, 0, 0.95);
-    for (int i = 0; i < ring; i++) {
-      final double a = 2 * math.pi * i / ring;
-      mesh.vertex(at.dx + rx * math.cos(a), at.dy + ry * math.sin(a), rim);
-    }
-    for (int i = 0; i < ring; i++) {
-      final double a = 2 * math.pi * i / ring;
-      mesh.vertex(
-        at.dx + 1.18 * rx * math.cos(a),
-        at.dy + 1.18 * ry * math.sin(a),
-        _clear(rim),
-      );
-    }
-    for (int i = 0; i < ring; i++) {
-      final int a = centre + 1 + i;
-      final int b = centre + 1 + (i + 1) % ring;
-      mesh.triangle(centre, a, b);
-      mesh.triangle(a, b, a + ring);
-      mesh.triangle(b, b + ring, a + ring);
-    }
+    _skirtOf(mesh, plate);
+    _domeOf(mesh, side, plate, form.centromere, u, rx, 0, (
+      centromere: ChromosomeStyle.kinetochoreTint,
+      telomere: 0,
+    ), lift: 0.14);
   }
 
   List<ui.Vertices> _grains(double side) {

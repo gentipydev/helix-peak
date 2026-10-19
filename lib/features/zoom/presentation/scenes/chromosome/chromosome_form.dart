@@ -301,6 +301,31 @@ final class ChromosomeForm {
     );
   }
 
+  // The centromere and the telomeres.
+
+  /// How much of the centromere's tint is at [y], from 0 to 1: all of it at
+  /// the centromere, none [ChromosomeStyle.centromereReach] half-widths
+  /// either side of it, and none in the gene's band, which keeps its own.
+  double centromereAt(double y) =>
+      _fall((y - centromere).abs() / (ChromosomeStyle.centromereReach * half)) *
+      (1 - geneAt(y));
+
+  /// How much of a telomere's tint is at [y], from 0 to 1: all of it at
+  /// either end, none [ChromosomeStyle.telomereReach] half-widths in from
+  /// it, and none in the gene's band. Both sisters end at the same heights,
+  /// so every chromatid's two ends are capped.
+  double telomereAt(double y) =>
+      _fall(
+        math.min(y - top, bottom - y) / (ChromosomeStyle.telomereReach * half),
+      ) *
+      (1 - geneAt(y));
+
+  /// 1 at [d] 0, falling smoothly to 0 at [d] 1 and beyond.
+  static double _fall(double d) {
+    final double t = d.clamp(0.0, 1.0);
+    return 1 - t * t * (3 - 2 * t);
+  }
+
   /// The rows the body is drawn through, top to bottom: one every so far
   /// along, closer round the waist and the rounded ends, and two at each
   /// band's edge, where its softening begins and ends.

@@ -5,7 +5,8 @@ import '../../../domain/locus_track.dart';
 ///
 /// The look is a scanning micrograph's: two velvety sisters, a knobbly
 /// surface bright at its edges and dark in its crevices, a soft coat round
-/// them, bands as soft changes of tone, and the gene as two FISH spots.
+/// them, bands as soft changes of tone, the centromere and the telomeres
+/// tinted lightly, and the gene as two FISH spots.
 abstract final class ChromosomeStyle {
   // The form.
 
@@ -96,6 +97,22 @@ abstract final class ChromosomeStyle {
   static const double plateX = 0.14;
   static const double plateY = 0.42;
   static const double plateOut = 0.8;
+
+  // The centromere and the telomeres, each tinted in an earth of its own,
+  // lightly, so the micrograph reads through (the user's ask of 2026-10-19).
+
+  /// The share of the centromere's ink in the chromatin at the centromere,
+  /// and how far either side of it the tint reaches.
+  static const double centromereTint = 0.3;
+  static const double centromereReach = 1.3;
+
+  /// The share of the centromere's ink in a kinetochore's plate.
+  static const double kinetochoreTint = 0.75;
+
+  /// The share of the telomeres' ink at a chromatid's very end, and how far
+  /// in from it the cap reaches.
+  static const double telomereTint = 0.55;
+  static const double telomereReach = 0.75;
 
   // The gene.
 

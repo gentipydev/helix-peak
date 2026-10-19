@@ -182,6 +182,46 @@ void main() {
     }
   });
 
+  test('the centromere’s tint lies about it and the telomeres’ at the '
+      'ends, and neither in the gene’s band', () {
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ChromosomeForm form = _form(t);
+      final double c = form.centromere;
+      final double centromere = ChromosomeStyle.centromereReach * form.half;
+      final double telomere = ChromosomeStyle.telomereReach * form.half;
+      expect(
+        form.centromereAt(c),
+        closeTo(1 - form.geneAt(c), 1e-12),
+        reason: t.slug,
+      );
+      for (final double end in <double>[form.top, form.bottom]) {
+        expect(
+          form.telomereAt(end),
+          closeTo(1 - form.geneAt(end), 1e-12),
+          reason: t.slug,
+        );
+      }
+      for (int i = 0; i <= 2000; i++) {
+        final double y = form.top + (form.bottom - form.top) * i / 2000;
+        final double a = form.centromereAt(y);
+        final double b = form.telomereAt(y);
+        final String what = '${t.slug} at $y';
+        expect(a, inInclusiveRange(0, 1), reason: what);
+        expect(b, inInclusiveRange(0, 1), reason: what);
+        if ((y - c).abs() >= centromere) {
+          expect(a, 0, reason: what);
+        }
+        if (math.min(y - form.top, form.bottom - y) >= telomere) {
+          expect(b, 0, reason: what);
+        }
+        if (form.geneAt(y) == 1) {
+          expect(a, 0, reason: what);
+          expect(b, 0, reason: what);
+        }
+      }
+    }
+  });
+
   test('nothing in a form is not a number', () {
     for (final ProteinTarget t in TestCatalog.all) {
       final ChromosomeForm form = _form(t);

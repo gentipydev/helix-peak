@@ -79,33 +79,47 @@ final class ChromosomeLight {
 
 /// The inks the micrograph is mixed from, as channels to mix without
 /// building a colour for every vertex: chromatin from the lit outline down
-/// to the surfaces by its stain, toward the shadow as light leaves it,
-/// toward the bright ink where it is brightest, and the mark in the gene's
-/// band.
+/// to the surfaces by its stain, tinted toward the centromere's ink or the
+/// telomeres', toward the shadow as light leaves it, toward the bright ink
+/// where it is brightest, and the mark in the gene's band.
 final class ChromosomePalette {
   ChromosomePalette(ZoomInks inks)
     : _pale = _Channels(inks.lit(ChromosomeStyle.paleLit)),
       _deep = _Channels(inks.shade(ChromosomeStyle.deepShade)),
       _shadow = _Channels(inks.shadow),
       _text = _Channels(inks.text),
-      _mark = _Channels(inks.mark);
+      _mark = _Channels(inks.mark),
+      _centromere = _Channels(inks.centromere),
+      _telomere = _Channels(inks.telomere);
 
   final _Channels _pale;
   final _Channels _deep;
   final _Channels _shadow;
   final _Channels _text;
   final _Channels _mark;
+  final _Channels _centromere;
+  final _Channels _telomere;
 
   /// Chromatin of stain [tone], at brightness [light], [occlusion] of the
-  /// way into the groove's shade and [gene] of the way into the gene's band.
+  /// way into the groove's shade and [gene] of the way into the gene's band,
+  /// and [centromere] and [telomere] of the way to their inks.
   int colour(
     double tone,
     double light,
     double occlusion,
     double gene,
-    double alpha,
-  ) {
-    final (double r, double g, double b) = mix(tone, light, occlusion, gene);
+    double alpha, {
+    double centromere = 0,
+    double telomere = 0,
+  }) {
+    final (double r, double g, double b) = mix(
+      tone,
+      light,
+      occlusion,
+      gene,
+      centromere: centromere,
+      telomere: telomere,
+    );
     return pack(alpha, r, g, b);
   }
 
@@ -114,11 +128,22 @@ final class ChromosomePalette {
     double tone,
     double light,
     double occlusion,
-    double gene,
-  ) {
+    double gene, {
+    double centromere = 0,
+    double telomere = 0,
+  }) {
     double r = _pale.r + (_deep.r - _pale.r) * tone;
     double g = _pale.g + (_deep.g - _pale.g) * tone;
     double b = _pale.b + (_deep.b - _pale.b) * tone;
+    // The centromere's and the telomeres' tints are the chromatin's own
+    // colour there, lit as the rest is, so the light and the relief read
+    // through them.
+    r += (_centromere.r - r) * centromere;
+    g += (_centromere.g - g) * centromere;
+    b += (_centromere.b - b) * centromere;
+    r += (_telomere.r - r) * telomere;
+    g += (_telomere.g - g) * telomere;
+    b += (_telomere.b - b) * telomere;
     if (light <= 1) {
       final double t = math.max(0, light);
       r = _shadow.r + (r - _shadow.r) * t;

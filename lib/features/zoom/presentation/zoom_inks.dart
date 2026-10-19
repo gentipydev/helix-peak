@@ -19,6 +19,10 @@ import '../../../core/theme/nucleotide_colors.dart';
 ///
 /// Data keeps its own colours where it has them: the gene's parts are the
 /// walk's, the bases the home helix's, blood the thymine red.
+///
+/// One form has colours of its own: a chromosome's centromere and its
+/// telomeres are tinted, lightly, in the home helix's clay and honey (the
+/// user's ask of 2026-10-19), so they read apart from its arms.
 @immutable
 final class ZoomInks {
   const ZoomInks({
@@ -33,6 +37,8 @@ final class ZoomInks {
     required this.markDeep,
     required this.shadow,
     required this.blood,
+    required this.centromere,
+    required this.telomere,
     required this.bases,
     required this.cds,
     required this.utr,
@@ -57,6 +63,10 @@ final class ZoomInks {
       // The sequence's thymine, as the walk letters it: the one red the app
       // has, quiet enough to sit in a stained field.
       blood: context.nucleotideColors.thymine,
+      // A chromosome's centromere and telomeres in the home helix's own
+      // earth: its clay and its honey.
+      centromere: NucleotideColors.helix.thymine,
+      telomere: NucleotideColors.helix.guanine,
       // The helix is a drawing of one, as the home screen's is, in the
       // home helix's own bases (`AppTheme.home`).
       bases: NucleotideColors.helix,
@@ -86,6 +96,12 @@ final class ZoomInks {
   final Color shadow;
 
   final Color blood;
+
+  /// A chromosome's centromere, its kinetochores with it, and its
+  /// telomeres.
+  final Color centromere;
+  final Color telomere;
+
   final NucleotideColors bases;
 
   /// The gene's parts, in the walk's own colours.
@@ -123,6 +139,8 @@ final class ZoomInks {
       other.markDeep == markDeep &&
       other.shadow == shadow &&
       other.blood == blood &&
+      other.centromere == centromere &&
+      other.telomere == telomere &&
       other.bases == bases &&
       other.cds == cds &&
       other.utr == utr &&
@@ -141,6 +159,8 @@ final class ZoomInks {
     markDeep,
     shadow,
     blood,
+    centromere,
+    telomere,
     bases,
     cds,
     utr,

@@ -168,6 +168,85 @@ void main() {
     }
   });
 
+  testWidgets('the centromere and the telomeres are tinted in their own '
+      'inks, and nothing else is', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    // The same inks with the centromere's and the telomeres' as the palest
+    // chromatin: where the two draw differently is where the tints are.
+    final Color pale = inks.lit(ChromosomeStyle.paleLit);
+    final ZoomInks plain = ZoomInks(
+      ground: inks.ground,
+      raised: inks.raised,
+      overlay: inks.overlay,
+      high: inks.high,
+      outline: inks.outline,
+      text: inks.text,
+      label: inks.label,
+      mark: inks.mark,
+      markDeep: inks.markDeep,
+      shadow: inks.shadow,
+      blood: inks.blood,
+      centromere: pale,
+      telomere: pale,
+      bases: inks.bases,
+      cds: inks.cds,
+      utr: inks.utr,
+      intron: inks.intron,
+    );
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ChromosomeForm form = ChromosomeScene(
+        ZoomSubject(track: locusOf(t), record: recordOf(t)),
+      ).form;
+      // How far past a tint's reach a lobe of it may be drawn.
+      final double lobe =
+          (ChromosomeStyle.lobe + ChromosomeStyle.lobeSpread) *
+          form.half *
+          ChromosomeStyle.skirtOuter;
+      final double centromere =
+          ChromosomeStyle.centromereReach * form.half + lobe;
+      final double telomere = ChromosomeStyle.telomereReach * form.half + lobe;
+      final List<({Float32List positions, Int32List colours})> tinted =
+          ChromosomeArt(form, inks).meshData;
+      final List<({Float32List positions, Int32List colours})> untinted =
+          ChromosomeArt(form, plain).meshData;
+      expect(tinted.length, untinted.length, reason: t.slug);
+      int atCentromere = 0;
+      int atEnds = 0;
+      double clay = 0;
+      double honey = 0;
+      for (int m = 0; m < tinted.length; m++) {
+        expect(tinted[m].positions, untinted[m].positions, reason: t.slug);
+        final Int32List a = tinted[m].colours;
+        final Int32List b = untinted[m].colours;
+        for (int i = 0; i < a.length; i++) {
+          if (a[i] == b[i]) {
+            continue;
+          }
+          final double y = tinted[m].positions[i * 2 + 1];
+          final bool nearCentromere = (y - form.centromere).abs() <= centromere;
+          final bool nearEnd =
+              math.min(y - form.top, form.bottom - y) <= telomere;
+          expect(nearCentromere || nearEnd, isTrue, reason: '${t.slug} at $y');
+          final (double r, double g, double bl) = _channels(a[i]);
+          final (double r0, double g0, double b0) = _channels(b[i]);
+          // Clay is redder than it is green; honey greener than it is blue.
+          if (nearCentromere && !nearEnd) {
+            atCentromere++;
+            clay += (r - g) - (r0 - g0);
+          }
+          if (nearEnd && !nearCentromere) {
+            atEnds++;
+            honey += (g - bl) - (g0 - b0);
+          }
+        }
+      }
+      expect(atCentromere, greaterThan(0), reason: t.slug);
+      expect(atEnds, greaterThan(0), reason: t.slug);
+      expect(clay, greaterThan(0), reason: t.slug);
+      expect(honey, greaterThan(0), reason: t.slug);
+    }
+  });
+
   testWidgets('no mesh holds more vertices than its indices reach', (
     WidgetTester tester,
   ) async {
