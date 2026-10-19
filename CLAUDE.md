@@ -293,12 +293,14 @@ seen:
   its left;
 - a metaphase chromosome drawn as a scanning micrograph shows one
   (`presentation/scenes/chromosome/`): two knobbly sisters, its G-bands
-  soft changes of tone, the gene two FISH spots in the accent, its parts
+  soft changes of tone, the gene two FISH spots in the accent, its
+  centromere's waist and two kinetochores tinted lightly in the home
+  helix's clay and its four chromatid ends capped in its honey, its parts
   (p arm, centromere, q arm, chromatid, telomere) named in the quiet ink
-  beside it, level with each (the user's ask of 2026-10-19). It condenses
-  out of its territory, and on the way out turns into a smooth tube that
-  is, by the time it lies along the genome, the band map's strip pixel for
-  pixel;
+  in a column at either edge of the canvas, level with each (the user's
+  asks of 2026-10-19). It condenses out of its territory, and on the way
+  out turns into a smooth tube that is, by the time it lies along the
+  genome, the band map's strip pixel for pixel;
 - a genome map of the band opened out of the whole chromosome; the gene,
   opened out of its mark on the band's strip, as a genome browser draws a
   transcript, the record's exons at their real lengths, still (its own stop
@@ -320,7 +322,8 @@ explains: there is no About sheet, no source tag and no player. Its
 colours are the app's own (`ZoomInks`): one ground at every stop, the
 accent for the gene and what it makes (the organs its RNA is raised in, its
 cell, its protein, its chromosome, its band) and nothing else, and every
-other form sculpted in the warm neutrals; `zoom_inks_test` holds that no
+other form sculpted in the warm neutrals but a chromosome's centromere and
+telomeres, in the helix's clay and honey; `zoom_inks_test` holds that no
 colour in the zoom is written out as a number. `docs/design/zoom.md` has
 the design and its checks.
 

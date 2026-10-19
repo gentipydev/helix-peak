@@ -1,6 +1,6 @@
 # Zoom: from a body down to one gene's DNA
 
-![Insulin's nine stops on the app's ground: a glass figure with the pancreas glowing, the pancreas sculpted with its islets in the accent, an islet under the eyepiece, a beta cell, its nucleus with chromosome 11's territory in the accent, chromosome 11 as a micrograph with the gene's two FISH spots at its tip, the band 11p15.5 under a docked map, the gene as a genome browser draws it, and the home screen's helix carrying the gene's first bases](zoom.png)
+![Insulin's nine stops on the app's ground: a glass figure with the pancreas glowing, the pancreas between its duodenum and spleen with its islets in the accent, an islet under the eyepiece, a beta cell drawn part by part, its nucleus with chromosome 11's territory in the accent and the other copy faintly, chromosome 11 as a micrograph with its centromere in clay, its ends in honey, the gene's two FISH spots at its tip and its parts named at either edge, the band 11p15.5 under a docked map, the gene as chromatin, and the home screen's helix carrying the gene's first bases](zoom.png)
 
 ## Experience
 
@@ -180,6 +180,17 @@ convention is, where it comes from, and what it decided:
   chromosome is drawn as a micrograph: two velvety sisters touching along a
   groove, knobbly with chromatin, in a soft coat, the bands soft changes of
   tone, an acrocentric's short arm whole.
+- **The centromere and the telomeres.** Kinetochores assemble on the
+  centromere, which coincides with the primary constriction a karyotype
+  shows; each is a plate about 250 nm wide and 80 nm deep against the
+  centromeric chromatin, one to each sister, and the two face opposite
+  poles once the sisters are bi-oriented (Musacchio and Desai 2017).
+  Every human chromosome ends in clusters of TTAGGG repeats, which FISH
+  finds at the telomeres of all of them (Moyzis et al. 1988): a metaphase
+  chromosome, two chromatids, has four. *Consequence:* the centromere's
+  waist is tinted and its two kinetochores are plates of that size on the
+  sisters' outer faces, and each of the four ends is capped, lightly, in
+  the home helix's clay and honey (the user's ask, 2026-10-19).
 - **A gene by FISH.** A probe hybridised to a metaphase chromosome shows as
   a spot on each sister chromatid, at the same height on both (Trask 1991;
   Baumgartner et al. 1991): it places a gene to within about a band, and is
@@ -258,6 +269,11 @@ Sources:
   vas deferens. J Ultrasound Med 2009;28:839–846.
 - Morales J et al. A joint NCBI and EMBL-EBI transcript set for clinical
   genomics and research. Nature 2022;604:310–315.
+- Moyzis RK et al. A highly conserved repetitive DNA sequence, (TTAGGG)n,
+  present at the telomeres of human chromosomes. Proc Natl Acad Sci USA
+  1988;85:6622–6626.
+- Musacchio A, Desai A. A molecular view of kinetochore assembly and
+  function. Biology (Basel) 2017;6:5.
 - Naumova N et al. Organization of the mitotic chromosome. Science
   2013;342:948–953.
 - Niimura Y, Gojobori T. In silico chromosome staining: reconstruction of
@@ -318,7 +334,10 @@ Sources:
 - **Everything else is sculpted** in the app's warm neutrals, under one
   light from the upper left (`Sculpt`): a lit body from the surfaces up
   toward the bright ink, a rim where the light catches an edge, a soft
-  shadow under the form, and fine line work in the quiet ink.
+  shadow under the form, and fine line work in the quiet ink. A
+  chromosome's centromere and its telomeres alone are tinted, lightly, in
+  the home helix's clay and honey (the user's ask, 2026-10-19), so they
+  read apart from its arms.
 - **Data keeps its colours.** The gene's parts are the walk's role colours,
   the bases the home helix's (`NucleotideColors.helix`), and blood the
   thymine red, the one red the app has.
@@ -331,7 +350,8 @@ Sources:
   names are round the cell, in the band above or below it nearer the
   nucleolus, out at the canvas's edge on the nucleolus's side, which is the
   left, the nucleolus lying toward the light (the user's ask, 2026-10-19);
-  beside the chromosome, level with each part (see "Chromosome" below).
+  in a column against the canvas's edge either side of the chromosome,
+  level with each part (see "Chromosome" below).
   Each keeps the place it has at rest through the steps either side, so it
   never jumps: an anchored name its anchor, or, where none of its anchors
   had room at rest, the place of the painter's own it took there.
@@ -350,6 +370,7 @@ Every colour comes from `ZoomInks`, built from the theme:
 | `mark`, `markDeep` | `primary`, `primaryContainer` | the gene and what it makes (`glow(a)`) |
 | `shadow` | the ground three quarters of the way to black | shadows under forms |
 | `blood` | the walk's thymine | red cells |
+| `centromere`, `telomere` | the home helix's thymine and guanine (`NucleotideColors.helix`) | a chromosome's centromere and kinetochores (clay), its telomeres (honey) |
 | `bases` | `NucleotideColors.helix` | the helix's bases |
 | `cds`, `utr`, `intron` | `AnatomyColors`' roles | the gene's parts |
 
@@ -778,6 +799,13 @@ proteins on one chromosome share it and only their gene tells them apart.
   the groove. A soft coat lies round them and a shadow under them.
 - The G-bands as soft changes of tone through the relief, the same height
   on both sisters, `gvar` an even grey.
+- The centromere's waist tinted lightly in the home helix's clay, and its
+  two kinetochores in it, plates on the sisters' outer faces at their true
+  size, each seated in a crevice and lit as a lobe is; every chromatid's
+  two ends capped in the helix's honey (the user's ask, 2026-10-19). A
+  tint is the chromatin's own colour there, so the light and the relief
+  read through it, and it stops at the gene's band, which keeps its own
+  wash: insulin's two upper ends, in 11p15.5, are the accent's.
 - Nothing narrower anywhere but the centromere and the two ends. On an
   acrocentric the short arm is whole, as thick as any arm: its satellite
   and `stalk` are bands like any other, since a stalk drawn thin, as a
@@ -786,16 +814,19 @@ proteins on one chromosome share it and only their gene tells them apart.
 - The gene as FISH marks one: two soft spots in the accent, one on each
   sister at its height, over a faint wash of its band, which is bracketed
   and named. The spots flare once as the stop is reached.
-- Its parts named in the quiet ink (the user's ask, 2026-10-19), each
-  just off the chromosome's outer edge, level with what it names: the p
-  arm (its middle), the centromere and the q arm (its middle) on the left;
-  a chromatid and a telomere on the right, where the band's name is too.
-  The telomere named is at the end further from the gene's band, and the
-  chromatid at whichever of a quarter, 45% and 65% of the way down the q
-  arm is furthest from both, so no name on the right crowds another. A
-  name with no room level with its part is set a little below it or
-  above, and only then on the other side. They come and go with the
-  band's name.
+- Its parts named in the quiet ink (the user's ask, 2026-10-19), in a
+  column against the canvas's edge on each side, 8 pt in, as a cell's
+  names are, each level with what it names: the p arm (its middle), the
+  centromere and the q arm (its middle) on the left; a chromatid and a
+  telomere on the right, under the band's name, which heads that column
+  above its band (below it where there is no room above, and higher for a
+  band at the foot of a squat canvas). The telomere named is at the end
+  further from the gene's band, and the chromatid at whichever of a
+  quarter, 45% and 65% of the way down the q arm is furthest from both,
+  so no name on the right crowds another. A name with no room level with
+  its part is set a little below it or above, and only then on the other
+  side; no plate comes nearer the chromosome than 14 pt off its outer
+  edge. They come and go with the band's name.
 
 It is never the gene: the band is millions of base pairs, a stain pattern
 seen at low resolution, and the spots are a probe's. Each sister is a mesh
@@ -822,7 +853,8 @@ a change of scale (0.07 decades for chromosome 1), and the minimum travel
 gives it its room.
 
 **Into the map.**
-- On the way out, the micrograph fades over the first 30% of the step.
+- On the way out, the micrograph, its tints with it, fades over the first
+  30% of the step.
   Under it the chromosome turns about its band to lie along the genome,
   short arm to the left as genome browsers draw it, as one smooth tube
   (`ChromosomeTube`, laid afresh each frame), all over the first 35%:
@@ -1101,6 +1133,9 @@ frame (0.4 to 0.8 ms).
   not imaged.
 - **A probe's spot.** The FISH spots are as big whatever the gene's length:
   they say where the gene is, to within its band, not how long it is.
+- **Caps for telomeres.** A telomere is a run of repeats far too short to
+  see at this scale: each cap says where one is, as the FISH spots say
+  where the gene is, not how long it is.
 
 ## Implementation and checks
 
@@ -1166,8 +1201,10 @@ frame (0.4 to 0.8 ms).
 - The chromosome's tests: `chromosome_scene_test` (nothing narrower than
   its arms but the centromere and the ends), `chromosome_form_test` (the
   same form every time and for every protein on one chromosome, the knobs
-  on their sisters, the spots), `chromosome_art_test` (the tones in order,
-  the accent only in the gene's band, at rest and turning, the meshes'
+  on their sisters, the spots, each tint within its reach of the
+  centromere or an end and never in the gene's band), `chromosome_art_test`
+  (the tones in order, the accent only in the gene's band, at rest and
+  turning, the clay and the honey only within their reaches, the meshes'
   sizes, a translucent vertex over the ground) and
   `chromosome_handover_test` (the territory handed over to half a pixel,
   the condensing step's last frames the stop's, every band edge of the
@@ -1176,9 +1213,10 @@ frame (0.4 to 0.8 ms).
   twenty). `test/zoom_paint_timing_check.dart` times closer moments through
   the chromosome's two steps. `chromosome_names_test` sets the parts'
   names in the app's own type for every curated protein, on a phone's
-  canvas, an iPhone SE's and a 320 pt one: each on its own side, level with
-  its part or a step off it, its point on the chromosome, its plate over
-  none of it.
+  canvas, an iPhone SE's and a 320 pt one: each on its own side against
+  that edge, level with its part or a step off it, its point on the
+  chromosome, its plate over none of it, and the band's name against the
+  right edge.
 - `nucleolus_test` holds the nucleolus to one shape in one place across the
   step from the cell to the nucleus (to half a pixel), its name to the
   nucleus and no other stop (which names nothing else), landing on it, set
