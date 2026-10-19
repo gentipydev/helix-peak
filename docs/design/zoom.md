@@ -94,6 +94,23 @@ convention is, where it comes from, and what it decided:
   (Sivak and Sullivan 1976). *Consequence:* the pancreas is drawn so, from
   anatomy rather than from the anatomogram's outline ("The pancreas"
   below).
+- **The testis.** Anatomy plates show it from the side and cut down its
+  length: 4–5 cm long, 2.5 cm broad and 3 cm from front to back, its 250
+  to 400 lobules parted by septa that run from the mediastinum, the
+  thickened back of its tunica albuginea, to the tunica round it; the rete
+  testis in the mediastinum, drained at its upper end by twelve to fifteen
+  or twenty efferent ductules into the head of the epididymis, which lies
+  along the back down to its tail (Gray 1918). Each lobule holds one to
+  four coiled seminiferous tubules 150–250 µm across (Junqueira's Basic
+  Histology). From the tail the vas deferens turns up into the spermatic
+  cord beside the testicular artery and the veins of the pampiniform
+  plexus. Measured in men: the epididymis's head up to 12 mm across on
+  ultrasound and its tail up to 6 (Lotti et al. 2021); the vas 1.5–2.7 mm
+  thick (Middleton et al. 2009); the testicular artery about 1 mm across in
+  the cord, 0.2–1.9 mm in 120 cords (Raman and Goldstein 2004); a vein of
+  the plexus 3 mm across or more is read as a varicocele (Bertolotto et al.
+  2020). *Consequence:* the testis is drawn so, from anatomy rather than
+  from the anatomogram's outline, at those sizes ("The testis" below).
 - **Histology.** Haematoxylin stains nuclei and ribosome-rich cytoplasm;
   eosin stains protein; fat, mucus and lumens take neither. A ×40 objective
   under a standard eyepiece shows a field about half a millimetre across.
@@ -189,6 +206,9 @@ Sources:
   sister chromatids. Cell 1991;64:761–766.
 - Beckwith KS et al. Nanoscale DNA tracing reveals the self-organization
   mechanism of mitotic chromosomes. Cell 2025;188:2656–2669.
+- Bertolotto M et al. Ultrasound evaluation of varicoceles: systematic
+  literature review and rationale of the ESUR-SPIWG Guidelines and
+  Recommendations. J Ultrasound 2020;23:487–507.
 - Booth DG et al. 3D-CLEM reveals that a major portion of mitotic
   chromosomes is not chromatin. Mol Cell 2016;64:790–802.
 - Boyle S et al. The spatial organization of human chromosomes within the
@@ -210,6 +230,7 @@ Sources:
   community collaboration and integration", Nucleic Acids Research, 2025.
 - Gibcus JH et al. A pathway for mitotic chromosome formation. Science
   2018;359:eaao6135.
+- Gray H. Anatomy of the Human Body, 20th edn. Lea & Febiger, 1918.
 - Halladjian S et al. ScaleTrotter: illustrative visual travels across
   negative scales. IEEE Trans Vis Comput Graph 2020;26:654–664.
 - Hoshi O, Ushiki T. Three-dimensional structure of G-banded human
@@ -221,10 +242,16 @@ Sources:
   Sci Adv 2021;7:eabh2169.
 - Lafontaine DLJ, Riback JA, Bascetin R, Brangwynne CP. The nucleolus as a
   multiphase liquid condensate. Nat Rev Mol Cell Biol 2021;22:165–182.
+- Lotti F et al. The European Academy of Andrology (EAA) ultrasound study
+  on healthy, fertile men: scrotal ultrasound reference ranges and
+  associations with clinical, seminal, and biochemical characteristics.
+  Andrology 2021;9:559–576.
 - Luger K et al. Crystal structure of the nucleosome core particle at 2.8 Å
   resolution. Nature 1997;389:251–260.
 - McStay B. Nucleolar organizer regions: genomic 'dark matter' requiring
   illumination. Genes Dev 2016;30:1598–1610.
+- Middleton WD et al. High-resolution sonography of the normal extrapelvic
+  vas deferens. J Ultrasound Med 2009;28:839–846.
 - Morales J et al. A joint NCBI and EMBL-EBI transcript set for clinical
   genomics and research. Nature 2022;604:310–315.
 - Naumova N et al. Organization of the mitotic chromosome. Science
@@ -238,6 +265,8 @@ Sources:
   chromosomes. Cell 1977;12:817–828.
 - Poonperm R et al. Chromosome scaffold is a double-stranded assembly of
   scaffold proteins. Sci Rep 2015;5:11916.
+- Raman JD, Goldstein M. Intraoperative characterization of arterial
+  vasculature in spermatic cord. Urology 2004;64:561–564.
 - Ricordi C et al. Islet isolation assessment in man and large animals.
   Acta Diabetol Lat 1990;27:185–195.
 - Schones DE et al. Dynamic regulation of nucleosome positioning in the
@@ -412,8 +441,8 @@ body drew for it (`OrganArt`), so the step is one shape seen closer. It
 comes up over the body's own drawing of the organ early in the step, and
 `zoom_anatomy_test` holds the two to the same point of the screen while both
 show. On the way in, the body's line art and its unlit organs give way. The
-pancreas alone then draws in to an outline of its own ("The pancreas"
-below).
+pancreas and the testis then draw in to outlines of their own ("The
+pancreas" and "The testis" below).
 
 **Its real size.** The anatomogram is a diagram: it draws a stomach 11 cm
 long and a pancreas 9. Each organ therefore knows how many times its drawn
@@ -425,13 +454,13 @@ dot of the accent in a thin ring of the bright ink, in a soft glow
 (`Sculpt.beacon`). It gives way to the loupe as it opens there.
 
 **In place.** The figure's own parts near the organ are drawn faintly round
-it, fading with their distance from it. The pancreas has its own neighbours
-instead, and the figure's parts go as they come up.
+it, fading with their distance from it. The pancreas and the testis have
+their own neighbours instead, and the figure's parts go as those come up.
 
-**Its anatomy.** The twenty's paths reach thirteen organs. Nine kinds have a
-study of their own (`OrganStudy`), and the pancreas a drawing of its own
-(below); in each the part the zoom's cell lives in is in the accent, by the
-kind of organ and of cell, never by gene:
+**Its anatomy.** The twenty's paths reach thirteen organs. Eight kinds have a
+study of their own (`OrganStudy`), and the pancreas and the testis drawings
+of their own (below); in each the part the zoom's cell lives in is in the
+accent, by the kind of organ and of cell, never by gene:
 
 | Organ (proteins) | Drawn | In the accent |
 |---|---|---|
@@ -441,7 +470,6 @@ kind of organ and of cell, never by gene:
 | Adipose tissue (LEP) | lobes parted by septa, small vessels | the lobes |
 | Skeletal muscle (MB, DMD) | fascicles along its length, tendon at its ends | the fibres |
 | Fallopian tube (RLN2) | opened along its length: its wall, its lumen | the folds of its mucosa |
-| Testis (UBB) | tunica, septa from the mediastinum | the coiled seminiferous tubules |
 | Stomach (TP53) | opened: its wall, the rugae, arcades of vessels along its curvatures | the mucosa |
 | Pituitary gland (GH1) | from the side: posterior lobe, stalk, hypothalamus, the sella turcica | the anterior lobe |
 
@@ -512,6 +540,64 @@ accent:
   follow the organ's detail itself (the gland as its 1.25th power), which
   rises at most 0.074 a frame: a fade over part of it would change faster
   than the 0.08 a frame the zoom allows.
+
+**The testis.** It is drawn as a fresh specimen under the same lamp: the
+right testis seen from its lateral side and cut down its length, as the
+plate the user gave for reference shows it (`presentation/scenes/testis/`,
+the user's choices of 2026-10-19), in the neutrals but for its vessels and
+the accent:
+
+- *Its shape* is a plate's (`testis_anatomy.dart`, in millimetres on a
+  testis 50 mm long): an egg 29 mm across the cut, flatter at the back,
+  its upper pole tilted 15° forward. Its middle is the anatomogram's oval's,
+  and the oval's site, its middle, stays its site.
+- *Its cut face.* The tunica albuginea is a rim half a millimetre thick, lit
+  as it curves away. Sixteen septa fan from the mediastinum to it, every
+  second one forking near it, and each lobule between them is a low
+  cushion. In each lobule lie its tubules at their true size, 170 µm across
+  and 270 µm apart: the outlines of a forest of trees grown at once, from
+  cells by the lobule's apex, through a grid laid along the lobule, so that
+  no tubule crosses another or itself, each turning where its tree
+  branches or ends, and waved a little where it lies away from the
+  lobule's edge. The tree rooted nearest the apex is opened there, its two
+  ends running side by side into the mediastinum as the tubuli recti; the
+  rest are the loops the cut shows. They are lit tubes on their lobule's
+  cushion, the dark interstitium between them, the pale septa over the
+  lobules' edges.
+- *The mediastinum* is fibrous and pale along the upper back, wider above,
+  and the rete testis in its upper part a sponge of dark spaces.
+- *Round it,* dimmer than the testis: the epididymis along the back, its
+  head lifted off the upper pole (the user's choice, as the plate lifts
+  it), its body and tail below; knobbly, the head with its lobules and the
+  body and tail with coils lying across them. Twelve efferent ductules wind
+  up from the rete into the head, in step so that none runs into the next.
+  The vas deferens turns up from the tail, convoluted at first; the
+  testicular artery and five veins of the pampiniform plexus are braided
+  round one another, three of the veins behind the artery, and the cord
+  fades out above the head. The tunica vaginalis is a faint film round the
+  testis and the epididymis. The vessels are in the blood red, the veins
+  darker.
+- *In the accent,* by the zoom's cell: the tubules washed in it for a germ
+  cell, a Sertoli cell, a peritubular cell or any other; for a Leydig cell
+  the tubules plain and a dust of Leydig clusters through the interstitium,
+  at their true size (44 to 100 µm across, never less than a pixel), one at
+  the site.
+- *Its names,* the main parts and no more (the user's choice): where the
+  cell lives, at the site, its line in the accent (`seminiferous tubules`,
+  or `interstitium` for a Leydig cell), and the `epididymis`, the `rete
+  testis` and the `vas deferens`, in the quiet ink. They are set round the
+  testis and the epididymis; above the head the cord only fades, and a name
+  may lie beside its end.
+- *Its view* is framed 1.2 times as tall as wide (`ZoomDepth.testisUpright`),
+  where the anatomogram's oval framed it at 1.45. With the head lifted above
+  it and the tail below, the specimen is taller than the oval, and at 1.45
+  its names had no room on a canvas 320 by 420. The testis is about 290
+  points tall on a phone 390 wide.
+- *On the step from the body* it comes up as the pancreas does, by the same
+  code (`OutlineMorph`, `SpecimenStep`, `_SpecimenOrgan`): the oval, flat
+  and lit in the mark, draws in to the testis's outline, matched at their
+  tops and their backs, and becomes its bed, while the testis and its
+  neighbours come up over it and the figure's parts go.
 
 **The glide.** The camera carries the organ from where it lies in the body
 to the middle of the view over the first three fifths of the step. From the
@@ -961,6 +1047,12 @@ frame (0.4 to 0.8 ms).
   and the colon taken away. A million islets are a few hundred, at true
   size, placed by chance weighted to the tail; the ducts show only for a
   duct cell, through a cut cleaner than any dissection.
+- **A testis from a plate.** One testis, the right, the same in every body,
+  and seen from its side though the body is seen from the front. Its cut
+  shows whole tubules coiling in their lobules, laid by rule, where a real
+  cut would show their cut ends; the tissue stop shows those. The
+  epididymis's head is lifted off it, as a plate lifts it, so the ductules
+  show.
 - **One field a tissue.** Wherever in the organ it is cut, and for every
   gene that goes there with the same kind of cell. "Lymphoid tissue" is a
   lymph node, and skin has no keratin layer of its own.
@@ -1007,7 +1099,7 @@ frame (0.4 to 0.8 ms).
   and their light and palette (`chromosome_shading.dart`), and the tube it
   turns into the band's strip as (`chromosome_tube.dart`).
 - `presentation/scenes/organ_art.dart`: every organ's drawing, and
-  `organ_studies.dart`, the nine studies.
+  `organ_studies.dart`, the eight studies.
 - `presentation/scenes/pancreas/`: the pancreas and its neighbours in
   centimetres (`pancreas_anatomy.dart`), every number its look is tuned by
   (`pancreas_style.dart`), its form in the organ's scene, with the relief,
@@ -1015,6 +1107,13 @@ frame (0.4 to 0.8 ms).
   palette (`pancreas_shading.dart`) and the meshes and how the step comes
   up (`pancreas_art.dart`). `presentation/scenes/coloured_mesh.dart`: the
   coloured meshes it and the chromosome are laid with.
+- `presentation/scenes/testis/`: the testis and what lies round it in
+  millimetres (`testis_anatomy.dart`), every number its look is tuned by
+  (`testis_style.dart`), its form, with the septa, lobules, tubules, rete,
+  ductules, epididymis and cord (`testis_form.dart`), and its meshes and
+  how it is drawn (`testis_art.dart`). The step from the body is the
+  pancreas's: `outline_morph.dart`, `specimen_step.dart`, and
+  `_SpecimenOrgan` in `organ_art.dart`.
 - `presentation/scenes/tissue/`: the slide (`tissue_slide.dart`), the engine
   (`slide_builder.dart`) and the recipes (`recipes_glands.dart`,
   `recipes_linings.dart`, `recipes_bulk.dart`).
@@ -1037,8 +1136,9 @@ frame (0.4 to 0.8 ms).
   moments; `ZOOM_MOMENTS=nucleus+2,nucleus+10,chromosome` draws those
   moments and no others (a stop, or a share of the step that leaves it). `ZOOM_TISSUE_ATLAS=/tmp/atlas` writes every recipe's slide on
   its own and `ZOOM_ORGAN_ATLAS=/tmp/organs` every tissue's organ, the ones
-  no catalog protein reaches included, and the pancreas on both figures
-  about each kind of cell that lights a part of it of its own. The picture at the top of this page
+  no catalog protein reaches included, the pancreas on both figures about
+  each kind of cell that lights a part of it of its own, and the testis
+  about each kind of cell that lives in it. The picture at the top of this page
   is insulin's nine stops from it.
 - The chromosome's tests: `chromosome_scene_test` (nothing narrower than
   its arms but the centromere and the ends), `chromosome_form_test` (the
@@ -1087,6 +1187,21 @@ frame (0.4 to 0.8 ms).
   body's own outline with no layer, mesh or islet drawn, the accent to
   where the cell lives and never round the gland, the meshes the same every
   time, and the steps to it and back to 0.08 a frame and 1.5 px.
+- `testis_form_test` holds the testis to 50 mm about the anatomogram's
+  middle with the anatomogram's site, its parts to their measured sizes,
+  the septa running from the mediastinum to the tunica with none crossing
+  another, the lobules tiling the cut face, every tubule inside its lobule
+  half a tubule clear of its edge and never nearer another or itself than
+  a tubule's width, the opened tubules running into the mediastinum, the
+  ductules from the testis into the epididymis's head, the vas from its
+  tail, the cord fading out above it, the Leydig clusters between the
+  tubules, each name on what it names, and the same testis every time.
+  `testis_art_test` holds the accent to where the cell lives (the tubules,
+  or the Leydig clusters, never the tunica, the mediastinum, the epididymis
+  or the cord), the hand-over to the body's own outline with no layer, mesh
+  or point, the meshes the same every time, its four names, and the steps
+  to it and back to 0.08 a frame and 1.5 px. `zoom_paint_timing_check`
+  times it with ubiquitin's zoom.
 - `zoom_routes_test` holds the route outside the lab, the redirects, and the
   whole trip from the walk and back under the app's own routes.
   `zoom_entry_test`, among the walk's tests, holds where the gene page
