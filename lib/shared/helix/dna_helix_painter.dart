@@ -6,6 +6,40 @@ import 'package:flutter/material.dart';
 
 import 'helix_geometry.dart';
 
+/// The bases' letters, each set in its own ball: A, T, G or C, and on the
+/// other strand its partner's.
+@immutable
+final class HelixLetters {
+  const HelixLetters({required this.style, this.turn = 0, this.shown = 1});
+
+  /// The face, its size in the painter's own pixels, and its ink. A letter
+  /// is centred on its ball by its line's box, so a face whose capitals sit
+  /// midway between its ascent and its descent, set with even leading, sits
+  /// true.
+  final TextStyle style;
+
+  /// How far each letter is turned on the painter's canvas: a caller that
+  /// turns the canvas turns the letters back, so they stand upright.
+  final double turn;
+
+  /// How much of the letters show, from 0 to 1: each grows from nothing in
+  /// its ball as the ball grows to hold it ([DnaHelixPainter.letteredGrowth]).
+  final double shown;
+
+  /// Each base's letter, by its [HelixPalette] slot.
+  static const List<String> ofSlot = <String>['A', 'T', 'G', 'C'];
+
+  @override
+  bool operator ==(Object other) =>
+      other is HelixLetters &&
+      other.style == style &&
+      other.turn == turn &&
+      other.shown == shown;
+
+  @override
+  int get hashCode => Object.hash(style, turn, shown);
+}
+
 /// Draws the duplex back to front onto a flat, opaque ground.
 ///
 /// Every colour this painter uses is fully opaque: depth is expressed by
@@ -38,6 +72,7 @@ class DnaHelixPainter extends CustomPainter {
     this.overscan = _overscan,
     this.strandFloor = 0,
     this.bases = 1,
+    this.letters,
   }) : super(repaint: repaint) {
     _buildLuts();
   }
@@ -85,6 +120,14 @@ class DnaHelixPainter extends CustomPainter {
   /// shrink by it, as a fading primitive does, and at 0 only the backbones
   /// are drawn. 1, the default, draws them all.
   final double bases;
+
+  /// The bases' letters, each in its ball, the duplex's alone: a transcript's
+  /// would read U. Null, the default, letters none.
+  final HelixLetters? letters;
+
+  /// How much larger a ball is drawn once its letter shows whole: room for a
+  /// letter a reader can read where the duplex is drawn about life size.
+  static const double letteredGrowth = 1.3;
 
   static const double _widthFraction = 0.40;
 
@@ -194,6 +237,13 @@ class DnaHelixPainter extends CustomPainter {
   /// across its face on some frames and not others.
   double _nodeDepthBias = 0;
 
+  /// How much of the letters show this frame, how much larger the balls are
+  /// drawn for them, and the four letters laid out, by base slot: null where
+  /// none show.
+  double _lettered = 0;
+  double _growth = 1;
+  List<TextPainter>? _glyphs;
+
   Size? _fadeSize;
   Rect _topFade = Rect.zero;
   Rect _bottomFade = Rect.zero;
@@ -207,11 +257,24 @@ class DnaHelixPainter extends CustomPainter {
     final double radius = math.min(model.radius, size.width * _widthFraction);
     final double height = math.max(model.modelHeight, size.height * overscan);
 
+    final HelixLetters? letters = this.letters;
+    _lettered = letters == null ? 0 : letters.shown.clamp(0.0, 1.0);
+    _growth = 1 + (letteredGrowth - 1) * _lettered;
+    _glyphs = letters == null || _lettered < _fadeEpsilon
+        ? null
+        : <TextPainter>[
+            for (final String letter in HelixLetters.ofSlot)
+              TextPainter(
+                text: TextSpan(text: letter, style: letters.style),
+                textDirection: TextDirection.ltr,
+              )..layout(),
+          ];
+
     // Two independent terms, so they add: how far the ball's front surface
     // sits ahead of its centre, plus the uncertainty in the depth of the
     // strand segment spanning it. Well under the ~0.5 that separates the two
     // strands, so this only ever settles genuinely ambiguous ties.
-    _nodeDepthBias = _baseRadius * _purineScale / (2 * radius) +
+    _nodeDepthBias = _baseRadius * _purineScale * _growth / (2 * radius) +
         math.max(model.sampleAngleStep / 4, model.rungDepthError);
 
     _project(size, radius, height);
@@ -233,6 +296,11 @@ class DnaHelixPainter extends CustomPainter {
     _drawPrimitives(canvas);
     _paintEdgeFade(canvas, size);
     canvas.restore();
+
+    for (final TextPainter glyph in _glyphs ?? const <TextPainter>[]) {
+      glyph.dispose();
+    }
+    _glyphs = null;
   }
 
   void _project(Size size, double radius, double height) {
@@ -463,12 +531,33 @@ class DnaHelixPainter extends CustomPainter {
           r *= shown;
           ring *= shown;
         }
+        // A lettered ball grows to hold its letter; its ring keeps its width.
+        if (_growth != 1) {
+          r *= _growth;
+        }
 
         _fillPaint.color = background;
         canvas.drawCircle(centre, r + ring, _fillPaint);
 
         _fillPaint.color = colour;
         canvas.drawCircle(centre, r, _fillPaint);
+
+        // Its letter, set in it upright and drawn with it, so whatever lies
+        // in front of the ball hides its letter too. It shrinks as the ball
+        // does, and so never leaves it.
+        final List<TextPainter>? glyphs = _glyphs;
+        if (glyphs != null && kind == HelixPrimitiveKind.node) {
+          final double grown = _lettered * fade * shown;
+          if (grown >= _fadeEpsilon) {
+            final TextPainter glyph = glyphs[slot];
+            canvas.save();
+            canvas.translate(centre.dx, centre.dy);
+            canvas.rotate(letters!.turn);
+            canvas.scale(grown);
+            glyph.paint(canvas, Offset(-glyph.width / 2, -glyph.height / 2));
+            canvas.restore();
+          }
+        }
         continue;
       }
 
@@ -618,6 +707,7 @@ class DnaHelixPainter extends CustomPainter {
         oldDelegate.bottomFade != bottomFade ||
         oldDelegate.overscan != overscan ||
         oldDelegate.strandFloor != strandFloor ||
-        oldDelegate.bases != bases;
+        oldDelegate.bases != bases ||
+        oldDelegate.letters != letters;
   }
 }

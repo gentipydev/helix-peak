@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/helix/dna_helix_painter.dart';
 import '../../../../shared/helix/helix_geometry.dart';
 import '../../domain/chromatin_layout.dart';
@@ -40,11 +41,13 @@ import 'zoom_subject.dart';
 /// - the bare start thickens to the home screen's own double helix
 ///   ([DnaHelixPainter]), a twisted rope at first that shows its grooves as
 ///   it grows, its bases coming in as they can be told apart, the record's
-///   first bases in their own colours.
+///   first bases in their own colours;
+/// - as its 5′ end is named, each base's letter comes up in its ball, which
+///   grows to hold it ([DnaHelixPainter.letteredGrowth]).
 ///
 /// At its stop the helix lies along the gene with its 5′ end at the left,
-/// turning as the home screen's does, whole, every base paired: nothing
-/// reads it. As the walk opens it unzips into the walk's rows, its turn
+/// turning as the home screen's does, whole, every base paired and lettered:
+/// nothing reads it. As the walk opens it unzips into the walk's rows, its turn
 /// easing until they lie flat.
 final class DnaScene extends ZoomScene {
   DnaScene(this.subject);
@@ -113,6 +116,16 @@ final class DnaScene extends ZoomScene {
   static double basesAt(double span) => _fall(span, 220, 40);
   static double floorAt(double span) => 1.4 * smoothstep((span - 16) / 24);
 
+  /// The size of a base's letter in the painter's own pixels: a capital's
+  /// corners 5.7 px from its middle, inside a lettered pyrimidine's 7 px, so
+  /// some 11 to 12 pt at the stop on a phone.
+  static const double letterSize = 12;
+
+  /// How much of the bases' letters show at [frame]: they come up as the 5′
+  /// end is named, on the same beat.
+  @visibleForTesting
+  double lettersShown(ZoomFrame frame) => calloutPresence(frame);
+
   /// 0 where the view is [from] base pairs wide or wider, 1 where it is
   /// [to] or narrower, evenly in its log between: every stage of the way is
   /// spread over the step's depth as it narrows.
@@ -163,27 +176,30 @@ final class DnaScene extends ZoomScene {
   static const Animation<double> _still = AlwaysStoppedAnimation<double>(0);
 
   DnaHelixPainter? _painter;
-  (ZoomInks, double, double, double)? _painted;
+  (ZoomInks, double, double, double, double)? _painted;
 
   /// The painter for the helix in [inks], [unzip] of the way unzipped, its
-  /// strands no thinner than [floor] painter pixels and [bases] of its bases
-  /// showing, made again only when one of them changes.
+  /// strands no thinner than [floor] painter pixels, [bases] of its bases
+  /// showing and [letters] of their letters, made again only when one of
+  /// them changes.
   DnaHelixPainter? _helix(
     ZoomInks inks,
     double unzip, {
     double floor = 0,
     double bases = 1,
+    double letters = 0,
   }) {
     final int count = subject.dnaBases;
     if (count < 4) {
       return null;
     }
     final double quantised = (unzip * 60).roundToDouble() / 60;
-    final (ZoomInks, double, double, double) now = (
+    final (ZoomInks, double, double, double, double) now = (
       inks,
       quantised,
       floor,
       bases,
+      letters,
     );
     if (_painter == null || _painted != now) {
       final String sequence = subject.record.sequence;
@@ -217,6 +233,19 @@ final class DnaScene extends ZoomScene {
         overscan: 0,
         strandFloor: floor,
         bases: bases,
+        // Each cut from its ball in the ground, in the card's sequence face,
+        // turned back upright against the turn the helix is laid along.
+        letters: HelixLetters(
+          style: AppTypography.sequenceSmall(inks.ground).copyWith(
+            fontSize: letterSize,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0,
+            height: 1,
+            leadingDistribution: TextLeadingDistribution.even,
+          ),
+          turn: -math.pi / 2,
+          shown: letters,
+        ),
       );
       _painted = now;
     }
@@ -399,6 +428,7 @@ final class DnaScene extends ZoomScene {
       frame.unzip,
       floor: floorAt(span) / scale,
       bases: basesAt(span),
+      letters: lettersShown(frame),
     );
     if (painter == null) {
       return;

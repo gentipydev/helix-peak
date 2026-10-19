@@ -60,8 +60,11 @@ final class NucleotideColors extends ThemeExtension<NucleotideColors> {
 
   /// The helix's four, on the home screen and at the zoom's DNA.
   ///
-  /// The helix is a drawing of DNA rather than a sequence to read: nothing on
-  /// it is lettered, so it is free of [muted]'s one lightness. It was drawn in
+  /// The helix is a drawing of DNA rather than a sequence to read: the home
+  /// screen's is not lettered, and where the zoom's DNA letters its bases each
+  /// letter is cut from its ball in the ground, which every ball clears (see
+  /// below), so the colour is never a letter's and the set is free of
+  /// [muted]'s one lightness. It was drawn in
   /// [dark], and at full strength those were the loudest colours in the app —
   /// thymine's red at a chroma of 68 against the accent's 43, on a screen that
   /// is otherwise the accent on the warm ground. These are the convention as

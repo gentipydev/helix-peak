@@ -649,6 +649,7 @@ void main() {
             out['the packing'] = frame.opacity * scene.packedShown(frame);
             out['the helix'] = frame.opacity * helix;
             out['its bases'] = frame.opacity * bases;
+            out['their letters'] = frame.opacity * scene.lettersShown(frame);
           }
         }
         return out;
