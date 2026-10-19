@@ -203,9 +203,13 @@ comes from `flutter/foundation.dart`. There is one existing violation:
 name a colour. Don't copy it. Colours come from the theme (`AppColorTokens`,
 `context.nucleotideColors`, `context.anatomyColors`), never from a raw hex.
 The whole app is on one ground: `AppTheme.analysis`, the walk's, is the app's
-theme, and home wears `AppTheme.home`, the same ground with the helix's bases
-at full strength. `AppTheme.dark`, the cool ground the app began on, is worn by
-no screen; the walk's tests still set the walk inside it. Small print is
+theme, and home wears `AppTheme.home`, the same ground with the helix in its
+own bases (`NucleotideColors.helix`: the convention warmed and softened, never
+more saturated than the accent; the zoom's DNA draws them too). The walk letters
+its bases in `NucleotideColors.muted`, and `NucleotideColors.dark`, the
+convention at full strength, is the reference both are measured from.
+`AppTheme.dark`, the cool ground the app began on, is worn by no screen; the
+walk's tests still set the walk inside it. Small print is
 `theme.caption` (`core/theme/app_typography.dart`), never a bare `bodySmall`,
 which is Material's in the bright ink.
 

@@ -316,7 +316,7 @@ Sources:
   toward the bright ink, a rim where the light catches an edge, a soft
   shadow under the form, and fine line work in the quiet ink.
 - **Data keeps its colours.** The gene's parts are the walk's role colours,
-  the bases the home helix's (`NucleotideColors.dark`), and blood the
+  the bases the home helix's (`NucleotideColors.helix`), and blood the
   thymine red, the one red the app has.
 - **Glows** are gradients and wide faint strokes, never a blur.
 - **Names.** One plate a name, with a line to what it names, set clear of
@@ -341,7 +341,7 @@ Every colour comes from `ZoomInks`, built from the theme:
 | `mark`, `markDeep` | `primary`, `primaryContainer` | the gene and what it makes (`glow(a)`) |
 | `shadow` | the ground three quarters of the way to black | shadows under forms |
 | `blood` | the walk's thymine | red cells |
-| `bases` | `NucleotideColors.dark` | the helix's bases |
+| `bases` | `NucleotideColors.helix` | the helix's bases |
 | `cds`, `utr`, `intron` | `AnatomyColors`' roles | the gene's parts |
 
 `zoom_inks_test` holds that no colour in `lib/features/zoom/` is written as
