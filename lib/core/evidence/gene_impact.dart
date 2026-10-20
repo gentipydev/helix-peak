@@ -376,7 +376,13 @@ final class GeneImpact {
     double best = -1;
     int bestAt = low;
     for (int i = _atLeast(low); i < _keys.length && _keys[i] <= high; i++) {
-      final double peak = _peakAt(i);
+      double peak = _scores[i * 3];
+      for (int a = 1; a < 3; a++) {
+        final double value = _scores[i * 3 + a];
+        if (value > peak) {
+          peak = value;
+        }
+      }
       peaks.add(peak);
       if (peak > best) {
         best = peak;
@@ -396,35 +402,6 @@ final class GeneImpact {
       peakPosition: bestAt,
       scored: peaks.length,
     );
-  }
-
-  /// Every scored base's peak, kept per part of the gene that [partOf] puts
-  /// it in, so that one base can be ranked among the others of its own part.
-  /// A base [partOf] answers null for is left out.
-  ImpactRanking<K> rankedBy<K>(K? Function(int position) partOf) {
-    final Map<K, List<double>> peaks = <K, List<double>>{};
-    for (int i = 0; i < _keys.length; i++) {
-      final K? part = partOf(_keys[i]);
-      if (part != null) {
-        (peaks[part] ??= <double>[]).add(_peakAt(i));
-      }
-    }
-    for (final List<double> run in peaks.values) {
-      run.sort();
-    }
-    return ImpactRanking<K>._(peaks);
-  }
-
-  /// The strongest of the three substitutions at index [i].
-  double _peakAt(int i) {
-    double peak = _scores[i * 3];
-    for (int a = 1; a < 3; a++) {
-      final double value = _scores[i * 3 + a];
-      if (value > peak) {
-        peak = value;
-      }
-    }
-    return peak;
   }
 
   List<AltScore> _rankedAt(int index, String wildtype) {
@@ -478,43 +455,6 @@ final class GeneImpact {
     final int before = position - _keys[at - 1];
     final int after = _keys[at] - position;
     return after < before ? at : at - 1;
-  }
-}
-
-/// Where a base's peak stands among the other bases of its part of the gene —
-/// the coding sequence, a UTR, the introns — counted from the strongest.
-///
-/// Calibrated against the genome, most coding bases are already in its top 1%
-/// and most intronic ones are not, so that reading mostly says which part a
-/// base is in. Among the bases of its own part, a base says whether it stands
-/// out in this gene.
-@immutable
-final class ImpactRanking<K> {
-  const ImpactRanking._(this._peaks);
-
-  /// Each part's peaks, lowest first.
-  final Map<K, List<double>> _peaks;
-
-  /// [peak]'s rank among the bases of [part], 1 being the strongest: one more
-  /// than the bases scoring higher, so bases that tie share a rank. Null for a
-  /// part with no scored base.
-  ({int rank, int total})? of(double peak, K part) {
-    final List<double>? peaks = _peaks[part];
-    if (peaks == null || peaks.isEmpty) {
-      return null;
-    }
-    // The first peak above [peak]; every one from there on scores higher.
-    int low = 0;
-    int high = peaks.length;
-    while (low < high) {
-      final int mid = (low + high) >> 1;
-      if (peaks[mid] <= peak) {
-        low = mid + 1;
-      } else {
-        high = mid;
-      }
-    }
-    return (rank: peaks.length - low + 1, total: peaks.length);
   }
 }
 

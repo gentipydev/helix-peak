@@ -40,7 +40,6 @@ class ImpactPanel extends StatefulWidget {
     required this.onDismiss,
     this.coding,
     this.onNote,
-    this.standing,
     this.reported = const <String, ClinVarGroup>{},
     this.observedEvidence,
     this.explanationTrack,
@@ -53,11 +52,6 @@ class ImpactPanel extends StatefulWidget {
 
   final BaseImpact impact;
   final GeneImpact? explanationTrack;
-
-  /// Where this base's strongest substitution ranks in its part of the gene,
-  /// `rank 153 of 333 in the CDS`, said after its band. Null says the band
-  /// alone, which is what a borrowed score gets.
-  final String? standing;
 
   /// The codon a coding base sits in, for what each alternative makes of it.
   /// Null off the coding sequence.
@@ -168,7 +162,6 @@ class _ImpactPanelState extends State<ImpactPanel> {
         child: _Details(
           key: ValueKey<int>(position),
           impact: widget.impact,
-          standing: widget.standing,
           note: widget.note,
           onNote: widget.onNote,
           explanation: _explanation,
@@ -298,7 +291,6 @@ class _Details extends StatelessWidget {
     required this.note,
     required this.explanation,
     required this.reported,
-    this.standing,
     this.onNote,
     this.coding,
     this.observedEvidence,
@@ -309,7 +301,6 @@ class _Details extends StatelessWidget {
   });
 
   final BaseImpact impact;
-  final String? standing;
   final String note;
   final VoidCallback? onNote;
   final bool explanation;
@@ -377,10 +368,7 @@ class _Details extends StatelessWidget {
                   ImpactLevel.low => 1,
                 },
                 label: impact.level.label,
-                // The band already places the base against the genome, and
-                // the scale's marks place every bar; what is left to say is
-                // where it stands among the gene's own bases of its part.
-                trailing: standing,
+                trailing: '${genomeRank(impact.peak)} genome-wide',
                 labelKey: const ValueKey<String>('impact-level'),
               ),
               if (impact.estimated) ...<Widget>[
@@ -402,10 +390,8 @@ class _Details extends StatelessWidget {
                   'at this base scored against the GRCh38 reference, for '
                   'splicing, expression, chromatin and coding effects together. '
                   'Phred = −10 log10(1 − quantile), calibrated across the '
-                  'genome; the scale marks the share of SNVs scoring at least '
-                  'that high. The rank orders the bases of this gene in the '
-                  'same part (5′ UTR, CDS, 3′ UTR, introns) by their strongest '
-                  'substitution.',
+                  'genome: 10 is the top 10% of SNVs, 20 the top 1% and 30 the '
+                  'top 0.1%.',
                   key: const ValueKey<String>('impact-explanation'),
                   style: theme.textTheme.bodySmall,
                 ),
@@ -420,24 +406,9 @@ class _Details extends StatelessWidget {
                 style: theme.textTheme.titleSmall,
               ),
               const SizedBox(height: 6),
-              // Marked where the genome's share of SNVs scoring that high
-              // falls tenfold: every ten Phred, up to the bars' ceiling.
               ScoreScale(
-                low: '',
-                high: genomeShare(GeneImpact.barCeiling),
-                marks: <ScoreMark>[
-                  for (
-                    double phred = GeneImpact.middlePhred;
-                    phred < GeneImpact.barCeiling;
-                    phred += GeneImpact.middlePhred
-                  )
-                    ScoreMark(
-                      phred / GeneImpact.barCeiling,
-                      phred == GeneImpact.middlePhred
-                          ? 'top ${genomeShare(phred)}'
-                          : genomeShare(phred),
-                    ),
-                ],
+                low: '0',
+                high: '40 or higher',
                 style: theme.textTheme.labelSmall,
                 trailing: disclosure,
                 highKey: const ValueKey<String>('impact-scale-end'),

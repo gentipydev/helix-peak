@@ -74,27 +74,6 @@ final class AnatomyAddress {
     return within >= 0 && within < _cds ? within : null;
   }
 
-  /// The part of the gene a base is in, for what is counted part by part: the
-  /// 5′ UTR, the coding sequence or the 3′ UTR ([RoleKind.utr5],
-  /// [RoleKind.coding], [RoleKind.utr3]), or an intron. Null for a flank, and
-  /// for every base of a transcript with no reading frame to divide it by.
-  RoleKind? partOf(int position) {
-    final AnatomyStage? transcript = _transcript;
-    if (!coding || transcript == null) {
-      return null;
-    }
-    final int cell = transcript.cellAt(position);
-    if (cell < 0) {
-      return model.transcriptRoleAt(position)?.kind == RoleKind.intron
-          ? RoleKind.intron
-          : null;
-    }
-    if (cell < _utr5) {
-      return RoleKind.utr5;
-    }
-    return cell < _utr5 + _cds ? RoleKind.coding : RoleKind.utr3;
-  }
-
   /// The 1-based codon a coding base is in, or null.
   int? codonOf(int position) {
     final int? offset = cdsOffsetOf(position);

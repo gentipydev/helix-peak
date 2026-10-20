@@ -268,7 +268,7 @@ void main() {
       expect(panel.coding!.residueName, 'Val26');
       expect(
         plain(tester, 'impact-level'),
-        'low impact · rank 315 of 333 in the CDS',
+        'low impact · bottom 90% genome-wide',
       );
       expect(plain(tester, 'impact-note'), endsWith('Val26 · highly constrained ›'));
       for (final String base in <String>['A', 'C', 'T']) {
