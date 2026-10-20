@@ -241,22 +241,15 @@ final class ChromosomeScene extends ZoomScene {
   /// another name is there, and only then on the other side.
   void _nameParts(ZoomFrame frame, ZoomStaging out, double presence) {
     for (final (String name, Offset at, double side) in parts) {
-      Offset beside(double s, double dy) =>
-          frame.toScreen(
-            Offset(form.centreAt(s, at.dy) + s * form.widthAt(at.dy), at.dy),
-          ) +
-          Offset(s * 14, dy);
+      Offset edge(double s) => frame.toScreen(
+        Offset(form.centreAt(s, at.dy) + s * form.widthAt(at.dy), at.dy),
+      );
       out.callout(
         'chromosome:$name',
         name,
         frame.toScreen(at),
         presence,
-        anchors: <Offset>[
-          beside(side, 0),
-          beside(side, 34),
-          beside(side, -34),
-          beside(-side, 0),
-        ],
+        anchors: columnAnchors(side, edge(-1), edge(1)),
         flush: true,
         quiet: true,
       );

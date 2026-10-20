@@ -135,6 +135,23 @@ final class ZoomCallout {
   final ZoomRing? ring;
 }
 
+/// Where a name set in a column at the canvas's edge ([ZoomCallout.flush])
+/// may be set, for what lies on [side] of a shape, -1 its left and 1 its
+/// right, whose edges level with what it names are [left] and [right] on
+/// screen: 14 px off its edge on that side, level with what it names, or a
+/// little below or above it where another name is there, and only then on
+/// the other side.
+List<Offset> columnAnchors(double side, Offset left, Offset right) {
+  Offset beside(double s, double dy) =>
+      (s < 0 ? left : right) + Offset(s * 14, dy);
+  return <Offset>[
+    beside(side, 0),
+    beside(side, 34),
+    beside(side, -34),
+    beside(-side, 0),
+  ];
+}
+
 /// What a scene shows, by key: where each thing it names is on screen and
 /// how much of it shows, and the callouts to set. The painter sets the
 /// callouts; the smoothness and targets tests read the rest without drawing.
