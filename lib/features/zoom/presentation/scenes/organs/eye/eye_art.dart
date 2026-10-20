@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../../../../domain/cell_archetypes.dart';
 import '../../../zoom_inks.dart';
 import '../../coloured_mesh.dart';
+import '../../cut_face.dart';
 import '../../specimen_light.dart';
 import '../../tube_course.dart';
 import 'eye_form.dart';
@@ -55,6 +56,13 @@ final class EyeArt {
   final SpecimenPalette _palette;
 
   bool get _pigmentHome => home == EyeHome.pigmentEpithelium;
+
+  /// A cut face, lit as the eye's are, shining less than a fresh surface.
+  late final CutFace _face = CutFace(
+    _light,
+    _palette,
+    sheen: EyeStyle.cutSheen,
+  );
 
   SpecimenTone _tone(Color colour) => SpecimenTone(colour, inks.shadow);
 
@@ -143,7 +151,7 @@ final class EyeArt {
 
   void _layScleraAndCornea(ColouredMesh mesh) {
     for (final EyeBand band in form.sclera) {
-      _layFace(
+      _face.lay(
         mesh,
         form.placed(band.outer),
         form.placed(band.inner),
@@ -151,7 +159,7 @@ final class EyeArt {
         _rimmed,
       );
     }
-    _layFace(
+    _face.lay(
       mesh,
       form.placed(form.cornea.outer),
       form.placed(form.cornea.inner),
@@ -165,7 +173,7 @@ final class EyeArt {
 
   void _layChoroid(ColouredMesh mesh) {
     for (final EyeBand band in form.choroid) {
-      _layFace(
+      _face.lay(
         mesh,
         form.placed(band.outer),
         form.placed(band.inner),
@@ -200,7 +208,7 @@ final class EyeArt {
 
   void _layCiliary(ColouredMesh mesh) {
     for (final EyeBand band in form.ciliary) {
-      _layFace(
+      _face.lay(
         mesh,
         form.placed(band.outer),
         form.placed(band.inner),
@@ -209,7 +217,7 @@ final class EyeArt {
       );
     }
     for (final EyeBand band in form.muscles) {
-      _layFace(
+      _face.lay(
         mesh,
         form.placed(band.outer),
         form.placed(band.inner),
@@ -223,7 +231,7 @@ final class EyeArt {
 
   void _layIris(ColouredMesh mesh) {
     for (final EyeBand band in form.iris) {
-      _layFace(
+      _face.lay(
         mesh,
         form.placed(band.outer),
         form.placed(band.inner),
@@ -346,7 +354,7 @@ final class EyeArt {
       minusIn.add(c - m * math.max(0.0, s.minus[i] - dura));
     }
     double shown(int i) => s.shown[i];
-    _layFace(
+    _face.lay(
       mesh,
       plusIn,
       minusIn,
@@ -354,8 +362,8 @@ final class EyeArt {
       const <(double, double, double)>[(0, 0, 0), (1, 0, 0)],
       alpha: shown,
     );
-    _layFace(mesh, plus, plusIn, (int _) => _duraTone, _cut, alpha: shown);
-    _layFace(mesh, minus, minusIn, (int _) => _duraTone, _cut, alpha: shown);
+    _face.lay(mesh, plus, plusIn, (int _) => _duraTone, _cut, alpha: shown);
+    _face.lay(mesh, minus, minusIn, (int _) => _duraTone, _cut, alpha: shown);
   }
 
   /// The nerve cut along its length, its fascicles faint lines along it.
@@ -363,7 +371,7 @@ final class EyeArt {
 
   void _layNerve(ColouredMesh mesh) {
     final TubeCourse n = form.nerve;
-    _layFace(
+    _face.lay(
       mesh,
       <Offset>[for (int i = 0; i < n.length; i++) n.at(i, -1)],
       <Offset>[for (int i = 0; i < n.length; i++) n.at(i, 1)],
@@ -409,7 +417,7 @@ final class EyeArt {
     final double run = form.mm(EyeStyle.tendonRun);
     for (final TubeCourse r in form.recti) {
       double belly(int i) => _smooth(r.arc[i] / run);
-      _layFace(
+      _face.lay(
         mesh,
         <Offset>[for (int i = 0; i < r.length; i++) r.at(i, -1)],
         <Offset>[for (int i = 0; i < r.length; i++) r.at(i, 1)],
@@ -678,63 +686,6 @@ final class EyeArt {
   }
 
   // Helpers.
-
-  /// A cut face laid in [mesh] between two edges in the scene, [a] and [b],
-  /// point for point: at each of [columns] across from a to b, lit as the
-  /// face there turns, in [tone] for its row, shut in by its share of
-  /// [shut] for its row, at [alpha] for its row.
-  void _layFace(
-    ColouredMesh mesh,
-    List<Offset> a,
-    List<Offset> b,
-    SpecimenTone Function(int) tone,
-    List<(double, double, double)> columns, {
-    double brightness = 1,
-    double Function(int)? shut,
-    double Function(int)? alpha,
-  }) {
-    final int n = a.length;
-    final int around = columns.length;
-    if (n < 2) {
-      return;
-    }
-    mesh.begin(n * around);
-    final int first = mesh.next;
-    for (int i = 0; i < n; i++) {
-      final Offset d = a[i] - b[i];
-      final double length = d.distance;
-      final Offset out = length <= 0 ? Offset.zero : d / length;
-      final SpecimenTone t = tone(i);
-      final double closed = shut == null ? 0 : shut(i);
-      final double shown = alpha == null ? 1 : alpha(i);
-      for (final (double u, double turn, double occlusion) in columns) {
-        final Offset p = Offset.lerp(a[i], b[i], u)!;
-        final double nz = math.sqrt(math.max(0, 1 - turn * turn));
-        final double nx = out.dx * turn;
-        final double ny = out.dy * turn;
-        mesh.vertex(
-          p.dx,
-          p.dy,
-          _palette.colour(
-            t,
-            _light.light(nx, ny, nz, form: nz) * brightness,
-            occlusion: occlusion * closed,
-            sheen: _light.sheen(nx, ny, nz) * EyeStyle.cutSheen * brightness,
-            alpha: shown,
-          ),
-        );
-      }
-    }
-    for (int i = 0; i + 1 < n; i++) {
-      final int r = first + i * around;
-      final int s = r + around;
-      for (int k = 0; k + 1 < around; k++) {
-        mesh
-          ..triangle(r + k, r + k + 1, s + k)
-          ..triangle(r + k + 1, s + k + 1, s + k);
-      }
-    }
-  }
 
   static Path _polyline(List<Offset> points) {
     final Path path = Path()..moveTo(points.first.dx, points.first.dy);
