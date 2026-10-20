@@ -81,3 +81,11 @@ String genomeRank(double phred) {
   }
   return 'top ${value.toStringAsPrecision(2)}%';
 }
+
+/// The share of genome-wide SNVs scoring at least [phred], for a scale whose
+/// marks stand at whole tens of Phred, each a tenfold step: `10%`, `1%`,
+/// `0.1%`, `0.01%`. One significant figure, which at those points is exact.
+String genomeShare(double phred) {
+  final double value = math.pow(10, -phred / 10) * 100;
+  return '${value >= 1 ? value.toStringAsFixed(0) : value.toStringAsPrecision(1)}%';
+}

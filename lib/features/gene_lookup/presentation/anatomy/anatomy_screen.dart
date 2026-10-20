@@ -402,6 +402,11 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   bool _constraintFailed = false;
   bool _conservation = false;
   GeneImpact? _impact;
+
+  /// Every scored base's peak, part by part, built at the first base a reader
+  /// opens and kept for as long as the track and the model are the ones it
+  /// was built from.
+  (GeneImpact, AnatomyModel, ImpactRanking<RoleKind>)? _ranking;
   GeneClinVar? _clinvar;
   bool _clinvarFailed = false;
   int _clinvarGeneration = 0;
@@ -1089,6 +1094,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     return ImpactPanel(
       key: const ValueKey<String>('impact-panel'),
       impact: reading,
+      standing: _standingOf(reading, impact, address.partOf(position)),
       explanationTrack: impact.matchesRecord(widget.record) ? impact : null,
       observedEvidence: _clinvarBlock(position: position, scope: where),
       reported: _reported(
@@ -1125,6 +1131,42 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       pinIdentity: pin,
       onDismiss: () => unawaited(_dismissPanel()),
     );
+  }
+
+  /// Where [reading] ranks among the bases of [part], its part of the gene:
+  /// `rank 153 of 333 in the CDS`.
+  ///
+  /// Null where no rank can be said: a borrowed score, which is not this
+  /// base's own; a base in no part, such as a flank; and an intron of a gene
+  /// drawn with its introns shortened, whose drawn bases are not its bases.
+  String? _standingOf(BaseImpact reading, GeneImpact impact, RoleKind? part) {
+    if (reading.estimated ||
+        part == null ||
+        (part == RoleKind.intron && widget.record.isIntronCompressed)) {
+      return null;
+    }
+    final (GeneImpact, AnatomyModel, ImpactRanking<RoleKind>)? kept = _ranking;
+    final ImpactRanking<RoleKind> ranking;
+    if (kept != null &&
+        identical(kept.$1, impact) &&
+        identical(kept.$2, _model)) {
+      ranking = kept.$3;
+    } else {
+      ranking = impact.rankedBy(AnatomyAddress.of(_model).partOf);
+      _ranking = (impact, _model, ranking);
+    }
+    final ({int rank, int total})? place = ranking.of(reading.peak, part);
+    if (place == null) {
+      return null;
+    }
+    final String name = switch (part) {
+      RoleKind.utr5 => '5′ UTR',
+      RoleKind.utr3 => '3′ UTR',
+      RoleKind.intron => widget.record.exons.length == 2 ? 'intron' : 'introns',
+      _ => 'CDS',
+    };
+    return 'rank ${grouped(place.rank)} of ${grouped(place.total)} '
+        'in the $name';
   }
 
   /// [label] as written on the thing it names rather than in a sentence:

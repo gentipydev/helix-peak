@@ -40,6 +40,7 @@ class ImpactPanel extends StatefulWidget {
     required this.onDismiss,
     this.coding,
     this.onNote,
+    this.standing,
     this.reported = const <String, ClinVarGroup>{},
     this.observedEvidence,
     this.explanationTrack,
@@ -53,8 +54,13 @@ class ImpactPanel extends StatefulWidget {
   final BaseImpact impact;
   final GeneImpact? explanationTrack;
 
-  /// The codon a coding base sits in, for which alternatives keep the amino
-  /// acid. Null off the coding sequence.
+  /// Where this base's strongest substitution ranks in its part of the gene,
+  /// `rank 153 of 333 in the CDS`, said after its band. Null says the band
+  /// alone, which is what a borrowed score gets.
+  final String? standing;
+
+  /// The codon a coding base sits in, for what each alternative makes of it.
+  /// Null off the coding sequence.
   final CodingEvidence? coding;
 
   /// Opens what [note] names — the residue a coding base encodes. Null makes
@@ -162,6 +168,7 @@ class _ImpactPanelState extends State<ImpactPanel> {
         child: _Details(
           key: ValueKey<int>(position),
           impact: widget.impact,
+          standing: widget.standing,
           note: widget.note,
           onNote: widget.onNote,
           explanation: _explanation,
@@ -291,6 +298,7 @@ class _Details extends StatelessWidget {
     required this.note,
     required this.explanation,
     required this.reported,
+    this.standing,
     this.onNote,
     this.coding,
     this.observedEvidence,
@@ -301,6 +309,7 @@ class _Details extends StatelessWidget {
   });
 
   final BaseImpact impact;
+  final String? standing;
   final String note;
   final VoidCallback? onNote;
   final bool explanation;
@@ -318,8 +327,6 @@ class _Details extends StatelessWidget {
       textTheme: base.textTheme.apply(fontFamily: AppTypography.sansFamily),
     );
     final Color bar = theme.colorScheme.onSurfaceVariant;
-    final List<String> silent =
-        coding?.synonymousAlternatives ?? const <String>[];
     // An estimate is drawn quieter than a measurement. The number is still
     // there to read, but nothing about it should look as solid as a score that
     // was measured for the base under the finger.
@@ -370,7 +377,10 @@ class _Details extends StatelessWidget {
                   ImpactLevel.low => 1,
                 },
                 label: impact.level.label,
-                trailing: '${genomeRank(impact.peak)} genome-wide',
+                // The band already places the base against the genome, and
+                // the scale's marks place every bar; what is left to say is
+                // where it stands among the gene's own bases of its part.
+                trailing: standing,
                 labelKey: const ValueKey<String>('impact-level'),
               ),
               if (impact.estimated) ...<Widget>[
@@ -392,8 +402,10 @@ class _Details extends StatelessWidget {
                   'at this base scored against the GRCh38 reference, for '
                   'splicing, expression, chromatin and coding effects together. '
                   'Phred = −10 log10(1 − quantile), calibrated across the '
-                  'genome: 10 is the top 10% of SNVs, 20 the top 1% and 30 the '
-                  'top 0.1%.',
+                  'genome; the scale marks the share of SNVs scoring at least '
+                  'that high. The rank orders the bases of this gene in the '
+                  'same part (5′ UTR, CDS, 3′ UTR, introns) by their strongest '
+                  'substitution.',
                   key: const ValueKey<String>('impact-explanation'),
                   style: theme.textTheme.bodySmall,
                 ),
@@ -408,9 +420,24 @@ class _Details extends StatelessWidget {
                 style: theme.textTheme.titleSmall,
               ),
               const SizedBox(height: 6),
+              // Marked where the genome's share of SNVs scoring that high
+              // falls tenfold: every ten Phred, up to the bars' ceiling.
               ScoreScale(
-                low: '0',
-                high: '40 or higher',
+                low: '',
+                high: genomeShare(GeneImpact.barCeiling),
+                marks: <ScoreMark>[
+                  for (
+                    double phred = GeneImpact.middlePhred;
+                    phred < GeneImpact.barCeiling;
+                    phred += GeneImpact.middlePhred
+                  )
+                    ScoreMark(
+                      phred / GeneImpact.barCeiling,
+                      phred == GeneImpact.middlePhred
+                          ? 'top ${genomeShare(phred)}'
+                          : genomeShare(phred),
+                    ),
+                ],
                 style: theme.textTheme.labelSmall,
                 trailing: disclosure,
                 highKey: const ValueKey<String>('impact-scale-end'),
@@ -428,10 +455,10 @@ class _Details extends StatelessWidget {
                     native: false,
                     color: bar,
                     valueKey: ValueKey<String>('impact-score-${score.base}'),
-                    tag: _tag(score.base, reported[score.base], silent),
+                    tag: _tag(score.base, reported[score.base], coding),
                     semanticsLabel:
                         '${score.base}, Phred ${score.phred.toStringAsFixed(1)}'
-                        '${silent.contains(score.base) ? ', same amino acid' : ''}'
+                        '${_spoken(coding?.spokenChangeTo(score.base))}'
                         '${reported[score.base] == null ? '' : ', ClinVar ${reported[score.base]!.label}'}',
                   ),
                 ),
@@ -458,11 +485,12 @@ class _Details extends StatelessWidget {
     );
   }
 
-  /// The row's tag: its ClinVar mark, `=` where the change keeps the amino
-  /// acid, or both.
-  static Widget? _tag(String alt, ClinVarGroup? group, List<String> silent) {
-    final bool same = silent.contains(alt);
-    if (group == null && !same) {
+  /// The row's tag: its ClinVar mark, what the change makes of a coding
+  /// base's codon — `His`, `=` where it keeps the amino acid, `Ter`, `?` in
+  /// the start codon — or both.
+  static Widget? _tag(String alt, ClinVarGroup? group, CodingEvidence? coding) {
+    final String made = coding?.changeTo(alt) ?? '';
+    if (group == null && made.isEmpty) {
       return null;
     }
     return Row(
@@ -470,11 +498,11 @@ class _Details extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         if (group != null) ClinVarDot(group: group, size: 9),
-        if (group != null && same) const SizedBox(width: 4),
-        if (same)
-          const Text(
-            '=',
-            style: TextStyle(
+        if (group != null && made.isNotEmpty) const SizedBox(width: 4),
+        if (made.isNotEmpty)
+          Text(
+            made,
+            style: const TextStyle(
               fontFamily: AppTypography.monoFamily,
               fontSize: 13,
             ),
@@ -482,6 +510,10 @@ class _Details extends StatelessWidget {
       ],
     );
   }
+
+  /// A row's change as its screen-reader label continues: `, histidine`.
+  static String _spoken(String? change) =>
+      change == null || change.isEmpty ? '' : ', $change';
 }
 
 class _Substitution extends StatelessWidget {

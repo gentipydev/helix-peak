@@ -172,11 +172,20 @@ bool stackScoreLabels(BuildContext context) =>
 /// words — "−10 or lower", "40 or higher" — and on a narrow phone with type
 /// turned up the two can be wider together than the bars they label. They are
 /// then drawn a little smaller, rather than run off the edge or cut short.
+///
+/// A scale can also name points between its ends ([marks]), each ending at its
+/// point as the high end ends at the bars' end. Those are drawn at their own
+/// size and in their own places, never scaled, because a mark that moved
+/// would no longer stand over its point of the bars. A mark with no room
+/// beside its neighbours is left out instead, the nearest the end first; the
+/// end is always said, and so is the first mark, where a scale says what its
+/// marks are (`top 10%`).
 class ScoreScale extends StatelessWidget {
   const ScoreScale({
     required this.low,
     required this.high,
     required this.style,
+    this.marks = const <ScoreMark>[],
     this.trailing = 0,
     this.highKey,
     super.key,
@@ -187,6 +196,10 @@ class ScoreScale extends StatelessWidget {
   final String high;
   final TextStyle? style;
 
+  /// Points between the ends, each named over its place on the bars. Empty
+  /// draws the two ends alone.
+  final List<ScoreMark> marks;
+
   /// Room the rows below keep after their number — a chevron's — which the
   /// scale keeps too, so that its ends stay over the bars' ends.
   final double trailing;
@@ -195,6 +208,10 @@ class ScoreScale extends StatelessWidget {
   /// The least room between the two ends: enough that they read as two
   /// ends, not as one phrase, when they are drawn close.
   static const double _gap = 16;
+
+  /// The least room either side of a mark. Less than [_gap]: a mark is read
+  /// on its own, against the bar under it, rather than as one of a pair.
+  static const double _markGap = 6;
 
   @override
   Widget build(BuildContext context) {
@@ -219,6 +236,9 @@ class ScoreScale extends StatelessWidget {
         Expanded(
           child: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints box) {
+              if (marks.isNotEmpty) {
+                return _marked(box.maxWidth, width);
+              }
               // The ends at their own size with the room between them, or at
               // the least room and scaled to fit. A measure a hair out is a
               // hair of scaling, never an overflow.
@@ -246,4 +266,59 @@ class ScoreScale extends StatelessWidget {
       ],
     );
   }
+
+  /// The ends and [marks] over bars [extent] wide. The first mark is placed
+  /// with the ends, and the rest from the end inward, so that where one has no
+  /// room it is the one nearest the end that goes.
+  Widget _marked(double extent, double Function(String text) width) {
+    (double, double) span(ScoreMark mark) {
+      final double size = width(mark.label);
+      final double left = (mark.fraction * extent - size).clamp(
+        0.0,
+        math.max(0.0, extent - size),
+      );
+      return (left, left + size);
+    }
+
+    double start = low.isEmpty ? 0 : width(low) + _markGap;
+    double limit = extent - width(high) - _markGap;
+    final List<(double, String)> placed = <(double, String)>[];
+    final (double firstLeft, double firstRight) = span(marks.first);
+    if (firstLeft >= start && firstRight <= limit) {
+      placed.add((firstLeft, marks.first.label));
+      start = firstRight + _markGap;
+    }
+    for (final ScoreMark mark in marks.skip(1).toList().reversed) {
+      final (double left, double right) = span(mark);
+      if (left < start || right > limit) {
+        continue;
+      }
+      placed.add((left, mark.label));
+      limit = left - _markGap;
+    }
+    return Stack(
+      children: <Widget>[
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: Text(high, key: highKey, style: style, maxLines: 1),
+        ),
+        if (low.isNotEmpty) Text(low, style: style, maxLines: 1),
+        for (final (double left, String label) in placed)
+          Positioned(
+            left: left,
+            child: Text(label, style: style, maxLines: 1),
+          ),
+      ],
+    );
+  }
+}
+
+/// A point named between a [ScoreScale]'s ends: where along the bars, 0 to 1
+/// on their own scale, and what a bar reaching it means.
+@immutable
+class ScoreMark {
+  const ScoreMark(this.fraction, this.label);
+
+  final double fraction;
+  final String label;
 }
