@@ -90,6 +90,15 @@ BRAIN_LANDMARKS = [
 # lies in is drawn.
 STAND_IN = {"UBERON_0001723": "UBERON_0000167"}
 
+# Parts the zoom goes into at one end rather than where they are widest:
+# the share of the part's height, from its top, that its site is found in.
+# The bone marrow is drawn as a femur, and an adult's femur keeps its red
+# marrow between its trochanters, its head and greater trochanter fatty
+# (Mitchell et al. 1986, Radiology 161:199, in 95% of femurs under fifty),
+# its shaft and its lower end turned to yellow marrow by 24 (Moore and
+# Dawson 1990, Radiology 175:219).
+SITE_TOP = {"UBERON_0002371": 0.2}
+
 
 def fetch(directory: str | None) -> dict[str, str]:
     """The three drawings' paths, downloaded at the pinned commit unless
@@ -145,11 +154,24 @@ def edge_distance(contour: list[svg.Point], p: svg.Point) -> float:
     return best
 
 
-def site_of(contour: list[svg.Point]) -> svg.Point:
+def site_of(contour: list[svg.Point], top: float = 1.0) -> svg.Point:
     """A point well inside [contour]: the one of a grid over it that lies
-    farthest from its edge. Where the zoom goes into the part."""
+    farthest from its edge. Where the zoom goes into the part. With [top]
+    under 1, the grid covers only that share of its box from the top
+    (`SITE_TOP`), or the whole box where no point of it there is inside."""
     x0, y0, x1, y1 = svg.bounds([contour])
-    best, at = -1.0, ((x0 + x1) / 2, (y0 + y1) / 2)
+    if top < 1:
+        at = farthest_inside(contour, x0, y0, x1, y0 + (y1 - y0) * top)
+        if at is not None:
+            return at
+    at = farthest_inside(contour, x0, y0, x1, y1)
+    return at if at is not None else ((x0 + x1) / 2, (y0 + y1) / 2)
+
+
+def farthest_inside(contour: list[svg.Point], x0: float, y0: float, x1: float, y1: float) -> svg.Point | None:
+    """The point of a grid over the box from (x0, y0) to (x1, y1) that lies
+    inside [contour] farthest from its edge, or None where none is inside."""
+    best, at = -1.0, None
     n = 36
     for i in range(1, n):
         for j in range(1, n):
@@ -225,7 +247,7 @@ def convert_body(name: str, path: str, wanted: set[str]) -> dict:
         followed = contours[0]
         bx0, by0, bx1, by1 = svg.bounds([followed])
         tolerance = max(0.01, 0.0025 * math.hypot(bx1 - bx0, by1 - by0))
-        site = site_of(followed)
+        site = site_of(followed, SITE_TOP.get(uberon, 1.0))
         parts[uberon] = {
             "title": titles.get(uberon) or titles.get(STAND_IN.get(uberon, ""), ""),
             "site": list(place(site)),

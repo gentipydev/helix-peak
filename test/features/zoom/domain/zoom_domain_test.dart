@@ -481,6 +481,36 @@ void main() {
       }
     });
 
+    test('go into the bone marrow, drawn as a femur, in its upper fifth, '
+        'where an adult keeps its red marrow, well inside it', () {
+      double toSegment(Offset p, Offset a, Offset b) {
+        final Offset ab = b - a;
+        final double length = ab.dx * ab.dx + ab.dy * ab.dy;
+        final double t = length == 0
+            ? 0
+            : (((p - a).dx * ab.dx + (p - a).dy * ab.dy) / length).clamp(0, 1);
+        return (p - (a + ab * t)).distance;
+      }
+
+      final String uberon = tissueAnatomy['bone marrow']!.uberon;
+      for (final AnatomyFigure figure in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ]) {
+        final AnatomyPart part = figure.parts[uberon]!;
+        final Rect box = boxOf(part.followed);
+        expect(part.site.dy - box.top, lessThan(0.2 * box.height),
+            reason: figure.name);
+        final List<Offset> outline = part.followed;
+        double edge = double.infinity;
+        for (int i = 0; i < outline.length; i++) {
+          final Offset b = outline[(i + 1) % outline.length];
+          edge = math.min(edge, toSegment(part.site, outline[i], b));
+        }
+        expect(edge, greaterThan(0.015), reason: figure.name);
+      }
+    });
+
     test('pick a body that has the tissue, and as many of the others the '
         'gene is read in as either has', () {
       AnatomyFigure body(String? tissue, [List<String> others = const []]) =>

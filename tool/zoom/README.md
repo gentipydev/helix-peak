@@ -40,6 +40,16 @@ What is changed from the drawings, as the licence asks to be said:
   given in words instead: in the generated file's head, in the zoom's About
   sheet (`ZoomFacts.about`) and in `docs/design/zoom.md`.
 
+## Where the zoom goes in
+
+Each part's `site` is where the zoom goes into it: the point of a 36 × 36
+grid over its outline's box that lies inside the outline farthest from its
+edge. A part named in `SITE_TOP` is gone into in a share of its box from the
+top instead. The bone marrow is drawn as a femur, and an adult's femur keeps
+its red marrow between its trochanters, its head, its shaft and its lower
+end holding yellow marrow (Mitchell et al. 1986, Moore and Dawson 1990), so
+its site is the farthest point inside the femur's upper fifth.
+
 ## Why generated Dart, not an asset
 
 The app's bundled assets are held to a fixed list by a walk test
