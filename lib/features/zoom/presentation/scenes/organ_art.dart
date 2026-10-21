@@ -9,6 +9,8 @@ import '../../domain/zoom_depth.dart';
 import '../zoom_inks.dart';
 import 'contour.dart';
 import 'organ_studies.dart';
+import 'organs/bone_marrow/marrow_art.dart';
+import 'organs/bone_marrow/marrow_form.dart';
 import 'organs/brain/brain_anatomy.dart';
 import 'organs/brain/brain_art.dart';
 import 'organs/brain/brain_form.dart';
@@ -37,6 +39,12 @@ import 'zoom_subject.dart';
 /// zoom's cell lives ([home]), its line then in the mark.
 typedef OrganName = ({String key, String word, Offset at, bool home});
 
+/// The column at the canvas's edge a name is set in (`ZoomCallout.flush`):
+/// on the organ's [side], -1 its left and 1 its right, beside the organ's
+/// outermost points to its [left] and [right] at the height of what it
+/// names, at the organ's real size.
+typedef OrganColumn = ({double side, Offset left, Offset right});
+
 /// An organ as its own scene draws it: in the scene's units, at its real
 /// size, its middle at the origin, and where in it its tissue is sampled
 /// ([site]).
@@ -50,7 +58,8 @@ typedef OrganName = ({String key, String word, Offset at, bool home});
 /// lymph node, a vessel, the skin, a parathyroid gland, the retina), and are
 /// drawn from general anatomy, as are the pancreas, the testis, cut down its
 /// length, the salivary gland, its parotid in place, the brain, cut down
-/// its middle, and the eye, cut level through its optic nerve.
+/// its middle, the eye, cut level through its optic nerve, and the bone
+/// marrow, its femur cut down its length.
 ///
 /// Where the gene is, the organ glows in the mark: the part of it the
 /// zoom's cell lives in (the islets of a pancreas for an endocrine cell, its
@@ -114,6 +123,13 @@ abstract class OrganArt {
         cell: shape,
         level: level,
       ),
+      OrganKind.boneMarrow when part != null => _MarrowOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        level: level,
+      ),
       _ =>
         part == null
             ? _AnyOrgan()
@@ -150,6 +166,11 @@ abstract class OrganArt {
   /// The points its [names] are set round, at its real size: it and what
   /// is drawn round it.
   List<Offset> get named => const <Offset>[];
+
+  /// The columns at the canvas's edges its [names] are set in instead, by
+  /// their keys, each level with what it names: for an organ that stands
+  /// tall and narrow, the femur. None where they are set round it.
+  Map<String, OrganColumn> get columns => const <String, OrganColumn>{};
 
   /// Builds what the organ caches for its drawing in [inks] ahead of its
   /// first frame, as its scene's own preparing asks: by default its outline.
@@ -236,11 +257,10 @@ abstract class OrganArt {
 }
 
 /// The surface an organ's outline is given.
-enum _Look { lobules, hollow, fibres, airways, kidney, bone, fat, coils }
+enum _Look { lobules, hollow, fibres, airways, kidney, fat, coils }
 
 _Look _lookOf(OrganKind kind) => switch (kind) {
   OrganKind.adipose => _Look.fat,
-  OrganKind.boneMarrow => _Look.bone,
   OrganKind.lung => _Look.airways,
   OrganKind.kidney => _Look.kidney,
   OrganKind.intestine ||
@@ -504,9 +524,6 @@ final class _DrawnOrgan extends OrganArt {
             ..lineTo(tip.dx, tip.dy)
             ..close();
         }
-      case _Look.bone:
-        // The marrow in its cavity, down the middle of the bone.
-        dark.addPath(_inset(0.9, across: 0.5), Offset.zero);
       case _Look.coils:
         // Loops lying on one another.
         final double step = size * 0.085;
@@ -547,16 +564,7 @@ final class _DrawnOrgan extends OrganArt {
     );
     _study?.behind(canvas, inks, line, detail);
     final bool hollow = _look == _Look.hollow && _study == null;
-    final bool bone = _look == _Look.bone;
-    OrganArt._sculpted(
-      canvas,
-      _shape,
-      _box,
-      inks,
-      line,
-      detail,
-      light: bone ? 0.42 : 0.3,
-    );
+    OrganArt._sculpted(canvas, _shape, _box, inks, line, detail);
     // The mark the body handed it over in, giving way as it becomes the
     // organ and the gene's place in it comes up.
     final double handed = (1 - detail) * (0.2 + 0.55 * level);
@@ -575,10 +583,7 @@ final class _DrawnOrgan extends OrganArt {
     if (detail > 0) {
       canvas.drawPath(
         _detail.$2,
-        Paint()
-          ..color = (bone ? inks.shade(0.6) : inks.shade(0.5)).withValues(
-            alpha: 0.8 * detail,
-          ),
+        Paint()..color = inks.shade(0.5).withValues(alpha: 0.8 * detail),
       );
       canvas.drawPath(
         _detail.$1,
@@ -1066,6 +1071,92 @@ final class _SalivaryOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => SalivaryArt.bedOf(inks);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The bone marrow, drawn from general anatomy as the femur the anatomogram
+/// draws for it, cut down its length (`MarrowArt`): its red marrow, where
+/// the zoom goes in, flat in the mark among the trabeculae of its upper
+/// end; reached from the body's own outline of it (`_SpecimenOrgan`): that
+/// outline draws in toward the femur's own and becomes the bed it lies on.
+final class _MarrowOrgan extends _SpecimenOrgan {
+  _MarrowOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    super.level,
+  }) : _form = MarrowForm.place(part: part, anatomy: anatomy, view: view);
+
+  final MarrowForm _form;
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where every cell of the marrow lives, its red marrow, at the place its
+  // tissue is sampled; and the bone's parts round it, no more (the user's
+  // choice of 2026-10-20).
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'home', word: 'red marrow', at: _form.site, home: true),
+    (
+      key: 'trabecular',
+      word: 'trabecular bone',
+      at: _form.trabecularName,
+      home: false,
+    ),
+    (
+      key: 'cortical',
+      word: 'cortical bone',
+      at: _form.corticalName,
+      home: false,
+    ),
+    (key: 'yellow', word: 'yellow marrow', at: _form.yellowName, home: false),
+  ];
+
+  // Each in a column at the canvas's edge, level with what it names (the
+  // user's choice of 2026-10-20): the bone's on the left, by its head and
+  // its shaft, the marrow's on the right.
+  @override
+  late final Map<String, OrganColumn> columns = <String, OrganColumn>{
+    for (final OrganName name in names)
+      name.key: () {
+        final (Offset left, Offset right) = _form.edgesAt(name.at);
+        return (
+          side: name.key == 'trabecular' || name.key == 'cortical' ? -1.0 : 1.0,
+          left: left,
+          right: right,
+        );
+      }(),
+  };
+
+  MarrowArt? _art;
+
+  MarrowArt _artFor(ZoomInks inks) {
+    final MarrowArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = MarrowArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => MarrowArt.bedOf(inks);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

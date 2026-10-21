@@ -193,17 +193,17 @@ final class OrganForm {
 }
 
 /// What lies inside an organ of one kind, and the part of it the zoom's
-/// cell lives in, in the mark: the red marrow of a femur, the lobules of a
-/// liver. By the kind of organ and of cell, never by gene. (The pancreas,
+/// cell lives in, in the mark: the lobules of a liver, the fibres of a
+/// muscle. By the kind of organ and of cell, never by gene. (The pancreas,
 /// the testis and the salivary gland are drawn from anatomy instead, among
-/// their neighbours: `PancreasArt`, `TestisArt`, `SalivaryArt`.)
+/// their neighbours, and the bone marrow as its femur: `PancreasArt`,
+/// `TestisArt`, `SalivaryArt`, `MarrowArt`.)
 abstract class OrganStudy {
   const OrganStudy();
 
   /// The kinds of organ outlined by the anatomogram that have a study of
   /// their own; the rest are sculpted with a surface for their kind.
   static const Set<OrganKind> studied = <OrganKind>{
-    OrganKind.boneMarrow,
     OrganKind.liver,
     OrganKind.adipose,
     OrganKind.skeletalMuscle,
@@ -216,7 +216,6 @@ abstract class OrganStudy {
   /// [cell], or none where the organ has no study of its own.
   static OrganStudy? of(OrganKind kind, OrganForm form, CellShape cell) =>
       switch (kind) {
-        OrganKind.boneMarrow => _Femur(form),
         OrganKind.liver => _Liver(form),
         OrganKind.adipose => _Fat(form),
         OrganKind.skeletalMuscle => _Muscle(form),
@@ -241,109 +240,6 @@ Paint _stroke(Color colour, double width) => Paint()
   ..strokeCap = StrokeCap.round
   ..strokeJoin = StrokeJoin.round
   ..color = colour;
-
-/// A femur, the anatomogram's bone for marrow, cut along its length: the
-/// cortex bright, the spongy bone of its ends a lattice of trabeculae, the
-/// shaft's cavity in shade, and the red marrow in the spongy ends, where
-/// blood is made, glowing.
-final class _Femur extends OrganStudy {
-  _Femur(this.form) {
-    final math.Random random = math.Random(19);
-    final Rect box = form.box;
-    final double size = form.size;
-    _cavity = form.inset(0.9, across: 0.42);
-    // The spongy ends: the top fifth, round the head, and the bottom sixth,
-    // round the condyles.
-    _ends = Path()
-      ..addRect(
-        Rect.fromLTRB(
-          box.left,
-          box.top,
-          box.right,
-          box.top + box.height * 0.22,
-        ),
-      )
-      ..addRect(
-        Rect.fromLTRB(
-          box.left,
-          box.bottom - box.height * 0.18,
-          box.right,
-          box.bottom,
-        ),
-      );
-    _lattice = Path();
-    for (final Offset p in form.scatter(
-      260,
-      random,
-      apart: size * 0.006,
-      within: Path.combine(PathOperation.intersect, form.inset(0.94), _ends),
-    )) {
-      final double a = random.nextDouble() * math.pi;
-      final double l = size * (0.012 + 0.016 * random.nextDouble());
-      final Offset d = Offset(math.cos(a), math.sin(a)) * l;
-      _lattice
-        ..moveTo(p.dx - d.dx, p.dy - d.dy)
-        ..lineTo(p.dx + d.dx, p.dy + d.dy);
-    }
-    _marrow = <Offset>[
-      form.site,
-      ...form.scatter(
-        90,
-        random,
-        apart: size * 0.011,
-        within: Path.combine(PathOperation.intersect, form.inset(0.9), _ends),
-      ),
-    ];
-    _shaft = form.inset(0.86, across: 0.36);
-  }
-
-  final OrganForm form;
-  late final Path _cavity;
-  late final Path _ends;
-  late final Path _lattice;
-  late final Path _shaft;
-  late final List<Offset> _marrow;
-
-  @override
-  void inside(Canvas canvas, ZoomInks inks, double line, double detail) {
-    // The cavity down the shaft, yellow marrow, in shade.
-    canvas.drawPath(
-      _cavity,
-      Paint()..color = inks.shade(0.62).withValues(alpha: 0.85 * detail),
-    );
-    canvas.drawPath(
-      _shaft,
-      Paint()..color = inks.shade(0.5).withValues(alpha: 0.5 * detail),
-    );
-    // The spongy ends: their lattice, and the red marrow in it.
-    canvas.save();
-    canvas.clipPath(_ends);
-    canvas.drawPath(
-      form.inset(0.94),
-      Paint()..color = inks.shade(0.7).withValues(alpha: 0.7 * detail),
-    );
-    for (final Offset p in _marrow) {
-      Sculpt.glow(canvas, p, form.size * 0.03, inks, 0.18 * detail);
-    }
-    canvas.drawPath(
-      _lattice,
-      _stroke(inks.lit(0.62).withValues(alpha: 0.55 * detail), 1.1 * line),
-    );
-    for (final Offset p in _marrow) {
-      canvas.drawCircle(
-        p,
-        form.size * 0.0042,
-        Paint()..color = inks.glow(0.85 * detail),
-      );
-    }
-    canvas.restore();
-    // The cortex: a bright band inside the outline.
-    canvas.drawPath(
-      form.shape,
-      _stroke(inks.lit(0.58).withValues(alpha: 0.7 * detail), 3 * line),
-    );
-  }
-}
 
 /// The liver: its two lobes either side of the falciform ligament, its
 /// lobules as a honeycomb in the mark (the hepatocytes are the whole of

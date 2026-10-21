@@ -78,7 +78,8 @@ final class OrganScene extends ZoomScene {
   // The organ is not named here: the card names it. What is named is where
   // the zoom's cell lives in it, its line in the mark, and the neighbours
   // drawn round it, in the quiet ink: set round all of it, out at the
-  // canvas's corners, so they hide none of it.
+  // canvas's corners, so they hide none of it; or, for an organ that
+  // stands tall, in a column at either edge, level with what each names.
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
     final double grown = _grown(frame);
@@ -87,17 +88,29 @@ final class OrganScene extends ZoomScene {
     if (shown <= 0 || _art.names.isEmpty) {
       return;
     }
-    final ZoomRing ring = ZoomRing('organ', <Offset>[
-      for (final Offset p in _art.named) frame.toScreen(p * grown),
-    ]);
+    final Map<String, OrganColumn> columns = _art.columns;
+    final ZoomRing? ring = columns.isNotEmpty
+        ? null
+        : ZoomRing('organ', <Offset>[
+            for (final Offset p in _art.named) frame.toScreen(p * grown),
+          ]);
     for (final OrganName name in _art.names) {
+      final OrganColumn? column = columns[name.key];
       out.callout(
         'organ:${name.key}',
         name.word,
         frame.toScreen(name.at * grown),
         shown,
+        anchors: column == null
+            ? const <Offset>[]
+            : columnAnchors(
+                column.side,
+                frame.toScreen(column.left * grown),
+                frame.toScreen(column.right * grown),
+              ),
+        flush: column != null,
         quiet: !name.home,
-        ring: ring,
+        ring: column == null ? ring : null,
       );
     }
   }
