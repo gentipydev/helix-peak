@@ -112,6 +112,31 @@ convention is, where it comes from, and what it decided:
   the plexus 3 mm across or more is read as a varicocele (Bertolotto et al.
   2020). *Consequence:* the testis is drawn so, from anatomy rather than
   from the anatomogram's outline, at those sizes ("The testis" below).
+- **The bone marrow.** Anatomy plates cut the femur down its length in the
+  frontal plane, through its head, neck and shaft: the cortex thickest round
+  the middle of the shaft and a shell at either end, cartilage over the
+  head and the condyles, the scars of the growth plates, the cavity down
+  the shaft, and in the ends the trabeculae of the spongy bone in the
+  groups Koch traced (Gray 1918, after Koch 1917; the groups as Singh,
+  Nagrath and Maini 1970 name them). The nutrient artery enters through a
+  canal directed obliquely upward (Gray 1918), its foramen 29 to 69% of
+  the femur's length from its top (Kizilkanat et al. 2007). Measured in
+  men: the femur 449.7 ± 16.7 mm long, its head 47.0 ± 2.3 mm across, its
+  shaft 27.9 ± 2.5 at its middle and its condyles 79.6 ± 4.6 (Kanz et al.
+  2015); on CT the neck meets the shaft at 127.2 ± 5.2°, the head's centre
+  lies 37.5 ± 4.6 mm from the shaft's axis and the cavity is 11.9 ± 1.7 mm
+  across at its isthmus (Kulkarni et al. 2020), 10.71 ± 2.2 in 1,189
+  femurs (Thiesen et al. 2022); the head's cartilage is 2.8 mm thick round
+  the fovea and 1.1 to 1.3 toward its rims (Nakanishi et al. 2001), the
+  condyles' 2.3 ± 0.5 (Sandhar et al. 2026). An adult's red marrow is in
+  the upper end: the shaft turns to yellow marrow by ten and the lower end
+  by twenty, the adult pattern set by 24 (Moore and Dawson 1990); the head
+  and the greater trochanter are yellow in every femur, and 95% of femurs
+  under fifty keep red marrow between the trochanters (Mitchell et al.
+  1986), along the weight-bearing axis (Niu et al. 2007). *Consequence:*
+  the bone marrow is a femur drawn so, from anatomy rather than from the
+  anatomogram's outline, and the zoom goes into it in its upper end ("The
+  bone marrow" below).
 - **Histology.** Haematoxylin stains nuclei and ribosome-rich cytoplasm;
   eosin stains protein; fat, mucus and lumens take neither. A ×40 objective
   under a standard eyepiece shows a field about half a millimetre across.
@@ -253,8 +278,17 @@ Sources:
   Cytol 2001;64:475–482.
 - ISCN 2020: An International System for Human Cytogenomic Nomenclature.
   Karger, 2020.
+- Kanz F, Fitzl C, Vlcek A, Frommlet F. Sex estimation using the femur of
+  Austrians born in the 19th to the middle of the 20th century. Anthropol
+  Anz 2015;72:117–127.
 - Karlsson M et al. A single-cell type transcriptomics map of human tissues.
   Sci Adv 2021;7:eabh2169.
+- Kizilkanat E et al. Location, number and clinical significance of
+  nutrient foramina in human long bones. Ann Anat 2007;189:87–95.
+- Koch JC. The laws of bone architecture. Am J Anat 1917;21:177–298.
+- Kulkarni M et al. CT based measurement of anatomical dimensions of femur
+  and its relevance in nail designs for proximal femoral fractures. J
+  Orthop 2020;20:63–69.
 - Lafontaine DLJ, Riback JA, Bascetin R, Brangwynne CP. The nucleolus as a
   multiphase liquid condensate. Nat Rev Mol Cell Biol 2021;22:165–182.
 - Lotti F et al. The European Academy of Andrology (EAA) ultrasound study
@@ -267,6 +301,11 @@ Sources:
   illumination. Genes Dev 2016;30:1598–1610.
 - Middleton WD et al. High-resolution sonography of the normal extrapelvic
   vas deferens. J Ultrasound Med 2009;28:839–846.
+- Mitchell DG et al. Hematopoietic and fatty bone marrow distribution in
+  the normal and ischemic hip: new observations with 1.5-T MR imaging.
+  Radiology 1986;161:199–202.
+- Moore SG, Dawson KL. Red and yellow marrow in the femur: age-related
+  changes in appearance at MR imaging. Radiology 1990;175:219–223.
 - Morales J et al. A joint NCBI and EMBL-EBI transcript set for clinical
   genomics and research. Nature 2022;604:310–315.
 - Moyzis RK et al. A highly conserved repetitive DNA sequence, (TTAGGG)n,
@@ -274,11 +313,16 @@ Sources:
   1988;85:6622–6626.
 - Musacchio A, Desai A. A molecular view of kinetochore assembly and
   function. Biology (Basel) 2017;6:5.
+- Nakanishi K et al. MR-based three-dimensional presentation of cartilage
+  thickness in the femoral head. Eur Radiol 2001;11:2178–2183.
 - Naumova N et al. Organization of the mitotic chromosome. Science
   2013;342:948–953.
 - Niimura Y, Gojobori T. In silico chromosome staining: reconstruction of
   Giemsa bands from the whole human genome sequence. Proc Natl Acad Sci
   USA 2002;99:797–802.
+- Niu J et al. Age-related marrow conversion and developing epiphysis in
+  the proximal femur: evaluation with STIR MR imaging. J Huazhong Univ Sci
+  Technolog Med Sci 2007;27:617–621.
 - Ou HD et al. ChromEMT: visualizing 3D chromatin structure and compaction
   in interphase and mitotic cells. Science 2017;357:eaag0025.
 - Paulson JR, Laemmli UK. The structure of histone-depleted metaphase
@@ -289,6 +333,9 @@ Sources:
   vasculature in spermatic cord. Urology 2004;64:561–564.
 - Ricordi C et al. Islet isolation assessment in man and large animals.
   Acta Diabetol Lat 1990;27:185–195.
+- Sandhar S, Nedopil AJ, Hull ML. Cartilage thickness at the apex of
+  femoral resections in kinematically aligned total knee arthroplasty is
+  close to 2.5 millimeters. J Exp Orthop 2026;13:e70641.
 - Schones DE et al. Dynamic regulation of nucleosome positioning in the
   human genome. Cell 2008;132:887–898.
 - Schröck E et al. Multicolor spectral karyotyping of human chromosomes.
@@ -296,6 +343,9 @@ Sources:
 - Shemilt LA et al. Scanning electron microscope studies of human
   metaphase chromosomes. Philos Trans A Math Phys Eng Sci
   2014;372:20130144.
+- Singh M, Nagrath AR, Maini PS. Changes in trabecular pattern of the upper
+  end of the femur as an index of osteoporosis. J Bone Joint Surg Am
+  1970;52:457–467.
 - Sivak MV, Sullivan BH. Endoscopic retrograde pancreatography. Am J Dig
   Dis 1976;21:263–269.
 - Speicher MR, Ballard SG, Ward DC. Karyotyping human chromosomes by
@@ -304,6 +354,9 @@ Sources:
   Practice, 42nd edn. Elsevier, 2020.
 - Sumner AT. Scanning electron microscopy of mammalian chromosomes from
   prophase to telophase. Chromosoma 1991;100:410–418.
+- Thiesen DM et al. A comparison between Asians and Caucasians in the
+  dimensions of the femoral isthmus based on a 3D-CT analysis of 1189 adult
+  femurs. Eur J Trauma Emerg Surg 2022;48:2379–2386.
 - Thul PJ et al. A subcellular map of the human proteome. Science
   2017;356:eaal3321.
 - Trask BJ. Fluorescence in situ hybridization: applications in
@@ -351,7 +404,9 @@ Sources:
   nucleolus, out at the canvas's edge on the nucleolus's side, which is the
   left, the nucleolus lying toward the light (the user's ask, 2026-10-19);
   in a column against the canvas's edge either side of the chromosome,
-  level with each part (see "Chromosome" below).
+  level with each part (see "Chromosome" below). The femur's names, its
+  home's among them, are set in columns by the same rule
+  (`columnAnchors`; "The bone marrow" below).
   Each keeps the place it has at rest through the steps either side, so it
   never jumps: an anchored name its anchor, or, where none of its anchors
   had room at rest, the place of the painter's own it took there.
@@ -471,8 +526,8 @@ body drew for it (`OrganArt`), so the step is one shape seen closer. It
 comes up over the body's own drawing of the organ early in the step, and
 `zoom_anatomy_test` holds the two to the same point of the screen while both
 show. On the way in, the body's line art and its unlit organs give way. The
-pancreas and the testis then draw in to outlines of their own ("The
-pancreas" and "The testis" below).
+pancreas, the testis and the bone marrow's femur then draw in to outlines
+of their own ("The pancreas", "The testis" and "The bone marrow" below).
 
 **Its real size.** The anatomogram is a diagram: it draws a stomach 11 cm
 long and a pancreas 9. Each organ therefore knows how many times its drawn
@@ -486,16 +541,16 @@ dot of the accent in a thin ring of the bright ink, in a soft glow
 **In place.** The figure's own parts near the organ are drawn faintly round
 it, fading with their distance from it. The pancreas and the testis have
 their own neighbours instead, and the figure's parts go as those come up.
+The femur has none but its artery, and the figure's parts stay round it.
 
-**Its anatomy.** The twenty's paths reach thirteen organs. Eight kinds have a
-study of their own (`OrganStudy`), and the pancreas and the testis drawings
-of their own (below); in each the part the zoom's cell lives in is in the
-accent, by the kind of organ and of cell, never by gene:
+**Its anatomy.** The twenty's paths reach thirteen organs. Seven kinds have
+a study of their own (`OrganStudy`), and the pancreas, the testis and the
+bone marrow drawings of their own (below); in each the part the zoom's cell
+lives in is in the accent, by the kind of organ and of cell, never by gene:
 
 | Organ (proteins) | Drawn | In the accent |
 |---|---|---|
 | Salivary gland (AMY1A, LYZ) | lobules, the duct out of its hilum | the acini |
-| Bone marrow (HBB, TNF) | the anatomogram's femur cut along its length: cortex, spongy ends, the shaft's cavity | the red marrow in the spongy ends |
 | Liver (EPO, SOD1) | two lobes either side of the falciform ligament, portal vessels from the hilum | the lobules, as a honeycomb |
 | Adipose tissue (LEP) | lobes parted by septa, small vessels | the lobes |
 | Skeletal muscle (MB, DMD) | fascicles along its length, tendon at its ends | the fibres |
@@ -628,6 +683,72 @@ the neutrals but for its vessels and the accent:
   and lit in the mark, draws in to the testis's outline, matched at their
   tops and their backs, and becomes its bed, while the testis and its
   neighbours come up over it and the figure's parts go.
+
+**The bone marrow.** It is drawn as a fresh specimen under the same lamp:
+the figure's left femur cut down its length in the frontal plane and seen
+from the front, its head to the left
+(`presentation/scenes/organs/bone_marrow/`, the user's choices of
+2026-10-20), in deep tones that stand out among the figure's faint parts
+(the user's ask of 2026-10-21, after a first drawing in pale ones):
+
+- *Its shape* is a plate's (`marrow_anatomy.dart`, in millimetres in the
+  bone's own frame, down the axis of its shaft): the head and neck, the
+  greater and lesser trochanters, the shaft narrowing to its isthmus and
+  widening to the condyles, at the sizes above. It stands 450 mm tall
+  about the middle of the anatomogram's femur, so the scale bar is true of
+  it, and leans in toward the knee as that outline leans, fitted on each
+  figure (5.8° on the female, 4.5° on the male).
+- *Where it is sampled.* The anatomogram's site for the bone marrow is
+  found in the top fifth of its femur (`SITE_TOP` in
+  `tool/zoom/anatomogram.py`), at the base of the neck between the
+  trochanters on either figure, where an adult keeps red marrow; the
+  body's ping and the dive into the tissue go there.
+- *Its cut face.* The cortex is a cut face in a mid ivory (`CutFace`, the
+  eye's, now shared), its outer edge lit as the bone's surface turns away.
+  The cartilage is glassy over the head and the condyles, the ligament of
+  the head a tint in the fovea. The scars of the growth plates are fine
+  bright lines across the head, the greater trochanter and the lower end.
+- *Its marrow* is a young adult's: the red marrow fills the upper end
+  below the head's scar and the greater trochanter's, its lower edge
+  running in and out across the top of the cavity; the head, the greater
+  trochanter, the cavity and the whole lower end are yellow marrow, in
+  shade.
+- *Its trabeculae* cross the marrow of both ends in the bone's own tone:
+  in the upper end Koch's principal and secondary compressive and tensile
+  groups and the greater trochanter's, Ward's triangle sparse among them;
+  in the lower the longitudinal lines up from the condyles. Each group is
+  a stream of curves through an origin, a bend and an end, waved a little
+  and braced to its neighbour by struts. The true lattice, 0.9 mm apart,
+  is under a pixel at the stop, so it comes in three levels as the view
+  closes on the bone toward the tissue: every fourth line always, every
+  second from 1.4 pixels a millimetre, the rest from 4.5, each fading in
+  over its range. They are laid once, in tiles of whole lines.
+- *Its nutrient artery,* in the blood red, comes in through its canal in
+  the medial cortex, about two fifths of the way down and running upward,
+  and branches up and down the cavity, its twigs fading out, the ascending
+  branch into the red marrow. Nothing of it is drawn outside the bone.
+- *In the accent,* by the kind of organ: the red marrow, one flat tone, the
+  mark over a neutral as the brain's cortex is, for every kind of cell;
+  the Atlas's marrow cells are all blood-forming, and the site is in it.
+- *Round it,* no other bone (the user's choice), but the figure's own
+  faint parts stay as the femur comes up, so it is seen at a glance where
+  in the body it lies (the user's ask of 2026-10-21).
+- *Its names* (the user's choice): `red marrow` at the site, its line in
+  the accent, and `trabecular bone` in the head, `cortical bone` and
+  `yellow marrow` in the quiet ink, each in a column at the canvas's edge
+  level with what it names, as the chromosome's parts are: the bone's on
+  the left, the marrow's on the right, clear of the scale bar. An organ
+  opts in by `OrganArt.columns`; every other keeps its ring.
+- *Its view* is the anatomogram's femur's, framed by the canvas's height.
+- *On the step from the body* it comes up as the pancreas and the testis
+  do: the anatomogram's femur, flat and lit in the mark, draws in to the
+  femur's outline and becomes its bed in the yellow marrow's tone, while
+  the femur comes up over it. The two outlines part by a few millimetres
+  along the shaft, enough to jolt the step past 1.5 px, so they are
+  matched at ten points (`OutlineMorph`'s `marks`, none by default): the
+  head's medial edge, the greater trochanter's lateral edge, each
+  condyle's outer edge, and either side of the shaft 30, 50 and 70% of
+  the way down.
 
 **The glide.** The camera carries the organ from where it lies in the body
 to the middle of the view over the first three fifths of the step. From the
@@ -1091,8 +1212,8 @@ frame (0.4 to 0.8 ms).
 ## Deliberate simplifications
 
 - **The figure is a diagram.** Organs lie and overlap as the anatomogram
-  draws them, from the front. Bone marrow is its femur, sampled where the
-  outline is widest; a biopsy is taken from the pelvis.
+  draws them, from the front. Bone marrow is a femur, sampled in its upper
+  end, where an adult keeps red marrow; a biopsy is taken from the pelvis.
 - **An organ's anatomy is its kind's.** Islets, red marrow and tubules are
   drawn where general anatomy puts them, by the kind of organ and cell,
   not measured for the gene.
@@ -1108,6 +1229,11 @@ frame (0.4 to 0.8 ms).
   cut would show their cut ends; the tissue stop shows those. The
   epididymis's head is lifted off it, as a plate lifts it, so the ductules
   show.
+- **A femur from a plate.** One femur, the left, the same in every body but
+  for its lean, and a young adult's marrow in it whatever the age. Its
+  nutrient canal is drawn in the cut, though it pierces the linea aspera
+  behind it. At the stop its trabeculae are every fourth line of the
+  lattice; the true lattice comes in only as the view closes on the bone.
 - **One field a tissue.** Wherever in the organ it is cut, and for every
   gene that goes there with the same kind of cell. "Lymphoid tissue" is a
   lymph node, and skin has no keratin layer of its own.
@@ -1147,7 +1273,8 @@ frame (0.4 to 0.8 ms).
 - `domain/anatomy_tables.dart`: tissues to organs, recipes, sizes and
   territories.
 - `domain/anatomy_figure.dart`, `anatomy_figures.g.dart`: the anatomogram's
-  figures, and `tool/zoom/anatomogram.py`, which makes them.
+  figures, and `tool/zoom/anatomogram.py`, which makes them (its
+  `SITE_TOP` finds a part's site in the top of its box).
 - `presentation/zoom_inks.dart`: every colour, from the theme.
 - `presentation/scenes/`: one scene a stop, and `sculpt.dart`, the light
   and the glows they share.
@@ -1157,7 +1284,7 @@ frame (0.4 to 0.8 ms).
   and their light and palette (`chromosome_shading.dart`), and the tube it
   turns into the band's strip as (`chromosome_tube.dart`).
 - `presentation/scenes/organ_art.dart`: every organ's drawing, and
-  `organ_studies.dart`, the eight studies.
+  `organ_studies.dart`, the seven studies.
 - `presentation/scenes/organs/pancreas/`: the pancreas and its neighbours in
   centimetres (`pancreas_anatomy.dart`), every number its look is tuned by
   (`pancreas_style.dart`), its form in the organ's scene, with the relief,
@@ -1172,6 +1299,14 @@ frame (0.4 to 0.8 ms).
   how it is drawn (`testis_art.dart`). The step from the body is the
   pancreas's: `outline_morph.dart`, `specimen_step.dart`, and
   `_SpecimenOrgan` in `organ_art.dart`.
+- `presentation/scenes/organs/bone_marrow/`: the femur in millimetres in its
+  own frame, with every source (`marrow_anatomy.dart`), every number its
+  look is tuned by (`marrow_style.dart`), its form posed on each figure,
+  with the cortex, cartilage, marrow, trabeculae, artery and its names'
+  places (`marrow_form.dart`), and its meshes and how it is drawn
+  (`marrow_art.dart`). `presentation/scenes/cut_face.dart`: the cut face
+  it and the eye are laid with. `columnAnchors` in `zoom_scene.dart` sets
+  its names in columns, and the chromosome's.
 - `presentation/scenes/tissue/`: the slide (`tissue_slide.dart`), the engine
   (`slide_builder.dart`) and the recipes (`recipes_glands.dart`,
   `recipes_linings.dart`, `recipes_bulk.dart`).
@@ -1195,8 +1330,9 @@ frame (0.4 to 0.8 ms).
   moments and no others (a stop, or a share of the step that leaves it). `ZOOM_TISSUE_ATLAS=/tmp/atlas` writes every recipe's slide on
   its own and `ZOOM_ORGAN_ATLAS=/tmp/organs` every tissue's organ, the ones
   no catalog protein reaches included, the pancreas on both figures about
-  each kind of cell that lights a part of it of its own, and the testis
-  about each kind of cell that lives in it. The picture at the top of this page
+  each kind of cell that lights a part of it of its own, the testis
+  about each kind of cell that lives in it, and the bone marrow on both
+  figures about an erythroid cell, a megakaryocyte and a leukocyte. The picture at the top of this page
   is insulin's nine stops from it.
 - The chromosome's tests: `chromosome_scene_test` (nothing narrower than
   its arms but the centromere and the ends), `chromosome_form_test` (the
@@ -1268,6 +1404,25 @@ frame (0.4 to 0.8 ms).
   or point, the meshes the same every time, its four names, and the steps
   to it and back to 0.08 a frame and 1.5 px. `zoom_paint_timing_check`
   times it with ubiquitin's zoom.
+- `marrow_form_test` holds the femur to 450 mm about the middle of the
+  body's outline of it, leaning as that outline leans, its site the
+  body's and in its red marrow, on either figure; its parts to their
+  measured sizes; the cartilage on the cortex and the cortex round the
+  marrow; the red marrow to a young adult's; the trabeculae to the spongy
+  bone of its two ends, in Koch's groups; the nutrient canal to the
+  shaft's medial face in its middle third, running upward; each name on
+  what it names; and the same femur every time. `marrow_art_test` holds
+  the mark to the red marrow alone for every kind of cell, the hand-over
+  to the body's own outline with no layer, mesh or point, the figure's
+  parts round the femur at its stop, the meshes the same every time, its
+  four names in their columns, the finer trabeculae coming in no faster
+  than 0.08 a frame and none at the stop, and the steps to it and back to
+  0.08 a frame and 1.5 px. `marrow_names_test` sets its names in the
+  app's own type for every protein that goes into the bone marrow, on a
+  phone's canvas and two of an iPhone SE's: each in its column, level with
+  what it names, clear of the bone, of one another and of the scale bar.
+  `zoom_domain_test` holds its site to the femur's upper fifth, well inside
+  it. `zoom_paint_timing_check` times it with hemoglobin's zoom.
 - `zoom_routes_test` holds the route outside the lab, the redirects, and the
   whole trip from the walk and back under the app's own routes.
   `zoom_entry_test`, among the walk's tests, holds where the gene page

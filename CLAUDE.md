@@ -283,7 +283,10 @@ seen:
   spleen and vessels; `presentation/scenes/organs/testis/`: cut down its
   length, its coiled tubules at their true size, among its epididymis,
   ductules and cord), and so is the brain, cut down its middle
-  (`presentation/scenes/organs/brain/`);
+  (`presentation/scenes/organs/brain/`), and the bone marrow as a femur
+  cut down its length, its red marrow in the upper end, among the figure's
+  faint parts, its names in columns at the canvas's edges
+  (`presentation/scenes/organs/bone_marrow/`);
 - the tissue as a section under an eyepiece (`TissueSlide`: one engine, a
   recipe a tissue architecture, the zoom's cell laid where it lives);
 - the cell, the protein glowing where the Atlas finds it, and the nucleus
