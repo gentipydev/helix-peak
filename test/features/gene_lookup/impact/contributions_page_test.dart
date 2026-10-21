@@ -159,18 +159,21 @@ void main() {
       'Leu',
       '25.1 Phred · top 0.309%',
       '+1.192',
+      'AlphaMissense +0.706  ·  PhastCons 470 +0.234',
     ]);
     expect(_row(tester, 'contributions-bar-A'), <String>[
       'A',
       'Ile',
       '22.1 Phred · top 0.617%',
       '+0.759',
+      'AlphaMissense +0.296  ·  PhastCons 470 +0.183',
     ]);
     expect(_row(tester, 'contributions-bar-G'), <String>[
       'G',
       'Val',
       '20.9 Phred · top 0.813%',
       '+0.678',
+      'AlphaMissense +0.235  ·  PhastCons 470 +0.185',
     ]);
     expect(
       tester.getTopLeft(_key('contributions-bar-C')).dy,
@@ -261,19 +264,44 @@ void main() {
     expect(_key('impact-contributions-open'), findsOneWidget);
   });
 
-  testWidgets('what the values are is said once, behind the info button', (
+  testWidgets('the card says what the numbers say', (
     WidgetTester tester,
   ) async {
     await openPage(tester);
-    expect(_key('contributions-about'), findsNothing);
-    expect(find.textContaining('Atlas ·'), findsOneWidget);
+    expect(
+      find.text('C (Leu) scores highest; Coding sets it apart.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Conservation is level across all three: +0.342 to +0.391.'),
+      findsOneWidget,
+    );
+    await tester.scrollUntilVisible(
+      _key('contributions-source'),
+      300,
+      scrollable: find.byWidgetPredicate(
+        (Widget w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+      ),
+    );
+    expect(find.text('AlphaGenome Atlas'), findsOneWidget);
+    expect(find.textContaining('saved'), findsNothing);
     expect(find.textContaining('View in Atlas'), findsNothing);
+  });
+
+  testWidgets('what the values are is a sheet, and the page under it stays', (
+    WidgetTester tester,
+  ) async {
+    await openPage(tester);
+    final Offset card = tester.getTopLeft(_key('contributions-composition'));
     await tester.tap(_key('contributions-info'));
     await tester.pumpAndSettle();
     expect(_key('contributions-about'), findsOneWidget);
+    expect(find.text('About these values'), findsOneWidget);
     // No baseline is stated for insulin: raw minus sum is not one number.
     expect(find.textContaining('baseline'), findsNothing);
     await _capture(tester, 'contributions-page-about');
+    // The card did not move under the sheet.
+    expect(tester.getTopLeft(_key('contributions-composition')), card);
   });
 
   testWidgets('at its own text size the table fits an SE without scrolling', (

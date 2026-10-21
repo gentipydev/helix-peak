@@ -4,6 +4,7 @@ import 'anatomy_colors.dart';
 import 'app_colors.dart';
 import 'app_spacing.dart';
 import 'app_typography.dart';
+import 'contribution_colors.dart';
 import 'nucleotide_colors.dart';
 
 abstract final class AppTheme {
@@ -157,7 +158,11 @@ abstract final class AppTheme {
       textTheme: textTheme,
       scaffoldBackgroundColor: tokens.surfaceBase,
       shadowColor: Colors.transparent,
-      extensions: <ThemeExtension<dynamic>>[nucleotides, anatomy],
+      extensions: <ThemeExtension<dynamic>>[
+        nucleotides,
+        anatomy,
+        ContributionColors.dark,
+      ],
       appBarTheme: AppBarTheme(
         backgroundColor: tokens.surfaceBase,
         surfaceTintColor: Colors.transparent,

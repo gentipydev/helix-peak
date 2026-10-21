@@ -603,7 +603,11 @@ verbatim — classification, review status, conditions, accession/version,
 snapshot date — and only there may clinical words appear; the copy tests find
 that boundary by the `ClinVarSourced` wrapper. ESM and AVI keep their
 molecular/evolutionary wording. Hue belongs to ClinVar alone: a class colour on
-a dot, never on text, and the models' band meters are drawn in neutral ink. For
+a dot, never on text, and the models' band meters are drawn in neutral ink.
+One exception, at the user's ask (2026-10-21): the AVI contributions page
+colours its four attribution groups (`ContributionColors`), hues searched
+outside ClinVar's (no red or rose, no blue-violet) on a page that carries no
+ClinVar mark, each named in a legend as well. For
 colour only, a record is grouped by its terms, which ClinVar separates with `/`
 and puts after a `;` where they are off the Mendelian axis (CFTR's
 `Pathogenic; drug response`): any pathogenic

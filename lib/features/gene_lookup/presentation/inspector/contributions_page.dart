@@ -9,6 +9,7 @@ import '../../../../core/evidence/impact_explanation_repository.dart';
 import '../../../../core/evidence/impact_explanations.dart';
 import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/theme/contribution_colors.dart';
 import '../../../../shared/format.dart';
 import 'coding_evidence.dart';
 import 'impact_panel.dart' show inkOn;
@@ -16,11 +17,14 @@ import 'impact_panel.dart' show inkOn;
 /// Every substitution at one base, side by side, with what the AVI model's
 /// raw score is made of.
 ///
-/// A stacked bar for each substitution shows its four groups at once — what
-/// sets one substitution above another reads at a glance — and under it the
-/// groups as rows, the substitutions as columns, each group opening onto its
-/// features and an assay onto the track behind it. Opened from the base
-/// sheet's "Contributions ›", over the walk, and closed back onto it. The
+/// A card leads with what the numbers say — which substitution scores
+/// highest and what sets it apart — then draws each substitution's
+/// attributions as its four groups end to end, each in its own colour, with
+/// the features that weigh most under it. Under the card the groups are rows
+/// and the substitutions columns, each group opening onto its features and an
+/// assay onto the track behind it. What the values are is a sheet of its own,
+/// so reading it moves nothing on the page. Opened from the base sheet's
+/// "Contributions ›", over the walk, and closed back onto it; the
 /// substitutions are the sheet's rows, in the sheet's order.
 class ContributionsPage extends StatefulWidget {
   const ContributionsPage({
@@ -62,7 +66,6 @@ class _ContributionsPageState extends State<ContributionsPage> {
   Future<GeneImpactExplanations>? _future;
   final Set<ContributionGroup> _groups = <ContributionGroup>{};
   final Set<String> _features = <String>{};
-  bool _about = false;
 
   @override
   void didChangeDependencies() {
@@ -78,6 +81,18 @@ class _ContributionsPageState extends State<ContributionsPage> {
   void _toggle<T>(Set<T> open, T value) => setState(() {
     if (!open.remove(value)) open.add(value);
   });
+
+  /// What the values are, over the page rather than in it: nothing on the
+  /// page moves, and nothing drawn is drawn again.
+  Future<void> _about(ThemeData theme) => showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    showDragHandle: true,
+    backgroundColor: theme.colorScheme.surfaceContainer,
+    builder: (BuildContext context) =>
+        Theme(data: theme, child: const _About()),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -95,8 +110,7 @@ class _ContributionsPageState extends State<ContributionsPage> {
             IconButton(
               key: const ValueKey<String>('contributions-info'),
               tooltip: 'About these values',
-              isSelected: _about,
-              onPressed: () => setState(() => _about = !_about),
+              onPressed: () => _about(theme),
               icon: const Icon(Icons.info_outline, size: 20),
             ),
             const SizedBox(width: 4),
@@ -185,22 +199,6 @@ class _ContributionsPageState extends State<ContributionsPage> {
           chromosome: widget.track.chromosome,
           tint: widget.tint,
         ),
-        if (_about) ...<Widget>[
-          const SizedBox(height: 16),
-          Text(
-            'SHAP attributions to the AVI model’s raw score, one per input '
-            'feature, across Atlas genes and biosamples; a group is the sum '
-            'of its features. Positive raises the score, negative lowers it. '
-            'They are not parts of the Phred, and a sign says nothing about '
-            'the direction of gene activity. '
-            '${data.baseline == null ? '' : 'A substitution’s attributions add up to its raw score less the model’s baseline, ${_signed(data.baseline!)}. '}'
-            'A track named under an assay had the largest absolute predicted '
-            'effect for that substitution; the model reports the assay’s '
-            'attribution, not the track.',
-            key: const ValueKey<String>('contributions-about'),
-            style: style,
-          ),
-        ],
         const SizedBox(height: 20),
         _Composition(columns: columns),
         const SizedBox(height: 28),
@@ -213,7 +211,7 @@ class _ContributionsPageState extends State<ContributionsPage> {
         ),
         const SizedBox(height: 24),
         Text(
-          'AlphaGenome Atlas · saved ${data.generatedAt.substring(0, 10)}',
+          'AlphaGenome Atlas',
           key: const ValueKey<String>('contributions-source'),
           style: style,
         ),
@@ -234,14 +232,22 @@ class _Column {
 
   /// What the change makes of a coding base's codon — `Leu`, `=`, `Ter`, `?`.
   final String tag;
+
+  /// The substitution as a sentence names it: `C (Leu)`, `A (synonymous)`.
+  String get named => switch (tag) {
+    '' => request.alt,
+    '=' => '${request.alt} (synonymous)',
+    '?' => '${request.alt} (start codon)',
+    _ => '${request.alt} ($tag)',
+  };
 }
 
-/// A signed value as the page prints it: `+0.706`, `−0.012`, `0`; a
-/// fourth place where three would read as a signed zero (`−0.0001`), and an
+/// A signed value as the page prints it: `+0.706`, `−0.012`, `0`; a fourth
+/// place where three would read as a signed zero (`−0.0001`), and an
 /// exponent below that (`−3e-5`).
 String _signed(double value) {
   if (value == 0) return '0';
-  final String sign = value < 0 ? '\u2212' : '+';
+  final String sign = value < 0 ? '−' : '+';
   final double size = value.abs();
   return sign +
       (size >= 0.0005
@@ -251,25 +257,57 @@ String _signed(double value) {
           : size.toStringAsExponential(0));
 }
 
-/// Each group's ink: one neutral, stepped in lightness from the first group
-/// down, since a hue on this page would belong to ClinVar (R9.1). The steps
-/// are far enough apart to tell side by side, and a 2-point gap of the ground
-/// between neighbours does the rest.
-Color _tone(ThemeData theme, ContributionGroup group) =>
-    theme.colorScheme.onSurface.withValues(
-      alpha: switch (group) {
-        ContributionGroup.coding => 0.94,
-        ContributionGroup.conservation => 0.64,
-        ContributionGroup.splicing => 0.42,
-        ContributionGroup.expression => 0.24,
-      },
-    );
+/// Each feature's name on the page, as the Atlas names its assay.
+final Map<String, String> _featureNames = <String, String>{
+  for (final ContributionGroup g in ContributionGroup.values) ...g.features,
+};
 
-const TextStyle _mono = TextStyle(
-  fontFamily: AppTypography.monoFamily,
-  fontSize: 13,
-  fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
-);
+/// What the numbers say, in their own terms: which substitution scores
+/// highest and the group that sets it apart, and a group that is level
+/// across them all. Either is left out where the numbers do not say it.
+(String?, String?) _insight(List<_Column> columns) {
+  if (columns.length < 2) return (null, null);
+  final _Column first = columns.first;
+  final List<_Column> rest = columns.skip(1).toList();
+  String? lead;
+  if (first.explanation.phred - rest.first.explanation.phred >= 0.5) {
+    ContributionGroup? apart;
+    double widest = 0.02;
+    for (final ContributionGroup g in ContributionGroup.values) {
+      final double gap =
+          first.explanation.total(g) -
+          rest.map((_Column c) => c.explanation.total(g)).reduce(math.max);
+      if (gap > widest) {
+        widest = gap;
+        apart = g;
+      }
+    }
+    if (apart != null) {
+      lead = '${first.named} scores highest; ${apart.label} sets it apart.';
+    }
+  }
+  String? level;
+  double weight = 0.05;
+  for (final ContributionGroup g in ContributionGroup.values) {
+    final List<double> totals = <double>[
+      for (final _Column c in columns) c.explanation.total(g),
+    ];
+    final double low = totals.reduce(math.min);
+    final double high = totals.reduce(math.max);
+    final double mean =
+        totals.fold(0.0, (double a, double b) => a + b) / totals.length;
+    if (mean.abs() > weight &&
+        low * high > 0 &&
+        high - low <= 0.15 * math.max(low.abs(), high.abs())) {
+      weight = mean.abs();
+      level =
+          '${g.label} is level across '
+          '${columns.length == 2 ? 'both' : 'all ${spelled(columns.length)}'}: '
+          '${_signed(low)} to ${_signed(high)}.';
+    }
+  }
+  return (lead, level);
+}
 
 /// The base as the sheet showed it: its letter on its region's tint, where it
 /// sits, and its coordinate.
@@ -337,8 +375,15 @@ class _Identity extends StatelessWidget {
   }
 }
 
-/// The hero: each substitution's raw score drawn as its groups, end to end,
-/// on one scale, so a longer bar is a larger sum and its make-up shows why.
+const TextStyle _mono = TextStyle(
+  fontFamily: AppTypography.monoFamily,
+  fontSize: 13,
+  fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
+);
+
+/// The card: what the numbers say, then each substitution's attributions
+/// drawn as its groups end to end on one scale, so a longer bar is a larger
+/// sum and its colours show what it is made of.
 class _Composition extends StatelessWidget {
   const _Composition({required this.columns});
 
@@ -349,6 +394,7 @@ class _Composition extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final ContributionColors colours = context.contributionColors;
     final bool still = MediaQuery.disableAnimationsOf(context);
     final List<List<double>> totals = <List<double>>[
       for (final _Column c in columns)
@@ -365,10 +411,7 @@ class _Composition extends StatelessWidget {
     final double left = totals
         .map((List<double> t) => -t.where((double v) => v < 0).fold(0.0, _add))
         .fold(0.0, math.max);
-    final List<Color> tones = <Color>[
-      for (final ContributionGroup g in ContributionGroup.values)
-        _tone(theme, g),
-    ];
+    final (String? lead, String? level) = _insight(columns);
     return Container(
       key: const ValueKey<String>('contributions-composition'),
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
@@ -382,12 +425,27 @@ class _Composition extends StatelessWidget {
         builder: (BuildContext context, double t, Widget? legend) => Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            if (lead != null)
+              Text(
+                lead,
+                key: const ValueKey<String>('contributions-lead'),
+                style: theme.textTheme.titleSmall,
+              ),
+            if (level != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(
+                  level,
+                  key: const ValueKey<String>('contributions-level'),
+                  style: theme.caption,
+                ),
+              ),
+            if (lead != null || level != null) const SizedBox(height: 18),
             for (final (int i, _Column c) in columns.indexed) ...<Widget>[
-              if (i > 0) const SizedBox(height: 14),
+              if (i > 0) const SizedBox(height: 18),
               _Bar(
                 column: c,
                 totals: totals[i],
-                tones: tones,
                 left: left,
                 right: right,
                 // Each bar a beat after the one above it.
@@ -396,7 +454,7 @@ class _Composition extends StatelessWidget {
                 ),
               ),
             ],
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
             legend!,
           ],
         ),
@@ -408,7 +466,7 @@ class _Composition extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  _Swatch(color: _tone(theme, g)),
+                  _Swatch(color: colours.of(g)),
                   const SizedBox(width: 6),
                   Flexible(child: Text(g.label, style: theme.caption)),
                 ],
@@ -420,13 +478,13 @@ class _Composition extends StatelessWidget {
   }
 }
 
-/// One substitution in the hero: its base and what it makes, its Phred and
-/// where that sits genome-wide, then its bar and the bar's sum.
+/// One substitution on the card: its base and what it makes, its Phred and
+/// where that sits genome-wide; its bar and the bar's sum; and the two
+/// features that weigh most in it.
 class _Bar extends StatelessWidget {
   const _Bar({
     required this.column,
     required this.totals,
-    required this.tones,
     required this.left,
     required this.right,
     required this.grown,
@@ -434,7 +492,6 @@ class _Bar extends StatelessWidget {
 
   final _Column column;
   final List<double> totals;
-  final List<Color> tones;
   final double left;
   final double right;
   final double grown;
@@ -444,9 +501,13 @@ class _Bar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final ContributionColors colours = context.contributionColors;
     final Color muted = theme.colorScheme.onSurfaceVariant;
     final double phred = column.explanation.phred;
     final String alt = column.request.alt;
+    final List<ImpactContribution> top = column.explanation.contributions
+        .take(2)
+        .toList();
     final String parts = <String>[
       for (final (int i, ContributionGroup g)
           in ContributionGroup.values.indexed)
@@ -495,11 +556,26 @@ class _Bar extends StatelessWidget {
               const SizedBox(width: _letter),
               Expanded(
                 child: SizedBox(
-                  height: 14,
+                  height: 22,
                   child: CustomPaint(
                     painter: _StackPainter(
                       totals: totals,
-                      tones: tones,
+                      tones: <Color>[
+                        for (final ContributionGroup g
+                            in ContributionGroup.values)
+                          colours.of(g),
+                      ],
+                      names: <String>[
+                        for (final ContributionGroup g
+                            in ContributionGroup.values)
+                          g.label,
+                      ],
+                      label: theme.textTheme.labelSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      dark: theme.colorScheme.surface,
+                      light: theme.colorScheme.onSurface,
+                      scaler: MediaQuery.textScalerOf(context),
                       left: left,
                       right: right,
                       grown: grown,
@@ -515,6 +591,18 @@ class _Bar extends StatelessWidget {
               ),
             ],
           ),
+          if (top.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: _letter, top: 6),
+              child: Text(
+                <String>[
+                  for (final ImpactContribution c in top)
+                    '${_featureNames[c.feature] ?? c.feature} ${_signed(c.value)}',
+                ].join('  ·  '),
+                key: ValueKey<String>('contributions-top-$alt'),
+                style: theme.caption,
+              ),
+            ),
         ],
       ),
     );
@@ -522,12 +610,18 @@ class _Bar extends StatelessWidget {
 }
 
 /// A substitution's groups end to end from zero: positive ones to the right
-/// in the groups' order, negative ones to the left, a 2-point gap of the
-/// ground between neighbours, and the outer ends rounded.
+/// in the groups' order, negative ones to the left, a 2-point gap of the card
+/// between neighbours and the outer ends rounded. A segment wide enough to
+/// hold its group's name carries it, in whichever ink reads on its colour.
 class _StackPainter extends CustomPainter {
   const _StackPainter({
     required this.totals,
     required this.tones,
+    required this.names,
+    required this.label,
+    required this.dark,
+    required this.light,
+    required this.scaler,
     required this.left,
     required this.right,
     required this.grown,
@@ -536,13 +630,18 @@ class _StackPainter extends CustomPainter {
 
   final List<double> totals;
   final List<Color> tones;
+  final List<String> names;
+  final TextStyle? label;
+  final Color dark;
+  final Color light;
+  final TextScaler scaler;
   final double left;
   final double right;
   final double grown;
   final Color zero;
 
   static const double _gap = 2;
-  static const Radius _end = Radius.circular(4);
+  static const Radius _end = Radius.circular(5);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -569,6 +668,7 @@ class _StackPainter extends CustomPainter {
             ? RRect.fromRectAndCorners(rect, topRight: _end, bottomRight: _end)
             : RRect.fromRectAndCorners(rect, topLeft: _end, bottomLeft: _end);
         canvas.drawRRect(shape, Paint()..color = tones[g]);
+        _name(canvas, rect, g);
         at += sign * length;
       }
     }
@@ -583,14 +683,38 @@ class _StackPainter extends CustomPainter {
     }
   }
 
+  /// The group's name inside its segment, where it fits with room to spare.
+  void _name(Canvas canvas, Rect rect, int g) {
+    final Color ink = inkOn(tones[g], dark: dark, light: light);
+    final TextPainter painter = TextPainter(
+      text: TextSpan(
+        text: names[g],
+        style: label?.copyWith(color: ink),
+      ),
+      textDirection: TextDirection.ltr,
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout();
+    if (painter.width + 16 <= rect.width && painter.height <= rect.height) {
+      painter.paint(
+        canvas,
+        Offset(rect.left + 8, rect.center.dy - painter.height / 2),
+      );
+    }
+    painter.dispose();
+  }
+
   @override
   bool shouldRepaint(_StackPainter old) =>
       old.grown != grown ||
       old.left != left ||
       old.right != right ||
       old.zero != zero ||
+      old.label != label ||
+      old.scaler != scaler ||
       !listEquals(old.totals, totals) ||
-      !listEquals(old.tones, tones);
+      !listEquals(old.tones, tones) ||
+      !listEquals(old.names, names);
 }
 
 class _Swatch extends StatelessWidget {
@@ -610,8 +734,8 @@ class _Swatch extends StatelessWidget {
 }
 
 /// The groups as rows and the substitutions as columns, each number over a
-/// bar of its size on one scale, each group opening onto its features and an
-/// assay onto its tracks.
+/// bar of its size in its group's colour, on one scale, each group opening
+/// onto its features and an assay onto its tracks.
 class _Breakdown extends StatelessWidget {
   const _Breakdown({
     required this.columns,
@@ -636,6 +760,7 @@ class _Breakdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final ContributionColors colours = context.contributionColors;
     final TextScaler scaler = MediaQuery.textScalerOf(context);
     final Color muted = theme.colorScheme.onSurfaceVariant;
     final TextStyle? name = theme.textTheme.bodyMedium;
@@ -698,7 +823,7 @@ class _Breakdown extends StatelessWidget {
                 const SizedBox(height: 4),
                 SizedBox(
                   width: cell - 8,
-                  height: 3,
+                  height: 4,
                   child: CustomPaint(
                     painter: _CellBar(
                       fraction: largest == 0 ? 0 : value / largest,
@@ -760,8 +885,9 @@ class _Breakdown extends StatelessWidget {
       color: muted,
     );
 
-    /// Each column's track behind [feature], one line apiece.
-    List<Widget> tracks(String feature, double indent) => <Widget>[
+    /// Each column's track behind [feature], one line apiece, ruled in its
+    /// group's colour.
+    List<Widget> tracks(String feature, double indent, Color tone) => <Widget>[
       for (final _Column column in columns)
         if (column.explanation.winners[feature] case final TrackWinner w)
           Padding(
@@ -769,18 +895,22 @@ class _Breakdown extends StatelessWidget {
               'contributions-track-$feature-${column.request.alt}',
             ),
             padding: EdgeInsetsDirectional.only(start: indent, bottom: 8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                SizedBox(
-                  width: 20,
-                  child: Text(
-                    column.request.alt,
-                    style: _mono.copyWith(color: muted),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Container(width: 2, color: tone),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 18,
+                    child: Text(
+                      column.request.alt,
+                      style: _mono.copyWith(color: muted),
+                    ),
                   ),
-                ),
-                Expanded(child: Text(_describe(w), style: theme.caption)),
-              ],
+                  Expanded(child: Text(_describe(w), style: theme.caption)),
+                ],
+              ),
             ),
           ),
     ];
@@ -804,7 +934,7 @@ class _Breakdown extends StatelessWidget {
             for (final _Column c in columns)
               c.explanation.values[entry.key] ?? 0,
           ],
-          tone,
+          tone.withValues(alpha: 0.7),
           quiet: true,
         ),
         trailing: tracked ? chevron(open) : null,
@@ -864,7 +994,7 @@ class _Breakdown extends StatelessWidget {
             minHeight: 52,
             label: Row(
               children: <Widget>[
-                _Swatch(color: _tone(theme, group)),
+                _Swatch(color: colours.of(group)),
                 const SizedBox(width: 8),
                 Expanded(child: Text(group.label, style: name)),
               ],
@@ -873,7 +1003,7 @@ class _Breakdown extends StatelessWidget {
               <double>[
                 for (final _Column c in columns) c.explanation.total(group),
               ],
-              _tone(theme, group),
+              colours.of(group),
               quiet: false,
             ),
             trailing: chevron(groups.contains(group)),
@@ -881,13 +1011,13 @@ class _Breakdown extends StatelessWidget {
         ),
         if (groups.contains(group))
           if (group.features.length == 1)
-            ...tracks(group.features.keys.single, _indent)
+            ...tracks(group.features.keys.single, _indent, colours.of(group))
           else
             for (final MapEntry<String, String> entry
                 in group.features.entries) ...<Widget>[
-              feature(entry, _tone(theme, group)),
+              feature(entry, colours.of(group)),
               if (features.contains(entry.key))
-                ...tracks(entry.key, _indent * 2),
+                ...tracks(entry.key, _indent * 2, colours.of(group)),
             ],
       ],
     ];
@@ -959,4 +1089,118 @@ class _CellBar extends CustomPainter {
   @override
   bool shouldRepaint(_CellBar old) =>
       old.fraction != fraction || old.tone != tone;
+}
+
+/// What the page's values are and how it draws them, said once.
+class _About extends StatelessWidget {
+  const _About();
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ContributionColors colours = context.contributionColors;
+    Widget section(String heading, Widget body) => Padding(
+      padding: const EdgeInsets.only(bottom: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(heading, style: theme.textTheme.titleSmall),
+          const SizedBox(height: 4),
+          body,
+        ],
+      ),
+    );
+    Text line(String text) => Text(text, style: theme.caption);
+    return SingleChildScrollView(
+      key: const ValueKey<String>('contributions-about'),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text('About these values', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 16),
+          section(
+            'A value',
+            line(
+              'A SHAP attribution to the AVI model’s raw score, one per input '
+              'feature, across Atlas genes and biosamples. Positive raises '
+              'the score, negative lowers it. It is not a part of the Phred, '
+              'and its sign says nothing about the direction of gene '
+              'activity.',
+            ),
+          ),
+          section(
+            'The bars',
+            line(
+              'Each substitution’s attributions, its four groups end to end '
+              'on one scale from zero: positive groups to the right, negative '
+              'ones to the left, their sum at the end. Under each bar, the two '
+              'features that weigh most in it.',
+            ),
+          ),
+          section(
+            'The groups',
+            Column(
+              children: <Widget>[
+                for (final ContributionGroup g in ContributionGroup.values)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: _Swatch(color: colours.of(g)),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text.rich(
+                            TextSpan(
+                              children: <InlineSpan>[
+                                TextSpan(
+                                  text: '${g.label}  ',
+                                  style: theme.caption?.copyWith(
+                                    color: theme.colorScheme.onSurface,
+                                  ),
+                                ),
+                                TextSpan(
+                                  // Splicing is one feature, made of three
+                                  // scorers: those are what it holds.
+                                  text: g == ContributionGroup.splicing
+                                      ? 'splice sites, their usage, '
+                                            'junctions (at a fifth)'
+                                      : g.features.values.join(', '),
+                                  style: theme.caption,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          section(
+            'The table',
+            line(
+              'Each number sits over a bar of its size, on one scale for the '
+              'whole table: filled where it raises the score, outlined where '
+              'it lowers it.',
+            ),
+          ),
+          section(
+            'Tracks',
+            line(
+              'The track under an assay is the one with the largest absolute '
+              'predicted effect for that substitution. The model reports the '
+              'assay’s attribution, not which track drove it.',
+            ),
+          ),
+          line('AlphaGenome Atlas'),
+        ],
+      ),
+    );
+  }
 }
