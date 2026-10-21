@@ -1,95 +1,134 @@
-**AVI contribution details**
+**AVI contributions**
 
-The first implementation of the [AlphaGenome analysis](alphagenome-opportunities.md)
-adds exact-substitution explanations to the existing base inspector and expanded
-ClinVar records. Navigation, canonical sequences, ESM scores and clinical
-classifications are preserved.
+A base sheet whose substitutions are explained ends its rows with one line,
+“Contributions ›”. It opens a page of its own, rising over the walk as the
+ClinVar list does, with every substitution at that base side by side and what
+the AVI model's raw score is made of. × closes it back onto the sheet. Since
+2026-10-21 no substitution row opens in place.
 
-**Coverage and interaction**
+Insulin alone carries contributions: it is the showcase the flow is built on,
+before it is adapted protein by protein (the user's decision of 2026-10-21).
+Hemoglobin's and CFTR's top-three payloads were deleted then: their track
+rows are `absent` and their objects gone. An expanded ClinVar record still
+shows its own allele's three largest contributions, derived from the full set.
 
-INS, HBB and CFTR carry complete coverage of the alternatives already scored in
-their AVI assets: 81,117 substitutions in total. CFTR coverage refers to the
-24,000 displayed bases, including retained ends of shortened introns, not every
-base of its full genomic span. The three files add approximately 4.48 MB of
-source JSON; installed/compressed size depends on the platform build.
+**The page**
 
-On a base sheet, each available substitution has an expansion chevron. Only
-one opens at a time; changing the selected base clears it. An expanded ClinVar
-record reads its own alternative. The first line identifies the largest
-contribution and whether it raises or lowers AVI. “Show contributions” reveals
-up to three signed values and the source link. Unscored, estimated and
-non-pilot positions receive no explanation from another position.
+```
+×   c.73 · Contributions
 
-These are attributions to AVI's raw score across available genes and biosamples.
-They are neither percentages nor additive pieces of the Phred score. A positive
-contribution does not establish increased gene expression. Conservation and
-AlphaMissense retain their names, and the UI does not infer a particular target
-gene, tissue, splice junction or clinical consequence from these attributions.
+               C Leu   A Ile   G Val
+ Phred          25.1    22.1    20.9
+ Coding       +0.706  +0.296  +0.235 ›
+ Conservation +0.391  +0.342  +0.344 ›
+ Splicing     +0.064  +0.082  +0.058 ›
+ Expression & +0.031  +0.039  +0.041 ›
+ chromatin
+ ──────────────────────────────────
+ Sum          +1.192  +0.759  +0.678
+```
+
+- Columns are the sheet's rows in the sheet's order (by Phred), each headed by
+  its base and what it makes of the codon (`Leu`, `=`, `Ter`, `?`).
+- Rows are four groups, each the sum of its features. A group opens onto its
+  features; an assay opens onto the track behind it, one line per column
+  (`WTC11 · INS`, `junction · body of pancreas · INS-IGF2`). Splicing is one
+  feature, so it opens straight onto its tracks.
+- Values are signed to three places, in neutral ink (R9.1); an exact zero is
+  `0`. Type turned up past what a phone holds scrolls the table sideways
+  rather than squeezing a number; the names wrap between words, never inside.
+- Under the table: what these values are, said once, the snapshot's date, and
+  one Atlas link per column (the genomic allele: insulin's T>C is `A>G`).
+
+| Group | Features (as the Atlas names its assays) |
+|---|---|
+| Coding | AlphaMissense, Termination, Start lost, Stop lost |
+| Conservation | PhastCons 470, Cactus 241 |
+| Splicing | Splicing (sites, site usage, junctions/5) |
+| Expression & chromatin | RNA-seq, CAGE, PRO-cap, Polyadenylation, DNase-seq, ATAC-seq, ChIP-TF, ChIP-histone, 3D contacts |
+
+The insertion and deletion flags belong to no group: a substitution's are
+zero, which the bake refuses to let pass otherwise.
+
+**What the values are**
+
+`AVI_SCORE_FEATURE_IMPORTANCE`: one signed attribution per feature to the AVI
+model's raw score (`AVI_SCORE`'s `X`), across Atlas genes and biosamples. They
+are not percentages and not parts of the Phred, and a sign is not a direction
+of gene activity. Their sum ranks insulin's 4,293 substitutions as the Phred
+does (Spearman 0.9998), but raw − sum is not one constant: median −0.049, from
+−0.069 to −0.028. So no baseline is stated (`baseline: null`) and the page
+does not claim a column adds up to its raw score; the offsets are recorded in
+the payload (`raw_minus_sum`).
+
+A track under an assay is the one with the largest absolute predicted effect
+for that substitution, over every gene and track of the assay's scorer, as
+the Atlas's AVI skill reconstructs it (`_find_adata_max`); for splicing, the
+largest of splice sites, site usage and junctions at a fifth. The model
+reports the assay's attribution, not which track drove it, and the page says
+so.
+
+**Persistence**
+
+| Tier | What | Where | Insulin |
+|---|---|---|---|
+| Atlas window replies | raw score + 18 attributions per substitution | `pipeline/impact/attribution_raw/<impact sha256>/<low>-<high>.json`, ignored by git, resumable | 1.35 MB |
+| Atlas track replies | genes × tracks for twelve scorers, one call per substitution | never stored: reduced on arrival to each assay's winner, checkpointed one line per substitution in `track_winners.jsonl` | ~130 KB each raw; 4.8 MB reduced |
+| The track | schema 2 below | Storage `tracks/impact_explanations/insulin.<sha12>.json`, immutable, gzipped by the CDN | 1.41 MB, 409 KB on the wire |
+| The phone | the track, by sha256 | `TrackClient`'s cache | offline after the first open |
+
+A 24,000-base gene would be about 1.4 MB on the wire before winners. When one
+is adapted, the same per-base records split into blocks of about 1,000 bases
+on the CDN, fetched by the block holding the tapped base. A per-base API
+route was set aside: the service names bytes and never carries them, and
+Render's cold start has reached 25 s.
 
 **Bake and validation**
 
 ```sh
-pipeline/impact/venv/bin/python pipeline/impact/bake_explanations.py
-# Or one gene:
 pipeline/impact/venv/bin/python pipeline/impact/bake_explanations.py --target insulin
-python3 pipeline/check_assets.py
-.venv/bin/python -m pytest pipeline/impact
+.venv/bin/python -m pytest pipeline/impact tests/test_impact_explanations.py
+.venv/bin/python pipeline/check_assets.py
+python3 pipeline/upload_tracks.py --kind impact_explanations --target insulin --dry-run
 flutter test test/features/gene_lookup/impact/
 ```
 
-The bake reads `ALPHAGENOME_API_KEY` from the environment or `~/.env`, using
-the same local credential convention as the workspace's
-[AVI skill](../../.claude/skills/alphagenome-variant-impact-score/SKILL.md).
-It queries `AVI_SCORE` and `AVI_SCORE_FEATURE_IMPORTANCE` together, checks each
-returned reference and alternate against the existing mapped allele, and
-requires AVI to match the bundled score at its saved precision. It refuses a
-changed score rather than silently mixing score releases.
+The bake reads `ALPHAGENOME_API_KEY` from the environment or `~/.env`. It asks
+the two windows for `AVI_SCORE` and its attributions, refuses a Phred that
+differs from the stored AVI asset at its saved precision, then asks each
+substitution's twelve assay scorers (three at a time, backing off while the
+Atlas is busy): seven minutes for insulin. A rerun resumes from both
+checkpoints; a window written before the raw score was kept is asked again.
 
-Full responses are retained in ignored `pipeline/impact/attribution_raw/<impact-sha256>/` (in `helix-peek-backend`)
-checkpoints. Successful windows resume on rerun. Atlas release identity is not
-provided here: the payload explicitly records a null release, generation date
-and client version, rather than inventing a pinned server version. Clear the
-corresponding checkpoint directory when intentionally refreshing Atlas data;
-update/revalidate AVI first if its scores have changed.
+**Contract (schema 2)**
 
-The source-link template is generated by the workspace's
-[Atlas linking skill](../../.claude/skills/alphagenome-atlas-website-links/SKILL.md).
-At runtime the exact chromosome-strand allele is inserted, including reverse
-complement conversion for INS and HBB. `url_launcher` opens the HTTPS reference;
-if a browser cannot open it, the app copies the link. No Atlas key ships in the
-new assets or runs on the phone.
+`assets/impact_explanations/<slug>.json` carries the AVI asset's identity
+(gene, accession, transcript, GRCh38, GENCODE v46, sequence, orientation,
+complementation, coordinate runs) and the SHA-256 of its bytes, then:
 
-**Contract and transport**
+- `scorer`, `scope: across_atlas_genes_and_biosamples`,
+  `units: raw_score_attribution`, `selection: all`, `alt_order`;
+- `generated_at`, `client_version`, `atlas_release: null`,
+  `atlas_url_template`;
+- `baseline` (null for insulin), `raw_minus_sum` (median, min, max),
+  `track_scorers`;
+- `features`: the 18 Atlas feature ids, in the Atlas's order;
+- `tracks`: each winning track once, `[scorer, assay, biosample, ontology,
+  gene, target]`, the target a ChIP factor or mark or a splice site's kind;
+- `positions`: keyed by record-local position, three alternatives in
+  `ACGT minus wildtype` order, each `[phred, raw, [18 values],
+  [[feature, track, value], …]]`, the last the assay's own signed effect on
+  its winning track.
 
-`assets/impact_explanations/<slug>.json` uses schema version 1. Each file carries
-the gene/accession/transcript, GRCh38 and GENCODE version, displayed sequence,
-orientation and complementation separately, full coordinate runs, and the
-SHA-256 of its source AVI asset. The header declares `raw_score_attribution`,
-`top_3_absolute_signed`, and `across_atlas_genes_and_biosamples`.
+`check_explanations.py` holds it to the AVI asset (digest, identity, coverage,
+every Phred), 18 finite values with the indel flags zero, each raw − sum
+within the recorded range, and every winner's indices; `upload_tracks.py`
+runs it before any upload. `GeneImpactExplanations.fromJson` checks the
+same identity and shape on the phone before any of it is shown. The service's
+`/gene/{accession}/{gene}/impact-explanations` redirects to the stored object;
+its local-directory fallback, for a checkout without a database, serves
+schema 2 only.
 
-`features` is an indexed list of original Atlas feature IDs. `positions` is
-keyed by record-local position. Each position contains three alternatives in
-`ACGT minus wildtype` order. Each alternative is `[avi_phred, contributions]`,
-where a contribution is `[feature_index, signed_value]`. Values are sorted by
-absolute magnitude and rounded to seven decimal places; no renormalization is
-performed. Zero contributions are omitted, not replaced with fabricated values.
-
-`GeneImpactExplanations.fromJson` validates identity, coordinates, complete
-coverage, all alternative scores, feature indices, finite signed values and the
-source URL before exposing any explanation. `pipeline/check_assets.py` additionally
-checks the source file digest and catalog availability. The shared repository
-parses off the UI thread, caches successful loads per impact track, and evicts
-failed loads for retry.
-
-In the application, the repository uses the configured `ApiClient`.
-`MockApiClient` serves the bundled file from
-`GET /gene/{accession}/{gene}/impact-explanations`. The backend serves the same
-generated contract from `IMPACT_EXPLANATIONS_DIR`, whose local default is this
-checkout's asset directory. A live failure reports unavailable and offers
-retry; it does not silently substitute a different bundled snapshot. Standalone
-walk previews without application providers use the bundled repository.
-
-Deployments must package or mount the generated directory and set
-`IMPACT_EXPLANATIONS_DIR` accordingly. This endpoint performs no Atlas query or
-NCBI fetch. Migration of other evidence families and the fixture normalization
-pipeline remains separate work.
+Schema 2 replaced schema 1 in place under the same track kind, at the user's
+decision (2026-10-21), as the folding track's schema 2 did: an app built
+before it reads insulin's contributions as unavailable.

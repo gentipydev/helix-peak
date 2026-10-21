@@ -59,6 +59,8 @@ There is a useful scope trap in the INS result: the helper selects an `INS-IGF2`
 
 **First feature: “What contributes to this score?”**
 
+*Superseded for the base inspector on 2026-10-21.* The rows no longer expand: one “Contributions ›” row opens every substitution's full attribution, side by side, on a page of its own, for insulin alone (the other two pilot genes' payloads were deleted). [AVI contributions](avi-contributions.md) describes what was built; the paragraphs below are the original proposal.
+
 In an expanded ClinVar record, the allele is already unambiguous. Place a short explanation below its existing molecular evidence line, followed by an optional expansion showing the leading contributions and provenance.
 
 In the base inspector, make each existing substitution row expandable or selectable. Expanding `A` explains that exact alternative; expanding `T` changes the explanation to `T`. Keep the three bars and existing sheet gestures. Do not silently attach the highest-scoring alternative's explanation to the base as a whole. A user who never expands a row sees the familiar flow.
