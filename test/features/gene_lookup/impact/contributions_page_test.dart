@@ -147,16 +147,44 @@ void main() {
   ) async {
     await openPage(tester);
     expect(find.text('c.73 · Contributions'), findsOneWidget);
+    expect(_row(tester, 'contributions-identity'), <String>[
+      'T',
+      'insulin B chain',
+      'chr11:2,160,899',
+    ]);
+    // Each substitution's bar: its base and what it makes, its Phred and
+    // where that sits genome-wide, and the sum of its attributions.
+    expect(_row(tester, 'contributions-bar-C'), <String>[
+      'C',
+      'Leu',
+      '25.1 Phred · top 0.309%',
+      '+1.192',
+    ]);
+    expect(_row(tester, 'contributions-bar-A'), <String>[
+      'A',
+      'Ile',
+      '22.1 Phred · top 0.617%',
+      '+0.759',
+    ]);
+    expect(_row(tester, 'contributions-bar-G'), <String>[
+      'G',
+      'Val',
+      '20.9 Phred · top 0.813%',
+      '+0.678',
+    ]);
+    expect(
+      tester.getTopLeft(_key('contributions-bar-C')).dy,
+      lessThan(tester.getTopLeft(_key('contributions-bar-A')).dy),
+    );
+    expect(
+      tester.getTopLeft(_key('contributions-bar-A')).dy,
+      lessThan(tester.getTopLeft(_key('contributions-bar-G')).dy),
+    );
     expect(_row(tester, 'contributions-header'), <String>[
+      'By group',
       'C Leu',
       'A Ile',
       'G Val',
-    ]);
-    expect(_row(tester, 'contributions-phred'), <String>[
-      'Phred',
-      '25.1',
-      '22.1',
-      '20.9',
     ]);
     expect(_row(tester, 'contributions-group-coding'), <String>[
       'Coding',
@@ -182,12 +210,6 @@ void main() {
       '+0.039',
       '+0.041',
     ]);
-    expect(_row(tester, 'contributions-sum'), <String>[
-      'Sum',
-      '+1.192',
-      '+0.759',
-      '+0.678',
-    ]);
     await _capture(tester, 'contributions-page');
   });
 
@@ -196,25 +218,28 @@ void main() {
   ) async {
     await openPage(tester);
     expect(_key('contributions-feature-ALPHAMISSENSE'), findsNothing);
-    await tester.tap(_key('contributions-group-coding'));
-    await tester.pumpAndSettle();
+    Future<void> open(String key) async {
+      await tester.ensureVisible(_key(key));
+      await tester.pumpAndSettle();
+      await tester.tap(_key(key));
+      await tester.pumpAndSettle();
+    }
+
+    await open('contributions-group-coding');
     expect(_row(tester, 'contributions-feature-ALPHAMISSENSE'), <String>[
       'AlphaMissense',
       '+0.706',
       '+0.296',
       '+0.235',
     ]);
-    await tester.tap(_key('contributions-group-expression'));
-    await tester.pumpAndSettle();
-    await tester.tap(_key('contributions-feature-MAX_ABS_RNA_SEQ'));
-    await tester.pumpAndSettle();
+    await open('contributions-group-expression');
+    await open('contributions-feature-MAX_ABS_RNA_SEQ');
     expect(
       _row(tester, 'contributions-track-MAX_ABS_RNA_SEQ-C'),
       <String>['C', 'WTC11 · INS'],
     );
     // Splicing is one feature: it opens straight onto its tracks.
-    await tester.tap(_key('contributions-group-splicing'));
-    await tester.pumpAndSettle();
+    await open('contributions-group-splicing');
     expect(
       _row(tester, 'contributions-track-MERGED_SPLICING-C'),
       <String>['C', 'junction · body of pancreas · INS-IGF2'],
@@ -236,29 +261,19 @@ void main() {
     expect(_key('impact-contributions-open'), findsOneWidget);
   });
 
-  testWidgets('each column links its own genomic allele to the Atlas', (
+  testWidgets('what the values are is said once, behind the info button', (
     WidgetTester tester,
   ) async {
     await openPage(tester);
-    String? opened;
-    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-      const MethodChannel('plugins.flutter.io/url_launcher'),
-      (MethodCall call) async {
-        opened = (call.arguments as Map<dynamic, dynamic>)['url'] as String?;
-        return true;
-      },
-    );
-    addTearDown(
-      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-        const MethodChannel('plugins.flutter.io/url_launcher'),
-        null,
-      ),
-    );
-    await tester.ensureVisible(_key('contributions-atlas-C'));
-    await tester.tap(_key('contributions-atlas-C'));
+    expect(_key('contributions-about'), findsNothing);
+    expect(find.textContaining('Atlas ·'), findsOneWidget);
+    expect(find.textContaining('View in Atlas'), findsNothing);
+    await tester.tap(_key('contributions-info'));
     await tester.pumpAndSettle();
-    // Insulin is on the minus strand: the transcript's T>C is A>G.
-    expect(Uri.parse(opened!).queryParameters['q'], 'chr11:2160899:A>G');
+    expect(_key('contributions-about'), findsOneWidget);
+    // No baseline is stated for insulin: raw minus sum is not one number.
+    expect(find.textContaining('baseline'), findsNothing);
+    await _capture(tester, 'contributions-page-about');
   });
 
   testWidgets('at its own text size the table fits an SE without scrolling', (
@@ -328,23 +343,36 @@ void main() {
     await tester.runAsync(() async {});
     await tester.pumpAndSettle();
     // The row runs past the screen's edge, so it is opened by its name.
-    await tester.tap(find.text('Expression & chromatin'));
+    expect(
+      find.descendant(
+        of: _key('contributions-bar-C'),
+        matching: find.text('+1.192'),
+      ),
+      findsOneWidget,
+    );
+    final Finder down = find.byWidgetPredicate(
+      (Widget w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+    );
+    await tester.scrollUntilVisible(
+      _key('contributions-group-expression'),
+      200,
+      scrollable: down,
+    );
+    final Finder name = find.descendant(
+      of: _key('contributions-group-expression'),
+      matching: find.text('Expression & chromatin'),
+    );
+    await tester.ensureVisible(name);
+    await tester.pumpAndSettle();
+    await tester.tap(name);
     await tester.pumpAndSettle();
     expect(_key('contributions-feature-MAX_ABS_RNA_SEQ'), findsOneWidget);
     expect(tester.takeException(), isNull);
-    expect(_row(tester, 'contributions-sum'), <String>[
-      'Sum',
-      '+1.192',
-      '+0.759',
-      '+0.678',
-    ]);
     // The page's own scroll, not the table's sideways one.
     await tester.scrollUntilVisible(
-      _key('contributions-about'),
+      _key('contributions-source'),
       300,
-      scrollable: find.byWidgetPredicate(
-        (Widget w) => w is Scrollable && w.axisDirection == AxisDirection.down,
-      ),
+      scrollable: down,
     );
     expect(tester.takeException(), isNull);
     await _capture(tester, 'contributions-large-text');

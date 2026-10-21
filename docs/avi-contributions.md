@@ -15,30 +15,50 @@ shows its own allele's three largest contributions, derived from the full set.
 **The page**
 
 ```
-×   c.73 · Contributions
-
-               C Leu   A Ile   G Val
- Phred          25.1    22.1    20.9
- Coding       +0.706  +0.296  +0.235 ›
- Conservation +0.391  +0.342  +0.344 ›
- Splicing     +0.064  +0.082  +0.058 ›
- Expression & +0.031  +0.039  +0.041 ›
- chromatin
- ──────────────────────────────────
- Sum          +1.192  +0.759  +0.678
+×   c.73 · Contributions                             ⓘ
+[T] insulin B chain
+    chr11:2,160,899
+╭──────────────────────────────────────────────────╮
+│ C Leu                   25.1 Phred · top 0.309%  │
+│   ██████████████▏▓▓▓▓▓▓▓▓▏▒▏░          +1.192    │
+│ A Ile                   22.1 Phred · top 0.617%  │
+│   ██████▏▓▓▓▓▓▓▓▏▒▏░                   +0.759    │
+│ G Val                   20.9 Phred · top 0.813%  │
+│   █████▏▓▓▓▓▓▓▓▏▒▏░                    +0.678    │
+│ ■ Coding ■ Conservation ■ Splicing ■ Expr. & chr. │
+╰──────────────────────────────────────────────────╯
+By group                   C Leu   A Ile   G Val
+■ Coding                  +0.706  +0.296  +0.235  ›
+                          ▬▬▬▬▬▬   ▬▬▬     ▬▬
+■ Conservation  …
+AlphaGenome Atlas · saved 2026-10-21
 ```
 
-- Columns are the sheet's rows in the sheet's order (by Phred), each headed by
-  its base and what it makes of the codon (`Leu`, `=`, `Ter`, `?`).
-- Rows are four groups, each the sum of its features. A group opens onto its
-  features; an assay opens onto the track behind it, one line per column
-  (`WTC11 · INS`, `junction · body of pancreas · INS-IGF2`). Splicing is one
-  feature, so it opens straight onto its tracks.
-- Values are signed to three places, in neutral ink (R9.1); an exact zero is
-  `0`. Type turned up past what a phone holds scrolls the table sideways
-  rather than squeezing a number; the names wrap between words, never inside.
-- Under the table: what these values are, said once, the snapshot's date, and
-  one Atlas link per column (the genomic allele: insulin's T>C is `A>G`).
+- The header is the sheet's own: the base's letter on its region's tint,
+  the region and the coordinate.
+- The card draws each substitution's sum of attributions as its four groups
+  end to end, on one scale, with its Phred and its genome-wide share above
+  and the sum at the end: why one substitution scores above another reads at
+  a glance (c.73's C leads on Coding, AlphaMissense; conservation is the
+  same for all three). The groups are one neutral stepped in lightness, with
+  a 2-point gap of the ground between them (R9.1: hue is ClinVar's), and a
+  legend under the bars. A negative group runs left of a zero line. The bars
+  grow in, one after another, unless motion is reduced.
+- Under the card the groups are rows and the substitutions columns, in the
+  sheet's order, each headed by its base and what it makes of the codon
+  (`Leu`, `=`, `Ter`, `?`). Each number sits over a small bar of its size,
+  on one scale for the whole table, filled where it raises the score and
+  outlined where it lowers it. A group opens onto its features; an assay
+  opens onto the track behind it, one line per column (`WTC11 · INS`,
+  `junction · body of pancreas · INS-IGF2`). Splicing is one feature, so it
+  opens straight onto its tracks.
+- Values are signed to three places, a fourth where three would read as a
+  signed zero, an exponent below that; an exact zero is `0`. Type turned up
+  past what a phone holds scrolls the table sideways rather than squeezing a
+  number; the names wrap between words, never inside.
+- What the values are is said once, behind ⓘ. The page ends on the
+  snapshot's source and date; it links nowhere (the Atlas links went at the
+  user's ask, 2026-10-21).
 
 | Group | Features (as the Atlas names its assays) |
 |---|---|

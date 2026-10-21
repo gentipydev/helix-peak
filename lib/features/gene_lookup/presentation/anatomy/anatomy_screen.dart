@@ -688,6 +688,8 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     required GeneImpact track,
     required BaseImpact impact,
     required String address,
+    required String region,
+    required Color tint,
     CodingEvidence? coding,
   }) async {
     if (_contributionsOpen) {
@@ -704,6 +706,8 @@ class _AnatomyScreenState extends State<AnatomyScreen>
               track: track,
               impact: impact,
               address: address,
+              region: region,
+              tint: tint,
               coding: coding,
             ),
           ),
@@ -1124,6 +1128,23 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     final GeneImpact? explained = impact.matchesRecord(widget.record)
         ? impact
         : null;
+    // Written on the sheet, not in a sentence, so without its article:
+    // "signal peptide", "5′ UTR" — as the gene page writes them.
+    final String region = _written(
+      coding?.label ?? transcript?.label ?? 'gene',
+    );
+    // The colour the grid draws this cell in, read the same way the painter
+    // reads it: the coding role where there is one, because 5' UTR and CDS
+    // are the distinction worth carrying into the sheet, and the transcript's
+    // exon or intron where there is not.
+    final Color tint =
+        context.anatomyColors.forSlot(
+          CellSlot.forRole(
+            (coding ?? transcript)?.kind,
+            (coding ?? transcript)?.index ?? 0,
+          ),
+        ) ??
+        Theme.of(context).colorScheme.onSurfaceVariant;
     return ImpactPanel(
       key: const ValueKey<String>('impact-panel'),
       impact: reading,
@@ -1135,6 +1156,8 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                 track: explained,
                 impact: reading,
                 address: where,
+                region: region,
+                tint: tint,
                 coding: evidence,
               ),
             ),
@@ -1152,22 +1175,9 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       // number the page above is already calling it by. Counting from the
       // record's first base instead would put a third numbering on screen.
       address: where,
-      // Written on the sheet, not in a sentence, so without its article:
-      // "signal peptide", "5′ UTR" — as the gene page writes them.
-      region: _written(coding?.label ?? transcript?.label ?? 'gene'),
+      region: region,
       note: note,
-      // The colour the grid draws this cell in, read the same way the painter
-      // reads it: the coding role where there is one, because 5' UTR and CDS
-      // are the distinction worth carrying into the sheet, and the transcript's
-      // exon or intron where there is not.
-      tint:
-          context.anatomyColors.forSlot(
-            CellSlot.forRole(
-              (coding ?? transcript)?.kind,
-              (coding ?? transcript)?.index ?? 0,
-            ),
-          ) ??
-          Theme.of(context).colorScheme.onSurfaceVariant,
+      tint: tint,
       controller: _sheet,
       slide: _sheetSlide,
       pinIdentity: pin,

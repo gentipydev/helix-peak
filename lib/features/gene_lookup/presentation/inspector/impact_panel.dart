@@ -216,7 +216,7 @@ class _BaseIdentity extends StatelessWidget {
             style: TextStyle(
               fontFamily: AppTypography.monoFamily,
               fontSize: 26,
-              color: _inkOn(
+              color: inkOn(
                 tint,
                 dark: theme.colorScheme.surface,
                 light: context.anatomyColors.tracer,
@@ -263,7 +263,7 @@ class _BaseIdentity extends StatelessWidget {
 /// The gene page's rule for naming its regions (`AnatomyPainter`), and here
 /// for the same fills: the tile is tinted as the grid draws the base's region,
 /// and an intron's near-black took the ground's own ink at 1.25 to one.
-Color _inkOn(Color fill, {required Color dark, required Color light}) {
+Color inkOn(Color fill, {required Color dark, required Color light}) {
   double contrast(Color a, Color b) {
     final double x = a.computeLuminance();
     final double y = b.computeLuminance();
