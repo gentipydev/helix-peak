@@ -17,7 +17,11 @@ final class OutlineMorph {
   /// very curve the body draws its outline by. The morph is laid with
   /// [count] points, and the bed lies [bed] in from the organ's outline.
   /// The two are met at their tops and their leftmost points, or their
-  /// bottommost where [bottoms].
+  /// bottommost where [bottoms]; or, where [marks] are given, at their tops
+  /// and at the point each mark picks out of either outline, so that an
+  /// organ much longer round one part than the body draws it (a femur's
+  /// head) draws in part by part, no point sliding round from one part to
+  /// the next.
   OutlineMorph({
     required List<Offset> template,
     required List<Offset> diagram,
@@ -25,8 +29,21 @@ final class OutlineMorph {
     required int count,
     required double bed,
     bool bottoms = false,
+    List<int Function(List<Offset>)> marks =
+        const <int Function(List<Offset>)>[],
   }) {
     _inward = _area(template) > 0 ? 1.0 : -1.0;
+    if (marks.isNotEmpty) {
+      final List<int> counts = _counts(
+        template,
+        _marked(template, marks),
+        count,
+      );
+      _template = _segmented(template, _marked(template, marks), counts);
+      _diagram = _segmented(diagram, _marked(diagram, marks), counts);
+      _bed = _inset(_template, bed);
+      return;
+    }
     final (List<Offset> along, List<Offset> round) = _halves(
       template,
       bottoms: bottoms,
@@ -142,6 +159,76 @@ final class OutlineMorph {
       bottoms: bottoms,
     );
     return <Offset>[..._even(first, a), ..._even(second, b)];
+  }
+
+  /// Where [points], a closed outline, is met: its topmost point, then the
+  /// point each of [marks] picks out of it, in their order round it from
+  /// the top.
+  static List<int> _marked(
+    List<Offset> points,
+    List<int Function(List<Offset>)> marks,
+  ) {
+    final int n = points.length;
+    int top = 0;
+    for (int i = 1; i < n; i++) {
+      if (points[i].dy < points[top].dy) {
+        top = i;
+      }
+    }
+    final List<int> at = <int>[
+      top,
+      for (final int Function(List<Offset>) mark in marks) mark(points),
+    ];
+    assert(at.every((int i) => i >= 0 && i < n), 'a mark outside $n points');
+    return at..sort((int a, int b) => ((a - top) % n).compareTo((b - top) % n));
+  }
+
+  /// How many points each part of [points] between two of the places [at]
+  /// is laid with, of [count] in all: as many as it is long.
+  static List<int> _counts(List<Offset> points, List<int> at, int count) {
+    final List<double> lengths = <double>[
+      for (int k = 0; k < at.length; k++)
+        _length(_between(points, at[k], at[(k + 1) % at.length])),
+    ];
+    final double total = lengths.fold(0, (double a, double b) => a + b);
+    final List<double> shares = <double>[
+      for (final double length in lengths) count * length / total,
+    ];
+    final List<int> out = <int>[
+      for (final double share in shares) share.floor(),
+    ];
+    // The points the rounding left over, to the parts it took most from.
+    final List<int> order = <int>[for (int k = 0; k < at.length; k++) k]
+      ..sort(
+        (int a, int b) => (shares[b] - out[b]).compareTo(shares[a] - out[a]),
+      );
+    for (int k = 0; out.fold(0, (int a, int b) => a + b) < count; k++) {
+      out[order[k % order.length]]++;
+    }
+    return out;
+  }
+
+  /// [points], a closed outline, laid part by part between the places [at],
+  /// each with its share of [counts].
+  static List<Offset> _segmented(
+    List<Offset> points,
+    List<int> at,
+    List<int> counts,
+  ) => <Offset>[
+    for (int k = 0; k < at.length; k++)
+      ..._even(_between(points, at[k], at[(k + 1) % at.length]), counts[k]),
+  ];
+
+  /// [points], a closed outline, from index [from] round to index [to].
+  static List<Offset> _between(List<Offset> points, int from, int to) {
+    final int n = points.length;
+    final List<Offset> out = <Offset>[points[from]];
+    for (int i = (from + 1) % n; ; i = (i + 1) % n) {
+      out.add(points[i]);
+      if (i == to) {
+        return out;
+      }
+    }
   }
 
   /// [count] points evenly along the open line [points], from its first
