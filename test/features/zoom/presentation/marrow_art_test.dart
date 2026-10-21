@@ -193,7 +193,7 @@ void main() {
 
   testWidgets('at the hand-over the femur is the body’s own outline, flat in '
       'the mark, with no layer, mesh or point; at its stop the femur, with '
-      'no layer', (WidgetTester tester) async {
+      'no layer, the figure’s own parts round it', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
     final double real = _anatomy.metres / _part.extent;
     final Rect body = Contour(<Offset>[
@@ -215,6 +215,17 @@ void main() {
     art.paint(rest, inks, 1 / 390, 1);
     expect(rest.layers, 0);
     expect(rest.meshes, greaterThan(0));
+    // The figure's own parts stay round it, faint, as the body drew them:
+    // the pelvis above it and the legs beside it reach well past its box.
+    final Rect femur = art.outline.getBounds();
+    expect(
+      rest.paths.where(
+        ((Rect, Color) p) =>
+            p.$1.top < femur.top - femur.height * 0.05 &&
+            p.$1.width > femur.width * 2,
+      ),
+      isNotEmpty,
+    );
   });
 
   testWidgets('its meshes are the same every time, each within one mesh’s '
@@ -331,9 +342,8 @@ void main() {
   });
 
   testWidgets('on the steps to the femur and back nothing pops or jumps: its '
-      'outline drawn in, the femur coming up, the figure going', (
-    WidgetTester tester,
-  ) async {
+      'outline drawn in, the femur coming up, the figure staying round '
+      'it', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
     for (final ProteinTarget t in _marrow) {
       final ZoomStage stage = ZoomStage(
@@ -353,7 +363,7 @@ void main() {
         _flight(depth, body, organ),
         _flight(depth, organ, body),
       ]) {
-        (double, double)? lastShown;
+        double? lastShown;
         List<Offset>? before;
         List<Offset>? last;
         int f = 0;
@@ -371,22 +381,14 @@ void main() {
           }
           final (OrganScene scene, ZoomFrame frame) = at;
           final double detail = OrganScene.detailAt(frame);
-          final (double, double) shown = (
-            frame.opacity * SpecimenStep.come(detail),
-            frame.opacity * SpecimenStep.figure(detail),
-          );
+          final double shown = frame.opacity * SpecimenStep.come(detail);
           final String where =
               '${t.slug} from ${flight.from} to ${flight.to}, frame $f';
           if (lastShown != null) {
             expect(
-              (shown.$1 - lastShown.$1).abs(),
+              (shown - lastShown).abs(),
               lessThanOrEqualTo(0.08),
               reason: '$where: the femur',
-            );
-            expect(
-              (shown.$2 - lastShown.$2).abs(),
-              lessThanOrEqualTo(0.08),
-              reason: '$where: the figure',
             );
           }
           lastShown = shown;

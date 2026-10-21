@@ -3,13 +3,15 @@
 /// anatomy itself is in `marrow_anatomy.dart`, and the light is the zoom's
 /// one lamp (`SpecimenLamp.zoom`), the other specimens'.
 ///
-/// The look is a fresh specimen's, cut down its length: the marrow flat,
-/// the red marrow in the mark where the zoom's cell lives, as the brain's
-/// cortex is, the yellow marrow a warm neutral, both crossed by the pale
-/// trabeculae of the spongy bone; the cortex an ivory cut face, its outer
-/// edge lit as the bone's surface turns away; the cartilage glassy over the
-/// head and the condyles; the growth plates' scars fine bright lines; the
-/// nutrient artery in the blood red.
+/// The look is a fresh specimen's, cut down its length, in deep tones that
+/// stand out against the body's faint parts round it, as the old study's
+/// dark shaft did (the user's ask of 2026-10-21: the bone had looked pale):
+/// the marrow flat, the red marrow in the mark where the zoom's cell lives,
+/// as the brain's cortex is, the yellow marrow in shade, both crossed by
+/// the trabeculae of the spongy bone in the bone's own tone; the cortex a
+/// cut face in a mid ivory, its outer edge lit as the bone's surface turns
+/// away; the cartilage glassy over the head and the condyles; the growth
+/// plates' scars fine lines; the nutrient artery in the blood red.
 abstract final class MarrowStyle {
   // The outline, and the step from the body.
 
@@ -39,19 +41,20 @@ abstract final class MarrowStyle {
   // ink (`ZoomInks.lit`), or into the shade (`ZoomInks.shade`).
 
   /// The red marrow: one flat tone, the mark over a neutral, as the brain's
-  /// cortex is; the yellow marrow a warm neutral.
+  /// cortex is; the yellow marrow in shade, as the old study drew the
+  /// shaft's cavity.
   static const double redLit = 0.2;
   static const double redMark = 0.42;
-  static const double yellowLit = 0.34;
+  static const double yellowShade = 0.62;
 
-  static const double cortexLit = 0.78;
-  static const double cartilageLit = 0.62;
+  static const double cortexLit = 0.55;
+  static const double cartilageLit = 0.45;
   static const double cartilageAlpha = 0.85;
-  static const double trabeculaLit = 0.72;
-  static const double scarLit = 0.85;
+  static const double trabeculaLit = 0.55;
+  static const double scarLit = 0.62;
   static const double canalShade = 0.3;
   static const double edgeLit = 0.42;
-  static const double edgeAlpha = 0.45;
+  static const double edgeAlpha = 0.85;
 
   /// The artery: blood eased toward the ground.
   static const double artery = 0.25;
@@ -83,7 +86,7 @@ abstract final class MarrowStyle {
 
   /// Each level's least width, in pixels, and how strong it is.
   static const List<double> levelFloor = <double>[0.8, 0.7, 0.6];
-  static const List<double> levelAlpha = <double>[0.75, 0.6, 0.55];
+  static const List<double> levelAlpha = <double>[0.5, 0.45, 0.4];
 
   /// How far apart the points a line is laid by are, how big a tile of
   /// them is, and how fine the mask they are kept inside the marrow by.

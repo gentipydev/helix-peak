@@ -615,7 +615,9 @@ final class _DrawnOrgan extends OrganArt {
 /// that outline, flat and lit in the mark, as `_DrawnOrgan` draws an organ,
 /// which then draws in toward the organ's own outline and becomes the bed
 /// it lies on, while the figure's parts round it give way to its own
-/// neighbours, which come up with it in one layer (`SpecimenStep`).
+/// neighbours, which come up with it in one layer (`SpecimenStep`); or,
+/// for an organ with none of its own ([_amongFigure]), stay round it, faint,
+/// as they do round an organ the body's outline draws.
 abstract class _SpecimenOrgan extends OrganArt {
   _SpecimenOrgan(
     AnatomyPart part,
@@ -651,6 +653,10 @@ abstract class _SpecimenOrgan extends OrganArt {
   /// The room a layer of the specimen and its neighbours needs, in [inks].
   Rect _specimenBounds(ZoomInks inks);
 
+  /// Whether the figure's own parts stay round it, faint, as the body drew
+  /// them, in place of neighbours of its own.
+  bool get _amongFigure => false;
+
   /// The specimen and its neighbours, at the organ's real size; [line] is a
   /// pixel.
   void _paintSpecimen(Canvas canvas, ZoomInks inks, double line);
@@ -676,7 +682,7 @@ abstract class _SpecimenOrgan extends OrganArt {
       line,
       _box,
       detail,
-      fade: SpecimenStep.figure(detail),
+      fade: _amongFigure ? 1 : SpecimenStep.figure(detail),
     );
     // The flat shape the body hands over, which becomes the organ's bed:
     // opaque all the while, so nothing shows through as the organ comes
@@ -1084,7 +1090,9 @@ final class _SalivaryOrgan extends _SpecimenOrgan {
 /// draws for it, cut down its length (`MarrowArt`): its red marrow, where
 /// the zoom goes in, flat in the mark among the trabeculae of its upper
 /// end; reached from the body's own outline of it (`_SpecimenOrgan`): that
-/// outline draws in toward the femur's own and becomes the bed it lies on.
+/// outline draws in toward the femur's own and becomes the bed it lies on,
+/// the pelvis and the legs staying round it, faint, as the body drew them
+/// (the user's ask of 2026-10-21).
 final class _MarrowOrgan extends _SpecimenOrgan {
   _MarrowOrgan(
     super.part,
@@ -1095,6 +1103,9 @@ final class _MarrowOrgan extends _SpecimenOrgan {
   }) : _form = MarrowForm.place(part: part, anatomy: anatomy, view: view);
 
   final MarrowForm _form;
+
+  @override
+  bool get _amongFigure => true;
 
   @override
   Path get outline => _form.outline;

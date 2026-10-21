@@ -13,7 +13,7 @@ import 'marrow_style.dart';
 
 /// The femur cut down its length, drawn as a fresh specimen under the
 /// zoom's one lamp: the marrow flat, the red marrow in the mark and the
-/// yellow a warm neutral, both crossed by the pale trabeculae of the spongy
+/// yellow in shade, both crossed by the trabeculae of the spongy
 /// bone, which come in finer as the view closes on them; the cortex an
 /// ivory cut face, its outer edge lit as the bone's surface turns away; the
 /// cartilage glassy over the head and the condyles; the growth plates'
@@ -43,7 +43,7 @@ final class MarrowArt {
 
   /// The yellow marrow's tone, which the step from the body draws the
   /// femur's bed in.
-  static Color bedOf(ZoomInks inks) => inks.lit(MarrowStyle.yellowLit);
+  static Color bedOf(ZoomInks inks) => inks.shade(MarrowStyle.yellowShade);
 
   /// The red marrow's one tone: the mark over a neutral, as the brain's
   /// cortex is.
