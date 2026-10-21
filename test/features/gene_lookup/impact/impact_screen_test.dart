@@ -211,14 +211,18 @@ void main() {
     await _openTranscript(tester);
     await _tapCell(tester, 30);
     final ImpactPanel panel = tester.widget<ImpactPanel>(_panel);
-    // Insulin's substitutions open their explanations, so each row ends in a
-    // chevron — and the reference and the scale keep the chevron's column too.
+    // Insulin's substitutions are explained on a page of their own, so no row
+    // opens in place and none keeps a chevron's column.
     for (final AltScore score in panel.impact.ranked) {
       expect(
         find.byKey(ValueKey<String>('impact-explain-${score.base}')),
-        findsOneWidget,
+        findsNothing,
       );
     }
+    expect(
+      find.byKey(const ValueKey<String>('impact-contributions-open')),
+      findsOneWidget,
+    );
     final List<Rect> tracks = <Rect>[
       for (final Element bar in find
           .descendant(of: find.byType(ScoreBar), matching: find.byType(Stack))
@@ -236,19 +240,6 @@ void main() {
           .getRect(find.byKey(const ValueKey<String>('impact-scale-end')))
           .right,
       closeTo(tracks.first.right, 1),
-    );
-    // And every row is the one height, the reference's included.
-    for (final AltScore score in panel.impact.ranked) {
-      expect(
-        tester
-            .getSize(find.byKey(ValueKey<String>('impact-explain-${score.base}')))
-            .height,
-        44,
-      );
-    }
-    expect(
-      tester.getSize(find.byKey(const ValueKey<String>('impact-reference'))).height,
-      44,
     );
   });
 

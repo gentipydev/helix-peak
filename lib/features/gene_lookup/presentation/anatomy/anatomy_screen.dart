@@ -45,6 +45,7 @@ import '../clinvar/variants_overview.dart';
 import '../constraint/constraint_panel.dart';
 import '../constraint/constraint_toolbar.dart';
 import '../inspector/coding_evidence.dart';
+import '../inspector/contributions_page.dart';
 import '../inspector/impact_panel.dart';
 import 'anatomy_canvas.dart';
 import 'anatomy_fasta.dart';
@@ -418,6 +419,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   /// and a residue compared in it keeps it that way.
   bool _sheetLanded = false;
   bool _overviewOpen = false;
+  bool _contributionsOpen = false;
 
   /// Where the overview was left, for as long as this gene is shown.
   VariantsOverviewMemory _overviewMemory = VariantsOverviewMemory();
@@ -676,6 +678,39 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       );
     } finally {
       _overviewOpen = false;
+    }
+  }
+
+  /// Every substitution's AVI contributions at [impact]'s base, as a page
+  /// that rises over the walk, its sheet still open under it, as the ClinVar
+  /// list does from the same sheet.
+  Future<void> _openContributions({
+    required GeneImpact track,
+    required BaseImpact impact,
+    required String address,
+    CodingEvidence? coding,
+  }) async {
+    if (_contributionsOpen) {
+      return;
+    }
+    final CapturedThemes themes = _routeThemes();
+    _contributionsOpen = true;
+    try {
+      await Navigator.of(context).push<void>(
+        riseRoute<void>(
+          context,
+          (BuildContext context) => themes.wrap(
+            ContributionsPage(
+              track: track,
+              impact: impact,
+              address: address,
+              coding: coding,
+            ),
+          ),
+        ),
+      );
+    } finally {
+      _contributionsOpen = false;
     }
   }
 
@@ -1086,10 +1121,23 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       _ => '',
     };
     final String where = c ?? fallback;
+    final GeneImpact? explained = impact.matchesRecord(widget.record)
+        ? impact
+        : null;
     return ImpactPanel(
       key: const ValueKey<String>('impact-panel'),
       impact: reading,
-      explanationTrack: impact.matchesRecord(widget.record) ? impact : null,
+      explanationTrack: explained,
+      onOpenContributions: explained == null
+          ? null
+          : () => unawaited(
+              _openContributions(
+                track: explained,
+                impact: reading,
+                address: where,
+                coding: evidence,
+              ),
+            ),
       observedEvidence: _clinvarBlock(position: position, scope: where),
       reported: _reported(
         _evidenceAt(position: position),

@@ -18,12 +18,12 @@ void main() {
   final request = ImpactExplanationRequest.forAllele(track, 5294, 'C', 'A')!;
 
   test(
-    'every bundled pilot alternative is exact and has a valid attribution',
+    'every insulin alternative is exact and has all 18 attributions',
     () {
       final pilot = TestCatalog.all.where(
         (t) => t.impactExplanationsAvailable,
       );
-      expect(pilot.map((t) => t.gene), unorderedEquals(['INS', 'HBB', 'CFTR']));
+      expect(pilot.map((t) => t.gene), <String>['INS']);
       int count = 0;
       for (final ProteinTarget target in pilot) {
         final impact = GeneImpact.fromJson(
@@ -48,12 +48,12 @@ void main() {
               base.wildtype,
               alt.base,
             )!;
-            expect(data.at(r), isNotNull);
+            expect(data.at(r)!.values, hasLength(18));
             count++;
           }
         }
       }
-      expect(count, 81117);
+      expect(count, 4293);
     },
   );
 
@@ -63,16 +63,22 @@ void main() {
     expect(data.atlasUrl(request).queryParameters['q'], 'chr11:2160901:G>T');
   });
 
-  test('compressed CFTR coordinate retains exact synonymous attribution', () {
-    final target = TestCatalog.all.firstWhere((t) => t.gene == 'CFTR');
-    final impact = GeneImpact.fromJson(readJson(target.impactAsset), target);
-    final data = GeneImpactExplanations.fromJson(
-      readJson(target.impactExplanationsAsset),
-      impact,
-    );
-    final r = ImpactExplanationRequest.forAllele(impact, 32923, 'G', 'A')!;
-    expect(data.at(r)!.contributions.first.feature, 'MERGED_SPLICING');
-    expect(data.atlasUrl(r).queryParameters['q'], 'chr7:117595058:G>A');
+  test('each substitution carries its raw score, groups and tracks', () {
+    final data = GeneImpactExplanations.fromJson(fixture(), track);
+    // c.73 T>C, chr11:2160899:A>G: Phe25Leu.
+    final leu = data.at(
+      ImpactExplanationRequest.forAllele(track, 5296, 'T', 'C')!,
+    )!;
+    expect(leu.phred, 25.1);
+    expect(leu.raw, closeTo(1.128616, 1e-6));
+    expect(leu.total(ContributionGroup.coding), closeTo(0.706, 0.0005));
+    expect(leu.sum, closeTo(1.192, 0.0005));
+    expect(leu.values['IS_INSERTION'], 0);
+    final rna = leu.winners['MAX_ABS_RNA_SEQ']!;
+    expect((rna.biosample, rna.gene), ('WTC11', 'INS'));
+    expect(leu.winners['MERGED_SPLICING']!.scorer, 'SPLICE_JUNCTIONS');
+    // Conservation, AlphaMissense and the flags name no track.
+    expect(leu.winners.containsKey('ALPHAMISSENSE'), isFalse);
   });
 
   test('reference, wrong reference, missing positions and unbaked genes have no request', () {
@@ -104,10 +110,7 @@ void main() {
       final rows =
           (json['positions'] as Map<String, dynamic>)['5294'] as List<dynamic>;
       final row = rows.first as List<dynamic>; // C>A in ACGT minus C order.
-      row[1] = <dynamic>[
-        <dynamic>[0, -0.75],
-        <dynamic>[1, 0.25],
-      ];
+      row[2] = <dynamic>[-0.75, 0.25, for (int i = 2; i < 18; i++) 0];
       final data = GeneImpactExplanations.fromJson(json, track);
       expect(data.at(request)!.contributions.first.value, -0.75);
       expect(data.at(request)!.summary, contains('lowering'));
@@ -157,25 +160,25 @@ void main() {
     );
   });
   test(
-    'rejects invalid numbers, duplicate features and unsafe source URLs',
+    'rejects invalid numbers, short rows, unknown tracks and unsafe source URLs',
     () {
-      for (final values in <List<dynamic>>[
-        <dynamic>[
-          <dynamic>[0, double.nan],
-        ],
-        <dynamic>[
-          <dynamic>[0, 0.4],
-          <dynamic>[0, 0.2],
-        ],
-        <dynamic>[
-          <dynamic>[100, 0.4],
-        ],
+      List<dynamic> row(Map<String, dynamic> json) =>
+          ((json['positions'] as Map<String, dynamic>)['5294'] as List<dynamic>)
+                  .first
+              as List<dynamic>;
+      final int tracks = (fixture()['tracks'] as List<dynamic>).length;
+      for (final void Function(List<dynamic>) spoil in <void Function(List<dynamic>)>[
+        (r) => (r[2] as List<dynamic>)[0] = double.nan,
+        (r) => (r[2] as List<dynamic>).removeLast(),
+        (r) => r[1] = double.infinity,
+        (r) => (r[3] as List<dynamic>).add(<dynamic>[0, tracks, 0.1]),
+        (r) => (r[3] as List<dynamic>).add(<dynamic>[100, 0, 0.1]),
+        (r) => (r[3] as List<dynamic>)
+          ..add(<dynamic>[1, 0, 0.1])
+          ..add(<dynamic>[1, 0, 0.2]),
       ]) {
         final json = fixture();
-        (((json['positions'] as Map<String, dynamic>)['5294'] as List<dynamic>)
-                    .first
-                as List<dynamic>)[1] =
-            values;
+        spoil(row(json));
         expect(
           () => GeneImpactExplanations.fromJson(json, track),
           throwsFormatException,

@@ -65,16 +65,116 @@ final class ImpactContribution {
   };
 }
 
+/// The AVI features a contributions page totals together, each named as the
+/// Atlas names its assay. The insertion and deletion flags belong to none: a
+/// substitution's are zero, which the bake holds.
+enum ContributionGroup {
+  coding('Coding', <String, String>{
+    'ALPHAMISSENSE': 'AlphaMissense',
+    'PROTEIN_TERMINATION': 'Termination',
+    'START_LOST': 'Start lost',
+    'STOP_LOST': 'Stop lost',
+  }),
+  conservation('Conservation', <String, String>{
+    'PHASTCONS_470_WAY': 'PhastCons 470',
+    'CACTUS_241_WAY': 'Cactus 241',
+  }),
+  splicing('Splicing', <String, String>{'MERGED_SPLICING': 'Splicing'}),
+  expression('Expression & chromatin', <String, String>{
+    'MAX_ABS_RNA_SEQ': 'RNA-seq',
+    'MAX_ABS_CAGE': 'CAGE',
+    'MAX_ABS_PROCAP': 'PRO-cap',
+    'MAX_ABS_POLYADENYLATION': 'Polyadenylation',
+    'MAX_ABS_DNASE': 'DNase-seq',
+    'MAX_ABS_ATAC': 'ATAC-seq',
+    'MAX_ABS_CHIP_TF': 'ChIP-TF',
+    'MAX_ABS_CHIP_HISTONE': 'ChIP-histone',
+    'MAX_ABS_CONTACT_MAPS': '3D contacts',
+  });
+
+  const ContributionGroup(this.label, this.features);
+  final String label;
+
+  /// Feature id → the assay's name, in the order the page lists them.
+  final Map<String, String> features;
+}
+
+/// The track behind an assay feature for one substitution: the one with the
+/// largest absolute effect, as the Atlas's AVI skill reconstructs it. The
+/// model itself reports only the feature's attribution.
+@immutable
+final class TrackWinner {
+  const TrackWinner({
+    required this.scorer,
+    required this.assay,
+    required this.biosample,
+    required this.ontology,
+    required this.gene,
+    required this.target,
+    required this.value,
+  });
+  final String scorer;
+  final String assay;
+  final String biosample;
+  final String ontology;
+  final String gene;
+
+  /// The factor or mark a ChIP track reads, or the kind of splice site.
+  final String target;
+
+  /// The assay's own signed effect on that track.
+  final double value;
+}
+
 @immutable
 final class AlleleExplanation {
-  const AlleleExplanation(this.contributions);
-  final List<ImpactContribution> contributions;
+  const AlleleExplanation({
+    required this.phred,
+    required this.raw,
+    required this.values,
+    this.winners = const <String, TrackWinner>{},
+  });
+  final double phred;
+
+  /// The Atlas's raw AVI score, before its genome-wide calibration.
+  final double raw;
+
+  /// Every feature's signed attribution, by Atlas feature id.
+  final Map<String, double> values;
+  final Map<String, TrackWinner> winners;
+
+  /// Up to the three largest non-zero attributions, by magnitude, sign kept.
+  List<ImpactContribution> get contributions {
+    final List<MapEntry<String, double>> entries = values.entries
+        .where((MapEntry<String, double> e) => e.value != 0)
+        .toList();
+    final List<String> order = values.keys.toList();
+    entries.sort((MapEntry<String, double> a, MapEntry<String, double> b) {
+      final int byMagnitude = b.value.abs().compareTo(a.value.abs());
+      return byMagnitude != 0
+          ? byMagnitude
+          : order.indexOf(a.key).compareTo(order.indexOf(b.key));
+    });
+    return <ImpactContribution>[
+      for (final MapEntry<String, double> e in entries.take(3))
+        ImpactContribution(e.key, e.value),
+    ];
+  }
+
+  /// What [group]'s features add up to.
+  double total(ContributionGroup group) => <double>[
+    for (final String feature in group.features.keys) values[feature] ?? 0,
+  ].fold(0, (double a, double b) => a + b);
+
+  /// Every attribution added up.
+  double get sum => values.values.fold(0, (double a, double b) => a + b);
 
   String get summary {
-    if (contributions.isEmpty) {
+    final List<ImpactContribution> top = contributions;
+    if (top.isEmpty) {
       return 'No non-zero contributions in this snapshot.';
     }
-    final ImpactContribution first = contributions.first;
+    final ImpactContribution first = top.first;
     return '${first.label} has the largest contribution, '
         '${first.value < 0 ? 'lowering' : 'raising'} the AVI score.';
   }
@@ -89,12 +189,17 @@ final class GeneImpactExplanations {
     this.generatedAt,
     this.clientVersion,
     this.urlTemplate,
+    this.baseline,
     this._positions,
   );
   final GeneImpact track;
   final String generatedAt;
   final String clientVersion;
   final String urlTemplate;
+
+  /// The raw score with every attribution at zero, where the Atlas's raw
+  /// scores less their attributions hold to one value; null where they don't.
+  final double? baseline;
   final Map<int, Map<String, AlleleExplanation>> _positions;
 
   AlleleExplanation? at(ImpactExplanationRequest request) {
@@ -148,11 +253,11 @@ final class GeneImpactExplanations {
     }
 
     require(
-      json['schema_version'] == 1 &&
+      json['schema_version'] == 2 &&
           json['scorer'] == 'AVI_SCORE_FEATURE_IMPORTANCE' &&
           json['units'] == 'raw_score_attribution' &&
           json['scope'] == 'across_atlas_genes_and_biosamples' &&
-          json['selection'] == 'top_3_absolute_signed' &&
+          json['selection'] == 'all' &&
           json['alt_order'] == 'ACGT minus wildtype' &&
           json['assembly'] == 'GRCh38' &&
           json['annotation'] == 'GENCODE v46' &&
@@ -188,10 +293,17 @@ final class GeneImpactExplanations {
     final List<String> features = (json['features'] as List<dynamic>)
         .cast<String>();
     require(
-      features.isNotEmpty &&
+      features.length == ImpactContribution.labels.length &&
           features.toSet().length == features.length &&
           features.every(ImpactContribution.labels.containsKey),
     );
+    final List<TrackWinner Function(double)> tracks =
+        <TrackWinner Function(double)>[
+          for (final dynamic raw in json['tracks'] as List<dynamic>)
+            _track((raw as List<dynamic>).cast<String>()),
+        ];
+    final num? baseline = json['baseline'] as num?;
+    require(baseline == null || baseline.isFinite);
     int next = track.start;
     for (final dynamic raw in json['runs'] as List<dynamic>) {
       final Map<String, dynamic> run = raw as Map<String, dynamic>;
@@ -229,34 +341,36 @@ final class GeneImpactExplanations {
       final Map<String, AlleleExplanation> alleles = {};
       for (int a = 0; a < 3; a++) {
         final List<dynamic> row = rows[a] as List<dynamic>;
-        require(row.length == 2);
+        require(row.length == 4);
         final double phred = (row[0] as num).toDouble();
         final double expected = base!.ranked
             .firstWhere((s) => s.base == alts[a])
             .phred;
         require(phred.isFinite && (phred - expected).abs() < 0.00001);
-        final List<dynamic> values = row[1] as List<dynamic>;
-        require(values.length <= 3);
-        final Set<int> seen = {};
-        final List<ImpactContribution> contributions = [];
-        double previous = double.infinity;
-        for (final dynamic value in values) {
-          final List<dynamic> pair = value as List<dynamic>;
-          require(pair.length == 2);
-          final int index = pair[0] as int;
-          final double weight = (pair[1] as num).toDouble();
-          require(
-            index >= 0 &&
-                index < features.length &&
-                seen.add(index) &&
-                weight.isFinite &&
-                weight != 0 &&
-                weight.abs() <= previous,
-          );
-          previous = weight.abs();
-          contributions.add(ImpactContribution(features[index], weight));
+        final double raw = (row[1] as num).toDouble();
+        final List<dynamic> weights = row[2] as List<dynamic>;
+        require(raw.isFinite && weights.length == features.length);
+        final Map<String, double> values = <String, double>{};
+        for (int f = 0; f < features.length; f++) {
+          final double weight = (weights[f] as num).toDouble();
+          require(weight.isFinite);
+          values[features[f]] = weight;
         }
-        alleles[alts[a]] = AlleleExplanation(List.unmodifiable(contributions));
+        final Map<String, TrackWinner> winners = <String, TrackWinner>{};
+        for (final dynamic won in row[3] as List<dynamic>) {
+          final List<dynamic> triple = won as List<dynamic>;
+          require(triple.length == 3);
+          final String feature = features[triple[0] as int];
+          final double value = (triple[2] as num).toDouble();
+          require(!winners.containsKey(feature) && value.isFinite);
+          winners[feature] = tracks[triple[1] as int](value);
+        }
+        alleles[alts[a]] = AlleleExplanation(
+          phred: phred,
+          raw: raw,
+          values: Map.unmodifiable(values),
+          winners: Map.unmodifiable(winners),
+        );
       }
       positions[position] = Map.unmodifiable(alleles);
     }
@@ -265,7 +379,24 @@ final class GeneImpactExplanations {
       generated,
       client,
       template,
+      baseline?.toDouble(),
       Map.unmodifiable(positions),
+    );
+  }
+
+  /// A row of the payload's track table, waiting for its value.
+  static TrackWinner Function(double) _track(List<String> fields) {
+    if (fields.length != 6) {
+      throw const FormatException('Malformed AVI track');
+    }
+    return (double value) => TrackWinner(
+      scorer: fields[0],
+      assay: fields[1],
+      biosample: fields[2],
+      ontology: fields[3],
+      gene: fields[4],
+      target: fields[5],
+      value: value,
     );
   }
 }

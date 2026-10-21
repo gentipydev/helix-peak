@@ -7,6 +7,23 @@ import '../../core/evidence/impact_explanation_repository.dart';
 import '../../core/evidence/impact_explanations.dart';
 import '../../core/theme/app_typography.dart';
 
+/// Opens [url] in the browser, or copies it where none will open it.
+Future<void> openAtlasLink(BuildContext context, Uri url) async {
+  try {
+    if (await launchUrl(url, mode: LaunchMode.externalApplication)) return;
+  } on Exception {
+    // A device without a browser can still copy the source reference.
+  }
+  await Clipboard.setData(ClipboardData(text: url.toString()));
+  if (context.mounted) {
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+      const SnackBar(
+        content: Text('Atlas link copied. Open it in your browser.'),
+      ),
+    );
+  }
+}
+
 /// Shared by a selected substitution and a ClinVar record's exact allele.
 /// Loading begins only when the containing detail opens.
 class ImpactExplanationView extends StatefulWidget {
@@ -53,22 +70,6 @@ class _ImpactExplanationViewState extends State<ImpactExplanationView> {
         old.request.alt != widget.request.alt ||
         old.request.track != widget.request.track) {
       _details = false;
-    }
-  }
-
-  Future<void> _openAtlas(Uri url) async {
-    try {
-      if (await launchUrl(url, mode: LaunchMode.externalApplication)) return;
-    } on Exception {
-      // A device without a browser can still copy the source reference.
-    }
-    await Clipboard.setData(ClipboardData(text: url.toString()));
-    if (mounted) {
-      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-        const SnackBar(
-          content: Text('Atlas link copied. Open it in your browser.'),
-        ),
-      );
     }
   }
 
@@ -190,7 +191,8 @@ class _ImpactExplanationViewState extends State<ImpactExplanationView> {
                 TextButton.icon(
                   key: const ValueKey('impact-contributions-atlas'),
                   style: linkStyle,
-                  onPressed: () => _openAtlas(data.atlasUrl(widget.request)),
+                  onPressed: () =>
+                      openAtlasLink(context, data.atlasUrl(widget.request)),
                   icon: const Icon(Icons.open_in_new, size: 14),
                   label: const Text('View this change in Atlas'),
                 ),

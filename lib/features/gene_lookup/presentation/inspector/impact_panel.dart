@@ -9,7 +9,6 @@ import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/clinvar/clinvar_colors.dart';
 import '../../../../shared/format.dart';
-import '../../../../shared/inspector/impact_explanation_view.dart';
 import '../../../../shared/inspector/inspector_sheet.dart';
 import '../../../../shared/inspector/level_pips.dart';
 import '../../../../shared/inspector/score_bar.dart';
@@ -43,6 +42,7 @@ class ImpactPanel extends StatefulWidget {
     this.reported = const <String, ClinVarGroup>{},
     this.observedEvidence,
     this.explanationTrack,
+    this.onOpenContributions,
     super.key,
   });
 
@@ -52,6 +52,10 @@ class ImpactPanel extends StatefulWidget {
 
   final BaseImpact impact;
   final GeneImpact? explanationTrack;
+
+  /// Opens every substitution's AVI contributions on a page of their own.
+  /// Offered only where [explanationTrack] explains one of them.
+  final VoidCallback? onOpenContributions;
 
   /// The codon a coding base sits in, for what each alternative makes of it.
   /// Null off the coding sequence.
@@ -99,21 +103,6 @@ class ImpactPanel extends StatefulWidget {
 class _ImpactPanelState extends State<ImpactPanel> {
   final InspectorSheetController _inspector = InspectorSheetController();
   bool _explanation = false;
-  String? _selectedAlt;
-
-  @override
-  void didUpdateWidget(ImpactPanel old) {
-    super.didUpdateWidget(old);
-    if (old.impact.position != widget.impact.position ||
-        old.explanationTrack != widget.explanationTrack) {
-      _selectedAlt = null;
-    }
-  }
-
-  void _selectAlt(String alt) {
-    setState(() => _selectedAlt = _selectedAlt == alt ? null : alt);
-    if (_selectedAlt != null) _inspector.reveal(grow: true);
-  }
 
   void _toggleExplanation() {
     setState(() => _explanation = !_explanation);
@@ -169,8 +158,7 @@ class _ImpactPanelState extends State<ImpactPanel> {
           reported: widget.reported,
           observedEvidence: widget.observedEvidence,
           explanationTrack: widget.explanationTrack,
-          selectedAlt: _selectedAlt,
-          onSelectAlt: _selectAlt,
+          onOpenContributions: widget.onOpenContributions,
         ),
       ),
     );
@@ -295,8 +283,7 @@ class _Details extends StatelessWidget {
     this.coding,
     this.observedEvidence,
     this.explanationTrack,
-    this.selectedAlt,
-    required this.onSelectAlt,
+    this.onOpenContributions,
     super.key,
   });
 
@@ -308,8 +295,7 @@ class _Details extends StatelessWidget {
   final Map<String, ClinVarGroup> reported;
   final Widget? observedEvidence;
   final GeneImpact? explanationTrack;
-  final String? selectedAlt;
-  final ValueChanged<String> onSelectAlt;
+  final VoidCallback? onOpenContributions;
 
   @override
   Widget build(BuildContext context) {
@@ -322,25 +308,20 @@ class _Details extends StatelessWidget {
     // there to read, but nothing about it should look as solid as a score that
     // was measured for the base under the finger.
     final double weight = impact.estimated ? 0.55 : 1;
-    final List<ImpactExplanationRequest?> requests =
-        <ImpactExplanationRequest?>[
-          for (final AltScore score in impact.ranked)
-            impact.estimated
-                ? null
-                : ImpactExplanationRequest.forAllele(
-                    explanationTrack,
-                    impact.position,
-                    impact.wildtype,
-                    score.base,
-                  ),
-        ];
-    // A row that opens its explanation ends in a chevron. Where any does, the
-    // scale and the reference keep the same column, so every bar is drawn to
-    // one length on one scale and every number ends in one place.
-    final double disclosure =
-        requests.any((ImpactExplanationRequest? r) => r != null)
-        ? _Substitution.disclosure
-        : 0;
+    // An estimate explains nothing: its scores are another base's.
+    final bool explained =
+        onOpenContributions != null &&
+        !impact.estimated &&
+        impact.ranked.any(
+          (AltScore score) =>
+              ImpactExplanationRequest.forAllele(
+                explanationTrack,
+                impact.position,
+                impact.wildtype,
+                score.base,
+              ) !=
+              null,
+        );
     // The base that is actually there. It is not a substitution and has no
     // score of its own, so it carries no bar — an empty track and a dash,
     // rather than a zero that would read as a measurement.
@@ -410,47 +391,28 @@ class _Details extends StatelessWidget {
                 low: '0',
                 high: '40 or higher',
                 style: theme.textTheme.labelSmall,
-                trailing: disclosure,
                 highKey: const ValueKey<String>('impact-scale-end'),
               ),
               const SizedBox(height: 4),
-              for (final (int i, AltScore score) in impact.ranked.indexed)
-                _Substitution(
-                  request: requests[i],
-                  selected: selectedAlt == score.base,
-                  onTap: () => onSelectAlt(score.base),
-                  child: ScoreBar(
-                    label: score.base,
-                    fraction: score.barFraction,
-                    value: score.phred.toStringAsFixed(1),
-                    native: false,
-                    color: bar,
-                    valueKey: ValueKey<String>('impact-score-${score.base}'),
-                    tag: _tag(score.base, reported[score.base], coding),
-                    semanticsLabel:
-                        '${score.base}, Phred ${score.phred.toStringAsFixed(1)}'
-                        '${_spoken(coding?.spokenChangeTo(score.base))}'
-                        '${reported[score.base] == null ? '' : ', ClinVar ${reported[score.base]!.label}'}',
-                  ),
+              for (final AltScore score in impact.ranked)
+                ScoreBar(
+                  label: score.base,
+                  fraction: score.barFraction,
+                  value: score.phred.toStringAsFixed(1),
+                  native: false,
+                  color: bar,
+                  valueKey: ValueKey<String>('impact-score-${score.base}'),
+                  tag: _tag(score.base, reported[score.base], coding),
+                  semanticsLabel:
+                      '${score.base}, Phred ${score.phred.toStringAsFixed(1)}'
+                      '${_spoken(coding?.spokenChangeTo(score.base))}'
+                      '${reported[score.base] == null ? '' : ', ClinVar ${reported[score.base]!.label}'}',
                 ),
-              if (disclosure > 0)
-                ConstrainedBox(
-                  key: const ValueKey<String>('impact-reference'),
-                  constraints: const BoxConstraints(
-                    minHeight: _Substitution.height,
-                  ),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(child: reference),
-                      SizedBox(width: disclosure),
-                    ],
-                  ),
-                )
-              else
-                reference,
+              reference,
             ],
           ),
         ),
+        if (explained) _ContributionsLink(onTap: onOpenContributions!),
         ?observedEvidence,
       ],
     );
@@ -487,65 +449,38 @@ class _Details extends StatelessWidget {
       change == null || change.isEmpty ? '' : ', $change';
 }
 
-class _Substitution extends StatelessWidget {
-  const _Substitution({
-    required this.request,
-    required this.selected,
-    required this.onTap,
-    required this.child,
-  });
-  final ImpactExplanationRequest? request;
-  final bool selected;
+/// The way to every substitution's AVI contributions, a page of its own: the
+/// sheet's one row that leaves it, as the ClinVar line's "All ›" does.
+class _ContributionsLink extends StatelessWidget {
+  const _ContributionsLink({required this.onTap});
+
   final VoidCallback onTap;
-  final Widget child;
-
-  /// The chevron's column after the row: four points of air and the icon.
-  static const double disclosure = 22;
-
-  /// A row a finger opens.
-  static const double height = 44;
 
   @override
   Widget build(BuildContext context) {
-    final r = request;
-    if (r == null) return child;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Semantics(
-          button: true,
-          expanded: selected,
-          label: 'Explain ${r.ref} to ${r.alt} AVI score',
-          child: InkWell(
-            key: ValueKey('impact-explain-${r.alt}'),
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(8),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: height),
-              child: Row(
-                children: <Widget>[
-                  Expanded(child: child),
-                  SizedBox(
-                    width: disclosure,
-                    child: Align(
-                      alignment: AlignmentDirectional.centerEnd,
-                      child: Icon(
-                        selected ? Icons.expand_less : Icons.expand_more,
-                        size: 18,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+    final ThemeData theme = Theme.of(context);
+    final TextStyle? style = theme.textTheme.labelLarge?.copyWith(
+      fontFamily: AppTypography.sansFamily,
+      color: theme.colorScheme.onSurface,
+    );
+    return Semantics(
+      button: true,
+      label: 'Contributions to each AVI score',
+      excludeSemantics: true,
+      child: InkWell(
+        key: const ValueKey<String>('impact-contributions-open'),
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 44),
+          child: Row(
+            children: <Widget>[
+              Expanded(child: Text('Contributions', style: style)),
+              Text('›', style: style),
+            ],
           ),
         ),
-        if (selected)
-          ImpactExplanationView(
-            key: ValueKey('explanation-${r.position}-${r.alt}'),
-            request: r,
-          ),
-      ],
+      ),
     );
   }
 }

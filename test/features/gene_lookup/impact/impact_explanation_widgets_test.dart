@@ -203,60 +203,73 @@ void main() {
     },
   );
 
-  testWidgets('base rows select only one allele and reset on another base', (
-    tester,
-  ) async {
-    final repository = ImpactExplanationRepository(_Client(fixture));
-    await tester.runAsync(() => repository.load(track));
-    final controller = DraggableScrollableController();
-    addTearDown(controller.dispose);
-    var position = 5294;
-    late StateSetter update;
-    await host(
-      tester,
-      StatefulBuilder(
-        builder: (context, setState) {
-          update = setState;
-          return ImpactPanel(
-            impact: track.at(position)!,
-            explanationTrack: track,
-            chromosome: track.chromosome,
-            address: 'c.71',
-            region: 'exon 2',
-            note: '',
-            tint: Colors.grey,
-            controller: controller,
-            slide: const AlwaysStoppedAnimation(Offset.zero),
-            pinIdentity: true,
-            onDismiss: () {},
-          );
-        },
-      ),
-      repository,
-    );
-    expect(find.byType(ImpactExplanationView), findsNothing);
-    await tester.ensureVisible(key('impact-explain-A'));
-    await tester.tap(key('impact-explain-A'));
-    await tester.pumpAndSettle();
-    await tester.runAsync(() async {});
-    await tester.pumpAndSettle();
-    expect(key('impact-contributions-5294-A'), findsOneWidget);
-    await tester.tap(key('impact-contributions-toggle'));
-    await tester.pumpAndSettle();
-    await _capture(tester, 'avi-contributions-base-sheet');
-    await tester.ensureVisible(key('impact-explain-T'));
-    await tester.pumpAndSettle();
-    await tester.tap(key('impact-explain-T'));
-    await tester.pumpAndSettle();
-    await tester.runAsync(() async {});
-    await tester.pumpAndSettle();
-    expect(key('impact-contributions-5294-A'), findsNothing);
-    expect(key('impact-contributions-5294-T'), findsOneWidget);
-    expect(find.byType(ImpactExplanationView), findsOneWidget);
-    update(() => position = 5295);
-    await tester.pumpAndSettle();
-    expect(find.byType(ImpactExplanationView), findsNothing);
-  });
+  testWidgets(
+    'the sheet offers one Contributions row, only where a change is explained',
+    (tester) async {
+      final repository = ImpactExplanationRepository(_Client(fixture));
+      final controller = DraggableScrollableController();
+      addTearDown(controller.dispose);
+      // An estimated base explains nothing: its scores are another base's.
+      final json = _json(target.impactAsset);
+      (json['positions'] as Map<String, dynamic>).remove('5295');
+      final gap = GeneImpact.fromJson(json, target);
+      expect(gap.at(5295)!.estimated, isTrue);
+      var opened = 0;
+      var explained = true;
+      var source = track;
+      var position = 5294;
+      late StateSetter update;
+      await host(
+        tester,
+        StatefulBuilder(
+          builder: (context, setState) {
+            update = setState;
+            return ImpactPanel(
+              impact: source.at(position)!,
+              explanationTrack: explained ? source : null,
+              onOpenContributions: () => opened++,
+              chromosome: track.chromosome,
+              address: 'c.71',
+              region: 'exon 2',
+              note: '',
+              tint: Colors.grey,
+              controller: controller,
+              slide: const AlwaysStoppedAnimation(Offset.zero),
+              pinIdentity: true,
+              onDismiss: () {},
+            );
+          },
+        ),
+        repository,
+      );
+      // No row opens in place any more: the whole base opens as a page.
+      for (final base in <String>['A', 'G', 'T']) {
+        expect(key('impact-explain-$base'), findsNothing);
+      }
+      expect(find.byType(ImpactExplanationView), findsNothing);
+      await tester.ensureVisible(key('impact-contributions-open'));
+      await tester.tap(key('impact-contributions-open'));
+      await tester.pumpAndSettle();
+      expect(opened, 1);
+      expect(
+        tester.getSize(key('impact-contributions-open')).height,
+        greaterThanOrEqualTo(44),
+      );
+      update(() => explained = false);
+      await tester.pumpAndSettle();
+      expect(key('impact-contributions-open'), findsNothing);
+      update(() {
+        explained = true;
+        source = gap;
+        position = 5295;
+      });
+      await tester.pumpAndSettle();
+      expect(key('impact-contributions-open'), findsNothing);
+      update(() => source = track);
+      await tester.pumpAndSettle();
+      expect(key('impact-contributions-open'), findsOneWidget);
+    },
+  );
 
   testWidgets('expanded ClinVar record uses the record allele', (tester) async {
     final evidence = insulinEvidence().firstWhere(
@@ -280,9 +293,10 @@ void main() {
       (((modified['positions'] as Map<String, dynamic>)['5294']
                   as List<dynamic>)
               .first
-          as List<dynamic>)[1] = <dynamic>[
-        <dynamic>[0, -0.75],
-        <dynamic>[1, 0.25],
+          as List<dynamic>)[2] = <dynamic>[
+        -0.75,
+        0.25,
+        for (int i = 2; i < 18; i++) 0,
       ];
       final repository = ImpactExplanationRepository(_Client(modified));
       await tester.runAsync(() => repository.load(track));

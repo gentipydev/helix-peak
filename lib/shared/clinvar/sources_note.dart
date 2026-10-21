@@ -145,10 +145,9 @@ class SourcesNote extends StatelessWidget {
         ),
         paragraph(
           'AVI contributions',
-          'Where included, the three largest signed contributions explain '
-              'the exact substitution’s raw AVI score across available genes '
-              'and biosamples. They are not percentages or independent evidence. '
-              'Details stay available offline.',
+          'Where included, a base’s Contributions page sets out every '
+              'signed attribution to each substitution’s raw AVI score, and '
+              'the track behind each assay. Details stay available offline.',
         ),
         paragraph(
           'ClinVar',
