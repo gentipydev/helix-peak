@@ -689,6 +689,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     required BaseImpact impact,
     required String address,
     required String region,
+    required String detail,
     required Color tint,
     CodingEvidence? coding,
   }) async {
@@ -707,6 +708,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
               impact: impact,
               address: address,
               region: region,
+              detail: detail,
               tint: tint,
               coding: coding,
             ),
@@ -1115,15 +1117,20 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     // For a coding base the residue it encodes is named with its constraint
     // band, and the line opens that residue: the protein's own reading lives
     // on the protein page, not summarised a second time here.
-    final String note = switch (transcript) {
+    final String place = switch (transcript) {
       final Role role when role.kind == RoleKind.intron =>
         address.intronFacts(role) ?? '',
       _ when codon != null =>
         'codon $codon · ${address.tripletOf(codon) ?? ''} · '
-            '${residue == null ? 'stop' : address.residueName(residue)}'
-            '${evidence?.constraint == null ? '' : ' · ${evidence!.constraint!.level.label}'}',
+            '${residue == null ? 'stop' : address.residueName(residue)}',
       _ => '',
     };
+    final String note =
+        transcript?.kind != RoleKind.intron &&
+            codon != null &&
+            evidence?.constraint != null
+        ? '$place · ${evidence!.constraint!.level.label}'
+        : place;
     final String where = c ?? fallback;
     final GeneImpact? explained = impact.matchesRecord(widget.record)
         ? impact
@@ -1157,6 +1164,9 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                 impact: reading,
                 address: where,
                 region: region,
+                // Where the base sits, without the constraint band the sheet
+                // adds: that is ESM's, and this page is AVI's.
+                detail: place,
                 tint: tint,
                 coding: evidence,
               ),

@@ -605,8 +605,8 @@ that boundary by the `ClinVarSourced` wrapper. ESM and AVI keep their
 molecular/evolutionary wording. Hue belongs to ClinVar alone: a class colour on
 a dot, never on text, and the models' band meters are drawn in neutral ink.
 One exception, at the user's ask (2026-10-21): the AVI contributions page
-colours its four attribution groups (`ContributionColors`), hues searched
-outside ClinVar's (no red or rose, no blue-violet) on a page that carries no
+colours its four attribution groups (`ContributionColors`) in the app's own
+earth, the home helix's honey, moss, denim and clay, on a page that carries no
 ClinVar mark, each named in a legend as well. For
 colour only, a record is grouped by its terms, which ClinVar separates with `/`
 and puts after a `;` where they are off the Mendelian axis (CFTR's

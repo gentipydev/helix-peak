@@ -17,16 +17,18 @@ shows its own allele's three largest contributions, derived from the full set.
 ```
 ×   c.73 · Contributions                             ⓘ
 [T] insulin B chain
+    codon 25 · TTT · Phe25
     chr11:2,160,899
 ╭──────────────────────────────────────────────────╮
-│ C (Leu) scores highest; Coding sets it apart.    │
-│ Conservation is level across all three: +0.342   │
-│ to +0.391.                                       │
+│ C (p.Phe25Leu) scores highest; Coding sets it    │
+│ apart.                                           │
+│ Conservation is level across all three:          │
+│ +0.342 to +0.391.                                │
+│ ■ Coding ■ Conservation ■ Splicing ■ Expr. & chr. │
 │ C Leu                   25.1 Phred · top 0.309%  │
 │   [Coding██████████][▓▓▓▓▓▓▓▓][▒][░]  +1.192     │
-│   AlphaMissense +0.706  ·  PhastCons 470 +0.234  │
+│ ■ AlphaMissense +0.706   ■ PhastCons 470 +0.234  │
 │ A Ile …   G Val …                                │
-│ ■ Coding ■ Conservation ■ Splicing ■ Expr. & chr. │
 ╰──────────────────────────────────────────────────╯
 By group                   C Leu   A Ile   G Val
 ■ Coding                  +0.706  +0.296  +0.235  ›
@@ -36,38 +38,48 @@ AlphaGenome Atlas
 ```
 
 - The header is the sheet's own: the base's letter on its region's tint,
-  the region and the coordinate.
-- The card opens on what the numbers say, from rules and no prose of its
-  own: the substitution with the highest Phred and the group whose total
-  leads the others' most (only where its Phred is 0.5 or more above the
-  next and the lead is over 0.02), and a group level across them all (a
-  mean over 0.05, one sign, a spread within 15% of its largest). Where the
-  numbers say neither, the card says nothing.
-- Under it, each substitution's attributions as its four groups end to end
-  on one scale, positive to the right of zero and negative to the left, the
-  sum at the end, with its Phred and genome-wide share above and its two
-  heaviest features below. A segment wide enough to hold its group's name
-  carries it. The bars grow in, one after another, unless motion is reduced.
-- The groups wear four hues (`ContributionColors`): rust, olive, cyan and
-  steel blue, searched outside ClinVar's hues, the one exception to R9.1,
-  at the user's ask. Checked on the card by the dataviz skill's validator
-  over every pair: colour-blind ΔE 16.3 at worst, normal vision 17.3. A
-  legend names them too.
+  the region, the base in its own terms (its codon and the residue it
+  encodes, or an intron's splice sites; not the constraint band, which is
+  ESM's) and the coordinate.
+- The card opens on what the numbers say, by rule and with no prose of its
+  own: the substitution with the highest Phred, named by its protein change
+  in HGVS where it has one (`p.Phe25Leu`, `p.Phe25=`, `p.Met1?`), and the
+  group whose total leads the others' most (only where its Phred is half a
+  point or more ahead and the lead is over 0.02); and a group level across
+  them all (a mean over 0.05, one sign, a spread within 15% of its largest).
+  Where the numbers say neither, the card says nothing. The key to the
+  colours follows, before the bars it keys.
+- Each substitution's attributions are its four groups end to end on one
+  scale, positive to the right of zero and negative to the left, the sum at
+  the end, with its Phred and genome-wide share above and its two heaviest
+  features below, each marked in its group's colour and each kept whole on
+  its line. A segment wide enough to hold its group's name carries it. The
+  bars grow in, one after another, unless motion is reduced.
+- The groups wear the app's own earth (`ContributionColors`): the home
+  helix's honey for Coding, moss for Conservation, denim for Splicing and
+  clay for Expression & chromatin, the one exception to R9.1, at the user's
+  ask. Of the 24 ways to give the four to the groups, four keep every pair
+  that touches in a bar at least 12.2 apart for any dichromat and 17.9 in
+  normal vision (the dataviz skill's validator, on the card); this one gives
+  Conservation the moss. The closest pair, clay against moss, never touch,
+  and a legend and the table name every group.
 - Under the card the groups are rows and the substitutions columns, in the
   sheet's order, each headed by its base and what it makes of the codon
   (`Leu`, `=`, `Ter`, `?`). Each number sits over a bar of its size in its
   group's colour, on one scale for the whole table, filled where it raises
   the score and outlined where it lowers it. A group opens onto its
-  features; an assay opens onto the track behind it, one line per column,
+  features, those that give nothing to any substitution named together on
+  one line; an assay opens onto the track behind it, one line per column,
   ruled in the group's colour (`WTC11 · INS`, `junction · body of pancreas ·
   INS-IGF2`). Splicing is one feature, so it opens straight onto its tracks.
 - Values are signed to three places, a fourth where three would read as a
   signed zero, an exponent below that; an exact zero is `0`. Type turned up
   past what a phone holds scrolls the table sideways rather than squeezing a
   number; the names wrap between words, never inside.
-- What the values are, how the bars and the table draw them, what each
-  group holds and what a track is, is a sheet over the page behind ⓘ:
-  nothing on the page moves, and the bars do not grow again.
+- What the values are, how the first lines are made, how the bars and the
+  table draw them, what each group holds and what a track is, is a sheet
+  over the page behind ⓘ: nothing on the page moves, and the bars do not
+  grow again.
 - The page ends on its source, "AlphaGenome Atlas", and links nowhere (the
   Atlas links and the snapshot's date went at the user's ask, 2026-10-21).
 

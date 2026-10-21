@@ -32,6 +32,7 @@ class ContributionsPage extends StatefulWidget {
     required this.impact,
     required this.address,
     this.region = '',
+    this.detail = '',
     this.tint,
     this.coding,
     this.repository,
@@ -46,6 +47,10 @@ class ContributionsPage extends StatefulWidget {
 
   /// `exon 2`, `insulin B chain`: where the base sits, as the sheet says it.
   final String region;
+
+  /// The base in its own terms: `codon 25 · TTT · Phe25`, or an intron's
+  /// splice sites. Empty where there is nothing to say.
+  final String detail;
 
   /// The colour the grid draws the base's region in, for its letter tile.
   /// No tile without it.
@@ -181,6 +186,7 @@ class _ContributionsPageState extends State<ContributionsPage> {
               request: request,
               explanation: explanation,
               tag: widget.coding?.changeTo(score.base) ?? '',
+              residue: widget.coding?.residueName ?? '',
             ),
     ];
     if (columns.isEmpty) {
@@ -196,6 +202,7 @@ class _ContributionsPageState extends State<ContributionsPage> {
         _Identity(
           base: widget.impact,
           region: widget.region,
+          detail: widget.detail,
           chromosome: widget.track.chromosome,
           tint: widget.tint,
         ),
@@ -226,6 +233,7 @@ class _Column {
     required this.request,
     required this.explanation,
     required this.tag,
+    required this.residue,
   });
   final ImpactExplanationRequest request;
   final AlleleExplanation explanation;
@@ -233,13 +241,14 @@ class _Column {
   /// What the change makes of a coding base's codon — `Leu`, `=`, `Ter`, `?`.
   final String tag;
 
-  /// The substitution as a sentence names it: `C (Leu)`, `A (synonymous)`.
-  String get named => switch (tag) {
-    '' => request.alt,
-    '=' => '${request.alt} (synonymous)',
-    '?' => '${request.alt} (start codon)',
-    _ => '${request.alt} ($tag)',
-  };
+  /// The residue the codon encodes, `Phe25`; empty off the coding sequence.
+  final String residue;
+
+  /// The substitution as a sentence names it, its protein change in HGVS
+  /// where it has one: `C (p.Phe25Leu)`, `A (p.Phe25=)`, `G (p.Met1?)`.
+  String get named => tag.isEmpty || residue.isEmpty
+      ? request.alt
+      : '${request.alt} (p.$residue$tag)';
 }
 
 /// A signed value as the page prints it: `+0.706`, `−0.012`, `0`; a fourth
@@ -262,6 +271,12 @@ final Map<String, String> _featureNames = <String, String>{
   for (final ContributionGroup g in ContributionGroup.values) ...g.features,
 };
 
+/// Each feature's group.
+final Map<String, ContributionGroup> _groupOf = <String, ContributionGroup>{
+  for (final ContributionGroup g in ContributionGroup.values)
+    for (final String f in g.features.keys) f: g,
+};
+
 /// What the numbers say, in their own terms: which substitution scores
 /// highest and the group that sets it apart, and a group that is level
 /// across them all. Either is left out where the numbers do not say it.
@@ -270,7 +285,8 @@ final Map<String, String> _featureNames = <String, String>{
   final _Column first = columns.first;
   final List<_Column> rest = columns.skip(1).toList();
   String? lead;
-  if (first.explanation.phred - rest.first.explanation.phred >= 0.5) {
+  // Phred is kept to a tenth: 0.45 is the half point a float can fall short of.
+  if (first.explanation.phred - rest.first.explanation.phred >= 0.45) {
     ContributionGroup? apart;
     double widest = 0.02;
     for (final ContributionGroup g in ContributionGroup.values) {
@@ -303,24 +319,27 @@ final Map<String, String> _featureNames = <String, String>{
       level =
           '${g.label} is level across '
           '${columns.length == 2 ? 'both' : 'all ${spelled(columns.length)}'}: '
-          '${_signed(low)} to ${_signed(high)}.';
+          '${_signed(low)}\u00A0to\u00A0${_signed(high)}.';
     }
   }
   return (lead, level);
 }
 
 /// The base as the sheet showed it: its letter on its region's tint, where it
-/// sits, and its coordinate.
+/// sits, what it is in its own terms (its codon and residue), and its
+/// coordinate.
 class _Identity extends StatelessWidget {
   const _Identity({
     required this.base,
     required this.region,
+    required this.detail,
     required this.chromosome,
     required this.tint,
   });
 
   final BaseImpact base;
   final String region;
+  final String detail;
   final String chromosome;
   final Color? tint;
 
@@ -361,6 +380,7 @@ class _Identity extends StatelessWidget {
             children: <Widget>[
               if (region.isNotEmpty)
                 Text(region, style: theme.textTheme.bodyMedium),
+              if (detail.isNotEmpty) Text(detail, style: theme.caption),
               Text(
                 '$chromosome:${grouped(base.genomic)}',
                 style: theme.caption?.copyWith(
@@ -381,9 +401,10 @@ const TextStyle _mono = TextStyle(
   fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
 );
 
-/// The card: what the numbers say, then each substitution's attributions
-/// drawn as its groups end to end on one scale, so a longer bar is a larger
-/// sum and its colours show what it is made of.
+/// The card: what the numbers say, the key to its colours, then each
+/// substitution's attributions drawn as its groups end to end on one scale,
+/// so the substitutions compare at a glance and each one's colours show what
+/// it is made of.
 class _Composition extends StatelessWidget {
   const _Composition({required this.columns});
 
@@ -414,7 +435,7 @@ class _Composition extends StatelessWidget {
     final (String? lead, String? level) = _insight(columns);
     return Container(
       key: const ValueKey<String>('contributions-composition'),
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
@@ -440,7 +461,11 @@ class _Composition extends StatelessWidget {
                   style: theme.caption,
                 ),
               ),
-            if (lead != null || level != null) const SizedBox(height: 18),
+            if (lead != null || level != null) const SizedBox(height: 14),
+            // The key before the bars it keys, so the colours are known by
+            // the time the eye reaches them.
+            legend!,
+            const SizedBox(height: 20),
             for (final (int i, _Column c) in columns.indexed) ...<Widget>[
               if (i > 0) const SizedBox(height: 18),
               _Bar(
@@ -454,8 +479,6 @@ class _Composition extends StatelessWidget {
                 ),
               ),
             ],
-            const SizedBox(height: 18),
-            legend!,
           ],
         ),
         child: Wrap(
@@ -517,7 +540,7 @@ class _Bar extends StatelessWidget {
       container: true,
       label:
           '$alt${column.tag.isEmpty ? '' : ', ${column.tag}'}, Phred '
-          '${phred.toStringAsFixed(1)}: $parts; '
+          '${phred.toStringAsFixed(1)}, ${genomeRank(phred)}: $parts; '
           'sum ${_signed(column.explanation.sum)}',
       excludeSemantics: true,
       child: Column(
@@ -593,14 +616,34 @@ class _Bar extends StatelessWidget {
           ),
           if (top.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(left: _letter, top: 6),
-              child: Text(
-                <String>[
-                  for (final ImpactContribution c in top)
-                    '${_featureNames[c.feature] ?? c.feature} ${_signed(c.value)}',
-                ].join('  ·  '),
+              padding: const EdgeInsets.only(top: 6),
+              // Each feature marked in its group's colour, so it is found in
+              // the bar above it at a glance, and each one whole: a line
+              // breaks between features, never inside one.
+              child: Wrap(
                 key: ValueKey<String>('contributions-top-$alt'),
-                style: theme.caption,
+                spacing: 14,
+                runSpacing: 2,
+                children: <Widget>[
+                  for (final ImpactContribution c in top)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        if (_groupOf[c.feature] case final ContributionGroup g)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 5),
+                            child: _Swatch(color: colours.of(g), size: 7),
+                          ),
+                        Flexible(
+                          child: Text(
+                            '${_featureNames[c.feature] ?? c.feature} '
+                            '${_signed(c.value)}',
+                            style: theme.caption,
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
               ),
             ),
         ],
@@ -718,17 +761,18 @@ class _StackPainter extends CustomPainter {
 }
 
 class _Swatch extends StatelessWidget {
-  const _Swatch({required this.color});
+  const _Swatch({required this.color, this.size = 10});
 
   final Color color;
+  final double size;
 
   @override
   Widget build(BuildContext context) => Container(
-    width: 10,
-    height: 10,
+    width: size,
+    height: size,
     decoration: BoxDecoration(
       color: color,
-      borderRadius: BorderRadius.circular(2.5),
+      borderRadius: BorderRadius.circular(size / 4),
     ),
   );
 }
@@ -757,6 +801,9 @@ class _Breakdown extends StatelessWidget {
   /// How far a feature's name and a track's line sit in from their group's.
   static const double _indent = 14;
 
+  /// A group's swatch and the space after it, before its name.
+  static const double _swatch = 18;
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
@@ -779,20 +826,20 @@ class _Breakdown extends StatelessWidget {
 
     final double cell = math.max(60, measure('−0.0000', _mono) + 8);
     // The least room the names keep before the table scrolls sideways: the
-    // longest word of any, indented as a feature's, so that a name wraps
-    // between its words and never inside one.
-    double word = 0;
+    // longest word of any, after what stands before it (a group's swatch, a
+    // feature's indent), so that a name wraps between its words and never
+    // inside one.
+    double names = 0;
     for (final ContributionGroup group in ContributionGroup.values) {
-      for (final String label in <String>[
-        group.label,
-        ...group.features.values,
+      for (final (String label, double before) in <(String, double)>[
+        (group.label, _swatch),
+        for (final String feature in group.features.values) (feature, _indent),
       ]) {
         for (final String part in label.split(' ')) {
-          word = math.max(word, measure(part, name));
+          names = math.max(names, before + measure(part, name) + 2);
         }
       }
     }
-    final double names = word + _indent + 2;
     // One scale for every little bar on the table: the largest value on it.
     double largest = 0;
     for (final _Column c in columns) {
@@ -915,6 +962,10 @@ class _Breakdown extends StatelessWidget {
           ),
     ];
 
+    /// Whether [feature] gives nothing to any substitution here.
+    bool silent(String feature) =>
+        columns.every((_Column c) => (c.explanation.values[feature] ?? 0) == 0);
+
     /// A feature's row: a way to its tracks where it has any, plain
     /// otherwise.
     Widget feature(MapEntry<String, String> entry, Color tone) {
@@ -995,7 +1046,7 @@ class _Breakdown extends StatelessWidget {
             label: Row(
               children: <Widget>[
                 _Swatch(color: colours.of(group)),
-                const SizedBox(width: 8),
+                const SizedBox(width: _swatch - 10),
                 Expanded(child: Text(group.label, style: name)),
               ],
             ),
@@ -1012,13 +1063,30 @@ class _Breakdown extends StatelessWidget {
         if (groups.contains(group))
           if (group.features.length == 1)
             ...tracks(group.features.keys.single, _indent, colours.of(group))
-          else
-            for (final MapEntry<String, String> entry
-                in group.features.entries) ...<Widget>[
-              feature(entry, colours.of(group)),
-              if (features.contains(entry.key))
-                ...tracks(entry.key, _indent * 2, colours.of(group)),
-            ],
+          else ...<Widget>[
+            for (final MapEntry<String, String> entry in group.features.entries)
+              if (!silent(entry.key)) ...<Widget>[
+                feature(entry, colours.of(group)),
+                if (features.contains(entry.key))
+                  ...tracks(entry.key, _indent * 2, colours.of(group)),
+              ],
+            // Features that give nothing to any of the substitutions, said
+            // once rather than as rows of zeros.
+            if (group.features.keys.any(silent))
+              Padding(
+                key: ValueKey<String>('contributions-zero-${group.name}'),
+                padding: const EdgeInsetsDirectional.only(
+                  start: _indent,
+                  top: 4,
+                  bottom: 12,
+                ),
+                child: Text(
+                  'No contribution: ${<String>[for (final MapEntry<String, String> entry in group.features.entries)
+                    if (silent(entry.key)) entry.value].join(', ')}',
+                  style: theme.caption,
+                ),
+              ),
+          ],
       ],
     ];
 
@@ -1130,12 +1198,23 @@ class _About extends StatelessWidget {
             ),
           ),
           section(
+            'The first lines',
+            line(
+              'Drawn from the numbers alone: the substitution with the '
+              'highest Phred and the group that leads the others most, where '
+              'its Phred is at least 0.5 ahead; and a group level across them '
+              'all, within 15% of its largest. Where the numbers say neither, '
+              'nothing is said.',
+            ),
+          ),
+          section(
             'The bars',
             line(
               'Each substitution’s attributions, its four groups end to end '
               'on one scale from zero: positive groups to the right, negative '
               'ones to the left, their sum at the end. Under each bar, the two '
-              'features that weigh most in it.',
+              'features that weigh most in it, each marked in its group’s '
+              'colour.',
             ),
           ),
           section(
@@ -1187,7 +1266,8 @@ class _About extends StatelessWidget {
             line(
               'Each number sits over a bar of its size, on one scale for the '
               'whole table: filled where it raises the score, outlined where '
-              'it lowers it.',
+              'it lowers it. Features that give nothing to any substitution '
+              'are named together on one line.',
             ),
           ),
           section(

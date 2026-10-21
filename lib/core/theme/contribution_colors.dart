@@ -1,20 +1,26 @@
 import 'package:flutter/material.dart';
 
 import '../evidence/impact_explanations.dart';
+import 'nucleotide_colors.dart';
 
 /// The four groups of an AVI contributions page, one hue each.
 ///
 /// The one place on the walk a model's numbers wear hue, at the user's ask
-/// (2026-10-21): R9.1 keeps hue for ClinVar, so these were searched outside
-/// its hues — no red or rose (pathogenic), no blue-violet (benign,
-/// conflicting) — and away from the accent's teal, and the page carries no
-/// ClinVar mark. Four OKLCH steps in the dark band (L 0.50–0.62, chroma
-/// 0.10–0.13), ordered as the bars stack them, checked against the card they
-/// are drawn on (`surfaceRaised`, `#23201E`) by the dataviz skill's validator
-/// over every pair: colour-blind separation ΔE 16.3 at worst (protan, deutan
-/// and tritan; 8 is the target), normal vision 17.3 (15 the floor), each at
-/// least 3:1 against the card. A legend and the groups' names carry identity
-/// as well, so no reader needs the hue alone.
+/// (2026-10-21), on a page that carries no ClinVar mark, so R9.1's hues stay
+/// ClinVar's everywhere they could be read as clinical. The hues are the
+/// app's own earth, the home helix's moss, clay, honey and denim
+/// ([NucleotideColors.helix], which the zoom's chromosome wears too), so the
+/// page paints its data as the rest of the app does.
+///
+/// Which group wears which was settled by the dataviz skill's validator, on
+/// the card the bars are drawn on (`surfaceRaised`, `#23201E`), over the
+/// three pairs that touch in a bar. Of the 24 ways to give four colours to
+/// four groups, four keep every touching pair at least 12.2 apart for any
+/// dichromat (OKLab ×100; 8 is the target) and 17.9 in normal vision (15 the
+/// floor); this is the one of them that gives conservation the moss. The
+/// closest of all six pairs, clay against moss (6.2 for a protanope), never
+/// touch in a bar, and the legend and the table name every group, so no
+/// reader needs the hue alone. Each clears 3:1 on the card.
 @immutable
 final class ContributionColors extends ThemeExtension<ContributionColors> {
   const ContributionColors({
@@ -24,23 +30,23 @@ final class ContributionColors extends ThemeExtension<ContributionColors> {
     required this.expression,
   });
 
-  /// Rust: what the change does to the protein.
+  /// Honey: what the change does to the protein.
   final Color coding;
 
-  /// Olive: how conserved the base is.
+  /// Moss: how conserved the base is.
   final Color conservation;
 
-  /// Cyan: splice sites, their usage and junctions.
+  /// Denim: splice sites, their usage and junctions.
   final Color splicing;
 
-  /// Steel blue: the expression and chromatin tracks.
+  /// Clay: the expression and chromatin tracks.
   final Color expression;
 
-  static const ContributionColors dark = ContributionColors(
-    coding: Color(0xFF98492C),
-    conservation: Color(0xFF8E9C16),
-    splicing: Color(0xFF30A4AE),
-    expression: Color(0xFF14689F),
+  static final ContributionColors earth = ContributionColors(
+    coding: NucleotideColors.helix.guanine,
+    conservation: NucleotideColors.helix.adenine,
+    splicing: NucleotideColors.helix.cytosine,
+    expression: NucleotideColors.helix.thymine,
   );
 
   Color of(ContributionGroup group) => switch (group) {
@@ -79,5 +85,6 @@ final class ContributionColors extends ThemeExtension<ContributionColors> {
 
 extension ContributionColorsContext on BuildContext {
   ContributionColors get contributionColors =>
-      Theme.of(this).extension<ContributionColors>() ?? ContributionColors.dark;
+      Theme.of(this).extension<ContributionColors>() ??
+      ContributionColors.earth;
 }

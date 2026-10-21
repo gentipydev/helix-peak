@@ -46,7 +46,7 @@ List<String> _row(WidgetTester tester, String key) => <String>[
   for (final Text text in tester.widgetList<Text>(
     find.descendant(of: _key(key), matching: find.byType(Text)),
   ))
-    text.data ?? text.textSpan!.toPlainText(),
+    text.data ?? text.textSpan!.toPlainText(includePlaceholders: false),
 ];
 
 Future<void> _capture(WidgetTester tester, String name) async {
@@ -150,6 +150,7 @@ void main() {
     expect(_row(tester, 'contributions-identity'), <String>[
       'T',
       'insulin B chain',
+      'codon 25 · TTT · Phe25',
       'chr11:2,160,899',
     ]);
     // Each substitution's bar: its base and what it makes, its Phred and
@@ -159,21 +160,24 @@ void main() {
       'Leu',
       '25.1 Phred · top 0.309%',
       '+1.192',
-      'AlphaMissense +0.706  ·  PhastCons 470 +0.234',
+      'AlphaMissense +0.706',
+      'PhastCons 470 +0.234',
     ]);
     expect(_row(tester, 'contributions-bar-A'), <String>[
       'A',
       'Ile',
       '22.1 Phred · top 0.617%',
       '+0.759',
-      'AlphaMissense +0.296  ·  PhastCons 470 +0.183',
+      'AlphaMissense +0.296',
+      'PhastCons 470 +0.183',
     ]);
     expect(_row(tester, 'contributions-bar-G'), <String>[
       'G',
       'Val',
       '20.9 Phred · top 0.813%',
       '+0.678',
-      'AlphaMissense +0.235  ·  PhastCons 470 +0.185',
+      'AlphaMissense +0.235',
+      'PhastCons 470 +0.185',
     ]);
     expect(
       tester.getTopLeft(_key('contributions-bar-C')).dy,
@@ -235,6 +239,11 @@ void main() {
       '+0.296',
       '+0.235',
     ]);
+    // What gives nothing to any of the three is said once, not as zeros.
+    expect(_key('contributions-feature-START_LOST'), findsNothing);
+    expect(_row(tester, 'contributions-zero-coding'), <String>[
+      'No contribution: Termination, Start lost, Stop lost',
+    ]);
     await open('contributions-group-expression');
     await open('contributions-feature-MAX_ABS_RNA_SEQ');
     expect(
@@ -269,11 +278,14 @@ void main() {
   ) async {
     await openPage(tester);
     expect(
-      find.text('C (Leu) scores highest; Coding sets it apart.'),
+      find.text('C (p.Phe25Leu) scores highest; Coding sets it apart.'),
       findsOneWidget,
     );
     expect(
-      find.text('Conservation is level across all three: +0.342 to +0.391.'),
+      find.text(
+        'Conservation is level across all three: '
+        '+0.342\u00A0to\u00A0+0.391.',
+      ),
       findsOneWidget,
     );
     await tester.scrollUntilVisible(
@@ -302,6 +314,40 @@ void main() {
     await _capture(tester, 'contributions-page-about');
     // The card did not move under the sheet.
     expect(tester.getTopLeft(_key('contributions-composition')), card);
+  });
+
+  testWidgets('a base outside the coding sequence names changes by base', (
+    WidgetTester tester,
+  ) async {
+    // The 5′ UTR's first base: no codon, so no protein change to name.
+    final BaseImpact base = _track.at(_track.start)!;
+    await tester.runAsync(() => repository.load(_track));
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.analysis,
+        home: MediaQuery(
+          data: const MediaQueryData(
+            size: Size(390, 844),
+            disableAnimations: true,
+          ),
+          child: ContributionsPage(
+            track: _track,
+            impact: base,
+            address: 'c.−59',
+            repository: repository,
+          ),
+        ),
+      ),
+    );
+    await tester.runAsync(() async {});
+    await tester.pumpAndSettle();
+    for (final AltScore score in base.ranked) {
+      expect(_key('contributions-bar-${score.base}'), findsOneWidget);
+    }
+    expect(find.textContaining('p.'), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('at its own text size the table fits an SE without scrolling', (

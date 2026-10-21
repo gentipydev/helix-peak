@@ -161,7 +161,7 @@ abstract final class AppTheme {
       extensions: <ThemeExtension<dynamic>>[
         nucleotides,
         anatomy,
-        ContributionColors.dark,
+        ContributionColors.earth,
       ],
       appBarTheme: AppBarTheme(
         backgroundColor: tokens.surfaceBase,
