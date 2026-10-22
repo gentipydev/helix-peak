@@ -22,18 +22,19 @@ is drawn from the tracks the walk already holds: nothing is baked for it.
     codon 90 · GGC · Gly90 · highly constrained
     chr11:2,159,917
 ╭──────────────────────────────────────────────────╮
-│ Rank among INS missense substitutions            │
-│                    ● AVI Phred          ○ ESM-2  │
-│    lowest                               highest  │
-│ A  Ser          33.2 · top 1.7%    −7.2 · top 29% │
+│ Ranked among INS missense substitutions          │
+│                          ● AVI Phred   ○ ESM-2    │
+│ A  Ser                         33.2      −7.2    │
 │    ────────────────────────○━━━━━━━━━━━━━━━━━●─  │
-│ C  Arg          31.8 · top 3.6%    −8.4 · top 19% │
+│ C  Arg                         31.8      −8.4    │
 │    ─────────────────────────────○━━━━━━━━━━━●─   │
-│ T  Cys          31.2 · top 5.1%   −10.4 · top 7.0%│
+│ T  Cys                         31.2     −10.4    │
 │    ──────────────────────────────────────○●──    │
+│    ← milder effect             stronger effect → │
 ╰──────────────────────────────────────────────────╯
+● denim (AVI) · ○ clay (ESM-2) · the rule between shaded from one to the other
 Across INS · 687 missense substitutions
-ESM-2
+○ ESM-2
 −15 ┼────────┼────────┼────────┼────────┐
     │                    ·  ·· ·:·::·   │
 −10 ┼────────┼────────┼──·:·:::● Cys ···┤
@@ -43,13 +44,14 @@ ESM-2
   0 ┼·:·:·:·:·::·:::·::·:··:· ··────────┤
  +5 ┴────────┴────────┴────────┴────────┘
     0       10       20       30       40
-                                  AVI Phred
+                                ● AVI Phred
 Spearman ρ                                      0.79
 Same order within a base            64% of 540 pairs
 
-AlphaGenome Atlas · Google DeepMind · ESM-2 650M
-Provided under and subject to the AlphaGenome Output Terms of Use. This page
-ranks the Atlas’s Phred scores within the gene, beside ESM-2’s.
+AlphaGenome Atlas · ESM-2
+AVI (AlphaGenome Atlas) scores each change from the DNA, ESM-2 the amino acid
+it makes from the protein sequence; both are ranked here among the gene’s
+missense substitutions.
 ```
 
 **The header**
@@ -62,14 +64,24 @@ ranks the Atlas’s Phred scores within the gene, beside ESM-2’s.
   the sheet tags it (`Ser`, `=`, `Ter`, `?`).
 - A missense substitution is ranked twice among the gene's single-base
   missense substitutions: by AVI's Phred and by ESM-2's score.
-  - Each number stands in its own column with its rank: "top x%" is the share
-    scoring at least as high; past half, "bottom x%" is the share scoring at
-    most as high. Shares are given to two figures.
-  - Under the numbers, one track runs from the gene's lowest to its highest.
-    AVI is a dot, ESM-2 a ring, and a heavier rule joins the two: the gap is
-    how far the two models part on that change.
+  - Its row shows the two numbers alone, each in its own column under its
+    model's mark: no rank is written (the user's ask, 2026-10-22: "keep only
+    the AVI Phred score and ESM-2 score for comparison").
+  - Under the numbers, one track runs from the milder effect to the stronger.
+    AVI is a denim dot, ESM-2 a clay ring, and a heavier rule shaded from the
+    one to the other joins them: the gap is how far the two models part on
+    that change.
+  - The ranks the track draws are said in words to a screen reader ("Among
+    INS missense substitutions, AVI places it in the top 1.7%, ESM-2 in the
+    top 29%").
   - A dot inside its ring is a change the two rank alike.
-  - The marks set off from the lowest end and travel to their places, a row
+  - Under the last track, "← milder effect" and "stronger effect →" say which
+    way the tracks run, by what grows along them rather than by a value:
+    ESM-2's stronger end holds its lowest numbers. Until the same day they
+    were "lowest" and "highest", over the tracks, where "highest" stood under
+    ESM-2's head and read as its column's word (the user found it "really
+    confusing").
+  - The marks set off from the milder end and travel to their places, a row
     after the row above, as the Contributions bars grow in. Under reduced
     motion they are drawn in place.
 - A change ESM-2 cannot score has no track. Its row carries its Phred and the
@@ -83,8 +95,19 @@ ranks the Atlas’s Phred scores within the gene, beside ESM-2’s.
   its numbers name their unit ("14.8 Phred").
 
 **Look and layout**
-- Inks are neutral (R9.1). There is no hue on the page, and nothing of
-  ClinVar's.
+- The two models wear the app's own earth (`AgreementColors`, the home
+  helix's denim for AVI and clay for ESM-2) at the user's ask (2026-10-22:
+  "the same palette we are using across the app, even in the contributions
+  screen"), the second exception to R9.1 after the Contributions page, on a
+  page with nothing of ClinVar's.
+  - The pair was chosen by the dataviz skill's validator on both grounds the
+    page draws on (#23201E, #1C1A18): the one pair of the earth's six inside
+    the dark lightness band, 12.2 apart for any dichromat (8 the target) and
+    17.9 in normal vision (15 the floor), each clearing 3:1.
+  - Honey parts further but is lighter than the band. Every earth hue is
+    softer than the validator's chroma floor, by the palette's design.
+  - The hue marks the marks, never the text: numbers and names stay in the
+    page's inks, and the dot and the ring part by shape too.
 - Type turned up past what a phone holds (`stackScoreLabels`), or two columns
   that do not fit beside the base, puts each number on a line of its own
   after its mark. A gene-wide line's value then goes under its name.
@@ -94,11 +117,15 @@ ranks the Atlas’s Phred scores within the gene, beside ESM-2’s.
 - The gene's scatter and its two numbers stand under the card, the count
   said once, in their heading.
 - The ρ is set in the mono face: the sans face has no Greek.
-- The page ends on its source, text only, with the notice AlphaGenome's terms
-  ask of anything that shows its output, and what was done to it.
+- The page ends on its two sources, "AlphaGenome Atlas · ESM-2", and one line
+  on what they are and how they are compared, text only (the user's ask,
+  2026-10-22). The notice AlphaGenome's terms ask of anything that shows its
+  output now stands in the ⓘ sheet's Source alone, with Google DeepMind's
+  name; the terms ask for it to be conspicuous, which the user may want on
+  the page again.
 - The ⓘ sheet holds:
   - the two scores;
-  - how a rank reads;
+  - how a mark's place on the track reads, and the two hues;
   - why silent, stop and start-codon changes are not ranked;
   - how the scatter is drawn;
   - the two gene numbers, and that ρ turns ESM-2's score over so that
@@ -116,7 +143,8 @@ ranks the Atlas’s Phred scores within the gene, beside ESM-2’s.
 Added at the user's ask, 2026-10-22 (`_ScatterPainter`), under the heading
 and over ρ.
 - **What it holds.** Every substitution in the gene's set is one dot: AVI's
-  Phred across, ESM-2's score up.
+  Phred across, ESM-2's score up, each axis named after its model's mark
+  (the denim dot under the Phred, the clay ring over ESM-2's score).
 - **Its scales are fixed, the same for every gene:**
   - Phred runs from 0 to the sheet's own ceiling, 40;
   - ESM-2's score runs from +5 at the foot to −15 at the top;
@@ -261,6 +289,12 @@ phone may take longer, and nothing was measured on one.
 - The scatter, asked for the same day.
   - My calls: its fixed scales, ESM-2's axis turned over, one name per
     amino acid, and the hairline leaders.
+- Then, the same day: no rank written in a row, only the two scores; the
+  track's ends said clearly; the app's palette on the page; and the sources
+  named with one line on what they are and how they are compared.
+  - My calls: the effect words under the tracks, denim for AVI and clay for
+    ESM-2 (by the validator), the hue on the marks alone, the shaded rule,
+    and the terms' notice kept in the ⓘ sheet.
 
 **My calls, which the user can change**
 - The band in the header.
@@ -273,6 +307,8 @@ phone may take longer, and nothing was measured on one.
 **Rules**
 - R9.5 records the page as the second place where AVI's and ESM's numbers
   meet, after an opened record. Its ⓘ explains both models' scales.
+- R9.1 records its two hues as the second exception to "hue belongs to
+  ClinVar alone", after the Contributions page's four.
 - No count of agreement with ClinVar is shown (R9.4), and ClinVar is not on
   the page.
 
@@ -287,6 +323,9 @@ phone may take longer, and nothing was measured on one.
   - through the walk, in the walk's theme under an app in another;
   - the scatter between its heading and ρ, and what it says to a screen
     reader: Gly90's three, Met5's one name, a silent base's none;
+  - the rows' two numbers alone, the effect words under the last track, the
+    two hues in every theme and clear of both grounds, and the page's two
+    sources and one line, the notice in the ⓘ sheet;
   - the rows, the columns, the gene numbers and the semantics;
   - large text on a narrow phone;
   - motion, the clamped scroll, the ⓘ sheet and the source;

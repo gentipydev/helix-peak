@@ -607,7 +607,12 @@ a dot, never on text, and the models' band meters are drawn in neutral ink.
 One exception, at the user's ask (2026-10-21): the AVI contributions page
 colours its four attribution groups (`ContributionColors`) in the app's own
 earth, the home helix's honey, moss, denim and clay, on a page that carries no
-ClinVar mark, each named beside its colour in the table that keys them. For
+ClinVar mark, each named beside its colour in the table that keys them. A
+second, at the user's ask (2026-10-22): a base's AVI and ESM-2 page marks its
+two models in the same earth, denim for AVI and clay for ESM-2
+(`AgreementColors`), on marks only and never on text, a dot and a ring that
+part by shape as well, named in the card's legend; it too carries no ClinVar
+mark. For
 colour only, a record is grouped by its terms, which ClinVar separates with `/`
 and puts after a `;` where they are off the Mendelian axis (CFTR's
 `Pathogenic; drug response`): any pathogenic
