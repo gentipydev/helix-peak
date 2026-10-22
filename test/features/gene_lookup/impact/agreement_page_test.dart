@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -8,7 +9,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/evidence/gene_impact.dart';
 import 'package:helixpeek/core/evidence/protein_constraint.dart';
+import 'package:helixpeek/core/theme/agreement_colors.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/core/theme/nucleotide_colors.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/inspector/agreement_page.dart';
@@ -203,25 +206,28 @@ void main() {
       'codon 90 · GGC · Gly90 · highly constrained',
       'chr11:2,159,917',
     ]);
-    expect(find.text('Rank among INS missense substitutions'), findsOneWidget);
+    expect(
+      find.text('Ranked among INS missense substitutions'),
+      findsOneWidget,
+    );
     // The sheet's rows, in the sheet's order: Phred highest first.
     expect(_row(tester, 'agreement-row-A'), <String>[
       'A',
       'Ser',
-      '33.2 · top 1.7%',
-      '−7.2 · top 29%',
+      '33.2',
+      '−7.2',
     ]);
     expect(_row(tester, 'agreement-row-C'), <String>[
       'C',
       'Arg',
-      '31.8 · top 3.6%',
-      '−8.4 · top 19%',
+      '31.8',
+      '−8.4',
     ]);
     expect(_row(tester, 'agreement-row-T'), <String>[
       'T',
       'Cys',
-      '31.2 · top 5.1%',
-      '−10.4 · top 7.0%',
+      '31.2',
+      '−10.4',
     ]);
     expect(
       tester.getTopLeft(_key('agreement-row-A')).dy,
@@ -231,6 +237,18 @@ void main() {
       expect(_key('agreement-track-$base'), findsOneWidget, reason: base);
       expect(_key('agreement-reading-$base'), findsNothing, reason: base);
     }
+    // The tracks run from the milder effect to the stronger, said under them
+    // and away from the columns' heads.
+    expect(_row(tester, 'agreement-ends'), <String>[
+      '← milder effect',
+      'stronger effect →',
+    ]);
+    expect(
+      tester.getTopLeft(_key('agreement-ends')).dy,
+      greaterThan(tester.getBottomLeft(_key('agreement-track-T')).dy),
+    );
+    expect(find.text('lowest'), findsNothing);
+    expect(find.text('highest'), findsNothing);
     // The numbers stand under one another.
     expect(
       tester.getTopRight(_key('agreement-avi-A')).dx,
@@ -282,7 +300,8 @@ void main() {
     await pumpPage(tester, _c268, 'c.268');
     expect(
       tester.getSemantics(_key('agreement-row-A')).label,
-      'A, serine. AVI Phred 33.2, top 1.7% in INS. ESM-2 −7.2, top 29%',
+      'A, serine. AVI Phred 33.2. ESM-2 −7.2. Among INS missense '
+      'substitutions, AVI places it in the top 1.7%, ESM-2 in the top 29%',
     );
     await pumpPage(tester, _c270, 'c.270');
     expect(
@@ -319,6 +338,36 @@ void main() {
       'Every missense substitution in INS, AVI Phred across and ESM-2 up',
     );
     semantics.dispose();
+  });
+
+  test('the two models wear the earth\'s denim and clay, in every theme, '
+      'clear of both grounds', () {
+    expect(AgreementColors.earth.avi, NucleotideColors.helix.cytosine);
+    expect(AgreementColors.earth.esm, NucleotideColors.helix.thymine);
+    for (final ThemeData theme in <ThemeData>[
+      AppTheme.analysis,
+      AppTheme.home,
+      AppTheme.dark,
+    ]) {
+      expect(theme.extension<AgreementColors>(), same(AgreementColors.earth));
+    }
+    double contrast(Color a, Color b) {
+      final double x = a.computeLuminance();
+      final double y = b.computeLuminance();
+      return (math.max(x, y) + 0.05) / (math.min(x, y) + 0.05);
+    }
+
+    for (final Color ground in <Color>[
+      AppTheme.analysis.colorScheme.surfaceContainer,
+      AppTheme.analysis.scaffoldBackgroundColor,
+    ]) {
+      for (final Color hue in <Color>[
+        AgreementColors.earth.avi,
+        AgreementColors.earth.esm,
+      ]) {
+        expect(contrast(hue, ground), greaterThanOrEqualTo(3), reason: '$hue');
+      }
+    }
   });
 
   testWidgets('a silent base: three changes only AVI applies to', (
@@ -493,13 +542,14 @@ void main() {
     WidgetTester tester,
   ) async {
     await pumpPage(tester, _c268, 'c.268');
-    final String credit = _row(tester, 'agreement-source').join(' ');
-    expect(credit, contains('AlphaGenome Atlas · Google DeepMind'));
-    expect(credit, contains('ESM-2 650M'));
-    expect(
-      credit,
-      contains('Provided under and subject to the AlphaGenome Output Terms'),
-    );
+    // The page names its two sources and says, in one line, what they are
+    // and how they are set side by side; the terms' notice is its sheet's.
+    expect(_row(tester, 'agreement-source'), <String>[
+      'AlphaGenome Atlas · ESM-2',
+      'AVI (AlphaGenome Atlas) scores each change from the DNA, ESM-2 the '
+          'amino acid it makes from the protein sequence; both are ranked '
+          'here among the gene’s missense substitutions.',
+    ]);
     // Text only: the page links nowhere.
     for (final Type type in <Type>[InkWell, GestureDetector]) {
       expect(
@@ -517,6 +567,13 @@ void main() {
     // The sheet lies over the page: nothing under it moved.
     expect(tester.getTopLeft(_key('agreement-card')), card);
     final String source = _row(tester, 'agreement-about-source').join(' ');
+    expect(
+      source,
+      contains(
+        'AlphaGenome Atlas · Google DeepMind. Provided under and subject to '
+        'the AlphaGenome Output Terms of Use.',
+      ),
+    );
     expect(source, contains('deepmind.google.com/science/alphagenome/'));
     expect(source, contains('doi:10.1038/s41586-025-10014-0'));
     expect(source, contains('doi:10.1126/science.ade2574'));

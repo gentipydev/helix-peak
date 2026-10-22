@@ -5,8 +5,9 @@ import 'nucleotide_colors.dart';
 
 /// The four groups of an AVI contributions page, one hue each.
 ///
-/// The one place on the walk a model's numbers wear hue, at the user's ask
-/// (2026-10-21), on a page that carries no ClinVar mark, so R9.1's hues stay
+/// The first place on the walk a model's numbers wore hue, at the user's ask
+/// (2026-10-21), on a page that carries no ClinVar mark (the AVI and ESM-2
+/// page is the second, [AgreementColors]), so R9.1's hues stay
 /// ClinVar's everywhere they could be read as clinical. The hues are the
 /// app's own earth, the home helix's moss, clay, honey and denim
 /// ([NucleotideColors.helix], which the zoom's chromosome wears too), so the

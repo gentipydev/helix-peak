@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart' show Float32List, listEquals;
 import 'package:flutter/material.dart';
 
 import '../../../../core/evidence/gene_impact.dart';
+import '../../../../core/theme/agreement_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/format.dart';
 import '../../../../shared/inspector/score_bar.dart';
@@ -14,11 +15,11 @@ import 'gene_agreement.dart';
 
 /// A base's substitutions as AVI and ESM-2 each read them, side by side.
 ///
-/// Each missense substitution is ranked twice among the gene's single-base
-/// missense substitutions, by AVI's Phred and by ESM-2's score, and the two
-/// ranks are drawn on one track: AVI a dot, ESM-2 a ring, the farther apart
-/// the more the two differ on that change. Their own numbers stay beside
-/// them. A change ESM-2 cannot score — silent, a stop, the start codon — is
+/// Each missense substitution shows its two numbers, AVI's Phred and ESM-2's
+/// score, and is placed twice on one track among the gene's single-base
+/// missense substitutions: AVI a denim dot, ESM-2 a clay ring, the farther
+/// apart the more the two differ on that change, from the milder end to the
+/// stronger. A change ESM-2 cannot score — silent, a stop, the start codon — is
 /// read as the app reads a ClinVar record's. Under the card, how far the two
 /// agree across the gene. Opened from the base sheet's codon line, over the
 /// walk, and closed back onto it; the substitutions are the sheet's rows, in
@@ -132,7 +133,7 @@ class AgreementPage extends StatelessWidget {
                     style: style?.copyWith(color: theme.colorScheme.onSurface),
                   ),
                   const SizedBox(height: 4),
-                  Text(_notice, style: style),
+                  Text(_compared, style: style),
                 ],
               ),
             ],
@@ -143,11 +144,22 @@ class AgreementPage extends StatelessWidget {
   }
 }
 
-/// Who made the values, as the page and its sheet credit them.
-const String _credit = 'AlphaGenome Atlas · Google DeepMind · ESM-2 650M';
+/// The two sources, as the page names them.
+const String _credit = 'AlphaGenome Atlas · ESM-2';
+
+/// What the two are and how the page sets them side by side, in one line.
+const String _compared =
+    'AVI (AlphaGenome Atlas) scores each change from the DNA, ESM-2 the '
+    'amino acid it makes from the protein sequence; both are ranked here '
+    'among the gene’s missense substitutions.';
+
+/// Who made the AVI values, as the page's sheet credits them.
+const String _atlas = 'AlphaGenome Atlas · Google DeepMind';
 
 /// The notice AlphaGenome's terms ask of anything that shows its output: the
-/// terms it is given under, and what was done to it here.
+/// terms it is given under, and what was done to it here. The page's sheet
+/// carries it, at the user's ask for a page that names its sources alone
+/// (2026-10-22).
 const String _notice =
     'Provided under and subject to the AlphaGenome Output Terms of Use. '
     'This page ranks the Atlas’s Phred scores within the gene, beside '
@@ -165,40 +177,29 @@ const double _letter = 26;
 /// Room between the two columns of numbers.
 const double _columnGap = 16;
 
-/// A row's two cells of numbers: AVI's Phred and ESM-2's score, each with
-/// its rank in the gene where it has one. Where no column is headed, the
-/// Phred names its unit.
+/// A row's two numbers: AVI's Phred and ESM-2's score, nothing else (the
+/// user's ask, 2026-10-22: the track carries the ranks). Where no column is
+/// headed, the Phred names its unit.
 (InlineSpan, InlineSpan?) _cells(
   AgreementRow row,
   TextStyle? caption, {
   required bool headed,
 }) {
-  final GeneRank? avi = row.aviRank;
-  final GeneRank? esm = row.esmRank;
   final double? score = row.esm;
   return (
     TextSpan(
       children: <InlineSpan>[
         TextSpan(text: row.score.phred.toStringAsFixed(1), style: _mono),
         if (!headed) TextSpan(text: ' Phred', style: caption),
-        if (avi != null) TextSpan(text: ' · ${avi.label}', style: caption),
       ],
     ),
-    score == null
-        ? null
-        : TextSpan(
-            children: <InlineSpan>[
-              TextSpan(text: formatScore(score), style: _mono),
-              if (esm != null)
-                TextSpan(text: ' · ${esm.label}', style: caption),
-            ],
-          ),
+    score == null ? null : TextSpan(text: formatScore(score), style: _mono),
   );
 }
 
 /// The card: each substitution's two numbers and, for a missense change, its
 /// two ranks on one track, the marks travelling to their places one row
-/// after another.
+/// after another, and under the tracks which way the effect grows.
 class _Card extends StatelessWidget {
   const _Card({required this.rows, required this.gene});
 
@@ -272,7 +273,7 @@ class _Card extends StatelessWidget {
               children: <Widget>[
                 if (ranked) ...<Widget>[
                   Text(
-                    'Rank among $gene missense substitutions',
+                    'Ranked among $gene missense substitutions',
                     key: const ValueKey<String>('agreement-heading'),
                     style: theme.textTheme.titleSmall,
                   ),
@@ -286,18 +287,7 @@ class _Card extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                 ],
-                if (ranked) ...<Widget>[
-                  Row(
-                    key: const ValueKey<String>('agreement-ends'),
-                    children: <Widget>[
-                      const SizedBox(width: _letter),
-                      Text('lowest', style: caption),
-                      const Spacer(),
-                      Text('highest', style: caption),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                ],
+                if (scored) const SizedBox(height: 6),
                 for (final (int i, AgreementRow row)
                     in rows.indexed) ...<Widget>[
                   if (i > 0) const SizedBox(height: 14),
@@ -313,6 +303,13 @@ class _Card extends StatelessWidget {
                       ((t - i * 0.12) / 0.64).clamp(0.0, 1.0),
                     ),
                   ),
+                ],
+                // Which way the tracks run, said by what grows along them
+                // rather than by a value: ESM-2's stronger end holds its
+                // lowest numbers.
+                if (ranked) ...<Widget>[
+                  const SizedBox(height: 8),
+                  _Ends(style: caption),
                 ],
               ],
             ),
@@ -401,6 +398,7 @@ class _Row extends StatelessWidget {
   final double esmColumn;
   final double travelled;
 
+  /// The row as a screen reader says it, the track's two places in words.
   String get _spoken {
     final String alt = row.score.base;
     final String made = row.spoken.isEmpty ? '' : ', ${row.spoken}';
@@ -410,9 +408,11 @@ class _Row extends StatelessWidget {
     final double? score = row.esm;
     return <String>[
       '$alt$made',
-      'AVI Phred $phred${avi == null ? '' : ', ${avi.label} in $gene'}',
-      if (score != null)
-        'ESM-2 ${formatScore(score)}${esm == null ? '' : ', ${esm.label}'}',
+      'AVI Phred $phred',
+      if (score != null) 'ESM-2 ${formatScore(score)}',
+      if (avi != null && esm != null)
+        'Among $gene missense substitutions, AVI places it in the '
+            '${avi.label}, ESM-2 in the ${esm.label}',
       if (row.reading case final reading?) reading.line,
     ].join('. ');
   }
@@ -430,6 +430,7 @@ class _Row extends StatelessWidget {
     );
     final GeneRank? aviRank = row.aviRank;
     final GeneRank? esmRank = row.esmRank;
+    final AgreementColors models = context.agreementColors;
     final Widget label = Row(
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
@@ -505,8 +506,9 @@ class _Row extends StatelessWidget {
                     esm: esmRank.place,
                     travelled: travelled,
                     line: theme.colorScheme.outlineVariant,
-                    gap: muted,
-                    ink: theme.colorScheme.onSurface,
+                    joined: true,
+                    aviInk: models.avi,
+                    esmInk: models.esm,
                     ground: theme.colorScheme.surfaceContainer,
                   ),
                 ),
@@ -528,7 +530,7 @@ class _Row extends StatelessWidget {
 }
 
 /// A mark as the track draws it, for the legend and a stacked row: AVI's
-/// dot, or ESM-2's ring.
+/// denim dot, or ESM-2's clay ring.
 class _Mark extends StatelessWidget {
   const _Mark({required this.ring});
 
@@ -538,7 +540,7 @@ class _Mark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final AgreementColors models = context.agreementColors;
     return SizedBox.square(
       dimension: size,
       child: CustomPaint(
@@ -547,28 +549,86 @@ class _Mark extends StatelessWidget {
           esm: ring ? 0 : null,
           travelled: 1,
           line: null,
-          gap: null,
-          ink: theme.colorScheme.onSurface,
-          ground: theme.colorScheme.surfaceContainer,
+          joined: false,
+          aviInk: models.avi,
+          esmInk: models.esm,
+          ground: Theme.of(context).colorScheme.surfaceContainer,
         ),
       ),
     );
   }
 }
 
-/// Two ranks on one track from the gene's lowest to its highest: a hairline,
-/// ESM-2's ring, AVI's dot inside a ring's room, and between them a heavier
-/// rule, the gap the two models leave. A dot inside its ring is a change the
-/// two rank alike. The marks set off from the lowest end and travel to their
-/// places.
+/// Under the tracks, which way they run: the milder predicted effect at the
+/// start, the stronger at the end. On a narrow phone with type turned up the
+/// two are drawn a little smaller rather than run off the card, as the
+/// sheet's own scale is.
+class _Ends extends StatelessWidget {
+  const _Ends({required this.style});
+
+  final TextStyle? style;
+
+  static const double _gap = 16;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    key: const ValueKey<String>('agreement-ends'),
+    children: <Widget>[
+      const SizedBox(width: _letter),
+      Expanded(
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints box) {
+            final TextScaler scaler = MediaQuery.textScalerOf(context);
+            final TextStyle effective = DefaultTextStyle.of(context).style
+                .merge(style);
+            double width(String text) {
+              final TextPainter painter = TextPainter(
+                text: TextSpan(text: text, style: effective),
+                textDirection: TextDirection.ltr,
+                textScaler: scaler,
+                maxLines: 1,
+              )..layout();
+              final double width = painter.width;
+              painter.dispose();
+              return width;
+            }
+
+            const String milder = '← milder effect';
+            const String stronger = 'stronger effect →';
+            final double spare = box.maxWidth - width(milder) - width(stronger);
+            return FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text(milder, style: style, maxLines: 1),
+                  SizedBox(width: math.max(_gap, spare)),
+                  Text(stronger, style: style, maxLines: 1),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    ],
+  );
+}
+
+/// Two ranks on one track from the gene's milder end to its stronger: a
+/// hairline, ESM-2's clay ring, AVI's denim dot inside a ring's room, and
+/// between them a heavier rule shaded from the one to the other, the gap the
+/// two models leave. A dot inside its ring is a change the two rank alike.
+/// The marks set off from the milder end and travel to their places.
 class _Track extends CustomPainter {
   _Track({
     required this.avi,
     required this.esm,
     required this.travelled,
     required this.line,
-    required this.gap,
-    required this.ink,
+    required this.joined,
+    required this.aviInk,
+    required this.esmInk,
     required this.ground,
   });
 
@@ -577,15 +637,18 @@ class _Track extends CustomPainter {
   final double? esm;
   final double travelled;
   final Color? line;
-  final Color? gap;
-  final Color ink;
+
+  /// Whether a rule joins the two marks.
+  final bool joined;
+  final Color aviInk;
+  final Color esmInk;
 
   /// The card under the track, which fills the ring.
   final Color ground;
 
   static const double height = 12;
   static const double ring = 5;
-  static const double _stroke = 1.5;
+  static const double _stroke = 1.75;
   static const double _dot = 3;
 
   @override
@@ -605,13 +668,15 @@ class _Track extends CustomPainter {
     }
     final double? a = avi == null ? null : x(avi!);
     final double? e = esm == null ? null : x(esm!);
-    final Color? between = gap;
-    if (a != null && e != null && between != null && (a - e).abs() > 0.5) {
+    if (joined && a != null && e != null && (a - e).abs() > 0.5) {
       canvas.drawLine(
-        Offset(math.min(a, e), y),
-        Offset(math.max(a, e), y),
+        Offset(a, y),
+        Offset(e, y),
         Paint()
-          ..color = between
+          ..shader = ui.Gradient.linear(Offset(a, y), Offset(e, y), <Color>[
+            aviInk,
+            esmInk,
+          ])
           ..strokeWidth = 2.5,
       );
     }
@@ -622,13 +687,13 @@ class _Track extends CustomPainter {
           Offset(e, y),
           ring - _stroke / 2,
           Paint()
-            ..color = ink
+            ..color = esmInk
             ..style = PaintingStyle.stroke
             ..strokeWidth = _stroke,
         );
     }
     if (a != null) {
-      canvas.drawCircle(Offset(a, y), _dot, Paint()..color = ink);
+      canvas.drawCircle(Offset(a, y), _dot, Paint()..color = aviInk);
     }
   }
 
@@ -638,8 +703,9 @@ class _Track extends CustomPainter {
       old.esm != esm ||
       old.travelled != travelled ||
       old.line != line ||
-      old.gap != gap ||
-      old.ink != ink ||
+      old.joined != joined ||
+      old.aviInk != aviInk ||
+      old.esmInk != esmInk ||
       old.ground != ground;
 }
 
@@ -778,6 +844,7 @@ class _Scatter extends StatelessWidget {
               ink: theme.colorScheme.onSurface,
               ground: theme.scaffoldBackgroundColor,
               grid: theme.colorScheme.outlineVariant,
+              models: context.agreementColors,
               tick: tick,
               name: name,
               scaler: scaler,
@@ -803,6 +870,7 @@ class _ScatterPainter extends CustomPainter {
     required this.ink,
     required this.ground,
     required this.grid,
+    required this.models,
     required this.tick,
     required this.name,
     required this.scaler,
@@ -812,6 +880,9 @@ class _ScatterPainter extends CustomPainter {
   final List<AgreementRow> marks;
   final Color cloud;
   final Color ink;
+
+  /// The two models' hues, for the marks their axes' names stand after.
+  final AgreementColors models;
 
   /// The page under the plot, which keeps a mark and its name clear of the
   /// dots behind them.
@@ -894,7 +965,26 @@ class _ScatterPainter extends CustomPainter {
         Offset(plot.left - 6 - label.width, at - label.height / 2),
       );
     }
-    esm.paint(canvas, Offset.zero);
+    // Each axis named after its model's mark, as the card's legend draws it.
+    const double mark = _Track.ring * 2 + 4;
+    canvas
+      ..drawCircle(
+        Offset(_Track.ring, esm.height / 2),
+        _Track.ring - 0.875,
+        Paint()
+          ..color = models.esm
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.75,
+      )
+      ..drawCircle(
+        Offset(
+          size.width - avi.width - mark + _Track.ring,
+          plot.bottom + 4 + h + 2 + avi.height / 2,
+        ),
+        3,
+        Paint()..color = models.avi,
+      );
+    esm.paint(canvas, const Offset(mark, 0));
     avi.paint(canvas, Offset(size.width - avi.width, plot.bottom + 4 + h + 2));
 
     final List<ScoredChange> changes = agreement.changes;
@@ -1041,6 +1131,7 @@ class _ScatterPainter extends CustomPainter {
       old.ink != ink ||
       old.ground != ground ||
       old.grid != grid ||
+      old.models != models ||
       old.tick != tick ||
       old.name != name ||
       old.scaler != scaler;
@@ -1084,12 +1175,13 @@ class _About extends StatelessWidget {
           section(
             'The ranks',
             line(
-              'Each missense substitution is ranked among the gene’s '
-              'single-base missense substitutions twice: by AVI, the dot, and '
-              'by ESM-2, the ring. Top is the share that scores at least as '
-              'high; past half, bottom is the share that scores at most as '
-              'high. The farther apart the two marks, the more the two models '
-              'differ on that change.',
+              'Each missense substitution is placed twice on its track among '
+              'the gene’s single-base missense substitutions: by AVI, the '
+              'denim dot, and by ESM-2, the clay ring. A mark further right '
+              'outranks more of the gene’s changes, by a higher Phred for '
+              'AVI and a lower score for ESM-2, each its model’s stronger '
+              'effect. The farther apart the two marks, the more the two '
+              'models differ on that change.',
             ),
           ),
           section(
@@ -1106,8 +1198,9 @@ class _About extends StatelessWidget {
               'Every missense substitution in the gene as a dot: AVI’s Phred '
               'across, from 0 to 40, and ESM-2’s score up, from +5 at the '
               'foot to −15 at the top, so that each model’s larger effect '
-              'lies up and to the right. A change past an end stands on it. '
-              'This base’s own are drawn in full and named.',
+              'lies up and to the right; each axis carries its model’s mark. '
+              'A change past an end stands on it. This base’s own are drawn '
+              'in full and named.',
             ),
           ),
           section(
@@ -1134,7 +1227,7 @@ class _About extends StatelessWidget {
               key: const ValueKey<String>('agreement-about-source'),
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                line('$_credit. $_notice'),
+                line('$_atlas. $_notice'),
                 const SizedBox(height: 6),
                 line(
                   'The terms: deepmind.google.com/science/alphagenome/'

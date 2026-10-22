@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'agreement_colors.dart';
 import 'anatomy_colors.dart';
 import 'app_colors.dart';
 import 'app_spacing.dart';
@@ -162,6 +163,7 @@ abstract final class AppTheme {
         nucleotides,
         anatomy,
         ContributionColors.earth,
+        AgreementColors.earth,
       ],
       appBarTheme: AppBarTheme(
         backgroundColor: tokens.surfaceBase,
