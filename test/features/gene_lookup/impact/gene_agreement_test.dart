@@ -151,6 +151,30 @@ void main() {
     }
   });
 
+  test('only a base with a change to another amino acid is compared', () {
+    final AnatomyModel model = _model(TestCatalog.insulin);
+    final GeneImpact impact = _impact(TestCatalog.insulin);
+    final ProteinConstraint constraint = _constraint(TestCatalog.insulin);
+    bool compared(int position, {bool scored = true}) => AgreementRow.anyAt(
+      impact.at(position)!,
+      CodingEvidence.at(
+        model: model,
+        position: position,
+        track: scored ? constraint : null,
+      )!,
+    );
+    // c.268, Gly90's first base: three missense changes.
+    expect(compared(6278), isTrue);
+    // c.11, Trp4's middle base: a stop and two missense changes.
+    expect(compared(5234), isTrue);
+    // c.270, Gly90's third base: all three silent.
+    expect(compared(6280), isFalse);
+    // c.2, the start codon: p.Met1? whatever is made.
+    expect(compared(5225), isFalse);
+    // Without ESM-2's track at the residue, nothing is compared.
+    expect(compared(6278, scored: false), isFalse);
+  });
+
   test('a ranked share reads from the top, and from the bottom past half', () {
     expect(const GeneRank(top: 12 / 687, bottom: 1).label, 'top 1.7%');
     expect(const GeneRank(top: 0.5, bottom: 0.51).label, 'top 50%');

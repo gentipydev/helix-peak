@@ -93,10 +93,11 @@ void main() {
     await icons.load();
   });
 
-  /// The walk on insulin's mRNA page with c.268's sheet open. The app's own
-  /// theme is the cool one, the walk's set inside it, so a page that forgot
-  /// the walk's would be drawn in the wrong one.
-  Future<void> openSheet(WidgetTester tester) async {
+  /// The walk on insulin's mRNA page with the sheet of the base at
+  /// [position] open, c.268's unless said. The app's own theme is the cool
+  /// one, the walk's set inside it, so a page that forgot the walk's would be
+  /// drawn in the wrong one.
+  Future<void> openSheet(WidgetTester tester, {int position = _c268}) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(
@@ -129,7 +130,7 @@ void main() {
       const Offset(-160, 0),
     );
     await tester.pumpAndSettle();
-    tester.widget<AnatomyCanvas>(find.byType(AnatomyCanvas)).onTapped(_c268);
+    tester.widget<AnatomyCanvas>(find.byType(AnatomyCanvas)).onTapped(position);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 320));
     await tester.pumpAndSettle();
@@ -291,6 +292,26 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(AgreementPage), findsNothing);
     expect(find.byType(ImpactPanel), findsOneWidget);
+  });
+
+  testWidgets('the codon line leads to the page only where a change makes '
+      'another amino acid', (WidgetTester tester) async {
+    // c.11: a stop and two missense changes, so the page has something to
+    // set side by side.
+    await openSheet(tester, position: _c11);
+    expect(_key('impact-note-link'), findsOneWidget);
+    expect(tester.widget<Text>(_key('impact-note')).data, endsWith(' ›'));
+    // c.270, all three silent, and c.2, in the start codon: the line names
+    // the codon and residue and leads nowhere.
+    for (final int position in <int>[_c270, _c2]) {
+      await openSheet(tester, position: position);
+      expect(_key('impact-note-link'), findsNothing, reason: '$position');
+      expect(
+        tester.widget<Text>(_key('impact-note')).data,
+        isNot(endsWith('›')),
+        reason: '$position',
+      );
+    }
   });
 
   testWidgets('each row says itself whole to a screen reader', (

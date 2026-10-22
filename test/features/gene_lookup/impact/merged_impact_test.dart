@@ -260,7 +260,7 @@ void main() {
   });
 
   testWidgets(
-    'a silent base shows its own model, its tags and one line to the residue',
+    'a silent base shows its own model, its tags and a plain line for its residue',
     (tester) async {
       await _open(tester);
       await _tapPosition(tester, 5301);
@@ -271,7 +271,8 @@ void main() {
         plain(tester, 'impact-level'),
         'low impact · bottom 90% genome-wide',
       );
-      expect(plain(tester, 'impact-note'), endsWith('Val26 · highly constrained ›'));
+      expect(plain(tester, 'impact-note'), endsWith('Val26 · highly constrained'));
+      expect(_key('impact-note-link'), findsNothing);
       for (final String base in <String>['A', 'C', 'T']) {
         expect(_key('impact-tag-$base'), findsOneWidget, reason: base);
       }
@@ -307,11 +308,11 @@ void main() {
     tester,
   ) async {
     await _open(tester);
-    await _tapPosition(tester, 5301);
+    await _tapPosition(tester, 5299);
     await tester.tap(_key('impact-note-link'));
     await tester.pumpAndSettle();
     expect(find.byType(AgreementPage), findsOneWidget);
-    expect(find.text('c.78 · AVI and ESM-2'), findsOneWidget);
+    expect(find.text('c.76 · AVI and ESM-2'), findsOneWidget);
     expect(find.byType(ConstraintPanel), findsNothing);
     await tester.tap(
       find.descendant(
@@ -374,7 +375,7 @@ void main() {
     expect(find.byType(AnatomySelectionCanvas), findsOneWidget);
     await _tapPosition(tester, 5301);
     expect(tester.widget<ImpactPanel>(_panel).coding!.residueName, 'Val26');
-    expect(plain(tester, 'impact-note'), endsWith('Val26 · highly constrained ›'));
+    expect(plain(tester, 'impact-note'), endsWith('Val26 · highly constrained'));
     await _capture(tester, 'merged-gene');
   });
 

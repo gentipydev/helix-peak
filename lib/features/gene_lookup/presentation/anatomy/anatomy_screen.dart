@@ -1189,11 +1189,14 @@ class _AnatomyScreenState extends State<AnatomyScreen>
         : null;
     final ProteinConstraint? constraint = _constraint;
     // Both models can be set side by side where the AVI track is this
-    // record's, the ESM-2 track this protein's, and the base's AVI its own.
+    // record's, the ESM-2 track this protein's, the base's AVI its own, and
+    // one of its changes makes another amino acid, which ESM-2 scores too.
+    // Elsewhere the line only describes (the user's ask, 2026-10-22).
     final CodingEvidence? compared =
         explained != null &&
-            evidence?.constraint != null &&
-            !reading.estimated
+            evidence != null &&
+            !reading.estimated &&
+            AgreementRow.anyAt(reading, evidence)
         ? evidence
         : null;
     // Written on the sheet, not in a sentence, so without its article:

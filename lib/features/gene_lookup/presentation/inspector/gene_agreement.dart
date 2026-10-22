@@ -342,6 +342,20 @@ final class AgreementRow {
   /// Why only AVI applies, for a change that is not missense.
   final EvidenceReading? reading;
 
+  /// Whether any of [base]'s substitutions is one both models score: a
+  /// change to another amino acid, at a residue ESM-2's track holds. Only
+  /// such a base's sheet offers the page (the user's ask, 2026-10-22).
+  static bool anyAt(BaseImpact base, CodingEvidence coding) =>
+      coding.constraint != null &&
+      base.ranked.any(
+        (AltScore score) => _missense(coding.changeTo(score.base)),
+      );
+
+  /// A change to another amino acid, as the sheet tags it: not silent, not a
+  /// stop, not in the start codon, and a base at all.
+  static bool _missense(String tag) =>
+      tag.isNotEmpty && tag != '=' && tag != 'Ter' && tag != '?';
+
   /// The base's substitutions in the sheet's order, Phred highest first.
   static List<AgreementRow> at(
     BaseImpact base,
@@ -364,7 +378,7 @@ final class AgreementRow {
       _ => null,
     };
     final String? made = coding.madeBy(score.base);
-    final double? esm = reading != null || made == null
+    final double? esm = !_missense(tag) || made == null
         ? null
         : coding.constraint?.ranked
               .where((SubstitutionScore s) => s.aminoAcid == made)
