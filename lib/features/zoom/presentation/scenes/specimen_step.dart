@@ -8,9 +8,10 @@ import '../../domain/zoom_camera.dart';
 /// body's, the specimen and its neighbours coming up over it, and the
 /// figure's own parts giving way.
 abstract final class SpecimenStep {
-  /// How far the outline has been drawn in from the body's to the organ's.
-  static double settle(double detail) =>
-      detail <= 0 ? 0 : smootherstep(detail / settling);
+  /// How far the outline has been drawn in from the body's to the organ's,
+  /// over [span] of the detail.
+  static double settle(double detail, {double span = settling}) =>
+      detail <= 0 ? 0 : smootherstep(detail / span);
 
   /// How much of the specimen and its neighbours shows.
   static double come(double detail) => detail <= 0

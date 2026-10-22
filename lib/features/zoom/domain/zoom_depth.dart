@@ -147,6 +147,14 @@ final class ZoomDepth {
   /// it.
   static const double eyeUpright = 0.8;
 
+  /// How much taller than wide the heart is framed: cut open from front to
+  /// back, its great vessels rising above it and reaching out to either
+  /// side, it is about as wide as it is tall, and its names need room above
+  /// and below it on an iPhone SE's canvas, 311 by 407 inside the canvas's
+  /// inset under the heart's card (1.0 is the most that leaves it; a little
+  /// less, for slack).
+  static const double heartUpright = 0.95;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -165,8 +173,9 @@ final class ZoomDepth {
   /// outline, the one the organ's scene draws; an organ drawn from general
   /// anatomy, or the brain, is framed by its width, the testis, drawn from
   /// anatomy among its epididymis and its cord, as [testisUpright], the
-  /// salivary gland, its parotid in place, as [salivaryUpright], and the
-  /// eye, cut level through its optic nerve, as [eyeUpright].
+  /// salivary gland, its parotid in place, as [salivaryUpright], the eye,
+  /// cut level through its optic nerve, as [eyeUpright], and the heart, cut
+  /// open from front to back, as [heartUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -187,6 +196,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.eye) {
       return eyeUpright;
+    }
+    if (anatomy.organ == OrganKind.heart) {
+      return heartUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)

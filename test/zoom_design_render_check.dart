@@ -174,13 +174,15 @@ void main() {
     // then the pancreas on both figures about each kind of cell that lights
     // a part of it of its own, the testis about each kind of cell that lives
     // in it, the salivary gland on both figures about each, the eye about
-    // each kind of cell its retina has, and the bone marrow on both figures
-    // about each kind of cell of the marrow.
+    // each kind of cell its retina has, the bone marrow on both figures
+    // about each kind of cell of the marrow, and the heart on both figures
+    // about each kind of cell that lives in it.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
     final TissueAnatomy eye = tissueAnatomy['retina']!;
     final TissueAnatomy marrow = tissueAnatomy['bone marrow']!;
+    final TissueAnatomy heart = tissueAnatomy['heart muscle']!;
     final List<(String, TissueAnatomy, AnatomyFigure, CellShape)> organs =
         <(String, TissueAnatomy, AnatomyFigure, CellShape)>[
           for (final MapEntry<String, TissueAnatomy> tissue
@@ -240,6 +242,16 @@ void main() {
               CellShape.leukocyte,
             ])
               ('marrow-${body.name}-${shape.name}', marrow, body, shape),
+          for (final AnatomyFigure body in <AnatomyFigure>[
+            AnatomyFigure.female,
+            AnatomyFigure.male,
+          ])
+            for (final CellShape shape in <CellShape>[
+              CellShape.cardiomyocyte,
+              CellShape.epithelial,
+              CellShape.dividing,
+            ])
+              ('heart-${body.name}-${shape.name}', heart, body, shape),
         ];
     for (final (
           String name,

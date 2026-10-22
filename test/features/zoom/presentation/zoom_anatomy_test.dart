@@ -257,8 +257,9 @@ void main() {
       // The view is the organ with its margin round it, a tall one's
       // standing on the canvas's height; the salivary gland, its parotid
       // drawn with the ear, the masseter and the submandibular gland round
-      // it, and the eye, its optic nerve behind it and the recti beside it,
-      // framed wider than their margin.
+      // it, the eye, its optic nerve behind it and the recti beside it, and
+      // the heart, cut open, its great vessels reaching out either side of
+      // it, framed wider than their margin.
       final double upright = ZoomDepth.uprightOf(
         subject.track,
         subject.path,
@@ -270,6 +271,7 @@ void main() {
           switch (subject.anatomy!.organ) {
             OrganKind.salivaryGland => ZoomDepth.salivaryUpright,
             OrganKind.eye => ZoomDepth.eyeUpright,
+            OrganKind.heart => ZoomDepth.heartUpright,
             _ => 1.0,
           },
           ZoomDepth.phoneAspect,
@@ -304,8 +306,9 @@ void main() {
     // are each a drawing of their own; the twenty's others have a study. An
     // organ no study has been made for yet is the body's own outline of it,
     // seen closer, with its plain surface (the user's choice of 2026-10-17,
-    // for the heart, placenta, esophagus, thyroid and kidney the third ten
-    // reach): never the organ drawn for no tissue at all.
+    // for the placenta, esophagus, thyroid and kidney the third ten reach;
+    // the heart is drawn from anatomy since 2026-10-22): never the organ
+    // drawn for no tissue at all.
     const Set<OrganKind> drawn = <OrganKind>{
       OrganKind.brain,
       OrganKind.lymphNode,

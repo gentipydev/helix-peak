@@ -18,6 +18,9 @@ import 'organs/brain/brain_style.dart';
 import 'organs/eye/eye_art.dart';
 import 'organs/eye/eye_form.dart';
 import 'organs/eye/eye_style.dart';
+import 'organs/heart/heart_art.dart';
+import 'organs/heart/heart_form.dart';
+import 'organs/heart/heart_style.dart';
 import 'organs/pancreas/pancreas_anatomy.dart';
 import 'organs/pancreas/pancreas_art.dart';
 import 'organs/pancreas/pancreas_form.dart';
@@ -128,6 +131,14 @@ abstract class OrganArt {
         anatomy,
         view,
         figure: figure,
+        level: level,
+      ),
+      OrganKind.heart when part != null => _HeartOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        cell: shape,
         level: level,
       ),
       _ =>
@@ -267,7 +278,6 @@ _Look _lookOf(OrganKind kind) => switch (kind) {
   OrganKind.epididymis ||
   OrganKind.seminalVesicle => _Look.coils,
   OrganKind.skeletalMuscle ||
-  OrganKind.heart ||
   OrganKind.smoothMuscle ||
   OrganKind.tongue => _Look.fibres,
   OrganKind.stomach ||
@@ -625,8 +635,9 @@ abstract class _SpecimenOrgan extends OrganArt {
     double view, {
     AnatomyFigure? figure,
     this.level = 1,
-  }) : real = anatomy.metres / part.extent {
-    Offset placed(Offset p) => (p - part.centre) * (real / view);
+    double? real,
+  }) : real = real ?? anatomy.metres / part.extent {
+    Offset placed(Offset p) => (p - part.centre) * (this.real / view);
     _around = _Surroundings(part, figure, placed);
   }
 
@@ -657,6 +668,10 @@ abstract class _SpecimenOrgan extends OrganArt {
   /// them, in place of neighbours of its own.
   bool get _amongFigure => false;
 
+  /// How far the body's outline has been drawn in to the organ's own at
+  /// [detail].
+  double _settleOf(double detail) => SpecimenStep.settle(detail);
+
   /// The specimen and its neighbours, at the organ's real size; [line] is a
   /// pixel.
   void _paintSpecimen(Canvas canvas, ZoomInks inks, double line);
@@ -674,7 +689,7 @@ abstract class _SpecimenOrgan extends OrganArt {
     final double line = pixel / scale;
     // The body's outline drawn in toward the organ's, and the organ coming
     // up over it.
-    final double settle = SpecimenStep.settle(detail);
+    final double settle = _settleOf(detail);
     final double come = SpecimenStep.come(detail);
     _around.paint(
       canvas,
@@ -1168,6 +1183,111 @@ final class _MarrowOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => MarrowArt.bedOf(inks);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The heart, drawn from general anatomy as a specimen cut open from front
+/// to back (`HeartArt`): its four chambers, its valves and the great
+/// vessels rising from it, its muscle in the mark where the zoom's cell
+/// lives there, or its epicardium for an epicardial cell; reached from the
+/// body's own outline of it (`_SpecimenOrgan`), grown first to the heart's
+/// own size: that outline draws in toward the heart's own and becomes the
+/// bed it lies on, the lungs and the rest of the figure staying round it,
+/// faint, as the body drew them (the user's choice of 2026-10-22).
+final class _HeartOrgan extends _SpecimenOrgan {
+  _HeartOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    CellShape cell = CellShape.cardiomyocyte,
+    super.level,
+  }) : _form = HeartForm.place(part: part, view: view),
+       _home = HeartHome.of(cell),
+       super(real: HeartForm.realFor(part));
+
+  final HeartForm _form;
+  final HeartHome _home;
+
+  @override
+  bool get _amongFigure => true;
+
+  // Its outline is drawn in a little more slowly than other specimens':
+  // the anatomogram's heart, a sign more than a heart, lies further from it.
+  @override
+  double _settleOf(double detail) =>
+      SpecimenStep.settle(detail, span: HeartStyle.settling);
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Its four chambers, in the quiet ink, and where the zoom's cell lives,
+  // in the mark: its muscle, at the place its tissue is sampled, or its
+  // epicardium beside it (the user's choice of 2026-10-22). The chambers
+  // first, so that where a canvas has no room for all of them in a row,
+  // the home is the name that moves.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'ra', word: 'right atrium', at: _form.rightAtrium, home: false),
+    (key: 'la', word: 'left atrium', at: _form.leftAtrium, home: false),
+    (
+      key: 'rv',
+      word: 'right ventricle',
+      at: _form.rightVentricle,
+      home: false,
+    ),
+    (key: 'lv', word: 'left ventricle', at: _form.leftVentricle, home: false),
+    switch (_home) {
+      HeartHome.myocardium => (
+        key: 'home',
+        word: 'myocardium',
+        at: _form.site,
+        home: true,
+      ),
+      HeartHome.epicardium => (
+        key: 'home',
+        word: 'epicardium',
+        at: _form.epicardiumNear(_form.site),
+        home: true,
+      ),
+    },
+  ];
+
+  // Set round all of it, out at the canvas's corners: the heart is too
+  // wide for a column of names at either side of it on a phone.
+  @override
+  late final List<Offset> named = <Offset>[
+    for (int i = 0; i < _form.outlinePoints.length; i += 4)
+      _form.outlinePoints[i],
+  ];
+
+  HeartArt? _art;
+
+  HeartArt _artFor(ZoomInks inks) {
+    final HeartArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = HeartArt(_form, inks, home: _home)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => HeartArt.bedOf(inks);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
