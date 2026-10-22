@@ -51,6 +51,9 @@ const int _c11 = 5234;
 /// c.2, the start codon's middle base.
 const int _c2 = 5225;
 
+/// c.15, Met5's third base: all three changes make isoleucine.
+const int _c15 = 5238;
+
 Finder _key(String value) => find.byKey(ValueKey<String>(value));
 
 /// The texts under [key], in reading order.
@@ -241,6 +244,19 @@ void main() {
       find.text('Across INS · 687 missense substitutions'),
       findsOneWidget,
     );
+    // The gene's dots under the heading, its two numbers under them.
+    expect(
+      tester.getTopLeft(_key('agreement-scatter')).dy,
+      greaterThan(
+        tester
+            .getTopLeft(find.text('Across INS · 687 missense substitutions'))
+            .dy,
+      ),
+    );
+    expect(
+      tester.getTopLeft(_key('agreement-rho')).dy,
+      greaterThan(tester.getBottomLeft(_key('agreement-scatter')).dy),
+    );
     expect(_row(tester, 'agreement-rho'), <String>['Spearman ρ', '0.79']);
     expect(_row(tester, 'agreement-order'), <String>[
       'Same order within a base',
@@ -273,6 +289,34 @@ void main() {
       tester.getSemantics(_key('agreement-row-A')).label,
       'A, same amino acid. AVI Phred 14.3. Same amino acid: only AVI '
       'applies.',
+    );
+    semantics.dispose();
+  });
+
+  testWidgets('the scatter holds every change in the gene and names this '
+      'base\'s own, each amino acid once', (WidgetTester tester) async {
+    final SemanticsHandle semantics = tester.ensureSemantics();
+    String said() => tester.getSemantics(_key('agreement-scatter')).label;
+    await pumpPage(tester, _c268, 'c.268');
+    expect(
+      said(),
+      'Every missense substitution in INS, AVI Phred across and ESM-2 up; '
+      'marked: serine, arginine and cysteine',
+    );
+    // Met5's third base: three changes, one amino acid.
+    await pumpPage(tester, _c15, 'c.15');
+    expect(_row(tester, 'agreement-row-A')[1], 'Ile');
+    expect(
+      said(),
+      'Every missense substitution in INS, AVI Phred across and ESM-2 up; '
+      'marked: isoleucine',
+    );
+    await _capture(tester, 'agreement-one-name');
+    // A silent base marks nothing, and the gene is still drawn.
+    await pumpPage(tester, _c270, 'c.270');
+    expect(
+      said(),
+      'Every missense substitution in INS, AVI Phred across and ESM-2 up',
     );
     semantics.dispose();
   });
@@ -353,6 +397,19 @@ void main() {
     await _capture(tester, 'agreement-large-text');
     // The list builds its rows as they come on screen.
     await tester.scrollUntilVisible(
+      _key('agreement-scatter'),
+      200,
+      scrollable: find
+          .descendant(
+            of: _key('agreement-scroll'),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    await _capture(tester, 'agreement-large-text-scatter');
+    await tester.scrollUntilVisible(
       _key('agreement-order'),
       200,
       scrollable: find
@@ -419,9 +476,16 @@ void main() {
     }
 
     expect(await pull(200), 0);
-    position.jumpTo(position.maxScrollExtent);
-    await tester.pump();
-    expect(await pull(-200), position.maxScrollExtent);
+    // The list measures what it has not yet laid out as it goes, so its end
+    // is where a jump to it stays put.
+    double end = -1;
+    while (end != position.maxScrollExtent) {
+      end = position.maxScrollExtent;
+      position.jumpTo(end);
+      await tester.pump();
+    }
+    expect(await pull(-200), end);
+    expect(position.pixels, end);
   });
 
   testWidgets('the ⓘ sheet says what the values are and credits both '

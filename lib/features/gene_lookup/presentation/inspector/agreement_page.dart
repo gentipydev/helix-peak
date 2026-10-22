@@ -1,5 +1,7 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart' show Float32List, listEquals;
 import 'package:flutter/material.dart';
 
 import '../../../../core/evidence/gene_impact.dart';
@@ -75,6 +77,7 @@ class AgreementPage extends StatelessWidget {
     );
     final TextStyle? style = theme.caption;
     final GeneAgreement? gene = agreement;
+    final List<AgreementRow> rows = AgreementRow.at(impact, coding, gene);
     return Theme(
       data: theme,
       child: Scaffold(
@@ -108,13 +111,16 @@ class AgreementPage extends StatelessWidget {
                 tint: tint,
               ),
               const SizedBox(height: 20),
-              _Card(
-                rows: AgreementRow.at(impact, coding, gene),
-                gene: track.gene,
-              ),
+              _Card(rows: rows, gene: track.gene),
               if (gene != null) ...<Widget>[
                 const SizedBox(height: 24),
-                _Across(agreement: gene),
+                _Across(
+                  agreement: gene,
+                  marks: <AgreementRow>[
+                    for (final AgreementRow row in rows)
+                      if (row.esm != null) row,
+                  ],
+                ),
               ],
               const SizedBox(height: 24),
               Column(
@@ -637,12 +643,16 @@ class _Track extends CustomPainter {
       old.ground != ground;
 }
 
-/// How far the two agree across the gene: the rank correlation of all its
-/// missense substitutions, and how often the two order one base's alike.
+/// How far the two agree across the gene: every missense substitution as a
+/// dot, the rank correlation of them all, and how often the two order one
+/// base's alike.
 class _Across extends StatelessWidget {
-  const _Across({required this.agreement});
+  const _Across({required this.agreement, required this.marks});
 
   final GeneAgreement agreement;
+
+  /// This base's missense substitutions, marked among the gene's.
+  final List<AgreementRow> marks;
 
   @override
   Widget build(BuildContext context) {
@@ -677,6 +687,9 @@ class _Across extends StatelessWidget {
           'substitutions',
           style: theme.textTheme.titleSmall,
         ),
+        const SizedBox(height: 10),
+        _Scatter(agreement: agreement, marks: marks),
+        const SizedBox(height: 4),
         if (rho != null)
           stat(
             'agreement-rho',
@@ -701,6 +714,336 @@ class _Across extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Every missense substitution of the gene as one dot, AVI's Phred across and
+/// ESM-2's score up, and this base's own changes in full ink, named.
+class _Scatter extends StatelessWidget {
+  const _Scatter({required this.agreement, required this.marks});
+
+  final GeneAgreement agreement;
+  final List<AgreementRow> marks;
+
+  /// The plot's own height, before the room its words take.
+  static const double _plot = 196;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final TextScaler scaler = MediaQuery.textScalerOf(context);
+    final TextStyle base = DefaultTextStyle.of(context).style;
+    final TextStyle tick = base
+        .merge(theme.caption)
+        .copyWith(
+          fontFamily: AppTypography.monoFamily,
+          fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+        );
+    final TextStyle name = base
+        .merge(_mono)
+        .copyWith(color: theme.colorScheme.onSurface);
+    final TextPainter line = TextPainter(
+      text: TextSpan(text: '0', style: tick),
+      textDirection: TextDirection.ltr,
+      textScaler: scaler,
+    )..layout();
+    final double words = line.height;
+    line.dispose();
+    // Each amino acid once, as the plot names it once.
+    final List<String> named = <String>{
+      for (final AgreementRow m in marks) m.spoken,
+    }.toList();
+    final String marked = switch (named.length) {
+      0 => '',
+      1 => '; marked: ${named.single}',
+      _ =>
+        '; marked: ${named.sublist(0, named.length - 1).join(', ')} and '
+            '${named.last}',
+    };
+    return Semantics(
+      container: true,
+      label:
+          'Every missense substitution in ${agreement.gene}, AVI Phred '
+          'across and ESM-2 up$marked',
+      excludeSemantics: true,
+      child: RepaintBoundary(
+        child: SizedBox(
+          height: _plot + words * 3 + 16,
+          width: double.infinity,
+          child: CustomPaint(
+            key: const ValueKey<String>('agreement-scatter'),
+            painter: _ScatterPainter(
+              agreement: agreement,
+              marks: marks,
+              cloud: theme.colorScheme.onSurfaceVariant,
+              ink: theme.colorScheme.onSurface,
+              ground: theme.scaffoldBackgroundColor,
+              grid: theme.colorScheme.outlineVariant,
+              tick: tick,
+              name: name,
+              scaler: scaler,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The scatter, drawn. Each model's larger effect lies up and to the right:
+/// AVI's Phred runs from 0 to the sheet's own ceiling, 40, and ESM-2's score
+/// from +5 at the foot to −15 at the top, so the two agreeing reads as a rise,
+/// as their positive ρ does. A change past an end of either stands on it. The
+/// cloud is fainter the more dots it holds, so that a dense gene still shows
+/// where its dots gather.
+class _ScatterPainter extends CustomPainter {
+  _ScatterPainter({
+    required this.agreement,
+    required this.marks,
+    required this.cloud,
+    required this.ink,
+    required this.ground,
+    required this.grid,
+    required this.tick,
+    required this.name,
+    required this.scaler,
+  });
+
+  final GeneAgreement agreement;
+  final List<AgreementRow> marks;
+  final Color cloud;
+  final Color ink;
+
+  /// The page under the plot, which keeps a mark and its name clear of the
+  /// dots behind them.
+  final Color ground;
+  final Color grid;
+  final TextStyle tick;
+  final TextStyle name;
+  final TextScaler scaler;
+
+  static const double _top = -15;
+  static const double _foot = 5;
+  static const List<double> _phreds = <double>[0, 10, 20, 30, 40];
+  static const List<double> _scores = <double>[-15, -10, -5, 0, 5];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final List<TextPainter> painters = <TextPainter>[];
+    TextPainter text(String value, TextStyle style) {
+      final TextPainter painter = TextPainter(
+        text: TextSpan(text: value, style: style),
+        textDirection: TextDirection.ltr,
+        textScaler: scaler,
+        maxLines: 1,
+      )..layout();
+      painters.add(painter);
+      return painter;
+    }
+
+    final List<TextPainter> across = <TextPainter>[
+      for (final double v in _phreds) text(v.toStringAsFixed(0), tick),
+    ];
+    final List<TextPainter> up = <TextPainter>[
+      for (final double v in _scores)
+        text(
+          v == 0
+              ? '0'
+              : '${v < 0 ? '\u2212' : '+'}${v.abs().toStringAsFixed(0)}',
+          tick,
+        ),
+    ];
+    final TextPainter avi = text('AVI Phred', tick);
+    final TextPainter esm = text('ESM-2', tick);
+    final double h = across.first.height;
+    final Rect plot = Rect.fromLTRB(
+      up.map((TextPainter p) => p.width).reduce(math.max) + 6,
+      esm.height + 4 + h / 2,
+      size.width - across.last.width / 2,
+      size.height - h - 4 - avi.height - 2,
+    );
+    double x(double phred) =>
+        plot.left +
+        plot.width *
+            phred.clamp(0.0, GeneImpact.barCeiling) /
+            GeneImpact.barCeiling;
+    double y(double score) =>
+        plot.top +
+        plot.height * (score.clamp(_top, _foot) - _top) / (_foot - _top);
+
+    final Paint rule = Paint()
+      ..color = grid
+      ..strokeWidth = 1;
+    for (final (int i, double v) in _phreds.indexed) {
+      final double at = x(v);
+      canvas.drawLine(Offset(at, plot.top), Offset(at, plot.bottom), rule);
+      final TextPainter label = across[i];
+      label.paint(
+        canvas,
+        Offset(
+          (at - label.width / 2).clamp(0.0, size.width - label.width),
+          plot.bottom + 4,
+        ),
+      );
+    }
+    for (final (int i, double v) in _scores.indexed) {
+      final double at = y(v);
+      canvas.drawLine(Offset(plot.left, at), Offset(plot.right, at), rule);
+      final TextPainter label = up[i];
+      label.paint(
+        canvas,
+        Offset(plot.left - 6 - label.width, at - label.height / 2),
+      );
+    }
+    esm.paint(canvas, Offset.zero);
+    avi.paint(canvas, Offset(size.width - avi.width, plot.bottom + 4 + h + 2));
+
+    final List<ScoredChange> changes = agreement.changes;
+    final Float32List points = Float32List(changes.length * 2);
+    for (final (int i, ScoredChange c) in changes.indexed) {
+      points[i * 2] = x(c.phred);
+      points[i * 2 + 1] = y(c.esm);
+    }
+    canvas.drawRawPoints(
+      ui.PointMode.points,
+      points,
+      Paint()
+        ..color = cloud.withValues(
+          alpha: (24 / math.sqrt(changes.length)).clamp(0.12, 0.5),
+        )
+        ..strokeWidth = 2.6
+        ..strokeCap = StrokeCap.round,
+    );
+
+    // This base's own, in full ink. Changes that make the same amino acid
+    // share its name. A name goes to the first place, of beside its marks on
+    // the side with room, above or below them, at a corner, or further off,
+    // where it covers no mark and no other name; that failing, where it
+    // covers least. Covering is worse than leaving the plot for its margin,
+    // and the margin worse than leaving the canvas. A name set off from its
+    // marks is led to the nearest of them by a hairline.
+    final Map<String, List<Offset>> made = <String, List<Offset>>{};
+    for (final AgreementRow m in marks) {
+      final double? score = m.esm;
+      if (score == null) continue;
+      (made[m.tag] ??= <Offset>[]).add(Offset(x(m.score.phred), y(score)));
+    }
+    final List<Offset> dots = <Offset>[
+      for (final List<Offset> at in made.values) ...at,
+    ];
+    final List<Rect> taken = <Rect>[
+      for (final Offset at in dots) Rect.fromCircle(center: at, radius: 6),
+    ];
+    final Rect room = plot.inflate(2);
+    bool within(Rect box, Rect outer) =>
+        box.left >= outer.left &&
+        box.top >= outer.top &&
+        box.right <= outer.right &&
+        box.bottom <= outer.bottom;
+    double cost(Rect box) {
+      double covered = 0;
+      for (final Rect other in taken) {
+        final Rect both = other.intersect(box.inflate(2));
+        if (both.width > 0 && both.height > 0) {
+          covered += 1000 + both.width * both.height;
+        }
+      }
+      return covered +
+          (within(box, room) ? 0 : 100) +
+          (within(box, Offset.zero & size) ? 0 : 100000);
+    }
+
+    final List<(TextPainter, Rect)> names = <(TextPainter, Rect)>[];
+    final List<(Offset, Offset)> leads = <(Offset, Offset)>[];
+    for (final MapEntry<String, List<Offset>> group in made.entries) {
+      final TextPainter label = text(group.key, name);
+      final double w = label.width;
+      final double h = label.height;
+      Rect marked = Rect.fromCircle(center: group.value.first, radius: 0);
+      for (final Offset at in group.value) {
+        marked = marked.expandToInclude(Rect.fromCircle(center: at, radius: 0));
+      }
+      final Offset right = Offset(marked.right + 8, marked.center.dy - h / 2);
+      final Offset left = Offset(marked.left - 8 - w, marked.center.dy - h / 2);
+      final List<Rect> tries = <Rect>[
+        for (final Offset corner in <Offset>[
+          if (marked.center.dx < plot.center.dx) ...<Offset>[
+            right,
+            left,
+          ] else ...<Offset>[left, right],
+          Offset(marked.center.dx - w / 2, marked.top - 8 - h),
+          Offset(marked.center.dx - w / 2, marked.bottom + 8),
+          Offset(marked.right + 6, marked.top - 6 - h),
+          Offset(marked.left - 6 - w, marked.top - 6 - h),
+          Offset(marked.right + 6, marked.bottom + 6),
+          Offset(marked.left - 6 - w, marked.bottom + 6),
+          Offset(marked.center.dx - w / 2, marked.top - 12 - h * 2),
+          Offset(marked.center.dx - w / 2, marked.bottom + 12 + h),
+        ])
+          Rect.fromLTWH(corner.dx, corner.dy, w, h),
+      ];
+      Rect box = tries.first;
+      double least = cost(box);
+      for (final Rect other in tries.skip(1)) {
+        final double paid = cost(other);
+        if (paid < least) {
+          box = other;
+          least = paid;
+        }
+      }
+      taken.add(box.inflate(2));
+      names.add((label, box));
+      Offset nearest = group.value.first;
+      for (final Offset at in group.value) {
+        if ((at - box.center).distance < (nearest - box.center).distance) {
+          nearest = at;
+        }
+      }
+      final Offset edge = Offset(
+        nearest.dx.clamp(box.left, box.right),
+        nearest.dy.clamp(box.top, box.bottom),
+      );
+      if ((edge - nearest).distance > 14) {
+        final Offset towards = edge - nearest;
+        leads.add((nearest + towards / towards.distance * 6, edge));
+      }
+    }
+    final Paint halo = Paint()..color = ground;
+    final Paint dot = Paint()..color = ink;
+    for (final Offset at in dots) {
+      canvas
+        ..drawCircle(at, 5, halo)
+        ..drawCircle(at, 3.5, dot);
+    }
+    final Paint lead = Paint()
+      ..color = ink
+      ..strokeWidth = 1;
+    for (final (Offset from, Offset to) in leads) {
+      canvas.drawLine(from, to, lead);
+    }
+    final Paint backing = Paint()..color = ground.withValues(alpha: 0.85);
+    for (final (TextPainter label, Rect box) in names) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(box.inflate(2), const Radius.circular(3)),
+        backing,
+      );
+      label.paint(canvas, box.topLeft);
+    }
+    for (final TextPainter p in painters) {
+      p.dispose();
+    }
+  }
+
+  @override
+  bool shouldRepaint(_ScatterPainter old) =>
+      !identical(old.agreement, agreement) ||
+      !listEquals(old.marks, marks) ||
+      old.cloud != cloud ||
+      old.ink != ink ||
+      old.ground != ground ||
+      old.grid != grid ||
+      old.tick != tick ||
+      old.name != name ||
+      old.scaler != scaler;
 }
 
 /// What the page's values are and how it draws them, said once.
@@ -758,12 +1101,24 @@ class _About extends StatelessWidget {
             ),
           ),
           section(
+            'The scatter',
+            line(
+              'Every missense substitution in the gene as a dot: AVI’s Phred '
+              'across, from 0 to 40, and ESM-2’s score up, from +5 at the '
+              'foot to −15 at the top, so that each model’s larger effect '
+              'lies up and to the right. A change past an end stands on it. '
+              'This base’s own are drawn in full and named.',
+            ),
+          ),
+          section(
             'Across the gene',
             line(
-              'Spearman’s rank correlation between the two over the same '
-              'substitutions. Same order: of every two missense substitutions '
-              'at one base, the share both models put in the same order; '
-              'pairs tied in either are left out, and half would be chance.',
+              'Spearman’s rank correlation between AVI’s Phred and ESM-2’s '
+              'score turned over, so that the two agreeing reads as positive, '
+              'as the dots’ rise does. Same order: of every two missense '
+              'substitutions at one base, the share both models put in the '
+              'same order; pairs tied in either are left out, and half would '
+              'be chance.',
             ),
           ),
           section(
