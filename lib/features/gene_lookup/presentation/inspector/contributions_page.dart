@@ -7,12 +7,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/evidence/gene_impact.dart';
 import '../../../../core/evidence/impact_explanation_repository.dart';
 import '../../../../core/evidence/impact_explanations.dart';
-import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/contribution_colors.dart';
 import '../../../../shared/format.dart';
+import 'base_identity.dart';
 import 'coding_evidence.dart';
-import 'impact_panel.dart' show inkOn;
 
 /// Every substitution at one base, side by side, with what the AVI model's
 /// raw score is made of.
@@ -202,7 +201,8 @@ class _ContributionsPageState extends State<ContributionsPage> {
       physics: const ClampingScrollPhysics(),
       padding: side,
       children: <Widget>[
-        _Identity(
+        BaseIdentity(
+          key: const ValueKey<String>('contributions-identity'),
           base: widget.impact,
           region: widget.region,
           detail: widget.detail,
@@ -342,76 +342,6 @@ String _size(double value) {
     }
   }
   return (lead, level);
-}
-
-/// The base as the sheet showed it: its letter on its region's tint, where it
-/// sits, what it is in its own terms (its codon and residue), and its
-/// coordinate.
-class _Identity extends StatelessWidget {
-  const _Identity({
-    required this.base,
-    required this.region,
-    required this.detail,
-    required this.chromosome,
-    required this.tint,
-  });
-
-  final BaseImpact base;
-  final String region;
-  final String detail;
-  final String chromosome;
-  final Color? tint;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final Color? fill = tint;
-    return Row(
-      key: const ValueKey<String>('contributions-identity'),
-      children: <Widget>[
-        if (fill != null) ...<Widget>[
-          Container(
-            width: 36,
-            height: 36,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: fill,
-              borderRadius: BorderRadius.circular(9),
-            ),
-            child: Text(
-              base.wildtype,
-              style: TextStyle(
-                fontFamily: AppTypography.monoFamily,
-                fontSize: 21,
-                color: inkOn(
-                  fill,
-                  dark: theme.colorScheme.surface,
-                  light: context.anatomyColors.tracer,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-        ],
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              if (region.isNotEmpty)
-                Text(region, style: theme.textTheme.bodyMedium),
-              if (detail.isNotEmpty) Text(detail, style: theme.caption),
-              Text(
-                '$chromosome:${grouped(base.genomic)}',
-                style: theme.caption?.copyWith(
-                  fontFamily: AppTypography.monoFamily,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 }
 
 const TextStyle _mono = TextStyle(
