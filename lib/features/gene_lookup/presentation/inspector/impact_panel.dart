@@ -486,7 +486,7 @@ class _ContributionsLink extends StatelessWidget {
 }
 
 /// The note under the level: plain where it only describes, and a way into the
-/// residue's own sheet where it names one.
+/// base's AVI and ESM-2 page where it names a residue.
 class _NoteLine extends StatelessWidget {
   const _NoteLine({required this.text, this.onTap});
 

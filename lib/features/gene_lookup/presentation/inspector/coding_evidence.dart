@@ -64,7 +64,7 @@ final class CodingEvidence {
   /// writes p.Met1? because what is made instead cannot be said. Empty for a
   /// letter that is not a base.
   String changeTo(String alt) {
-    final String? made = _made(alt);
+    final String? made = madeBy(alt);
     if (made == null) return '';
     if (codon == 1) return '?';
     if (made == GeneticCode.translate(triplet)) return '=';
@@ -73,7 +73,7 @@ final class CodingEvidence {
 
   /// [changeTo], as a screen reader says it.
   String spokenChangeTo(String alt) {
-    final String? made = _made(alt);
+    final String? made = madeBy(alt);
     return switch (changeTo(alt)) {
       '' => '',
       '?' => 'start codon lost',
@@ -85,7 +85,7 @@ final class CodingEvidence {
 
   /// The one-letter amino acid the codon reads with [alt] in this base's
   /// place, `*` for a stop.
-  String? _made(String alt) =>
+  String? madeBy(String alt) =>
       GeneticCode.translate(triplet.replaceRange(offset, offset + 1, alt));
 
   List<String> get synonymousAlternatives => <String>[

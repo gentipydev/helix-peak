@@ -44,8 +44,10 @@ import '../clinvar/clinvar_block.dart';
 import '../clinvar/variants_overview.dart';
 import '../constraint/constraint_panel.dart';
 import '../constraint/constraint_toolbar.dart';
+import '../inspector/agreement_page.dart';
 import '../inspector/coding_evidence.dart';
 import '../inspector/contributions_page.dart';
+import '../inspector/gene_agreement.dart';
 import '../inspector/impact_panel.dart';
 import 'anatomy_canvas.dart';
 import 'anatomy_fasta.dart';
@@ -420,6 +422,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   bool _sheetLanded = false;
   bool _overviewOpen = false;
   bool _contributionsOpen = false;
+  bool _agreementOpen = false;
 
   /// Where the overview was left, for as long as this gene is shown.
   VariantsOverviewMemory _overviewMemory = VariantsOverviewMemory();
@@ -717,6 +720,54 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       );
     } finally {
       _contributionsOpen = false;
+    }
+  }
+
+  /// A base's substitutions as AVI and ESM-2 each read them, ranked in the
+  /// gene, on a page that rises over the walk, its sheet still open under it,
+  /// as the Contributions page does from the same sheet.
+  Future<void> _openAgreement({
+    required GeneImpact track,
+    required BaseImpact impact,
+    required CodingEvidence coding,
+    required ProteinConstraint constraint,
+    required String address,
+    required String region,
+    required String detail,
+    required Color tint,
+  }) async {
+    if (_agreementOpen) {
+      return;
+    }
+    final CapturedThemes themes = _routeThemes();
+    // Worked out before the page rises, and kept with the track: dystrophin's
+    // takes a frame or two, once, and the rise is not the moment for it.
+    final GeneAgreement? agreement = GeneAgreement.of(
+      model: _model,
+      impact: track,
+      constraint: constraint,
+    );
+    _agreementOpen = true;
+    try {
+      await Navigator.of(context).push<void>(
+        riseRoute<void>(
+          context,
+          (BuildContext context) => themes.wrap(
+            AgreementPage(
+              track: track,
+              impact: impact,
+              coding: coding,
+              agreement: agreement,
+              address: address,
+              region: region,
+              detail: detail,
+              tint: tint,
+            ),
+          ),
+        ),
+      );
+    } finally {
+      _agreementOpen = false;
     }
   }
 
@@ -1115,8 +1166,9 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       track: _constraint,
     );
     // For a coding base the residue it encodes is named with its constraint
-    // band, and the line opens that residue: the protein's own reading lives
-    // on the protein page, not summarised a second time here.
+    // band, and the line opens the base's substitutions as AVI and ESM-2 each
+    // read them, ranked in the gene (the user's ask, 2026-10-22). The
+    // residue's own reading lives on the protein page.
     final String place = switch (transcript) {
       final Role role when role.kind == RoleKind.intron =>
         address.intronFacts(role) ?? '',
@@ -1134,6 +1186,15 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     final String where = c ?? fallback;
     final GeneImpact? explained = impact.matchesRecord(widget.record)
         ? impact
+        : null;
+    final ProteinConstraint? constraint = _constraint;
+    // Both models can be set side by side where the AVI track is this
+    // record's, the ESM-2 track this protein's, and the base's AVI its own.
+    final CodingEvidence? compared =
+        explained != null &&
+            evidence?.constraint != null &&
+            !reading.estimated
+        ? evidence
         : null;
     // Written on the sheet, not in a sentence, so without its article:
     // "signal peptide", "5′ UTR" — as the gene page writes them.
@@ -1177,9 +1238,20 @@ class _AnatomyScreenState extends State<AnatomyScreen>
         (VariantEvidence e) => e.variant.alt,
       ),
       coding: evidence,
-      onNote: residue == null || _constraint == null
+      onNote: compared == null || explained == null || constraint == null
           ? null
-          : () => _goToResidue(residue),
+          : () => unawaited(
+              _openAgreement(
+                track: explained,
+                impact: reading,
+                coding: compared,
+                constraint: constraint,
+                address: where,
+                region: region,
+                detail: note,
+                tint: tint,
+              ),
+            ),
       chromosome: impact.chromosome,
       // The transcript's own number where the base has one, and otherwise the
       // number the page above is already calling it by. Counting from the

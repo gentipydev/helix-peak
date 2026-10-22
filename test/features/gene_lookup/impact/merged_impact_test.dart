@@ -14,6 +14,7 @@ import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_scre
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_selection_canvas.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/clinvar_block.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/constraint/constraint_panel.dart';
+import 'package:helixpeek/features/gene_lookup/presentation/inspector/agreement_page.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/inspector/impact_panel.dart';
 import 'package:helixpeek/shared/anatomy/anatomy_painter.dart';
 import 'package:helixpeek/shared/clinvar/evidence_row.dart';
@@ -302,18 +303,26 @@ void main() {
     },
   );
 
-  testWidgets('the residue line opens that residue on the protein page', (
+  testWidgets('the residue line opens AVI and ESM-2 side by side', (
     tester,
   ) async {
     await _open(tester);
     await _tapPosition(tester, 5301);
     await tester.tap(_key('impact-note-link'));
     await tester.pumpAndSettle();
-    expect(_panel, findsNothing);
-    final ConstraintPanel residue = tester.widget<ConstraintPanel>(
-      find.byType(ConstraintPanel),
+    expect(find.byType(AgreementPage), findsOneWidget);
+    expect(find.text('c.78 · AVI and ESM-2'), findsOneWidget);
+    expect(find.byType(ConstraintPanel), findsNothing);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AgreementPage),
+        matching: find.byType(CloseButton),
+      ),
     );
-    expect(residue.residue.number, 26);
+    await tester.pumpAndSettle();
+    expect(find.byType(AgreementPage), findsNothing);
+    expect(_panel, findsOneWidget);
+    expect(find.byType(ConstraintPanel), findsNothing);
   });
 
   testWidgets(
