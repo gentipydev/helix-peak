@@ -725,10 +725,10 @@ class _ZoomScreenState extends State<ZoomScreen> with TickerProviderStateMixin {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Expanded(
-              // Inset so the names, kept their own margin from the canvas's
-              // edges, line up with the card's text below.
+              // Inset well clear of the screen's edges and the card; names keep
+              // their own margin inside it.
               child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.lg),
+                padding: const EdgeInsets.all(AppSpacing.xxl),
                 child: LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints box) {
                     final Size canvas = box.biggest;
