@@ -5,12 +5,12 @@ import '../../../domain/locus_track.dart';
 ///
 /// The look is a specimen's under the zoom's one lamp, as the organs are
 /// (`SpecimenLamp.zoom`; the user's ask of 2026-10-22, the micrograph's
-/// glowing edges and soft coat having read as washed out): two sisters, a
-/// knobbly surface of opaque lobes, each lit from the upper left with a
-/// moist sheen and dark in the crevices round it, each sister darker toward
-/// its edges, only a shadow round them; bands as soft changes of tone, the
-/// centromere and the telomeres tinted lightly, and the gene as two FISH
-/// spots.
+/// glowing edges and soft coat having read as washed out): two sisters in
+/// a warm stone, a knobbly surface of opaque lobes, each lit from the upper
+/// left with a moist sheen and dark in the crevices round it, each sister
+/// darker toward its edges, only a shadow round them; bands as soft changes
+/// of tone, the centromere and the telomeres tinted lightly, and the gene
+/// as two FISH spots.
 abstract final class ChromosomeStyle {
   // The form.
 
@@ -139,7 +139,14 @@ abstract final class ChromosomeStyle {
   };
 
   /// The chromatin's colour at the two ends of [tone]: the lit outline for
-  /// the palest bands, the surfaces for the deepest.
-  static const double paleLit = 0.5;
-  static const double deepShade = 0.55;
+  /// the palest bands, as the organs' lit tissue is, and all but the
+  /// ground for the deepest, so that once warmed, which lifts the deepest
+  /// most, the bands lie as far apart in tone as they did in grey.
+  static const double paleLit = 0.55;
+  static const double deepShade = 0.05;
+
+  /// How far both are warmed toward the home helix's honey: a warm stone,
+  /// in the ground's own hue, where the lit outline alone is a cool grey
+  /// (the user's choice of 2026-10-22).
+  static const double warmth = 0.12;
 }

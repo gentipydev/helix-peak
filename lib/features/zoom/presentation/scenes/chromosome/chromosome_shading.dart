@@ -75,20 +75,26 @@ final class ChromosomeLight {
 
 /// The inks the chromatin is mixed from, as channels to mix without
 /// building a colour for every vertex: chromatin from the lit outline down
-/// to the surfaces by its stain, tinted toward the centromere's ink or the
+/// to the surfaces by its stain, both warmed toward the home helix's honey
+/// ([ChromosomeStyle.warmth]), tinted toward the centromere's ink or the
 /// telomeres', then as a specimen's surface is mixed
 /// ([SpecimenPalette.colour], step for step): toward the shadow as light
 /// leaves it, into the groove's shade, the mark in the gene's band, and
 /// toward the bright ink where it shines.
 final class ChromosomePalette {
   ChromosomePalette(ZoomInks inks)
-    : _pale = _Channels(inks.lit(ChromosomeStyle.paleLit)),
-      _deep = _Channels(inks.shade(ChromosomeStyle.deepShade)),
+    : _pale = _Channels(_warmed(inks, inks.lit(ChromosomeStyle.paleLit))),
+      _deep = _Channels(_warmed(inks, inks.shade(ChromosomeStyle.deepShade))),
       _shadow = _Channels(inks.shadow),
       _text = _Channels(inks.text),
       _mark = _Channels(inks.mark),
       _centromere = _Channels(inks.centromere),
       _telomere = _Channels(inks.telomere);
+
+  /// [colour] warmed toward the home helix's honey, the ink the zoom's
+  /// nerves are drawn in, as far as the chromatin is.
+  static Color _warmed(ZoomInks inks, Color colour) =>
+      Color.lerp(colour, inks.bases.guanine, ChromosomeStyle.warmth)!;
 
   final _Channels _pale;
   final _Channels _deep;

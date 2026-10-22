@@ -94,6 +94,13 @@ class _Paths implements Canvas {
   dynamic noSuchMethod(Invocation invocation) => null;
 }
 
+/// The palest chromatin: the lit outline, warmed as the chromatin is.
+Color _palest(ZoomInks inks) => Color.lerp(
+  inks.lit(ChromosomeStyle.paleLit),
+  inks.bases.guanine,
+  ChromosomeStyle.warmth,
+)!;
+
 /// A colour's lightness, as its channels weigh: enough to tell which of two
 /// mixes of the same inks is the lighter.
 double _lightness(double r, double g, double b) =>
@@ -128,6 +135,24 @@ void main() {
       expect(ladder[i], greaterThan(ladder[i + 1]), reason: 'step $i');
     }
     expect(lightness(Stain.gvar), inExclusiveRange(ladder.last, ladder.first));
+  });
+
+  testWidgets('every band’s tone is a warm stone, never a cool grey', (
+    WidgetTester tester,
+  ) async {
+    final ZoomInks inks = await _inks(tester);
+    final ChromosomePalette palette = ChromosomePalette(inks);
+    for (final Stain stain in Stain.values) {
+      final (double r, double g, double b) = palette.mix(
+        ChromosomeStyle.tone(stain),
+        1,
+        0,
+        0,
+      );
+      expect(r, greaterThanOrEqualTo(g), reason: stain.name);
+      expect(g, greaterThanOrEqualTo(b), reason: stain.name);
+      expect(r - b, greaterThan(0.02), reason: stain.name);
+    }
   });
 
   testWidgets('the mark shows only in the gene’s band, at rest and on the '
@@ -191,7 +216,7 @@ void main() {
     final ZoomInks inks = await _inks(tester);
     // The same inks with the centromere's and the telomeres' as the palest
     // chromatin: where the two draw differently is where the tints are.
-    final Color pale = inks.lit(ChromosomeStyle.paleLit);
+    final Color pale = _palest(inks);
     final ZoomInks plain = ZoomInks(
       ground: inks.ground,
       raised: inks.raised,
@@ -298,9 +323,13 @@ void main() {
         sheen: sheen,
       );
       final Color albedo = Color.lerp(
-        inks.lit(ChromosomeStyle.paleLit),
-        inks.shade(ChromosomeStyle.deepShade),
-        tone,
+        Color.lerp(
+          inks.lit(ChromosomeStyle.paleLit),
+          inks.shade(ChromosomeStyle.deepShade),
+          tone,
+        )!,
+        inks.bases.guanine,
+        ChromosomeStyle.warmth,
       )!;
       final (double er, double eg, double eb) = _channels(
         specimen.colour(
@@ -354,7 +383,7 @@ void main() {
     final ZoomInks inks = await _inks(tester);
     // The lightest the chromatin may be: its palest stain, tinted or washed
     // as far as anything is, in full light and at the most it shines.
-    final Color pale = inks.lit(ChromosomeStyle.paleLit);
+    final Color pale = _palest(inks);
     final double most = ChromosomeStyle.sheen * SpecimenLamp.zoom.sheen;
     double bound = 0;
     for (final Color albedo in <Color>[
