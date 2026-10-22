@@ -689,7 +689,12 @@ submitters may have used computational predictions themselves.
 
 **R9.5 Each fact once.** A sheet shows its own model on its bars and carries
 the other model's number in its ClinVar rows; the two numbers meet only in an
-opened record. What a source is, its scale and its caveats are written once, in
+opened record. One exception, at the user's ask (2026-10-22): a coding base's
+codon line opens a page that sets its substitutions' two numbers side by side,
+each ranked among the gene's single-base missense substitutions, with how far
+the two agree across the gene (`docs/avi-esm-agreement.md`); its info button
+explains both models' scales, since the page is both models'. What a source
+is, its scale and its caveats are written once, in
 "About these sources" (the overview's footer and the About sheet), and each
 sheet's info button explains only its own model's scale. *Status: enforced*
 (ClinVar pipeline, entity, widget and walk tests; `check_assets.py`).
