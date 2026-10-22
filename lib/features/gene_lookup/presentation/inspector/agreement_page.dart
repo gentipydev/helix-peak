@@ -831,7 +831,8 @@ class _Scatter extends StatelessWidget {
       container: true,
       label:
           'Every missense substitution in ${agreement.gene}, AVI Phred '
-          'across and ESM-2 up$marked',
+          'across and ESM-2 up, about the line where the two would rank them '
+          'alike$marked',
       excludeSemantics: true,
       child: RepaintBoundary(
         child: SizedBox(
@@ -1013,13 +1014,40 @@ class _ScatterPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round,
     );
 
+    // Where every dot would stand if the two models ranked the gene's changes
+    // alike, ρ 1: each Phred beside the ESM-2 score of the same rank, dashed
+    // in the page's ink, over the cloud and under this base's own.
+    final List<(double, double)> equal = agreement.equalRanks();
+    final Path alike = Path();
+    for (final (int i, (double, double) at) in equal.indexed) {
+      final Offset point = Offset(x(at.$1), y(at.$2));
+      if (i == 0) {
+        alike.moveTo(point.dx, point.dy);
+      } else {
+        alike.lineTo(point.dx, point.dy);
+      }
+    }
+    final Paint dash = Paint()
+      ..color = ink.withValues(alpha: 0.7)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    for (final ui.PathMetric metric in alike.computeMetrics()) {
+      for (double d = 0; d < metric.length; d += 9) {
+        canvas.drawPath(
+          metric.extractPath(d, math.min(d + 5, metric.length)),
+          dash,
+        );
+      }
+    }
+
     // This base's own, in their amino acids' colours. Changes that make the
-    // same amino acid share its name. A name goes to the first place, of beside its marks on
-    // the side with room, above or below them, at a corner, or further off,
-    // where it covers no mark and no other name; that failing, where it
-    // covers least. Covering is worse than leaving the plot for its margin,
-    // and the margin worse than leaving the canvas. A name set off from its
-    // marks is led to the nearest of them by a hairline.
+    // same amino acid share its name. A name goes to the first place, of
+    // beside its marks on the side with room, above or below them, at a
+    // corner, or further off, where it covers no mark and no other name; that
+    // failing, where it covers least. Covering is worse than leaving the plot
+    // for its margin, and the margin worse than leaving the canvas. A name
+    // set off from its marks is led to the nearest of them by a hairline. The
+    // line's own name, ρ = 1, comes last, beside the line where it is clear.
     final Map<String, List<Offset>> made = <String, List<Offset>>{};
     final Map<String, String> letters = <String, String>{};
     for (final AgreementRow m in marks) {
@@ -1108,6 +1136,31 @@ class _ScatterPainter extends CustomPainter {
         leads.add((nearest + towards / towards.distance * 6, edge));
       }
     }
+    final TextPainter one = text('ρ = 1', tick);
+    final List<Rect> beside = <Rect>[
+      for (final double share in <double>[0.97, 0.85, 0.7, 0.5, 0.3])
+        if (equal[(share * (equal.length - 1)).round()] case (
+          final double p,
+          final double e,
+        ))
+          for (final Offset corner in <Offset>[
+            // Over the line and to its left, then under it and to its right.
+            Offset(x(p) - 6 - one.width, y(e) - 6 - one.height),
+            Offset(x(p) + 6, y(e) + 6),
+          ])
+            Rect.fromLTWH(corner.dx, corner.dy, one.width, one.height),
+    ];
+    Rect place = beside.first;
+    double paid = cost(place);
+    for (final Rect other in beside.skip(1)) {
+      final double price = cost(other);
+      if (price < paid) {
+        place = other;
+        paid = price;
+      }
+    }
+    taken.add(place.inflate(2));
+    names.add((one, place));
     final Paint halo = Paint()..color = ground;
     // Each ball in its amino acid's colour, as the residue pages draw it,
     // ringed by the ground so that a grey one stays clear of the cloud.
@@ -1218,7 +1271,11 @@ class _About extends StatelessWidget {
               'lies up and to the right; each axis carries its model’s mark. '
               'A change past an end stands on it. This base’s own are balls '
               'in the colours their amino acids have on the protein and '
-              'chains pages, each named.',
+              'chains pages, each named. The dashed line is where every dot '
+              'would stand if the two ranked the gene’s changes alike, a rank '
+              'correlation of 1: each Phred beside the ESM-2 score of the same '
+              'rank. A dot under it is ranked stronger by AVI, one over it by '
+              'ESM-2.',
             ),
           ),
           section(

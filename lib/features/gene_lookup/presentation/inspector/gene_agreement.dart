@@ -120,6 +120,24 @@ final class GeneAgreement {
     bottom: (count - _lowerBound(_esms, score)) / count,
   );
 
+  /// Where a change would stand if the two models ranked the gene's changes
+  /// alike, as a ρ of 1 would put every one: each AVI Phred beside the ESM-2
+  /// score of the same rank, from the mildest to the strongest, at [steps]
+  /// even shares and both ends.
+  List<(double, double)> equalRanks({int steps = 100}) => <(double, double)>[
+    for (int i = 0; i <= steps; i++)
+      (_quantile(_phreds, i / steps), _quantile(_esms, 1 - i / steps)),
+  ];
+
+  /// The value a share [q] of the way through [sorted], read between its
+  /// neighbours.
+  static double _quantile(Float64List sorted, double q) {
+    final double at = q * (sorted.length - 1);
+    final int below = at.floor();
+    final int above = math.min(below + 1, sorted.length - 1);
+    return sorted[below] + (sorted[above] - sorted[below]) * (at - below);
+  }
+
   static final Expando<_Built> _built = Expando<_Built>('gene agreement');
 
   /// The gene's agreement, worked out once per track and kept with it; null

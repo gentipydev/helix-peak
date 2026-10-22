@@ -187,6 +187,22 @@ and over ρ.
   - A name set off from its marks is led to the nearest of them by a
     hairline, which only type at twice its size on a narrow phone has
     needed.
+- **The line of equal rank (ρ = 1).** At the user's ask (2026-10-22: "a
+  line that shows the perfect correlation"), a dashed line in the page's ink
+  runs through the cloud, named "ρ = 1".
+  - It is where every dot would stand if the two models ranked the gene's
+    changes alike, which is what a rank correlation of 1 means: each Phred
+    beside the ESM-2 score of the same rank, the gene's own quantiles paired
+    from the mildest to the strongest (`GeneAgreement.equalRanks`, 101
+    points).
+  - A straight diagonal would mean nothing on two scales in different units
+    (Phred 0 to 40, ESM-2 +5 to −15). This line is curved because the two
+    spread their changes differently.
+  - A dot under it is ranked stronger by AVI, one over it by ESM-2: the
+    tracks' gap, drawn in the plane. Gly90's Ser and Arg lie under it, its
+    Cys on it.
+  - Its name goes, by the same cost as the bases' names, beside the line
+    where it covers no mark and no name, from its strong end down.
 - **The rest.**
   - It is painted once, behind a repaint boundary, as a single draw of
     points.
@@ -313,6 +329,9 @@ phone may take longer, and nothing was measured on one.
 - Then, the same day: no rank written in a row, only the two scores; the
   track's ends said clearly; the app's palette on the page; and the sources
   named with one line on what they are and how they are compared.
+- Then: this base's balls in their amino acids' colours, and a line of
+  perfect correlation. I drew that line as equal rank (ρ = 1), since the two
+  scales share no units.
   - My calls: the effect words under the tracks, denim for AVI and clay for
     ESM-2 (by the validator), the hue on the marks alone, the shaded rule,
     and the terms' notice kept in the ⓘ sheet.
@@ -343,6 +362,9 @@ phone may take longer, and nothing was measured on one.
   - through the walk, in the walk's theme under an app in another;
   - the scatter between its heading and ρ, and what it says to a screen
     reader: Gly90's three, Met5's one name, a silent base's none;
+  - the line of equal rank: its ends at the two models' mildest and strongest,
+    its middle at the two medians, the Phred never falling and ESM-2's score
+    never rising along it;
   - the rows' two numbers alone, the effect words under the last track, the
     two hues in every theme and clear of both grounds, and the page's two
     sources and one line, the notice in the ⓘ sheet;

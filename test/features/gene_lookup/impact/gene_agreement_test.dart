@@ -182,6 +182,31 @@ void main() {
     expect(compared(6278, scored: false), isFalse);
   });
 
+  test(
+    'the line of equal rank runs from both mildest ends to both strongest',
+    () {
+      final GeneAgreement agreement = _agreement(TestCatalog.insulin);
+      final List<(double, double)> line = agreement.equalRanks();
+      expect(line, hasLength(101));
+      final List<double> phreds = <double>[
+        for (final ScoredChange c in agreement.changes) c.phred,
+      ]..sort();
+      final List<double> scores = <double>[
+        for (final ScoredChange c in agreement.changes) c.esm,
+      ]..sort();
+      // The mildest of each at one end, the strongest of each at the other, and
+      // the two medians in the middle.
+      expect(line.first, (phreds.first, scores.last));
+      expect(line.last, (phreds.last, scores.first));
+      expect(line[50], (phreds[343], scores[343]));
+      // As the Phred rises, ESM-2's score falls: one rank, two scales.
+      for (int i = 1; i < line.length; i++) {
+        expect(line[i].$1, greaterThanOrEqualTo(line[i - 1].$1));
+        expect(line[i].$2, lessThanOrEqualTo(line[i - 1].$2));
+      }
+    },
+  );
+
   test('a ranked share reads from the top, and from the bottom past half', () {
     expect(const GeneRank(top: 12 / 687, bottom: 1).label, 'top 1.7%');
     expect(const GeneRank(top: 0.5, bottom: 0.51).label, 'top 50%');

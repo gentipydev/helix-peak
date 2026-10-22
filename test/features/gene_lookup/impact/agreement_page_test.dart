@@ -340,7 +340,8 @@ void main() {
     await pumpPage(tester, _c268, 'c.268');
     expect(
       said(),
-      'Every missense substitution in INS, AVI Phred across and ESM-2 up; '
+      'Every missense substitution in INS, AVI Phred across and ESM-2 up, '
+      'about the line where the two would rank them alike; '
       'marked: serine, arginine and cysteine',
     );
     // Met5's third base: three changes, one amino acid.
@@ -348,7 +349,8 @@ void main() {
     expect(_row(tester, 'agreement-row-A')[1], 'Ile');
     expect(
       said(),
-      'Every missense substitution in INS, AVI Phred across and ESM-2 up; '
+      'Every missense substitution in INS, AVI Phred across and ESM-2 up, '
+      'about the line where the two would rank them alike; '
       'marked: isoleucine',
     );
     await _capture(tester, 'agreement-one-name');
@@ -356,7 +358,8 @@ void main() {
     await pumpPage(tester, _c270, 'c.270');
     expect(
       said(),
-      'Every missense substitution in INS, AVI Phred across and ESM-2 up',
+      'Every missense substitution in INS, AVI Phred across and ESM-2 up, '
+      'about the line where the two would rank them alike',
     );
     semantics.dispose();
   });
