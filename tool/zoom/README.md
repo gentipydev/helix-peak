@@ -48,7 +48,13 @@ edge. A part named in `SITE_TOP` is gone into in a share of its box from the
 top instead. The bone marrow is drawn as a femur, and an adult's femur keeps
 its red marrow between its trochanters, its head, its shaft and its lower
 end holding yellow marrow (Mitchell et al. 1986, Moore and Dawson 1990), so
-its site is the farthest point inside the femur's upper fifth.
+its site is the farthest point inside the femur's upper fifth. A part named
+in `SITE_RIGHT` is gone into a share of its width in from its right edge,
+the body's left, at a share of its height. The heart muscle is drawn as the
+heart cut open, its left ventricle's free wall forming that edge, and GTEx
+takes heart muscle from the anterior left ventricle, so its site lies in the
+middle of that wall, 56% of the way down, 3.5% of the width in: where the
+heart's form (`heart_form.dart`) lays the wall through it on either figure.
 
 ## Why generated Dart, not an asset
 

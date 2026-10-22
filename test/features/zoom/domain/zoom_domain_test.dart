@@ -511,6 +511,34 @@ void main() {
       }
     });
 
+    test('go into the heart muscle in its left ventricle\'s free wall, which '
+        'forms its right edge, a little over half way down', () {
+      final String uberon = tissueAnatomy['heart muscle']!.uberon;
+      for (final AnatomyFigure figure in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ]) {
+        final AnatomyPart part = figure.parts[uberon]!;
+        final List<Offset> outline = part.followed;
+        final Rect box = boxOf(outline);
+        expect((part.site.dy - box.top) / box.height, closeTo(0.56, 0.01),
+            reason: figure.name);
+        double right = double.negativeInfinity;
+        for (int i = 0; i < outline.length; i++) {
+          final Offset a = outline[i];
+          final Offset b = outline[(i + 1) % outline.length];
+          if ((a.dy > part.site.dy) != (b.dy > part.site.dy)) {
+            right = math.max(
+              right,
+              a.dx + (part.site.dy - a.dy) * (b.dx - a.dx) / (b.dy - a.dy),
+            );
+          }
+        }
+        expect((right - part.site.dx) / box.width, closeTo(0.035, 0.01),
+            reason: figure.name);
+      }
+    });
+
     test('pick a body that has the tissue, and as many of the others the '
         'gene is read in as either has', () {
       AnatomyFigure body(String? tissue, [List<String> others = const []]) =>

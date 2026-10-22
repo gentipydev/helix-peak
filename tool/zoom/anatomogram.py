@@ -99,6 +99,16 @@ STAND_IN = {"UBERON_0001723": "UBERON_0000167"}
 # Dawson 1990, Radiology 175:219).
 SITE_TOP = {"UBERON_0002371": 0.2}
 
+# Parts the zoom goes into in from their right edge, the body's left: the
+# share of the part's height, from its top, that its site lies at, and how
+# far in from the outline's rightmost point at that height, a share of the
+# part's width. The heart muscle is drawn as the heart cut open from front
+# to back (`heart_form.dart`), its left ventricle's free wall forming its
+# left border, and GTEx takes heart muscle from the anterior left ventricle
+# (its tissue procurement SOP): the site lies in the middle of that wall,
+# where the heart's form lays the wall through it on either figure.
+SITE_RIGHT = {"UBERON_0000948": (0.56, 0.035)}
+
 
 def fetch(directory: str | None) -> dict[str, str]:
     """The three drawings' paths, downloaded at the pinned commit unless
@@ -166,6 +176,23 @@ def site_of(contour: list[svg.Point], top: float = 1.0) -> svg.Point:
             return at
     at = farthest_inside(contour, x0, y0, x1, y1)
     return at if at is not None else ((x0 + x1) / 2, (y0 + y1) / 2)
+
+
+def site_right(contour: list[svg.Point], down: float, inset: float) -> svg.Point:
+    """A point [down] of the way down [contour]'s box, [inset] of its width
+    in from where the contour crosses that height furthest to the right
+    (`SITE_RIGHT`)."""
+    x0, y0, x1, y1 = svg.bounds([contour])
+    y = y0 + (y1 - y0) * down
+    right = None
+    for i, a in enumerate(contour):
+        b = contour[(i + 1) % len(contour)]
+        if (a[1] > y) != (b[1] > y):
+            x = a[0] + (y - a[1]) * (b[0] - a[0]) / (b[1] - a[1])
+            right = x if right is None else max(right, x)
+    if right is None:
+        raise SystemExit(f"no outline crosses {down} of the way down")
+    return (right - (x1 - x0) * inset, y)
 
 
 def farthest_inside(contour: list[svg.Point], x0: float, y0: float, x1: float, y1: float) -> svg.Point | None:
@@ -247,7 +274,11 @@ def convert_body(name: str, path: str, wanted: set[str]) -> dict:
         followed = contours[0]
         bx0, by0, bx1, by1 = svg.bounds([followed])
         tolerance = max(0.01, 0.0025 * math.hypot(bx1 - bx0, by1 - by0))
-        site = site_of(followed, SITE_TOP.get(uberon, 1.0))
+        site = (
+            site_right(followed, *SITE_RIGHT[uberon])
+            if uberon in SITE_RIGHT
+            else site_of(followed, SITE_TOP.get(uberon, 1.0))
+        )
         parts[uberon] = {
             "title": titles.get(uberon) or titles.get(STAND_IN.get(uberon, ""), ""),
             "site": list(place(site)),
