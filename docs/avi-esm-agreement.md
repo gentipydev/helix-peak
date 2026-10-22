@@ -11,6 +11,19 @@ and nothing brought the reader back to the base (the user's report,
 2026-10-22). The residue is still reached from a ClinVar record's
 "Residue ›" and from the About sheet.
 
+The line leads to the page only where the two models can be compared: a
+coding base with at least one change to another amino acid, which ESM-2
+scores too (`AgreementRow.anyAt`; the user's ask, 2026-10-22). Elsewhere in
+the coding sequence the line names the codon and residue in the quiet ink, as
+the line under a UTR base does, and leads nowhere:
+- a base whose three changes are all silent;
+- the start codon (any change there is p.Met1?);
+- a base whose AVI is borrowed from a neighbour.
+
+Introns, UTRs and the flanks have no codon line at all. In insulin, 259 of
+the 327 coding bases from codon 2 on lead to the page; their changes are the
+687 the page ranks.
+
 Every protein with both tracks has the page, curated or built on demand. It
 is drawn from the tracks the walk already holds: nothing is baked for it.
 
@@ -90,9 +103,10 @@ missense substitutions.
   - "Premature stop: only AVI applies.";
   - "Start codon change: only AVI applies." (anywhere in codon 1, HGVS
     p.Met1?).
-- A base whose every change is silent (a third base of Gly, Val, …) shows
-  three such rows. It has no heading, legend or ends, and no ESM-2 column, so
-  its numbers name their unit ("14.8 Phred").
+- A base whose every change is silent (a third base of Gly, Val, …) is not
+  offered the page. The page still draws one: three such rows, no heading,
+  legend or ends, and no ESM-2 column, so its numbers name their unit
+  ("14.8 Phred").
 
 **Look and layout**
 - The two models wear the app's own earth (`AgreementColors`, the home
@@ -279,7 +293,9 @@ phone may take longer, and nothing was measured on one.
 
 **The user's choices (2026-10-22, AskUserQuestion with previews)**
 - This base's three substitutions, rather than the codon's nine. That meant
-  accepting that a silent base's page shows nothing for ESM-2.
+  accepting that a silent base's page shows nothing for ESM-2. Later the
+  same day the user had the page offered only where both models can be
+  compared, so a silent base no longer leads to it.
 - Rank in the gene, rather than each score on its own scale or the
   strong-end lines.
 - Which gene-wide numbers: left to me. ρ and same order were chosen; a
@@ -298,9 +314,8 @@ phone may take longer, and nothing was measured on one.
 
 **My calls, which the user can change**
 - The band in the header.
-- The link everywhere it was, silent bases included, but not on an
-  estimated base or where either track does not match. No test pinned those
-  cases.
+- No link on an estimated base or where either track does not match. No
+  test pinned those cases.
 - The heading's and the ends' words.
 - Working the set out before the rise.
 
@@ -330,9 +345,19 @@ phone may take longer, and nothing was measured on one.
   - large text on a narrow phone;
   - motion, the clamped scroll, the ⓘ sheet and the source;
   - no clinical words.
-- One walk test changed, at the user's ask:
-  - `merged_impact_test.dart`'s "the residue line opens that residue on the
-    protein page" is now "the residue line opens AVI and ESM-2 side by side";
-  - it taps the line, finds the page, closes it, and finds the sheet as it
-    was;
-  - every other walk test is unedited.
+- `gene_agreement_test.dart` and `agreement_page_test.dart` also hold where
+  the line leads: c.268 and c.11 open the page, and c.270 and c.2 do not.
+- Walk tests changed at the user's ask, all in `merged_impact_test.dart`:
+  - "the residue line opens that residue on the protein page" is now "the
+    residue line opens AVI and ESM-2 side by side". It taps the line at c.76,
+    a base with missense changes, finds the page, closes it, and finds the
+    sheet as it was.
+  - "a silent base shows its own model, its tags and one line to the
+    residue" is now "… a plain line for its residue". c.78's line ends
+    "Val26 · highly constrained", with no › and no link.
+  - "coding bases in an opened gene region show the same evidence" expects
+    the same plain line at c.78.
+  - Every other walk test is unedited.
+- The sheet golden `surfaces/mrna-base-sheet.png` opens c.78, so its line
+  loses its › and its brighter ink. The PNG was already owed from the x86
+  host for the Contributions row, and stays owed for both changes.
