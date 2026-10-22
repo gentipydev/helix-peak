@@ -725,79 +725,87 @@ class _ZoomScreenState extends State<ZoomScreen> with TickerProviderStateMixin {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Expanded(
-              child: LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints box) {
-                  final Size canvas = box.biggest;
-                  if (canvas != _canvas) {
-                    _canvas = canvas;
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      _wake();
-                      _warm();
-                    });
-                  }
-                  return GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onScaleStart: _pinchStart,
-                    onScaleUpdate: _pinchUpdate,
-                    onScaleEnd: _pinchEnd,
-                    onDoubleTap: () => _step(1),
-                    child: ValueListenableBuilder<ZoomStop>(
-                      valueListenable: _stop,
-                      builder:
-                          (BuildContext context, ZoomStop stop, Widget? c) =>
-                              Semantics(
-                                label:
-                                    'A zoom from a body to its DNA, at the '
-                                    '${ZoomScreen.nameOf(stop).toLowerCase()}. '
-                                    'Step with the buttons below, or pinch.',
-                                child: c,
-                              ),
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: <Widget>[
-                          RepaintBoundary(
-                            child: CustomPaint(
-                              key: const ValueKey<String>('zoom-canvas'),
-                              size: Size.infinite,
-                              painter: ZoomPainter(
-                                stage: _stage,
-                                at: () => _depth.value,
-                                unzip: () => _unzip.value,
-                                inks: inks,
-                                labels: labels,
-                                repaint: Listenable.merge(<Listenable>[
-                                  _depth,
-                                  _unzip,
-                                ]),
+              // Inset so the names, kept their own margin from the canvas's
+              // edges, line up with the card's text below.
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: LayoutBuilder(
+                  builder: (BuildContext context, BoxConstraints box) {
+                    final Size canvas = box.biggest;
+                    if (canvas != _canvas) {
+                      _canvas = canvas;
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _wake();
+                        _warm();
+                      });
+                    }
+                    return GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onScaleStart: _pinchStart,
+                      onScaleUpdate: _pinchUpdate,
+                      onScaleEnd: _pinchEnd,
+                      onDoubleTap: () => _step(1),
+                      child: ValueListenableBuilder<ZoomStop>(
+                        valueListenable: _stop,
+                        builder:
+                            (
+                              BuildContext context,
+                              ZoomStop stop,
+                              Widget? c,
+                            ) => Semantics(
+                              label:
+                                  'A zoom from a body to its DNA, at the '
+                                  '${ZoomScreen.nameOf(stop).toLowerCase()}. '
+                                  'Step with the buttons below, or pinch.',
+                              child: c,
+                            ),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: <Widget>[
+                            RepaintBoundary(
+                              child: CustomPaint(
+                                key: const ValueKey<String>('zoom-canvas'),
+                                size: Size.infinite,
+                                painter: ZoomPainter(
+                                  stage: _stage,
+                                  at: () => _depth.value,
+                                  unzip: () => _unzip.value,
+                                  inks: inks,
+                                  labels: labels,
+                                  repaint: Listenable.merge(<Listenable>[
+                                    _depth,
+                                    _unzip,
+                                  ]),
+                                ),
                               ),
                             ),
-                          ),
-                          RepaintBoundary(
-                            child: CustomPaint(
-                              size: Size.infinite,
-                              painter: ZoomOverlayPainter(
-                                stage: _stage,
-                                at: () => _depth.value,
-                                clock: () => _reduced ? 0 : _ambient.value,
-                                dwell: () => _dwell,
-                                unzip: () => _unzip.value,
-                                inks: inks,
-                                labels: labels,
-                                caption: theme.caption ?? labels,
-                                credit: _facts.credit,
-                                repaint: Listenable.merge(<Listenable>[
-                                  _depth,
-                                  _ambient,
-                                  _unzip,
-                                ]),
+                            RepaintBoundary(
+                              child: CustomPaint(
+                                size: Size.infinite,
+                                painter: ZoomOverlayPainter(
+                                  stage: _stage,
+                                  at: () => _depth.value,
+                                  clock: () => _reduced ? 0 : _ambient.value,
+                                  dwell: () => _dwell,
+                                  unzip: () => _unzip.value,
+                                  inks: inks,
+                                  labels: labels,
+                                  caption: theme.caption ?? labels,
+                                  credit: _facts.credit,
+                                  repaint: Listenable.merge(<Listenable>[
+                                    _depth,
+                                    _ambient,
+                                    _unzip,
+                                  ]),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
             ValueListenableBuilder<ZoomStop>(
