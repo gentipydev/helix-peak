@@ -19,7 +19,7 @@ import 'nucleotide_colors.dart';
 /// dichromat (OKLab ×100; 8 is the target) and 17.9 in normal vision (15 the
 /// floor); this is the one of them that gives conservation the moss. The
 /// closest of all six pairs, clay against moss (6.2 for a protanope), never
-/// touch in a bar, and the legend and the table name every group, so no
+/// touch in a bar, and the table under the card names every group, so no
 /// reader needs the hue alone. Each clears 3:1 on the card.
 @immutable
 final class ContributionColors extends ThemeExtension<ContributionColors> {

@@ -160,24 +160,18 @@ void main() {
       'Leu',
       '25.1 Phred · top 0.309%',
       '+1.192',
-      'AlphaMissense +0.706',
-      'PhastCons 470 +0.234',
     ]);
     expect(_row(tester, 'contributions-bar-A'), <String>[
       'A',
       'Ile',
       '22.1 Phred · top 0.617%',
       '+0.759',
-      'AlphaMissense +0.296',
-      'PhastCons 470 +0.183',
     ]);
     expect(_row(tester, 'contributions-bar-G'), <String>[
       'G',
       'Val',
       '20.9 Phred · top 0.813%',
       '+0.678',
-      'AlphaMissense +0.235',
-      'PhastCons 470 +0.185',
     ]);
     expect(
       tester.getTopLeft(_key('contributions-bar-C')).dy,
@@ -248,13 +242,13 @@ void main() {
     await open('contributions-feature-MAX_ABS_RNA_SEQ');
     expect(
       _row(tester, 'contributions-track-MAX_ABS_RNA_SEQ-C'),
-      <String>['C', 'WTC11 · INS'],
+      <String>['C', 'WTC11 · INS · −0.069'],
     );
     // Splicing is one feature: it opens straight onto its tracks.
     await open('contributions-group-splicing');
     expect(
       _row(tester, 'contributions-track-MERGED_SPLICING-C'),
-      <String>['C', 'junction · body of pancreas · INS-IGF2'],
+      <String>['C', 'junction · body of pancreas · INS-IGF2 · 0.646'],
     );
     await _capture(tester, 'contributions-page-open');
   });
@@ -282,10 +276,7 @@ void main() {
       findsOneWidget,
     );
     expect(
-      find.text(
-        'Conservation is level across all three: '
-        '+0.342\u00A0to\u00A0+0.391.',
-      ),
+      find.text('Conservation is level across all three.'),
       findsOneWidget,
     );
     await tester.scrollUntilVisible(

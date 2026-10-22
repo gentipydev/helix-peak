@@ -22,20 +22,31 @@ shows its own allele's three largest contributions, derived from the full set.
 ╭──────────────────────────────────────────────────╮
 │ C (p.Phe25Leu) scores highest; Coding sets it    │
 │ apart.                                           │
-│ Conservation is level across all three:          │
-│ +0.342 to +0.391.                                │
-│ ■ Coding ■ Conservation ■ Splicing ■ Expr. & chr. │
+│ Conservation is level across all three.          │
+│                                                  │
 │ C Leu                   25.1 Phred · top 0.309%  │
-│   [Coding██████████][▓▓▓▓▓▓▓▓][▒][░]  +1.192     │
-│ ■ AlphaMissense +0.706   ■ PhastCons 470 +0.234  │
-│ A Ile …   G Val …                                │
+│   ███████████████ ▓▓▓▓▓▓▓▓▓ ▒ ░         +1.192   │
+│ A Ile                   22.1 Phred · top 0.617%  │
+│   ██████ ▓▓▓▓▓▓▓▓ ▒ ░                   +0.759   │
+│ G Val …                                          │
 ╰──────────────────────────────────────────────────╯
 By group                   C Leu   A Ile   G Val
 ■ Coding                  +0.706  +0.296  +0.235  ›
                           ▬▬▬▬▬▬   ▬▬▬     ▬▬
 ■ Conservation  …
+■ Expression & chromatin  +0.031  +0.039  +0.041  ⌄
+   RNA-seq                +0.007  +0.009  +0.009  ⌄
+   ▏C  WTC11 · INS · −0.069
 AlphaGenome Atlas
 ```
+
+One page for a base, not one per substitution: across insulin's 4,293
+substitutions, 92% of the Phred's variance lies between bases and 8% within
+one (a base's three differ by a median 1.9). Conservation's attribution is
+the same for all three at a base, and what sets one apart is what that change
+does: a stop (local 5234, 54.7 against 23.4 for both missense) or a splice
+site (local 6158, 24.8 against 0.2 and 0.1). Only the three side by side
+show which is which (the user's question, 2026-10-22).
 
 - The header is the sheet's own: the base's letter on its region's tint,
   the region, the base in its own terms (its codon and the residue it
@@ -46,15 +57,21 @@ AlphaGenome Atlas
   in HGVS where it has one (`p.Phe25Leu`, `p.Phe25=`, `p.Met1?`), and the
   group whose total leads the others' most (only where its Phred is half a
   point or more ahead and the lead is over 0.02); and a group level across
-  them all (a mean over 0.05, one sign, a spread within 15% of its largest).
-  Where the numbers say neither, the card says nothing. The key to the
-  colours follows, before the bars it keys.
-- Each substitution's attributions are its four groups end to end on one
-  scale, positive to the right of zero and negative to the left, the sum at
-  the end, with its Phred and genome-wide share above and its two heaviest
-  features below, each marked in its group's colour and each kept whole on
-  its line. A segment wide enough to hold its group's name carries it. The
-  bars grow in, one after another, unless motion is reduced.
+  them all (a mean over 0.05, one sign, a spread within 15% of its largest),
+  named without its values, which the table gives. Where the numbers say
+  neither, the card says nothing.
+- Each substitution is a line, its base and what it makes, its Phred and
+  genome-wide share, over one bar 8 points tall: its four groups end to end
+  on one scale, positive to the right of zero and negative to the left, two
+  points of the card between them, square at zero and round at the outer
+  ends, with a hairline at zero wherever any bar runs below it. Nothing is
+  written in a segment and there is no legend on the card: the table under
+  it keys the colours (no legend twice on a screen). The sums stand in one
+  column measured from the widest, so every bar ends on the same line. The
+  bars grow in, one after another, unless motion is reduced. Until
+  2026-10-22, when the user asked for a thinner graph, the bars were 22
+  points with names inside, under a legend, with each one's two heaviest
+  features below it, repeating numbers the table gives.
 - The groups wear the app's own earth (`ContributionColors`): the home
   helix's honey for Coding, moss for Conservation, denim for Splicing and
   clay for Expression & chromatin, the one exception to R9.1, at the user's
@@ -62,7 +79,7 @@ AlphaGenome Atlas
   that touches in a bar at least 12.2 apart for any dichromat and 17.9 in
   normal vision (the dataviz skill's validator, on the card); this one gives
   Conservation the moss. The closest pair, clay against moss, never touch,
-  and a legend and the table name every group.
+  and the table names every group.
 - Under the card the groups are rows and the substitutions columns, in the
   sheet's order, each headed by its base and what it makes of the codon
   (`Leu`, `=`, `Ter`, `?`). Each number sits over a bar of its size in its
@@ -70,8 +87,15 @@ AlphaGenome Atlas
   the score and outlined where it lowers it. A group opens onto its
   features, those that give nothing to any substitution named together on
   one line; an assay opens onto the track behind it, one line per column,
-  ruled in the group's colour (`WTC11 · INS`, `junction · body of pancreas ·
-  INS-IGF2`). Splicing is one feature, so it opens straight onto its tracks.
+  ruled in the group's colour, ending on what the model predicts at that
+  track, alternative against reference (`WTC11 · INS · −0.069`,
+  `junction · body of pancreas · INS-IGF2 · 0.646`). That number is signed
+  for the Atlas's signed scorers, log ratios for RNA-seq, CAGE, PRO-cap,
+  DNase, ATAC and ChIP, and a size alone for its unsigned ones, splice sites,
+  their usage, junctions, polyadenylation and 3D contacts
+  (`TrackWinner.signed`, after `is_signed` in AlphaGenome's
+  `variant_scorers.py`): a plus there would read as a rise. Splicing is one
+  feature, so it opens straight onto its tracks.
 - Values are signed to three places, a fourth where three would read as a
   signed zero, an exponent below that; an exact zero is `0`. Type turned up
   past what a phone holds scrolls the table sideways rather than squeezing a
@@ -107,7 +131,8 @@ the payload (`raw_minus_sum`).
 A track under an assay is the one with the largest absolute predicted effect
 for that substitution, over every gene and track of the assay's scorer, as
 the Atlas's AVI skill reconstructs it (`_find_adata_max`); for splicing, the
-largest of splice sites, site usage and junctions at a fifth. The model
+largest of splice sites, site usage and junctions at a fifth. The page shows
+that effect as the scorer gives it (a junction's unscaled). The model
 reports the assay's attribution, not which track drove it, and the page says
 so.
 

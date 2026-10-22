@@ -122,8 +122,22 @@ final class TrackWinner {
   /// The factor or mark a ChIP track reads, or the kind of splice site.
   final String target;
 
-  /// The assay's own signed effect on that track.
+  /// The assay's own effect on that track, alternative against reference.
   final double value;
+
+  /// Whether [value] has a direction. The Atlas scores splice sites, their
+  /// usage, junctions, polyadenylation and 3D contacts as sizes alone
+  /// (`is_signed` false in AlphaGenome's `variant_scorers.py`); its other
+  /// assays as signed log ratios.
+  bool get signed => !_unsigned.contains(scorer);
+
+  static const Set<String> _unsigned = <String>{
+    'SPLICE_SITES',
+    'SPLICE_SITE_USAGE',
+    'SPLICE_JUNCTIONS',
+    'POLYADENYLATION',
+    'CONTACT_MAPS',
+  };
 }
 
 @immutable
