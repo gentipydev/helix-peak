@@ -284,7 +284,7 @@ void main() {
         (Widget w) => w is Scrollable && w.axisDirection == AxisDirection.down,
       ),
     );
-    expect(find.text('AlphaGenome Atlas'), findsOneWidget);
+    expect(find.text('AlphaGenome Atlas · Google DeepMind'), findsOneWidget);
     expect(find.textContaining('saved'), findsNothing);
     expect(find.textContaining('View in Atlas'), findsNothing);
   });

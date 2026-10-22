@@ -314,6 +314,54 @@ void main() {
     expect(_key('contributions-stack-${base.ranked.first.base}'), findsOne);
   });
 
+  testWidgets('the page credits AlphaGenome with the notice its terms ask for', (
+    WidgetTester tester,
+  ) async {
+    await pumpPage(tester, _c73, 'c.73');
+    await tester.scrollUntilVisible(
+      _key('contributions-source'),
+      300,
+      scrollable: find
+          .byWidgetPredicate(
+            (Widget w) =>
+                w is Scrollable && w.axisDirection == AxisDirection.down,
+          )
+          .first,
+    );
+    expect(_row(tester, 'contributions-source'), <String>[
+      'AlphaGenome Atlas · Google DeepMind',
+      'Provided under and subject to the AlphaGenome Output Terms of Use. '
+          'This page groups, sums and rounds the Atlas’s values and picks '
+          'each assay’s strongest track.',
+    ]);
+    // Text only, at the user's choice: the credit opens nothing.
+    for (final Type type in <Type>[InkWell, GestureDetector]) {
+      expect(
+        find.descendant(
+          of: _key('contributions-source'),
+          matching: find.byType(type),
+        ),
+        findsNothing,
+      );
+    }
+    // The ⓘ sheet writes out the terms' address and the paper.
+    await tester.tap(_key('contributions-info'));
+    await tester.pumpAndSettle();
+    final String source = _row(tester, 'contributions-about-source').join(' ');
+    expect(source, contains('deepmind.google.com/science/alphagenome/'));
+    expect(source, contains('doi:10.1038/s41586-025-10014-0'));
+    // Nothing on the page or the sheet speaks in clinical terms.
+    final RegExp clinical = RegExp(
+      r'\b(pathogenic|dangerous|harmful|disease|safe|diagnosis|clinical)\b',
+      caseSensitive: false,
+    );
+    for (final Text text in tester.widgetList<Text>(find.byType(Text))) {
+      final String said =
+          text.data ?? text.textSpan!.toPlainText(includePlaceholders: false);
+      expect(clinical.hasMatch(said), isFalse, reason: said);
+    }
+  });
+
   testWidgets('a change that meets a splice site is set apart by splicing', (
     WidgetTester tester,
   ) async {

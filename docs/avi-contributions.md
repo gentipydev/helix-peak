@@ -111,8 +111,21 @@ show which is which (the user's question, 2026-10-22).
   table draw them, what each group holds and what a track is, is a sheet
   over the page behind ⓘ: nothing on the page moves, and the bars do not
   grow again.
-- The page ends on its source, "AlphaGenome Atlas", and links nowhere (the
-  Atlas links and the snapshot's date went at the user's ask, 2026-10-21).
+- The page ends on its source and links nowhere (the Atlas links and the
+  snapshot's date went at the user's ask, 2026-10-21): "AlphaGenome Atlas ·
+  Google DeepMind", then the notice AlphaGenome's terms ask of anything that
+  shows its output (the Model Terms of Use, §3: that it is "provided under
+  and subject to AlphaGenome Output Terms of Use", and what was done to it):
+  "Provided under and subject to the AlphaGenome Output Terms of Use. This
+  page groups, sums and rounds the Atlas's values and picks each assay's
+  strongest track." The ⓘ sheet's last section, Source, repeats it, writes
+  out the terms' address (text only, at the user's choice, 2026-10-22) and
+  cites the paper: Avsec et al., Nature 649, 1206–1218 (2026),
+  doi:10.1038/s41586-025-10014-0. No logo: AlphaGenome's and DeepMind's are
+  Google brand features, used only with Google's written permission, and the
+  terms forbid misrepresenting one's relationship with Google. The user
+  wants the official logo once that permission is granted. The same notice
+  is owed wherever else the app shows AVI values (About these sources).
 - The page's scroll stops at its ends on every platform, as the walk's own
   does (`ClampingScrollPhysics`): no bounce on iOS (the user's ask,
   2026-10-22).

@@ -220,15 +220,32 @@ class _ContributionsPageState extends State<ContributionsPage> {
           onFeature: (String f) => _toggle(_features, f),
         ),
         const SizedBox(height: 24),
-        Text(
-          'AlphaGenome Atlas',
+        Column(
           key: const ValueKey<String>('contributions-source'),
-          style: style,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              _credit,
+              style: style?.copyWith(color: theme.colorScheme.onSurface),
+            ),
+            const SizedBox(height: 4),
+            Text(_notice, style: style),
+          ],
         ),
       ],
     );
   }
 }
+
+/// Who made the values, as the page and its sheet credit them.
+const String _credit = 'AlphaGenome Atlas · Google DeepMind';
+
+/// The notice AlphaGenome's terms ask of anything that shows its output:
+/// the terms it is given under, and what was done to it here.
+const String _notice =
+    'Provided under and subject to the AlphaGenome Output Terms of Use. '
+    'This page groups, sums and rounds the Atlas’s values and picks each '
+    'assay’s strongest track.';
 
 /// One substitution's column: its request, what explains it, and its tag.
 class _Column {
@@ -1247,7 +1264,27 @@ class _About extends StatelessWidget {
               'the assay’s attribution, not which track drove it.',
             ),
           ),
-          line('AlphaGenome Atlas'),
+          section(
+            'Source',
+            Column(
+              key: const ValueKey<String>('contributions-about-source'),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                line('$_credit. $_notice'),
+                const SizedBox(height: 6),
+                line(
+                  'The terms: deepmind.google.com/science/alphagenome/'
+                  'output-terms',
+                ),
+                const SizedBox(height: 6),
+                line(
+                  'Avsec et al., Advancing regulatory variant effect '
+                  'prediction with AlphaGenome. Nature 649, 1206–1218 '
+                  '(2026). doi:10.1038/s41586-025-10014-0',
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
