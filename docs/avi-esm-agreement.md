@@ -33,6 +33,17 @@ is drawn from the tracks the walk already holds: nothing is baked for it.
 │    ──────────────────────────────────────○●──    │
 ╰──────────────────────────────────────────────────╯
 Across INS · 687 missense substitutions
+ESM-2
+−15 ┼────────┼────────┼────────┼────────┐
+    │                    ·  ·· ·:·::·   │
+−10 ┼────────┼────────┼──·:·:::● Cys ···┤
+    │                · ·:::::Arg ●  ● Ser
+ −5 ┼────────┼──────·:·:::::::·:·:───────┤
+    │  · ·  · ··:·::::::·::·:·  ·       │
+  0 ┼·:·:·:·:·::·:::·::·:··:· ··────────┤
+ +5 ┴────────┴────────┴────────┴────────┘
+    0       10       20       30       40
+                                  AVI Phred
 Spearman ρ                                      0.79
 Same order within a base            64% of 540 pairs
 
@@ -80,8 +91,8 @@ ranks the Atlas’s Phred scores within the gene, beside ESM-2’s.
 - The scroll stops at its ends (`ClampingScrollPhysics`), as the walk's does.
 
 **Under the card, and the source**
-- The gene's two numbers stand under the card, the count said once, in their
-  heading.
+- The gene's scatter and its two numbers stand under the card, the count
+  said once, in their heading.
 - The ρ is set in the mono face: the sans face has no Greek.
 - The page ends on its source, text only, with the notice AlphaGenome's terms
   ask of anything that shows its output, and what was done to it.
@@ -89,7 +100,9 @@ ranks the Atlas’s Phred scores within the gene, beside ESM-2’s.
   - the two scores;
   - how a rank reads;
   - why silent, stop and start-codon changes are not ranked;
-  - the two gene numbers;
+  - how the scatter is drawn;
+  - the two gene numbers, and that ρ turns ESM-2's score over so that
+    agreeing reads as positive, as the scatter's rise does;
   - that AVI integrates AlphaMissense, so on a missense change it overlaps
     ESM-2 rather than confirming it (R9.4, the sources note's own words);
   - the terms' address, and the two papers.
@@ -97,6 +110,41 @@ ranks the Atlas’s Phred scores within the gene, beside ESM-2’s.
   - Avsec et al., Nature 649, 1206–1218 (2026),
     doi:10.1038/s41586-025-10014-0;
   - Lin et al., Science 379, 1123–1130 (2023), doi:10.1126/science.ade2574.
+
+**The scatter**
+
+Added at the user's ask, 2026-10-22 (`_ScatterPainter`), under the heading
+and over ρ.
+- **What it holds.** Every substitution in the gene's set is one dot: AVI's
+  Phred across, ESM-2's score up.
+- **Its scales are fixed, the same for every gene:**
+  - Phred runs from 0 to the sheet's own ceiling, 40;
+  - ESM-2's score runs from +5 at the foot to −15 at the top;
+  - a change past an end stands on it: 0.17% of the curated genes' Phreds
+    and 0.08% of their ESM-2 scores.
+- **Its direction.** ESM-2's axis is turned over, so that each model's larger
+  effect lies up and to the right. The two agreeing then reads as a rise, as
+  their positive ρ and the tracks' "highest" at the right do. Read with
+  ESM-2's score falling down the page, the same agreement would read as a
+  fall beside a positive ρ.
+- **The cloud.** It is set in the quiet ink, and the more dots it holds the
+  fainter each is (24/√n, between 0.12 and 0.5). Insulin's 687 stand apart;
+  dystrophin's 24,439 show where they gather.
+- **This base's changes.** Its missense changes are drawn in full ink and
+  named by what they make.
+  - Changes that make the same amino acid share a name: Met5's third base
+    makes Ile three times.
+  - A name goes to the first place, beside its marks then above, below, at a
+    corner or further off, where it covers no mark and no other name; failing
+    that, where it covers least.
+  - A name set off from its marks is led to the nearest of them by a
+    hairline, which only type at twice its size on a narrow phone has
+    needed.
+- **The rest.**
+  - It is painted once, behind a repaint boundary, as a single draw of
+    points.
+  - A screen reader hears what it holds and which amino acids are marked,
+    each once.
 
 **What the numbers are**
 
@@ -210,6 +258,9 @@ phone may take longer, and nothing was measured on one.
   scatter of every change and ρ by region were left as follow-ups.
   - Insulin by region: A chain 0.73, B chain 0.68, signal peptide 0.61,
     C-peptide 0.24.
+- The scatter, asked for the same day.
+  - My calls: its fixed scales, ESM-2's axis turned over, one name per
+    amino acid, and the hairline leaders.
 
 **My calls, which the user can change**
 - The band in the header.
@@ -234,6 +285,8 @@ phone may take longer, and nothing was measured on one.
   - every scored curated protein, each change re-derived.
 - `test/features/gene_lookup/impact/agreement_page_test.dart` covers the page:
   - through the walk, in the walk's theme under an app in another;
+  - the scatter between its heading and ρ, and what it says to a screen
+    reader: Gly90's three, Met5's one name, a silent base's none;
   - the rows, the columns, the gene numbers and the semantics;
   - large text on a narrow phone;
   - motion, the clamped scroll, the ⓘ sheet and the source;
