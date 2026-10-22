@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'contour.dart';
@@ -269,5 +270,70 @@ final class OutlineMorph {
       sum += a.dx * b.dy - b.dx * a.dy;
     }
     return sum / 2;
+  }
+}
+
+/// The places an outline is met at by the step from the body
+/// ([OutlineMorph]'s `marks`), each picked out of either outline alike.
+abstract final class OutlineMarks {
+  /// The point of [points] where they cross the level [down] of the way
+  /// down their box furthest to [side], -1 the left and 1 the right: of the
+  /// two ends of the stretch that crosses it there, the nearer.
+  static int level(List<Offset> points, double side, double down) {
+    final Rect box = _bounds(points);
+    final double y = box.top + box.height * down;
+    final int n = points.length;
+    int best = 0;
+    double outermost = double.negativeInfinity;
+    for (int i = 0; i < n; i++) {
+      final Offset a = points[i];
+      final Offset b = points[(i + 1) % n];
+      if ((a.dy <= y) == (b.dy <= y)) {
+        continue;
+      }
+      final double t = (y - a.dy) / (b.dy - a.dy);
+      final double x = (a.dx + (b.dx - a.dx) * t) * side;
+      if (x > outermost) {
+        outermost = x;
+        best = t < 0.5 ? i : (i + 1) % n;
+      }
+    }
+    return best;
+  }
+
+  /// The point of [points] furthest to [side], -1 the left and 1 the right,
+  /// of those between [from] and [to] of the way down their box.
+  static int outermost(
+    List<Offset> points,
+    double side,
+    double from,
+    double to,
+  ) {
+    final Rect box = _bounds(points);
+    int best = -1;
+    for (int i = 0; i < points.length; i++) {
+      final double down = (points[i].dy - box.top) / box.height;
+      if (down < from || down > to) {
+        continue;
+      }
+      if (best < 0 || (points[i].dx - points[best].dx) * side > 0) {
+        best = i;
+      }
+    }
+    return best;
+  }
+
+  static Rect _bounds(List<Offset> points) {
+    double left = double.infinity;
+    double top = double.infinity;
+    double right = double.negativeInfinity;
+    double bottom = double.negativeInfinity;
+    for (final Offset p in points) {
+      left = math.min(left, p.dx);
+      right = math.max(right, p.dx);
+      top = math.min(top, p.dy);
+      bottom = math.max(bottom, p.dy);
+    }
+    return Rect.fromLTRB(left, top, right, bottom);
   }
 }

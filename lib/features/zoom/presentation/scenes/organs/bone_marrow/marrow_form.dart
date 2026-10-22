@@ -733,61 +733,14 @@ final class MarrowForm {
   /// the lower.)
   static final List<int Function(List<Offset>)> _marks =
       <int Function(List<Offset>)>[
-        (List<Offset> p) => _outermost(p, -1, 0, 0.2),
-        (List<Offset> p) => _outermost(p, 1, 0, 0.25),
-        (List<Offset> p) => _outermost(p, 1, 0.85, 1),
-        (List<Offset> p) => _outermost(p, -1, 0.85, 1),
+        (List<Offset> p) => OutlineMarks.outermost(p, -1, 0, 0.2),
+        (List<Offset> p) => OutlineMarks.outermost(p, 1, 0, 0.25),
+        (List<Offset> p) => OutlineMarks.outermost(p, 1, 0.85, 1),
+        (List<Offset> p) => OutlineMarks.outermost(p, -1, 0.85, 1),
         for (final double side in <double>[-1, 1])
           for (final double down in MarrowStyle.shaftMarks)
-            (List<Offset> p) => _level(p, side, down),
+            (List<Offset> p) => OutlineMarks.level(p, side, down),
       ];
-
-  /// The point of [points] where they cross the level [down] of the way
-  /// down their box furthest to [side], -1 the left and 1 the right: of the
-  /// two ends of the stretch that crosses it there, the nearer.
-  static int _level(List<Offset> points, double side, double down) {
-    final Rect box = _bounds(points);
-    final double y = box.top + box.height * down;
-    final int n = points.length;
-    int best = 0;
-    double outermost = double.negativeInfinity;
-    for (int i = 0; i < n; i++) {
-      final Offset a = points[i];
-      final Offset b = points[(i + 1) % n];
-      if ((a.dy <= y) == (b.dy <= y)) {
-        continue;
-      }
-      final double t = (y - a.dy) / (b.dy - a.dy);
-      final double x = (a.dx + (b.dx - a.dx) * t) * side;
-      if (x > outermost) {
-        outermost = x;
-        best = t < 0.5 ? i : (i + 1) % n;
-      }
-    }
-    return best;
-  }
-
-  /// The point of [points] furthest to [side], -1 the left and 1 the right,
-  /// of those between [from] and [to] of the way down their box.
-  static int _outermost(
-    List<Offset> points,
-    double side,
-    double from,
-    double to,
-  ) {
-    final Rect box = _bounds(points);
-    int best = -1;
-    for (int i = 0; i < points.length; i++) {
-      final double down = (points[i].dy - box.top) / box.height;
-      if (down < from || down > to) {
-        continue;
-      }
-      if (best < 0 || (points[i].dx - points[best].dx) * side > 0) {
-        best = i;
-      }
-    }
-    return best;
-  }
 
   // The outline in the bone's frame, run by run.
 
