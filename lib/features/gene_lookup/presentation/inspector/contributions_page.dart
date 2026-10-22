@@ -274,16 +274,20 @@ String _size(double value) {
 }
 
 /// What the numbers say, in their own terms: which substitution scores
-/// highest and the group that sets it apart, and a group that is level
-/// across them all, whose values the table under the card gives. Either is
-/// left out where the numbers do not say it.
+/// highest and the group that sets it apart, where that substitution is in
+/// the genome's top 10% (a winner among unremarkable changes is not news);
+/// and a group that could differ between the substitutions but is level
+/// across them all, whose values the table under the card gives.
+/// Conservation describes the base, so it is level by its nature and never
+/// said. Either is left out where the numbers do not say it.
 (String?, String?) _insight(List<_Column> columns) {
   if (columns.length < 2) return (null, null);
   final _Column first = columns.first;
   final List<_Column> rest = columns.skip(1).toList();
   String? lead;
   // Phred is kept to a tenth: 0.45 is the half point a float can fall short of.
-  if (first.explanation.phred - rest.first.explanation.phred >= 0.45) {
+  if (first.explanation.phred >= GeneImpact.middlePhred &&
+      first.explanation.phred - rest.first.explanation.phred >= 0.45) {
     ContributionGroup? apart;
     double widest = 0.02;
     for (final ContributionGroup g in ContributionGroup.values) {
@@ -301,7 +305,9 @@ String _size(double value) {
   }
   String? level;
   double weight = 0.05;
-  for (final ContributionGroup g in ContributionGroup.values) {
+  for (final ContributionGroup g in ContributionGroup.values.where(
+    (ContributionGroup g) => !g.ofBase,
+  )) {
     final List<double> totals = <double>[
       for (final _Column c in columns) c.explanation.total(g),
     ];
@@ -1161,9 +1167,11 @@ class _About extends StatelessWidget {
             line(
               'Drawn from the numbers alone: the substitution with the '
               'highest Phred and the group that leads the others most, where '
-              'its Phred is at least 0.5 ahead; and a group level across them '
-              'all, within 15% of its largest. Where the numbers say neither, '
-              'nothing is said.',
+              'it is in the genome’s top 10% and at least 0.5 ahead; and a '
+              'group level across them all, within 15% of its largest. '
+              'Conservation describes the base, not the change, so it is '
+              'level by its nature and not said. Where the numbers say '
+              'neither, nothing is said.',
             ),
           ),
           section(

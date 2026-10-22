@@ -95,6 +95,12 @@ enum ContributionGroup {
   const ContributionGroup(this.label, this.features);
   final String label;
 
+  /// Whether the group's features describe the base rather than the change
+  /// at it (how conserved the base is). Its attributions come out level
+  /// across a base's substitutions by their nature: in insulin they vary
+  /// between bases and not within one.
+  bool get ofBase => this == conservation;
+
   /// Feature id → the assay's name, in the order the page lists them.
   final Map<String, String> features;
 }

@@ -22,7 +22,6 @@ shows its own allele's three largest contributions, derived from the full set.
 ╭──────────────────────────────────────────────────╮
 │ C (p.Phe25Leu) scores highest; Coding sets it    │
 │ apart.                                           │
-│ Conservation is level across all three.          │
 │                                                  │
 │ C Leu                   25.1 Phred · top 0.309%  │
 │   ███████████████ ▓▓▓▓▓▓▓▓▓ ▒ ░         +1.192   │
@@ -55,11 +54,19 @@ show which is which (the user's question, 2026-10-22).
 - The card opens on what the numbers say, by rule and with no prose of its
   own: the substitution with the highest Phred, named by its protein change
   in HGVS where it has one (`p.Phe25Leu`, `p.Phe25=`, `p.Met1?`), and the
-  group whose total leads the others' most (only where its Phred is half a
-  point or more ahead and the lead is over 0.02); and a group level across
-  them all (a mean over 0.05, one sign, a spread within 15% of its largest),
-  named without its values, which the table gives. Where the numbers say
-  neither, the card says nothing.
+  group whose total leads the others' most (only where that substitution is
+  in the genome's top 10%, Phred 10 or more, `GeneImpact.middlePhred`, and
+  half a point or more ahead, and the lead is over 0.02); and a group that
+  could differ between the substitutions but is level across them all (a
+  mean over 0.05, one sign, a spread within 15% of its largest), named
+  without its values, which the table gives. Conservation describes the
+  base, not the change (`ContributionGroup.ofBase`), so it is level by its
+  nature and never said. Where the numbers say neither, the card says
+  nothing. Both gates came on 2026-10-22, at the user's word: before them,
+  654 of insulin's 1,431 bases said conservation was level, and 285
+  headlines named a winner among three changes all in the bottom 90%. Now
+  425 bases lead and 167 name a level group (`Splicing is level across all
+  three.` at local 5027, where every change scores Phred 27 to 29).
 - Each substitution is a line, its base and what it makes, its Phred and
   genome-wide share, over one bar 8 points tall: its four groups end to end
   on one scale, positive to the right of zero and negative to the left, two

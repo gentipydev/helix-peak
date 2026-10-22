@@ -35,6 +35,12 @@ const int _unconserved = 5406;
 /// A base where A alone scores (Phred 24.8), by splicing.
 const int _splice = 6158;
 
+/// A base where every change scores high and splicing weighs alike in each.
+const int _spliceLevel = 5027;
+
+/// A base whose three changes are all in the genome's bottom 90%, G ahead.
+const int _unremarkable = 4992;
+
 class _Source implements TrackSource {
   @override
   Future<Uint8List> read(String slug, TrackKind kind) async {
@@ -269,17 +275,43 @@ void main() {
   ) async {
     final BaseImpact base = await pumpPage(tester, _unconserved, 'c.?');
     expect(tester.takeException(), isNull);
-    // All three score alike, so nothing leads; conservation holds them down.
+    // All three score alike, so nothing leads; conservation holds them down,
+    // level by its nature, so that is not said either.
     expect(_key('contributions-lead'), findsNothing);
-    expect(
-      find.text('Conservation is level across all three.'),
-      findsOneWidget,
-    );
+    expect(_key('contributions-level'), findsNothing);
     for (final AltScore score in base.ranked) {
       final List<String> row = _row(tester, 'contributions-bar-${score.base}');
       expect(row.last, startsWith('−'), reason: 'the sum of ${score.base}');
     }
     await _capture(tester, 'contributions-negative');
+  });
+
+  testWidgets('a group that could differ but is level is said', (
+    WidgetTester tester,
+  ) async {
+    // Every change here scores high (Phred 29.0, 28.6, 27.2) and splicing
+    // weighs alike in all three; none leads by half a point.
+    final BaseImpact base = await pumpPage(tester, _spliceLevel, 'c.?');
+    expect(base.ranked.first.phred, greaterThanOrEqualTo(27));
+    expect(
+      find.text('Splicing is level across all three.'),
+      findsOneWidget,
+    );
+    expect(_key('contributions-lead'), findsNothing);
+  });
+
+  testWidgets('a winner among unremarkable changes is not headlined', (
+    WidgetTester tester,
+  ) async {
+    // G leads A by 1.8, but all three sit in the genome's bottom 90%.
+    final BaseImpact base = await pumpPage(tester, _unremarkable, 'c.?');
+    expect(base.ranked.first.phred, lessThan(GeneImpact.middlePhred));
+    expect(
+      base.ranked.first.phred - base.ranked[1].phred,
+      greaterThanOrEqualTo(0.45),
+    );
+    expect(_key('contributions-lead'), findsNothing);
+    expect(_key('contributions-stack-${base.ranked.first.base}'), findsOne);
   });
 
   testWidgets('a change that meets a splice site is set apart by splicing', (

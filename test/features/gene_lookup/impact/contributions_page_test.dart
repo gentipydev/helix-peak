@@ -275,10 +275,8 @@ void main() {
       find.text('C (p.Phe25Leu) scores highest; Coding sets it apart.'),
       findsOneWidget,
     );
-    expect(
-      find.text('Conservation is level across all three.'),
-      findsOneWidget,
-    );
+    // Conservation describes the base: level by its nature, so not said.
+    expect(_key('contributions-level'), findsNothing);
     await tester.scrollUntilVisible(
       _key('contributions-source'),
       300,
