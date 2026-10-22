@@ -91,6 +91,12 @@ void main() {
       <double?>[for (final AgreementRow r in rows) r.esm],
       <double>[-7.162, -8.431, -10.367],
     );
+    // The amino acid each makes, which the scatter's balls are coloured by:
+    // polar, positive and cysteine on the residue pages.
+    expect(
+      <String?>[for (final AgreementRow r in rows) r.made],
+      <String>['S', 'R', 'C'],
+    );
     // Shares counted as the script counts them: at least as high by AVI, at
     // least as low by ESM-2.
     const List<(int, int)> counts = <(int, int)>[
@@ -137,6 +143,7 @@ void main() {
     final List<AgreementRow> trp = at(5234);
     expect(trp.first.score.base, 'A');
     expect(trp.first.tag, 'Ter');
+    expect(trp.first.made, '*');
     expect(trp.first.reading, EvidenceReading.stop);
     expect(trp.first.esmRank, isNull);
     expect(trp.skip(1).every((AgreementRow r) => r.esmRank != null), isTrue);

@@ -318,6 +318,7 @@ final class AgreementRow {
     required this.score,
     required this.tag,
     required this.spoken,
+    this.made,
     this.esm,
     this.aviRank,
     this.esmRank,
@@ -332,6 +333,10 @@ final class AgreementRow {
 
   /// [tag] as a screen reader says it.
   final String spoken;
+
+  /// The one-letter amino acid the change makes, `*` for a stop; null for a
+  /// letter that is not a base.
+  final String? made;
 
   /// ESM-2's score for a missense change; null for any other.
   final double? esm;
@@ -388,6 +393,7 @@ final class AgreementRow {
       score: score,
       tag: tag,
       spoken: coding.spokenChangeTo(score.base),
+      made: made,
       esm: esm,
       aviRank: esm == null ? null : gene?.aviRank(score.phred),
       esmRank: esm == null ? null : gene?.esmRank(esm),

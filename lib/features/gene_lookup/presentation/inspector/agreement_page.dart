@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/evidence/gene_impact.dart';
 import '../../../../core/theme/agreement_colors.dart';
+import '../../../../core/theme/anatomy_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/format.dart';
 import '../../../../shared/inspector/score_bar.dart';
@@ -783,7 +784,8 @@ class _Across extends StatelessWidget {
 }
 
 /// Every missense substitution of the gene as one dot, AVI's Phred across and
-/// ESM-2's score up, and this base's own changes in full ink, named.
+/// ESM-2's score up, and this base's own changes as balls in their amino
+/// acids' colours, named.
 class _Scatter extends StatelessWidget {
   const _Scatter({required this.agreement, required this.marks});
 
@@ -845,6 +847,7 @@ class _Scatter extends StatelessWidget {
               ground: theme.scaffoldBackgroundColor,
               grid: theme.colorScheme.outlineVariant,
               models: context.agreementColors,
+              residues: context.anatomyColors,
               tick: tick,
               name: name,
               scaler: scaler,
@@ -871,6 +874,7 @@ class _ScatterPainter extends CustomPainter {
     required this.ground,
     required this.grid,
     required this.models,
+    required this.residues,
     required this.tick,
     required this.name,
     required this.scaler,
@@ -883,6 +887,11 @@ class _ScatterPainter extends CustomPainter {
 
   /// The two models' hues, for the marks their axes' names stand after.
   final AgreementColors models;
+
+  /// The residue pages' colours, which this base's own changes wear: each
+  /// ball the colour of the amino acid it makes, as the protein and chains
+  /// pages draw it.
+  final AnatomyColors residues;
 
   /// The page under the plot, which keeps a mark and its name clear of the
   /// dots behind them.
@@ -1004,18 +1013,20 @@ class _ScatterPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round,
     );
 
-    // This base's own, in full ink. Changes that make the same amino acid
-    // share its name. A name goes to the first place, of beside its marks on
+    // This base's own, in their amino acids' colours. Changes that make the
+    // same amino acid share its name. A name goes to the first place, of beside its marks on
     // the side with room, above or below them, at a corner, or further off,
     // where it covers no mark and no other name; that failing, where it
     // covers least. Covering is worse than leaving the plot for its margin,
     // and the margin worse than leaving the canvas. A name set off from its
     // marks is led to the nearest of them by a hairline.
     final Map<String, List<Offset>> made = <String, List<Offset>>{};
+    final Map<String, String> letters = <String, String>{};
     for (final AgreementRow m in marks) {
       final double? score = m.esm;
       if (score == null) continue;
       (made[m.tag] ??= <Offset>[]).add(Offset(x(m.score.phred), y(score)));
+      letters[m.tag] = m.made ?? '';
     }
     final List<Offset> dots = <Offset>[
       for (final List<Offset> at in made.values) ...at,
@@ -1098,11 +1109,16 @@ class _ScatterPainter extends CustomPainter {
       }
     }
     final Paint halo = Paint()..color = ground;
-    final Paint dot = Paint()..color = ink;
-    for (final Offset at in dots) {
-      canvas
-        ..drawCircle(at, 5, halo)
-        ..drawCircle(at, 3.5, dot);
+    // Each ball in its amino acid's colour, as the residue pages draw it,
+    // ringed by the ground so that a grey one stays clear of the cloud.
+    for (final MapEntry<String, List<Offset>> group in made.entries) {
+      final Paint ball = Paint()
+        ..color = residues.forResidue(letters[group.key]!);
+      for (final Offset at in group.value) {
+        canvas
+          ..drawCircle(at, 5.5, halo)
+          ..drawCircle(at, 4, ball);
+      }
     }
     final Paint lead = Paint()
       ..color = ink
@@ -1132,6 +1148,7 @@ class _ScatterPainter extends CustomPainter {
       old.ground != ground ||
       old.grid != grid ||
       old.models != models ||
+      old.residues != residues ||
       old.tick != tick ||
       old.name != name ||
       old.scaler != scaler;
@@ -1199,8 +1216,9 @@ class _About extends StatelessWidget {
               'across, from 0 to 40, and ESM-2’s score up, from +5 at the '
               'foot to −15 at the top, so that each model’s larger effect '
               'lies up and to the right; each axis carries its model’s mark. '
-              'A change past an end stands on it. This base’s own are drawn '
-              'in full and named.',
+              'A change past an end stands on it. This base’s own are balls '
+              'in the colours their amino acids have on the protein and '
+              'chains pages, each named.',
             ),
           ),
           section(

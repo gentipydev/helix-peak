@@ -172,8 +172,13 @@ and over ρ.
 - **The cloud.** It is set in the quiet ink, and the more dots it holds the
   fainter each is (24/√n, between 0.12 and 0.5). Insulin's 687 stand apart;
   dystrophin's 24,439 show where they gather.
-- **This base's changes.** Its missense changes are drawn in full ink and
-  named by what they make.
+- **This base's changes.** Its missense changes are balls in the colours
+  their amino acids have on the protein and chains pages
+  (`AnatomyColors.forResidue`, the walk's own seven chemistries: Ser polar
+  green, Arg positive blue, Cys yellow, Leu aliphatic grey). That was the
+  user's ask, 2026-10-22. A ring of the ground keeps a grey ball clear of the
+  grey cloud, and each ball is named by what it makes, the name in the page's
+  ink.
   - Changes that make the same amino acid share a name: Met5's third base
     makes Ile three times.
   - A name goes to the first place, beside its marks then above, below, at a
