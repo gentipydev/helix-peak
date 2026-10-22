@@ -295,9 +295,12 @@ seen:
   at the nucleus alone (the user's ask of 2026-10-19; the cell names it
   nowhere), its line in the quiet ink, its plate outside the nucleus on
   its left;
-- a metaphase chromosome drawn as a scanning micrograph shows one
-  (`presentation/scenes/chromosome/`): two knobbly sisters, its G-bands
-  soft changes of tone, the gene two FISH spots in the accent, its
+- a metaphase chromosome with the form a scanning micrograph shows
+  (`presentation/scenes/chromosome/`), lit as the organs are, under their
+  lamp, and in warm stone, its chromatin warmed a little toward the home
+  helix's honey (the user's choices of 2026-10-22): two knobbly sisters of
+  opaque lobes, darker toward their edges, only a shadow round them, its
+  G-bands soft changes of tone, the gene two FISH spots in the accent, its
   centromere's waist and two kinetochores tinted lightly in the home
   helix's clay and its four chromatid ends capped in its honey, its parts
   (p arm, centromere, q arm, chromatid, telomere) named in the quiet ink
@@ -326,10 +329,11 @@ explains: there is no About sheet, no source tag and no player. Its
 colours are the app's own (`ZoomInks`): one ground at every stop, the
 accent for the gene and what it makes (the organs its RNA is raised in, its
 cell, its protein, its chromosome, its band) and nothing else, and every
-other form sculpted in the warm neutrals but a chromosome's centromere and
-telomeres, in the helix's clay and honey; `zoom_inks_test` holds that no
-colour in the zoom is written out as a number. `docs/design/zoom.md` has
-the design and its checks.
+other form sculpted in the warm neutrals but a chromosome, its chromatin
+warmed a little toward the helix's honey and its centromere and telomeres
+tinted in its clay and honey; `zoom_inks_test` holds that no colour in the
+zoom is written out as a number. `docs/design/zoom.md` has the design and
+its checks.
 
 ## State
 
