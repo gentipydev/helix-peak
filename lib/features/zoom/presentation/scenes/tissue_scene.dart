@@ -23,11 +23,14 @@ import 'zoom_subject.dart';
 /// zoom's own cell sits at the centre in the outline the cell's scene draws
 /// it in, ringed.
 ///
-/// Coming from the organ, the field opens as a loupe on the place the organ
-/// is sampled: a circle that grows from a few tens of pixels to the
-/// eyepiece's field while what it shows stays magnified about the same,
-/// meeting the camera's own scale at the tissue's stop, as the organ round
-/// it dims. A step of some hundredfold, made a change of instrument.
+/// Coming from the organ, the field is the organ's marker at the place its
+/// tissue is sampled, and opens out of it: the marker's ring becomes the
+/// field's rim and grows as the camera closes in and the organ gives way
+/// round it, the section coming up inside, until it is the eyepiece's field
+/// at the stop. A field half a millimetre across is less than a pixel at
+/// the organ, so it is drawn larger than it is while it opens, as the organ
+/// is drawn smaller than it is while it grows out of the body, and arrives
+/// at the camera's own scale and speed.
 final class TissueScene extends ZoomScene {
   TissueScene(this.subject) : archetype = subject.depth.archetype;
 
@@ -46,12 +49,17 @@ final class TissueScene extends ZoomScene {
   /// micrometres.
   static const double micron = 1e-6 / ZoomDepth.tissueMetres;
 
-  /// The loupe's radius on screen as it opens, in pixels.
-  static const double loupeStart = 56;
+  /// The radius of the organ's marker's ring on screen, in pixels: the
+  /// field opens out of it ([Sculpt.beacon]).
+  static const double markerRing = Sculpt.beaconRadius - 0.7;
 
-  /// How much of the slide the loupe shows across as it opens, in the
-  /// scene's units.
-  static const double loupeField = 0.3;
+  /// How far past the marker's ring the field has grown when the section
+  /// is all there in it, as a logarithm: twelvefold.
+  static const double _opened = 2.4849066497880004;
+
+  /// How fast the field leaves the marker's ring, against the even pace
+  /// from the ring to the eyepiece's field.
+  static const double _leaving = 1.5;
 
   TissueRecipe get _recipe {
     final String? tissue = subject.path.tissue;
@@ -125,39 +133,69 @@ final class TissueScene extends ZoomScene {
     seed: _recipe.index + 3,
   );
 
-  // The loupe is drawn from the segment's first frame, its opening its own
-  // fade; the slide gives way to the cell in the usual crossfade.
+  // The field is drawn from the segment's first frame, as the organ's
+  // marker, and opens on its own ([openingAt]); the slide gives way to the
+  // cell in the usual crossfade.
   @override
   double asChild(double progress) => 1;
 
-  /// How far the loupe has opened, from 0 to 1, at [frame].
-  double _opening(ZoomFrame frame) =>
-      frame.isChild ? smootherstep((frame.progress - 0.04) / 0.92) : 1;
+  /// How much the view narrows across the step from the organ.
+  late final double _ratio = subject.depth.ratioOf(ZoomStop.organ.index);
 
-  /// How much of the loupe shows: it fades in as it starts to open, over
-  /// enough of the way that a step's flight shows it come up rather than
-  /// blink on.
-  double _shown(ZoomFrame frame) =>
-      frame.isChild ? smoothstep((frame.progress - 0.02) / 0.4) : 1;
+  /// The field's radius on screen at [frame], in pixels, and how far it has
+  /// opened from the organ's marker into the section, from 0 to 1.
+  ///
+  /// At the tissue and on into the cell it is the eyepiece's field at the
+  /// camera's scale, open. On the way in from the organ it grows out of the
+  /// marker's ring to the eyepiece's field by an ease of its own, in
+  /// logarithms: setting off half as fast again as it would grow from the
+  /// ring to the stop at an even pace, so it is well open by the time the
+  /// organ has given way round it, arriving as fast as the camera grows the
+  /// field, and never drawn smaller than the field is. The section comes up
+  /// in it as it grows, whole by twelve times the ring.
+  @visibleForTesting
+  (double, double) openingAt(ZoomFrame frame) {
+    final double own = field * frame.view.pixelsPerUnit;
+    if (!frame.isChild) {
+      return (own, 1);
+    }
+    final double s = frame.progress;
+    // In logarithms past the ring: the field at the stop, as it is now, and
+    // how fast the camera grows it, per step.
+    final double whole = math.log(field * frame.size.width / markerRing);
+    final double past = math.log(own / markerRing);
+    final double rate = -math.log(_ratio);
+    // From nothing to the whole, leaving at [_leaving] times the even pace
+    // and arriving at the camera's: a cubic, rising all the way for any
+    // step the zoom takes (the camera's pace is from 0.8 to 2.2 times the
+    // even one).
+    final double arrival = rate / whole;
+    final double opened =
+        whole *
+        (((_leaving + arrival - 2) * s + 3 - 2 * _leaving - arrival) * s * s +
+            _leaving * s);
+    // A field already bigger than the ring at the organ starts from the
+    // ring too, and is its own size by the time the view has narrowed
+    // twofold.
+    final double ahead =
+        math.max(0.0, past - rate * s) * (1 - smoothstep(rate * s / math.ln2));
+    final double over = math.max(opened, past - ahead);
+    return (markerRing * math.exp(over), smoothstep(over / _opened));
+  }
 
-  /// The view the slide is drawn in: through the loupe as it opens, the
-  /// camera's own once it has.
-  ZoomView _view(ZoomFrame frame) {
+  /// The view the slide is drawn in, its field [radius] pixels across on
+  /// screen: the camera's own, but while the field is opening, closer, so
+  /// the section fills it.
+  ZoomView _view(ZoomFrame frame, double radius) {
     if (!frame.isChild) {
       return frame.view;
     }
-    final double e = _opening(frame);
-    final double w = frame.size.width;
-    final double r1 = field * w;
-    final double radius = loupeStart * math.pow(r1 / loupeStart, e);
-    final double shown = loupeField * math.pow(2 * field / loupeField, e);
-    final double ppu = 2 * radius / shown;
+    final double ppu = radius / field;
     final Offset at = frame.toScreen(Offset.zero);
-    final Offset centre = (frame.size.center(Offset.zero) - at) / ppu;
     return ZoomView(
       stop: stop,
       pixelsPerUnit: ppu,
-      centre: centre,
+      centre: (frame.size.center(Offset.zero) - at) / ppu,
       progress: frame.progress,
       isChild: true,
     );
@@ -165,8 +203,9 @@ final class TissueScene extends ZoomScene {
 
   @override
   void stage(ZoomFrame frame, ZoomStaging out) {
-    final ZoomView view = _view(frame);
-    final double shown = _shown(frame) * frame.opacity;
+    final (double radius, double open) = openingAt(frame);
+    final ZoomView view = _view(frame, radius);
+    final double shown = open * frame.opacity;
     out.item('tissue:target', view.toScreen(Offset.zero, frame.size), shown);
     final String? cell = subject.path.cellName;
     out.callout(
@@ -196,7 +235,7 @@ final class TissueScene extends ZoomScene {
     if (t <= 0 || t >= 1 || here <= 0) {
       return;
     }
-    final ZoomView view = _view(frame);
+    final ZoomView view = frame.view;
     final Rect cell = _ring.getBounds();
     final double perMicron = view.pixelsPerUnit * micron;
     Sculpt.ping(
@@ -211,115 +250,120 @@ final class TissueScene extends ZoomScene {
     );
   }
 
+  // At the organ the field is the organ's marker, drawn as the marker is
+  // ([Sculpt.beacon]): a glow, a ring of the bright ink, a dot of the mark.
+  // As it opens, the ring becomes the field's lit rim and the dot and the
+  // glow give way to the section.
   @override
   void paint(Canvas canvas, ZoomFrame frame) {
-    final ZoomView view = _view(frame);
-    final Size size = frame.size;
+    final (double radius, double open) = openingAt(frame);
+    final ZoomView view = _view(frame, radius);
     final ZoomInks inks = frame.inks;
-    final Offset centre = view.toScreen(Offset.zero, size);
-    final double radius = field * view.pixelsPerUnit;
-    final double shown = _shown(frame);
-    // At the organ, before the loupe has begun to open, there is nothing to
-    // draw.
-    if (shown <= 0) {
-      return;
-    }
-    final double opening = _opening(frame);
-    final Path lens = Path()
-      ..addOval(Rect.fromCircle(center: centre, radius: radius));
-    // Outside the field: the organ dimming to the ground as the loupe
-    // opens.
-    canvas.drawPath(
-      Path.combine(
-        PathOperation.difference,
-        Path()..addRect(Offset.zero & size),
-        lens,
-      ),
-      Paint()..color = inks.ground.withValues(alpha: 0.92 * opening * shown),
-    );
-    // The field's shadow on what lies round it.
-    Sculpt.shadowUnder(
-      canvas,
-      Rect.fromCircle(center: centre, radius: radius),
-      inks,
-      strength: 0.5 * shown,
-      spread: 1.1,
-    );
-    canvas.save();
-    canvas.clipPath(lens);
-    canvas.drawPath(
-      lens,
-      Paint()..color = inks.ground.withValues(alpha: shown),
-    );
-    canvas.translate(centre.dx, centre.dy);
-    final double perMicron = view.pixelsPerUnit * micron;
-    canvas.scale(perMicron);
-    paintTissueSlide(
-      canvas,
-      _slide,
-      inks,
-      pixel: 1 / perMicron,
-      alpha: shown,
-      striaPhase: _striaPhase,
-    );
-    // The zoom's cell, in the mark.
-    final Rect cell = _ring.getBounds();
-    Sculpt.glow(
-      canvas,
-      cell.center,
-      cell.longestSide * 0.95,
-      inks,
-      0.3 * shown,
-    );
-    canvas.drawPath(_ring, Paint()..color = inks.glow(0.26 * shown));
-    Sculpt.glowingStroke(
-      canvas,
-      _ring,
-      inks,
-      width: 1.8 / perMicron,
-      alpha: shown,
-    );
-    canvas.restore();
-    // The field falls off toward its edge, as an eyepiece's does.
-    canvas.drawPath(
-      lens,
-      Paint()
-        ..shader = RadialGradient(
-          colors: <Color>[
-            inks.shadow.withValues(alpha: 0),
-            inks.shadow.withValues(alpha: 0),
-            inks.shadow.withValues(alpha: 0.55 * shown),
-          ],
-          stops: const <double>[0, 0.72, 1],
-        ).createShader(Rect.fromCircle(center: centre, radius: radius)),
-    );
-    // Its rim, and the light along its upper left.
+    final Offset centre = view.toScreen(Offset.zero, frame.size);
     final Rect rim = Rect.fromCircle(center: centre, radius: radius);
+    final double closed = 1 - open;
+    if (closed > 0) {
+      Sculpt.glow(canvas, centre, 16, inks, 0.32 * closed);
+    }
+    if (open > 0) {
+      // The field's shadow on what lies round it.
+      Sculpt.shadowUnder(canvas, rim, inks, strength: 0.5 * open, spread: 1.1);
+      final Path lens = Path()..addOval(rim);
+      canvas.save();
+      canvas.clipPath(lens);
+      canvas.drawPath(
+        lens,
+        Paint()..color = inks.ground.withValues(alpha: open),
+      );
+      canvas.translate(centre.dx, centre.dy);
+      final double perMicron = view.pixelsPerUnit * micron;
+      canvas.scale(perMicron);
+      // Smaller than at the stop, the section is drawn as it is there seen
+      // from further away, its lines as fine against it as they are there.
+      final double rest = field * frame.size.width;
+      paintTissueSlide(
+        canvas,
+        _slide,
+        inks,
+        pixel: 1 / perMicron,
+        lines: radius < rest ? radius / rest / perMicron : null,
+        alpha: open,
+        striaPhase: _striaPhase,
+      );
+      // The zoom's cell, in the mark.
+      final Rect cell = _ring.getBounds();
+      Sculpt.glow(
+        canvas,
+        cell.center,
+        cell.longestSide * 0.95,
+        inks,
+        0.3 * open,
+      );
+      canvas.drawPath(_ring, Paint()..color = inks.glow(0.26 * open));
+      Sculpt.glowingStroke(
+        canvas,
+        _ring,
+        inks,
+        width: 1.8 / perMicron,
+        alpha: open,
+      );
+      canvas.restore();
+      // The field falls off toward its edge, as an eyepiece's does.
+      canvas.drawPath(
+        lens,
+        Paint()
+          ..shader = RadialGradient(
+            colors: <Color>[
+              inks.shadow.withValues(alpha: 0),
+              inks.shadow.withValues(alpha: 0),
+              inks.shadow.withValues(alpha: 0.55 * open),
+            ],
+            stops: const <double>[0, 0.72, 1],
+          ).createShader(rim),
+      );
+    }
+    // Its rim, the marker's ring as it opens.
     canvas.drawCircle(
       centre,
       radius,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5
-        ..color = inks.lit(0.3).withValues(alpha: 0.8 * shown),
+        ..strokeWidth = ui.lerpDouble(1.4, 1.5, open)!
+        ..color = Color.lerp(
+          inks.text.withValues(alpha: 0.92),
+          inks.lit(0.3).withValues(alpha: 0.8),
+          open,
+        )!,
     );
-    canvas.drawArc(
-      rim,
-      math.pi * 1.05,
-      math.pi * 0.5,
-      false,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2
-        ..strokeCap = StrokeCap.round
-        ..color = inks.glow(0.75 * shown),
-    );
+    if (closed > 0) {
+      canvas.drawCircle(
+        centre,
+        Sculpt.beaconRadius - 1.4,
+        Paint()..color = inks.glow(closed),
+      );
+    }
+    // The light along its upper left.
+    if (open > 0) {
+      canvas.drawArc(
+        rim,
+        math.pi * 1.05,
+        math.pi * 0.5,
+        false,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2
+          ..strokeCap = StrokeCap.round
+          ..color = inks.glow(0.75 * open),
+      );
+    }
   }
 }
 
 /// Draws [slide] in its own micrometres, layer over layer, in the zoom's
 /// inks: [pixel] is one screen pixel in micrometres, so lines keep their
-/// weight at any magnification. A muscle fibre's stripes are centred
+/// weight at any magnification, but where [lines] says how wide a line one
+/// pixel wide is drawn instead: a slide drawn smaller than at its stop
+/// thins its lines with it. A muscle fibre's stripes are centred
 /// [striaPhase] micrometres from the middle, and every sarcomere from there.
 ///
 /// The section is seen as the app draws: on its own ground, as though lit
@@ -331,12 +375,14 @@ void paintTissueSlide(
   TissueSlide slide,
   ZoomInks inks, {
   required double pixel,
+  double? lines,
   double alpha = 1,
   double striaPhase = 0,
 }) {
   final Color cool = Color.lerp(inks.high, inks.label, 0.35)!;
   final Paint fill = Paint();
   final Paint stroke = Paint()..style = PaintingStyle.stroke;
+  final double line = lines ?? pixel;
   void filled(Path path, Color color) => canvas.drawPath(
     path,
     fill..color = color.withValues(alpha: color.a * alpha),
@@ -345,7 +391,7 @@ void paintTissueSlide(
       canvas.drawPath(
         path,
         stroke
-          ..strokeWidth = width * pixel
+          ..strokeWidth = width * line
           ..color = color.withValues(alpha: strength * alpha),
       );
   for (final SlideLayer layer in slide.layers) {

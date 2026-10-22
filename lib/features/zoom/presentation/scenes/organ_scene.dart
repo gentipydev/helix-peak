@@ -55,9 +55,29 @@ final class OrganScene extends ZoomScene {
   @override
   double asChild(double progress) => entering(progress);
 
-  // It stays under the loupe until the eyepiece's dark has covered it.
+  // It gives way as the camera closes in on the place its tissue is
+  // sampled, from [givingWay] to [givenWay] times its stop's magnification:
+  // drawn for its stop, closer it would only swell into shapes with nothing
+  // inside them. Its marker opens into the tissue's field there.
   @override
-  double asParent(double progress) => 1 - smoothstep((progress - 0.7) / 0.3);
+  double asParent(double progress) =>
+      1 - smoothstep((progress - _givesWay.$1) / (_givesWay.$2 - _givesWay.$1));
+
+  /// How many times its stop's magnification the organ starts to give way
+  /// at, on the way to the tissue, and has given way by: all but gone, on
+  /// the pancreas, by the time a lobule is a sixth of the canvas across.
+  static const double givingWay = 1.8;
+  static const double givenWay = 16;
+
+  /// How far along the step to the tissue the organ starts to give way,
+  /// and has: by nine tenths of the way at the latest, so that a small
+  /// organ, its view little wider than its tissue's, is gone by the stop.
+  late final (double, double) _givesWay = () {
+    final double decades =
+        -math.log(subject.depth.ratioOf(ZoomStop.organ.index)) / math.ln10;
+    double share(double magnified) => math.log(magnified) / math.ln10 / decades;
+    return (share(givingWay), math.min(share(givenWay), 0.9));
+  }();
 
   /// How large the organ is drawn at [frame], against its real size: the
   /// anatomogram's size while the body still shows, its own by the stop.
@@ -168,18 +188,18 @@ final class OrganScene extends ZoomScene {
     final double grown = _grown(frame);
     final double detail = detailAt(frame);
     _art.paint(canvas, frame.inks, frame.pixel, grown, detail: detail);
-    // Where the tissue is sampled, once the organ is its own, until the
-    // loupe opening there takes its place.
-    final double opening = frame.isChild
-        ? 0
-        : smoothstep(frame.progress / 0.25);
-    Sculpt.beacon(
-      canvas,
-      _art.site * grown,
-      frame.pixel,
-      frame.inks,
-      opacity: detail * (1 - opening),
-    );
+    // Where the tissue is sampled, once the organ is its own. From its stop
+    // on to the tissue the tissue's scene draws it, the same, as the field
+    // it opens into.
+    if (frame.isChild) {
+      Sculpt.beacon(
+        canvas,
+        _art.site * grown,
+        frame.pixel,
+        frame.inks,
+        opacity: detail,
+      );
+    }
     canvas.restore();
   }
 }
