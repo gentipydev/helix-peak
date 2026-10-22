@@ -3,10 +3,14 @@ import '../../../domain/locus_track.dart';
 /// Every number the chromosome's look is tuned by, in one place. Lengths are
 /// in chromatid half-widths unless they say otherwise.
 ///
-/// The look is a scanning micrograph's: two velvety sisters, a knobbly
-/// surface bright at its edges and dark in its crevices, a soft coat round
-/// them, bands as soft changes of tone, the centromere and the telomeres
-/// tinted lightly, and the gene as two FISH spots.
+/// The look is a specimen's under the zoom's one lamp, as the organs are
+/// (`SpecimenLamp.zoom`; the user's ask of 2026-10-22, the micrograph's
+/// glowing edges and soft coat having read as washed out): two sisters, a
+/// knobbly surface of opaque lobes, each lit from the upper left with a
+/// moist sheen and dark in the crevices round it, each sister darker toward
+/// its edges, only a shadow round them; bands as soft changes of tone, the
+/// centromere and the telomeres tinted lightly, and the gene as two FISH
+/// spots.
 abstract final class ChromosomeStyle {
   // The form.
 
@@ -41,19 +45,11 @@ abstract final class ChromosomeStyle {
   /// round it), from the middle out.
   static const List<double> columns = <double>[0, 0.38, 0.66, 0.86, 0.96, 1];
 
-  // Its light, from the upper left and a little in front.
+  // Its light is the zoom's one lamp, the organs' (`SpecimenLamp.zoom`).
 
-  static const double lightX = -0.48;
-  static const double lightY = -0.57;
-  static const double lightZ = 0.66;
-
-  /// Brightness: what every surface has, what the light adds, how much the
-  /// edges glow on the side facing the light and darken on the other.
-  static const double ambient = 0.34;
-  static const double diffuse = 0.62;
-  static const double edgeLit = 0.55;
-  static const double edgeShade = 0.25;
-  static const double edgePower = 1.6;
+  /// How much the chromatin shines: the share of the lamp's sheen it takes,
+  /// as much as a cut face does.
+  static const double sheen = 0.6;
 
   /// How dark the side of a sister turned to the other is, where they touch.
   static const double occlusion = 0.7;
@@ -83,14 +79,20 @@ abstract final class ChromosomeStyle {
   static const double granuleSpread = 0.025;
   static const double granuleFloor = 0.0032;
   static const double granules = 60;
-  static const double bumpAlpha = 0.07;
+
+  /// A granule standing out of the surface is the chromatin's own colour
+  /// where it lies, lit [bumpLift] of the way on to its full tone, at its
+  /// heart [bumpAlpha]; one sunk into it is in shade, at [pitAlpha].
+  static const double bumpLift = 0.35;
+  static const double bumpAlpha = 0.5;
   static const double pitAlpha = 0.14;
 
-  /// The soft coat round each sister, and the shadow it casts.
-  static const double coat = 0.42;
-  static const double coatInner = 0.22;
+  /// The shadow each sister casts, as the organs cast theirs: how far it
+  /// falls to the lower right, how dark it is, and its soft edge's width.
   static const double shadowX = 0.12;
   static const double shadowY = 0.22;
+  static const double shadowAlpha = 0.35;
+  static const double shadowSoft = 0.5;
 
   /// The kinetochore's plate: its half-width across, its half-height, and how
   /// far out on the waist it sits.
@@ -99,7 +101,8 @@ abstract final class ChromosomeStyle {
   static const double plateOut = 0.8;
 
   // The centromere and the telomeres, each tinted in an earth of its own,
-  // lightly, so the micrograph reads through (the user's ask of 2026-10-19).
+  // lightly, so the light and the relief read through (the user's ask of
+  // 2026-10-19).
 
   /// The share of the centromere's ink in the chromatin at the centromere,
   /// and how far either side of it the tint reaches.

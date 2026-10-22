@@ -18,16 +18,17 @@ import 'sculpt.dart';
 import 'zoom_scene.dart';
 import 'zoom_subject.dart';
 
-/// The gene's chromosome as it is when a cell divides, drawn as a scanning
-/// micrograph shows one ([ChromosomeArt]): two sister chromatids, each a
-/// coil of chromatin as thick as a chromatid is, touching along a groove and
-/// pinched together at the centromere, their surface knobbly, their
-/// cytoBand G-bands soft changes of tone. The gene is marked as FISH marks a
-/// gene: a spot on each sister at its height, over its band, which is
-/// bracketed and named. The spots are a probe's, never the gene, which is
-/// far too small to see at this scale. Its parts are named in the quiet ink
-/// in a column at the canvas's edge either side of it, level with each
-/// ([parts]), the band's name at the head of the column on the right.
+/// The gene's chromosome as it is when a cell divides, its form as a
+/// scanning micrograph shows one and its surface lit as the zoom's organs
+/// are ([ChromosomeArt]): two sister chromatids, each a coil of chromatin
+/// as thick as a chromatid is, touching along a groove and pinched together
+/// at the centromere, their surface knobbly, their cytoBand G-bands soft
+/// changes of tone. The gene is marked as FISH marks a gene: a spot on each
+/// sister at its height, over its band, which is bracketed and named. The
+/// spots are a probe's, never the gene, which is far too small to see at
+/// this scale. Its parts are named in the quiet ink in a column at the
+/// canvas's edge either side of it, level with each ([parts]), the band's
+/// name at the head of the column on the right.
 ///
 /// On the way in it condenses out of its territory in the nucleus. On the
 /// way out it turns to lie along the genome, its chromatids merge into one

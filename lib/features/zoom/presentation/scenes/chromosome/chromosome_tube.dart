@@ -14,13 +14,13 @@ import 'chromosome_shading.dart';
 import 'chromosome_style.dart';
 
 /// The chromosome on its way into the band's map: each sister a smooth tube
-/// of its bands, shaded as the micrograph is, which turns with the canvas
-/// to lie along the genome, merges with its sister and thins to the strip's
-/// thickness. As it goes, its bands' softened edges harden, its rounded
-/// ends shorten to the strip's, its centromere's waist becomes the strip's
-/// pinch, and its colours ease to the strip's stains under the strip's own
-/// light. Once it lies along the genome it is the strip, pixel for pixel,
-/// so the map takes over from it with nothing to see.
+/// of its bands, shaded as the chromosome at rest is, which turns with the
+/// canvas to lie along the genome, merges with its sister and thins to the
+/// strip's thickness. As it goes, its bands' softened edges harden, its
+/// rounded ends shorten to the strip's, its centromere's waist becomes the
+/// strip's pinch, and its colours ease to the strip's stains under the
+/// strip's own light. Once it lies along the genome it is the strip, pixel
+/// for pixel, so the map takes over from it with nothing to see.
 ///
 /// One small mesh: where its vertices lie and what colour each is are
 /// worked out afresh every frame into buffers it keeps, and the triangles
@@ -43,7 +43,7 @@ final class ChromosomeTube {
   /// below −0.1 it is not even straight (it brightens before it darkens,
   /// as its light goes from clear to the shadow), so the columns there are
   /// close enough to follow it within a shade; and they are closer toward
-  /// the edges, where the micrograph's light turns fastest.
+  /// the edges, where the chromosome's light turns fastest.
   static const List<double> columns = <double>[
     -1,
     -0.9,
@@ -76,9 +76,11 @@ final class ChromosomeTube {
       for (final double u in columns) smoothstep((-side * u - 0.3) / 0.7),
   ];
 
-  /// How bright each column is where the tube's width does not change, this
-  /// frame: most rows, worked out once rather than for every row.
+  /// How bright each column is where the tube's width does not change, and
+  /// how much it shines, this frame: most rows, worked out once rather than
+  /// for every row.
   final List<double> _flatLight = List<double>.filled(columns.length, 0);
+  final List<double> _flatSheen = List<double>.filled(columns.length, 0);
 
   /// The strip's light at each column where the tube is the strip's full
   /// thickness, this frame: channels and alpha.
@@ -169,7 +171,7 @@ final class ChromosomeTube {
     return Uint16List.fromList(out);
   }
 
-  /// Each band's stain as the micrograph shades it, as the strip draws it,
+  /// Each band's stain as the chromosome shades it, as the strip draws it,
   /// how thick the strip draws it, and whether the gene lies in it.
   late final List<double> _tones = <double>[
     for (final CytoBand band in _track.bands) ChromosomeStyle.tone(band.stain),
@@ -427,7 +429,13 @@ final class ChromosomeTube {
         0,
         math.sqrt(math.max(0, 1 - u * u)),
       );
-      _flatLight[j] = light.brightness(normal.x, normal.y, normal.z);
+      _flatLight[j] = light.light(
+        normal.x,
+        normal.y,
+        normal.z,
+        facing: normal.z,
+      );
+      _flatSheen[j] = light.sheen(normal.x, normal.y, normal.z);
       _flatStrip[j] = _lightAt((1 - u) / 2);
     }
     final int n = _rows.length;
@@ -471,19 +479,26 @@ final class ChromosomeTube {
         final int first = (sister * n + p) * _across;
         for (int j = 0; j < columns.length; j++) {
           final double u = columns[j];
-          // The micrograph's shading, while any of it shows.
+          // The chromosome's own shading, while any of it shows.
           double ar = 0;
           double ag = 0;
           double ab = 0;
           if (strip < 1) {
             double lit = _flatLight[j];
+            double sheen = _flatSheen[j];
             if (slope.abs() > _flat) {
               final SurfaceNormal normal = SurfaceNormal(
                 u,
                 -slope,
                 math.sqrt(math.max(0, 1 - u * u)),
               );
-              lit = light.brightness(normal.x, normal.y, normal.z);
+              lit = light.light(
+                normal.x,
+                normal.y,
+                normal.z,
+                facing: normal.z,
+              );
+              sheen = light.sheen(normal.x, normal.y, normal.z);
             }
             (ar, ag, ab) = _palette.mix(
               tone,
@@ -492,6 +507,7 @@ final class ChromosomeTube {
                   _turned[sister * columns.length + j] *
                   contact,
               gene,
+              sheen: sheen,
             );
           }
           // The strip's colour there, once any of it shows: its stain under

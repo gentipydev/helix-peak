@@ -14,6 +14,7 @@ import 'package:helixpeek/features/zoom/presentation/scenes/chromosome/chromosom
 import 'package:helixpeek/features/zoom/presentation/scenes/chromosome/chromosome_style.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/chromosome/chromosome_tube.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/chromosome_scene.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/specimen_light.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
@@ -80,6 +81,23 @@ class _Nowhere implements Canvas {
   @override
   dynamic noSuchMethod(Invocation invocation) => null;
 }
+
+/// A canvas that draws nothing, and keeps the paint of every path drawn on
+/// it.
+class _Paths implements Canvas {
+  final List<Paint> paints = <Paint>[];
+
+  @override
+  void drawPath(Path path, Paint paint) => paints.add(paint);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
+}
+
+/// A colour's lightness, as its channels weigh: enough to tell which of two
+/// mixes of the same inks is the lighter.
+double _lightness(double r, double g, double b) =>
+    0.2126 * r + 0.7152 * g + 0.0722 * b;
 
 void main() {
   testWidgets('the bands’ tones run from the palest to the deepest, gvar '
@@ -244,6 +262,123 @@ void main() {
       expect(atEnds, greaterThan(0), reason: t.slug);
       expect(clay, greaterThan(0), reason: t.slug);
       expect(honey, greaterThan(0), reason: t.slug);
+    }
+  });
+
+  testWidgets('the chromatin is lit and mixed as the organs’ specimens are, '
+      'under their lamp', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    final ChromosomeLight light = ChromosomeLight();
+    final SpecimenLight lamp = SpecimenLight(SpecimenLamp.zoom);
+    final ChromosomePalette palette = ChromosomePalette(inks);
+    final SpecimenPalette specimen = SpecimenPalette(inks);
+    final math.Random random = math.Random(29);
+    for (int i = 0; i < 400; i++) {
+      final SurfaceNormal n = SurfaceNormal(
+        2 * random.nextDouble() - 1,
+        2 * random.nextDouble() - 1,
+        random.nextDouble(),
+      );
+      final double facing = random.nextDouble();
+      final double lit = light.light(n.x, n.y, n.z, facing: facing);
+      final double sheen = light.sheen(n.x, n.y, n.z);
+      expect(lit, closeTo(lamp.light(n.x, n.y, n.z, form: facing), 1e-12));
+      expect(
+        sheen,
+        closeTo(ChromosomeStyle.sheen * lamp.sheen(n.x, n.y, n.z), 1e-12),
+      );
+      final double tone = random.nextDouble();
+      final double occlusion = ChromosomeStyle.occlusion * random.nextDouble();
+      final double gene = random.nextDouble();
+      final (double r, double g, double b) = palette.mix(
+        tone,
+        lit,
+        occlusion,
+        gene,
+        sheen: sheen,
+      );
+      final Color albedo = Color.lerp(
+        inks.lit(ChromosomeStyle.paleLit),
+        inks.shade(ChromosomeStyle.deepShade),
+        tone,
+      )!;
+      final (double er, double eg, double eb) = _channels(
+        specimen.colour(
+          SpecimenTone(albedo, inks.shadow),
+          lit,
+          occlusion: occlusion,
+          sheen: sheen,
+          wash: ChromosomeStyle.wash * gene,
+        ),
+      );
+      expect(r, closeTo(er, 1 / 255), reason: 'red, $i');
+      expect(g, closeTo(eg, 1 / 255), reason: 'green, $i');
+      expect(b, closeTo(eb, 1 / 255), reason: 'blue, $i');
+    }
+  });
+
+  testWidgets('nothing is drawn round the chromosome but its shadow and its '
+      'groove, in the shadow’s ink', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    final Color shadow = inks.shadow;
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ZoomStage stage = _stage(t);
+      int checked = 0;
+      for (final (ZoomScene shown, ZoomFrame frame) in stage.frames(
+        stage.depth.depthOf(ZoomStop.chromosome),
+        _canvas,
+        inks,
+      )) {
+        if (shown is! ChromosomeScene) {
+          continue;
+        }
+        final _Paths canvas = _Paths();
+        ChromosomeArt(shown.form, inks).paintRest(canvas, frame);
+        for (final Paint paint in canvas.paints) {
+          // The groove's shade is a gradient of the shadow's ink.
+          if (paint.shader == null) {
+            expect(paint.color.r, closeTo(shadow.r, 1e-6), reason: t.slug);
+            expect(paint.color.g, closeTo(shadow.g, 1e-6), reason: t.slug);
+            expect(paint.color.b, closeTo(shadow.b, 1e-6), reason: t.slug);
+          }
+          checked++;
+        }
+      }
+      expect(checked, greaterThan(0), reason: t.slug);
+    }
+  });
+
+  testWidgets('no surface is lit past its own tone but by its sheen', (
+    WidgetTester tester,
+  ) async {
+    final ZoomInks inks = await _inks(tester);
+    // The lightest the chromatin may be: its palest stain, tinted or washed
+    // as far as anything is, in full light and at the most it shines.
+    final Color pale = inks.lit(ChromosomeStyle.paleLit);
+    final double most = ChromosomeStyle.sheen * SpecimenLamp.zoom.sheen;
+    double bound = 0;
+    for (final Color albedo in <Color>[
+      pale,
+      Color.lerp(pale, inks.telomere, ChromosomeStyle.telomereTint)!,
+      Color.lerp(pale, inks.centromere, ChromosomeStyle.kinetochoreTint)!,
+    ]) {
+      final Color washed = Color.lerp(albedo, inks.mark, ChromosomeStyle.wash)!;
+      final Color shone = Color.lerp(washed, inks.text, most)!;
+      bound = math.max(bound, _lightness(shone.r, shone.g, shone.b));
+    }
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ChromosomeForm form = ChromosomeScene(
+        ZoomSubject(track: locusOf(t), record: recordOf(t)),
+      ).form;
+      double brightest = 0;
+      for (final ({Float32List positions, Int32List colours}) mesh
+          in ChromosomeArt(form, inks).meshData) {
+        for (final int colour in mesh.colours) {
+          final (double r, double g, double b) = _channels(colour);
+          brightest = math.max(brightest, _lightness(r, g, b));
+        }
+      }
+      expect(brightest, lessThanOrEqualTo(bound + 1 / 255), reason: t.slug);
     }
   });
 

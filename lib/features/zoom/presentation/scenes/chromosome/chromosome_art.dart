@@ -12,13 +12,14 @@ import 'chromosome_form.dart';
 import 'chromosome_shading.dart';
 import 'chromosome_style.dart';
 
-/// A chromosome at rest, drawn as a scanning micrograph shows one: two
-/// velvety sisters, their surface knobbly with chromatin, bright at the
-/// edges that face the light and dark in the crevices and along the groove
-/// where they touch, a soft coat round them, the bands soft changes of tone,
-/// the centromere's waist and its two kinetochores tinted in its ink and
-/// every chromatid's ends in the telomeres', and the gene as two FISH
-/// spots, one on each sister.
+/// A chromosome at rest, its form a scanning micrograph's and its surface
+/// lit as the zoom's organs are, under the same lamp: two sisters, knobbly
+/// with opaque lobes of chromatin, each lobe lit from the upper left with a
+/// moist sheen and dark in the crevices round it, each sister darker toward
+/// its edges and along the groove where they touch, a shadow under them, the
+/// bands soft changes of tone, the centromere's waist and its two
+/// kinetochores tinted in its ink and every chromatid's ends in the
+/// telomeres', and the gene as two FISH spots, one on each sister.
 ///
 /// Everything costly is built once, for one form in one set of inks: the
 /// body and its relief are meshes in the scene's units, so a frame only
@@ -100,8 +101,8 @@ final class ChromosomeArt {
     );
   }();
 
-  /// What the chromosome at rest covers, its coat, its shadow and its relief
-  /// included, in the scene's units: the room a layer of it needs.
+  /// What the chromosome at rest covers, its shadow and its relief included,
+  /// in the scene's units: the room a layer of it needs.
   late final Rect bounds = _outlines[0]
       .getBounds()
       .expandToInclude(_outlines[1].getBounds())
@@ -133,19 +134,13 @@ final class ChromosomeArt {
             -slope,
             math.sqrt(math.max(0, 1 - u * u)),
           );
-          final ({double light, double occlusion}) s = _surface(
-            side,
-            y,
-            u,
-            n.x,
-            n.y,
-            n.z,
-          );
+          final _Lit s = _surface(side, y, u, n.x, n.y, n.z, facing: n.z);
           final (double, double, double) mix = _palette.mix(
             tone,
             s.light,
             s.occlusion,
             0,
+            sheen: s.sheen,
           );
           r += mix.$1 * area;
           g += mix.$2 * area;
@@ -200,7 +195,8 @@ final class ChromosomeArt {
       canvas.restore();
     }
 
-    // The shadow the sisters cast, under them and to the lower right.
+    // The shadow the sisters cast, under them and to the lower right, as the
+    // organs cast theirs. Nothing else lies round them.
     canvas.save();
     canvas.translate(
       ChromosomeStyle.shadowX * _half,
@@ -210,40 +206,22 @@ final class ChromosomeArt {
       sister(i, () {
         canvas.drawPath(
           _outlines[i],
-          Paint()..color = inks.shadow.withValues(alpha: 0.32),
+          Paint()
+            ..color = inks.shadow.withValues(
+              alpha: ChromosomeStyle.shadowAlpha,
+            ),
         );
         canvas.drawPath(
           _outlines[i],
           Paint()
             ..style = PaintingStyle.stroke
-            ..strokeWidth = 0.5 * _half
+            ..strokeWidth = ChromosomeStyle.shadowSoft * _half
             ..strokeJoin = StrokeJoin.round
             ..color = inks.shadow.withValues(alpha: 0.12),
         );
       });
     }
     canvas.restore();
-    // Their coat: half of a wide, faint stroke shows round each.
-    for (int i = 0; i < 2; i++) {
-      sister(i, () {
-        canvas.drawPath(
-          _outlines[i],
-          Paint()
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = ChromosomeStyle.coat * _half
-            ..strokeJoin = StrokeJoin.round
-            ..color = inks.lit(0.3).withValues(alpha: 0.06),
-        );
-        canvas.drawPath(
-          _outlines[i],
-          Paint()
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = ChromosomeStyle.coatInner * _half
-            ..strokeJoin = StrokeJoin.round
-            ..color = inks.lit(0.3).withValues(alpha: 0.11),
-        );
-      });
-    }
     final Paint mesh = Paint();
     for (int i = 0; i < 2; i++) {
       sister(i, () {
@@ -376,21 +354,25 @@ final class ChromosomeArt {
 
   // The meshes.
 
-  /// How bright the surface is at [y], [u] of the way across the tube (the
-  /// sine of its angle round it), on chromatid [side]: its light, and the
-  /// shade of the groove where it is turned to its sister.
-  ({double light, double occlusion}) _surface(
+  /// How a surface facing (nx, ny, nz) at [y], [u] of the way across the
+  /// tube (the sine of its angle round it), on chromatid [side], is lit,
+  /// where the sister's own face turns [facing] of the way toward the eye:
+  /// its light, the shade of the groove where it is turned to its sister,
+  /// and its sheen.
+  _Lit _surface(
     double side,
     double y,
     double u,
     double nx,
     double ny,
-    double nz,
-  ) {
+    double nz, {
+    required double facing,
+  }) {
     final double turned = _smoothstep(0.3, 1, -side * u);
     return (
-      light: _light.brightness(nx, ny, nz),
+      light: _light.light(nx, ny, nz, facing: facing),
       occlusion: ChromosomeStyle.occlusion * turned * form.contact(y),
+      sheen: _light.sheen(nx, ny, nz),
     );
   }
 
@@ -450,14 +432,7 @@ final class ChromosomeArt {
       for (final double u in columns) {
         final double nz = math.sqrt(math.max(0, 1 - u * u));
         final SurfaceNormal n = SurfaceNormal(u, -slope, nz);
-        final ({double light, double occlusion}) s = _surface(
-          side,
-          y,
-          u,
-          n.x,
-          n.y,
-          n.z,
-        );
+        final _Lit s = _surface(side, y, u, n.x, n.y, n.z, facing: n.z);
         mesh.vertex(
           centre + w * u,
           y + bow * u * u,
@@ -469,6 +444,7 @@ final class ChromosomeArt {
             1,
             centromere: tint.centromere,
             telomere: tint.telomere,
+            sheen: s.sheen,
           ),
         );
       }
@@ -483,15 +459,12 @@ final class ChromosomeArt {
         mesh.triangle(b, d, c);
       }
     }
-    // The lobes: every crevice first, then every dome over them.
+    // The lobes, each over the crevice round it: a lobe laid after another
+    // shades it where the two meet, as a crevice between them would.
     final KnobField knobs = form.knobs(side);
     for (int k = 0; k < knobs.length; k++) {
       if (knobs.kind[k] == KnobField.lobe) {
         _skirt(mesh, side, knobs, k);
-      }
-    }
-    for (int k = 0; k < knobs.length; k++) {
-      if (knobs.kind[k] == KnobField.lobe) {
         _dome(mesh, side, knobs, k);
       }
     }
@@ -564,9 +537,10 @@ final class ChromosomeArt {
     );
   }
 
-  /// [p] as a small dome at [y], [u] of the way across the tube and [r]
-  /// across: lit as the surface under it is, brighter at its top by [lift],
-  /// its rim tilted out from there, [gene] of the way into the gene's band
+  /// [p] as a small opaque dome at [y], [u] of the way across the tube and
+  /// [r] across: lit as the surface under it is, its rim tilted out from its
+  /// top, so it is lit on the side toward the light and in shade on the
+  /// other, with its sheen between, [gene] of the way into the gene's band
   /// and tinted by [tint].
   void _domeOf(
     ColouredMesh mesh,
@@ -576,13 +550,12 @@ final class ChromosomeArt {
     double u,
     double r,
     double gene,
-    ({double centromere, double telomere}) tint, {
-    double lift = 0.1,
-  }) {
+    ({double centromere, double telomere}) tint,
+  ) {
     const int ring = 14;
     final double tone = form.toneAt(y);
     final SurfaceNormal base = p.normal;
-    ({double light, double occlusion}) lit(double tilt, double a) {
+    _Lit lit(double tilt, double a) {
       // The ring's normal, tilted out from the dome's top toward [a].
       final Offset out = p.at(a, 1) - Offset(p.x, p.y);
       final double length = out.distance;
@@ -593,23 +566,25 @@ final class ChromosomeArt {
               base.y + tilt * out.dy / length,
               base.z,
             );
-      return _surface(side, y, u, n.x, n.y, n.z);
+      // Darker toward the sister's edges, as the surface under it is.
+      return _surface(side, y, u, n.x, n.y, n.z, facing: base.z);
     }
 
     mesh.begin(1 + ring * 3);
     final int centre = mesh.next;
-    final ({double light, double occlusion}) top = lit(0, 0);
+    final _Lit top = lit(0, 0);
     mesh.vertex(
-      p.x + _light.screenX * 0.22 * r,
-      p.y + _light.screenY * 0.22 * r,
+      p.x + _light.screen.dx * 0.22 * r,
+      p.y + _light.screen.dy * 0.22 * r,
       _palette.colour(
         tone,
-        top.light + lift,
+        top.light,
         top.occlusion,
         gene,
         1,
         centromere: tint.centromere,
         telomere: tint.telomere,
+        sheen: top.sheen,
       ),
     );
     final List<int> rim = <int>[];
@@ -619,15 +594,16 @@ final class ChromosomeArt {
     ]) {
       for (int i = 0; i < ring; i++) {
         final double a = 2 * math.pi * i / ring;
-        final ({double light, double occlusion}) s = lit(tilt, a);
+        final _Lit s = lit(tilt, a);
         final int colour = _palette.colour(
           tone,
           s.light,
           s.occlusion,
           gene,
-          scale < 1 ? 1 : 0.9,
+          1,
           centromere: tint.centromere,
           telomere: tint.telomere,
+          sheen: s.sheen,
         );
         if (scale == 1) {
           rim.add(colour);
@@ -655,7 +631,7 @@ final class ChromosomeArt {
 
   /// The kinetochore: a small plate on the sister's outer face at the
   /// waist, in the centromere's ink, seated in a crevice of its own and lit
-  /// as a lobe is, a little brighter at its top.
+  /// as a lobe is.
   void _plate(ColouredMesh mesh, double side) {
     final Offset at = form.kinetochore(side);
     final double rx = ChromosomeStyle.plateX * _half;
@@ -674,7 +650,7 @@ final class ChromosomeArt {
     _domeOf(mesh, side, plate, form.centromere, u, rx, 0, (
       centromere: ChromosomeStyle.kinetochoreTint,
       telomere: 0,
-    ), lift: 0.14);
+    ));
   }
 
   List<ui.Vertices> _grains(double side) {
@@ -686,7 +662,6 @@ final class ChromosomeArt {
   void _layGrains(ColouredMesh mesh, double side) {
     const int ring = 6;
     final KnobField knobs = form.knobs(side);
-    final int bump = _palette.text(ChromosomeStyle.bumpAlpha);
     final int pit = _palette.shadow(ChromosomeStyle.pitAlpha);
     for (int k = 0; k < knobs.length; k++) {
       final int kind = knobs.kind[k];
@@ -694,7 +669,7 @@ final class ChromosomeArt {
         continue;
       }
       final _Knob p = _place(side, knobs, k);
-      final int heart = kind == KnobField.bump ? bump : pit;
+      final int heart = kind == KnobField.bump ? _bump(side, knobs, k, p) : pit;
       mesh.begin(1 + ring);
       final int centre = mesh.next;
       mesh.vertex(p.x, p.y, heart);
@@ -707,7 +682,38 @@ final class ChromosomeArt {
       }
     }
   }
+
+  /// The heart of granule [k], [p], standing out of the surface: the
+  /// chromatin's own colour where it lies, lit a little nearer its full
+  /// tone, never past it.
+  int _bump(double side, KnobField knobs, int k, _Knob p) {
+    final double y = knobs.y[k];
+    final SurfaceNormal n = p.normal;
+    final _Lit s = _surface(
+      side,
+      y,
+      math.sin(knobs.phi[k]),
+      n.x,
+      n.y,
+      n.z,
+      facing: n.z,
+    );
+    final ({double centromere, double telomere}) tint = _tints(y);
+    return _palette.colour(
+      form.toneAt(y),
+      s.light + (1 - s.light) * ChromosomeStyle.bumpLift,
+      s.occlusion,
+      form.geneAt(y),
+      ChromosomeStyle.bumpAlpha,
+      centromere: tint.centromere,
+      telomere: tint.telomere,
+    );
+  }
 }
+
+/// How a point of the surface is lit: its light, the groove's shade on it,
+/// and its sheen.
+typedef _Lit = ({double light, double occlusion, double sheen});
 
 /// [colour] with no alpha: where a soft edge fades to nothing.
 int _clear(int colour) => colour & ((1 << 24) - 1);
