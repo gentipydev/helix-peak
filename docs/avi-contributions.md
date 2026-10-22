@@ -106,6 +106,9 @@ show which is which (the user's question, 2026-10-22).
   grow again.
 - The page ends on its source, "AlphaGenome Atlas", and links nowhere (the
   Atlas links and the snapshot's date went at the user's ask, 2026-10-21).
+- The page's scroll stops at its ends on every platform, as the walk's own
+  does (`ClampingScrollPhysics`): no bounce on iOS (the user's ask,
+  2026-10-22).
 
 | Group | Features (as the Atlas names its assays) |
 |---|---|

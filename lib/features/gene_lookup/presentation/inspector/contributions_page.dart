@@ -198,6 +198,8 @@ class _ContributionsPageState extends State<ContributionsPage> {
     }
     return ListView(
       key: const ValueKey<String>('contributions-scroll'),
+      // Stops at its ends on every platform, as the walk's own scroll does.
+      physics: const ClampingScrollPhysics(),
       padding: side,
       children: <Widget>[
         _Identity(

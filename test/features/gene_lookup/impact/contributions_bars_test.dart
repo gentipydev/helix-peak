@@ -207,6 +207,63 @@ void main() {
     await _capture(tester, 'contributions-large-bars');
   });
 
+  testWidgets('on an iPhone the page stops at its ends, with no bounce', (
+    WidgetTester tester,
+  ) async {
+    await tester.runAsync(() => repository.load(_track));
+    await tester.binding.setSurfaceSize(const Size(375, 667));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(
+      MaterialApp(
+        // iOS bounces a scroll by default; the page must not.
+        theme: AppTheme.analysis.copyWith(platform: TargetPlatform.iOS),
+        home: MediaQuery(
+          data: const MediaQueryData(
+            size: Size(375, 667),
+            disableAnimations: true,
+          ),
+          child: ContributionsPage(
+            track: _track,
+            impact: _track.at(_c73)!,
+            address: 'c.73',
+            repository: repository,
+          ),
+        ),
+      ),
+    );
+    await tester.runAsync(() async {});
+    await tester.pumpAndSettle();
+    final ScrollPosition position = tester
+        .state<ScrollableState>(
+          find
+              .descendant(
+                of: _key('contributions-scroll'),
+                matching: find.byType(Scrollable),
+              )
+              .first,
+        )
+        .position;
+    expect(position.maxScrollExtent, greaterThan(0));
+
+    /// Holds a drag of [dy] past an end and reads where the page stands.
+    Future<double> pull(double dy) async {
+      final TestGesture gesture = await tester.startGesture(
+        tester.getCenter(_key('contributions-scroll')),
+      );
+      await gesture.moveBy(Offset(0, dy));
+      await tester.pump();
+      final double held = position.pixels;
+      await gesture.up();
+      await tester.pumpAndSettle();
+      return held;
+    }
+
+    expect(await pull(200), 0);
+    position.jumpTo(position.maxScrollExtent);
+    await tester.pump();
+    expect(await pull(-200), position.maxScrollExtent);
+  });
+
   testWidgets('a base no change scores at draws its bars left of zero', (
     WidgetTester tester,
   ) async {
