@@ -22,7 +22,10 @@ final class OutlineMorph {
   /// and at the point each mark picks out of either outline, so that an
   /// organ much longer round one part than the body draws it (a femur's
   /// head) draws in part by part, no point sliding round from one part to
-  /// the next.
+  /// the next. Where [start] is given too, the two are met first at the
+  /// point it picks out of either outline in place of their tops: for an
+  /// organ with two tops of a height (a thyroid's two lobes), so that each
+  /// meets its own, whichever of the two is higher by a hair.
   OutlineMorph({
     required List<Offset> template,
     required List<Offset> diagram,
@@ -32,16 +35,25 @@ final class OutlineMorph {
     bool bottoms = false,
     List<int Function(List<Offset>)> marks =
         const <int Function(List<Offset>)>[],
+    int Function(List<Offset>)? start,
   }) {
     _inward = _area(template) > 0 ? 1.0 : -1.0;
     if (marks.isNotEmpty) {
       final List<int> counts = _counts(
         template,
-        _marked(template, marks),
+        _marked(template, marks, start: start),
         count,
       );
-      _template = _segmented(template, _marked(template, marks), counts);
-      _diagram = _segmented(diagram, _marked(diagram, marks), counts);
+      _template = _segmented(
+        template,
+        _marked(template, marks, start: start),
+        counts,
+      );
+      _diagram = _segmented(
+        diagram,
+        _marked(diagram, marks, start: start),
+        counts,
+      );
       _bed = _inset(_template, bed);
       return;
     }
@@ -162,19 +174,23 @@ final class OutlineMorph {
     return <Offset>[..._even(first, a), ..._even(second, b)];
   }
 
-  /// Where [points], a closed outline, is met: its topmost point, then the
-  /// point each of [marks] picks out of it, in their order round it from
-  /// the top.
+  /// Where [points], a closed outline, is met: its topmost point, or the
+  /// point [start] picks out of it, then the point each of [marks] picks
+  /// out of it, in their order round it from the first.
   static List<int> _marked(
     List<Offset> points,
-    List<int Function(List<Offset>)> marks,
-  ) {
+    List<int Function(List<Offset>)> marks, {
+    int Function(List<Offset>)? start,
+  }) {
     final int n = points.length;
     int top = 0;
     for (int i = 1; i < n; i++) {
       if (points[i].dy < points[top].dy) {
         top = i;
       }
+    }
+    if (start != null) {
+      top = start(points);
     }
     final List<int> at = <int>[
       top,
