@@ -214,6 +214,30 @@ abstract class OrganArt {
 
   static Offset _unit(double angle) => Offset(math.cos(angle), math.sin(angle));
 
+  /// The others of an organ's part beside it (the other lung, the other
+  /// kidney), flat as the body drew them, [shown] of the way in.
+  static void _flatOthers(
+    Canvas canvas,
+    Path others,
+    ZoomInks inks,
+    double line, {
+    double shown = 1,
+  }) {
+    final Color fill = inks.lit(0.16);
+    final Color edge = inks.lit(0.36).withValues(alpha: 0.6);
+    canvas.drawPath(
+      others,
+      Paint()..color = fill.withValues(alpha: fill.a * shown),
+    );
+    canvas.drawPath(
+      others,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.9 * line
+        ..color = edge.withValues(alpha: edge.a * shown),
+    );
+  }
+
   /// A shape sculpted: its shadow on the ground, its body lit from the
   /// upper left, its edge and the light on it, at [detail] of the way from
   /// the flat shape the body drew.
@@ -564,14 +588,7 @@ final class _DrawnOrgan extends OrganArt {
     canvas.scale(scale);
     final double line = pixel / scale;
     _around.paint(canvas, inks, line, _box, detail);
-    canvas.drawPath(_others, Paint()..color = inks.lit(0.16));
-    canvas.drawPath(
-      _others,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.9 * line
-        ..color = inks.lit(0.36).withValues(alpha: 0.6),
-    );
+    OrganArt._flatOthers(canvas, _others, inks, line);
     _study?.behind(canvas, inks, line, detail);
     final bool hollow = _look == _Look.hollow && _study == null;
     OrganArt._sculpted(canvas, _shape, _box, inks, line, detail);
@@ -672,6 +689,16 @@ abstract class _SpecimenOrgan extends OrganArt {
   /// [detail].
   double _settleOf(double detail) => SpecimenStep.settle(detail);
 
+  /// Draws what of the body's drawing of its part lies beside the outline
+  /// it follows, over the figure round it, [detail] of the way to the
+  /// organ; [line] is a pixel. Nothing, for a part of one outline.
+  void _paintBeside(
+    Canvas canvas,
+    ZoomInks inks,
+    double line,
+    double detail,
+  ) {}
+
   /// The specimen and its neighbours, at the organ's real size; [line] is a
   /// pixel.
   void _paintSpecimen(Canvas canvas, ZoomInks inks, double line);
@@ -699,6 +726,7 @@ abstract class _SpecimenOrgan extends OrganArt {
       detail,
       fade: _amongFigure ? 1 : SpecimenStep.figure(detail),
     );
+    _paintBeside(canvas, inks, line, detail);
     // The flat shape the body hands over, which becomes the organ's bed:
     // opaque all the while, so nothing shows through as the organ comes
     // up.
