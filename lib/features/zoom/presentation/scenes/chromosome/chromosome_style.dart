@@ -561,7 +561,7 @@ final class ChromosomeGlobules {
     this.spotFade = 0.7,
     this.spotFadeAlpha = 0.35,
     this.shadowBlur = 0.35,
-    this.grain = 0.16,
+    this.grain = 0.08,
     this.grainTile = 0.8,
     this.clearOfLumps = 0.15,
   });
@@ -676,8 +676,10 @@ final class ChromosomeGlobules {
   /// How soft the shadow under the sisters is: its blur's sigma.
   final double shadowBlur;
 
-  /// A fine grain over the chromatin, as a micrograph's: how strong (0 for
-  /// none) and how wide its tile is.
+  /// A fine grain in the globules, as a micrograph's: how much darker it
+  /// makes them on the whole (0 for none), its darkest specks twice that,
+  /// their colours lifted as much to make up for it; and how wide its tile
+  /// is.
   final double grain;
   final double grainTile;
 

@@ -87,12 +87,15 @@ final class ChromosomeArt {
   /// chromatin is measured from, in a look of globules.
   late final List<Offset> _spots = <Offset>[form.fish(-1), form.fish(1)];
 
-  /// In a look of globules with a grain, its tile: a square of fine noise,
-  /// the same every time, drawn once; null otherwise.
-  late final ui.Image? _grain = () {
+  /// In a look of globules with a grain, what the globules' meshes are drawn
+  /// with: a tile of fine specks, the same every time, drawn once, that the
+  /// globules' colours are multiplied by, so it lies on them and nowhere
+  /// else, in a layer or out of one ([ChromosomeGlobules.grain]); a plain
+  /// paint otherwise.
+  late final Paint _grained = () {
     final ChromosomeGlobules? globules = _look.globules;
     if (globules == null || globules.grain <= 0) {
-      return null;
+      return Paint();
     }
     const int size = 64;
     final math.Random random = math.Random(64);
@@ -101,15 +104,27 @@ final class ChromosomeArt {
     final Paint texel = Paint();
     for (int y = 0; y < size; y++) {
       for (int x = 0; x < size; x++) {
-        final double v = random.nextDouble();
-        texel.color = Color.lerp(inks.shadow, inks.text, v)!;
+        // A speck's share of the light, from 1 down to twice the grain off.
+        final double v = 1 - 2 * globules.grain * random.nextDouble();
+        texel.color = Color.from(alpha: 1, red: v, green: v, blue: v);
         canvas.drawRect(Rect.fromLTWH(x.toDouble(), y.toDouble(), 1, 1), texel);
       }
     }
     final ui.Picture picture = recorder.endRecording();
-    final ui.Image image = picture.toImageSync(size, size);
+    final ui.Image tile = picture.toImageSync(size, size);
     picture.dispose();
-    return image;
+    final double scale = globules.grainTile * _half / size;
+    // Sampled smoothly, and from smaller copies where a speck is smaller
+    // than a pixel: specks neither flicker as the view moves nor change
+    // with how the canvas is laid out under them.
+    return Paint()
+      ..shader = ImageShader(
+        tile,
+        TileMode.repeated,
+        TileMode.repeated,
+        Matrix4.diagonal3Values(scale, scale, 1).storage,
+        filterQuality: FilterQuality.medium,
+      );
   }();
 
   /// The groove where the sisters touch: the right sister's inner edge, the
@@ -224,7 +239,7 @@ final class ChromosomeArt {
     _granules,
     _outlines,
     _clefts,
-    _grain,
+    _grained,
     _seamShade,
     bounds,
     meanTone,
@@ -302,10 +317,17 @@ final class ChromosomeArt {
         });
       }
     }
+    // In a look of globules with a grain, the globules' colours multiplied
+    // by its specks.
+    final bool grained = (globules?.grain ?? 0) > 0;
     for (int i = 0; i < 2; i++) {
       sister(i, () {
         for (final ui.Vertices vertices in _sisters[i]) {
-          canvas.drawVertices(vertices, BlendMode.dst, mesh);
+          if (grained) {
+            canvas.drawVertices(vertices, BlendMode.modulate, _grained);
+          } else {
+            canvas.drawVertices(vertices, BlendMode.dst, mesh);
+          }
         }
         for (final ui.Vertices vertices in _granules[i]) {
           canvas.drawVertices(vertices, BlendMode.dst, mesh);
@@ -316,23 +338,6 @@ final class ChromosomeArt {
       // The cleft, down each sister's side facing the other.
       for (int i = 0; i < 2; i++) {
         sister(i, () => canvas.drawVertices(_clefts[i], BlendMode.dst, mesh));
-      }
-      // A micrograph's fine grain over the chromatin, in the scene's units,
-      // so it grows with the chromosome.
-      if (_grain case final ui.Image grain) {
-        final double texel = globules.grainTile * _half / grain.width;
-        final Paint fine = Paint()
-          ..blendMode = BlendMode.overlay
-          ..color = Color.fromRGBO(0, 0, 0, globules.grain)
-          ..shader = ImageShader(
-            grain,
-            TileMode.repeated,
-            TileMode.repeated,
-            Matrix4.diagonal3Values(texel, texel, 1).storage,
-          );
-        for (int i = 0; i < 2; i++) {
-          sister(i, () => canvas.drawPath(_outlines[i], fine));
-        }
       }
       return;
     }

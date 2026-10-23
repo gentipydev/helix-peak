@@ -745,6 +745,47 @@ void main() {
     }
   });
 
+  test('a vivid chromatid narrows toward its centromere and its rounded ends '
+      'and nowhere else, a stalk as thick as its arm', () {
+    // The most it widens on the way from [from] to [to].
+    double widening(ChromosomeForm form, double from, double to) {
+      const int steps = 4000;
+      double last = form.widthAt(from);
+      double most = 0;
+      for (int i = 1; i <= steps; i++) {
+        final double w = form.widthAt(from + (to - from) * i / steps);
+        most = math.max(most, w - last);
+        last = w;
+      }
+      return most;
+    }
+
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ChromosomeForm form = _vivid(t);
+      final double ends = form.look.endRound * form.half;
+      expect(
+        widening(form, form.top + ends, form.centromere),
+        lessThan(1e-12),
+        reason: '${t.slug}: the short arm',
+      );
+      expect(
+        widening(form, form.bottom - ends, form.centromere),
+        lessThan(1e-12),
+        reason: '${t.slug}: the long arm',
+      );
+      for (final CytoBand band in locusOf(t).bands) {
+        if (band.stain == Stain.stalk) {
+          final double y = (form.yOf(band.start) + form.yOf(band.end + 1)) / 2;
+          expect(
+            form.widthAt(y),
+            greaterThan(form.half * 0.9),
+            reason: '${t.slug}: ${band.name}',
+          );
+        }
+      }
+    }
+  });
+
   test('no vivid knob crosses into the cleft down the arms, and none reaches '
       'across the waist by more than a hair', () {
     for (final ProteinTarget t in TestCatalog.all) {

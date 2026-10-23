@@ -113,6 +113,7 @@ final class ChromosomePalette {
     ZoomInks inks, {
     ChromosomeLookSpec look = ChromosomeLookSpec.stone,
   }) : _globules = look.globules,
+       _lifted = 1 / (1 - (look.globules?.grain ?? 0)),
        _ramps = <_Ramp>[
          if (look.globules case final ChromosomeGlobules globules)
            for (final ChromatinRamp ramp in <ChromatinRamp>[
@@ -143,6 +144,10 @@ final class ChromosomePalette {
   /// [ChromatinMaterial]: null and none for a look of lobes.
   final ChromosomeGlobules? _globules;
   final List<_Ramp> _ramps;
+
+  /// How much a globule's colours are lifted, to make up for the grain
+  /// that darkens them ([ChromosomeGlobules.grain]).
+  final double _lifted;
 
   /// The share of the mark in the gene's band.
   final double _wash;
@@ -282,18 +287,19 @@ final class ChromosomePalette {
       sheen,
       lift,
     );
-    return pack(alpha, r, g, b);
+    return pack(alpha, r * _lifted, g * _lifted, b * _lifted);
   }
 
-  /// [material]'s crevice, and its specular, at [alpha], packed.
+  /// [material]'s crevice, and its specular, at [alpha], packed: lifted as
+  /// a globule's colours are.
   int crevice(ChromatinMaterial material, double alpha) {
     final _Channels c = _ramps[material.index].stops.first;
-    return pack(alpha, c.r, c.g, c.b);
+    return pack(alpha, c.r * _lifted, c.g * _lifted, c.b * _lifted);
   }
 
   int specular(ChromatinMaterial material, double alpha) {
     final _Channels c = _ramps[material.index].stops.last;
-    return pack(alpha, c.r, c.g, c.b);
+    return pack(alpha, c.r * _lifted, c.g * _lifted, c.b * _lifted);
   }
 
   /// The ramp of material [index] at [light], darker by the band's stain
