@@ -95,6 +95,7 @@ final class ZoomCallout {
     required this.opacity,
     this.anchors = const <Offset>[],
     this.flush = false,
+    this.follows = false,
     this.quiet = false,
     this.row,
     this.ring,
@@ -117,6 +118,11 @@ final class ZoomCallout {
   /// the anchor is then as near what it names as the plate may come. For
   /// names set in a column down either side of what they name.
   final bool flush;
+
+  /// Whether a plate [flush] against the canvas's edge goes on with what it
+  /// names off the canvas, rather than staying against its top or foot: for
+  /// an organ's names, which fade as it flies past the canvas's edges.
+  final bool follows;
 
   /// Whether it names a landmark rather than the gene or what it makes: its
   /// line is then in the quiet ink, the mark being the gene's.
@@ -169,6 +175,7 @@ final class ZoomStaging {
     double opacity, {
     List<Offset> anchors = const <Offset>[],
     bool flush = false,
+    bool follows = false,
     bool quiet = false,
     double? row,
     ZoomRing? ring,
@@ -184,6 +191,7 @@ final class ZoomStaging {
         opacity: opacity,
         anchors: anchors,
         flush: flush,
+        follows: follows,
         quiet: quiet,
         row: row,
         ring: ring,

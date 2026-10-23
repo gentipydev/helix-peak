@@ -186,6 +186,12 @@ final class ZoomDepth {
   /// canvas, 311 by 407 inside the canvas's inset under the stomach's card.
   static const double stomachUpright = 1.0;
 
+  /// How much taller than wide the esophagus is framed: opened from the
+  /// front, from the pharynx to the stomach, it stands as tall as a phone
+  /// lets it, its names in a column at either edge level with what each
+  /// names.
+  static const double esophagusUpright = 1.45;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -209,8 +215,9 @@ final class ZoomDepth {
   /// open from front to back, as [heartUpright], skeletal muscle, the
   /// front of the thigh, as [muscleUpright], the kidney, cut open from
   /// front to back, as [kidneyUpright], the liver, cut open from front to
-  /// back, as [liverUpright], and the stomach, opened from the front, as
-  /// [stomachUpright].
+  /// back, as [liverUpright], the stomach, opened from the front, as
+  /// [stomachUpright], and the esophagus, opened from the front, as
+  /// [esophagusUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -246,6 +253,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.stomach) {
       return stomachUpright;
+    }
+    if (anatomy.organ == OrganKind.esophagus) {
+      return esophagusUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)

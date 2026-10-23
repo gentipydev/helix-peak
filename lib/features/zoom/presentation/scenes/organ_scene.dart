@@ -129,6 +129,7 @@ final class OrganScene extends ZoomScene {
                 frame.toScreen(column.right * grown),
               ),
         flush: column != null,
+        follows: column != null,
         quiet: !name.home,
         ring: column == null ? ring : null,
       );

@@ -1201,6 +1201,18 @@ Rect calloutPlate(
       ? null
       : stage.restingAnchors(d, size, inks, labels)[callout.key];
   if (resting != null && resting >= 0) {
+    // An organ's name set in a column at the canvas's edge goes on with what
+    // it names, off the canvas if that is where it goes, rather than piling
+    // up against the canvas's top or foot with the others as it fades: at
+    // rest it fits as it is, as its anchor was only taken where it did.
+    if (callout.flush && callout.follows) {
+      return _plateBeyond(
+        callout.target,
+        callout.anchors[resting],
+        text,
+        size,
+      );
+    }
     return plateBeyond(
       callout.target,
       callout.anchors[resting],

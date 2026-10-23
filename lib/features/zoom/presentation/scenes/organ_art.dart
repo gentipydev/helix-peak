@@ -15,6 +15,9 @@ import 'organs/brain/brain_anatomy.dart';
 import 'organs/brain/brain_art.dart';
 import 'organs/brain/brain_form.dart';
 import 'organs/brain/brain_style.dart';
+import 'organs/esophagus/esophagus_art.dart';
+import 'organs/esophagus/esophagus_form.dart';
+import 'organs/esophagus/esophagus_style.dart';
 import 'organs/eye/eye_art.dart';
 import 'organs/eye/eye_form.dart';
 import 'organs/eye/eye_style.dart';
@@ -75,15 +78,16 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// its middle, the eye, cut level through its optic nerve, the bone
 /// marrow, its femur cut down its length, the heart, cut open, skeletal
 /// muscle, the front of the thigh, the kidney and the liver, each cut open
-/// from front to back, and the stomach, opened from the front.
+/// from front to back, and the stomach and the esophagus, each opened from
+/// the front.
 ///
 /// Where the gene is, the organ glows in the mark: the part of it the
 /// zoom's cell lives in (the islets of a pancreas for an endocrine cell, its
 /// ducts for a duct cell, the interstitium of a testis for a Leydig cell,
 /// the loops of Henle of a kidney for a cell the Atlas names theirs, the
 /// bile ducts of a liver for a cholangiocyte, the muscularis of a stomach
-/// for a smooth muscle cell), by the kind of organ and of cell, never by
-/// gene.
+/// for a smooth muscle cell, the glands of an esophagus for a cell of its
+/// submucosal glands), by the kind of organ and of cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -180,6 +184,14 @@ abstract class OrganArt {
         level: level,
       ),
       OrganKind.stomach when part != null => _StomachOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        cell: cellName,
+        level: level,
+      ),
+      OrganKind.esophagus when part != null => _EsophagusOrgan(
         part,
         anatomy,
         view,
@@ -352,8 +364,7 @@ _Look _lookOf(OrganKind kind) => switch (kind) {
   OrganKind.uterus ||
   OrganKind.cervix ||
   OrganKind.vagina ||
-  OrganKind.fallopianTube ||
-  OrganKind.esophagus => _Look.hollow,
+  OrganKind.fallopianTube => _Look.hollow,
   _ => _Look.lobules,
 };
 
@@ -1881,6 +1892,162 @@ final class _StomachOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => StomachArt.bedOf(inks, _form.home);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The esophagus, drawn from general anatomy as a specimen opened from the
+/// front (`EsophagusArt`): its front wall cut away down its length, the
+/// lining of its back wall seen from inside, its folds running its length,
+/// the cut wall's coats down either side thickening into its two
+/// sphincters, its glands in its submucosa, the stomach's mucosa meeting
+/// its lining at the Z-line; the pharynx above it and the stomach below,
+/// the diaphragm either side of the hiatus and the aorta to its left and
+/// behind it, each cut short; reached from the body's own outline of it
+/// (`_SpecimenOrgan`), which draws in toward the esophagus's own and becomes
+/// the bed it lies on, the figure staying round it, faint. Where the zoom's
+/// cell lives is in the mark, by the Atlas's name for the cell: its mucosa,
+/// or its glands for a cell of its submucosal glands; its parts, what runs
+/// on from it and what it passes are named in the quiet ink, in a column at
+/// either edge of the canvas, level with each (the user's choices of
+/// 2026-10-23).
+final class _EsophagusOrgan extends _SpecimenOrgan {
+  _EsophagusOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    String? cell,
+    super.level,
+  }) : _form = EsophagusForm.place(
+         part: part,
+         anatomy: anatomy,
+         view: view,
+         home: EsophagusHome.of(cell),
+       );
+
+  final EsophagusForm _form;
+
+  @override
+  bool get _amongFigure => true;
+
+  @override
+  double _settleOf(double detail) =>
+      SpecimenStep.settle(detail, span: EsophagusStyle.settling);
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark, at the place its tissue is
+  // sampled (its glands' at the gland nearest it); and, in the quiet ink,
+  // its two sphincters, what runs on from it, the Z-line, what it passes
+  // and its three parts (the user's choices of 2026-10-23).
+  @override
+  late final List<OrganName> names = <OrganName>[
+    switch (_form.home) {
+      EsophagusHome.mucosa => (
+        key: 'home',
+        word: 'mucosa',
+        at: _form.site,
+        home: true,
+      ),
+      EsophagusHome.glands => (
+        key: 'home',
+        word: 'submucosal glands',
+        at: _form.glandNear(_form.site),
+        home: true,
+      ),
+    },
+    (key: 'pharynx', word: 'pharynx', at: _form.pharynxName, home: false),
+    (
+      key: 'upper',
+      word: 'upper sphincter',
+      at: _form.upperSphincterName,
+      home: false,
+    ),
+    (key: 'cervical', word: 'cervical', at: _form.cervicalName, home: false),
+    (key: 'arch', word: 'aortic arch', at: _form.archName, home: false),
+    (key: 'thoracic', word: 'thoracic', at: _form.thoracicName, home: false),
+    (
+      key: 'diaphragm',
+      word: 'diaphragm',
+      at: _form.diaphragmName,
+      home: false,
+    ),
+    (
+      key: 'lower',
+      word: 'lower sphincter',
+      at: _form.lowerSphincterName,
+      home: false,
+    ),
+    (
+      key: 'abdominal',
+      word: 'abdominal',
+      at: _form.abdominalName,
+      home: false,
+    ),
+    (key: 'zline', word: 'Z-line', at: _form.zLineName, home: false),
+    (key: 'stomach', word: 'stomach', at: _form.stomachName, home: false),
+  ];
+
+  /// The side of the canvas each name is set on, three of the six round
+  /// its lower end on either side, each far enough from the next to be
+  /// set level with it on the narrowest phone, and each where nothing
+  /// drawn beside it reaches out at its height: the diaphragm's, at its
+  /// right half's cut end, and the Z-line's, at its lowest, on the left;
+  /// the sphincters', on the body's left wall, the aorta's and the
+  /// stomach's on the right.
+  static const Map<String, double> _sides = <String, double>{
+    'home': -1,
+    'pharynx': -1,
+    'upper': 1,
+    'cervical': -1,
+    'arch': 1,
+    'thoracic': -1,
+    'diaphragm': -1,
+    'lower': 1,
+    'abdominal': 1,
+    'zline': -1,
+    'stomach': 1,
+  };
+
+  // Each in a column at the canvas's edge, level with what it names, as the
+  // kidney's are: the esophagus stands tall and narrow.
+  @override
+  late final Map<String, OrganColumn> columns = <String, OrganColumn>{
+    for (final OrganName name in names)
+      name.key: () {
+        final (Offset left, Offset right) = _form.edgesAt(name.at);
+        return (side: _sides[name.key]!, left: left, right: right);
+      }(),
+  };
+
+  EsophagusArt? _art;
+
+  EsophagusArt _artFor(ZoomInks inks) {
+    final EsophagusArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = EsophagusArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => EsophagusArt.bedOf(inks, _form.home);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

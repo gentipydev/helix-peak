@@ -67,6 +67,7 @@ void main() {
       TestCatalog.bySlug('recoverin')!,
       TestCatalog.bySlug('phospholamban')!,
       TestCatalog.bySlug('uromodulin')!,
+      TestCatalog.bySlug('cystatinb')!,
     ]) {
       final ZoomStage stage = ZoomStage(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),
