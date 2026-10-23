@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/core/theme/chromosome_colors.dart';
+import 'package:helixpeek/core/theme/kaleido.dart';
 import 'package:helixpeek/core/theme/nucleotide_colors.dart';
 import 'package:helixpeek/features/zoom/domain/locus_track.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_camera.dart';
@@ -49,42 +50,36 @@ Future<ZoomInks> _inks(WidgetTester tester) async {
 ZoomSubject _subject(ProteinTarget t) =>
     ZoomSubject(track: locusOf(t), record: recordOf(t));
 
-ChromosomeScene _scene(ProteinTarget t, ChromosomeLook look) =>
-    ChromosomeScene(_subject(t), look: look);
+ChromosomeScene _scene(ProteinTarget t) => ChromosomeScene(_subject(t));
 
-ZoomStage _stage(ProteinTarget t, ChromosomeLook look) =>
-    ZoomStage(_subject(t), chromosome: look);
+ZoomStage _stage(ProteinTarget t) => ZoomStage(_subject(t));
 
-/// [t]'s chromosome as a form in the vivid look, freshly built.
-ChromosomeForm _vivid(ProteinTarget t) => ChromosomeForm(
+/// [t]'s chromosome as a form, freshly built.
+ChromosomeForm _form(ProteinTarget t) => ChromosomeForm(
   locusOf(t),
-  half: _scene(t, ChromosomeLook.stone).half,
-  look: ChromosomeLookSpec.vivid,
+  half: _scene(t).half,
+  look: ChromosomeLookSpec.zoom,
 );
 
 /// A colour's channels as bytes.
 (int, int, int) _bytes(int colour) =>
     (colour >> 16 & 255, colour >> 8 & 255, colour & 255);
 
-/// The chromosome scene of [stage] at [s] of the way from its stop to the
-/// band, and the frame it is drawn with.
-(ChromosomeScene, ZoomFrame) _turning(
-  ZoomStage stage,
-  ZoomInks inks,
-  double s,
-) {
-  final ZoomDepth depth = stage.depth;
-  for (final (ZoomScene scene, ZoomFrame frame) in stage.frames(
-    depth.depthOf(ZoomStop.chromosome) +
-        s * depth.travelOf(ZoomStop.chromosome.index),
-    _canvas,
-    inks,
-  )) {
-    if (scene is ChromosomeScene) {
-      return (scene, frame);
-    }
-  }
-  throw StateError('no chromosome at $s');
+/// [colour]'s chroma in CIELAB, under D65.
+double _chroma(Color colour) {
+  double linear(double c) =>
+      c <= 0.04045 ? c / 12.92 : math.pow((c + 0.055) / 1.055, 2.4).toDouble();
+  double f(double t) =>
+      t > 0.008856 ? math.pow(t, 1 / 3).toDouble() : 7.787 * t + 16 / 116;
+  final double r = linear(colour.r);
+  final double g = linear(colour.g);
+  final double b = linear(colour.b);
+  final double fx = f((0.4124 * r + 0.3576 * g + 0.1805 * b) / 0.95047);
+  final double fy = f(0.2126 * r + 0.7152 * g + 0.0722 * b);
+  final double fz = f((0.0193 * r + 0.1192 * g + 0.9505 * b) / 1.08883);
+  final double a = 500 * (fx - fy);
+  final double bb = 200 * (fy - fz);
+  return math.sqrt(a * a + bb * bb);
 }
 
 /// What [paint] draws on a canvas of [size], as RGBA bytes.
@@ -109,12 +104,6 @@ Future<Uint8List> _raster(
   return bytes!;
 }
 
-/// A canvas that draws nothing.
-class _Nowhere implements Canvas {
-  @override
-  dynamic noSuchMethod(Invocation invocation) => null;
-}
-
 /// A canvas that draws nothing, and keeps the paint of every path drawn on
 /// it.
 class _Paths implements Canvas {
@@ -127,148 +116,49 @@ class _Paths implements Canvas {
   dynamic noSuchMethod(Invocation invocation) => null;
 }
 
-void main() {
-  test('the stone is ChromosomeStyle’s numbers, with no globules, and the '
-      'vivid is what a build draws unless it asks for the stone', () {
-    const ChromosomeLookSpec stone = ChromosomeLookSpec.stone;
-    expect(
-      <double>[
-        stone.apart,
-        stone.pinch,
-        stone.opening,
-        stone.openingPower,
-        stone.bend,
-        stone.rowStep,
-        stone.waistRowStep,
-        stone.waistRows,
-        stone.feather,
-        stone.featherShare,
-        stone.bow,
-        stone.sheen,
-        stone.occlusion,
-        stone.wash,
-        stone.lobe,
-        stone.lobeSpread,
-        stone.lobeWaist,
-        stone.lobeLattice,
-        stone.lobeTilt,
-        stone.skirtInner,
-        stone.skirtOuter,
-        stone.skirtAlpha,
-        stone.granule,
-        stone.granuleSpread,
-        stone.granuleFloor,
-        stone.granules,
-        stone.bumpLift,
-        stone.bumpAlpha,
-        stone.pitAlpha,
-        stone.shadowX,
-        stone.shadowY,
-        stone.shadowAlpha,
-        stone.shadowSoft,
-        stone.plateX,
-        stone.plateY,
-        stone.plateOut,
-        stone.centromereTint,
-        stone.centromereReach,
-        stone.kinetochoreTint,
-        stone.telomereTint,
-        stone.telomereReach,
-        stone.fish,
-        stone.fishShare,
-        stone.fishGlow,
-        stone.fishOnStrip,
-        stone.paleLit,
-        stone.deepShade,
-        stone.warmth,
-      ],
-      <double>[
-        ChromosomeStyle.apart,
-        ChromosomeStyle.pinch,
-        ChromosomeStyle.opening,
-        ChromosomeStyle.openingPower,
-        ChromosomeStyle.bend,
-        ChromosomeStyle.rowStep,
-        ChromosomeStyle.waistRowStep,
-        ChromosomeStyle.waistRows,
-        ChromosomeStyle.feather,
-        ChromosomeStyle.featherShare,
-        ChromosomeStyle.bow,
-        ChromosomeStyle.sheen,
-        ChromosomeStyle.occlusion,
-        ChromosomeStyle.wash,
-        ChromosomeStyle.lobe,
-        ChromosomeStyle.lobeSpread,
-        ChromosomeStyle.lobeWaist,
-        ChromosomeStyle.lobeLattice,
-        ChromosomeStyle.lobeTilt,
-        ChromosomeStyle.skirtInner,
-        ChromosomeStyle.skirtOuter,
-        ChromosomeStyle.skirtAlpha,
-        ChromosomeStyle.granule,
-        ChromosomeStyle.granuleSpread,
-        ChromosomeStyle.granuleFloor,
-        ChromosomeStyle.granules,
-        ChromosomeStyle.bumpLift,
-        ChromosomeStyle.bumpAlpha,
-        ChromosomeStyle.pitAlpha,
-        ChromosomeStyle.shadowX,
-        ChromosomeStyle.shadowY,
-        ChromosomeStyle.shadowAlpha,
-        ChromosomeStyle.shadowSoft,
-        ChromosomeStyle.plateX,
-        ChromosomeStyle.plateY,
-        ChromosomeStyle.plateOut,
-        ChromosomeStyle.centromereTint,
-        ChromosomeStyle.centromereReach,
-        ChromosomeStyle.kinetochoreTint,
-        ChromosomeStyle.telomereTint,
-        ChromosomeStyle.telomereReach,
-        ChromosomeStyle.fish,
-        ChromosomeStyle.fishShare,
-        ChromosomeStyle.fishGlow,
-        ChromosomeStyle.fishOnStrip,
-        ChromosomeStyle.paleLit,
-        ChromosomeStyle.deepShade,
-        ChromosomeStyle.warmth,
-      ],
-    );
-    expect(stone.columns, ChromosomeStyle.columns);
-    // What were numbers in the code before the looks.
-    expect(stone.waistLength, 0.9);
-    expect(stone.endRound, 1);
-    expect(stone.boundsInflate, 1.2);
-    expect(stone.ambientScale, 1);
-    expect(stone.diffuseGain, 1);
-    expect(stone.globules, isNull);
-    expect(ChromosomeLook.stone.spec, same(ChromosomeLookSpec.stone));
-    expect(ChromosomeLook.vivid.spec, same(ChromosomeLookSpec.vivid));
-    expect(ChromosomeLook.chosen, ChromosomeLook.vivid);
-    expect(
-      _scene(TestCatalog.insulin, ChromosomeLook.chosen).form.look,
-      same(ChromosomeLookSpec.vivid),
-    );
-    expect(
-      (ZoomStage(_subject(TestCatalog.insulin))
-                  .scenes[ZoomStop.chromosome.index]
-              as ChromosomeScene)
-          .look,
-      ChromosomeLook.vivid,
-    );
-    // A stone chromosome's knobs carry no materials.
-    final ChromosomeForm form = _scene(
-      TestCatalog.insulin,
-      ChromosomeLook.stone,
-    ).form;
-    for (final double side in <double>[-1, 1]) {
-      expect(form.knobs(side).material, isEmpty);
-      expect(form.knobs(side).pick, isEmpty);
-      expect(form.knobs(side).lift, isEmpty);
-    }
-  });
+/// A canvas that draws nothing, and keeps every paint it is drawn with,
+/// with how many ovals and circles were drawn and the paints of the
+/// circles.
+class _Drawn implements Canvas {
+  final List<Paint> paints = <Paint>[];
+  final List<Paint> circles = <Paint>[];
+  int ovals = 0;
 
-  test('every vivid knob’s material is picked the same every time, and '
-      'proteins on one chromosome share their knobs', () {
+  @override
+  void drawPath(Path path, Paint paint) => paints.add(paint);
+
+  @override
+  void drawVertices(ui.Vertices vertices, BlendMode mode, Paint paint) =>
+      paints.add(paint);
+
+  @override
+  void drawOval(Rect rect, Paint paint) {
+    ovals++;
+    paints.add(paint);
+  }
+
+  @override
+  void drawCircle(Offset c, double radius, Paint paint) {
+    circles.add(paint);
+    paints.add(paint);
+  }
+
+  @override
+  void drawRect(Rect rect, Paint paint) => paints.add(paint);
+
+  @override
+  void drawRRect(RRect rrect, Paint paint) => paints.add(paint);
+
+  @override
+  void saveLayer(Rect? bounds, Paint paint) => paints.add(paint);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
+}
+
+void main() {
+  test('every knob’s material is picked the same every time, and proteins '
+      'on one chromosome share their knobs', () {
     List<double> shape(ChromosomeForm form) => <double>[
       for (final double side in <double>[-1, 1]) ...<double>[
         ...form.knobs(side).y,
@@ -281,8 +171,8 @@ void main() {
       ],
     ];
     for (final ProteinTarget t in TestCatalog.all) {
-      final ChromosomeForm form = _vivid(t);
-      expect(shape(form), shape(_vivid(t)), reason: t.slug);
+      final ChromosomeForm form = _form(t);
+      expect(shape(form), shape(_form(t)), reason: t.slug);
       for (final double side in <double>[-1, 1]) {
         final KnobField knobs = form.knobs(side);
         expect(knobs.material, hasLength(knobs.length), reason: t.slug);
@@ -307,26 +197,28 @@ void main() {
       <ProteinTarget>[TestCatalog.app, TestCatalog.sod1],
     ]) {
       expect(
-        shape(_vivid(same.last)),
-        shape(_vivid(same.first)),
+        shape(_form(same.last)),
+        shape(_form(same.first)),
         reason: same.last.slug,
       );
     }
   });
 
-  testWidgets('coral lies only about the centromere, gold only at the ends '
-      'and teal only round the spots, and every chromosome shows all four '
-      'and its arms’ blue', (WidgetTester tester) async {
+  testWidgets('the centromere’s chromatin lies only about it, the telomeres’ '
+      'only at the ends and the gene’s only round its place, and every '
+      'chromosome shows all four, mostly the arms’', (
+    WidgetTester tester,
+  ) async {
     final ZoomInks inks = await _inks(tester);
-    final ChromosomeLookSpec look = ChromosomeLookSpec.vivid;
-    final ChromosomeGlobules globules = look.globules!;
+    final ChromosomeLookSpec look = ChromosomeLookSpec.zoom;
+    final ChromosomeGlobules globules = look.globules;
     for (final ProteinTarget t in TestCatalog.all) {
-      final ChromosomeForm form = _scene(t, ChromosomeLook.vivid).form;
+      final ChromosomeForm form = _scene(t).form;
       final ChromosomeArt art = ChromosomeArt(form, inks);
       // How far a knob is drawn from where its material was picked: the
       // bow of the band's edges.
       final double bow = look.bow * form.half;
-      final List<Offset> spots = <Offset>[form.fish(-1), form.fish(1)];
+      final List<Offset> places = <Offset>[form.geneOn(-1), form.geneOn(1)];
       final Map<ChromatinMaterial, int> seen = <ChromatinMaterial, int>{};
       for (final double side in <double>[-1, 1]) {
         for (final ({Offset at, double radius, ChromatinMaterial material}) g
@@ -348,8 +240,8 @@ void main() {
               );
             case ChromatinMaterial.gene:
               expect(
-                spots
-                    .map((Offset spot) => (g.at - spot).distance)
+                places
+                    .map((Offset place) => (g.at - place).distance)
                     .reduce(math.min),
                 lessThan(globules.geneReach * form.half),
                 reason: where,
@@ -365,7 +257,7 @@ void main() {
       expect(
         seen[ChromatinMaterial.body],
         greaterThan(seen.values.reduce((int a, int b) => a + b) ~/ 2),
-        reason: '${t.slug}: mostly the arms’ blue',
+        reason: '${t.slug}: mostly the arms’',
       );
     }
   });
@@ -375,12 +267,12 @@ void main() {
     final ZoomInks inks = await _inks(tester);
     final ChromosomePalette palette = ChromosomePalette(
       inks,
-      look: ChromosomeLookSpec.vivid,
+      look: ChromosomeLookSpec.zoom,
     );
     bool keeps(ChromatinMaterial m, int r, int g, int b) => switch (m) {
       // Blue: even its shadows.
       ChromatinMaterial.body => b > r && b > g,
-      // Coral: red over both.
+      // Clay: red over both.
       ChromatinMaterial.centromere => r > g && r > b,
       // Honey: both over blue.
       ChromatinMaterial.telomere => r > b && g > b,
@@ -434,7 +326,7 @@ void main() {
     final ZoomInks inks = await _inks(tester);
     final ChromosomePalette palette = ChromosomePalette(
       inks,
-      look: ChromosomeLookSpec.vivid,
+      look: ChromosomeLookSpec.zoom,
     );
     int value(int colour) {
       final (int r, int g, int b) = _bytes(colour);
@@ -446,7 +338,7 @@ void main() {
       final int pale = value(
         palette.knob(
           ChromatinMaterial.body,
-          ChromosomeStyle.tone(Stain.gneg),
+          ChromosomeLookSpec.tone(Stain.gneg),
           light,
           0,
           1,
@@ -455,7 +347,7 @@ void main() {
       final int deep = value(
         palette.knob(
           ChromatinMaterial.body,
-          ChromosomeStyle.tone(Stain.gpos100),
+          ChromosomeLookSpec.tone(Stain.gpos100),
           light,
           0,
           1,
@@ -466,25 +358,32 @@ void main() {
     }
   });
 
-  testWidgets('the vivid look’s centromere and telomeres are the home '
-      'helix’s clay and honey, and its gene’s shadow the accent’s deep teal', (
+  testWidgets('the chromosome’s colours are the app’s own: its centromere’s '
+      'and its telomeres’ the home helix’s clay and honey through the Kaleido '
+      'filter, its gene’s shade, lit side and sheen the accent’s, and every '
+      'ramp climbs from its crevice to its specular', (
     WidgetTester tester,
   ) async {
     final ZoomInks inks = await _inks(tester);
-    final ChromosomeColors colours = ChromosomeColors.vivid;
-    expect(colours.centromere.base, NucleotideColors.helix.thymine);
-    expect(colours.telomere.base, NucleotideColors.helix.guanine);
-    expect(colours.centromere.base, inks.centromere);
-    expect(colours.telomere.base, inks.telomere);
+    final ChromosomeColors colours = ChromosomeColors.zoom;
+    expect(
+      colours.centromere.base,
+      Kaleido.filter(NucleotideColors.helix.thymine),
+    );
+    expect(
+      colours.telomere.base,
+      Kaleido.filter(NucleotideColors.helix.guanine),
+    );
     expect(colours.gene.shadow, inks.markDeep);
-    expect(ChromosomeLookSpec.vivid.globules!.colours, same(colours));
+    expect(colours.gene.highlight, inks.mark);
+    expect(colours.gene.specular, Color.lerp(inks.mark, inks.text, 0.6));
+    expect(ChromosomeLookSpec.zoom.globules.colours, same(colours));
     for (final ChromatinRamp ramp in <ChromatinRamp>[
       colours.body,
       colours.centromere,
       colours.telomere,
       colours.gene,
     ]) {
-      // Each ramp climbs from its crevice to its specular.
       double lightness(Color c) => 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
       for (int i = 0; i + 1 < ramp.stops.length; i++) {
         expect(
@@ -495,96 +394,99 @@ void main() {
     }
   });
 
-  testWidgets('turned, merged and thinned all the way, the vivid tube is the '
-      'strip: the stone’s, vertex for vertex', (WidgetTester tester) async {
+  testWidgets('the chromosome is quiet beside its gene: every colour of its '
+      'chromatin is at most half as saturated as the mark, which is the '
+      'gene’s lit side', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
-    for (final ProteinTarget t in <ProteinTarget>[
-      TestCatalog.insulin,
-      TestCatalog.sod1,
-      TestCatalog.amylase,
-      TestCatalog.dystrophin,
-      TestCatalog.bySlug('uromodulin')!,
+    final ChromosomeColors colours = ChromosomeColors.zoom;
+    final double mark = _chroma(inks.mark);
+    for (final (String name, ChromatinRamp ramp) in <(String, ChromatinRamp)>[
+      ('arms', colours.body),
+      ('centromere', colours.centromere),
+      ('telomeres', colours.telomere),
+      ('gene', colours.gene),
     ]) {
-      final (ChromosomeScene scene, ZoomFrame frame) = _turning(
-        _stage(t, ChromosomeLook.stone),
-        inks,
-        0.5,
-      );
-      final double target = ChromosomeScene.stripPixels / 2 * frame.pixel;
-      ({Float32List positions, Int32List colours}) laid(ChromosomeLook look) {
-        final ChromosomeTube tube = ChromosomeTube(_scene(t, look).form, inks);
-        tube.paint(
-          _Nowhere(),
-          frame,
-          turn: 1,
-          merge: 1,
-          thin: 1,
-          strip: 1,
-          target: target,
-          under: 0.6,
-        );
-        return tube.laidVertices;
-      }
-
-      final ({Float32List positions, Int32List colours}) stone = laid(
-        ChromosomeLook.stone,
-      );
-      final ({Float32List positions, Int32List colours}) vivid = laid(
-        ChromosomeLook.vivid,
-      );
-      expect(vivid.colours, stone.colours, reason: t.slug);
-      expect(vivid.positions.length, stone.positions.length, reason: t.slug);
-      for (int i = 0; i < vivid.positions.length; i++) {
-        expect(
-          vivid.positions[i],
-          closeTo(stone.positions[i], 1e-6 * scene.half),
-          reason: '${t.slug}, $i',
-        );
+      for (final Color stop in ramp.stops) {
+        if (stop == colours.gene.highlight) {
+          continue;
+        }
+        expect(_chroma(stop), lessThanOrEqualTo(mark / 2), reason: name);
       }
     }
   });
 
-  testWidgets('from a third of the way to the band on, the vivid chromosome '
-      'draws what the stone one does, and is the strip', (
+  testWidgets('nothing glows on the gene: at rest and as the chromosome is '
+      'reached, it is drawn with no spot and nothing added to the light '
+      'under it, its place only pinged with a ring', (
     WidgetTester tester,
   ) async {
     final ZoomInks inks = await _inks(tester);
     for (final ProteinTarget t in <ProteinTarget>[
       TestCatalog.insulin,
+      TestCatalog.myoglobin,
+      TestCatalog.bySlug('uromodulin')!,
+    ]) {
+      final ZoomStage stage = _stage(t);
+      final double depth = stage.depth.depthOf(ZoomStop.chromosome);
+      for (final (ZoomScene shown, ZoomFrame frame) in stage.frames(
+        depth,
+        _canvas,
+        inks,
+      )) {
+        if (shown is! ChromosomeScene) {
+          continue;
+        }
+        final _Drawn rest = _Drawn();
+        shown.paint(rest, frame);
+        expect(rest.ovals, 0, reason: '${t.slug}: a spot at rest');
+        expect(rest.circles, isEmpty, reason: '${t.slug}: a spot at rest');
+        for (final Paint paint in rest.paints) {
+          expect(paint.blendMode, isNot(BlendMode.plus), reason: t.slug);
+        }
+        int rings = 0;
+        for (double dwell = 0; dwell <= 1.4; dwell += 0.05) {
+          final _Drawn arriving = _Drawn();
+          shown.paintAmbient(
+            arriving,
+            ZoomFrame(
+              view: frame.view,
+              size: frame.size,
+              opacity: frame.opacity,
+              inks: inks,
+              clock: dwell,
+              dwell: dwell,
+            ),
+          );
+          expect(arriving.ovals, 0, reason: '${t.slug}: a glow at $dwell');
+          for (final Paint paint in arriving.circles) {
+            expect(paint.style, PaintingStyle.stroke, reason: t.slug);
+            expect(paint.shader, isNull, reason: t.slug);
+            rings++;
+          }
+        }
+        expect(rings, greaterThan(0), reason: '${t.slug}: never pinged');
+      }
+    }
+  });
+
+  testWidgets('half way to the band the chromosome is the strip, band for '
+      'band', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    for (final ProteinTarget t in <ProteinTarget>[
+      TestCatalog.insulin,
       TestCatalog.sod1,
       TestCatalog.amylase,
       TestCatalog.bySlug('uromodulin')!,
     ]) {
-      final ZoomStage stone = _stage(t, ChromosomeLook.stone);
-      final ZoomStage vivid = _stage(t, ChromosomeLook.vivid);
-      for (final double s in <double>[0.35, 0.5, 0.7]) {
-        final (ChromosomeScene a, ZoomFrame fa) = _turning(stone, inks, s);
-        final (ChromosomeScene b, ZoomFrame fb) = _turning(vivid, inks, s);
-        final Uint8List drawnA = await _raster(
-          tester,
-          _canvas,
-          (Canvas c) => a.paint(c, fa),
-        );
-        final Uint8List drawnB = await _raster(
-          tester,
-          _canvas,
-          (Canvas c) => b.paint(c, fb),
-        );
-        int most = 0;
-        for (int i = 0; i < drawnA.length; i++) {
-          most = math.max(most, (drawnA[i] - drawnB[i]).abs());
-        }
-        expect(most, lessThanOrEqualTo(1), reason: '${t.slug} at $s');
-      }
-      // And, at half way, the band's own strip under it, band for band.
-      final ZoomDepth depth = vivid.depth;
-      final LocusTrack track = vivid.subject.track;
+      final ZoomStage stage = _stage(t);
+      final ZoomDepth depth = stage.depth;
+      final LocusTrack track = stage.subject.track;
       final double d =
           depth.depthOf(ZoomStop.chromosome) +
           0.5 * depth.travelOf(ZoomStop.chromosome.index);
       final Map<ZoomStop, (ZoomScene, ZoomFrame)> at =
           <ZoomStop, (ZoomScene, ZoomFrame)>{
-            for (final (ZoomScene scene, ZoomFrame frame) in vivid.frames(
+            for (final (ZoomScene scene, ZoomFrame frame) in stage.frames(
               d,
               _canvas,
               inks,
@@ -637,69 +539,65 @@ void main() {
     }
   });
 
-  testWidgets('the chromosome at rest draws nothing outside its bounds, in '
-      'either look', (WidgetTester tester) async {
+  testWidgets('the chromosome at rest draws nothing outside its bounds', (
+    WidgetTester tester,
+  ) async {
     final ZoomInks inks = await _inks(tester);
-    for (final ChromosomeLook look in ChromosomeLook.values) {
-      for (final ProteinTarget t in <ProteinTarget>[
-        TestCatalog.insulin,
-        TestCatalog.sod1,
-        TestCatalog.amylase,
-        TestCatalog.bySlug('uromodulin')!,
-      ]) {
-        final ChromosomeArt art = ChromosomeArt(_scene(t, look).form, inks);
-        final Rect bounds = art.bounds;
-        // The bounds a third of the image's height, in its middle.
-        final double k = 240 / bounds.height;
-        final Size size = Size(
-          (bounds.width * k * 3).ceilToDouble(),
-          (bounds.height * k * 3).ceilToDouble(),
-        );
-        final ZoomFrame frame = ZoomFrame(
-          view: ZoomView(
-            stop: ZoomStop.chromosome,
-            pixelsPerUnit: k,
-            centre: bounds.center,
-            progress: 0,
-            isChild: false,
-          ),
-          size: size,
-          opacity: 1,
-          inks: inks,
-          clock: 0,
-        );
-        final Uint8List pixels = await _raster(tester, size, (Canvas c) {
-          frame.enter(c);
-          art.paintRest(c, frame);
-        });
-        final Rect inside = Rect.fromCenter(
-          center: size.center(Offset.zero),
-          width: bounds.width * k + 2,
-          height: bounds.height * k + 2,
-        );
-        int outside = 0;
-        for (int y = 0; y < size.height; y++) {
-          for (int x = 0; x < size.width; x++) {
-            if (inside.contains(Offset(x + 0.5, y + 0.5))) {
-              continue;
-            }
-            if (pixels[(y * size.width.toInt() + x) * 4 + 3] != 0) {
-              outside++;
-            }
+    for (final ProteinTarget t in <ProteinTarget>[
+      TestCatalog.insulin,
+      TestCatalog.sod1,
+      TestCatalog.amylase,
+      TestCatalog.bySlug('uromodulin')!,
+    ]) {
+      final ChromosomeArt art = ChromosomeArt(_scene(t).form, inks);
+      final Rect bounds = art.bounds;
+      // The bounds a third of the image's height, in its middle.
+      final double k = 240 / bounds.height;
+      final Size size = Size(
+        (bounds.width * k * 3).ceilToDouble(),
+        (bounds.height * k * 3).ceilToDouble(),
+      );
+      final ZoomFrame frame = ZoomFrame(
+        view: ZoomView(
+          stop: ZoomStop.chromosome,
+          pixelsPerUnit: k,
+          centre: bounds.center,
+          progress: 0,
+          isChild: false,
+        ),
+        size: size,
+        opacity: 1,
+        inks: inks,
+        clock: 0,
+      );
+      final Uint8List pixels = await _raster(tester, size, (Canvas c) {
+        frame.enter(c);
+        art.paintRest(c, frame);
+      });
+      final Rect inside = Rect.fromCenter(
+        center: size.center(Offset.zero),
+        width: bounds.width * k + 2,
+        height: bounds.height * k + 2,
+      );
+      int outside = 0;
+      for (int y = 0; y < size.height; y++) {
+        for (int x = 0; x < size.width; x++) {
+          if (inside.contains(Offset(x + 0.5, y + 0.5))) {
+            continue;
+          }
+          if (pixels[(y * size.width.toInt() + x) * 4 + 3] != 0) {
+            outside++;
           }
         }
-        expect(outside, 0, reason: '${look.name}, ${t.slug}');
       }
+      expect(outside, 0, reason: t.slug);
     }
   });
 
-  testWidgets('the vivid shadow is as soft at any magnification: its blur '
-      'grows with the chromosome', (WidgetTester tester) async {
+  testWidgets('the shadow is as soft at any magnification: its blur grows '
+      'with the chromosome', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
-    final ChromosomeForm form = _scene(
-      TestCatalog.bySlug('uromodulin')!,
-      ChromosomeLook.vivid,
-    ).form;
+    final ChromosomeForm form = _scene(TestCatalog.bySlug('uromodulin')!).form;
     final ChromosomeArt art = ChromosomeArt(form, inks);
     final Rect bounds = art.bounds;
     // Below the lower end, where only the shadow falls: the alpha there at
@@ -750,12 +648,12 @@ void main() {
     }
   });
 
-  testWidgets('nothing is drawn round the vivid chromosome but its blurred '
-      'shadow, in the shadow’s ink', (WidgetTester tester) async {
+  testWidgets('nothing is drawn round the chromosome but its blurred shadow, '
+      'in the shadow’s ink', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
     final Color shadow = inks.shadow;
     for (final ProteinTarget t in TestCatalog.all) {
-      final ZoomStage stage = _stage(t, ChromosomeLook.vivid);
+      final ZoomStage stage = _stage(t);
       int shadows = 0;
       for (final (ZoomScene shown, ZoomFrame frame) in stage.frames(
         stage.depth.depthOf(ZoomStop.chromosome),
@@ -780,11 +678,11 @@ void main() {
     }
   });
 
-  testWidgets('no vivid mesh holds more vertices than its indices reach, and '
-      'the tube is the stone’s size', (WidgetTester tester) async {
+  testWidgets('no mesh holds more vertices than its indices reach, the '
+      'tube’s neither', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
     for (final ProteinTarget t in TestCatalog.all) {
-      final ChromosomeScene scene = _scene(t, ChromosomeLook.vivid);
+      final ChromosomeScene scene = _scene(t);
       for (final ({Float32List positions, Int32List colours}) mesh
           in ChromosomeArt(scene.form, inks).meshData) {
         expect(mesh.colours.length, lessThanOrEqualTo(65000), reason: t.slug);
@@ -792,58 +690,17 @@ void main() {
       }
       expect(
         ChromosomeTube(scene.form, inks).vertexCount,
-        ChromosomeTube(_scene(t, ChromosomeLook.stone).form, inks).vertexCount,
+        lessThanOrEqualTo(65000),
         reason: t.slug,
       );
     }
   });
 
-  test('a vivid chromatid narrows toward its centromere and its rounded ends '
-      'and nowhere else, a stalk as thick as its arm', () {
-    // The most it widens on the way from [from] to [to].
-    double widening(ChromosomeForm form, double from, double to) {
-      const int steps = 4000;
-      double last = form.widthAt(from);
-      double most = 0;
-      for (int i = 1; i <= steps; i++) {
-        final double w = form.widthAt(from + (to - from) * i / steps);
-        most = math.max(most, w - last);
-        last = w;
-      }
-      return most;
-    }
-
-    for (final ProteinTarget t in TestCatalog.all) {
-      final ChromosomeForm form = _vivid(t);
-      final double ends = form.look.endRound * form.half;
-      expect(
-        widening(form, form.top + ends, form.centromere),
-        lessThan(1e-12),
-        reason: '${t.slug}: the short arm',
-      );
-      expect(
-        widening(form, form.bottom - ends, form.centromere),
-        lessThan(1e-12),
-        reason: '${t.slug}: the long arm',
-      );
-      for (final CytoBand band in locusOf(t).bands) {
-        if (band.stain == Stain.stalk) {
-          final double y = (form.yOf(band.start) + form.yOf(band.end + 1)) / 2;
-          expect(
-            form.widthAt(y),
-            greaterThan(form.half * 0.9),
-            reason: '${t.slug}: ${band.name}',
-          );
-        }
-      }
-    }
-  });
-
-  test('no vivid knob crosses into the cleft down the arms, and none reaches '
+  test('no knob crosses into the cleft down the arms, and none reaches '
       'across the waist by more than a hair', () {
     for (final ProteinTarget t in TestCatalog.all) {
-      final ChromosomeForm form = _vivid(t);
-      final ChromosomeGlobules globules = form.look.globules!;
+      final ChromosomeForm form = _form(t);
+      final ChromosomeGlobules globules = form.look.globules;
       for (final double side in <double>[-1, 1]) {
         final KnobField knobs = form.knobs(side);
         for (int k = 0; k < knobs.length; k++) {

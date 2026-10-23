@@ -9,7 +9,6 @@ import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/core/theme/app_typography.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/chromosome/chromosome_art.dart';
-import 'package:helixpeek/features/zoom/presentation/scenes/chromosome/chromosome_style.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/chromosome_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
@@ -31,16 +30,10 @@ import 'support/test_catalog.dart';
 /// microseconds, and the worst moment. It measures the recording only, not
 /// the rasterising a device does after; a moment that records slowly is one
 /// to look at on a device. Without the variable it records each moment once
-/// and checks nothing threw.
-///
-/// ZOOM_CHROMOSOME_LOOK=stone draws the chromosome in that look
-/// ([ChromosomeLook]), the vivid otherwise; the chromosome's line says how
-/// many vertices its meshes hold at rest and on its way into the map.
+/// and checks nothing threw. The chromosome's line says how many vertices
+/// its meshes hold at rest and on its way into the map.
 void main() {
   final bool timing = Platform.environment['ZOOM_PAINT_TIMING'] == '1';
-  final ChromosomeLook look = ChromosomeLook.values.byName(
-    Platform.environment['ZOOM_CHROMOSOME_LOOK'] ?? ChromosomeLook.chosen.name,
-  );
   testWidgets('the zoom records each frame without much work', (
     WidgetTester tester,
   ) async {
@@ -77,7 +70,6 @@ void main() {
     ]) {
       final ZoomStage stage = ZoomStage(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),
-        chromosome: look,
       );
       final ZoomDepth depth = stage.depth;
       final StringBuffer built = StringBuffer();
@@ -163,7 +155,7 @@ void main() {
         print(
           '${t.slug}: slowest $worst ${slowest.round()} µs\n'
           '  built: $built\n  $table\n'
-          '  chromosome (${look.name}): $vertices vertices at rest, '
+          '  chromosome: $vertices vertices at rest, '
           '${chromosome.tubeIn(inks).vertexCount} on its way into the map',
         );
       }

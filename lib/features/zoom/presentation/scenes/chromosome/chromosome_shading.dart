@@ -30,8 +30,8 @@ final class SurfaceNormal {
 /// [turn] is how far the scene is turned back a quarter turn on the
 /// canvas, as the chromosome is on its way to lying along the genome: the
 /// light stays where it is on the screen, so in the turned scene's own
-/// frame it comes from as far round the other way. [look] may scale what
-/// the lamp gives for a contrast of its own, the lamp staying where it is.
+/// frame it comes from as far round the other way. [look] scales what the
+/// lamp gives for a contrast of its own, the lamp staying where it is.
 final class ChromosomeLight {
   factory ChromosomeLight({required ChromosomeLookSpec look, double turn = 0}) {
     SpecimenLamp lamp = SpecimenLamp.zoom;
@@ -92,71 +92,40 @@ final class ChromosomeLight {
 }
 
 /// The inks the chromatin is mixed from, as channels to mix without
-/// building a colour for every vertex: chromatin from the lit outline down
-/// to the surfaces by its stain, both warmed toward the home helix's honey
-/// ([ChromosomeLookSpec.warmth]), tinted toward the centromere's ink or the
-/// telomeres', then as a specimen's surface is mixed
-/// ([SpecimenPalette.colour], step for step): toward the shadow as light
-/// leaves it, into the groove's shade, the mark in the gene's band, and
-/// toward the bright ink where it shines.
-///
-/// A look of globules mixes each material along a ramp of its own instead
+/// building a colour for every vertex: each material along a ramp of its own
 /// ([ChromatinRamp]), so it darkens and brightens in its own hue: from its
-/// crevice in no light through its shadow to its own colour, past it to
-/// its highlight, its sheen to its specular, and into its crevice and on to
-/// the deepest shadow where it is shut in.
+/// crevice in no light through its shadow to its own colour, past it to its
+/// highlight, its sheen to its specular, and into its crevice and on to the
+/// deepest shadow where it is shut in.
 final class ChromosomePalette {
   ChromosomePalette(ZoomInks inks, {required ChromosomeLookSpec look})
     : _globules = look.globules,
-      _lifted = 1 / (1 - (look.globules?.grain ?? 0)),
+      _lifted = 1 / (1 - look.globules.grain),
       _ramps = <_Ramp>[
-        if (look.globules case final ChromosomeGlobules globules)
-          for (final ChromatinRamp ramp in <ChromatinRamp>[
-            globules.colours.body,
-            globules.colours.centromere,
-            globules.colours.telomere,
-            globules.colours.gene,
-          ])
-            _Ramp(ramp),
+        for (final ChromatinRamp ramp in <ChromatinRamp>[
+          look.globules.colours.body,
+          look.globules.colours.centromere,
+          look.globules.colours.telomere,
+          look.globules.colours.gene,
+        ])
+          _Ramp(ramp),
       ],
-      _wash = look.wash,
-      _pale = _Channels(_warmed(inks, inks.lit(look.paleLit), look.warmth)),
-      _deep = _Channels(_warmed(inks, inks.shade(look.deepShade), look.warmth)),
-      _shadow = _Channels(inks.shadow),
-      _text = _Channels(inks.text),
-      _mark = _Channels(inks.mark),
-      _centromere = _Channels(inks.centromere),
-      _telomere = _Channels(inks.telomere);
+      _shadow = _Channels(inks.shadow);
 
-  /// [colour] warmed toward the home helix's honey, the ink the zoom's
-  /// nerves are drawn in, [warmth] of the way, as far as the chromatin is.
-  static Color _warmed(ZoomInks inks, Color colour, double warmth) =>
-      Color.lerp(colour, inks.bases.guanine, warmth)!;
-
-  /// How a look of globules mixes its chromatin, and its ramps, by
-  /// [ChromatinMaterial]: null and none for a look of lobes.
-  final ChromosomeGlobules? _globules;
+  /// How the chromatin is drawn, and its ramps, by [ChromatinMaterial].
+  final ChromosomeGlobules _globules;
   final List<_Ramp> _ramps;
 
   /// How much a globule's colours are lifted, to make up for the grain
   /// that darkens them ([ChromosomeGlobules.grain]).
   final double _lifted;
 
-  /// The share of the mark in the gene's band.
-  final double _wash;
-
-  final _Channels _pale;
-  final _Channels _deep;
   final _Channels _shadow;
-  final _Channels _text;
-  final _Channels _mark;
-  final _Channels _centromere;
-  final _Channels _telomere;
 
   /// Chromatin of stain [tone], at brightness [light], [occlusion] of the
-  /// way into the groove's shade and [gene] of the way into the gene's band,
-  /// [centromere] and [telomere] of the way to their inks, and [sheen] of
-  /// the way to the bright ink.
+  /// way into the groove's shade and [gene] of the way to the gene's,
+  /// [centromere] and [telomere] of the way to theirs, and [sheen] of the
+  /// way to its specular.
   int colour(
     double tone,
     double light,
@@ -179,10 +148,10 @@ final class ChromosomePalette {
     return pack(alpha, r, g, b);
   }
 
-  /// [colour]'s channels, from 0 to 1, before they are packed. In a look of
-  /// globules, the arms' chromatin is mixed [centromere], [telomere] and
-  /// [gene] of the way to the centromere's, the telomeres' and the gene's,
-  /// each at the same light: a smooth tube's, under the globules.
+  /// [colour]'s channels, from 0 to 1, before they are packed: the arms'
+  /// chromatin mixed [centromere], [telomere] and [gene] of the way to the
+  /// centromere's, the telomeres' and the gene's, each at the same light: a
+  /// smooth tube's, under the globules.
   (double, double, double) mix(
     double tone,
     double light,
@@ -192,77 +161,38 @@ final class ChromosomePalette {
     double telomere = 0,
     double sheen = 0,
   }) {
-    if (_globules != null) {
-      double r;
-      double g;
-      double b;
-      (r, g, b) = _along(0, tone, light, occlusion, sheen, 0);
-      for (final (int material, double share) in <(int, double)>[
-        (ChromatinMaterial.centromere.index, centromere),
-        (ChromatinMaterial.telomere.index, telomere),
-        (ChromatinMaterial.gene.index, gene),
-      ]) {
-        if (share > 0) {
-          final (double mr, double mg, double mb) = _along(
-            material,
-            tone,
-            light,
-            occlusion,
-            sheen,
-            0,
-          );
-          r += (mr - r) * share;
-          g += (mg - g) * share;
-          b += (mb - b) * share;
-        }
+    double r;
+    double g;
+    double b;
+    (r, g, b) = _along(0, tone, light, occlusion, sheen, 0);
+    for (final (int material, double share) in <(int, double)>[
+      (ChromatinMaterial.centromere.index, centromere),
+      (ChromatinMaterial.telomere.index, telomere),
+      (ChromatinMaterial.gene.index, gene),
+    ]) {
+      if (share > 0) {
+        final (double mr, double mg, double mb) = _along(
+          material,
+          tone,
+          light,
+          occlusion,
+          sheen,
+          0,
+        );
+        r += (mr - r) * share;
+        g += (mg - g) * share;
+        b += (mb - b) * share;
       }
-      return (r, g, b);
-    }
-    double r = _pale.r + (_deep.r - _pale.r) * tone;
-    double g = _pale.g + (_deep.g - _pale.g) * tone;
-    double b = _pale.b + (_deep.b - _pale.b) * tone;
-    // The centromere's and the telomeres' tints are the chromatin's own
-    // colour there, lit as the rest is, so the light and the relief read
-    // through them.
-    r += (_centromere.r - r) * centromere;
-    g += (_centromere.g - g) * centromere;
-    b += (_centromere.b - b) * centromere;
-    r += (_telomere.r - r) * telomere;
-    g += (_telomere.g - g) * telomere;
-    b += (_telomere.b - b) * telomere;
-    if (light <= 1) {
-      final double t = math.max(0, light);
-      r = _shadow.r + (r - _shadow.r) * t;
-      g = _shadow.g + (g - _shadow.g) * t;
-      b = _shadow.b + (b - _shadow.b) * t;
-    } else {
-      final double t = math.min(0.7, 0.9 * (light - 1));
-      r += (_text.r - r) * t;
-      g += (_text.g - g) * t;
-      b += (_text.b - b) * t;
-    }
-    r += (_shadow.r - r) * occlusion;
-    g += (_shadow.g - g) * occlusion;
-    b += (_shadow.b - b) * occlusion;
-    final double wash = _wash * gene;
-    r += (_mark.r - r) * wash;
-    g += (_mark.g - g) * wash;
-    b += (_mark.b - b) * wash;
-    if (sheen > 0) {
-      final double s = math.min(1, sheen);
-      r += (_text.r - r) * s;
-      g += (_text.g - g) * s;
-      b += (_text.b - b) * s;
     }
     return (r, g, b);
   }
 
   int shadow(double alpha) => pack(alpha, _shadow.r, _shadow.g, _shadow.b);
 
-  /// A knob of [material] in a look of globules, packed: of stain [tone], at
-  /// brightness [light], [occlusion] of the way into its crevice and on into
-  /// the deepest shadow, its own jitter [lift] (-1 to 1) of the way lighter
-  /// or darker, and [sheen] of the way to its specular.
+  /// A knob of [material], packed: of stain [tone], at brightness [light],
+  /// [occlusion] of the way into its crevice and on into the deepest shadow,
+  /// its own jitter [lift] (-1 to 1) of the way lighter or darker, and
+  /// [sheen] of the way to its specular.
   int knob(
     ChromatinMaterial material,
     double tone,
@@ -306,7 +236,7 @@ final class ChromosomePalette {
     double sheen,
     double lift,
   ) {
-    final ChromosomeGlobules globules = _globules!;
+    final ChromosomeGlobules globules = _globules;
     final List<_Channels> stops = _ramps[index].stops;
     final double at =
         light * (1 - globules.bandShade * tone) * (1 + globules.lift * lift);

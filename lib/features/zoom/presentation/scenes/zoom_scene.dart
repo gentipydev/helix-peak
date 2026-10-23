@@ -98,8 +98,6 @@ final class ZoomCallout {
     this.quiet = false,
     this.row,
     this.ring,
-    this.ink,
-    this.edge,
   });
 
   final String key;
@@ -135,14 +133,6 @@ final class ZoomCallout {
   /// on the side of it what it names is on, its words on two lines where
   /// one would not fit there. Null for a name set otherwise.
   final ZoomRing? ring;
-
-  /// The ink its line and the dot it lands on are drawn in, where a scene
-  /// draws in colours of its own (a chromosome in its vivid look): null for
-  /// the zoom's, the quiet ink or the mark as [quiet] says.
-  final Color? ink;
-
-  /// A hairline round its plate, in that colour: null for none.
-  final Color? edge;
 }
 
 /// Where a name set in a column at the canvas's edge ([ZoomCallout.flush])
@@ -182,8 +172,6 @@ final class ZoomStaging {
     bool quiet = false,
     double? row,
     ZoomRing? ring,
-    Color? ink,
-    Color? edge,
   }) {
     if (opacity <= 0) {
       return;
@@ -199,8 +187,6 @@ final class ZoomStaging {
         quiet: quiet,
         row: row,
         ring: ring,
-        ink: ink,
-        edge: edge,
       ),
     );
     item('callout:$key', target, opacity);

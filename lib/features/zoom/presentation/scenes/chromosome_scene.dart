@@ -23,29 +23,21 @@ import 'zoom_subject.dart';
 /// are ([ChromosomeArt]): two sister chromatids, each a coil of chromatin
 /// as thick as a chromatid is, touching along a groove and pinched together
 /// at the centromere, their surface knobbly, their cytoBand G-bands soft
-/// changes of tone. The gene is marked as FISH marks a gene: a spot on each
-/// sister at its height, over its band, which is bracketed and named. The
-/// spots are a probe's, never the gene, which is far too small to see at
-/// this scale. Its parts are named in the quiet ink in a column at the
-/// canvas's edge either side of it, level with each ([parts]), the band's
-/// name at the head of the column on the right.
+/// changes of tone. The gene is marked by the chromatin round its place on
+/// each sister, at its height, in the mark, over its band, which is
+/// bracketed and named: the gene's place, never the gene, which is far too
+/// small to see at this scale. Its parts are named in the quiet ink in a
+/// column at the canvas's edge either side of it, level with each
+/// ([parts]), the band's name at the head of the column on the right.
 ///
 /// On the way in it condenses out of its territory in the nucleus. On the
 /// way out it turns to lie along the genome, its chromatids merge into one
 /// and it thins into the band's strip ([ChromosomeTube]), drawn by then as
 /// the strip itself is, so the map takes over from it with nothing to see.
-///
-/// It is drawn in [look]: the vivid's globules (the user's ask of
-/// 2026-10-23), whose names' lines are drawn in its own quiet blue, each
-/// plate edged with a hairline of it, and the gene's bracket and its band's
-/// line in its cyan; or, where a build asks for it, the stone.
 final class ChromosomeScene extends ZoomScene {
-  ChromosomeScene(this.subject, {this.look = ChromosomeLook.chosen});
+  ChromosomeScene(this.subject);
 
   final ZoomSubject subject;
-
-  /// The look the chromosome is drawn in.
-  final ChromosomeLook look;
 
   @override
   ZoomStop get stop => ZoomStop.chromosome;
@@ -71,21 +63,12 @@ final class ChromosomeScene extends ZoomScene {
   late final ChromosomeForm form = ChromosomeForm(
     _track,
     half: half,
-    look: look.spec,
+    look: ChromosomeLookSpec.zoom,
   );
 
   /// How far out past a chromatid's width the gene's bracket and its band's
-  /// name keep: clear of the globules standing out of it, in a look of them.
-  double get _clear => (form.look.globules?.clearOfLumps ?? 0) * half;
-
-  /// The ink a name's line is drawn in, and the hairline round its plate,
-  /// in a look of globules: null for the zoom's own, and none.
-  Color? get _leader => form.look.globules?.colours.leader;
-  Color? get _edge => _leader?.withValues(alpha: 0.15);
-
-  /// The gene's cyan, in a look of globules: its bracket's, and its band's
-  /// line.
-  Color? get _cyan => form.look.globules?.colours.gene.highlight;
+  /// name keep: clear of the globules standing out of it.
+  double get _clear => form.look.globules.clearOfLumps * half;
 
   /// The map's band strip, in pixels: the chromosome thins to it.
   static const double stripPixels = BandScene.strip;
@@ -175,8 +158,6 @@ final class ChromosomeScene extends ZoomScene {
         math.min(calloutPresence(frame), formed),
         anchors: _bandAnchors(target),
         flush: true,
-        ink: _cyan,
-        edge: _edge,
       );
       _nameParts(frame, out, math.min(calloutPresence(frame), formed));
       // Before the step is under way the nucleus draws the territory.
@@ -188,8 +169,7 @@ final class ChromosomeScene extends ZoomScene {
       out.item('territory:followed', origin, 1 - c.tint);
       out.item('territory:halo', origin, c.edge);
       out.item('chromosome:art', band, c.art);
-      out.item('chromosome:bracket', band, c.spots);
-      out.item('chromosome:spots', frame.toScreen(_spotsAt(0)), c.spots);
+      out.item('chromosome:bracket', band, c.bracket);
       return;
     }
     final _Turning t = _Turning(s);
@@ -206,18 +186,11 @@ final class ChromosomeScene extends ZoomScene {
       calloutPresence(frame),
       anchors: _bandAnchors(target),
       flush: true,
-      ink: _cyan,
-      edge: _edge,
     );
     _nameParts(frame, out, calloutPresence(frame));
     out.item('chromosome:art', band, math.min(frame.opacity, t.art));
     out.item('chromosome:bracket', band, math.min(frame.opacity, t.art));
     out.item('chromosome:ring', band, math.min(frame.opacity, t.ring));
-    out.item(
-      'chromosome:spots',
-      _onScreen(frame, _spotsAt(t.merge), t.turn),
-      math.min(frame.opacity, 1 - t.mark),
-    );
   }
 
   /// The parts of the chromosome a reader looks for, named in the quiet ink
@@ -282,8 +255,6 @@ final class ChromosomeScene extends ZoomScene {
         anchors: columnAnchors(side, edge(-1), edge(1)),
         flush: true,
         quiet: true,
-        ink: _leader,
-        edge: _edge,
       );
     }
   }
@@ -296,28 +267,6 @@ final class ChromosomeScene extends ZoomScene {
     return Offset(
       form.centreAt(1, _bandY, merge: merge) + w + (target - w) * merge,
       _bandY,
-    );
-  }
-
-  /// The middle of the gene's two spots, [merge] of the way onto the axis.
-  Offset _spotsAt(double merge) => Offset(
-    (form.fish(-1, merge: merge).dx + form.fish(1, merge: merge).dx) / 2,
-    form.geneY,
-  );
-
-  /// Where the scene's point [p] is on screen while the chromosome is
-  /// turned [turn] of the way to lying along the genome, about its band.
-  Offset _onScreen(ZoomFrame frame, Offset p, double turn) {
-    if (turn <= 0) {
-      return frame.toScreen(p);
-    }
-    final double a = -math.pi / 2 * turn;
-    final Offset d = p - Offset(0, _bandY);
-    return frame.toScreen(
-      Offset(
-        d.dx * math.cos(a) - d.dy * math.sin(a),
-        _bandY + d.dx * math.sin(a) + d.dy * math.cos(a),
-      ),
     );
   }
 
@@ -343,7 +292,8 @@ final class ChromosomeScene extends ZoomScene {
   @override
   bool wantsClock(ZoomFrame frame) => !frame.isChild && frame.dwell < 1.4;
 
-  // As the chromosome is reached, the gene's two spots flare once.
+  // As the chromosome is reached, the gene's place on each sister pings
+  // once.
   @override
   void paintAmbient(Canvas canvas, ZoomFrame frame) {
     if (frame.isChild) {
@@ -353,7 +303,7 @@ final class ChromosomeScene extends ZoomScene {
     canvas.save();
     frame.enter(canvas);
     _turn(canvas, _Turning(frame.progress).turn);
-    _artIn(frame.inks).paintFlare(
+    _artIn(frame.inks).paintPing(
       canvas,
       frame,
       Sculpt.beat(frame.dwell, delay: 0.15, length: 1.1),
@@ -376,20 +326,17 @@ final class ChromosomeScene extends ZoomScene {
     canvas.restore();
   }
 
-  /// The chromosome at rest: the micrograph, the gene's spots, and its
-  /// band's bracket.
+  /// The chromosome at rest: the micrograph, and its band's bracket.
   void _resting(Canvas canvas, ZoomFrame frame) {
-    final ChromosomeArt art = _artIn(frame.inks);
-    art.paintRest(canvas, frame);
-    art.paintSpots(canvas);
+    _artIn(frame.inks).paintRest(canvas, frame);
     _bracket(canvas, frame);
   }
 
   /// The territory condensing into the chromosome. Its outline draws in to
   /// the chromosome's while its mark gives way to the chromatin's own tone,
   /// as the nucleus's edge and glow fade; the micrograph comes up over it,
-  /// the fill under it going last; and the gene's spots come up on the
-  /// sisters. Nothing is drawn before the step is under way, where the
+  /// the fill under it going last; and the band's bracket comes up beside
+  /// it. Nothing is drawn before the step is under way, where the
   /// nucleus draws the territory, and once every part is at rest the stop
   /// itself is drawn, so the step's last frames are the stop's.
   void _condensing(Canvas canvas, ZoomFrame frame) {
@@ -424,16 +371,14 @@ final class ChromosomeScene extends ZoomScene {
       art.paintRest(canvas, frame);
       canvas.restore();
     }
-    art.paintSpots(canvas, opacity: c.spots);
-    _bracket(canvas, frame, alpha: c.spots);
+    _bracket(canvas, frame, alpha: c.bracket);
   }
 
   /// The chromosome turning into the band's map. Under the micrograph, which
   /// fades as the turn begins, the tube turns, merges and thins into the
-  /// strip; the gene's band is ringed as the strip rings it; the gene's
-  /// spots merge on the axis into the glow the map marks the gene with,
-  /// until the map's own mark takes over; and the band's bracket goes with
-  /// the micrograph.
+  /// strip, the gene's chromatin on it giving way to the strip's stains; the
+  /// gene's band is ringed as the strip rings it; and the band's bracket
+  /// goes with the micrograph.
   void _turning(Canvas canvas, ZoomFrame frame) {
     final ZoomInks inks = frame.inks;
     final ChromosomeArt art = _artIn(inks);
@@ -469,7 +414,6 @@ final class ChromosomeScene extends ZoomScene {
       canvas.restore();
     }
     _ring(canvas, frame, t.ring, t.merge, target, under);
-    _spotsOnTheWay(canvas, frame, art, t);
     _bracket(
       canvas,
       frame,
@@ -521,42 +465,6 @@ final class ChromosomeScene extends ZoomScene {
     );
   }
 
-  /// The gene's spots on the way into the map: merging onto the axis as the
-  /// sisters do, the left one going into the right, and easing into the
-  /// glow the map marks the gene with, which takes over from them as it
-  /// comes up.
-  void _spotsOnTheWay(
-    Canvas canvas,
-    ZoomFrame frame,
-    ChromosomeArt art,
-    _Turning t,
-  ) {
-    final double shown = 1 - t.mark;
-    if (shown <= 0.002) {
-      return;
-    }
-    final double pixel = frame.pixel;
-    final double r = form.fishRadius;
-    final double reach = form.look.fishGlow * r;
-    final double core = r + (form.look.fishOnStrip * pixel - r) * t.strip;
-    final double glow = reach + (BandScene.geneGlow * pixel - reach) * t.strip;
-    final double heart = 0.38 + (BandScene.geneGlowAlpha - 0.38) * t.strip;
-    for (final double side in <double>[-1, 1]) {
-      final double alpha = shown * (side < 0 ? 1 - t.merge : 1);
-      if (alpha > 0.002) {
-        art.paintSpot(
-          canvas,
-          form.fish(side, merge: t.merge),
-          core,
-          glow,
-          heart * alpha,
-          alpha,
-          own: 1 - t.strip,
-        );
-      }
-    }
-  }
-
   /// The band the gene lies in: a bracket beside it, as ISCN marks one,
   /// [alpha] of the way up; on the way into the map, beside the band
   /// [merge] of the way onto the axis and thinned [thin] of the way to
@@ -590,10 +498,7 @@ final class ChromosomeScene extends ZoomScene {
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2 * pixel
-        ..color = switch (_cyan) {
-          final Color cyan => cyan.withValues(alpha: alpha.clamp(0.0, 1.0)),
-          null => frame.inks.glow(alpha),
-        },
+        ..color = frame.inks.glow(alpha),
     );
   }
 }
@@ -609,7 +514,7 @@ final class _Condensing {
       tint = smoothstep((s - 0.15) / 0.5),
       art = smoothstep((s - 0.35) / 0.45),
       fill = 1 - smoothstep((s - 0.62) / 0.36),
-      spots = smoothstep((s - 0.5) / 0.45);
+      bracket = smoothstep((s - 0.5) / 0.45);
 
   /// Where every part is at rest, and the stop itself is drawn.
   static const double done = 0.98;
@@ -629,8 +534,8 @@ final class _Condensing {
   /// How much of the fill under the micrograph is left.
   final double fill;
 
-  /// How far the gene's spots and its band's bracket have come up.
-  final double spots;
+  /// How far its band's bracket has come up.
+  final double bracket;
 }
 
 /// How far the chromosome has turned into the band's map, [s] of the way
@@ -643,8 +548,7 @@ final class _Turning {
       merge = smootherstep((s - 0.08) / 0.27),
       strip = smoothstep((s - 0.12) / 0.23),
       art = 1 - smoothstep(s / 0.3),
-      ring = smoothstep((s - 0.05) / 0.45),
-      mark = BandScene.markArriving(s);
+      ring = smoothstep((s - 0.05) / 0.45);
 
   /// How far it has turned to lie along the genome.
   final double turn;
@@ -662,8 +566,4 @@ final class _Turning {
 
   /// How far the ring round the gene's band has come up.
   final double ring;
-
-  /// How far the map's own mark of the gene has come up, taking over from
-  /// the spots.
-  final double mark;
 }

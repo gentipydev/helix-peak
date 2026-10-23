@@ -96,11 +96,8 @@ void main() {
     expect(inks.markDeep, scheme.primaryContainer);
     // The helix is drawn as the home screen draws its own.
     expect(inks.bases, AppTheme.home.extension<NucleotideColors>());
-    // A chromosome's centromere and telomeres in the helix's clay and honey.
+    // A nerve in the helix's honey.
     final NucleotideColors helix = AppTheme.home.extension<NucleotideColors>()!;
-    expect(inks.centromere, helix.thymine);
-    expect(inks.telomere, helix.guanine);
-    // A nerve in its honey too.
     expect(inks.nerve, helix.guanine);
     final AnatomyColors anatomy = theme.extension<AnatomyColors>()!;
     expect(inks.cds, anatomy.roleCds);

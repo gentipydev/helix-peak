@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/features/zoom/domain/locus_track.dart';
-import 'package:helixpeek/features/zoom/presentation/scenes/chromosome/chromosome_style.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/chromosome_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 
@@ -11,12 +10,9 @@ import '../../../support/test_catalog.dart';
 import '../record_fixtures.dart';
 import '../zoom_fixtures.dart';
 
-/// [t]'s chromosome in the stone, whose ends round over one half-width; the
-/// vivid's rounder ends are held by chromosome_vivid_test.dart.
-ChromosomeScene _scene(ProteinTarget t) => ChromosomeScene(
-  ZoomSubject(track: locusOf(t), record: recordOf(t)),
-  look: ChromosomeLook.stone,
-);
+/// [t]'s chromosome.
+ChromosomeScene _scene(ProteinTarget t) =>
+    ChromosomeScene(ZoomSubject(track: locusOf(t), record: recordOf(t)));
 
 /// The most [scene]'s chromatid widens on the way from [from] to [to].
 double _widening(ChromosomeScene scene, double from, double to) {
@@ -55,16 +51,17 @@ void main() {
     },
   );
 
-  test('a chromatid narrows toward its centromere and nowhere else, '
-      'a stalk as thick as its arm', () {
+  test('a chromatid narrows toward its centromere and its rounded ends and '
+      'nowhere else, a stalk as thick as its arm', () {
     int stalks = 0;
     for (final ProteinTarget target in TestCatalog.all) {
       final LocusTrack track = locusOf(target);
       final ChromosomeScene scene = _scene(target);
       // Clear of each end's rounding, each arm narrows only as it nears the
       // centromere.
-      final double top = scene.yOf(1) + scene.half;
-      final double bottom = scene.yOf(track.length + 1) - scene.half;
+      final double ends = scene.form.look.endRound * scene.half;
+      final double top = scene.yOf(1) + ends;
+      final double bottom = scene.yOf(track.length + 1) - ends;
       expect(
         _widening(scene, top, scene.centromere),
         lessThan(1e-12),

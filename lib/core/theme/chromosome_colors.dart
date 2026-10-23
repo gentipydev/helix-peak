@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
+import 'kaleido.dart';
 import 'nucleotide_colors.dart';
 
 /// One material of chromatin, from where no light reaches it to where the
@@ -27,13 +28,16 @@ final class ChromatinRamp {
   List<Color> get stops => <Color>[crevice, shadow, base, highlight, specular];
 }
 
-/// The zoom's chromosome in its vivid look (the user's ask of 2026-10-23,
-/// after a picture of chromosome 16 they sent): its chromatin a saturated
-/// blue, the centromere's in the home helix's clay and the telomeres' in its
-/// honey, as the stone look tints them, and the chromatin round the gene in
-/// a cyan brighter than the accent, its crevices the accent's own deep teal.
-/// Its ground, its plates and its deepest shadow are the app's own, and are
-/// not repeated here.
+/// The zoom's chromosome: its arms a soft blue in the hue of the app's inks,
+/// the centromere's neck in the home helix's clay and the telomeres' caps in
+/// its honey, all at half the chroma they were first drawn in, through the
+/// app's Kaleido filter as the walk's residues are (lightness and hue kept);
+/// and the chromatin round the gene in the mark, from the accent's deep teal
+/// in its shade to the accent itself where it is lit (the user's choice of
+/// 2026-10-23, after a study of the zoom's colours: the chromosome as quiet
+/// as the organs keep their tissues, and the gene the strongest colour on
+/// it, as the mark is at every other stop). Its ground, its plates and its
+/// deepest shadow are the app's own, and are not repeated here.
 @immutable
 final class ChromosomeColors {
   const ChromosomeColors({
@@ -41,8 +45,6 @@ final class ChromosomeColors {
     required this.centromere,
     required this.telomere,
     required this.gene,
-    required this.glowCore,
-    required this.leader,
   });
 
   /// The arms' chromatin.
@@ -52,47 +54,41 @@ final class ChromosomeColors {
   final ChromatinRamp centromere;
   final ChromatinRamp telomere;
 
-  /// The chromatin round the gene's FISH spots; its highlight is the spots'
-  /// glow, and its line.
+  /// The chromatin round the gene.
   final ChromatinRamp gene;
 
-  /// A FISH spot's heart: the gene's cyan, all but white.
-  final Color glowCore;
-
-  /// The lines from the chromosome's names to what they name, and the
-  /// hairline round their plates.
-  final Color leader;
-
-  static final ChromosomeColors vivid = ChromosomeColors(
+  static final ChromosomeColors zoom = ChromosomeColors(
     body: const ChromatinRamp(
-      crevice: Color(0xFF0B1626),
-      shadow: Color(0xFF1D3956),
-      base: Color(0xFF3976B8),
-      highlight: Color(0xFF78A6E5),
-      specular: Color(0xFFC9DBF4),
+      crevice: Color(0xFF12161E),
+      shadow: Color(0xFF2E3847),
+      base: Color(0xFF607495),
+      highlight: Color(0xFF92A5C4),
+      specular: Color(0xFFD2DAE7),
     ),
     centromere: ChromatinRamp(
-      crevice: const Color(0xFF2A1512),
-      shadow: const Color(0xFF623D36),
-      base: NucleotideColors.helix.thymine,
-      highlight: const Color(0xFFCE968D),
-      specular: const Color(0xFFF0D2CC),
+      crevice: const Color(0xFF231817),
+      shadow: const Color(0xFF55423E),
+      base: Kaleido.filter(NucleotideColors.helix.thymine),
+      highlight: const Color(0xFFBA9D98),
+      specular: const Color(0xFFE5D5D2),
     ),
     telomere: ChromatinRamp(
-      crevice: const Color(0xFF2B2214),
-      shadow: const Color(0xFF675131),
-      base: NucleotideColors.helix.guanine,
-      highlight: const Color(0xFFD6B685),
-      specular: const Color(0xFFF2E2C4),
+      crevice: const Color(0xFF28231C),
+      shadow: const Color(0xFF5F5343),
+      base: Kaleido.filter(NucleotideColors.helix.guanine),
+      highlight: const Color(0xFFCAB8A0),
+      specular: const Color(0xFFEBE3D4),
     ),
     gene: ChromatinRamp(
       crevice: const Color(0xFF06201C),
       shadow: AppColorTokens.warm.accentContainer,
-      base: const Color(0xFF00A89B),
-      highlight: const Color(0xFF00DCCB),
-      specular: const Color(0xFFB8FFF8),
+      base: const Color(0xFF6AA098),
+      highlight: AppColorTokens.warm.accent,
+      specular: Color.lerp(
+        AppColorTokens.warm.accent,
+        AppColorTokens.warm.onSurface,
+        0.6,
+      )!,
     ),
-    glowCore: const Color(0xFFE6FFFC),
-    leader: const Color(0xFFA6B9D5),
   );
 }

@@ -12,9 +12,8 @@ import '../../../support/test_catalog.dart';
 import '../record_fixtures.dart';
 import '../zoom_fixtures.dart';
 
-/// [t]'s chromosome as a form in the stone, freshly built, at the
-/// half-width its scene draws it with; the vivid's form is held by
-/// chromosome_vivid_test.dart.
+/// [t]'s chromosome as a form, freshly built, at the half-width its scene
+/// draws it with.
 ChromosomeForm _form(ProteinTarget t) {
   final ChromosomeScene scene = ChromosomeScene(
     ZoomSubject(track: locusOf(t), record: recordOf(t)),
@@ -22,7 +21,7 @@ ChromosomeForm _form(ProteinTarget t) {
   return ChromosomeForm(
     locusOf(t),
     half: scene.half,
-    look: ChromosomeLookSpec.stone,
+    look: ChromosomeLookSpec.zoom,
   );
 }
 
@@ -92,12 +91,12 @@ void main() {
     }
   });
 
-  test('every knob lies on its sister, and none reaches across the groove '
-      'by more than a hair', () {
+  test('every knob lies on its sister: its middle inside the sister’s '
+      'outline, no further round the tube than the rim', () {
     for (final ProteinTarget t in TestCatalog.all) {
       final ChromosomeForm form = _form(t);
-      final double hair = 0.05 * form.half;
-      int lobes = 0;
+      final ChromosomeGlobules globules = form.look.globules;
+      int laid = 0;
       for (final double side in <double>[-1, 1]) {
         final KnobField knobs = form.knobs(side);
         for (int k = 0; k < knobs.length; k++) {
@@ -106,42 +105,35 @@ void main() {
           final double r = knobs.radius[k];
           final String where = '${t.slug}, side $side, knob $k';
           expect(y, inInclusiveRange(form.top, form.bottom), reason: where);
-          expect(phi.abs(), lessThanOrEqualTo(1.5), reason: where);
+          expect(phi.abs(), lessThanOrEqualTo(globules.rim), reason: where);
           expect(r, greaterThan(0), reason: where);
-          // Its middle is on the sister's surface, inside its outline.
+          // Its middle is out on the tube, inside the sister's outline:
+          // only round its edge and its ends does a globule stand out of it.
           final double x =
-              form.centreAt(side, y) + form.widthAt(y) * math.sin(phi);
+              form.centreAt(side, y) +
+              globules.surface * form.widthAt(y) * math.sin(phi);
           expect(
             (x - form.centreAt(side, y)).abs(),
             lessThanOrEqualTo(form.widthAt(y) + 1e-12),
             reason: where,
           );
-          // Toward the other sister it reaches no further than a hair past
-          // the middle of the pair: only outward and round the ends does a
-          // knob stand out of the outline.
-          final double across = r * math.max(math.cos(phi), 0.45);
-          expect(
-            side * (x - form.bend(y)) - across,
-            greaterThanOrEqualTo(-hair - 1e-12),
-            reason: where,
-          );
           if (knobs.kind[k] == KnobField.lobe) {
-            lobes++;
+            laid++;
           }
         }
       }
-      expect(lobes, greaterThan(100), reason: t.slug);
+      expect(laid, greaterThan(100), reason: t.slug);
     }
   });
 
-  test('the gene’s two spots lie at one height, either side of the pair, '
-      'on their sisters and in the gene’s band, as big whatever the gene’s '
-      'length', () {
+  test('the gene’s place on each sister lies at one height, either side of '
+      'the pair, on its sister and in the gene’s band, and its ping is as '
+      'big whatever the gene’s length', () {
     for (final ProteinTarget t in TestCatalog.all) {
       final ChromosomeForm form = _form(t);
       final LocusTrack track = locusOf(t);
-      final Offset left = form.fish(-1);
-      final Offset right = form.fish(1);
+      final Offset left = form.geneOn(-1);
+      final Offset right = form.geneOn(1);
       expect(left.dy, form.geneY, reason: t.slug);
       expect(right.dy, form.geneY, reason: t.slug);
       expect(
@@ -150,13 +142,13 @@ void main() {
         reason: t.slug,
       );
       expect(right.dx, greaterThan(left.dx), reason: t.slug);
-      for (final (double side, Offset spot) in <(double, Offset)>[
+      for (final (double side, Offset place) in <(double, Offset)>[
         (-1, left),
         (1, right),
       ]) {
         expect(
-          (spot.dx - form.centreAt(side, spot.dy)).abs(),
-          lessThanOrEqualTo(form.widthAt(spot.dy)),
+          (place.dx - form.centreAt(side, place.dy)).abs(),
+          lessThanOrEqualTo(form.widthAt(place.dy)),
           reason: '${t.slug}, side $side',
         );
       }
@@ -168,20 +160,19 @@ void main() {
         ),
         reason: t.slug,
       );
-      // A probe's spot: about half a chromatid, never wider than the
-      // chromatid where it lies, and nothing to do with how long the gene
-      // is.
+      // Its ping: about half a chromatid, never wider than the chromatid
+      // where it lies, and nothing to do with how long the gene is.
       expect(
-        form.fishRadius,
+        form.pingRadius,
         math.min(
-          ChromosomeStyle.fish * form.half,
-          ChromosomeStyle.fishShare * form.widthAt(form.geneY),
+          form.look.ping * form.half,
+          form.look.pingShare * form.widthAt(form.geneY),
         ),
         reason: t.slug,
       );
       expect(
-        form.fishRadius,
-        lessThanOrEqualTo(ChromosomeStyle.fish * form.half),
+        form.pingRadius,
+        lessThanOrEqualTo(form.look.ping * form.half),
         reason: t.slug,
       );
     }
@@ -192,8 +183,8 @@ void main() {
     for (final ProteinTarget t in TestCatalog.all) {
       final ChromosomeForm form = _form(t);
       final double c = form.centromere;
-      final double centromere = ChromosomeStyle.centromereReach * form.half;
-      final double telomere = ChromosomeStyle.telomereReach * form.half;
+      final double centromere = form.look.centromereReach * form.half;
+      final double telomere = form.look.telomereReach * form.half;
       expect(
         form.centromereAt(c),
         closeTo(1 - form.geneAt(c), 1e-12),
@@ -248,7 +239,7 @@ void main() {
           expect(v.isFinite, isTrue, reason: '${t.slug} at $y');
         }
       }
-      expect(form.fishRadius.isFinite, isTrue, reason: t.slug);
+      expect(form.pingRadius.isFinite, isTrue, reason: t.slug);
     }
   });
 }

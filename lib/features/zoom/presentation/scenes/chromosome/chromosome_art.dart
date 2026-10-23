@@ -13,22 +13,17 @@ import 'chromosome_shading.dart';
 import 'chromosome_style.dart';
 
 /// A chromosome at rest, its form a scanning micrograph's and its surface
-/// lit as the zoom's organs are, under the same lamp: two sisters, knobbly
-/// with opaque lobes of chromatin, each lobe lit from the upper left with a
-/// moist sheen and dark in the crevices round it, each sister darker toward
-/// its edges and along the groove where they touch, a shadow under them, the
-/// bands soft changes of tone, the centromere's waist and its two
-/// kinetochores tinted in its ink and every chromatid's ends in the
-/// telomeres', and the gene as two FISH spots, one on each sister.
-///
-/// In a look of globules, the vivid (the user's ask of 2026-10-23), its
-/// relief is globules instead, each of one material, in a ramp of its own:
+/// lit as the zoom's organs are, under the same lamp: two sisters of
+/// globules of chromatin, each of one material, in a ramp of its own:
 /// spheres drawn from the back of the tube to its front, each over a
 /// crevice that falls away from the light and under a highlight of its own;
-/// the arms blue, the centromere's neck coral and the caps gold, the
-/// chromatin round the spots teal and lit by their glow, which brightens
-/// what lies under it; the bodies under both sisters' globules, a cleft dark
-/// between the sisters, a blurred shadow, and a micrograph's fine grain.
+/// the arms a soft blue, the centromere's neck clay and the caps honey, and
+/// the chromatin round the gene in the mark, lit as the rest is, with
+/// nothing glowing over it (the user's ask of 2026-10-23: the gene in the
+/// plain mark, as the other stops draw it); the bodies under both sisters'
+/// globules, a cleft dark between the sisters, a blurred shadow under them,
+/// the bands faint changes of the arms' value, and a micrograph's fine
+/// grain.
 ///
 /// Everything costly is built once, for one form in one set of inks: the
 /// body and its relief are meshes in the scene's units, so a frame only
@@ -47,18 +42,18 @@ final class ChromosomeArt {
 
   ChromosomeLookSpec get _look => form.look;
 
-  /// Each sister's body, its lobes and its kinetochore, left then right; in
-  /// a look of globules its globules alone.
+  /// Each sister's globules, left then right.
   late final List<List<ui.Vertices>> _sisters = <List<ui.Vertices>>[
     _sister(-1),
     _sister(1),
   ];
 
-  /// In a look of globules, each sister's body, left then right: drawn under
-  /// both sisters' globules, so where the sisters meet at the waist neither
-  /// one's body lies over the other's globules. None in a look of lobes.
+  /// Each sister's body, left then right: drawn under both sisters'
+  /// globules, so where the sisters meet at the waist neither one's body
+  /// lies over the other's globules.
   late final List<List<ui.Vertices>> _bodies = <List<ui.Vertices>>[
-    if (_look.globules != null) ...<List<ui.Vertices>>[_body(-1), _body(1)],
+    _body(-1),
+    _body(1),
   ];
 
   /// Each sister's granules, left then right.
@@ -67,34 +62,34 @@ final class ChromosomeArt {
     _grains(1),
   ];
 
-  /// Each sister's outline, for its shadow and its coat.
+  /// Each sister's outline, for its shadow.
   late final List<Path> _outlines = <Path>[
     form.chromatid(-1).toPath(),
     form.chromatid(1).toPath(),
   ];
 
-  /// In a look of globules, the shade down each sister's side facing the
-  /// other, left then right: the cleft between them. None in a look of
-  /// lobes, whose sisters touch along a groove.
+  /// The shade down each sister's side facing the other, left then right:
+  /// the cleft between them.
   late final List<ui.Vertices> _clefts = <ui.Vertices>[
-    if (_look.globules case final ChromosomeGlobules globules) ...<ui.Vertices>[
-      _cleftOf(-1, globules),
-      _cleftOf(1, globules),
-    ],
+    _cleftOf(-1, _look.globules),
+    _cleftOf(1, _look.globules),
   ];
 
-  /// The gene's two spots at rest, left then right: what the gene's
-  /// chromatin is measured from, in a look of globules.
-  late final List<Offset> _spots = <Offset>[form.fish(-1), form.fish(1)];
+  /// The gene's place on each sister at rest, left then right: what the
+  /// gene's chromatin is measured from.
+  late final List<Offset> _genePlaces = <Offset>[
+    form.geneOn(-1),
+    form.geneOn(1),
+  ];
 
-  /// In a look of globules with a grain, what the globules' meshes are drawn
-  /// with: a tile of fine specks, the same every time, drawn once, that the
+  /// What the globules' meshes are drawn with, where they have a grain: a
+  /// tile of fine specks, the same every time, drawn once, that the
   /// globules' colours are multiplied by, so it lies on them and nowhere
   /// else, in a layer or out of one ([ChromosomeGlobules.grain]); a plain
   /// paint otherwise.
   late final Paint _grained = () {
-    final ChromosomeGlobules? globules = _look.globules;
-    if (globules == null || globules.grain <= 0) {
+    final ChromosomeGlobules globules = _look.globules;
+    if (globules.grain <= 0) {
       return Paint();
     }
     const int size = 64;
@@ -127,53 +122,6 @@ final class ChromosomeArt {
       );
   }();
 
-  /// The groove where the sisters touch: the right sister's inner edge, the
-  /// one drawn over the other, darkest where the arms meet at the waist.
-  late final Path _seam = () {
-    final Path path = Path();
-    final Float64List rows = form.bodyRows;
-    for (int i = 0; i < rows.length; i++) {
-      final double y = rows[i];
-      final double x = form.centreAt(1, y) - form.widthAt(y);
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-    return path;
-  }();
-
-  late final Rect _seamBox = _seam.getBounds().inflate(_half);
-
-  late final Shader _seamShade = () {
-    const int stops = 33;
-    final double top = form.top;
-    final double length = form.bottom - top;
-    final List<double> at = <double>[];
-    final List<Color> colours = <Color>[];
-    for (int i = 0; i < stops; i++) {
-      final double t = i / (stops - 1);
-      final double y = top + length * t;
-      final double d = ((y - form.centromere).abs() - _half) / (0.8 * _half);
-      final double crotch = math.exp(-d * d);
-      at.add(t);
-      colours.add(
-        inks.shadow.withValues(
-          alpha: (form.contact(y) * (0.45 + 0.55 * crotch)).clamp(0.0, 1.0),
-        ),
-      );
-    }
-    return LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: colours,
-      stops: at,
-    ).createShader(
-      Rect.fromLTRB(_seamBox.left, top, _seamBox.right, top + length),
-    );
-  }();
-
   /// What the chromosome at rest covers, its shadow and its relief included,
   /// in the scene's units: the room a layer of it needs.
   late final Rect bounds = _outlines[0]
@@ -182,7 +130,7 @@ final class ChromosomeArt {
       .inflate(_look.boundsInflate * _half);
 
   /// The body's colour averaged over its area on both sisters, lit as it
-  /// is, the gene's wash and the centromere's and telomeres' tints left out:
+  /// is, the gene's chromatin and the centromere's and telomeres' left out:
   /// what the territory's mark gives way to as the chromosome condenses out
   /// of it.
   late final Color meanTone = () {
@@ -223,7 +171,7 @@ final class ChromosomeArt {
       }
     }
     return total <= 0
-        ? inks.lit(_look.paleLit)
+        ? _look.globules.colours.body.base
         : Color.from(
             alpha: 1,
             red: r / total,
@@ -240,16 +188,14 @@ final class ChromosomeArt {
     _outlines,
     _clefts,
     _grained,
-    _seamShade,
     bounds,
     meanTone,
   ];
 
-  /// The chromosome at rest, without its spots. On its way into the band's
-  /// map, each sister is moved [merge] of the way onto the axis at the
-  /// band's height and thinned [thin] of the way to [target] half-width
-  /// there, as the tube under it is: its shadow, its coat and the groove
-  /// go with it.
+  /// The chromosome at rest. On its way into the band's map, each sister is
+  /// moved [merge] of the way onto the axis at the band's height and thinned
+  /// [thin] of the way to [target] half-width there, as the tube under it
+  /// is: its shadow and the cleft go with it.
   void paintRest(
     Canvas canvas,
     ZoomFrame frame, {
@@ -257,7 +203,6 @@ final class ChromosomeArt {
     double thin = 0,
     double target = 0,
   }) {
-    final double pixel = frame.pixel;
     final bool still = merge == 0 && thin == 0;
     // [draw] for sister [i], moved with it.
     void sister(int i, void Function() draw) {
@@ -272,54 +217,37 @@ final class ChromosomeArt {
     }
 
     // The shadow the sisters cast, under them and to the lower right, as the
-    // organs cast theirs. Nothing else lies round them.
-    final ChromosomeGlobules? globules = _look.globules;
+    // organs cast theirs, blurred, its sigma in the scene's units, so it is
+    // as soft at any magnification. Nothing else lies round them.
+    final ChromosomeGlobules globules = _look.globules;
     canvas.save();
     canvas.translate(_look.shadowX * _half, _look.shadowY * _half);
     for (int i = 0; i < 2; i++) {
-      sister(i, () {
-        if (globules != null) {
-          // Blurred, its sigma in the scene's units, so it is as soft at
-          // any magnification.
-          canvas.drawPath(
-            _outlines[i],
-            Paint()
-              ..color = inks.shadow.withValues(alpha: _look.shadowAlpha)
-              ..maskFilter = MaskFilter.blur(
-                BlurStyle.normal,
-                globules.shadowBlur * _half,
-              ),
-          );
-          return;
-        }
-        canvas.drawPath(
-          _outlines[i],
-          Paint()..color = inks.shadow.withValues(alpha: _look.shadowAlpha),
-        );
-        canvas.drawPath(
+      sister(
+        i,
+        () => canvas.drawPath(
           _outlines[i],
           Paint()
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = _look.shadowSoft * _half
-            ..strokeJoin = StrokeJoin.round
-            ..color = inks.shadow.withValues(alpha: 0.12),
-        );
-      });
+            ..color = inks.shadow.withValues(alpha: _look.shadowAlpha)
+            ..maskFilter = MaskFilter.blur(
+              BlurStyle.normal,
+              globules.shadowBlur * _half,
+            ),
+        ),
+      );
     }
     canvas.restore();
     final Paint mesh = Paint();
-    if (globules != null) {
-      for (int i = 0; i < 2; i++) {
-        sister(i, () {
-          for (final ui.Vertices vertices in _bodies[i]) {
-            canvas.drawVertices(vertices, BlendMode.dst, mesh);
-          }
-        });
-      }
+    for (int i = 0; i < 2; i++) {
+      sister(i, () {
+        for (final ui.Vertices vertices in _bodies[i]) {
+          canvas.drawVertices(vertices, BlendMode.dst, mesh);
+        }
+      });
     }
-    // In a look of globules with a grain, the globules' colours multiplied
-    // by its specks.
-    final bool grained = (globules?.grain ?? 0) > 0;
+    // Where there is a grain, the globules' colours multiplied by its
+    // specks.
+    final bool grained = globules.grain > 0;
     for (int i = 0; i < 2; i++) {
       sister(i, () {
         for (final ui.Vertices vertices in _sisters[i]) {
@@ -334,33 +262,10 @@ final class ChromosomeArt {
         }
       });
     }
-    if (globules != null) {
-      // The cleft, down each sister's side facing the other.
-      for (int i = 0; i < 2; i++) {
-        sister(i, () => canvas.drawVertices(_clefts[i], BlendMode.dst, mesh));
-      }
-      return;
+    // The cleft, down each sister's side facing the other.
+    for (int i = 0; i < 2; i++) {
+      sister(i, () => canvas.drawVertices(_clefts[i], BlendMode.dst, mesh));
     }
-    // The groove, soft and then sharp: the right sister's facing side.
-    sister(1, () {
-      canvas.drawPath(
-        _seam,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 5 * pixel
-          ..strokeCap = StrokeCap.round
-          ..shader = _seamShade
-          ..color = inks.shadow.withValues(alpha: 0.3),
-      );
-      canvas.drawPath(
-        _seam,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = math.max(1.2 * pixel, 0.07 * _half)
-          ..strokeCap = StrokeCap.round
-          ..shader = _seamShade,
-      );
-    });
   }
 
   /// Moves [canvas] so that sister [side] is drawn [merge] of the way onto
@@ -381,154 +286,19 @@ final class ChromosomeArt {
     canvas.translate(-from, 0);
   }
 
-  /// The spots' core: the mark lightened toward the bright ink.
-  late final Color _core = Color.lerp(inks.mark, inks.text, 0.55)!;
-
-  /// The gene's two FISH spots, one on each sister at its height: a core of
-  /// the mark lightened toward the bright ink, in its glow.
-  void paintSpots(Canvas canvas, {double opacity = 1, double merge = 0}) {
-    if (opacity <= 0.002) {
-      return;
-    }
-    final double r = form.fishRadius;
-    for (final double side in <double>[-1, 1]) {
-      paintSpot(
-        canvas,
-        form.fish(side, merge: merge),
-        r,
-        _look.fishGlow * r,
-        0.38 * opacity,
-        opacity,
-      );
-    }
-  }
-
-  /// One FISH spot at [at]: its core [radius] across, at [opacity], in a
-  /// glow of the mark [reach] out and [glow] at its heart. In a look of
-  /// globules it is the look's own spot, [own] of the way; the rest of the
-  /// way the mark's, as the band's map marks the gene, which it eases into
-  /// on the way there.
-  void paintSpot(
-    Canvas canvas,
-    Offset at,
-    double radius,
-    double reach,
-    double glow,
-    double opacity, {
-    double own = 1,
-  }) {
-    final ChromosomeGlobules? globules = _look.globules;
-    if (globules == null) {
-      _markSpot(canvas, at, radius, reach, glow, opacity);
-      return;
-    }
-    if (own < 1) {
-      _markSpot(
-        canvas,
-        at,
-        radius,
-        reach,
-        glow * (1 - own),
-        opacity * (1 - own),
-      );
-    }
-    if (own > 0) {
-      _ownSpot(canvas, at, radius, reach, opacity * own, globules);
-    }
-  }
-
-  /// A FISH spot in the mark.
-  void _markSpot(
-    Canvas canvas,
-    Offset at,
-    double radius,
-    double reach,
-    double glow,
-    double opacity,
-  ) {
-    Sculpt.glow(canvas, at, reach, inks, glow);
-    final Rect box = Rect.fromCircle(center: at, radius: radius);
-    canvas.drawOval(
-      box,
-      Paint()
-        ..shader = RadialGradient(
-          colors: <Color>[
-            _core.withValues(alpha: opacity),
-            inks.glow(0.95 * opacity),
-            inks.glow(0.35 * opacity),
-            inks.glow(0),
-          ],
-          stops: const <double>[0, 0.42, 0.75, 1],
-        ).createShader(box),
-    );
-  }
-
-  /// A FISH spot in a look of globules' own colours: a glow of the gene's
-  /// cyan [reach] out, added to the light of what lies under it, and a core
-  /// [radius] across, all but white at its heart.
-  void _ownSpot(
-    Canvas canvas,
-    Offset at,
-    double radius,
-    double reach,
-    double opacity,
-    ChromosomeGlobules globules,
-  ) {
-    if (opacity <= 0.002) {
-      return;
-    }
-    final Color cyan = globules.colours.gene.highlight;
-    final double heart = globules.spotGlow * opacity;
-    final Rect area = Rect.fromCircle(center: at, radius: reach);
-    canvas.drawOval(
-      area,
-      Paint()
-        ..blendMode = BlendMode.plus
-        ..shader = RadialGradient(
-          colors: <Color>[
-            cyan.withValues(alpha: heart),
-            cyan.withValues(alpha: heart * 0.32),
-            cyan.withValues(alpha: 0),
-          ],
-          stops: const <double>[0, 0.42, 1],
-        ).createShader(area),
-    );
-    final Rect box = Rect.fromCircle(center: at, radius: radius);
-    canvas.drawOval(
-      box,
-      Paint()
-        ..shader = RadialGradient(
-          colors: <Color>[
-            globules.colours.glowCore.withValues(alpha: opacity),
-            cyan.withValues(alpha: opacity),
-            cyan.withValues(alpha: globules.spotFadeAlpha * opacity),
-            cyan.withValues(alpha: 0),
-          ],
-          stops: <double>[0, globules.spotCore, globules.spotFade, 1],
-        ).createShader(box),
-    );
-  }
-
-  /// The spots flaring as the chromosome is reached, [t] of the way through
-  /// the beat: nothing before it starts or after it ends.
-  void paintFlare(Canvas canvas, ZoomFrame frame, double t, double opacity) {
+  /// The gene's place on each sister pinged once as the chromosome is
+  /// reached, [t] of the way through the beat, as the body's and the
+  /// organ's places are: a ring in the mark, nothing before the beat starts
+  /// or after it ends.
+  void paintPing(Canvas canvas, ZoomFrame frame, double t, double opacity) {
     if (t <= 0 || t >= 1 || opacity <= 0) {
       return;
     }
-    final double r = form.fishRadius;
-    final double out = Curves.easeOutCubic.transform(t);
+    final double r = form.pingRadius;
     for (final double side in <double>[-1, 1]) {
-      final Offset at = form.fish(side);
-      Sculpt.glow(
-        canvas,
-        at,
-        r * (1.2 + 1.6 * out),
-        inks,
-        0.5 * math.sin(math.pi * t) * opacity,
-      );
       Sculpt.ping(
         canvas,
-        at,
+        form.geneOn(side),
         r,
         r * 1.6,
         t,
@@ -595,17 +365,13 @@ final class ChromosomeArt {
     return out;
   }
 
-  /// In a look of globules, every globule and granule of chromatid [side]
-  /// as it is drawn, for tests: where its middle lies, its radius, and what
-  /// it is made of. None in a look of lobes.
+  /// Every globule and granule of chromatid [side] as it is drawn, for
+  /// tests: where its middle lies, its radius, and what it is made of.
   @visibleForTesting
   List<({Offset at, double radius, ChromatinMaterial material})> globulesOf(
     double side,
   ) {
-    final ChromosomeGlobules? globules = _look.globules;
-    if (globules == null) {
-      return const <({Offset at, double radius, ChromatinMaterial material})>[];
-    }
+    final ChromosomeGlobules globules = _look.globules;
     final KnobField knobs = form.knobs(side);
     return <({Offset at, double radius, ChromatinMaterial material})>[
       for (int k = 0; k < knobs.length; k++)
@@ -617,11 +383,7 @@ final class ChromosomeArt {
 
   List<ui.Vertices> _sister(double side) {
     final ColouredMesh mesh = ColouredMesh();
-    if (_look.globules == null) {
-      _laySister(mesh, side);
-    } else {
-      _layKnobs(mesh, side);
-    }
+    _layKnobs(mesh, side);
     return mesh.build();
   }
 
@@ -631,31 +393,28 @@ final class ChromosomeArt {
     return mesh.build();
   }
 
-  /// Sister [side]'s body, and over it its relief.
+  /// Sister [side]'s body, and over it its globules.
   void _laySister(ColouredMesh mesh, double side) {
     _layBody(mesh, side);
     _layKnobs(mesh, side);
   }
 
   void _layBody(ColouredMesh mesh, double side) {
-    final ChromosomeGlobules? globules = _look.globules;
+    final ChromosomeGlobules globules = _look.globules;
     final Float64List rows = form.bodyRows;
     final List<double> columns = _columns;
     final int across = columns.length;
-    // The body: a sheet of rows across the tube, lit vertex by vertex; in a
-    // look of globules a narrower tube, in their crevices' shade, that shows
-    // only between them.
+    // The body: a sheet of rows across a tube narrower than the globules',
+    // lit vertex by vertex, in their crevices' shade, that shows only
+    // between them.
     mesh.begin(rows.length * across);
     final int first = mesh.next;
     for (final double y in rows) {
-      final double w = globules == null
-          ? form.widthAt(y)
-          : globules.bodyWidth * form.widthAt(y);
+      final double w = globules.bodyWidth * form.widthAt(y);
       final double centre = form.centreAt(side, y);
       final double bow = form.bowAt(y);
       final double slope = form.slope(y);
       final double tone = form.toneAt(y);
-      final double gene = form.geneAt(y);
       final ({double centromere, double telomere}) tint = _tints(y);
       for (final double u in columns) {
         final double nz = math.sqrt(math.max(0, 1 - u * u));
@@ -665,27 +424,16 @@ final class ChromosomeArt {
         mesh.vertex(
           x,
           y + bow * u * u,
-          globules == null
-              ? _palette.colour(
-                  tone,
-                  s.light,
-                  s.occlusion,
-                  gene,
-                  1,
-                  centromere: tint.centromere,
-                  telomere: tint.telomere,
-                  sheen: s.sheen,
-                )
-              : _palette.colour(
-                  tone,
-                  s.light,
-                  s.occlusion + (1 - s.occlusion) * globules.bodyOcclusion,
-                  _geneWeight(x, y, globules),
-                  1,
-                  centromere: tint.centromere,
-                  telomere: tint.telomere,
-                  sheen: s.sheen,
-                ),
+          _palette.colour(
+            tone,
+            s.light,
+            s.occlusion + (1 - s.occlusion) * globules.bodyOcclusion,
+            _geneWeight(x, y, globules),
+            1,
+            centromere: tint.centromere,
+            telomere: tint.telomere,
+            sheen: s.sheen,
+          ),
         );
       }
     }
@@ -702,231 +450,37 @@ final class ChromosomeArt {
   }
 
   void _layKnobs(ColouredMesh mesh, double side) {
-    final ChromosomeGlobules? globules = _look.globules;
+    final ChromosomeGlobules globules = _look.globules;
     final KnobField knobs = form.knobs(side);
-    if (globules != null) {
-      // The globules, from the back of the tube to its front, each over its
-      // crevice and under its highlight. There are no kinetochore plates:
-      // the coral neck is the centromere.
-      for (final int k in _order(knobs, globules)) {
-        final _Globule p = _globule(side, knobs, k, globules);
-        if (knobs.kind[k] == KnobField.bump) {
-          _sphere(mesh, side, p, globules.granuleRing, globules);
-          continue;
-        }
-        if (!p.deep) {
-          _creviceOf(mesh, p, globules);
-        }
-        _sphere(mesh, side, p, _ringFor(p.r, globules), globules);
-        if (!p.deep) {
-          _highlightOf(mesh, p, globules);
-        }
+    // The globules, from the back of the tube to its front, each over its
+    // crevice and under its highlight. The neck of the centromere's globules
+    // is the centromere.
+    for (final int k in _order(knobs, globules)) {
+      final _Globule p = _globule(side, knobs, k, globules);
+      if (knobs.kind[k] == KnobField.bump) {
+        _sphere(mesh, side, p, globules.granuleRing, globules);
+        continue;
       }
-      return;
-    }
-    // The lobes, each over the crevice round it: a lobe laid after another
-    // shades it where the two meet, as a crevice between them would.
-    for (int k = 0; k < knobs.length; k++) {
-      if (knobs.kind[k] == KnobField.lobe) {
-        _skirt(mesh, side, knobs, k);
-        _dome(mesh, side, knobs, k);
+      if (!p.deep) {
+        _creviceOf(mesh, p, globules);
       }
-    }
-    _plate(mesh, side);
-  }
-
-  /// Where knob [k] lies on screen, its surface's normal there, and the
-  /// two axes of the ellipse it is seen as: a disc on the surface, squashed
-  /// along the way the surface turns from the eye.
-  _Knob _place(double side, KnobField knobs, int k) {
-    final double y = knobs.y[k];
-    final double phi = knobs.phi[k];
-    final double u = math.sin(phi);
-    final double r = knobs.radius[k];
-    final SurfaceNormal n = SurfaceNormal(u, -form.slope(y), math.cos(phi));
-    final double flat = math.sqrt(n.x * n.x + n.y * n.y);
-    final double dx = flat < 1e-6 ? 1 : n.x / flat;
-    final double dy = flat < 1e-6 ? 0 : n.y / flat;
-    final double squash = math.max(n.z, 0.45);
-    return _Knob(
-      x: form.centreAt(side, y) + form.widthAt(y) * u,
-      y: y + form.bowAt(y) * u * u,
-      normal: n,
-      // The squashed axis, along the turn, and the full one across it.
-      ax: dx * r * squash,
-      ay: dy * r * squash,
-      bx: -dy * r,
-      by: dx * r,
-    );
-  }
-
-  void _skirt(ColouredMesh mesh, double side, KnobField knobs, int k) =>
-      _skirtOf(mesh, _place(side, knobs, k));
-
-  /// The crevice round [p]: shade falling away from its edge.
-  void _skirtOf(ColouredMesh mesh, _Knob p) {
-    const int ring = 12;
-    mesh.begin(ring * 2);
-    final int first = mesh.next;
-    final int dark = _palette.shadow(_look.skirtAlpha);
-    final int clear = _palette.shadow(0);
-    for (final (double scale, int colour) in <(double, int)>[
-      (_look.skirtInner, dark),
-      (_look.skirtOuter, clear),
-    ]) {
-      for (int i = 0; i < ring; i++) {
-        final Offset at = p.at(2 * math.pi * i / ring, scale);
-        mesh.vertex(at.dx, at.dy, colour);
-      }
-    }
-    for (int i = 0; i < ring; i++) {
-      final int a = first + i;
-      final int b = first + (i + 1) % ring;
-      mesh.triangle(a, b, a + ring);
-      mesh.triangle(b, b + ring, a + ring);
-    }
-  }
-
-  void _dome(ColouredMesh mesh, double side, KnobField knobs, int k) {
-    final double y = knobs.y[k];
-    _domeOf(
-      mesh,
-      side,
-      _place(side, knobs, k),
-      y,
-      math.sin(knobs.phi[k]),
-      knobs.radius[k],
-      form.geneAt(y),
-      _tints(y),
-    );
-  }
-
-  /// [p] as a small opaque dome at [y], [u] of the way across the tube and
-  /// [r] across: lit as the surface under it is, its rim tilted out from its
-  /// top, so it is lit on the side toward the light and in shade on the
-  /// other, with its sheen between, [gene] of the way into the gene's band
-  /// and tinted by [tint].
-  void _domeOf(
-    ColouredMesh mesh,
-    double side,
-    _Knob p,
-    double y,
-    double u,
-    double r,
-    double gene,
-    ({double centromere, double telomere}) tint,
-  ) {
-    const int ring = 14;
-    final double tone = form.toneAt(y);
-    final SurfaceNormal base = p.normal;
-    _Lit lit(double tilt, double a) {
-      // The ring's normal, tilted out from the dome's top toward [a].
-      final Offset out = p.at(a, 1) - Offset(p.x, p.y);
-      final double length = out.distance;
-      final SurfaceNormal n = length < 1e-12
-          ? base
-          : SurfaceNormal(
-              base.x + tilt * out.dx / length,
-              base.y + tilt * out.dy / length,
-              base.z,
-            );
-      // Darker toward the sister's edges, as the surface under it is.
-      return _surface(side, y, u, n.x, n.y, n.z, facing: base.z);
-    }
-
-    mesh.begin(1 + ring * 3);
-    final int centre = mesh.next;
-    final _Lit top = lit(0, 0);
-    mesh.vertex(
-      p.x + _light.screen.dx * 0.22 * r,
-      p.y + _light.screen.dy * 0.22 * r,
-      _palette.colour(
-        tone,
-        top.light,
-        top.occlusion,
-        gene,
-        1,
-        centromere: tint.centromere,
-        telomere: tint.telomere,
-        sheen: top.sheen,
-      ),
-    );
-    final List<int> rim = <int>[];
-    for (final (double scale, double tilt) in <(double, double)>[
-      (0.62, 0.4 * _look.lobeTilt),
-      (1, _look.lobeTilt),
-    ]) {
-      for (int i = 0; i < ring; i++) {
-        final double a = 2 * math.pi * i / ring;
-        final _Lit s = lit(tilt, a);
-        final int colour = _palette.colour(
-          tone,
-          s.light,
-          s.occlusion,
-          gene,
-          1,
-          centromere: tint.centromere,
-          telomere: tint.telomere,
-          sheen: s.sheen,
-        );
-        if (scale == 1) {
-          rim.add(colour);
-        }
-        final Offset at = p.at(a, scale);
-        mesh.vertex(at.dx, at.dy, colour);
-      }
-    }
-    for (int i = 0; i < ring; i++) {
-      final Offset at = p.at(2 * math.pi * i / ring, 1.25);
-      mesh.vertex(at.dx, at.dy, _clear(rim[i]));
-    }
-    for (int i = 0; i < ring; i++) {
-      final int a = centre + 1 + i;
-      final int b = centre + 1 + (i + 1) % ring;
-      mesh.triangle(centre, a, b);
-      for (int band = 0; band < 2; band++) {
-        final int a0 = a + band * ring;
-        final int b0 = b + band * ring;
-        mesh.triangle(a0, b0, a0 + ring);
-        mesh.triangle(b0, b0 + ring, a0 + ring);
+      _sphere(mesh, side, p, _ringFor(p.r, globules), globules);
+      if (!p.deep) {
+        _highlightOf(mesh, p, globules);
       }
     }
   }
 
-  /// The kinetochore: a small plate on the sister's outer face at the
-  /// waist, in the centromere's ink, seated in a crevice of its own and lit
-  /// as a lobe is.
-  void _plate(ColouredMesh mesh, double side) {
-    final Offset at = form.kinetochore(side);
-    final double rx = _look.plateX * _half;
-    final double ry = _look.plateY * _half;
-    final double u = side * _look.plateOut;
-    final _Knob plate = _Knob(
-      x: at.dx,
-      y: at.dy,
-      normal: SurfaceNormal(u, 0, math.sqrt(1 - u * u)),
-      ax: rx,
-      ay: 0,
-      bx: 0,
-      by: ry,
-    );
-    _skirtOf(mesh, plate);
-    _domeOf(mesh, side, plate, form.centromere, u, rx, 0, (
-      centromere: _look.kinetochoreTint,
-      telomere: 0,
-    ));
-  }
+  // The globules.
 
-  // A look of globules.
-
-  /// How much of the gene's chromatin is at ([x], [y]): all of it at either
-  /// FISH spot, falling to none [ChromosomeGlobules.geneReach] from the
-  /// nearer.
+  /// How much of the gene's chromatin is at ([x], [y]): all of it at the
+  /// gene's place on either sister, falling to none
+  /// [ChromosomeGlobules.geneReach] from the nearer.
   double _geneWeight(double x, double y, ChromosomeGlobules globules) {
     double nearest = double.infinity;
-    for (final Offset spot in _spots) {
-      final double dx = x - spot.dx;
-      final double dy = y - spot.dy;
+    for (final Offset place in _genePlaces) {
+      final double dx = x - place.dx;
+      final double dy = y - place.dy;
       nearest = math.min(nearest, dx * dx + dy * dy);
     }
     final double t = (math.sqrt(nearest) / (globules.geneReach * _half)).clamp(
@@ -996,7 +550,6 @@ final class ChromosomeArt {
           : ChromatinMaterial.values[knobs.material[k]],
       lift: knobs.lift[k],
       pick: knobs.pick[k],
-      lit: genes ? globules.glowLit + (1 - globules.glowLit) * gene : 1,
       deep: knobs.kind[k] == KnobField.deep,
     );
   }
@@ -1082,7 +635,7 @@ final class ChromosomeArt {
       return _palette.knob(
         p.material,
         tone,
-        s.light * p.lit,
+        s.light,
         s.occlusion + (1 - s.occlusion) * behind,
         1,
         sheen: s.sheen,
@@ -1216,74 +769,35 @@ final class ChromosomeArt {
 
   void _layGrains(ColouredMesh mesh, double side) {
     const int ring = 6;
-    final ChromosomeGlobules? globules = _look.globules;
+    final ChromosomeGlobules globules = _look.globules;
     final KnobField knobs = form.knobs(side);
     final int pit = _palette.shadow(_look.pitAlpha);
     for (int k = 0; k < knobs.length; k++) {
-      final int kind = knobs.kind[k];
-      if (kind == KnobField.lobe || kind == KnobField.deep) {
+      // A granule standing out of the surface is a small sphere among the
+      // globules ([_layKnobs]); one sunk into it is a dark dot, round.
+      if (knobs.kind[k] != KnobField.pit) {
         continue;
       }
-      final _Knob p;
-      if (globules != null) {
-        // In a look of globules a granule standing out of the surface is a
-        // small sphere among the globules ([_layKnobs]); one sunk into it is
-        // a dark dot, round.
-        if (kind == KnobField.bump) {
-          continue;
-        }
-        final _Globule g = _globule(side, knobs, k, globules);
-        p = _Knob(
-          x: g.x,
-          y: g.y,
-          normal: g.normal,
-          ax: g.r * 0.5,
-          ay: 0,
-          bx: 0,
-          by: g.r * 0.5,
-        );
-      } else {
-        p = _place(side, knobs, k);
-      }
-      final int heart = kind == KnobField.bump ? _bump(side, knobs, k, p) : pit;
+      final _Globule g = _globule(side, knobs, k, globules);
+      final _Knob p = _Knob(
+        x: g.x,
+        y: g.y,
+        ax: g.r * 0.5,
+        ay: 0,
+        bx: 0,
+        by: g.r * 0.5,
+      );
       mesh.begin(1 + ring);
       final int centre = mesh.next;
-      mesh.vertex(p.x, p.y, heart);
+      mesh.vertex(p.x, p.y, pit);
       for (int i = 0; i < ring; i++) {
         final Offset at = p.at(2 * math.pi * i / ring, 1);
-        mesh.vertex(at.dx, at.dy, _clear(heart));
+        mesh.vertex(at.dx, at.dy, _clear(pit));
       }
       for (int i = 0; i < ring; i++) {
         mesh.triangle(centre, centre + 1 + i, centre + 1 + (i + 1) % ring);
       }
     }
-  }
-
-  /// The heart of granule [k], [p], standing out of the surface: the
-  /// chromatin's own colour where it lies, lit a little nearer its full
-  /// tone, never past it.
-  int _bump(double side, KnobField knobs, int k, _Knob p) {
-    final double y = knobs.y[k];
-    final SurfaceNormal n = p.normal;
-    final _Lit s = _surface(
-      side,
-      y,
-      math.sin(knobs.phi[k]),
-      n.x,
-      n.y,
-      n.z,
-      facing: n.z,
-    );
-    final ({double centromere, double telomere}) tint = _tints(y);
-    return _palette.colour(
-      form.toneAt(y),
-      s.light + (1 - s.light) * _look.bumpLift,
-      s.occlusion,
-      form.geneAt(y),
-      _look.bumpAlpha,
-      centromere: tint.centromere,
-      telomere: tint.telomere,
-    );
   }
 }
 
@@ -1294,8 +808,8 @@ typedef _Lit = ({double light, double occlusion, double sheen});
 /// A globule as it is seen: its middle and radius on screen, where along the
 /// chromosome it lies and how far across the tube (the sine of its angle
 /// round it), the surface's normal under it, what it is made of, how much
-/// lighter or darker it is than the next, how much of the light it takes,
-/// and whether it lies in the layer behind.
+/// lighter or darker it is than the next, and whether it lies in the layer
+/// behind.
 final class _Globule {
   const _Globule({
     required this.x,
@@ -1307,7 +821,6 @@ final class _Globule {
     required this.material,
     required this.lift,
     required this.pick,
-    required this.lit,
     required this.deep,
   });
 
@@ -1322,10 +835,6 @@ final class _Globule {
 
   /// The jitter its material was picked with, which also turns its outline.
   final double pick;
-
-  /// How much of the light it takes: the gene's globules are lit by the
-  /// spot's glow, the farther from it the less.
-  final double lit;
   final bool deep;
 }
 
@@ -1337,13 +846,12 @@ double _smoothstep(double from, double to, double x) {
   return t * t * (3 - 2 * t);
 }
 
-/// A knob as it is seen: its middle, its surface's normal, and the two
+/// A granule sunk into the surface as it is seen: its middle, and the two
 /// half-axes of its ellipse.
 final class _Knob {
   const _Knob({
     required this.x,
     required this.y,
-    required this.normal,
     required this.ax,
     required this.ay,
     required this.bx,
@@ -1352,7 +860,6 @@ final class _Knob {
 
   final double x;
   final double y;
-  final SurfaceNormal normal;
   final double ax;
   final double ay;
   final double bx;

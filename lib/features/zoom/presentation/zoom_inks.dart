@@ -20,13 +20,12 @@ import '../../../core/theme/nucleotide_colors.dart';
 /// Data keeps its own colours where it has them: the gene's parts are the
 /// walk's, the bases the home helix's, blood the thymine red.
 ///
-/// Two forms have colours of their own: a chromosome, drawn in its vivid
-/// look in colours from the theme (`ChromosomeColors`, the user's ask of
-/// 2026-10-23), its coral and gold the helix's clay and honey, which
-/// [centromere] and [telomere] are, and which tint the stone it was before
-/// (warmed a little toward the honey, the user's choice of 2026-10-22),
-/// still drawn where a build asks for it; and a nerve, in the honey, as
-/// anatomy plates draw nerves in yellow (the user's choice of 2026-10-19).
+/// Two forms have colours of their own: a chromosome, in colours from the
+/// theme (`ChromosomeColors`): its arms a soft blue in the inks' hue, its
+/// centromere and telomeres the home helix's clay and honey, each through
+/// the app's Kaleido filter, and the chromatin round its gene in the mark
+/// (the user's choice of 2026-10-23); and a nerve, in the honey, as anatomy
+/// plates draw nerves in yellow (the user's choice of 2026-10-19).
 @immutable
 final class ZoomInks {
   const ZoomInks({
@@ -41,8 +40,6 @@ final class ZoomInks {
     required this.markDeep,
     required this.shadow,
     required this.blood,
-    required this.centromere,
-    required this.telomere,
     required this.bases,
     required this.cds,
     required this.utr,
@@ -67,10 +64,6 @@ final class ZoomInks {
       // The sequence's thymine, as the walk letters it: the one red the app
       // has, quiet enough to sit in a stained field.
       blood: context.nucleotideColors.thymine,
-      // A chromosome's centromere and telomeres in the home helix's own
-      // earth: its clay and its honey.
-      centromere: NucleotideColors.helix.thymine,
-      telomere: NucleotideColors.helix.guanine,
       // The helix is a drawing of one, as the home screen's is, in the
       // home helix's own bases (`AppTheme.home`).
       bases: NucleotideColors.helix,
@@ -100,12 +93,6 @@ final class ZoomInks {
   final Color shadow;
 
   final Color blood;
-
-  /// A chromosome's centromere, its kinetochores with it, and its
-  /// telomeres.
-  final Color centromere;
-  final Color telomere;
-
   final NucleotideColors bases;
 
   /// A nerve, in the home helix's honey.
@@ -146,8 +133,6 @@ final class ZoomInks {
       other.markDeep == markDeep &&
       other.shadow == shadow &&
       other.blood == blood &&
-      other.centromere == centromere &&
-      other.telomere == telomere &&
       other.bases == bases &&
       other.cds == cds &&
       other.utr == utr &&
@@ -166,8 +151,6 @@ final class ZoomInks {
     markDeep,
     shadow,
     blood,
-    centromere,
-    telomere,
     bases,
     cds,
     utr,
