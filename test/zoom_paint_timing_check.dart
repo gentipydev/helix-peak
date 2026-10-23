@@ -62,6 +62,7 @@ void main() {
       TestCatalog.ubiquitin,
       TestCatalog.bySlug('recoverin')!,
       TestCatalog.bySlug('phospholamban')!,
+      TestCatalog.bySlug('uromodulin')!,
     ]) {
       final ZoomStage stage = ZoomStage(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),

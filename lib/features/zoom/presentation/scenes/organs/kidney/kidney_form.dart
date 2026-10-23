@@ -293,11 +293,12 @@ final class KidneyForm {
   /// The sinus, closed, in the scene.
   late final List<Offset> sinus = _placed(_sinusMm);
 
-  /// The site in the anatomy's millimetres, and how far along the junction
-  /// the point of it nearest the site lies.
+  /// The site in the anatomy's millimetres; the point of the capsule
+  /// nearest it, square across the cortex from it; and how far along the
+  /// junction the point of it there lies.
   late final Offset _siteMm = toMm(site);
-  late final double _siteAlong =
-      _junctionAlong[_nearestIndex(_junctionMm, _siteMm)];
+  late final int _siteRun = _nearestIndex(_runMm, _siteMm);
+  late final double _siteAlong = _junctionAlong[_siteRun];
 
   /// Where along the junction each pyramid's base is centred, in
   /// millimetres along it: evenly between the ends the anatomy sets, but
@@ -480,12 +481,12 @@ final class KidneyForm {
             final Offset from = _junctionMm[i];
             final Offset end = _runMm[i] + _runIn[i] * KidneyAnatomy.rayShort;
             // The one under the site, where the rays are the cell's home,
-            // runs through it.
+            // is moved along the cortex to run through it, as its
+            // neighbours run, square to the capsule.
             if (through && (s - _siteAlong).abs() < spacing / 2) {
-              return (
-                from,
-                from + _unit(_siteMm - from) * (end - from).distance,
-              );
+              final Offset along = Offset(-_runIn[i].dy, _runIn[i].dx);
+              final Offset by = along * _dot(_siteMm - _runMm[_siteRun], along);
+              return (from + by, end + by);
             }
             return (from, end);
           }(),

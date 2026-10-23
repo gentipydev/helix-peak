@@ -47,7 +47,7 @@ import 'dart:ui';
 /// rays 0.5 mm wide, 1.8 mm apart, stopping 1.2 mm short of the capsule; a
 /// quarter of the glomeruli a cut shows; the renal vein 10 mm across, the
 /// segmental arteries 2.4, the interlobar 1.6 and the arcuate 1; the vessels
-/// cut short 16 mm past the hilum, and the ureter, 5 mm across, shown for
+/// cut short 11 mm past the hilum, and the ureter, 5 mm across, shown for
 /// 45 mm below it.
 abstract final class KidneyAnatomy {
   /// How long the kidney is, pole to pole.
@@ -210,15 +210,15 @@ abstract final class KidneyAnatomy {
   static const List<Offset> renalArtery = <Offset>[
     Offset(14, -6),
     Offset(22, -10),
-    Offset(30, -12),
-    Offset(40, -13),
+    Offset(29, -12),
+    Offset(35, -12.5),
   ];
   static const double arteryRadius = 2.75;
   static const List<Offset> renalVein = <Offset>[
     Offset(13, 1),
     Offset(22, 0),
-    Offset(31, 0.5),
-    Offset(40, 2),
+    Offset(29, 0.5),
+    Offset(35, 1.5),
   ];
   static const double veinRadius = 5;
 

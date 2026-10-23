@@ -21,6 +21,8 @@ import 'organs/eye/eye_style.dart';
 import 'organs/heart/heart_art.dart';
 import 'organs/heart/heart_form.dart';
 import 'organs/heart/heart_style.dart';
+import 'organs/kidney/kidney_art.dart';
+import 'organs/kidney/kidney_form.dart';
 import 'organs/pancreas/pancreas_anatomy.dart';
 import 'organs/pancreas/pancreas_art.dart';
 import 'organs/pancreas/pancreas_form.dart';
@@ -65,13 +67,15 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// drawn from general anatomy, as are the pancreas, the testis, cut down its
 /// length, the salivary gland, its parotid in place, the brain, cut down
 /// its middle, the eye, cut level through its optic nerve, the bone
-/// marrow, its femur cut down its length, the heart, cut open, and skeletal
-/// muscle, the front of the thigh.
+/// marrow, its femur cut down its length, the heart, cut open, skeletal
+/// muscle, the front of the thigh, and the kidney, cut open from front to
+/// back.
 ///
 /// Where the gene is, the organ glows in the mark: the part of it the
 /// zoom's cell lives in (the islets of a pancreas for an endocrine cell, its
-/// ducts for a duct cell, the interstitium of a testis for a Leydig cell),
-/// by the kind of organ and of cell, never by gene.
+/// ducts for a duct cell, the interstitium of a testis for a Leydig cell,
+/// the loops of Henle of a kidney for a cell the Atlas names theirs), by
+/// the kind of organ and of cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -81,18 +85,22 @@ abstract class OrganArt {
     subject.depth.widthOf(ZoomStop.organ),
     figure: subject.body,
     shape: subject.depth.archetype.shape,
+    cellName: subject.path.cellName,
     level: subject.followedLevel,
   );
 
   /// The organ a tissue drawn as [anatomy] is in, where the body draws it
   /// as [part] of [figure] and the scene's unit is [view] metres, about a
-  /// cell of [shape]. [level] is how strongly the body lit it.
+  /// cell of [shape], which the Atlas calls [cellName] where it names one:
+  /// an organ whose cells are all drawn as one shape tells them apart by it.
+  /// [level] is how strongly the body lit it.
   factory OrganArt.forTissue(
     TissueAnatomy? anatomy,
     AnatomyPart? part,
     double view, {
     AnatomyFigure? figure,
     CellShape shape = CellShape.epithelial,
+    String? cellName,
     double level = 1,
   }) {
     if (anatomy == null) {
@@ -147,6 +155,14 @@ abstract class OrganArt {
       ),
       OrganKind.skeletalMuscle when part != null && figure != null =>
         _ThighOrgan(part, anatomy, view, figure: figure, level: level),
+      OrganKind.kidney when part != null => _KidneyOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        cell: cellName,
+        level: level,
+      ),
       _ =>
         part == null
             ? _AnyOrgan()
@@ -298,12 +314,11 @@ abstract class OrganArt {
 }
 
 /// The surface an organ's outline is given.
-enum _Look { lobules, hollow, fibres, airways, kidney, fat, coils }
+enum _Look { lobules, hollow, fibres, airways, fat, coils }
 
 _Look _lookOf(OrganKind kind) => switch (kind) {
   OrganKind.adipose => _Look.fat,
   OrganKind.lung => _Look.airways,
-  OrganKind.kidney => _Look.kidney,
   OrganKind.intestine ||
   OrganKind.epididymis ||
   OrganKind.seminalVesicle => _Look.coils,
@@ -399,7 +414,7 @@ final class _Surroundings {
 }
 
 /// An organ the anatomogram outlines: its own outline, sculpted, the others
-/// of its part beside it (the other lung, the other kidney), and the
+/// of its part beside it (the other lung, the other adrenal gland), and the
 /// figure's parts round it, faint, as the body drew them.
 final class _DrawnOrgan extends OrganArt {
   _DrawnOrgan(
@@ -546,21 +561,6 @@ final class _DrawnOrgan extends OrganArt {
           shrink: 0.74,
         )) {
           lines.addPath(generation, Offset.zero);
-        }
-      case _Look.kidney:
-        // The cortex, and the pyramids of the medulla pointing in.
-        lines.addPath(_inset(0.8), Offset.zero);
-        for (int k = 0; k < 9; k++) {
-          final Offset p = _points[_points.length * k ~/ 9];
-          final Offset out = Offset.lerp(middle, p, 0.72)!;
-          final Offset tip = Offset.lerp(middle, p, 0.36)!;
-          final Offset way = (p - middle) / (p - middle).distance;
-          final Offset side = Offset(-way.dy, way.dx) * (size * 0.055);
-          dark
-            ..moveTo(out.dx + side.dx, out.dy + side.dy)
-            ..lineTo(out.dx - side.dx, out.dy - side.dy)
-            ..lineTo(tip.dx, tip.dy)
-            ..close();
         }
       case _Look.coils:
         // Loops lying on one another.
@@ -1454,6 +1454,139 @@ final class _ThighOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => ThighArt.bedOf(inks);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The kidney, drawn from general anatomy as a specimen cut open from front
+/// to back (`KidneyArt`): its cortex and its pyramids, its calyces and its
+/// pelvis in its sinus, the renal artery and vein cut short past its hilum
+/// and the ureter running down; where the zoom's cell lives in the mark, by
+/// the Atlas's name for the cell (`KidneyHome`); reached from the body's own
+/// outline of it (`_SpecimenOrgan`): that outline draws in toward the
+/// kidney's own and becomes the bed it lies on, the other kidney and the
+/// rest of the figure staying round it, faint, as the body drew them (the
+/// user's choices of 2026-10-23).
+final class _KidneyOrgan extends _SpecimenOrgan {
+  _KidneyOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    String? cell,
+    super.level,
+  }) : _form = KidneyForm.place(
+         part: part,
+         anatomy: anatomy,
+         view: view,
+         home: KidneyHome.of(cell),
+       ),
+       _others = _othersOf(part, anatomy.metres / part.extent / view);
+
+  final KidneyForm _form;
+
+  /// The body's other kidney, flat as it drew it, in the scene.
+  final Path _others;
+
+  static Path _othersOf(AnatomyPart part, double scale) {
+    final Path path = Path();
+    for (final List<Offset> other in part.others) {
+      path.addPath(
+        OrganArt._closed(<Offset>[
+          for (final Offset p in other) (p - part.centre) * scale,
+        ]),
+        Offset.zero,
+      );
+    }
+    return path;
+  }
+
+  @override
+  bool get _amongFigure => true;
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark, at the place its tissue is
+  // sampled (a papilla's at the papilla nearest it); and the cortex, the
+  // medulla, the renal pelvis and the ureter in the quiet ink, the cortex
+  // only where it is not the cell's home (the user's choice of 2026-10-23).
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (
+      key: 'home',
+      word: switch (_form.home) {
+        KidneyHome.cortex => 'cortex',
+        KidneyHome.loops => 'loops of\nHenle',
+        KidneyHome.ducts => 'collecting\nducts',
+        KidneyHome.papillae => 'papillae',
+        KidneyHome.glomeruli => 'glomeruli',
+      },
+      at: _form.home == KidneyHome.papillae
+          ? _form.papillaNear(_form.site)
+          : _form.site,
+      home: true,
+    ),
+    if (_form.home != KidneyHome.cortex)
+      (key: 'cortex', word: 'cortex', at: _form.cortexName, home: false),
+    (key: 'medulla', word: 'medulla', at: _form.medullaName, home: false),
+    (key: 'pelvis', word: 'renal\npelvis', at: _form.pelvisName, home: false),
+    (key: 'ureter', word: 'ureter', at: _form.ureterName, home: false),
+  ];
+
+  // Each in a column at the canvas's edge, level with what it names (the
+  // user's choice of 2026-10-23): the parenchyma's on the kidney's lateral
+  // side, the pelvis's and the ureter's on the side its hilum faces.
+  @override
+  late final Map<String, OrganColumn> columns = <String, OrganColumn>{
+    for (final OrganName name in names)
+      name.key: () {
+        final (Offset left, Offset right) = _form.edgesAt(name.at);
+        final bool medial = name.key == 'pelvis' || name.key == 'ureter';
+        return (
+          side: medial ? _form.side : -_form.side,
+          left: left,
+          right: right,
+        );
+      }(),
+  };
+
+  // The body's other kidney stays as it drew it, flat, as the figure's
+  // parts stay round this one.
+  @override
+  void _paintBeside(
+    Canvas canvas,
+    ZoomInks inks,
+    double line,
+    double detail,
+  ) => OrganArt._flatOthers(canvas, _others, inks, line);
+
+  KidneyArt? _art;
+
+  KidneyArt _artFor(ZoomInks inks) {
+    final KidneyArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = KidneyArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => KidneyArt.bedOf(inks, _form.home);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

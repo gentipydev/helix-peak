@@ -163,6 +163,14 @@ final class ZoomDepth {
   /// less, for slack), its names in columns either side of it.
   static const double muscleUpright = 1.2;
 
+  /// How much taller than wide the kidney is framed: cut open from front to
+  /// back, its renal artery and vein reaching out past its hilum and its
+  /// ureter running down below it, its names in columns either side of it
+  /// on the narrowest canvas a phone gives it, an iPhone SE's, 311 by 407
+  /// inside the canvas's inset under the kidney's card (1.25 is the most
+  /// that leaves them room; a little less, for slack).
+  static const double kidneyUpright = 1.2;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -183,8 +191,9 @@ final class ZoomDepth {
   /// anatomy among its epididymis and its cord, as [testisUpright], the
   /// salivary gland, its parotid in place, as [salivaryUpright], the eye,
   /// cut level through its optic nerve, as [eyeUpright], the heart, cut
-  /// open from front to back, as [heartUpright], and skeletal muscle, the
-  /// front of the thigh, as [muscleUpright].
+  /// open from front to back, as [heartUpright], skeletal muscle, the
+  /// front of the thigh, as [muscleUpright], and the kidney, cut open from
+  /// front to back, as [kidneyUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -211,6 +220,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.skeletalMuscle) {
       return muscleUpright;
+    }
+    if (anatomy.organ == OrganKind.kidney) {
+      return kidneyUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)

@@ -50,7 +50,7 @@ abstract final class KidneyStyle {
 
   /// The fat of the sinus, warmed toward the home helix's honey, as the
   /// heart's grooves' fat is.
-  static const double fatLit = 0.5;
+  static const double fatLit = 0.4;
   static const double fatWarmth = 0.3;
 
   /// The vessels: lit tubes in the blood red eased toward the ground, the
@@ -64,9 +64,11 @@ abstract final class KidneyStyle {
   static const double endLength = 0.45;
   static const double endWall = 0.25;
 
-  /// The ureter: pale, a little warm, lit as a tube.
-  static const double ureterLit = 0.55;
+  /// The ureter: pale, a little warm, lit as a tube under the kidney's own
+  /// light, as the testis's vas deferens is.
+  static const double ureterLit = 0.6;
   static const double ureterWarmth = 0.1;
+  static const double ureterLight = 0.9;
 
   // The cut faces' light.
 
