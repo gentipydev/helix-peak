@@ -256,52 +256,79 @@ final class StomachForm {
     return (Offset.lerp(g, l, u)!, l - g);
   }
 
-  /// The rugae's middle lines, in millimetres.
+  /// The rugae's middle lines, in millimetres: each ruga broken off a time
+  /// or two along its length, as rugae are.
   static final List<List<Offset>> _rugaeMm = <List<Offset>>[
     for (final (double u, double from, double to, int seed)
         in StomachAnatomy.rugae)
-      () {
-        final math.Random random = math.Random(seed);
-        final double wavePhase = random.nextDouble() * 2 * math.pi;
-        final double ripplePhase = random.nextDouble() * 2 * math.pi;
-        final double greater = _greaterAlong.last;
-        final int steps = math.max(
-          2,
-          ((to - from) * greater / (2 * StomachStyle.edgeStep)).ceil(),
-        );
-        return <Offset>[
-          for (int i = 0; i <= steps; i++)
-            () {
-              final double t = from + (to - from) * i / steps;
-              final (Offset p, Offset across) = _rung(t, u);
-              final double width = across.distance;
-              if (width <= 0) {
-                return p;
-              }
-              final double along = t * greater;
-              final double wander =
-                  math.min(
-                    StomachAnatomy.wander,
-                    StomachAnatomy.wanderShare * width,
-                  ) *
-                  (0.65 *
-                          math.sin(
-                            along / StomachAnatomy.wave * 2 * math.pi +
-                                wavePhase,
-                          ) +
-                      0.35 *
-                          math.sin(
-                            along / StomachAnatomy.ripple * 2 * math.pi +
-                                ripplePhase,
-                          ));
-              return p + across / width * wander;
-            }(),
-        ];
-      }(),
+      ..._ruga(u, from, to, math.Random(seed)),
   ];
 
+  static List<List<Offset>> _ruga(
+    double u,
+    double from,
+    double to,
+    math.Random random,
+  ) {
+    final double wavePhase = random.nextDouble() * 2 * math.pi;
+    final double ripplePhase = random.nextDouble() * 2 * math.pi;
+    final double greater = _greaterAlong.last;
+    // Where it breaks off, each break a stretch of its length, along the
+    // greater curvature, kept off its ends.
+    final double gap = StomachAnatomy.breakLength / greater;
+    final List<(double, double)> breaks = <(double, double)>[
+      for (int k = random.nextInt(StomachAnatomy.breaks + 1); k > 0; k--)
+        () {
+          final double at =
+              from +
+              0.15 * (to - from) +
+              random.nextDouble() * 0.7 * (to - from);
+          return (at - gap / 2, at + gap / 2);
+        }(),
+    ]..sort(((double, double) a, (double, double) b) => a.$1.compareTo(b.$1));
+    final int steps = math.max(
+      2,
+      ((to - from) * greater / (2 * StomachStyle.edgeStep)).ceil(),
+    );
+    final List<List<Offset>> out = <List<Offset>>[];
+    List<Offset> run = <Offset>[];
+    for (int i = 0; i <= steps; i++) {
+      final double t = from + (to - from) * i / steps;
+      if (breaks.any(((double, double) b) => t > b.$1 && t < b.$2)) {
+        if (run.length > 1) {
+          out.add(run);
+        }
+        run = <Offset>[];
+        continue;
+      }
+      final (Offset p, Offset across) = _rung(t, u);
+      final double width = across.distance;
+      if (width <= 0) {
+        run.add(p);
+        continue;
+      }
+      final double along = t * greater;
+      final double wander =
+          math.min(StomachAnatomy.wander, StomachAnatomy.wanderShare * width) *
+          (0.65 *
+                  math.sin(
+                    along / StomachAnatomy.wave * 2 * math.pi + wavePhase,
+                  ) +
+              0.35 *
+                  math.sin(
+                    along / StomachAnatomy.ripple * 2 * math.pi + ripplePhase,
+                  ));
+      run.add(p + across / width * wander);
+    }
+    if (run.length > 1) {
+      out.add(run);
+    }
+    return out;
+  }
+
   /// The Z-line, from the esophagus's right margin to its left, where the
-  /// curvatures begin: its tongues reach up into the esophagus.
+  /// curvatures begin: its tongues reach up into the esophagus, rounded,
+  /// each its own height.
   static final List<Offset> _zLineMm = () {
     final Offset l = _lesserMm.first;
     final Offset g = _greaterMm.first;
@@ -310,19 +337,31 @@ final class StomachForm {
     final Offset normal = Offset(across.dy, -across.dx) / across.distance;
     final Offset up = normal.dy <= 0 ? normal : -normal;
     const int tongues = StomachAnatomy.tongues;
+    final math.Random random = math.Random(StomachStyle.seed);
+    final List<double> heights = <double>[
+      for (int k = 0; k < tongues; k++)
+        StomachAnatomy.tongue * (0.55 + 0.45 * random.nextDouble()),
+    ];
+    const int steps = tongues * 8;
     return <Offset>[
-      for (int k = 0; k <= 2 * tongues; k++)
-        Offset.lerp(l, g, k / (2 * tongues))! +
-            up * (k.isOdd ? StomachAnatomy.tongue : 0),
+      for (int i = 0; i <= steps; i++)
+        () {
+          final double s = i / steps;
+          final double within = s * tongues;
+          final int k = math.min(tongues - 1, within.floor());
+          final double rise = math.sin(math.pi * (within - k));
+          return Offset.lerp(l, g, s)! + up * (heights[k] * rise * rise);
+        }(),
     ];
   }();
 
-  /// The esophagus's lining, above the Z-line, in millimetres: the inner
-  /// edge from its right margin round its cut end to its left, and back
-  /// along the Z-line.
+  /// The esophagus's lining, above the Z-line, in millimetres, its own
+  /// mucosa where the wall is cut as well: the submucosa's inner edge from
+  /// its right margin round its cut end to its left, and back along the
+  /// Z-line.
   static final List<Offset> _liningMm = () {
     const int span = StomachStyle.outlineSpan;
-    final List<Offset> inner = _innerMm;
+    final List<Offset> inner = _coatsMm[2];
     final int n = inner.length;
     const int from = StomachAnatomy.cardia * span;
     final int count =
@@ -488,6 +527,7 @@ final class StomachForm {
 
   static final List<AnatomyTube> _branchesMm = () {
     final List<AnatomyTube> out = <AnatomyTube>[];
+    final math.Random random = math.Random(StomachStyle.seed);
     for (final int index in StomachAnatomy.arcades) {
       final TubeCourse arcade = TubeCourse(
         StomachAnatomy.arteries[index],
@@ -502,21 +542,29 @@ final class StomachForm {
           continue;
         }
         final Offset c = arcade.centres[i];
+        // Leaning a little ahead along the arcade, or behind.
+        final Offset way = Offset(arcade.across[i].dy, -arcade.across[i].dx);
+        final Offset aim =
+            c +
+            way * (StomachAnatomy.branchLean * (2 * random.nextDouble() - 1));
         Offset edge = _outlineMm.first;
         for (final Offset q in _outlineMm) {
-          if ((q - c).distanceSquared < (edge - c).distanceSquared) {
+          if ((q - aim).distanceSquared < (edge - aim).distanceSquared) {
             edge = q;
           }
         }
-        final Offset way = edge - c;
-        final double reach = way.distance;
+        final Offset to = edge - c;
+        final double reach = to.distance;
         if (reach > StomachAnatomy.branchReach || reach <= 0) {
           continue;
         }
-        next = arcade.arc[i] + StomachAnatomy.branchApart;
+        next =
+            arcade.arc[i] +
+            StomachAnatomy.branchApart +
+            StomachAnatomy.branchJitter * (2 * random.nextDouble() - 1);
         out.add(
           AnatomyTube(
-            <Offset>[c, edge + way / reach * StomachAnatomy.branchUnder],
+            <Offset>[c, edge + to / reach * StomachAnatomy.branchUnder],
             const <double>[StomachAnatomy.branch, StomachAnatomy.branch],
           ),
         );
@@ -541,8 +589,10 @@ final class StomachForm {
   late final Offset duodenumName = place(StomachAnatomy.duodenumName);
   late final Offset esophagusName = place(StomachAnatomy.esophagusName);
 
-  /// The point of a ruga nearest [p].
+  /// The point of a ruga nearest [p], and where they are named: low in
+  /// the body by the greater curvature, where they run long.
   Offset rugaNear(Offset p) => _nearest(rugae, p);
+  late final Offset rugaeName = rugaNear(place(StomachAnatomy.rugaeName));
 
   /// The point of the muscularis's middle nearest [p].
   Offset wallNear(Offset p) => _nearest(muscleMiddle, p);

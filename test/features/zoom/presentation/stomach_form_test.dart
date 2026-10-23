@@ -207,8 +207,8 @@ void main() {
     expect(form.muscleMiddle, hasLength(2));
   });
 
-  test('its rugae run its length in the mucosa, never crossing, and gather '
-      'toward the pylorus', () {
+  test('its rugae run its length in the mucosa, never crossing, broken off '
+      'here and there, and gather toward the pylorus', () {
     final StomachForm form = _form();
     final Offset pylorus = form.place(StomachAnatomy.outline[28]);
     for (int i = 0; i < form.rugae.length; i++) {
@@ -220,11 +220,6 @@ void main() {
           reason: 'ruga $i',
         );
       }
-      expect(
-        (ruga.last - pylorus).distance,
-        lessThan((ruga.first - pylorus).distance),
-        reason: 'ruga $i',
-      );
       for (int j = i + 1; j < form.rugae.length; j++) {
         double nearest = double.infinity;
         for (final Offset p in ruga) {
@@ -236,7 +231,18 @@ void main() {
         expect(nearest / form.scale, greaterThan(0.5), reason: 'rugae $i, $j');
       }
     }
-    // Further apart in the body than at the pyloric canal.
+    // Several run on to the pylorus, closer together there than in the
+    // body.
+    expect(
+      form.rugae
+          .where(
+            (List<Offset> ruga) =>
+                (ruga.last - pylorus).distance < form.mm(35) &&
+                (ruga.first - pylorus).distance > form.mm(100),
+          )
+          .length,
+      greaterThanOrEqualTo(5),
+    );
     double gap(Offset at) {
       final List<double> d = <double>[
         for (final List<Offset> ruga in form.rugae)
@@ -257,13 +263,23 @@ void main() {
       'cardia, its tongues reaching up into the esophagus', () {
     final StomachForm form = _form();
     final List<Offset> z = form.zLine;
-    expect(z.length, 2 * StomachAnatomy.tongues + 1);
     final double mean =
         z.map((Offset p) => p.dy).reduce((double a, double b) => a + b) /
         z.length;
-    // Its tongues reach up, into the esophagus.
-    for (int k = 1; k < z.length; k += 2) {
-      expect(z[k].dy, lessThan(math.min(z[k - 1].dy, z[k + 1].dy)));
+    // Its tongues reach up, into the esophagus, as many as are drawn, none
+    // higher than a tongue reaches.
+    int tips = 0;
+    for (int i = 1; i + 1 < z.length; i++) {
+      if (z[i].dy < z[i - 1].dy && z[i].dy <= z[i + 1].dy) {
+        tips++;
+      }
+    }
+    expect(tips, StomachAnatomy.tongues);
+    for (final Offset p in z) {
+      expect(
+        _distanceTo(<Offset>[z.first, z.last], p, closed: false) / form.scale,
+        lessThanOrEqualTo(StomachAnatomy.tongue + 1e-9),
+      );
     }
     // The lining lies above it, in the esophagus, its cut end its top.
     final Rect lining = _bounds(form.lining);

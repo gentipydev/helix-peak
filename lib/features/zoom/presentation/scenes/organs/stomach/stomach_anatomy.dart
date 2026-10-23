@@ -47,7 +47,8 @@ import '../../tube_course.dart';
 /// zoom's card has it; the wall through each part, between those
 /// measurements, and the pyloric ring 9 mm; the coats' shares of it; the
 /// esophagus 22 mm across and the duodenum 26; where the rugae run, how far
-/// apart and how much they wander; the Z-line's tongues; the courses of the
+/// apart, how much they wander and where they break off; the Z-line's
+/// tongues; the courses of the
 /// arteries and their branches to the wall, the left gastroepiploic 2 mm
 /// across, the short gastrics 1.2; and the tubes cut short 15 to 45 mm out.
 abstract final class StomachAnatomy {
@@ -154,14 +155,14 @@ abstract final class StomachAnatomy {
   static const List<(double, double, double, int)> rugae =
       <(double, double, double, int)>[
         (0.05, 0.16, 0.985, 1),
-        (0.13, 0.12, 0.985, 2),
-        (0.22, 0.12, 0.98, 3),
-        (0.32, 0.13, 0.975, 4),
+        (0.13, 0.12, 0.9, 2),
+        (0.22, 0.12, 0.975, 3),
+        (0.32, 0.13, 0.9, 4),
         (0.42, 0.17, 0.97, 5),
-        (0.55, 0.20, 0.96, 6),
-        (0.66, 0.18, 0.94, 7),
-        (0.77, 0.10, 0.93, 8),
-        (0.86, 0.04, 0.94, 9),
+        (0.55, 0.20, 0.88, 6),
+        (0.66, 0.18, 0.95, 7),
+        (0.77, 0.10, 0.86, 8),
+        (0.86, 0.04, 0.9, 9),
         (0.94, 0.02, 0.96, 10),
       ];
 
@@ -173,13 +174,18 @@ abstract final class StomachAnatomy {
   static const double wave = 46;
   static const double ripple = 21;
 
+  /// How many times a ruga breaks off at most, and for how long, along the
+  /// greater curvature.
+  static const int breaks = 2;
+  static const double breakLength = 10;
+
   /// The esophagus's own folds, each the share of the way across it.
   static const List<double> esophagealFolds = <double>[0.3, 0.5, 0.7];
 
   /// The Z-line: how many tongues of the stomach's mucosa reach up into the
   /// esophagus's, and how far.
   static const int tongues = 4;
-  static const double tongue = 3;
+  static const double tongue = 2.4;
 
   // What runs on beside it, cut short.
 
@@ -292,17 +298,21 @@ abstract final class StomachAnatomy {
   static const List<int> arcades = <int>[0, 1, 2, 3, 4, 5, 6];
 
   /// The small branches into the wall: about how far apart along an
-  /// arcade, how near the wall it must run to send one, how far under the
-  /// wall each goes, and how wide each is.
-  static const double branchApart = 16;
+  /// arcade, and how much more or less, how near the wall it must run to
+  /// send one, how far ahead or behind along it each leans, how far under
+  /// the wall each goes, and how wide each is.
+  static const double branchApart = 22;
+  static const double branchJitter = 7;
   static const double branchReach = 15;
+  static const double branchLean = 5;
   static const double branchUnder = 3;
   static const double branch = 0.4;
 
   // Where the parts are named.
 
   static const Offset fundusName = Offset(42, -94);
-  static const Offset bodyName = Offset(92, 0);
+  static const Offset bodyName = Offset(96, -36);
+  static const Offset rugaeName = Offset(20, 74);
   static const Offset antrumName = Offset(-78, 62);
   static const Offset pylorusName = Offset(-121, 60);
   static const Offset duodenumName = Offset(-158, 74);

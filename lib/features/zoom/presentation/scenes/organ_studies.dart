@@ -95,58 +95,11 @@ final class OrganForm {
     ];
   }();
 
-  /// A line through the slices at [share] of the way from one edge to the
-  /// other: a fibre, a fold, running the organ's length.
-  Path lengthwise(double share, {double wave = 0, double phase = 0}) {
-    final Path path = Path();
-    for (int i = 0; i < slices.length; i++) {
-      final (Offset a, Offset b) = slices[i];
-      final double wobble = wave == 0
-          ? 0
-          : wave * math.sin(i * 0.9 + phase) * (b - a).distance;
-      final double t = (share + wobble).clamp(0.02, 0.98);
-      final Offset p = Offset.lerp(a, b, t)!;
-      if (i == 0) {
-        path.moveTo(p.dx, p.dy);
-      } else {
-        path.lineTo(p.dx, p.dy);
-      }
-    }
-    return path;
-  }
-
   /// The point [t] of the way along the spine.
   Offset along(double t) {
     final double x = t.clamp(0.0, 1.0) * (spine.length - 1);
     final int i = x.floor().clamp(0, spine.length - 2);
     return Offset.lerp(spine[i], spine[i + 1], x - i)!;
-  }
-
-  /// The outline drawn in toward its middle to [share] of its size, and
-  /// to [across] of that across its length.
-  Path inset(
-    double share, {
-    double across = 1,
-    double wobble = 0,
-    int seed = 0,
-  }) {
-    final math.Random random = math.Random(seed);
-    final double phase = random.nextDouble() * 6;
-    final Path path = Path();
-    for (int i = 0; i < points.length; i++) {
-      final Offset p = points[i];
-      final double w = 1 + wobble * math.sin(i * 0.55 + phase);
-      final Offset d = (p - middle) * share * w;
-      final Offset q =
-          middle +
-          (tall ? Offset(d.dx * across, d.dy) : Offset(d.dx, d.dy * across));
-      if (i == 0) {
-        path.moveTo(q.dx, q.dy);
-      } else {
-        path.lineTo(q.dx, q.dy);
-      }
-    }
-    return path..close();
   }
 
   /// [count] points inside the organ, at least [apart] from one another,
@@ -198,10 +151,10 @@ final class OrganForm {
 /// the testis and the salivary gland are drawn from anatomy instead, among
 /// their neighbours, the bone marrow as its femur, skeletal muscle as the
 /// front of the thigh, the brain cut down its middle, the eye cut level
-/// through its nerve, and the heart, the kidney and the liver cut open
-/// from front to back: `PancreasArt`, `TestisArt`, `SalivaryArt`,
-/// `MarrowArt`, `ThighArt`, `BrainArt`, `EyeArt`, `HeartArt`, `KidneyArt`,
-/// `LiverArt`.)
+/// through its nerve, the heart, the kidney and the liver cut open from
+/// front to back, and the stomach opened from the front: `PancreasArt`,
+/// `TestisArt`, `SalivaryArt`, `MarrowArt`, `ThighArt`, `BrainArt`,
+/// `EyeArt`, `HeartArt`, `KidneyArt`, `LiverArt`, `StomachArt`.)
 abstract class OrganStudy {
   const OrganStudy();
 
@@ -210,7 +163,6 @@ abstract class OrganStudy {
   static const Set<OrganKind> studied = <OrganKind>{
     OrganKind.adipose,
     OrganKind.fallopianTube,
-    OrganKind.stomach,
     OrganKind.pituitary,
   };
 
@@ -220,7 +172,6 @@ abstract class OrganStudy {
       switch (kind) {
         OrganKind.adipose => _Fat(form),
         OrganKind.fallopianTube => _Tube(form),
-        OrganKind.stomach => _Stomach(form),
         OrganKind.pituitary => _Pituitary(form),
         _ => null,
       };
@@ -361,72 +312,6 @@ final class _Tube extends OrganStudy {
     canvas.drawPath(
       form.shape,
       band(inks.lit(0.3).withValues(alpha: detail), t * 0.3),
-    );
-  }
-}
-
-/// A stomach opened: its wall, the rugae folding its lining along its
-/// length, the arcades of vessels along its curvatures, and its mucosa,
-/// where its glands' dividing cells are, in the mark.
-final class _Stomach extends OrganStudy {
-  _Stomach(this.form) {
-    final math.Random random = math.Random(37);
-    _rugae = <Path>[
-      for (int k = 1; k < 9; k++)
-        form.lengthwise(0.18 + 0.64 * k / 9, wave: 0.03, phase: k * 2.1),
-    ];
-    _lining = form.inset(0.82, across: 0.72);
-    _arcades = Path();
-    final int n = form.points.length;
-    for (int i = 0; i < n; i += math.max(1, n ~/ 26)) {
-      final Offset p = form.points[i];
-      final Offset inward = form.middle - p;
-      final double d = inward.distance;
-      if (d == 0) {
-        continue;
-      }
-      final Offset q =
-          p + inward / d * (form.size * (0.04 + 0.03 * random.nextDouble()));
-      _arcades
-        ..moveTo(p.dx, p.dy)
-        ..lineTo(q.dx, q.dy);
-    }
-  }
-
-  final OrganForm form;
-  late final List<Path> _rugae;
-  late final Path _lining;
-  late final Path _arcades;
-
-  @override
-  void inside(Canvas canvas, ZoomInks inks, double line, double detail) {
-    canvas.drawPath(
-      _lining,
-      Paint()..color = inks.shade(0.42).withValues(alpha: 0.8 * detail),
-    );
-    canvas.drawPath(_lining, Paint()..color = inks.glow(0.12 * detail));
-    canvas.save();
-    canvas.clipPath(_lining);
-    for (final Path ruga in _rugae) {
-      Sculpt.glowingStroke(
-        canvas,
-        ruga,
-        inks,
-        width: 1.3 * line,
-        alpha: 0.55 * detail,
-      );
-    }
-    canvas.restore();
-    canvas.drawPath(
-      _arcades,
-      _stroke(
-        Color.lerp(
-          inks.blood,
-          inks.ground,
-          0.3,
-        )!.withValues(alpha: 0.6 * detail),
-        1.2 * line,
-      ),
     );
   }
 }

@@ -36,6 +36,9 @@ import 'organs/salivary_gland/salivary_style.dart';
 import 'organs/skeletal_muscle/thigh_art.dart';
 import 'organs/skeletal_muscle/thigh_form.dart';
 import 'organs/skeletal_muscle/thigh_style.dart';
+import 'organs/stomach/stomach_art.dart';
+import 'organs/stomach/stomach_form.dart';
+import 'organs/stomach/stomach_style.dart';
 import 'organs/testis/testis_anatomy.dart';
 import 'organs/testis/testis_art.dart';
 import 'organs/testis/testis_form.dart';
@@ -72,14 +75,15 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// its middle, the eye, cut level through its optic nerve, the bone
 /// marrow, its femur cut down its length, the heart, cut open, skeletal
 /// muscle, the front of the thigh, the kidney and the liver, each cut open
-/// from front to back.
+/// from front to back, and the stomach, opened from the front.
 ///
 /// Where the gene is, the organ glows in the mark: the part of it the
 /// zoom's cell lives in (the islets of a pancreas for an endocrine cell, its
 /// ducts for a duct cell, the interstitium of a testis for a Leydig cell,
 /// the loops of Henle of a kidney for a cell the Atlas names theirs, the
-/// bile ducts of a liver for a cholangiocyte), by the kind of organ and of
-/// cell, never by gene.
+/// bile ducts of a liver for a cholangiocyte, the muscularis of a stomach
+/// for a smooth muscle cell), by the kind of organ and of cell, never by
+/// gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -168,6 +172,14 @@ abstract class OrganArt {
         level: level,
       ),
       OrganKind.liver when part != null => _LiverOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        cell: cellName,
+        level: level,
+      ),
+      OrganKind.stomach when part != null => _StomachOrgan(
         part,
         anatomy,
         view,
@@ -335,7 +347,6 @@ _Look _lookOf(OrganKind kind) => switch (kind) {
   OrganKind.epididymis ||
   OrganKind.seminalVesicle => _Look.coils,
   OrganKind.smoothMuscle || OrganKind.tongue => _Look.fibres,
-  OrganKind.stomach ||
   OrganKind.bladder ||
   OrganKind.gallbladder ||
   OrganKind.uterus ||
@@ -1738,6 +1749,138 @@ final class _LiverOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => LiverArt.bedOf(inks, _form.home);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The stomach, drawn from general anatomy as a specimen opened from the
+/// front (`StomachArt`): its front wall cut away, the mucosa of its back
+/// wall seen from inside, its rugae running its length, the cut wall's
+/// coats round it thickening into the pyloric ring, the esophagus's lining
+/// meeting it at the Z-line; the arteries along its curvatures, the
+/// esophagus and the duodenum cut short; reached from the body's own
+/// outline of it (`_SpecimenOrgan`), which draws in toward the stomach's
+/// own and becomes the bed it lies on, the figure staying round it, faint.
+/// Where the zoom's cell lives is in the mark, by the Atlas's name for the
+/// cell: its mucosa, or its muscularis for a smooth muscle cell (the
+/// user's choices of 2026-10-23).
+final class _StomachOrgan extends _SpecimenOrgan {
+  _StomachOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    String? cell,
+    super.level,
+  }) : _form = StomachForm.place(
+         part: part,
+         anatomy: anatomy,
+         view: view,
+         home: StomachHome.of(cell),
+       );
+
+  final StomachForm _form;
+
+  @override
+  bool get _amongFigure => true;
+
+  @override
+  double _settleOf(double detail) =>
+      SpecimenStep.settle(detail, span: StomachStyle.settling);
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark, at the place its tissue is
+  // sampled (the muscularis's at the wall nearest it); and its parts round
+  // it, what runs on from it and its rugae, in the quiet ink (the user's
+  // choices of 2026-10-23).
+  @override
+  late final List<OrganName> names = <OrganName>[
+    switch (_form.home) {
+      StomachHome.mucosa => (
+        key: 'home',
+        word: 'mucosa',
+        at: _form.site,
+        home: true,
+      ),
+      StomachHome.muscularis => (
+        key: 'home',
+        word: 'muscularis',
+        at: _form.wallNear(_form.site),
+        home: true,
+      ),
+    },
+    (
+      key: 'esophagus',
+      word: 'esophagus',
+      at: _form.esophagusName,
+      home: false,
+    ),
+    (key: 'fundus', word: 'fundus', at: _form.fundusName, home: false),
+    (key: 'body', word: 'body', at: _form.bodyName, home: false),
+    (key: 'rugae', word: 'rugae', at: _form.rugaeName, home: false),
+    (key: 'antrum', word: 'antrum', at: _form.antrumName, home: false),
+    (key: 'pylorus', word: 'pylorus', at: _form.pylorusName, home: false),
+    (
+      key: 'duodenum',
+      word: 'duodenum',
+      at: _form.duodenumName,
+      home: false,
+    ),
+  ];
+
+  // Set round all of it, out at the canvas's corners, as the liver's are:
+  // the stomach is too wide for a column of names at either side of it on
+  // a phone (the user's choice of 2026-10-23). Round the stomach and what
+  // runs on beside it where it shows, with room to either side and past a
+  // cut end.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(StomachStyle.nameClear);
+    return <Offset>[
+      for (int i = 0; i < _form.outlinePoints.length; i += 4)
+        _form.outlinePoints[i],
+      for (final TubeCourse tube in _form.beside)
+        for (int i = 0; i < tube.length; i++)
+          if ((i % 4 == 0 || i == tube.length - 1) &&
+              tube.shown[i] > StomachStyle.nameShown) ...<Offset>[
+            tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+            tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+            if (i == tube.length - 1)
+              tube.centres[i] +
+                  Offset(tube.across[i].dy, -tube.across[i].dx) *
+                      (tube.radius[i] + clear),
+          ],
+    ];
+  }();
+
+  StomachArt? _art;
+
+  StomachArt _artFor(ZoomInks inks) {
+    final StomachArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = StomachArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => StomachArt.bedOf(inks, _form.home);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

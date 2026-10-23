@@ -28,8 +28,10 @@ abstract final class StomachStyle {
   /// stomach's: the other specimens' own (`SpecimenStep`).
   static const double settling = 0.45;
 
-  /// How finely the rugae and the tubes are followed.
+  /// How finely the rugae and the tubes are followed, and the seed the
+  /// arcades' branches are laid by.
   static const double edgeStep = 0.5;
+  static const int seed = 41;
 
   // The tones, each a share of the way from the outline toward the bright
   // ink (`ZoomInks.lit`), and warmed toward the home helix's clay.
@@ -54,8 +56,8 @@ abstract final class StomachStyle {
   static const double serosaWarmth = 0.08;
 
   /// The esophagus's lining, pale, barely warm.
-  static const double liningLit = 0.6;
-  static const double liningWarmth = 0.06;
+  static const double liningLit = 0.5;
+  static const double liningWarmth = 0.1;
 
   /// The esophagus and the duodenum outside it: lit tubes in the stomach's
   /// own warm neutral, under the stomach's light.
@@ -87,14 +89,14 @@ abstract final class StomachStyle {
 
   /// The crease along a ruga, crisp in the shadow ink: how wide, how far
   /// it tapers in from each end, how dark, and never thinner than so many
-  /// pixels. The light on its far side, toward the lamp: how far over, how
-  /// wide and how bright.
+  /// pixels; the esophagus's own folds, fainter. The light on its far side,
+  /// toward the lamp: how far over and how bright.
   static const double crease = 0.7;
   static const double creaseTaper = 7;
-  static const double creaseAlpha = 0.5;
+  static const double creaseAlpha = 0.36;
+  static const double liningCreaseAlpha = 0.2;
   static const double creaseFloor = 0.9;
   static const double ridge = 0.9;
-  static const double ridgeWidth = 0.8;
   static const double ridgeLit = 0.75;
   static const double ridgeAlpha = 0.16;
 
