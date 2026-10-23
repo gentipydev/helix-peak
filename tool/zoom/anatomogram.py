@@ -109,6 +109,29 @@ SITE_TOP = {"UBERON_0002371": 0.2}
 # where the heart's form lays the wall through it on either figure.
 SITE_RIGHT = {"UBERON_0000948": (0.56, 0.035)}
 
+# Parts the zoom follows into another of their outlines than the largest:
+# the one whose box's middle lies farthest from the figure's midline, written
+# as its place among them (`followed`), the outlines kept largest first.
+# Skeletal muscle is drawn as the front of the thigh (`thigh_form.dart`) and
+# gone into in its vastus lateralis, the muscle human skeletal muscle is
+# biopsied from with the Bergström needle (Shanely et al. 2014, J Vis Exp
+# 91:51812): the outermost of the anatomogram's five outlines of it.
+FOLLOW_OUTERMOST = {"UBERON_0001134"}
+
+# Parts the zoom goes into a share of the followed outline's height from its
+# top, midway across its widest stretch at that height. The vastus lateralis
+# is best biopsied between half and three quarters of the way from the
+# greater trochanter to the lateral epicondyle, just in front of the
+# iliotibial tract (Chen et al. 2019, Scand J Med Sci Sports 29:504): five
+# eighths of the way lies 0.6 of the way down its outline on either figure.
+SITE_LEVEL = {"UBERON_0001134": 0.6}
+
+# Parts the view closes on whole: written with a `centre`, the middle of the
+# box round all their outlines, where the view closes in place of the middle
+# of the one it follows. The thigh is drawn whole, its vastus lateralis at
+# its lateral edge.
+FRAME_WHOLE = {"UBERON_0001134"}
+
 
 def fetch(directory: str | None) -> dict[str, str]:
     """The three drawings' paths, downloaded at the pinned commit unless
@@ -195,6 +218,26 @@ def site_right(contour: list[svg.Point], down: float, inset: float) -> svg.Point
     return (right - (x1 - x0) * inset, y)
 
 
+def site_level(contour: list[svg.Point], down: float) -> svg.Point:
+    """A point [down] of the way down [contour]'s box, midway across the
+    widest stretch of it at that height (`SITE_LEVEL`)."""
+    x0, y0, x1, y1 = svg.bounds([contour])
+    y = y0 + (y1 - y0) * down
+    crossings = []
+    for i, a in enumerate(contour):
+        b = contour[(i + 1) % len(contour)]
+        if (a[1] > y) != (b[1] > y):
+            crossings.append(a[0] + (y - a[1]) * (b[0] - a[0]) / (b[1] - a[1]))
+    crossings.sort()
+    if len(crossings) < 2:
+        raise SystemExit(f"no outline crosses {down} of the way down")
+    left, right = max(
+        ((crossings[i], crossings[i + 1]) for i in range(0, len(crossings) - 1, 2)),
+        key=lambda stretch: stretch[1] - stretch[0],
+    )
+    return ((left + right) / 2, y)
+
+
 def farthest_inside(contour: list[svg.Point], x0: float, y0: float, x1: float, y1: float) -> svg.Point | None:
     """The point of a grid over the box from (x0, y0) to (x1, y1) that lies
     inside [contour] farthest from its edge, or None where none is inside."""
@@ -271,19 +314,32 @@ def convert_body(name: str, path: str, wanted: set[str]) -> dict:
         if not contours:
             continue
         contours.sort(key=lambda c: -abs(svg.area(c)))
-        followed = contours[0]
-        bx0, by0, bx1, by1 = svg.bounds([followed])
+        bx0, by0, bx1, by1 = svg.bounds([contours[0]])
         tolerance = max(0.01, 0.0025 * math.hypot(bx1 - bx0, by1 - by0))
-        site = (
-            site_right(followed, *SITE_RIGHT[uberon])
-            if uberon in SITE_RIGHT
-            else site_of(followed, SITE_TOP.get(uberon, 1.0))
-        )
+        follow = 0
+        if uberon in FOLLOW_OUTERMOST:
+            def out(c: list[svg.Point]) -> float:
+                cx0, _, cx1, _ = svg.bounds([c])
+                return abs((cx0 + cx1) / 2 - middle)
+
+            follow = max(range(len(contours)), key=lambda i: out(contours[i]))
+        followed = contours[follow]
+        if uberon in SITE_RIGHT:
+            site = site_right(followed, *SITE_RIGHT[uberon])
+        elif uberon in SITE_LEVEL:
+            site = site_level(followed, SITE_LEVEL[uberon])
+        else:
+            site = site_of(followed, SITE_TOP.get(uberon, 1.0))
         parts[uberon] = {
             "title": titles.get(uberon) or titles.get(STAND_IN.get(uberon, ""), ""),
             "site": list(place(site)),
             "contours": [encode(svg.simplify(c, tolerance), place) for c in contours],
         }
+        if follow:
+            parts[uberon]["followed"] = follow
+        if uberon in FRAME_WHOLE:
+            wx0, wy0, wx1, wy1 = svg.bounds(contours)
+            parts[uberon]["centre"] = list(place(((wx0 + wx1) / 2, (wy0 + wy1) / 2)))
     return {
         "name": name,
         "source": os.path.basename(path),

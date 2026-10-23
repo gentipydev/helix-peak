@@ -539,6 +539,65 @@ void main() {
       }
     });
 
+    test('go into skeletal muscle in its outermost outline, the vastus '
+        'lateralis, 0.6 of the way down and midway across it, the view '
+        'closing on the whole thigh', () {
+      final String uberon = tissueAnatomy['skeletal muscle']!.uberon;
+      for (final AnatomyFigure figure in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ]) {
+        final AnatomyPart part = figure.parts[uberon]!;
+        double out(List<Offset> contour) => boxOf(contour).center.dx.abs();
+        for (final List<Offset> other in part.others) {
+          expect(out(part.followed), greaterThan(out(other)),
+              reason: figure.name);
+        }
+        final List<Offset> outline = part.followed;
+        final Rect box = boxOf(outline);
+        expect((part.site.dy - box.top) / box.height, closeTo(0.6, 0.01),
+            reason: figure.name);
+        final List<double> crossings = <double>[
+          for (int i = 0; i < outline.length; i++)
+            if ((outline[i].dy > part.site.dy) !=
+                (outline[(i + 1) % outline.length].dy > part.site.dy))
+              outline[i].dx +
+                  (part.site.dy - outline[i].dy) *
+                      (outline[(i + 1) % outline.length].dx - outline[i].dx) /
+                      (outline[(i + 1) % outline.length].dy - outline[i].dy),
+        ]..sort();
+        expect(crossings.length, 2, reason: figure.name);
+        expect(part.site.dx, closeTo((crossings[0] + crossings[1]) / 2, 1e-3),
+            reason: figure.name);
+        Rect whole = boxOf(part.followed);
+        for (final List<Offset> contour in part.contours) {
+          whole = whole.expandToInclude(boxOf(contour));
+        }
+        expect((part.centre - whole.center).distance, lessThan(1e-3),
+            reason: figure.name);
+      }
+    });
+
+    test('close the view on every other part at the middle of the outline '
+        'it follows', () {
+      final String muscle = tissueAnatomy['skeletal muscle']!.uberon;
+      for (final AnatomyFigure figure in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+        AnatomyFigure.brain,
+      ]) {
+        for (final MapEntry<String, AnatomyPart> part in figure.parts.entries) {
+          if (part.key == muscle) {
+            continue;
+          }
+          expect(part.value.framed, isNull, reason: part.key);
+          expect(part.value.following, 0, reason: part.key);
+          expect(part.value.centre, boxOf(part.value.followed).center,
+              reason: part.key);
+        }
+      }
+    });
+
     test('pick a body that has the tissue, and as many of the others the '
         'gene is read in as either has', () {
       AnatomyFigure body(String? tissue, [List<String> others = const []]) =>

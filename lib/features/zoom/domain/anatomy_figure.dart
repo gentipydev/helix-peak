@@ -15,6 +15,8 @@ final class AnatomyPart {
     required this.title,
     required this.site,
     required this.contours,
+    this.following = 0,
+    this.framed,
   });
 
   /// The anatomogram's own name for it, `liver`, or nothing where the
@@ -22,14 +24,33 @@ final class AnatomyPart {
   /// shape it also draws for blood.
   final String title;
 
-  /// A point well inside its largest outline: where the zoom goes into it.
+  /// A point well inside the outline it follows: where the zoom goes into
+  /// it.
   final Offset site;
 
   /// Its outlines, the largest first: two lungs, a chain of lymph nodes.
   final List<List<Offset>> contours;
 
-  /// The outline the zoom follows: the largest.
-  List<Offset> get followed => contours.first;
+  /// Which of [contours] the zoom follows: the largest, or the one the
+  /// tool's rule picks for the part (`tool/zoom/anatomogram.py`).
+  final int following;
+
+  /// Where the view closes on it, where that is not the middle of the
+  /// outline it follows: for a part drawn whole round the one outline the
+  /// zoom goes into, the thigh round its vastus lateralis.
+  final Offset? framed;
+
+  /// The outline the zoom follows.
+  List<Offset> get followed => contours[following];
+
+  /// Its other outlines, beside the one the zoom follows, largest first.
+  Iterable<List<Offset>> get others sync* {
+    for (int i = 0; i < contours.length; i++) {
+      if (i != following) {
+        yield contours[i];
+      }
+    }
+  }
 
   /// The box the followed outline lies in.
   Rect get box {
@@ -46,9 +67,10 @@ final class AnatomyPart {
     return Rect.fromLTRB(left, top, right, bottom);
   }
 
-  /// The middle of the followed outline: where the view closes on it, so
-  /// that the organ is seen whole. Not always inside it, as [site] is.
-  Offset get centre => box.center;
+  /// Where the view closes on it, so that the organ is seen whole: the
+  /// middle of the followed outline, or [framed]. Not always inside it, as
+  /// [site] is.
+  Offset get centre => framed ?? box.center;
 
   /// How long the followed outline is, the longer way, in the figure's
   /// metres: the anatomogram is a diagram, and draws a stomach half as long
@@ -95,9 +117,15 @@ final class AnatomyFigure {
 
     AnatomyPart part(Map<String, dynamic> part) {
       final List<dynamic> site = part['site'] as List<dynamic>;
+      final List<dynamic>? centre = part['centre'] as List<dynamic>?;
+      final int following = (part['followed'] as num?)?.toInt() ?? 0;
       return AnatomyPart(
         title: part['title'] as String,
         site: Offset((site[0] as num) * step, (site[1] as num) * step),
+        following: following,
+        framed: centre == null
+            ? null
+            : Offset((centre[0] as num) * step, (centre[1] as num) * step),
         contours: List<List<Offset>>.unmodifiable(<List<Offset>>[
           for (final dynamic contour in part['contours'] as List<dynamic>)
             outline(contour),

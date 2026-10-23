@@ -55,6 +55,33 @@ heart cut open, its left ventricle's free wall forming that edge, and GTEx
 takes heart muscle from the anterior left ventricle, so its site lies in the
 middle of that wall, 56% of the way down, 3.5% of the width in: where the
 heart's form (`heart_form.dart`) lays the wall through it on either figure.
+A part named in `SITE_LEVEL` is gone into at a share of its height, midway
+across its widest stretch there. Skeletal muscle is drawn as the front of
+the thigh and gone into in its vastus lateralis, which is best biopsied
+between half and three quarters of the way from the greater trochanter to
+the lateral epicondyle, just in front of the iliotibial tract (Chen et al.
+2019, Scand J Med Sci Sports 29:504): five eighths of the way lies 60% of
+the way down the muscle's outline on either figure. GTEx takes its skeletal
+muscle from the gastrocnemius, in the calf, which the anatomogram does not
+draw for it.
+
+## What the zoom follows, and where the view closes
+
+The zoom follows a part into its largest outline, which the body rings and
+the organ's scene draws in from: the outlines are written largest first. A
+part named in `FOLLOW_OUTERMOST` is followed into the outline whose box's
+middle lies farthest from the figure's midline instead, written as its
+place among them (`followed`). Of skeletal muscle's five, that is its
+vastus lateralis, the muscle human skeletal muscle is biopsied from with
+the Bergström needle (Shanely et al. 2014, J Vis Exp 91:51812). The
+outlines keep their order, and every one is simplified as before, so
+nothing the figure draws round another organ changes.
+
+The view closes on the middle of the followed outline's box, so that the
+organ's scene has it whole. A part named in `FRAME_WHOLE` is written with a
+`centre`, the middle of the box round all its outlines, and the view closes
+there: the thigh is drawn whole round its vastus lateralis, which lies at
+its lateral edge.
 
 ## Why generated Dart, not an asset
 

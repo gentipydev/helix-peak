@@ -414,7 +414,7 @@ final class _DrawnOrgan extends OrganArt {
     _shape = Contour(_points).toPath();
     _site = placed(part.site);
     _others = Path();
-    for (final List<Offset> other in part.contours.skip(1)) {
+    for (final List<Offset> other in part.others) {
       _others.addPath(
         OrganArt._closed(<Offset>[for (final Offset p in other) placed(p)]),
         Offset.zero,
