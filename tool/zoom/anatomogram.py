@@ -124,7 +124,12 @@ FOLLOW_OUTERMOST = {"UBERON_0001134"}
 # greater trochanter to the lateral epicondyle, just in front of the
 # iliotibial tract (Chen et al. 2019, Scand J Med Sci Sports 29:504): five
 # eighths of the way lies 0.6 of the way down its outline on either figure.
-SITE_LEVEL = {"UBERON_0001134": 0.6}
+# GTEx takes the esophagus's mucosa from its squamous region, in its lower
+# third, at least 4 cm above the gastroesophageal junction (the GTEx
+# Portal's sampling site for Esophagus - Mucosa, gtex_v10): three quarters
+# of the way down its outline, 65 to 70 mm above the junction along its
+# course on either figure, the lower third beginning some 85 mm above it.
+SITE_LEVEL = {"UBERON_0001134": 0.6, "UBERON_0001043": 0.75}
 
 # Parts the view closes on whole: written with a `centre`, the middle of the
 # box round all their outlines, where the view closes in place of the middle
