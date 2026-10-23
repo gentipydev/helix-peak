@@ -24,6 +24,7 @@ import '../domain/locus_track.dart';
 import '../domain/zoom_depth.dart';
 import '../domain/zoom_facts.dart';
 import '../domain/zoom_motion.dart';
+import 'scenes/chromosome/chromosome_style.dart';
 import 'scenes/zoom_scene.dart';
 import 'scenes/zoom_subject.dart';
 import 'zoom_card.dart';
@@ -274,12 +275,17 @@ class ZoomScreen extends StatefulWidget {
     required this.record,
     this.overWalk = false,
     this.initialDepth = 0,
+    this.chromosomeLook = ChromosomeLook.chosen,
     super.key,
   });
 
   final ProteinTarget target;
   final LocusTrack track;
   final GeneRecord record;
+
+  /// The look its chromosome is drawn in: the stone, unless the build asks
+  /// for another ([ChromosomeLook.chosen]) or a render check does.
+  final ChromosomeLook chromosomeLook;
 
   /// Whether the walk is the page under this one, opened from its gene page.
   /// "Walk ›" then goes back to that walk, as the reader left it, where it
@@ -332,7 +338,10 @@ class _ZoomScreenState extends State<ZoomScreen> with TickerProviderStateMixin {
     track: widget.track,
     record: widget.record,
   );
-  late final ZoomStage _stage = ZoomStage(_subject);
+  late final ZoomStage _stage = ZoomStage(
+    _subject,
+    chromosome: widget.chromosomeLook,
+  );
   late final ZoomFacts _facts = ZoomFacts(
     track: widget.track,
     path: _subject.path,

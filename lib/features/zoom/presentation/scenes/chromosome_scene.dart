@@ -10,6 +10,7 @@ import 'band_scene.dart';
 import 'body_scene.dart';
 import 'chromosome/chromosome_art.dart';
 import 'chromosome/chromosome_form.dart';
+import 'chromosome/chromosome_style.dart';
 import 'chromosome/chromosome_tube.dart';
 import 'contour.dart';
 import 'nucleus_scene.dart';
@@ -33,10 +34,18 @@ import 'zoom_subject.dart';
 /// way out it turns to lie along the genome, its chromatids merge into one
 /// and it thins into the band's strip ([ChromosomeTube]), drawn by then as
 /// the strip itself is, so the map takes over from it with nothing to see.
+///
+/// It is drawn in [look]: the stone, or the vivid's globules (the user's
+/// ask of 2026-10-23), whose names' lines are drawn in its own quiet blue,
+/// each plate edged with a hairline of it, and the gene's bracket and its
+/// band's line in its cyan.
 final class ChromosomeScene extends ZoomScene {
-  ChromosomeScene(this.subject);
+  ChromosomeScene(this.subject, {this.look = ChromosomeLook.stone});
 
   final ZoomSubject subject;
+
+  /// The look the chromosome is drawn in.
+  final ChromosomeLook look;
 
   @override
   ZoomStop get stop => ZoomStop.chromosome;
@@ -59,7 +68,24 @@ final class ChromosomeScene extends ZoomScene {
   );
 
   /// The chromosome as a form: the same for every protein on it.
-  late final ChromosomeForm form = ChromosomeForm(_track, half: half);
+  late final ChromosomeForm form = ChromosomeForm(
+    _track,
+    half: half,
+    look: look.spec,
+  );
+
+  /// How far out past a chromatid's width the gene's bracket and its band's
+  /// name keep: clear of the globules standing out of it, in a look of them.
+  double get _clear => (form.look.globules?.clearOfLumps ?? 0) * half;
+
+  /// The ink a name's line is drawn in, and the hairline round its plate,
+  /// in a look of globules: null for the zoom's own, and none.
+  Color? get _leader => form.look.globules?.colours.leader;
+  Color? get _edge => _leader?.withValues(alpha: 0.15);
+
+  /// The gene's cyan, in a look of globules: its bracket's, and its band's
+  /// line.
+  Color? get _cyan => form.look.globules?.colours.gene.highlight;
 
   /// The map's band strip, in pixels: the chromosome thins to it.
   static const double stripPixels = BandScene.strip;
@@ -149,6 +175,8 @@ final class ChromosomeScene extends ZoomScene {
         math.min(calloutPresence(frame), formed),
         anchors: _bandAnchors(target),
         flush: true,
+        ink: _cyan,
+        edge: _edge,
       );
       _nameParts(frame, out, math.min(calloutPresence(frame), formed));
       // Before the step is under way the nucleus draws the territory.
@@ -178,6 +206,8 @@ final class ChromosomeScene extends ZoomScene {
       calloutPresence(frame),
       anchors: _bandAnchors(target),
       flush: true,
+      ink: _cyan,
+      edge: _edge,
     );
     _nameParts(frame, out, calloutPresence(frame));
     out.item('chromosome:art', band, math.min(frame.opacity, t.art));
@@ -252,6 +282,8 @@ final class ChromosomeScene extends ZoomScene {
         anchors: columnAnchors(side, edge(-1), edge(1)),
         flush: true,
         quiet: true,
+        ink: _leader,
+        edge: _edge,
       );
     }
   }
@@ -259,7 +291,7 @@ final class ChromosomeScene extends ZoomScene {
   /// The gene's band's outer edge, which its name points at: [merge] of the
   /// way onto the axis, and thinned as far to the strip's thickness.
   Offset _bandEdge(ZoomFrame frame, double merge) {
-    final double w = form.widthAt(_bandY);
+    final double w = form.widthAt(_bandY) + _clear;
     final double target = stripPixels / 2 * frame.pixel;
     return Offset(
       form.centreAt(1, _bandY, merge: merge) + w + (target - w) * merge,
@@ -519,6 +551,7 @@ final class ChromosomeScene extends ZoomScene {
           glow,
           heart * alpha,
           alpha,
+          own: 1 - t.strip,
         );
       }
     }
@@ -540,7 +573,7 @@ final class ChromosomeScene extends ZoomScene {
       return;
     }
     final double pixel = frame.pixel;
-    final double w = form.widthAt(_bandY);
+    final double w = form.widthAt(_bandY) + _clear;
     final double x =
         form.centreAt(1, _bandY, merge: merge) +
         w +
@@ -557,7 +590,10 @@ final class ChromosomeScene extends ZoomScene {
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2 * pixel
-        ..color = frame.inks.glow(alpha),
+        ..color = switch (_cyan) {
+          final Color cyan => cyan.withValues(alpha: alpha.clamp(0.0, 1.0)),
+          null => frame.inks.glow(alpha),
+        },
     );
   }
 }

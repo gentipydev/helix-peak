@@ -15,7 +15,9 @@ import 'chromosome_style.dart';
 /// chromosome share it, and only the gene's mark tells them apart.
 ///
 /// Its units are the chromosome scene's: the chromosome stands [length]
-/// tall about the origin, its short arm up. Its numbers are [look]'s.
+/// tall about the origin, its short arm up. Its numbers are [look]'s; a
+/// look of globules lays its knobs as globules, each of one material
+/// ([KnobField.material]), with a cleft kept between the sisters.
 final class ChromosomeForm {
   ChromosomeForm(
     this.track, {
@@ -72,7 +74,7 @@ final class ChromosomeForm {
     double w = half * (1 - 0.42 * waist(y));
     final double top = yOf(1);
     final double bottom = yOf(track.length + 1);
-    final double cap = half;
+    final double cap = _cap;
     final double fromEnd = math.min(y - top, bottom - y);
     if (fromEnd < cap) {
       final double t = (cap - fromEnd) / cap;
@@ -135,6 +137,9 @@ final class ChromosomeForm {
     return look.bow * widthAt(y) * t * t;
   }
 
+  /// How far in from either end a chromatid rounds to nothing.
+  double get _cap => half * look.endRound;
+
   /// The heights an outline is drawn through, top to bottom: [steps] even
   /// ones, and more round each end, where it turns fastest.
   List<double> _rows(int steps) {
@@ -144,8 +149,8 @@ final class ChromosomeForm {
     return <double>{
       for (int i = 0; i <= steps; i++) top + (bottom - top) * i / steps,
       for (int i = 1; i < round; i++) ...<double>[
-        top + half * (1 - math.cos(math.pi / 2 * i / round)),
-        bottom - half * (1 - math.cos(math.pi / 2 * i / round)),
+        top + _cap * (1 - math.cos(math.pi / 2 * i / round)),
+        bottom - _cap * (1 - math.cos(math.pi / 2 * i / round)),
       ],
     }.toList()..sort();
   }
@@ -309,17 +314,20 @@ final class ChromosomeForm {
   /// How much of the centromere's tint is at [y], from 0 to 1: all of it at
   /// the centromere, none [ChromosomeLookSpec.centromereReach] half-widths
   /// either side of it, and none in the gene's band, which keeps its own.
-  double centromereAt(double y) =>
-      _fall((y - centromere).abs() / (look.centromereReach * half)) *
-      (1 - geneAt(y));
+  double centromereAt(double y) => _nearCentromere(y) * (1 - geneAt(y));
 
   /// How much of a telomere's tint is at [y], from 0 to 1: all of it at
   /// either end, none [ChromosomeLookSpec.telomereReach] half-widths in
   /// from it, and none in the gene's band. Both sisters end at the same
   /// heights, so every chromatid's two ends are capped.
-  double telomereAt(double y) =>
-      _fall(math.min(y - top, bottom - y) / (look.telomereReach * half)) *
-      (1 - geneAt(y));
+  double telomereAt(double y) => _nearEnd(y) * (1 - geneAt(y));
+
+  /// [centromereAt] and [telomereAt] with the gene's band left in: the
+  /// chromosome's alone, the same for every protein on it.
+  double _nearCentromere(double y) =>
+      _fall((y - centromere).abs() / (look.centromereReach * half));
+  double _nearEnd(double y) =>
+      _fall(math.min(y - top, bottom - y) / (look.telomereReach * half));
 
   /// 1 at [d] 0, falling smoothly to 0 at [d] 1 and beyond.
   static double _fall(double d) {
@@ -339,8 +347,8 @@ final class ChromosomeForm {
       for (double y = top; y < bottom; y += step) y,
       bottom,
       for (int i = 1; i < round; i++) ...<double>[
-        top + half * (1 - math.cos(math.pi / 2 * i / round)),
-        bottom - half * (1 - math.cos(math.pi / 2 * i / round)),
+        top + _cap * (1 - math.cos(math.pi / 2 * i / round)),
+        bottom - _cap * (1 - math.cos(math.pi / 2 * i / round)),
       ],
       for (double y = centromere - reach; y <= centromere + reach; y += fine) y,
       for (int i = 1; i < track.bands.length; i++) ...<double>[
@@ -409,59 +417,155 @@ final class ChromosomeForm {
     return math.max(waist(y), acen);
   }
 
+  /// How far a knob at [y] keeps off the middle of the pair, of a
+  /// half-width; below 0, how far it may reach across it. A hair across, in
+  /// a look of lobes. In a look of globules none at all down the arms, where
+  /// a cleft runs between the sisters, closing to the hair at the waist,
+  /// where they meet.
+  double keepOff(double y) {
+    const double hair = -0.05;
+    final ChromosomeGlobules? globules = look.globules;
+    if (globules == null) {
+      return hair;
+    }
+    return globules.cleftGap + (hair - globules.cleftGap) * waist(y);
+  }
+
+  /// How much smaller a globule is drawn at [y], and so how much closer the
+  /// lattice of them lies: finer at the centromere, and at the caps.
+  double _fineness(double y, ChromosomeGlobules globules) =>
+      (1 - look.lobeWaist * _zone(y)) * (1 - globules.capShrink * _nearEnd(y));
+
   KnobField _lay(double side) {
     final math.Random random = math.Random(_seed(side));
+    final ChromosomeGlobules? globules = look.globules;
     final List<double> ys = <double>[];
     final List<double> phis = <double>[];
     final List<double> radii = <double>[];
     final List<int> kinds = <int>[];
-    // Nothing of one sister crosses the groove onto the other.
-    bool clear(double y, double phi, double r) {
-      final double x = centreAt(side, y) + widthAt(y) * math.sin(phi);
-      final double across = r * math.max(math.cos(phi), 0.45);
+    // How far a knob of radius [r] at [y], [phi] round the tube, keeps off
+    // the middle of the pair: seen as a squashed disc in a look of lobes, as
+    // a sphere, whole, in a look of globules.
+    double room(double y, double phi, double r) {
+      final double w = globules == null
+          ? widthAt(y)
+          : globules.surface * widthAt(y);
+      final double x = centreAt(side, y) + w * math.sin(phi);
+      final double across = globules == null
+          ? r * math.max(math.cos(phi), 0.45)
+          : r;
       final double middle = bend(y);
-      return side * (x - middle) - across >= -0.05 * half;
+      return side * (x - middle) - across;
     }
+
+    // Nothing of one sister crosses the groove onto the other.
+    bool clear(double y, double phi, double r) =>
+        room(y, phi, r) >= keepOff(y) * half;
 
     final double mean = (look.lobe + look.lobeSpread / 2) * half;
     final double spacing = look.lobeLattice * mean;
-    int row = 0;
-    for (double y = top + spacing * 0.433; y < bottom; y += spacing * 0.866) {
-      final double w = widthAt(y);
-      if (w > 0.25 * half) {
-        final double around = math.pi * w;
-        final double shift = row.isOdd ? spacing / 2 : 0;
-        for (
-          double arc = -around / 2 + shift + spacing / 2;
-          arc < around / 2;
-          arc += spacing
-        ) {
-          final double ay =
-              (y + (random.nextDouble() - 0.5) * 0.5 * spacing * 0.866).clamp(
-                top,
-                bottom,
-              );
-          final double aw = widthAt(ay);
-          if (aw <= 0) {
-            continue;
-          }
-          final double a = arc + (random.nextDouble() - 0.5) * 0.5 * spacing;
-          final double phi = (a / aw).clamp(-1.5, 1.5);
-          final double taper = math.sqrt(math.min(1, aw / (0.6 * half)));
-          final double r =
-              half *
-              (look.lobe + look.lobeSpread * random.nextDouble()) *
-              (1 - look.lobeWaist * _zone(ay)) *
-              taper;
-          if (clear(ay, phi, r)) {
-            ys.add(ay);
-            phis.add(phi);
-            radii.add(r);
-            kinds.add(KnobField.lobe);
+    if (globules == null) {
+      int row = 0;
+      for (double y = top + spacing * 0.433; y < bottom; y += spacing * 0.866) {
+        final double w = widthAt(y);
+        if (w > 0.25 * half) {
+          final double around = math.pi * w;
+          final double shift = row.isOdd ? spacing / 2 : 0;
+          for (
+            double arc = -around / 2 + shift + spacing / 2;
+            arc < around / 2;
+            arc += spacing
+          ) {
+            final double ay =
+                (y + (random.nextDouble() - 0.5) * 0.5 * spacing * 0.866).clamp(
+                  top,
+                  bottom,
+                );
+            final double aw = widthAt(ay);
+            if (aw <= 0) {
+              continue;
+            }
+            final double a = arc + (random.nextDouble() - 0.5) * 0.5 * spacing;
+            final double phi = (a / aw).clamp(-1.5, 1.5);
+            final double taper = math.sqrt(math.min(1, aw / (0.6 * half)));
+            final double r =
+                half *
+                (look.lobe + look.lobeSpread * random.nextDouble()) *
+                (1 - look.lobeWaist * _zone(ay)) *
+                taper;
+            if (clear(ay, phi, r)) {
+              ys.add(ay);
+              phis.add(phi);
+              radii.add(r);
+              kinds.add(KnobField.lobe);
+            }
           }
         }
+        row++;
       }
-      row++;
+    } else {
+      // A lattice of globules, closer where they are finer, round as far as
+      // the rim; [behind], the layer half a cell off the first, of globules
+      // [ChromosomeGlobules.back] the size. By the cleft a globule is drawn
+      // smaller rather than left out, while it is still half its size.
+      void lattice({required bool behind}) {
+        final double scale = behind ? globules.back : 1;
+        int row = 0;
+        double y = top + spacing * (behind ? 0.866 : 0.433);
+        while (y < bottom) {
+          final double step = spacing * _fineness(y, globules);
+          final double w = widthAt(y);
+          if (w > 0.25 * half) {
+            final double around = math.pi * globules.surface * w;
+            final double shift =
+                (row.isOdd ? step / 2 : 0) + (behind ? step / 4 : 0);
+            for (
+              double arc = -around / 2 + shift + step / 2;
+              arc < around / 2;
+              arc += step
+            ) {
+              final double ay =
+                  (y + (random.nextDouble() - 0.5) * 0.5 * step * 0.866).clamp(
+                    top,
+                    bottom,
+                  );
+              final double aw = globules.surface * widthAt(ay);
+              if (aw <= 0) {
+                continue;
+              }
+              final double a = arc + (random.nextDouble() - 0.5) * 0.5 * step;
+              final double phi = (a / aw).clamp(-globules.rim, globules.rim);
+              final double taper = math.sqrt(
+                math.min(1, widthAt(ay) / (0.6 * half)),
+              );
+              double r =
+                  half *
+                  (look.lobe + look.lobeSpread * random.nextDouble()) *
+                  _fineness(ay, globules) *
+                  taper *
+                  scale;
+              final double over = keepOff(ay) * half - room(ay, phi, r);
+              if (over > 0) {
+                if (over > r / 2) {
+                  continue;
+                }
+                r -= over;
+              }
+              ys.add(ay);
+              phis.add(phi);
+              radii.add(r);
+              kinds.add(behind ? KnobField.deep : KnobField.lobe);
+            }
+          }
+          y += step * 0.866;
+          row++;
+        }
+      }
+
+      lattice(behind: false);
+      if (globules.back > 0) {
+        lattice(behind: true);
+      }
     }
     final int granules = (look.granules * length / half).round();
     int laid = 0;
@@ -487,11 +591,46 @@ final class ChromosomeForm {
       kinds.add(random.nextDouble() < 0.6 ? KnobField.bump : KnobField.pit);
       laid++;
     }
+    if (globules == null) {
+      return KnobField(
+        Float32List.fromList(ys),
+        Float32List.fromList(phis),
+        Float32List.fromList(radii),
+        Uint8List.fromList(kinds),
+      );
+    }
+    // Each knob's own jitters, drawn after everything else is laid: the one
+    // its material is picked with, and how much lighter or darker it is.
+    // A telomere's where the telomeres' tint, so moved, passes the mark;
+    // else the centromere's likewise; else the arms'. The gene's band is
+    // not left out, as the stone's tints leave it, so every protein on the
+    // chromosome has the same: the gene's globules are the art's to pick,
+    // round its spots, the gene being each protein's own.
+    final int n = ys.length;
+    final Float32List pick = Float32List(n);
+    final Float32List lift = Float32List(n);
+    final Uint8List material = Uint8List(n);
+    for (int k = 0; k < n; k++) {
+      pick[k] = random.nextDouble() * 2 - 1;
+      lift[k] = random.nextDouble() * 2 - 1;
+      final double y = ys[k];
+      final double moved = globules.pickJitter * pick[k];
+      material[k] =
+          (_nearEnd(y) + moved > globules.pickAt
+                  ? ChromatinMaterial.telomere
+                  : _nearCentromere(y) + moved > globules.pickAt
+                  ? ChromatinMaterial.centromere
+                  : ChromatinMaterial.body)
+              .index;
+    }
     return KnobField(
       Float32List.fromList(ys),
       Float32List.fromList(phis),
       Float32List.fromList(radii),
       Uint8List.fromList(kinds),
+      pick: pick,
+      lift: lift,
+      material: material,
     );
   }
 }
@@ -500,19 +639,45 @@ final class ChromosomeForm {
 /// chromosome ([y]) and round the tube ([phi], 0 facing out of the screen),
 /// its radius, and what it is.
 final class KnobField {
-  KnobField(this.y, this.phi, this.radius, this.kind);
+  KnobField(
+    this.y,
+    this.phi,
+    this.radius,
+    this.kind, {
+    Float32List? pick,
+    Float32List? lift,
+    Uint8List? material,
+  }) : pick = pick ?? Float32List(0),
+       lift = lift ?? Float32List(0),
+       material = material ?? Uint8List(0);
 
-  /// A lobe: a knob of chromatin, lit as a small dome.
+  /// A lobe: a knob of chromatin, lit as a small dome, or in a look of
+  /// globules as a sphere.
   static const int lobe = 0;
 
   /// A granule standing out of the surface, or sunk into it.
   static const int bump = 1;
   static const int pit = 2;
 
+  /// A globule of the layer behind the first, filling between its globules
+  /// ([ChromosomeGlobules.back]).
+  static const int deep = 3;
+
   final Float32List y;
   final Float32List phi;
   final Float32List radius;
   final Uint8List kind;
+
+  /// In a look of globules, each knob's own jitters, from -1 to 1: the one
+  /// its material was picked with, and how much lighter or darker it is
+  /// drawn than the next. Empty in a look of lobes.
+  final Float32List pick;
+  final Float32List lift;
+
+  /// In a look of globules, what each knob is made of, as a
+  /// [ChromatinMaterial]'s index: the arms', the centromere's or a
+  /// telomere's. Empty in a look of lobes.
+  final Uint8List material;
 
   int get length => y.length;
 }

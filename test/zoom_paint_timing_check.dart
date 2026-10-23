@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -7,6 +8,9 @@ import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/core/theme/app_typography.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/chromosome/chromosome_art.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/chromosome/chromosome_style.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/chromosome_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_painter.dart';
@@ -28,8 +32,15 @@ import 'support/test_catalog.dart';
 /// the rasterising a device does after; a moment that records slowly is one
 /// to look at on a device. Without the variable it records each moment once
 /// and checks nothing threw.
+///
+/// ZOOM_CHROMOSOME_LOOK=vivid draws the chromosome in that look
+/// ([ChromosomeLook]), and the chromosome's line says how many vertices its
+/// meshes hold at rest and on its way into the map.
 void main() {
   final bool timing = Platform.environment['ZOOM_PAINT_TIMING'] == '1';
+  final ChromosomeLook look = ChromosomeLook.values.byName(
+    Platform.environment['ZOOM_CHROMOSOME_LOOK'] ?? 'stone',
+  );
   testWidgets('the zoom records each frame without much work', (
     WidgetTester tester,
   ) async {
@@ -66,6 +77,7 @@ void main() {
     ]) {
       final ZoomStage stage = ZoomStage(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),
+        chromosome: look,
       );
       final ZoomDepth depth = stage.depth;
       final StringBuffer built = StringBuffer();
@@ -140,10 +152,19 @@ void main() {
         }
       }
       if (timing) {
+        final ChromosomeScene chromosome =
+            stage.scenes[ZoomStop.chromosome.index] as ChromosomeScene;
+        int vertices = 0;
+        for (final ({Float32List positions, Int32List colours}) mesh
+            in ChromosomeArt(chromosome.form, inks).meshData) {
+          vertices += mesh.colours.length;
+        }
         // ignore: avoid_print
         print(
           '${t.slug}: slowest $worst ${slowest.round()} µs\n'
-          '  built: $built\n  $table',
+          '  built: $built\n  $table\n'
+          '  chromosome (${look.name}): $vertices vertices at rest, '
+          '${chromosome.tubeIn(inks).vertexCount} on its way into the map',
         );
       }
     }

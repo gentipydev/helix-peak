@@ -7,6 +7,7 @@ import '../domain/zoom_depth.dart';
 import 'scenes/band_scene.dart';
 import 'scenes/body_scene.dart';
 import 'scenes/cell_scene.dart';
+import 'scenes/chromosome/chromosome_style.dart';
 import 'scenes/chromosome_scene.dart';
 import 'scenes/dna_scene.dart';
 import 'scenes/gene_scene.dart';
@@ -17,16 +18,17 @@ import 'scenes/zoom_scene.dart';
 import 'scenes/zoom_subject.dart';
 import 'zoom_inks.dart';
 
-/// The nine scenes of one protein's zoom, and the camera that nests them.
+/// The nine scenes of one protein's zoom, and the camera that nests them,
+/// its chromosome drawn in [chromosome]'s look.
 final class ZoomStage {
-  ZoomStage(this.subject)
+  ZoomStage(this.subject, {ChromosomeLook chromosome = ChromosomeLook.stone})
     : scenes = <ZoomScene>[
         BodyScene(subject),
         OrganScene(subject),
         TissueScene(subject),
         CellScene(subject),
         NucleusScene(subject),
-        ChromosomeScene(subject),
+        ChromosomeScene(subject, look: chromosome),
         BandScene(subject),
         GeneScene(subject),
         DnaScene(subject),
@@ -444,15 +446,27 @@ class ZoomOverlayPainter extends CustomPainter {
     final (Offset from, Offset _) = lineFrom(plate, target);
     final Paint line = Paint()
       ..strokeWidth = 1.2
-      ..color = (callout.quiet ? inks.label : inks.mark).withValues(
-        alpha: callout.opacity,
-      );
+      ..color = (callout.ink ?? (callout.quiet ? inks.label : inks.mark))
+          .withValues(alpha: callout.opacity);
     canvas.drawLine(from, target, line);
     canvas.drawCircle(target, 2.6, line);
+    final RRect rounded = RRect.fromRectAndRadius(
+      plate,
+      const Radius.circular(6),
+    );
     canvas.drawRRect(
-      RRect.fromRectAndRadius(plate, const Radius.circular(6)),
+      rounded,
       Paint()..color = inks.raised.withValues(alpha: 0.88 * callout.opacity),
     );
+    if (callout.edge case final Color edge) {
+      canvas.drawRRect(
+        rounded.deflate(0.5),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1
+          ..color = edge.withValues(alpha: edge.a * callout.opacity),
+      );
+    }
     text.paint(
       canvas,
       Offset(plate.left + plateTextPadding, plate.top + plateTextPadding / 2),

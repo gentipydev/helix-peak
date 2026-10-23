@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
+import '../../../../../core/theme/chromosome_colors.dart';
 import '../../zoom_inks.dart';
 import '../specimen_light.dart';
 import 'chromosome_style.dart';
@@ -101,11 +102,28 @@ final class ChromosomeLight {
 /// ([SpecimenPalette.colour], step for step): toward the shadow as light
 /// leaves it, into the groove's shade, the mark in the gene's band, and
 /// toward the bright ink where it shines.
+///
+/// A look of globules mixes each material along a ramp of its own instead
+/// ([ChromatinRamp]), so it darkens and brightens in its own hue: from its
+/// crevice in no light through its shadow to its own colour, past it to
+/// its highlight, its sheen to its specular, and into its crevice and on to
+/// the deepest shadow where it is shut in.
 final class ChromosomePalette {
   ChromosomePalette(
     ZoomInks inks, {
     ChromosomeLookSpec look = ChromosomeLookSpec.stone,
-  }) : _wash = look.wash,
+  }) : _globules = look.globules,
+       _ramps = <_Ramp>[
+         if (look.globules case final ChromosomeGlobules globules)
+           for (final ChromatinRamp ramp in <ChromatinRamp>[
+             globules.colours.body,
+             globules.colours.centromere,
+             globules.colours.telomere,
+             globules.colours.gene,
+           ])
+             _Ramp(ramp),
+       ],
+       _wash = look.wash,
        _pale = _Channels(_warmed(inks, inks.lit(look.paleLit), look.warmth)),
        _deep = _Channels(
          _warmed(inks, inks.shade(look.deepShade), look.warmth),
@@ -120,6 +138,11 @@ final class ChromosomePalette {
   /// nerves are drawn in, [warmth] of the way, as far as the chromatin is.
   static Color _warmed(ZoomInks inks, Color colour, double warmth) =>
       Color.lerp(colour, inks.bases.guanine, warmth)!;
+
+  /// How a look of globules mixes its chromatin, and its ramps, by
+  /// [ChromatinMaterial]: null and none for a look of lobes.
+  final ChromosomeGlobules? _globules;
+  final List<_Ramp> _ramps;
 
   /// The share of the mark in the gene's band.
   final double _wash;
@@ -158,7 +181,10 @@ final class ChromosomePalette {
     return pack(alpha, r, g, b);
   }
 
-  /// [colour]'s channels, from 0 to 1, before they are packed.
+  /// [colour]'s channels, from 0 to 1, before they are packed. In a look of
+  /// globules, the arms' chromatin is mixed [centromere], [telomere] and
+  /// [gene] of the way to the centromere's, the telomeres' and the gene's,
+  /// each at the same light: a smooth tube's, under the globules.
   (double, double, double) mix(
     double tone,
     double light,
@@ -168,6 +194,32 @@ final class ChromosomePalette {
     double telomere = 0,
     double sheen = 0,
   }) {
+    if (_globules != null) {
+      double r;
+      double g;
+      double b;
+      (r, g, b) = _along(0, tone, light, occlusion, sheen, 0);
+      for (final (int material, double share) in <(int, double)>[
+        (ChromatinMaterial.centromere.index, centromere),
+        (ChromatinMaterial.telomere.index, telomere),
+        (ChromatinMaterial.gene.index, gene),
+      ]) {
+        if (share > 0) {
+          final (double mr, double mg, double mb) = _along(
+            material,
+            tone,
+            light,
+            occlusion,
+            sheen,
+            0,
+          );
+          r += (mr - r) * share;
+          g += (mg - g) * share;
+          b += (mb - b) * share;
+        }
+      }
+      return (r, g, b);
+    }
     double r = _pale.r + (_deep.r - _pale.r) * tone;
     double g = _pale.g + (_deep.g - _pale.g) * tone;
     double b = _pale.b + (_deep.b - _pale.b) * tone;
@@ -209,6 +261,99 @@ final class ChromosomePalette {
 
   int shadow(double alpha) => pack(alpha, _shadow.r, _shadow.g, _shadow.b);
 
+  /// A knob of [material] in a look of globules, packed: of stain [tone], at
+  /// brightness [light], [occlusion] of the way into its crevice and on into
+  /// the deepest shadow, its own jitter [lift] (-1 to 1) of the way lighter
+  /// or darker, and [sheen] of the way to its specular.
+  int knob(
+    ChromatinMaterial material,
+    double tone,
+    double light,
+    double occlusion,
+    double alpha, {
+    double sheen = 0,
+    double lift = 0,
+  }) {
+    final (double r, double g, double b) = _along(
+      material.index,
+      tone,
+      light,
+      occlusion,
+      sheen,
+      lift,
+    );
+    return pack(alpha, r, g, b);
+  }
+
+  /// [material]'s crevice, and its specular, at [alpha], packed.
+  int crevice(ChromatinMaterial material, double alpha) {
+    final _Channels c = _ramps[material.index].stops.first;
+    return pack(alpha, c.r, c.g, c.b);
+  }
+
+  int specular(ChromatinMaterial material, double alpha) {
+    final _Channels c = _ramps[material.index].stops.last;
+    return pack(alpha, c.r, c.g, c.b);
+  }
+
+  /// The ramp of material [index] at [light], darker by the band's stain
+  /// [tone] and lighter or darker by [lift], shut [occlusion] of the way in
+  /// and shining [sheen] of the way.
+  (double, double, double) _along(
+    int index,
+    double tone,
+    double light,
+    double occlusion,
+    double sheen,
+    double lift,
+  ) {
+    final ChromosomeGlobules globules = _globules!;
+    final List<_Channels> stops = _ramps[index].stops;
+    final double at =
+        light * (1 - globules.bandShade * tone) * (1 + globules.lift * lift);
+    final _Channels from;
+    final _Channels to;
+    final double t;
+    if (at <= globules.shadowAt) {
+      (from, to) = (stops[0], stops[1]);
+      t = math.max(0, at) / globules.shadowAt;
+    } else if (at <= globules.baseAt) {
+      (from, to) = (stops[1], stops[2]);
+      t = (at - globules.shadowAt) / (globules.baseAt - globules.shadowAt);
+    } else {
+      (from, to) = (stops[2], stops[3]);
+      t = math.min(
+        1,
+        (at - globules.baseAt) / (globules.highlightAt - globules.baseAt),
+      );
+    }
+    double r = from.r + (to.r - from.r) * t;
+    double g = from.g + (to.g - from.g) * t;
+    double b = from.b + (to.b - from.b) * t;
+    if (occlusion > 0) {
+      // Into the material's own crevice, and past it to the deepest shadow.
+      final _Channels crevice = stops[0];
+      final double inward = math.min(1, 2 * occlusion);
+      r += (crevice.r - r) * inward;
+      g += (crevice.g - g) * inward;
+      b += (crevice.b - b) * inward;
+      final double deeper = math.min(1, 2 * occlusion - 1);
+      if (deeper > 0) {
+        r += (_shadow.r - r) * deeper;
+        g += (_shadow.g - g) * deeper;
+        b += (_shadow.b - b) * deeper;
+      }
+    }
+    if (sheen > 0) {
+      final _Channels specular = stops[4];
+      final double s = math.min(1, sheen);
+      r += (specular.r - r) * s;
+      g += (specular.g - g) * s;
+      b += (specular.b - b) * s;
+    }
+    return (r, g, b);
+  }
+
   /// A vertex's colour from its channels, each from 0 to 1.
   static int pack(double a, double r, double g, double b) {
     int channel(double v) => (v.clamp(0.0, 1.0) * 255).round();
@@ -222,4 +367,13 @@ final class _Channels {
   final double r;
   final double g;
   final double b;
+}
+
+/// A material's ramp, as channels: crevice, shadow, its own colour,
+/// highlight and specular.
+final class _Ramp {
+  _Ramp(ChromatinRamp ramp)
+    : stops = <_Channels>[for (final Color c in ramp.stops) _Channels(c)];
+
+  final List<_Channels> stops;
 }

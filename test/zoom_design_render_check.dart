@@ -12,6 +12,7 @@ import 'package:helixpeek/features/zoom/domain/anatomy_tables.dart';
 import 'package:helixpeek/features/zoom/domain/cell_archetypes.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_path.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/chromosome/chromosome_style.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/contour.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organ_art.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/kidney/kidney_form.dart';
@@ -40,6 +41,9 @@ import 'support/test_catalog.dart';
 /// own, and ZOOM_ORGAN_ATLAS=/tmp/organs every tissue's organ, whichever
 /// proteins go there: the ones no catalog protein reaches are seen nowhere
 /// else.
+///
+/// ZOOM_CHROMOSOME_LOOK=vivid draws the chromosome in that look
+/// ([ChromosomeLook]); the stone otherwise.
 void main() {
   setUpAll(() async {
     await loadAppFonts();
@@ -62,6 +66,9 @@ void main() {
   final String directory = Platform.environment['ZOOM_DESIGN_SHOTS'] ?? '';
   final String genes = Platform.environment['ZOOM_GENES'] ?? '';
   final bool between = Platform.environment['ZOOM_BETWEEN'] != '0';
+  final ChromosomeLook look = ChromosomeLook.values.byName(
+    Platform.environment['ZOOM_CHROMOSOME_LOOK'] ?? 'stone',
+  );
   final List<String> asked = <String>[
     for (final String name in (Platform.environment['ZOOM_MOMENTS'] ?? '').split(','))
       if (name.trim().isNotEmpty) name.trim(),
@@ -124,6 +131,7 @@ void main() {
                     track: locusOf(target),
                     record: recordOf(target),
                     initialDepth: moment.value,
+                    chromosomeLook: look,
                   ),
                 ),
               ),

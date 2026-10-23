@@ -20,7 +20,11 @@ import 'chromosome_style.dart';
 /// rounded ends shorten to the strip's, its centromere's waist becomes the
 /// strip's pinch, and its colours ease to the strip's stains under the
 /// strip's own light. Once it lies along the genome it is the strip, pixel
-/// for pixel, so the map takes over from it with nothing to see.
+/// for pixel, so the map takes over from it with nothing to see. In a look
+/// of globules its chromatin is mixed along the look's ramps, its neck coral,
+/// its ends gold and the gene's stretch teal, eased in along it as the
+/// globules over it were, until the strip's stains take over from them as
+/// they do from the stone.
 ///
 /// One small mesh: where its vertices lie and what colour each is are
 /// worked out afresh every frame into buffers it keeps, and the triangles
@@ -421,7 +425,8 @@ final class ChromosomeTube {
   ) {
     final ChromosomeLight light = ChromosomeLight(turn: turn, look: form.look);
     final double soften = 1 - merge;
-    final double cap = _half + (target - _half) * thin;
+    final double ends = _half * form.look.endRound;
+    final double cap = ends + (target - ends) * thin;
     _place(cap, soften);
     for (int j = 0; j < columns.length; j++) {
       final double u = columns[j];
@@ -451,8 +456,19 @@ final class ChromosomeTube {
         _ => _bandsAt(y, soften),
       };
       final double tone = _tones[above] + (_tones[below] - _tones[above]) * t;
-      final double gene =
-          (_genes[above] + (_genes[below] - _genes[above]) * t) * (1 - strip);
+      // In a look of globules, the gene's chromatin is the chromatin round
+      // its spots, and the centromere's and the telomeres' are their own,
+      // each eased in along the tube as the globules over it were.
+      final ChromosomeGlobules? globules = form.look.globules;
+      final double gene = globules == null
+          ? (_genes[above] + (_genes[below] - _genes[above]) * t) * (1 - strip)
+          : _geneNear(y, globules) * (1 - strip);
+      final double centromere = globules == null
+          ? 0
+          : form.look.centromereTint * form.centromereAt(y);
+      final double telomere = globules == null
+          ? 0
+          : form.look.telomereTint * form.telomereAt(y);
       final Color stainA = _stains[above];
       final Color stainB = _stains[below];
       final double sr = stainA.r + (stainB.r - stainA.r) * t;
@@ -501,15 +517,27 @@ final class ChromosomeTube {
               );
               sheen = light.sheen(normal.x, normal.y, normal.z);
             }
-            (ar, ag, ab) = _palette.mix(
-              tone,
-              lit,
-              form.look.occlusion *
-                  _turned[sister * columns.length + j] *
-                  contact,
-              gene,
-              sheen: sheen,
-            );
+            (ar, ag, ab) = globules == null
+                ? _palette.mix(
+                    tone,
+                    lit,
+                    form.look.occlusion *
+                        _turned[sister * columns.length + j] *
+                        contact,
+                    gene,
+                    sheen: sheen,
+                  )
+                : _palette.mix(
+                    tone,
+                    lit,
+                    form.look.occlusion *
+                        _turned[sister * columns.length + j] *
+                        contact,
+                    gene,
+                    centromere: centromere,
+                    telomere: telomere,
+                    sheen: sheen,
+                  );
           }
           // The strip's colour there, once any of it shows: its stain under
           // its light, which falls across the strip's whole thickness.
@@ -542,6 +570,15 @@ final class ChromosomeTube {
         }
       }
     }
+  }
+
+  /// How much of the gene's chromatin a row at [y] carries, in a look of
+  /// globules: all of it level with the gene's spots, none
+  /// [ChromosomeGlobules.geneReach] above or below them.
+  double _geneNear(double y, ChromosomeGlobules globules) {
+    final double t = ((y - form.geneY).abs() / (globules.geneReach * _half))
+        .clamp(0.0, 1.0);
+    return 1 - t * t * (3 - 2 * t);
   }
 
   void _vertex(int i, double x, double y, int colour) {
