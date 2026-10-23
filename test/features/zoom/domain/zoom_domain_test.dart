@@ -609,16 +609,36 @@ void main() {
       }
     });
 
+    test('close the view on the esophagus a little below the middle of its '
+        'outline, where the middle of what its scene draws lies', () {
+      final String esophagus = tissueAnatomy['esophagus']!.uberon;
+      for (final AnatomyFigure figure in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ]) {
+        final AnatomyPart part = figure.parts[esophagus]!;
+        final Rect box = boxOf(part.followed);
+        expect(part.framed, isNotNull, reason: figure.name);
+        // 0.03 of its height below its box's middle, as the tool reads the
+        // drawing's own outline, before it is simplified.
+        expect(part.centre.dx, closeTo(box.center.dx, 5e-4),
+            reason: figure.name);
+        expect(part.centre.dy - box.center.dy,
+            closeTo(0.03 * box.height, 1e-3), reason: figure.name);
+      }
+    });
+
     test('close the view on every other part at the middle of the outline '
         'it follows', () {
       final String muscle = tissueAnatomy['skeletal muscle']!.uberon;
+      final String esophagus = tissueAnatomy['esophagus']!.uberon;
       for (final AnatomyFigure figure in <AnatomyFigure>[
         AnatomyFigure.female,
         AnatomyFigure.male,
         AnatomyFigure.brain,
       ]) {
         for (final MapEntry<String, AnatomyPart> part in figure.parts.entries) {
-          if (part.key == muscle) {
+          if (part.key == muscle || part.key == esophagus) {
             continue;
           }
           expect(part.value.framed, isNull, reason: part.key);

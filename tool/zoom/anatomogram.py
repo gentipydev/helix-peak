@@ -137,6 +137,14 @@ SITE_LEVEL = {"UBERON_0001134": 0.6, "UBERON_0001043": 0.75}
 # its lateral edge.
 FRAME_WHOLE = {"UBERON_0001134"}
 
+# Parts the view closes on a share of the followed outline's height below
+# the middle of its box, written as a `centre` too: for a part whose scene
+# draws more below its outline than above it. The esophagus is drawn
+# opened down into the cardia and on into the stomach, cut short, and only
+# the pharynx's stump above it (`esophagus_anatomy.dart`): the middle of
+# what its scene draws lies 0.03 of its height below its outline's.
+FRAME_DOWN = {"UBERON_0001043": 0.03}
+
 # Parts the zoom goes into in from the side of their outline farthest from
 # the figure's midline: the share of the part's height, from its top, that
 # its site lies at, and how far in from where the outline crosses that
@@ -385,6 +393,9 @@ def convert_body(name: str, path: str, wanted: set[str]) -> dict:
         if uberon in FRAME_WHOLE:
             wx0, wy0, wx1, wy1 = svg.bounds(contours)
             parts[uberon]["centre"] = list(place(((wx0 + wx1) / 2, (wy0 + wy1) / 2)))
+        if uberon in FRAME_DOWN:
+            fx0, fy0, fx1, fy1 = svg.bounds([followed])
+            parts[uberon]["centre"] = list(place(((fx0 + fx1) / 2, (fy0 + fy1) / 2 + (fy1 - fy0) * FRAME_DOWN[uberon])))
     return {
         "name": name,
         "source": os.path.basename(path),
