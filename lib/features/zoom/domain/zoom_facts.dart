@@ -193,11 +193,14 @@ final class ZoomFacts {
     if (tissue == null || anatomy == null) {
       return const ZoomFact(stop: ZoomStop.organ, title: 'An organ');
     }
+    final double? thickness = anatomy.thickness;
     final String size = lengthLabel(anatomy.metres);
     return ZoomFact(
       stop: ZoomStop.organ,
       title: capital(tissue),
-      line: anatomy.inBrain != null && tissue != 'brain'
+      line: thickness != null
+          ? 'About ${lengthLabel(thickness)} thick'
+          : anatomy.inBrain != null && tissue != 'brain'
           ? 'In the brain · about $size'
           : 'About $size',
     );

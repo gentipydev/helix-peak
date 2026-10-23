@@ -1258,6 +1258,16 @@ void main() {
       }
     });
 
+    test('give an organ its size, and the skin, drawn as a block of it, '
+        'how thick it is', () {
+      expect(_facts(TestCatalog.insulin).of(ZoomStop.organ).line,
+          'About 16 cm');
+      final ZoomFact skin = _facts(TestCatalog.bySlug('tyrp1')!)
+          .of(ZoomStop.organ);
+      expect(skin.title, 'Skin');
+      expect(skin.line, 'About 2 mm thick');
+    });
+
     test('say data, and explain nothing but at the cell', () {
       final RegExp explains = RegExp(
         r'condensed for division|one of 46|territory of its own|stained|'

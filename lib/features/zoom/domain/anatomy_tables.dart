@@ -86,12 +86,18 @@ final class TissueAnatomy {
     required this.recipe,
     this.inBrain,
     this.sex = BodySex.either,
+    this.thickness,
   });
 
   final OrganKind organ;
 
   /// The organ's longest extent, in metres: the organ level shows it whole.
+  /// For an organ it shows a piece of ([thickness]), the piece's.
   final double metres;
+
+  /// For an organ the organ level shows a piece of, the skin, how thick it
+  /// is, in metres: what its card gives in place of its extent.
+  final double? thickness;
 
   /// The part of the anatomogram's standing figure it is found by, by
   /// UBERON id.
@@ -295,11 +301,15 @@ const Map<String, TissueAnatomy> tissueAnatomy = <String, TissueAnatomy>{
     uberon: 'UBERON_0001134',
     recipe: TissueRecipe.skeletalMuscle,
   ),
+  // A block of the leg's skin, 3 mm across; its epidermis and dermis are
+  // 1.83 mm thick on the left calf on 50 MHz ultrasound (Wang et al. 2025,
+  // Quant Imaging Med Surg 15:5218).
   'skin': TissueAnatomy(
     organ: OrganKind.skin,
-    metres: 0.08,
+    metres: 0.003,
     uberon: 'UBERON_0000014',
     recipe: TissueRecipe.squamous,
+    thickness: 0.002,
   ),
   'smooth muscle': TissueAnatomy(
     organ: OrganKind.smoothMuscle,

@@ -17,6 +17,7 @@ import 'package:helixpeek/features/zoom/presentation/scenes/organ_art.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/esophagus/esophagus_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/kidney/kidney_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/liver/liver_form.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/skin/skin_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/stomach/stomach_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/sculpt.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/tissue/tissue_slide.dart';
@@ -182,8 +183,9 @@ void main() {
     // about each kind of cell of the marrow, the heart on both figures
     // about each kind of cell that lives in it, skeletal muscle, the
     // thigh, on both figures, the kidney on both figures about a cell of
-    // each part of it the Atlas's names light, and the liver, the stomach
-    // and the esophagus likewise.
+    // each part of it the Atlas's names light, the liver, the stomach and
+    // the esophagus likewise, and the skin, one block for either figure,
+    // about a cell of each part of it.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -195,6 +197,7 @@ void main() {
     final TissueAnatomy liver = tissueAnatomy['liver']!;
     final TissueAnatomy stomach = tissueAnatomy['stomach']!;
     final TissueAnatomy esophagus = tissueAnatomy['esophagus']!;
+    final TissueAnatomy skin = tissueAnatomy['skin']!;
     final List<(String, TissueAnatomy, AnatomyFigure, CellShape)> organs =
         <(String, TissueAnatomy, AnatomyFigure, CellShape)>[
           for (final MapEntry<String, TissueAnatomy> tissue
@@ -347,6 +350,22 @@ void main() {
             shape,
             cell,
           ),
+      for (final String cell in <String>[
+        'Melanocytes',
+        'Basal keratinocytes',
+        'Suprabasal keratinocytes',
+        'Outer root sheath cells',
+        'Sebaceous gland cells',
+        'Eccrine sweat gland cells',
+        'Fibroblasts',
+      ])
+        (
+          'skin-${SkinHome.of(cell).name}',
+          skin,
+          AnatomyFigure.female,
+          CellShape.epithelial,
+          cell,
+        ),
     ];
     for (final (
           String name,

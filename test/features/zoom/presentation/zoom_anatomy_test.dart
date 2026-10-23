@@ -261,7 +261,8 @@ void main() {
       // the heart, cut open, its great vessels reaching out either side of
       // it, framed wider than their margin; the kidney, cut open, its names
       // in columns either side of it, framed a little wider than its
-      // outline.
+      // outline; and the skin, a block of it, framed wide enough that its
+      // names stand in a column either side of it.
       final double upright = ZoomDepth.uprightOf(
         subject.track,
         subject.path,
@@ -274,6 +275,7 @@ void main() {
             OrganKind.salivaryGland => ZoomDepth.salivaryUpright,
             OrganKind.eye => ZoomDepth.eyeUpright,
             OrganKind.heart => ZoomDepth.heartUpright,
+            OrganKind.skin => ZoomDepth.skinUpright,
             _ => 1.0,
           },
           ZoomDepth.phoneAspect,

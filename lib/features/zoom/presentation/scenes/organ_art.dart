@@ -39,6 +39,9 @@ import 'organs/salivary_gland/salivary_style.dart';
 import 'organs/skeletal_muscle/thigh_art.dart';
 import 'organs/skeletal_muscle/thigh_form.dart';
 import 'organs/skeletal_muscle/thigh_style.dart';
+import 'organs/skin/skin_art.dart';
+import 'organs/skin/skin_form.dart';
+import 'organs/skin/skin_style.dart';
 import 'organs/stomach/stomach_art.dart';
 import 'organs/stomach/stomach_form.dart';
 import 'organs/stomach/stomach_style.dart';
@@ -78,8 +81,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// its middle, the eye, cut level through its optic nerve, the bone
 /// marrow, its femur cut down its length, the heart, cut open, skeletal
 /// muscle, the front of the thigh, the kidney and the liver, each cut open
-/// from front to back, and the stomach and the esophagus, each opened from
-/// the front.
+/// from front to back, the stomach and the esophagus, each opened from
+/// the front, and the skin, a block of it cut from the leg.
 ///
 /// Where the gene is, the organ glows in the mark: the part of it the
 /// zoom's cell lives in (the islets of a pancreas for an endocrine cell, its
@@ -87,7 +90,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// the loops of Henle of a kidney for a cell the Atlas names theirs, the
 /// bile ducts of a liver for a cholangiocyte, the muscularis of a stomach
 /// for a smooth muscle cell, the glands of an esophagus for a cell of its
-/// submucosal glands), by the kind of organ and of cell, never by gene.
+/// submucosal glands, the basal layer of the skin and its hair bulbs for a
+/// melanocyte), by the kind of organ and of cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -123,7 +127,7 @@ abstract class OrganArt {
       OrganKind.brain => _BrainOrgan(anatomy, view),
       OrganKind.lymphNode => _NodeOrgan(size, shape),
       OrganKind.vessel => _VesselOrgan(size),
-      OrganKind.skin => _SkinOrgan(size),
+      OrganKind.skin => _SkinOrgan(anatomy, view, cell: cellName),
       OrganKind.parathyroid => _ParathyroidOrgan(size),
       OrganKind.eye => _EyeOrgan(anatomy, view, part: part, cell: shape),
       OrganKind.pancreas when part != null => _PancreasOrgan(
@@ -235,6 +239,12 @@ abstract class OrganArt {
   /// The points its [names] are set round, at its real size: it and what
   /// is drawn round it.
   List<Offset> get named => const <Offset>[];
+
+  /// How far along the step on to the tissue its [names] are gone by,
+  /// where it is not the organ scene's own share (`OrganScene.leaving`): for
+  /// an organ whose step to its tissue is short, so quick that its names
+  /// would blink out at that share.
+  double? get namesLeaving => null;
 
   /// The columns at the canvas's edges its [names] are set in instead, by
   /// their keys, each level with what it names: for an organ that stands
@@ -2375,37 +2385,133 @@ final class _VesselOrgan extends OrganArt {
   }
 }
 
-/// A block cut from the skin: its surface with its creases and hairs, and
-/// on the cut face the epidermis, the dermis and the fat beneath. The
-/// tissue is sampled at the top of the cut face.
+/// A block of the leg's skin, drawn from anatomy as a specimen (`SkinArt`):
+/// its top the skin's surface with its furrows, pores and hairs, its front
+/// the cut through the epidermis, the dermis and the fat, a follicle with
+/// its sebaceous gland and its arrector pili, the sweat glands, the vessels
+/// and a nerve, and its right side a second cut. Where the zoom's cell
+/// lives, by the name the Atlas gives it, is in the mark, and the layers and
+/// what lies in them are named in a column at either edge of the canvas,
+/// level with each.
+/// The body draws the skin as the figure's own edge, so the step from it
+/// is a crossfade, as the brain's and the eye's are.
 final class _SkinOrgan extends OrganArt {
-  _SkinOrgan(this.size);
+  _SkinOrgan(TissueAnatomy anatomy, double view, {String? cell})
+    : _home = SkinHome.of(cell),
+      _form = SkinForm(width: anatomy.metres / view, view: view);
 
-  final double size;
+  final SkinHome _home;
+  final SkinForm _form;
 
-  // The block's middle is at the origin; it is drawn about the place it is
-  // sampled.
   @override
-  Offset get site => Offset(-size * 0.04, -size * 0.13);
+  Offset get site => _form.site;
 
-  // The block as it is drawn: its cut face, and the top and side seen behind
-  // it, about the place it is sampled.
   @override
-  Path get outline => _outline;
+  Path get outline => _form.outline;
 
-  late final Path _outline = () {
-    final double s = size;
-    final Rect face = Rect.fromLTRB(-s * 0.45, -s * 0.03, s * 0.55, s * 0.6);
-    final Offset back = Offset(-s * 0.22, -s * 0.34);
-    return OrganArt._closed(<Offset>[
-      face.bottomLeft + back,
-      face.topLeft + back,
-      face.topRight + back,
-      face.topRight,
-      face.bottomRight,
-      face.bottomLeft,
-    ]).shift(site);
+  // Where the cell lives, named where it lies nearest the site; and the
+  // layers and what lies in them (the user's choice of 2026-10-23), each
+  // but the one the home's name stands for.
+  @override
+  late final List<OrganName> names = () {
+    final SkinHome home = _home;
+    final Offset at = switch (home) {
+      SkinHome.melanocytes || SkinHome.basalLayer => _form.basalName,
+      SkinHome.epidermis => _form.epidermisSiteName,
+      SkinHome.follicle => _form.follicleName,
+      SkinHome.sebaceousGland => _form.glandName,
+      SkinHome.sweatGland => _form.sweatName,
+      SkinHome.dermis => _form.dermisSiteName,
+    };
+    // In each column from the top down, so that each takes its own level
+    // or the step below another's.
+    return <OrganName>[
+      (key: 'home', word: home.word, at: at, home: true),
+      if (home != SkinHome.epidermis)
+        (
+          key: 'epidermis',
+          word: 'epidermis',
+          at: _form.epidermisName,
+          home: false,
+        ),
+      if (home != SkinHome.dermis)
+        (key: 'dermis', word: 'dermis', at: _form.dermisName, home: false),
+      if (home != SkinHome.sebaceousGland)
+        (
+          key: 'gland',
+          word: 'sebaceous\ngland',
+          at: _form.glandName,
+          home: false,
+        ),
+      (
+        key: 'arrector',
+        word: 'arrector\npili',
+        at: _form.muscleName,
+        home: false,
+      ),
+      if (home != SkinHome.sweatGland)
+        (
+          key: 'sweat',
+          word: 'sweat\ngland',
+          at: _form.sweatName,
+          home: false,
+        ),
+      if (home != SkinHome.follicle)
+        (
+          key: 'follicle',
+          word: 'hair\nfollicle',
+          at: _form.follicleName,
+          home: false,
+        ),
+      (key: 'subcutis', word: 'subcutis', at: _form.fatName, home: false),
+    ];
   }();
+
+  @override
+  List<Offset> get named => _form.outlinePoints;
+
+  @override
+  double get namesLeaving => SkinStyle.namesLeaving;
+
+  // The layers on the left, where the home's name points into the
+  // epidermis or the dermis near the site, with the sweat gland in the fat;
+  // the follicle, its gland and its muscle on the right, where they lie,
+  // and the epidermis where the side cuts it.
+  @override
+  late final Map<String, OrganColumn> columns = <String, OrganColumn>{
+    for (final OrganName name in names)
+      name.key: () {
+        final double side = switch (name.key) {
+          'dermis' || 'subcutis' || 'sweat' => -1.0,
+          'home' => switch (_home) {
+            SkinHome.melanocytes ||
+            SkinHome.basalLayer ||
+            SkinHome.epidermis ||
+            SkinHome.dermis ||
+            SkinHome.sweatGland => -1.0,
+            _ => 1.0,
+          },
+          _ => 1.0,
+        };
+        final (Offset left, Offset right) = _form.edgesAt(
+          _form.toMm(name.at).dy,
+        );
+        return (side: side, left: left, right: right);
+      }(),
+  };
+
+  SkinArt? _art;
+
+  SkinArt _artFor(ZoomInks inks) {
+    final SkinArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = SkinArt(_form, inks, home: _home)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
 
   @override
   void paint(
@@ -2417,99 +2523,7 @@ final class _SkinOrgan extends OrganArt {
   }) {
     canvas.save();
     canvas.scale(scale);
-    canvas.translate(site.dx, site.dy);
-    final double line = pixel / scale;
-    final double s = size;
-    // The cut face, its top edge just above the origin.
-    final Rect face = Rect.fromLTRB(-s * 0.45, -s * 0.03, s * 0.55, s * 0.6);
-    final Offset back = Offset(-s * 0.22, -s * 0.34);
-    final Path top = OrganArt._closed(<Offset>[
-      face.topLeft,
-      face.topRight,
-      face.topRight + back,
-      face.topLeft + back,
-    ]);
-    final Path side = OrganArt._closed(<Offset>[
-      face.topLeft,
-      face.topLeft + back,
-      face.bottomLeft + back,
-      face.bottomLeft,
-    ]);
-    Sculpt.shadowUnder(canvas, face.inflate(s * 0.05), inks);
-    canvas.drawPath(side, Paint()..color = inks.shade(0.62));
-    canvas.drawPath(top, Paint()..color = inks.lit(0.32));
-    // Creases across the surface, and hairs out of it.
-    final Paint fine = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1 * line
-      ..color = inks.lit(0.55).withValues(alpha: 0.4);
-    for (int k = 1; k < 7; k++) {
-      final Offset from = Offset.lerp(face.topLeft, face.topRight, k / 7)!;
-      canvas.drawLine(from, from + back, fine);
-    }
-    for (final double t in <double>[0.18, 0.44, 0.7, 0.9]) {
-      final Offset root =
-          Offset.lerp(face.topLeft, face.topRight, t)! + back * 0.5;
-      canvas.drawLine(
-        root,
-        root + Offset(-s * 0.05, -s * 0.2),
-        Paint()
-          ..strokeWidth = 1.6 * line
-          ..strokeCap = StrokeCap.round
-          ..color = inks.lit(0.5),
-      );
-    }
-    // The layers.
-    final double epidermis = face.top + s * 0.035;
-    final double dermis = face.top + s * 0.25;
-    canvas.drawRect(face, Paint()..color = inks.lit(0.2));
-    canvas.drawRect(
-      Rect.fromLTRB(face.left, dermis, face.right, face.bottom),
-      Paint()..color = inks.shade(0.82),
-    );
-    final Path wavy = Path()..moveTo(face.left, face.top);
-    for (int i = 0; i <= 60; i++) {
-      wavy.lineTo(
-        face.left + face.width * i / 60,
-        epidermis + s * 0.012 * math.sin(i * 0.9),
-      );
-    }
-    wavy
-      ..lineTo(face.right, face.top)
-      ..close();
-    canvas.drawPath(wavy, Paint()..color = inks.lit(0.36));
-    canvas.save();
-    canvas.clipRect(Rect.fromLTRB(face.left, dermis, face.right, face.bottom));
-    final double lobe = s * 0.085;
-    int row = 0;
-    for (
-      double y = dermis + lobe * 0.3;
-      y < face.bottom + lobe;
-      y += lobe * 0.9
-    ) {
-      for (
-        double x = face.left + (row.isOdd ? lobe / 2 : 0);
-        x < face.right + lobe;
-        x += lobe
-      ) {
-        Sculpt.dome(
-          canvas,
-          Rect.fromCircle(center: Offset(x, y), radius: lobe * 0.46),
-          inks,
-          0.3,
-        );
-      }
-      row++;
-    }
-    canvas.restore();
-    final Paint rim = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2 * line
-      ..strokeJoin = StrokeJoin.round
-      ..color = inks.lit(0.45);
-    canvas.drawRect(face, rim);
-    canvas.drawPath(top, rim);
-    canvas.drawPath(side, rim);
+    _artFor(inks).paint(canvas, pixel / scale);
     canvas.restore();
   }
 }

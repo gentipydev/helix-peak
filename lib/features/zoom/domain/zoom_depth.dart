@@ -192,6 +192,13 @@ final class ZoomDepth {
   /// names.
   static const double esophagusUpright = 1.45;
 
+  /// How much taller than wide the skin is framed: drawn as a block of it,
+  /// its front face 3 mm across, its top and its side receding, it takes a
+  /// little over a third of the canvas's width, which leaves its names
+  /// room in a column at either edge on the narrowest canvas a phone gives
+  /// it, an iPhone SE's, 311 wide inside the canvas's inset.
+  static const double skinUpright = 0.48;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -216,8 +223,8 @@ final class ZoomDepth {
   /// front of the thigh, as [muscleUpright], the kidney, cut open from
   /// front to back, as [kidneyUpright], the liver, cut open from front to
   /// back, as [liverUpright], the stomach, opened from the front, as
-  /// [stomachUpright], and the esophagus, opened from the front, as
-  /// [esophagusUpright].
+  /// [stomachUpright], the esophagus, opened from the front, as
+  /// [esophagusUpright], and the skin, a block of it, as [skinUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -226,9 +233,11 @@ final class ZoomDepth {
     if (anatomy.inBrain != null ||
         anatomy.organ == OrganKind.lymphNode ||
         anatomy.organ == OrganKind.vessel ||
-        anatomy.organ == OrganKind.skin ||
         anatomy.organ == OrganKind.parathyroid) {
       return 1;
+    }
+    if (anatomy.organ == OrganKind.skin) {
+      return skinUpright;
     }
     if (anatomy.organ == OrganKind.testis) {
       return testisUpright;

@@ -38,12 +38,14 @@ final class OrganScene extends ZoomScene {
   List<OrganName> get names => _art.names;
 
   /// How much of its names shows at [frame]: coming in as every stop's do
-  /// ([calloutPresence]), and gone by [leaving] of the step on to the
-  /// tissue, before the view's narrowing carries their plates off the
-  /// canvas and leaves their lines across the field opening there.
-  static double namesShown(ZoomFrame frame) => frame.isChild
+  /// ([calloutPresence]), and gone by [by] of the step on to the tissue,
+  /// [leaving] unless the organ says otherwise, before the view's narrowing
+  /// carries their plates off the canvas and leaves their lines across the
+  /// field opening there.
+  static double namesShown(ZoomFrame frame, {double by = leaving}) =>
+      frame.isChild
       ? calloutPresence(frame)
-      : math.min(frame.opacity, 1 - smoothstep(frame.progress / leaving));
+      : math.min(frame.opacity, 1 - smoothstep(frame.progress / by));
 
   static const double leaving = 0.24;
 
@@ -104,7 +106,7 @@ final class OrganScene extends ZoomScene {
   void stage(ZoomFrame frame, ZoomStaging out) {
     final double grown = _grown(frame);
     out.item('organ:target', frame.toScreen(_art.site * grown), frame.opacity);
-    final double shown = namesShown(frame);
+    final double shown = namesShown(frame, by: _art.namesLeaving ?? leaving);
     if (shown <= 0 || _art.names.isEmpty) {
       return;
     }
