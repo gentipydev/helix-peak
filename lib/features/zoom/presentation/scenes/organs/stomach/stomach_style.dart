@@ -50,8 +50,8 @@ abstract final class StomachStyle {
   /// warm, the serosa paler still.
   static const double submucosaLit = 0.58;
   static const double submucosaWarmth = 0.12;
-  static const double muscleLit = 0.36;
-  static const double muscleWarmth = 0.34;
+  static const double muscleLit = 0.28;
+  static const double muscleWarmth = 0.42;
   static const double serosaLit = 0.62;
   static const double serosaWarmth = 0.08;
 

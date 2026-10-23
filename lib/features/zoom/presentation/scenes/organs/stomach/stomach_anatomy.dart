@@ -314,7 +314,7 @@ abstract final class StomachAnatomy {
   static const Offset bodyName = Offset(96, -36);
   static const Offset rugaeName = Offset(20, 74);
   static const Offset antrumName = Offset(-78, 62);
-  static const Offset pylorusName = Offset(-121, 60);
+  static const Offset pylorusName = Offset(-119, 51);
   static const Offset duodenumName = Offset(-158, 74);
   static const Offset esophagusName = Offset(-68, -133);
 }
