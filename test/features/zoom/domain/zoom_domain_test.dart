@@ -628,17 +628,62 @@ void main() {
       }
     });
 
+    test('go into the skin on the left leg 2 cm below the knee, in its band '
+        'on the leg\'s inner side, where GTEx takes it, and close the view '
+        'there', () {
+      final String skin = tissueAnatomy['skin']!.uberon;
+      final String marrow = tissueAnatomy['bone marrow']!.uberon;
+      for (final AnatomyFigure figure in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ]) {
+        final AnatomyPart part = figure.parts[skin]!;
+        final Rect femur = boxOf(figure.parts[marrow]!.followed);
+        // 2 cm below the femur's lowest point, as the tool reads the
+        // drawing's own outlines, before they are simplified.
+        expect(part.site.dy - femur.bottom, closeTo(0.02, 2e-3),
+            reason: figure.name);
+        // In the femur's leg, the left, on its side toward the middle:
+        // between the figure's outline and the skin band's inner outline.
+        final double side = femur.center.dx < 0 ? -1 : 1;
+        double nearest(List<Offset> outline, double beyond) {
+          double best = double.infinity;
+          for (int i = 0; i < outline.length; i++) {
+            final Offset a = outline[i];
+            final Offset b = outline[(i + 1) % outline.length];
+            if ((a.dy > part.site.dy) != (b.dy > part.site.dy)) {
+              final double x =
+                  a.dx + (part.site.dy - a.dy) * (b.dx - a.dx) / (b.dy - a.dy);
+              if (x * side > beyond) {
+                best = math.min(best, x * side);
+              }
+            }
+          }
+          return best;
+        }
+
+        expect(part.contours.length, 2, reason: figure.name);
+        final double outer = nearest(part.contours[0], 0);
+        final double inner = nearest(part.contours[1], outer);
+        expect(part.site.dx * side, greaterThan(outer), reason: figure.name);
+        expect(part.site.dx * side, lessThan(inner), reason: figure.name);
+        expect(inner - outer, lessThan(0.012), reason: figure.name);
+        expect(part.framed, part.site, reason: figure.name);
+      }
+    });
+
     test('close the view on every other part at the middle of the outline '
         'it follows', () {
       final String muscle = tissueAnatomy['skeletal muscle']!.uberon;
       final String esophagus = tissueAnatomy['esophagus']!.uberon;
+      final String skin = tissueAnatomy['skin']!.uberon;
       for (final AnatomyFigure figure in <AnatomyFigure>[
         AnatomyFigure.female,
         AnatomyFigure.male,
         AnatomyFigure.brain,
       ]) {
         for (final MapEntry<String, AnatomyPart> part in figure.parts.entries) {
-          if (part.key == muscle || part.key == esophagus) {
+          if (<String>{muscle, esophagus, skin}.contains(part.key)) {
             continue;
           }
           expect(part.value.framed, isNull, reason: part.key);

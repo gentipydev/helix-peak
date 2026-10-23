@@ -161,6 +161,25 @@ SITE_LATERAL = {"UBERON_0002113": (0.75, 0.08)}
 # cortex.
 SITE_WITHIN = {"UBERON_0002113": "UBERON_0001225"}
 
+# Parts the zoom goes into a way below another part's lowest point, midway
+# across the band between their own two outlines on the side of the leg
+# toward the figure's middle, in the leg that other part lies in: the part
+# it is measured from, and how far below it, in metres. The skin is drawn
+# as a block cut from it (`skin_anatomy.dart`), and GTEx takes the skin it
+# reads as sun-exposed from either leg, 2 cm below the patella on its
+# medial side (the GTEx Portal's sampling site for Skin - Sun Exposed
+# (Lower leg), gtex_v10). The anatomogram draws no patella, so the knee is
+# taken at the lowest point of its femur, the bone marrow's outline, which
+# lies in the left leg on either figure; its skin is a band between the
+# figure's outline and a second one just inside it.
+SITE_BELOW = {"UBERON_0000014": ("UBERON_0002371", 0.02)}
+
+# Parts the view closes on where the zoom goes into them, written as a
+# `centre`: for a part whose scene draws a piece of it about that place, not
+# its outline. The skin's outline is the whole figure's; its scene draws a
+# block of it.
+FRAME_AT_SITE = {"UBERON_0000014"}
+
 
 def fetch(directory: str | None) -> dict[str, str]:
     """The three drawings' paths, downloaded at the pinned commit unless
@@ -285,6 +304,43 @@ def site_level(contour: list[svg.Point], down: float) -> svg.Point:
     return ((left + right) / 2, y)
 
 
+def site_below(
+    contours: list[list[svg.Point]],
+    under: list[svg.Point],
+    below: float,
+    middle: float,
+) -> svg.Point:
+    """A point [below] (in the drawing's units) under [under]'s lowest point,
+    midway between where [contours]' first two outlines cross that height
+    nearest the figure's [middle], on the side [under] lies (`SITE_BELOW`)."""
+    ux0, _, ux1, uy1 = svg.bounds([under])
+    side = 1 if (ux0 + ux1) / 2 > middle else -1
+    y = uy1 + below
+
+    def nearest(contour: list[svg.Point], beyond: float) -> float | None:
+        best = None
+        for i, a in enumerate(contour):
+            b = contour[(i + 1) % len(contour)]
+            if (a[1] > y) != (b[1] > y):
+                x = a[0] + (y - a[1]) * (b[0] - a[0]) / (b[1] - a[1])
+                if (x - middle) * side > beyond and (best is None or (x - middle) * side < (best - middle) * side):
+                    best = x
+        return best
+
+    if len(contours) < 2:
+        raise SystemExit("a band needs two outlines")
+    outer = nearest(contours[0], 0)
+    if outer is None:
+        raise SystemExit(f"no outline crosses {y} on that side")
+    inner = nearest(contours[1], (outer - middle) * side)
+    if inner is None:
+        raise SystemExit(f"no inner outline crosses {y} past {outer}")
+    site = ((outer + inner) / 2, y)
+    if not inside(contours[0], site) or inside(contours[1], site):
+        raise SystemExit(f"{site} lies outside the band")
+    return site
+
+
 def farthest_inside(contour: list[svg.Point], x0: float, y0: float, x1: float, y1: float) -> svg.Point | None:
     """The point of a grid over the box from (x0, y0) to (x1, y1) that lies
     inside [contour] farthest from its edge, or None where none is inside."""
@@ -377,6 +433,12 @@ def convert_body(name: str, path: str, wanted: set[str]) -> dict:
             site = site_level(followed, SITE_LEVEL[uberon])
         elif uberon in SITE_LATERAL:
             site = site_lateral(followed, *SITE_LATERAL[uberon], middle)
+        elif uberon in SITE_BELOW:
+            measured, below = SITE_BELOW[uberon]
+            under = sorted(part_of(shapes_by_id, measured), key=lambda c: -abs(svg.area(c)))
+            if not under:
+                raise SystemExit(f"{name}: no {measured} to measure {uberon}'s site from")
+            site = site_below(contours, under[0], below / scale, middle)
         else:
             site = site_of(followed, SITE_TOP.get(uberon, 1.0))
         if uberon in SITE_WITHIN and not any(
@@ -396,6 +458,8 @@ def convert_body(name: str, path: str, wanted: set[str]) -> dict:
         if uberon in FRAME_DOWN:
             fx0, fy0, fx1, fy1 = svg.bounds([followed])
             parts[uberon]["centre"] = list(place(((fx0 + fx1) / 2, (fy0 + fy1) / 2 + (fy1 - fy0) * FRAME_DOWN[uberon])))
+        if uberon in FRAME_AT_SITE:
+            parts[uberon]["centre"] = list(place(site))
     return {
         "name": name,
         "source": os.path.basename(path),
