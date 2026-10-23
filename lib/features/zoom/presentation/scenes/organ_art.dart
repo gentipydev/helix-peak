@@ -28,6 +28,9 @@ import 'organs/pancreas/pancreas_style.dart';
 import 'organs/salivary_gland/salivary_art.dart';
 import 'organs/salivary_gland/salivary_form.dart';
 import 'organs/salivary_gland/salivary_style.dart';
+import 'organs/skeletal_muscle/thigh_art.dart';
+import 'organs/skeletal_muscle/thigh_form.dart';
+import 'organs/skeletal_muscle/thigh_style.dart';
 import 'organs/testis/testis_anatomy.dart';
 import 'organs/testis/testis_art.dart';
 import 'organs/testis/testis_form.dart';
@@ -61,8 +64,9 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// lymph node, a vessel, the skin, a parathyroid gland, the retina), and are
 /// drawn from general anatomy, as are the pancreas, the testis, cut down its
 /// length, the salivary gland, its parotid in place, the brain, cut down
-/// its middle, the eye, cut level through its optic nerve, and the bone
-/// marrow, its femur cut down its length.
+/// its middle, the eye, cut level through its optic nerve, the bone
+/// marrow, its femur cut down its length, the heart, cut open, and skeletal
+/// muscle, the front of the thigh.
 ///
 /// Where the gene is, the organ glows in the mark: the part of it the
 /// zoom's cell lives in (the islets of a pancreas for an endocrine cell, its
@@ -141,6 +145,8 @@ abstract class OrganArt {
         cell: shape,
         level: level,
       ),
+      OrganKind.skeletalMuscle when part != null && figure != null =>
+        _ThighOrgan(part, anatomy, view, figure: figure, level: level),
       _ =>
         part == null
             ? _AnyOrgan()
@@ -301,9 +307,7 @@ _Look _lookOf(OrganKind kind) => switch (kind) {
   OrganKind.intestine ||
   OrganKind.epididymis ||
   OrganKind.seminalVesicle => _Look.coils,
-  OrganKind.skeletalMuscle ||
-  OrganKind.smoothMuscle ||
-  OrganKind.tongue => _Look.fibres,
+  OrganKind.smoothMuscle || OrganKind.tongue => _Look.fibres,
   OrganKind.stomach ||
   OrganKind.bladder ||
   OrganKind.gallbladder ||
@@ -1316,6 +1320,140 @@ final class _HeartOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => HeartArt.bedOf(inks);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// Skeletal muscle, drawn from general anatomy as the front of the thigh
+/// (`ThighArt`): its muscles from the iliac spines to the knee, the vastus
+/// lateralis, where human muscle is biopsied and the zoom goes in, flat in
+/// the mark; reached from the body's own outline of the vastus lateralis
+/// (`_SpecimenOrgan`), the outermost of the five it draws for the thigh:
+/// that outline draws in toward the muscle's own and becomes its bed, the
+/// body's other four giving way under the muscles as they come up, and the
+/// rest of the figure staying round it, faint (the user's choices of
+/// 2026-10-22). The figure is drawn at a person's size, so nothing grows.
+final class _ThighOrgan extends _SpecimenOrgan {
+  _ThighOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    required AnatomyFigure super.figure,
+    super.level,
+  }) : _form = ThighForm.place(part: part, figure: figure, view: view),
+       super(real: ThighForm.real);
+
+  final ThighForm _form;
+
+  @override
+  bool get _amongFigure => true;
+
+  // Its outline is drawn in more slowly than other specimens': the body's
+  // strip widens about three times into the vastus lateralis.
+  @override
+  double _settleOf(double detail) =>
+      SpecimenStep.settle(detail, span: ThighStyle.settling);
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, the vastus lateralis, in the mark, and
+  // three of the muscles round it in the quiet ink (the user's choice of
+  // 2026-10-22), each two words on two lines, to fit a column at the
+  // canvas's edge.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'home', word: 'vastus\nlateralis', at: _form.site, home: true),
+    (
+      key: 'rectus',
+      word: 'rectus\nfemoris',
+      at: _form.rectusName,
+      home: false,
+    ),
+    (
+      key: 'sartorius',
+      word: 'sartorius',
+      at: _form.sartoriusName,
+      home: false,
+    ),
+    (
+      key: 'medialis',
+      word: 'vastus\nmedialis',
+      at: _form.medialisName,
+      home: false,
+    ),
+  ];
+
+  // Each in a column at the canvas's edge, level with what it names (the
+  // user's choice of 2026-10-22): the lateral muscles' on the left, the
+  // medial ones' on the right.
+  @override
+  late final Map<String, OrganColumn> columns = <String, OrganColumn>{
+    for (final OrganName name in names)
+      name.key: () {
+        final (Offset left, Offset right) = _form.edgesAt(name.at);
+        return (
+          side: name.key == 'home' || name.key == 'rectus' ? -1.0 : 1.0,
+          left: left,
+          right: right,
+        );
+      }(),
+  };
+
+  /// The body's other outlines of the thigh, beside the vastus
+  /// lateralis's.
+  late final Path _others = () {
+    final Path path = Path();
+    for (final List<Offset> other in _form.others) {
+      path.addPath(OrganArt._closed(other), Offset.zero);
+    }
+    return path;
+  }();
+
+  // They are flat as the body drew them, and give way under the muscles as
+  // they come up.
+  @override
+  void _paintBeside(
+    Canvas canvas,
+    ZoomInks inks,
+    double line,
+    double detail,
+  ) {
+    final double shown = 1 - SpecimenStep.come(detail);
+    if (shown > 0.002) {
+      OrganArt._flatOthers(canvas, _others, inks, line, shown: shown);
+    }
+  }
+
+  ThighArt? _art;
+
+  ThighArt _artFor(ZoomInks inks) {
+    final ThighArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = ThighArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) {
+    _artFor(inks);
+    _others;
+  }
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => ThighArt.bedOf(inks);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

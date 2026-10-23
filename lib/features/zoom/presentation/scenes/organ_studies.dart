@@ -193,11 +193,12 @@ final class OrganForm {
 }
 
 /// What lies inside an organ of one kind, and the part of it the zoom's
-/// cell lives in, in the mark: the lobules of a liver, the fibres of a
-/// muscle. By the kind of organ and of cell, never by gene. (The pancreas,
-/// the testis and the salivary gland are drawn from anatomy instead, among
-/// their neighbours, and the bone marrow as its femur: `PancreasArt`,
-/// `TestisArt`, `SalivaryArt`, `MarrowArt`.)
+/// cell lives in, in the mark: the lobules of a liver, the folds of a
+/// fallopian tube. By the kind of organ and of cell, never by gene. (The
+/// pancreas, the testis and the salivary gland are drawn from anatomy
+/// instead, among their neighbours, the bone marrow as its femur, and
+/// skeletal muscle as the front of the thigh: `PancreasArt`, `TestisArt`,
+/// `SalivaryArt`, `MarrowArt`, `ThighArt`.)
 abstract class OrganStudy {
   const OrganStudy();
 
@@ -206,7 +207,6 @@ abstract class OrganStudy {
   static const Set<OrganKind> studied = <OrganKind>{
     OrganKind.liver,
     OrganKind.adipose,
-    OrganKind.skeletalMuscle,
     OrganKind.fallopianTube,
     OrganKind.stomach,
     OrganKind.pituitary,
@@ -218,7 +218,6 @@ abstract class OrganStudy {
       switch (kind) {
         OrganKind.liver => _Liver(form),
         OrganKind.adipose => _Fat(form),
-        OrganKind.skeletalMuscle => _Muscle(form),
         OrganKind.fallopianTube => _Tube(form),
         OrganKind.stomach => _Stomach(form),
         OrganKind.pituitary => _Pituitary(form),
@@ -409,77 +408,6 @@ final class _Fat extends OrganStudy {
         )!.withValues(alpha: 0.7 * detail),
         1.2 * line,
       ),
-    );
-  }
-}
-
-/// A muscle: its fascicles running its length, gathered into tendon at
-/// its ends, the fibres, which are the muscle's cells, in the mark.
-final class _Muscle extends OrganStudy {
-  _Muscle(this.form) {
-    _fascicles = <Path>[
-      for (int k = 1; k < 18; k++)
-        form.lengthwise(k / 18, wave: 0.006, phase: k * 1.3),
-    ];
-    final Rect box = form.box;
-    _tendons = Path()
-      ..addRect(
-        form.tall
-            ? Rect.fromLTRB(
-                box.left,
-                box.top,
-                box.right,
-                box.top + box.height * 0.08,
-              )
-            : Rect.fromLTRB(
-                box.left,
-                box.top,
-                box.left + box.width * 0.08,
-                box.bottom,
-              ),
-      )
-      ..addRect(
-        form.tall
-            ? Rect.fromLTRB(
-                box.left,
-                box.bottom - box.height * 0.07,
-                box.right,
-                box.bottom,
-              )
-            : Rect.fromLTRB(
-                box.right - box.width * 0.07,
-                box.top,
-                box.right,
-                box.bottom,
-              ),
-      );
-  }
-
-  final OrganForm form;
-  late final List<Path> _fascicles;
-  late final Path _tendons;
-
-  @override
-  void inside(Canvas canvas, ZoomInks inks, double line, double detail) {
-    canvas.drawPath(
-      form.inset(0.9, across: 0.7),
-      Paint()..color = inks.glow(0.1 * detail),
-    );
-    for (int k = 0; k < _fascicles.length; k++) {
-      canvas.drawPath(
-        _fascicles[k],
-        _stroke(
-          k.isEven
-              ? inks.glow(0.42 * detail)
-              : inks.shade(0.55).withValues(alpha: 0.7 * detail),
-          (k.isEven ? 1.3 : 1.8) * line,
-        ),
-      );
-    }
-    // The tendons, pale and glossy.
-    canvas.drawPath(
-      _tendons,
-      Paint()..color = inks.lit(0.62).withValues(alpha: 0.75 * detail),
     );
   }
 }

@@ -175,14 +175,16 @@ void main() {
     // a part of it of its own, the testis about each kind of cell that lives
     // in it, the salivary gland on both figures about each, the eye about
     // each kind of cell its retina has, the bone marrow on both figures
-    // about each kind of cell of the marrow, and the heart on both figures
-    // about each kind of cell that lives in it.
+    // about each kind of cell of the marrow, the heart on both figures
+    // about each kind of cell that lives in it, and skeletal muscle, the
+    // thigh, on both figures.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
     final TissueAnatomy eye = tissueAnatomy['retina']!;
     final TissueAnatomy marrow = tissueAnatomy['bone marrow']!;
     final TissueAnatomy heart = tissueAnatomy['heart muscle']!;
+    final TissueAnatomy muscle = tissueAnatomy['skeletal muscle']!;
     final List<(String, TissueAnatomy, AnatomyFigure, CellShape)> organs =
         <(String, TissueAnatomy, AnatomyFigure, CellShape)>[
           for (final MapEntry<String, TissueAnatomy> tissue
@@ -252,6 +254,11 @@ void main() {
               CellShape.dividing,
             ])
               ('heart-${body.name}-${shape.name}', heart, body, shape),
+          for (final AnatomyFigure body in <AnatomyFigure>[
+            AnatomyFigure.female,
+            AnatomyFigure.male,
+          ])
+            ('muscle-${body.name}', muscle, body, CellShape.myofibre),
         ];
     for (final (
           String name,

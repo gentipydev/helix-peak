@@ -155,6 +155,14 @@ final class ZoomDepth {
   /// less, for slack).
   static const double heartUpright = 0.95;
 
+  /// How much taller than wide skeletal muscle is framed: drawn as the
+  /// front of the thigh, from the iliac spines to below the knee, it is
+  /// taller than the anatomogram's outline of its vastus lateralis, and
+  /// stands on the squattest canvas a phone gives it, a first iPhone SE's,
+  /// 320 by 376 (1.225 is the most that leaves it whole there; a little
+  /// less, for slack), its names in columns either side of it.
+  static const double muscleUpright = 1.2;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -174,8 +182,9 @@ final class ZoomDepth {
   /// anatomy, or the brain, is framed by its width, the testis, drawn from
   /// anatomy among its epididymis and its cord, as [testisUpright], the
   /// salivary gland, its parotid in place, as [salivaryUpright], the eye,
-  /// cut level through its optic nerve, as [eyeUpright], and the heart, cut
-  /// open from front to back, as [heartUpright].
+  /// cut level through its optic nerve, as [eyeUpright], the heart, cut
+  /// open from front to back, as [heartUpright], and skeletal muscle, the
+  /// front of the thigh, as [muscleUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -199,6 +208,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.heart) {
       return heartUpright;
+    }
+    if (anatomy.organ == OrganKind.skeletalMuscle) {
+      return muscleUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)
