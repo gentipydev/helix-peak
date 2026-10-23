@@ -578,6 +578,37 @@ void main() {
       }
     });
 
+    test('go into the kidney three quarters of the way down, in from the '
+        'side away from the midline, in its cortex at its lower pole, where '
+        'a kidney is biopsied', () {
+      final String uberon = tissueAnatomy['kidney']!.uberon;
+      for (final AnatomyFigure figure in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ]) {
+        final AnatomyPart part = figure.parts[uberon]!;
+        final List<Offset> outline = part.followed;
+        final Rect box = boxOf(outline);
+        expect((part.site.dy - box.top) / box.height, closeTo(0.75, 0.01),
+            reason: figure.name);
+        // The lateral side is the one away from the midline: the body's
+        // right kidney's left on the page, the left kidney's right.
+        final double side = box.center.dx < 0 ? -1 : 1;
+        double edge = side * double.negativeInfinity;
+        for (int i = 0; i < outline.length; i++) {
+          final Offset a = outline[i];
+          final Offset b = outline[(i + 1) % outline.length];
+          if ((a.dy > part.site.dy) != (b.dy > part.site.dy)) {
+            final double x =
+                a.dx + (part.site.dy - a.dy) * (b.dx - a.dx) / (b.dy - a.dy);
+            edge = side < 0 ? math.min(edge, x) : math.max(edge, x);
+          }
+        }
+        expect((edge - part.site.dx) * side / box.width, closeTo(0.08, 0.01),
+            reason: figure.name);
+      }
+    });
+
     test('close the view on every other part at the middle of the outline '
         'it follows', () {
       final String muscle = tissueAnatomy['skeletal muscle']!.uberon;

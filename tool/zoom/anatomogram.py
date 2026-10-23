@@ -132,6 +132,22 @@ SITE_LEVEL = {"UBERON_0001134": 0.6}
 # its lateral edge.
 FRAME_WHOLE = {"UBERON_0001134"}
 
+# Parts the zoom goes into in from the side of their outline farthest from
+# the figure's midline: the share of the part's height, from its top, that
+# its site lies at, and how far in from where the outline crosses that
+# height on that side, a share of the part's width. The kidney is drawn cut
+# open from front to back (`kidney_form.dart`), and a kidney is biopsied at
+# its lower pole, through its cortex (Granata et al. 2021, Diagnostics
+# 11:2186): the site lies three quarters of the way down, 8% of the width
+# in from the lateral border, in the middle of the cortex the drawing draws
+# there on either figure (`SITE_WITHIN`).
+SITE_LATERAL = {"UBERON_0002113": (0.75, 0.08)}
+
+# Parts whose site must fall inside another shape the drawing has, which
+# this reads to check it by and does not write: the kidney's in its renal
+# cortex.
+SITE_WITHIN = {"UBERON_0002113": "UBERON_0001225"}
+
 
 def fetch(directory: str | None) -> dict[str, str]:
     """The three drawings' paths, downloaded at the pinned commit unless
@@ -216,6 +232,24 @@ def site_right(contour: list[svg.Point], down: float, inset: float) -> svg.Point
     if right is None:
         raise SystemExit(f"no outline crosses {down} of the way down")
     return (right - (x1 - x0) * inset, y)
+
+
+def site_lateral(contour: list[svg.Point], down: float, inset: float, middle: float) -> svg.Point:
+    """A point [down] of the way down [contour]'s box, [inset] of its width
+    in from where the contour crosses that height farthest from the
+    figure's [middle] (`SITE_LATERAL`)."""
+    x0, y0, x1, y1 = svg.bounds([contour])
+    y = y0 + (y1 - y0) * down
+    side = 1 if (x0 + x1) / 2 > middle else -1
+    edge = None
+    for i, a in enumerate(contour):
+        b = contour[(i + 1) % len(contour)]
+        if (a[1] > y) != (b[1] > y):
+            x = a[0] + (y - a[1]) * (b[0] - a[0]) / (b[1] - a[1])
+            edge = x if edge is None else (max(edge, x) if side > 0 else min(edge, x))
+    if edge is None:
+        raise SystemExit(f"no outline crosses {down} of the way down")
+    return (edge - side * (x1 - x0) * inset, y)
 
 
 def site_level(contour: list[svg.Point], down: float) -> svg.Point:
@@ -328,8 +362,14 @@ def convert_body(name: str, path: str, wanted: set[str]) -> dict:
             site = site_right(followed, *SITE_RIGHT[uberon])
         elif uberon in SITE_LEVEL:
             site = site_level(followed, SITE_LEVEL[uberon])
+        elif uberon in SITE_LATERAL:
+            site = site_lateral(followed, *SITE_LATERAL[uberon], middle)
         else:
             site = site_of(followed, SITE_TOP.get(uberon, 1.0))
+        if uberon in SITE_WITHIN and not any(
+            inside(c, site) for c in shapes_by_id.get(SITE_WITHIN[uberon], [])
+        ):
+            raise SystemExit(f"{name}: {uberon}'s site lies outside its {SITE_WITHIN[uberon]}")
         parts[uberon] = {
             "title": titles.get(uberon) or titles.get(STAND_IN.get(uberon, ""), ""),
             "site": list(place(site)),

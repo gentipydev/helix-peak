@@ -63,7 +63,16 @@ the lateral epicondyle, just in front of the iliotibial tract (Chen et al.
 2019, Scand J Med Sci Sports 29:504): five eighths of the way lies 60% of
 the way down the muscle's outline on either figure. GTEx takes its skeletal
 muscle from the gastrocnemius, in the calf, which the anatomogram does not
-draw for it.
+draw for it. A part named in `SITE_LATERAL` is gone into a share of its
+width in from the side of its outline away from the figure's midline, at a
+share of its height. The kidney is drawn cut open from front to back and
+is biopsied at its lower pole, through its cortex (Granata et al. 2021,
+Diagnostics 11:2186), so its site lies three quarters of the way down, 8%
+of the width in from its lateral border: in the middle of the cortex there,
+on whichever kidney a figure follows (the female figure's right, the
+male's left). A part named in `SITE_WITHIN` must have its site inside
+another shape the drawing has, which is read to check it and not written:
+the kidney's renal cortex (`UBERON_0001225`). The run stops if it is not.
 
 ## What the zoom follows, and where the view closes
 
