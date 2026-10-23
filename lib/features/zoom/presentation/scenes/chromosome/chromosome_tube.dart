@@ -26,7 +26,8 @@ import 'chromosome_style.dart';
 /// worked out afresh every frame into buffers it keeps, and the triangles
 /// between them never change.
 final class ChromosomeTube {
-  ChromosomeTube(this.form, this.inks) : _palette = ChromosomePalette(inks);
+  ChromosomeTube(this.form, this.inks)
+    : _palette = ChromosomePalette(inks, look: form.look);
 
   final ChromosomeForm form;
   final ZoomInks inks;
@@ -418,7 +419,7 @@ final class ChromosomeTube {
     double strip,
     double target,
   ) {
-    final ChromosomeLight light = ChromosomeLight(turn: turn);
+    final ChromosomeLight light = ChromosomeLight(turn: turn, look: form.look);
     final double soften = 1 - merge;
     final double cap = _half + (target - _half) * thin;
     _place(cap, soften);
@@ -503,7 +504,7 @@ final class ChromosomeTube {
             (ar, ag, ab) = _palette.mix(
               tone,
               lit,
-              ChromosomeStyle.occlusion *
+              form.look.occlusion *
                   _turned[sister * columns.length + j] *
                   contact,
               gene,

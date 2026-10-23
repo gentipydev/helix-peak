@@ -29,12 +29,28 @@ final class SurfaceNormal {
 /// [turn] is how far the scene is turned back a quarter turn on the
 /// canvas, as the chromosome is on its way to lying along the genome: the
 /// light stays where it is on the screen, so in the turned scene's own
-/// frame it comes from as far round the other way.
+/// frame it comes from as far round the other way. [look] may scale what
+/// the lamp gives for a contrast of its own, the lamp staying where it is.
 final class ChromosomeLight {
-  factory ChromosomeLight({double turn = 0}) {
-    const SpecimenLamp lamp = SpecimenLamp.zoom;
+  factory ChromosomeLight({
+    double turn = 0,
+    ChromosomeLookSpec look = ChromosomeLookSpec.stone,
+  }) {
+    SpecimenLamp lamp = SpecimenLamp.zoom;
+    if (look.ambientScale != 1 || look.diffuseGain != 1) {
+      lamp = SpecimenLamp(
+        x: lamp.x,
+        y: lamp.y,
+        z: lamp.z,
+        ambient: lamp.ambient * look.ambientScale,
+        diffuse: lamp.diffuse * look.diffuseGain,
+        edgeDark: lamp.edgeDark,
+        edgePower: lamp.edgePower,
+        sheen: lamp.sheen,
+      );
+    }
     if (turn == 0) {
-      return ChromosomeLight._(SpecimenLight(lamp));
+      return ChromosomeLight._(SpecimenLight(lamp), look.sheen);
     }
     final double a = math.pi / 2 * turn;
     final double c = math.cos(a);
@@ -52,12 +68,16 @@ final class ChromosomeLight {
           sheen: lamp.sheen,
         ),
       ),
+      look.sheen,
     );
   }
 
-  ChromosomeLight._(this._lamp);
+  ChromosomeLight._(this._lamp, this._sheen);
 
   final SpecimenLight _lamp;
+
+  /// The share of the lamp's sheen the chromatin takes.
+  final double _sheen;
 
   /// The way toward the light, on the screen.
   Offset get screen => _lamp.screen;
@@ -70,31 +90,39 @@ final class ChromosomeLight {
   /// How much of the light's own colour a surface facing (nx, ny, nz) sends
   /// back to the eye: as much as chromatin shines.
   double sheen(double nx, double ny, double nz) =>
-      ChromosomeStyle.sheen * _lamp.sheen(nx, ny, nz);
+      _sheen * _lamp.sheen(nx, ny, nz);
 }
 
 /// The inks the chromatin is mixed from, as channels to mix without
 /// building a colour for every vertex: chromatin from the lit outline down
 /// to the surfaces by its stain, both warmed toward the home helix's honey
-/// ([ChromosomeStyle.warmth]), tinted toward the centromere's ink or the
+/// ([ChromosomeLookSpec.warmth]), tinted toward the centromere's ink or the
 /// telomeres', then as a specimen's surface is mixed
 /// ([SpecimenPalette.colour], step for step): toward the shadow as light
 /// leaves it, into the groove's shade, the mark in the gene's band, and
 /// toward the bright ink where it shines.
 final class ChromosomePalette {
-  ChromosomePalette(ZoomInks inks)
-    : _pale = _Channels(_warmed(inks, inks.lit(ChromosomeStyle.paleLit))),
-      _deep = _Channels(_warmed(inks, inks.shade(ChromosomeStyle.deepShade))),
-      _shadow = _Channels(inks.shadow),
-      _text = _Channels(inks.text),
-      _mark = _Channels(inks.mark),
-      _centromere = _Channels(inks.centromere),
-      _telomere = _Channels(inks.telomere);
+  ChromosomePalette(
+    ZoomInks inks, {
+    ChromosomeLookSpec look = ChromosomeLookSpec.stone,
+  }) : _wash = look.wash,
+       _pale = _Channels(_warmed(inks, inks.lit(look.paleLit), look.warmth)),
+       _deep = _Channels(
+         _warmed(inks, inks.shade(look.deepShade), look.warmth),
+       ),
+       _shadow = _Channels(inks.shadow),
+       _text = _Channels(inks.text),
+       _mark = _Channels(inks.mark),
+       _centromere = _Channels(inks.centromere),
+       _telomere = _Channels(inks.telomere);
 
   /// [colour] warmed toward the home helix's honey, the ink the zoom's
-  /// nerves are drawn in, as far as the chromatin is.
-  static Color _warmed(ZoomInks inks, Color colour) =>
-      Color.lerp(colour, inks.bases.guanine, ChromosomeStyle.warmth)!;
+  /// nerves are drawn in, [warmth] of the way, as far as the chromatin is.
+  static Color _warmed(ZoomInks inks, Color colour, double warmth) =>
+      Color.lerp(colour, inks.bases.guanine, warmth)!;
+
+  /// The share of the mark in the gene's band.
+  final double _wash;
 
   final _Channels _pale;
   final _Channels _deep;
@@ -166,7 +194,7 @@ final class ChromosomePalette {
     r += (_shadow.r - r) * occlusion;
     g += (_shadow.g - g) * occlusion;
     b += (_shadow.b - b) * occlusion;
-    final double wash = ChromosomeStyle.wash * gene;
+    final double wash = _wash * gene;
     r += (_mark.r - r) * wash;
     g += (_mark.g - g) * wash;
     b += (_mark.b - b) * wash;

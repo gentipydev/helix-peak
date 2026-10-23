@@ -10,7 +10,6 @@ import 'band_scene.dart';
 import 'body_scene.dart';
 import 'chromosome/chromosome_art.dart';
 import 'chromosome/chromosome_form.dart';
-import 'chromosome/chromosome_style.dart';
 import 'chromosome/chromosome_tube.dart';
 import 'contour.dart';
 import 'nucleus_scene.dart';
@@ -506,8 +505,8 @@ final class ChromosomeScene extends ZoomScene {
     }
     final double pixel = frame.pixel;
     final double r = form.fishRadius;
-    final double reach = ChromosomeStyle.fishGlow * r;
-    final double core = r + (ChromosomeStyle.fishOnStrip * pixel - r) * t.strip;
+    final double reach = form.look.fishGlow * r;
+    final double core = r + (form.look.fishOnStrip * pixel - r) * t.strip;
     final double glow = reach + (BandScene.geneGlow * pixel - reach) * t.strip;
     final double heart = 0.38 + (BandScene.geneGlowAlpha - 0.38) * t.strip;
     for (final double side in <double>[-1, 1]) {

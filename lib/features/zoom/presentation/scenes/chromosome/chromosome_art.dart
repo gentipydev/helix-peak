@@ -23,11 +23,11 @@ import 'chromosome_style.dart';
 ///
 /// Everything costly is built once, for one form in one set of inks: the
 /// body and its relief are meshes in the scene's units, so a frame only
-/// hands them on, at any magnification.
+/// hands them on, at any magnification. The form's look tunes it.
 final class ChromosomeArt {
   ChromosomeArt(this.form, this.inks)
-    : _light = ChromosomeLight(),
-      _palette = ChromosomePalette(inks);
+    : _light = ChromosomeLight(look: form.look),
+      _palette = ChromosomePalette(inks, look: form.look);
 
   final ChromosomeForm form;
   final ZoomInks inks;
@@ -35,6 +35,8 @@ final class ChromosomeArt {
   final ChromosomePalette _palette;
 
   double get _half => form.half;
+
+  ChromosomeLookSpec get _look => form.look;
 
   /// Each sister's body, its lobes and its kinetochore, left then right.
   late final List<List<ui.Vertices>> _sisters = <List<ui.Vertices>>[
@@ -106,7 +108,7 @@ final class ChromosomeArt {
   late final Rect bounds = _outlines[0]
       .getBounds()
       .expandToInclude(_outlines[1].getBounds())
-      .inflate(1.2 * _half);
+      .inflate(_look.boundsInflate * _half);
 
   /// The body's colour averaged over its area on both sisters, lit as it
   /// is, the gene's wash and the centromere's and telomeres' tints left out:
@@ -150,7 +152,7 @@ final class ChromosomeArt {
       }
     }
     return total <= 0
-        ? inks.lit(ChromosomeStyle.paleLit)
+        ? inks.lit(_look.paleLit)
         : Color.from(
             alpha: 1,
             red: r / total,
@@ -198,24 +200,18 @@ final class ChromosomeArt {
     // The shadow the sisters cast, under them and to the lower right, as the
     // organs cast theirs. Nothing else lies round them.
     canvas.save();
-    canvas.translate(
-      ChromosomeStyle.shadowX * _half,
-      ChromosomeStyle.shadowY * _half,
-    );
+    canvas.translate(_look.shadowX * _half, _look.shadowY * _half);
     for (int i = 0; i < 2; i++) {
       sister(i, () {
         canvas.drawPath(
           _outlines[i],
-          Paint()
-            ..color = inks.shadow.withValues(
-              alpha: ChromosomeStyle.shadowAlpha,
-            ),
+          Paint()..color = inks.shadow.withValues(alpha: _look.shadowAlpha),
         );
         canvas.drawPath(
           _outlines[i],
           Paint()
             ..style = PaintingStyle.stroke
-            ..strokeWidth = ChromosomeStyle.shadowSoft * _half
+            ..strokeWidth = _look.shadowSoft * _half
             ..strokeJoin = StrokeJoin.round
             ..color = inks.shadow.withValues(alpha: 0.12),
         );
@@ -288,7 +284,7 @@ final class ChromosomeArt {
         canvas,
         form.fish(side, merge: merge),
         r,
-        ChromosomeStyle.fishGlow * r,
+        _look.fishGlow * r,
         0.38 * opacity,
         opacity,
       );
@@ -371,7 +367,7 @@ final class ChromosomeArt {
     final double turned = _smoothstep(0.3, 1, -side * u);
     return (
       light: _light.light(nx, ny, nz, facing: facing),
-      occlusion: ChromosomeStyle.occlusion * turned * form.contact(y),
+      occlusion: _look.occlusion * turned * form.contact(y),
       sheen: _light.sheen(nx, ny, nz),
     );
   }
@@ -379,15 +375,15 @@ final class ChromosomeArt {
   /// How far the chromatin at [y] is tinted toward the centromere's ink and
   /// toward the telomeres'.
   ({double centromere, double telomere}) _tints(double y) => (
-    centromere: ChromosomeStyle.centromereTint * form.centromereAt(y),
-    telomere: ChromosomeStyle.telomereTint * form.telomereAt(y),
+    centromere: _look.centromereTint * form.centromereAt(y),
+    telomere: _look.telomereTint * form.telomereAt(y),
   );
 
   /// How far across the tube each of the body's columns lies, from one
   /// edge to the other: the sine of its angle round it.
-  static final List<double> _columns = <double>[
-    for (final double u in ChromosomeStyle.columns.reversed) -u,
-    ...ChromosomeStyle.columns.skip(1),
+  late final List<double> _columns = <double>[
+    for (final double u in _look.columns.reversed) -u,
+    ..._look.columns.skip(1),
   ];
 
   /// Every mesh's vertices as built, for tests: where each lies, in the
@@ -504,11 +500,11 @@ final class ChromosomeArt {
     const int ring = 12;
     mesh.begin(ring * 2);
     final int first = mesh.next;
-    final int dark = _palette.shadow(ChromosomeStyle.skirtAlpha);
+    final int dark = _palette.shadow(_look.skirtAlpha);
     final int clear = _palette.shadow(0);
     for (final (double scale, int colour) in <(double, int)>[
-      (ChromosomeStyle.skirtInner, dark),
-      (ChromosomeStyle.skirtOuter, clear),
+      (_look.skirtInner, dark),
+      (_look.skirtOuter, clear),
     ]) {
       for (int i = 0; i < ring; i++) {
         final Offset at = p.at(2 * math.pi * i / ring, scale);
@@ -589,8 +585,8 @@ final class ChromosomeArt {
     );
     final List<int> rim = <int>[];
     for (final (double scale, double tilt) in <(double, double)>[
-      (0.62, 0.4 * ChromosomeStyle.lobeTilt),
-      (1, ChromosomeStyle.lobeTilt),
+      (0.62, 0.4 * _look.lobeTilt),
+      (1, _look.lobeTilt),
     ]) {
       for (int i = 0; i < ring; i++) {
         final double a = 2 * math.pi * i / ring;
@@ -634,9 +630,9 @@ final class ChromosomeArt {
   /// as a lobe is.
   void _plate(ColouredMesh mesh, double side) {
     final Offset at = form.kinetochore(side);
-    final double rx = ChromosomeStyle.plateX * _half;
-    final double ry = ChromosomeStyle.plateY * _half;
-    final double u = side * ChromosomeStyle.plateOut;
+    final double rx = _look.plateX * _half;
+    final double ry = _look.plateY * _half;
+    final double u = side * _look.plateOut;
     final _Knob plate = _Knob(
       x: at.dx,
       y: at.dy,
@@ -648,7 +644,7 @@ final class ChromosomeArt {
     );
     _skirtOf(mesh, plate);
     _domeOf(mesh, side, plate, form.centromere, u, rx, 0, (
-      centromere: ChromosomeStyle.kinetochoreTint,
+      centromere: _look.kinetochoreTint,
       telomere: 0,
     ));
   }
@@ -662,7 +658,7 @@ final class ChromosomeArt {
   void _layGrains(ColouredMesh mesh, double side) {
     const int ring = 6;
     final KnobField knobs = form.knobs(side);
-    final int pit = _palette.shadow(ChromosomeStyle.pitAlpha);
+    final int pit = _palette.shadow(_look.pitAlpha);
     for (int k = 0; k < knobs.length; k++) {
       final int kind = knobs.kind[k];
       if (kind == KnobField.lobe) {
@@ -701,10 +697,10 @@ final class ChromosomeArt {
     final ({double centromere, double telomere}) tint = _tints(y);
     return _palette.colour(
       form.toneAt(y),
-      s.light + (1 - s.light) * ChromosomeStyle.bumpLift,
+      s.light + (1 - s.light) * _look.bumpLift,
       s.occlusion,
       form.geneAt(y),
-      ChromosomeStyle.bumpAlpha,
+      _look.bumpAlpha,
       centromere: tint.centromere,
       telomere: tint.telomere,
     );

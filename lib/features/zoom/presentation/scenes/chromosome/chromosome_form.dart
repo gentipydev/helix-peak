@@ -15,14 +15,21 @@ import 'chromosome_style.dart';
 /// chromosome share it, and only the gene's mark tells them apart.
 ///
 /// Its units are the chromosome scene's: the chromosome stands [length]
-/// tall about the origin, its short arm up.
+/// tall about the origin, its short arm up. Its numbers are [look]'s.
 final class ChromosomeForm {
-  ChromosomeForm(this.track, {required this.half});
+  ChromosomeForm(
+    this.track, {
+    required this.half,
+    this.look = ChromosomeLookSpec.stone,
+  });
 
   final LocusTrack track;
 
   /// One chromatid's half-width, in the scene's units.
   final double half;
+
+  /// The look it is drawn in, and tuned by.
+  final ChromosomeLookSpec look;
 
   /// The chromosome's length in the scene's units: the view is
   /// [ZoomDepth.chromosomeView] times it.
@@ -30,7 +37,7 @@ final class ChromosomeForm {
 
   /// How far apart the two chromatids' middles lie: touching, along a
   /// hairline groove.
-  double get apart => half * ChromosomeStyle.apart;
+  double get apart => half * look.apart;
 
   double yOf(num base) => -length / 2 + (base - 1) / track.length * length;
 
@@ -53,7 +60,7 @@ final class ChromosomeForm {
 
   /// How pinched the chromatids are at [y]: 1 at the centromere.
   double waist(double y) {
-    final double d = (y - centromere) / (half * 0.9);
+    final double d = (y - centromere) / (half * look.waistLength);
     return math.exp(-d * d);
   }
 
@@ -82,22 +89,19 @@ final class ChromosomeForm {
 
   /// How far each sister opens from the other at [y].
   double opening(double y) =>
-      ChromosomeStyle.opening *
-      half *
-      math.pow(_along(y), ChromosomeStyle.openingPower).toDouble();
+      look.opening * half * math.pow(_along(y), look.openingPower).toDouble();
 
   /// How far both arms bend the same way at [y].
   double bend(double y) {
     final double a = _along(y);
-    return ChromosomeStyle.bend * half * a * a;
+    return look.bend * half * a * a;
   }
 
   /// Where chromatid [side]'s middle lies at [y]: touching its sister along
   /// the groove, drawn together at the waist, opening a little toward its
   /// ends, bent with its sister, and [merge] of the way onto the axis.
   double centreAt(double side, double y, {double merge = 0}) =>
-      (side * (apart * (1 - ChromosomeStyle.pinch * waist(y)) + opening(y)) +
-          bend(y)) *
+      (side * (apart * (1 - look.pinch * waist(y)) + opening(y)) + bend(y)) *
       (1 - merge);
 
   /// How much the sisters touch at [y]: 1 along the groove, falling to 0
@@ -128,7 +132,7 @@ final class ChromosomeForm {
   double bowAt(double y) {
     final double fromEnd = math.min(y - top, bottom - y);
     final double t = (fromEnd / half).clamp(0.0, 1.0);
-    return ChromosomeStyle.bow * widthAt(y) * t * t;
+    return look.bow * widthAt(y) * t * t;
   }
 
   /// The heights an outline is drawn through, top to bottom: [steps] even
@@ -232,9 +236,8 @@ final class ChromosomeForm {
       i == 0
           ? 0
           : math.min(
-              ChromosomeStyle.feather * half,
-              ChromosomeStyle.featherShare *
-                  math.min(_thickness(i - 1), _thickness(i)),
+              look.feather * half,
+              look.featherShare * math.min(_thickness(i - 1), _thickness(i)),
             ),
   ];
 
@@ -304,20 +307,18 @@ final class ChromosomeForm {
   // The centromere and the telomeres.
 
   /// How much of the centromere's tint is at [y], from 0 to 1: all of it at
-  /// the centromere, none [ChromosomeStyle.centromereReach] half-widths
+  /// the centromere, none [ChromosomeLookSpec.centromereReach] half-widths
   /// either side of it, and none in the gene's band, which keeps its own.
   double centromereAt(double y) =>
-      _fall((y - centromere).abs() / (ChromosomeStyle.centromereReach * half)) *
+      _fall((y - centromere).abs() / (look.centromereReach * half)) *
       (1 - geneAt(y));
 
   /// How much of a telomere's tint is at [y], from 0 to 1: all of it at
-  /// either end, none [ChromosomeStyle.telomereReach] half-widths in from
-  /// it, and none in the gene's band. Both sisters end at the same heights,
-  /// so every chromatid's two ends are capped.
+  /// either end, none [ChromosomeLookSpec.telomereReach] half-widths in
+  /// from it, and none in the gene's band. Both sisters end at the same
+  /// heights, so every chromatid's two ends are capped.
   double telomereAt(double y) =>
-      _fall(
-        math.min(y - top, bottom - y) / (ChromosomeStyle.telomereReach * half),
-      ) *
+      _fall(math.min(y - top, bottom - y) / (look.telomereReach * half)) *
       (1 - geneAt(y));
 
   /// 1 at [d] 0, falling smoothly to 0 at [d] 1 and beyond.
@@ -330,9 +331,9 @@ final class ChromosomeForm {
   /// along, closer round the waist and the rounded ends, and two at each
   /// band's edge, where its softening begins and ends.
   late final Float64List bodyRows = () {
-    final double step = ChromosomeStyle.rowStep * half;
-    final double fine = ChromosomeStyle.waistRowStep * half;
-    final double reach = ChromosomeStyle.waistRows * half;
+    final double step = look.rowStep * half;
+    final double fine = look.waistRowStep * half;
+    final double reach = look.waistRows * half;
     const int round = 16;
     final List<double> rows = <double>[
       for (double y = top; y < bottom; y += step) y,
@@ -366,10 +367,8 @@ final class ChromosomeForm {
 
   /// A FISH spot's radius: about half a chromatid, whatever the gene's
   /// length, and never wider than the chromatid where it lies.
-  double get fishRadius => math.min(
-    ChromosomeStyle.fish * half,
-    ChromosomeStyle.fishShare * widthAt(geneY),
-  );
+  double get fishRadius =>
+      math.min(look.fish * half, look.fishShare * widthAt(geneY));
 
   /// Where chromatid [side]'s FISH spot lies: on its axis, at the gene.
   Offset fish(double side, {double merge = 0}) =>
@@ -378,8 +377,7 @@ final class ChromosomeForm {
   /// Where chromatid [side]'s kinetochore lies: on its outer face at the
   /// centromere.
   Offset kinetochore(double side) => Offset(
-    centreAt(side, centromere) +
-        side * ChromosomeStyle.plateOut * widthAt(centromere),
+    centreAt(side, centromere) + side * look.plateOut * widthAt(centromere),
     centromere,
   );
 
@@ -425,9 +423,8 @@ final class ChromosomeForm {
       return side * (x - middle) - across >= -0.05 * half;
     }
 
-    final double mean =
-        (ChromosomeStyle.lobe + ChromosomeStyle.lobeSpread / 2) * half;
-    final double spacing = ChromosomeStyle.lobeLattice * mean;
+    final double mean = (look.lobe + look.lobeSpread / 2) * half;
+    final double spacing = look.lobeLattice * mean;
     int row = 0;
     for (double y = top + spacing * 0.433; y < bottom; y += spacing * 0.866) {
       final double w = widthAt(y);
@@ -453,9 +450,8 @@ final class ChromosomeForm {
           final double taper = math.sqrt(math.min(1, aw / (0.6 * half)));
           final double r =
               half *
-              (ChromosomeStyle.lobe +
-                  ChromosomeStyle.lobeSpread * random.nextDouble()) *
-              (1 - ChromosomeStyle.lobeWaist * _zone(ay)) *
+              (look.lobe + look.lobeSpread * random.nextDouble()) *
+              (1 - look.lobeWaist * _zone(ay)) *
               taper;
           if (clear(ay, phi, r)) {
             ys.add(ay);
@@ -467,7 +463,7 @@ final class ChromosomeForm {
       }
       row++;
     }
-    final int granules = (ChromosomeStyle.granules * length / half).round();
+    final int granules = (look.granules * length / half).round();
     int laid = 0;
     int tries = 0;
     while (laid < granules && tries < granules * 8) {
@@ -479,10 +475,8 @@ final class ChromosomeForm {
       }
       final double phi = (random.nextDouble() * 2 - 1) * 1.45;
       final double r = math.max(
-        ChromosomeStyle.granuleFloor,
-        half *
-            (ChromosomeStyle.granule +
-                ChromosomeStyle.granuleSpread * random.nextDouble()),
+        look.granuleFloor,
+        half * (look.granule + look.granuleSpread * random.nextDouble()),
       );
       if (!clear(y, phi, r)) {
         continue;
