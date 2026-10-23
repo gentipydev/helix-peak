@@ -21,7 +21,7 @@ import 'zoom_inks.dart';
 /// The nine scenes of one protein's zoom, and the camera that nests them,
 /// its chromosome drawn in [chromosome]'s look.
 final class ZoomStage {
-  ZoomStage(this.subject, {ChromosomeLook chromosome = ChromosomeLook.stone})
+  ZoomStage(this.subject, {ChromosomeLook chromosome = ChromosomeLook.chosen})
     : scenes = <ZoomScene>[
         BodyScene(subject),
         OrganScene(subject),

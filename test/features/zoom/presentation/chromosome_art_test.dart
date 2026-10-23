@@ -43,8 +43,12 @@ Future<ZoomInks> _inks(WidgetTester tester) async {
   return inks;
 }
 
-ZoomStage _stage(ProteinTarget t) =>
-    ZoomStage(ZoomSubject(track: locusOf(t), record: recordOf(t)));
+/// [t]'s zoom with its chromosome in the stone, the look these tests are
+/// about; the vivid's are in chromosome_vivid_test.dart.
+ZoomStage _stage(ProteinTarget t) => ZoomStage(
+  ZoomSubject(track: locusOf(t), record: recordOf(t)),
+  chromosome: ChromosomeLook.stone,
+);
 
 /// A vertex colour's channels, from 0 to 1.
 (double, double, double) _channels(int colour) => (
@@ -110,7 +114,10 @@ void main() {
   testWidgets('the bands’ tones run from the palest to the deepest, gvar '
       'among them', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
-    final ChromosomePalette palette = ChromosomePalette(inks);
+    final ChromosomePalette palette = ChromosomePalette(
+      inks,
+      look: ChromosomeLookSpec.stone,
+    );
     double lightness(Stain stain) {
       final (double r, double g, double b) = palette.mix(
         ChromosomeStyle.tone(stain),
@@ -141,7 +148,10 @@ void main() {
     WidgetTester tester,
   ) async {
     final ZoomInks inks = await _inks(tester);
-    final ChromosomePalette palette = ChromosomePalette(inks);
+    final ChromosomePalette palette = ChromosomePalette(
+      inks,
+      look: ChromosomeLookSpec.stone,
+    );
     for (final Stain stain in Stain.values) {
       final (double r, double g, double b) = palette.mix(
         ChromosomeStyle.tone(stain),
@@ -161,6 +171,7 @@ void main() {
     for (final ProteinTarget t in TestCatalog.all) {
       final ChromosomeScene scene = ChromosomeScene(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),
+        look: ChromosomeLook.stone,
       );
       final ChromosomeForm form = scene.form;
       final (double from, double to) = _geneReach(form);
@@ -239,6 +250,7 @@ void main() {
     for (final ProteinTarget t in TestCatalog.all) {
       final ChromosomeForm form = ChromosomeScene(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),
+        look: ChromosomeLook.stone,
       ).form;
       // How far past a tint's reach a lobe of it may be drawn.
       final double lobe =
@@ -293,9 +305,14 @@ void main() {
   testWidgets('the chromatin is lit and mixed as the organs’ specimens are, '
       'under their lamp', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
-    final ChromosomeLight light = ChromosomeLight();
+    final ChromosomeLight light = ChromosomeLight(
+      look: ChromosomeLookSpec.stone,
+    );
     final SpecimenLight lamp = SpecimenLight(SpecimenLamp.zoom);
-    final ChromosomePalette palette = ChromosomePalette(inks);
+    final ChromosomePalette palette = ChromosomePalette(
+      inks,
+      look: ChromosomeLookSpec.stone,
+    );
     final SpecimenPalette specimen = SpecimenPalette(inks);
     final math.Random random = math.Random(29);
     for (int i = 0; i < 400; i++) {
@@ -398,6 +415,7 @@ void main() {
     for (final ProteinTarget t in TestCatalog.all) {
       final ChromosomeForm form = ChromosomeScene(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),
+        look: ChromosomeLook.stone,
       ).form;
       double brightest = 0;
       for (final ({Float32List positions, Int32List colours}) mesh
@@ -418,6 +436,7 @@ void main() {
     for (final ProteinTarget t in TestCatalog.all) {
       final ChromosomeScene scene = ChromosomeScene(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),
+        look: ChromosomeLook.stone,
       );
       for (final ({Float32List positions, Int32List colours}) mesh
           in ChromosomeArt(scene.form, inks).meshData) {

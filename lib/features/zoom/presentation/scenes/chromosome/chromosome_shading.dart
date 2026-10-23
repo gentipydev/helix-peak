@@ -33,10 +33,7 @@ final class SurfaceNormal {
 /// frame it comes from as far round the other way. [look] may scale what
 /// the lamp gives for a contrast of its own, the lamp staying where it is.
 final class ChromosomeLight {
-  factory ChromosomeLight({
-    double turn = 0,
-    ChromosomeLookSpec look = ChromosomeLookSpec.stone,
-  }) {
+  factory ChromosomeLight({required ChromosomeLookSpec look, double turn = 0}) {
     SpecimenLamp lamp = SpecimenLamp.zoom;
     if (look.ambientScale != 1 || look.diffuseGain != 1) {
       lamp = SpecimenLamp(
@@ -109,31 +106,27 @@ final class ChromosomeLight {
 /// its highlight, its sheen to its specular, and into its crevice and on to
 /// the deepest shadow where it is shut in.
 final class ChromosomePalette {
-  ChromosomePalette(
-    ZoomInks inks, {
-    ChromosomeLookSpec look = ChromosomeLookSpec.stone,
-  }) : _globules = look.globules,
-       _lifted = 1 / (1 - (look.globules?.grain ?? 0)),
-       _ramps = <_Ramp>[
-         if (look.globules case final ChromosomeGlobules globules)
-           for (final ChromatinRamp ramp in <ChromatinRamp>[
-             globules.colours.body,
-             globules.colours.centromere,
-             globules.colours.telomere,
-             globules.colours.gene,
-           ])
-             _Ramp(ramp),
-       ],
-       _wash = look.wash,
-       _pale = _Channels(_warmed(inks, inks.lit(look.paleLit), look.warmth)),
-       _deep = _Channels(
-         _warmed(inks, inks.shade(look.deepShade), look.warmth),
-       ),
-       _shadow = _Channels(inks.shadow),
-       _text = _Channels(inks.text),
-       _mark = _Channels(inks.mark),
-       _centromere = _Channels(inks.centromere),
-       _telomere = _Channels(inks.telomere);
+  ChromosomePalette(ZoomInks inks, {required ChromosomeLookSpec look})
+    : _globules = look.globules,
+      _lifted = 1 / (1 - (look.globules?.grain ?? 0)),
+      _ramps = <_Ramp>[
+        if (look.globules case final ChromosomeGlobules globules)
+          for (final ChromatinRamp ramp in <ChromatinRamp>[
+            globules.colours.body,
+            globules.colours.centromere,
+            globules.colours.telomere,
+            globules.colours.gene,
+          ])
+            _Ramp(ramp),
+      ],
+      _wash = look.wash,
+      _pale = _Channels(_warmed(inks, inks.lit(look.paleLit), look.warmth)),
+      _deep = _Channels(_warmed(inks, inks.shade(look.deepShade), look.warmth)),
+      _shadow = _Channels(inks.shadow),
+      _text = _Channels(inks.text),
+      _mark = _Channels(inks.mark),
+      _centromere = _Channels(inks.centromere),
+      _telomere = _Channels(inks.telomere);
 
   /// [colour] warmed toward the home helix's honey, the ink the zoom's
   /// nerves are drawn in, [warmth] of the way, as far as the chromatin is.

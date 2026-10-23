@@ -35,12 +35,12 @@ import 'zoom_subject.dart';
 /// and it thins into the band's strip ([ChromosomeTube]), drawn by then as
 /// the strip itself is, so the map takes over from it with nothing to see.
 ///
-/// It is drawn in [look]: the stone, or the vivid's globules (the user's
-/// ask of 2026-10-23), whose names' lines are drawn in its own quiet blue,
-/// each plate edged with a hairline of it, and the gene's bracket and its
-/// band's line in its cyan.
+/// It is drawn in [look]: the vivid's globules (the user's ask of
+/// 2026-10-23), whose names' lines are drawn in its own quiet blue, each
+/// plate edged with a hairline of it, and the gene's bracket and its band's
+/// line in its cyan; or, where a build asks for it, the stone.
 final class ChromosomeScene extends ZoomScene {
-  ChromosomeScene(this.subject, {this.look = ChromosomeLook.stone});
+  ChromosomeScene(this.subject, {this.look = ChromosomeLook.chosen});
 
   final ZoomSubject subject;
 

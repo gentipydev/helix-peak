@@ -19,11 +19,7 @@ import 'chromosome_style.dart';
 /// look of globules lays its knobs as globules, each of one material
 /// ([KnobField.material]), with a cleft kept between the sisters.
 final class ChromosomeForm {
-  ChromosomeForm(
-    this.track, {
-    required this.half,
-    this.look = ChromosomeLookSpec.stone,
-  });
+  ChromosomeForm(this.track, {required this.half, required this.look});
 
   final LocusTrack track;
 

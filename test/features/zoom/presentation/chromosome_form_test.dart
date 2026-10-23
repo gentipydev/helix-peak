@@ -12,13 +12,18 @@ import '../../../support/test_catalog.dart';
 import '../record_fixtures.dart';
 import '../zoom_fixtures.dart';
 
-/// [t]'s chromosome as a form, freshly built, at the half-width its scene
-/// draws it with.
+/// [t]'s chromosome as a form in the stone, freshly built, at the
+/// half-width its scene draws it with; the vivid's form is held by
+/// chromosome_vivid_test.dart.
 ChromosomeForm _form(ProteinTarget t) {
   final ChromosomeScene scene = ChromosomeScene(
     ZoomSubject(track: locusOf(t), record: recordOf(t)),
   );
-  return ChromosomeForm(locusOf(t), half: scene.half);
+  return ChromosomeForm(
+    locusOf(t),
+    half: scene.half,
+    look: ChromosomeLookSpec.stone,
+  );
 }
 
 /// Everything about [form] that is its chromosome's alone, as numbers: its

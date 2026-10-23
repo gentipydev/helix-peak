@@ -27,8 +27,9 @@ import '../../../domain/locus_track.dart';
 /// coral globules at the centromere, gold caps at the telomeres, a dark
 /// cleft down between the sisters, and the gene's spots glowing cyan, the
 /// globules round them teal ([ChromosomeLookSpec.vivid],
-/// [ChromosomeGlobules]). The stone stays the zoom's, and is drawn as it was;
-/// the vivid is chosen where the scene is made ([ChromosomeLook]).
+/// [ChromosomeGlobules]). The vivid is the zoom's chromosome, everywhere,
+/// since the user's word the same day; the stone is drawn as it was where a
+/// build asks for it ([ChromosomeLook]).
 abstract final class ChromosomeStyle {
   // The form.
 
@@ -690,12 +691,13 @@ final class ChromosomeGlobules {
 
 /// The looks the zoom can draw a chromosome in.
 enum ChromosomeLook {
-  /// Warm stone lobes on a tube, lightly tinted (the zoom's since
-  /// 2026-10-22).
+  /// Warm stone lobes on a tube, lightly tinted (the zoom's from 2026-10-22
+  /// to 2026-10-23).
   stone,
 
   /// Lit globules in a saturated blue, a coral neck, gold caps and a cyan
-  /// gene (the user's ask of 2026-10-23).
+  /// gene: the zoom's (the user's ask of 2026-10-23, and their word that
+  /// day that it be the chromosome everywhere).
   vivid;
 
   /// Its numbers.
@@ -704,12 +706,12 @@ enum ChromosomeLook {
     ChromosomeLook.vivid => ChromosomeLookSpec.vivid,
   };
 
-  /// The look a build draws its chromosomes in: the stone, unless it was
-  /// built with `--dart-define=CHROMOSOME_LOOK=vivid`, for review.
+  /// The look a build draws its chromosomes in: the vivid, unless it was
+  /// built with `--dart-define=CHROMOSOME_LOOK=stone`, to see the stone.
   static const ChromosomeLook chosen =
-      String.fromEnvironment('CHROMOSOME_LOOK') == 'vivid'
-      ? ChromosomeLook.vivid
-      : ChromosomeLook.stone;
+      String.fromEnvironment('CHROMOSOME_LOOK') == 'stone'
+      ? ChromosomeLook.stone
+      : ChromosomeLook.vivid;
 }
 
 /// What a knob of chromatin is made of, in a look that draws each in one

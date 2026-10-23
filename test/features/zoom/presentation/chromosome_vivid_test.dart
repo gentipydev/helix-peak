@@ -115,9 +115,21 @@ class _Nowhere implements Canvas {
   dynamic noSuchMethod(Invocation invocation) => null;
 }
 
+/// A canvas that draws nothing, and keeps the paint of every path drawn on
+/// it.
+class _Paths implements Canvas {
+  final List<Paint> paints = <Paint>[];
+
+  @override
+  void drawPath(Path path, Paint paint) => paints.add(paint);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
+}
+
 void main() {
-  test('the stone is ChromosomeStyle’s numbers, with no globules, and is '
-      'what a build draws unless it asks for another', () {
+  test('the stone is ChromosomeStyle’s numbers, with no globules, and the '
+      'vivid is what a build draws unless it asks for the stone', () {
     const ChromosomeLookSpec stone = ChromosomeLookSpec.stone;
     expect(
       <double>[
@@ -231,7 +243,18 @@ void main() {
     expect(stone.globules, isNull);
     expect(ChromosomeLook.stone.spec, same(ChromosomeLookSpec.stone));
     expect(ChromosomeLook.vivid.spec, same(ChromosomeLookSpec.vivid));
-    expect(ChromosomeLook.chosen, ChromosomeLook.stone);
+    expect(ChromosomeLook.chosen, ChromosomeLook.vivid);
+    expect(
+      _scene(TestCatalog.insulin, ChromosomeLook.chosen).form.look,
+      same(ChromosomeLookSpec.vivid),
+    );
+    expect(
+      (ZoomStage(_subject(TestCatalog.insulin))
+                  .scenes[ZoomStop.chromosome.index]
+              as ChromosomeScene)
+          .look,
+      ChromosomeLook.vivid,
+    );
     // A stone chromosome's knobs carry no materials.
     final ChromosomeForm form = _scene(
       TestCatalog.insulin,
@@ -724,6 +747,36 @@ void main() {
     expect(near.first, greaterThan(8), reason: 'a shadow there at all');
     for (int i = 0; i < near.length; i++) {
       expect(close[i], closeTo(near[i], 6), reason: 'probe $i');
+    }
+  });
+
+  testWidgets('nothing is drawn round the vivid chromosome but its blurred '
+      'shadow, in the shadow’s ink', (WidgetTester tester) async {
+    final ZoomInks inks = await _inks(tester);
+    final Color shadow = inks.shadow;
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ZoomStage stage = _stage(t, ChromosomeLook.vivid);
+      int shadows = 0;
+      for (final (ZoomScene shown, ZoomFrame frame) in stage.frames(
+        stage.depth.depthOf(ZoomStop.chromosome),
+        _canvas,
+        inks,
+      )) {
+        if (shown is! ChromosomeScene) {
+          continue;
+        }
+        final _Paths canvas = _Paths();
+        ChromosomeArt(shown.form, inks).paintRest(canvas, frame);
+        for (final Paint paint in canvas.paints) {
+          expect(paint.shader, isNull, reason: t.slug);
+          expect(paint.maskFilter, isNotNull, reason: t.slug);
+          expect(paint.color.r, closeTo(shadow.r, 1e-6), reason: t.slug);
+          expect(paint.color.g, closeTo(shadow.g, 1e-6), reason: t.slug);
+          expect(paint.color.b, closeTo(shadow.b, 1e-6), reason: t.slug);
+          shadows++;
+        }
+      }
+      expect(shadows, 2, reason: '${t.slug}: one shadow under each sister');
     }
   });
 

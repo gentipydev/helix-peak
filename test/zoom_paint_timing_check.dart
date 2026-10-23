@@ -33,13 +33,13 @@ import 'support/test_catalog.dart';
 /// to look at on a device. Without the variable it records each moment once
 /// and checks nothing threw.
 ///
-/// ZOOM_CHROMOSOME_LOOK=vivid draws the chromosome in that look
-/// ([ChromosomeLook]), and the chromosome's line says how many vertices its
-/// meshes hold at rest and on its way into the map.
+/// ZOOM_CHROMOSOME_LOOK=stone draws the chromosome in that look
+/// ([ChromosomeLook]), the vivid otherwise; the chromosome's line says how
+/// many vertices its meshes hold at rest and on its way into the map.
 void main() {
   final bool timing = Platform.environment['ZOOM_PAINT_TIMING'] == '1';
   final ChromosomeLook look = ChromosomeLook.values.byName(
-    Platform.environment['ZOOM_CHROMOSOME_LOOK'] ?? 'stone',
+    Platform.environment['ZOOM_CHROMOSOME_LOOK'] ?? ChromosomeLook.chosen.name,
   );
   testWidgets('the zoom records each frame without much work', (
     WidgetTester tester,

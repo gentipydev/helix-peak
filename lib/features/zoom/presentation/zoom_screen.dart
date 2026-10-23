@@ -283,8 +283,8 @@ class ZoomScreen extends StatefulWidget {
   final LocusTrack track;
   final GeneRecord record;
 
-  /// The look its chromosome is drawn in: the stone, unless the build asks
-  /// for another ([ChromosomeLook.chosen]) or a render check does.
+  /// The look its chromosome is drawn in: the vivid, unless the build asks
+  /// for the stone ([ChromosomeLook.chosen]) or a render check does.
   final ChromosomeLook chromosomeLook;
 
   /// Whether the walk is the page under this one, opened from its gene page.

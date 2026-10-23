@@ -296,18 +296,22 @@ seen:
   nowhere), its line in the quiet ink, its plate outside the nucleus on
   its left;
 - a metaphase chromosome with the form a scanning micrograph shows
-  (`presentation/scenes/chromosome/`), lit as the organs are, under their
-  lamp, and in warm stone, its chromatin warmed a little toward the home
-  helix's honey (the user's choices of 2026-10-22): two knobbly sisters of
-  opaque lobes, darker toward their edges, only a shadow round them, its
-  G-bands soft changes of tone, the gene two FISH spots in the accent, its
-  centromere's waist and two kinetochores tinted lightly in the home
-  helix's clay and its four chromatid ends capped in its honey, its parts
-  (p arm, centromere, q arm, chromatid, telomere) named in the quiet ink
-  in a column at either edge of the canvas, level with each (the user's
-  asks of 2026-10-19). It condenses out of its territory, and on the way
-  out turns into a smooth tube that is, by the time it lies along the
-  genome, the band map's strip pixel for pixel;
+  (`presentation/scenes/chromosome/`), in its vivid look (the user's ask
+  of 2026-10-23, after a picture of chromosome 16 they sent, and their
+  word that day that it be the chromosome everywhere): two sisters of
+  dense, overlapping globules under the organs' lamp, each a sphere of one
+  material with a highlight of its own and a crevice cast away from the
+  light, a fine grain in them, a dark cleft between the sisters and a
+  blurred shadow under them; the arms a saturated blue, their G-bands
+  faint changes of its value, the centromere's neck coral and the four
+  chromatid ends gold (the home helix's clay and honey), the gene two FISH
+  spots glowing cyan that turn the globules round them teal; its parts (p
+  arm, centromere, q arm, chromatid, telomere) named in a column at either
+  edge of the canvas, level with each (the user's asks of 2026-10-19),
+  their lines in a quiet blue. `--dart-define=CHROMOSOME_LOOK=stone` draws
+  the warm stone it was until then (`ChromosomeLook`). It condenses out of
+  its territory, and on the way out turns into a smooth tube that is, by
+  the time it lies along the genome, the band map's strip pixel for pixel;
 - a genome map of the band opened out of the whole chromosome; the gene,
   opened out of its mark on the band's strip, as a genome browser draws a
   transcript, the record's exons at their real lengths, still (its own stop
@@ -328,11 +332,13 @@ the gene. The card says the place and one line of data, nothing that
 explains: there is no About sheet, no source tag and no player. Its
 colours are the app's own (`ZoomInks`): one ground at every stop, the
 accent for the gene and what it makes (the organs its RNA is raised in, its
-cell, its protein, its chromosome, its band) and nothing else, and every
-other form sculpted in the warm neutrals but a chromosome, its chromatin
-warmed a little toward the helix's honey and its centromere and telomeres
-tinted in its clay and honey; `zoom_inks_test` holds that no colour in the
-zoom is written out as a number. `docs/design/zoom.md` has the design and
+cell, its protein, its chromosome's territory, its band) and nothing else,
+and every other form sculpted in the warm neutrals, but a chromosome, whose
+vivid look has colours of its own from the theme
+(`core/theme/chromosome_colors.dart`: a ramp each, crevice to specular,
+for its blue, its coral and gold, which are the helix's clay and honey,
+and its cyan); `zoom_inks_test` holds that no colour in the zoom is written
+out as a number. `docs/design/zoom.md` has the design and
 its checks.
 
 ## State

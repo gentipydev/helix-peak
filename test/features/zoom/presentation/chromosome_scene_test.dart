@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/features/zoom/domain/locus_track.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/chromosome/chromosome_style.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/chromosome_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 
@@ -10,8 +11,12 @@ import '../../../support/test_catalog.dart';
 import '../record_fixtures.dart';
 import '../zoom_fixtures.dart';
 
-ChromosomeScene _scene(ProteinTarget t) =>
-    ChromosomeScene(ZoomSubject(track: locusOf(t), record: recordOf(t)));
+/// [t]'s chromosome in the stone, whose ends round over one half-width; the
+/// vivid's rounder ends are held by chromosome_vivid_test.dart.
+ChromosomeScene _scene(ProteinTarget t) => ChromosomeScene(
+  ZoomSubject(track: locusOf(t), record: recordOf(t)),
+  look: ChromosomeLook.stone,
+);
 
 /// The most [scene]'s chromatid widens on the way from [from] to [to].
 double _widening(ChromosomeScene scene, double from, double to) {

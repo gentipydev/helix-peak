@@ -20,13 +20,13 @@ import '../../../core/theme/nucleotide_colors.dart';
 /// Data keeps its own colours where it has them: the gene's parts are the
 /// walk's, the bases the home helix's, blood the thymine red.
 ///
-/// Two forms have colours of their own: a chromosome, whose chromatin is
-/// warmed a little toward the home helix's honey, a warm stone rather than
-/// a cool grey (the user's choice of 2026-10-22), and whose centromere and
-/// telomeres are tinted, lightly, in the helix's clay and honey (the user's
-/// ask of 2026-10-19), so they read apart from its arms; and a nerve, in
-/// the honey, as anatomy plates draw nerves in yellow (the user's choice of
-/// 2026-10-19).
+/// Two forms have colours of their own: a chromosome, drawn in its vivid
+/// look in colours from the theme (`ChromosomeColors`, the user's ask of
+/// 2026-10-23), its coral and gold the helix's clay and honey, which
+/// [centromere] and [telomere] are, and which tint the stone it was before
+/// (warmed a little toward the honey, the user's choice of 2026-10-22),
+/// still drawn where a build asks for it; and a nerve, in the honey, as
+/// anatomy plates draw nerves in yellow (the user's choice of 2026-10-19).
 @immutable
 final class ZoomInks {
   const ZoomInks({

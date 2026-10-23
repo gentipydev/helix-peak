@@ -42,8 +42,8 @@ import 'support/test_catalog.dart';
 /// proteins go there: the ones no catalog protein reaches are seen nowhere
 /// else.
 ///
-/// ZOOM_CHROMOSOME_LOOK=vivid draws the chromosome in that look
-/// ([ChromosomeLook]); the stone otherwise.
+/// ZOOM_CHROMOSOME_LOOK=stone draws the chromosome in that look
+/// ([ChromosomeLook]); the vivid, the zoom's, otherwise.
 void main() {
   setUpAll(() async {
     await loadAppFonts();
@@ -67,7 +67,7 @@ void main() {
   final String genes = Platform.environment['ZOOM_GENES'] ?? '';
   final bool between = Platform.environment['ZOOM_BETWEEN'] != '0';
   final ChromosomeLook look = ChromosomeLook.values.byName(
-    Platform.environment['ZOOM_CHROMOSOME_LOOK'] ?? 'stone',
+    Platform.environment['ZOOM_CHROMOSOME_LOOK'] ?? ChromosomeLook.chosen.name,
   );
   final List<String> asked = <String>[
     for (final String name in (Platform.environment['ZOOM_MOMENTS'] ?? '').split(','))
