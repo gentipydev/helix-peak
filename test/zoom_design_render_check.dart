@@ -19,6 +19,7 @@ import 'package:helixpeek/features/zoom/presentation/scenes/organs/kidney/kidney
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/liver/liver_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/skin/skin_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/stomach/stomach_form.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/thyroid/thyroid_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/sculpt.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/tissue/tissue_slide.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/tissue_scene.dart';
@@ -184,7 +185,8 @@ void main() {
     // about each kind of cell that lives in it, skeletal muscle, the
     // thigh, on both figures, the kidney on both figures about a cell of
     // each part of it the Atlas's names light, the liver, the stomach and
-    // the esophagus likewise, and the skin, one block for either figure,
+    // the esophagus likewise, the skin, one block for either figure,
+    // about a cell of each part of it, and the thyroid on both figures
     // about a cell of each part of it.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
@@ -198,6 +200,7 @@ void main() {
     final TissueAnatomy stomach = tissueAnatomy['stomach']!;
     final TissueAnatomy esophagus = tissueAnatomy['esophagus']!;
     final TissueAnatomy skin = tissueAnatomy['skin']!;
+    final TissueAnatomy thyroid = tissueAnatomy['thyroid gland']!;
     final List<(String, TissueAnatomy, AnatomyFigure, CellShape)> organs =
         <(String, TissueAnatomy, AnatomyFigure, CellShape)>[
           for (final MapEntry<String, TissueAnatomy> tissue
@@ -366,6 +369,21 @@ void main() {
           CellShape.epithelial,
           cell,
         ),
+      for (final AnatomyFigure body in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ])
+        for (final String cell in <String>[
+          'Thyroid glandular cells',
+          'Parafollicular cells',
+        ])
+          (
+            'thyroid-${body.name}-${ThyroidHome.of(cell).name}',
+            thyroid,
+            body,
+            CellShape.epithelial,
+            cell,
+          ),
     ];
     for (final (
           String name,

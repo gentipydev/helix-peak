@@ -199,6 +199,14 @@ final class ZoomDepth {
   /// it, an iPhone SE's, 311 wide inside the canvas's inset.
   static const double skinUpright = 0.48;
 
+  /// How much taller than wide the thyroid is framed: seen from the front
+  /// in place, the larynx above it, the trachea and the trunks at its sides
+  /// cut short below it, it stands a little taller than it is wide, and its
+  /// names need a row above it and one below it on the squattest canvases a
+  /// phone gives it, an iPhone SE's, 311 by 407 inside the canvas's inset
+  /// and 375 by 421 without it (0.8 leaves the second no room).
+  static const double thyroidUpright = 0.75;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -224,7 +232,8 @@ final class ZoomDepth {
   /// front to back, as [kidneyUpright], the liver, cut open from front to
   /// back, as [liverUpright], the stomach, opened from the front, as
   /// [stomachUpright], the esophagus, opened from the front, as
-  /// [esophagusUpright], and the skin, a block of it, as [skinUpright].
+  /// [esophagusUpright], the skin, a block of it, as [skinUpright], and the
+  /// thyroid, seen from the front in place, as [thyroidUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -265,6 +274,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.esophagus) {
       return esophagusUpright;
+    }
+    if (anatomy.organ == OrganKind.thyroid) {
+      return thyroidUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)

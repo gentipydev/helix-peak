@@ -49,6 +49,9 @@ import 'organs/testis/testis_anatomy.dart';
 import 'organs/testis/testis_art.dart';
 import 'organs/testis/testis_form.dart';
 import 'organs/testis/testis_style.dart';
+import 'organs/thyroid/thyroid_art.dart';
+import 'organs/thyroid/thyroid_form.dart';
+import 'organs/thyroid/thyroid_style.dart';
 import 'sculpt.dart';
 import 'specimen_step.dart';
 import 'tube_course.dart';
@@ -82,7 +85,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// marrow, its femur cut down its length, the heart, cut open, skeletal
 /// muscle, the front of the thigh, the kidney and the liver, each cut open
 /// from front to back, the stomach and the esophagus, each opened from
-/// the front, and the skin, a block of it cut from the leg.
+/// the front, the skin, a block of it cut from the leg, and the thyroid,
+/// seen from the front in place, one lobe cut open.
 ///
 /// Where the gene is, the organ glows in the mark: the part of it the
 /// zoom's cell lives in (the islets of a pancreas for an endocrine cell, its
@@ -91,7 +95,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// bile ducts of a liver for a cholangiocyte, the muscularis of a stomach
 /// for a smooth muscle cell, the glands of an esophagus for a cell of its
 /// submucosal glands, the basal layer of the skin and its hair bulbs for a
-/// melanocyte), by the kind of organ and of cell, never by gene.
+/// melanocyte, the C cells of a thyroid for a parafollicular cell), by the
+/// kind of organ and of cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -196,6 +201,14 @@ abstract class OrganArt {
         level: level,
       ),
       OrganKind.esophagus when part != null => _EsophagusOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        cell: cellName,
+        level: level,
+      ),
+      OrganKind.thyroid when part != null => _ThyroidOrgan(
         part,
         anatomy,
         view,
@@ -1770,6 +1783,122 @@ final class _LiverOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => LiverArt.bedOf(inks, _form.home);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The thyroid gland, drawn from general anatomy as a specimen seen from
+/// the front in place (`ThyroidArt`): over the larynx and the trachea, the
+/// carotids and the jugulars at its sides, the lobe the body goes into cut
+/// open to show its lobules; reached from the body's own outline of it
+/// (`_SpecimenOrgan`), which draws in toward the gland's own and becomes the
+/// bed it lies on, the figure staying round it, faint. Where the zoom's cell
+/// lives is in the mark, by the Atlas's name for the cell: the cut lobe's
+/// parenchyma, its follicles, or its C cells.
+final class _ThyroidOrgan extends _SpecimenOrgan {
+  _ThyroidOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    String? cell,
+    super.level,
+  }) : _form = ThyroidForm.place(
+         part: part,
+         anatomy: anatomy,
+         view: view,
+         home: ThyroidHome.of(cell),
+       );
+
+  final ThyroidForm _form;
+
+  @override
+  bool get _amongFigure => true;
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark, at the place its tissue is
+  // sampled (the C cells' at the one nearest it); and the isthmus, the
+  // larynx, the trachea, a carotid artery and a jugular vein, in the quiet
+  // ink.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'home', word: _form.home.word, at: _form.homeName, home: true),
+    (key: 'larynx', word: 'larynx', at: _form.larynxName, home: false),
+    (
+      key: 'jugular',
+      word: 'jugular vein',
+      at: _form.jugularName,
+      home: false,
+    ),
+    (
+      key: 'carotid',
+      word: 'carotid artery',
+      at: _form.carotidName,
+      home: false,
+    ),
+    (key: 'isthmus', word: 'isthmus', at: _form.isthmusName, home: false),
+    (key: 'trachea', word: 'trachea', at: _form.tracheaName, home: false),
+  ];
+
+  // Set round all of it, out at the canvas's corners, as the liver's are:
+  // the gland and the vessels at its sides fill the canvas's width. Round
+  // the gland, the larynx, and the vessels and the trachea where they
+  // show, with room to either side and past where each ends, cut or faded.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(ThyroidStyle.nameClear);
+    return <Offset>[
+      for (int i = 0; i < _form.outlinePoints.length; i += 4)
+        _form.outlinePoints[i],
+      ..._form.cartilage,
+      for (final TubeCourse tube in _form.beside)
+        for (final int last in <int>[
+          tube.shown.lastIndexWhere((double s) => s > ThyroidStyle.nameShown),
+        ])
+          for (int i = 0; i <= last; i++)
+            if (i % 4 == 0 || i == last) ...<Offset>[
+              tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+              tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+              // Round its end.
+              if (i == last)
+                for (int k = -2; k <= 2; k++)
+                  tube.centres[i] +
+                      (Offset(tube.across[i].dy, -tube.across[i].dx) *
+                                  math.cos(k * math.pi / 6) +
+                              tube.across[i] * math.sin(k * math.pi / 6)) *
+                          (tube.radius[i] + clear),
+            ],
+    ];
+  }();
+
+  ThyroidArt? _art;
+
+  ThyroidArt _artFor(ZoomInks inks) {
+    final ThyroidArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = ThyroidArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => ThyroidArt.bedOf(inks, _form.home);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

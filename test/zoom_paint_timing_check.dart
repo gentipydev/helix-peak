@@ -69,6 +69,7 @@ void main() {
       TestCatalog.bySlug('uromodulin')!,
       TestCatalog.bySlug('cystatinb')!,
       TestCatalog.bySlug('tyrp1')!,
+      TestCatalog.bySlug('thyroglobulin')!,
     ]) {
       final ZoomStage stage = ZoomStage(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),
