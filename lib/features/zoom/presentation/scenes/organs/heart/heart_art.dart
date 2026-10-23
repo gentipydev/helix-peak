@@ -8,8 +8,9 @@ import '../../../../domain/cell_archetypes.dart';
 import '../../../zoom_inks.dart';
 import '../../coloured_mesh.dart';
 import '../../cut_face.dart';
+import '../../opening_rim.dart';
 import '../../specimen_light.dart';
-import '../../tube_course.dart';
+import '../../tube_end.dart';
 import 'heart_form.dart';
 import 'heart_style.dart';
 
@@ -162,64 +163,23 @@ final class HeartArt {
       path,
       _build((ColouredMesh mesh) {
         for (final List<Offset> rim in rims) {
-          _rim(mesh, rim, path, fadeIn: fadeIn);
+          _lips.lay(mesh, rim, path, fadeIn: fadeIn);
         }
       }),
     );
   }
 
-  /// [rim]'s shadow and light, coming up over [fadeIn] from its start.
-  void _rim(
-    ColouredMesh mesh,
-    List<Offset> rim,
-    Path inside, {
-    double fadeIn = 0,
-  }) {
-    final int n = rim.length;
-    if (n < 2) {
-      return;
-    }
-    double along = 0;
-    final Offset toward = _light.screen;
-    final Color lit = inks.lit(HeartStyle.leafletLit);
-    final double probe = form.mm(0.3);
-    mesh.begin(2 * n);
-    final int first = mesh.next;
-    for (int i = 0; i < n; i++) {
-      final Offset t = rim[math.min(n - 1, i + 1)] - rim[math.max(0, i - 1)];
-      final double length = t.distance;
-      Offset out = length <= 0 ? Offset.zero : Offset(t.dy, -t.dx) / length;
-      if (inside.contains(rim[i] + out * probe)) {
-        out = -out;
-      }
-      if (i > 0) {
-        along += (rim[i] - rim[i - 1]).distance;
-      }
-      final double shown = fadeIn <= 0
-          ? 1
-          : math.min(1, along / fadeIn) * math.min(1, along / fadeIn);
-      final double facing = (out.dx * toward.dx + out.dy * toward.dy) * shown;
-      final double width = form.mm(
-        facing > 0 ? HeartStyle.lipShadow : HeartStyle.lipLight,
-      );
-      final int colour = facing > 0
-          ? SpecimenPalette.packColour(
-              inks.shadow,
-              HeartStyle.lipShadowAlpha * facing,
-            )
-          : SpecimenPalette.packColour(lit, HeartStyle.lipLightAlpha * -facing);
-      final Offset inner = rim[i] - out * width;
-      mesh.vertex(rim[i].dx, rim[i].dy, colour);
-      mesh.vertex(inner.dx, inner.dy, colour & ((1 << 24) - 1));
-    }
-    for (int i = 0; i + 1 < n; i++) {
-      final int a = first + 2 * i;
-      final int b = a + 2;
-      mesh
-        ..triangle(a, b, a + 1)
-        ..triangle(b, b + 1, a + 1);
-    }
-  }
+  /// The rims' shadow and light.
+  late final OpeningRim _lips = OpeningRim(
+    toward: _light.screen,
+    shadow: inks.shadow,
+    light: inks.lit(HeartStyle.leafletLit),
+    shadowWidth: form.mm(HeartStyle.lipShadow),
+    lightWidth: form.mm(HeartStyle.lipLight),
+    shadowAlpha: HeartStyle.lipShadowAlpha,
+    lightAlpha: HeartStyle.lipLightAlpha,
+    probe: form.mm(0.3),
+  );
 
   // The great vessels, cut open: their walls, their lumens and rims.
 
@@ -292,7 +252,12 @@ final class HeartArt {
   void _paintVessel(Canvas canvas, _Vessel v) {
     _draw(canvas, v.tube);
     if (v.source.whole && v.source.endCut) {
-      _paintEnd(canvas, v.source);
+      _end.paint(
+        canvas,
+        v.source.course,
+        v.source.artery ? _wholeArtery : _wholeVein,
+        _light.light(0, 0, 1) * HeartStyle.tubeLight,
+      );
     }
     if (v.source.cut <= 0) {
       return;
@@ -304,45 +269,14 @@ final class HeartArt {
     _paintOpening(canvas, v.lumen, v.rim);
   }
 
-  /// The far end of [v], cut as an anatomy plate cuts what it has taken
-  /// away: its wall round its dark lumen.
-  void _paintEnd(Canvas canvas, HeartVessel v) {
-    final TubeCourse tube = v.course;
-    final int row = tube.length - 1;
-    final Offset c = tube.centres[row];
-    final Offset m = tube.across[row];
-    final double r = tube.radius[row];
-    final SpecimenTone tone = v.artery ? _wholeArtery : _wholeVein;
-    final double light = _light.light(0, 0, 1) * HeartStyle.tubeLight;
-    canvas.save();
-    canvas.translate(c.dx, c.dy);
-    canvas.rotate(math.atan2(m.dy, m.dx));
-    final Rect wall = Rect.fromCenter(
-      center: Offset.zero,
-      width: 2 * r,
-      height: 2 * r * HeartStyle.endLength,
-    );
-    canvas.drawOval(
-      wall,
-      Paint()..color = Color(_palette.colour(tone, light * 1.15)),
-    );
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset.zero,
-        width: wall.width * (1 - HeartStyle.endWall),
-        height: wall.height * (1 - HeartStyle.endWall),
-      ),
-      Paint()
-        ..shader = RadialGradient(
-          center: const Alignment(0.3, 0.4),
-          colors: <Color>[
-            inks.shadow,
-            Color(_palette.colour(tone, light * 0.35)),
-          ],
-        ).createShader(wall),
-    );
-    canvas.restore();
-  }
+  /// The far ends of the vessels cut short, as an anatomy plate cuts what
+  /// it has taken away: each one's wall round its dark lumen.
+  late final TubeEnd _end = TubeEnd(
+    _palette,
+    inks.shadow,
+    length: HeartStyle.endLength,
+    wall: HeartStyle.endWall,
+  );
 
   void _paintOpening(Canvas canvas, Path path, List<ui.Vertices> rim) {
     canvas.drawPath(path, Paint()..color = _cavity);
@@ -626,7 +560,7 @@ final class HeartArt {
       ]) {
         final Path path = _polygon(c.shape);
         for (final List<Offset> rim in c.rims) {
-          _rim(mesh, rim, path);
+          _lips.lay(mesh, rim, path);
         }
       }
     });
