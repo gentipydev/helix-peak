@@ -23,6 +23,9 @@ import 'organs/heart/heart_form.dart';
 import 'organs/heart/heart_style.dart';
 import 'organs/kidney/kidney_art.dart';
 import 'organs/kidney/kidney_form.dart';
+import 'organs/liver/liver_art.dart';
+import 'organs/liver/liver_form.dart';
+import 'organs/liver/liver_style.dart';
 import 'organs/pancreas/pancreas_anatomy.dart';
 import 'organs/pancreas/pancreas_art.dart';
 import 'organs/pancreas/pancreas_form.dart';
@@ -68,14 +71,15 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// length, the salivary gland, its parotid in place, the brain, cut down
 /// its middle, the eye, cut level through its optic nerve, the bone
 /// marrow, its femur cut down its length, the heart, cut open, skeletal
-/// muscle, the front of the thigh, and the kidney, cut open from front to
-/// back.
+/// muscle, the front of the thigh, the kidney and the liver, each cut open
+/// from front to back.
 ///
 /// Where the gene is, the organ glows in the mark: the part of it the
 /// zoom's cell lives in (the islets of a pancreas for an endocrine cell, its
 /// ducts for a duct cell, the interstitium of a testis for a Leydig cell,
-/// the loops of Henle of a kidney for a cell the Atlas names theirs), by
-/// the kind of organ and of cell, never by gene.
+/// the loops of Henle of a kidney for a cell the Atlas names theirs, the
+/// bile ducts of a liver for a cholangiocyte), by the kind of organ and of
+/// cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -156,6 +160,14 @@ abstract class OrganArt {
       OrganKind.skeletalMuscle when part != null && figure != null =>
         _ThighOrgan(part, anatomy, view, figure: figure, level: level),
       OrganKind.kidney when part != null => _KidneyOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        cell: cellName,
+        level: level,
+      ),
+      OrganKind.liver when part != null => _LiverOrgan(
         part,
         anatomy,
         view,
@@ -1587,6 +1599,145 @@ final class _KidneyOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => KidneyArt.bedOf(inks, _form.home);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The liver, drawn from general anatomy as a specimen cut open from front
+/// to back (`LiverArt`): its parenchyma, the vena cava and the hepatic
+/// veins, the portal veins in their sheaths from the porta, the gallbladder
+/// in its fossa; reached from the body's own outline of it
+/// (`_SpecimenOrgan`), which draws in toward the liver's own and becomes
+/// the bed it lies on, the figure staying round it, faint. Where the
+/// zoom's cell lives is in the mark, by the Atlas's name for the cell: its
+/// parenchyma, or its bile ducts for a cholangiocyte (the user's choices of
+/// 2026-10-23).
+final class _LiverOrgan extends _SpecimenOrgan {
+  _LiverOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    String? cell,
+    super.level,
+  }) : _form = LiverForm.place(
+         part: part,
+         anatomy: anatomy,
+         view: view,
+         home: LiverHome.of(cell),
+       );
+
+  final LiverForm _form;
+
+  @override
+  bool get _amongFigure => true;
+
+  // Its outline is drawn in a little more slowly than other specimens'.
+  @override
+  double _settleOf(double detail) =>
+      SpecimenStep.settle(detail, span: LiverStyle.settling);
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark, at the place its tissue is
+  // sampled (a bile duct's at the duct nearest it); and the vena cava, the
+  // hepatic veins, the portal vein, the gallbladder and the two lobes, in
+  // the quiet ink (the user's choices of 2026-10-23). The vena cava's and
+  // the lobes' names are set on two lines, so that the three above the
+  // liver and the four below it each fit in one row on the narrowest
+  // phone's canvas, no line crossing another's plate.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    switch (_form.home) {
+      LiverHome.parenchyma => (
+        key: 'home',
+        word: 'parenchyma',
+        at: _form.site,
+        home: true,
+      ),
+      LiverHome.ducts => (
+        key: 'home',
+        word: 'bile ducts',
+        at: _form.ductNear(_form.site),
+        home: true,
+      ),
+    },
+    (
+      key: 'cava',
+      word: 'inferior\nvena cava',
+      at: _form.cavaName,
+      home: false,
+    ),
+    (
+      key: 'hepatic',
+      word: 'hepatic veins',
+      at: _form.hepaticVeinsName,
+      home: false,
+    ),
+    (key: 'portal', word: 'portal vein', at: _form.portalVeinName, home: false),
+    (
+      key: 'gallbladder',
+      word: 'gallbladder',
+      at: _form.gallbladderName,
+      home: false,
+    ),
+    (key: 'right', word: 'right\nlobe', at: _form.rightLobeName, home: false),
+    (key: 'left', word: 'left\nlobe', at: _form.leftLobeName, home: false),
+  ];
+
+  // Set round all of it, out at the canvas's corners, as the heart's are:
+  // the liver is too wide for a column of names at either side of it on a
+  // phone (the user's choice of 2026-10-23). Round the liver, its
+  // gallbladder, and what runs on beside it where it shows, with room to
+  // either side and past a cut end.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(LiverStyle.nameClear);
+    return <Offset>[
+      for (int i = 0; i < _form.outlinePoints.length; i += 4)
+        _form.outlinePoints[i],
+      ..._form.gallbladderWall,
+      for (final TubeCourse tube in _form.beside)
+        for (int i = 0; i < tube.length; i++)
+          if ((i % 4 == 0 || i == tube.length - 1) &&
+              tube.shown[i] > LiverStyle.nameShown) ...<Offset>[
+            tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+            tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+            if (i == tube.length - 1)
+              tube.centres[i] +
+                  Offset(tube.across[i].dy, -tube.across[i].dx) *
+                      (tube.radius[i] + clear),
+          ],
+    ];
+  }();
+
+  LiverArt? _art;
+
+  LiverArt _artFor(ZoomInks inks) {
+    final LiverArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = LiverArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => LiverArt.bedOf(inks, _form.home);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

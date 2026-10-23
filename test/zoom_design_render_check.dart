@@ -15,6 +15,7 @@ import 'package:helixpeek/features/zoom/domain/zoom_path.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/contour.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organ_art.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/kidney/kidney_form.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/liver/liver_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/sculpt.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/tissue/tissue_slide.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/tissue_scene.dart';
@@ -178,8 +179,8 @@ void main() {
     // each kind of cell its retina has, the bone marrow on both figures
     // about each kind of cell of the marrow, the heart on both figures
     // about each kind of cell that lives in it, skeletal muscle, the
-    // thigh, on both figures, and the kidney on both figures about a cell
-    // of each part of it the Atlas's names light.
+    // thigh, on both figures, the kidney on both figures about a cell of
+    // each part of it the Atlas's names light, and the liver likewise.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -188,6 +189,7 @@ void main() {
     final TissueAnatomy heart = tissueAnatomy['heart muscle']!;
     final TissueAnatomy muscle = tissueAnatomy['skeletal muscle']!;
     final TissueAnatomy kidney = tissueAnatomy['kidney']!;
+    final TissueAnatomy liver = tissueAnatomy['liver']!;
     final List<(String, TissueAnatomy, AnatomyFigure, CellShape)> organs =
         <(String, TissueAnatomy, AnatomyFigure, CellShape)>[
           for (final MapEntry<String, TissueAnatomy> tissue
@@ -263,8 +265,9 @@ void main() {
           ])
             ('muscle-${body.name}', muscle, body, CellShape.myofibre),
         ];
-    // The kidney's cells are all drawn as one shape: the Atlas's names for
-    // them tell where each lives.
+    // The kidney's cells are all drawn as one shape, and so are the
+    // liver's but its hepatocytes: the Atlas's names for them tell where
+    // each lives.
     final List<(String, TissueAnatomy, AnatomyFigure, CellShape, String?)>
     named = <(String, TissueAnatomy, AnatomyFigure, CellShape, String?)>[
       for (final (
@@ -291,6 +294,21 @@ void main() {
             kidney,
             body,
             CellShape.epithelial,
+            cell,
+          ),
+      for (final AnatomyFigure body in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ])
+        for (final (String cell, CellShape shape) in <(String, CellShape)>[
+          ('Hepatocytes', CellShape.hepatocyte),
+          ('Cholangiocytes', CellShape.epithelial),
+        ])
+          (
+            'liver-${body.name}-${LiverHome.of(cell).name}',
+            liver,
+            body,
+            shape,
             cell,
           ),
     ];

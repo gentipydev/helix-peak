@@ -193,19 +193,21 @@ final class OrganForm {
 }
 
 /// What lies inside an organ of one kind, and the part of it the zoom's
-/// cell lives in, in the mark: the lobules of a liver, the folds of a
-/// fallopian tube. By the kind of organ and of cell, never by gene. (The
-/// pancreas, the testis and the salivary gland are drawn from anatomy
-/// instead, among their neighbours, the bone marrow as its femur, and
-/// skeletal muscle as the front of the thigh: `PancreasArt`, `TestisArt`,
-/// `SalivaryArt`, `MarrowArt`, `ThighArt`.)
+/// cell lives in, in the mark: the lobes of fat, the folds of a fallopian
+/// tube. By the kind of organ and of cell, never by gene. (The pancreas,
+/// the testis and the salivary gland are drawn from anatomy instead, among
+/// their neighbours, the bone marrow as its femur, skeletal muscle as the
+/// front of the thigh, the brain cut down its middle, the eye cut level
+/// through its nerve, and the heart, the kidney and the liver cut open
+/// from front to back: `PancreasArt`, `TestisArt`, `SalivaryArt`,
+/// `MarrowArt`, `ThighArt`, `BrainArt`, `EyeArt`, `HeartArt`, `KidneyArt`,
+/// `LiverArt`.)
 abstract class OrganStudy {
   const OrganStudy();
 
   /// The kinds of organ outlined by the anatomogram that have a study of
   /// their own; the rest are sculpted with a surface for their kind.
   static const Set<OrganKind> studied = <OrganKind>{
-    OrganKind.liver,
     OrganKind.adipose,
     OrganKind.fallopianTube,
     OrganKind.stomach,
@@ -216,7 +218,6 @@ abstract class OrganStudy {
   /// [cell], or none where the organ has no study of its own.
   static OrganStudy? of(OrganKind kind, OrganForm form, CellShape cell) =>
       switch (kind) {
-        OrganKind.liver => _Liver(form),
         OrganKind.adipose => _Fat(form),
         OrganKind.fallopianTube => _Tube(form),
         OrganKind.stomach => _Stomach(form),
@@ -239,117 +240,6 @@ Paint _stroke(Color colour, double width) => Paint()
   ..strokeCap = StrokeCap.round
   ..strokeJoin = StrokeJoin.round
   ..color = colour;
-
-/// The liver: its two lobes either side of the falciform ligament, its
-/// lobules as a honeycomb in the mark (the hepatocytes are the whole of
-/// it), and the portal vessels branching in from its hilum.
-final class _Liver extends OrganStudy {
-  _Liver(this.form) {
-    final math.Random random = math.Random(23);
-    final Rect box = form.box;
-    final double size = form.size;
-    // The falciform ligament: from the top border, a little to the body's
-    // left of the middle, down to the lower border.
-    final double x = box.left + box.width * 0.6;
-    _falciform = Path()
-      ..moveTo(x, box.top)
-      ..quadraticBezierTo(
-        x - box.width * 0.06,
-        box.center.dy,
-        x - box.width * 0.03,
-        box.bottom,
-      );
-    final double step = size * 0.045;
-    _lobules = <Offset>[];
-    int row = 0;
-    for (double y = box.top; y < box.bottom + step; y += step * 0.866) {
-      for (
-        double cx = box.left - (row.isOdd ? step / 2 : 0);
-        cx < box.right + step;
-        cx += step
-      ) {
-        final Offset at =
-            Offset(cx, y) +
-            Offset(random.nextDouble() - 0.5, random.nextDouble() - 0.5) *
-                (step * 0.12);
-        if (form.shape.contains(at)) {
-          _lobules.add(at);
-        }
-      }
-      row++;
-    }
-    _step = step;
-    final Offset hilum = Offset(
-      box.left + box.width * 0.45,
-      box.bottom - box.height * 0.18,
-    );
-    _vessels = Sculpt.tree(
-      hilum,
-      -math.pi / 2 - 0.4,
-      size * 0.16,
-      4,
-      random,
-      spread: 0.55,
-      shrink: 0.7,
-    );
-  }
-
-  final OrganForm form;
-  late final Path _falciform;
-  late final List<Offset> _lobules;
-  late final double _step;
-  late final List<Path> _vessels;
-
-  Path _hexagon(Offset c, double r) {
-    final Path path = Path();
-    for (int k = 0; k < 6; k++) {
-      final double a = math.pi / 6 + k * math.pi / 3;
-      final Offset p = c + Offset(math.cos(a), math.sin(a)) * r;
-      if (k == 0) {
-        path.moveTo(p.dx, p.dy);
-      } else {
-        path.lineTo(p.dx, p.dy);
-      }
-    }
-    return path..close();
-  }
-
-  @override
-  void inside(Canvas canvas, ZoomInks inks, double line, double detail) {
-    final double r = _step * 0.55;
-    final Paint rim = _stroke(inks.glow(0.32 * detail), 1 * line);
-    for (final Offset c in _lobules) {
-      final Path hex = _hexagon(c, r);
-      canvas.drawPath(
-        hex,
-        Paint()
-          ..shader = RadialGradient(
-            colors: <Color>[inks.glow(0.04 * detail), inks.glow(0.22 * detail)],
-          ).createShader(Rect.fromCircle(center: c, radius: r)),
-      );
-      canvas.drawPath(hex, rim);
-      // Its central vein.
-      canvas.drawCircle(
-        c,
-        r * 0.14,
-        Paint()..color = inks.shade(0.5).withValues(alpha: 0.8 * detail),
-      );
-    }
-    for (int g = 0; g < _vessels.length; g++) {
-      canvas.drawPath(
-        _vessels[g],
-        _stroke(
-          inks.lit(0.6).withValues(alpha: 0.6 * detail),
-          (4.2 - g * 0.8) * line,
-        ),
-      );
-    }
-    canvas.drawPath(
-      _falciform,
-      _stroke(inks.lit(0.65).withValues(alpha: 0.75 * detail), 1.8 * line),
-    );
-  }
-}
 
 /// Fat: lobes of it parted by fine septa, small vessels in the septa, and
 /// the adipocytes, which are the lobes, in the mark.

@@ -310,8 +310,8 @@ void main() {
     // seen closer, with its plain surface (the user's choice of 2026-10-17,
     // for the placenta, esophagus, thyroid and kidney the third ten reach;
     // the heart and skeletal muscle, the thigh, are drawn from anatomy since
-    // 2026-10-22, and the kidney since 2026-10-23): never the organ drawn
-    // for no tissue at all.
+    // 2026-10-22, and the kidney and the liver since 2026-10-23): never the
+    // organ drawn for no tissue at all.
     const Set<OrganKind> drawn = <OrganKind>{
       OrganKind.brain,
       OrganKind.lymphNode,
