@@ -73,6 +73,7 @@ void main() {
       TestCatalog.bySlug('cyp17a1')!,
       TestCatalog.somatotropin,
       TestCatalog.app,
+      TestCatalog.relaxin,
     ]) {
       final ZoomStage stage = ZoomStage(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),

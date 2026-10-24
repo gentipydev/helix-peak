@@ -146,8 +146,7 @@ final class OrganForm {
 }
 
 /// What lies inside an organ of one kind, and the part of it the zoom's
-/// cell lives in, in the mark: the lobes of fat, the folds of a fallopian
-/// tube. By the kind of organ and of cell, never by gene. (The pancreas,
+/// cell lives in, in the mark: the lobes of fat. By the kind of organ and of cell, never by gene. (The pancreas,
 /// the testis and the salivary gland are drawn from anatomy instead, among
 /// their neighbours, the bone marrow as its femur, skeletal muscle as the
 /// front of the thigh, the brain cut down its middle, the eye cut level
@@ -160,17 +159,13 @@ abstract class OrganStudy {
 
   /// The kinds of organ outlined by the anatomogram that have a study of
   /// their own; the rest are sculpted with a surface for their kind.
-  static const Set<OrganKind> studied = <OrganKind>{
-    OrganKind.adipose,
-    OrganKind.fallopianTube,
-  };
+  static const Set<OrganKind> studied = <OrganKind>{OrganKind.adipose};
 
   /// The study for an organ of [kind] outlined as [form], about a cell of
   /// [cell], or none where the organ has no study of its own.
   static OrganStudy? of(OrganKind kind, OrganForm form, CellShape cell) =>
       switch (kind) {
         OrganKind.adipose => _Fat(form),
-        OrganKind.fallopianTube => _Tube(form),
         _ => null,
       };
 
@@ -251,65 +246,3 @@ final class _Fat extends OrganStudy {
   }
 }
 
-/// A fallopian tube opened along its length: its wall, the folds of its
-/// mucosa lining it, where its ciliated cells are, in the mark, and its
-/// lumen down the middle. Each runs parallel to the tube's walls, however
-/// the tube curves: a band of the outline's own stroke, held inside it.
-final class _Tube extends OrganStudy {
-  _Tube(this.form) {
-    // How thick the tube is: for a long thin shape, twice its area over its
-    // perimeter.
-    double area = 0;
-    double perimeter = 0;
-    final List<Offset> p = form.points;
-    for (int i = 0; i < p.length; i++) {
-      final Offset a = p[i];
-      final Offset b = p[(i + 1) % p.length];
-      area += a.dx * b.dy - b.dx * a.dy;
-      perimeter += (b - a).distance;
-    }
-    _thick = perimeter == 0 ? form.size * 0.1 : (area.abs() / perimeter) * 2;
-  }
-
-  final OrganForm form;
-  late final double _thick;
-
-  @override
-  void inside(Canvas canvas, ZoomInks inks, double line, double detail) {
-    final double t = _thick;
-    Paint band(Color colour, double width) => Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeJoin = StrokeJoin.round
-      ..strokeWidth = width
-      ..color = colour;
-    // From the middle out: the lumen, the mucosa, a fold line in it, and
-    // the wall at the edge. Each band is the outline stroked twice its
-    // width, of which the clip keeps the inner half.
-    canvas.drawPath(
-      form.shape,
-      Paint()..color = inks.shade(0.38).withValues(alpha: 0.9 * detail),
-    );
-    canvas.drawPath(form.shape, band(inks.glow(0.3 * detail), t * 0.62));
-    for (final double at in <double>[0.52, 0.4]) {
-      canvas.drawPath(
-        form.shape,
-        band(inks.glow(0.85 * detail), t * at + line),
-      );
-      canvas.drawPath(
-        form.shape,
-        band(
-          Color.lerp(
-            inks.shade(0.38),
-            inks.mark,
-            0.3,
-          )!.withValues(alpha: detail),
-          t * at - line,
-        ),
-      );
-    }
-    canvas.drawPath(
-      form.shape,
-      band(inks.lit(0.3).withValues(alpha: detail), t * 0.3),
-    );
-  }
-}

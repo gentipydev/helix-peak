@@ -24,6 +24,9 @@ import 'organs/esophagus/esophagus_style.dart';
 import 'organs/eye/eye_art.dart';
 import 'organs/eye/eye_form.dart';
 import 'organs/eye/eye_style.dart';
+import 'organs/fallopian_tube/fallopian_art.dart';
+import 'organs/fallopian_tube/fallopian_form.dart';
+import 'organs/fallopian_tube/fallopian_style.dart';
 import 'organs/heart/heart_art.dart';
 import 'organs/heart/heart_form.dart';
 import 'organs/heart/heart_style.dart';
@@ -96,7 +99,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// the front, the skin, a block of it cut from the leg, the thyroid, seen
 /// from the front in place, one lobe cut open, the adrenal, cut through its
 /// thickness on its kidney's upper pole, the pituitary, cut down its
-/// middle as the brain is, and a lymph node, cut through its hilum.
+/// middle as the brain is, a lymph node, cut through its hilum, and the
+/// fallopian tube, opened along its length.
 ///
 /// Where the gene is, the organ glows in the mark: the part of it the
 /// zoom's cell lives in (the islets of a pancreas for an endocrine cell, its
@@ -108,7 +112,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// melanocyte, the C cells of a thyroid for a parafollicular cell, the
 /// medulla of an adrenal for a chromaffin cell, the posterior lobe of a
 /// pituitary for a pituicyte, the sinuses of a lymph node for a lymphatic
-/// endothelial cell), by the kind of organ and of cell, never by gene.
+/// endothelial cell, the muscular coat of a fallopian tube for a smooth
+/// muscle cell), by the kind of organ and of cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -237,6 +242,14 @@ abstract class OrganArt {
         level: level,
       ),
       OrganKind.pituitary when part != null => _PituitaryOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        cell: cellName,
+        level: level,
+      ),
+      OrganKind.fallopianTube when part != null => _FallopianOrgan(
         part,
         anatomy,
         view,
@@ -412,8 +425,7 @@ _Look _lookOf(OrganKind kind) => switch (kind) {
   OrganKind.gallbladder ||
   OrganKind.uterus ||
   OrganKind.cervix ||
-  OrganKind.vagina ||
-  OrganKind.fallopianTube => _Look.hollow,
+  OrganKind.vagina => _Look.hollow,
   _ => _Look.lobules,
 };
 
@@ -2188,6 +2200,125 @@ final class _PituitaryOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => PituitaryArt.bedOf(inks, _form.home);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The fallopian tube, drawn from general anatomy as a specimen opened
+/// along its length in place (`FallopianArt`): its lumen and the folds of
+/// its mucosa between the wall's cut edges, its fimbriae round the
+/// ostium, the mesosalpinx under it; reached from the body's own outline of
+/// it (`_SpecimenOrgan`), which draws in toward the tube's own and becomes
+/// the bed it lies on, the figure staying round it, faint, its uterus and
+/// its ovary by it. The anatomogram draws its tube's arch longer for its
+/// box than a tube is, so the tube, and the figure round it, are drawn at
+/// a share of the size the body's outline grows to. Where the zoom's cell
+/// lives is in the mark, by the Atlas's name for the cell: its mucosa and
+/// the fimbriae's inner faces, or its muscular coat for a smooth muscle
+/// cell.
+final class _FallopianOrgan extends _SpecimenOrgan {
+  _FallopianOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    String? cell,
+    super.level,
+  }) : _form = FallopianForm.place(
+         part: part,
+         anatomy: anatomy,
+         view: view,
+         figure: figure,
+         home: FallopianHome.of(cell),
+       ),
+       super(real: FallopianForm.realOf(anatomy, part));
+
+  final FallopianForm _form;
+
+  @override
+  bool get _amongFigure => true;
+
+  // Its outline is drawn in a little more slowly than other specimens'.
+  @override
+  double _settleOf(double detail) =>
+      SpecimenStep.settle(detail, span: FallopianStyle.settling);
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark: the mucosa among the
+  // ampulla's folds, or the wall at the place its tissue is sampled; and
+  // the ampulla, the isthmus, the fimbriae, and the figure's own ovary and
+  // uterus by it, in the quiet ink.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (
+      key: 'home',
+      word: _form.home.word,
+      at: _form.home == FallopianHome.mucosa ? _form.mucosaName : _form.site,
+      home: true,
+    ),
+    (key: 'ampulla', word: 'ampulla', at: _form.ampullaName, home: false),
+    (key: 'isthmus', word: 'isthmus', at: _form.isthmusName, home: false),
+    (key: 'fimbriae', word: 'fimbriae', at: _form.fimbriaeName, home: false),
+    if (_form.ovaryName case final Offset at)
+      (key: 'ovary', word: 'ovary', at: at, home: false),
+    if (_form.uterusName case final Offset at)
+      (key: 'uterus', word: 'uterus', at: at, home: false),
+  ];
+
+  // Set round all of it, out at the canvas's corners: round the tube, its
+  // fimbriae and its artery, with room to either side and round where each
+  // ends. The figure's faint ovary, which a name points into, may lie
+  // under a name, as the figure's parts round any organ may.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(FallopianStyle.nameClear);
+    return <Offset>[
+      for (int i = 0; i < _form.outlinePoints.length; i += 4)
+        _form.outlinePoints[i],
+      for (final TubeCourse tube in _form.beside)
+        for (int i = 0; i < tube.length; i++)
+          if (i % 4 == 0 || i == tube.length - 1) ...<Offset>[
+            tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+            tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+            if (i == tube.length - 1)
+              for (int k = -2; k <= 2; k++)
+                tube.centres[i] +
+                    (Offset(tube.across[i].dy, -tube.across[i].dx) *
+                                math.cos(k * math.pi / 6) +
+                            tube.across[i] * math.sin(k * math.pi / 6)) *
+                        (tube.radius[i] + clear),
+          ],
+    ];
+  }();
+
+  FallopianArt? _art;
+
+  FallopianArt _artFor(ZoomInks inks) {
+    final FallopianArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = FallopianArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => FallopianArt.bedOf(inks, _form.home);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

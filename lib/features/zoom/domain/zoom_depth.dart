@@ -227,6 +227,12 @@ final class ZoomDepth {
   /// canvas (1.3 leaves an iPhone SE's 375 by 421 no room above).
   static const double nodeUpright = 1.2;
 
+  /// How much taller than wide the fallopian tube is framed: drawn at a
+  /// real tube's length, it is smaller than its 11 cm's margin would frame
+  /// it, the anatomogram's arch being longer for its box than a tube is,
+  /// so it is framed closer, its names in a row above it and one below it.
+  static const double tubeUpright = 1.45;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -255,8 +261,9 @@ final class ZoomDepth {
   /// [esophagusUpright], the skin, a block of it, as [skinUpright], the
   /// thyroid, seen from the front in place, as [thyroidUpright], the
   /// adrenal, cut through its thickness, as [adrenalUpright], the
-  /// pituitary, cut down its middle, as [pituitaryUpright], and a lymph
-  /// node, cut through its hilum, as [nodeUpright].
+  /// pituitary, cut down its middle, as [pituitaryUpright], a lymph node,
+  /// cut through its hilum, as [nodeUpright], and the fallopian tube,
+  /// opened along its length, as [tubeUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -308,6 +315,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.pituitary) {
       return pituitaryUpright;
+    }
+    if (anatomy.organ == OrganKind.fallopianTube) {
+      return tubeUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)

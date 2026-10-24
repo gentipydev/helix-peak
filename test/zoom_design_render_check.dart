@@ -16,6 +16,7 @@ import 'package:helixpeek/features/zoom/presentation/scenes/contour.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organ_art.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/adrenal/adrenal_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/esophagus/esophagus_form.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/fallopian_tube/fallopian_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/kidney/kidney_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/liver/liver_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/lymph_node/node_form.dart';
@@ -191,7 +192,7 @@ void main() {
     // the esophagus likewise, the skin, one block for either figure,
     // about a cell of each part of it, the thyroid, the adrenal and the
     // pituitary on both figures about a cell of each part of each, and the
-    // lymph node about a cell of each part of it.
+    // lymph node and the fallopian tube about a cell of each part of each.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -208,6 +209,7 @@ void main() {
     final TissueAnatomy adrenal = tissueAnatomy['adrenal gland']!;
     final TissueAnatomy pituitary = tissueAnatomy['pituitary gland']!;
     final TissueAnatomy node = tissueAnatomy['lymphoid tissue']!;
+    final TissueAnatomy tube = tissueAnatomy['fallopian tube']!;
     final List<(String, TissueAnatomy, AnatomyFigure, CellShape)> organs =
         <(String, TissueAnatomy, AnatomyFigure, CellShape)>[
           for (final MapEntry<String, TissueAnatomy> tissue
@@ -430,6 +432,17 @@ void main() {
           node,
           AnatomyFigure.female,
           CellShape.leukocyte,
+          cell,
+        ),
+      for (final (String cell, CellShape shape) in <(String, CellShape)>[
+        ('Fallopian tube ciliated cells', CellShape.ciliated),
+        ('Smooth muscle cells', CellShape.spindle),
+      ])
+        (
+          'tube-${FallopianHome.of(cell).name}',
+          tube,
+          AnatomyFigure.female,
+          shape,
           cell,
         ),
     ];
