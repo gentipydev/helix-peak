@@ -233,6 +233,15 @@ final class ZoomDepth {
   /// so it is framed closer, its names in a row above it and one below it.
   static const double tubeUpright = 1.45;
 
+  /// How much taller than wide the placenta is framed: drawn as a block of
+  /// it, its front face 5 cm across, its top and its side receding and its
+  /// cord rising from it, it takes a little over a third of the canvas's
+  /// width, which leaves its names room in a column at either edge on the
+  /// narrowest canvas a phone gives it, an iPhone SE's, 311 wide inside the
+  /// canvas's inset (at 0.5 its intervillous space's name, the widest, has
+  /// none).
+  static const double placentaUpright = 0.48;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -262,8 +271,9 @@ final class ZoomDepth {
   /// thyroid, seen from the front in place, as [thyroidUpright], the
   /// adrenal, cut through its thickness, as [adrenalUpright], the
   /// pituitary, cut down its middle, as [pituitaryUpright], a lymph node,
-  /// cut through its hilum, as [nodeUpright], and the fallopian tube,
-  /// opened along its length, as [tubeUpright].
+  /// cut through its hilum, as [nodeUpright], the fallopian tube, opened
+  /// along its length, as [tubeUpright], and the placenta, a block of it,
+  /// as [placentaUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -279,6 +289,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.skin) {
       return skinUpright;
+    }
+    if (anatomy.organ == OrganKind.placenta) {
+      return placentaUpright;
     }
     if (anatomy.organ == OrganKind.testis) {
       return testisUpright;

@@ -261,8 +261,9 @@ void main() {
       // the heart, cut open, its great vessels reaching out either side of
       // it, framed wider than their margin; the kidney, cut open, its names
       // in columns either side of it, framed a little wider than its
-      // outline; the skin, a block of it, framed wide enough that its
-      // names stand in a column either side of it; the thyroid, seen in
+      // outline; the skin and the placenta, a block of each, framed wide
+      // enough that its names stand in a column either side of it; the
+      // thyroid, seen in
       // place, framed wide enough that its names stand in a row above it
       // and one below it; and the pituitary, cut down its middle among the
       // brain and the bone round it, framed wider still for the same.
@@ -279,6 +280,7 @@ void main() {
             OrganKind.eye => ZoomDepth.eyeUpright,
             OrganKind.heart => ZoomDepth.heartUpright,
             OrganKind.skin => ZoomDepth.skinUpright,
+            OrganKind.placenta => ZoomDepth.placentaUpright,
             OrganKind.thyroid => ZoomDepth.thyroidUpright,
             OrganKind.pituitary => ZoomDepth.pituitaryUpright,
             _ => 1.0,
@@ -319,13 +321,14 @@ void main() {
     // the heart and skeletal muscle, the thigh, are drawn from anatomy since
     // 2026-10-22, the kidney, the liver, the stomach and the esophagus
     // since 2026-10-23, and the thyroid, the adrenal, the pituitary, the
-    // lymph node and the fallopian tube since 2026-10-24): never the organ
-    // drawn for no tissue at all.
+    // lymph node, the fallopian tube and the placenta since 2026-10-24):
+    // never the organ drawn for no tissue at all.
     const Set<OrganKind> drawn = <OrganKind>{
       OrganKind.brain,
       OrganKind.lymphNode,
       OrganKind.vessel,
       OrganKind.skin,
+      OrganKind.placenta,
       OrganKind.parathyroid,
       OrganKind.eye,
     };

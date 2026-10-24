@@ -74,6 +74,8 @@ void main() {
       TestCatalog.somatotropin,
       TestCatalog.app,
       TestCatalog.relaxin,
+      TestCatalog.bySlug('hcgbeta')!,
+      TestCatalog.bySlug('pappa')!,
     ]) {
       final ZoomStage stage = ZoomStage(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),

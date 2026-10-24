@@ -21,6 +21,7 @@ import 'package:helixpeek/features/zoom/presentation/scenes/organs/kidney/kidney
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/liver/liver_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/lymph_node/node_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/pituitary/pituitary_form.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/placenta/placenta_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/skin/skin_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/stomach/stomach_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/thyroid/thyroid_form.dart';
@@ -192,7 +193,8 @@ void main() {
     // the esophagus likewise, the skin, one block for either figure,
     // about a cell of each part of it, the thyroid, the adrenal and the
     // pituitary on both figures about a cell of each part of each, and the
-    // lymph node and the fallopian tube about a cell of each part of each.
+    // lymph node, the fallopian tube and the placenta about a cell of each
+    // part of each.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -210,6 +212,7 @@ void main() {
     final TissueAnatomy pituitary = tissueAnatomy['pituitary gland']!;
     final TissueAnatomy node = tissueAnatomy['lymphoid tissue']!;
     final TissueAnatomy tube = tissueAnatomy['fallopian tube']!;
+    final TissueAnatomy placenta = tissueAnatomy['placenta']!;
     final List<(String, TissueAnatomy, AnatomyFigure, CellShape)> organs =
         <(String, TissueAnatomy, AnatomyFigure, CellShape)>[
           for (final MapEntry<String, TissueAnatomy> tissue
@@ -443,6 +446,17 @@ void main() {
           tube,
           AnatomyFigure.female,
           shape,
+          cell,
+        ),
+      for (final String cell in <String>[
+        'Syncytiotrophoblasts',
+        'Decidual stromal cells',
+      ])
+        (
+          'placenta-${PlacentaHome.of(cell).name}',
+          placenta,
+          AnatomyFigure.female,
+          CellShape.trophoblast,
           cell,
         ),
     ];

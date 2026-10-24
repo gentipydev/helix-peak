@@ -44,6 +44,8 @@ import 'organs/pancreas/pancreas_form.dart';
 import 'organs/pancreas/pancreas_style.dart';
 import 'organs/pituitary/pituitary_art.dart';
 import 'organs/pituitary/pituitary_form.dart';
+import 'organs/placenta/placenta_art.dart';
+import 'organs/placenta/placenta_form.dart';
 import 'organs/salivary_gland/salivary_art.dart';
 import 'organs/salivary_gland/salivary_form.dart';
 import 'organs/salivary_gland/salivary_style.dart';
@@ -99,8 +101,9 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// the front, the skin, a block of it cut from the leg, the thyroid, seen
 /// from the front in place, one lobe cut open, the adrenal, cut through its
 /// thickness on its kidney's upper pole, the pituitary, cut down its
-/// middle as the brain is, a lymph node, cut through its hilum, and the
-/// fallopian tube, opened along its length.
+/// middle as the brain is, a lymph node, cut through its hilum, the
+/// fallopian tube, opened along its length, and the placenta, a block cut
+/// through it in its uterine wall.
 ///
 /// Where the gene is, the organ glows in the mark: the part of it the
 /// zoom's cell lives in (the islets of a pancreas for an endocrine cell, its
@@ -113,7 +116,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// medulla of an adrenal for a chromaffin cell, the posterior lobe of a
 /// pituitary for a pituicyte, the sinuses of a lymph node for a lymphatic
 /// endothelial cell, the muscular coat of a fallopian tube for a smooth
-/// muscle cell), by the kind of organ and of cell, never by gene.
+/// muscle cell, the decidua of a placenta for a decidual stromal cell), by
+/// the kind of organ and of cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -150,6 +154,7 @@ abstract class OrganArt {
       OrganKind.lymphNode => _NodeOrgan(anatomy, view, cell: cellName),
       OrganKind.vessel => _VesselOrgan(size),
       OrganKind.skin => _SkinOrgan(anatomy, view, cell: cellName),
+      OrganKind.placenta => _PlacentaOrgan(anatomy, view, cell: cellName),
       OrganKind.parathyroid => _ParathyroidOrgan(size),
       OrganKind.eye => _EyeOrgan(anatomy, view, part: part, cell: shape),
       OrganKind.pancreas when part != null => _PancreasOrgan(
@@ -3038,6 +3043,106 @@ final class _SkinOrgan extends OrganArt {
       return art;
     }
     return _art = SkinArt(_form, inks, home: _home)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  void paint(
+    Canvas canvas,
+    ZoomInks inks,
+    double pixel,
+    double scale, {
+    double detail = 1,
+  }) {
+    canvas.save();
+    canvas.scale(scale);
+    _artFor(inks).paint(canvas, pixel / scale);
+    canvas.restore();
+  }
+}
+
+/// A block cut through a placenta at term in its uterine wall, beside its
+/// cord's insertion (`PlacentaArt`): its villi or its decidua in the mark,
+/// by the Atlas's name for the cell, its names in a column at either edge
+/// of the canvas, level with what each names. It comes up over the body's
+/// figure on its own, as the skin's block does.
+final class _PlacentaOrgan extends OrganArt {
+  _PlacentaOrgan(TissueAnatomy anatomy, double view, {String? cell})
+    : _home = PlacentaHome.of(cell),
+      _form = PlacentaForm(width: anatomy.metres / view, view: view);
+
+  final PlacentaHome _home;
+  final PlacentaForm _form;
+
+  @override
+  Offset get site => _form.site;
+
+  @override
+  Path get outline => _form.outline;
+
+  // Where the cell lives, in the mark, and the placenta's layers and what
+  // runs through them in the quiet ink, from the top down: the villi at the
+  // site and the decidua under it, one of them the home.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    for (final PlacentaHome home in PlacentaHome.values)
+      if (home == _home)
+        (key: 'home', word: home.word, at: _form.nameOf(home), home: true),
+    (key: 'cord', word: 'umbilical\ncord', at: _form.cordName, home: false),
+    (
+      key: 'plate',
+      word: 'chorionic\nplate',
+      at: _form.plateName,
+      home: false,
+    ),
+    for (final PlacentaHome home in PlacentaHome.values)
+      if (home != _home)
+        (key: home.name, word: home.word, at: _form.nameOf(home), home: false),
+    (
+      key: 'space',
+      word: 'intervillous\nspace',
+      at: _form.spaceName,
+      home: false,
+    ),
+    (
+      key: 'spiral',
+      word: 'spiral\nartery',
+      at: _form.spiralName,
+      home: false,
+    ),
+  ];
+
+  @override
+  List<Offset> get named => _form.outlinePoints;
+
+  // The layers by the site on the left, the chorionic plate, the villi and
+  // the decidua; the cord, and the right lobule's central cavity and its
+  // spiral artery, on the right.
+  @override
+  late final Map<String, OrganColumn> columns = <String, OrganColumn>{
+    for (final OrganName name in names)
+      name.key: () {
+        final double side = switch (name.key) {
+          'cord' || 'space' || 'spiral' => 1.0,
+          _ => -1.0,
+        };
+        final (Offset left, Offset right) = _form.edgesAt(
+          _form.toMm(name.at).dy,
+        );
+        return (side: side, left: left, right: right);
+      }(),
+  };
+
+  PlacentaArt? _art;
+
+  PlacentaArt _artFor(ZoomInks inks) {
+    final PlacentaArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = PlacentaArt(_form, inks, home: _home)..prepare();
   }
 
   @override
