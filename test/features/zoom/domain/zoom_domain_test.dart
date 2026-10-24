@@ -672,18 +672,55 @@ void main() {
       }
     });
 
+    test('go into the fat 5 cm beside the navel, at its height, on the '
+        'body\'s right, where abdominal fat is biopsied, and close the view '
+        'there', () {
+      final String fat = tissueAnatomy['adipose tissue']!.uberon;
+      for (final AnatomyFigure figure in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ]) {
+        final AnatomyPart part = figure.parts[fat]!;
+        final List<Offset> outer = part.contours.first;
+        // The navel: the smallest outline that lies inside the abdomen's.
+        final List<Offset> navel = <List<Offset>>[
+          for (final List<Offset> c in part.contours.skip(1))
+            if (c.every((Offset p) => inside(outer, p))) c,
+        ].reduce(
+          (List<Offset> a, List<Offset> b) =>
+              boxOf(a).width * boxOf(a).height <=
+                      boxOf(b).width * boxOf(b).height
+                  ? a
+                  : b,
+        );
+        final Offset middle = boxOf(navel).center;
+        expect(boxOf(navel).width, lessThan(0.015), reason: figure.name);
+        // As the tool reads the drawing's own outlines, before they are
+        // simplified.
+        expect(middle.dx - part.site.dx, closeTo(0.05, 2e-3),
+            reason: figure.name);
+        expect(part.site.dy, closeTo(middle.dy, 2e-3), reason: figure.name);
+        expect(inside(outer, part.site), isTrue, reason: figure.name);
+        for (final List<Offset> c in part.contours.skip(1)) {
+          expect(inside(c, part.site), isFalse, reason: figure.name);
+        }
+        expect(part.framed, part.site, reason: figure.name);
+      }
+    });
+
     test('close the view on every other part at the middle of the outline '
         'it follows', () {
       final String muscle = tissueAnatomy['skeletal muscle']!.uberon;
       final String esophagus = tissueAnatomy['esophagus']!.uberon;
       final String skin = tissueAnatomy['skin']!.uberon;
+      final String fat = tissueAnatomy['adipose tissue']!.uberon;
       for (final AnatomyFigure figure in <AnatomyFigure>[
         AnatomyFigure.female,
         AnatomyFigure.male,
         AnatomyFigure.brain,
       ]) {
         for (final MapEntry<String, AnatomyPart> part in figure.parts.entries) {
-          if (<String>{muscle, esophagus, skin}.contains(part.key)) {
+          if (<String>{muscle, esophagus, skin, fat}.contains(part.key)) {
             continue;
           }
           expect(part.value.framed, isNull, reason: part.key);

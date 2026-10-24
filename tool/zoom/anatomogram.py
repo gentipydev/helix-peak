@@ -174,11 +174,25 @@ SITE_WITHIN = {"UBERON_0002113": "UBERON_0001225"}
 # figure's outline and a second one just inside it.
 SITE_BELOW = {"UBERON_0000014": ("UBERON_0002371", 0.02)}
 
+# Parts the zoom goes into a way to the page's left of the smallest of their
+# outlines that lies inside the largest, the body's right, at its height: the
+# part, and how far, in metres. Adipose tissue is drawn as a block of the
+# abdominal wall (`adipose_anatomy.dart`), and the anatomogram draws the
+# navel as a hole in the abdomen's fat on either figure; abdominal
+# subcutaneous fat is biopsied at the umbilicus's level 4 to 7 cm lateral
+# to it (Dineen et al. 2023, J Clin Endocrinol Metab 108:3178), about 5 cm
+# lateral to it (Lynch et al. 2024, Am J Physiol Regul Integr Comp Physiol
+# 326:R220), or 6 to 8 cm (Lempesis et al. 2024, J Clin Endocrinol Metab
+# 109:e2291): the site lies 5 cm beside the navel, in the fat and in no hole
+# of it (6 cm lies just above the female figure's fat, which the drawing
+# begins a little below the navel's height there).
+SITE_BESIDE = {"UBERON_0001013": 0.05}
+
 # Parts the view closes on where the zoom goes into them, written as a
 # `centre`: for a part whose scene draws a piece of it about that place, not
-# its outline. The skin's outline is the whole figure's; its scene draws a
-# block of it.
-FRAME_AT_SITE = {"UBERON_0000014"}
+# its outline. The skin's outline is the whole figure's, and the fat's the
+# trunk's and the limbs'; the scene of each draws a block of it.
+FRAME_AT_SITE = {"UBERON_0000014", "UBERON_0001013"}
 
 
 def fetch(directory: str | None) -> dict[str, str]:
@@ -341,6 +355,22 @@ def site_below(
     return site
 
 
+def site_beside(contours: list[list[svg.Point]], offset: float) -> svg.Point:
+    """A point [offset] (in the drawing's units) to the left of the middle
+    of the smallest of [contours] that lies inside the first, at its height
+    (`SITE_BESIDE`); inside the first, and inside none of the others."""
+    outer = contours[0]
+    holes = [c for c in contours[1:] if all(inside(outer, p) for p in c)]
+    if not holes:
+        raise SystemExit("no outline lies inside the largest")
+    hole = min(holes, key=lambda c: abs(svg.area(c)))
+    x0, y0, x1, y1 = svg.bounds([hole])
+    site = ((x0 + x1) / 2 - offset, (y0 + y1) / 2)
+    if not inside(outer, site) or any(inside(c, site) for c in contours[1:]):
+        raise SystemExit(f"{site} lies outside the part")
+    return site
+
+
 def farthest_inside(contour: list[svg.Point], x0: float, y0: float, x1: float, y1: float) -> svg.Point | None:
     """The point of a grid over the box from (x0, y0) to (x1, y1) that lies
     inside [contour] farthest from its edge, or None where none is inside."""
@@ -433,6 +463,8 @@ def convert_body(name: str, path: str, wanted: set[str]) -> dict:
             site = site_level(followed, SITE_LEVEL[uberon])
         elif uberon in SITE_LATERAL:
             site = site_lateral(followed, *SITE_LATERAL[uberon], middle)
+        elif uberon in SITE_BESIDE:
+            site = site_beside(contours, SITE_BESIDE[uberon] / scale)
         elif uberon in SITE_BELOW:
             measured, below = SITE_BELOW[uberon]
             under = sorted(part_of(shapes_by_id, measured), key=lambda c: -abs(svg.area(c)))
