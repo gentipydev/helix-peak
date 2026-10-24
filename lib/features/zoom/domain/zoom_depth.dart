@@ -242,6 +242,11 @@ final class ZoomDepth {
   /// none).
   static const double placentaUpright = 0.48;
 
+  /// How much taller than wide the fat is framed: drawn as a block of the
+  /// abdominal wall, its front face 4 cm across, its top and its side
+  /// receding, it leaves its names room in a column at either edge.
+  static const double adiposeUpright = 0.55;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -272,8 +277,9 @@ final class ZoomDepth {
   /// adrenal, cut through its thickness, as [adrenalUpright], the
   /// pituitary, cut down its middle, as [pituitaryUpright], a lymph node,
   /// cut through its hilum, as [nodeUpright], the fallopian tube, opened
-  /// along its length, as [tubeUpright], and the placenta, a block of it,
-  /// as [placentaUpright].
+  /// along its length, as [tubeUpright], the placenta, a block of it, as
+  /// [placentaUpright], and the fat, a block of the abdominal wall, as
+  /// [adiposeUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -292,6 +298,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.placenta) {
       return placentaUpright;
+    }
+    if (anatomy.organ == OrganKind.adipose) {
+      return adiposeUpright;
     }
     if (anatomy.organ == OrganKind.testis) {
       return testisUpright;

@@ -8,7 +8,8 @@ import '../../domain/cell_archetypes.dart';
 import '../../domain/zoom_depth.dart';
 import '../zoom_inks.dart';
 import 'contour.dart';
-import 'organ_studies.dart';
+import 'organs/adipose/adipose_art.dart';
+import 'organs/adipose/adipose_form.dart';
 import 'organs/adrenal/adrenal_art.dart';
 import 'organs/adrenal/adrenal_form.dart';
 import 'organs/adrenal/adrenal_style.dart';
@@ -102,8 +103,9 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// from the front in place, one lobe cut open, the adrenal, cut through its
 /// thickness on its kidney's upper pole, the pituitary, cut down its
 /// middle as the brain is, a lymph node, cut through its hilum, the
-/// fallopian tube, opened along its length, and the placenta, a block cut
-/// through it in its uterine wall.
+/// fallopian tube, opened along its length, the placenta, a block cut
+/// through it in its uterine wall, and the fat, a block of the abdominal
+/// wall beside the navel.
 ///
 /// Where the gene is, the organ glows in the mark: the part of it the
 /// zoom's cell lives in (the islets of a pancreas for an endocrine cell, its
@@ -116,8 +118,9 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// medulla of an adrenal for a chromaffin cell, the posterior lobe of a
 /// pituitary for a pituicyte, the sinuses of a lymph node for a lymphatic
 /// endothelial cell, the muscular coat of a fallopian tube for a smooth
-/// muscle cell, the decidua of a placenta for a decidual stromal cell), by
-/// the kind of organ and of cell, never by gene.
+/// muscle cell, the decidua of a placenta for a decidual stromal cell, both
+/// layers of the fat for any cell of it), by the kind of organ and of cell,
+/// never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -155,6 +158,7 @@ abstract class OrganArt {
       OrganKind.vessel => _VesselOrgan(size),
       OrganKind.skin => _SkinOrgan(anatomy, view, cell: cellName),
       OrganKind.placenta => _PlacentaOrgan(anatomy, view, cell: cellName),
+      OrganKind.adipose => _AdiposeOrgan(anatomy, view),
       OrganKind.parathyroid => _ParathyroidOrgan(size),
       OrganKind.eye => _EyeOrgan(anatomy, view, part: part, cell: shape),
       OrganKind.pancreas when part != null => _PancreasOrgan(
@@ -270,7 +274,6 @@ abstract class OrganArt {
                 anatomy,
                 view,
                 figure: figure,
-                shape: shape,
                 level: level,
               ),
     };
@@ -417,10 +420,9 @@ abstract class OrganArt {
 }
 
 /// The surface an organ's outline is given.
-enum _Look { lobules, hollow, fibres, airways, fat, coils }
+enum _Look { lobules, hollow, fibres, airways, coils }
 
 _Look _lookOf(OrganKind kind) => switch (kind) {
-  OrganKind.adipose => _Look.fat,
   OrganKind.lung => _Look.airways,
   OrganKind.intestine ||
   OrganKind.epididymis ||
@@ -522,7 +524,6 @@ final class _DrawnOrgan extends OrganArt {
     TissueAnatomy anatomy,
     double view, {
     AnatomyFigure? figure,
-    CellShape shape = CellShape.epithelial,
     this.level = 1,
   }) : real = anatomy.metres / part.extent,
        _look = _lookOf(anatomy.organ) {
@@ -542,11 +543,6 @@ final class _DrawnOrgan extends OrganArt {
     _box = _shape.getBounds();
     // The body's midline, in the scene: an organ's hilum faces it.
     _midline = placed(Offset(0, part.site.dy)).dx;
-    _study = OrganStudy.of(
-      anatomy.organ,
-      OrganForm(_shape, _points, _site, midline: _midline),
-      shape,
-    );
     _detail = _surface();
     _around = _Surroundings(part, figure, placed);
   }
@@ -575,7 +571,6 @@ final class _DrawnOrgan extends OrganArt {
   late final _Surroundings _around;
   late final Rect _box;
   late final double _midline;
-  late final OrganStudy? _study;
 
   /// What is stroked over the organ, and what is filled darker in it.
   late final (Path, Path) _detail;
@@ -602,23 +597,15 @@ final class _DrawnOrgan extends OrganArt {
   }
 
   (Path, Path) _surface() {
-    // An organ with a study of its own is drawn by it.
-    if (_study != null) {
-      return (Path(), Path());
-    }
     final math.Random random = math.Random(_look.index + 11);
     final Path lines = Path();
     final Path dark = Path();
     final double size = _box.longestSide;
     final Offset middle = _middle;
     switch (_look) {
-      case _Look.lobules || _Look.fat:
-        // Lobules, or lobes of fat: a cobble of rounded shapes.
-        for (final Rect lobule in Sculpt.cobble(
-          _box,
-          size * (_look == _Look.fat ? 0.1 : 0.15),
-          random,
-        )) {
+      case _Look.lobules:
+        // Lobules: a cobble of rounded shapes.
+        for (final Rect lobule in Sculpt.cobble(_box, size * 0.15, random)) {
           lines.addOval(lobule);
         }
       case _Look.hollow:
@@ -693,8 +680,7 @@ final class _DrawnOrgan extends OrganArt {
     final double line = pixel / scale;
     _around.paint(canvas, inks, line, _box, detail);
     OrganArt._flatOthers(canvas, _others, inks, line);
-    _study?.behind(canvas, inks, line, detail);
-    final bool hollow = _look == _Look.hollow && _study == null;
+    final bool hollow = _look == _Look.hollow;
     OrganArt._sculpted(canvas, _shape, _box, inks, line, detail);
     // The mark the body handed it over in, giving way as it becomes the
     // organ and the gene's place in it comes up.
@@ -723,7 +709,6 @@ final class _DrawnOrgan extends OrganArt {
           ..strokeWidth = 1 * line
           ..color = inks.lit(0.5).withValues(alpha: 0.22 * detail),
       );
-      _study?.inside(canvas, inks, line, detail);
     }
     canvas.restore();
     OrganArt._edged(canvas, _shape, _box, inks, line, detail);
@@ -3143,6 +3128,90 @@ final class _PlacentaOrgan extends OrganArt {
       return art;
     }
     return _art = PlacentaArt(_form, inks, home: _home)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  void paint(
+    Canvas canvas,
+    ZoomInks inks,
+    double pixel,
+    double scale, {
+    double detail = 1,
+  }) {
+    canvas.save();
+    canvas.scale(scale);
+    _artFor(inks).paint(canvas, pixel / scale);
+    canvas.restore();
+  }
+}
+
+/// A block cut through the abdominal wall beside the navel, where
+/// abdominal fat is biopsied (`AdiposeArt`): the fat of both its layers in
+/// the mark, as wherever the zoom's cell lives in it, it lives in the fat;
+/// its names in a column at either edge of the canvas, level with what
+/// each names. It comes up over the body's figure on its own, as the
+/// skin's block does.
+final class _AdiposeOrgan extends OrganArt {
+  _AdiposeOrgan(TissueAnatomy anatomy, double view)
+    : _form = AdiposeForm(width: anatomy.metres / view, view: view);
+
+  final AdiposeForm _form;
+
+  @override
+  Offset get site => _form.site;
+
+  @override
+  Path get outline => _form.outline;
+
+  // The fat, in the mark, at the site; and the wall's layers and its septa
+  // round it in the quiet ink, from the top down.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'home', word: 'fat\nlobules', at: _form.fatName, home: true),
+    (key: 'septum', word: 'septum', at: _form.septumName, home: false),
+    (
+      key: 'membranous',
+      word: 'Scarpa\u2019s\nfascia',
+      at: _form.membranousName,
+      home: false,
+    ),
+    (key: 'deep', word: 'deep fat', at: _form.deepName, home: false),
+    (key: 'rectus', word: 'rectus', at: _form.rectusName, home: false),
+  ];
+
+  @override
+  List<Offset> get named => _form.outlinePoints;
+
+  // The fat at the site, a septum above it and the deep fat under it on
+  // the left; the membranous layer and the rectus toward the block's right.
+  // The skin, plain on the top, is not named: on an iPhone SE's canvas a
+  // third name on either side has no room.
+  @override
+  late final Map<String, OrganColumn> columns = <String, OrganColumn>{
+    for (final OrganName name in names)
+      name.key: () {
+        final double side = switch (name.key) {
+          'home' || 'septum' || 'deep' => -1.0,
+          _ => 1.0,
+        };
+        final (Offset left, Offset right) = _form.edgesAt(
+          _form.toMm(name.at).dy,
+        );
+        return (side: side, left: left, right: right);
+      }(),
+  };
+
+  AdiposeArt? _art;
+
+  AdiposeArt _artFor(ZoomInks inks) {
+    final AdiposeArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = AdiposeArt(_form, inks)..prepare();
   }
 
   @override

@@ -10,7 +10,6 @@ import 'package:helixpeek/features/zoom/presentation/scenes/body_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/nucleus_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organ_art.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organ_scene.dart';
-import 'package:helixpeek/features/zoom/presentation/scenes/organ_studies.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
@@ -261,8 +260,9 @@ void main() {
       // the heart, cut open, its great vessels reaching out either side of
       // it, framed wider than their margin; the kidney, cut open, its names
       // in columns either side of it, framed a little wider than its
-      // outline; the skin and the placenta, a block of each, framed wide
-      // enough that its names stand in a column either side of it; the
+      // outline; the skin, the placenta and the fat, a block of each,
+      // framed wide enough that its names stand in a column either side of
+      // it; the
       // thyroid, seen in
       // place, framed wide enough that its names stand in a row above it
       // and one below it; and the pituitary, cut down its middle among the
@@ -281,6 +281,7 @@ void main() {
             OrganKind.heart => ZoomDepth.heartUpright,
             OrganKind.skin => ZoomDepth.skinUpright,
             OrganKind.placenta => ZoomDepth.placentaUpright,
+            OrganKind.adipose => ZoomDepth.adiposeUpright,
             OrganKind.thyroid => ZoomDepth.thyroidUpright,
             OrganKind.pituitary => ZoomDepth.pituitaryUpright,
             _ => 1.0,
@@ -314,21 +315,22 @@ void main() {
   test('every organ the curated proteins reach is drawn as itself, the place '
       'its tissue is sampled inside it', () {
     // The organs drawn from general anatomy or from the brain's own figure
-    // are each a drawing of their own; the twenty's others have a study. An
-    // organ no study has been made for yet is the body's own outline of it,
-    // seen closer, with its plain surface (the user's choice of 2026-10-17,
-    // for the placenta, esophagus, thyroid and kidney the third ten reach;
-    // the heart and skeletal muscle, the thigh, are drawn from anatomy since
-    // 2026-10-22, the kidney, the liver, the stomach and the esophagus
-    // since 2026-10-23, and the thyroid, the adrenal, the pituitary, the
-    // lymph node, the fallopian tube and the placenta since 2026-10-24):
-    // never the organ drawn for no tissue at all.
+    // are each a drawing of their own. Any other organ is the body's own
+    // outline of it, seen closer, with its plain surface (the user's choice
+    // of 2026-10-17, for the placenta, esophagus, thyroid and kidney the
+    // third ten reach; the heart and skeletal muscle, the thigh, are drawn
+    // from anatomy since 2026-10-22, the kidney, the liver, the stomach and
+    // the esophagus since 2026-10-23, and the thyroid, the adrenal, the
+    // pituitary, the lymph node, the fallopian tube, the placenta and the
+    // fat since 2026-10-24, when the last study went): never the organ
+    // drawn for no tissue at all.
     const Set<OrganKind> drawn = <OrganKind>{
       OrganKind.brain,
       OrganKind.lymphNode,
       OrganKind.vessel,
       OrganKind.skin,
       OrganKind.placenta,
+      OrganKind.adipose,
       OrganKind.parathyroid,
       OrganKind.eye,
     };
@@ -337,9 +339,7 @@ void main() {
       final OrganKind kind = subject.anatomy!.organ;
       final OrganArt art = OrganArt.of(subject);
       expect(
-        drawn.contains(kind) ||
-            OrganStudy.studied.contains(kind) ||
-            art.followsBody,
+        drawn.contains(kind) || art.followsBody,
         isTrue,
         reason: '${t.slug}: $kind has no drawing of its own',
       );

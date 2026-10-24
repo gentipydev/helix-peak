@@ -192,9 +192,9 @@ void main() {
     // each part of it the Atlas's names light, the liver, the stomach and
     // the esophagus likewise, the skin, one block for either figure,
     // about a cell of each part of it, the thyroid, the adrenal and the
-    // pituitary on both figures about a cell of each part of each, and the
+    // pituitary on both figures about a cell of each part of each, the
     // lymph node, the fallopian tube and the placenta about a cell of each
-    // part of each.
+    // part of each, and the fat about an adipocyte.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -459,6 +459,13 @@ void main() {
           CellShape.trophoblast,
           cell,
         ),
+      (
+        'adipose-fat',
+        tissueAnatomy['adipose tissue']!,
+        AnatomyFigure.female,
+        CellShape.adipocyte,
+        'Adipocytes (Subcutaneous)',
+      ),
     ];
     for (final (
           String name,

@@ -76,6 +76,7 @@ void main() {
       TestCatalog.relaxin,
       TestCatalog.bySlug('hcgbeta')!,
       TestCatalog.bySlug('pappa')!,
+      TestCatalog.leptin,
     ]) {
       final ZoomStage stage = ZoomStage(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),

@@ -95,9 +95,9 @@ final class TissueAnatomy {
   /// For an organ it shows a piece of ([thickness]), the piece's.
   final double metres;
 
-  /// For an organ the organ level shows a piece of, the skin or the
-  /// placenta, how thick it is, in metres: what its card gives in place of
-  /// its extent.
+  /// For an organ the organ level shows a piece of, the skin, the placenta
+  /// or the fat, how thick it is, in metres: what its card gives in place
+  /// of its extent.
   final double? thickness;
 
   /// The part of the anatomogram's standing figure it is found by, by
@@ -120,9 +120,10 @@ final class TissueAnatomy {
 const Map<String, TissueAnatomy> tissueAnatomy = <String, TissueAnatomy>{
   'adipose tissue': TissueAnatomy(
     organ: OrganKind.adipose,
-    metres: 0.2,
+    metres: 0.04,
     uberon: 'UBERON_0001013',
     recipe: TissueRecipe.adipose,
+    thickness: 0.01748,
   ),
   'adrenal gland': TissueAnatomy(
     organ: OrganKind.adrenal,
