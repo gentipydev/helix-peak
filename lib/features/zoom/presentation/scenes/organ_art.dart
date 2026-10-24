@@ -9,6 +9,9 @@ import '../../domain/zoom_depth.dart';
 import '../zoom_inks.dart';
 import 'contour.dart';
 import 'organ_studies.dart';
+import 'organs/adrenal/adrenal_art.dart';
+import 'organs/adrenal/adrenal_form.dart';
+import 'organs/adrenal/adrenal_style.dart';
 import 'organs/bone_marrow/marrow_art.dart';
 import 'organs/bone_marrow/marrow_form.dart';
 import 'organs/brain/brain_anatomy.dart';
@@ -85,8 +88,9 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// marrow, its femur cut down its length, the heart, cut open, skeletal
 /// muscle, the front of the thigh, the kidney and the liver, each cut open
 /// from front to back, the stomach and the esophagus, each opened from
-/// the front, the skin, a block of it cut from the leg, and the thyroid,
-/// seen from the front in place, one lobe cut open.
+/// the front, the skin, a block of it cut from the leg, the thyroid, seen
+/// from the front in place, one lobe cut open, and the adrenal, cut
+/// through its thickness on its kidney's upper pole.
 ///
 /// Where the gene is, the organ glows in the mark: the part of it the
 /// zoom's cell lives in (the islets of a pancreas for an endocrine cell, its
@@ -95,8 +99,9 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// bile ducts of a liver for a cholangiocyte, the muscularis of a stomach
 /// for a smooth muscle cell, the glands of an esophagus for a cell of its
 /// submucosal glands, the basal layer of the skin and its hair bulbs for a
-/// melanocyte, the C cells of a thyroid for a parafollicular cell), by the
-/// kind of organ and of cell, never by gene.
+/// melanocyte, the C cells of a thyroid for a parafollicular cell, the
+/// medulla of an adrenal for a chromaffin cell), by the kind of organ and
+/// of cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -209,6 +214,14 @@ abstract class OrganArt {
         level: level,
       ),
       OrganKind.thyroid when part != null => _ThyroidOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        cell: cellName,
+        level: level,
+      ),
+      OrganKind.adrenal when part != null => _AdrenalOrgan(
         part,
         anatomy,
         view,
@@ -1899,6 +1912,171 @@ final class _ThyroidOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => ThyroidArt.bedOf(inks, _form.home);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The adrenal gland, drawn from general anatomy as a specimen cut through
+/// the middle of its thickness (`AdrenalArt`), on its kidney's upper pole:
+/// the right gland or the left, each of its own shape, its cortex round
+/// the medulla in its body, its central vein leaving through its hilum,
+/// cut short, its arteries coming in to its edge; reached from the body's
+/// own outline of it (`_SpecimenOrgan`), which draws in toward the gland's
+/// own and becomes the bed it lies on, the figure staying round it, faint,
+/// and the body's kidney under it lit at its pole. Where the zoom's cell
+/// lives is in the mark, by the Atlas's name for the cell: its cortex, or
+/// its medulla for a chromaffin cell.
+final class _AdrenalOrgan extends _SpecimenOrgan {
+  _AdrenalOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    String? cell,
+    super.level,
+  }) : _form = AdrenalForm.place(
+         part: part,
+         anatomy: anatomy,
+         view: view,
+         figure: figure,
+         home: AdrenalHome.of(cell),
+       ),
+       _others = _othersOf(part, anatomy.metres / part.extent / view);
+
+  final AdrenalForm _form;
+
+  /// The body's other adrenal, flat as it drew it, in the scene.
+  final Path _others;
+
+  // Its outline is drawn in a little more slowly than other specimens'.
+  @override
+  double _settleOf(double detail) =>
+      SpecimenStep.settle(detail, span: AdrenalStyle.settling);
+
+  static Path _othersOf(AnatomyPart part, double scale) {
+    final Path path = Path();
+    for (final List<Offset> other in part.others) {
+      path.addPath(
+        OrganArt._closed(<Offset>[
+          for (final Offset p in other) (p - part.centre) * scale,
+        ]),
+        Offset.zero,
+      );
+    }
+    return path;
+  }
+
+  @override
+  bool get _amongFigure => true;
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark: its cortex at the place its
+  // tissue is sampled, or its medulla; and the other, the central vein and
+  // the kidney under it, in the quiet ink.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    switch (_form.home) {
+      AdrenalHome.cortex => (
+        key: 'home',
+        word: 'cortex',
+        at: _form.cortexName,
+        home: true,
+      ),
+      AdrenalHome.medulla => (
+        key: 'home',
+        word: 'medulla',
+        at: _form.medullaName,
+        home: true,
+      ),
+    },
+    switch (_form.home) {
+      AdrenalHome.cortex => (
+        key: 'medulla',
+        word: 'medulla',
+        at: _form.medullaName,
+        home: false,
+      ),
+      AdrenalHome.medulla => (
+        key: 'cortex',
+        word: 'cortex',
+        at: _form.cortexName,
+        home: false,
+      ),
+    },
+    (key: 'vein', word: 'central vein', at: _form.veinName, home: false),
+    if (_form.kidneyName case final Offset at)
+      (key: 'kidney', word: 'kidney', at: at, home: false),
+  ];
+
+  // Set round all of it, out at the canvas's corners: round the gland, the
+  // kidney's pole where it shows and what is drawn beside it, with room to
+  // either side and past where each tube ends.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(AdrenalStyle.nameClear);
+    return <Offset>[
+      for (int i = 0; i < _form.outlinePoints.length; i += 4)
+        _form.outlinePoints[i],
+      for (final Offset p in _form.kidneyPole)
+        if (_form.kidneyShownAt(p.dy) > AdrenalStyle.nameShown) p,
+      for (final TubeCourse tube in _form.beside)
+        for (final int last in <int>[
+          tube.shown.lastIndexWhere((double s) => s > AdrenalStyle.nameShown),
+        ])
+          for (int i = 0; i <= last; i++)
+            if (i % 4 == 0 || i == last) ...<Offset>[
+              tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+              tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+              // Round its end.
+              if (i == last)
+                for (int k = -2; k <= 2; k++)
+                  tube.centres[i] +
+                      (Offset(tube.across[i].dy, -tube.across[i].dx) *
+                                  math.cos(k * math.pi / 6) +
+                              tube.across[i] * math.sin(k * math.pi / 6)) *
+                          (tube.radius[i] + clear),
+            ],
+    ];
+  }();
+
+  // The body's other adrenal stays as it drew it, flat, as the figure's
+  // parts stay round this one.
+  @override
+  void _paintBeside(
+    Canvas canvas,
+    ZoomInks inks,
+    double line,
+    double detail,
+  ) => OrganArt._flatOthers(canvas, _others, inks, line);
+
+  AdrenalArt? _art;
+
+  AdrenalArt _artFor(ZoomInks inks) {
+    final AdrenalArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = AdrenalArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => AdrenalArt.bedOf(inks, _form.home);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

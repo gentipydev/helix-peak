@@ -207,6 +207,12 @@ final class ZoomDepth {
   /// and 375 by 421 without it (0.8 leaves the second no room).
   static const double thyroidUpright = 0.75;
 
+  /// How much taller than wide the adrenal is framed: cut through its
+  /// thickness on its kidney's upper pole, its vein cut short beside it, it
+  /// is about as wide as it is tall, and its names have a row above it and
+  /// one below it on every phone's canvas.
+  static const double adrenalUpright = 1.0;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -232,8 +238,9 @@ final class ZoomDepth {
   /// front to back, as [kidneyUpright], the liver, cut open from front to
   /// back, as [liverUpright], the stomach, opened from the front, as
   /// [stomachUpright], the esophagus, opened from the front, as
-  /// [esophagusUpright], the skin, a block of it, as [skinUpright], and the
-  /// thyroid, seen from the front in place, as [thyroidUpright].
+  /// [esophagusUpright], the skin, a block of it, as [skinUpright], the
+  /// thyroid, seen from the front in place, as [thyroidUpright], and the
+  /// adrenal, cut through its thickness, as [adrenalUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -277,6 +284,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.thyroid) {
       return thyroidUpright;
+    }
+    if (anatomy.organ == OrganKind.adrenal) {
+      return adrenalUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)

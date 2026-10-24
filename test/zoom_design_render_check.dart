@@ -14,6 +14,7 @@ import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_path.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/contour.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organ_art.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/adrenal/adrenal_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/esophagus/esophagus_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/kidney/kidney_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/liver/liver_form.dart';
@@ -186,8 +187,8 @@ void main() {
     // thigh, on both figures, the kidney on both figures about a cell of
     // each part of it the Atlas's names light, the liver, the stomach and
     // the esophagus likewise, the skin, one block for either figure,
-    // about a cell of each part of it, and the thyroid on both figures
-    // about a cell of each part of it.
+    // about a cell of each part of it, and the thyroid and the adrenal on
+    // both figures about a cell of each part of each.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -201,6 +202,7 @@ void main() {
     final TissueAnatomy esophagus = tissueAnatomy['esophagus']!;
     final TissueAnatomy skin = tissueAnatomy['skin']!;
     final TissueAnatomy thyroid = tissueAnatomy['thyroid gland']!;
+    final TissueAnatomy adrenal = tissueAnatomy['adrenal gland']!;
     final List<(String, TissueAnatomy, AnatomyFigure, CellShape)> organs =
         <(String, TissueAnatomy, AnatomyFigure, CellShape)>[
           for (final MapEntry<String, TissueAnatomy> tissue
@@ -382,6 +384,21 @@ void main() {
             thyroid,
             body,
             CellShape.epithelial,
+            cell,
+          ),
+      for (final AnatomyFigure body in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ])
+        for (final String cell in <String>[
+          'Adrenal cortex cells',
+          'Chromaffin cells',
+        ])
+          (
+            'adrenal-${body.name}-${AdrenalHome.of(cell).name}',
+            adrenal,
+            body,
+            CellShape.endocrine,
             cell,
           ),
     ];
