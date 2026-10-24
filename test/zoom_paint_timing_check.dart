@@ -72,6 +72,7 @@ void main() {
       TestCatalog.bySlug('thyroglobulin')!,
       TestCatalog.bySlug('cyp17a1')!,
       TestCatalog.somatotropin,
+      TestCatalog.app,
     ]) {
       final ZoomStage stage = ZoomStage(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),

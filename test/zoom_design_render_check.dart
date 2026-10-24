@@ -18,6 +18,7 @@ import 'package:helixpeek/features/zoom/presentation/scenes/organs/adrenal/adren
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/esophagus/esophagus_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/kidney/kidney_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/liver/liver_form.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/lymph_node/node_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/pituitary/pituitary_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/skin/skin_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/stomach/stomach_form.dart';
@@ -188,8 +189,9 @@ void main() {
     // thigh, on both figures, the kidney on both figures about a cell of
     // each part of it the Atlas's names light, the liver, the stomach and
     // the esophagus likewise, the skin, one block for either figure,
-    // about a cell of each part of it, and the thyroid, the adrenal and the
-    // pituitary on both figures about a cell of each part of each.
+    // about a cell of each part of it, the thyroid, the adrenal and the
+    // pituitary on both figures about a cell of each part of each, and the
+    // lymph node about a cell of each part of it.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -205,6 +207,7 @@ void main() {
     final TissueAnatomy thyroid = tissueAnatomy['thyroid gland']!;
     final TissueAnatomy adrenal = tissueAnatomy['adrenal gland']!;
     final TissueAnatomy pituitary = tissueAnatomy['pituitary gland']!;
+    final TissueAnatomy node = tissueAnatomy['lymphoid tissue']!;
     final List<(String, TissueAnatomy, AnatomyFigure, CellShape)> organs =
         <(String, TissueAnatomy, AnatomyFigure, CellShape)>[
           for (final MapEntry<String, TissueAnatomy> tissue
@@ -415,6 +418,20 @@ void main() {
             CellShape.endocrine,
             cell,
           ),
+      for (final String cell in <String>[
+        'Lymphatic endothelial cells',
+        'B-cells',
+        'T-cells',
+        'Plasma cells',
+        'Fibroblasts',
+      ])
+        (
+          'node-${NodeHome.of(cell).name}',
+          node,
+          AnatomyFigure.female,
+          CellShape.leukocyte,
+          cell,
+        ),
     ];
     for (final (
           String name,

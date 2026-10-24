@@ -318,8 +318,9 @@ void main() {
     // for the placenta, esophagus, thyroid and kidney the third ten reach;
     // the heart and skeletal muscle, the thigh, are drawn from anatomy since
     // 2026-10-22, the kidney, the liver, the stomach and the esophagus
-    // since 2026-10-23, and the thyroid, the adrenal and the pituitary
-    // since 2026-10-24): never the organ drawn for no tissue at all.
+    // since 2026-10-23, and the thyroid, the adrenal, the pituitary and the
+    // lymph node since 2026-10-24): never the organ drawn for no tissue at
+    // all.
     const Set<OrganKind> drawn = <OrganKind>{
       OrganKind.brain,
       OrganKind.lymphNode,

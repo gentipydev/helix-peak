@@ -220,6 +220,13 @@ final class ZoomDepth {
   /// row below meets the faded bone on the tests' 390 by 560).
   static const double pituitaryUpright = 0.45;
 
+  /// How much taller than wide the lymph node is framed: cut through its
+  /// hilum, it is twice as long as it is wide, so it is framed closer than
+  /// its length's margin would, its lymphatics and its vessels round it
+  /// and its names in a row above it and one below it on every phone's
+  /// canvas (1.3 leaves an iPhone SE's 375 by 421 no room above).
+  static const double nodeUpright = 1.2;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -247,15 +254,18 @@ final class ZoomDepth {
   /// [stomachUpright], the esophagus, opened from the front, as
   /// [esophagusUpright], the skin, a block of it, as [skinUpright], the
   /// thyroid, seen from the front in place, as [thyroidUpright], the
-  /// adrenal, cut through its thickness, as [adrenalUpright], and the
-  /// pituitary, cut down its middle, as [pituitaryUpright].
+  /// adrenal, cut through its thickness, as [adrenalUpright], the
+  /// pituitary, cut down its middle, as [pituitaryUpright], and a lymph
+  /// node, cut through its hilum, as [nodeUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
     TissueAnatomy anatomy,
   ) {
+    if (anatomy.organ == OrganKind.lymphNode) {
+      return nodeUpright;
+    }
     if (anatomy.inBrain != null ||
-        anatomy.organ == OrganKind.lymphNode ||
         anatomy.organ == OrganKind.vessel ||
         anatomy.organ == OrganKind.parathyroid) {
       return 1;

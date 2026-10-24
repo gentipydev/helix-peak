@@ -32,6 +32,9 @@ import 'organs/kidney/kidney_form.dart';
 import 'organs/liver/liver_art.dart';
 import 'organs/liver/liver_form.dart';
 import 'organs/liver/liver_style.dart';
+import 'organs/lymph_node/node_art.dart';
+import 'organs/lymph_node/node_form.dart';
+import 'organs/lymph_node/node_style.dart';
 import 'organs/pancreas/pancreas_anatomy.dart';
 import 'organs/pancreas/pancreas_art.dart';
 import 'organs/pancreas/pancreas_form.dart';
@@ -92,8 +95,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// from front to back, the stomach and the esophagus, each opened from
 /// the front, the skin, a block of it cut from the leg, the thyroid, seen
 /// from the front in place, one lobe cut open, the adrenal, cut through its
-/// thickness on its kidney's upper pole, and the pituitary, cut down its
-/// middle as the brain is.
+/// thickness on its kidney's upper pole, the pituitary, cut down its
+/// middle as the brain is, and a lymph node, cut through its hilum.
 ///
 /// Where the gene is, the organ glows in the mark: the part of it the
 /// zoom's cell lives in (the islets of a pancreas for an endocrine cell, its
@@ -104,8 +107,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// submucosal glands, the basal layer of the skin and its hair bulbs for a
 /// melanocyte, the C cells of a thyroid for a parafollicular cell, the
 /// medulla of an adrenal for a chromaffin cell, the posterior lobe of a
-/// pituitary for a pituicyte), by the kind of organ and of cell, never by
-/// gene.
+/// pituitary for a pituicyte, the sinuses of a lymph node for a lymphatic
+/// endothelial cell), by the kind of organ and of cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -139,7 +142,7 @@ abstract class OrganArt {
     final double size = anatomy.metres / view;
     return switch (anatomy.organ) {
       OrganKind.brain => _BrainOrgan(anatomy, view),
-      OrganKind.lymphNode => _NodeOrgan(size, shape),
+      OrganKind.lymphNode => _NodeOrgan(anatomy, view, cell: cellName),
       OrganKind.vessel => _VesselOrgan(size),
       OrganKind.skin => _SkinOrgan(anatomy, view, cell: cellName),
       OrganKind.parathyroid => _ParathyroidOrgan(size),
@@ -317,8 +320,6 @@ abstract class OrganArt {
     }
     return path..close();
   }
-
-  static Offset _unit(double angle) => Offset(math.cos(angle), math.sin(angle));
 
   /// The others of an organ's part beside it (the other lung, the other
   /// kidney), flat as the body drew them, [shown] of the way in.
@@ -2597,40 +2598,111 @@ final class _BrainOrgan extends OrganArt {
   }
 }
 
-/// A lymph node: a bean in its capsule, follicles round its cortex, the
-/// cords of its medulla at the hilum, vessels in and out. The tissue is
-/// sampled under the capsule, at the top. Where the zoom's cell lives is in
-/// the mark: the sinuses lymph runs through, lined by endothelium, for an
-/// endothelial cell; the follicles for a white cell.
+/// A lymph node, drawn from general anatomy as a specimen cut in two
+/// through its hilum (`NodeArt`): its cortex with its follicles, its
+/// paracortex and its medulla with its cords, its sinuses, the afferent
+/// lymphatics coming in to it and the efferent, the artery and the vein at
+/// its hilum. The body has no outline of one node that shows it, so it
+/// comes up over the body's drawing of its chain of nodes, as the eye and
+/// the skin do. Where the zoom's cell lives is in the mark, by the Atlas's
+/// name for the cell: its sinuses, its follicles, its paracortex, its
+/// medullary cords or its cortex.
 final class _NodeOrgan extends OrganArt {
-  _NodeOrgan(this.size, this.cell);
+  _NodeOrgan(TissueAnatomy anatomy, double view, {String? cell})
+    : _form = NodeForm(view: view, home: NodeHome.of(cell));
 
-  /// How long the node is, in the scene's units.
-  final double size;
-  final CellShape cell;
-
-  Offset get _centre => Offset.zero;
+  final NodeForm _form;
 
   @override
-  Offset get site => Offset(0, -size * 0.34);
+  Offset get site => _form.site;
 
   @override
-  Path get outline => OrganArt._closed(_bean);
+  Path get outline => _form.outline;
 
-  late final List<Offset> _bean = <Offset>[
-    for (int i = 0; i < 96; i++)
-      () {
-        final double a = 2 * math.pi * i / 96;
-        // Drawn in at the hilum, below.
-        final double from = math.atan2(
-          math.sin(a - math.pi / 2),
-          math.cos(a - math.pi / 2),
-        );
-        final double r = 1 - 0.26 * math.exp(-from * from / 0.16);
-        return _centre +
-            Offset(math.cos(a) * size * 0.5 * r, math.sin(a) * size * 0.4 * r);
-      }(),
+  // Where the zoom's cell lives, in the mark, at the place its tissue is
+  // sampled or in the part it lives in; and the follicles, the paracortex
+  // and the medulla, each but the one the home's name stands for, and an
+  // afferent lymphatic and the efferent, in the quiet ink.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'home', word: _form.home.word, at: _form.homeName, home: true),
+    if (_form.home != NodeHome.follicles)
+      (
+        key: 'follicles',
+        word: 'follicles',
+        at: _form.folliclesName,
+        home: false,
+      ),
+    if (_form.home != NodeHome.paracortex)
+      (
+        key: 'paracortex',
+        word: 'paracortex',
+        at: _form.paracortexName,
+        home: false,
+      ),
+    (key: 'medulla', word: 'medulla', at: _form.medullaName, home: false),
+    (
+      key: 'afferent',
+      word: 'afferent lymphatic',
+      at: _form.afferentName,
+      home: false,
+    ),
+    (
+      key: 'efferent',
+      word: 'efferent lymphatic',
+      at: _form.efferentName,
+      home: false,
+    ),
   ];
+
+  // Set round all of it, out at the canvas's corners: round the node and
+  // the vessels coming to it and leaving it where they show, with room to
+  // either side and round where each ends.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(NodeStyle.nameClear);
+    return <Offset>[
+      ..._form.outlinePoints,
+      for (final TubeCourse tube in _form.beside)
+        for (final int last in <int>[
+          tube.shown.lastIndexWhere((double s) => s > NodeStyle.nameShown),
+        ])
+          for (
+            int i = tube.shown.indexWhere(
+              (double s) => s > NodeStyle.nameShown,
+            );
+            i <= last;
+            i++
+          )
+            if (i % 4 == 0 || i == last) ...<Offset>[
+              tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+              tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+              if (i == last)
+                for (int k = -2; k <= 2; k++)
+                  tube.centres[i] +
+                      (Offset(tube.across[i].dy, -tube.across[i].dx) *
+                                  math.cos(k * math.pi / 6) +
+                              tube.across[i] * math.sin(k * math.pi / 6)) *
+                          (tube.radius[i] + clear),
+            ],
+    ];
+  }();
+
+  @override
+  double get namesLeaving => NodeStyle.namesLeaving;
+
+  NodeArt? _art;
+
+  NodeArt _artFor(ZoomInks inks) {
+    final NodeArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = NodeArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
 
   @override
   void paint(
@@ -2642,97 +2714,7 @@ final class _NodeOrgan extends OrganArt {
   }) {
     canvas.save();
     canvas.scale(scale);
-    final double line = pixel / scale;
-    final Path bean = OrganArt._closed(_bean);
-    final Rect box = bean.getBounds();
-    final Paint vessel = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.2 * line
-      ..strokeCap = StrokeCap.round
-      ..color = inks.lit(0.42).withValues(alpha: 0.7);
-    // Lymph comes in through the capsule all round, and leaves at the hilum.
-    for (final double a in <double>[-2.6, -2.0, -1.2, -0.5, 0.3, 3.4]) {
-      final Offset at =
-          _centre + Offset(math.cos(a) * size * 0.5, math.sin(a) * size * 0.4);
-      canvas.drawLine(at, at + OrganArt._unit(a) * (size * 0.16), vessel);
-    }
-    canvas.drawLine(
-      _centre + Offset(0, size * 0.28),
-      _centre + Offset(size * 0.04, size * 0.52),
-      vessel..strokeWidth = 3.4 * line,
-    );
-    OrganArt._sculpted(canvas, bean, box, inks, line, 1);
-    canvas.save();
-    canvas.clipPath(bean);
-    // The medulla, darker, and its cords.
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: _centre + Offset(0, size * 0.14),
-        width: size * 0.5,
-        height: size * 0.36,
-      ),
-      Paint()..color = inks.shade(0.55),
-    );
-    final Paint cord = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1 * line
-      ..color = inks.lit(0.5).withValues(alpha: 0.3);
-    for (int k = 0; k < 7; k++) {
-      final double a = math.pi * (1.15 + 0.12 * k);
-      final Offset from = _centre + Offset(0, size * 0.24);
-      final Offset to =
-          _centre +
-          Offset(math.cos(a) * size * 0.22, math.sin(a) * size * 0.16);
-      canvas.drawLine(from, to, cord);
-    }
-    // Follicles in the cortex, each with its pale centre.
-    final bool white = cell == CellShape.leukocyte;
-    for (int k = 0; k < 9; k++) {
-      final double a = math.pi * (0.92 + 0.145 * k);
-      final Offset at =
-          _centre +
-          Offset(math.cos(a) * size * 0.37, math.sin(a) * size * 0.28);
-      Sculpt.dome(
-        canvas,
-        Rect.fromCircle(center: at, radius: size * 0.062),
-        inks,
-        0.4,
-      );
-      canvas.drawCircle(
-        at,
-        size * 0.03,
-        Paint()
-          ..color = white
-              ? inks.glow(0.8)
-              : inks.lit(0.45).withValues(alpha: 0.6),
-      );
-    }
-    if (cell == CellShape.endothelial) {
-      // The subcapsular sinus under the capsule, and the medullary sinuses
-      // between the cords, down to the hilum.
-      Sculpt.glowingStroke(
-        canvas,
-        OrganArt._closed(<Offset>[
-          for (final Offset p in _bean) _centre + (p - _centre) * 0.92,
-        ]),
-        inks,
-        width: 1.6 * line,
-      );
-      final Path sinuses = Path();
-      for (int k = 0; k < 6; k++) {
-        final double a = math.pi * (1.21 + 0.12 * k);
-        final Offset from = _centre + Offset(0, size * 0.27);
-        final Offset to =
-            _centre +
-            Offset(math.cos(a) * size * 0.4, math.sin(a) * size * 0.3);
-        sinuses
-          ..moveTo(from.dx, from.dy)
-          ..lineTo(to.dx, to.dy);
-      }
-      Sculpt.glowingStroke(canvas, sinuses, inks, width: 1.1 * line);
-    }
-    canvas.restore();
-    OrganArt._edged(canvas, bean, box, inks, line, 1);
+    _artFor(inks).paint(canvas, pixel / scale);
     canvas.restore();
   }
 }
