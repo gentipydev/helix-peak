@@ -213,6 +213,13 @@ final class ZoomDepth {
   /// one below it on every phone's canvas.
   static const double adrenalUpright = 1.0;
 
+  /// How much taller than wide the pituitary is framed: cut down its middle
+  /// with the hypothalamus and the chiasm over it and the sphenoid bone and
+  /// its sinus under it, its scene is three times the gland, and its names
+  /// need a row above and one below it on every phone's canvas (at 0.5 the
+  /// row below meets the faded bone on the tests' 390 by 560).
+  static const double pituitaryUpright = 0.45;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -239,8 +246,9 @@ final class ZoomDepth {
   /// back, as [liverUpright], the stomach, opened from the front, as
   /// [stomachUpright], the esophagus, opened from the front, as
   /// [esophagusUpright], the skin, a block of it, as [skinUpright], the
-  /// thyroid, seen from the front in place, as [thyroidUpright], and the
-  /// adrenal, cut through its thickness, as [adrenalUpright].
+  /// thyroid, seen from the front in place, as [thyroidUpright], the
+  /// adrenal, cut through its thickness, as [adrenalUpright], and the
+  /// pituitary, cut down its middle, as [pituitaryUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -287,6 +295,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.adrenal) {
       return adrenalUpright;
+    }
+    if (anatomy.organ == OrganKind.pituitary) {
+      return pituitaryUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)

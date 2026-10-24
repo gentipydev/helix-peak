@@ -163,7 +163,6 @@ abstract class OrganStudy {
   static const Set<OrganKind> studied = <OrganKind>{
     OrganKind.adipose,
     OrganKind.fallopianTube,
-    OrganKind.pituitary,
   };
 
   /// The study for an organ of [kind] outlined as [form], about a cell of
@@ -172,7 +171,6 @@ abstract class OrganStudy {
       switch (kind) {
         OrganKind.adipose => _Fat(form),
         OrganKind.fallopianTube => _Tube(form),
-        OrganKind.pituitary => _Pituitary(form),
         _ => null,
       };
 
@@ -313,147 +311,5 @@ final class _Tube extends OrganStudy {
       form.shape,
       band(inks.lit(0.3).withValues(alpha: detail), t * 0.3),
     );
-  }
-}
-
-/// The pituitary seen from the side: its anterior lobe, the gland that
-/// makes the growth and other hormones, in the mark; its posterior lobe,
-/// nerve, behind it; its stalk rising to the hypothalamus; and the bony cup
-/// of the sella turcica it sits in.
-final class _Pituitary extends OrganStudy {
-  _Pituitary(this.form) {
-    final Rect box = form.box;
-    // The lobes part a little behind the place the tissue is sampled.
-    final double cleft = math.min(
-      box.right - box.width * 0.22,
-      form.site.dx + box.width * 0.14,
-    );
-    _anterior = Path.combine(
-      PathOperation.intersect,
-      form.shape,
-      Path()..addRect(
-        Rect.fromLTRB(box.left - 1, box.top - 1, cleft, box.bottom + 1),
-      ),
-    );
-    _posterior = Path.combine(
-      PathOperation.intersect,
-      form.shape,
-      Path()..addRect(
-        Rect.fromLTRB(cleft, box.top - 1, box.right + 1, box.bottom + 1),
-      ),
-    );
-    final double w = box.width;
-    final Offset foot = Offset(cleft + w * 0.08, box.top + box.height * 0.04);
-    _stalk = Path()
-      ..moveTo(foot.dx - w * 0.07, foot.dy)
-      ..quadraticBezierTo(
-        foot.dx - w * 0.02,
-        foot.dy - box.height * 0.28,
-        foot.dx + w * 0.02,
-        foot.dy - box.height * 0.55,
-      )
-      ..lineTo(foot.dx + w * 0.1, foot.dy - box.height * 0.55)
-      ..quadraticBezierTo(
-        foot.dx + w * 0.06,
-        foot.dy - box.height * 0.28,
-        foot.dx + w * 0.06,
-        foot.dy,
-      )
-      ..close();
-    _hypothalamus = Path()
-      ..moveTo(box.left - w * 0.3, foot.dy - box.height * 0.5)
-      ..quadraticBezierTo(
-        box.center.dx,
-        foot.dy - box.height * 0.68,
-        box.right + w * 0.3,
-        foot.dy - box.height * 0.5,
-      );
-    _sella = Path()
-      ..addArc(
-        Rect.fromLTRB(
-          box.left - w * 0.14,
-          box.top + box.height * 0.1,
-          box.right + w * 0.14,
-          box.bottom + box.height * 0.2,
-        ),
-        math.pi * 0.05,
-        math.pi * 0.9,
-      );
-    _cells = Sculpt.cobble(box, form.size * 0.08, math.Random(41));
-    _fibres = <Path>[
-      for (int k = 1; k < 7; k++)
-        Path()
-          ..moveTo(cleft, box.top + box.height * k / 7)
-          ..quadraticBezierTo(
-            (cleft + box.right) / 2,
-            box.top + box.height * (k / 7 - 0.05),
-            box.right,
-            box.top + box.height * k / 7,
-          ),
-    ];
-  }
-
-  final OrganForm form;
-  late final Path _anterior;
-  late final Path _posterior;
-  late final Path _stalk;
-  late final Path _hypothalamus;
-  late final Path _sella;
-  late final List<Rect> _cells;
-  late final List<Path> _fibres;
-
-  @override
-  void behind(Canvas canvas, ZoomInks inks, double line, double detail) {
-    if (detail <= 0) {
-      return;
-    }
-    // The bony cup it sits in, and the brain above.
-    canvas.drawPath(
-      _sella,
-      _stroke(inks.lit(0.6).withValues(alpha: 0.8 * detail), 9 * line),
-    );
-    canvas.drawPath(
-      _hypothalamus,
-      _stroke(inks.lit(0.32).withValues(alpha: 0.7 * detail), 2 * line),
-    );
-    canvas.drawPath(
-      _stalk,
-      Paint()..color = inks.lit(0.28).withValues(alpha: 0.95 * detail),
-    );
-    canvas.drawPath(
-      _stalk,
-      _stroke(inks.lit(0.5).withValues(alpha: 0.7 * detail), 1 * line),
-    );
-  }
-
-  @override
-  void inside(Canvas canvas, ZoomInks inks, double line, double detail) {
-    // The posterior lobe: nerve fibres down from the stalk.
-    canvas.drawPath(
-      _posterior,
-      Paint()..color = inks.shade(0.82).withValues(alpha: 0.8 * detail),
-    );
-    canvas.save();
-    canvas.clipPath(_posterior);
-    for (final Path fibre in _fibres) {
-      canvas.drawPath(
-        fibre,
-        _stroke(inks.lit(0.5).withValues(alpha: 0.35 * detail), 1 * line),
-      );
-    }
-    canvas.restore();
-    // The anterior lobe: a gland of cords, in the mark.
-    canvas.save();
-    canvas.clipPath(_anterior);
-    canvas.drawPath(_anterior, Paint()..color = inks.glow(0.2 * detail));
-    for (final Rect cell in _cells) {
-      Sculpt.dome(canvas, cell, inks, 0.3 * detail);
-      canvas.drawOval(
-        cell.deflate(cell.width * 0.2),
-        Paint()..color = inks.glow(0.18 * detail),
-      );
-    }
-    canvas.restore();
-    canvas.drawPath(_anterior, _stroke(inks.glow(0.7 * detail), 1.4 * line));
   }
 }

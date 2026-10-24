@@ -36,6 +36,8 @@ import 'organs/pancreas/pancreas_anatomy.dart';
 import 'organs/pancreas/pancreas_art.dart';
 import 'organs/pancreas/pancreas_form.dart';
 import 'organs/pancreas/pancreas_style.dart';
+import 'organs/pituitary/pituitary_art.dart';
+import 'organs/pituitary/pituitary_form.dart';
 import 'organs/salivary_gland/salivary_art.dart';
 import 'organs/salivary_gland/salivary_form.dart';
 import 'organs/salivary_gland/salivary_style.dart';
@@ -89,8 +91,9 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// muscle, the front of the thigh, the kidney and the liver, each cut open
 /// from front to back, the stomach and the esophagus, each opened from
 /// the front, the skin, a block of it cut from the leg, the thyroid, seen
-/// from the front in place, one lobe cut open, and the adrenal, cut
-/// through its thickness on its kidney's upper pole.
+/// from the front in place, one lobe cut open, the adrenal, cut through its
+/// thickness on its kidney's upper pole, and the pituitary, cut down its
+/// middle as the brain is.
 ///
 /// Where the gene is, the organ glows in the mark: the part of it the
 /// zoom's cell lives in (the islets of a pancreas for an endocrine cell, its
@@ -100,8 +103,9 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// for a smooth muscle cell, the glands of an esophagus for a cell of its
 /// submucosal glands, the basal layer of the skin and its hair bulbs for a
 /// melanocyte, the C cells of a thyroid for a parafollicular cell, the
-/// medulla of an adrenal for a chromaffin cell), by the kind of organ and
-/// of cell, never by gene.
+/// medulla of an adrenal for a chromaffin cell, the posterior lobe of a
+/// pituitary for a pituicyte), by the kind of organ and of cell, never by
+/// gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -222,6 +226,14 @@ abstract class OrganArt {
         level: level,
       ),
       OrganKind.adrenal when part != null => _AdrenalOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        cell: cellName,
+        level: level,
+      ),
+      OrganKind.pituitary when part != null => _PituitaryOrgan(
         part,
         anatomy,
         view,
@@ -2077,6 +2089,104 @@ final class _AdrenalOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => AdrenalArt.bedOf(inks, _form.home);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The pituitary gland, drawn from general anatomy as a specimen cut down
+/// its middle as the brain's stop cuts the brain (`PituitaryArt`): its two
+/// lobes on the stalk under the hypothalamus and the chiasm, the brain's
+/// own, in the sella turcica of the sphenoid bone, cut, the sphenoid sinus
+/// under it; reached from the body's own outline of it (`_SpecimenOrgan`),
+/// which draws in toward the gland's own and becomes the bed it lies on,
+/// while the figure's parts give way to its own neighbours. Where the
+/// zoom's cell lives is in the mark, by the Atlas's name for the cell: its
+/// anterior lobe, or its posterior lobe for a pituicyte.
+final class _PituitaryOrgan extends _SpecimenOrgan {
+  _PituitaryOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    String? cell,
+    super.level,
+  }) : _form = PituitaryForm.place(
+         part: part,
+         anatomy: anatomy,
+         view: view,
+         home: PituitaryHome.of(cell),
+       );
+
+  final PituitaryForm _form;
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark; and the other lobe, the
+  // stalk, the optic chiasm, the hypothalamus and the sphenoid sinus, in
+  // the quiet ink.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'home', word: _form.home.word, at: _form.homeName, home: true),
+    switch (_form.home) {
+      PituitaryHome.anterior => (
+        key: 'posterior',
+        word: 'posterior lobe',
+        at: _form.posteriorName,
+        home: false,
+      ),
+      PituitaryHome.posterior => (
+        key: 'anterior',
+        word: 'anterior lobe',
+        at: _form.site,
+        home: false,
+      ),
+    },
+    (key: 'stalk', word: 'stalk', at: _form.stalkName, home: false),
+    (key: 'chiasm', word: 'optic chiasm', at: _form.chiasmName, home: false),
+    (
+      key: 'hypothalamus',
+      word: 'hypothalamus',
+      at: _form.hypothalamusName,
+      home: false,
+    ),
+    (key: 'sinus', word: 'sphenoid sinus', at: _form.sinusName, home: false),
+  ];
+
+  // Set round all of it, out at the canvas's corners: round the gland and
+  // what is drawn round it where it shows.
+  @override
+  late final List<Offset> named = <Offset>[
+    ..._form.outlinePoints,
+    ..._form.drawn,
+  ];
+
+  PituitaryArt? _art;
+
+  PituitaryArt _artFor(ZoomInks inks) {
+    final PituitaryArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = PituitaryArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => PituitaryArt.bedOf(inks, _form.home);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

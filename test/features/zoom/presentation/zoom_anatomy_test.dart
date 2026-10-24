@@ -262,9 +262,10 @@ void main() {
       // it, framed wider than their margin; the kidney, cut open, its names
       // in columns either side of it, framed a little wider than its
       // outline; the skin, a block of it, framed wide enough that its
-      // names stand in a column either side of it; and the thyroid, seen
-      // in place, framed wide enough that its names stand in a row above it
-      // and one below it.
+      // names stand in a column either side of it; the thyroid, seen in
+      // place, framed wide enough that its names stand in a row above it
+      // and one below it; and the pituitary, cut down its middle among the
+      // brain and the bone round it, framed wider still for the same.
       final double upright = ZoomDepth.uprightOf(
         subject.track,
         subject.path,
@@ -279,6 +280,7 @@ void main() {
             OrganKind.heart => ZoomDepth.heartUpright,
             OrganKind.skin => ZoomDepth.skinUpright,
             OrganKind.thyroid => ZoomDepth.thyroidUpright,
+            OrganKind.pituitary => ZoomDepth.pituitaryUpright,
             _ => 1.0,
           },
           ZoomDepth.phoneAspect,
@@ -316,8 +318,8 @@ void main() {
     // for the placenta, esophagus, thyroid and kidney the third ten reach;
     // the heart and skeletal muscle, the thigh, are drawn from anatomy since
     // 2026-10-22, the kidney, the liver, the stomach and the esophagus
-    // since 2026-10-23, and the thyroid and the adrenal since 2026-10-24):
-    // never the organ drawn for no tissue at all.
+    // since 2026-10-23, and the thyroid, the adrenal and the pituitary
+    // since 2026-10-24): never the organ drawn for no tissue at all.
     const Set<OrganKind> drawn = <OrganKind>{
       OrganKind.brain,
       OrganKind.lymphNode,
