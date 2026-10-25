@@ -27,6 +27,7 @@ class ClinVarBlock extends StatefulWidget {
     this.onOpenAll,
     this.onResidue,
     this.onBase,
+    this.compareFor,
     super.key,
   });
 
@@ -46,6 +47,10 @@ class ClinVarBlock extends StatefulWidget {
   final VoidCallback? onOpenAll;
   final ValueChanged<int>? onResidue;
   final ValueChanged<int>? onBase;
+
+  /// What opens the page of a record's base that sets its change beside both
+  /// models, or null for none; null throughout hides the link.
+  final VoidCallback? Function(VariantEvidence record)? compareFor;
 
   @override
   State<ClinVarBlock> createState() => _ClinVarBlockState();
@@ -135,6 +140,7 @@ class _ClinVarBlockState extends State<ClinVarBlock> {
             ),
             onResidue: widget.onResidue,
             onBase: widget.onBase,
+            onCompare: widget.compareFor?.call(record),
           ),
       ],
       ),

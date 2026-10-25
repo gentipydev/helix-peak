@@ -82,6 +82,7 @@ class VariantsOverview extends StatefulWidget {
     this.focus = const <String>[],
     this.memory,
     this.onOpen,
+    this.compareFor,
     super.key,
   });
 
@@ -108,6 +109,11 @@ class VariantsOverview extends StatefulWidget {
   /// page is gone, with the records the reader asked for from there — which
   /// the list then opens on — or null. Without it, rows offer no such links.
   final Future<List<String>?> Function(VariantTarget target)? onOpen;
+
+  /// What opens the page of a record's base that sets its change beside both
+  /// models, rising over the list, or null for none; without it, rows offer
+  /// no such link.
+  final VoidCallback? Function(VariantEvidence record)? compareFor;
 
   @override
   State<VariantsOverview> createState() => _VariantsOverviewState();
@@ -887,6 +893,7 @@ class _VariantsOverviewState extends State<VariantsOverview> {
         onBase: widget.onOpen == null
             ? null
             : (int position) => unawaited(_follow(BaseTarget(position))),
+        onCompare: widget.compareFor?.call(e),
       ),
     );
     return <Widget>[

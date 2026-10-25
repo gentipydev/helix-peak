@@ -4,12 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../core/biology/amino_acids.dart';
 import '../../core/evidence/gene_clinvar.dart';
 import '../../core/evidence/variant_evidence.dart';
 import '../../core/theme/app_typography.dart';
 import '../format.dart';
-import '../inspector/impact_explanation_view.dart';
 import 'clinvar_colors.dart';
 
 /// Which model's number a row carries. A sheet already shows its own model on
@@ -31,7 +29,7 @@ class ClinVarSourced extends StatelessWidget {
 }
 
 /// One record: what ClinVar says, and the number the page does not already
-/// show. Tapping opens the record's evidence in place.
+/// show. Tapping opens the record's own facts in place.
 ///
 /// The row is the only way a record appears anywhere — in the residue sheet,
 /// the base sheet and the overview alike — so a reader learns it once.
@@ -45,6 +43,7 @@ class EvidenceRow extends StatelessWidget {
     this.place = true,
     this.onResidue,
     this.onBase,
+    this.onCompare,
     super.key,
   });
 
@@ -65,6 +64,11 @@ class EvidenceRow extends StatelessWidget {
   /// does for the page it is already on.
   final ValueChanged<int>? onResidue;
   final ValueChanged<int>? onBase;
+
+  /// Opens the page that sets the record's change beside both models' reading
+  /// of it. Null hides the link: where the page is already a line away, or
+  /// where the record's base has no such page.
+  final VoidCallback? onCompare;
 
   /// How long a row takes to open or close, where motion is on.
   static const Duration motion = Duration(milliseconds: 180);
@@ -264,6 +268,7 @@ class EvidenceRow extends StatelessWidget {
               place: place,
               onResidue: onResidue,
               onBase: onBase,
+              onCompare: onCompare,
             )
           else
             const SizedBox.shrink()
@@ -278,6 +283,7 @@ class EvidenceRow extends StatelessWidget {
                     place: place,
                     onResidue: onResidue,
                     onBase: onBase,
+                    onCompare: onCompare,
                   )
                 : const SizedBox(width: double.infinity),
           ),
@@ -330,17 +336,21 @@ class _Numbers extends StatelessWidget {
   }
 }
 
-/// The one place a record's observed and predicted evidence meet.
+/// A record's own facts, opened: what ClinVar says of it, quoted down to the
+/// split a conflict hides, and where to go from it.
 ///
-/// ClinVar's side is quoted, down to the split a conflict hides; the models'
-/// side is each one's number on its own scale and a single line about where
-/// those numbers sit. Nothing adds the two up.
+/// The models' reading of the record's change is not repeated here: its row
+/// carries the number the page lacks, and the page its base opens sets the
+/// change beside both models and the gene's ClinVar records (the user's ask,
+/// 2026-10-25). Where only AVI applies, one line says so and why. Nothing
+/// adds the two sides up.
 class EvidenceDetail extends StatelessWidget {
   const EvidenceDetail({
     required this.evidence,
     this.place = true,
     this.onResidue,
     this.onBase,
+    this.onCompare,
     super.key,
   });
 
@@ -348,6 +358,10 @@ class EvidenceDetail extends StatelessWidget {
   final bool place;
   final ValueChanged<int>? onResidue;
   final ValueChanged<int>? onBase;
+
+  /// Opens the page of the record's base that sets its change beside both
+  /// models; null hides the link.
+  final VoidCallback? onCompare;
 
   @override
   Widget build(BuildContext context) {
@@ -365,30 +379,6 @@ class EvidenceDetail extends StatelessWidget {
         ? null
         : '${evidence.residue!.domain} · ${evidence.residue!.title}'
               '${evidence.residue!.bondPartner == null ? '' : ' · S–S ${evidence.residue!.bondPartner}'}';
-    final TextStyle number = TextStyle(
-      fontFamily: AppTypography.monoFamily,
-      fontSize: 13,
-      color: theme.colorScheme.onSurface,
-      fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
-    );
-    Widget reading(String model, String value, String note, Key key) => Padding(
-      padding: const EdgeInsets.only(bottom: 2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
-        children: <Widget>[
-          SizedBox(
-            width: 36,
-            child: Text(model, style: small?.copyWith(color: muted)),
-          ),
-          SizedBox(
-            width: 52,
-            child: Text(value, key: key, style: number),
-          ),
-          Expanded(child: Text(note, style: small)),
-        ],
-      ),
-    );
     return Padding(
       key: ValueKey<String>('evidence-detail-${v.id}'),
       padding: const EdgeInsets.fromLTRB(20, 0, 0, 12),
@@ -456,38 +446,19 @@ class EvidenceDetail extends StatelessWidget {
               ],
             ),
           ),
-          Divider(height: 16, color: theme.colorScheme.outlineVariant),
-          if (evidence.esm case final score?)
-            reading(
-              'ESM',
-              formatScore(score.score),
-              '${AminoAcids.abbreviationOf(score.aminoAcid)} in place of '
-                  '${AminoAcids.abbreviationOf(v.wildtypeResidue ?? '')}',
-              ValueKey<String>('evidence-esm-${v.id}'),
+          // Which model applies at all, where only AVI does: a change off the
+          // protein, a silent one, a stop or the start codon. Where both
+          // apply, the record's base opens their page instead.
+          if (evidence.reading case final EvidenceReading line
+              when !_bothApply.contains(line)) ...<Widget>[
+            Divider(height: 16, color: theme.colorScheme.outlineVariant),
+            Text(
+              line.line,
+              key: ValueKey<String>('evidence-reading-${v.id}'),
+              style: small?.copyWith(color: theme.colorScheme.onSurface),
             ),
-          reading(
-            'AVI',
-            evidence.avi?.toStringAsFixed(1) ?? '—',
-            evidence.avi == null
-                ? 'no exact score at this base'
-                : '${genomeRank(evidence.avi!)} genome-wide',
-            ValueKey<String>('evidence-avi-${v.id}'),
-          ),
-          if (evidence.reading case final EvidenceReading line)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                line.line,
-                key: ValueKey<String>('evidence-reading-${v.id}'),
-                style: small?.copyWith(color: theme.colorScheme.onSurface),
-              ),
-            ),
-          const SizedBox(height: 4),
-          if (evidence.explanation case final request?)
-            ImpactExplanationView(
-              key: ValueKey('evidence-contributions-${v.id}'),
-              request: request,
-            ),
+          ],
+          const SizedBox(height: 6),
           Wrap(
             spacing: 4,
             crossAxisAlignment: WrapCrossAlignment.center,
@@ -544,12 +515,28 @@ class EvidenceDetail extends StatelessWidget {
                   onPressed: () => onBase!(v.position),
                   child: const Text('Base ›'),
                 ),
+              if (onCompare != null)
+                TextButton(
+                  key: ValueKey<String>('evidence-compare-${v.id}'),
+                  style: _link,
+                  onPressed: onCompare,
+                  child: const Text('AVI and ESM-2 ›'),
+                ),
             ],
           ),
         ],
       ),
     );
   }
+
+  /// The readings of a change both models score, which its base's page now
+  /// gives in full, rather than the record.
+  static const Set<EvidenceReading> _bothApply = <EvidenceReading>{
+    EvidenceReading.bothStrong,
+    EvidenceReading.aviOnly,
+    EvidenceReading.esmOnly,
+    EvidenceReading.neither,
+  };
 
   /// A finger's height, and exactly that: `shrinkWrap` so the theme does
   /// not pad it to 48, and standard density because compact takes eight

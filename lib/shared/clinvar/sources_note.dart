@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../core/evidence/variant_evidence.dart';
 import '../../core/theme/app_typography.dart';
 
 /// One source a note writes about: what it is, in a sentence, and where to
@@ -130,10 +129,7 @@ class SourcesNote extends StatelessWidget {
         paragraph(
           'ESM-2',
           '650M, masked marginals. Per residue: constraint 0–1, min–max '
-              'within this protein. Per substitution: ln p(alt)/p(WT). '
-              '${VariantEvidence.esmStrong.toStringAsFixed(1).replaceFirst('-', '−')} '
-              'is the strong-effect line published for ESM-1b scores, shown '
-              'here as a reference rather than a calibration.',
+              'within this protein. Per substitution: ln p(alt)/p(WT).',
         ),
         paragraph(
           'AVI',

@@ -1146,7 +1146,7 @@ void main() {
     expect(_key('evidence-detail-13387'), findsOneWidget);
     expect(
       find.text('Both models at their strong end.'),
-      findsOneWidget,
+      findsNothing,
     );
     await _tapKey(tester, 'evidence-residue-13387');
     expect(results.single, isA<ResidueTarget>());

@@ -15,12 +15,10 @@ import 'package:helixpeek/core/network/api_exception.dart';
 import 'package:helixpeek/core/network/track_source.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/inspector/impact_panel.dart';
-import 'package:helixpeek/shared/clinvar/evidence_row.dart';
 import 'package:helixpeek/shared/inspector/impact_explanation_view.dart';
 
 import '../../../support/test_catalog.dart';
 import '../anatomy/anatomy_fixture.dart';
-import '../clinvar/variant_evidence_test.dart' show insulinEvidence;
 
 Map<String, dynamic> _json(String path) =>
     jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
@@ -270,21 +268,6 @@ void main() {
       expect(key('impact-contributions-open'), findsOneWidget);
     },
   );
-
-  testWidgets('expanded ClinVar record uses the record allele', (tester) async {
-    final evidence = insulinEvidence().firstWhere(
-      (e) => e.variant.position == 5294 && e.variant.alt == 'A',
-    );
-    final repository = ImpactExplanationRepository(_Client(fixture));
-    await tester.runAsync(() => repository.load(evidence.explanation!.track));
-    await host(
-      tester,
-      SingleChildScrollView(child: EvidenceDetail(evidence: evidence)),
-      repository,
-    );
-    expect(key('impact-contributions-5294-A'), findsOneWidget);
-    expect(key('impact-contributions-5294-T'), findsNothing);
-  });
 
   testWidgets(
     'signed details and source remain readable at large text on a narrow screen',

@@ -45,6 +45,7 @@ import '../clinvar/variants_overview.dart';
 import '../constraint/constraint_panel.dart';
 import '../constraint/constraint_toolbar.dart';
 import '../inspector/agreement_page.dart';
+import '../inspector/clinvar_agreement.dart';
 import '../inspector/coding_evidence.dart';
 import '../inspector/contributions_page.dart';
 import '../inspector/gene_agreement.dart';
@@ -601,6 +602,11 @@ class _AnatomyScreenState extends State<AnatomyScreen>
             ),
       onResidue: residue == null ? _goToResidue : null,
       onBase: residue == null ? null : _goToBase,
+      // A residue sheet's record opens its base's page of both models and
+      // ClinVar; a base sheet's codon line already does.
+      compareFor: residue == null
+          ? null
+          : (VariantEvidence e) => _compareAt(e.variant.position),
     );
   }
 
@@ -674,6 +680,8 @@ class _AnatomyScreenState extends State<AnatomyScreen>
               focus: focus,
               memory: _overviewMemory,
               onOpen: _openLanding,
+              compareFor: (VariantEvidence e) =>
+                  _compareAt(e.variant.position),
             ),
           ),
           over: over,
@@ -724,8 +732,9 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   }
 
   /// A base's substitutions as AVI and ESM-2 each read them, ranked in the
-  /// gene, on a page that rises over the walk, its sheet still open under it,
-  /// as the Contributions page does from the same sheet.
+  /// gene, and as ClinVar classifies them where it has a record at the base,
+  /// on a page that rises over the walk, its sheet or the ClinVar list still
+  /// open under it, as the Contributions page does from the sheet.
   Future<void> _openAgreement({
     required GeneImpact track,
     required BaseImpact impact,
@@ -747,6 +756,16 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       impact: track,
       constraint: constraint,
     );
+    // ClinVar's part, where it has a record at the base: the base's records,
+    // and the gene's placed among its changes, kept with its records.
+    final List<VariantEvidence> records = _evidenceAt(
+      position: impact.position,
+    );
+    final List<VariantEvidence>? all = _evidence;
+    final ClinVarAgreement? clinvar =
+        records.isEmpty || agreement == null || all == null
+        ? null
+        : ClinVarAgreement.of(agreement: agreement, evidence: all);
     _agreementOpen = true;
     try {
       await Navigator.of(context).push<void>(
@@ -762,6 +781,8 @@ class _AnatomyScreenState extends State<AnatomyScreen>
               region: region,
               detail: detail,
               tint: tint,
+              records: records,
+              clinvar: clinvar,
             ),
           ),
         ),
@@ -1147,6 +1168,57 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   /// The base inspector for a record position, with everything the page already
   /// knows how to say about that position filled in.
   Widget? _basePanel(int position, bool pin, String fallback) {
+    final _BaseFacts? facts = _baseFacts(position, fallback);
+    if (facts == null) {
+      return null;
+    }
+    final GeneImpact? explained = facts.explained;
+    final BaseImpact reading = facts.reading;
+    return ImpactPanel(
+      key: const ValueKey<String>('impact-panel'),
+      impact: reading,
+      explanationTrack: explained,
+      onOpenContributions: explained == null
+          ? null
+          : () => unawaited(
+              _openContributions(
+                track: explained,
+                impact: reading,
+                address: facts.where,
+                region: facts.region,
+                // Where the base sits, without the constraint band the sheet
+                // adds: that is ESM's, and this page is AVI's.
+                detail: facts.place,
+                tint: facts.tint,
+                coding: facts.evidence,
+              ),
+            ),
+      observedEvidence: _clinvarBlock(position: position, scope: facts.where),
+      reported: _reported(
+        _evidenceAt(position: position),
+        (VariantEvidence e) => e.variant.alt,
+      ),
+      coding: facts.evidence,
+      onNote: _comparing(facts),
+      chromosome: facts.impact.chromosome,
+      // The transcript's own number where the base has one, and otherwise the
+      // number the page above is already calling it by. Counting from the
+      // record's first base instead would put a third numbering on screen.
+      address: facts.where,
+      region: facts.region,
+      note: facts.note,
+      tint: facts.tint,
+      controller: _sheet,
+      slide: _sheetSlide,
+      pinIdentity: pin,
+      onDismiss: () => unawaited(_dismissPanel()),
+    );
+  }
+
+  /// What the base sheet says of the base at [position] and opens its pages
+  /// with, or null where AVI has no reading there. [fallback] names a base
+  /// with no c. number of its own.
+  _BaseFacts? _baseFacts(int position, String fallback) {
     final GeneImpact? impact = _impact;
     final BaseImpact? reading = impact?.at(position);
     if (impact == null || reading == null) {
@@ -1187,7 +1259,6 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     final GeneImpact? explained = impact.matchesRecord(widget.record)
         ? impact
         : null;
-    final ProteinConstraint? constraint = _constraint;
     // Both models can be set side by side where the AVI track is this
     // record's, the ESM-2 track this protein's, the base's AVI its own, and
     // one of its changes makes another amino acid, which ESM-2 scores too.
@@ -1216,59 +1287,51 @@ class _AnatomyScreenState extends State<AnatomyScreen>
           ),
         ) ??
         Theme.of(context).colorScheme.onSurfaceVariant;
-    return ImpactPanel(
-      key: const ValueKey<String>('impact-panel'),
-      impact: reading,
-      explanationTrack: explained,
-      onOpenContributions: explained == null
-          ? null
-          : () => unawaited(
-              _openContributions(
-                track: explained,
-                impact: reading,
-                address: where,
-                region: region,
-                // Where the base sits, without the constraint band the sheet
-                // adds: that is ESM's, and this page is AVI's.
-                detail: place,
-                tint: tint,
-                coding: evidence,
-              ),
-            ),
-      observedEvidence: _clinvarBlock(position: position, scope: where),
-      reported: _reported(
-        _evidenceAt(position: position),
-        (VariantEvidence e) => e.variant.alt,
-      ),
-      coding: evidence,
-      onNote: compared == null || explained == null || constraint == null
-          ? null
-          : () => unawaited(
-              _openAgreement(
-                track: explained,
-                impact: reading,
-                coding: compared,
-                constraint: constraint,
-                address: where,
-                region: region,
-                detail: note,
-                tint: tint,
-              ),
-            ),
-      chromosome: impact.chromosome,
-      // The transcript's own number where the base has one, and otherwise the
-      // number the page above is already calling it by. Counting from the
-      // record's first base instead would put a third numbering on screen.
-      address: where,
-      region: region,
+    return (
+      impact: impact,
+      reading: reading,
+      explained: explained,
+      evidence: evidence,
+      compared: compared,
+      place: place,
       note: note,
+      where: where,
+      region: region,
       tint: tint,
-      controller: _sheet,
-      slide: _sheetSlide,
-      pinIdentity: pin,
-      onDismiss: () => unawaited(_dismissPanel()),
     );
   }
+
+  /// The base's substitutions side by side as both models read them, with
+  /// ClinVar where it has a record there: what the base sheet's codon line
+  /// opens, and a ClinVar record's link on the residue sheet and the list
+  /// (the user's asks, 2026-10-22 and 2026-10-25). Null where the base offers
+  /// no such page.
+  VoidCallback? _comparing(_BaseFacts facts) {
+    final GeneImpact? explained = facts.explained;
+    final CodingEvidence? compared = facts.compared;
+    final ProteinConstraint? constraint = _constraint;
+    if (compared == null || explained == null || constraint == null) {
+      return null;
+    }
+    return () => unawaited(
+      _openAgreement(
+        track: explained,
+        impact: facts.reading,
+        coding: compared,
+        constraint: constraint,
+        address: facts.where,
+        region: facts.region,
+        detail: facts.note,
+        tint: facts.tint,
+      ),
+    );
+  }
+
+  /// [_comparing] for the base a ClinVar record sits at.
+  VoidCallback? _compareAt(int position) => switch (_baseFacts(position, '')) {
+    final _BaseFacts facts => _comparing(facts),
+    null => null,
+  };
 
   /// [label] as written on the thing it names rather than in a sentence:
   /// without its article.
@@ -2770,6 +2833,24 @@ class _AnatomyScreenState extends State<AnatomyScreen>
 /// A sheet rebuilds on every frame of a drag, and a gene like dystrophin has
 /// thousands of records, so the records at each residue and each base are
 /// found once here rather than by scanning the whole list per frame.
+/// What a base sheet says of its base, and what its pages open with: AVI's
+/// reading ([impact] the track, [explained] it where it is this record's),
+/// the codon ([evidence], and [compared] where both models can be set side
+/// by side), the sheet's two lines ([place], and [note] with ESM's band), the
+/// base's name ([where]), its region and its tint.
+typedef _BaseFacts = ({
+  GeneImpact impact,
+  BaseImpact reading,
+  GeneImpact? explained,
+  CodingEvidence? evidence,
+  CodingEvidence? compared,
+  String place,
+  String note,
+  String where,
+  String region,
+  Color tint,
+});
+
 final class _ClinVarReading {
   _ClinVarReading(
     this.snapshot,

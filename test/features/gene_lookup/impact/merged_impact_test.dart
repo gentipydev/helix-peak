@@ -235,23 +235,26 @@ void main() {
     await tester.tap(_key('evidence-row-13388'));
     await tester.pumpAndSettle();
     expect(_key('evidence-detail-13388'), findsOneWidget);
-    expect(
-      plain(tester, 'evidence-reading-13388'),
-      'Both models at their strong end.',
-    );
-    expect(plain(tester, 'evidence-esm-13388'), '\u22127.9');
-    expect(plain(tester, 'evidence-avi-13388'), '23.1');
-    expect(find.text('Asp in place of Ala'), findsOneWidget);
+    // Both models' reading of the change is its base's page's, which the
+    // sheet's codon line opens: the record repeats none of it, and offers no
+    // second way to the page (the user's ask, 2026-10-25).
+    for (final String gone in <String>[
+      'evidence-reading-13388',
+      'evidence-esm-13388',
+      'evidence-avi-13388',
+      'evidence-compare-13388',
+    ]) {
+      expect(_key(gone), findsNothing, reason: gone);
+    }
+    expect(find.text('Asp in place of Ala'), findsNothing);
     _noClinicalCopy(tester);
     await tester.ensureVisible(_key('evidence-row-36401'));
     await tester.pumpAndSettle();
     await tester.tap(_key('evidence-row-36401'));
     await tester.pumpAndSettle();
     expect(_key('evidence-detail-13388'), findsNothing);
-    expect(
-      plain(tester, 'evidence-reading-36401'),
-      'Only AVI at its strong end.',
-    );
+    expect(_key('evidence-reading-36401'), findsNothing);
+    expect(_key('evidence-compare-36401'), findsNothing);
     // The base sheet already is this base; its detail offers the residue.
     expect(_key('evidence-base-36401'), findsNothing);
     expect(_key('evidence-residue-36401'), findsOneWidget);
