@@ -30,7 +30,7 @@ is drawn from the tracks the walk already holds: nothing is baked for it.
 **The page**
 
 ```
-×   c.268 · AVI and ESM-2                            ⓘ
+×   c.268 · AVI and ESM-2
 [G] insulin A chain
     codon 90 · GGC · Gly90 · highly constrained
     chr11:2,159,917
@@ -131,26 +131,18 @@ missense substitutions.
 - The gene's scatter and its two numbers stand under the card, the count
   said once, in their heading.
 - The ρ is set in the mono face: the sans face has no Greek.
-- The page ends on its two sources, "AlphaGenome Atlas · ESM-2", and one line
-  on what they are and how they are compared, text only (the user's ask,
-  2026-10-22). The notice AlphaGenome's terms ask of anything that shows its
-  output now stands in the ⓘ sheet's Source alone, with Google DeepMind's
-  name; the terms ask for it to be conspicuous, which the user may want on
-  the page again.
-- The ⓘ sheet holds:
-  - the two scores;
-  - how a mark's place on the track reads, and the two hues;
-  - why silent, stop and start-codon changes are not ranked;
-  - how the scatter is drawn;
-  - the two gene numbers, and that ρ turns ESM-2's score over so that
-    agreeing reads as positive, as the scatter's rise does;
-  - that AVI integrates AlphaMissense, so on a missense change it overlaps
-    ESM-2 rather than confirming it (R9.4, the sources note's own words);
-  - the terms' address, and the two papers.
-- The papers:
-  - Avsec et al., Nature 649, 1206–1218 (2026),
-    doi:10.1038/s41586-025-10014-0;
-  - Lin et al., Science 379, 1123–1130 (2023), doi:10.1126/science.ade2574.
+- The page ends on its two sources, "AlphaGenome Atlas · ESM-2", one line on
+  what they are and how they are compared, text only (the user's ask,
+  2026-10-22), and the notice AlphaGenome's terms ask of anything that shows
+  its output, which the terms ask to be conspicuous.
+- Until 2026-10-23 an ⓘ sheet over the page held the two scores, how the
+  tracks, hues and scatter read, the two gene numbers, that AVI integrates
+  AlphaMissense, the terms' address and the two papers (Avsec et al., Nature
+  649, 1206–1218 (2026), doi:10.1038/s41586-025-10014-0; Lin et al., Science
+  379, 1123–1130 (2023), doi:10.1126/science.ade2574), and the notice stood
+  there alone. Another session took the sheet away and put the notice on the
+  page; the change was committed as it stood on 2026-10-25, at the user's
+  choice, before ClinVar joined the page.
 
 **The scatter**
 
@@ -334,7 +326,7 @@ phone may take longer, and nothing was measured on one.
   scales share no units.
   - My calls: the effect words under the tracks, denim for AVI and clay for
     ESM-2 (by the validator), the hue on the marks alone, the shaded rule,
-    and the terms' notice kept in the ⓘ sheet.
+    and the terms' notice kept in the ⓘ sheet (since gone, see above).
 
 **My calls, which the user can change**
 - The band in the header.
@@ -344,12 +336,14 @@ phone may take longer, and nothing was measured on one.
 - Working the set out before the rise.
 
 **Rules**
-- R9.5 records the page as the second place where AVI's and ESM's numbers
-  meet, after an opened record. Its ⓘ explains both models' scales.
+- R9.5 records the page as the one place where AVI's and ESM's numbers meet,
+  and, since 2026-10-25, ClinVar's classes beside them; an opened record no
+  longer repeats them.
 - R9.1 records its two hues as the second exception to "hue belongs to
-  ClinVar alone", after the Contributions page's four.
-- No count of agreement with ClinVar is shown (R9.4), and ClinVar is not on
-  the page.
+  ClinVar alone", after the Contributions page's four, and only while the
+  page carries no ClinVar mark.
+- R9.4 records what the page shows of ClinVar and what it does not (see
+  "With ClinVar" below).
 
 **Tests**
 - `test/features/gene_lookup/impact/gene_agreement_test.dart` pins the set:
@@ -367,10 +361,10 @@ phone may take longer, and nothing was measured on one.
     never rising along it;
   - the rows' two numbers alone, the effect words under the last track, the
     two hues in every theme and clear of both grounds, and the page's two
-    sources and one line, the notice in the ⓘ sheet;
+    sources, its one line and the terms' notice;
   - the rows, the columns, the gene numbers and the semantics;
   - large text on a narrow phone;
-  - motion, the clamped scroll, the ⓘ sheet and the source;
+  - motion, the clamped scroll, no info button, and the source;
   - no clinical words.
 - `gene_agreement_test.dart` and `agreement_page_test.dart` also hold where
   the line leads: c.268 and c.11 open the page, and c.270 and c.2 do not.
@@ -388,3 +382,164 @@ phone may take longer, and nothing was measured on one.
 - The sheet golden `surfaces/mrna-base-sheet.png` opens c.78, so its line
   loses its › and its brighter ink. The PNG was already owed from the x86
   host for the Contributions row, and stays owed for both changes.
+
+**With ClinVar (2026-10-25)**
+
+The user's ask: a missense change always has AVI, and ESM-2 and ClinVar may
+or may not be there. Where ClinVar has a record at the base, the page compares
+all three; where it has none, the page is the two models' as above, unchanged.
+It came after the base sheet's opened record was seen to repeat what the
+sheet and its two pages hold: ESM and AVI again, "Both models at their strong
+end.", and AVI's three largest contributions.
+
+A record at the base, of any of its three changes and any consequence, makes
+the page this:
+
+```
+×   c.268 · AVI, ESM-2 and ClinVar
+[G] insulin A chain
+    codon 90 · GGC · Gly90 · highly constrained
+    chr11:2,159,917
+╭──────────────────────────────────────────────────╮
+│ Ranked among INS missense substitutions          │
+│                          ● AVI Phred   ○ ESM-2    │
+│ A    Ser                       33.2      −7.2    │
+│    ────────────────────────○━━━━━━━━━━━━━━━━━●─  │
+│ C    Arg                       31.8      −8.4    │
+│    ─────────────────────────────○━━━━━━━━━━━●─   │
+│ T  ● Cys                       31.2     −10.4    │
+│    ──────────────────────────────────────○●──    │
+│    ★ Uncertain significance                      │
+│    ← milder effect             stronger effect → │
+╰──────────────────────────────────────────────────╯
+Across INS · 687 missense substitutions
+  the cloud; ClinVar's 89 missense records in their class colours, P/LP
+  on top; this base's three as ink rings, named; the line of equal rank
+Spearman ρ                                      0.79
+Same order within a base            64% of 540 pairs
+ClinVar's missense records
+                                 AVI Phred     ESM-2
+● P/LP                    31          26.9      −8.6
+● Conflicting             11          22.1      −5.9
+● VUS                     39          21.3      −5.6
+○ Other                    8          29.6      −8.6
+  Every substitution     687          22.3      −3.9
+                                             medians
+AlphaGenome Atlas · ESM-2 · ClinVar
+(the compared line, the line on ClinVar, the terms' notice)
+```
+
+- **The rows.** ClinVar's mark stands beside what a change makes, as the
+  base sheet marks the change's bar: the most severe class of its records.
+  Every row on such a page keeps the mark's room, so the tags stand in line.
+  Under the track, or under the line saying why only AVI applies, stands each
+  record of the change: its review stars and its classification, quoted
+  inside `ClinVarSourced`. A change with no record has neither, and nothing
+  is said of the absence (R9.3).
+- **Hue is ClinVar's (R9.1).** The models' dot and ring take the page's ink,
+  and the rule between them the quiet ink. On the scatter this base's changes
+  are ink rings round their own ClinVar mark, or round an ink dot where they
+  have none.
+  - Denim stands 10.7 from ClinVar's benign blue and clay 10.5 from its
+    pathogenic rose (OKLab ×100, normal vision).
+  - The amino-acid balls' blue and red sit 9.4 and 8.7 from them.
+  - ClinVar's own palette keeps its pairs at least 15 apart.
+  - A page with no record keeps denim, clay and the amino-acid balls.
+- **The scatter.** It marks every record of the gene that is missense and
+  that both models score, at its own change, once, in the most severe class
+  of its records (`ClinVarAgreement`). The most severe is drawn last; Other
+  is a ring.
+  - A name keeps clear of this base's marks and of other names first, and of
+    ClinVar's records where it can.
+  - On this page a name may stand further off, led back by its hairline. The
+    two-model page places its names exactly as before.
+- **The table.**
+  - Each class present, in the order a reader scans them (P/LP, Conflicting,
+    VUS, B/LB, Other), with its records counted and their median AVI Phred
+    and ESM-2 score.
+  - Then the gene's every missense substitution, which they are read against.
+  - A median that falls halfway between two places is rounded away from zero,
+    as the stored decimals would round. Insulin's Other Phreds give 29.55,
+    which single precision would otherwise have tipped to 29.5.
+  - Large type puts each class's medians on a line under its name.
+- **Not shown, on purpose (R9.4).** No count of agreement and no
+  P/LP-against-B/LB statistic. Insulin has no B/LB missense record, and only
+  13 of the 38 curated genes have five or more of both. The footer says once
+  why ClinVar's classes are not an independent test of either model.
+- **The record.** An opened ClinVar record, on the base sheet, the residue
+  sheet and in the list, keeps:
+  - ClinVar's own words, the review status and the accession;
+  - Residue › or Base ›;
+  - where only AVI applies to its change, the one line that says so.
+
+  It no longer carries the ESM and AVI lines, the strong-end lines ("Both
+  models at their strong end." and its three siblings) or AVI's largest
+  contributions. On the residue sheet and in the list it offers "AVI and
+  ESM-2 ›" where its base has this page; the page rises over the sheet or
+  the list, and × returns there as it was left. The base sheet's codon line
+  is that link there. About these sources no longer names ESM-1b's −7.5 line,
+  which nothing draws any more.
+- **Every protein.** Like the two-model page, it is built from the tracks the
+  walk holds: every protein with AVI, ESM-2 and ClinVar, curated or built on
+  demand. Phospholamban has no ESM-2 track, so it has no page; a page of AVI
+  and ClinVar alone is left as a follow-up.
+
+**What the stored tracks say for insulin**
+
+- **Records.** 89 missense records, all placed, on 89 changes:
+  - P/LP 31, VUS 39, Conflicting 11;
+  - Other 8: 5 risk alleles and 3 not provided;
+  - no B/LB: insulin's 42 B/LB records are synonymous or off the CDS.
+- **Pages.** 73 of the 259 bases the page is offered at carry a missense
+  record, and 6 more only a synonymous or stop record: about 79 pages with
+  ClinVar.
+- **Where the classes stand.** P/LP sit in the gene's top fifth by both
+  models (median top 21% by AVI, 17% by ESM-2); VUS and conflicting records
+  sit mid-gene.
+- **Where they part.**
+  - G32S: AVI top 0.3%, ESM-2 31%.
+  - C43W: AVI 48%, ESM-2 1.5%. A bridge cysteine's third base, whose
+    conservation as a base is low.
+  - The cleavage sites ClinVar calls P/LP, A24V and c.266's R89H, R89P and
+    R89L: both models mid-gene.
+- **VUS or conflicting records both models put in the gene's top 10%:**
+  H29D, C96Y, C100Y, G90C, E106V, G47V.
+
+**The user's choices (2026-10-25, AskUserQuestion with previews)**
+
+- Every record body stops repeating the models, with a link to this page
+  outside the base sheet.
+- Class counts and medians as the page's numbers for ClinVar.
+- ClinVar owns hue on a page that carries it.
+- The other session's change to the page (ⓘ sheet removed, notice inline)
+  committed first.
+
+**My calls, which the user can change**
+
+- "AVI and ESM-2 ›" as the link's words.
+- The line saying why only AVI applies stays in a record of a change only AVI
+  scores; the preview showed only the strong-end sentence going.
+- The footer's line on ClinVar.
+- The table's head on its own line, over its two columns.
+- Names that may stand further off on a page with ClinVar.
+
+**Tests**
+
+- `clinvar_agreement_test.dart`: the model.
+  - Insulin's classes and medians against the script.
+  - p53's B/LB records, and glucagon's minus-strand record.
+  - Every scored curated protein's records placed once.
+  - The cache.
+- `agreement_clinvar_page_test.dart`: the page.
+  - c.268, c.266, c.94, c.129 and c.73; large type; motion; whole pages.
+  - The codon line from the sheet, and the record links on the residue sheet
+    and in the list.
+- Three walk tests were changed at the user's ask, all for the record:
+  - `merged_impact_test.dart`, "a record opens its evidence in place, one at
+    a time": the model lines, the strong-end lines and a link to the page
+    are now expected absent.
+  - `clinvar_widgets_test.dart`, "a record's links open its residue or base
+    above the list": the strong-end line is now expected absent.
+  - `impact_explanation_widgets_test.dart`: "expanded ClinVar record uses the
+    record allele" is deleted, with the two imports only it used.
+- No golden opens a record or the page, so no PNG moves.

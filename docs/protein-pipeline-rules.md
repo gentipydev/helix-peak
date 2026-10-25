@@ -611,8 +611,15 @@ ClinVar mark, each named beside its colour in the table that keys them. A
 second, at the user's ask (2026-10-22): a base's AVI and ESM-2 page marks its
 two models in the same earth, denim for AVI and clay for ESM-2
 (`AgreementColors`), on marks only and never on text, a dot and a ring that
-part by shape as well, named in the card's legend; it too carries no ClinVar
-mark. For
+part by shape as well, named in the card's legend, and only while the page
+carries no ClinVar mark. Where ClinVar has a record at the base the page sets
+ClinVar beside the models (the user's ask, 2026-10-25), and hue there is
+ClinVar's alone: the dot and the ring are the page's ink, and the base's own
+changes on its scatter are ink rings round their ClinVar mark rather than balls
+in their amino acids' colours. Denim stands 10.7 from the benign blue and clay
+10.5 from the pathogenic rose (OKLab ×100, normal vision), the amino acids'
+blue and red 9.4 and 8.7 from them, where ClinVar's own classes keep 15
+apart. For
 colour only, a record is grouped by its terms, which ClinVar separates with `/`
 and puts after a `;` where they are off the Mendelian axis (CFTR's
 `Pathogenic; drug response`): any pathogenic
@@ -683,22 +690,34 @@ they come on screen, since dystrophin has thousands. A record's link opens its
 residue or base above the list, as a walk of its own; Back, or that walk's
 "← ClinVar", returns to the list exactly as it was left, and closing the list
 returns to the walk exactly as it was before the list was opened. A record's
-accession opens the record on ClinVar. A record's detail may carry one
-line on where each model
-puts the change — against ESM −7.5 (the line published for ESM-1b, a reference
-rather than a calibration) and AVI 20 (the top 1% genome-wide) — or which model
-applies at all, in molecular words and never in a list. No count of agreement
-with ClinVar is shown anywhere: AVI already integrates protein-level evidence,
-AlphaMissense among it, so the two models are not independent votes, and
-submitters may have used computational predictions themselves.
+accession opens the record on ClinVar. A record's detail carries ClinVar's own
+words and its links; where only AVI applies to its change (off the protein,
+silent, a stop, the start codon) one line says so, in molecular words. Where
+both models score the change, their reading of it is the comparison page's,
+which the detail links to as "AVI and ESM-2 ›", but on a base sheet, whose
+codon line already opens it (the user's ask, 2026-10-25). Where ClinVar has a
+record at the base, that page shows where the gene's ClinVar missense records
+stand on both models: each at its own change on the scatter, in its class
+colour, and for each class its records counted and their median AVI Phred and
+ESM-2 score beside the gene's own. That places the classes and judges no
+record. No count of agreement is shown, nor any P/LP-against-B/LB statistic:
+insulin has no B/LB missense record, and only 13 of the 38 curated genes have
+five or more of both. The page says once why ClinVar's classes are not an
+independent test of either model: AVI already integrates protein-level
+evidence, AlphaMissense among it, and submitters may have used computational
+predictions themselves.
 
 **R9.5 Each fact once.** A sheet shows its own model on its bars and carries
-the other model's number in its ClinVar rows; the two numbers meet only in an
-opened record. One exception, at the user's ask (2026-10-22): a coding base's
-codon line opens a page that sets its substitutions' two numbers side by side,
-each ranked among the gene's single-base missense substitutions, with how far
-the two agree across the gene (`docs/avi-esm-agreement.md`); its info button
-explains both models' scales, since the page is both models'. What a source
+the other model's number in its ClinVar rows. The two numbers meet on one page,
+the one a coding base's codon line opens (the user's ask, 2026-10-22): it sets
+the base's substitutions' two numbers side by side, each ranked among the
+gene's single-base missense substitutions, with how far the two agree across
+the gene, and where ClinVar has a record at the base, ClinVar's words for each
+change and where its classes stand on both models (2026-10-25;
+`docs/avi-esm-agreement.md`). An opened record no longer repeats them, nor
+AVI's largest contributions, which are the Contributions page's (2026-10-25).
+The page names its sources in its footer, with one line on how it compares
+them. What a source
 is, its scale and its caveats are written once, in
 "About these sources" (the overview's footer and the About sheet), and each
 sheet's info button explains only its own model's scale. *Status: enforced*
