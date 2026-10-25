@@ -341,9 +341,8 @@ class _Numbers extends StatelessWidget {
 ///
 /// The models' reading of the record's change is not repeated here: its row
 /// carries the number the page lacks, and the page its base opens sets the
-/// change beside both models and the gene's ClinVar records (the user's ask,
-/// 2026-10-25). Where only AVI applies, one line says so and why. Nothing
-/// adds the two sides up.
+/// change's two scores side by side (the user's ask, 2026-10-25). Where only
+/// AVI applies, one line says so and why. Nothing adds the two sides up.
 class EvidenceDetail extends StatelessWidget {
   const EvidenceDetail({
     required this.evidence,

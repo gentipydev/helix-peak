@@ -45,7 +45,6 @@ import '../clinvar/variants_overview.dart';
 import '../constraint/constraint_panel.dart';
 import '../constraint/constraint_toolbar.dart';
 import '../inspector/agreement_page.dart';
-import '../inspector/clinvar_agreement.dart';
 import '../inspector/coding_evidence.dart';
 import '../inspector/contributions_page.dart';
 import '../inspector/gene_agreement.dart';
@@ -732,9 +731,8 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   }
 
   /// A base's substitutions as AVI and ESM-2 each read them, ranked in the
-  /// gene, and as ClinVar classifies them where it has a record at the base,
-  /// on a page that rises over the walk, its sheet or the ClinVar list still
-  /// open under it, as the Contributions page does from the sheet.
+  /// gene, on a page that rises over the walk, its sheet or the ClinVar list
+  /// still open under it, as the Contributions page does from the sheet.
   Future<void> _openAgreement({
     required GeneImpact track,
     required BaseImpact impact,
@@ -756,16 +754,6 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       impact: track,
       constraint: constraint,
     );
-    // ClinVar's part, where it has a record at the base: the base's records,
-    // and the gene's placed among its changes, kept with its records.
-    final List<VariantEvidence> records = _evidenceAt(
-      position: impact.position,
-    );
-    final List<VariantEvidence>? all = _evidence;
-    final ClinVarAgreement? clinvar =
-        records.isEmpty || agreement == null || all == null
-        ? null
-        : ClinVarAgreement.of(agreement: agreement, evidence: all);
     _agreementOpen = true;
     try {
       await Navigator.of(context).push<void>(
@@ -781,8 +769,6 @@ class _AnatomyScreenState extends State<AnatomyScreen>
               region: region,
               detail: detail,
               tint: tint,
-              records: records,
-              clinvar: clinvar,
             ),
           ),
         ),
@@ -1301,11 +1287,10 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     );
   }
 
-  /// The base's substitutions side by side as both models read them, with
-  /// ClinVar where it has a record there: what the base sheet's codon line
-  /// opens, and a ClinVar record's link on the residue sheet and the list
-  /// (the user's asks, 2026-10-22 and 2026-10-25). Null where the base offers
-  /// no such page.
+  /// The base's substitutions side by side as both models read them: what the
+  /// base sheet's codon line opens, and a ClinVar record's link on the
+  /// residue sheet and the list (the user's asks, 2026-10-22 and 2026-10-25).
+  /// Null where the base offers no such page.
   VoidCallback? _comparing(_BaseFacts facts) {
     final GeneImpact? explained = facts.explained;
     final CodingEvidence? compared = facts.compared;

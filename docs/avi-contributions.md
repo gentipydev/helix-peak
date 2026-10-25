@@ -12,7 +12,7 @@ Hemoglobin's and CFTR's top-three payloads were deleted then: their track
 rows are `absent` and their objects gone. Until 2026-10-25 an expanded
 ClinVar record showed its own allele's three largest contributions; since
 then this page is their one place, and the record links to its base's page
-of AVI, ESM-2 and ClinVar instead (`docs/avi-esm-agreement.md`).
+of AVI and ESM-2 instead (`docs/avi-esm-agreement.md`).
 
 **The page**
 

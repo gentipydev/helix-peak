@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
@@ -120,15 +119,6 @@ final class GeneAgreement {
     top: _upperBound(_esms, score) / count,
     bottom: (count - _lowerBound(_esms, score)) / count,
   );
-
-  /// Every change's AVI Phred and ESM-2 score, each from the lowest.
-  List<double> get phreds => UnmodifiableListView<double>(_phreds);
-  List<double> get esms => UnmodifiableListView<double>(_esms);
-
-  /// The gene's middle AVI Phred and ESM-2 score, each read between its two
-  /// middle changes where their count is even.
-  double get medianPhred => _quantile(_phreds, 0.5);
-  double get medianEsm => _quantile(_esms, 0.5);
 
   /// Where a change would stand if the two models ranked the gene's changes
   /// alike, as a ρ of 1 would put every one: each AVI Phred beside the ESM-2
@@ -351,7 +341,6 @@ final class AgreementRow {
     this.aviRank,
     this.esmRank,
     this.reading,
-    this.records = const <VariantEvidence>[],
   });
 
   /// The base and its Phred.
@@ -376,10 +365,6 @@ final class AgreementRow {
   /// Why only AVI applies, for a change that is not missense.
   final EvidenceReading? reading;
 
-  /// ClinVar's records of this very change, in the snapshot's order; none
-  /// for a change it has no record of.
-  final List<VariantEvidence> records;
-
   /// Whether any of [base]'s substitutions is one both models score: a
   /// change to another amino acid, at a residue ESM-2's track holds. Only
   /// such a base's sheet offers the page (the user's ask, 2026-10-22).
@@ -394,28 +379,19 @@ final class AgreementRow {
   static bool _missense(String tag) =>
       tag.isNotEmpty && tag != '=' && tag != 'Ter' && tag != '?';
 
-  /// The base's substitutions in the sheet's order, Phred highest first, each
-  /// with those of ClinVar's [records] at the base that are its own allele.
+  /// The base's substitutions in the sheet's order, Phred highest first.
   static List<AgreementRow> at(
     BaseImpact base,
     CodingEvidence coding,
-    GeneAgreement? gene, {
-    List<VariantEvidence> records = const <VariantEvidence>[],
-  }) => <AgreementRow>[
-    for (final AltScore score in base.ranked)
-      _read(score, coding, gene, <VariantEvidence>[
-        for (final VariantEvidence e in records)
-          if (e.variant.position == base.position &&
-              e.variant.alt == score.base)
-            e,
-      ]),
+    GeneAgreement? gene,
+  ) => <AgreementRow>[
+    for (final AltScore score in base.ranked) _read(score, coding, gene),
   ];
 
   static AgreementRow _read(
     AltScore score,
     CodingEvidence coding,
     GeneAgreement? gene,
-    List<VariantEvidence> records,
   ) {
     final String tag = coding.changeTo(score.base);
     final EvidenceReading? reading = switch (tag) {
@@ -440,7 +416,6 @@ final class AgreementRow {
       aviRank: esm == null ? null : gene?.aviRank(score.phred),
       esmRank: esm == null ? null : gene?.esmRank(esm),
       reading: reading,
-      records: records,
     );
   }
 }
