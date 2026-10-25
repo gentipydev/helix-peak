@@ -59,18 +59,6 @@ class AgreementPage extends StatelessWidget {
   /// The colour the grid draws the base's region in, for its letter tile.
   final Color? tint;
 
-  /// What the values are, over the page rather than in it.
-  Future<void> _about(BuildContext context, ThemeData theme) =>
-      showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        useSafeArea: true,
-        showDragHandle: true,
-        backgroundColor: theme.colorScheme.surfaceContainer,
-        builder: (BuildContext context) =>
-            Theme(data: theme, child: const _About()),
-      );
-
   @override
   Widget build(BuildContext context) {
     final ThemeData base = Theme.of(context);
@@ -86,15 +74,6 @@ class AgreementPage extends StatelessWidget {
         appBar: AppBar(
           title: Text('$address · AVI and ESM-2'),
           leading: CloseButton(onPressed: () => Navigator.of(context).pop()),
-          actions: <Widget>[
-            IconButton(
-              key: const ValueKey<String>('agreement-info'),
-              tooltip: 'About these values',
-              onPressed: () => _about(context, theme),
-              icon: const Icon(Icons.info_outline, size: 20),
-            ),
-            const SizedBox(width: 4),
-          ],
         ),
         body: SafeArea(
           child: ListView(
@@ -135,6 +114,8 @@ class AgreementPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(_compared, style: style),
+                  const SizedBox(height: 4),
+                  Text(_notice, style: style),
                 ],
               ),
             ],
@@ -154,13 +135,8 @@ const String _compared =
     'amino acid it makes from the protein sequence; both are ranked here '
     'among the gene’s missense substitutions.';
 
-/// Who made the AVI values, as the page's sheet credits them.
-const String _atlas = 'AlphaGenome Atlas · Google DeepMind';
-
 /// The notice AlphaGenome's terms ask of anything that shows its output: the
-/// terms it is given under, and what was done to it here. The page's sheet
-/// carries it, at the user's ask for a page that names its sources alone
-/// (2026-10-22).
+/// terms it is given under, and what was done to it here.
 const String _notice =
     'Provided under and subject to the AlphaGenome Output Terms of Use. '
     'This page ranks the Atlas’s Phred scores within the gene, beside '
@@ -1205,126 +1181,4 @@ class _ScatterPainter extends CustomPainter {
       old.tick != tick ||
       old.name != name ||
       old.scaler != scaler;
-}
-
-/// What the page's values are and how it draws them, said once.
-class _About extends StatelessWidget {
-  const _About();
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    Widget section(String heading, Widget body) => Padding(
-      padding: const EdgeInsets.only(bottom: 18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(heading, style: theme.textTheme.titleSmall),
-          const SizedBox(height: 4),
-          body,
-        ],
-      ),
-    );
-    Text line(String text) => Text(text, style: theme.caption);
-    return SingleChildScrollView(
-      key: const ValueKey<String>('agreement-about'),
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text('About these values', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 16),
-          section(
-            'The two scores',
-            line(
-              'AVI: the Atlas’s Phred for each substitution, calibrated '
-              'across the genome’s SNVs. ESM-2: 650M, masked marginals, '
-              'ln p(alt)/p(WT) for the amino acid the substitution makes.',
-            ),
-          ),
-          section(
-            'The ranks',
-            line(
-              'Each missense substitution is placed twice on its track among '
-              'the gene’s single-base missense substitutions: by AVI, the '
-              'denim dot, and by ESM-2, the clay ring. A mark further right '
-              'outranks more of the gene’s changes, by a higher Phred for '
-              'AVI and a lower score for ESM-2, each its model’s stronger '
-              'effect. The farther apart the two marks, the more the two '
-              'models differ on that change.',
-            ),
-          ),
-          section(
-            'Not ranked',
-            line(
-              'A silent change, a stop, and any change in the start codon: '
-              'ESM-2 scores one amino acid in place of another, so only AVI '
-              'applies.',
-            ),
-          ),
-          section(
-            'The scatter',
-            line(
-              'Every missense substitution in the gene as a dot: AVI’s Phred '
-              'across, from 0 to 40, and ESM-2’s score up, from +5 at the '
-              'foot to −15 at the top, so that each model’s larger effect '
-              'lies up and to the right; each axis carries its model’s mark. '
-              'A change past an end stands on it. This base’s own are balls '
-              'in the colours their amino acids have on the protein and '
-              'chains pages, each named. The dashed line is where every dot '
-              'would stand if the two ranked the gene’s changes alike, a rank '
-              'correlation of 1: each Phred beside the ESM-2 score of the same '
-              'rank. A dot under it is ranked stronger by AVI, one over it by '
-              'ESM-2.',
-            ),
-          ),
-          section(
-            'Across the gene',
-            line(
-              'Spearman’s rank correlation between AVI’s Phred and ESM-2’s '
-              'score turned over, so that the two agreeing reads as positive, '
-              'as the dots’ rise does. Same order: of every two missense '
-              'substitutions at one base, the share both models put in the '
-              'same order; pairs tied in either are left out, and half would '
-              'be chance.',
-            ),
-          ),
-          section(
-            'One input shared',
-            line(
-              'AVI integrates AlphaMissense among its coding features, so on '
-              'a missense change it overlaps ESM-2 rather than confirming it.',
-            ),
-          ),
-          section(
-            'Source',
-            Column(
-              key: const ValueKey<String>('agreement-about-source'),
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                line('$_atlas. $_notice'),
-                const SizedBox(height: 6),
-                line(
-                  'The terms: deepmind.google.com/science/alphagenome/'
-                  'output-terms',
-                ),
-                const SizedBox(height: 6),
-                line(
-                  'Avsec et al., Advancing regulatory variant effect '
-                  'prediction with AlphaGenome. Nature 649, 1206–1218 '
-                  '(2026). doi:10.1038/s41586-025-10014-0',
-                ),
-                const SizedBox(height: 6),
-                line(
-                  'ESM-2: Lin et al., Evolutionary-scale prediction of '
-                  'atomic-level protein structure with a language model. '
-                  'Science 379, 1123–1130 (2023). doi:10.1126/science.ade2574',
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
