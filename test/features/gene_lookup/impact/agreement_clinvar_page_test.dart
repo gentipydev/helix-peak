@@ -81,10 +81,6 @@ const String _independence =
     'are not an independent test of either model: AVI draws on '
     'AlphaMissense, and submitters may have weighed computational '
     'predictions.';
-const String _notice =
-    'Provided under and subject to the AlphaGenome Output Terms of Use. '
-    'This page ranks the Atlas’s Phred scores within the gene, beside '
-    'ESM-2’s.';
 
 Finder _key(String value) => find.byKey(ValueKey<String>(value));
 
@@ -418,7 +414,6 @@ void main() {
       'AlphaGenome Atlas · ESM-2 · ClinVar',
       _compared,
       _independence,
-      _notice,
     ]);
     _noClinicalCopy(tester);
     expect(tester.takeException(), isNull);
@@ -533,7 +528,6 @@ void main() {
     expect(_texts(tester, 'agreement-source'), <String>[
       'AlphaGenome Atlas · ESM-2',
       _compared,
-      _notice,
     ]);
     await _capture(tester, 'agreement-clinvar-c73');
   });

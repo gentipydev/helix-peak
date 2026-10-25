@@ -131,10 +131,11 @@ missense substitutions.
 - The gene's scatter and its two numbers stand under the card, the count
   said once, in their heading.
 - The ρ is set in the mono face: the sans face has no Greek.
-- The page ends on its two sources, "AlphaGenome Atlas · ESM-2", one line on
-  what they are and how they are compared, text only (the user's ask,
-  2026-10-22), and the notice AlphaGenome's terms ask of anything that shows
-  its output, which the terms ask to be conspicuous.
+- The page ends on its two sources, "AlphaGenome Atlas · ESM-2", and one line
+  on what they are and how they are compared, text only (the user's ask,
+  2026-10-22). It carries no AlphaGenome terms notice: the user had it taken
+  off the page on 2026-10-25, though the terms ask for a conspicuous one
+  wherever AVI output shows.
 - Until 2026-10-23 an ⓘ sheet over the page held the two scores, how the
   tracks, hues and scatter read, the two gene numbers, that AVI integrates
   AlphaMissense, the terms' address and the two papers (Avsec et al., Nature
@@ -142,7 +143,8 @@ missense substitutions.
   379, 1123–1130 (2023), doi:10.1126/science.ade2574), and the notice stood
   there alone. Another session took the sheet away and put the notice on the
   page; the change was committed as it stood on 2026-10-25, at the user's
-  choice, before ClinVar joined the page.
+  choice, before ClinVar joined the page. The same day the user had the
+  notice removed from the page.
 
 **The scatter**
 
@@ -361,7 +363,7 @@ phone may take longer, and nothing was measured on one.
     never rising along it;
   - the rows' two numbers alone, the effect words under the last track, the
     two hues in every theme and clear of both grounds, and the page's two
-    sources, its one line and the terms' notice;
+    sources and its one line, and no terms' notice;
   - the rows, the columns, the gene numbers and the semantics;
   - large text on a narrow phone;
   - motion, the clamped scroll, no info button, and the source;
@@ -426,7 +428,7 @@ ClinVar's missense records
   Every substitution     687          22.3      −3.9
                                              medians
 AlphaGenome Atlas · ESM-2 · ClinVar
-(the compared line, the line on ClinVar, the terms' notice)
+(the compared line and the line on ClinVar)
 ```
 
 - **The rows.** ClinVar's mark stands beside what a change makes, as the

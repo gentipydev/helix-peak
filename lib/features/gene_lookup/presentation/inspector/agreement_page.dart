@@ -169,8 +169,6 @@ class AgreementPage extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(_independence, style: style),
                   ],
-                  const SizedBox(height: 4),
-                  Text(_notice, style: style),
                 ],
               ),
             ],
@@ -200,13 +198,6 @@ const String _compared =
     'AVI (AlphaGenome Atlas) scores each change from the DNA, ESM-2 the '
     'amino acid it makes from the protein sequence; both are ranked here '
     'among the gene’s missense substitutions.';
-
-/// The notice AlphaGenome's terms ask of anything that shows its output: the
-/// terms it is given under, and what was done to it here.
-const String _notice =
-    'Provided under and subject to the AlphaGenome Output Terms of Use. '
-    'This page ranks the Atlas’s Phred scores within the gene, beside '
-    'ESM-2’s.';
 
 const TextStyle _mono = TextStyle(
   fontFamily: AppTypography.monoFamily,

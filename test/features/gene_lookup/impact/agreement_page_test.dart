@@ -561,22 +561,21 @@ void main() {
     expect(position.pixels, end);
   });
 
-  testWidgets('the page credits both sources and carries the terms\' '
-      'notice; nothing is said in clinical terms', (
+  testWidgets('the page credits both sources; nothing is said in clinical '
+      'terms', (
     WidgetTester tester,
   ) async {
     await pumpPage(tester, _c268, 'c.268');
-    // The page names its two sources, says in one line what they are and
-    // how they are set side by side, and carries the terms' notice.
+    // The page names its two sources and says in one line what they are and
+    // how they are set side by side. The terms' notice is not on it (the
+    // user's ask, 2026-10-25).
     expect(_row(tester, 'agreement-source'), <String>[
       'AlphaGenome Atlas · ESM-2',
       'AVI (AlphaGenome Atlas) scores each change from the DNA, ESM-2 the '
           'amino acid it makes from the protein sequence; both are ranked '
           'here among the gene’s missense substitutions.',
-      'Provided under and subject to the AlphaGenome Output Terms of Use. '
-          'This page ranks the Atlas’s Phred scores within the gene, beside '
-          'ESM-2’s.',
     ]);
+    expect(find.textContaining('Output Terms'), findsNothing);
     // Text only: the page links nowhere.
     for (final Type type in <Type>[InkWell, GestureDetector]) {
       expect(
