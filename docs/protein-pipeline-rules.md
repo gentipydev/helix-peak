@@ -697,10 +697,11 @@ both models score the change, their reading of it is the comparison page's,
 which the detail links to as "AVI and ESM-2 ›", but on a base sheet, whose
 codon line already opens it (the user's ask, 2026-10-25). Where ClinVar has a
 record at the base, that page shows where the gene's ClinVar missense records
-stand on both models: each at its own change on the scatter, in its class
-colour, and for each class its records counted and their median AVI Phred and
-ESM-2 score beside the gene's own. That places the classes and judges no
-record. No count of agreement is shown, nor any P/LP-against-B/LB statistic:
+stand on both models: on a strip for each model's own scale, a row per class
+with each record a dot in its class colour, its records counted once and its
+median marked and written, over the gene's every missense substitution. That
+places the classes and judges no record. The models' scatter carries none of
+them: drawn on it, they crowded it past reading (2026-10-25). No count of agreement is shown, nor any P/LP-against-B/LB statistic:
 insulin has no B/LB missense record, and only 13 of the 38 curated genes have
 five or more of both. The page says once why ClinVar's classes are not an
 independent test of either model: AVI already integrates protein-level

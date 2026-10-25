@@ -839,8 +839,8 @@ class _Track extends CustomPainter {
 /// How far the two agree across the gene: every missense substitution as a
 /// dot, the rank correlation of them all, and how often the two order one
 /// base's alike. Where ClinVar has a record at the base, the gene's ClinVar
-/// records are marked by class among the dots, and each class's middle
-/// scores stand under the numbers, beside the gene's.
+/// records stand under the numbers on strips of their own, one for each
+/// model.
 class _Across extends StatelessWidget {
   const _Across({
     required this.agreement,
@@ -894,12 +894,7 @@ class _Across extends StatelessWidget {
           style: theme.textTheme.titleSmall,
         ),
         const SizedBox(height: 10),
-        _Scatter(
-          agreement: agreement,
-          marks: marks,
-          observed: observed,
-          clinvar: clinvar,
-        ),
+        _Scatter(agreement: agreement, marks: marks, observed: observed),
         const SizedBox(height: 4),
         if (rho != null)
           stat(
@@ -923,283 +918,699 @@ class _Across extends StatelessWidget {
             '${(same * 100).round()}% of ${grouped(agreement.pairs)} pairs',
           ),
         if (clinvar case final ClinVarAgreement placed) ...<Widget>[
-          const SizedBox(height: 20),
-          _ClinVarClasses(clinvar: placed, agreement: agreement),
+          const SizedBox(height: 22),
+          _ClinVarStrips(clinvar: placed, agreement: agreement, marks: marks),
         ],
       ],
     );
   }
 }
 
-/// Where ClinVar's classes stand among the gene's missense substitutions:
-/// each class's records counted, and the middle of each model's scores for
-/// them, in the models' own units, over the gene's own middle. It places the
-/// classes and judges no record.
-class _ClinVarClasses extends StatelessWidget {
-  const _ClinVarClasses({required this.clinvar, required this.agreement});
+/// [value] to one place. A median of an even count can fall halfway between
+/// two places (Other's Phreds in insulin, 29.55), and the single precision a
+/// Phred is held to would tip such a tie either way; it is rounded away from
+/// zero, as the stored decimals would round.
+double _tenths(double value) =>
+    (value.abs() * 10 + 1e-4).round() / 10 * value.sign;
+
+/// Where ClinVar's classes stand on each model's own scale (the user's ask,
+/// 2026-10-25, after the scatter that carried them had grown crowded): a
+/// strip for AVI and one for ESM-2, a row per class, each record a dot along
+/// the row, the median a bar with its value at the row's end, and the gene's
+/// every missense substitution under them. This base's changes are lines
+/// through every row, named over them, and a change's own record is ringed on
+/// its class's row. The stronger effect lies to the right on both, as on the
+/// card's tracks. It places the classes and judges no record.
+class _ClinVarStrips extends StatelessWidget {
+  const _ClinVarStrips({
+    required this.clinvar,
+    required this.agreement,
+    required this.marks,
+  });
 
   final ClinVarAgreement clinvar;
   final GeneAgreement agreement;
 
+  /// This base's missense substitutions.
+  final List<AgreementRow> marks;
+
+  List<_StripRow> _rows({required bool esm}) => <_StripRow>[
+    for (final ClinVarClass c in clinvar.classes)
+      _StripRow(
+        label: c.group.short,
+        count: c.records,
+        group: c.group,
+        values: esm ? c.esms : c.phreds,
+        median: esm ? c.esm : c.phred,
+      ),
+    _StripRow(
+      label: 'All',
+      count: agreement.count,
+      values: esm ? agreement.esms : agreement.phreds,
+      median: esm ? agreement.medianEsm : agreement.medianPhred,
+    ),
+  ];
+
+  List<_StripChange> _changes({required bool esm}) => <_StripChange>[
+    for (final AgreementRow m in marks)
+      if (m.esm case final double score)
+        (
+          name: m.tag,
+          value: esm ? score : m.score.phred,
+          groups: <ClinVarGroup>{
+            for (final VariantEvidence e in m.records) e.variant.group,
+          },
+        ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final TextStyle? caption = theme.caption;
-    final TextScaler scaler = MediaQuery.textScalerOf(context);
-    final TextStyle base = DefaultTextStyle.of(context).style;
-    double measure(String text, TextStyle? style) {
-      final TextPainter painter = TextPainter(
-        text: TextSpan(text: text, style: base.merge(style)),
-        textDirection: TextDirection.ltr,
-        textScaler: scaler,
-        maxLines: 1,
-      )..layout();
-      final double width = painter.width.ceilToDouble();
-      painter.dispose();
-      return width;
-    }
-
-    // Each class ClinVar has records in, in the order a reader scans them,
-    // then the gene's every missense substitution, which they are read
-    // against.
-    final List<_ClassRow> rows = <_ClassRow>[
-      for (final ClinVarClass c in clinvar.classes)
-        _ClassRow(
-          key: c.group.name,
-          group: c.group,
-          label: c.group.short,
-          count: c.records,
-          phred: c.phred,
-          esm: c.esm,
+    return Column(
+      key: const ValueKey<String>('agreement-clinvar-strips'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Text('ClinVar’s missense records', style: theme.textTheme.titleSmall),
+        const SizedBox(height: 10),
+        _Strip(
+          key: const ValueKey<String>('agreement-clinvar-avi'),
+          model: 'AVI Phred',
+          rows: _rows(esm: false),
+          changes: _changes(esm: false),
+          esm: false,
+          counted: true,
         ),
-      _ClassRow(
-        key: 'all',
-        label: 'Every substitution',
-        count: agreement.count,
-        phred: agreement.medianPhred,
-        esm: agreement.medianEsm,
-      ),
-    ];
-    double widest(Iterable<String> texts, TextStyle? style) =>
-        texts.map((String t) => measure(t, style)).reduce(math.max);
-    final double counts = widest(<String>[
-      for (final _ClassRow row in rows) grouped(row.count),
-    ], _mono);
-    final double phreds = math.max(
-      measure('AVI Phred', caption),
-      widest(<String>[for (final _ClassRow row in rows) row.phredText], _mono),
-    );
-    final double esms = math.max(
-      measure('ESM-2', caption),
-      widest(<String>[for (final _ClassRow row in rows) row.esmText], _mono),
-    );
-    final double labels = widest(<String>[
-      for (final _ClassRow row in rows) row.label,
-    ], theme.textTheme.bodyMedium);
-    Widget cell(String text, double width, String key) => SizedBox(
-      width: width,
-      child: Text(
-        text,
-        key: ValueKey<String>(key),
-        style: _mono,
-        maxLines: 1,
-        softWrap: false,
-        textAlign: TextAlign.end,
-      ),
-    );
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints box) {
-        // In columns where the labels and the three columns fit side by
-        // side; otherwise each class's two medians on a line under it.
-        final bool stacked =
-            stackScoreLabels(context) ||
-            _slot + labels + 12 + counts + 2 * _columnGap + phreds + esms >
-                box.maxWidth;
-        Widget name(_ClassRow row) {
-          // Wrapped between words where the medians stand under it, so that
-          // large type never cuts a name.
-          final Text text = Text(
-            row.label,
-            style: theme.textTheme.bodyMedium,
-            maxLines: stacked ? null : 1,
-            overflow: stacked ? null : TextOverflow.ellipsis,
-          );
-          return Row(
-            children: <Widget>[
-              SizedBox(
-                width: _slot,
-                child: row.group == null
-                    ? null
-                    : Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: ClinVarDot(group: row.group!, size: _dot),
-                      ),
-              ),
-              Flexible(
-                child: row.group == null ? text : ClinVarSourced(child: text),
-              ),
-            ],
-          );
-        }
-
-        return Column(
-          key: const ValueKey<String>('agreement-clinvar-classes'),
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Text(
-              'ClinVar’s missense records',
-              style: theme.textTheme.titleSmall,
-            ),
-            // The two columns headed once, over their numbers, as the card's
-            // legend heads its own.
-            if (!stacked) ...<Widget>[
-              const SizedBox(height: 6),
-              Row(
-                children: <Widget>[
-                  const Spacer(),
-                  SizedBox(
-                    width: phreds,
-                    child: Text(
-                      'AVI Phred',
-                      style: caption,
-                      textAlign: TextAlign.end,
-                    ),
-                  ),
-                  const SizedBox(width: _columnGap),
-                  SizedBox(
-                    width: esms,
-                    child: Text('ESM-2', style: caption, textAlign: TextAlign.end),
-                  ),
-                ],
-              ),
-            ],
-            const SizedBox(height: 4),
-            for (final _ClassRow row in rows)
-              Semantics(
-                container: true,
-                label: row.spoken,
-                excludeSemantics: true,
-                child: Padding(
-                  key: ValueKey<String>('agreement-clinvar-class-${row.key}'),
-                  padding: const EdgeInsets.only(top: 6),
-                  child: stacked
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Row(
-                              children: <Widget>[
-                                Expanded(child: name(row)),
-                                const SizedBox(width: 12),
-                                Text(grouped(row.count), style: _mono),
-                              ],
-                            ),
-                            Padding(
-                              padding: const EdgeInsetsDirectional.only(
-                                start: _slot,
-                                top: 2,
-                              ),
-                              child: Text.rich(
-                                TextSpan(
-                                  children: <InlineSpan>[
-                                    TextSpan(text: 'AVI Phred ', style: caption),
-                                    TextSpan(text: row.phredText, style: _mono),
-                                    TextSpan(text: '   ESM-2 ', style: caption),
-                                    TextSpan(text: row.esmText, style: _mono),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      : Row(
-                          children: <Widget>[
-                            Expanded(child: name(row)),
-                            const SizedBox(width: 12),
-                            cell(
-                              grouped(row.count),
-                              counts,
-                              'agreement-clinvar-count-${row.key}',
-                            ),
-                            const SizedBox(width: _columnGap),
-                            cell(
-                              row.phredText,
-                              phreds,
-                              'agreement-clinvar-avi-${row.key}',
-                            ),
-                            const SizedBox(width: _columnGap),
-                            cell(
-                              row.esmText,
-                              esms,
-                              'agreement-clinvar-esm-${row.key}',
-                            ),
-                          ],
-                        ),
-                ),
-              ),
-            const SizedBox(height: 4),
-            Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: Text('medians', style: caption),
-            ),
-          ],
-        );
-      },
+        const SizedBox(height: 16),
+        _Strip(
+          key: const ValueKey<String>('agreement-clinvar-esm'),
+          model: 'ESM-2',
+          rows: _rows(esm: true),
+          changes: _changes(esm: true),
+          esm: true,
+          counted: false,
+        ),
+      ],
     );
   }
 }
 
-/// One line of the class table.
-final class _ClassRow {
-  const _ClassRow({
-    required this.key,
+/// One row of a strip: a ClinVar class, or the gene's every missense
+/// substitution, which the classes are read against.
+@immutable
+final class _StripRow {
+  const _StripRow({
     required this.label,
     required this.count,
-    required this.phred,
-    required this.esm,
+    required this.values,
+    required this.median,
     this.group,
   });
 
-  final String key;
+  final String label;
+  final int count;
 
   /// ClinVar's class, or null for the gene's every substitution.
   final ClinVarGroup? group;
-  final String label;
-  final int count;
-  final double phred;
-  final double esm;
 
-  String get phredText => _tenths(phred).toStringAsFixed(1);
-  String get esmText => formatScore(_tenths(esm));
+  /// The row's scores on the strip's model, from the lowest.
+  final List<double> values;
+  final double median;
+}
 
-  /// [value] to one place. A median of an even count can fall halfway
-  /// between two places (Other's Phreds in insulin, 29.55), and the single
-  /// precision a Phred is held to would tip such a tie either way; it is
-  /// rounded away from zero, as the stored decimals would round.
-  static double _tenths(double value) =>
-      (value.abs() * 10 + 1e-4).round() / 10 * value.sign;
+/// One of this base's changes on a strip: what it makes, its score on the
+/// strip's model, and the classes of ClinVar's records of it.
+typedef _StripChange = ({String name, double value, Set<ClinVarGroup> groups});
 
-  String get spoken =>
-      '$label: ${grouped(count)} ${group == null ? 'missense substitutions' : 'record${count == 1 ? '' : 's'}'}; '
-      'median AVI Phred $phredText; median ESM-2 $esmText';
+/// The type a strip is drawn in.
+typedef _StripType = ({
+  TextStyle label,
+  TextStyle count,
+  TextStyle value,
+  TextStyle name,
+  TextStyle caption,
+});
+
+/// One model's strip: its name over it, its rows, and this base's changes
+/// through them.
+class _Strip extends StatelessWidget {
+  const _Strip({
+    required this.model,
+    required this.rows,
+    required this.changes,
+    required this.esm,
+    required this.counted,
+    super.key,
+  });
+
+  /// The model's name over the strip.
+  final String model;
+  final List<_StripRow> rows;
+  final List<_StripChange> changes;
+
+  /// Whether the scale is ESM-2's, from +5 at the milder end to −15.
+  final bool esm;
+
+  /// Whether the rows' counts are drawn: the first strip says them, and the
+  /// second keeps their room, so the two scales stand in line.
+  final bool counted;
+
+  String _number(double value) =>
+      esm ? formatScore(_tenths(value)) : _tenths(value).toStringAsFixed(1);
+
+  /// The strip as a screen reader says it.
+  String get _spoken => <String>[
+    '$model by ClinVar class',
+    for (final _StripRow r in rows)
+      '${r.label}: ${grouped(r.count)} '
+          '${r.group == null ? 'missense substitutions' : 'record${r.count == 1 ? '' : 's'}'}, '
+          'median ${_number(r.median)}',
+    if (changes.isNotEmpty)
+      'this base: ${changes.map((_StripChange c) => '${c.name} ${_number(c.value)}').join(', ')}',
+  ].join('; ');
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final TextScaler scaler = MediaQuery.textScalerOf(context);
+    final TextStyle base = DefaultTextStyle.of(context).style;
+    final TextStyle mono = base
+        .merge(theme.caption)
+        .copyWith(
+          fontFamily: AppTypography.monoFamily,
+          fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+        );
+    final _StripType type = (
+      label: base.merge(theme.textTheme.bodyMedium),
+      count: mono,
+      value: base.merge(_mono).copyWith(color: theme.colorScheme.onSurface),
+      name: base.merge(_mono).copyWith(color: theme.colorScheme.onSurface),
+      caption: base.merge(theme.caption),
+    );
+    return Semantics(
+      container: true,
+      label: _spoken,
+      excludeSemantics: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Text(model, style: theme.caption),
+          const SizedBox(height: 2),
+          LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints box) {
+              final _StripLayout layout = _StripLayout.of(
+                width: box.maxWidth,
+                rows: rows,
+                changes: changes,
+                esm: esm,
+                type: type,
+                scaler: scaler,
+                stack: stackScoreLabels(context),
+                number: _number,
+              );
+              return RepaintBoundary(
+                child: SizedBox(
+                  width: box.maxWidth,
+                  height: layout.height,
+                  child: CustomPaint(
+                    painter: _StripPainter(
+                      layout: layout,
+                      rows: rows,
+                      changes: changes,
+                      esm: esm,
+                      counted: counted,
+                      type: type,
+                      scaler: scaler,
+                      number: _number,
+                      ink: theme.colorScheme.onSurface,
+                      quiet: theme.colorScheme.onSurfaceVariant,
+                      grid: theme.colorScheme.outlineVariant,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Where a strip's parts stand, worked out from its type and width: the
+/// widget sizes itself by it and the painter draws by it.
+@immutable
+final class _StripLayout {
+  const _StripLayout._({
+    required this.width,
+    required this.left,
+    required this.right,
+    required this.countRight,
+    required this.labelLeft,
+    required this.stacked,
+    required this.labelLine,
+    required this.lane,
+    required this.band,
+    required this.tick,
+    required this.rows,
+    required this.names,
+    required this.head,
+    required this.from,
+    required this.to,
+  });
+
+  final double width;
+
+  /// The scale's two ends on the canvas.
+  final double left;
+  final double right;
+
+  /// Where the counts end and the labels start.
+  final double countRight;
+  final double labelLeft;
+
+  /// Whether each row's label stands on a line of its own over its lane,
+  /// where type turned up, or a narrow phone, leaves the scale too little
+  /// room beside the labels.
+  final bool stacked;
+
+  /// A stacked row's label line, and every row's lane of dots.
+  final double labelLine;
+  final double lane;
+
+  /// The band over the rows that names this base's changes and heads the
+  /// medians.
+  final double band;
+
+  /// The ticks' line under the rows.
+  final double tick;
+  final int rows;
+
+  /// Each change's name, in the order the changes were given.
+  final List<Rect> names;
+
+  /// Where "median" heads the column of values.
+  final Rect head;
+
+  /// The scale's value at its milder end and at its stronger.
+  final double from;
+  final double to;
+
+  static const double _gap = 12;
+  static const double _shortest = 140;
+
+  double get rowHeight => stacked ? labelLine + lane : math.max(lane, labelLine);
+  double get top => band;
+  double get bottom => top + rows * rowHeight;
+  double get height => bottom + 4 + tick;
+
+  /// Where row [i]'s dots run, down its middle.
+  double laneCentre(int i) => stacked
+      ? top + i * rowHeight + labelLine + lane / 2
+      : top + i * rowHeight + rowHeight / 2;
+
+  /// Where row [i]'s label stands, down its middle.
+  double labelCentre(int i) => stacked
+      ? top + i * rowHeight + labelLine / 2
+      : top + i * rowHeight + rowHeight / 2;
+
+  double x(double value) =>
+      left + (right - left) * ((value - from) / (to - from)).clamp(0.0, 1.0);
+
+  /// Where the [j]th dot of a row stands across its lane: a spread by the
+  /// golden ratio, so that a crowd shows as a band.
+  double jitter(int j) => ((j * 0.6180339887) % 1 - 0.5) * (lane - 7);
+
+  static _StripLayout of({
+    required double width,
+    required List<_StripRow> rows,
+    required List<_StripChange> changes,
+    required bool esm,
+    required _StripType type,
+    required TextScaler scaler,
+    required bool stack,
+    required String Function(double) number,
+  }) {
+    double measure(String text, TextStyle style, [bool high = false]) {
+      final TextPainter painter = TextPainter(
+        text: TextSpan(text: text, style: style),
+        textDirection: TextDirection.ltr,
+        textScaler: scaler,
+        maxLines: 1,
+      )..layout();
+      final double size = high ? painter.height : painter.width;
+      painter.dispose();
+      return size;
+    }
+
+    final double labels = rows
+        .map((_StripRow r) => measure(r.label, type.label))
+        .reduce(math.max);
+    final double counts = rows
+        .map((_StripRow r) => measure(grouped(r.count), type.count))
+        .reduce(math.max);
+    final double values = math.max(
+      rows.map((_StripRow r) => measure(number(r.median), type.value)).reduce(
+        math.max,
+      ),
+      measure('median', type.caption),
+    );
+    final double labelLine = measure('Ag', type.label, true) + 2;
+    final double right = width - values - _gap;
+    final double beside = _slot + labels + 6 + counts + _gap;
+    final bool stacked = stack || right - beside < _shortest;
+    final double left = stacked ? 0 : beside;
+    final double from = esm ? 5 : 0;
+    final double to = esm ? -15 : GeneImpact.barCeiling;
+    double at(double value) =>
+        left + (right - left) * ((value - from) / (to - from)).clamp(0.0, 1.0);
+
+    // The names over the rows: each over its line where it fits, else beside
+    // it, on the band's one level, or on two where one cannot hold them all,
+    // with "median" over the values on the lower.
+    final double nameHeight = measure('Ag', type.name, true);
+    final double level = nameHeight + 4;
+    final double headWidth = measure('median', type.caption);
+    final double headHeight = measure('Ag', type.caption, true);
+    List<Rect>? place(int levels) {
+      final double lower = (levels - 1) * level;
+      final Rect head = Rect.fromLTWH(
+        width - headWidth,
+        lower + level - headHeight - 2,
+        headWidth,
+        headHeight,
+      );
+      final List<Rect> taken = <Rect>[head];
+      final List<Rect?> boxes = List<Rect?>.filled(changes.length, null);
+      final List<int> order = List<int>.generate(changes.length, (int i) => i)
+        ..sort(
+          (int a, int b) =>
+              at(changes[a].value).compareTo(at(changes[b].value)),
+        );
+      for (final int i in order) {
+        final double cx = at(changes[i].value);
+        final double w = measure(changes[i].name, type.name);
+        Rect? found;
+        for (int l = levels - 1; l >= 0 && found == null; l--) {
+          for (final double dx in <double>[
+            0,
+            w / 2 + 3,
+            -w / 2 - 3,
+            w + 6,
+            -w - 6,
+          ]) {
+            final Rect box = Rect.fromLTWH(
+              cx - w / 2 + dx,
+              l * level + (level - nameHeight) / 2,
+              w,
+              nameHeight,
+            );
+            if (box.left >= 0 &&
+                box.right <= width &&
+                !taken.any((Rect other) => other.overlaps(box.inflate(2)))) {
+              found = box;
+              break;
+            }
+          }
+        }
+        if (found == null) return null;
+        taken.add(found);
+        boxes[i] = found;
+      }
+      return <Rect>[for (final Rect? box in boxes) box!];
+    }
+
+    int levels = 1;
+    List<Rect>? names = place(1);
+    if (names == null) {
+      levels = 2;
+      names = place(2);
+    }
+    // Too many for two levels: each over its own line, as best they go.
+    names ??= <Rect>[
+      for (final _StripChange c in changes)
+        Rect.fromLTWH(
+          at(c.value) - measure(c.name, type.name) / 2,
+          (level - nameHeight) / 2,
+          measure(c.name, type.name),
+          nameHeight,
+        ),
+    ];
+    final double lower = (levels - 1) * level;
+    return _StripLayout._(
+      width: width,
+      left: left,
+      right: right,
+      countRight: _slot + labels + 6 + counts,
+      labelLeft: _slot,
+      stacked: stacked,
+      labelLine: labelLine,
+      lane: stacked ? 14 : math.max(18, labelLine),
+      band: levels * level + 2,
+      tick: measure('0', type.count, true),
+      rows: rows.length,
+      names: names,
+      head: Rect.fromLTWH(
+        width - headWidth,
+        lower + level - headHeight - 2,
+        headWidth,
+        headHeight,
+      ),
+      from: from,
+      to: to,
+    );
+  }
+}
+
+/// A strip, drawn: the grid, each row's dots, its median's bar and value,
+/// this base's changes through every row, their names and the column's head.
+class _StripPainter extends CustomPainter {
+  _StripPainter({
+    required this.layout,
+    required this.rows,
+    required this.changes,
+    required this.esm,
+    required this.counted,
+    required this.type,
+    required this.scaler,
+    required this.number,
+    required this.ink,
+    required this.quiet,
+    required this.grid,
+  });
+
+  final _StripLayout layout;
+  final List<_StripRow> rows;
+  final List<_StripChange> changes;
+  final bool esm;
+  final bool counted;
+  final _StripType type;
+  final TextScaler scaler;
+  final String Function(double) number;
+  final Color ink;
+  final Color quiet;
+  final Color grid;
+
+  /// A record's dot.
+  static const double _radius = 2.2;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final List<TextPainter> painters = <TextPainter>[];
+    TextPainter text(String value, TextStyle style) {
+      final TextPainter painter = TextPainter(
+        text: TextSpan(text: value, style: style),
+        textDirection: TextDirection.ltr,
+        textScaler: scaler,
+        maxLines: 1,
+      )..layout();
+      painters.add(painter);
+      return painter;
+    }
+
+    final _StripLayout l = layout;
+    // The scale's ticks, under the rows, and their lines through them.
+    final Paint rule = Paint()
+      ..color = grid
+      ..strokeWidth = 1;
+    final List<double> ticks = esm
+        ? const <double>[5, 0, -5, -10, -15]
+        : const <double>[0, 10, 20, 30, 40];
+    // A tick's value that would touch the one before it is left unwritten,
+    // which only type turned up on a narrow phone asks for.
+    double written = double.negativeInfinity;
+    for (final double v in ticks) {
+      final double at = l.x(v);
+      canvas.drawLine(Offset(at, l.top), Offset(at, l.bottom), rule);
+      final TextPainter label = text(
+        esm
+            ? (v == 0
+                  ? '0'
+                  : '${v < 0 ? '\u2212' : '+'}${v.abs().toStringAsFixed(0)}')
+            : v.toStringAsFixed(0),
+        type.count,
+      );
+      final double from = (at - label.width / 2).clamp(
+        0.0,
+        size.width - label.width,
+      );
+      if (from < written + 6) continue;
+      label.paint(canvas, Offset(from, l.bottom + 4));
+      written = from + label.width;
+    }
+
+    // Each row: its class's mark, name and count, its dots, its median.
+    for (final (int i, _StripRow row) in rows.indexed) {
+      final double labelY = l.labelCentre(i);
+      final double laneY = l.laneCentre(i);
+      final ClinVarGroup? group = row.group;
+      if (group != null) {
+        ClinVarColors.paintMark(
+          canvas,
+          Offset(_dot / 2, labelY),
+          _dot / 2,
+          group,
+        );
+      }
+      final TextPainter name = text(row.label, type.label);
+      name.paint(canvas, Offset(l.labelLeft, labelY - name.height / 2));
+      if (counted) {
+        final TextPainter count = text(grouped(row.count), type.count);
+        final double end = l.stacked
+            ? l.labelLeft + name.width + 6 + count.width
+            : l.countRight;
+        count.paint(
+          canvas,
+          Offset(end - count.width, labelY - count.height / 2),
+        );
+      }
+      final int n = row.values.length;
+      if (group == null || !ClinVarColors.hollow(group)) {
+        final Float32List points = Float32List(n * 2);
+        for (final (int j, double v) in row.values.indexed) {
+          points[j * 2] = l.x(v);
+          points[j * 2 + 1] = laneY + l.jitter(j);
+        }
+        canvas.drawRawPoints(
+          ui.PointMode.points,
+          points,
+          Paint()
+            ..color = group == null
+                ? quiet.withValues(
+                    alpha: (24 / math.sqrt(n)).clamp(0.12, 0.5),
+                  )
+                : ClinVarColors.of(group).withValues(
+                    alpha: (14 / math.sqrt(n)).clamp(0.3, 0.9),
+                  )
+            ..strokeWidth = group == null ? 2.6 : _radius * 2
+            ..strokeCap = StrokeCap.round,
+        );
+      } else {
+        final Paint ring = Paint()
+          ..color = ClinVarColors.of(group).withValues(
+            alpha: (14 / math.sqrt(n)).clamp(0.3, 0.9),
+          )
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1;
+        for (final (int j, double v) in row.values.indexed) {
+          canvas.drawCircle(
+            Offset(l.x(v), laneY + l.jitter(j)),
+            _radius,
+            ring,
+          );
+        }
+      }
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromCenter(
+            center: Offset(l.x(row.median), laneY),
+            width: 2.5,
+            height: l.lane - 4,
+          ),
+          const Radius.circular(1),
+        ),
+        Paint()..color = ink,
+      );
+      final TextPainter value = text(number(row.median), type.value);
+      value.paint(
+        canvas,
+        Offset(size.width - value.width, laneY - value.height / 2),
+      );
+    }
+
+    // This base's changes through every row, a change's own record ringed
+    // where its dot stands, and the names over them, led to their lines
+    // where they stand off.
+    final Paint line = Paint()
+      ..color = ink.withValues(alpha: 0.9)
+      ..strokeWidth = 1.25;
+    final Paint ring = Paint()
+      ..color = ink
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    final Paint lead = Paint()
+      ..color = ink.withValues(alpha: 0.7)
+      ..strokeWidth = 1;
+    for (final (int i, _StripChange change) in changes.indexed) {
+      final double cx = l.x(change.value);
+      canvas.drawLine(Offset(cx, l.top - 2), Offset(cx, l.bottom), line);
+      for (final ClinVarGroup group in change.groups) {
+        final int r = rows.indexWhere((_StripRow row) => row.group == group);
+        if (r < 0) continue;
+        final int j = rows[r].values.indexWhere(
+          (double v) => (v - change.value).abs() < 1e-6,
+        );
+        if (j < 0) continue;
+        canvas.drawCircle(
+          Offset(cx, l.laneCentre(r) + l.jitter(j)),
+          4.5,
+          ring,
+        );
+      }
+      final Rect box = l.names[i];
+      text(change.name, type.name).paint(canvas, box.topLeft);
+      if ((box.center.dx - cx).abs() > 2 || box.bottom < l.top - 6) {
+        canvas.drawLine(
+          Offset(box.center.dx.clamp(box.left, box.right), box.bottom + 1),
+          Offset(cx, l.top - 2),
+          lead,
+        );
+      }
+    }
+    text('median', type.caption).paint(canvas, l.head.topLeft);
+    for (final TextPainter p in painters) {
+      p.dispose();
+    }
+  }
+
+  @override
+  bool shouldRepaint(_StripPainter old) =>
+      !identical(old.layout, layout) ||
+      !identical(old.rows, rows) ||
+      !identical(old.changes, changes) ||
+      old.counted != counted ||
+      old.ink != ink ||
+      old.quiet != quiet ||
+      old.grid != grid ||
+      old.scaler != scaler;
 }
 
 /// Every missense substitution of the gene as one dot, AVI's Phred across and
 /// ESM-2's score up, and this base's own changes as balls in their amino
-/// acids' colours, named. Where ClinVar has a record at the base, the gene's
-/// ClinVar records are marked by class, and this base's changes are rings of
-/// the page's ink round their own ClinVar mark, so that hue stays ClinVar's.
+/// acids' colours, named. Where ClinVar has a record at the base, this
+/// base's changes are rings of the page's ink round their own ClinVar mark,
+/// so that hue stays ClinVar's; the gene's records stand on strips of their
+/// own under the plot (the user's ask, 2026-10-25: drawn on it, they crowded
+/// it).
 class _Scatter extends StatelessWidget {
   const _Scatter({
     required this.agreement,
     required this.marks,
     required this.observed,
-    this.clinvar,
   });
 
   final GeneAgreement agreement;
   final List<AgreementRow> marks;
   final bool observed;
-  final ClinVarAgreement? clinvar;
 
   /// The plot's own height, before the room its words take.
   static const double _plot = 196;
@@ -1236,17 +1647,12 @@ class _Scatter extends StatelessWidget {
         '; marked: ${named.sublist(0, named.length - 1).join(', ')} and '
             '${named.last}',
     };
-    final ClinVarAgreement? placed = clinvar;
-    final String classified = placed == null
-        ? ''
-        : '; ClinVar’s ${grouped(placed.records)} missense '
-              'record${placed.records == 1 ? '' : 's'} marked by class';
     return Semantics(
       container: true,
       label:
           'Every missense substitution in ${agreement.gene}, AVI Phred '
           'across and ESM-2 up, about the line where the two would rank them '
-          'alike$classified$marked',
+          'alike$marked',
       excludeSemantics: true,
       child: RepaintBoundary(
         child: SizedBox(
@@ -1258,7 +1664,6 @@ class _Scatter extends StatelessWidget {
               agreement: agreement,
               marks: marks,
               observed: observed,
-              clinvar: placed?.marks ?? const <ClinVarMarked>[],
               cloud: theme.colorScheme.onSurfaceVariant,
               ink: theme.colorScheme.onSurface,
               ground: theme.scaffoldBackgroundColor,
@@ -1287,7 +1692,6 @@ class _ScatterPainter extends CustomPainter {
     required this.agreement,
     required this.marks,
     required this.observed,
-    required this.clinvar,
     required this.cloud,
     required this.ink,
     required this.ground,
@@ -1307,9 +1711,6 @@ class _ScatterPainter extends CustomPainter {
   /// one, rather than balls in their amino acids' colours.
   final bool observed;
 
-  /// The gene's changes ClinVar has a record of, each in its most severe
-  /// class.
-  final List<ClinVarMarked> clinvar;
   final Color cloud;
   final Color ink;
 
@@ -1333,11 +1734,6 @@ class _ScatterPainter extends CustomPainter {
   static const double _foot = 5;
   static const List<double> _phreds = <double>[0, 10, 20, 30, 40];
   static const List<double> _scores = <double>[-15, -10, -5, 0, 5];
-
-  /// A ClinVar record's mark, and the ground round it that keeps it clear of
-  /// the cloud and of the marks under it.
-  static const double _record = 3;
-  static const double _halo = 1.2;
 
   /// This base's own change on a page with ClinVar: an ink ring this wide.
   static const double _ring = 6.5;
@@ -1475,50 +1871,6 @@ class _ScatterPainter extends CustomPainter {
       }
     }
 
-    // ClinVar's records, over the cloud and the line: each change once, in
-    // its most severe class, the most severe drawn last so that it lies on
-    // top. A class of discs is drawn as one set of points, the ground first;
-    // Other is a ring, drawn as the rest of the app draws it.
-    final List<Offset> recorded = <Offset>[
-      for (final ClinVarMarked m in clinvar)
-        Offset(x(m.change.phred), y(m.change.esm)),
-    ];
-    for (final ClinVarGroup group in ClinVarGroup.bySeverity.reversed) {
-      final List<Offset> at = <Offset>[
-        for (final (int i, ClinVarMarked m) in clinvar.indexed)
-          if (m.group == group) recorded[i],
-      ];
-      if (at.isEmpty) continue;
-      if (ClinVarColors.hollow(group)) {
-        for (final Offset point in at) {
-          ClinVarColors.paintMark(canvas, point, _record, group, halo: ground);
-        }
-        continue;
-      }
-      final Float32List points = Float32List(at.length * 2);
-      for (final (int i, Offset point) in at.indexed) {
-        points[i * 2] = point.dx;
-        points[i * 2 + 1] = point.dy;
-      }
-      canvas
-        ..drawRawPoints(
-          ui.PointMode.points,
-          points,
-          Paint()
-            ..color = ground
-            ..strokeWidth = (_record + _halo) * 2
-            ..strokeCap = StrokeCap.round,
-        )
-        ..drawRawPoints(
-          ui.PointMode.points,
-          points,
-          Paint()
-            ..color = ClinVarColors.of(group)
-            ..strokeWidth = _record * 2
-            ..strokeCap = StrokeCap.round,
-        );
-    }
-
     // This base's own, in their amino acids' colours, or on a page with
     // ClinVar as ink rings. Changes that make the
     // same amino acid share its name. A name goes to the first place, of
@@ -1551,16 +1903,9 @@ class _ScatterPainter extends CustomPainter {
     final List<Offset> dots = <Offset>[
       for (final List<Offset> at in made.values) ...at,
     ];
-    // A name covers no mark of this base's and no other name. ClinVar's
-    // records, many and small, it covers only where it must, the fewer the
-    // better.
     final List<Rect> taken = <Rect>[
       for (final Offset at in dots)
         Rect.fromCircle(center: at, radius: observed ? _ring + 1.5 : 6),
-    ];
-    final List<Rect> records = <Rect>[
-      for (final Offset at in recorded)
-        Rect.fromCircle(center: at, radius: _record + _halo),
     ];
     final Rect room = plot.inflate(2);
     bool within(Rect box, Rect outer) =>
@@ -1574,11 +1919,6 @@ class _ScatterPainter extends CustomPainter {
         final Rect both = other.intersect(box.inflate(2));
         if (both.width > 0 && both.height > 0) {
           covered += 1000 + both.width * both.height;
-        }
-      }
-      for (final Rect record in records) {
-        if (record.overlaps(box.inflate(2))) {
-          covered += 10;
         }
       }
       return covered +
@@ -1612,17 +1952,16 @@ class _ScatterPainter extends CustomPainter {
           Offset(marked.left - 6 - w, marked.bottom + 6),
           Offset(marked.center.dx - w / 2, marked.top - 12 - h * 2),
           Offset(marked.center.dx - w / 2, marked.bottom + 12 + h),
-          // ClinVar's records crowd the plot, so on its page a name may go
-          // further off, its hairline leading it back.
+          // A page with ClinVar rings its changes, which take more room than
+          // balls, so a name there may go further off, its hairline leading
+          // it back.
           if (observed) ...<Offset>[
-            Offset(marked.right + 22, marked.center.dy - h / 2),
-            Offset(marked.left - 22 - w, marked.center.dy - h / 2),
-            Offset(marked.right + 16, marked.top - 16 - h * 2),
-            Offset(marked.left - 16 - w, marked.top - 16 - h * 2),
-            Offset(marked.right + 16, marked.bottom + 16 + h),
-            Offset(marked.left - 16 - w, marked.bottom + 16 + h),
-            Offset(marked.center.dx - w / 2, marked.top - 20 - h * 3),
-            Offset(marked.center.dx - w / 2, marked.bottom + 20 + h * 2),
+            Offset(marked.right + 20, marked.center.dy - h / 2),
+            Offset(marked.left - 20 - w, marked.center.dy - h / 2),
+            Offset(marked.right + 14, marked.top - 14 - h * 2),
+            Offset(marked.left - 14 - w, marked.top - 14 - h * 2),
+            Offset(marked.right + 14, marked.bottom + 14 + h),
+            Offset(marked.left - 14 - w, marked.bottom + 14 + h),
           ],
         ])
           Rect.fromLTWH(corner.dx, corner.dy, w, h),
@@ -1735,7 +2074,6 @@ class _ScatterPainter extends CustomPainter {
       !identical(old.agreement, agreement) ||
       !listEquals(old.marks, marks) ||
       old.observed != observed ||
-      !identical(old.clinvar, clinvar) ||
       old.cloud != cloud ||
       old.ink != ink ||
       old.ground != ground ||

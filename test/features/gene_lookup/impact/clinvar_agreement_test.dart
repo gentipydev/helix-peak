@@ -89,7 +89,6 @@ void main() {
     final _Gene gene = _Gene(TestCatalog.insulin);
     final ClinVarAgreement placed = gene.placed;
     expect(placed.records, 89);
-    expect(placed.marks, hasLength(89));
     _expectClasses(placed, <(ClinVarGroup, int, double, double)>[
       (ClinVarGroup.pathogenic, 31, 26.9, -8.639),
       (ClinVarGroup.conflicting, 11, 22.1, -5.869),
@@ -103,39 +102,47 @@ void main() {
     expect(gene.agreement.medianEsm, closeTo(-3.923, 1e-6));
   });
 
-  test('every mark is one of the gene\'s changes, in the most severe class '
-      'of its records', () {
+  test('each class holds its own records\' scores, from the lowest', () {
     final _Gene gene = _Gene(TestCatalog.insulin);
-    final Map<(int, String), List<VariantEvidence>> byChange =
-        <(int, String), List<VariantEvidence>>{};
-    for (final VariantEvidence e in gene.scored) {
-      (byChange[(e.variant.position, e.variant.alt)] ??= <VariantEvidence>[])
-          .add(e);
-    }
     final ClinVarAgreement placed = gene.placed;
-    expect(placed.marks, hasLength(byChange.length));
-    for (final ClinVarMarked mark in placed.marks) {
-      final List<VariantEvidence> records =
-          byChange[(mark.change.position, mark.change.alt)]!;
-      expect(gene.agreement.changes, contains(same(mark.change)));
+    for (final ClinVarClass c in placed.classes) {
+      final List<VariantEvidence> records = <VariantEvidence>[
+        for (final VariantEvidence e in gene.scored)
+          if (e.variant.group == c.group) e,
+      ];
       expect(
-        mark.group,
-        ClinVarGroup.mostSevere(
-          records.map((VariantEvidence e) => e.variant.group),
-        ),
+        c.phreds,
+        <double>[for (final VariantEvidence e in records) e.avi!]..sort(),
+        reason: c.group.short,
       );
-      for (final VariantEvidence e in records) {
-        expect(mark.change.phred, e.avi);
-        expect(mark.change.esm, e.esm!.score);
-      }
+      expect(
+        c.esms,
+        <double>[for (final VariantEvidence e in records) e.esm!.score]..sort(),
+        reason: c.group.short,
+      );
     }
-    // c.268's Cys, the record the sheet shows at Gly90.
-    final ClinVarMarked g90c = placed.marks.firstWhere(
-      (ClinVarMarked m) => m.change.position == 6278 && m.change.alt == 'T',
+    // c.268's Cys, the record the sheet shows at Gly90, among the VUS.
+    final ClinVarClass uncertain = placed.classes.firstWhere(
+      (ClinVarClass c) => c.group == ClinVarGroup.uncertain,
     );
-    expect(g90c.group, ClinVarGroup.uncertain);
-    expect(g90c.change.phred, closeTo(31.2, 1e-6));
-    expect(g90c.change.esm, closeTo(-10.367, 1e-6));
+    expect(
+      uncertain.phreds.where((double v) => (v - 31.2).abs() < 1e-6),
+      isNotEmpty,
+    );
+    expect(
+      uncertain.esms.where((double v) => (v - -10.367).abs() < 1e-6),
+      isNotEmpty,
+    );
+    // The gene's own, which the classes are read against.
+    expect(gene.agreement.phreds, hasLength(687));
+    expect(
+      gene.agreement.phreds,
+      orderedEquals(<double>[...gene.agreement.phreds]..sort()),
+    );
+    expect(
+      gene.agreement.esms.first,
+      lessThanOrEqualTo(gene.agreement.esms.last),
+    );
   });
 
   test('p53: benign records placed with the rest, in the order a reader '
@@ -154,7 +161,6 @@ void main() {
   test('a minus-strand record: glucagon\'s three', () {
     final ClinVarAgreement placed = _Gene(TestCatalog.glucagon).placed;
     expect(placed.records, 3);
-    expect(placed.marks, hasLength(3));
     _expectClasses(placed, <(ClinVarGroup, int, double, double)>[
       (ClinVarGroup.uncertain, 2, 15.7, -0.0555),
       (ClinVarGroup.benign, 1, 7.7, 0.09),
@@ -212,16 +218,9 @@ void main() {
         scored.length,
         reason: target.slug,
       );
-      expect(
-        placed.marks,
-        hasLength(
-          <(int, String)>{
-            for (final VariantEvidence e in scored)
-              (e.variant.position, e.variant.alt),
-          }.length,
-        ),
-        reason: target.slug,
-      );
+      for (final ClinVarClass c in placed.classes) {
+        expect(c.esms, hasLength(c.records), reason: target.slug);
+      }
     }
     expect(proteins, greaterThanOrEqualTo(37));
   });

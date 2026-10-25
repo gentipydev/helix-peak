@@ -415,18 +415,20 @@ the page this:
 │    ← milder effect             stronger effect → │
 ╰──────────────────────────────────────────────────╯
 Across INS · 687 missense substitutions
-  the cloud; ClinVar's 89 missense records in their class colours, P/LP
-  on top; this base's three as ink rings, named; the line of equal rank
+  the cloud and the line of equal rank; this base's three as ink rings,
+  each round its own ClinVar mark, named
 Spearman ρ                                      0.79
 Same order within a base            64% of 540 pairs
 ClinVar's missense records
-                                 AVI Phred     ESM-2
-● P/LP                    31          26.9      −8.6
-● Conflicting             11          22.1      −5.9
-● VUS                     39          21.3      −5.6
-○ Other                    8          29.6      −8.6
-  Every substitution     687          22.3      −3.9
-                                             medians
+AVI Phred                  Cys│Arg│Ser           median
+● P/LP          31   ·  ·· ·:|::│:│·│·            26.9
+● Conflicting   11     ·  · |·  │ │ │             22.1
+● VUS           39  · ·:·· ·|·:◯│·│ │             21.3
+○ Other          8          ·  │|│○│             29.6
+  All          687  ::::::::|::│:│:│:             22.3
+                    0   10   20   30   40
+ESM-2  (the same rows, without the counts)
+                    +5   0   −5  −10  −15
 AlphaGenome Atlas · ESM-2 · ClinVar
 (the compared line and the line on ClinVar)
 ```
@@ -447,23 +449,46 @@ AlphaGenome Atlas · ESM-2 · ClinVar
   - The amino-acid balls' blue and red sit 9.4 and 8.7 from them.
   - ClinVar's own palette keeps its pairs at least 15 apart.
   - A page with no record keeps denim, clay and the amino-acid balls.
-- **The scatter.** It marks every record of the gene that is missense and
-  that both models score, at its own change, once, in the most severe class
-  of its records (`ClinVarAgreement`). The most severe is drawn last; Other
-  is a ring.
-  - A name keeps clear of this base's marks and of other names first, and of
-    ClinVar's records where it can.
-  - On this page a name may stand further off, led back by its hairline. The
-    two-model page places its names exactly as before.
-- **The table.**
-  - Each class present, in the order a reader scans them (P/LP, Conflicting,
-    VUS, B/LB, Other), with its records counted and their median AVI Phred
-    and ESM-2 score.
-  - Then the gene's every missense substitution, which they are read against.
-  - A median that falls halfway between two places is rounded away from zero,
-    as the stored decimals would round. Insulin's Other Phreds give 29.55,
-    which single precision would otherwise have tipped to 29.5.
-  - Large type puts each class's medians on a line under its name.
+- **The scatter.** It keeps the two models' story, as on a page without a
+  record; this base's changes are ink rings round their own ClinVar mark. On
+  this page a name may stand further off than on the two-model page, led
+  back by its hairline, since a ring takes more room than a ball.
+  - Until later the same day it also marked every ClinVar record of the gene
+    in its class colour, and a table under it gave each class's count and
+    medians. The user found the plot "really crowded". Measured on the
+    plot's own 330 × 195 pt: 71% of insulin's 89 marks touched another and
+    43 lay in one 60 pt square; TP53's 1,433 marks were 98% touching (93%
+    even as 4.4 pt discs with no halo), and DMD's 3,452 inked 40% of the
+    plot. Smaller marks could not fix a large gene, so ClinVar moved to
+    strips of its own, at the user's choice of three options on a review
+    page rendered with the app's own painter.
+- **The strips** (`_ClinVarStrips`). One for AVI's Phred, from 0 to 40, and
+  one for ESM-2's score, from +5 to −15: the stronger effect lies to the
+  right on both, as on the card's tracks. Each class present has a row, in
+  the order a reader scans them (P/LP, Conflicting, VUS, B/LB, Other), then
+  "All", the gene's every missense substitution, which they are read
+  against.
+  - Each record is a dot in its class's colour (Other a ring), spread across
+    its lane by the golden ratio so that a crowd shows as a band; the fainter
+    the more a row holds, as the cloud is. All's dots are the cloud's ink.
+  - Each row's median is a bar of the ink, and its value stands at the row's
+    end under "median". A median that falls halfway between two places is
+    rounded away from zero, as the stored decimals would round: insulin's
+    Other Phreds give 29.55, which single precision would tip to 29.5.
+  - Counts are said once, in the AVI strip; the ESM-2 strip keeps their room,
+    so the two scales stand in line.
+  - This base's changes are lines of the ink through every row, named over
+    them on one level, or on two where one cannot hold them, led to their
+    lines where they stand off. A change's own record is ringed where its
+    dot stands on its class's row.
+  - Type turned up on a narrow phone puts each row's name on a line of its
+    own over its lane, and a tick value that would touch the one before it
+    is left unwritten.
+  - A screen reader hears each strip's rows, counts and medians, and this
+    base's changes with their scores.
+  - Each record's two scores are no longer drawn as one place: the strips
+    show where each class spreads on each model, not which record sits
+    where on both.
 - **Not shown, on purpose (R9.4).** No count of agreement and no
   P/LP-against-B/LB statistic. Insulin has no B/LB missense record, and only
   13 of the 38 curated genes have five or more of both. The footer says once
@@ -515,6 +540,10 @@ AlphaGenome Atlas · ESM-2 · ClinVar
 - ClinVar owns hue on a page that carries it.
 - The other session's change to the page (ⓘ sheet removed, notice inline)
   committed first.
+- Later the same day, the footer's AlphaGenome terms notice removed.
+- Then, finding the scatter "really crowded": ClinVar on strips of its own
+  (option B of three on a review page; the others were lighter marks on the
+  scatter, and a switch between the models and ClinVar on it).
 
 **My calls, which the user can change**
 
@@ -522,8 +551,10 @@ AlphaGenome Atlas · ESM-2 · ClinVar
 - The line saying why only AVI applies stays in a record of a change only AVI
   scores; the preview showed only the strong-end sentence going.
 - The footer's line on ClinVar.
-- The table's head on its own line, over its two columns.
 - Names that may stand further off on a page with ClinVar.
+- The strips' make: the stronger effect to the right on both, "All" as the
+  gene's row, counts in the first strip only, two levels of names, a ring on
+  the change's own record, a tick value dropped where it would touch.
 
 **Tests**
 
@@ -533,7 +564,8 @@ AlphaGenome Atlas · ESM-2 · ClinVar
   - Every scored curated protein's records placed once.
   - The cache.
 - `agreement_clinvar_page_test.dart`: the page.
-  - c.268, c.266, c.94, c.129 and c.73; large type; motion; whole pages.
+  - c.268, c.266, c.94, c.129 and c.73; p53's c.743, with benign records on
+    the strips; large type; motion; whole pages.
   - The codon line from the sheet, and the record links on the residue sheet
     and in the list.
 - Three walk tests were changed at the user's ask, all for the record:

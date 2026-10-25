@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -5,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/evidence/gene_clinvar.dart';
 import 'package:helixpeek/core/evidence/gene_impact.dart';
 import 'package:helixpeek/core/evidence/protein_constraint.dart';
@@ -12,6 +14,7 @@ import 'package:helixpeek/core/evidence/variant_evidence.dart';
 import 'package:helixpeek/core/theme/agreement_colors.dart';
 import 'package:helixpeek/core/theme/anatomy_colors.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
+import 'package:helixpeek/features/gene_lookup/data/models/gene_record_dto.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_canvas.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/anatomy/anatomy_screen.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/clinvar/variants_overview.dart';
@@ -187,6 +190,78 @@ Future<void> _pumpPage(
   await tester.pumpAndSettle();
 }
 
+/// [target]'s page for the base at [position], with ClinVar's records there,
+/// read from its stored tracks as the walk reads them.
+Future<void> _pumpGenePage(
+  WidgetTester tester,
+  ProteinTarget target,
+  int position,
+  String address,
+) async {
+  Map<String, dynamic> json(String path) =>
+      jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
+  final AnatomyModel model = AnatomyModel.derive(
+    GeneRecordDto.fromJson(json(target.mockAsset)).toEntity(),
+    chain: target.chain,
+  );
+  final GeneImpact impact = GeneImpact.fromJson(
+    json(target.impactAsset),
+    target,
+  );
+  final ProteinConstraint constraint = ProteinConstraint.fromJson(
+    json(target.constraintAsset),
+    target,
+  );
+  final List<VariantEvidence> evidence = VariantEvidence.build(
+    GeneClinVar.fromJson(json(target.clinvarAsset), target),
+    impact: impact,
+    constraint: constraint,
+    nonCoding: nonCodingSections(model),
+  );
+  final GeneAgreement agreement = GeneAgreement.of(
+    model: model,
+    impact: impact,
+    constraint: constraint,
+  )!;
+  await tester.binding.setSurfaceSize(const Size(390, 1900));
+  addTearDown(() => tester.binding.setSurfaceSize(null));
+  await tester.pumpWidget(
+    RepaintBoundary(
+      key: const ValueKey<String>('agreement-capture'),
+      child: MaterialApp(
+        theme: AppTheme.analysis,
+        debugShowCheckedModeBanner: false,
+        home: MediaQuery(
+          data: const MediaQueryData(
+            size: Size(390, 1900),
+            disableAnimations: true,
+          ),
+          child: AgreementPage(
+            track: impact,
+            impact: impact.at(position)!,
+            coding: CodingEvidence.at(
+              model: model,
+              position: position,
+              track: constraint,
+            )!,
+            agreement: agreement,
+            address: address,
+            records: <VariantEvidence>[
+              for (final VariantEvidence e in evidence)
+                if (e.variant.position == position) e,
+            ],
+            clinvar: ClinVarAgreement.of(
+              agreement: agreement,
+              evidence: evidence,
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
 /// The walk with every track injected, ClinVar's too, under the app's own
 /// theme with the walk's inside it, turned [pages] pages on.
 Future<void> _walk(WidgetTester tester, {required int pages}) async {
@@ -347,67 +422,37 @@ void main() {
       theme.extension<AnatomyColors>(),
       AppTheme.analysis.extension<AnatomyColors>(),
     );
-    // The gene's ClinVar records on the scatter, and where each class stands.
+    // The scatter keeps the two models' story; ClinVar's records stand on
+    // strips of their own, one for each model (the user's ask, 2026-10-25).
     expect(
       tester.getSemantics(_key('agreement-scatter')).label,
       'Every missense substitution in INS, AVI Phred across and ESM-2 up, '
-      'about the line where the two would rank them alike; ClinVar’s 89 '
-      'missense records marked by class; marked: serine, arginine and '
-      'cysteine',
+      'about the line where the two would rank them alike; marked: serine, '
+      'arginine and cysteine',
     );
-    expect(_texts(tester, 'agreement-clinvar-classes'), <String>[
+    await _scrollTo(tester, 'agreement-clinvar-esm');
+    expect(
+      tester.getSemantics(_key('agreement-clinvar-avi')).label,
+      'AVI Phred by ClinVar class; P/LP: 31 records, median 26.9; '
+      'Conflicting: 11 records, median 22.1; VUS: 39 records, median 21.3; '
+      'Other: 8 records, median 29.6; All: 687 missense substitutions, '
+      'median 22.3; this base: Ser 33.2, Arg 31.8, Cys 31.2',
+    );
+    expect(
+      tester.getSemantics(_key('agreement-clinvar-esm')).label,
+      'ESM-2 by ClinVar class; P/LP: 31 records, median \u22128.6; '
+      'Conflicting: 11 records, median \u22125.9; VUS: 39 records, median '
+      '\u22125.6; Other: 8 records, median \u22128.6; All: 687 missense '
+      'substitutions, median \u22123.9; this base: Ser \u22127.2, Arg '
+      '\u22128.4, Cys \u221210.4',
+    );
+    // The strips are drawn, so the only words on them a test can read are
+    // the heading and the two models' names.
+    expect(_texts(tester, 'agreement-clinvar-strips'), <String>[
       'ClinVar’s missense records',
       'AVI Phred',
       'ESM-2',
-      'P/LP',
-      '31',
-      '26.9',
-      '−8.6',
-      'Conflicting',
-      '11',
-      '22.1',
-      '−5.9',
-      'VUS',
-      '39',
-      '21.3',
-      '−5.6',
-      'Other',
-      '8',
-      '29.6',
-      '−8.6',
-      'Every substitution',
-      '687',
-      '22.3',
-      '−3.9',
-      'medians',
     ]);
-    // ClinVar's classes are its own words; the gene's row is not.
-    for (final String label in <String>['P/LP', 'Conflicting', 'VUS', 'Other']) {
-      expect(
-        find.ancestor(
-          of: find.text(label),
-          matching: find.byType(ClinVarSourced),
-        ),
-        findsOneWidget,
-        reason: label,
-      );
-    }
-    expect(
-      find.ancestor(
-        of: find.text('Every substitution'),
-        matching: find.byType(ClinVarSourced),
-      ),
-      findsNothing,
-    );
-    expect(
-      tester.getSemantics(_key('agreement-clinvar-class-pathogenic')).label,
-      'P/LP: 31 records; median AVI Phred 26.9; median ESM-2 −8.6',
-    );
-    expect(
-      tester.getSemantics(_key('agreement-clinvar-class-all')).label,
-      'Every substitution: 687 missense substitutions; median AVI Phred '
-      '22.3; median ESM-2 −3.9',
-    );
     // The page names its three sources, and says once what ClinVar's part is.
     await _scrollTo(tester, 'agreement-source');
     expect(_texts(tester, 'agreement-source'), <String>[
@@ -488,7 +533,9 @@ void main() {
       'Premature stop: only AVI applies.',
       'Likely pathogenic',
     ]);
-    expect(_texts(tester, 'agreement-clinvar-G'), <String>['Likely pathogenic']);
+    expect(_texts(tester, 'agreement-clinvar-G'), <String>[
+      'Likely pathogenic',
+    ]);
     expect(_key('agreement-track-G'), findsOneWidget);
     expect(_texts(tester, 'agreement-row-T'), <String>[
       'T',
@@ -511,16 +558,15 @@ void main() {
     await _pumpPage(tester, _c73, 'c.73');
     expect(find.text('c.73 · AVI and ESM-2'), findsOneWidget);
     expect(
-      Theme.of(tester.element(_key('agreement-card'))).extension<
-        AgreementColors
-      >(),
+      Theme.of(tester.element(_key('agreement-card')))
+          .extension<AgreementColors>(),
       same(AgreementColors.earth),
     );
     for (final String key in <String>[
       'agreement-mark-C',
       'agreement-mark-A',
       'agreement-mark-G',
-      'agreement-clinvar-classes',
+      'agreement-clinvar-strips',
     ]) {
       expect(_key(key), findsNothing, reason: key);
     }
@@ -532,7 +578,41 @@ void main() {
     await _capture(tester, 'agreement-clinvar-c73');
   });
 
-  testWidgets('large type on a narrow phone stacks the class table', (
+  testWidgets('p53 c.743: the strips hold benign records too, read against '
+      'the gene', (WidgetTester tester) async {
+    final SemanticsHandle semantics = tester.ensureSemantics();
+    await _pumpGenePage(tester, TestCatalog.p53, 18331, 'c.743');
+    expect(find.text('c.743 · AVI, ESM-2 and ClinVar'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    expect(
+      tester.getSemantics(_key('agreement-clinvar-avi')).label,
+      startsWith(
+        'AVI Phred by ClinVar class; P/LP: 242 records, median 28.1; '
+        'Conflicting: 451 records, median 23.2; VUS: 581 records, median '
+        '22.7; B/LB: 158 records, median 16.5; Other: 1 record, median 5.7; '
+        'All: 2,569 missense substitutions, median 21.8; this base: ',
+      ),
+    );
+    expect(
+      tester.getSemantics(_key('agreement-clinvar-esm')).label,
+      startsWith(
+        'ESM-2 by ClinVar class; P/LP: 242 records, median \u22126.4; '
+        'Conflicting: 451 records, median \u22122.0; VUS: 581 records, '
+        'median \u22121.5; B/LB: 158 records, median \u22120.7; Other: 1 '
+        'record, median +0.5; All: 2,569 missense substitutions, median '
+        '\u22121.5; this base: ',
+      ),
+    );
+    // The scatter of so many records carries none of them.
+    expect(
+      tester.getSemantics(_key('agreement-scatter')).label,
+      isNot(contains('ClinVar')),
+    );
+    await _capture(tester, 'agreement-clinvar-p53');
+    semantics.dispose();
+  });
+
+  testWidgets('large type on a narrow phone lays the strips out whole', (
     WidgetTester tester,
   ) async {
     await _pumpPage(
@@ -543,15 +623,22 @@ void main() {
       text: 2,
     );
     expect(tester.takeException(), isNull);
-    // Each class's two medians on a line under its name, the column cells
-    // gone. The table is far down the page, which builds as it scrolls.
-    await _scrollTo(tester, 'agreement-clinvar-class-all');
+    // The strips are far down the page, which builds as it scrolls.
+    await _scrollTo(tester, 'agreement-clinvar-esm');
     expect(tester.takeException(), isNull);
-    expect(_key('agreement-clinvar-avi-pathogenic'), findsNothing);
     expect(
-      _texts(tester, 'agreement-clinvar-class-pathogenic'),
-      <String>['P/LP', '31', 'AVI Phred 26.9   ESM-2 −8.6'],
+      tester.getSemantics(_key('agreement-clinvar-avi')).label,
+      startsWith('AVI Phred by ClinVar class; P/LP: 31 records, median 26.9'),
     );
+    // Each strip stays inside the page's width.
+    for (final String key in <String>[
+      'agreement-clinvar-avi',
+      'agreement-clinvar-esm',
+    ]) {
+      final Rect strip = tester.getRect(_key(key));
+      expect(strip.left, greaterThanOrEqualTo(0), reason: key);
+      expect(strip.right, lessThanOrEqualTo(320), reason: key);
+    }
     await _capture(tester, 'agreement-clinvar-large');
   });
 
@@ -596,7 +683,7 @@ void main() {
     expect(_texts(tester, 'agreement-clinvar-T'), <String>[
       'Uncertain significance',
     ]);
-    expect(_key('agreement-clinvar-classes'), findsOneWidget);
+    expect(_key('agreement-clinvar-strips'), findsOneWidget);
     await _close(tester);
     expect(find.byType(AgreementPage), findsNothing);
     expect(find.byType(ImpactPanel), findsOneWidget);
@@ -646,7 +733,10 @@ void main() {
     await tester.tapAt(canvas.topLeft + painter.scene.fromLayout.centreOf(95));
     await tester.pumpAndSettle();
     expect(
-      tester.widget<ConstraintPanel>(find.byType(ConstraintPanel)).residue.number,
+      tester
+          .widget<ConstraintPanel>(find.byType(ConstraintPanel))
+          .residue
+          .number,
       96,
     );
     await tester.ensureVisible(_key('evidence-row-13387'));
@@ -667,7 +757,10 @@ void main() {
     await _close(tester);
     expect(find.byType(AgreementPage), findsNothing);
     expect(
-      tester.widget<ConstraintPanel>(find.byType(ConstraintPanel)).residue.number,
+      tester
+          .widget<ConstraintPanel>(find.byType(ConstraintPanel))
+          .residue
+          .number,
       96,
     );
     expect(_key('evidence-detail-13387'), findsOneWidget);

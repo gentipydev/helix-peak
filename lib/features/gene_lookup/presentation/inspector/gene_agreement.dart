@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
@@ -119,6 +120,10 @@ final class GeneAgreement {
     top: _upperBound(_esms, score) / count,
     bottom: (count - _lowerBound(_esms, score)) / count,
   );
+
+  /// Every change's AVI Phred and ESM-2 score, each from the lowest.
+  List<double> get phreds => UnmodifiableListView<double>(_phreds);
+  List<double> get esms => UnmodifiableListView<double>(_esms);
 
   /// The gene's middle AVI Phred and ESM-2 score, each read between its two
   /// middle changes where their count is even.
