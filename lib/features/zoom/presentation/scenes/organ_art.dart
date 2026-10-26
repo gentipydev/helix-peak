@@ -2847,6 +2847,23 @@ final class _VesselOrgan extends OrganArt {
 
   final double size;
 
+  /// How thick the trunk's wall is drawn.
+  double get _wall => size * 0.115;
+
+  /// The trunk's course, left to right, its upper edge passing just above
+  /// the origin, where its tissue is sampled.
+  List<Offset> get _trunk => <Offset>[
+    for (int i = 0; i <= 40; i++)
+      Offset(
+        size * (-1 + 2 * i / 40),
+        _wall * 0.72 + size * 0.05 * math.sin(i / 40 * math.pi * 1.2 + 0.6),
+      ),
+  ];
+
+  /// The trunk's outer wall: the vessel the site is sampled in.
+  @override
+  Path get outline => _tube(_trunk, _wall);
+
   Path _tube(List<Offset> spine, double half) {
     final List<Offset> left = <Offset>[];
     final List<Offset> right = <Offset>[];
@@ -2871,15 +2888,8 @@ final class _VesselOrgan extends OrganArt {
     canvas.save();
     canvas.scale(scale);
     final double line = pixel / scale;
-    final double wall = size * 0.115;
-    // The upper edge of the wall passes just above the origin.
-    final List<Offset> trunk = <Offset>[
-      for (int i = 0; i <= 40; i++)
-        Offset(
-          size * (-1 + 2 * i / 40),
-          wall * 0.72 + size * 0.05 * math.sin(i / 40 * math.pi * 1.2 + 0.6),
-        ),
-    ];
+    final double wall = _wall;
+    final List<Offset> trunk = _trunk;
     final Offset fork = trunk[26];
     final List<Offset> branch = <Offset>[
       for (int i = 0; i <= 20; i++)
@@ -3238,6 +3248,13 @@ final class _ParathyroidOrgan extends OrganArt {
 
   final double size;
 
+  /// The gland, its tissue sampled at its middle.
+  Rect get _gland =>
+      Rect.fromCenter(center: Offset.zero, width: size, height: size * 0.68);
+
+  @override
+  Path get outline => Path()..addOval(_gland);
+
   @override
   void paint(
     Canvas canvas,
@@ -3262,11 +3279,7 @@ final class _ParathyroidOrgan extends OrganArt {
         ..strokeWidth = 1.2 * line
         ..color = inks.lit(0.3).withValues(alpha: 0.6),
     );
-    final Rect gland = Rect.fromCenter(
-      center: Offset.zero,
-      width: size,
-      height: size * 0.68,
-    );
+    final Rect gland = _gland;
     // The artery that feeds it.
     canvas.drawLine(
       Offset(size * 0.3, size * 0.2),

@@ -79,8 +79,27 @@ final class NucleusScene extends ZoomScene {
       return shape.place(unit, radius);
     }
     final double depth = (territoryRadius[kindOf(name, copy)] ?? 0.6) * 0.92;
-    final double a = index * 2.39996 + copy * (math.pi * 0.9);
+    double a = index * 2.39996 + copy * (math.pi * 0.9);
+    if (copy == 0 && name == subject.track.chromosome) {
+      a = _clearOfNucleolus(name, a, depth);
+    }
     return shape.place(Offset(math.cos(a), math.sin(a)) * depth, radius);
+  }
+
+  /// The angle the followed territory lies at: its own, or, where the
+  /// nucleolus would lie under its glow, a quarter turn from it, the way
+  /// that takes it further off. A flat nucleus can bring the two together.
+  double _clearOfNucleolus(String name, double a, double depth) {
+    Offset at(double angle) =>
+        shape.place(Offset(math.cos(angle), math.sin(angle)) * depth, radius);
+    double off(double angle) => (at(angle) - nucleolus.centre).distance;
+    final (double rx, double ry) = nucleolus.radii;
+    if (off(a) >= 0.5 * (spotOf(kindOf(name, 0)) + math.max(rx, ry))) {
+      return a;
+    }
+    final double left = a + math.pi / 2;
+    final double right = a - math.pi / 2;
+    return off(left) >= off(right) ? left : right;
   }
 
   /// A territory's outline, in the scene's units.

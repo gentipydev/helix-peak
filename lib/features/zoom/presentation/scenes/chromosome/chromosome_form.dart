@@ -56,9 +56,23 @@ final class ChromosomeForm {
     return 0.0;
   }();
 
+  /// The short arm's length, in half-widths, that holds the waist's reach
+  /// and the rounded end with room between them.
+  static const double _shortArmRoom = 3.2;
+
+  /// How much of their size the waist and the short arm's rounded end are
+  /// drawn at: all of it, but on a short arm too short to hold both with
+  /// room between them, less, in proportion, so that what lies between
+  /// them, a stalk among it, is as thick as its arm. Of the chromosomes the
+  /// curated proteins lie on, 13's and 14's arms are that short.
+  late final double _fit = math.max(
+    0.25,
+    math.min(1.0, (centromere - top) / (half * _shortArmRoom)),
+  );
+
   /// How pinched the chromatids are at [y]: 1 at the centromere.
   double waist(double y) {
-    final double d = (y - centromere) / (half * look.waistLength);
+    final double d = (y - centromere) / (half * look.waistLength * _fit);
     return math.exp(-d * d);
   }
 
@@ -70,8 +84,9 @@ final class ChromosomeForm {
     double w = half * (1 - 0.42 * waist(y));
     final double top = yOf(1);
     final double bottom = yOf(track.length + 1);
-    final double cap = _cap;
-    final double fromEnd = math.min(y - top, bottom - y);
+    final bool upper = y - top < bottom - y;
+    final double cap = upper ? _topCap : _cap;
+    final double fromEnd = upper ? y - top : bottom - y;
     if (fromEnd < cap) {
       final double t = (cap - fromEnd) / cap;
       w *= math.sqrt(math.max(0, 1 - t * t));
@@ -136,6 +151,10 @@ final class ChromosomeForm {
   /// How far in from either end a chromatid rounds to nothing.
   double get _cap => half * look.endRound;
 
+  /// How far in from the short arm's end: the same, drawn down with the
+  /// waist on a short arm too short for both.
+  double get _topCap => _cap * _fit;
+
   /// The heights an outline is drawn through, top to bottom: [steps] even
   /// ones, and more round each end, where it turns fastest.
   List<double> _rows(int steps) {
@@ -145,7 +164,7 @@ final class ChromosomeForm {
     return <double>{
       for (int i = 0; i <= steps; i++) top + (bottom - top) * i / steps,
       for (int i = 1; i < round; i++) ...<double>[
-        top + _cap * (1 - math.cos(math.pi / 2 * i / round)),
+        top + _topCap * (1 - math.cos(math.pi / 2 * i / round)),
         bottom - _cap * (1 - math.cos(math.pi / 2 * i / round)),
       ],
     }.toList()..sort();
@@ -343,7 +362,7 @@ final class ChromosomeForm {
       for (double y = top; y < bottom; y += step) y,
       bottom,
       for (int i = 1; i < round; i++) ...<double>[
-        top + _cap * (1 - math.cos(math.pi / 2 * i / round)),
+        top + _topCap * (1 - math.cos(math.pi / 2 * i / round)),
         bottom - _cap * (1 - math.cos(math.pi / 2 * i / round)),
       ],
       for (double y = centromere - reach; y <= centromere + reach; y += fine) y,
