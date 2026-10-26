@@ -209,6 +209,68 @@ const Map<String, (String, TissueFrom, String?, CellFrom?)> bakedPaths =
         'Choroid plexus epithelial cells',
         CellFrom.singleCell,
       ),
+      // The fifth batch (2026-10-25), one for each organ with no specimen.
+      's100p': (
+        'urinary bladder',
+        TissueFrom.reading,
+        'Urothelial cells',
+        CellFrom.singleCell,
+      ),
+      'lactalbumin': (
+        'breast',
+        TissueFrom.reading,
+        'Breast lactating cells',
+        CellFrom.singleCell,
+      ),
+      'slpi': ('cervix', TissueFrom.reading, null, null),
+      'npc2': (
+        'epididymis',
+        TissueFrom.reading,
+        'Epididymal principal cells',
+        CellFrom.singleCell,
+      ),
+      'fgf19': (
+        'gallbladder',
+        TissueFrom.reading,
+        'Cholangiocytes',
+        CellFrom.singleCell,
+      ),
+      'fabp6': (
+        'intestine',
+        TissueFrom.reading,
+        'Colon enteroendocrine cells',
+        CellFrom.pair,
+      ),
+      'surfactantd': (
+        'lung',
+        TissueFrom.reading,
+        'Alveolar cells type 2',
+        CellFrom.pair,
+      ),
+      'padi6': ('ovary', TissueFrom.reading, 'Oocytes', CellFrom.singleCell),
+      'casr': ('parathyroid gland', TissueFrom.reading, null, null),
+      'acp3': (
+        'prostate',
+        TissueFrom.reading,
+        'Prostate glandular cells',
+        CellFrom.pair,
+      ),
+      'angpt1': ('seminal vesicle', TissueFrom.reading, null, null),
+      'loxl2': (
+        'smooth muscle',
+        TissueFrom.reading,
+        'Smooth muscle cells',
+        CellFrom.singleCell,
+      ),
+      'ckmt2': ('tongue', TissueFrom.reading, 'Myonuclei', CellFrom.singleCell),
+      'glycodelin': (
+        'endometrium',
+        TissueFrom.reading,
+        'Endometrial glandular cells',
+        CellFrom.singleCell,
+      ),
+      'alox12': ('vagina', TissueFrom.reading, null, null),
+      'gas6': ('blood vessel', TissueFrom.reading, null, null),
     };
 
 ZoomPath _path(ProteinTarget t) => ZoomPath.of(locusOf(t));
@@ -805,6 +867,22 @@ void main() {
         'dmc1': CellShape.germ,
         'dynamin1': CellShape.neuron,
         'lgi1': CellShape.ciliated,
+        's100p': CellShape.epithelial,
+        'lactalbumin': CellShape.acinar,
+        'slpi': CellShape.epithelial,
+        'npc2': CellShape.epithelial,
+        'fgf19': CellShape.epithelial,
+        'fabp6': CellShape.endocrine,
+        'surfactantd': CellShape.epithelial,
+        'padi6': CellShape.germ,
+        'casr': CellShape.endocrine,
+        'acp3': CellShape.acinar,
+        'angpt1': CellShape.acinar,
+        'loxl2': CellShape.spindle,
+        'ckmt2': CellShape.myofibre,
+        'glycodelin': CellShape.acinar,
+        'alox12': CellShape.epithelial,
+        'gas6': CellShape.endothelial,
       };
       for (final ProteinTarget t in TestCatalog.all) {
         expect(

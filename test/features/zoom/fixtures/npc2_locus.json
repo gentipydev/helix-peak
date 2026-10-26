@@ -1,0 +1,307 @@
+{
+  "slug": "npc2",
+  "gene": "NPC2",
+  "uniprot": "P61916",
+  "assembly": "GRCh38",
+  "genome": "hg38",
+  "chromosome": "14",
+  "sequence": "NC_000014.9",
+  "length": 107043718,
+  "span": {
+    "start": 74479940,
+    "end": 74493305,
+    "strand": -1
+  },
+  "transcript": {
+    "refseq": "NM_006432.5",
+    "ensembl": "ENST00000555619.6"
+  },
+  "band": {
+    "names": [
+      "q24.3"
+    ],
+    "start": 73300001,
+    "end": 78800000
+  },
+  "locus": "14q24.3",
+  "bands": [
+    {
+      "name": "p13",
+      "start": 1,
+      "end": 3600000,
+      "stain": "gvar"
+    },
+    {
+      "name": "p12",
+      "start": 3600001,
+      "end": 8000000,
+      "stain": "stalk"
+    },
+    {
+      "name": "p11.2",
+      "start": 8000001,
+      "end": 16100000,
+      "stain": "gvar"
+    },
+    {
+      "name": "p11.1",
+      "start": 16100001,
+      "end": 17200000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.1",
+      "start": 17200001,
+      "end": 18200000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.2",
+      "start": 18200001,
+      "end": 24100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q12",
+      "start": 24100001,
+      "end": 32900000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q13.1",
+      "start": 32900001,
+      "end": 34800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q13.2",
+      "start": 34800001,
+      "end": 36100000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q13.3",
+      "start": 36100001,
+      "end": 37400000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.1",
+      "start": 37400001,
+      "end": 43000000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q21.2",
+      "start": 43000001,
+      "end": 46700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.3",
+      "start": 46700001,
+      "end": 50400000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q22.1",
+      "start": 50400001,
+      "end": 53600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q22.2",
+      "start": 53600001,
+      "end": 55000000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q22.3",
+      "start": 55000001,
+      "end": 57600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q23.1",
+      "start": 57600001,
+      "end": 61600000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q23.2",
+      "start": 61600001,
+      "end": 64300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q23.3",
+      "start": 64300001,
+      "end": 67400000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q24.1",
+      "start": 67400001,
+      "end": 69800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q24.2",
+      "start": 69800001,
+      "end": 73300000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q24.3",
+      "start": 73300001,
+      "end": 78800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q31.1",
+      "start": 78800001,
+      "end": 83100000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q31.2",
+      "start": 83100001,
+      "end": 84400000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q31.3",
+      "start": 84400001,
+      "end": 89300000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q32.11",
+      "start": 89300001,
+      "end": 91400000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q32.12",
+      "start": 91400001,
+      "end": 94200000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q32.13",
+      "start": 94200001,
+      "end": 95800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q32.2",
+      "start": 95800001,
+      "end": 100900000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q32.31",
+      "start": 100900001,
+      "end": 102700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q32.32",
+      "start": 102700001,
+      "end": 103500000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q32.33",
+      "start": 103500001,
+      "end": 107043718,
+      "stain": "gneg"
+    }
+  ],
+  "expression": {
+    "ensembl_gene": "ENSG00000119655",
+    "tissue": {
+      "specificity": "Tissue enriched",
+      "distribution": "Detected in all",
+      "specific": [
+        {
+          "name": "epididymis",
+          "ntpm": 15839.4
+        }
+      ]
+    },
+    "cell_type": {
+      "specificity": "Cell type enriched",
+      "distribution": "Detected in all",
+      "specific": [
+        {
+          "name": "Epididymal principal cells",
+          "ncpm": 47512.0
+        }
+      ]
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Adipose subcutaneous",
+        "cell_type": "Macrophages"
+      },
+      {
+        "tissue": "Minor Salivary Gland",
+        "cell_type": "Macrophages"
+      },
+      {
+        "tissue": "Spleen",
+        "cell_type": "Macrophages"
+      }
+    ],
+    "subcellular": {
+      "main": [],
+      "additional": []
+    },
+    "secretome": "Secreted to blood"
+  },
+  "path": {
+    "tissue": "epididymis",
+    "tissue_from": "tissue",
+    "cell_type": "Epididymal principal cells",
+    "cell_class": "Specialized epithelial cells",
+    "cell_from": "single_cell_type",
+    "lands_in": null
+  },
+  "sources": {
+    "cytoband": {
+      "table": "cytoBand",
+      "genome": "hg38",
+      "updated": "2022-10-28T15:06:46",
+      "rows": 1549,
+      "sha256": "50366db9b20881ddcd5679fefa6f8ee5eeb920ce61a7889e0ee0c52853b034c7",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=cytoBand"
+    },
+    "chrom_alias": {
+      "table": "chromAlias",
+      "genome": "hg38",
+      "updated": "2023-01-24T12:46:47",
+      "rows": 2129,
+      "sha256": "df04264a4bcb6dc6b5a6334b42d09270abc894ac2ebbd8ca68a51a12b7076f02",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=chromAlias"
+    },
+    "mane": {
+      "release": "v1.5"
+    },
+    "uniprot": {
+      "release": "2026_03",
+      "release_date": "2026-09-02",
+      "entry_version": 185
+    },
+    "hpa": {
+      "version": "25.1",
+      "release_date": "2026-05-25",
+      "ensembl": "109",
+      "licence": "CC BY 4.0",
+      "url": "https://www.proteinatlas.org/ENSG00000119655.json"
+    }
+  },
+  "retrieved": "2026-10-25",
+  "schema_version": 2,
+  "built_by": "pipeline/locus/bake_locus.py"
+}

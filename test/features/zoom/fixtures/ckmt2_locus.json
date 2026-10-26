@@ -1,0 +1,425 @@
+{
+  "slug": "ckmt2",
+  "gene": "CKMT2",
+  "uniprot": "P17540",
+  "assembly": "GRCh38",
+  "genome": "hg38",
+  "chromosome": "5",
+  "sequence": "NC_000005.10",
+  "length": 181538259,
+  "span": {
+    "start": 81233322,
+    "end": 81266398,
+    "strand": 1
+  },
+  "transcript": {
+    "refseq": "NM_001099735.2",
+    "ensembl": "ENST00000254035.9"
+  },
+  "band": {
+    "names": [
+      "q14.1"
+    ],
+    "start": 77600001,
+    "end": 82100000
+  },
+  "locus": "5q14.1",
+  "bands": [
+    {
+      "name": "p15.33",
+      "start": 1,
+      "end": 4400000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p15.32",
+      "start": 4400001,
+      "end": 6300000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "p15.31",
+      "start": 6300001,
+      "end": 9900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p15.2",
+      "start": 9900001,
+      "end": 15000000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "p15.1",
+      "start": 15000001,
+      "end": 18400000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p14.3",
+      "start": 18400001,
+      "end": 23300000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "p14.2",
+      "start": 23300001,
+      "end": 24600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p14.1",
+      "start": 24600001,
+      "end": 28900000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "p13.3",
+      "start": 28900001,
+      "end": 33800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p13.2",
+      "start": 33800001,
+      "end": 38400000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "p13.1",
+      "start": 38400001,
+      "end": 42500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p12",
+      "start": 42500001,
+      "end": 46100000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "p11",
+      "start": 46100001,
+      "end": 48800000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.1",
+      "start": 48800001,
+      "end": 51400000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.2",
+      "start": 51400001,
+      "end": 59600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q12.1",
+      "start": 59600001,
+      "end": 63600000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q12.2",
+      "start": 63600001,
+      "end": 63900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q12.3",
+      "start": 63900001,
+      "end": 67400000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q13.1",
+      "start": 67400001,
+      "end": 69100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q13.2",
+      "start": 69100001,
+      "end": 74000000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q13.3",
+      "start": 74000001,
+      "end": 77600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q14.1",
+      "start": 77600001,
+      "end": 82100000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q14.2",
+      "start": 82100001,
+      "end": 83500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q14.3",
+      "start": 83500001,
+      "end": 93000000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q15",
+      "start": 93000001,
+      "end": 98900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.1",
+      "start": 98900001,
+      "end": 103400000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q21.2",
+      "start": 103400001,
+      "end": 105100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.3",
+      "start": 105100001,
+      "end": 110200000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q22.1",
+      "start": 110200001,
+      "end": 112200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q22.2",
+      "start": 112200001,
+      "end": 113800000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q22.3",
+      "start": 113800001,
+      "end": 115900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q23.1",
+      "start": 115900001,
+      "end": 122100000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q23.2",
+      "start": 122100001,
+      "end": 127900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q23.3",
+      "start": 127900001,
+      "end": 131200000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q31.1",
+      "start": 131200001,
+      "end": 136900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q31.2",
+      "start": 136900001,
+      "end": 140100000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q31.3",
+      "start": 140100001,
+      "end": 145100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q32",
+      "start": 145100001,
+      "end": 150400000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q33.1",
+      "start": 150400001,
+      "end": 153300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q33.2",
+      "start": 153300001,
+      "end": 156300000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q33.3",
+      "start": 156300001,
+      "end": 160500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q34",
+      "start": 160500001,
+      "end": 169000000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q35.1",
+      "start": 169000001,
+      "end": 173300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q35.2",
+      "start": 173300001,
+      "end": 177100000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q35.3",
+      "start": 177100001,
+      "end": 181538259,
+      "stain": "gneg"
+    }
+  ],
+  "expression": {
+    "ensembl_gene": "ENSG00000131730",
+    "tissue": {
+      "specificity": "Group enriched",
+      "distribution": "Detected in many",
+      "specific": [
+        {
+          "name": "tongue",
+          "ntpm": 2166.2
+        },
+        {
+          "name": "skeletal muscle",
+          "ntpm": 1341.7
+        },
+        {
+          "name": "heart muscle",
+          "ntpm": 1157.4
+        }
+      ]
+    },
+    "cell_type": {
+      "specificity": "Cell type enhanced",
+      "distribution": "Detected in many",
+      "specific": [
+        {
+          "name": "Myonuclei",
+          "ncpm": 640.5
+        },
+        {
+          "name": "Cardiomyocytes",
+          "ncpm": 254.4
+        },
+        {
+          "name": "Thymic myoid cells",
+          "ncpm": 163.2
+        },
+        {
+          "name": "Choroid plexus epithelial cells",
+          "ncpm": 112.0
+        },
+        {
+          "name": "Adrenal cortex cells",
+          "ncpm": 79.0
+        }
+      ]
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Adipose subcutaneous",
+        "cell_type": "Smooth muscle cells"
+      },
+      {
+        "tissue": "Heart muscle",
+        "cell_type": "Cardiomyocytes"
+      },
+      {
+        "tissue": "Kidney",
+        "cell_type": "Intercalated cells"
+      },
+      {
+        "tissue": "Pituitary gland",
+        "cell_type": "Gonadotropes"
+      },
+      {
+        "tissue": "Prostate",
+        "cell_type": "Smooth muscle cells"
+      },
+      {
+        "tissue": "Skin",
+        "cell_type": "Eccrine sweat gland cells"
+      },
+      {
+        "tissue": "Stomach",
+        "cell_type": "Parietal cells"
+      }
+    ],
+    "subcellular": {
+      "main": [],
+      "additional": []
+    },
+    "secretome": null
+  },
+  "path": {
+    "tissue": "tongue",
+    "tissue_from": "tissue",
+    "cell_type": "Myonuclei",
+    "cell_class": "Muscle cells",
+    "cell_from": "single_cell_type",
+    "lands_in": null
+  },
+  "sources": {
+    "cytoband": {
+      "table": "cytoBand",
+      "genome": "hg38",
+      "updated": "2022-10-28T15:06:46",
+      "rows": 1549,
+      "sha256": "50366db9b20881ddcd5679fefa6f8ee5eeb920ce61a7889e0ee0c52853b034c7",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=cytoBand"
+    },
+    "chrom_alias": {
+      "table": "chromAlias",
+      "genome": "hg38",
+      "updated": "2023-01-24T12:46:47",
+      "rows": 2129,
+      "sha256": "df04264a4bcb6dc6b5a6334b42d09270abc894ac2ebbd8ca68a51a12b7076f02",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=chromAlias"
+    },
+    "mane": {
+      "release": "v1.5"
+    },
+    "uniprot": {
+      "release": "2026_03",
+      "release_date": "2026-09-02",
+      "entry_version": 218
+    },
+    "hpa": {
+      "version": "25.1",
+      "release_date": "2026-05-25",
+      "ensembl": "109",
+      "licence": "CC BY 4.0",
+      "url": "https://www.proteinatlas.org/ENSG00000131730.json"
+    }
+  },
+  "retrieved": "2026-10-25",
+  "schema_version": 2,
+  "built_by": "pipeline/locus/bake_locus.py"
+}

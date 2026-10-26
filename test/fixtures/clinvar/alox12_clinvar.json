@@ -1,0 +1,3732 @@
+{
+  "schema_version": 1,
+  "source": "NCBI ClinVar",
+  "gene": "ALOX12",
+  "accession": "NC_000017.11",
+  "assembly": "GRCh38",
+  "chromosome": "chr17",
+  "scope": "reference-matched single nucleotide variants in the drawn gene",
+  "start": 1,
+  "sequence": "GGCAGCCCTGGGCGGTCCCGGGAATCGCACAGGACCCGGCTCCCCTCGCCTAAGCTGCTGGGGGGCGCCATGGGCCGCTACCGCATCCGCGTGGCCACCGGGGCCTGGCTCTTCTCCGGGTCGTACAACCGCGTGCAGCTTTGGCTGGTCGGGACGCGCGGGGAGGCGGAGCTGGAGCTGCAGCTGCGGCCCGCGCGGGGCGAGGTCAGCGCGGGGAGCGAGGGGAGCTAGGGCAGCGGGGACCCCGGGCCCAGGCCCGGGCCGAGCTGGGCTCGCGGCGGGAGGGCGGGAGGCTGGGGGCGAGGTGACAGCGCGACCTCGCGGACTGGGACTTCCACGAAGCTGGGACGAGGTGGGCAAGATTAGGGACAGGGTCCGCAGCTGGGATCCCGGGCTGGGCTCAACCCCATCTCCCTTTCCCGCCCCTGGTCCCGGCAGCCCCCAGCTCCTTCTCCCAGTGACCCAGAGCCAATGTAAGTATGAGGCCAGAGGTCAGACGTGAAGCTCCTCCAAGAACCGGCGCGGGGAGAGCTCAGTTAATGGGACCCACGTGGGCGATGCTGCTCCAGCATCAGCTCCAGGCGCTGCGGGCCCTCGTCCTCCACCCGACTCCGGGCGTCTGAGACCCAAAGAGCAGGTTGTGCGGGGGCGGGAACGAGGCGATGCTGTCTTTGGAGGCCCTGAGAAACTGAGGTTGCACAGGAGCGCGGCTCTGTCCTCGAAACGGCCTCAGTCGGGTCCCTCCTACTAAGTCTGGCCTGGGTCCGGCCTGCACAGGAGGAGGAGTTTGATCATGACGTTGCAGAGGACTTGGGGCTCCTGCAGTTCGTGAGGCTGCGCAAGCACCACTGGCTGGTGGACGACGCGTGGTTCTGCGACCGCATCACGGTGCAGGGCCCTGGAGCCTGCGCGGAGGTGGCCTTCCCGTGCTACCGCTGGGTGCAGGGCGAGGACATCCTGAGCCTGCCCGAGGGCACCGGTGAGCAGGCGGCGTCGGGGAAGGAGGCACAAGGTCTCGGGAACTGCTGCGGGGCTAGGAGGGCAGAGTTAAGGACGGTCGGAGCAGACTTAGAGGATGTATGGGCCCAGGGCAGGTGAAATGTAGGGATCCCAGGGTGCTGGACAGAAAACGGGAAGGAGTTATGAATTCCCAAAGTTTTACACAGGCTAAGAGAGGCTGCGTGTGAGGCTGGAGGCAGGGAGTAAGTGATCTGGAGATCCCATCTTCCAAGAAGGCAAAGACAGAAAGTGGGAGTTGCAGCGATCCAGGAAAACAGAGAAGCAAAGTGAAAGTAGGAAGGAGATGTAAAGGTGACTCAGAAGTCAGGTGAGGGGACCACATGGAACAGGAGGGGGTGGGTGACCCGTGAGAGCAGACAGCTAAGGGAAGAAAACATAGGATGCTGGAGAGCTGGTTTGGTTGGAATAACACGGAAGACACCCGTGAAAGACAAGAAGCACACTGGCCCGCAGGAGACGAGGAGGAATGAGGATGGCAAATAGTGAATTTTTTTTTTTTTTTTTTTTGAGATGGAGTCTTGCTTTGTTGCCCAGGCTGGAGTGCAGTGGTGCGATCTTGGCTCACTGCAACCTCCACCTCCTGGGTTCACGCCATTCTCCTGCCTCAGCCTCCCGAGTAGCTGGGACTACAGGCACCCCCCACCACACCCGGCTAATTTTTTATATTTTTTTTAGTAGAGATGGAGTTTCACCGTATTAGCCAGGATGGTCTCGATCTCCTGACCTCGTGATCCGCCCTCCTTGGCCTCTCAAAGTGCTGGGATTACAGGCTTGAGCCACCACGCCCGGCCCAAATAGTGAATTTTTAACCATGGGTAATGAGTAAAAGAGAGATGAATCCAGAGATGAGTGAGGGCAGTAGGGATGGAACATCAAATCTATGACTTTGAGACAGGTGAGTGTAAATGCAGAAAAGACCCAGAATAAGTCCATAGATACAGATTATGATAGTAAATCCAGAAAGATGAGGTTTAAAAAAAAAAAAGCAAATGTAGAATCTTTTGAGGACAGGTGAAGGCGTGGCAGGTGAGGTTTAAGATGTGAAATTAATCAAAGCAATCTGTAGTAGACAGTAGGTGTAGGTGTATAGGTGACTAAGATTTCATCACCTTAATTAAGGTGATTTTTTTCCAACCATAGATATTGATGAAGTAAGGCCAGGTAGGGGAAGATGAGTGAAGGAGCAAGAAATGGTGGCAAACAGGAGGTTTTTATCTACAGGCAAAGGATGAGGGCTGAAATAAGAGAAAGCAGGAGTGCAAAGTTGGCAAAGATGGGATAAACGTGTCTGGTGGATAATCAAATGAGGCAAAGCCAGAGATAAAAGCAACAGTGCATGGCTGAAAACATGGAATACGGCTAACCACAGGGAGATGAGGACAAGAGGCGGGCATAGGACCAGACAGAGCCGTGAGGCCAATTGTCTTGATGTCTCCCCAGCCCGCCTGCCAGGAGACAATGCTTTGGACATGTTCCAGAAGCATCGAGAGAAGGAACTGAAAGACAGACAGCAGATCTACTGGTGACCACCCACCCCTTAAACTAACCCCGCCACCACTGTCCCACCCCTTCCCTGCCCCTGCCCCTGCCCCTGGCCCCATCACTGACCATGACATCCTTCCTGAAGCTTTGTCCCCAACTCCTAGCTGGGCCACCTGGAAGGAAGGGTTACCCCTGACCATCGCTGCAGACCGTAAGGATGATCTACCTCCAAATATGAGATTCCATGAGGAGAAGAGGCTGGACTTTGAATGGACACTGAAGGCAGGGTGAGAAAAAGGCTAGACCTCGGAGTGAAATAAGGGCTGGGAGGGCCAAGAATGATGATAGACGGTGAGGGACTGAGGGATCAGCTGATGAGTTAAGCCTCAATACCTGTCCTAGGGCTCTGGAGATGGCCCTCAAACGTGTTTACACCCTCCTGAGCTCCTGGAACTGCCTAGAAGACTTTGATCAGATCTTCTGGGGCCAGAAGAGTGCCCTGGCTGGTCAGTGGTTCCCCGAGGTCTCCATAATCCCTTAATGGCCCCTCTGGATGACTCATCACACTCCACAGTCCCCCGTAACTCTTTGCAAGAAGAGACCTTATCATATCTGGTCAACTCAGAGAGGCCTTGAGAATGAAAACGCAGAAGCTGGGTTCAGGGAGGGTTATATACCTGAACCCCTGGGGTAGATTTTGGAGAAGGGATATGCAGGCTGTGGTACATATATCCTCCTTTCACCGCCCACCAAAGAGAAGGTTCGCCAGTGCTGGCAGGATGATGAGTTGTTCAGCTACCAGTTCCTCAATGGTGCCAACCCCATGCTGTTGAGACGCTCGACCTCTCTGCCCTCCAGGCTAGTGCTGCCCTCGGGGATGGAAGAGCTTCAGGCTCAACTGGAGAAAGAACTTCAGGTACCTCTCCTTCCCCTGCCTGGCACTGTTCTCTCCTTAGTAGTGTGGTGAGAACGGACAGAGAGAATCCAAACTGAGTCAGAGGAAGGCTGCAGTACTGCATTGCCCCTTGGTGCAGTCCTGTGCTGGAAAAATACAGAAATAAAATATGTAGGGGAAGAAACTATGAGGAGCTCCCAGCAGGAAGGGGAAAATAGAATGGATCCCCAGCACACAGAGAGGGGCTGGAGATGTTAGCAGGAACAGTGACATTGCCTGGCCGCAGTGTTCTGGACTCCAGTGTTCATGGGCAGGGAGAAAAGTGAGGAAGTGCCATCAGGTGGGGAGAATCGGGGAGGCTTTCTAGAAAAAGAGAGCGGGGTTTGGAAGCAATGGACTGTACTGAGGACAAGCCTAGGCAAAATGTGTGCGTATGCATGTGTGTGCTGTATGCGGTGGCAGGGGTAGTAGGGGAAGCTCTCTGGAATATTTGGCAGAGGATGTGAGATTTGAATAGGGAATGAAAGAGCATTTGCTGAGCTGATAGGAGCCAAAACCAGAGCGCAGACCATTCGGGAATGATCAGAAAGGGGCCTGGCCATTTGACAGGTGGTCAGTTTACAATGCCTGTGATGCCAACTGGATTGAGCAGGCCTGGTTCCAAACCCAGATCTGCCACCACATCCACACACAAGACATCTACCCTCACCAGACTGTTTCTTCACTTTAAGATGAGAGGAACTGGACCAGGGGCTCTAGTTCTCCCAACAGGGCTCCGGTACTGATGCAGGAGAATGGCAAGAAGCTAGACTAAATCTCTTGCCCTTTGCCCCGGCCCCCTGGGGGTAGACTTTGAACTCTAAAAATGGATACATCCCTCCTGTCCCCAGAATGGTTCCCTGTTTGAAGCTGACTTCATCCTTCTGGATGGAATTCCAGCCAACGTGATCCGAGGAGAGAAGCAATACCTGGCTGCCCCCCTCGTTATGCTGAAGATGGAGCCCAATGGGAAGCTGCAGCCCATGGTCATCCAGGTAAGGGCCCCAGACCTCTCCCACAACGTTGCACTCTGTTCACCTCAACCTCTGCTCCCAGGGACCCAACCCCCAGCTCTTGGCTCCCAAACCCCATCCTCACTCAGTGAGACTTGTCTTCATGTCACTATTTGCCTGTACCCTCGTCTCCCCTGCCTCATCCAACTAGAATTACTTTTTCAAGAGTCAAAATGGCCTCCTGGAGTTCTCATCCTGTATCCAATGGTCCTCACACTTCAGTGTGCATCAGAATCACCTGAATGCCTGTTGAAATGCAGATTTCTGGATCCCATGACCAGACTTTCTGATTCAGTATGTCTGGGGTGGGAACTAAGAGTTTGCGTTTTTATAAGTTCCAAAGTGATGCTGACACTACCAGTTCAGGACTACACTTTCAGAATCACTATCTCATCTCTCAGTGGCCTCTGGCTCTGAACCCTCGCCATCTCTTGAATATCTTTTCTCGCAATTTCTTTTTTTTTTTTGAGACAGAATCTCACTGTGTCACTCAGGCTGGAATACAGTTGTGTGATCTTGGCTCACTGCAACCTGCGCCTCCTGGGTTCAAGCAATTCTCCCACCTCAGTCCCTCCAGTAGCTGGGACCACAGGCATGTGCCACCATGTGGGCCTGGCTAATTTTTGTATTTTTTGTAGAGATGGGGTTTCGCCATATTGCCCAGGCTGGTCTTGAACTTCTGGGCTCAAGTAATCTGCCTGCCTCGGCCTCCCAAAGTGCTGGGATTACAGGTGTGAGCCACTGCACCTGGCCTTCTCTCACTATTCTTAACAGTCAGGTGACAAGAACTGTCAATAATCTTACACCTCCTACTTCTCCTTCACATTCCACCACCATCTGAGCGCCGACCCCAAAGCAGCAGGTTTCTCCCACACCACTGTTAGGGCCTCCTTCTGGACCCCCTTCTTCCAGTCCCTCCTGCCTTCCACCTGACATCAGGGCACTCCAGCTAGCGAGCGGCAGGCTGGGAGGGTTCACAGTCCTCCTGCTAGACTATAACCTCCTAGAAGGCAATAATCTTACTTAGTCATCTCTGTTTCCCCAAGAATGCTGACTATAATGTCATATACGGAATGGGAGTTCAATAATTTCTCTTTCTCCCAGATTCAGCCTCCCAACCCCAGCTCTCCAACCCCAACACTGTTCCTGCCCTCAGACCCCCCACTTGCCTGGCTCCTGGCAAAGTCCTGGGTCCGAAATTCAGATTTCCAACTGCACGAGATCCAGTATCACTTGCTGAACACTCACCTGGTGGCTGAGGTCATCGCTGTCGCCACCATGCGGTGCCTCCCAGGACTGCACCCCATCTTCAAGGTACTTATTAATCTATTAAATCACATATCCCTCAGACCCCAGAGAGAGGAACAGCCCCATATCAAAAGATATTGCAGCAGCAAAAACTCTTTGTAGCAATTTGTGAGTGAAGAGGAGACTGTCTCAATATCTTGAGATGTTGATTTTAATTAAGTTTATTAAGTTTAGTCACTTAACATTATATAGGAATCCTCTGAAATTCTCAGAGATCTGACAGTCTAGCAGTGCGCTCACAGTAGGGCTTGAACACTGCTAGTAAAACAAAAGCCATATTCCTACCTTAGATCTAGTATTTAGCCAGAAAAACAAGTGATGCCCATAAGAACCAACCAGAGAACAGTATCTGGTACTAGAGTTTGAAATCACAAGGGACAGCCTATAACAGTATAGTATTGATGAAGAATGTTTCTACCCAATTGAGGAGTCAGCTAAGTAGAAACAGACCAAAAGGCAAGGAAGAACAGCCAGCAAGCCGCTCATACCTGCCCAACAGTAAGGTGGATAGAGATGTATGTTAGCATGGTAATGACAGGAATGAAAAGGAAAGAATCTAAAACGTAGTGAAGGGAGGAAATGGTAGCTGCAGCGTGCCTGGGTGCAAGAGAGAGAAAAGCCAGAAGTCCAAGCTTCTGCCACACCTGTAAGTCCCTGGGGCAGGTGTGTTATACTGACCTAGAAATACTGTGGTTTTAAGAGCTGGGTGTGGTGGTTCACGCCTGTAATCCCAGTGCTTTGGGTGGCCAAAGCAGTATGATTGCTTAAGACCAGGAGTTCAAGACCAGCCTGGGCAACACAGCAAGTCCCGGTCTCTAAATAAAAAGAAAGAAAGAAAGAAATACTGTAATTTTATAAAACAGTGAGTTCCATATATATTGCTGGGAGAAGGCAAAATAAGACCTGTGCTTGCTTAAGAAAATGTTCTTAAAATCTTGATGATACTTTATATACAGGGAACTTGGCAGAGGGAGCACAAAAATGATACAAGCTTACAAACCAGAGTAATTGTCAGAAACAGTAAAGTTAGAAGAAACCAGAGTCAGCAAAAATGAGGTGTTTGGTTTTAGGTACATGGAGTTTGATGTATTGGCAAGATATGCAAGTATGTCCTGGGTAAAAACAACCAAATTGTGTTTCAGCTGGGGGCCTCCACCAAGACCCCCCAAGCCTGGCCAGTATAGCTGTGCCGCCTCTGGAATTTTCCCCTTCGGTAACATAGACAAGATGGAGACCAGTCTGATGAATGGAATCTTGGATTTCATTCATCTCATGCTGTCTCCTGCTTCCCCATCCTCTGCTCCACACGAACAAGTGAAGCCTCTATTCACACTTACAATTCCGTTTCCTAGTTCAGTCCTCTCCGTGTCTCCACTCACCACAGTAATGCCATGCCCCAGCGGACAGCTGAGTTGCTGGCAGATGCACACAAGGGTCAAGCCTGCACATGTCTTAACAGTGGCCTATGCAGGCTCTGACTTTGGATTGCTGGGGTCTTAGTCCTGAACCCCGGCCTCAATAATTTCCAGATGTCCTCACATGTTCCATCGTGAGGTTATTAAAGGTTAAAATGACTTAATGGTGTGACACAAGCTAAATGCTACAAAAAACATTAGTTCTTGCAAATTTTTTTTTTTCAGAGACAAGTTCTCACTCTGTCACCCAGGCTGGAGTCCAGTGGCGTAATCATAACTCACTGCAGCTTCAAACTCCTGGGCTGAAGCGATCCTCTAACCTCAGCCTTCAGAGTAGCTGGGACTACAGGTGTGCACCACCATGCCTGGCTAATTTTTTTTATTTTTTGTAGAGACAGGGTTTCACTATGTGGCCCAAGCTAGTCTCAAATTCCTGGGCTCAAGCGATCCTCCTGCCTCAGTCTCCCAAGTAACCTGGATTGCAGGCACATGCCGCCACACCCAGCTAGTTCTTGCAATTATTATTATTAAGGACTGTTTATCCTTAGGCATCCTTTCTCCTCATGTGGACTTTGGCCTTTCCGTGACATTTGGCATCTTTCATGAATCTTCTGAAAAGCTTCAGGTTAATGTGAGCTGCTTTGGTATCTTAACACCAAAGGTGTCATTGGGGTCATTGCCAGTGTCCAGCATCAACAATTCAGACAAGCACCAAAACTGCTTGAAACCTGCATGTTAACTATGTGGAAAGGAAGACAAACAGTCTAAGATAAAAAGAAACGCATGTAAGGACCATGCCTTTTTTAATAGCTAAGGAAAATATTTTAATATTTTTAATTTAATAAATTTTAATTTATTAAAATTAAAATTTTAATTTAATATTAAATTAAAATTTTAATTTTAATTTTAAATAAATAATTAAAATTTAAATAAATTTAAATTTAAAATTTAAATTTAATTTTAAATAAACATTTAAATTTTTAATTTTAATATTAAATTAATTTAATTTAATATTAATTTAACTTAATTTAATTTAATATTAATTTAACTTAATTTAATTAATTTAATATTAAATTAAATTTTAATATTTTTAATTTTAATATTAATTTAATATTAAATTAAATTTTAATATTTTTAATTTTAATATTAATTTAATTTAATTTAATTTAATATTAATTAATTTAATTTTAATTTTAATTGCTTCAATATTAAATTAAATTTTAATATTTTTATTTTAATATTAAATTAAAATTTTAATTTAAAATTAAATATTTAATATTAAATTAATTTAAATTTAATATTAAATTTTAATAGCTAAGGAAAATATTTTAATATTAAAAAAAGACCATGGCCTTTTTTCAATAGCTAAGGAAAAGCAGGAGAAGAGGGGCCCAACAGTGCTTAAGTAGGGGTGGAGAAAGATTTGCTTAAACAGGTAGCTGAATATAGCTCTTCTAGTTCTGACAGAAAGTATTCTCCCCATCCATCCCCTAAAGAAACCCCCAACTGTGAAACAACTAAAAGATGGAGATGCAGCTTTGATCATAAGCAGAGAGGCTAGTTTAAGAGGATGTGAATGACAGAGGAGGTAGCAAAGAAAATCAGAAAGGGCTGATTCATAAGGCACCTATACTCAAGGTAGAAACAATGAAGCAGACAGCTACTATTCCAGGACTCTTATGTGTAATAGACACTCTCCAACATCACTTAGGTGAGCATCACCACAGCCCCTGAGATAAGAGAGTCTATTGCTGCCCCCTGTTGACAAATGAAGAGATTGCAGATTAAAAGGTTATTAACTTGGCCAAGTCTCAAATGAGGAGTAAAGTGTAGGTTAAAATCCTGGTCAGTCTGGCTCCAGGGCCCAACTCACAGGGAAGTTGGAGAGCACAAGAGTGAGTGATCAGAACAGCAGGAGATCAGCCTGTAAAGGAAAGCATCAAGAGGAGAAGGCGCCATGCTGGGTGCCAGGCCCTACCAGGAAGGACCCAAGCATGGCCTCCACCAGTCACGCCCTCCAATCTCCTCCTCTCCAGTTCCTGATCCCCCATATCCGCTACACCATGGAAATCAACACCCGGGCCCGGACCCAACTCATCTCAGATGGAGGAATTTTTGATAAGGTGAGGAGGGTACGGGGCATGGGACTGCCTCATCCATCTCTCCATGATCTGCCACTTTCAGGATCCAAGATCAACTATGTGTGAATGTCCTCACTCTTAACCTATGAACCTGTCCCTTTTATACCCATGTCTTTTTTTTTTTTTTTTTTTTTTTTGAGACAGAGTCTAGCTCTGTCGCCCAGGTTGGAGTGCAGTGGCGCCATCTCGGCTCACTGCCATCTCCGCCTCCTGGGTTCAAGCGATTCTCCTGCCTCAGCCTCCCGAGTAGCTGGGATTACAGGCGCCCGCCACCATGCCCAGCTAATTTTTATATTTTTAGTAGAGATGGGGTTTCACTGTGTTGGCCAGACTGGTCTCGAACTCCTGACCTCATGATCCACCCACCTCAGCCTCCCAAAGTGCTGTATACCCATGTCTTAATATCTGAAAATCCCACATTTGCCCCACTTTATGGAAGATGTGTTGGTTCTCCAGCCCTGTTTCCCCCTCTAAGACCTGTGATCTCCTGTCCCAGGCAGTGAGCACAGGTGGAGGGGGCCATGTACAGTTGCTCCGTCGGGCGGCAGCTCAGCTGACCTACTGCTCCCTCTGTCCTCCTGACGACCTGGCTGACCGGGGCCTGCTGGGACTCCCAGGTGCTCTCTATGCCCATGATGCTTTACGGCTCTGGGAGATCATTGCCAGGTGAGTAAGGAGGAGCTGAGAAATGGTGGGGCCGGGGGGGGGGGGGGCTCTGGCCTGAGGCCAGCATGGGGCAAAAGCAAGAAGGTCCAGAAAGGAGAAGCAGAGAACTCAATCCTGGGGAGAGATGAGGAAAAGTGAGGACACAGTGGGTGGCTCTGAAAATGAGGAGACTGGGATGAGGCAGAGAGAGGAGGTGAGGGGAGCTGTGGGGGGAGACTGGGGGAGGTGTCTGGAAAAATCAGGATTTTCTGACGATGTATGACAGCAACCATGCGAATTCCTAGAACTAAGGACCCACATCTTCCATGAGATGCTAGTGTGTTTAGAGGGCTGAGGATGTCCCAAAGGCGAGGTGTCTTCCCAGATACTGTGGAAGCATTGGGCAGATGCCACAGAAAGAGGAATAGAGGTCAGAGGCGGGGGCTTTCTGCCCTCAAGTGCCTTTTCCCCCTGGGCAGGTATGTGGAGGGGATCGTCCACCTCTTCTACCAAAGGGATGACATAGTGAAGGGGGACCCTGAGCTGCAGGCCTGGTGTCGGGAGATCACGGAGGTGGGGCTGTGCCAGGCCCAGGACCGAGGTAAGATCCATTCTAGAGACAGAAGAAGCTCCTGGGAGACTCTGCCAGGGCGCCTTCCCAGCCCTGCCCTTCTGGGGACAGGACCCCAGCCTCTCATCACGCCTCCCTTCCTCCCTCCACACGGGAAAGCATGTGTATCCCATTCCCACCTCCTCCGACTCAGGACAATTCTAGAGACCCAAGGACTGTCCTCCTCAGAGACCCTGGCCATCAACCCCTAGTCCCACTACACCCCAGTCACAGATGCCCCTGAACTGCCATATCCTGGGGCCCCCCAGGCCATATCCACAGCTGGGAGGGGTCTGCACAGTCCCTGCTGGGCTCATATTCTCTCCTGATGGTTCCGTTTTCCTAACTGAGGATGTAAATGGGAAGATTTTCCCTCCGAAGCCCACAAGGACCCACCCTGGCTTTCCCTCCCTCTCTTCCTGCCTGCCACTGTGCAGCACGCACAGAGGGTCCAGGAATACCGCACGCTTGCTACAGTGCAAGGTCAGCTCTTGATGCAAGCTCAATCCTATACATGCTTTGCCTCAAACCCAAACTCAGCACCCTGATCCTTGGGGCTCAGGTTTCTTTGGCTAATCCAACTCTTCCACCCTAACCACCCCTTGGCCAAAATCTAGCCACTACCTTTAGTCAACTCTCACTCCCCACATTTGAACCTCTGAGGAAGAAAAAGCCTTTGCTGAGCTCTTAGGTTTAATCACACAGGCACCAGCCTGGACTGCTGTCACTCATCCTTCGGCCCCTCCCCCTCACACTTCAGATCTAGGCTGTGAATACCATCCTCTGCCTCTGTGAGACAACTACAGACATTTACTGGGGAGCCCTTATGGCGAATCCTGGGAATGTGGCAAACCTCCTTACCCTGGAGGGAGCCTCTCCCTGGGGAATCTGCACCACCCTACCCTTCCAGGACCAAACTCTCTCTAGTTCTTCTCAGTACAGTCCCTTAGGCTCCTAGCAGTTTGGGCTACTACAACAAAACACTAGCTGGGCACAGTGGCTCACGCTTGTAATCCCAGCACTTTGGGAGGCTGAGGTGGGTGGATCACGAGGTCAGGAGTTCGAGACCAGCCTGGCCAACATAGTGAAACCCGTCTCTACTAAAAATACAAAAATTAGCCAGGCGTCGTGGCACGCACCTGTAATCCCAGCTACTCGGGAGGCTGAGGCAGGAGAATCGCTTGAACTTGGGAGGCGGAGGTTGCAGTGAGCTGAGATCACGCCATTGCACTCCAGCCTGGGCAACAGAGCGAAACTCCGTCTCAAAAAAATAAAATAAAAAAAACCACACACCATAGACTGGGTGGCTTATAAACAACAGAAATGTATTCCTCACAGTTCTGGAGGCTGAAAGTTCAAGATCAGGTTCTGGTGAGACCCCTCTTCCAGGCTGCCCACAGCCGATTTCTCCCTGTATCCTCACACAGCAGAAAGATAGCAAGCTAGCACTCTGTCCTCTGCTCATAAAGGTATCAAACCCATTCAGGAGGGCTGCACCCTCACACCCTAATTATCATGTGGGGCTCCACCTCCAAATACCATCACAATAGGATTAGATTTCAATATAAAAATTTTTCGGAGCCAAAGACATTCAGTTCATGACACATGTTAACTTTAACCTCCACTAACCACCCTCCCCCCTGTTCTCTTTCAGTTCTCATAGCTCACTTTTGTCTAGTTTTCCCAGCAGACATTTTAGAGGCTAAAATTAAAAATGCCATGGGATTAGCAGTCAGGAACCTGAGTTCAAGATCAGCCTCTGCCTTTTCCCAACTATGCAGTCCTGACAGTTTATTCTCTATGGGCTTTGATTTTCTTACCTATAAAATGAGAGTAATTATATTTATTCCACTTAACTGATAAGATTATTGGGTCTCCCAGCACTTTAGGAGGCCAAGGTGGGCAGATCACCTGAGGCCAGGAGTTCCAGACCAGCCTAGCCAACACGGTGAAACTCCATCTCTACTAAAAATACAAAAATTAGCTGGGCATGGTGGTGGGAGCCTGTAATCCCAGCTACTTGGGAGGCTGAGGCAGGAGAATCACTTGAACCTGAGAGGCGGAGGTTACAGTGAGCCGAGATTGTGCCACTGCACTCCAGCCTGGGCAACAGAGCAAGACTCCGTCTCAAAAAAAAAAAAAAGATTATCGGGTCTCTGAGCCCCCATATCCACTGCAAAATGAGTGGACTGAGATAACCTTTGTGGGAGCCCCTCTCAGCTGTGACACTGGAAATCCATGACTTATTCCCCACATTATAACGCAGACACTTGTAATTCTGTCTGGGAATAGGATTACGCATTCCTAAATTATTTATTTATTTTTTAATTTTTAAATAGAGACAGGCTCTTGCTCTGTCACCTGACTACCAGCAATCCTCCTGCCTTGGCCTCCCAAAGTGCTGGGATTACAGGCATGAGTCACCGACCACGCATCCCTCAATTGGTTTTTTTTTTTTTTTGAGACAGACTCTCGTTGTGTCGCCCAGGCTGGAGTGCAGTGGCGGGATCTCAGCTCGCTGCAAGCTCTGCCTCCCGGGTTCACGCCATTCTCCTGCCTCAGCCTCCCGAGTACCTGGGACTACAGGTGCCCGCCACCACACCTGGCTAACTTTTCGTATTTTTAGTAGAGACGGGGTTTCACCGTGTTAGCCAGGATGGTCTCGATCTCCTGACCTCGTGATCCGCCCATCTTGGCCTCCCCAAGTGCTGGGACTACAGGCGTGAGCCACCGCGCCCGGCCGCATCCCTCAATTCTTAACCACTTTTTGAGGCAAGGGATATTTGGTCACTCAGAACTTTTCAGCCCCCAATCCTTCCATAACAATAATTATTACTTACTTATTGAGCATTTATTACAGACCAGGTGATTTTGATACATCATCTCATTTATAATGTAGGTATCGTCCATATTTTACAGGTGAAAAAAACTGAGGTTCAAATAGGTTAAGCTGGCCTATGGTAACTAAGTGTAAGTGACTGAGCCAGGACTTAAACGCATGTCTGATGCAAATACGTCTAAATAAAATAAACAAATTCATCAATTCTAAAATATGGGCATCCCAAAACAACAGCCTTTGTTCCTCTCCTCTTATGCTGTAGCTTCTAACTGCTATTCCTTTCCTGCCCAGGTTTCCCTGTCTCCTTCCAGTCCCAGAGTCAACTCTGCCATTTCCTCACCATGTGCGTCTTCACGTGCACTGCCCAGCATGCCGCCATCAACCAGGGCCAGGTATGGACAGCTGAAAGCCCAGGTCCCTGAAGGCAAGGTGACCTGAGGGAGAGATGGGAGTTCAAACCCTAAGTACCAGGGTTCTAGGGTTACAGTTTCTTCCTCCAGCTGGACTGGTATGCCTGGGTCCCTAATGCTCCATGCACAATGCGGATGCCCCCACCCACCACCAAGGAAGATGTGACGATGGCCACAGTGATGGGGTCACTACCTGATGTCCGGCAGGCCTGTCTTCAAATGGCCATCTCATGGCATCTGAGTCGCCGCCAGCCAGACATGGTGAGAGGGGACTCTCGGGAGAGGGAAATGACAGTTGGAAAGGAAACATCAGAGTGAGGGGCTGGGCTCTAGGTGCGTTTGTCTTTAGAAACTGACTGATCCTTTGTTCTGTCTCAGGTGCCTCTGGGGCACCACAAAGAAAAATATTTCTCAGGCCCCAAGCCCAAAGCTGTGCTAAACCAATTCCGAACAGATTTGGAAAAGCTGGAAAAGGAGATTACAGCCCGGAATGAGCAACTTGACTGGCCCTATGAATATCTGAAGCCCAGCTGCATAGAGAACAGTGTCACCATCTGAGCCCTAGAGTGACTCTACCTGCAAGATTTCACATCAGCTTTAGGACTGACATTTCTATCTTGAATTTCATGCTTTCCTAAAGTCTCTGCTGCTAAGGCTCTATTTCCTCCCCCAGTTAAACCCCCTACATTAGTATCCCACTAGCCCAGGGGAGCAGTAAACTTTCTCTGCAAAGACTAGATCCTTTTTTACGCTTTGCAGACCGCATAGTCACTGTCTCAACTACTCAGCTCTCCTGCTGCAGCATGAAGGCAGCCACAGACAACATGGAAATGAGTGTGACTATGTTCCAATAAAACTTTATGGACACTGAGATATGAATGTTACATCA",
+  "protein_sequence": "MGRYRIRVATGAWLFSGSYNRVQLWLVGTRGEAELELQLRPARGEEEEFDHDVAEDLGLLQFVRLRKHHWLVDDAWFCDRITVQGPGACAEVAFPCYRWVQGEDILSLPEGTARLPGDNALDMFQKHREKELKDRQQIYCWATWKEGLPLTIAADRKDDLPPNMRFHEEKRLDFEWTLKAGALEMALKRVYTLLSSWNCLEDFDQIFWGQKSALAEKVRQCWQDDELFSYQFLNGANPMLLRRSTSLPSRLVLPSGMEELQAQLEKELQNGSLFEADFILLDGIPANVIRGEKQYLAAPLVMLKMEPNGKLQPMVIQIQPPNPSSPTPTLFLPSDPPLAWLLAKSWVRNSDFQLHEIQYHLLNTHLVAEVIAVATMRCLPGLHPIFKFLIPHIRYTMEINTRARTQLISDGGIFDKAVSTGGGGHVQLLRRAAAQLTYCSLCPPDDLADRGLLGLPGALYAHDALRLWEIIARYVEGIVHLFYQRDDIVKGDPELQAWCREITEVGLCQAQDRGFPVSFQSQSQLCHFLTMCVFTCTAQHAAINQGQLDWYAWVPNAPCTMRMPPPTTKEDVTMATVMGSLPDVRQACLQMAISWHLSRRQPDMVPLGHHKEKYFSGPKPKAVLNQFRTDLEKLEKEITARNEQLDWPYEYLKPSCIENSVTI",
+  "complemented": false,
+  "runs": [
+    {
+      "local": 1,
+      "genomic": 6996049,
+      "step": 1,
+      "length": 14706
+    }
+  ],
+  "retrieved_at": "2026-10-25T18:53:36.259593+00:00",
+  "query": "ALOX12[gene]",
+  "searched_records": 152,
+  "excluded": {
+    "no_germline_classification": 9,
+    "no_unique_GRCh38_location": 15,
+    "not_a_single_base_substitution": 15,
+    "outside_drawn_gene": 2
+  },
+  "source_batches": [
+    {
+      "file": "batch-0.xml",
+      "sha256": "ac7efdc595ba250b365b546c96e9da0f7fdc8d01dcfc6634df6ef27592e8c80b"
+    },
+    {
+      "file": "batch-1.xml",
+      "sha256": "2be31e4e8086f4ee9a76bde6f8f40c510000b99ee34ef88bb4bc85352a719c1c"
+    }
+  ],
+  "traits": {},
+  "variants": [
+    {
+      "variation_id": "4640040",
+      "accession": "VCV004640040.1",
+      "name": "NM_000697.3(ALOX12):c.34G>A (p.Ala12Thr)",
+      "position": 103,
+      "genomic": 6996151,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 12,
+      "protein_change": "p.A12T",
+      "coding_change": "c.34G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-11-20",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV006389564.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-11-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3112573",
+      "accession": "VCV003112573.1",
+      "name": "NM_000697.3(ALOX12):c.61C>A (p.Arg21Ser)",
+      "position": 130,
+      "genomic": 6996178,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 21,
+      "protein_change": "p.R21S",
+      "coding_change": "c.61C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-02-28",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004403484.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4640043",
+      "accession": "VCV004640043.1",
+      "name": "NM_000697.3(ALOX12):c.94G>A (p.Glu32Lys)",
+      "position": 163,
+      "genomic": 6996211,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 32,
+      "protein_change": "p.E32K",
+      "coding_change": "c.94G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-12-02",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV006389567.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-12-02"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4042926",
+      "accession": "VCV004042926.1",
+      "name": "NM_000697.3(ALOX12):c.98C>T (p.Ala33Val)",
+      "position": 167,
+      "genomic": 6996215,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 33,
+      "protein_change": "p.A33V",
+      "coding_change": "c.98C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-06-06",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005584406.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3527614",
+      "accession": "VCV003527614.1",
+      "name": "NM_000697.3(ALOX12):c.100G>A (p.Glu34Lys)",
+      "position": 169,
+      "genomic": 6996217,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 34,
+      "protein_change": "p.E34K",
+      "coding_change": "c.100G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-11-10",
+      "last_updated": "2025-01-19",
+      "conditions": [
+        {
+          "accession": "RCV004926218.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1269497",
+      "accession": "VCV001269497.2",
+      "name": "NM_000697.3(ALOX12):c.123C>G (p.Pro41=)",
+      "position": 192,
+      "genomic": 6996240,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 41,
+      "protein_change": "p.P41=",
+      "coding_change": "c.123C>G",
+      "consequence": "synonymous",
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2024-09-29",
+      "conditions": [
+        {
+          "accession": "RCV001681130.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "1235859",
+      "accession": "VCV001235859.4",
+      "name": "NM_000697.3(ALOX12):c.135+58C>T",
+      "position": 262,
+      "genomic": 6996310,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001619457.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "1182711",
+      "accession": "VCV001182711.2",
+      "name": "NM_000697.3(ALOX12):c.135+160T>C",
+      "position": 364,
+      "genomic": 6996412,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-06-18",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001540403.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-06-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1220801",
+      "accession": "VCV001220801.4",
+      "name": "NM_000697.3(ALOX12):c.136-69G>A",
+      "position": 709,
+      "genomic": 6996757,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001595363.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "3527605",
+      "accession": "VCV003527605.1",
+      "name": "NM_000697.3(ALOX12):c.175C>A (p.Leu59Ile)",
+      "position": 817,
+      "genomic": 6996865,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 59,
+      "protein_change": "p.L59I",
+      "coding_change": "c.175C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-08-20",
+      "last_updated": "2025-01-19",
+      "conditions": [
+        {
+          "accession": "RCV004926209.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-08-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3527595",
+      "accession": "VCV003527595.1",
+      "name": "NM_000697.3(ALOX12):c.204C>G (p.His68Gln)",
+      "position": 846,
+      "genomic": 6996894,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 68,
+      "protein_change": "p.H68Q",
+      "coding_change": "c.204C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-08-01",
+      "last_updated": "2025-01-19",
+      "conditions": [
+        {
+          "accession": "RCV004926199.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-08-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3112528",
+      "accession": "VCV003112528.1",
+      "name": "NM_000697.3(ALOX12):c.207C>A (p.His69Gln)",
+      "position": 849,
+      "genomic": 6996897,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 69,
+      "protein_change": "p.H69Q",
+      "coding_change": "c.207C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-10-30",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004403439.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-10-30"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4042937",
+      "accession": "VCV004042937.1",
+      "name": "NM_000697.3(ALOX12):c.221A>C (p.Asp74Ala)",
+      "position": 863,
+      "genomic": 6996911,
+      "ref": "A",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": 74,
+      "protein_change": "p.D74A",
+      "coding_change": "c.221A>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-04-15",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005584417.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-04-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3112534",
+      "accession": "VCV003112534.1",
+      "name": "NM_000697.3(ALOX12):c.223G>A (p.Ala75Thr)",
+      "position": 865,
+      "genomic": 6996913,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 75,
+      "protein_change": "p.A75T",
+      "coding_change": "c.223G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-10-24",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004403445.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-10-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2287353",
+      "accession": "VCV002287353.2",
+      "name": "NM_000697.3(ALOX12):c.275T>C (p.Val92Ala)",
+      "position": 917,
+      "genomic": 6996965,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 92,
+      "protein_change": "p.V92A",
+      "coding_change": "c.275T>C",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-05-04",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004133168.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-05-04"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1289083",
+      "accession": "VCV001289083.3",
+      "name": "NM_000697.3(ALOX12):c.337+16C>T",
+      "position": 995,
+      "genomic": 6997043,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001713734.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "1224924",
+      "accession": "VCV001224924.4",
+      "name": "NM_000697.3(ALOX12):c.337+37T>C",
+      "position": 1016,
+      "genomic": 6997064,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2021-06-18",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001608382.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2021-06-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "1262015",
+      "accession": "VCV001262015.4",
+      "name": "NM_000697.3(ALOX12):c.337+98T>G",
+      "position": 1077,
+      "genomic": 6997125,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2026-09-13",
+      "conditions": [
+        {
+          "accession": "RCV001667134.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "in vitro",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "1277668",
+      "accession": "VCV001277668.1",
+      "name": "NM_000697.3(ALOX12):c.338-156G>A",
+      "position": 2305,
+      "genomic": 6998353,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001692825.1",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2230942",
+      "accession": "VCV002230942.2",
+      "name": "NM_000697.3(ALOX12):c.340C>T (p.Arg114Cys)",
+      "position": 2463,
+      "genomic": 6998511,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 114,
+      "protein_change": "p.R114C",
+      "coding_change": "c.340C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-08-09",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004097304.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-08-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3112547",
+      "accession": "VCV003112547.1",
+      "name": "NM_000697.3(ALOX12):c.341G>A (p.Arg114His)",
+      "position": 2464,
+      "genomic": 6998512,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 114,
+      "protein_change": "p.R114H",
+      "coding_change": "c.341G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-12-26",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004403458.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-12-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2647316",
+      "accession": "VCV002647316.23",
+      "name": "NM_000697.3(ALOX12):c.349G>C (p.Gly117Arg)",
+      "position": 2472,
+      "genomic": 6998520,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 117,
+      "protein_change": "p.G117R",
+      "coding_change": "c.349G>C",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-04-01",
+      "last_updated": "2026-07-27",
+      "conditions": [
+        {
+          "accession": "RCV003428090.23",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-04-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4275482",
+      "accession": "VCV004275482.1",
+      "name": "NM_000697.3(ALOX12):c.356A>G (p.Asn119Ser)",
+      "position": 2479,
+      "genomic": 6998527,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 119,
+      "protein_change": "p.N119S",
+      "coding_change": "c.356A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-08-05",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV005856187.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-05"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3857922",
+      "accession": "VCV003857922.1",
+      "name": "NM_000697.3(ALOX12):c.358G>A (p.Ala120Thr)",
+      "position": 2481,
+      "genomic": 6998529,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 120,
+      "protein_change": "p.A120T",
+      "coding_change": "c.358G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-02-20",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005345419.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-02-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2537580",
+      "accession": "VCV002537580.2",
+      "name": "NM_000697.3(ALOX12):c.395T>G (p.Leu132Arg)",
+      "position": 2518,
+      "genomic": 6998566,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": 132,
+      "protein_change": "p.L132R",
+      "coding_change": "c.395T>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-04-18",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004309157.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-04-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3256964",
+      "accession": "VCV003256964.16",
+      "name": "NM_000697.3(ALOX12):c.399A>C (p.Lys133Asn)",
+      "position": 2522,
+      "genomic": 6998570,
+      "ref": "A",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": 133,
+      "protein_change": "p.K133N",
+      "coding_change": "c.399A>C",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-07-01",
+      "last_updated": "2026-07-27",
+      "conditions": [
+        {
+          "accession": "RCV004598596.16",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-07-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2467649",
+      "accession": "VCV002467649.2",
+      "name": "NM_000697.3(ALOX12):c.404G>A (p.Arg135Lys)",
+      "position": 2527,
+      "genomic": 6998575,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 135,
+      "protein_change": "p.R135K",
+      "coding_change": "c.404G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-01-31",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004260953.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-01-31"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3857888",
+      "accession": "VCV003857888.1",
+      "name": "NM_000697.3(ALOX12):c.418T>C (p.Cys140Arg)",
+      "position": 2541,
+      "genomic": 6998589,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 140,
+      "protein_change": "p.C140R",
+      "coding_change": "c.418T>C",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-01-24",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005351958.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-01-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3527577",
+      "accession": "VCV003527577.1",
+      "name": "NM_000697.3(ALOX12):c.446C>T (p.Pro149Leu)",
+      "position": 2693,
+      "genomic": 6998741,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 149,
+      "protein_change": "p.P149L",
+      "coding_change": "c.446C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-11-25",
+      "last_updated": "2025-01-19",
+      "conditions": [
+        {
+          "accession": "RCV004926181.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-11-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4042965",
+      "accession": "VCV004042965.1",
+      "name": "NM_000697.3(ALOX12):c.481C>T (p.Pro161Ser)",
+      "position": 2728,
+      "genomic": 6998776,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 161,
+      "protein_change": "p.P161S",
+      "coding_change": "c.481C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-05-13",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005584445.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-05-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4275463",
+      "accession": "VCV004275463.1",
+      "name": "NM_000697.3(ALOX12):c.490A>G (p.Met164Val)",
+      "position": 2737,
+      "genomic": 6998785,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 164,
+      "protein_change": "p.M164V",
+      "coding_change": "c.490A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-06-29",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV005856168.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-29"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3112561",
+      "accession": "VCV003112561.1",
+      "name": "NM_000697.3(ALOX12):c.541G>A (p.Gly181Arg)",
+      "position": 2788,
+      "genomic": 6998836,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 181,
+      "protein_change": "p.G181R",
+      "coding_change": "c.541G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-10-03",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004403472.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-10-03"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1262104",
+      "accession": "VCV001262104.4",
+      "name": "NM_000697.3(ALOX12):c.542+23G>A",
+      "position": 2812,
+      "genomic": 6998860,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2026-04-13",
+      "conditions": [
+        {
+          "accession": "RCV001667223.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "in vitro",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "4275471",
+      "accession": "VCV004275471.1",
+      "name": "NM_000697.3(ALOX12):c.544G>C (p.Ala182Pro)",
+      "position": 2906,
+      "genomic": 6998954,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 182,
+      "protein_change": "p.A182P",
+      "coding_change": "c.544G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-08-29",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV005856176.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-29"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3112565",
+      "accession": "VCV003112565.1",
+      "name": "NM_000697.3(ALOX12):c.548T>C (p.Leu183Pro)",
+      "position": 2910,
+      "genomic": 6998958,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 183,
+      "protein_change": "p.L183P",
+      "coding_change": "c.548T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-01-19",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004403476.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-01-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4640038",
+      "accession": "VCV004640038.1",
+      "name": "NM_000697.3(ALOX12):c.565C>T (p.Arg189Cys)",
+      "position": 2927,
+      "genomic": 6998975,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 189,
+      "protein_change": "p.R189C",
+      "coding_change": "c.565C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-10-22",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV006389562.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "791340",
+      "accession": "VCV000791340.4",
+      "name": "NM_000697.3(ALOX12):c.566G>A (p.Arg189His)",
+      "position": 2928,
+      "genomic": 6998976,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 189,
+      "protein_change": "p.R189H",
+      "coding_change": "c.566G>A",
+      "consequence": "missense",
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-04-24",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000974292.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-04-24"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "3112569",
+      "accession": "VCV003112569.1",
+      "name": "NM_000697.3(ALOX12):c.571T>C (p.Tyr191His)",
+      "position": 2933,
+      "genomic": 6998981,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 191,
+      "protein_change": "p.Y191H",
+      "coding_change": "c.571T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-11-09",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004403480.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-11-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1178469",
+      "accession": "VCV001178469.3",
+      "name": "NM_000697.3(ALOX12):c.646+84T>C",
+      "position": 3092,
+      "genomic": 6999140,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001534758.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "3857868",
+      "accession": "VCV003857868.1",
+      "name": "NM_000697.3(ALOX12):c.677A>C (p.Glu226Ala)",
+      "position": 3288,
+      "genomic": 6999336,
+      "ref": "A",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": 226,
+      "protein_change": "p.E226A",
+      "coding_change": "c.677A>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-01-17",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005351942.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-01-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2381381",
+      "accession": "VCV002381381.2",
+      "name": "NM_000697.3(ALOX12):c.728G>A (p.Arg243His)",
+      "position": 3339,
+      "genomic": 6999387,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 243,
+      "protein_change": "p.R243H",
+      "coding_change": "c.728G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-10-27",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004219002.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-10-27"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4042956",
+      "accession": "VCV004042956.1",
+      "name": "NM_000697.3(ALOX12):c.764C>T (p.Ser255Leu)",
+      "position": 3375,
+      "genomic": 6999423,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 255,
+      "protein_change": "p.S255L",
+      "coding_change": "c.764C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-03-20",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005584436.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-03-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1259628",
+      "accession": "VCV001259628.3",
+      "name": "NM_000697.3(ALOX12):c.765G>A (p.Ser255=)",
+      "position": 3376,
+      "genomic": 6999424,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 255,
+      "protein_change": "p.S255=",
+      "coding_change": "c.765G>A",
+      "consequence": "synonymous",
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001666545.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "3287958",
+      "accession": "VCV003287958.1",
+      "name": "NM_000697.3(ALOX12):c.772G>A (p.Glu258Lys)",
+      "position": 3383,
+      "genomic": 6999431,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 258,
+      "protein_change": "p.E258K",
+      "coding_change": "c.772G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-04-23",
+      "last_updated": "2024-08-11",
+      "conditions": [
+        {
+          "accession": "RCV004628426.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1224614",
+      "accession": "VCV001224614.4",
+      "name": "NM_000697.3(ALOX12):c.782A>G (p.Gln261Arg)",
+      "position": 3393,
+      "genomic": 6999441,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 261,
+      "protein_change": "p.Q261R",
+      "coding_change": "c.782A>G",
+      "consequence": "missense",
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2024-09-29",
+      "conditions": [
+        {
+          "accession": "RCV001615463.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "3857900",
+      "accession": "VCV003857900.1",
+      "name": "NM_000697.3(ALOX12):c.794A>C (p.Glu265Ala)",
+      "position": 3405,
+      "genomic": 6999453,
+      "ref": "A",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": 265,
+      "protein_change": "p.E265A",
+      "coding_change": "c.794A>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-01-26",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005351965.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-01-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2479149",
+      "accession": "VCV002479149.2",
+      "name": "NM_000697.3(ALOX12):c.797A>G (p.Lys266Arg)",
+      "position": 3408,
+      "genomic": 6999456,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 266,
+      "protein_change": "p.K266R",
+      "coding_change": "c.797A>G",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-01-25",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004265669.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-01-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1259077",
+      "accession": "VCV001259077.3",
+      "name": "NM_000697.3(ALOX12):c.807+25A>T",
+      "position": 3443,
+      "genomic": 6999491,
+      "ref": "A",
+      "alt": "T",
+      "genomic_ref": "A",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001659314.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "1294133",
+      "accession": "VCV001294133.3",
+      "name": "NM_000697.3(ALOX12):c.807+102A>G",
+      "position": 3520,
+      "genomic": 6999568,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001716035.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "1266618",
+      "accession": "VCV001266618.3",
+      "name": "NM_000697.3(ALOX12):c.808-118G>A",
+      "position": 4170,
+      "genomic": 7000218,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001676441.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "3857911",
+      "accession": "VCV003857911.1",
+      "name": "NM_000697.3(ALOX12):c.950A>G (p.Gln317Arg)",
+      "position": 4430,
+      "genomic": 7000478,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 317,
+      "protein_change": "p.Q317R",
+      "coding_change": "c.950A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-02-12",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005351973.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-02-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1179701",
+      "accession": "VCV001179701.2",
+      "name": "NM_000697.3(ALOX12):c.951+146G>A",
+      "position": 4577,
+      "genomic": 7000625,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001536742.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1245488",
+      "accession": "VCV001245488.2",
+      "name": "NM_000697.3(ALOX12):c.951+200C>T",
+      "position": 4631,
+      "genomic": 7000679,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-06-18",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001641811.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-06-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1233269",
+      "accession": "VCV001233269.4",
+      "name": "NM_000697.3(ALOX12):c.965A>G (p.Asn322Ser)",
+      "position": 5567,
+      "genomic": 7001615,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 322,
+      "protein_change": "p.N322S",
+      "coding_change": "c.965A>G",
+      "consequence": "missense",
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2021-06-09",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001617394.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2021-06-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "2261370",
+      "accession": "VCV002261370.2",
+      "name": "NM_000697.3(ALOX12):c.966C>A (p.Asn322Lys)",
+      "position": 5568,
+      "genomic": 7001616,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 322,
+      "protein_change": "p.N322K",
+      "coding_change": "c.966C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-11-15",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004117875.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-11-15"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3112577",
+      "accession": "VCV003112577.1",
+      "name": "NM_000697.3(ALOX12):c.986C>A (p.Thr329Lys)",
+      "position": 5588,
+      "genomic": 7001636,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 329,
+      "protein_change": "p.T329K",
+      "coding_change": "c.986C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-02-28",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004403488.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3857860",
+      "accession": "VCV003857860.1",
+      "name": "NM_000697.3(ALOX12):c.986C>T (p.Thr329Ile)",
+      "position": 5588,
+      "genomic": 7001636,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 329,
+      "protein_change": "p.T329I",
+      "coding_change": "c.986C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-12-28",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005345403.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-12-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3857850",
+      "accession": "VCV003857850.1",
+      "name": "NM_000697.3(ALOX12):c.1001C>T (p.Ser334Leu)",
+      "position": 5603,
+      "genomic": 7001651,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 334,
+      "protein_change": "p.S334L",
+      "coding_change": "c.1001C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-12-22",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005345400.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-12-22"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2394557",
+      "accession": "VCV002394557.3",
+      "name": "NM_000697.3(ALOX12):c.1010C>G (p.Pro337Arg)",
+      "position": 5612,
+      "genomic": 7001660,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 337,
+      "protein_change": "p.P337R",
+      "coding_change": "c.1010C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-08-08",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV004226112.2",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2647317",
+      "accession": "VCV002647317.23",
+      "name": "NM_000697.3(ALOX12):c.1029A>C (p.Ala343=)",
+      "position": 5631,
+      "genomic": 7001679,
+      "ref": "A",
+      "alt": "C",
+      "genomic_ref": "A",
+      "genomic_alt": "C",
+      "residue": 343,
+      "protein_change": "p.A343=",
+      "coding_change": "c.1029A>C",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-04-01",
+      "last_updated": "2026-07-27",
+      "conditions": [
+        {
+          "accession": "RCV003428091.23",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-04-01"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4275433",
+      "accession": "VCV004275433.1",
+      "name": "NM_000697.3(ALOX12):c.1048T>G (p.Ser350Ala)",
+      "position": 5650,
+      "genomic": 7001698,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": 350,
+      "protein_change": "p.S350A",
+      "coding_change": "c.1048T>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-08-19",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV005856138.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2514441",
+      "accession": "VCV002514441.2",
+      "name": "NM_000697.3(ALOX12):c.1091C>T (p.Thr364Ile)",
+      "position": 5693,
+      "genomic": 7001741,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 364,
+      "protein_change": "p.T364I",
+      "coding_change": "c.1091C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-05-30",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004295951.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-05-30"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1247877",
+      "accession": "VCV001247877.3",
+      "name": "NM_000697.3(ALOX12):c.1092T>G (p.Thr364=)",
+      "position": 5694,
+      "genomic": 7001742,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": 364,
+      "protein_change": "p.T364=",
+      "coding_change": "c.1092T>G",
+      "consequence": "synonymous",
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2024-09-29",
+      "conditions": [
+        {
+          "accession": "RCV001644329.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "2322966",
+      "accession": "VCV002322966.2",
+      "name": "NM_000697.3(ALOX12):c.1093C>G (p.His365Asp)",
+      "position": 5695,
+      "genomic": 7001743,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 365,
+      "protein_change": "p.H365D",
+      "coding_change": "c.1093C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-11-08",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004168854.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-11-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4640042",
+      "accession": "VCV004640042.1",
+      "name": "NM_000697.3(ALOX12):c.1159A>G (p.Lys387Glu)",
+      "position": 5761,
+      "genomic": 7001809,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 387,
+      "protein_change": "p.K387E",
+      "coding_change": "c.1159A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-11-20",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV006389566.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-11-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1251805",
+      "accession": "VCV001251805.3",
+      "name": "NM_000697.3(ALOX12):c.1161+228C>T",
+      "position": 5991,
+      "genomic": 7002039,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2021-06-19",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001650357.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2021-06-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "4042976",
+      "accession": "VCV004042976.1",
+      "name": "NM_000697.3(ALOX12):c.1169T>C (p.Ile390Thr)",
+      "position": 9216,
+      "genomic": 7005264,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 390,
+      "protein_change": "p.I390T",
+      "coding_change": "c.1169T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-06-07",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005584456.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-07"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3287941",
+      "accession": "VCV003287941.1",
+      "name": "NM_000697.3(ALOX12):c.1179C>G (p.Ile393Met)",
+      "position": 9226,
+      "genomic": 7005274,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 393,
+      "protein_change": "p.I393M",
+      "coding_change": "c.1179C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-03-30",
+      "last_updated": "2024-08-11",
+      "conditions": [
+        {
+          "accession": "RCV004628412.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-03-30"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3112466",
+      "accession": "VCV003112466.1",
+      "name": "NM_000697.3(ALOX12):c.1180C>T (p.Arg394Cys)",
+      "position": 9227,
+      "genomic": 7005275,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 394,
+      "protein_change": "p.R394C",
+      "coding_change": "c.1180C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-10-17",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004401394.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-10-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2592950",
+      "accession": "VCV002592950.2",
+      "name": "NM_000697.3(ALOX12):c.1208C>T (p.Ala403Val)",
+      "position": 9255,
+      "genomic": 7005303,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 403,
+      "protein_change": "p.A403V",
+      "coding_change": "c.1208C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-06-16",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004339835.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-06-16"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "783067",
+      "accession": "VCV000783067.3",
+      "name": "NM_000697.3(ALOX12):c.1211G>A (p.Arg404Gln)",
+      "position": 9258,
+      "genomic": 7005306,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 404,
+      "protein_change": "p.R404Q",
+      "coding_change": "c.1211G>A",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-04-17",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000964551.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-04-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3527571",
+      "accession": "VCV003527571.1",
+      "name": "NM_000697.3(ALOX12):c.1229A>T (p.Asp410Val)",
+      "position": 9276,
+      "genomic": 7005324,
+      "ref": "A",
+      "alt": "T",
+      "genomic_ref": "A",
+      "genomic_alt": "T",
+      "residue": 410,
+      "protein_change": "p.D410V",
+      "coding_change": "c.1229A>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-09-08",
+      "last_updated": "2025-01-19",
+      "conditions": [
+        {
+          "accession": "RCV004926178.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-09-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4275452",
+      "accession": "VCV004275452.1",
+      "name": "NM_000697.3(ALOX12):c.1232G>C (p.Gly411Ala)",
+      "position": 9279,
+      "genomic": 7005327,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 411,
+      "protein_change": "p.G411A",
+      "coding_change": "c.1232G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-06-18",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV005856157.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1238555",
+      "accession": "VCV001238555.3",
+      "name": "NM_000697.3(ALOX12):c.1248+241G>A",
+      "position": 9536,
+      "genomic": 7005584,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-06-18",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001638958.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-06-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3527563",
+      "accession": "VCV003527563.1",
+      "name": "NM_000697.3(ALOX12):c.1288C>T (p.Arg430Cys)",
+      "position": 9849,
+      "genomic": 7005897,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 430,
+      "protein_change": "p.R430C",
+      "coding_change": "c.1288C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-11-10",
+      "last_updated": "2025-01-19",
+      "conditions": [
+        {
+          "accession": "RCV004926176.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "714724",
+      "accession": "VCV000714724.4",
+      "name": "NM_000697.3(ALOX12):c.1289G>A (p.Arg430His)",
+      "position": 9850,
+      "genomic": 7005898,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 430,
+      "protein_change": "p.R430H",
+      "coding_change": "c.1289G>A",
+      "consequence": "missense",
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-07-06",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV000887080.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-07-06"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "4275406",
+      "accession": "VCV004275406.1",
+      "name": "NM_000697.3(ALOX12):c.1295C>T (p.Ala432Val)",
+      "position": 9856,
+      "genomic": 7005904,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 432,
+      "protein_change": "p.A432V",
+      "coding_change": "c.1295C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-06-18",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV005856111.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-06-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3287953",
+      "accession": "VCV003287953.1",
+      "name": "NM_000697.3(ALOX12):c.1348C>T (p.Arg450Trp)",
+      "position": 9909,
+      "genomic": 7005957,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 450,
+      "protein_change": "p.R450W",
+      "coding_change": "c.1348C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-04-09",
+      "last_updated": "2024-08-11",
+      "conditions": [
+        {
+          "accession": "RCV004626618.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-04-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3857820",
+      "accession": "VCV003857820.1",
+      "name": "NM_000697.3(ALOX12):c.1349G>A (p.Arg450Gln)",
+      "position": 9910,
+      "genomic": 7005958,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 450,
+      "protein_change": "p.R450Q",
+      "coding_change": "c.1349G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-01-21",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005351907.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-01-21"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3112472",
+      "accession": "VCV003112472.1",
+      "name": "NM_000697.3(ALOX12):c.1381G>A (p.Ala461Thr)",
+      "position": 9942,
+      "genomic": 7005990,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 461,
+      "protein_change": "p.A461T",
+      "coding_change": "c.1381G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-12-13",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004401400.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-12-13"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4275417",
+      "accession": "VCV004275417.1",
+      "name": "NM_000697.3(ALOX12):c.1396C>T (p.Arg466Trp)",
+      "position": 9957,
+      "genomic": 7006005,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 466,
+      "protein_change": "p.R466W",
+      "coding_change": "c.1396C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-08-25",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV005856122.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-25"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3112477",
+      "accession": "VCV003112477.1",
+      "name": "NM_000697.3(ALOX12):c.1413T>G (p.Ile471Met)",
+      "position": 9974,
+      "genomic": 7006022,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": 471,
+      "protein_change": "p.I471M",
+      "coding_change": "c.1413T>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-02-05",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004401405.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-05"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1238014",
+      "accession": "VCV001238014.4",
+      "name": "NM_000697.3(ALOX12):c.1418+32C>T",
+      "position": 10011,
+      "genomic": 7006059,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2021-06-18",
+      "last_updated": "2024-09-29",
+      "conditions": [
+        {
+          "accession": "RCV001637562.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2021-06-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "1234828",
+      "accession": "VCV001234828.5",
+      "name": "NM_000697.3(ALOX12):c.1452A>G (p.Gln484=)",
+      "position": 10471,
+      "genomic": 7006519,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 484,
+      "protein_change": "p.Q484=",
+      "coding_change": "c.1452A>G",
+      "consequence": "synonymous",
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2025-11-02",
+      "conditions": [
+        {
+          "accession": "RCV001621592.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "in vitro",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "3287968",
+      "accession": "VCV003287968.1",
+      "name": "NM_000697.3(ALOX12):c.1472G>A (p.Gly491Glu)",
+      "position": 10491,
+      "genomic": 7006539,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 491,
+      "protein_change": "p.G491E",
+      "coding_change": "c.1472G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-06-16",
+      "last_updated": "2024-08-11",
+      "conditions": [
+        {
+          "accession": "RCV004626621.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-16"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3857840",
+      "accession": "VCV003857840.1",
+      "name": "NM_000697.3(ALOX12):c.1499G>A (p.Arg500Gln)",
+      "position": 10518,
+      "genomic": 7006566,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 500,
+      "protein_change": "p.R500Q",
+      "coding_change": "c.1499G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-01-23",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005351923.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-01-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3857830",
+      "accession": "VCV003857830.1",
+      "name": "NM_000697.3(ALOX12):c.1503G>T (p.Glu501Asp)",
+      "position": 10522,
+      "genomic": 7006570,
+      "ref": "G",
+      "alt": "T",
+      "genomic_ref": "G",
+      "genomic_alt": "T",
+      "residue": 501,
+      "protein_change": "p.E501D",
+      "coding_change": "c.1503G>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-01-17",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005351915.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-01-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2566684",
+      "accession": "VCV002566684.2",
+      "name": "NM_000697.3(ALOX12):c.1504A>T (p.Ile502Phe)",
+      "position": 10523,
+      "genomic": 7006571,
+      "ref": "A",
+      "alt": "T",
+      "genomic_ref": "A",
+      "genomic_alt": "T",
+      "residue": 502,
+      "protein_change": "p.I502F",
+      "coding_change": "c.1504A>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-03-16",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004332556.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-03-16"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1230948",
+      "accession": "VCV001230948.3",
+      "name": "NM_000697.3(ALOX12):c.1540+282A>G",
+      "position": 10841,
+      "genomic": 7006889,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2021-06-19",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001616995.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2021-06-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1263911",
+      "accession": "VCV001263911.2",
+      "name": "NM_000697.3(ALOX12):c.1540+285T>G",
+      "position": 10844,
+      "genomic": 7006892,
+      "ref": "T",
+      "alt": "G",
+      "genomic_ref": "T",
+      "genomic_alt": "G",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001674905.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1248100",
+      "accession": "VCV001248100.3",
+      "name": "NM_000697.3(ALOX12):c.1541-264T>A",
+      "position": 13435,
+      "genomic": 7009483,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2018-11-10",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001651934.3",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2018-11-10"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "1222883",
+      "accession": "VCV001222883.4",
+      "name": "NM_000697.3(ALOX12):c.1541-20G>A",
+      "position": 13679,
+      "genomic": 7009727,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": null,
+      "protein_change": null,
+      "coding_change": null,
+      "consequence": null,
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2021-06-19",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001599061.4",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2021-06-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "4640041",
+      "accession": "VCV004640041.1",
+      "name": "NM_000697.3(ALOX12):c.1570C>G (p.Gln524Glu)",
+      "position": 13728,
+      "genomic": 7009776,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 524,
+      "protein_change": "p.Q524E",
+      "coding_change": "c.1570C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-11-12",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV006389565.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-11-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3112485",
+      "accession": "VCV003112485.1",
+      "name": "NM_000697.3(ALOX12):c.1594T>A (p.Cys532Ser)",
+      "position": 13752,
+      "genomic": 7009800,
+      "ref": "T",
+      "alt": "A",
+      "genomic_ref": "T",
+      "genomic_alt": "A",
+      "residue": 532,
+      "protein_change": "p.C532S",
+      "coding_change": "c.1594T>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-01-09",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004401413.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-01-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3857878",
+      "accession": "VCV003857878.1",
+      "name": "NM_000697.3(ALOX12):c.1596C>T (p.Cys532=)",
+      "position": 13754,
+      "genomic": 7009802,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 532,
+      "protein_change": "p.C532=",
+      "coding_change": "c.1596C>T",
+      "consequence": "synonymous",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-12-23",
+      "last_updated": "2025-04-28",
+      "conditions": [
+        {
+          "accession": "RCV005345408.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-12-23"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2392090",
+      "accession": "VCV002392090.2",
+      "name": "NM_000697.3(ALOX12):c.1604C>T (p.Thr535Met)",
+      "position": 13762,
+      "genomic": 7009810,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 535,
+      "protein_change": "p.T535M",
+      "coding_change": "c.1604C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-04-12",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004225529.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-04-12"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2598722",
+      "accession": "VCV002598722.2",
+      "name": "NM_000697.3(ALOX12):c.1619A>G (p.His540Arg)",
+      "position": 13777,
+      "genomic": 7009825,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 540,
+      "protein_change": "p.H540R",
+      "coding_change": "c.1619A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-06-16",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004343132.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-06-16"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4275492",
+      "accession": "VCV004275492.1",
+      "name": "NM_000697.3(ALOX12):c.1696C>A (p.Pro566Thr)",
+      "position": 13962,
+      "genomic": 7010010,
+      "ref": "C",
+      "alt": "A",
+      "genomic_ref": "C",
+      "genomic_alt": "A",
+      "residue": 566,
+      "protein_change": "p.P566T",
+      "coding_change": "c.1696C>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-08-19",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV005856197.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-19"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4275443",
+      "accession": "VCV004275443.1",
+      "name": "NM_000697.3(ALOX12):c.1699A>G (p.Thr567Ala)",
+      "position": 13965,
+      "genomic": 7010013,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 567,
+      "protein_change": "p.T567A",
+      "coding_change": "c.1699A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-08-02",
+      "last_updated": "2025-10-05",
+      "conditions": [
+        {
+          "accession": "RCV005856148.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-08-02"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3527561",
+      "accession": "VCV003527561.1",
+      "name": "NM_000697.3(ALOX12):c.1718C>T (p.Thr573Met)",
+      "position": 13984,
+      "genomic": 7010032,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 573,
+      "protein_change": "p.T573M",
+      "coding_change": "c.1718C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-10-03",
+      "last_updated": "2025-01-19",
+      "conditions": [
+        {
+          "accession": "RCV004926175.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-10-03"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3112498",
+      "accession": "VCV003112498.2",
+      "name": "NM_000697.3(ALOX12):c.1736G>C (p.Gly579Ala)",
+      "position": 14002,
+      "genomic": 7010050,
+      "ref": "G",
+      "alt": "C",
+      "genomic_ref": "G",
+      "genomic_alt": "C",
+      "residue": 579,
+      "protein_change": "p.G579A",
+      "coding_change": "c.1736G>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-11-20",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV004403409.2",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-11-20"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3527585",
+      "accession": "VCV003527585.1",
+      "name": "NM_000697.3(ALOX12):c.1750G>A (p.Val584Ile)",
+      "position": 14016,
+      "genomic": 7010064,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 584,
+      "protein_change": "p.V584I",
+      "coding_change": "c.1750G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-06-28",
+      "last_updated": "2025-01-19",
+      "conditions": [
+        {
+          "accession": "RCV004926189.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-06-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3527555",
+      "accession": "VCV003527555.1",
+      "name": "NM_000697.3(ALOX12):c.1754G>A (p.Arg585Gln)",
+      "position": 14020,
+      "genomic": 7010068,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 585,
+      "protein_change": "p.R585Q",
+      "coding_change": "c.1754G>A",
+      "consequence": "missense",
+      "classification": "Likely benign",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-11-26",
+      "last_updated": "2025-01-19",
+      "conditions": [
+        {
+          "accession": "RCV004926170.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Likely benign",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-11-26"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "2534154",
+      "accession": "VCV002534154.3",
+      "name": "NM_000697.3(ALOX12):c.1796G>A (p.Arg599His)",
+      "position": 14062,
+      "genomic": 7010110,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 599,
+      "protein_change": "p.R599H",
+      "coding_change": "c.1796G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-09-30",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV004310480.2",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-09-30"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3112506",
+      "accession": "VCV003112506.1",
+      "name": "NM_000697.3(ALOX12):c.1799G>A (p.Arg600His)",
+      "position": 14065,
+      "genomic": 7010113,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 600,
+      "protein_change": "p.R600H",
+      "coding_change": "c.1799G>A",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2023-11-28",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004403417.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2023-11-28"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3112509",
+      "accession": "VCV003112509.1",
+      "name": "NM_000697.3(ALOX12):c.1816C>G (p.Pro606Ala)",
+      "position": 14199,
+      "genomic": 7010247,
+      "ref": "C",
+      "alt": "G",
+      "genomic_ref": "C",
+      "genomic_alt": "G",
+      "residue": 606,
+      "protein_change": "p.P606A",
+      "coding_change": "c.1816C>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-02-17",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004403420.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-02-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4042946",
+      "accession": "VCV004042946.1",
+      "name": "NM_000697.3(ALOX12):c.1832A>G (p.Lys611Arg)",
+      "position": 14215,
+      "genomic": 7010263,
+      "ref": "A",
+      "alt": "G",
+      "genomic_ref": "A",
+      "genomic_alt": "G",
+      "residue": 611,
+      "protein_change": "p.K611R",
+      "coding_change": "c.1832A>G",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-04-11",
+      "last_updated": "2025-07-19",
+      "conditions": [
+        {
+          "accession": "RCV005584426.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-04-11"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "3112514",
+      "accession": "VCV003112514.1",
+      "name": "NM_000697.3(ALOX12):c.1853C>T (p.Pro618Leu)",
+      "position": 14236,
+      "genomic": 7010284,
+      "ref": "C",
+      "alt": "T",
+      "genomic_ref": "C",
+      "genomic_alt": "T",
+      "residue": 618,
+      "protein_change": "p.P618L",
+      "coding_change": "c.1853C>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2024-01-17",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004403425.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2024-01-17"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "4640039",
+      "accession": "VCV004640039.1",
+      "name": "NM_000697.3(ALOX12):c.1874A>T (p.Asn625Ile)",
+      "position": 14257,
+      "genomic": 7010305,
+      "ref": "A",
+      "alt": "T",
+      "genomic_ref": "A",
+      "genomic_alt": "T",
+      "residue": 625,
+      "protein_change": "p.N625I",
+      "coding_change": "c.1874A>T",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2025-10-18",
+      "last_updated": "2026-01-11",
+      "conditions": [
+        {
+          "accession": "RCV006389563.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2025-10-18"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    },
+    {
+      "variation_id": "1276383",
+      "accession": "VCV001276383.2",
+      "name": "NM_000697.3(ALOX12):c.1902G>A (p.Leu634=)",
+      "position": 14285,
+      "genomic": 7010333,
+      "ref": "G",
+      "alt": "A",
+      "genomic_ref": "G",
+      "genomic_alt": "A",
+      "residue": 634,
+      "protein_change": "p.L634=",
+      "coding_change": "c.1902G>A",
+      "consequence": "synonymous",
+      "classification": "Benign",
+      "review_status": "criteria provided, multiple submitters, no conflicts",
+      "last_evaluated": "2021-06-09",
+      "last_updated": "2025-05-17",
+      "conditions": [
+        {
+          "accession": "RCV001687575.2",
+          "names": [
+            "not provided"
+          ],
+          "classification": "Benign",
+          "review_status": "criteria provided, multiple submitters, no conflicts",
+          "last_evaluated": "2021-06-09"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing",
+        "not provided"
+      ]
+    },
+    {
+      "variation_id": "2398481",
+      "accession": "VCV002398481.2",
+      "name": "NM_000697.3(ALOX12):c.1988T>C (p.Ile663Thr)",
+      "position": 14371,
+      "genomic": 7010419,
+      "ref": "T",
+      "alt": "C",
+      "genomic_ref": "T",
+      "genomic_alt": "C",
+      "residue": 663,
+      "protein_change": "p.I663T",
+      "coding_change": "c.1988T>C",
+      "consequence": "missense",
+      "classification": "Uncertain significance",
+      "review_status": "criteria provided, single submitter",
+      "last_evaluated": "2022-08-08",
+      "last_updated": "2025-05-19",
+      "conditions": [
+        {
+          "accession": "RCV004229189.1",
+          "names": [
+            "not specified"
+          ],
+          "classification": "Uncertain significance",
+          "review_status": "criteria provided, single submitter",
+          "last_evaluated": "2022-08-08"
+        }
+      ],
+      "collection_methods": [
+        "clinical testing"
+      ]
+    }
+  ]
+}

@@ -143,10 +143,16 @@ void main() {
       expect(
         <String>[for (final ProteinTarget t in _drawn()) t.slug]..sort(),
         <String>[
+          // The parathyroid gland's own cell, the Atlas naming none of its
+          // own for it, drawn as the endocrine cell the gland is made of.
+          'casr',
           // A cell of the adrenal cortex, drawn as the endocrine cell it is.
           'cyp17a1',
           // An excitatory neuron of the brain, drawn as the neuron it is.
           'dynamin1',
+          // An enteroendocrine cell of the colon, drawn as the endocrine cell
+          // it is.
+          'fabp6',
           'glucagon',
           'insulin',
           'oxytocin',

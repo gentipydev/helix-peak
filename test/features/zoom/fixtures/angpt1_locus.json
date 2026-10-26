@@ -1,0 +1,399 @@
+{
+  "slug": "angpt1",
+  "gene": "ANGPT1",
+  "uniprot": "Q15389",
+  "assembly": "GRCh38",
+  "genome": "hg38",
+  "chromosome": "8",
+  "sequence": "NC_000008.11",
+  "length": 145138636,
+  "span": {
+    "start": 107249482,
+    "end": 107497918,
+    "strand": -1
+  },
+  "transcript": {
+    "refseq": "NM_001146.5",
+    "ensembl": "ENST00000517746.6"
+  },
+  "band": {
+    "names": [
+      "q23.1"
+    ],
+    "start": 105100001,
+    "end": 109500000
+  },
+  "locus": "8q23.1",
+  "bands": [
+    {
+      "name": "p23.3",
+      "start": 1,
+      "end": 2300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p23.2",
+      "start": 2300001,
+      "end": 6300000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p23.1",
+      "start": 6300001,
+      "end": 12800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p22",
+      "start": 12800001,
+      "end": 19200000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "p21.3",
+      "start": 19200001,
+      "end": 23500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p21.2",
+      "start": 23500001,
+      "end": 27500000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "p21.1",
+      "start": 27500001,
+      "end": 29000000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p12",
+      "start": 29000001,
+      "end": 36700000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p11.23",
+      "start": 36700001,
+      "end": 38500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p11.22",
+      "start": 38500001,
+      "end": 39900000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "p11.21",
+      "start": 39900001,
+      "end": 43200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p11.1",
+      "start": 43200001,
+      "end": 45200000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.1",
+      "start": 45200001,
+      "end": 47200000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.21",
+      "start": 47200001,
+      "end": 51300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q11.22",
+      "start": 51300001,
+      "end": 51700000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q11.23",
+      "start": 51700001,
+      "end": 54600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q12.1",
+      "start": 54600001,
+      "end": 60600000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q12.2",
+      "start": 60600001,
+      "end": 61300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q12.3",
+      "start": 61300001,
+      "end": 65100000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q13.1",
+      "start": 65100001,
+      "end": 67100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q13.2",
+      "start": 67100001,
+      "end": 69600000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q13.3",
+      "start": 69600001,
+      "end": 72000000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.11",
+      "start": 72000001,
+      "end": 74600000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q21.12",
+      "start": 74600001,
+      "end": 74700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.13",
+      "start": 74700001,
+      "end": 83500000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q21.2",
+      "start": 83500001,
+      "end": 85900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.3",
+      "start": 85900001,
+      "end": 92300000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q22.1",
+      "start": 92300001,
+      "end": 97900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q22.2",
+      "start": 97900001,
+      "end": 100500000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q22.3",
+      "start": 100500001,
+      "end": 105100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q23.1",
+      "start": 105100001,
+      "end": 109500000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q23.2",
+      "start": 109500001,
+      "end": 111100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q23.3",
+      "start": 111100001,
+      "end": 116700000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q24.11",
+      "start": 116700001,
+      "end": 118300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q24.12",
+      "start": 118300001,
+      "end": 121500000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q24.13",
+      "start": 121500001,
+      "end": 126300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q24.21",
+      "start": 126300001,
+      "end": 130400000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q24.22",
+      "start": 130400001,
+      "end": 135400000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q24.23",
+      "start": 135400001,
+      "end": 138900000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q24.3",
+      "start": 138900001,
+      "end": 145138636,
+      "stain": "gneg"
+    }
+  ],
+  "expression": {
+    "ensembl_gene": "ENSG00000154188",
+    "tissue": {
+      "specificity": "Tissue enhanced",
+      "distribution": "Detected in many",
+      "specific": [
+        {
+          "name": "seminal vesicle",
+          "ntpm": 31.7
+        }
+      ]
+    },
+    "cell_type": {
+      "specificity": "Cell type enhanced",
+      "distribution": "Detected in many",
+      "specific": [
+        {
+          "name": "Megakaryocyte progenitors",
+          "ncpm": 636.7
+        },
+        {
+          "name": "Hematopoietic stem cells",
+          "ncpm": 576.9
+        },
+        {
+          "name": "Lactotrophs",
+          "ncpm": 512.2
+        },
+        {
+          "name": "Adipocytes",
+          "ncpm": 461.8
+        },
+        {
+          "name": "Myonuclei",
+          "ncpm": 375.5
+        },
+        {
+          "name": "Bergmann glia",
+          "ncpm": 326.9
+        },
+        {
+          "name": "Ependymal cells",
+          "ncpm": 262.4
+        },
+        {
+          "name": "Vascular smooth muscle cells",
+          "ncpm": 219.9
+        },
+        {
+          "name": "Megakaryocyte-Erythroid progenitors",
+          "ncpm": 212.6
+        },
+        {
+          "name": "Renal connecting tubule cells",
+          "ncpm": 192.8
+        },
+        {
+          "name": "Fibro-adipogenic progenitors",
+          "ncpm": 176.0
+        }
+      ]
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Adrenal gland",
+        "cell_type": "Fibroblasts"
+      },
+      {
+        "tissue": "Heart muscle",
+        "cell_type": "Smooth muscle cells"
+      },
+      {
+        "tissue": "Liver",
+        "cell_type": "Hepatic stellate cells"
+      },
+      {
+        "tissue": "Lung",
+        "cell_type": "Fibroblasts_1"
+      }
+    ],
+    "subcellular": {
+      "main": [],
+      "additional": []
+    },
+    "secretome": "Secreted to blood"
+  },
+  "path": {
+    "tissue": "seminal vesicle",
+    "tissue_from": "tissue",
+    "cell_type": null,
+    "cell_class": null,
+    "cell_from": null,
+    "lands_in": null
+  },
+  "sources": {
+    "cytoband": {
+      "table": "cytoBand",
+      "genome": "hg38",
+      "updated": "2022-10-28T15:06:46",
+      "rows": 1549,
+      "sha256": "50366db9b20881ddcd5679fefa6f8ee5eeb920ce61a7889e0ee0c52853b034c7",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=cytoBand"
+    },
+    "chrom_alias": {
+      "table": "chromAlias",
+      "genome": "hg38",
+      "updated": "2023-01-24T12:46:47",
+      "rows": 2129,
+      "sha256": "df04264a4bcb6dc6b5a6334b42d09270abc894ac2ebbd8ca68a51a12b7076f02",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=chromAlias"
+    },
+    "mane": {
+      "release": "v1.5"
+    },
+    "uniprot": {
+      "release": "2026_03",
+      "release_date": "2026-09-02",
+      "entry_version": 208
+    },
+    "hpa": {
+      "version": "25.1",
+      "release_date": "2026-05-25",
+      "ensembl": "109",
+      "licence": "CC BY 4.0",
+      "url": "https://www.proteinatlas.org/ENSG00000154188.json"
+    }
+  },
+  "retrieved": "2026-10-25",
+  "schema_version": 2,
+  "built_by": "pipeline/locus/bake_locus.py"
+}
