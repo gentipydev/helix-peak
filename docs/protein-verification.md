@@ -848,3 +848,431 @@ Checked, and how:
 - **The zoom** gained the eight in its own tables (the baked paths, the cell
   shapes, and the two cells drawn part by part: CYP17A1's adrenal cortex cell
   and dynamin-1's neuron) and needed no code change.
+
+## The fifth batch: sixteen organs, 2026-10-25
+
+Sixteen more curated proteins, one for each of the zoom's organs (`OrganKind`)
+that had no specimen and no curated protein to reach it. Those organs are the
+urinary bladder, the breast, the cervix, the epididymis, the gallbladder, the
+intestine, the lung, the ovary, the parathyroid gland, the prostate, the
+seminal vesicle, smooth muscle, the tongue, the endometrium (the uterus), the
+vagina and the blood vessel.
+
+They were picked by the locus bake's own path rule over the Atlas's bulk file
+and by policy 1's dry run (`scripts/dry_fold.py`). Each was kept inside both
+open page limits: every region at least 10 residues, at most two cell
+locations. They were then drafted, verified, worded and baked as the third ten
+were. The handoff that planned them is the backend's
+`HANDOFF-CURATED-SIXTEEN.md`, whose sections record each phase.
+
+Checked 2026-10-25, live: NCBI `efetch`, UniProt release 2026_03, RCSB (search
+of 2026-10-21) and PDBe.
+
+### Summary
+
+| organ | gene | record | gene span (× INS record) | exons | neighbours in the record | processing in the record | walk |
+|---|---|---|---:|---:|---|---|---|
+| Urinary bladder | S100P | NC_000004.12 slice | 3,293 (0.4×) | 2 | none | none | uncut |
+| Breast | LALBA | NC_000012.12 slice | 2,363 (0.3×) | 4 | none | signal, 1 chain (each twice) | cut |
+| Cervix | SLPI | NG_028137.1 | 2,326 (0.3×) | 4 | none | signal, 1 chain | cut |
+| Epididymis | NPC2 | NG_007117.1 | 13,366 (1.6×) | 5 | ISCA2, LTBP2, MIR4709, RAP1AP | signal, 1 chain | cut |
+| Gallbladder | FGF19 | NC_000011.10 slice | 5,785 (0.7×) | 3 | none | signal 1–22, 1 chain | cut |
+| Intestine | FABP6 | NG_029500.1 | 9,211 (1.1×) | 4 | none | none | uncut |
+| Lung | SFTPD | NG_042218.1 | 11,366 (1.4×) | 8 | none | signal 1–17 only | cut (the chain from the table) |
+| Ovary | PADI6 | NG_032943.2 | **29,504 (3.5×)** | 16 | none | none | shortened; uncut |
+| Parathyroid gland | CASR | NG_009058.2 | **107,962 (12.8×)** | 7 | none | signal, 1 chain | shortened; cut |
+| Prostate | ACP3 | NG_047032.1 | **41,435 (4.9×)** | 10 | none | signal, 1 chain | shortened; cut |
+| Seminal vesicle | ANGPT1 | NG_029405.1 | **248,437 (29.5×)** | 9 | none | signal, 1 chain | shortened; cut |
+| Smooth muscle | LOXL2 | NC_000008.11 slice | **107,224 (12.7×)** | 14 | LOXL2-AS1 | signal, 1 chain | shortened; cut |
+| Tongue | CKMT2 | NC_000005.10 slice | **33,077 (3.9×)** | 10 | CKMT2-AS1 | transit peptide, 1 chain (each three times) | shortened; cut |
+| Endometrium | PAEP | NC_000009.12 slice | 5,200 (0.6×) | 7 | none | signal, 1 chain, and isoform 2's chain | stops at the precursor |
+| Vagina | ALOX12 | NC_000017.11 slice | 14,706 (1.7×) | 14 | ALOX12-AS1 | none | uncut |
+| Blood vessel | GAS6 | NG_029703.1 | **43,528 (5.2×)** | 15 | GAS6-AS1, GAS6-DT | signal only | shortened; cut (the chain from the table) |
+
+Across all sixteen:
+
+- **The record's protein equals UniProt's**, residue for residue, so no row
+  declares `uniprot_variants`.
+- **Each RefSeqGene holds one coding sequence for its gene, at MANE's
+  version**, so the rows name it unversioned, as the twenty's do. The slices
+  are MANE's span, as the resolver reads it.
+- **Exact `/gene` matching held on every record**: the antisense genes and
+  NPC2's four neighbours are left out by name.
+- **Every fold passed the app's own check on its planned entry**, at the draft
+  and again at the bake (`structure/check_bundle.py`).
+- **One protein planned did not pass its bakes.** PTGES (mPGES-1), planned for
+  the seminal vesicle, fails AVI's biology check, and angiopoietin-1 took its
+  place (Flags).
+
+### Per gene
+
+#### S100P
+
+- **Record.** A slice: NC_000004.12:6,693,878–6,697,170, plus strand.
+  NM_005980.3 is MANE Select. UniProt P25815.
+- **Processing.** None: UniProt's chain is 1–95, the methionine kept.
+- **Assembly.** A homodimer. 1J55 holds one calcium-bound chain and the pair by
+  symmetry; one chain is drawn.
+
+#### LALBA · α-lactalbumin
+
+- **Record.** A slice: NC_000012.12:48,567,684–48,570,046, minus strand.
+  NM_002289.3 is MANE Select. UniProt P00709.
+- **Processing.** Signal peptide 1–19; α-lactalbumin 20–142.
+- **Duplicated annotation.** The slice names both pieces twice, once with
+  UniProt's `/id=`, which `tidy` cuts. The record keeps one of each, as it keeps
+  one of RLN2's two B chains.
+- **Assembly.** With β1,4-galactosyltransferase it is lactose synthase. 3B0O
+  holds two copies of it alone, each with calcium.
+
+#### SLPI · antileukoproteinase
+
+- **Record.** NG_028137.1. NM_003064.4 is MANE Select. UniProt P03973.
+- **Processing.** Signal peptide 1–25; the chain 26–132, two WAP domains.
+- **Structure.** 4DOQ is the second WAP domain alone bound to porcine trypsin:
+  the C-terminal half the entry was made of, 85–131, with its four bridges. The
+  table carries UniProt's eight.
+
+#### NPC2
+
+- **Record.** NG_007117.1. NM_006432.5 is MANE Select. UniProt P61916.
+- **Neighbours.** ISCA2, LTBP2, RAP1AP and MIR4709 share the record. Excluded
+  by exact match.
+- **Processing.** Signal peptide 1–19; the chain 20–151.
+- **Assembly.** 5KWY holds two copies of NPC2, each with cholesterol sulfate,
+  each bound to NPC1's middle lumenal domain. One NPC2 chain is drawn.
+
+#### FGF19
+
+- **Record.** A slice: NC_000011.10:69,698,238–69,704,022, minus strand.
+  NM_005117.3 is MANE Select. UniProt O95750.
+- **Processing.** The record's signal peptide is 1–22 and its chain 23–216;
+  UniProt's Signal ends at 24.
+- **Consequence.** In every curated row the table's signal peptide is the
+  record's, which is what the walk draws. So the table says 1–22 (R3.2's source
+  order), and the fold's count is the record's chain, 194.
+- **Bridges.** UniProt annotates two, 58–70 and 102–120. 2P23 forms 102–120,
+  but 58–70's sulfurs are 2.69 Å apart in it. The fold draws one; its words name
+  the other.
+
+#### FABP6 · gastrotropin
+
+- **Record.** NG_029500.1. NM_001445.3 is MANE Select. UniProt P51161.
+- **Processing.** None in the record. UniProt removes the methionine (Ala2 is
+  acetylated) and names the chain 2–128. That is S100B's case: uncut, the
+  methionine its own region (R3.7).
+- **Structure.** 5L8O holds three chains; the one drawn is the one with
+  cholate.
+
+#### SFTPD · surfactant protein D
+
+- **Record.** NG_042218.1. NM_003019.5 is MANE Select. UniProt P35247.
+- **Processing.** The record names a signal peptide, 1–17, and no chain.
+  UniProt's Signal is 1–20 and its chain 21–375.
+- **Consequence.** The table follows the record and names the chain the signal
+  peptide leaves, 18–375. The walk then cuts it (R3.9), as it cuts
+  erythropoietin's.
+- **Structure.** 1PWB is a trimeric fragment of the neck and the heads, solved
+  with maltose. The fold draws one chain's C-type lectin domain and the ten
+  residues before it, 250–375.
+- **Display.** `SP-D`. "Surfactant protein D" would add it to what the frozen
+  `protein_catalog_test` pins for the query "protein".
+
+#### PADI6
+
+- **Record.** NG_032943.2. NM_207421.4 is MANE Select. UniProt Q6TGC4.
+- **Span.** **3.5× insulin's record, over the threshold.** Introns shortened.
+- **Processing.** None.
+- **Structure.** 25YL, a new entry not yet published: one chain of the dimer.
+
+#### CASR · calcium-sensing receptor
+
+- **Record.** NG_009058.2. NM_000388.4 is MANE Select. UniProt P41180, 1,078
+  residues.
+- **Span.** **12.8×, over the threshold**: seven exons over 107,962 bases.
+  Introns shortened.
+- **Processing.** Signal peptide 1–19; the receptor 20–1078.
+- **Structure.** 7M3G, the active homodimer with calcium, L-Trp, evocalcet and
+  etelcalcetide. Its chain B, ranked first, narrowly fails the app's check: a
+  ring 1.518 from its own stretch of chain, where 1.5 is allowed (PAPP-A's chain
+  D case). Chain A passes and places 821 residues to B's 804.
+- **Bridges.** The table holds UniProt's eight; its Cys129 and Cys131 are bonds
+  to the other chain, not pairs. It also holds 677–765, which 7M3G forms and
+  UniProt does not annotate, as LGI1's five were added. In chain A, 437–449 is
+  open (3.59 Å), though chain B forms it. The row lists nine; the fold draws
+  eight and its words name the ninth.
+
+#### ACP3 · prostatic acid phosphatase
+
+- **Record.** NG_047032.1. NM_001099.5 is MANE Select, the secreted form, 386
+  residues. UniProt P15309.
+- **Span.** **4.9×, over the threshold.** Introns shortened.
+- **Processing.** Signal peptide 1–32; the chain 33–386, which the record names
+  "prostatic acid phosphatase isoform PAP". UniProt's PAPf39, 248–286, is a
+  fragment cut back out of that chain (R3.4), and is not in the record.
+- **Structure.** 8XJ4 is the enzyme purified from human semen, a homodimer.
+
+#### ANGPT1 · angiopoietin-1
+
+- **In place of PTGES.** mPGES-1 (NC_000009.12 slice, O14684) was verified and
+  baked first. Its AVI track fails the bake's biology check: its exons' median
+  score is 5.1 and its intron interiors' 5.3, though every one of its 14,694
+  bases agrees with GRCh38, so its map is right. Without AVI there is no
+  ClinVar either.
+- **Choosing the replacement.** The handoff had no alternate for the seminal
+  vesicle, so the Atlas scan's other candidates there were tried. ANGPT1, CHEK1
+  and TES each have an entry that policy 1 passes, and AVI's gates pass all
+  three. Angiopoietin-1 is the user's choice of 2026-10-25.
+- **Record.** NG_029405.1. NM_001146.5 is MANE Select. UniProt Q15389.
+- **Span.** **29.5×, over the threshold**: nine exons over 248,437 bases, its
+  first intron 150,164 of them. Introns shortened, to the catalog's strongest
+  scale after dystrophin's.
+- **Processing.** Signal peptide 1–15; angiopoietin-1 16–498.
+- **Structure.** 9IVT, its receptor-binding domain alone (283–498), the
+  fibrinogen-like domain that binds TIE2. It forms UniProt's two bridges and
+  435–437, which UniProt does not annotate; the row lists all three.
+
+#### LOXL2
+
+- **Record.** A slice: NC_000008.11:23,296,897–23,404,120, minus strand.
+  NM_002318.3 is MANE Select. UniProt Q9Y4K0.
+- **Neighbours.** LOXL2-AS1. Excluded by exact match.
+- **Span.** **12.7×, over the threshold.** Introns shortened.
+- **Processing.** Signal peptide 1–25; the chain 26–774.
+- **Structure.** 5ZE3 is a crystal of the precursor. The fold draws the third
+  and fourth SRCR domains, 322–554. The entry has Gln at 455, where the record
+  has the Asn a sugar is joined to.
+- **Bridges.** UniProt's seventeen. Of the six in the span drawn, 5ZE3 names
+  five. 351–414's sulfurs are 1.76 Å apart in its coordinates, but the entry
+  records no bond there, so the fold draws five and its words name the sixth.
+
+#### CKMT2 · sarcomeric mitochondrial creatine kinase
+
+- **Record.** A slice: NC_000005.10:81,233,322–81,266,398, plus strand.
+  NM_001099735.2 is MANE Select. UniProt P17540.
+- **Neighbours.** CKMT2-AS1. Excluded by exact match.
+- **Span.** **3.9×, over the threshold.** Introns shortened.
+- **Processing.** A transit peptide, 1–39, that takes it into mitochondria, and
+  the chain 40–419. The slice names each three times; the record keeps one
+  chain. It is the first curated leader that is neither a signal peptide nor a
+  methionine.
+- **Structure.** 4Z9M holds eight chains, each with ADP; one is drawn.
+
+#### PAEP · glycodelin
+
+- **Record.** A slice: NC_000009.12:135,561,756–135,566,955, plus strand.
+  NM_002571.4 is MANE Select. UniProt P09466.
+- **Processing.** Signal peptide 1–18; glycodelin 19–180; and isoform 2's
+  chain, which the slice places inside this transcript's exons, over this
+  one's.
+- **Consequence.** One page of disjoint chains cannot draw two chains over one
+  stretch. So `mature_peptides=False` and the walk stops at the precursor
+  (R3.4), as uromodulin's does. What the signal peptide leaves is named
+  "glycodelin" in the table (R3.3) and in the catalog.
+- **Structure.** 4R0B is a dimer. The entry has Glu at 46, where the record has
+  the Asn a glycan is joined to.
+
+#### ALOX12 · platelet-type 12-lipoxygenase
+
+- **Record.** A slice: NC_000017.11:6,996,049–7,010,754, plus strand.
+  NM_000697.3 is MANE Select. UniProt P18054.
+- **Neighbours.** ALOX12-AS1. Excluded by exact match.
+- **Processing.** None.
+- **Structure.** 8GHE is a tetramer, each chain with its iron; the chain drawn
+  is the one holding oleoyl-CoA. The entry has Ser at 322, where the record has
+  Asn.
+
+#### GAS6
+
+- **Record.** NG_029703.1. NM_000820.4 is MANE Select. UniProt Q14393.
+- **Neighbours.** GAS6-AS1 and GAS6-DT. Excluded by exact match.
+- **Span.** **5.2×, over the threshold.** Introns shortened.
+- **Processing.** The record names the signal peptide, 1–30, and no chain.
+- **Consequence.** The table names the chain it leaves, 31–678 (UniProt's),
+  which the walk cuts (R3.9).
+- **Structure.** 5VXZ holds its two laminin G-like domains bound to AXL: 288–675,
+  369 placed. The table carries UniProt's sixteen bridges; the fold draws the
+  two in that span.
+
+### Structures
+
+| protein | entry · chain | method | residues drawn | deviations from the record | why this one |
+|---|---|---|---|---|---|
+| S100P | 1J55 · A | X-ray 2.0 Å | 1–45, 52–94 | none | 2MJW, its runner-up, is NMR, with no resolution |
+| LALBA | 3B0O · A | X-ray 1.61 Å | 21–139, 4 bridges | none | finer than 3B0I (1.8 Å) |
+| SLPI | 4DOQ · B | X-ray 2.0 Å | 85–131 (WAP 2), 4 bridges | none | the only eligible |
+| NPC2 | 5KWY · C | X-ray 2.4 Å | 20–151, 3 bridges | none | the only eligible |
+| FGF19 | 2P23 · A | X-ray 1.8 Å | 40–175, 1 bridge | none | finer than its runner-up (2.6 Å) |
+| FABP6 | 5L8O · B | X-ray 2.39 Å | 3–127 | none | its runner-up is NMR |
+| SFTPD | 1PWB · A | X-ray 1.4 Å | 250–375, 2 bridges | none | finer than 1.6 Å |
+| PADI6 | 25YL · B | cryo-EM 2.8 Å | 10–694 | none | finer than 3.03 Å |
+| CASR | 7M3G · A | cryo-EM 2.5 Å | 20–887 (821 placed), 8 bridges | none | chain B, ranked first, narrowly fails the app's check |
+| ACP3 | 8XJ4 · A (author's B) | cryo-EM 3.2 Å | 33–377, 2 bridges | none | measured residue by residue; its runner-up is not |
+| ANGPT1 | 9IVT · A | X-ray 1.75 Å | 283–498 (the receptor-binding domain), 3 bridges | none | finer than 4EPU (2.10 Å) |
+| LOXL2 | 5ZE3 · A | X-ray 2.4 Å | 322–554 (SRCR 3–4), 5 bridges | Gln at 455 | the only eligible |
+| CKMT2 | 4Z9M · E | X-ray 2.1 Å | 47–415 | none | the only eligible |
+| PAEP | 4R0B · A | X-ray 2.45 Å | 26–178, 2 bridges | Glu at 46 | the only eligible |
+| ALOX12 | 8GHE · D (author's A) | cryo-EM 2.0 Å | 2–663 | Ser at 322 | finer than 2.2 Å |
+| GAS6 | 5VXZ · B | X-ray 2.3 Å | 288–675 (369 placed), 2 bridges | none | the only eligible |
+
+### Flags
+
+1. **Sixteen organs, each reached for the first time.** Fourteen are drawn as
+   the body figure's outline grown to size, with its plain surface, until each
+   has a specimen.
+   - **The vessel and the parathyroid.** These have drawings of their own, and
+     neither had an outline: the place their tissue is sampled lay "outside"
+     an empty path (`zoom_anatomy_test`), and the arrival's light had nothing
+     to sweep. Each now has one: the gland's oval and the trunk's wall. No
+     organ any curated protein reached before is touched.
+2. **Five land in no cell.** SLPI (cervix), CASR (parathyroid gland), ANGPT1
+   (seminal vesicle), ALOX12 (vagina) and GAS6 (blood vessel): the zoom draws
+   each tissue's own cells, as for prion and TNF. CASR's parathyroid and
+   FABP6's colon enteroendocrine cell are drawn part by part, as endocrine
+   cells.
+3. **FGF19's bridges.** The handoff took 102–120 for the entry's own and 58–70
+   for UniProt's only, but UniProt annotates both. The row keeps both and the
+   facts say two. The fold draws 102–120, and its words say why it does not
+   draw 58–70.
+4. **LOXL2's bridges.** 351–414 is placed, its sulfurs 1.76 Å apart, but 5ZE3
+   records no bond there, and the bake draws the entry's own records. The row
+   keeps UniProt's seventeen; the words name the one not drawn.
+5. **Residues the entries differ on**, each within the fidelity gate:
+   - 5ZE3's Gln455 and 4R0B's Glu46 stand where the record has an Asn that
+     UniProt marks as glycosylated.
+   - 8GHE's Ser322 stands where the record has Asn.
+   - 5TL9's Cys59, mPGES-1's, was oxidised (CSO); that protein was not kept.
+6. **Leaders.**
+   - **CKMT2's transit peptide** is drawn on the gene page as "the N-terminal
+     extension" (R3.6), the record builder reading no `transit_peptide`. Its
+     protein page is one block, "creatine kinase S-type, mitochondrial
+     precursor", and its mature page is the chain, 380 residues. The residue
+     panel names residues 1–39 "Transit peptide (mitochondrion)", from the
+     table. Naming a transit peptide on the walk is open, beside R3.2's
+     UniProt fallback.
+   - **FABP6's methionine** is a region of its own (R3.7), as SOD1's and
+     S100B's are.
+7. **Five folds draw a domain**: SLPI's second WAP domain, SP-D's C-type lectin
+   domain, angiopoietin-1's receptor-binding domain, LOXL2's SRCR 3–4 and
+   GAS6's two laminin G-like domains. Each fold sentence says what is not
+   drawn.
+8. **Introns shortened**: PADI6, CASR, ACP3, ANGPT1, LOXL2, CKMT2 and GAS6, by
+   their records. Sixteen genes are now shortened.
+9. **Tissue enhanced, not enriched**, for LOXL2 and ALOX12, and for PTGES. The
+   locus bake reads the organ from the Atlas's tissue reading either way.
+10. **ESM-2's longest** is CASR, 1,078 residues, scored in windows in 13 minutes.
+    Every alignment passed, from 76.8% (PADI6) to 94.4% (NPC2).
+11. **Two records end a leader where UniProt does not**: FGF19 at 22, not 24,
+    and SFTPD at 17, not 20. Both tables follow their records; in every one of
+    the 38 rows the table's signal peptide already was the record's.
+12. **Glycodelin stops at the precursor**: its slice lays isoform 2's chain over
+    this one's.
+13. **CASR's chain** is 7M3G's A, not the B the dry run named, because B
+    narrowly fails the app's check. A forms 677–765, which UniProt does not
+    annotate, and leaves 437–449 open. The row adds the first, as it does
+    LGI1's five, and keeps the second.
+14. **The rule the rows follow for bridges** is UniProt's pairs, with any the
+    fold draws that UniProt does not annotate: CASR's 677–765 and
+    angiopoietin-1's 435–437. Thyroglobulin's and PAPP-A's rows keep UniProt's
+    alone, though their entries pair a few cysteines otherwise. Their tracks
+    are frozen, and they stay so.
+15. **A correction to the fourth batch's Flag 4.** LGI1's row lists 9KZT's five
+    bridges (`targets.py`), so its facts say five and its fold draws five. The
+    flag's "the row lists none" was wrong.
+16. **Displays and summaries keep to what the search tests pin.** SFTPD is
+    displayed `SP-D`, and no summary says "protein", "hormone", "ins",
+    "lysozyme" or "kinase".
+17. **Chromosomes 13 and 14 met the zoom for the first time** (GAS6, NPC2).
+    - **The problem.** Their short arms are 15–16% of the chromosome; 21's is
+      26%. That is too short for the centromere's waist and the rounded end,
+      whose sizes were fixed. The stalk at p12 was drawn at 0.75 of the arm's
+      width, where 0.9 is asked (`chromosome_scene_test`), and the cleft was not
+      yet open at the arm's top (`chromosome_look_test`).
+    - **The fix.** On a short arm under 3.2 half-widths, the waist and that end's
+      rounding are now drawn down in proportion. Of the chromosomes the
+      curated proteins lie on, only 13's and 14's arms are that short; every
+      chromosome of the thirty-eight is drawn exactly as before.
+18. **A territory over the nucleolus** (LOXL2).
+    - **The problem.** In a smooth muscle cell's flat nucleus, chromosome 8's
+      territory lay over the nucleolus, and the gene's glow hid it
+      (`nucleolus_test`).
+    - **The fix.** A followed territory nearer the nucleolus than half their
+      radii together is turned a quarter of the way round, away from it. No
+      other protein's territory comes that close, and none of their layouts
+      changes.
+
+### After integration
+
+Baked 2026-10-25 by `pipeline/bake_curated.py`, one protein at a time and each
+step in its own environment, in 52 minutes for the sixteen, then
+angiopoietin-1's own bake. The checks ran over all fifty-four rows:
+`check_assets.py`, `check_folding.py` and `check_locus.py`. Every model is the
+`.glb` the draft's bake made from the same working copy, and passed the app's
+check of its fold again (`structure/check_bundle.py`). Every locus landed in
+the organ and cell planned.
+
+| protein | pages | protein page | mature page |
+|---|---|---|---|
+| S100P | gene, mRNA, protein, fold | one block, 95 | — |
+| α-lactalbumin | gene, mRNA, protein, mature, fold | signal peptide 1–19 · Alpha-lactalbumin 20–142 | the same chain (123) |
+| SLPI | gene, mRNA, protein, mature, fold | signal peptide 1–25 · Antileukoproteinase 26–132 | the same chain (107) |
+| NPC2 | gene, mRNA, protein, mature, fold | signal peptide 1–19 · NPC intracellular cholesterol transporter 2 20–151 | the same chain (132) |
+| FGF19 | gene, mRNA, protein, mature, fold | signal peptide 1–22 · fibroblast growth factor 19 23–216 | the same chain (194) |
+| FABP6 | gene, mRNA, protein, fold | one block, 128 | — |
+| SP-D | gene, mRNA, protein, mature, fold | signal peptide 1–17 · Pulmonary surfactant-associated protein D 18–375 | the same chain (358) |
+| PADI6 | gene (shortened), mRNA, protein, fold | one block, 694 | — |
+| CaSR | gene (shortened), mRNA, protein, mature, fold | signal peptide 1–19 · Extracellular calcium-sensing receptor 20–1,078 | the same chain (1,059) |
+| prostatic acid phosphatase | gene (shortened), mRNA, protein, mature, fold | signal peptide 1–32 · prostatic acid phosphatase isoform PAP 33–386 | the same chain (354) |
+| angiopoietin-1 | gene (shortened), mRNA, protein, mature, fold | signal peptide 1–15 · Angiopoietin-1 16–498 | the same chain (483) |
+| LOXL2 | gene (shortened), mRNA, protein, mature, fold | signal peptide 1–25 · lysyl oxidase homolog 2 26–774 | the same chain (749) |
+| CKMT2 | gene (shortened), mRNA, protein, mature, fold | one block, 419 (its N-terminal extension, 1–39, on the gene page) | creatine kinase S-type, mitochondrial (380) |
+| glycodelin | gene, mRNA, protein, fold | signal peptide 1–18 · glycodelin 19–180 | — |
+| ALOX12 | gene, mRNA, protein, fold | one block, 663 | — |
+| GAS6 | gene (shortened), mRNA, protein, mature, fold | signal peptide 1–30 · Growth arrest-specific protein 6 31–678 | the same chain (648) |
+
+The seven shortened genes' pages give the share of the span their introns
+take, drawn at the scale shown:
+
+| gene | introns' share of the span | scale |
+|---|---:|---:|
+| PADI6 | 91.9% | 1:1.3 |
+| CASR | 90.7% | 1:7 |
+| ACP3 | 92.3% | 1:1.8 |
+| ANGPT1 | 98.3% | 1:12.4 |
+| LOXL2 | 96.5% | 1:5.1 |
+| CKMT2 | 95.5% | 1:1.4 |
+| GAS6 | 94.2% | 1:1.9 |
+
+Checked, and how:
+
+- **Live.** Seeded first, then every kind uploaded, each after a dry run (a
+  track row names its protein's).
+  - The seed wrote 16 proteins, 92 aliases and 96 track rows.
+  - Uploaded: 16 objects of each kind, and 32 for the structures. Each model
+    and scene is, by its digest, the one the draft's app check passed.
+  - `seed_catalog.py --check`: 54 rows, 0 differences.
+  - `check_assets.py --against` the service: 54 rows agree.
+  - `/catalog` is 54 rows, orders 0 to 53 complete.
+  - `/proteins/resolve/<GENE>` reads `ready` at its slug for all sixteen.
+  - `fetch_tracks.py --check`: 378 files as stored, 0 differ.
+  - `live_backend_check.dart` reads every track of every row through the
+    production client.
+- **The app.**
+  - The sixteen's fixtures were written from the bakes before anything was
+    live and compared with storage's afterwards (`sync_fixtures.py --check`:
+    113 files, 0 differ).
+  - `flutter analyze` clean.
+  - `flutter test`: 2,472 passed. The one failure is a git-excluded screenshot
+    tool of an earlier session, `test/features/zoom/_scratch_shots_test.dart`,
+    which loads only with `SHOTS` set.
+- **No walk test changed.** The guard prints nothing against the batch's start
+  commit; `tool/fixtures_added_only.py` exits 0 (16 proteins added, 80 files,
+  nothing else); no golden PNG moved. The sixteen add 75 catalog golden pages,
+  owed to the x86 host.
+- **The zoom** gained the sixteen in its own tables: the baked paths, the cell
+  shapes, and CaSR's and FABP6's endocrine cells drawn part by part. It also
+  gained three changes to its code, each acting only where its case occurs
+  (Flags 1, 17 and 18). Every chromatid width and cleft along each of the
+  thirty-eight's chromosomes, and every territory and nucleolus in their
+  nuclei, is the same to the float before and after (a dump compared both
+  ways).

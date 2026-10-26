@@ -536,12 +536,13 @@ demand that neither the PDB nor AlphaFold DB has a model of says so there.
 - ClinVar (§9): clinical words appear only inside `ClinVarSourced`, hue belongs
   to ClinVar alone, and absence is never called benign.
 
-## The compressed-intron genes: DMD, APP, CFTR, PAPPA, TG, B3GAT1, DMC1, DNM1, LGI1
+## The compressed-intron genes: DMD, APP, CFTR, PAPPA, TG, B3GAT1, DMC1, DNM1, LGI1, PADI6, CASR, ACP3, ANGPT1, LOXL2, CKMT2, GAS6
 
-These nine genes exceed the gene page's 24,000-base budget, so their introns
+These sixteen genes exceed the gene page's 24,000-base budget, so their introns
 arrive shortened and their exons whole (R2.4). PAPPA and TG joined the list
-with the third ten (2026-10-17), and B3GAT1, DMC1, DNM1 and LGI1 with the
-fourth batch (2026-10-18); a curated protein added later may join it too,
+with the third ten (2026-10-17), B3GAT1, DMC1, DNM1 and LGI1 with the
+fourth batch (2026-10-18), and PADI6, CASR, ACP3, ANGPT1, LOXL2, CKMT2 and
+GAS6 with the fifth (2026-10-25); a curated protein added later may join it too,
 by its record and not by a list: `GeneRecord.isIntronCompressed` says which. `GeneRecord.isIntronCompressed`
 is true, and `realSpanBp` and `realIntronBp` hold the real lengths. A shortened
 intron keeps its own first and last bases and drops its middle. The transcript
