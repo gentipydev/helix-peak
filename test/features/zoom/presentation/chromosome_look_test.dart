@@ -7,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/core/theme/chromosome_colors.dart';
-import 'package:helixpeek/core/theme/kaleido.dart';
 import 'package:helixpeek/core/theme/nucleotide_colors.dart';
 import 'package:helixpeek/features/zoom/domain/locus_track.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_camera.dart';
@@ -65,8 +64,9 @@ ChromosomeForm _form(ProteinTarget t) => ChromosomeForm(
 (int, int, int) _bytes(int colour) =>
     (colour >> 16 & 255, colour >> 8 & 255, colour & 255);
 
-/// [colour]'s chroma in CIELAB, under D65.
-double _chroma(Color colour) {
+/// [colour] in CIELAB's polar form, under D65: its lightness, its chroma
+/// and its hue in degrees.
+({double lightness, double chroma, double hue}) _lch(Color colour) {
   double linear(double c) =>
       c <= 0.04045 ? c / 12.92 : math.pow((c + 0.055) / 1.055, 2.4).toDouble();
   double f(double t) =>
@@ -79,7 +79,20 @@ double _chroma(Color colour) {
   final double fz = f((0.0193 * r + 0.1192 * g + 0.9505 * b) / 1.08883);
   final double a = 500 * (fx - fy);
   final double bb = 200 * (fy - fz);
-  return math.sqrt(a * a + bb * bb);
+  return (
+    lightness: 116 * fy - 16,
+    chroma: math.sqrt(a * a + bb * bb),
+    hue: (math.atan2(bb, a) * 180 / math.pi) % 360,
+  );
+}
+
+/// [colour]'s chroma in CIELAB, under D65.
+double _chroma(Color colour) => _lch(colour).chroma;
+
+/// The middle of [values], sorted in place.
+double _median(List<double> values) {
+  values.sort();
+  return values[values.length ~/ 2];
 }
 
 /// What [paint] draws on a canvas of [size], as RGBA bytes.
@@ -205,8 +218,8 @@ void main() {
   });
 
   testWidgets('the centromere’s chromatin lies only about it, the telomeres’ '
-      'only at the ends and the gene’s only round its place, and every '
-      'chromosome shows all four, mostly the arms’', (
+      'only at the ends and the gene’s band’s only in its band, all round '
+      'both sisters, and every chromosome shows all four, mostly the arms’', (
     WidgetTester tester,
   ) async {
     final ZoomInks inks = await _inks(tester);
@@ -218,13 +231,24 @@ void main() {
       // How far a knob is drawn from where its material was picked: the
       // bow of the band's edges.
       final double bow = look.bow * form.half;
-      final List<Offset> places = <Offset>[form.geneOn(-1), form.geneOn(1)];
+      final (double bandTop, double bandBottom) = form.marked;
       final Map<ChromatinMaterial, int> seen = <ChromatinMaterial, int>{};
       for (final double side in <double>[-1, 1]) {
-        for (final ({Offset at, double radius, ChromatinMaterial material}) g
+        int band = 0;
+        for (final ({
+              Offset at,
+              double along,
+              double radius,
+              ChromatinMaterial material,
+            })
+            g
             in art.globulesOf(side)) {
           seen.update(g.material, (int n) => n + 1, ifAbsent: () => 1);
           final String where = '${t.slug}, ${g.material.name} at ${g.at}';
+          // Where the band is whole, no jitter takes a globule out of it.
+          if (form.geneAt(g.along) - globules.pickJitter > globules.geneAt) {
+            expect(g.material, ChromatinMaterial.gene, reason: where);
+          }
           switch (g.material) {
             case ChromatinMaterial.centromere:
               expect(
@@ -239,17 +263,21 @@ void main() {
                 reason: where,
               );
             case ChromatinMaterial.gene:
+              band++;
+              // In the marked band, or within its edges' softening of it.
               expect(
-                places
-                    .map((Offset place) => (g.at - place).distance)
-                    .reduce(math.min),
-                lessThan(globules.geneReach * form.half),
+                g.along,
+                inInclusiveRange(
+                  bandTop - look.feather * form.half,
+                  bandBottom + look.feather * form.half,
+                ),
                 reason: where,
               );
             case ChromatinMaterial.body:
               break;
           }
         }
+        expect(band, greaterThan(0), reason: '${t.slug}: side $side');
       }
       for (final ChromatinMaterial m in ChromatinMaterial.values) {
         expect(seen[m] ?? 0, greaterThan(0), reason: '${t.slug}: ${m.name}');
@@ -269,16 +297,20 @@ void main() {
       inks,
       look: ChromosomeLookSpec.zoom,
     );
-    bool keeps(ChromatinMaterial m, int r, int g, int b) => switch (m) {
-      // Blue: even its shadows.
-      ChromatinMaterial.body => b > r && b > g,
-      // Clay: red over both.
-      ChromatinMaterial.centromere => r > g && r > b,
-      // Honey: both over blue.
-      ChromatinMaterial.telomere => r > b && g > b,
-      // Teal: green and blue over red.
-      ChromatinMaterial.gene => g > r && b > r,
-    };
+    bool keeps(ChromatinMaterial m, int r, int g, int b, double sheen) =>
+        switch (m) {
+          // A warm stone, near neutral: never more than a little colour,
+          // and warm wherever no sheen of the bright ink lies on it.
+          ChromatinMaterial.body =>
+            _chroma(Color.fromARGB(255, r, g, b)) <= 8.5 &&
+                (sheen > 0 || r >= b),
+          // Clay: red over both.
+          ChromatinMaterial.centromere => r > g && r > b,
+          // Honey: both over blue.
+          ChromatinMaterial.telomere => r > b && g > b,
+          // Teal: green and blue over red.
+          ChromatinMaterial.gene => g > r && b > r,
+        };
     for (final ChromatinMaterial m in ChromatinMaterial.values) {
       for (int i = 0; i <= 26; i++) {
         final double light = i * 0.05;
@@ -298,7 +330,7 @@ void main() {
                   ),
                 );
                 expect(
-                  keeps(m, r, g, b),
+                  keeps(m, r, g, b, sheen),
                   isTrue,
                   reason:
                       '${m.name} at light $light, tone $tone, occlusion '
@@ -358,25 +390,32 @@ void main() {
     }
   });
 
-  testWidgets('the chromosome’s colours are the app’s own: its centromere’s '
-      'and its telomeres’ the home helix’s clay and honey through the Kaleido '
-      'filter, its gene’s shade, lit side and sheen the accent’s, and every '
-      'ramp climbs from its crevice to its specular', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('the chromosome’s colours are the app’s own: its arms the '
+      'organs’ lit stone warmed toward the home helix’s honey, its neck half '
+      'way to the helix’s clay and its caps over a third of the way to its '
+      'honey, its '
+      'gene’s band the organs’ home tone, shaded toward the accent’s deep and '
+      'lit toward the accent, and every ramp climbs from its crevice to its '
+      'specular', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
     final ChromosomeColors colours = ChromosomeColors.zoom;
+    // Where an organ's cell lives (`homeOf` in each organ's art).
+    final Color home = Color.alphaBlend(inks.glow(0.42), inks.lit(0.2));
+    expect(
+      colours.body.base,
+      Color.lerp(inks.lit(0.38), inks.bases.guanine, 0.12),
+    );
     expect(
       colours.centromere.base,
-      Kaleido.filter(NucleotideColors.helix.thymine),
+      Color.lerp(colours.body.base, NucleotideColors.helix.thymine, 0.5),
     );
     expect(
       colours.telomere.base,
-      Kaleido.filter(NucleotideColors.helix.guanine),
+      Color.lerp(colours.body.base, NucleotideColors.helix.guanine, 0.38),
     );
-    expect(colours.gene.shadow, inks.markDeep);
-    expect(colours.gene.highlight, inks.mark);
-    expect(colours.gene.specular, Color.lerp(inks.mark, inks.text, 0.6));
+    expect(colours.gene.base, home);
+    expect(colours.gene.shadow, Color.lerp(inks.markDeep, home, 0.45));
+    expect(colours.gene.highlight, Color.lerp(home, inks.mark, 0.4));
     expect(ChromosomeLookSpec.zoom.globules.colours, same(colours));
     for (final ChromatinRamp ramp in <ChromatinRamp>[
       colours.body,
@@ -394,24 +433,49 @@ void main() {
     }
   });
 
-  testWidgets('the chromosome is quiet beside its gene: every colour of its '
-      'chromatin is at most half as saturated as the mark, which is the '
-      'gene’s lit side', (WidgetTester tester) async {
+  testWidgets('the chromosome is as quiet as the organs beside its gene’s '
+      'band: its arms near neutral, its neck and caps clear of them, and '
+      'nothing on it more than half as saturated as the mark but the band '
+      'where it is lit, the band the most saturated of all', (
+    WidgetTester tester,
+  ) async {
     final ZoomInks inks = await _inks(tester);
     final ChromosomeColors colours = ChromosomeColors.zoom;
     final double mark = _chroma(inks.mark);
-    for (final (String name, ChromatinRamp ramp) in <(String, ChromatinRamp)>[
-      ('arms', colours.body),
-      ('centromere', colours.centromere),
-      ('telomeres', colours.telomere),
-      ('gene', colours.gene),
-    ]) {
+    final double band = _chroma(colours.gene.base);
+    for (final (String name, ChromatinRamp ramp, double most)
+        in <(String, ChromatinRamp, double)>[
+          ('arms', colours.body, 8),
+          ('centromere', colours.centromere, mark / 2),
+          ('telomeres', colours.telomere, mark / 2),
+          ('band', colours.gene, mark / 2),
+        ]) {
       for (final Color stop in ramp.stops) {
         if (stop == colours.gene.highlight) {
           continue;
         }
-        expect(_chroma(stop), lessThanOrEqualTo(mark / 2), reason: name);
+        expect(_chroma(stop), lessThanOrEqualTo(most), reason: name);
       }
+    }
+    for (final Color stop in <Color>[
+      ...colours.body.stops,
+      ...colours.centromere.stops,
+      ...colours.telomere.stops,
+    ]) {
+      expect(_chroma(stop), lessThan(band));
+    }
+    for (final Color stop in colours.body.stops) {
+      expect(_chroma(stop), lessThanOrEqualTo(band / 2.5));
+    }
+    // The neck and the caps stand clear of the arms in their own colour.
+    for (final ChromatinRamp ends in <ChromatinRamp>[
+      colours.centromere,
+      colours.telomere,
+    ]) {
+      expect(
+        _chroma(ends.base),
+        greaterThanOrEqualTo(3 * _chroma(colours.body.base)),
+      );
     }
   });
 
@@ -591,6 +655,92 @@ void main() {
         }
       }
       expect(outside, 0, reason: t.slug);
+    }
+  });
+
+  testWidgets('at rest the chromosome is as quiet as the organs but for its '
+      'gene’s band, which is in the mark all round both sisters', (
+    WidgetTester tester,
+  ) async {
+    final ZoomInks inks = await _inks(tester);
+    for (final ProteinTarget t in <ProteinTarget>[
+      TestCatalog.insulin,
+      TestCatalog.leptin,
+      TestCatalog.p53,
+      TestCatalog.bySlug('uromodulin')!,
+    ]) {
+      final ChromosomeForm form = _scene(t).form;
+      final ChromosomeArt art = ChromosomeArt(form, inks);
+      final Rect bounds = art.bounds;
+      final double k = 600 / bounds.height;
+      final Size size = Size(
+        (bounds.width * k).ceilToDouble(),
+        (bounds.height * k).ceilToDouble(),
+      );
+      final ZoomFrame frame = ZoomFrame(
+        view: ZoomView(
+          stop: ZoomStop.chromosome,
+          pixelsPerUnit: k,
+          centre: bounds.center,
+          progress: 0,
+          isChild: false,
+        ),
+        size: size,
+        opacity: 1,
+        inks: inks,
+        clock: 0,
+      );
+      final Uint8List pixels = await _raster(tester, size, (Canvas c) {
+        c.drawRect(Offset.zero & size, Paint()..color = inks.ground);
+        frame.enter(c);
+        art.paintRest(c, frame);
+      });
+      final ChromosomeLookSpec look = form.look;
+      final (double a, double b) = form.marked;
+      // How far from its row a globule of the band may be drawn: its edge's
+      // softening, the bow of the ring it lies on, and its own radius.
+      final double reach =
+          (look.feather + look.bow + look.lobe + look.lobeSpread) * form.half;
+      final double outsideTop = frame.toScreen(Offset(0, a - reach)).dy;
+      final double outsideBottom = frame.toScreen(Offset(0, b + reach)).dy;
+      final double insideTop = frame
+          .toScreen(Offset(0, a + look.feather * form.half))
+          .dy;
+      final double insideBottom = frame
+          .toScreen(Offset(0, b - look.feather * form.half))
+          .dy;
+      final List<double> quiet = <double>[];
+      final List<double> hues = <double>[];
+      int inside = 0;
+      for (int y = 0; y < size.height; y++) {
+        final bool out = y < outsideTop || y > outsideBottom;
+        final bool core = y >= insideTop && y <= insideBottom;
+        if (!out && !core) {
+          continue;
+        }
+        for (int x = 0; x < size.width; x++) {
+          final int i = (y * size.width.toInt() + x) * 4;
+          final ({double lightness, double chroma, double hue}) c = _lch(
+            Color.fromARGB(255, pixels[i], pixels[i + 1], pixels[i + 2]),
+          );
+          // The chromatin, not the ground or the shadow on it.
+          if (c.lightness < 14) {
+            continue;
+          }
+          if (out) {
+            quiet.add(c.chroma);
+          } else {
+            inside++;
+            if (c.chroma > 8) {
+              hues.add(c.hue);
+            }
+          }
+        }
+      }
+      expect(quiet.length, greaterThan(1000), reason: t.slug);
+      expect(_median(quiet), lessThanOrEqualTo(6), reason: t.slug);
+      expect(hues.length, greaterThan(inside * 0.6), reason: t.slug);
+      expect(_median(hues), inInclusiveRange(170, 190), reason: t.slug);
     }
   });
 

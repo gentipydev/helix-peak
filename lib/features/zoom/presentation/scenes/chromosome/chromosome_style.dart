@@ -7,16 +7,17 @@ import '../../../domain/locus_track.dart';
 /// in chromatid half-widths unless they say otherwise.
 ///
 /// The look is a scanning micrograph's form under the zoom's one lamp, the
-/// organs' (`SpecimenLamp.zoom`): two sisters of dense, overlapping globules
-/// of chromatin, each a sphere of one material lit with a highlight of its
-/// own and shadowing the next, a lumpy silhouette, deep crevices, a dark
-/// cleft down between the sisters and a blurred shadow under them; the bands
-/// faint changes of the arms' value, a neck of finer globules at the
-/// centromere, caps at the telomeres, and the globules round the gene in the
-/// mark ([ChromosomeGlobules], in [ChromosomeColors.zoom]). Where it starts
-/// from the numbers the user gave on 2026-10-23, and where it went from them
-/// as it was laid beside the picture of chromosome 16 they sent, is said by
-/// each.
+/// organs' (`SpecimenLamp.zoom`), taken as the organs take it: two sisters
+/// of dense, overlapping globules of chromatin, each a sphere of one
+/// material lit with a soft highlight of its own and shadowing the next, a
+/// lumpy silhouette, crevices, a cleft down between the sisters and a
+/// blurred shadow under them; the bands faint changes of the arms' value, a
+/// neck of finer globules at the centromere, caps at the telomeres, and the
+/// globules of the gene's band in the mark ([ChromosomeGlobules], in
+/// [ChromosomeColors.zoom]). Where it starts from the numbers the user gave
+/// on 2026-10-23, and where it went from them as it was laid beside the
+/// picture of chromosome 16 they sent, is said by each; its light was
+/// softened on 2026-10-26, when the user read its shade as artificial.
 @immutable
 final class ChromosomeLookSpec {
   const ChromosomeLookSpec({
@@ -36,8 +37,6 @@ final class ChromosomeLookSpec {
     required this.columns,
     required this.sheen,
     required this.occlusion,
-    required this.ambientScale,
-    required this.diffuseGain,
     required this.lobe,
     required this.lobeSpread,
     required this.lobeWaist,
@@ -57,6 +56,7 @@ final class ChromosomeLookSpec {
     required this.centromereReach,
     required this.telomereTint,
     required this.telomereReach,
+    required this.bandFloor,
     required this.ping,
     required this.pingShare,
     required this.boundsInflate,
@@ -110,11 +110,6 @@ final class ChromosomeLookSpec {
   /// How dark the side of a sister turned to the other is, where they touch.
   final double occlusion;
 
-  /// What the lamp's ambient light and the light it adds are scaled by for
-  /// the chromatin: the organs' lamp, harder, the lamp staying where it is.
-  final double ambientScale;
-  final double diffuseGain;
-
   // Its relief.
 
   /// Globules: their radius (a share of a half-width, plus up to
@@ -161,6 +156,11 @@ final class ChromosomeLookSpec {
 
   // The gene.
 
+  /// How tall the stretch of chromatin marked as the gene's band is at the
+  /// least, in half-widths: a band thinner than that is widened about its
+  /// middle, so a thin band still shows as one.
+  final double bandFloor;
+
   /// The ring that pings round the gene's place on each sister as the
   /// chromosome is reached: its radius, at most, and at most what share of
   /// the chromatid's half-width where it lies.
@@ -205,14 +205,12 @@ final class ChromosomeLookSpec {
     featherShare: 0.4,
     bow: 0.14,
     columns: const <double>[0, 0.38, 0.66, 0.86, 0.96, 1],
-    // A bright sheen on each globule's lit side.
-    sheen: 0.9,
+    // A moist sheen on each globule's lit side, half the 0.9 it had under a
+    // lamp made harder than the organs' (ambient 0.7, diffuse 1.25 of
+    // theirs), which read as artificial beside them.
+    sheen: 0.45,
     // The sisters meet only at the waist, where the neck runs across.
     occlusion: 0.15,
-    // The same lamp, harder: less of what every surface has, more of what
-    // the light adds.
-    ambientScale: 0.7,
-    diffuseGain: 1.25,
     // Globules packed all but touching, seven or eight across a chromatid as
     // in the user's picture, finer at the waist. The user's start was 0.21
     // and 0.20 at a lattice of 1.15: half again the picture's size, and
@@ -223,7 +221,8 @@ final class ChromosomeLookSpec {
     lobeLattice: 1.75,
     skirtInner: 0.95,
     skirtOuter: 1.45,
-    skirtAlpha: 0.95,
+    // Crevices in shade, not black: 0.95 left them so.
+    skirtAlpha: 0.6,
     // Few granules, large: small spheres among the globules.
     granule: 0.06,
     granuleSpread: 0.05,
@@ -241,6 +240,8 @@ final class ChromosomeLookSpec {
     // The user's start was 0.6, which left the caps one globule deep; the
     // picture's are about two thirds of a half-width.
     telomereReach: 1.7,
+    // Two rows of globules, about.
+    bandFloor: 0.8,
     ping: 0.5,
     pingShare: 0.8,
     // Room for globules standing out of the outline, and a soft shadow.
@@ -250,11 +251,11 @@ final class ChromosomeLookSpec {
 }
 
 /// How the chromatin is drawn: every knob a sphere of one material, the
-/// arms', the centromere's, the telomeres' or the gene's, lit as a sphere is,
-/// with a highlight of its own and a crevice that falls away from the light
-/// onto the globules beside it; drawn from the back of the tube to its
-/// front, so the front ones stand over the rim's, whose globules make its
-/// edge; over a narrower tube left in the shade of the crevices, a cleft
+/// arms', the centromere's, the telomeres' or the gene's band's, lit as a
+/// sphere is, with a highlight of its own and a crevice that falls away from
+/// the light onto the globules beside it; drawn from the back of the tube to
+/// its front, so the front ones stand over the rim's, whose globules make
+/// its edge; over a narrower tube left in the shade of the crevices, a cleft
 /// dark between the sisters, and a shadow blurred under them. Lengths are in
 /// chromatid half-widths unless they say otherwise.
 @immutable
@@ -262,18 +263,17 @@ final class ChromosomeGlobules {
   const ChromosomeGlobules({
     required this.colours,
     this.bodyWidth = 0.82,
-    this.bodyOcclusion = 0.85,
+    this.bodyOcclusion = 0.7,
     this.surface = 0.9,
     this.rim = 1.55,
     this.capShrink = 0.35,
     this.back = 0.75,
     this.backOcclusion = 0.3,
     this.cleftGap = 0.04,
-    this.cleft = 0.7,
+    this.cleft = 0.55,
     this.cleftWidth = 0.35,
     this.pickJitter = 0.3,
     this.pickAt = 0.5,
-    this.geneReach = 1.2,
     this.geneAt = 0.4,
     this.lift = 0.07,
     this.bandShade = 0.14,
@@ -287,12 +287,12 @@ final class ChromosomeGlobules {
     this.ring = 18,
     this.leastRing = 10,
     this.skirtShift = 0.15,
-    this.specular = 0.38,
+    this.specular = 0.16,
     this.specularShift = 0.36,
     this.specularRadius = 0.45,
     this.granuleRing = 8,
     this.shadowBlur = 0.35,
-    this.grain = 0.08,
+    this.grain = 0.05,
     this.grainTile = 0.8,
     this.clearOfLumps = 0.15,
   });
@@ -344,10 +344,9 @@ final class ChromosomeGlobules {
   final double pickJitter;
   final double pickAt;
 
-  /// A globule is the gene's where the gene's weight there, which falls
-  /// from 1 at the gene's place on its sister to 0 [geneReach] from it,
-  /// moved by the same jitter, passes [geneAt].
-  final double geneReach;
+  /// A globule is the gene's band's where the band's weight at its row
+  /// (`ChromosomeForm.geneAt`), moved by the same jitter, passes [geneAt]:
+  /// all round both sisters, so the band is a ring of the mark round each.
   final double geneAt;
 
   // How each is lit.

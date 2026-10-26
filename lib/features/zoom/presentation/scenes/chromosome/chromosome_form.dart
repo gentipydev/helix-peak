@@ -307,22 +307,60 @@ final class ChromosomeForm {
     return own;
   }
 
-  /// How much of the gene's band is at [y], from 0 to 1, its edges softened
-  /// as every band's are.
+  /// How much of the gene's band is marked at [y], from 0 to 1: the band
+  /// itself ([marked]), its edges softened as every band's are.
   double geneAt(double y) {
     double ramp(double reach, double f) =>
         f <= 0 ? (reach >= 0 ? 1 : 0) : ((reach + f) / (2 * f)).clamp(0.0, 1.0);
+    final (double a, double b) = marked;
+    return math.min(ramp(y - a, _markedSoft.$1), ramp(b - y, _markedSoft.$2));
+  }
+
+  /// The stretch marked as the gene's band, top to bottom: the band or
+  /// bands the gene lies in, or, where they are thinner than
+  /// [ChromosomeLookSpec.bandFloor] half-widths, that much about their
+  /// middle, kept within the chromosome.
+  late final (double, double) marked = () {
+    double a = yOf(track.bandStart);
+    double b = yOf(track.bandEnd + 1);
+    final double floor = look.bandFloor * half;
+    if (b - a < floor) {
+      final double middle = (a + b) / 2;
+      a = middle - floor / 2;
+      b = middle + floor / 2;
+      if (a < top) {
+        b += top - a;
+        a = top;
+      }
+      if (b > bottom) {
+        a -= b - bottom;
+        b = bottom;
+      }
+    }
+    return (math.max(top, a), math.min(bottom, b));
+  }();
+
+  /// How far the top and bottom edges of [marked] are softened to either
+  /// side: as the band's own edges are where they are its own, as a band as
+  /// thick would be where it is widened, and not at all at either end.
+  late final (double, double) _markedSoft = () {
+    final (double a, double b) = marked;
     final int first = _bandAt(yOf(track.bandStart));
     final int last = _bandAt(yOf(track.bandEnd));
-    final double softTop = _feathers[first];
-    final double softBottom = last + 1 < _feathers.length
-        ? _feathers[last + 1]
-        : 0;
-    return math.min(
-      ramp(y - yOf(track.bandStart), softTop),
-      ramp(yOf(track.bandEnd + 1) - y, softBottom),
+    final double widened = math.min(
+      look.feather * half,
+      look.featherShare * (b - a),
     );
-  }
+    double soft(double edge, double own, int i) => edge <= top || edge >= bottom
+        ? 0
+        : (edge - own).abs() < 1e-12 * length
+        ? (i < _feathers.length ? _feathers[i] : 0)
+        : widened;
+    return (
+      soft(a, yOf(track.bandStart), first),
+      soft(b, yOf(track.bandEnd + 1), last + 1),
+    );
+  }();
 
   // The centromere and the telomeres.
 

@@ -1,6 +1,6 @@
 # Zoom: from a body down to one gene's DNA
 
-![Insulin's nine stops on the app's ground: a glass figure with the pancreas glowing, the pancreas between its duodenum and spleen with its islets in the accent, an islet under the eyepiece, a beta cell drawn part by part, its nucleus with chromosome 11's territory in the accent and the other copy faintly, chromosome 11 as lit globules in a soft blue, its neck in clay and its ends in honey, the chromatin round the gene at its tip in the accent and its parts named at either edge, the band 11p15.5 under a docked map, the gene as chromatin, and the home screen's helix carrying the gene's first bases, each lettered](zoom.png)
+![Insulin's nine stops on the app's ground: a glass figure with the pancreas glowing, the pancreas between its duodenum and spleen with its islets in the accent, an islet under the eyepiece, a beta cell drawn part by part, its nucleus with chromosome 11's territory in the accent and the other copy faintly, chromosome 11 as lit globules of warm stone, its neck clay and its ends honey over the stone, its band 11p15.5 at its tip in the accent all round both sisters and its parts named at either edge, the band 11p15.5 under a docked map, the gene as chromatin, and the home screen's helix carrying the gene's first bases, each lettered](zoom.png)
 
 ## Experience
 
@@ -214,18 +214,20 @@ convention is, where it comes from, and what it decided:
   Every human chromosome ends in clusters of TTAGGG repeats, which FISH
   finds at the telomeres of all of them (Moyzis et al. 1988): a metaphase
   chromosome, two chromatids, has four. *Consequence:* the centromere's
-  neck is its own chromatin, in the home helix's clay, and each of the
-  four ends is capped in its honey (the user's asks, 2026-10-19 and
-  2026-10-23); the kinetochores are not drawn, the neck standing for the
-  centromere.
+  neck is its own chromatin, the home helix's clay half way over the
+  arms' stone, and each of the four ends is capped in its honey over a
+  third of the way over it (the user's asks, 2026-10-19, 2026-10-23 and
+  2026-10-26, when a fifth of the way read as too faint); the
+  kinetochores are not drawn, the neck standing for the centromere.
 - **A gene by FISH.** A probe hybridised to a metaphase chromosome shows as
   a spot on each sister chromatid, at the same height on both (Trask 1991;
   Baumgartner et al. 1991): it places a gene to within about a band, and is
-  about as big whatever the gene's length. *Consequence:* the gene is
-  marked where a probe would mark it, on each sister at its height: the
-  chromatin round it is in the accent, plain, with no spot glowing over it
-  (the user's ask, 2026-10-23, so it takes the mark the other stops draw
-  it in); nothing else on the chromosome is in the accent.
+  about as big whatever the gene's length. *Consequence:* what is marked
+  is what a probe can say, the gene's band: its chromatin, all round both
+  sisters, is in the organs' home tone, plain, with no spot glowing over
+  it (the user's asks, 2026-10-23 and 2026-10-26, so it takes the mark
+  the other stops draw the gene's place in); nothing else on the
+  chromosome is in the accent.
 - **Illustration.** The pictures of chromosomes that read as current share
   one desaturated material, one glowing accent where the function is, and
   soft, knobbly surfaces lit from the side, without outlines or cut-away
@@ -233,8 +235,8 @@ convention is, where it comes from, and what it decided:
   looping DNA", by Tobias Wüstefeld/Illustratoren.de). A zoom across scales
   reads best as one continuous travel, each level drawn in its own
   convention (Halladjian et al. 2020). *Consequence:* the chromosome's look,
-  one material lit as the zoom's organs are, and the hand-overs either side
-  of it.
+  one warm stone lit as the zoom's organs are, its band the one accent,
+  and the hand-overs either side of it.
 - **The gene's place.** Its span is that of its MANE Select transcript on
   GRCh38 (Morales et al. 2022), and its bands the UCSC Genome Browser's
   cytoBand table.
@@ -393,16 +395,18 @@ Sources:
   light from the upper left (`Sculpt`): a lit body from the surfaces up
   toward the bright ink, a rim where the light catches an edge, a soft
   shadow under the form, and fine line work in the quiet ink. A
-  chromosome is the one form with colours of its own (the user's choice,
-  2026-10-23, after a study of the zoom's colours): its chromatin a soft
-  blue in the inks' hue, its centromere's neck the home helix's clay and
-  its ends its honey, each at half the chroma it was first drawn in,
-  through the app's Kaleido filter as the walk's residues are, and the
-  globules round the gene in the accent, from its deep teal in shade to
-  the accent where lit; each from a ramp of its own in the theme
-  (`ChromosomeColors`), so it darkens and lightens in its own hue. Nothing
-  on it is more than half as saturated as the accent but the gene's lit
-  side.
+  chromosome is drawn in the organs' colours (the user's choice,
+  2026-10-26, after its soft blue read louder than every stop round it):
+  its chromatin a warm stone, the organs' lit neutral warmed a little
+  toward the home helix's honey, its centromere's neck the helix's clay
+  and its ends its honey, each mixed into the stone, and the chromatin of
+  the gene's band in the organs' home tone (the mark at 0.42 over
+  `lit(0.2)`), from the accent's deep teal in shade toward the accent
+  where lit; each from a
+  ramp of its own in the theme (`ChromosomeColors`), mixed from the app's
+  own colours, so it darkens and lightens in its own hue. Its arms are as
+  quiet as the organs (a chroma of about 5), and nothing on it is more
+  than half as saturated as the accent but its band's lit side.
 - **Data keeps its colours.** The gene's parts are the walk's role colours,
   the bases the home helix's (`NucleotideColors.helix`), and blood the
   thymine red, the one red the app has.
@@ -921,9 +925,9 @@ condenses, the others drift out from it and fade.
 **Chromosome.** At its stop the chromosome has the form a scanning
 micrograph shows (the user's choice of 2026-10-15), drawn as dense, lit
 globules of chromatin, after a picture of chromosome 16 the user sent (the
-user's ask of 2026-10-23), in quiet colours with the gene in the plain mark
-(their choice the same day, after a study of the zoom's colours, and their
-word that no other look be kept). It is drawn from its own track: its length, its centromere and
+user's ask of 2026-10-23), in the organs' colours with the gene's band in
+their home tone (their choice of 2026-10-26, and their word of 2026-10-23
+that no other look be kept). It is drawn from its own track: its length, its centromere and
 its bands are its own, so proteins on one chromosome share it and only their
 gene tells them apart.
 - Two sister chromatids, each as thick as a chromatid is, a thin dark cleft
@@ -931,35 +935,41 @@ gene tells them apart.
   straight and parallel.
 - Their chromatin globules laid on a lattice by a seed of the chromosome's
   own, seven or eight across a chromatid, closer where they are finer (the
-  waist, the caps). Each is one material: the arms' blue, the centromere's
-  clay or a telomere's honey, picked by where it lies and a jitter of its
+  waist, the caps). Each is one material: the arms' stone, the
+  centromere's or a telomere's, picked by where it lies and a jitter of its
   own, so the edges of the neck and the caps are a frill of the two; and
-  the gene's, in the accent, round its place.
+  the band's, in the organs' home tone, all round both sisters in the
+  gene's band.
 - Each globule a sphere seen from the front, a little from round, lit by
-  the organs' lamp at a harder contrast (its ambient ×0.7, its diffuse
-  ×1.25), its colour along its material's ramp from crevice through shadow
-  and its own colour to its highlight, its sheen to its specular, so it
-  darkens and lightens in its own hue; a soft highlight toward the light;
-  a crevice of its material's darkest shifted away from the light, the
-  shadow it casts on the globules beside it. They are laid from the rim of
+  the organs' lamp as the organs take it (until 2026-10-26 a harder one,
+  its ambient ×0.7 and its diffuse ×1.25, with twice the sheen, which the
+  user read as artificial), its colour along its material's ramp from
+  crevice through shadow and its own colour to its highlight, its sheen to
+  its specular, so it darkens and lightens in its own hue; a soft
+  highlight toward the light; a crevice of its material's darkest shifted
+  away from the light, in shade rather than black, the shadow it casts on
+  the globules beside it. They are laid from the rim of
   the tube round to its front, so the rim's make a lumpy edge and the
   front's stand over them; a fine grain in them, as a micrograph's; under
   them a narrower tube in their crevices' shade.
 - The G-bands as faint changes of the globules' value, an eighth at most.
-- The centromere's neck in clay, globule by globule across both sisters,
+- The centromere's neck clay, globule by globule across both sisters,
   where they fuse; every chromatid's two ends capped in honey, frilly with
-  smaller globules, rounded over one and a half half-widths. A cap or a
-  neck in the gene's band is the gene's round its place.
+  smaller globules, rounded over one and a half
+  half-widths. A cap or a neck in the gene's band is the band's.
 - Nothing narrower anywhere but the centromere and the two ends. On an
   acrocentric the short arm is whole, as thick as any arm: its satellite
   and `stalk` are bands like any other, since a stalk drawn thin, as a
   notch or as a satellite on a thread, read as a cut (the user,
   2026-10-15).
-- The gene marked where FISH would mark it, on each sister at its height:
-  the globules round its place in the accent, lit as every globule is,
-  with nothing glowing over them (the user's ask, 2026-10-23: the plain
-  mark of the other stops); its band bracketed in the accent and named.
-  Its place pings once on each sister as the stop is reached.
+- The gene's band marked, as far as FISH can place a gene: every globule
+  in it, all round both sisters, in the organs' home tone, lit as every
+  globule is, with nothing glowing over them (the user's asks, 2026-10-23
+  and 2026-10-26: the plain mark the other stops draw the gene's place
+  in); a band thinner than 0.8 half-widths, about two rows of globules, is
+  marked that thick about its middle, so a thin band still shows as one.
+  The band is bracketed in the accent and named, and the gene's place
+  pings once on each sister as the stop is reached.
 - Its parts named (the user's ask, 2026-10-19), in a column against the
   canvas's edge on each side, 8 pt in, as a cell's names are, each level
   with what it names: the p arm (its middle), the centromere and the q arm
@@ -977,8 +987,8 @@ gene tells them apart.
 - Only a blurred shadow lies round it.
 
 It is never the gene: the band is millions of base pairs, a stain pattern
-seen at low resolution, and the accent marks where a probe would find the
-gene, not the gene. Each sister's body,
+seen at low resolution, and the accent marks the band a probe would find
+the gene in, not the gene. Each sister's body,
 its globules, each laid over its crevice and under its highlight, its
 granules and the cleft's shade are meshes built once (`ChromosomeArt`), the
 globules' colours multiplied as they are drawn by a tile of the grain, so a
@@ -989,7 +999,10 @@ opaque lobes, its centromere's waist and two kinetochore plates tinted
 lightly in the helix's clay and its ends in its honey, the gene's band
 washed in the accent; and on 2026-10-23, before the user chose quieter
 colours, its globules were a saturated blue with a coral neck, gold caps
-and two cyan FISH spots glowing on the gene. Neither is drawn now.
+and two cyan FISH spots glowing on the gene; and from that day to
+2026-10-26 a soft blue, its neck and caps clay and honey at half that
+chroma through the Kaleido filter, under a harder lamp, with a round patch
+of the accent about the gene's place. None of them is drawn now.
 
 **Condensing.** On the way in, the chromosome condenses out of its
 territory.
@@ -1020,7 +1033,7 @@ gives it its room.
     strip's;
   - the centromere's waist becomes the strip's pinch;
   - its colours ease from its own, the globules' ramps mixed smoothly
-    along it (blue, a clay neck, honey ends, the accent by the gene) under the
+    along it (stone, a clay neck, honey ends, the band in the home tone) under the
     organs' lamp, to the strip's stains under the strip's own light, both
     lamps staying on the screen's upper left as it turns;
 - The gene's band is ringed as the strip rings it; the map's own mark of
@@ -1294,15 +1307,16 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
 - **A micrograph's form in colours of its own.** A scanning micrograph
   shows relief, not stain or colour: the chromosome keeps its form, its
   globules laid by rule from the chromosome's own seed, not imaged, and
-  coloured as a drawing is, quietly: chromatin a soft blue, the centromere
-  clay, the telomeres honey, the gene's chromatin in the accent (the user's
-  picture and choice, 2026-10-23), its bands faint changes of the blue's
+  coloured as a drawing is, quietly, in the organs' colours: chromatin a
+  warm stone, the centromere clay over it, the telomeres honey,
+  the gene's band in the home tone (the user's picture of 2026-10-23 and
+  their choice of 2026-10-26), its bands faint changes of the stone's
   value. The coat round its chromatin (Booth
   et al. 2016) is not drawn: as a faint haze it read as a washed-out
   surround (the user, 2026-10-22).
-- **A probe's place.** The gene's chromatin in the accent is as big
-  whatever the gene's length: it says where the gene is, to within its
-  band, not how long it is.
+- **A probe's place.** The band in the accent is the gene's band whatever
+  the gene's length, and two rows of globules at the least: it says where
+  the gene is, to within its band, not how long it is.
 - **Caps for telomeres.** A telomere is a run of repeats far too short to
   see at this scale: each cap says where one is, as the accent says where
   the gene is, not how long it is.
@@ -1384,19 +1398,25 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
 - The chromosome's tests: `chromosome_look_test` holds its look (each
   globule's material picked the same every time and shared by every
   protein on a chromosome, the centromere's only about it, the telomeres'
-  only at the ends, the gene's only round its place and all four on every
-  chromosome, each material's ramp in its own hue, bands an eighth at
-  most, the clay and honey through the Kaleido filter and the gene's ramp
-  the accent's, no colour on it at more than half the accent's chroma but
-  the gene's lit side, nothing glowing on the gene at rest or on arrival,
+  only at the ends, the band's only in the gene's band and all of it
+  there, on both sisters, and all four on every chromosome, each
+  material's ramp in its own hue, the arms a warm neutral, bands an eighth
+  at most, the stone, clay and honey mixed from the app's inks and the
+  band's ramp about the organs' home tone, the arms at a chroma of 8 at
+  most and no colour on it at more than half the accent's chroma but the
+  band's lit side, at rest the arms' median chroma 6 at most and the
+  band's hue the accent's, nothing glowing on the gene at rest or on
+  arrival,
   half way to the band the strip band for band, nothing drawn outside the
   bounds or round it but its blurred shadow, the blur as soft at any
   magnification, no globule in the cleft, the meshes' sizes);
   `chromosome_scene_test` (nothing narrower than its arms but the
   centromere and the rounded ends), `chromosome_form_test` (the same form
   every time and for every protein on one chromosome, the globules on
-  their sisters, the gene's place and its ping, each tint within its reach
-  of the centromere or an end and never in the gene's band) and
+  their sisters, the gene's place and its ping, the gene's band marked
+  whole, inside the chromosome and two rows of globules at the least,
+  each tint within its reach of the centromere or an end and never in the
+  gene's band) and
   `chromosome_handover_test` (the territory handed over to half a pixel,
   the condensing step's last frames the stop's, every band edge of the
   turned chromosome on the strip's to half a pixel and its colours the

@@ -22,7 +22,7 @@ import 'chromosome_style.dart';
 /// strip's own light. Once it lies along the genome it is the strip, pixel
 /// for pixel, so the map takes over from it with nothing to see. Its
 /// chromatin is mixed along the chromosome's ramps, its neck the
-/// centromere's, its ends the telomeres' and the gene's stretch the gene's,
+/// centromere's, its ends the telomeres' and the gene's band in the mark,
 /// eased in along it as the globules over it were, until the strip's stains
 /// take over from them.
 ///
@@ -451,10 +451,10 @@ final class ChromosomeTube {
         _ => _bandsAt(y, soften),
       };
       final double tone = _tones[above] + (_tones[below] - _tones[above]) * t;
-      // The gene's chromatin is the chromatin round its place, and the
-      // centromere's and the telomeres' are their own, each eased in along
-      // the tube as the globules over it were.
-      final double gene = _geneNear(y, form.look.globules) * (1 - strip);
+      // The gene's band's chromatin is the band's, and the centromere's and
+      // the telomeres' are their own, each eased in along the tube as the
+      // globules over it were.
+      final double gene = form.geneAt(y) * (1 - strip);
       final double centromere = form.look.centromereTint * form.centromereAt(y);
       final double telomere = form.look.telomereTint * form.telomereAt(y);
       final Color stainA = _stains[above];
@@ -548,15 +548,6 @@ final class ChromosomeTube {
         }
       }
     }
-  }
-
-  /// How much of the gene's chromatin a row at [y] carries: all of it level
-  /// with the gene's place, none [ChromosomeGlobules.geneReach] above or
-  /// below it.
-  double _geneNear(double y, ChromosomeGlobules globules) {
-    final double t = ((y - form.geneY).abs() / (globules.geneReach * _half))
-        .clamp(0.0, 1.0);
-    return 1 - t * t * (3 - 2 * t);
   }
 
   void _vertex(int i, double x, double y, int colour) {

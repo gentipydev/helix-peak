@@ -218,6 +218,43 @@ void main() {
     }
   });
 
+  test('the gene’s band is marked whole, two rows of globules at the least, '
+      'within the chromosome, its edges softened and nothing marked beyond '
+      'them', () {
+    for (final ProteinTarget t in TestCatalog.all) {
+      final ChromosomeForm form = _form(t);
+      final LocusTrack track = form.track;
+      final (double a, double b) = form.marked;
+      final double soft = form.look.feather * form.half;
+      expect(a, lessThanOrEqualTo(form.yOf(track.bandStart)), reason: t.slug);
+      expect(
+        b,
+        greaterThanOrEqualTo(form.yOf(track.bandEnd + 1)),
+        reason: t.slug,
+      );
+      expect(a, greaterThanOrEqualTo(form.top), reason: t.slug);
+      expect(b, lessThanOrEqualTo(form.bottom), reason: t.slug);
+      expect(
+        b - a,
+        greaterThanOrEqualTo(
+          math.min(
+                form.look.bandFloor * form.half,
+                form.bottom - form.top,
+              ) -
+              1e-9 * form.half,
+        ),
+        reason: t.slug,
+      );
+      expect(form.geneAt((a + b) / 2), 1, reason: t.slug);
+      for (int i = 0; i <= 2000; i++) {
+        final double y = form.top + (form.bottom - form.top) * i / 2000;
+        if (y < a - soft || y > b + soft) {
+          expect(form.geneAt(y), 0, reason: '${t.slug} at $y');
+        }
+      }
+    }
+  });
+
   test('nothing in a form is not a number', () {
     for (final ProteinTarget t in TestCatalog.all) {
       final ChromosomeForm form = _form(t);

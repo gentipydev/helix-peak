@@ -30,23 +30,11 @@ final class SurfaceNormal {
 /// [turn] is how far the scene is turned back a quarter turn on the
 /// canvas, as the chromosome is on its way to lying along the genome: the
 /// light stays where it is on the screen, so in the turned scene's own
-/// frame it comes from as far round the other way. [look] scales what the
-/// lamp gives for a contrast of its own, the lamp staying where it is.
+/// frame it comes from as far round the other way. [look] says how much of
+/// the lamp's sheen the chromatin takes.
 final class ChromosomeLight {
   factory ChromosomeLight({required ChromosomeLookSpec look, double turn = 0}) {
-    SpecimenLamp lamp = SpecimenLamp.zoom;
-    if (look.ambientScale != 1 || look.diffuseGain != 1) {
-      lamp = SpecimenLamp(
-        x: lamp.x,
-        y: lamp.y,
-        z: lamp.z,
-        ambient: lamp.ambient * look.ambientScale,
-        diffuse: lamp.diffuse * look.diffuseGain,
-        edgeDark: lamp.edgeDark,
-        edgePower: lamp.edgePower,
-        sheen: lamp.sheen,
-      );
-    }
+    const SpecimenLamp lamp = SpecimenLamp.zoom;
     if (turn == 0) {
       return ChromosomeLight._(SpecimenLight(lamp), look.sheen);
     }

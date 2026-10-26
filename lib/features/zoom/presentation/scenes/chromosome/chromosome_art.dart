@@ -17,13 +17,14 @@ import 'chromosome_style.dart';
 /// globules of chromatin, each of one material, in a ramp of its own:
 /// spheres drawn from the back of the tube to its front, each over a
 /// crevice that falls away from the light and under a highlight of its own;
-/// the arms a soft blue, the centromere's neck clay and the caps honey, and
-/// the chromatin round the gene in the mark, lit as the rest is, with
-/// nothing glowing over it (the user's ask of 2026-10-23: the gene in the
-/// plain mark, as the other stops draw it); the bodies under both sisters'
-/// globules, a cleft dark between the sisters, a blurred shadow under them,
-/// the bands faint changes of the arms' value, and a micrograph's fine
-/// grain.
+/// the arms a warm stone, the centromere's neck clay and the caps honey,
+/// each over the stone, and the chromatin of the gene's band, all round both
+/// sisters, in the organs' home tone, lit as the rest is, with nothing
+/// glowing over it (the user's asks of 2026-10-23 and 2026-10-26: the band
+/// in the plain mark the other stops draw the gene's place in); the bodies
+/// under both sisters' globules, a cleft dark between the sisters, a
+/// blurred shadow under them, the bands faint changes of the arms' value,
+/// and a micrograph's fine grain.
 ///
 /// Everything costly is built once, for one form in one set of inks: the
 /// body and its relief are meshes in the scene's units, so a frame only
@@ -75,13 +76,6 @@ final class ChromosomeArt {
     _cleftOf(1, _look.globules),
   ];
 
-  /// The gene's place on each sister at rest, left then right: what the
-  /// gene's chromatin is measured from.
-  late final List<Offset> _genePlaces = <Offset>[
-    form.geneOn(-1),
-    form.geneOn(1),
-  ];
-
   /// What the globules' meshes are drawn with, where they have a grain: a
   /// tile of fine specks, the same every time, drawn once, that the
   /// globules' colours are multiplied by, so it lies on them and nowhere
@@ -130,9 +124,9 @@ final class ChromosomeArt {
       .inflate(_look.boundsInflate * _half);
 
   /// The body's colour averaged over its area on both sisters, lit as it
-  /// is, the gene's chromatin and the centromere's and telomeres' left out:
-  /// what the territory's mark gives way to as the chromosome condenses out
-  /// of it.
+  /// is, the gene's band's chromatin and the centromere's and telomeres'
+  /// left out: what the territory's mark gives way to as the chromosome
+  /// condenses out of it.
   late final Color meanTone = () {
     final Float64List rows = form.bodyRows;
     final List<double> columns = _columns;
@@ -366,18 +360,27 @@ final class ChromosomeArt {
   }
 
   /// Every globule and granule of chromatid [side] as it is drawn, for
-  /// tests: where its middle lies, its radius, and what it is made of.
+  /// tests: where its middle lies, the row along the chromosome it was laid
+  /// in, its radius, and what it is made of.
   @visibleForTesting
-  List<({Offset at, double radius, ChromatinMaterial material})> globulesOf(
-    double side,
-  ) {
+  List<
+    ({Offset at, double along, double radius, ChromatinMaterial material})
+  >
+  globulesOf(double side) {
     final ChromosomeGlobules globules = _look.globules;
     final KnobField knobs = form.knobs(side);
-    return <({Offset at, double radius, ChromatinMaterial material})>[
+    return <
+      ({Offset at, double along, double radius, ChromatinMaterial material})
+    >[
       for (int k = 0; k < knobs.length; k++)
         if (knobs.kind[k] != KnobField.pit)
           if (_globule(side, knobs, k, globules) case final _Globule g)
-            (at: Offset(g.x, g.y), radius: g.r, material: g.material),
+            (
+              at: Offset(g.x, g.y),
+              along: g.along,
+              radius: g.r,
+              material: g.material,
+            ),
     ];
   }
 
@@ -428,7 +431,7 @@ final class ChromosomeArt {
             tone,
             s.light,
             s.occlusion + (1 - s.occlusion) * globules.bodyOcclusion,
-            _geneWeight(x, y, globules),
+            form.geneAt(y),
             1,
             centromere: tint.centromere,
             telomere: tint.telomere,
@@ -473,23 +476,6 @@ final class ChromosomeArt {
 
   // The globules.
 
-  /// How much of the gene's chromatin is at ([x], [y]): all of it at the
-  /// gene's place on either sister, falling to none
-  /// [ChromosomeGlobules.geneReach] from the nearer.
-  double _geneWeight(double x, double y, ChromosomeGlobules globules) {
-    double nearest = double.infinity;
-    for (final Offset place in _genePlaces) {
-      final double dx = x - place.dx;
-      final double dy = y - place.dy;
-      nearest = math.min(nearest, dx * dx + dy * dy);
-    }
-    final double t = (math.sqrt(nearest) / (globules.geneReach * _half)).clamp(
-      0.0,
-      1.0,
-    );
-    return 1 - t * t * (3 - 2 * t);
-  }
-
   /// The order chromatid [knobs]' globules are laid in, its granules
   /// standing out of the surface among them: the layer behind first, then
   /// the rest from the rim round to the front, the larger after the smaller
@@ -521,8 +507,9 @@ final class ChromosomeArt {
 
   /// Knob [k] of chromatid [side] as a globule: a sphere, round from any
   /// side, its middle out on the tube ([ChromosomeGlobules.surface] of the
-  /// way), made of the gene's chromatin where the gene's weight there, moved
-  /// by its own jitter, passes the mark, else of what the form picked.
+  /// way), made of the gene's band's chromatin where the band's weight at
+  /// its row, moved by its own jitter, passes the mark, else of what the
+  /// form picked.
   _Globule _globule(
     double side,
     KnobField knobs,
@@ -536,8 +523,7 @@ final class ChromosomeArt {
         form.centreAt(side, y) + globules.surface * form.widthAt(y) * u;
     final double at = y + form.bowAt(y) * u * u;
     final double moved = globules.pickJitter * knobs.pick[k];
-    final double gene = _geneWeight(x, at, globules);
-    final bool genes = gene + moved > globules.geneAt;
+    final bool genes = form.geneAt(y) + moved > globules.geneAt;
     return _Globule(
       x: x,
       y: at,
