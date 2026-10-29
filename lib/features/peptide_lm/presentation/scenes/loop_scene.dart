@@ -161,14 +161,20 @@ final class LoopScene extends LmScene {
     final Offset head = Offset(x(step), y(now));
     canvas.drawCircle(head, 5.5, Paint()..color = view.inks.signal.withValues(alpha: 0.25));
     canvas.drawCircle(head, 3.2, Paint()..color = view.inks.signal);
-    // Above the head, clear of the levels' names at the right.
-    view.kit.draw(
-      canvas,
-      nats(now),
-      inked(view.kit.mono, 10, view.inks.signal),
-      head + const Offset(0, -9),
-      anchor: Offset(head.dx > plot.right - 40 ? 1 : 0.5, 1),
+    // Above the head, clear of the levels' names at the right, on a backing
+    // of the ground where it crosses a level's line.
+    final TextStyle value = inked(view.kit.mono, 10, view.inks.signal);
+    final Size label = view.kit.layout(nats(now), value).size;
+    final double ax = head.dx > plot.right - 40 ? 1 : 0.5;
+    final Offset at = head + const Offset(0, -9);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(at.dx - label.width * ax - 2, at.dy - label.height - 1, label.width + 4, label.height + 2),
+        const Radius.circular(2),
+      ),
+      Paint()..color = view.inks.ground.withValues(alpha: 0.85),
     );
+    view.kit.draw(canvas, nats(now), value, at, anchor: Offset(ax, 1));
 
     // The learning rate under it, warm-up then cosine.
     final Rect rate = layout.rate;

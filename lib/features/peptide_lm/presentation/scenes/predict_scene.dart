@@ -189,17 +189,19 @@ final class PredictScene extends LmScene {
     final double lift = through(u, 0, _lift) * (1 - through(u, _scanTo, _struck));
     final double scan = through(u, _lift, _scanTo);
     final double stripY = layout.matrix.top - 8 + scan * layout.matrix.height;
-    final GridMesh strip = GridMesh(
-      Rect.fromLTWH(layout.matrix.left, stripY, layout.matrix.width, 5),
-      width,
-      1,
-    );
-    for (int d = 0; d < width; d++) {
-      final Color c = view.inks.signed(trace.stream(view.checkpoint, finalPoint, view.peptide, position, d) / finalScale);
-      strip.cell(d, 0, Color.lerp(view.inks.ground, c, lift)!);
+    if (lift > 0) {
+      final GridMesh strip = GridMesh(
+        Rect.fromLTWH(layout.matrix.left, stripY, layout.matrix.width, 5),
+        width,
+        1,
+      );
+      for (int d = 0; d < width; d++) {
+        final Color c = view.inks.signed(trace.stream(view.checkpoint, finalPoint, view.peptide, position, d) / finalScale);
+        strip.cell(d, 0, Color.lerp(view.inks.ground, c, lift)!);
+      }
+      strip.draw(canvas);
     }
-    strip.draw(canvas);
-    if (u < _scanTo + 0.05) {
+    if (lift > 0) {
       canvas.drawRect(
         Rect.fromLTWH(layout.matrix.left - 1, stripY - 1, layout.matrix.width + 2, 7),
         Paint()
