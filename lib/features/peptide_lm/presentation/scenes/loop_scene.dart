@@ -80,11 +80,13 @@ final class LoopScene extends LmScene {
         anchor: const Offset(1, 0.5),
       );
     }
+    // The axis's unit above its numbers, clear of the curve's first steps.
     view.kit.draw(
       canvas,
       'nats',
       inked(view.kit.sans, 8.5, view.inks.quiet),
-      Offset(plot.left + 4, plot.top),
+      Offset(plot.left - 4, plot.top - 6),
+      anchor: const Offset(1, 1),
     );
 
     // The levels to beat, and the floor no model can pass.
