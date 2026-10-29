@@ -42,6 +42,10 @@ abstract final class RoutePaths {
   /// replication's, its routes are handed to [buildAppRouter] by the app.
   static const String zoom = '/zoom';
 
+  /// The peptide language model's recorded training run, stage by stage.
+  /// Like replication's, its routes are handed to [buildAppRouter] by the app.
+  static const String peptideLm = '/peptide-lm';
+
   /// The walk for one protein. `/gene` with nothing after it is still the
   /// insulin walk, so every link that predates the catalog keeps working.
   static String geneFor(ProteinTarget target) => '$gene/${target.slug}';
