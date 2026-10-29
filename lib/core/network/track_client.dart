@@ -200,6 +200,74 @@ final class TrackClient implements TrackSource {
     }
   }
 
+  /// The bytes a row of the service's names, where the row is the JSON at
+  /// [path], `{url, sha256}`, as a track's row names its payload: for what is
+  /// no protein's track, a recorded training run.
+  ///
+  /// Read as a protein's rows are. The row is kept on disk once its bytes are
+  /// in, and on a transport failure or a 5xx the row kept opens what the cache
+  /// holds, so a page read before opens while the service is asleep. A
+  /// refusal (4xx) is never hidden behind it.
+  Future<Uint8List> readRow(String path) async {
+    Map<String, dynamic> row;
+    try {
+      row = await _api.getJson(path);
+    } on Object catch (error) {
+      if (error is ServerApiException &&
+          error.statusCode != null && error.statusCode! < 500) {
+        rethrow;
+      }
+      final Map<String, dynamic>? kept = await _keptRow(path);
+      if (kept == null) {
+        rethrow;
+      }
+      _note('opened the row it kept for $path', error);
+      row = kept;
+    }
+    final String? url = row['url'] as String?;
+    if (url == null || url.isEmpty) {
+      throw const UnknownApiException();
+    }
+    final Uint8List bytes = await _fetch(url, row['sha256'] as String?);
+    await _keepRow(path, row);
+    return bytes;
+  }
+
+  Future<File?> _pathFile(String path) async {
+    final Directory? directory = await (_cacheDirectory ??= _open());
+    return directory == null ? null : File(
+      '${directory.parent.path}/rows_by_path/${Uri.encodeComponent(path)}.json',
+    );
+  }
+
+  Future<Map<String, dynamic>?> _keptRow(String path) async {
+    final File? file = await _pathFile(path);
+    try {
+      if (file == null || !file.existsSync()) {
+        return null;
+      }
+      return jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+    } on Object catch (error) {
+      _note('could not read the row it kept', error);
+      return null;
+    }
+  }
+
+  Future<void> _keepRow(String path, Map<String, dynamic> row) async {
+    final File? file = await _pathFile(path);
+    if (file == null) {
+      return;
+    }
+    try {
+      await file.parent.create(recursive: true);
+      final File pending = File('${file.path}.part');
+      await pending.writeAsString(jsonEncode(row), flush: true);
+      await pending.rename(file.path);
+    } on Object catch (error) {
+      _note('could not keep a row', error);
+    }
+  }
+
   /// Read by the same function the catalog rows are read with, so a family this
   /// calls ready and a family the catalog called ready cannot come to mean two
   /// different things.
