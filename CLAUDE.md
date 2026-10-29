@@ -183,6 +183,8 @@ Git: commit the session's own changes locally. Never push, in any form.
   the walk only by opening `/gene/<slug>`.
 - `lib/features/replication/` and `lib/features/zoom/`: the replication tour
   and the zoom (see "Replication" and "Zoom" below).
+- `lib/features/peptide_lm/`: the peptide language model's recorded training
+  run, stage by stage (see "Peptide Language Model" below).
 
 There was a lab (`lib/features/lab/`, behind `LAB_ENABLED`) where flows were
 tried before they earned a place; replication, the zoom, the fold animation
@@ -237,6 +239,36 @@ flat, the rings in two halves round the DNA; the other proteins are lit,
 folded envelopes, and topoisomerase II has its own (`replication_topo.dart`).
 A label's line must land on what it names (`replication_targets_test`).
 `docs/design/replication-fork.md` has the design and its sources.
+
+## Peptide Language Model (`lib/features/peptide_lm/`)
+
+The home screen's third row, at `/peptide-lm`, in every build: one training
+run of the backend's de novo model, HelixPeekLM (`pipeline/denovo/` in the
+backend), on the curated proteins' peptides, played stage by stage. It is a
+recorded run and says so ("Recorded run" under its title): the backend's
+`trace.py` drives the engine's own `train_step` and keeps every number, and
+`GET /peptide-lm/runs/curated` names the bytes in storage, which the page
+reads through `TrackClient.readRow` (its own client, folder `peptide_lm`, so a
+run never evicts a protein's track): the row kept on disk opens the run while
+the service is asleep. `TrainingTrace.parse` refuses another run, another
+schema or an array of another shape; the payload's shape is the backend's
+`check_trace.py`.
+
+Seven stages on one `AnimationTimeline` (`TrainingTimeline`, 82 beats at a
+second each), named on the shared `StageBar` and played by the shared
+`TimelineController` and `TransportBar` (`showPhase: false`, since the bar
+names the stage): Tokenise, Forward, Predict, Loss, Backward and Update show
+one training step at the checkpoint picked ("Step N ▾": the steps that kept
+every activation), and Loop plays all of them. Each stage is a painter in
+`presentation/scenes/`, a pure function of the frame; a tap or a drag on the
+canvas puts a peptide, a position or an attention head in focus. Reduced
+motion shows each stage played through, the loop at its last step. The
+captions and the About sheet are built from the run's own numbers (R4.1).
+Its colours are the theme's (`LmInks`, held by `lm_inks_test`): the accent
+for what flows forward, the tracer for what came next, the helix's honey for
+the loss and what flows back, and the helix's denim and clay, from the base
+tile at zero, for every signed number. `docs/design/peptide-lm.md` has the
+design.
 
 ## Zoom (`lib/features/zoom/`)
 
