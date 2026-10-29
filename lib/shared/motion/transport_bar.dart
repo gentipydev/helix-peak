@@ -24,6 +24,7 @@ class TransportBar extends StatefulWidget {
   const TransportBar({
     required this.controller,
     this.speeds = defaultSpeeds,
+    this.showPhase = true,
     super.key,
   });
 
@@ -31,6 +32,10 @@ class TransportBar extends StatefulWidget {
 
   /// The speeds the selector offers, slowest first.
   final List<double> speeds;
+
+  /// Whether the phase on screen is named above the controls. Off for a page
+  /// that names it already, and says each change itself.
+  final bool showPhase;
 
   static const List<double> defaultSpeeds = <double>[0.5, 1, 2, 4];
 
@@ -98,19 +103,21 @@ class _TransportBarState extends State<TransportBar> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-          child: Semantics(
-            liveRegion: true,
-            child: Text(
-              phase?.name ?? '',
-              key: const ValueKey<String>('transport-phase'),
-              style: theme.textTheme.titleSmall,
-              textAlign: TextAlign.center,
+        if (widget.showPhase) ...<Widget>[
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            child: Semantics(
+              liveRegion: true,
+              child: Text(
+                phase?.name ?? '',
+                key: const ValueKey<String>('transport-phase'),
+                style: theme.textTheme.titleSmall,
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: AppSpacing.xs),
+        ],
         Wrap(
           alignment: WrapAlignment.center,
           crossAxisAlignment: WrapCrossAlignment.center,
