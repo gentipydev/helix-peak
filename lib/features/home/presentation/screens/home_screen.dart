@@ -36,6 +36,10 @@ class HomeScreen extends StatelessWidget {
                   label: 'DNA Replication',
                   onPressed: () => context.push(RoutePaths.replication),
                 ),
+                ProteinAnalysesCta(
+                  label: 'Peptide Language Model',
+                  onPressed: () => context.push(RoutePaths.peptideLm),
+                ),
                 const SizedBox(height: AppSpacing.sm),
               ],
             ),

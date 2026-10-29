@@ -37,16 +37,48 @@ void main() {
     expect(pressed, 1);
   });
 
-  testWidgets('home offers the walk, then replication, and nothing else', (
+  testWidgets('a long label wraps at a large text size, and never overflows', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
-    await tester.pump();
-    expect(find.byType(ProteinAnalysesCta), findsNWidgets(2));
-    expect(
-      tester.getCenter(find.text('Protein Analyses')).dy,
-      lessThan(tester.getCenter(find.text('DNA Replication')).dy),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MediaQuery(
+          data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+          child: Scaffold(
+            body: Center(
+              child: SizedBox(
+                width: 300,
+                child: ProteinAnalysesCta(
+                  label: 'Peptide Language Model',
+                  onPressed: () {},
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
-    expect(find.text('Lab'), findsNothing);
+    expect(tester.takeException(), isNull);
+    expect(find.text('Peptide Language Model'), findsOneWidget);
+    expect(find.byIcon(Icons.chevron_right_rounded), findsOneWidget);
   });
+
+  testWidgets(
+    'home offers the walk, then replication, then the peptide language '
+    'model, and nothing else',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+      await tester.pump();
+      expect(find.byType(ProteinAnalysesCta), findsNWidgets(3));
+      expect(
+        tester.getCenter(find.text('Protein Analyses')).dy,
+        lessThan(tester.getCenter(find.text('DNA Replication')).dy),
+      );
+      expect(
+        tester.getCenter(find.text('DNA Replication')).dy,
+        lessThan(tester.getCenter(find.text('Peptide Language Model')).dy),
+      );
+      expect(find.text('Lab'), findsNothing);
+    },
+  );
 }

@@ -43,9 +43,14 @@ class ProteinAnalysesCta extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Text(
-            label,
-            style: theme.textTheme.titleSmall?.copyWith(color: accent),
+          // A long label wraps rather than overflows at a large text size; a
+          // short one lays out exactly as it did.
+          Flexible(
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleSmall?.copyWith(color: accent),
+            ),
           ),
           const SizedBox(width: AppSpacing.xs),
           Icon(Icons.chevron_right_rounded, size: 24, color: accent),
