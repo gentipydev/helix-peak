@@ -43,9 +43,11 @@ Each is a painter in `lib/features/peptide_lm/presentation/scenes/`, a pure
 function of the frame, at the checkpoint picked ("Step N ▾"); the loop plays
 every step.
 
-1. **Tokenise.** The dataset, a row a peptide, and under it the 23-token
-   vocabulary. A light crosses each peptide; every residue it passes flips
-   into its id, and the vocabulary's count of it rises. `<bos>` and `<eos>`
+1. **Tokenise.** The dataset, a peptide a row folded onto two lines where
+   the canvas lets square tiles carry their numbers (one line of tall tiles
+   where it does not), and under it the 23-token vocabulary on one row. A
+   light crosses each peptide; every residue it passes flips into its id,
+   and the vocabulary's count of it rises. `<bos>` and `<eos>`
    drop in and padding fills to the longest (6 × 41). Each part is named on a
    tag, as the zoom names its parts, in the field's words: dataset, padding,
    vocabulary, token counts (on the bar of the commonest token), special

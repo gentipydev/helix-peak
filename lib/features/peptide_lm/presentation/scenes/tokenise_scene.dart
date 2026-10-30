@@ -22,6 +22,9 @@ final class TokeniseScene extends LmScene {
   static const double _frameTo = 0.74;
   static const double _shiftFrom = 0.76;
 
+  /// How tall a tile must be to carry its id's number.
+  static const double _numbered = 11;
+
   /// The frame a peptide was trained in: `<bos>`, its residues, `<eos>`, and
   /// padding to the longest.
   static List<int> frameOf(TrainingTrace trace, int peptide) =>
@@ -132,17 +135,23 @@ final class TokeniseScene extends LmScene {
     final double start = layout.left - 6;
     final double end = layout.right + 6;
 
-    drawTag(canvas, view, 'dataset', Offset(start, layout.datasetTag));
-    // Padding, on the last place of the shortest peptide, the first.
+    final Rect dataset = drawTag(canvas, view, 'dataset', Offset(start, layout.datasetTag));
+    // Padding, on the last place of the shortest peptide, the first: its
+    // plate at the right, or left of there until its line drops straight.
     final List<int> shortest = frameOf(trace, 0);
     if (trace.token(shortest.last) == '<pad>') {
       final Size plate = tagSize(view, 'padding');
+      final Offset pad = layout.batchAt(0, shortest.length - 1).center;
+      double x = end - plate.width;
+      if (pad.dx < x + tagPadding) {
+        x = math.max(dataset.right + 8, pad.dx + tagPadding - plate.width);
+      }
       drawTag(
         canvas,
         view,
         'padding',
-        Offset(end - plate.width, layout.datasetTag),
-        target: layout.batchAt(0, shortest.length - 1).center,
+        Offset(x, layout.datasetTag),
+        target: pad,
         alpha: framing,
       );
     }
@@ -240,8 +249,8 @@ final class TokeniseScene extends LmScene {
     final String widest = '8' * '${trace.vocab.length - 1}'.length;
     final double perPoint = view.kit.layout(widest, inked(view.kit.mono, 10, view.inks.quiet)).width / 10;
     // Held to the half point below, so the drawn number is never wider.
-    final double size = (math.min(math.min(tile.height * 0.46, tile.width / perPoint), 14) * 2).floorToDouble() / 2;
-    if (tile.height >= 11 && size >= 5) {
+    final double size = (math.min(math.min(tile.height * 0.52, tile.width / perPoint), 14) * 2).floorToDouble() / 2;
+    if (tile.height >= _numbered && size >= 5) {
       view.kit.draw(
         canvas,
         '$id',
@@ -283,7 +292,7 @@ final class TokeniseScene extends LmScene {
     if (focus) {
       canvas.drawRRect(
         RRect.fromRectAndRadius(
-          Rect.fromLTWH(layout.left - 6, top - 4, layout.width + 12, layout.label + layout.batchHeight + 9),
+          Rect.fromLTWH(layout.left - 6, top - 4, layout.width + 12, layout.block + 9),
           const Radius.circular(6),
         ),
         Paint()..color = view.inks.card,
@@ -311,7 +320,7 @@ final class TokeniseScene extends LmScene {
     final _Layout layout = _Layout(size, view);
     for (int p = 0; p < view.trace.peptides.length; p++) {
       final double top = layout.rowTop(p);
-      if (at.dy >= top - 4 && at.dy < top + layout.label + layout.batchHeight + 6) {
+      if (at.dy >= top - 4 && at.dy < top + layout.block + 6) {
         return FocusPeptide(p);
       }
     }
@@ -342,9 +351,11 @@ final class TokeniseScene extends LmScene {
   }
 }
 
-/// Top to bottom: the dataset's tag and its peptides, a row each; then the
-/// vocabulary's tag, its counts, its tokens and their ids; then the tags
-/// under it. The rows take what room the canvas has, within reason, and the
+/// Top to bottom: the dataset's tag and its peptides, each on two lines
+/// where that leaves its tiles room for their numbers, else on one;
+/// then the vocabulary's tag, its counts, its tokens and their ids; then the
+/// tags under it. The tiles are as large as the width and the height both
+/// allow, the room left goes between the peptides, within reason, and the
 /// whole is centred.
 final class _Layout {
   _Layout(Size size, LmView view) : left = 20, right = size.width - 16 {
@@ -352,21 +363,43 @@ final class _Layout {
     final int peptides = trace.peptides.length;
     width = right - left;
     final double vocabCell = math.min(22, width / trace.vocab.length);
-    // Every place of the longest frame across the width, and each tall
-    // enough for its id's number (11 pt, `_idTile`): taller than wide where
-    // the width cannot give that, up to the 16 pt a wide canvas gives square.
-    batchWidth = math.min(16, width / (trace.width + 1));
-    batchHeight = math.max(batchWidth, math.min(16, math.max(11, batchWidth * 1.5)));
+    final int frame = trace.width + 1;
     final double tag = tagSize(view, 'dataset').height;
     final double ids = view.kit.layout('0', TokeniseScene._idStyle(view)).height;
     final double fixed =
         tag + _tagGap + tag + _tagGap + histogram + 3 + vocabCell + 2 + ids + _partsGap + tag;
-    final double tight = batchHeight + label + 5;
-    final double roomy = batchHeight + label + 22;
-    final double spare = size.height - 12 - fixed;
-    final double between = math.min(math.max(spare - tight * peptides, 12), 40);
-    rowPitch = math.min(math.max((spare - between - label - batchHeight) / math.max(1, peptides - 1), tight), roomy);
-    final double rows = rowPitch * (peptides - 1) + label + batchHeight;
+    final double room = size.height - 12 - fixed;
+    // A frame folds once, the same place for every peptide, so its places
+    // stay in columns; the second line is the longer, which leaves the first
+    // line's last column free for the padding tag's line to pass down. Its
+    // square tiles are as large as the width allows, and as the height lets
+    // every peptide's two lines be at the least room between peptides.
+    final double tallest =
+        (room - _leastBetween - peptides * (label + _lineGap) - (peptides - 1) * _leastGap) / (2 * peptides);
+    final double folded = math.min(math.min(22, width / (frame - frame ~/ 2)), tallest);
+    if (folded >= TokeniseScene._numbered) {
+      firstLine = frame ~/ 2;
+      tileWidth = folded;
+      tileHeight = folded;
+    } else {
+      // Where two lines cannot number their tiles, one: every place across
+      // the width, each as tall as a number needs, up to the 16 pt a wide
+      // canvas gives square.
+      firstLine = frame;
+      tileWidth = math.min(16, width / frame);
+      tileHeight = math.max(tileWidth, math.min(16, math.max(TokeniseScene._numbered, tileWidth * 1.5)));
+    }
+    final int lines = firstLine < frame ? 2 : 1;
+    block = label + lines * tileHeight + (lines - 1) * _lineGap;
+    final double between = math.min(
+      math.max(room - peptides * block - (peptides - 1) * _leastGap, _leastBetween),
+      40,
+    );
+    final double gap = peptides < 2
+        ? 0
+        : math.min(math.max((room - between - peptides * block) / (peptides - 1), _leastGap), 22);
+    rowPitch = block + gap;
+    final double rows = peptides * block + (peptides - 1) * gap;
     final double content = fixed + rows + between;
     final double top = math.max(6, (size.height - content) / 2);
     datasetTag = top;
@@ -389,11 +422,28 @@ final class _Layout {
   /// its line.
   static const double _partsGap = 12;
 
+  /// Between a peptide's two lines.
+  static const double _lineGap = 3;
+
+  /// The least room between two peptides, and between the dataset and the
+  /// vocabulary.
+  static const double _leastGap = 5;
+  static const double _leastBetween = 12;
+
   final double left;
   final double right;
   late final double width;
-  late final double batchWidth;
-  late final double batchHeight;
+
+  /// How many places of a frame the first line holds: all of them where it
+  /// is not folded.
+  late final int firstLine;
+
+  /// A place's tile: square where the frame is folded, else taller than wide.
+  late final double tileWidth;
+  late final double tileHeight;
+
+  /// A peptide's name and its lines.
+  late final double block;
   late final double rowPitch;
   late final double datasetTag;
   late final double batchTop;
@@ -408,7 +458,16 @@ final class _Layout {
 
   double rowTop(int peptide) => batchTop + peptide * rowPitch;
 
-  /// Place [k] of [peptide]'s frame.
-  Rect batchAt(int peptide, int k) =>
-      Rect.fromLTWH(left + k * batchWidth, rowTop(peptide) + label, batchWidth, batchHeight);
+  /// Place [k] of [peptide]'s frame: on the first line, or folded onto the
+  /// second.
+  Rect batchAt(int peptide, int k) {
+    final int line = k < firstLine ? 0 : 1;
+    final int column = k - line * firstLine;
+    return Rect.fromLTWH(
+      left + column * tileWidth,
+      rowTop(peptide) + label + line * (tileHeight + _lineGap),
+      tileWidth,
+      tileHeight,
+    );
+  }
 }
