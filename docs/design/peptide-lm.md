@@ -123,7 +123,7 @@ out of view is scrolled just far enough to show it whole.
    whole width and every number written out on a soft tile of its colour
    (the run was recorded again 16 wide for it, see above). It opens on
    Shift's last frame, pixel for pixel, and takes the engine's first steps
-   (`HelixPeekLM.forward`) in 12 beats. Over the tag, a note says why each
+   (`HelixPeekLM.forward`) in 15 beats. Over the tag, a note says why each
    part happens, in the quiet ink, its parts fading out and in at the
    caption's turns, while the caption under the canvas says what happens,
    neither repeating the other (the user's ask of 2026-10-30). A live
@@ -150,16 +150,22 @@ out of view is scrolled just far enough to show it whole.
      peptide is quicker in the same 3 beats); a row read stays faintly
      marked ("22 places read 12 rows of the table, C's four times"). Note:
      "The lookup is only this: the id picks its row, no arithmetic.";
-   - *the gather* (6.6–9.4): the table goes, and each place's copy of the
+   - *the gather* (6.6–11.6): the table goes, and each place's copy of the
      row it read moves to the place's own row, its numbers going before it
      moves and coming back once it has, so that rows passing one another
      never print over each other; the tile that read it goes up to label the
-     row, turning back into its residue (x embedded, 22 × 16). Once they
+     row, turning back into its residue (x embedded, 22 × 16). Slowly, at
+     the user's ask, so that the row of ids is seen to stand up as the column
+     of residues: one tile after another, top to bottom, over 2.4 beats, each
+     flight 1.4, the peptide's name staying over the row until its last tile
+     goes. A copy still waiting on the table's row lies under a place that
+     has landed there, its numbers left out. Caption: "Each row is one
+     place: <bos>, then insulin A chain's 21 residues". Once they
      have landed, the first token's two places are outlined in the accent
      (the two Cs at 6 and 7), the note naming them, and stay outlined
      through the adding: "The two Cs at places 6 and 7 are the same row:
      nothing yet says where each is.";
-   - *the position embedding* (9.4–11.4): each place's own row alone, on
+   - *the position embedding* (11.6–13.6): each place's own row alone, on
      its own colour scale, its numbers to two places, then added ("Adding
      the position embedding, rows 0–21, 42× smaller than the token rows" for
      insulin A at step 1, 5× at step 200); a cell shows one set of numbers
@@ -168,7 +174,7 @@ out of view is scrolled just far enough to show it whole.
      is, the same for every C / position row: where it sits, the same at
      place 7 whatever is there / added: each place carries both, so the Cs
      at 6 and 7 now differ";
-   - *x0* (11.4–12): the sum is `x0`, as the engine makes it; the run's
+   - *x0* (13.6–15): the sum is `x0`, as the engine makes it; the run's
      stored stream holds it to within its own rounding, and Forward's
      stand-up turns the one into the other ("x0, 22 × 16: the start of the
      residual stream"). Note, what the end result is: "x0: insulin A chain

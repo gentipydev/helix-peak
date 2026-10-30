@@ -54,8 +54,10 @@ final class EmbeddingScene extends LmScene {
   // it and turning back into its residue.
   static const (double, double) _tableOut = (6.6, 7.2);
   static const double _gatherFrom = 6.6;
-  static const double _gatherStagger = 0.5;
-  static const double _gatherFlight = 1.0;
+  // Slowly, at the user's ask, so the row of ids is seen to stand up as the
+  // column of residues: one tile after another, top to bottom.
+  static const double _gatherStagger = 2.4;
+  static const double _gatherFlight = 1.4;
 
   /// The part of a copy's flight it moves in: its numbers go before, and
   /// come back after.
@@ -64,17 +66,17 @@ final class EmbeddingScene extends LmScene {
 
   // The position embedding: each place's row alone, on its own scale, then
   // added: the sum is x0.
-  static const (double, double) _placesIn = (9.4, 9.8);
-  static const (double, double) _placesOut = (10.6, 11.0);
-  static const (double, double) _tokensUnwritten = (9.4, 9.6);
-  static const (double, double) _placesWritten = (9.6, 9.8);
-  static const (double, double) _placesUnwritten = (10.6, 10.8);
-  static const (double, double) _sumsWritten = (10.8, 11.0);
-  static const (double, double) _add = (10.7, 11.1);
+  static const (double, double) _placesIn = (11.6, 12.0);
+  static const (double, double) _placesOut = (12.8, 13.2);
+  static const (double, double) _tokensUnwritten = (11.6, 11.8);
+  static const (double, double) _placesWritten = (11.8, 12.0);
+  static const (double, double) _placesUnwritten = (12.8, 13.0);
+  static const (double, double) _sumsWritten = (13.0, 13.2);
+  static const (double, double) _add = (12.9, 13.3);
 
   /// Where the two places of one token are marked, once their rows have
   /// gathered.
-  static const double _twinFrom = 8.1;
+  static const double _twinFrom = 10.4;
 
   /// Where the caption turns: to what the numbers are, the lookup, the
   /// gather, the position embedding and x0. The note over the table turns
@@ -82,8 +84,8 @@ final class EmbeddingScene extends LmScene {
   static const double _numbersCaption = 1.4;
   static const double _lookupCaption = 2.4;
   static const double _gatherCaption = 6.6;
-  static const double _placesCaption = 9.4;
-  static const double _x0Caption = 11.4;
+  static const double _placesCaption = 11.6;
+  static const double _x0Caption = 13.6;
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -343,13 +345,13 @@ final class EmbeddingScene extends LmScene {
       ),
       (
         'x embedded · $inputs × $width',
-        through(beat, 7.2, 7.6) * (1 - through(beat, 9.2, 9.4)),
+        through(beat, 7.2, 7.6) * (1 - through(beat, 11.4, 11.6)),
       ),
       (
         'position embedding · first $inputs of ${trace.model.context} rows',
-        through(beat, 9.4, 9.65) * (1 - through(beat, 10.9, 11.15)),
+        through(beat, 11.6, 11.85) * (1 - through(beat, 13.1, 13.35)),
       ),
-      ('x0 · $inputs × $width', through(beat, 11.15, 11.4) * fade.chrome),
+      ('x0 · $inputs × $width', through(beat, 13.35, 13.6) * fade.chrome),
     ]) {
       if (alpha > 0) {
         drawTag(canvas, view, text, at, alpha: alpha);
@@ -494,17 +496,23 @@ final class EmbeddingScene extends LmScene {
               )!,
     ]);
     // The rows at rest first, numbers and all, then those moving over them.
+    // A copy still waiting on the table's row lies under a place's row that
+    // has landed on the same row: drawn first, and its numbers left out.
     bool resting(int i) => moved[i] <= 0 || moved[i] >= 1;
-    for (int i = 0; i < n; i++) {
-      if (drawn[i] && resting(i)) {
-        fill(i);
+    final Set<int> landed = <int>{for (int i = 0; i < n; i++) if (moved[i] >= 1) i};
+    bool covered(int i) => moved[i] <= 0 && landed.contains(trace.inputAt(view.peptide, i));
+    for (final bool waiting in <bool>[true, false]) {
+      for (int i = 0; i < n; i++) {
+        if (drawn[i] && resting(i) && (moved[i] <= 0) == waiting) {
+          fill(i);
+        }
       }
     }
     final TextStyle? sums = layout.numberStyle;
     if (sums != null) {
       _faded(canvas, size, view, sumsShown, () {
         for (int i = 0; i < n; i++) {
-          if (!drawn[i] || still[i] <= 0) {
+          if (!drawn[i] || still[i] <= 0 || covered(i)) {
             continue;
           }
           layout.write(
@@ -585,7 +593,8 @@ final class EmbeddingScene extends LmScene {
     final double descend = _span(beat, _descend);
     // Its name, as Shift writes it over its lines, comes down with it and
     // stays over it until its tiles go up to the rows.
-    final double named = 1 - through(beat, _gatherFrom, _gatherFrom + _gatherStagger);
+    // Its name goes with the last of its tiles.
+    final double named = 1 - through(beat, _gatherFrom + _gatherStagger, _gatherFrom + _gatherStagger + 0.5);
     if (named > 0) {
       view.kit.draw(
         canvas,
@@ -723,7 +732,8 @@ final class EmbeddingScene extends LmScene {
       return '${grouped(inputs)} places read ${grouped(uses.length)} rows of the table$again';
     }
     if (beat < _placesCaption) {
-      return 'In place order, the rows read are x embedded: ${grouped(inputs)} × $width, a row a place';
+      return "Each row is one place: <bos>, then ${view.focus.source.label}'s "
+          '${grouped(view.focus.sequence.length)} residues';
     }
     if (beat < _x0Caption) {
       final int times = smaller(view);
