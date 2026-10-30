@@ -10,6 +10,7 @@ import 'lm_scene.dart';
 import 'loop_scene.dart';
 import 'loss_scene.dart';
 import 'predict_scene.dart';
+import 'scores_scene.dart';
 import 'shift_scene.dart';
 import 'tokenise_scene.dart';
 import 'update_scene.dart';
@@ -18,6 +19,7 @@ LmScene sceneOf(LmStage stage) => switch (stage) {
   LmStage.tokenise => const TokeniseScene(),
   LmStage.shift => const ShiftScene(),
   LmStage.embedding => const EmbeddingScene(),
+  LmStage.scores => const ScoresScene(),
   LmStage.attention => const AttentionScene(),
   LmStage.feedForward => const FeedForwardScene(),
   LmStage.forward => const ForwardScene(),

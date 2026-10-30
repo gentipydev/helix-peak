@@ -162,10 +162,60 @@ void main() {
                 for (int k = 0; k <= q; k++) {
                   mix += shares[k] / sum * trace.value(c, b, head, p, k, d);
                 }
-                expect(
-                  trace.mixed(c, b, head, p, q, d),
-                  closeTo(mix, (block.valueScale + block.mixedScale) / 2 + 1e-5),
-                );
+                expect(trace.mixed(c, b, head, p, q, d), closeTo(mix, block.mixedScale / 2 + 1e-5));
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+
+  test("each block's evened row, its queries, keys and values, and each score, add up", () {
+    final int width = trace.model.width;
+    final int size = trace.headSize;
+    for (final TraceCheckpoint c in trace.checkpoints) {
+      for (int b = 0; b < trace.model.layers; b++) {
+        for (int p = 0; p < trace.peptides.length; p++) {
+          for (int i = 0; i < trace.peptides[p].inputs; i++) {
+            // The stream before the block, less its mean, over its spread,
+            // scaled and shifted: what attention reads.
+            final List<double> row = <double>[for (int d = 0; d < width; d++) trace.stream(c, 2 * b, p, i, d)];
+            final double mean = row.reduce((double a, double x) => a + x) / width;
+            final double spread = math.sqrt(
+              row.map((double x) => (x - mean) * (x - mean)).reduce((double a, double x) => a + x) / width + 1e-5,
+            );
+            for (int d = 0; d < width; d++) {
+              expect(
+                (row[d] - mean) / spread * trace.normScale(c, b, d) + trace.normShift(c, b, d),
+                closeTo(trace.attnInput(c, b, p, i, d), 1e-5),
+              );
+            }
+            // Each query, key and value number: its weights' sum of that row.
+            for (int part = 0; part < 3; part++) {
+              for (int out = 0; out < width; out++) {
+                double sum = trace.projectionBias(c, b, part, out);
+                for (int d = 0; d < width; d++) {
+                  sum += trace.projection(c, b, part, out, d) * trace.attnInput(c, b, p, i, d);
+                }
+                final int head = out ~/ size;
+                final double kept = <double>[
+                  trace.query(c, b, head, p, i, out % size),
+                  trace.key(c, b, head, p, i, out % size),
+                  trace.value(c, b, head, p, i, out % size),
+                ][part];
+                expect(sum, closeTo(kept, 1e-5));
+              }
+            }
+            // Each score: the query times a key, number by number, over the
+            // root of a head's size.
+            for (int head = 0; head < trace.model.heads; head++) {
+              for (int k = 0; k <= i; k++) {
+                double dot = 0;
+                for (int d = 0; d < size; d++) {
+                  dot += trace.query(c, b, head, p, i, d) * trace.key(c, b, head, p, k, d);
+                }
+                expect(dot / math.sqrt(size), closeTo(trace.score(c, b, head, p, i, k), 1e-5));
               }
             }
           }
@@ -263,7 +313,7 @@ void main() {
   });
 
   test('a schema this does not read is refused', () {
-    for (final int schema in <int>[1, 2]) {
+    for (final int schema in <int>[1, 2, 3]) {
       expect(
         () => TrainingTrace.parse(_edited((Map<String, dynamic> json) => json['schema'] = schema)),
         throwsA(isA<FormatException>()),

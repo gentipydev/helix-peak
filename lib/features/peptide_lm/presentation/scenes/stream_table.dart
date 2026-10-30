@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../domain/training_trace.dart';
@@ -100,6 +102,56 @@ final class StreamTable {
         text >= 1 ? style : style.copyWith(color: style.color!.withValues(alpha: (text * 8).round() / 8)),
       );
     }
+  }
+
+  /// A row of [colors] [f] of the way from lying across [from] to standing
+  /// in [to], its first number at the top; its numbers written while it
+  /// lies. Its tiles' gaps and corners go from [lyingGap] and [lyingRadius],
+  /// the table's, to [standingGap] and [standingRadius].
+  void strip(
+    Canvas canvas, {
+    required Rect from,
+    required Rect to,
+    required double f,
+    required List<Color> colors,
+    List<double>? numbers,
+    double alpha = 1,
+    bool outlined = false,
+    double lyingGap = EmbeddingLayout.gap,
+    double lyingRadius = EmbeddingLayout.radius,
+    double standingGap = 0.5,
+    double standingRadius = 1.5,
+  }) {
+    if (alpha <= 0) {
+      return;
+    }
+    final Offset centre = Offset.lerp(from.center, to.center, f)!;
+    final double length = from.width + (to.height - from.width) * f;
+    final double thick = from.height + (to.width - from.height) * f;
+    final Rect strip = Rect.fromCenter(center: Offset.zero, width: length, height: thick);
+    canvas.save();
+    canvas.translate(centre.dx, centre.dy);
+    canvas.rotate(math.pi / 2 * f);
+    layout.fill(
+      canvas,
+      strip,
+      <Color>[for (final Color c in colors) c.withValues(alpha: c.a * alpha)],
+      gap: lyingGap * (1 - f) + standingGap * f,
+      radius: lyingRadius * (1 - f) + standingRadius * f,
+    );
+    if (outlined) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(strip.inflate(1), const Radius.circular(3)),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.2
+          ..color = view.inks.signal.withValues(alpha: 0.85 * alpha),
+      );
+    }
+    if (numbers != null) {
+      drawRow(canvas, strip, numbers, scale: 1, fill: 0, text: alpha);
+    }
+    canvas.restore();
   }
 
   /// The tiles that name the places, at the rows' left.

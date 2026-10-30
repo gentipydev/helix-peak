@@ -127,19 +127,23 @@ final class TraceSteps {
   final Float32List headBias;
 }
 
-/// What one block worked out at a checkpoint, as the step ran it: its
-/// queries, keys and values (heads side by side, a head's `size` numbers each),
-/// every score before softmax, each head's mix of values before the output
-/// projection, and its feed-forward's input, neurons and weights.
+/// What one block worked out at a checkpoint, as the step ran it: each row
+/// evened out by its first LayerNorm, that norm's scale and shift, the
+/// weights that make the queries, keys and values from it, those (heads side
+/// by side, a head's `size` numbers each), every score before softmax, each
+/// head's mix of values before the output projection, and its feed-forward's
+/// input, neurons and weights.
 @immutable
 final class TraceBlock {
   const TraceBlock({
+    required this.normScale,
+    required this.normShift,
+    required this.attnInput,
+    required this.projection,
+    required this.projectionBias,
     required this.query,
-    required this.queryScale,
     required this.key,
-    required this.keyScale,
     required this.value,
-    required this.valueScale,
     required this.scores,
     required this.mixed,
     required this.mixedScale,
@@ -152,13 +156,24 @@ final class TraceBlock {
     required this.ffOutBias,
   });
 
-  /// targets × width, int8 in their own scale: drawn as colours.
-  final Int8List query;
-  final double queryScale;
-  final Int8List key;
-  final double keyScale;
-  final Int8List value;
-  final double valueScale;
+  /// The first LayerNorm's learned scale and shift, a number each a column.
+  final Float32List normScale;
+  final Float32List normShift;
+
+  /// What attention reads: each row evened out by that norm, targets ×
+  /// width, whole.
+  final Float32List attnInput;
+
+  /// The weights that make the queries, keys and values from the evened
+  /// row, as the step found them: (3 × width) × width, the query's rows, then
+  /// the key's, then the value's; and their biases.
+  final Float32List projection;
+  final Float32List projectionBias;
+
+  /// targets × width, whole.
+  final Float32List query;
+  final Float32List key;
+  final Float32List value;
 
   /// q·k / √size before softmax, heads × each peptide's lower triangle, as
   /// the attention maps are laid out: whole, written out.
@@ -290,7 +305,7 @@ final class TrainingTrace {
          for (final TracePeptide p in peptides) p.inputs * (p.inputs + 1) ~/ 2,
        ]);
 
-  static const int schema = 3;
+  static const int schema = 4;
 
   final String name;
 
@@ -432,13 +447,32 @@ final class TrainingTrace {
 
   /// [head]'s query of [position], its number [d], in [block].
   double query(TraceCheckpoint at, int block, int head, int peptide, int position, int d) =>
-      at.blocks[block].query[_headed(peptide, position, head, d)] * at.blocks[block].queryScale;
+      at.blocks[block].query[_headed(peptide, position, head, d)];
 
   double key(TraceCheckpoint at, int block, int head, int peptide, int position, int d) =>
-      at.blocks[block].key[_headed(peptide, position, head, d)] * at.blocks[block].keyScale;
+      at.blocks[block].key[_headed(peptide, position, head, d)];
 
   double value(TraceCheckpoint at, int block, int head, int peptide, int position, int d) =>
-      at.blocks[block].value[_headed(peptide, position, head, d)] * at.blocks[block].valueScale;
+      at.blocks[block].value[_headed(peptide, position, head, d)];
+
+  /// What attention reads at [position]: its row evened out by [block]'s
+  /// first LayerNorm.
+  double attnInput(TraceCheckpoint at, int block, int peptide, int position, int d) =>
+      at.blocks[block].attnInput[flat(peptide, position) * model.width + d];
+
+  /// That LayerNorm's learned scale and shift of column [d].
+  double normScale(TraceCheckpoint at, int block, int d) => at.blocks[block].normScale[d];
+
+  double normShift(TraceCheckpoint at, int block, int d) => at.blocks[block].normShift[d];
+
+  /// The weight from evened number [d] to number [out] of the query
+  /// ([part] 0), the key (1) or the value (2), all heads side by side; and
+  /// that number's bias.
+  double projection(TraceCheckpoint at, int block, int part, int out, int d) =>
+      at.blocks[block].projection[(part * model.width + out) * model.width + d];
+
+  double projectionBias(TraceCheckpoint at, int block, int part, int out) =>
+      at.blocks[block].projectionBias[part * model.width + out];
 
   /// What [head] handed [position]: its shares of the values, summed.
   double mixed(TraceCheckpoint at, int block, int head, int peptide, int position, int d) =>
@@ -719,12 +753,14 @@ final class TrainingTrace {
   ) {
     final List<int> rows = <int>[targets, model.width];
     return TraceBlock(
-      query: _int8(json['query'], rows, '$what query'),
-      queryScale: _scale(json['query'], '$what query'),
-      key: _int8(json['key'], rows, '$what key'),
-      keyScale: _scale(json['key'], '$what key'),
-      value: _int8(json['value'], rows, '$what value'),
-      valueScale: _scale(json['value'], '$what value'),
+      normScale: _float32(json['norm1_weight'], <int>[model.width], '$what norm1_weight'),
+      normShift: _float32(json['norm1_bias'], <int>[model.width], '$what norm1_bias'),
+      attnInput: _float32(json['attn_input'], rows, '$what attn_input'),
+      projection: _float32(json['attn_in'], <int>[3 * model.width, model.width], '$what attn_in'),
+      projectionBias: _float32(json['attn_in_bias'], <int>[3 * model.width], '$what attn_in_bias'),
+      query: _float32(json['query'], rows, '$what query'),
+      key: _float32(json['key'], rows, '$what key'),
+      value: _float32(json['value'], rows, '$what value'),
       scores: _float32(json['scores'], <int>[model.heads, triangle], '$what scores'),
       mixed: _int8(json['mixed'], rows, '$what mixed'),
       mixedScale: _scale(json['mixed'], '$what mixed'),

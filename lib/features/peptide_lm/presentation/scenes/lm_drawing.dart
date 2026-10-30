@@ -195,6 +195,34 @@ final class LineBatch {
   }
 }
 
+/// Every edge of a network's layer, (from, to, what it carries), faint, as
+/// strong as what it carries against the strongest, in the colour of its sign.
+void drawEdges(
+  Canvas canvas,
+  LmView view,
+  List<(int, int, double)> edges,
+  Offset Function(int) from,
+  Offset Function(int) to,
+  double alpha,
+) {
+  double most = 1e-9;
+  for (final (_, _, double c) in edges) {
+    most = math.max(most, c.abs());
+  }
+  final LineBatch batch = LineBatch();
+  for (final (int a, int b, double c) in edges) {
+    final double w = c.abs() / most;
+    batch.line(
+      from(a),
+      to(b),
+      c >= 0 ? view.inks.positive : view.inks.negative,
+      0.5 + 1.3 * w,
+      (0.05 + 0.75 * math.pow(w, 1.4)) * alpha,
+    );
+  }
+  batch.draw(canvas);
+}
+
 /// A grid of flat cells drawn in one call: a residual stream, a weight matrix.
 final class GridMesh {
   GridMesh(

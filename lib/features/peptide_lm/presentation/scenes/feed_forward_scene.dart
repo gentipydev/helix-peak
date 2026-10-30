@@ -181,10 +181,8 @@ final class FeedForwardScene extends LmScene {
       final List<double> input = layout.inputs(focus);
       final double scale = table.scale;
       final Rect lifted = row.shift(Offset(0, -layout.table.layout.pitch * 0.55 * lift));
-      _strip(
+      table.strip(
         canvas,
-        view,
-        layout,
         from: lifted,
         to: layout.inputColumn,
         f: stand,
@@ -202,10 +200,8 @@ final class FeedForwardScene extends LmScene {
     if (down > 0 && beat < _alone.$1 + 0.05) {
       final List<double> gain = table.gained(_before, _after, focus);
       final double gainScale = table.gainScale(_before, _after);
-      _strip(
+      table.strip(
         canvas,
-        view,
-        layout,
         from: row,
         to: layout.outputColumn,
         f: 1 - down,
@@ -214,53 +210,6 @@ final class FeedForwardScene extends LmScene {
         outlined: true,
       );
     }
-  }
-
-  /// A row of [colors] [f] of the way from lying across [from] to standing
-  /// in [to], its first number at the top; its numbers written while it
-  /// lies.
-  void _strip(
-    Canvas canvas,
-    LmView view,
-    FeedForwardLayout layout, {
-    required Rect from,
-    required Rect to,
-    required double f,
-    required List<Color> colors,
-    List<double>? numbers,
-    double alpha = 1,
-    bool outlined = false,
-  }) {
-    if (alpha <= 0) {
-      return;
-    }
-    final Offset centre = Offset.lerp(from.center, to.center, f)!;
-    final double length = from.width + (to.height - from.width) * f;
-    final double thick = from.height + (to.width - from.height) * f;
-    final Rect strip = Rect.fromCenter(center: Offset.zero, width: length, height: thick);
-    canvas.save();
-    canvas.translate(centre.dx, centre.dy);
-    canvas.rotate(math.pi / 2 * f);
-    layout.table.layout.fill(
-      canvas,
-      strip,
-      <Color>[for (final Color c in colors) c.withValues(alpha: c.a * alpha)],
-      gap: EmbeddingLayout.gap * (1 - f) + 0.5 * f,
-      radius: EmbeddingLayout.radius * (1 - f) + 1.5 * f,
-    );
-    if (outlined) {
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(strip.inflate(1), const Radius.circular(3)),
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.2
-          ..color = view.inks.signal.withValues(alpha: 0.85 * alpha),
-      );
-    }
-    if (numbers != null) {
-      layout.table.drawRow(canvas, strip, numbers, scale: 1, fill: 0, text: alpha);
-    }
-    canvas.restore();
   }
 
   // ---------------------------------------------------------------- network
@@ -297,10 +246,10 @@ final class FeedForwardScene extends LmScene {
         for (int u = 0; u < ff; u++) (u, d, neurons[u] * trace.ffOut(view.checkpoint, block, d, u)),
     ];
     if (hiddenIn > 0) {
-      _edges(canvas, view, inEdges, layout.inputAt, layout.hiddenAt, hiddenIn);
+      drawEdges(canvas, view, inEdges, layout.inputAt, layout.hiddenAt, hiddenIn);
     }
     if (outIn > 0) {
-      _edges(canvas, view, outEdges, layout.hiddenAt, layout.outputAt, outIn);
+      drawEdges(canvas, view, outEdges, layout.hiddenAt, layout.outputAt, outIn);
     }
     _pulses(canvas, view, inEdges, layout.inputAt, layout.hiddenAt, beat, _fireFrom, _outFrom, gone);
     _pulses(canvas, view, outEdges, layout.hiddenAt, layout.outputAt, beat, _outIn.$2, _networkOut.$1, gone);
@@ -391,34 +340,6 @@ final class FeedForwardScene extends LmScene {
         ..strokeWidth = 0.8
         ..color = view.inks.rule.withValues(alpha: alpha),
     );
-  }
-
-  /// Every edge, faint, as strong as what it carries against the strongest,
-  /// in the colour of its sign.
-  static void _edges(
-    Canvas canvas,
-    LmView view,
-    List<(int, int, double)> edges,
-    Offset Function(int) from,
-    Offset Function(int) to,
-    double alpha,
-  ) {
-    double most = 1e-9;
-    for (final (_, _, double c) in edges) {
-      most = math.max(most, c.abs());
-    }
-    final LineBatch batch = LineBatch();
-    for (final (int a, int b, double c) in edges) {
-      final double w = c.abs() / most;
-      batch.line(
-        from(a),
-        to(b),
-        c >= 0 ? view.inks.positive : view.inks.negative,
-        0.5 + 1.3 * w,
-        (0.05 + 0.75 * math.pow(w, 1.4)) * alpha,
-      );
-    }
-    batch.draw(canvas);
   }
 
   /// How many edges carry the signal's pulses: the strongest of each layer.

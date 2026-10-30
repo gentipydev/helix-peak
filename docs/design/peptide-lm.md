@@ -24,7 +24,10 @@ them, and keeps every number through read-only hooks:
   the layer's input, within 4 × 10⁻⁷ of the layer's own output), what each
   block worked out on the way (schema 3: its queries, keys and values, every
   score before softmax, each head's mix of values, its feed-forward's input,
-  neurons and weights), the stream read out early (the final norm and the
+  neurons and weights; schema 4, 2026-10-31, for the Scores stage: the row its
+  attention reads, evened out, its first LayerNorm's scale and shift, the
+  weights and biases that make the queries, keys and values, and those whole,
+  float32 rather than int8, the training byte for byte the same), the stream read out early (the final norm and the
   output layer applied at every point before it, with the step's own
   weights: a probe the Forward stage draws, the last point's the model's
   own output), the logits and the probabilities over the 21 tokens that can
@@ -40,7 +43,7 @@ production serves. The run itself:
 | | |
 |---|---|
 | data | six peptides, 174 residues: insulin A and B chains and C-peptide, relaxin A and B chains, copeptin; nothing held out |
-| model | 2 blocks of 2 heads, width 16, feed-forward 64, 51 places: 8,167 parameters (recorded again at 2 × 2 on 2026-10-30, at the user's ask, for the forward pass told in three stages; it was 4 × 4, 14,727 parameters, and before that 96 wide, 456,887. Sized to the six's longest, 40 places, the same evening and put back: the user chose to keep the engine's 51, `<bos>` and up to 50 residues, and to explain it on the page) |
+| model | 2 blocks of 2 heads, width 16, feed-forward 64, 51 places: 8,167 parameters (recorded again at 2 × 2 on 2026-10-30, at the user's ask, for the forward pass told in three stages, now four; it was 4 × 4, 14,727 parameters, and before that 96 wide, 456,887. Sized to the six's longest, 40 places, the same evening and put back: the user chose to keep the engine's 51, `<bos>` and up to 50 residues, and to explain it on the page) |
 | training | AdamW 1e−2 (at 1e−3 a model 16 wide never passes one nat in 200 steps), weight decay 0.1 on matrices, 100 warm-up steps then cosine, clip 1.0, dropout 0, all six a step, 200 steps, seed 0 |
 | loss | 3.220 at step 1 (worse than uniform, 3.045) to 0.065 at step 200 |
 | baselines | uniform 3.045, unigram 2.856, bigram 2.043 |
@@ -57,7 +60,7 @@ every step. A tap on a stage plays it once, a beat every two seconds, and it
 holds on its last frame until another is tapped, or the same one again.
 Beside the caption, a player of that stage alone: Replay, and Play/Pause.
 The stage bar keeps its names at full size and scrolls sideways where a
-phone is too narrow for all eleven; a stage played whose name stands partly
+phone is too narrow for all twelve; a stage played whose name stands partly
 out of view is scrolled just far enough to show it whole.
 
 1. **Tokenise.** The dataset, a peptide a row folded onto two lines where
@@ -221,21 +224,46 @@ out of view is scrolled just far enough to show it whole.
    user's ask the matrix runs 4 pt from either side of the canvas, the id
    5 pt from its tile and the tile 3 pt from the numbers, so the numbers
    have the width (about 25 pt a cell on a Pro Max).
-4. **Attention.** The user's split of 2026-10-30: the forward pass is three
-   stages, each opening on the last frame of the one before, pixel for pixel,
-   on Embedding's layout, a row a place. Block 1's attention, in 14 beats, at
-   the place in focus (insulin A's C11 by default):
-   - x0's table narrows to a strip a place;
-   - head 1:
-     - each place's key comes out of its row, and the place in focus's query
-       passes each key up to its own, a score written beside each (q·k/√8,
-       the run's own);
-     - the places after it are struck through;
-     - softmax makes the scores shares (G1 55%, Q5 29% at step 200);
-     - the keys turn into values, and arcs carry each share of each value
-       into the head's eight-number answer, values riding them: the old green
-       arcs, now carrying numbers;
-   - head 2 the same, quicker (C11 reads C11 29%, C6 27%, C7 26%);
+4. **Scores.** The user's split of 2026-10-31 (the forward pass had been
+   three stages since 2026-10-30): Attention was too much at once, so block
+   1's attention up to its shares is a stage of its own, 18 beats, opening on
+   Embedding's last frame pixel for pixel, on its layout, a row a place, at
+   the place in focus (insulin A's C11 by default). It is drawn from the run's
+   schema 4, which keeps the row attention reads, the LayerNorm's scale and
+   shift, the weights that make the queries, keys and values, and those whole.
+   - x0's table narrows to a strip a place, and a copy of the row in focus
+     lifts off and stands up on the bench at its right, its numbers beside it;
+   - evened out (LayerNorm) on a chart beside it, x0's bars outlined as they
+     move: less the mean (C11: 0.08 at step 1), over the SD (1.10), a z-score,
+     then the learned scale and shift (still 1 and 0 at step 1, which the
+     caption says);
+   - the evened row's edges, each weight times the number it carries, make a
+     query of 16 a number at a time, then a key and a value through their own
+     weights; each column parts between its 8th and 9th number: head 1 takes
+     1–8, head 2 9–16. The note says why the width must divide by the heads
+     (the model refuses a width they do not, `d_model % nhead`) and that this
+     8 is the √8 of the score;
+   - head 1's query and key lie down by the row in focus, every place's key
+     comes out of its row, and the places after it are struck through;
+   - one score worked out, the top one (S9 at step 1): the query over the key,
+     their products number by number, Σ = 3.60, ÷ √8 = 1.27, which flies to
+     its place; then the query passes every key up to <bos>;
+   - softmax makes the scores shares, a bar each across the bench with its
+     percentage (S9 23%, I2 11%);
+   - why √8: the divisor is taken back to 1 and put back. The scores grow to
+     the plain sums and the bars sharpen as they go, the real shares outlined
+     (S9 would take 63%; at step 200, G1 85% for 55%); the note says a sum of 8
+     products spreads about √8 times as wide as one, so the division keeps the
+     scores on one scale whatever a head's size.
+
+   The shares here, and in Attention's captions, are softmax of the kept
+   scores, whole (the u1 maps differed by up to 0.5 points: S9 read 24%).
+5. **Attention.** It opens on Scores' last frame, in 10 beats:
+   - head 1's scores give way to its shares, its keys turn into values, and
+     arcs carry each share of each value into the head's eight-number answer,
+     values riding them, as Scores' bars go;
+   - head 2 reads in full, quicker (C11 reads C11 29%, C6 27%, C7 26% at step
+     200);
    - the answers, side by side, are mixed back to 16 ("what C11 read");
    - every place at once: the two heads' maps, a row a place, built top to
      bottom;
@@ -243,7 +271,7 @@ out of view is scrolled just far enough to show it whole.
      own scale, then the sums: x0 + attention.
 
    Over it a note says why each part happens.
-5. **Feed-forward.** Block 1's feed-forward, in 10 beats:
+6. **Feed-forward.** Block 1's feed-forward, in 10 beats:
    - a copy lifts off the row in focus, its numbers re-written as its
      LayerNorm's, and stands up as the 16 inputs of a network drawn left to
      right, numbers beside them;
@@ -253,7 +281,7 @@ out of view is scrolled just far enough to show it whole.
    - then the 16 outputs, numbers written;
    - they lie down onto the row in focus, and every place gains the same
      network's output, alone, then added: block 1's output.
-6. **Forward.** The pass layer to layer, in 11 beats: block 1's output
+7. **Forward.** The pass layer to layer, in 11 beats: block 1's output
    condenses into a network, a row a place and a column a point of the
    stream (x0, then after each block's attention and feed-forward), flowing
    left to right.
@@ -272,23 +300,23 @@ out of view is scrolled just far enough to show it whole.
      of 40; at step 1, none. C11 reads out T 64% at x0, T 94% after block 1
      (confidently wrong: CCT comes earlier in the chain) and S 100% after
      block 2, and S is next.
-7. **Predict.** The final column runs down the output layer's 23 rows and
+8. **Predict.** The final column runs down the output layer's 23 rows and
    each row's logit grows; `<pad>` and `<bos>` are struck to −∞; softmax
    turns the rest into 21 bars in the residues' colours, what came next
    outlined. Untrained, after GIVEQCCTSIC the model says K 10%; at step 200,
    S 99.6% (100% as the page rounds it), and S is next.
-8. **Loss.** A ghost bar rises to certainty at the target, the gap bracketed
+9. **Loss.** A ghost bar rises to certainty at the target, the gap bracketed
    and read off the −ln p curve; every target's surprise fills a strip a
    peptide and pools into the step's loss, set against ln 21.
-9. **Backward.** The bars turn into p − y; the error comes down the tower,
+10. **Backward.** The bars turn into p − y; the error comes down the tower,
    each module's gradient norm filling its bar and each position's glowing at
    every point of the stream (by step 200 only `<bos>`'s, the unknowable first
    residue, glows); the clip gauge reads the total against 1.0.
-10. **Update.** The output layer's weights, then the clipped gradient on them,
+11. **Update.** The output layer's weights, then the clipped gradient on them,
    then AdamW's update (drawn magnified, the factor said), then the weights
    moved. Per weight, the gradient differs between modules many times over
    and Adam's step hardly at all. The learning-rate schedule marks the step.
-11. **Loop.** The loss curve draws itself past the three baselines to the
+12. **Loop.** The loss curve draws itself past the three baselines to the
    floor; under it every target's tile lights up with the probability the
    model gives it, all but each peptide's first; the output layer drifts.
 

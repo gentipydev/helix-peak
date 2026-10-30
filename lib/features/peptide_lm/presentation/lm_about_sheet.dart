@@ -87,13 +87,23 @@ class LmAboutSheet extends StatelessWidget {
                   'the residual stream as the first block reads it.',
             ),
             paragraph(
+              'Scores',
+              'Each block first evens out each place\'s row (LayerNorm): its numbers less '
+                  'their mean, over their SD, then a learned scale and shift for each '
+                  'column. Learned weights make one query, one key and one value of '
+                  '${model.width} numbers from that row, the same weights at every place, '
+                  'and cut each into ${spelled(model.heads)} equal slices, one for each '
+                  'head: ${trace.headSize} numbers a head, which is why the width must '
+                  'divide by the heads. A place\'s query is scored against each key up to '
+                  'its own, number by number, summed and divided by √${trace.headSize}, the '
+                  'root of a head\'s size, which keeps the scores on one scale however wide '
+                  'a head is; softmax makes the scores shares. Without the division the '
+                  'top place would take most of the share.',
+            ),
+            paragraph(
               'Attention',
-              'Each block first evens out each place\'s row (LayerNorm), then lets every '
-                  'place read the places before it, never those after, through '
-                  '${spelled(model.heads)} attention heads of ${trace.headSize} numbers each. '
-                  'A place\'s query is scored against each key up to its own, softmax makes '
-                  'the scores shares, and the head hands the place those shares of the '
-                  'places\' values. The heads\' answers, side by side, are mixed back to '
+              'Each head hands the place its shares of the places\' values, never of '
+                  'those after it. The heads\' answers, side by side, are mixed back to '
                   '${model.width} numbers and added to the stream.',
             ),
             paragraph(

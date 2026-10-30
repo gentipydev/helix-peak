@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Eleven stages (`TrainingTimeline`, 122 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 136 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -266,8 +266,8 @@ plays that stage and nothing else: Replay, and Play/Pause (Play from the
 end plays it again); no stepping between stages and no speeds (the user's
 choices of 2026-10-30, which retired the shared `TransportBar` here). The
 caption's box is held at the stage's tallest caption at its width, so the
-canvas never resizes while a stage plays. Tokenise, Shift, Embedding, Attention, Feed-forward,
-Forward, Predict, Loss, Backward and Update show one training step at the checkpoint picked ("Step N ▾": the
+canvas never resizes while a stage plays. Tokenise, Shift, Embedding, Scores, Attention,
+Feed-forward, Forward, Predict, Loss, Backward and Update show one training step at the checkpoint picked ("Step N ▾": the
 steps that kept every activation), and Loop plays all of them. Each stage is a painter in
 `presentation/scenes/`, a pure function of the frame; a tap or a drag on the
 canvas puts a peptide, a position or an attention head in focus. Shift
@@ -287,19 +287,34 @@ row, alone and then added; and their sum, x0, both tables the run's own (each
 checkpoint keeps them whole, float32, since the run's schema 2 of
 2026-10-30), and over the table a note of why each part happens. The run is 16 wide
 for it, two blocks of two heads (recorded again on 2026-10-30, 8,167
-parameters, schema 3: the stream kept whole, each block's insides, and the
-stream read out early). The forward pass is three stages, each opening on the
-last frame of the one before, pixel for pixel, on Embedding's layout, a row a
-place (`StreamTable`, `stream_table.dart`), the user's split of 2026-10-30:
-- **Attention** (`attention_scene.dart`), block 1's, opens on x0's table. The
-  table narrows to a strip a place. For the place in focus, one head at a time,
-  each place's key comes out of its row and the place in focus's query passes
-  each key up to its own, a score written beside each; softmax makes them
-  shares; the keys turn into values, and arcs carry each share of each value
-  into the head's answer. The places after it are struck through. The heads'
-  answers, side by side, are mixed back to 16. Every place at once then builds
-  the heads' maps. The table widens again to what attention adds, alone, then
-  the sums, `x0 + attention`.
+parameters; schema 4 since 2026-10-31: the stream kept whole, each block's
+insides, the row each block's attention reads evened out with its LayerNorm's
+scale and shift and the weights that make the queries, keys and values, those
+whole, and the stream read out early). The forward pass is four stages, each
+opening on the last frame of the one before, pixel for pixel, on Embedding's
+layout, a row a place (`StreamTable`, `stream_table.dart`), the user's splits
+of 2026-10-30 and 2026-10-31:
+- **Scores** (`scores_scene.dart`), block 1's attention up to its shares,
+  opens on x0's table. The table narrows to a strip a place, and a copy of the
+  row in focus stands up on the bench at its right, evened out on a chart
+  beside it: less its mean, over its SD (a z-score), then the norm's learned
+  scale and shift. Its edges, each weight times the number it carries, make a
+  query, a key and a value of 16, which part into a slice a head (head 1
+  numbers 1–8, head 2 9–16: why the width must divide by the heads, and the 8
+  of √8). Head 1's query and key lie down by the row in focus and every place's
+  key comes out of its row. One score is worked out on the bench, the top
+  one: query over key, their products number by number, the sum, over √8; then
+  the query passes every key up to its own. Softmax makes the scores shares,
+  a bar each across the bench; then the divisor is taken back to 1 and put
+  back, the bars sharpening (insulin A's C11 at step 1: S9 23% → 63%) with the
+  real shares outlined. Shares are softmax of the kept scores, whole, here and
+  in Attention (`AttentionScene.shares`).
+- **Attention** (`attention_scene.dart`) opens on Scores' last frame. Head 1's
+  keys turn into values and arcs carry each share of each value into the
+  head's answer, as its bars go. The places after it are struck through. Head
+  2 reads in full, quicker. The heads' answers, side by side, are mixed back to
+  16. Every place at once then builds the heads' maps. The table widens again
+  to what attention adds, alone, then the sums, `x0 + attention`.
 - **Feed-forward** (`feed_forward_scene.dart`), block 1's: a copy lifts off the
   row in focus, evened out by its LayerNorm, and stands up as the 16 inputs of
   a network drawn left to right. All 1,024 weights reach the 64 neurons,

@@ -9,26 +9,23 @@ import '../lm_format.dart';
 import 'embedding_scene.dart';
 import 'lm_drawing.dart';
 import 'lm_scene.dart';
+import 'scores_scene.dart';
 import 'stream_table.dart';
 
-/// When one head does each part of its reading, in beats: its keys and the
-/// query come, the query passes every key up to its own place, the scores
-/// become shares, the values flow; and when it is done.
-typedef HeadTimes = ({double keys, double scan, double soft, double values, double end});
+/// When one head does each part of its reading, in beats: its keys come, the
+/// query passes every key up to its own place and goes, the scores become
+/// shares, the values flow; and when it is done.
+typedef HeadTimes = ({double keys, double scan, double soft, double shares, double values, double end});
 
-/// Attention, block 1's first part, as the engine runs it
-/// (`nn.MultiheadAttention` after the block's first LayerNorm). It opens on
-/// Embedding's last frame, x0 a row a place, whose numbers go as the table
-/// narrows to a strip a place. Then, for the place in focus, one head at a
-/// time: every place makes a key, the place in focus a query; the query
-/// passes each key up to its own place and a score is written beside each;
-/// softmax makes them shares; each key turns into its place's value, and
-/// arcs carry each share of each value into the head's answer. Head 1 takes
-/// its time and the others follow quicker; their answers, side by side, are
-/// mixed back to the stream's width. Every place does the same at once: a
-/// map a head, a row a place. Last, the table widens again: what attention
-/// adds to each place, alone, and then added, x0 + attention, the first
-/// point of the stream after x0.
+/// Attention, block 1's first part after Scores, as the engine runs it
+/// (`nn.MultiheadAttention`). It opens on Scores' last frame: head 1's keys,
+/// its scores and its shares at the place in focus. Each key turns into its
+/// place's value, and arcs carry each share of each value into the head's
+/// answer. The other heads follow quicker, each its own keys, query, scores
+/// and shares; their answers, side by side, are mixed back to the stream's
+/// width. Every place does the same at once: a map a head, a row a place.
+/// Last, the table widens again: what attention adds to each place, alone,
+/// and then added, x0 + attention, the first point of the stream after x0.
 ///
 /// Every number is the run's: the scores, the shares, and each point of the
 /// stream, whole.
@@ -40,35 +37,32 @@ final class AttentionScene extends LmScene {
 
   static double get _beats => LmStage.attention.beats.toDouble();
 
-  // The open: x0's numbers go, then the table narrows to a strip a place, and
-  // the place in focus is outlined.
-  static const (double, double) _numbersOut = (0.0, 0.25);
-  static const (double, double) _squeeze = (0.2, 0.95);
-  static const (double, double) _outline = (0.5, 0.9);
-  static const (double, double) _noteOut = (0.0, 0.25);
+  // The heads: the first hands its values over, the others read in full and
+  // share what is left before the join.
+  static const double _firstHeadTo = 1.6;
+  static const double _joinFrom = 4.4;
+  static const double _mapsFrom = 5.2;
+  static const double _widenFrom = 6.6;
+  static const double _widenTo = 7.4;
 
-  // The heads: the first takes its time, the others share what is left
-  // before the join.
-  static const double _headsFrom = 1.0;
-  static const double _firstHeadTo = 6.0;
-  static const double _joinFrom = 8.8;
-  static const double _mapsFrom = 9.6;
-  static const double _widenFrom = 11.0;
-  static const double _widenTo = 11.8;
+  // Scores' bars of head 1's shares go as its arcs come.
+  static const (double, double) _barsOut = (0.0, 0.6);
 
   // What attention added, alone on its own scale, then the sums.
-  static const (double, double) _alone = (11.0, 11.6);
-  static const (double, double) _gainWritten = (11.8, 12.0);
-  static const (double, double) _gainUnwritten = (12.4, 12.6);
-  static const (double, double) _add = (12.5, 12.9);
-  static const (double, double) _sumsWritten = (12.7, 12.9);
+  static const (double, double) _alone = (6.6, 7.2);
+  static const (double, double) _gainWritten = (7.4, 7.6);
+  static const (double, double) _gainUnwritten = (8.0, 8.2);
+  static const (double, double) _add = (8.1, 8.5);
+  static const (double, double) _sumsWritten = (8.3, 8.5);
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
-  /// When head [h] of [heads] does each part.
+  /// When head [h] of [heads] does each part. Head 1 read in Scores: its keys
+  /// are out, every score written and its query gone; here its scores become
+  /// shares as its values come.
   static HeadTimes times(int h, int heads) {
     if (h == 0 || heads < 2) {
-      return (keys: _headsFrom, scan: 1.8, soft: 3.6, values: 4.4, end: _firstHeadTo);
+      return (keys: -3, scan: -2.5, soft: -0.5, shares: 0, values: 0, end: _firstHeadTo);
     }
     final double span = (_joinFrom - _firstHeadTo) / (heads - 1);
     final double start = _firstHeadTo + (h - 1) * span;
@@ -76,6 +70,7 @@ final class AttentionScene extends LmScene {
       keys: start,
       scan: start + span * 0.18,
       soft: start + span * 0.46,
+      shares: start + span * 0.46,
       values: start + span * 0.6,
       end: start + span,
     );
@@ -83,7 +78,7 @@ final class AttentionScene extends LmScene {
 
   /// The head on screen at [beat], or null outside the heads.
   static int? headAt(double beat, int heads) {
-    if (beat < _headsFrom || beat >= _joinFrom) {
+    if (beat < 0 || beat >= _joinFrom) {
       return null;
     }
     for (int h = heads - 1; h >= 0; h--) {
@@ -105,18 +100,18 @@ final class AttentionScene extends LmScene {
     final AttentionLayout layout = AttentionLayout(size, view);
     final StreamTable table = layout.table;
     final TrainingTrace trace = view.trace;
-    // Embedding's note and its x0 tag, going as this stage's come.
+    // Embedding's x0 tag, going as the table widens.
     const EmbeddingScene().paintEnd(
       canvas,
       size,
       view,
-      EmbeddingFade(
-        rows: false,
-        chrome: 1 - through(beat, _widenFrom - 0.1, _widenFrom + 0.1),
-        note: 1 - _span(beat, _noteOut),
-      ),
+      EmbeddingFade(rows: false, chrome: 1 - through(beat, _widenFrom - 0.1, _widenFrom + 0.1), note: 0),
     );
-    table.note(canvas, notes(view), beat);
+    table.note(
+      canvas,
+      <(double, double, String)>[(double.negativeInfinity, 0.25, ScoresScene.lastNote(view).$3), ...notes(view)],
+      beat,
+    );
     final int width = trace.model.width;
     final int n = view.focus.inputs;
     table.tag(
@@ -127,7 +122,7 @@ final class AttentionScene extends LmScene {
     table.tag(canvas, 'x0 + attention · $n × $width', through(beat, _gainUnwritten.$2, _gainUnwritten.$2 + 0.2));
     _stream(canvas, size, view, layout, beat);
     table.drawTiles(canvas);
-    table.outline(canvas, view.position, layout.stream(view.position, _squeezeAt(beat)).right, _span(beat, _outline));
+    table.outline(canvas, view.position, layout.stream(view.position, _squeezeAt(beat)).right, 1);
     final int heads = trace.model.heads;
     for (int h = 0; h < heads; h++) {
       _head(canvas, view, layout, beat, h);
@@ -136,9 +131,9 @@ final class AttentionScene extends LmScene {
     _maps(canvas, view, layout, beat);
   }
 
-  /// How narrow the table is at [beat]: 0 written out, 1 a strip a place.
-  static double _squeezeAt(double beat) =>
-      _span(beat, _squeeze) * (1 - through(beat, _widenFrom, _widenTo));
+  /// How narrow the table is at [beat]: 1 a strip a place, as Scores left
+  /// it, 0 written out again.
+  static double _squeezeAt(double beat) => 1 - through(beat, _widenFrom, _widenTo);
 
   // ---------------------------------------------------------------- stream
 
@@ -152,14 +147,13 @@ final class AttentionScene extends LmScene {
     final double add = _span(beat, _add);
     final double scale = table.scale;
     final double gainScale = table.gainScale(0, 1);
-    final double x0Text = 1 - _span(beat, _numbersOut);
     final double gainText = _span(beat, _gainWritten) * (1 - _span(beat, _gainUnwritten));
     final double sumText = _span(beat, _sumsWritten);
     for (int i = 0; i < n; i++) {
       final Rect rect = layout.stream(i, squeeze);
       final List<double> x0 = table.values(0, i);
       if (alone <= 0) {
-        table.drawRow(canvas, rect, x0, scale: scale, text: squeeze > 0.02 ? 0 : x0Text);
+        table.drawRow(canvas, rect, x0, scale: scale, text: 0);
         continue;
       }
       final List<double> gain = table.gained(0, 1, i);
@@ -188,7 +182,7 @@ final class AttentionScene extends LmScene {
 
   /// The colour scale of head [h]'s queries, keys and values over the places
   /// in focus: one scale, so their colours can be set against each other.
-  static double _qkvScale(LmView view, int h) => view.kit.memo<double>(
+  static double qkvScale(LmView view, int h) => view.kit.memo<double>(
     ('attention-qkv', view.step, view.peptide, block, h),
     () {
       final TrainingTrace trace = view.trace;
@@ -216,9 +210,31 @@ final class AttentionScene extends LmScene {
     },
   );
 
+  /// What the place in focus reads of each place up to its own in head [h]:
+  /// softmax of its scores, worked out from the scores as they are kept,
+  /// whole. With [over], the scores are first taken back to their plain sums
+  /// (times the root of a head's size) and divided by [over] instead.
+  static List<double> shares(LmView view, int h, {double? over}) {
+    List<double> make() {
+      final TrainingTrace trace = view.trace;
+      final double by = over == null ? 1 : math.sqrt(trace.headSize) / over;
+      final List<double> scores = <double>[
+        for (int j = 0; j <= view.position; j++)
+          trace.score(view.checkpoint, block, h, view.peptide, view.position, j) * by,
+      ];
+      final double top = scores.reduce(math.max);
+      final List<double> e = <double>[for (final double s in scores) math.exp(s - top)];
+      final double sum = e.reduce((double a, double b) => a + b);
+      return <double>[for (final double x in e) x / sum];
+    }
+
+    return over == null
+        ? view.kit.memo<List<double>>(('attention-shares', view.step, view.peptide, block, h, view.position), make)
+        : make();
+  }
+
   /// Place [key]'s share of what the place in focus reads, in head [h].
-  static double share(LmView view, int h, int key) =>
-      view.trace.attention(view.checkpoint, block, h, view.peptide, view.position, key);
+  static double share(LmView view, int h, int key) => shares(view, h)[key];
 
   /// Head [h]'s part: every place's key, then its value; the query passing
   /// the keys; each score, then each share; and the arcs carrying the values
@@ -231,22 +247,67 @@ final class AttentionScene extends LmScene {
       return;
     }
     final int n = view.focus.inputs;
+    drawStrips(
+      canvas,
+      view,
+      layout,
+      h,
+      grow: (int j) => through(beat, t.keys + 0.3 * j / math.max(1, n - 1), t.keys + 0.3 * j / math.max(1, n - 1) + 0.3),
+      flip: through(beat, t.values, t.values + 0.4),
+      alpha: shown,
+    );
+    drawHatch(canvas, view, layout, shown);
+    _scores(canvas, view, layout, beat, h, t, shown);
+    final double query = through(beat, t.keys + 0.2, t.keys + 0.5) * (1 - through(beat, t.soft, t.soft + 0.3)) * shown;
+    drawQuery(canvas, view, layout, h, _scanRow(beat, t, view.position), query);
+    if (h == 0) {
+      ScoresScene.drawShares(canvas, view, layout, alpha: 1 - _span(beat, _barsOut));
+    }
+    _arcs(canvas, view, layout, beat, h, t, shown);
+    final double named = through(beat, t.keys, t.keys + 0.3) * (1 - through(beat, t.end - 0.1, t.end + 0.15));
+    drawHeadTag(canvas, view, layout, h, beat < t.values + 0.2 ? 'query and keys' : 'values', named);
+  }
+
+  /// Head [h]'s name over its strips, and what they hold.
+  static void drawHeadTag(Canvas canvas, LmView view, AttentionLayout layout, int h, String what, double alpha) {
+    if (alpha > 0) {
+      drawTag(
+        canvas,
+        view,
+        'head ${h + 1} · $what',
+        Offset(layout.kvLeft - tagPadding, layout.table.layout.tagTop),
+        alpha: alpha,
+      );
+    }
+  }
+
+  /// Every place's key in head [h], [flip] of the way to its value, each
+  /// [grow] of the way out of its row; those after the place in focus faint:
+  /// it never reads them.
+  static void drawStrips(
+    Canvas canvas,
+    LmView view,
+    AttentionLayout layout,
+    int h, {
+    required double Function(int j) grow,
+    double flip = 0,
+    double alpha = 1,
+    bool Function(int j)? skip,
+  }) {
+    final TrainingTrace trace = view.trace;
     final int focus = view.position;
     final int size = trace.headSize;
-    final double scale = _qkvScale(view, h);
-    final double flip = through(beat, t.values, t.values + 0.4);
-    // Every place's key, then its value; those after the place in focus
-    // faint, and struck through: it never reads them.
-    for (int j = 0; j < n; j++) {
-      final double grow = through(beat, t.keys + 0.3 * j / math.max(1, n - 1), t.keys + 0.3 * j / math.max(1, n - 1) + 0.3);
-      if (grow <= 0) {
+    final double scale = qkvScale(view, h);
+    for (int j = 0; j < view.focus.inputs; j++) {
+      final double out = grow(j);
+      if (out <= 0 || (skip != null && skip(j))) {
         continue;
       }
       final Rect strip = layout.kv(j);
       // Each strip comes out of its row from the left, its cells uncovered,
       // not squeezed.
       canvas.save();
-      canvas.clipRect(Rect.fromLTWH(strip.left - 1, strip.top - 1, strip.width * grow + 2, strip.height + 2));
+      canvas.clipRect(Rect.fromLTWH(strip.left - 1, strip.top - 1, strip.width * out + 2, strip.height + 2));
       layout.table.layout.fill(
         canvas,
         strip,
@@ -263,7 +324,7 @@ final class AttentionScene extends LmScene {
                               trace.value(view.checkpoint, block, h, view.peptide, j, d) * flip) /
                     scale,
               ),
-              shown * (j > focus ? 0.3 : 1),
+              alpha * (j > focus ? 0.3 : 1),
             )!,
         ],
         gap: 0.5,
@@ -271,28 +332,14 @@ final class AttentionScene extends LmScene {
       );
       canvas.restore();
     }
-    _hatch(canvas, view, layout, shown);
-    _scores(canvas, view, layout, beat, h, t, shown);
-    _query(canvas, view, layout, beat, h, t, shown);
-    _arcs(canvas, view, layout, beat, h, t, shown);
-    final double named = through(beat, t.keys, t.keys + 0.3) * (1 - through(beat, t.end - 0.1, t.end + 0.15));
-    if (named > 0) {
-      drawTag(
-        canvas,
-        view,
-        'head ${h + 1} · ${beat < t.values ? 'query and keys' : 'values'}',
-        Offset(layout.kvLeft - tagPadding, layout.table.layout.tagTop),
-        alpha: named,
-      );
-    }
   }
 
   /// The places after the one in focus, which it never reads: their keys and
   /// scores struck through.
-  void _hatch(Canvas canvas, LmView view, AttentionLayout layout, double alpha) {
+  static void drawHatch(Canvas canvas, LmView view, AttentionLayout layout, double alpha) {
     final int n = view.focus.inputs;
     final int focus = view.position;
-    if (focus >= n - 1) {
+    if (focus >= n - 1 || alpha <= 0) {
       return;
     }
     final Rect area = Rect.fromLTRB(
@@ -321,8 +368,27 @@ final class AttentionScene extends LmScene {
 
   /// Where the query is, as a row (fractional): it rises from its own place
   /// to `<bos>` through the scan.
-  static double _scanRow(double beat, HeadTimes t, int focus) =>
-      focus * (1 - ((beat - t.scan) / (t.soft - t.scan)).clamp(0.0, 1.0));
+  static double _scanRow(double beat, HeadTimes t, int focus) => scanRow(beat, t.scan, t.soft, focus);
+
+  /// The row the query passes at [beat], rising from [focus] at [from] to
+  /// `<bos>` at [to].
+  static double scanRow(double beat, double from, double to, int focus) =>
+      focus * (1 - ((beat - from) / (to - from)).clamp(0.0, 1.0));
+
+  /// Place [j]'s score, [value], written beside its key.
+  static void drawScore(Canvas canvas, LmView view, AttentionLayout layout, int j, double value, double alpha) {
+    if (alpha <= 0) {
+      return;
+    }
+    final Rect cell = layout.score(j);
+    view.kit.draw(
+      canvas,
+      fixed(value, 2),
+      inked(view.kit.mono, layout.textSize, view.inks.ink, alpha: alpha),
+      Offset(cell.right, cell.center.dy),
+      anchor: const Offset(1, 0.5),
+    );
+  }
 
   /// Each score beside its key as the query passes it, then each share.
   void _scores(Canvas canvas, LmView view, AttentionLayout layout, double beat, int h, HeadTimes t, double shown) {
@@ -332,7 +398,9 @@ final class AttentionScene extends LmScene {
     final TrainingTrace trace = view.trace;
     final int focus = view.position;
     final double row = _scanRow(beat, t, focus);
-    final double soft = through(beat, t.soft, t.soft + 0.5);
+    // The scores go, then the shares come in their place, never over them.
+    final double gone = through(beat, t.shares, t.shares + 0.2);
+    final double soft = through(beat, t.shares + 0.2, t.shares + 0.45);
     final TextStyle face = inked(view.kit.mono, layout.textSize, view.inks.ink);
     for (int j = 0; j <= focus; j++) {
       // A key's score appears as the query reaches it.
@@ -341,16 +409,9 @@ final class AttentionScene extends LmScene {
         continue;
       }
       final Rect cell = layout.score(j);
-      final double score = trace.score(view.checkpoint, block, h, view.peptide, focus, j);
       final double part = share(view, h, j);
-      if (soft < 1) {
-        view.kit.draw(
-          canvas,
-          fixed(score, 1),
-          inked(view.kit.mono, layout.textSize, view.inks.ink, alpha: reached * (1 - soft)),
-          Offset(cell.right, cell.center.dy),
-          anchor: const Offset(1, 0.5),
-        );
+      if (gone < 1) {
+        drawScore(canvas, view, layout, j, trace.score(view.checkpoint, block, h, view.peptide, focus, j), reached * (1 - gone));
       }
       if (soft > 0) {
         view.kit.draw(
@@ -368,18 +429,16 @@ final class AttentionScene extends LmScene {
     }
   }
 
-  /// The query of the place in focus: over its own key as it comes, then
-  /// passing each key up to `<bos>`, lifted over it and outlined.
-  void _query(Canvas canvas, LmView view, AttentionLayout layout, double beat, int h, HeadTimes t, double shown) {
-    final double alpha = through(beat, t.keys + 0.2, t.keys + 0.5) * (1 - through(beat, t.soft, t.soft + 0.3)) * shown;
+  /// Head [h]'s query of the place in focus, over its own key's level less a
+  /// lift, at [row] (fractional, as it passes the keys), outlined.
+  static void drawQuery(Canvas canvas, LmView view, AttentionLayout layout, int h, double row, double alpha) {
     if (alpha <= 0) {
       return;
     }
     final TrainingTrace trace = view.trace;
     final int focus = view.position;
-    final double row = _scanRow(beat, t, focus);
-    final Rect at = layout.kv(focus).shift(Offset(0, (row - focus) * layout.table.layout.pitch - 3));
-    final double scale = _qkvScale(view, h);
+    final Rect at = queryAt(layout, focus, row);
+    final double scale = qkvScale(view, h);
     layout.table.layout.fill(
       canvas,
       at,
@@ -402,6 +461,10 @@ final class AttentionScene extends LmScene {
         ..color = view.inks.signal.withValues(alpha: alpha),
     );
   }
+
+  /// Where the query of the place in focus is drawn at [row].
+  static Rect queryAt(AttentionLayout layout, int focus, double row) =>
+      layout.kv(focus).shift(Offset(0, (row - focus) * layout.table.layout.pitch - 3));
 
   /// The arcs from each place's value into the head's answer, as wide as the
   /// place's share against the largest, values riding them.
@@ -674,31 +737,11 @@ final class AttentionScene extends LmScene {
   /// Why each part happens, over the table, a line a thought.
   static List<(double, double, String)> notes(LmView view) {
     final TrainingTrace trace = view.trace;
-    final int size = trace.headSize;
     final int heads = trace.model.heads;
     final HeadTimes first = times(0, heads);
     return <(double, double, String)>[
       (
         0.25,
-        _headsFrom,
-        'A place still knows only itself: which residue, and where.\n'
-            'Attention lets it read the places up to its own, never those after.',
-      ),
-      (
-        _headsFrom,
-        first.soft,
-        'query: what a place looks for; key: what each place offers\n'
-            'both made from the row evened out (LayerNorm), $size numbers a head\n'
-            'a score: the two multiplied number by number, summed, over √$size',
-      ),
-      (
-        first.soft,
-        first.values,
-        'softmax: e to each score, over their sum\n'
-            'shares that add to 100%, the highest score taking most',
-      ),
-      (
-        first.values,
         first.end,
         'value: what a place hands over when it is read\n'
             "the head's answer: each value times its share, summed",
@@ -740,24 +783,10 @@ final class AttentionScene extends LmScene {
     final int width = trace.model.width;
     final int size = trace.headSize;
     final String focus = StreamTable.placeName(view, view.position);
-    if (beat < _headsFrom) {
-      return 'Block 1 of ${trace.model.layers}, attention: each place reads the places up to its own';
-    }
     final int? h = headAt(beat, heads);
     if (h != null) {
-      final HeadTimes t = times(h, heads);
       if (h > 0) {
         return 'Head ${h + 1}, its own query and keys: $focus reads ${readsMost(view, h)}';
-      }
-      if (beat < t.scan) {
-        return 'Head 1: every place makes a key, and $focus a query, $size numbers each';
-      }
-      if (beat < t.soft) {
-        return "$focus's query against each key up to its own: ${grouped(view.position + 1)} "
-            '${view.position == 0 ? 'score' : 'scores'}';
-      }
-      if (beat < t.values) {
-        return 'Softmax makes the scores shares of one: ${readsMost(view, 0)}';
       }
       return "Head 1 hands $focus its shares of each place's value: $size numbers";
     }
@@ -791,9 +820,11 @@ final class AttentionLayout {
     final TrainingTrace trace = view.trace;
     final double room = e.right - e.cellsLeft;
     const double gaps = 6 + 6;
+    // Wide enough for a share, and for a score or the plain sum it came
+    // from, to two places.
     scoreWidth = math.max(
       26.0,
-      view.kit.layout('100%', inked(view.kit.mono, textSize, view.inks.ink)).width + 4,
+      view.kit.layout('−88.88', inked(view.kit.mono, textSize, view.inks.ink)).width + 4,
     );
     // A unit a cell: the narrowed strip 0.8 of it, keys, values and answers
     // one each, the arcs what is left, at least 50.
@@ -807,6 +838,9 @@ final class AttentionLayout {
     kvRight = kvLeft + trace.headSize * unit;
     slotCell = unit;
     slotsLeft = e.right - trace.model.width * unit - 2;
+    barLeft = kvRight + 8;
+    percentWidth = view.kit.layout('100%', inked(view.kit.mono, textSize, view.inks.ink)).width + 3;
+    barRoom = math.max(10.0, e.right - percentWidth - barLeft);
     focusRow = view.position;
     headSize = trace.headSize;
     heads = trace.model.heads;
@@ -825,6 +859,12 @@ final class AttentionLayout {
   late final double kvRight;
   late final double slotCell;
   late final double slotsLeft;
+
+  /// Where the bars of the shares start, right of the keys, how wide a
+  /// percentage is written beside a bar, and how long a bar of 100% is.
+  late final double barLeft;
+  late final double percentWidth;
+  late final double barRoom;
   late final int focusRow;
   late final int headSize;
   late final int heads;
@@ -848,6 +888,13 @@ final class AttentionLayout {
   Rect score(int i) {
     final Rect band = _band(i);
     return Rect.fromLTRB(scoreLeft, band.top, scoreLeft + scoreWidth, band.bottom);
+  }
+
+  /// Place [j]'s bar for [share], on its row.
+  Rect bar(int j, double share) {
+    final Rect band = _band(j);
+    final double thick = (band.height * 0.5).clamp(2.0, 8.0);
+    return Rect.fromLTWH(barLeft, band.center.dy - thick / 2, barRoom * share.clamp(0.0, 1.0), thick);
   }
 
   /// Head [h]'s answer, on the row in focus.

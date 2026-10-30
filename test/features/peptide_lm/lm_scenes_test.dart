@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -140,41 +141,107 @@ void main() {
     );
     expect(caption(LmStage.embedding, embedding(14)), startsWith("Each place's row is added to its residue's"));
     expect(caption(LmStage.embedding, embedding(15.5)), 'x0, 12 × $width: the start of the residual stream');
-    // Attention, block 1's, at the place in focus (V3), beat by beat.
+    // Scores, block 1's attention up to its shares, at the place in focus
+    // (V3), beat by beat.
     final LmView last3 = last;
     final int size = trace.headSize;
-    String head(int h) {
-      final List<int> order = <int>[for (int j = 0; j <= 3; j++) j]
-        ..sort(
-          (int a, int b) => trace
-              .attention(last3.checkpoint, 0, h, 0, 3, b)
-              .compareTo(trace.attention(last3.checkpoint, 0, h, 0, 3, a)),
-        );
-      String name(int j) => j == 0 ? '<bos>' : '${trace.peptides.first.sequence[j - 1]}$j';
-      final double second = trace.attention(last3.checkpoint, 0, h, 0, 3, order[1]);
-      return '${name(order.first)} ${percent(trace.attention(last3.checkpoint, 0, h, 0, 3, order.first))}'
-          '${second >= 0.1 ? ', ${name(order[1])} ${percent(second)}' : ''}';
+    String name(int j) => j == 0 ? '<bos>' : '${trace.peptides.first.sequence[j - 1]}$j';
+    double score(int h, int j) => trace.score(last3.checkpoint, 0, h, 0, 3, j);
+    // The shares, softmax of the scores as kept, times [by].
+    List<double> shares(int h, [double by = 1]) {
+      final List<double> e = <double>[for (int j = 0; j <= 3; j++) math.exp(score(h, j) * by)];
+      final double sum = e.reduce((double a, double b) => a + b);
+      return <double>[for (final double x in e) x / sum];
     }
 
-    double attention(double beat) => beat / LmStage.attention.beats;
-    expect(
-      caption(LmStage.attention, attention(0.5)),
-      'Block 1 of ${trace.model.layers}, attention: each place reads the places up to its own',
+    String head(int h) {
+      final List<double> s = shares(h);
+      final List<int> order = <int>[for (int j = 0; j <= 3; j++) j]..sort((int a, int b) => s[b].compareTo(s[a]));
+      return '${name(order.first)} ${percent(s[order.first])}'
+          '${s[order[1]] >= 0.1 ? ', ${name(order[1])} ${percent(s[order[1]])}' : ''}';
+    }
+
+    // The row in focus's x0, its mean and SD as the LayerNorm takes them.
+    final List<double> x = <double>[
+      for (int d = 0; d < width; d++)
+        trace.tokenEmbedding(last3.checkpoint, trace.inputAt(0, 3), d) + trace.positionEmbedding(last3.checkpoint, 3, d),
+    ];
+    final double mean = x.reduce((double a, double b) => a + b) / width;
+    final double sd = math.sqrt(
+      x.map((double v) => (v - mean) * (v - mean)).reduce((double a, double b) => a + b) / width + 1e-5,
     );
-    expect(caption(LmStage.attention, attention(1.4)), 'Head 1: every place makes a key, and V3 a query, $size numbers each');
-    expect(caption(LmStage.attention, attention(2.5)), "V3's query against each key up to its own: 4 scores");
-    expect(caption(LmStage.attention, attention(4)), 'Softmax makes the scores shares of one: ${head(0)}');
-    expect(caption(LmStage.attention, attention(5)), "Head 1 hands V3 its shares of each place's value: $size numbers");
-    expect(caption(LmStage.attention, attention(7)), 'Head 2, its own query and keys: V3 reads ${head(1)}');
+    int top = 0;
+    for (int j = 1; j <= 3; j++) {
+      if (score(0, j) > score(0, top)) {
+        top = j;
+      }
+    }
+    final List<double> plain = shares(0, math.sqrt(size));
+    int most = 0;
+    for (int j = 1; j <= 3; j++) {
+      if (plain[j] > plain[most]) {
+        most = j;
+      }
+    }
+    double scores(double beat) => beat / LmStage.scores.beats;
     expect(
-      caption(LmStage.attention, attention(9.2)),
+      caption(LmStage.scores, scores(0.5)),
+      'Block 1 of ${trace.model.layers}, attention: first a query, key and value a place',
+    );
+    expect(
+      caption(LmStage.scores, scores(2)),
+      "V3's row, evened out first: mean ${fixed(mean, 2)}, SD ${fixed(sd, 2)}",
+    );
+    expect(caption(LmStage.scores, scores(2.8)), 'Less the mean, ${fixed(mean, 2)}: the row centres on zero');
+    expect(caption(LmStage.scores, scores(3.5)), 'Over the SD, ${fixed(sd, 2)}: each number is now a z-score');
+    expect(caption(LmStage.scores, scores(4.2)), 'Then a learned scale and shift a column: the row attention reads');
+    expect(
+      sceneOf(LmStage.scores).caption(view(inks, kit), timeline.frameIn(LmStage.scores, scores(4.2))),
+      'Then a learned scale and shift a column, still 1 and 0 at step 1',
+    );
+    expect(
+      caption(LmStage.scores, scores(5)),
+      'The query: $width numbers, each a learned weighted sum of the $width',
+    );
+    expect(
+      caption(LmStage.scores, scores(7)),
+      'Other weights, same row: $width key numbers, then $width value numbers',
+    );
+    expect(
+      caption(LmStage.scores, scores(8)),
+      'Cut in two: head 1 takes numbers 1–$size of each, head 2 ${size + 1}–${2 * size}',
+    );
+    expect(
+      caption(LmStage.scores, scores(9)),
+      'Every place does the same, with the same weights: 12 keys of $size',
+    );
+    final String topName = top == 3 ? 'its own' : "${name(top)}'s";
+    expect(caption(LmStage.scores, scores(10.5)), "V3's query times $topName key, number by number: $size products");
+    expect(
+      caption(LmStage.scores, scores(12)),
+      'Summed, ${fixed(score(0, top) * math.sqrt(size), 2)}; over √$size, ${fixed(score(0, top), 2)}: $topName score',
+    );
+    expect(caption(LmStage.scores, scores(12.8)), "V3's query against each key up to its own: 4 scores");
+    expect(caption(LmStage.scores, scores(14)), 'Softmax makes the scores shares of one: ${head(0)}');
+    expect(
+      caption(LmStage.scores, scores(16)),
+      'Without ÷√$size, the plain sums: ${name(most)} would take ${percent(plain[most])}',
+    );
+    expect(caption(LmStage.scores, 0.99), 'Over √$size, the reading is shared: ${head(0)}');
+    // Attention, after Scores: head 1's values, head 2, the join, the maps,
+    // what attention adds.
+    double attention(double beat) => beat / LmStage.attention.beats;
+    expect(caption(LmStage.attention, attention(0.5)), "Head 1 hands V3 its shares of each place's value: $size numbers");
+    expect(caption(LmStage.attention, attention(2.5)), 'Head 2, its own query and keys: V3 reads ${head(1)}');
+    expect(
+      caption(LmStage.attention, attention(4.8)),
       "The two heads' $size + $size numbers, mixed back to $width: what V3 read",
     );
     expect(
-      caption(LmStage.attention, attention(10)),
+      caption(LmStage.attention, attention(5.6)),
       'Every place at once: a map row each, nothing above the diagonal',
     );
-    expect(caption(LmStage.attention, attention(12)), 'What attention adds to each place: 12 rows of $width');
+    expect(caption(LmStage.attention, attention(7.6)), 'What attention adds to each place: 12 rows of $width');
     expect(caption(LmStage.attention, 0.99), 'Added: x0 + attention, 12 × $width');
     // Feed-forward, block 1's, at V3.
     double fed(double beat) => beat / LmStage.feedForward.beats;
@@ -292,9 +359,12 @@ void main() {
       expect(found, <int>{for (int p = 0; p < trace.peptides.length; p++) p});
     }
 
-    // Attention, Feed-forward and Forward: a row puts its place in focus,
+    // Scores, Attention, Feed-forward and Forward: a row puts its place in focus,
     // every place reachable.
     for (final (LmStage stage, double local) in <(LmStage, double)>[
+      (LmStage.scores, 0),
+      (LmStage.scores, 0.3),
+      (LmStage.scores, 1),
       (LmStage.attention, 0),
       (LmStage.attention, 1),
       (LmStage.feedForward, 0.02),
@@ -317,7 +387,7 @@ void main() {
     );
 
     // Attention's maps: a head's map shows it alone in Forward; again, both.
-    final TrainingFrame maps = timeline.frameIn(LmStage.attention, 10.4 / LmStage.attention.beats);
+    final TrainingFrame maps = timeline.frameIn(LmStage.attention, 6 / LmStage.attention.beats);
     final AttentionLayout attention = AttentionLayout(size, scene);
     expect(
       (sceneOf(LmStage.attention).hitAt(size, scene, attention.map(1).center, maps)! as FocusHead).head,
@@ -356,7 +426,8 @@ void main() {
       for (final (LmStage before, LmStage after) in <(LmStage, LmStage)>[
         (LmStage.tokenise, LmStage.shift),
         (LmStage.shift, LmStage.embedding),
-        (LmStage.embedding, LmStage.attention),
+        (LmStage.embedding, LmStage.scores),
+        (LmStage.scores, LmStage.attention),
         (LmStage.attention, LmStage.feedForward),
         (LmStage.feedForward, LmStage.forward),
       ]) {
