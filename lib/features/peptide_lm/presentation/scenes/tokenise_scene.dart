@@ -63,6 +63,10 @@ final class TokeniseScene extends LmScene {
   /// The ids' numbers under the vocabulary.
   static TextStyle _idStyle(LmView view) => inked(view.kit.mono, 8, view.inks.quiet);
 
+  /// The positions each block of the table holds, over it.
+  static TextStyle _halfStyle(LmView view, {double alpha = 1}) =>
+      inked(view.kit.sans, 10, view.inks.quiet, alpha: alpha);
+
   @override
   void paint(Canvas canvas, Size size, LmView view, TrainingFrame frame) {
     final _Layout layout = _Layout(size, view);
@@ -89,7 +93,16 @@ final class TokeniseScene extends LmScene {
     }
     final int most = math.max(1, counts.reduce(math.max));
     for (int p = 0; p < trace.peptides.length; p++) {
-      _row(canvas, view, layout, p, u, framing, table);
+      _row(canvas, view, layout, p, table);
+    }
+    // The second lines under the first: as the table closes they cross on
+    // their way to their blocks, and pass beneath, dimmed.
+    final double under = 1 - 0.65 * math.sin(math.pi * table);
+    for (int p = 0; p < trace.peptides.length; p++) {
+      _places(canvas, view, layout, p, u, framing, table, from: layout.firstLine, alpha: under);
+    }
+    for (int p = 0; p < trace.peptides.length; p++) {
+      _places(canvas, view, layout, p, u, framing, table, to: layout.firstLine);
     }
     _vocabulary(canvas, view, layout, counts, most);
     _tags(canvas, view, layout, counts, most, u, framing, table);
@@ -148,6 +161,20 @@ final class TokeniseScene extends LmScene {
     final Rect batch = coming > 0
         ? drawTag(canvas, view, 'batch', Offset(start, layout.datasetTagEnd), alpha: coming)
         : Rect.zero;
+    // Where the table is printed in two blocks, the positions each holds.
+    if (coming > 0 && layout.halves > 1) {
+      final int frame = trace.width + 1;
+      for (int half = 0; half < layout.halves; half++) {
+        final int first = half * layout.firstLine;
+        final int last = half == 0 ? layout.firstLine - 1 : frame - 1;
+        view.kit.draw(
+          canvas,
+          'positions $first–$last',
+          _halfStyle(view, alpha: coming),
+          Offset(layout.left, layout.halfTop(half) - layout.tableCaption),
+        );
+      }
+    }
     // Padding, on the last place of the shortest peptide, the first.
     final List<int> shortest = frameOf(trace, 0);
     if (trace.token(shortest.last) == '<pad>') {
@@ -292,16 +319,16 @@ final class TokeniseScene extends LmScene {
 
   /// A residue's tile part way through turning into its id: [flip] 0 is the
   /// letter, 1 the id.
-  void _flipping(Canvas canvas, LmView view, Rect rect, int id, double flip) {
+  void _flipping(Canvas canvas, LmView view, Rect rect, int id, double flip, {double alpha = 1}) {
     final double squash = math.cos(math.pi * flip).abs();
     canvas.save();
     canvas.translate(rect.center.dx, rect.center.dy);
     canvas.scale(1, math.max(0.04, squash));
     canvas.translate(-rect.center.dx, -rect.center.dy);
     if (flip < 0.5) {
-      drawToken(canvas, view, rect, id, outline: flip > 0 ? view.inks.truth : null);
+      drawToken(canvas, view, rect, id, alpha: alpha, outline: flip > 0 ? view.inks.truth : null);
     } else {
-      _idTile(canvas, view, rect, id);
+      _idTile(canvas, view, rect, id, alpha: alpha);
     }
     canvas.restore();
   }
@@ -318,26 +345,16 @@ final class TokeniseScene extends LmScene {
     );
   }
 
-  void _row(
-    Canvas canvas,
-    LmView view,
-    _Layout layout,
-    int p,
-    double u,
-    double framing,
-    double table,
-  ) {
-    final TrainingTrace trace = view.trace;
-    final TracePeptide peptide = trace.peptides[p];
-    final List<int> ids = frameOf(trace, p);
+  /// A peptide's card, in focus, and its name.
+  void _row(Canvas canvas, LmView view, _Layout layout, int p, double table) {
+    final TracePeptide peptide = view.trace.peptides[p];
     final int residues = peptide.sequence.length;
     final double top = layout.rowTop(p);
     final bool focus = p == view.peptide;
     if (focus) {
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(layout.cardAt(p, table), const Radius.circular(6)),
-        Paint()..color = view.inks.card,
-      );
+      for (final RRect card in layout.cardsAt(p, table)) {
+        canvas.drawRRect(card, Paint()..color = view.inks.card);
+      }
     }
     if (table < 1) {
       view.kit.draw(
@@ -347,17 +364,36 @@ final class TokeniseScene extends LmScene {
         Offset(layout.left, top),
       );
     }
+  }
+
+  /// Places [from] to [to] of a peptide's frame, wherever they are on the
+  /// way from its rows to the table.
+  void _places(
+    Canvas canvas,
+    LmView view,
+    _Layout layout,
+    int p,
+    double u,
+    double framing,
+    double table, {
+    int from = 0,
+    int? to,
+    double alpha = 1,
+  }) {
+    final TrainingTrace trace = view.trace;
+    final List<int> ids = frameOf(trace, p);
+    final int residues = trace.peptides[p].sequence.length;
     final double done = scanned(trace, p, u);
-    for (int k = 0; k < ids.length; k++) {
+    for (int k = from; k < math.min(to ?? ids.length, ids.length); k++) {
       final Rect rect = layout.placeAt(p, k, table);
       if (k == 0 && framing < 1) {
         // The first place held for `<bos>` until it drops in.
         _held(canvas, view, rect, 1 - framing);
       }
       if (k == 0 || k > residues) {
-        drawToken(canvas, view, rect, ids[k], alpha: framing);
+        drawToken(canvas, view, rect, ids[k], alpha: framing * alpha);
       } else {
-        _flipping(canvas, view, rect, ids[k], (done - (k - 1)).clamp(0.0, 1.0));
+        _flipping(canvas, view, rect, ids[k], (done - (k - 1)).clamp(0.0, 1.0), alpha: alpha);
       }
     }
   }
@@ -372,9 +408,10 @@ final class TokeniseScene extends LmScene {
   /// The peptide whose rows, or whose row of the table, lie under [at].
   LmHit? _focusAt(_Layout layout, LmView view, Offset at, double table) {
     for (int p = 0; p < view.trace.peptides.length; p++) {
-      final Rect card = layout.cardAt(p, table.roundToDouble());
-      if (at.dy >= card.top && at.dy < card.bottom + 1) {
-        return FocusPeptide(p);
+      for (final RRect card in layout.cardsAt(p, table.roundToDouble())) {
+        if (at.dy >= card.top && at.dy < card.bottom + 1) {
+          return FocusPeptide(p);
+        }
       }
     }
     return null;
@@ -470,19 +507,23 @@ final class _Layout {
     idsBottom = vocab.top + vocab.cell + 2 + ids;
     bracket = idsBottom + 4;
     partsTag = idsBottom + _partsGap;
-    // The batch as one table: a peptide a row, every place across the
-    // width, each tall enough for its number; centred where the dataset
-    // was, its tag over it.
-    tableWidth = math.min(16, width / frame);
-    tableHeight = math.max(tableWidth, math.min(16, math.max(TokeniseScene._numbered, tableWidth * 1.5)));
-    final double grid = peptides * tableHeight + (peptides - 1) * _tableGap;
+    // The batch as one table, a peptide a row, its tiles the rows' own.
+    // Where the rows are folded it is printed as a wide array is, in two
+    // blocks of columns, the first positions over the rest, each line
+    // moving only up or down into its block; else in one. Centred where the
+    // dataset was, its tag over it.
+    halves = firstLine < frame ? 2 : 1;
+    tableCaption = halves > 1 ? view.kit.layout('positions', TokeniseScene._halfStyle(view)).height + 4 : 0;
+    tableBlock = peptides * tileHeight + (peptides - 1) * _tableGap;
+    final double grid = halves * (tableCaption + tableBlock) + (halves - 1) * _halfGap;
     final double extent = tag + _tagGap + rows;
     datasetTagEnd = datasetTag + math.max(0, (extent - tag - _tagGap - grid) / 2);
     tableTop = datasetTagEnd + tag + _tagGap;
   }
 
-  /// Between the table's rows.
+  /// Between the table's rows, and between its two blocks.
   static const double _tableGap = 2;
+  static const double _halfGap = 14;
 
   /// From a tag over a block to the block.
   static const double _tagGap = 8;
@@ -522,9 +563,11 @@ final class _Layout {
   late final double bracket;
   late final double partsTag;
 
-  /// The table's tiles, and where it and its tag are once it has closed.
-  late final double tableWidth;
-  late final double tableHeight;
+  /// The table's blocks of columns, each block's height and the label over
+  /// it, and where the table and its tag are once it has closed.
+  late final int halves;
+  late final double tableBlock;
+  late final double tableCaption;
   late final double tableTop;
   late final double datasetTagEnd;
 
@@ -533,13 +576,20 @@ final class _Layout {
 
   double rowTop(int peptide) => batchTop + peptide * rowPitch;
 
-  /// Place [k] of [peptide]'s frame in the table.
-  Rect tableAt(int peptide, int k) => Rect.fromLTWH(
-    left + k * tableWidth,
-    tableTop + peptide * (tableHeight + _tableGap),
-    tableWidth,
-    tableHeight,
-  );
+  /// The top of the table's block [half], under its label.
+  double halfTop(int half) => tableTop + half * (tableCaption + tableBlock + _halfGap) + tableCaption;
+
+  /// Place [k] of [peptide]'s frame in the table: in the first block, or
+  /// in the second, the frame's line for line.
+  Rect tableAt(int peptide, int k) {
+    final int half = k < firstLine ? 0 : 1;
+    return Rect.fromLTWH(
+      left + (k - half * firstLine) * tileWidth,
+      halfTop(half) + peptide * (tileHeight + _tableGap),
+      tileWidth,
+      tileHeight,
+    );
+  }
 
   /// Place [k] of [peptide]'s frame, [table] of the way from its rows to
   /// the table.
@@ -550,16 +600,41 @@ final class _Layout {
       : Rect.lerp(batchAt(peptide, k), tableAt(peptide, k), table)!;
 
   /// The card under [peptide] in focus: round its name and its lines, then
-  /// round its row of the table.
-  Rect cardAt(int peptide, double table) {
-    final Rect rows = Rect.fromLTWH(left - 6, rowTop(peptide) - 4, width + 12, block + 9);
-    final Rect row = Rect.fromLTWH(
+  /// round its row of the table, in each block. Where there are two, the
+  /// card parts between its lines, each part following its line.
+  List<RRect> cardsAt(int peptide, double table) {
+    final double top = rowTop(peptide) - 4;
+    final double bottom = rowTop(peptide) + block + 5;
+    Rect row(int half) => Rect.fromLTWH(
       left - 4,
-      tableTop + peptide * (tableHeight + _tableGap) - _tableGap / 2 - 1,
+      halfTop(half) + peptide * (tileHeight + _tableGap) - _tableGap / 2 - 1,
       width + 8,
-      tableHeight + _tableGap + 2,
+      tileHeight + _tableGap + 2,
     );
-    return Rect.lerp(rows, row, table)!;
+    const Radius round = Radius.circular(6);
+    if (halves == 1) {
+      return <RRect>[
+        RRect.fromRectAndRadius(Rect.lerp(Rect.fromLTRB(left - 6, top, right + 6, bottom), row(0), table)!, round),
+      ];
+    }
+    final double split = rowTop(peptide) + label + tileHeight + _lineGap / 2;
+    final Radius parted = Radius.circular(6 * table);
+    return <RRect>[
+      RRect.fromRectAndCorners(
+        Rect.lerp(Rect.fromLTRB(left - 6, top, right + 6, split), row(0), table)!,
+        topLeft: round,
+        topRight: round,
+        bottomLeft: parted,
+        bottomRight: parted,
+      ),
+      RRect.fromRectAndCorners(
+        Rect.lerp(Rect.fromLTRB(left - 6, split, right + 6, bottom), row(1), table)!,
+        topLeft: parted,
+        topRight: parted,
+        bottomLeft: round,
+        bottomRight: round,
+      ),
+    ];
   }
 
   /// Place [k] of [peptide]'s frame: on the first line, or folded onto the
