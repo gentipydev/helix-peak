@@ -234,7 +234,7 @@ out of view is scrolled just far enough to show it whole.
    - x0's table narrows to a strip a place, and a copy of the row in focus
      lifts off and stands up on the bench at its right, its numbers beside it;
    - evened out (LayerNorm) on a chart beside it, x0's bars outlined as they
-     move: less the mean (C11: 0.08 at step 1), over the SD (1.10), a z-score,
+     move: less the mean (C11: 0.08 at step 1), over the standard deviation (1.10), a z-score,
      then the learned scale and shift (still 1 and 0 at step 1, which the
      caption says);
    - the evened row's edges, each weight times the number it carries, make a

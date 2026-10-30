@@ -297,7 +297,7 @@ of 2026-10-30 and 2026-10-31:
 - **Scores** (`scores_scene.dart`), block 1's attention up to its shares,
   opens on x0's table. The table narrows to a strip a place, and a copy of the
   row in focus stands up on the bench at its right, evened out on a chart
-  beside it: less its mean, over its SD (a z-score), then the norm's learned
+  beside it: less its mean, over its standard deviation (a z-score), then the norm's learned
   scale and shift. Its edges, each weight times the number it carries, make a
   query, a key and a value of 16, which part into a slice a head (head 1
   numbers 1–8, head 2 9–16: why the width must divide by the heads, and the 8

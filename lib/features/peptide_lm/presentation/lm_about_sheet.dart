@@ -89,7 +89,7 @@ class LmAboutSheet extends StatelessWidget {
             paragraph(
               'Scores',
               'Each block first evens out each place\'s row (LayerNorm): its numbers less '
-                  'their mean, over their SD, then a learned scale and shift for each '
+                  'their mean, over their standard deviation, then a learned scale and shift for each '
                   'column. Learned weights make one query, one key and one value of '
                   '${model.width} numbers from that row, the same weights at every place, '
                   'and cut each into ${spelled(model.heads)} equal slices, one for each '

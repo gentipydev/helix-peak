@@ -230,9 +230,10 @@ final class ScoresScene extends LmScene {
     }
   }
 
-  /// The row's numbers as bars from zero, with its mean and a band of one SD
-  /// either side of it: less the mean, the band centres on zero; over the
-  /// SD, it spans one either side; the learned scale and shift move each bar
+  /// The row's numbers as bars from zero, with its mean and a band of one
+  /// standard deviation either side of it, bracketed under the chart: less
+  /// the mean, the band centres on zero; over the standard deviation, it
+  /// spans one either side; the learned scale and shift move each bar
   /// a little, and the band goes.
   void _chart(Canvas canvas, LmView view, ScoresLayout layout, List<double> now, double beat, double alpha) {
     final RowEvening even = evening(view);
@@ -309,7 +310,23 @@ final class ScoresScene extends LmScene {
       );
       final TextStyle words = inked(view.kit.sans, 8.5, view.inks.quiet, alpha: band);
       view.kit.draw(canvas, 'mean', words, Offset(xOf(mean), column.top - 3), anchor: const Offset(0.5, 1));
-      view.kit.draw(canvas, '1 SD', words, Offset(xOf(mean + sd) + 2, column.top - 3), anchor: const Offset(0, 1));
+      // One standard deviation, bracketed from the mean under the chart,
+      // under its 0, and named under the bracket.
+      final double y = column.bottom + 17;
+      final Paint bracket = Paint()
+        ..strokeWidth = 1
+        ..color = view.inks.quiet.withValues(alpha: band);
+      canvas.drawLine(Offset(xOf(mean), y), Offset(xOf(mean + sd), y), bracket);
+      for (final double x in <double>[xOf(mean), xOf(mean + sd)]) {
+        canvas.drawLine(Offset(x, y - 3), Offset(x, y + 3), bracket);
+      }
+      view.kit.draw(
+        canvas,
+        '1 standard deviation',
+        words,
+        Offset((xOf(mean) + xOf(mean + sd)) / 2, y + 5),
+        anchor: const Offset(0.5, 0),
+      );
     }
   }
 
@@ -830,9 +847,9 @@ final class ScoresScene extends LmScene {
       (
         1.4,
         _madeFrom.first,
-        "LayerNorm evens out each place's row: less its mean, over its SD,\n"
-            'a z-score; then a learned scale and shift for each column,\n'
-            'so every row reaches attention on one scale',
+        "LayerNorm evens out each place's row: less its mean, over its\n"
+            'standard deviation (a z-score); then a learned scale and shift\n'
+            'for each column, so every row reaches attention on one scale',
       ),
       (
         _madeFrom.first,
@@ -893,13 +910,13 @@ final class ScoresScene extends LmScene {
       return 'Block 1 of ${trace.model.layers}, attention: first a query, key and value a place';
     }
     if (beat < _centre.$1) {
-      return "$focus's row, evened out first: mean ${fixed(even.mean, 2)}, SD ${fixed(even.sd, 2)}";
+      return "$focus's row, evened out first: mean ${fixed(even.mean, 2)}, standard deviation ${fixed(even.sd, 2)}";
     }
     if (beat < _spread.$1) {
       return 'Less the mean, ${fixed(even.mean, 2)}: the row centres on zero';
     }
     if (beat < _learned.$1) {
-      return 'Over the SD, ${fixed(even.sd, 2)}: each number is now a z-score';
+      return 'Over the standard deviation, ${fixed(even.sd, 2)}: each number a z-score';
     }
     if (beat < _madeFrom.first) {
       return even.untrained
@@ -956,7 +973,7 @@ final class ScoresScene extends LmScene {
 }
 
 /// The row in focus evened out as the block's first LayerNorm does it: x0's
-/// numbers, their mean and SD, the z-scores, and what the norm's learned
+/// numbers, their mean and standard deviation, the z-scores, and what the norm's learned
 /// scale and shift make of them, the row attention reads, as the run kept it.
 final class RowEvening {
   RowEvening(LmView view) {
@@ -1001,7 +1018,8 @@ final class RowEvening {
   late final double reach;
 
   /// The row [centre] of the way less its mean, [spread] of the way over its
-  /// SD, then [learned] of the way through the norm's scale and shift.
+  /// standard deviation, then [learned] of the way through the norm's scale
+  /// and shift.
   List<double> at(double centre, double spread, double learned) {
     if (learned >= 1) {
       return evened;

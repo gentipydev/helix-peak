@@ -161,7 +161,8 @@ void main() {
           '${s[order[1]] >= 0.1 ? ', ${name(order[1])} ${percent(s[order[1]])}' : ''}';
     }
 
-    // The row in focus's x0, its mean and SD as the LayerNorm takes them.
+    // The row in focus's x0, its mean and standard deviation as the
+    // LayerNorm takes them.
     final List<double> x = <double>[
       for (int d = 0; d < width; d++)
         trace.tokenEmbedding(last3.checkpoint, trace.inputAt(0, 3), d) + trace.positionEmbedding(last3.checkpoint, 3, d),
@@ -190,10 +191,13 @@ void main() {
     );
     expect(
       caption(LmStage.scores, scores(2)),
-      "V3's row, evened out first: mean ${fixed(mean, 2)}, SD ${fixed(sd, 2)}",
+      "V3's row, evened out first: mean ${fixed(mean, 2)}, standard deviation ${fixed(sd, 2)}",
     );
     expect(caption(LmStage.scores, scores(2.8)), 'Less the mean, ${fixed(mean, 2)}: the row centres on zero');
-    expect(caption(LmStage.scores, scores(3.5)), 'Over the SD, ${fixed(sd, 2)}: each number is now a z-score');
+    expect(
+      caption(LmStage.scores, scores(3.5)),
+      'Over the standard deviation, ${fixed(sd, 2)}: each number a z-score',
+    );
     expect(caption(LmStage.scores, scores(4.2)), 'Then a learned scale and shift a column: the row attention reads');
     expect(
       sceneOf(LmStage.scores).caption(view(inks, kit), timeline.frameIn(LmStage.scores, scores(4.2))),
