@@ -49,8 +49,9 @@ Beside the caption, a player of that stage alone: Replay, and Play/Pause.
    the canvas lets square tiles carry their numbers (one line of tall tiles
    where it does not), and under it the 23-token vocabulary on one row. A
    light crosses each peptide; every residue it passes flips into its id,
-   and the vocabulary's count of it rises. `<bos>` and `<eos>`
-   drop in and padding fills to the longest (6 × 41). Then the peptides close
+   and the vocabulary's count of it rises. `<bos>` leads each peptide from
+   the first frame; `<eos>` drops in after the last residue and padding fills
+   to the longest (6 × 41). Then the peptides close
    up into one matrix, a row each: the batch Forward reads, its dataset's tags
    fading where they are and the batch's coming up over it. The matrix rises
    to the top, and the vocabulary turns into a list under it: one token

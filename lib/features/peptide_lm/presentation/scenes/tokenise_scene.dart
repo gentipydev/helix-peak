@@ -10,8 +10,8 @@ import 'lm_scene.dart';
 
 /// Tokenise: the dataset, and under it the vocabulary. A light crosses each
 /// peptide and every residue it passes flips into its id, its count in the
-/// vocabulary rising; then `<bos>` and `<eos>` drop in to frame each one and
-/// padding fills to the longest; then the peptides close up into one matrix,
+/// vocabulary rising, `<bos>` leading each from the first frame; then
+/// `<eos>` drops in to close each one and padding fills to the longest; then the peptides close up into one matrix,
 /// the batch Forward reads, which rises to the top; and the vocabulary turns
 /// into a list under it, each token's count along its row. Each part is
 /// named on a tag, as the zoom names its parts, in the field's words.
@@ -473,18 +473,6 @@ final class TokeniseScene extends LmScene {
     canvas.restore();
   }
 
-  /// A place kept for a token still to come: a tile's outline, empty.
-  void _held(Canvas canvas, LmView view, Rect rect, double alpha) {
-    final Rect tile = rect.deflate(math.min(1.0, rect.width * 0.08));
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(tile, Radius.circular(tile.width * 0.18)),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.8
-        ..color = view.inks.rule.withValues(alpha: alpha),
-    );
-  }
-
   void _row(
     Canvas canvas,
     LmView view,
@@ -518,11 +506,9 @@ final class TokeniseScene extends LmScene {
     final double done = scanned(trace, p, u);
     for (int k = 0; k < ids.length; k++) {
       final Rect rect = layout.placeAt(p, k, table, lift);
-      if (k == 0 && framing < 1) {
-        // The first place held for `<bos>` until it drops in.
-        _held(canvas, view, rect, 1 - framing);
-      }
-      if (k == 0 || k > residues) {
+      if (k == 0) {
+        drawToken(canvas, view, rect, ids[k]);
+      } else if (k > residues) {
         drawToken(canvas, view, rect, ids[k], alpha: framing);
       } else {
         _flipping(canvas, view, rect, ids[k], (done - (k - 1)).clamp(0.0, 1.0));
