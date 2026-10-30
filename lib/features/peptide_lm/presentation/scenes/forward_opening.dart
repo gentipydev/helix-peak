@@ -4,117 +4,71 @@ import 'package:flutter/material.dart';
 
 import '../../../../shared/format.dart';
 import '../../domain/training_trace.dart';
-import '../lm_format.dart';
 import 'forward_scene.dart';
 import 'lm_drawing.dart';
 import 'lm_scene.dart';
+import 'shift_scene.dart';
 import 'tokenise_scene.dart';
 
-/// Forward's first seven beats, from Tokenise's last frame to `x0`, as the
-/// engine takes them: the batch cut into input x and target y one place
-/// apart (`sequences.batches`), and each place of x paired with the token
-/// under it in y, which it learns; the vocabulary become the token embedding,
-/// a row of numbers a token; each id of the peptide in focus picking its
-/// row, which stands up as that place's column of the stream; and each
-/// place's own row of the position embedding added (`HelixPeekLM.forward`).
+/// Forward's first four beats, from Shift's last frame to `x0`, as the
+/// engine takes them (`HelixPeekLM.forward`): the token embedding, a row of
+/// numbers a token; each id of the peptide in focus picking its row, which
+/// stands up as that place's column of the stream; and each place's own row
+/// of the position embedding added.
 ///
-/// Its first frame is Tokenise's last. Every number is the run's: the tables
+/// Its first frame is Shift's last. Every number is the run's: the tables
 /// are those the step read its ids through, so the columns they make are the
 /// stream's first point, which the blocks then read.
 final class ForwardOpening {
-  ForwardOpening(this.size, this.view, this.layout) : end = TokeniseEnd(size, view);
+  ForwardOpening(this.size, this.view, this.layout) : shift = ShiftLayout(size, view);
 
   /// The opening's share of Forward, in beats.
-  static const double beats = 7;
+  static const double beats = 4;
 
-  // The cut: Tokenise's tags, bars and counts leave; the list closes up
-  // under where y will lie; y leaves x, a place to the left; and the places
-  // whose target is padding dim.
-  static const double _retiredBy = 0.5;
-  static const (double, double) _closeUp = (0.2, 1.0);
-  static const (double, double) _appear = (0.5, 0.7);
-  static const (double, double) _dropping = (0.5, 1.3);
-  static const (double, double) _slide = (1.0, 1.6);
-  static const (double, double) _dim = (1.4, 1.9);
-
-  // The pairs: a cursor down the column of each place, the row in focus's
-  // tile in x and the one under it in y boxed; the first places one at a
-  // time, then the rest in one sweep, each pair left outlined.
-  static const double _pairsFrom = 2.0;
-  static const int _slowPairs = 3;
-  static const double _slowPair = 0.22;
-  static const (double, double) _sweep = (2.66, 2.86);
-  static const (double, double) _pairsOut = (2.95, 3.05);
-
-  // The table: y goes and the other peptides fade; the peptide in focus
-  // spreads to the token row's places and comes down to it, its ids turning
-  // back into residues; the list goes up its column and in, beside the
-  // table, whose rows grow out from it.
-  static const (double, double) _away = (3.0, 3.4);
-  static const (double, double) _widen = (3.0, 3.4);
-  static const (double, double) _descend = (3.3, 3.8);
-  static const (double, double) _unflip = (3.45, 3.85);
-  static const (double, double) _rise = (3.4, 3.8);
-  static const (double, double) _across = (3.7, 3.95);
-  static const (double, double) _grow = (3.7, 4.05);
-  static const (double, double) _rail = (3.95, 4.4);
+  // The table: y goes off to the right and the other peptides fade; the
+  // peptide in focus spreads to the token row's places and comes down to
+  // it, its ids turning back into residues; the token embedding's tokens
+  // come in, top to bottom, and its rows grow out from them.
+  static const (double, double) _away = (0.0, 0.4);
+  static const (double, double) _widen = (0.0, 0.4);
+  static const (double, double) _descend = (0.3, 0.8);
+  static const (double, double) _unflip = (0.45, 0.85);
+  static const (double, double) _tableIn = (0.3, 0.8);
+  static const double _entryIn = 0.2;
+  static const (double, double) _grow = (0.7, 1.05);
+  static const (double, double) _rail = (0.95, 1.4);
 
   // The lookup: a row lifted for each place, left to right, the first ones
   // far enough apart to be followed one at a time and the rest closer.
-  static const double _lookFrom = 4.05;
-  static const double _lookTo = 6.0;
+  static const double _lookFrom = 1.05;
+  static const double _lookTo = 3.0;
   static const double _flight = 0.55;
   static const double _quickening = 0.7;
 
   // The position embedding: drawn on its own over the columns, then added;
   // the table leaves; the stream is `x0`, and the head maps come up.
-  static const (double, double) _tableOut = (6.0, 6.3);
-  static const (double, double) _placesIn = (6.0, 6.35);
-  static const (double, double) _placesTag = (6.25, 6.45);
-  static const (double, double) _placesOut = (6.45, 6.8);
-  static const (double, double) _add = (6.4, 6.8);
-  static const (double, double) _toStream = (6.8, 7.0);
-  static const (double, double) _settle = (6.6, 7.0);
+  static const (double, double) _tableOut = (3.0, 3.3);
+  static const (double, double) _placesIn = (3.0, 3.35);
+  static const (double, double) _placesTag = (3.25, 3.45);
+  static const (double, double) _placesOut = (3.45, 3.8);
+  static const (double, double) _add = (3.4, 3.8);
+  static const (double, double) _toStream = (3.8, 4.0);
+  static const (double, double) _settle = (3.6, 4.0);
 
   /// Where the caption turns from the table to the lookup.
-  static const double _lookupCaption = 4.0;
+  static const double _lookupCaption = 1.0;
 
   /// Where the caption turns from the position embedding to the stream.
-  static const double _streamCaption = 6.8;
-
-  /// How far a place whose target is padding dims: none of the loss is
-  /// counted there.
-  static const double _dimmed = 0.65;
+  static const double _streamCaption = 3.8;
 
   final Size size;
   final LmView view;
   final ForwardLayout layout;
-  final TokeniseEnd end;
+  final ShiftLayout shift;
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
-  /// Where the pairs' cursor is, in places of the row in focus: the first
-  /// [_slowPairs] places one at a time, gliding in at the start of each
-  /// one's turn, then a sweep to the last.
-  static double cursor(LmView view, double beat) {
-    final int last = view.focus.inputs - 1;
-    if (beat >= _sweep.$1) {
-      return (_slowPairs - 1) + _span(beat, _sweep) * (last - (_slowPairs - 1));
-    }
-    final double into = math.max(0, beat - _pairsFrom) / _slowPair;
-    final int turn = math.min(_slowPairs - 1, into.floor());
-    return turn == 0 ? 0 : turn - 1 + through(into - turn, 0, 0.35);
-  }
-
-  /// The place the pairs' caption names: the one the cursor stands on while
-  /// it goes one at a time, and the last once it has swept there.
-  static int _named(LmView view, double beat) => beat >= _sweep.$2
-      ? view.focus.inputs - 1
-      : beat >= _sweep.$1
-      ? _slowPairs - 1
-      : cursor(view, beat).round();
-
-  /// How much of the rail shows: once the list has left its column.
+  /// How much of the rail shows: once the table has grown.
   static double railShown(double beat) => _span(beat, _rail);
 
   /// How far the stage has settled into the blocks' first frame: the head
@@ -125,39 +79,7 @@ final class ForwardOpening {
 
   // ---------------------------------------------------------------- layout
 
-  double get _tagHeight => tagSize(view, 'target y').height;
-
-  /// One place of the matrix, across.
-  double get _place => end.place(0, 1).left - end.place(0, 0).left;
-
-  double get _matrixBottom => end.place(_trace.peptides.length - 1, 0).bottom;
-
-  /// How far y lies under x: past x, its tag between them.
-  double get _below =>
-      _matrixBottom - end.place(0, 0).top + 8 + _tagHeight + 8;
-
-  /// Where y's tag stands.
-  double get _yTag => _matrixBottom + 8;
-
-  /// The list closed up under y, one column at the left, in the room
-  /// between y's foot and the canvas's (its tags under it have gone): clear
-  /// of the token row's way down, and the column the list goes up to the
-  /// table by. A row's height.
-  double get _closedPitch =>
-      math.max(4, (size.height - 6 - (_matrixBottom + _below + 10)) / _trace.vocab.length);
-
-  /// Token [id]'s tile in the closed list.
-  Rect _closed(int id) {
-    final Rect first = end.chip(0);
-    final double pitch = _closedPitch;
-    final double side = math.min(first.width, math.max(3, pitch - 2));
-    return Rect.fromLTWH(
-      first.left,
-      _matrixBottom + _below + 10 + id * pitch + (pitch - side) / 2,
-      side,
-      side,
-    );
-  }
+  double get _tagHeight => tagSize(view, 'token embedding').height;
 
   /// The table's band: its tag over it at the top of the canvas, its foot
   /// clear of the stream.
@@ -171,7 +93,8 @@ final class ForwardOpening {
 
   double get _chipSide => (_pitch - 1.5).clamp(3.0, 16.0);
 
-  double get _idSize => (_pitch * 0.8).clamp(6.0, end.idSize);
+  // As large as the vocabulary's ids were in its list, at the most.
+  double get _idSize => (_pitch * 0.8).clamp(6.0, 9.5);
 
   double get _idWidth =>
       view.kit
@@ -234,40 +157,33 @@ final class ForwardOpening {
 
   void paint(Canvas canvas, double beat) {
     if (beat < _away.$2 + 0.01) {
-      _matrix(canvas, beat);
-    }
-    _pairs(canvas, beat);
-    if (beat < _retiredBy + 0.01) {
-      // What Tokenise retires, fading where it stands: the bars and counts
-      // under the entries, its tags over them, as it drew them.
-      final double retiring = 1 - through(beat, 0, _retiredBy);
-      const TokeniseScene().paintEnd(
+      // Shift's last frame, but for the row in focus, which is drawn here:
+      // y goes off to the right, the rest fades.
+      final double away = _span(beat, _away);
+      const ShiftScene().paintEnd(
         canvas,
         size,
         view,
-        TokeniseFade(rows: false, entries: false, bars: retiring, counts: retiring, tags: 0),
+        ShiftFade(
+          focusX: false,
+          others: 1 - away,
+          y: 1 - away,
+          ySlide: away * (shift.right + 6 - shift.cardLeft),
+          chrome: 1 - away,
+          card: 1 - away,
+        ),
       );
-      _entries(canvas, beat);
-      const TokeniseScene().paintEnd(
-        canvas,
-        size,
-        view,
-        TokeniseFade(rows: false, entries: false, bars: 0, counts: 0, tags: retiring),
-      );
-    } else {
-      _entries(canvas, beat);
     }
-    _cutTags(canvas, beat);
+    _entries(canvas, beat);
+    _tags(canvas, beat);
     _tableRows(canvas, beat);
     _stream(canvas, beat);
     _flights(canvas, beat);
-    if (beat >= _widen.$1) {
-      _focusRow(canvas, beat);
-    }
+    _focusRow(canvas, beat);
   }
 
-  /// The batch's places as Tokenise draws them: an end or padding as a
-  /// token, a residue as its id.
+  /// A place of Shift's x, as it draws it: an end or padding as a token, a
+  /// residue as its id.
   void _tile(Canvas canvas, Rect rect, List<int> ids, int k, int residues, double alpha) {
     if (alpha <= 0) {
       return;
@@ -279,168 +195,27 @@ final class ForwardOpening {
     }
   }
 
-  /// x, the batch less its last place, and under it y, the batch less its
-  /// first, a place to the left: each place over the one it learns. A place
-  /// whose target is padding dims in both. Then y goes off to the right and
-  /// the other peptides fade.
-  void _matrix(Canvas canvas, double beat) {
-    final double appear = _span(beat, _appear);
-    final double drop = _span(beat, _dropping) * _below;
-    final double slide = _span(beat, _slide);
-    final double dim = _span(beat, _dim);
-    final double away = _span(beat, _away);
-    final double off = away * (end.tagEnd - end.tagStart);
-    for (int p = 0; p < _trace.peptides.length; p++) {
-      final bool focus = p == view.peptide;
-      final List<int> ids = TokeniseScene.frameOf(_trace, p);
-      final int residues = _trace.peptides[p].sequence.length;
-      final double shown = 1 - away;
-      // y, drawn first: it leaves from under x.
-      final double y = appear * (1 - away);
-      if (y > 0) {
-        final Offset shift = Offset(off - _place * slide, drop);
-        if (focus) {
-          canvas.drawRRect(
-            RRect.fromRectAndRadius(end.card(p).shift(shift), const Radius.circular(6)),
-            Paint()..color = view.inks.card.withValues(alpha: y),
-          );
-        }
-        for (int k = 0; k < ids.length; k++) {
-          final double alpha = k == 0
-              ? 1 - slide
-              : _trace.token(ids[k]) == '<pad>'
-              ? 1 - _dimmed * dim
-              : 1;
-          _tile(canvas, end.place(p, k).shift(shift), ids, k, residues, alpha * y);
-        }
-      }
-      // x.
-      if (focus && shown > 0) {
-        canvas.drawRRect(
-          RRect.fromRectAndRadius(end.card(p), const Radius.circular(6)),
-          Paint()..color = view.inks.card.withValues(alpha: shown),
-        );
-      }
-      if (focus && beat >= _widen.$1) {
-        continue;
-      }
-      for (int k = 0; k < ids.length; k++) {
-        final double alpha = k == ids.length - 1
-            ? 1 - slide
-            : _trace.token(ids[k + 1]) == '<pad>'
-            ? 1 - _dimmed * dim
-            : 1;
-        _tile(canvas, end.place(p, k), ids, k, residues, alpha * shown);
-      }
-    }
-  }
-
-  /// Each place of the row in focus with the token under it in y, which it
-  /// learns: a cursor down that column of both matrices (every peptide's
-  /// pairs lie in it too), x's tile boxed in the accent and y's in the
-  /// tracer, what came next; each pair passed left outlined, faint.
-  void _pairs(Canvas canvas, double beat) {
-    final double shown =
-        through(beat, _pairsFrom, _pairsFrom + 0.08) * (1 - _span(beat, _pairsOut));
-    if (beat < _pairsFrom || shown <= 0) {
-      return;
-    }
-    final int p = view.peptide;
-    final double at = cursor(view, beat);
-    final double passed = beat >= _sweep.$2 ? (view.focus.inputs - 1).toDouble() : at;
-    Rect xTile(double k) => end.place(p, 0).shift(Offset(k * _place, 0));
-    Rect yTile(double k) => xTile(k).shift(Offset(0, _below));
-    void box(Rect rect, Color color, double alpha, double width) {
-      final Rect tile = rect.deflate(math.min(1.0, rect.width * 0.08));
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(tile, Radius.circular(tile.width * 0.18)).inflate(0.5),
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = width
-          ..color = color.withValues(alpha: alpha),
-      );
-    }
-
-    final Rect column = xTile(at);
-    canvas.drawRect(
-      Rect.fromLTRB(
-        column.left,
-        end.place(0, 0).top - 2,
-        column.right,
-        end.place(_trace.peptides.length - 1, 0).bottom + _below + 2,
-      ),
-      Paint()..color = view.inks.signal.withValues(alpha: 0.12 * shown),
-    );
-    for (int k = 0; k <= passed.floor(); k++) {
-      box(xTile(k.toDouble()), view.inks.signal, 0.4 * shown, 1);
-      box(yTile(k.toDouble()), view.inks.truth, 0.4 * shown, 1);
-    }
-    box(xTile(at), view.inks.signal, shown, 1.4);
-    box(yTile(at), view.inks.truth, shown, 1.4);
-  }
-
-  /// The vocabulary's tiles and ids: closing up under y, then up their
-  /// column and in beside the table, whose rows they name; gone with it.
+  /// The token embedding's tokens and ids beside its rows, coming in one
+  /// after another from the top; gone with the table.
   void _entries(Canvas canvas, double beat) {
     final double leaving = 1 - _span(beat, _tableOut);
-    if (leaving <= 0) {
+    if (leaving <= 0 || beat < _tableIn.$1) {
       return;
     }
-    final double closing = _span(beat, _closeUp);
-    final double up = _span(beat, _rise);
-    final double across = _span(beat, _across);
-    final double closedSize = (_closedPitch * 0.8).clamp(6.0, end.idSize);
-    final double listed = end.idSize + (closedSize - end.idSize) * closing;
-    final double idSize = listed + (_idSize - listed) * up;
-    _fade(canvas, leaving, () {
-      for (int id = 0; id < _trace.vocab.length; id++) {
-        Rect chip = closing <= 0 ? end.chip(id) : Rect.lerp(end.chip(id), _closed(id), closing)!;
-        if (up > 0) {
-          final Rect target = _tableChip(id);
-          final double side = chip.width + (target.width - chip.width) * up;
-          chip = Rect.fromLTWH(
-            chip.left + (target.left - chip.left) * across,
-            chip.top + (target.top - chip.top) * up,
-            side,
-            side,
-          );
-        }
-        TokeniseScene.drawEntry(canvas, view, chip, id, 1, idSize);
+    final int count = _trace.vocab.length;
+    for (int id = 0; id < count; id++) {
+      final double start = _tableIn.$1 +
+          (count < 2 ? 0 : id / (count - 1)) * (_tableIn.$2 - _tableIn.$1 - _entryIn);
+      final double shown = through(beat, start, start + _entryIn) * leaving;
+      if (shown > 0) {
+        TokeniseScene.drawEntry(canvas, view, _tableChip(id), id, 1, _idSize, alpha: shown);
       }
-    });
+    }
   }
 
-  /// [draw], at [alpha] as a whole.
-  void _fade(Canvas canvas, double alpha, VoidCallback draw) {
-    if (alpha >= 1) {
-      draw();
-      return;
-    }
-    // A layer takes only its paint's alpha.
-    canvas.saveLayer(Offset.zero & size, Paint()..color = view.inks.ground.withValues(alpha: alpha));
-    draw();
-    canvas.restore();
-  }
-
-  /// The cut's names, as Tokenise names its parts: input x where the batch's
-  /// tag stood, and target y over y; and the tables', each over its own.
-  void _cutTags(Canvas canvas, double beat) {
-    final double away = _span(beat, _away);
-    final double x = through(beat, 0.3, 0.8) * (1 - away);
-    if (x > 0) {
-      drawTag(canvas, view, 'input x', Offset(end.tagStart, end.tagBand), alpha: x);
-    }
-    final double y = through(beat, 0.9, 1.4) * (1 - away);
-    if (y > 0) {
-      drawTag(
-        canvas,
-        view,
-        'target y',
-        Offset(end.tagStart + away * (end.tagEnd - end.tagStart), _yTag),
-        alpha: y,
-      );
-    }
-    final double table = through(beat, _across.$1, _grow.$2) * (1 - _span(beat, _tableOut));
+  /// The tables' names, each over its own.
+  void _tags(Canvas canvas, double beat) {
+    final double table = through(beat, _tableIn.$1, _grow.$2) * (1 - _span(beat, _tableOut));
     if (table > 0) {
       drawTag(canvas, view, 'token embedding', Offset(layout.grid.left - 6, 4), alpha: table);
     }
@@ -457,7 +232,7 @@ final class ForwardOpening {
   }
 
   /// The token embedding: a row of numbers a token, on the stream's scale,
-  /// growing out from the list beside it; the row each place reads lit as
+  /// growing out from its token beside it; the row each place reads lit as
   /// it is lifted.
   void _tableRows(Canvas canvas, double beat) {
     final double grow = _span(beat, _grow);
@@ -585,9 +360,9 @@ final class ForwardOpening {
     final double descend = _span(beat, _descend);
     final double flip = 1 - _span(beat, _unflip);
     for (int k = 0; k < ids.length - 1; k++) {
-      final Rect from = end.place(p, k);
+      final Rect from = shift.x(p, k);
       if (k >= inputs) {
-        _tile(canvas, from, ids, k, residues, (1 - _dimmed) * (1 - widen));
+        _tile(canvas, from, ids, k, residues, (1 - ShiftScene.dimmed) * (1 - widen));
         continue;
       }
       final Rect token = layout.tokens.at(k);
@@ -607,18 +382,8 @@ final class ForwardOpening {
 
   // ------------------------------------------------------------------ taps
 
-  /// A row of the batch puts its peptide in focus while the batch is on
-  /// screen; once the token row has landed, a token its place.
+  /// Once the token row has landed, a token puts its place in focus.
   LmHit? hit(Offset at, double beat) {
-    if (beat < _away.$1) {
-      for (int p = 0; p < _trace.peptides.length; p++) {
-        final Rect card = end.card(p);
-        if (at.dy >= card.top && at.dy < card.bottom + 1) {
-          return FocusPeptide(p);
-        }
-      }
-      return null;
-    }
     if (beat >= _descend.$2) {
       final int? i = layout.tokens.indexAt(at);
       return i == null ? null : FocusPosition(i);
@@ -633,15 +398,6 @@ final class ForwardOpening {
     final TrainingTrace trace = view.trace;
     final int width = trace.model.width;
     final int inputs = view.focus.inputs;
-    if (beat < _pairsFrom) {
-      return 'Input x and target y, one place apart: each place learns the token '
-          'after it · ${grouped(trace.targetCount)} targets';
-    }
-    if (beat < _away.$1) {
-      final int k = _named(view, beat);
-      return 'After ${readSoFar(trace, view.peptide, k)}, place $k learns '
-          '${trace.token(trace.targetAt(view.peptide, k))}: the token under it in y';
-    }
     if (beat < _lookupCaption) {
       final int peptides = trace.peptides.length;
       final String all = switch (peptides) {
@@ -649,7 +405,7 @@ final class ForwardOpening {
         2 => 'Both are read at once',
         _ => 'All ${spelled(peptides)} are read at once',
       };
-      return '$all; ${view.focus.source.label} is drawn. The vocabulary is the token embedding';
+      return '$all; ${view.focus.source.label} is drawn. The token embedding holds a row a token';
     }
     if (beat < _lookTo) {
       final Map<int, int> uses = <int, int>{};

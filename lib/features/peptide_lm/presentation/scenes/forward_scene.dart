@@ -36,8 +36,8 @@ final class ForwardMoment {
   bool get feedingForward =>
       _part == _Part.block && progress >= addedAttention && progress < fedForward;
 
-  /// The forward pass's parts in proportion: six beats to open on the batch
-  /// and embed it, four a block, one for the final norm.
+  /// The forward pass's parts in proportion: four beats to open on Shift's
+  /// last frame and embed the batch, four a block, one for the final norm.
   static ForwardMoment at(int layers, double local) {
     const double open = ForwardOpening.beats;
     final double total = open + 4.0 * layers + 1;
@@ -54,7 +54,7 @@ final class ForwardMoment {
   }
 }
 
-/// Forward: it opens on Tokenise's last frame and embeds the batch
+/// Forward: it opens on Shift's last frame and embeds the batch
 /// ([ForwardOpening]); then the residual stream, one column of numbers a
 /// position, rises through the blocks. In each, every position reads the ones
 /// before it (attention, the arcs) and what it reads is added to its column;
@@ -145,7 +145,7 @@ final class ForwardScene extends LmScene {
   }
 
   /// The opening, and round it what it hands over to: the rail, lit at the
-  /// embedding once the list has left its column, and as it settles the head
+  /// embedding once the table has grown, and as it settles the head
   /// maps, faint as they are before any block has run, and the place in
   /// focus.
   void _open(Canvas canvas, Size size, LmView view, ForwardLayout layout, ForwardMoment moment) {

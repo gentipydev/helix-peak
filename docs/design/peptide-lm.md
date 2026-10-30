@@ -46,6 +46,9 @@ function of the frame, at the checkpoint picked ("Step N ▾"); the loop plays
 every step. A tap on a stage plays it once, a beat every two seconds, and it
 holds on its last frame until another is tapped, or the same one again.
 Beside the caption, a player of that stage alone: Replay, and Play/Pause.
+The stage bar keeps its names at full size and scrolls sideways where a
+phone is too narrow for all eight; a stage played whose name stands partly
+out of view is scrolled just far enough to show it whole.
 
 1. **Tokenise.** The dataset, a peptide a row folded onto two lines where
    the canvas lets square tiles carry their numbers (one line of tall tiles
@@ -67,29 +70,48 @@ Beside the caption, a player of that stage alone: Replay, and Play/Pause.
    tag, as the zoom names its parts, in the field's words: dataset, padding,
    vocabulary, token counts (on the bar of the commonest token), special
    tokens (bracketed under their ids) and token ids.
-2. **Forward.** It opens on Tokenise's last frame, pixel for pixel, and in
-   seven beats takes the engine's steps from the matrix of ids to the stream
-   (the user's ask of 2026-10-30: the stage had jumped from ids to one
-   peptide's numbers with nothing between):
-   - *the cut* (two beats): the matrix splits as `sequences.batches` cuts it,
-     input x the batch less its last place and target y, under it, the batch
-     less its first, a place to the left, so each place sits over the token
-     it learns; a place whose target is padding dims in both. The
-     vocabulary's bars, counts and tags go, and the list closes up into one
-     column at the left. Caption: x and y one place apart, 180 targets;
-   - *the pairs* (one beat; the user found x and y read as the same matrix):
-     a cursor walks down the columns, the peptide in focus's tile in x boxed
-     in the accent and the one under it in y in the tracer, every peptide's
-     pair lying in the same column; the first three places one at a time,
-     each named ("After GI, place 2 learns V: the token under it in y"),
-     then a sweep to the last ("… learns <eos>"), every pair passed left
-     outlined;
+2. **Shift.** Input x and next token y, one place apart, as
+   `sequences.batches` cuts the batch (`frame[:, :-1]`, `frame[:, 1:]`).
+   The user's ask of 2026-10-30, to keep each stage to one idea: x and y
+   left Forward for a stage of their own, drawn the dataset's way, the
+   vocabulary gone, and each peptide's line of x with its line of y right
+   under it (the user's choice over x and y in two blocks). It opens on
+   Tokenise's last frame, pixel for pixel, in 8 beats:
+   - *the open* (1½ beats): the vocabulary's list, bars, counts and tags
+     fade; each row of the matrix opens out into its peptide's card again,
+     each line with room under it; the `input x` tag and an `x` at the head
+     of each x line come up;
+   - *the first three places* (a beat each): what a place has not read lies
+     under a veil, dimmed and hatched as Forward's head maps hatch what a
+     position never reads; the first token under it, the one after the
+     place, lifts out and drops down and to the left into y under the place
+     ("After GI, place 2 learns V, which it cannot see"), and the veil steps
+     past it. Every peptide drops at once; the one in focus has its pair
+     boxed, x in the accent and y in the tracer. The `next token y` tag and
+     the `y` heads come with the first landing;
+   - *the wave* (2 beats): the rest of the places, every peptide's, one
+     after another, to `<eos>`. The frame's last place is never read (x
+     leaves it out): it goes with the veil;
+   - *every place at once* (1½ beats): every pair lights together, as one
+     pass learns them all, and the pairs whose target is padding dim
+     ("180 targets, 60 pads ignored").
+
+   Why this animation: copying x and sliding it one place left is the
+   engine's own cut, but it leaves each place's meaning to be worked out,
+   and drawn as two blocks it read as one matrix twice. Each place's next
+   token dropping under it says what a target is, and done as a wave the
+   result is the slide anyway. The veil says why it must be learned: a
+   place never sees ahead. The tiles are the dataset's (one line of tall
+   tiles where two pairs of lines cannot number them).
+3. **Forward.** It opens on Shift's last frame, pixel for pixel, and in four
+   beats takes the engine's steps from ids to the stream
+   (`HelixPeekLM.forward`):
    - *the table* (one beat): y goes off to the right and the other peptides
      fade; the peptide in focus spreads to the token row's places and comes
-     down to it, its ids turning back into residues; the list goes up its
-     column and in, and its rows grow out into the token embedding, 96
-     numbers a token on the stream's own scale (the padding row zero). The
-     rail comes up with Embed lit;
+     down to it, its ids turning back into residues; the token embedding's
+     tokens come in, top to bottom, and its rows grow out, 96 numbers a
+     token on the stream's own scale (the padding row zero). The rail comes
+     up with Embed lit;
    - *the lookup* (two beats): left to right, each place's row in the table
      lights, is lifted, turns upright and lands as that place's column, its
      first number at the top; the first places far enough apart to follow
@@ -108,23 +130,23 @@ Beside the caption, a player of that stage alone: Replay, and Play/Pause.
    above the diagonal) and its contribution added, then the feed-forward
    (each column breathing out to 384 and back) and its contribution added,
    then the final norm.
-3. **Predict.** The final column runs down the output layer's 23 rows and
+4. **Predict.** The final column runs down the output layer's 23 rows and
    each row's logit grows; `<pad>` and `<bos>` are struck to −∞; softmax
    turns the rest into 21 bars in the residues' colours, what came next
    outlined. Untrained, after GIVEQCCTSIC the model says V 17%; at step 200,
    S 99%, and S is next.
-4. **Loss.** A ghost bar rises to certainty at the target, the gap bracketed
+5. **Loss.** A ghost bar rises to certainty at the target, the gap bracketed
    and read off the −ln p curve; every target's surprise fills a strip a
    peptide and pools into the step's loss, set against ln 21.
-5. **Backward.** The bars turn into p − y; the error comes down the tower,
+6. **Backward.** The bars turn into p − y; the error comes down the tower,
    each module's gradient norm filling its bar and each position's glowing at
    every point of the stream (by step 200 only `<bos>`'s, the unknowable first
    residue, glows); the clip gauge reads the total against 1.0.
-6. **Update.** The output layer's weights, then the clipped gradient on them,
+7. **Update.** The output layer's weights, then the clipped gradient on them,
    then AdamW's update (drawn magnified, the factor said), then the weights
    moved. Per weight, the gradient differs between modules many times over
    and Adam's step hardly at all. The learning-rate schedule marks the step.
-7. **Loop.** The loss curve draws itself past the three baselines to the
+8. **Loop.** The loss curve draws itself past the three baselines to the
    floor; under it every target's tile lights up with the probability the
    model gives it, all but each peptide's first; the output layer drifts.
 

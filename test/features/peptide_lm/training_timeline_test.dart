@@ -5,13 +5,13 @@ import 'package:helixpeek/shared/motion/animation_timeline.dart';
 void main() {
   const TrainingTimeline timeline = TrainingTimeline(steps: 200);
 
-  test('the seven stages, in order, named as the page names them', () {
+  test('the eight stages, in order, named as the page names them', () {
     expect(
       timeline.phases.map((PhaseMark mark) => mark.name),
-      <String>['Tokenise', 'Forward', 'Predict', 'Loss', 'Backward', 'Update', 'Loop'],
+      <String>['Tokenise', 'Shift', 'Forward', 'Predict', 'Loss', 'Backward', 'Update', 'Loop'],
     );
     expect(timeline.phases.first.t, 0);
-    expect(timeline.beats, 90);
+    expect(timeline.beats, 95);
   });
 
   test('every stage begins where its phase does, at its start', () {
@@ -34,8 +34,8 @@ void main() {
 
   test('time only moves forward through a stage and through the loop', () {
     TrainingFrame before = timeline.stateAt(0);
-    for (int i = 1; i <= 90 * 60; i++) {
-      final TrainingFrame now = timeline.stateAt(i / (90 * 60));
+    for (int i = 1; i <= 95 * 60; i++) {
+      final TrainingFrame now = timeline.stateAt(i / (95 * 60));
       if (now.stage == before.stage) {
         expect(now.local, greaterThanOrEqualTo(before.local));
         expect(now.step, greaterThanOrEqualTo(before.step));

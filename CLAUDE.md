@@ -254,8 +254,10 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Seven stages (`TrainingTimeline`, 90 beats), named on the shared
-`StageBar`. A tap on a stage plays it once from its start, at the page's one
+Eight stages (`TrainingTimeline`, 95 beats), named on the shared
+`StageBar`, which scrolls sideways at full size where a phone is too narrow
+for it (a stage played whose name is partly out of view is scrolled just
+far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
 speed, a beat every two seconds (`TrainingRunView.beat`, the old 0.5×), and
 it holds on its last frame (`TrainingTimeline.frameIn`); nothing runs on
 into the next stage, and a tap on the stage on screen plays it again. The
@@ -264,18 +266,23 @@ plays that stage and nothing else: Replay, and Play/Pause (Play from the
 end plays it again); no stepping between stages and no speeds (the user's
 choices of 2026-10-30, which retired the shared `TransportBar` here). The
 caption's box is held at the stage's tallest caption at its width, so the
-canvas never resizes while a stage plays. Tokenise, Forward, Predict, Loss, Backward and
-Update show one training step at the checkpoint picked ("Step N ▾": the
+canvas never resizes while a stage plays. Tokenise, Shift, Forward, Predict, Loss,
+Backward and Update show one training step at the checkpoint picked ("Step N ▾": the
 steps that kept every activation), and Loop plays all of them. Each stage is a painter in
 `presentation/scenes/`, a pure function of the frame; a tap or a drag on the
-canvas puts a peptide, a position or an attention head in focus. Forward
+canvas puts a peptide, a position or an attention head in focus. Shift
 opens on Tokenise's last frame, pixel for pixel (`TokeniseScene.paintEnd`,
-`TokeniseEnd`), and in seven beats draws the engine's steps from ids to the
-stream (`forward_opening.dart`): the batch cut into input x and target y one
-place apart, each place of x paired with the token under it in y, the
-vocabulary become the token embedding, each id's row lifted
-to stand as its place's column, and the position embedding added, both tables
-the run's own (each checkpoint keeps them since 2026-10-30). Reduced
+`TokeniseEnd`), and draws input x and next token y one place apart
+(`shift_scene.dart`): the batch opened out into its peptides, each line of x
+with its line of y under it, and, every peptide at once, the token after each
+place, hidden under a veil from what the place has read, dropping into y
+under it; the first places one at a time, then a wave, then every place at
+once. Forward opens on Shift's last frame, pixel for pixel
+(`ShiftScene.paintEnd`, `ShiftLayout`), and in four beats draws the engine's
+steps from ids to the stream (`forward_opening.dart`): the token embedding,
+each id's row lifted to stand as its place's column, and the position
+embedding added, both tables the run's own (each checkpoint keeps them since
+2026-10-30). Reduced
 motion shows each stage played through, the loop at its last step. The
 captions and the About sheet are built from the run's own numbers (R4.1).
 Its colours are the theme's (`LmInks`, held by `lm_inks_test`): the accent

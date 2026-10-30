@@ -90,7 +90,8 @@ final class TokeniseScene extends LmScene {
   }
 
   /// The ids' numbers under the vocabulary, at [size] points.
-  static TextStyle _idStyle(LmView view, {double size = 8}) => inked(view.kit.mono, size, view.inks.quiet);
+  static TextStyle _idStyle(LmView view, {double size = 8, double alpha = 1}) =>
+      inked(view.kit.mono, size, view.inks.quiet, alpha: alpha);
 
   /// A token's count at the end of its row of the list.
   static TextStyle _countStyle(LmView view, {double alpha = 1, bool quiet = false}) =>
@@ -195,14 +196,22 @@ final class TokeniseScene extends LmScene {
 
   /// Token [id]'s tile in the vocabulary and its id: under it in the strip,
   /// left of it in the list ([q] 1, [listIdSize] its size there), going round
-  /// the tile's corner on the way rather than across it.
-  static void drawEntry(Canvas canvas, LmView view, Rect chip, int id, double q, double listIdSize) {
-    drawToken(canvas, view, chip, id);
+  /// the tile's corner on the way rather than across it; at [alpha].
+  static void drawEntry(
+    Canvas canvas,
+    LmView view,
+    Rect chip,
+    int id,
+    double q,
+    double listIdSize, {
+    double alpha = 1,
+  }) {
+    drawToken(canvas, view, chip, id, alpha: alpha);
     final double around = math.pi / 2 * q;
     view.kit.draw(
       canvas,
       '$id',
-      _idStyle(view, size: _mix(8, listIdSize, q)),
+      _idStyle(view, size: _mix(8, listIdSize, q), alpha: alpha),
       chip.center +
           Offset(-(chip.width / 2 + 5) * math.sin(around), (chip.height / 2 + 2) * math.cos(around)),
       anchor: Offset(0.5 + 0.5 * math.sin(around), 0.5 - 0.5 * math.cos(around)),

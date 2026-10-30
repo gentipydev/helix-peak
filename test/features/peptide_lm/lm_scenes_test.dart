@@ -94,29 +94,36 @@ void main() {
     expect(caption(LmStage.tokenise, 0.2), 'Two peptides, 23 residues, become ids in a 23-token vocabulary');
     expect(caption(LmStage.tokenise, 0.6), 'One batch: both peptides in one matrix, read by Forward in one pass');
     expect(caption(LmStage.tokenise, 0.99), startsWith('The vocabulary, counted: '));
+    // Shift, beat by beat: the batch opened out, the first places one at a
+    // time, the wave to <eos>, and every place at once.
+    double shift(double beat) => beat / LmStage.shift.beats;
+    expect(
+      caption(LmStage.shift, shift(0.5)),
+      'Under each place of input x goes the token after it: next token y',
+    );
+    expect(caption(LmStage.shift, shift(1.6)), 'After <bos>, place 0 learns G, which it cannot see');
+    expect(caption(LmStage.shift, shift(3.6)), 'After GI, place 2 learns V, which it cannot see');
+    expect(caption(LmStage.shift, shift(5)), 'After …CCTSIC, place 11 learns <eos>, which it cannot see');
+    final int pads = trace.peptides.length * trace.width - trace.targetCount;
+    expect(
+      caption(LmStage.shift, 0.99),
+      'Every place learns at once: ${trace.targetCount} targets, '
+      '${pads == 1 ? 'one pad' : '$pads pads'} ignored',
+    );
     // Forward's opening, beat by beat: the toy's two layers make its stage
-    // 7 + 8 + 1 beats.
+    // 4 + 8 + 1 beats.
     final int width = trace.model.width;
-    double opening(double beat) => beat / (7 + 4 * trace.model.layers + 1);
-    expect(caption(LmStage.forward, opening(1)), endsWith('${trace.targetCount} targets'));
+    double opening(double beat) => beat / (4 + 4 * trace.model.layers + 1);
     expect(
-      caption(LmStage.forward, opening(2.05)),
-      'After <bos>, place 0 learns G: the token under it in y',
+      caption(LmStage.forward, opening(0.5)),
+      'Both are read at once; toy A is drawn. The token embedding holds a row a token',
     );
     expect(
-      caption(LmStage.forward, opening(2.95)),
-      'After …CCTSIC, place 11 learns <eos>: the token under it in y',
-    );
-    expect(
-      caption(LmStage.forward, opening(3.5)),
-      'Both are read at once; toy A is drawn. The vocabulary is the token embedding',
-    );
-    expect(
-      caption(LmStage.forward, opening(5)),
+      caption(LmStage.forward, opening(2)),
       "Each id picks its row of $width: 12 places from 9 rows, C's three times",
     );
-    expect(caption(LmStage.forward, opening(6.5)), contains('position embedding'));
-    expect(caption(LmStage.forward, opening(6.9)), contains('× $width numbers'));
+    expect(caption(LmStage.forward, opening(3.5)), contains('position embedding'));
+    expect(caption(LmStage.forward, opening(3.9)), contains('× $width numbers'));
     expect(caption(LmStage.predict, 0.99), contains('next is ${trace.token(last.target)}'));
     expect(caption(LmStage.loss, 0.99), contains(nats(trace.loss(last.step))));
     expect(caption(LmStage.update, 0.5), contains(scientific(trace.steps.learningRate[last.step - 1])));
@@ -163,21 +170,27 @@ void main() {
     }
     expect((pick! as PickCheckpoint).index, trace.checkpoints.length - 1);
 
-    // Forward's opening: a row of the batch puts its peptide in focus, and
-    // once the token row has landed, a token its place.
-    TrainingFrame forwardAt(double beat) =>
-        timeline.frameIn(LmStage.forward, beat / (7 + 4 * trace.model.layers + 1));
-    final Set<int> cut = <int>{};
-    for (double y = 0; y < size.height; y += 1) {
-      final LmHit? hit = sceneOf(LmStage.forward).hitAt(size, scene, Offset(200, y), forwardAt(1));
-      if (hit is FocusPeptide) {
-        cut.add(hit.peptide);
+    // Shift: a row of the matrix it opens on puts its peptide in focus, and
+    // a peptide's card once the matrix has opened out.
+    for (final double local in <double>[0, 1]) {
+      final Set<int> found = <int>{};
+      for (double y = 0; y < size.height; y += 1) {
+        final LmHit? hit = sceneOf(LmStage.shift)
+            .hitAt(size, scene, Offset(200, y), timeline.frameIn(LmStage.shift, local));
+        if (hit is FocusPeptide) {
+          found.add(hit.peptide);
+        }
       }
+      expect(found, <int>{for (int p = 0; p < trace.peptides.length; p++) p});
     }
-    expect(cut, <int>{for (int p = 0; p < trace.peptides.length; p++) p});
+
+    // Forward's opening: once the token row has landed, a token puts its
+    // place in focus.
+    TrainingFrame forwardAt(double beat) =>
+        timeline.frameIn(LmStage.forward, beat / (4 + 4 * trace.model.layers + 1));
     LmHit? place;
     for (double y = size.height - 1; y > size.height / 2 && place == null; y -= 1) {
-      final LmHit? hit = sceneOf(LmStage.forward).hitAt(size, scene, Offset(200, y), forwardAt(4));
+      final LmHit? hit = sceneOf(LmStage.forward).hitAt(size, scene, Offset(200, y), forwardAt(1));
       if (hit is FocusPosition) {
         place = hit;
       }
@@ -197,7 +210,9 @@ void main() {
     expect((head! as FocusHead).head, 0);
   });
 
-  testWidgets("Forward opens on Tokenise's last frame, pixel for pixel", (WidgetTester tester) async {
+  testWidgets("Shift opens on Tokenise's last frame, and Forward on Shift's, pixel for pixel", (
+    WidgetTester tester,
+  ) async {
     final (LmInks inks, LmKit kit) = await _drawing(tester);
     addTearDown(kit.dispose);
     const Size size = Size(393, 540);
@@ -218,10 +233,15 @@ void main() {
 
     for (int p = 0; p < trace.peptides.length; p++) {
       final LmView scene = view(inks, kit, peptide: p, checkpoint: trace.checkpoints.length - 1);
-      final List<int> last = await pixels(scene, timeline.frameIn(LmStage.tokenise, 1));
-      final List<int> first = await pixels(scene, timeline.frameIn(LmStage.forward, 0));
-      expect(last.any((int b) => b != last.first), isTrue);
-      expect(first, last);
+      for (final (LmStage before, LmStage after) in <(LmStage, LmStage)>[
+        (LmStage.tokenise, LmStage.shift),
+        (LmStage.shift, LmStage.forward),
+      ]) {
+        final List<int> last = await pixels(scene, timeline.frameIn(before, 1));
+        final List<int> first = await pixels(scene, timeline.frameIn(after, 0));
+        expect(last.any((int b) => b != last.first), isTrue);
+        expect(first, last, reason: '${after.label} opens on ${before.label}');
+      }
     }
   });
 

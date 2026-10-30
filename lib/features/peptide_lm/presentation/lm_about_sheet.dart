@@ -67,8 +67,15 @@ class LmAboutSheet extends StatelessWidget {
               'Tokenise',
               '${trace.vocab.length} tokens: <pad>, <bos>, <eos> and the twenty '
                   'residues. Each peptide is framed by <bos> and <eos> and padded to the '
-                  'longest, and each id is trained to predict the one after it: '
-                  '${trace.targetCount} targets in the batch, padding ignored.',
+                  'longest.',
+            ),
+            paragraph(
+              'Shift',
+              'Input x is each frame less its last place, next token y each frame '
+                  'less its first: under each place lies the token after it, which the '
+                  'place is trained to predict without seeing it. '
+                  '${trace.targetCount} targets in the batch, all learned at once; '
+                  'padding is ignored.',
             ),
             paragraph(
               'Forward',
