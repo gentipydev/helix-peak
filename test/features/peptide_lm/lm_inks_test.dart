@@ -62,5 +62,9 @@ void main() {
     expect(inks.signed(-1), inks.negative);
     expect(inks.signed(1), inks.positive);
     expect(inks.signed(0), inks.zero);
+    // A number's tile is the ramp softened, from the same tile at zero.
+    expect(inks.cell(0), inks.zero);
+    expect(inks.cell(1), Color.lerp(inks.zero, inks.positive, LmInks.soft));
+    expect(inks.cell(-1), Color.lerp(inks.zero, inks.negative, LmInks.soft));
   });
 }

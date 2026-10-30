@@ -2,12 +2,13 @@ import 'package:flutter/foundation.dart';
 
 import '../../../shared/motion/animation_timeline.dart';
 
-/// One training step told in seven stages, then the loop over every step:
+/// One training step told in eight stages, then the loop over every step:
 /// the order the page plays them in, each with its share of the time.
 enum LmStage {
   tokenise('Tokenise', 11),
   shift('Shift', 5),
-  forward('Forward', 21),
+  embedding('Embedding', 9),
+  forward('Forward', 18),
   predict('Predict', 7),
   loss('Loss', 7),
   backward('Backward', 8),

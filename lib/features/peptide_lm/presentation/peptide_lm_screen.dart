@@ -76,7 +76,7 @@ class _Waiting extends StatelessWidget {
 }
 
 /// The run itself: the stage on the canvas, a line of its numbers with the
-/// stage's own player, and the seven stages, a tap on one playing it once
+/// stage's own player, and the eight stages, a tap on one playing it once
 /// from its start.
 class TrainingRunView extends StatefulWidget {
   const TrainingRunView({required this.trace, super.key});
@@ -223,7 +223,7 @@ class _TrainingRunViewState extends State<TrainingRunView>
     }
   }
 
-  /// Shows [index]'s checkpoint in the six stages; in the loop, goes to it.
+  /// Shows [index]'s checkpoint in the eight stages; in the loop, goes to it.
   void _pick(int index) {
     setState(() => _checkpoint = index);
     if (_stage == LmStage.loop) {
@@ -520,7 +520,7 @@ class _StagePlayer extends StatelessWidget {
   }
 }
 
-/// The checkpoint the six stages show, picked from the steps that kept every
+/// The checkpoint the eight stages show, picked from the steps that kept every
 /// activation, each with its loss.
 class _CheckpointMenu extends StatelessWidget {
   const _CheckpointMenu({

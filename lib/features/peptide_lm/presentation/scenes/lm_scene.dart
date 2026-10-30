@@ -6,7 +6,7 @@ import '../lm_inks.dart';
 import 'lm_drawing.dart';
 
 /// Everything a scene draws from, but the moment: the run, the checkpoint the
-/// six stages show, what the reader has put in focus, and how to draw.
+/// eight stages show, what the reader has put in focus, and how to draw.
 @immutable
 final class LmView {
   const LmView({

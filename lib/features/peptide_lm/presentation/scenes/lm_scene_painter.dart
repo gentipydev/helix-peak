@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../domain/training_timeline.dart';
 import 'backward_scene.dart';
+import 'embedding_scene.dart';
 import 'forward_scene.dart';
 import 'lm_scene.dart';
 import 'loop_scene.dart';
@@ -14,6 +15,7 @@ import 'update_scene.dart';
 LmScene sceneOf(LmStage stage) => switch (stage) {
   LmStage.tokenise => const TokeniseScene(),
   LmStage.shift => const ShiftScene(),
+  LmStage.embedding => const EmbeddingScene(),
   LmStage.forward => const ForwardScene(),
   LmStage.predict => const PredictScene(),
   LmStage.loss => const LossScene(),

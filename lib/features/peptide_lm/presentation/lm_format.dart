@@ -15,6 +15,18 @@ const String _minus = '−';
 String signed(double value, int digits) =>
     '${value < 0 ? _minus : '+'}${value.abs().toStringAsFixed(digits)}';
 
+/// A number to [digits] places, the minus a true minus, and no sign on a
+/// number that rounds to nothing: `−1.2`, `0.0`.
+String fixed(double value, int digits) {
+  final String text = value.abs().toStringAsFixed(digits);
+  return value < 0 && double.parse(text) != 0 ? '$_minus$text' : text;
+}
+
+/// How many places a number stored in steps of [step] is written to: none
+/// finer than the step, and two at the most.
+int placesFor(double step) =>
+    step <= 0 ? 2 : (-math.log(step) / math.ln10).floor().clamp(0, 2);
+
 /// A small number in E notation, the minus a true one: `1.0e−3`. Neither of
 /// the app's faces has a superscript minus.
 String scientific(double value) {

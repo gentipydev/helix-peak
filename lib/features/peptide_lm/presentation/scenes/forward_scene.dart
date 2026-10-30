@@ -36,8 +36,9 @@ final class ForwardMoment {
   bool get feedingForward =>
       _part == _Part.block && progress >= addedAttention && progress < fedForward;
 
-  /// The forward pass's parts in proportion: four beats to open on Shift's
-  /// last frame and embed the batch, four a block, one for the final norm.
+  /// The forward pass's parts in proportion: a beat to open on Embedding's
+  /// last frame and stand x0 up as the stream, four a block, one for the
+  /// final norm.
   static ForwardMoment at(int layers, double local) {
     const double open = ForwardOpening.beats;
     final double total = open + 4.0 * layers + 1;
@@ -54,9 +55,9 @@ final class ForwardMoment {
   }
 }
 
-/// Forward: it opens on Shift's last frame and embeds the batch
-/// ([ForwardOpening]); then the residual stream, one column of numbers a
-/// position, rises through the blocks. In each, every position reads the ones
+/// Forward: it opens on Embedding's last frame and stands x0 up as the
+/// stream ([ForwardOpening]); then the residual stream, one column of
+/// numbers a position, rises through the blocks. In each, every position reads the ones
 /// before it (attention, the arcs) and what it reads is added to its column;
 /// then each column goes through the feed-forward layer and that is added too.
 final class ForwardScene extends LmScene {
@@ -145,7 +146,7 @@ final class ForwardScene extends LmScene {
   }
 
   /// The opening, and round it what it hands over to: the rail, lit at the
-  /// embedding once the table has grown, and as it settles the head
+  /// embedding as the rows stand up, and as it settles the head
   /// maps, faint as they are before any block has run, and the place in
   /// focus.
   void _open(Canvas canvas, Size size, LmView view, ForwardLayout layout, ForwardMoment moment) {
@@ -537,9 +538,12 @@ final class ForwardLayout {
     final double arcsHeight = (size.height * 0.16).clamp(36.0, 96.0);
     final double above = headSize + 22 + arcsHeight + 4;
     final double below = 8 + cell + 12;
-    // A row of the stream a number: as tall as the canvas allows, within reason.
-    final double rowHeight =
-        ((size.height - 16 - above - below) / trace.model.width).clamp(1.0, 2.6);
+    // A row of the stream a number: as tall as the canvas allows, within
+    // reason, the whole stream no taller than [_mostStream].
+    final double rowHeight = math.max(
+      1.0,
+      math.min(size.height - 16 - above - below, _mostStream) / trace.model.width,
+    );
     final double content = above + rowHeight * trace.model.width + below;
     final double top = math.max(8, (size.height - content) / 2);
     headsTop = top;
@@ -550,6 +554,9 @@ final class ForwardLayout {
     grid = Rect.fromLTRB(tokens.bounds.left, gridTop, tokens.bounds.right, gridBottom);
     rail = ModuleRail(Rect.fromLTWH(10, top, railWidth, content), trace.model.layers);
   }
+
+  /// The tallest the stream is drawn, whatever the model's width.
+  static const double _mostStream = 250;
 
   late final ModuleRail rail;
   late final TokenLayout tokens;

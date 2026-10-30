@@ -79,10 +79,16 @@ class LmAboutSheet extends StatelessWidget {
                   'ignored.',
             ),
             paragraph(
+              'Embedding',
+              'Each id picks its row of the token embedding, ${model.width} learned '
+                  'numbers for each of the ${trace.vocab.length} tokens, and each place '
+                  'adds its own row of the position embedding, one for each of '
+                  '${model.context} places; the sum, ${model.width} numbers a place, is x0, '
+                  'the residual stream as the first block reads it.',
+            ),
+            paragraph(
               'Forward',
-              'Each id picks its row of a learned embedding, and each position its '
-                  'own; their sum, ${model.width} numbers, is the residual stream. Each '
-                  'block normalises it (LayerNorm), lets every position read the ones '
+              'Each block normalises the stream (LayerNorm), lets every position read the ones '
                   'before it, never those after, through ${spelled(model.heads)} '
                   'attention heads, and adds what it read; then it passes each position '
                   'through a feed-forward layer (${model.width} → ${model.feedForward} '

@@ -8,7 +8,7 @@ import '../../../core/theme/nucleotide_colors.dart';
 
 /// The training run's colours, each the theme's own.
 ///
-/// One hue a role, so a reader learns them once across the seven stages:
+/// One hue a role, so a reader learns them once across the eight stages:
 /// - [signal], the accent, is what flows forward: activations, the model's
 ///   marks, the position in focus;
 /// - [truth], the tracer, outlines what actually came next;
@@ -82,6 +82,13 @@ final class LmInks {
     final double v = value.clamp(-1.0, 1.0);
     return Color.lerp(zero, v < 0 ? negative : positive, v.abs())!;
   }
+
+  /// How far a written number's tile goes towards its [signed] colour: soft
+  /// enough that the number on it reads.
+  static const double soft = 0.55;
+
+  /// The tile under a number written out, -1 to 1: [signed], softened.
+  Color cell(double value) => Color.lerp(zero, signed(value), soft)!;
 
   /// [value], 0 to 1, from the tile to [ink], lifted at the low end so a small
   /// weight still shows: an attention weight, a probability.

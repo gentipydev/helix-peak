@@ -9,6 +9,7 @@ import 'package:helixpeek/features/peptide_lm/domain/training_timeline.dart';
 import 'package:helixpeek/features/peptide_lm/domain/training_trace.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/lm_format.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/lm_inks.dart';
+import 'package:helixpeek/features/peptide_lm/presentation/scenes/embedding_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_drawing.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_scene_painter.dart';
@@ -110,20 +111,39 @@ void main() {
       caption(LmStage.shift, 0.99),
       'Only x goes in; Loss grades each guess against y: ${trace.targetCount} targets',
     );
-    // Forward's opening, beat by beat: the toy's two layers make its stage
-    // 4 + 8 + 1 beats.
+    // Embedding, beat by beat: the table, what its numbers are, the first
+    // lookup and the rest, the gather, the position embedding and x0.
     final int width = trace.model.width;
-    double opening(double beat) => beat / (4 + 4 * trace.model.layers + 1);
+    double embedding(double beat) => beat / LmStage.embedding.beats;
     expect(
-      caption(LmStage.forward, opening(0.5)),
-      'Both are read at once; toy A is drawn. The token embedding holds a row a token',
+      caption(LmStage.embedding, embedding(0.5)),
+      'The token embedding: $width learned numbers for each of the 23 tokens',
     );
     expect(
-      caption(LmStage.forward, opening(2)),
-      "Each id picks its row of $width: 12 places from 9 rows, C's three times",
+      caption(LmStage.embedding, embedding(2)),
+      "At step ${last.step} they have had ${last.step - 1} updates; <pad>'s row is zero at every checkpoint",
     );
-    expect(caption(LmStage.forward, opening(3.5)), contains('position embedding'));
-    expect(caption(LmStage.forward, opening(3.9)), contains('× $width numbers'));
+    final TrainingFrame untrained = timeline.frameIn(LmStage.embedding, embedding(2));
+    expect(
+      sceneOf(LmStage.embedding).caption(view(inks, kit), untrained),
+      "At step 1 no update has moved them yet; <pad>'s row is zero at every checkpoint",
+    );
+    expect(caption(LmStage.embedding, embedding(3)), '<bos> is id 1, so it reads row 1 of the table');
+    expect(
+      caption(LmStage.embedding, embedding(4)),
+      "Each id picks its row of $width: 12 places read 9 rows, C's three times",
+    );
+    expect(
+      caption(LmStage.embedding, embedding(6)),
+      'In place order, the rows read are x embedded: 12 × $width, a row a place',
+    );
+    expect(caption(LmStage.embedding, embedding(7.5)), contains('position embedding'));
+    expect(caption(LmStage.embedding, embedding(8.8)), 'x0: 12 × $width numbers, what the blocks read');
+    // Forward's opening: the toy's two layers make its stage 1 + 8 + 1 beats.
+    expect(
+      caption(LmStage.forward, 0.5 / (1 + 4 * trace.model.layers + 1)),
+      'x0 stands up as the residual stream: a column a place',
+    );
     expect(caption(LmStage.predict, 0.99), contains('next is ${trace.token(last.target)}'));
     expect(caption(LmStage.loss, 0.99), contains(nats(trace.loss(last.step))));
     expect(caption(LmStage.update, 0.5), contains(scientific(trace.steps.learningRate[last.step - 1])));
@@ -210,7 +230,7 @@ void main() {
     expect((head! as FocusHead).head, 0);
   });
 
-  testWidgets("Shift opens on Tokenise's last frame, and Forward on Shift's, pixel for pixel", (
+  testWidgets('each stage opens on the last frame of the one before, pixel for pixel', (
     WidgetTester tester,
   ) async {
     final (LmInks inks, LmKit kit) = await _drawing(tester);
@@ -235,7 +255,8 @@ void main() {
       final LmView scene = view(inks, kit, peptide: p, checkpoint: trace.checkpoints.length - 1);
       for (final (LmStage before, LmStage after) in <(LmStage, LmStage)>[
         (LmStage.tokenise, LmStage.shift),
-        (LmStage.shift, LmStage.forward),
+        (LmStage.shift, LmStage.embedding),
+        (LmStage.embedding, LmStage.forward),
       ]) {
         final List<int> last = await pixels(scene, timeline.frameIn(before, 1));
         final List<int> first = await pixels(scene, timeline.frameIn(after, 0));
@@ -252,5 +273,41 @@ void main() {
     expect(scientific(1e-5), '1.0e−5');
     expect(scientific(0.00099996), '1.0e−3');
     expect(signed(-0.0123, 2), '−0.01');
+    // A number written out: a true minus, no plus, no minus on a zero.
+    expect(fixed(-1.234, 1), '−1.2');
+    expect(fixed(2.06, 1), '2.1');
+    expect(fixed(-0.04, 1), '0.0');
+    expect(fixed(-0.004, 2), '0.00');
+    // As many places as the step a number is stored in allows, two at most.
+    expect(placesFor(0.031), 1);
+    expect(placesFor(0.0055), 2);
+    expect(placesFor(0.00065), 2);
+    expect(placesFor(0.4), 0);
+  });
+
+  testWidgets('the embedding writes its numbers out where they fit, and draws colours alone where not', (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    final LmView scene = view(inks, kit);
+    final EmbeddingLayout phone = EmbeddingLayout(const Size(375, 450), scene);
+    expect(phone.tokenStyle, isNotNull);
+    expect(phone.placeStyle, isNotNull);
+    expect(phone.tokenStyle!.fontSize, greaterThanOrEqualTo(EmbeddingLayout.leastNumber));
+    // Every number fits its cell.
+    for (final (TextStyle style, String widest) in <(TextStyle, String)>[
+      (phone.tokenStyle!, fixed(-8.8, phone.tokenPlaces)),
+      (phone.placeStyle!, fixed(-0.88, phone.placePlaces)),
+    ]) {
+      expect(kit.layout(widest, style).width, lessThan(phone.cell - 2 * EmbeddingLayout.gap));
+    }
+    // The same rows, too narrow for a number: colours alone.
+    final EmbeddingLayout narrow = EmbeddingLayout(const Size(110, 450), scene);
+    expect(narrow.tokenStyle, isNull);
+    expect(narrow.placeStyle, isNull);
+    // The table spans the canvas, a 16-point margin either side.
+    expect(phone.row(0).right, 375 - 16);
+    expect(phone.left, 16);
   });
 }
