@@ -127,6 +127,63 @@ final class TraceSteps {
   final Float32List headBias;
 }
 
+/// What one block worked out at a checkpoint, as the step ran it: its
+/// queries, keys and values (heads side by side, a head's `size` numbers each),
+/// every score before softmax, each head's mix of values before the output
+/// projection, and its feed-forward's input, neurons and weights.
+@immutable
+final class TraceBlock {
+  const TraceBlock({
+    required this.query,
+    required this.queryScale,
+    required this.key,
+    required this.keyScale,
+    required this.value,
+    required this.valueScale,
+    required this.scores,
+    required this.mixed,
+    required this.mixedScale,
+    required this.ffInput,
+    required this.hidden,
+    required this.hiddenScale,
+    required this.ffIn,
+    required this.ffInBias,
+    required this.ffOut,
+    required this.ffOutBias,
+  });
+
+  /// targets × width, int8 in their own scale: drawn as colours.
+  final Int8List query;
+  final double queryScale;
+  final Int8List key;
+  final double keyScale;
+  final Int8List value;
+  final double valueScale;
+
+  /// q·k / √size before softmax, heads × each peptide's lower triangle, as
+  /// the attention maps are laid out: whole, written out.
+  final Float32List scores;
+
+  /// targets × width: each head's share-weighted sum of the values.
+  final Int8List mixed;
+  final double mixedScale;
+
+  /// The feed-forward's input, its row after LayerNorm: targets × width,
+  /// whole.
+  final Float32List ffInput;
+
+  /// Its neurons after GELU: targets × feed-forward width.
+  final Int8List hidden;
+  final double hiddenScale;
+
+  /// Its two layers as the step found them: feed-forward × width and its
+  /// bias, width × feed-forward and its bias.
+  final Float32List ffIn;
+  final Float32List ffInBias;
+  final Float32List ffOut;
+  final Float32List ffOutBias;
+}
+
 /// One checkpoint: everything the step computed, kept whole.
 @immutable
 final class TraceCheckpoint {
@@ -136,10 +193,12 @@ final class TraceCheckpoint {
     required this.tokenEmbedding,
     required this.positionEmbedding,
     required this.stream,
-    required this.streamScales,
     required this.pointGrad,
     required this.attention,
     required this.attentionScale,
+    required this.blocks,
+    required this.readout,
+    required this.readoutScale,
     required this.logits,
     required this.logitScale,
     required this.probs,
@@ -162,9 +221,9 @@ final class TraceCheckpoint {
   final Float32List tokenEmbedding;
   final Float32List positionEmbedding;
 
-  /// The residual stream at each point: points × targets × width.
-  final Int8List stream;
-  final Float64List streamScales;
+  /// The residual stream at each point: points × targets × width, whole, so
+  /// what a part adds and the sum the page writes add up.
+  final Float32List stream;
 
   /// The norm of the loss's gradient reaching each point: points × targets.
   final Float32List pointGrad;
@@ -172,6 +231,16 @@ final class TraceCheckpoint {
   /// Every head's attention, layers × heads × each peptide's lower triangle.
   final Uint8List attention;
   final double attentionScale;
+
+  /// What each block worked out on the way.
+  final List<TraceBlock> blocks;
+
+  /// The stream read out early: what the output layer would say if the model
+  /// stopped at each point before the final norm, which the readout applies
+  /// itself. Points but the last × targets × the tokens that can come next;
+  /// at the last of them, the model's own probabilities.
+  final Uint8List readout;
+  final double readoutScale;
 
   /// targets × vocab.
   final Int8List logits;
@@ -221,7 +290,7 @@ final class TrainingTrace {
          for (final TracePeptide p in peptides) p.inputs * (p.inputs + 1) ~/ 2,
        ]);
 
-  static const int schema = 2;
+  static const int schema = 3;
 
   final String name;
 
@@ -251,6 +320,9 @@ final class TrainingTrace {
   /// The residual stream's points: `x0`, then `m` and `h` for each block, and
   /// `hf` after the final norm.
   final List<String> points;
+
+  /// The points read out early: every one but `hf`.
+  int get readouts => points.length - 1;
   final List<String> groups;
 
   /// How many weights each group holds: its norm over the root of that is
@@ -333,8 +405,7 @@ final class TrainingTrace {
       at.positionEmbedding[place * model.width + dim];
 
   double stream(TraceCheckpoint at, int point, int peptide, int position, int dim) =>
-      at.stream[(point * targetCount + flat(peptide, position)) * model.width + dim] *
-      at.streamScales[point];
+      at.stream[(point * targetCount + flat(peptide, position)) * model.width + dim];
 
   double pointGrad(TraceCheckpoint at, int point, int peptide, int position) =>
       at.pointGrad[point * targetCount + flat(peptide, position)];
@@ -352,6 +423,60 @@ final class TrainingTrace {
               query * (query + 1) ~/ 2 +
               key] *
       at.attentionScale;
+
+  /// How many numbers each head's query, key and value hold.
+  int get headSize => model.width ~/ model.heads;
+
+  int _headed(int peptide, int position, int head, int d) =>
+      flat(peptide, position) * model.width + head * headSize + d;
+
+  /// [head]'s query of [position], its number [d], in [block].
+  double query(TraceCheckpoint at, int block, int head, int peptide, int position, int d) =>
+      at.blocks[block].query[_headed(peptide, position, head, d)] * at.blocks[block].queryScale;
+
+  double key(TraceCheckpoint at, int block, int head, int peptide, int position, int d) =>
+      at.blocks[block].key[_headed(peptide, position, head, d)] * at.blocks[block].keyScale;
+
+  double value(TraceCheckpoint at, int block, int head, int peptide, int position, int d) =>
+      at.blocks[block].value[_headed(peptide, position, head, d)] * at.blocks[block].valueScale;
+
+  /// What [head] handed [position]: its shares of the values, summed.
+  double mixed(TraceCheckpoint at, int block, int head, int peptide, int position, int d) =>
+      at.blocks[block].mixed[_headed(peptide, position, head, d)] * at.blocks[block].mixedScale;
+
+  /// [query]'s score against [key] in [head] of [block], before softmax.
+  double score(TraceCheckpoint at, int block, int head, int peptide, int query, int key) =>
+      at.blocks[block].scores[head * triangle +
+          triangleOffsets[peptide] +
+          query * (query + 1) ~/ 2 +
+          key];
+
+  /// The feed-forward's input at [position]: its row after LayerNorm.
+  double ffInput(TraceCheckpoint at, int block, int peptide, int position, int d) =>
+      at.blocks[block].ffInput[flat(peptide, position) * model.width + d];
+
+  /// Neuron [unit] of [block]'s feed-forward at [position], after GELU.
+  double hidden(TraceCheckpoint at, int block, int peptide, int position, int unit) =>
+      at.blocks[block].hidden[flat(peptide, position) * model.feedForward + unit] *
+      at.blocks[block].hiddenScale;
+
+  /// The weight from input [d] to neuron [unit], and from neuron [unit] to
+  /// output [d].
+  double ffIn(TraceCheckpoint at, int block, int unit, int d) =>
+      at.blocks[block].ffIn[unit * model.width + d];
+
+  double ffInBias(TraceCheckpoint at, int block, int unit) => at.blocks[block].ffInBias[unit];
+
+  double ffOut(TraceCheckpoint at, int block, int d, int unit) =>
+      at.blocks[block].ffOut[d * model.feedForward + unit];
+
+  double ffOutBias(TraceCheckpoint at, int block, int d) => at.blocks[block].ffOutBias[d];
+
+  /// The probability the output layer would give the [column]th token of
+  /// [allowed] if the model stopped at [point] (0 to [readouts] − 1).
+  double readout(TraceCheckpoint at, int point, int peptide, int position, int column) =>
+      at.readout[(point * targetCount + flat(peptide, position)) * allowed.length + column] *
+      at.readoutScale;
 
   /// Attention averaged over the layer's heads.
   double meanAttention(TraceCheckpoint at, int layer, int peptide, int query, int key) {
@@ -500,7 +625,10 @@ final class TrainingTrace {
         throw FormatException('Checkpoint $step is out of order');
       }
       final String what = 'step $step';
-      final Map<String, Object?> stream = _object(c['points'], '$what points');
+      final List<Object?> blocks = _list(c, 'blocks');
+      if (blocks.length != model.layers) {
+        throw FormatException('$what does not keep its ${model.layers} blocks');
+      }
       checkpoints.add(
         TraceCheckpoint(
           step: step,
@@ -515,8 +643,7 @@ final class TrainingTrace {
             <int>[model.context, model.width],
             '$what position_embedding',
           ),
-          stream: _int8(stream, <int>[points.length, targetCount, model.width], '$what points'),
-          streamScales: _scales(stream, points.length, '$what points'),
+          stream: _float32(c['points'], <int>[points.length, targetCount, model.width], '$what points'),
           pointGrad: _float32(c['point_grad'], <int>[points.length, targetCount], '$what grad'),
           attention: _uint8(
             c['attention'],
@@ -524,6 +651,22 @@ final class TrainingTrace {
             '$what attention',
           ),
           attentionScale: _scale(c['attention'], '$what attention'),
+          blocks: <TraceBlock>[
+            for (int b = 0; b < blocks.length; b++)
+              _block(
+                _object(blocks[b], '$what block ${b + 1}'),
+                model,
+                targetCount,
+                triangle,
+                '$what block ${b + 1}',
+              ),
+          ],
+          readout: _uint8(
+            c['readout'],
+            <int>[points.length - 1, targetCount, allowed.length],
+            '$what readout',
+          ),
+          readoutScale: _scale(c['readout'], '$what readout'),
           logits: _int8(c['logits'], <int>[targetCount, vocab.length], '$what logits'),
           logitScale: _scale(c['logits'], '$what logits'),
           probs: _uint8(c['probs'], <int>[targetCount, allowed.length], '$what probs'),
@@ -564,6 +707,34 @@ final class TrainingTrace {
       provenance: Map<String, Object?>.unmodifiable(
         _object(json['provenance'], 'provenance'),
       ),
+    );
+  }
+
+  static TraceBlock _block(
+    Map<String, Object?> json,
+    TraceModel model,
+    int targets,
+    int triangle,
+    String what,
+  ) {
+    final List<int> rows = <int>[targets, model.width];
+    return TraceBlock(
+      query: _int8(json['query'], rows, '$what query'),
+      queryScale: _scale(json['query'], '$what query'),
+      key: _int8(json['key'], rows, '$what key'),
+      keyScale: _scale(json['key'], '$what key'),
+      value: _int8(json['value'], rows, '$what value'),
+      valueScale: _scale(json['value'], '$what value'),
+      scores: _float32(json['scores'], <int>[model.heads, triangle], '$what scores'),
+      mixed: _int8(json['mixed'], rows, '$what mixed'),
+      mixedScale: _scale(json['mixed'], '$what mixed'),
+      ffInput: _float32(json['ff_input'], rows, '$what ff_input'),
+      hidden: _int8(json['hidden'], <int>[targets, model.feedForward], '$what hidden'),
+      hiddenScale: _scale(json['hidden'], '$what hidden'),
+      ffIn: _float32(json['ff_in'], <int>[model.feedForward, model.width], '$what ff_in'),
+      ffInBias: _float32(json['ff_in_bias'], <int>[model.feedForward], '$what ff_in_bias'),
+      ffOut: _float32(json['ff_out'], <int>[model.width, model.feedForward], '$what ff_out'),
+      ffOutBias: _float32(json['ff_out_bias'], <int>[model.width], '$what ff_out_bias'),
     );
   }
 

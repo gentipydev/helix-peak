@@ -121,8 +121,8 @@ void main() {
 
   test("each place's x0 is its id's token row plus its place's row", () {
     for (final TraceCheckpoint c in trace.checkpoints) {
-      // The tables are whole; x0 is the sum to within half its own step.
-      final double tolerance = c.streamScales[0] / 2 + 1e-5;
+      // The tables and the stream are whole: x0 is their sum, float for float.
+      const double tolerance = 1e-5;
       for (int d = 0; d < trace.model.width; d++) {
         expect(trace.tokenEmbedding(c, 0, d), 0);
       }
@@ -136,6 +136,114 @@ void main() {
           }
         }
       }
+    }
+  });
+
+  test("each block's scores softmax to its map, and each mix is the shares of the values", () {
+    for (final TraceCheckpoint c in trace.checkpoints) {
+      for (int b = 0; b < trace.model.layers; b++) {
+        final TraceBlock block = c.blocks[b];
+        for (int head = 0; head < trace.model.heads; head++) {
+          for (int p = 0; p < trace.peptides.length; p++) {
+            for (int q = 0; q < trace.peptides[p].inputs; q++) {
+              double top = -double.infinity;
+              for (int k = 0; k <= q; k++) {
+                top = math.max(top, trace.score(c, b, head, p, q, k));
+              }
+              final List<double> shares = <double>[
+                for (int k = 0; k <= q; k++) math.exp(trace.score(c, b, head, p, q, k) - top),
+              ];
+              final double sum = shares.reduce((double a, double x) => a + x);
+              for (int k = 0; k <= q; k++) {
+                expect(shares[k] / sum, closeTo(trace.attention(c, b, head, p, q, k), 0.5 / 255 + 1e-6));
+              }
+              for (int d = 0; d < trace.headSize; d++) {
+                double mix = 0;
+                for (int k = 0; k <= q; k++) {
+                  mix += shares[k] / sum * trace.value(c, b, head, p, k, d);
+                }
+                expect(
+                  trace.mixed(c, b, head, p, q, d),
+                  closeTo(mix, (block.valueScale + block.mixedScale) / 2 + 1e-5),
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+
+  test('every neuron is GELU of its input, and the feed-forward adds what the stream gained', () {
+    // GELU as torch makes it: x Φ(x). An erf to 1.5e-7 (Abramowitz and Stegun 7.1.26).
+    double erf(double x) {
+      final double t = 1 / (1 + 0.3275911 * x.abs());
+      final double y = 1 -
+          (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) *
+              t *
+              math.exp(-x * x);
+      return x < 0 ? -y : y;
+    }
+
+    double gelu(double x) => 0.5 * x * (1 + erf(x / math.sqrt2));
+    final int width = trace.model.width;
+    final int ff = trace.model.feedForward;
+    for (final TraceCheckpoint c in trace.checkpoints) {
+      for (int b = 0; b < trace.model.layers; b++) {
+        for (int p = 0; p < trace.peptides.length; p++) {
+          for (int i = 0; i < trace.peptides[p].inputs; i++) {
+            final List<double> neurons = <double>[
+              for (int u = 0; u < ff; u++)
+                gelu(
+                  <double>[
+                        for (int d = 0; d < width; d++) trace.ffIn(c, b, u, d) * trace.ffInput(c, b, p, i, d),
+                      ].reduce((double a, double x) => a + x) +
+                      trace.ffInBias(c, b, u),
+                ),
+            ];
+            for (int u = 0; u < ff; u++) {
+              expect(trace.hidden(c, b, p, i, u), closeTo(neurons[u], c.blocks[b].hiddenScale / 2 + 1e-5));
+            }
+            for (int d = 0; d < width; d++) {
+              double added = trace.ffOutBias(c, b, d);
+              for (int u = 0; u < ff; u++) {
+                added += trace.ffOut(c, b, d, u) * neurons[u];
+              }
+              final double gained = trace.stream(c, 2 * b + 2, p, i, d) - trace.stream(c, 2 * b + 1, p, i, d);
+              expect(added, closeTo(gained, 1e-4));
+            }
+          }
+        }
+      }
+    }
+  });
+
+  test("the stream read out early sums to one, and at its last point is the model's own", () {
+    expect(trace.readouts, trace.points.length - 1);
+    for (final TraceCheckpoint c in trace.checkpoints) {
+      for (int point = 0; point < trace.readouts; point++) {
+        for (int p = 0; p < trace.peptides.length; p++) {
+          for (int i = 0; i < trace.peptides[p].inputs; i++) {
+            double sum = 0;
+            for (int column = 0; column < trace.allowed.length; column++) {
+              sum += trace.readout(c, point, p, i, column);
+              if (point == trace.readouts - 1) {
+                expect(trace.readout(c, point, p, i, column), trace.probability(c, p, i, column));
+              }
+            }
+            expect(sum, closeTo(1, 21 / 255));
+          }
+        }
+      }
+    }
+  });
+
+  test('a run without its blocks or its readout is refused', () {
+    for (final String key in <String>['blocks', 'readout']) {
+      final Uint8List bytes = _edited((Map<String, dynamic> json) {
+        ((json['checkpoints'] as List<dynamic>).last as Map<String, dynamic>).remove(key);
+      });
+      expect(() => TrainingTrace.parse(bytes), throwsA(isA<FormatException>()), reason: key);
     }
   });
 
@@ -155,10 +263,12 @@ void main() {
   });
 
   test('a schema this does not read is refused', () {
-    expect(
-      () => TrainingTrace.parse(_edited((Map<String, dynamic> json) => json['schema'] = 1)),
-      throwsA(isA<FormatException>()),
-    );
+    for (final int schema in <int>[1, 2]) {
+      expect(
+        () => TrainingTrace.parse(_edited((Map<String, dynamic> json) => json['schema'] = schema)),
+        throwsA(isA<FormatException>()),
+      );
+    }
   });
 
   test('an array cut short is refused', () {
