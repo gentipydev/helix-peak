@@ -306,8 +306,8 @@ void main() {
     final EmbeddingLayout narrow = EmbeddingLayout(const Size(110, 450), scene);
     expect(narrow.tokenStyle, isNull);
     expect(narrow.placeStyle, isNull);
-    // The table spans the canvas, a 16-point margin either side.
-    expect(phone.row(0).right, 375 - 16);
-    expect(phone.left, 16);
+    // The table spans the canvas, 4 points from either side.
+    expect(phone.row(0).right, 375 - 4);
+    expect(phone.left, 4);
   });
 }

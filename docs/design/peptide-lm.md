@@ -152,7 +152,10 @@ out of view is scrolled just far enough to show it whole.
    rows to two. Each set is as large as fits its cell, 9 pt at most, and a
    row too small for 5.5 pt is drawn in its colours alone (copeptin's 40
    rows on an SE come close). Each row is as tall as the canvas allows for
-   the longer of the vocabulary and the peptide, 22 pt at most.
+   the longer of the vocabulary and the peptide, 22 pt at most. At the
+   user's ask the matrix runs 4 pt from either side of the canvas, the id
+   5 pt from its tile and the tile 3 pt from the numbers, so the numbers
+   have the width (about 25 pt a cell and 8.5 pt numbers on a Pro Max).
 4. **Forward.** It opens on Embedding's last frame, pixel for pixel. In its
    first beat x0's rows stand up as the stream's columns, each turning
    upright and landing as its place's column, its first number at the top,

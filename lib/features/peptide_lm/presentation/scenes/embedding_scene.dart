@@ -187,7 +187,7 @@ final class EmbeddingScene extends LmScene {
     final TrainingTrace trace = view.trace;
     final int width = trace.model.width;
     final int inputs = view.focus.inputs;
-    final Offset at = Offset(layout.left - 2, layout.tagTop);
+    final Offset at = Offset(layout.left, layout.tagTop);
     for (final (String text, double alpha) in <(String, double)>[
       (
         'token embedding · ${trace.vocab.length} × $width',
@@ -605,13 +605,14 @@ final class EmbeddingFade {
 }
 
 /// Top to bottom: the tag; the matrix, a row a token and then a row a
-/// place, its numbers across the width after a gutter for the row's id or
-/// tile, every row as tall as the canvas allows for the longer of the two;
-/// and at the foot, the peptide in focus, a tile a place, on one line.
+/// place, its numbers across the width, 4 pt from either side, after a
+/// gutter for the row's id or tile, every row as tall as the canvas allows
+/// for the longer of the two; and at the foot, the peptide in focus, a tile
+/// a place, on one line.
 final class EmbeddingLayout {
   EmbeddingLayout(Size size, LmView view)
     : shift = ShiftLayout(size, view),
-      right = size.width - 16,
+      right = size.width - _side,
       kit = view.kit,
       places = view.focus.inputs {
     final TrainingTrace trace = view.trace;
@@ -634,8 +635,8 @@ final class EmbeddingLayout {
     idWidth = view.kit
             .layout('8' * '${trace.vocab.length - 1}'.length, inked(view.kit.mono, idSize, view.inks.quiet))
             .width +
-        6;
-    cellsLeft = left + idWidth + chipSide + 6;
+        _idGap;
+    cellsLeft = left + idWidth + chipSide + _chipGap;
     cell = (right - cellsLeft) / width;
 
     final TraceCheckpoint at = view.checkpoint;
@@ -646,6 +647,15 @@ final class EmbeddingLayout {
     tokenStyle = _style(view, tokens, math.max(tokenPlaces, streamPlaces));
     placeStyle = _style(view, positions, placePlaces);
   }
+
+  /// From the canvas's sides, as little as keeps the matrix off the
+  /// screen's edge, so its numbers have the width.
+  static const double _side = 4;
+
+  /// From an id to its token's tile (`TokeniseScene.drawEntry` sets it
+  /// there), and from the tile to the row's numbers.
+  static const double _idGap = 5;
+  static const double _chipGap = 3;
 
   /// From the canvas's edge, from the tag to the matrix, and from the matrix
   /// to the foot.
@@ -675,7 +685,7 @@ final class EmbeddingLayout {
   /// The peptide in focus's places.
   final int places;
 
-  final double left = 16;
+  final double left = _side;
   final double right;
 
   /// As many rows as the longer of the vocabulary and the peptide in focus.
@@ -745,7 +755,7 @@ final class EmbeddingLayout {
     TextStyle at(double points) => inked(view.kit.mono, points, view.inks.ink).copyWith(letterSpacing: 0);
     final double perPoint = view.kit.layout(widest, at(10)).width / 10;
     // Held to the half point below, so a number is never wider than drawn.
-    final double points = (math.min(9, math.min(pitch * 0.62, (cell - 2 * gap - 1) / perPoint)) * 2).floorToDouble() / 2;
+    final double points = (math.min(9, math.min(pitch * 0.62, (cell - 2 * gap - 2) / perPoint)) * 2).floorToDouble() / 2;
     return points < leastNumber ? null : at(points);
   }
 
