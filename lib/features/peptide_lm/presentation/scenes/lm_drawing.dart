@@ -111,6 +111,90 @@ TextStyle inked(TextStyle style, double size, Color color, {double alpha = 1}) =
 double through(double local, double start, double end) =>
     AnimationTimeline.slice(local, start, end);
 
+/// How strong a value has to be to fill its colour: the stream's 99th
+/// percentile at this checkpoint over the peptide in focus, every point but
+/// the last, and the final norm's own.
+(double, double) streamScales(LmView view) => view.kit.memo<(double, double)>(
+  ('forward-scales', view.step, view.peptide),
+  () {
+    final TrainingTrace trace = view.trace;
+    final int last = 2 * trace.model.layers;
+    double percentile(Iterable<int> points) {
+      final List<double> values = <double>[
+        for (final int point in points)
+          for (int i = 0; i < view.focus.inputs; i++)
+            for (int d = 0; d < trace.model.width; d++)
+              trace.stream(view.checkpoint, point, view.peptide, i, d).abs(),
+      ]..sort();
+      return math.max(1e-6, values[(values.length * 0.99).floor().clamp(0, values.length - 1)]);
+    }
+
+    return (
+      percentile(<int>[for (int k = 0; k <= last; k++) k]),
+      percentile(<int>[last + 1]),
+    );
+  },
+);
+
+/// The 99th percentile of [values]' sizes, never quite zero: a colour scale
+/// for a set of numbers drawn on their own.
+double percentileScale(Iterable<double> values) {
+  final List<double> sizes = <double>[for (final double v in values) v.abs()]..sort();
+  if (sizes.isEmpty) {
+    return 1e-6;
+  }
+  return math.max(1e-6, sizes[(sizes.length * 0.99).floor().clamp(0, sizes.length - 1)]);
+}
+
+/// [draw], at [alpha] as a whole.
+void drawFaded(Canvas canvas, Size size, LmView view, double alpha, VoidCallback draw) {
+  if (alpha <= 0) {
+    return;
+  }
+  if (alpha >= 1) {
+    draw();
+    return;
+  }
+  // A layer takes only its paint's alpha.
+  canvas.saveLayer(Offset.zero & size, Paint()..color = view.inks.ground.withValues(alpha: alpha));
+  draw();
+  canvas.restore();
+}
+
+/// Many straight lines drawn in a few calls: each line goes into a bucket by
+/// its colour, its alpha held to sixteenths and its width to quarter points,
+/// and each bucket is one call. A network's edges.
+final class LineBatch {
+  final Map<(int, int, int), List<double>> _buckets = <(int, int, int), List<double>>{};
+
+  void line(Offset a, Offset b, Color color, double width, double alpha) {
+    final int level = (alpha.clamp(0.0, 1.0) * 16).round();
+    if (level <= 0 || width <= 0) {
+      return;
+    }
+    final int quarter = math.max(1, (width * 4).round());
+    _buckets.putIfAbsent((color.toARGB32(), level, quarter), () => <double>[])
+      ..add(a.dx)
+      ..add(a.dy)
+      ..add(b.dx)
+      ..add(b.dy);
+  }
+
+  void draw(Canvas canvas) {
+    final Paint paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..isAntiAlias = true;
+    for (final MapEntry<(int, int, int), List<double>> bucket in _buckets.entries) {
+      final (int argb, int level, int quarter) = bucket.key;
+      paint
+        ..color = Color(argb).withValues(alpha: Color(argb).a * level / 16)
+        ..strokeWidth = quarter / 4;
+      canvas.drawRawPoints(ui.PointMode.lines, Float32List.fromList(bucket.value), paint);
+    }
+  }
+}
+
 /// A grid of flat cells drawn in one call: a residual stream, a weight matrix.
 final class GridMesh {
   GridMesh(

@@ -87,12 +87,29 @@ class LmAboutSheet extends StatelessWidget {
                   'the residual stream as the first block reads it.',
             ),
             paragraph(
+              'Attention',
+              'Each block first evens out each place\'s row (LayerNorm), then lets every '
+                  'place read the places before it, never those after, through '
+                  '${spelled(model.heads)} attention heads of ${trace.headSize} numbers each. '
+                  'A place\'s query is scored against each key up to its own, softmax makes '
+                  'the scores shares, and the head hands the place those shares of the '
+                  'places\' values. The heads\' answers, side by side, are mixed back to '
+                  '${model.width} numbers and added to the stream.',
+            ),
+            paragraph(
+              'Feed-forward',
+              'Then the block evens each row out again and passes every place, on its own, '
+                  'through the same small network: ${model.width} numbers in, '
+                  '${model.feedForward} neurons, each a weighted sum through GELU, and '
+                  '${model.width} out, added to the stream.',
+            ),
+            paragraph(
               'Forward',
-              'Each block normalises the stream (LayerNorm), lets every position read the ones '
-                  'before it, never those after, through ${spelled(model.heads)} '
-                  'attention heads, and adds what it read; then it passes each position '
-                  'through a feed-forward layer (${model.width} → ${model.feedForward} '
-                  '→ ${model.width}, GELU) and adds that too.'
+              'The ${spelled(model.layers)} blocks run in turn, each reading what the one '
+                  'before it added; a final LayerNorm hands each place to the output layer. '
+                  'Drawn layer to layer, each place is read out early: the token the output '
+                  'layer would give it if the model stopped there. That readout is a probe, '
+                  'worked out from the run\'s own weights, not a part of the model.'
                   '${config.dropout == 0 ? ' Dropout is off for this run, so the forward pass drawn is the one trained.' : ''}',
             ),
             paragraph(

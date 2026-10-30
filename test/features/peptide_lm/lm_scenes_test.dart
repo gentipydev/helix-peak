@@ -9,7 +9,10 @@ import 'package:helixpeek/features/peptide_lm/domain/training_timeline.dart';
 import 'package:helixpeek/features/peptide_lm/domain/training_trace.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/lm_format.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/lm_inks.dart';
+import 'package:helixpeek/features/peptide_lm/presentation/scenes/attention_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/embedding_scene.dart';
+import 'package:helixpeek/features/peptide_lm/presentation/scenes/feed_forward_scene.dart';
+import 'package:helixpeek/features/peptide_lm/presentation/scenes/forward_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_drawing.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_scene_painter.dart';
@@ -137,11 +140,98 @@ void main() {
     );
     expect(caption(LmStage.embedding, embedding(14)), startsWith("Each place's row is added to its residue's"));
     expect(caption(LmStage.embedding, embedding(15.5)), 'x0, 12 × $width: the start of the residual stream');
-    // Forward's opening: the toy's two layers make its stage 1 + 8 + 1 beats.
+    // Attention, block 1's, at the place in focus (V3), beat by beat.
+    final LmView last3 = last;
+    final int size = trace.headSize;
+    String head(int h) {
+      final List<int> order = <int>[for (int j = 0; j <= 3; j++) j]
+        ..sort(
+          (int a, int b) => trace
+              .attention(last3.checkpoint, 0, h, 0, 3, b)
+              .compareTo(trace.attention(last3.checkpoint, 0, h, 0, 3, a)),
+        );
+      String name(int j) => j == 0 ? '<bos>' : '${trace.peptides.first.sequence[j - 1]}$j';
+      final double second = trace.attention(last3.checkpoint, 0, h, 0, 3, order[1]);
+      return '${name(order.first)} ${percent(trace.attention(last3.checkpoint, 0, h, 0, 3, order.first))}'
+          '${second >= 0.1 ? ', ${name(order[1])} ${percent(second)}' : ''}';
+    }
+
+    double attention(double beat) => beat / LmStage.attention.beats;
     expect(
-      caption(LmStage.forward, 0.5 / (1 + 4 * trace.model.layers + 1)),
-      'x0 stands up as the residual stream: a column a place',
+      caption(LmStage.attention, attention(0.5)),
+      'Block 1 of ${trace.model.layers}, attention: each place reads the places up to its own',
     );
+    expect(caption(LmStage.attention, attention(1.4)), 'Head 1: every place makes a key, and V3 a query, $size numbers each');
+    expect(caption(LmStage.attention, attention(2.5)), "V3's query against each key up to its own: 4 scores");
+    expect(caption(LmStage.attention, attention(4)), 'Softmax makes the scores shares of one: ${head(0)}');
+    expect(caption(LmStage.attention, attention(5)), "Head 1 hands V3 its shares of each place's value: $size numbers");
+    expect(caption(LmStage.attention, attention(7)), 'Head 2, its own query and keys: V3 reads ${head(1)}');
+    expect(
+      caption(LmStage.attention, attention(9.2)),
+      "The two heads' $size + $size numbers, mixed back to $width: what V3 read",
+    );
+    expect(
+      caption(LmStage.attention, attention(10)),
+      'Every place at once: a map row each, nothing above the diagonal',
+    );
+    expect(caption(LmStage.attention, attention(12)), 'What attention adds to each place: 12 rows of $width');
+    expect(caption(LmStage.attention, 0.99), 'Added: x0 + attention, 12 × $width');
+    // Feed-forward, block 1's, at V3.
+    double fed(double beat) => beat / LmStage.feedForward.beats;
+    final int ff = trace.model.feedForward;
+    expect(
+      caption(LmStage.feedForward, fed(0.5)),
+      'Block 1, feed-forward: one small network, each place on its own',
+    );
+    expect(caption(LmStage.feedForward, fed(1.2)), "V3's row, evened out (LayerNorm): its $width numbers go in");
+    expect(
+      caption(LmStage.feedForward, fed(3)),
+      '$ff neurons, each a weighted sum of the $width through GELU: '
+      '${FeedForwardScene.litNeurons(last)} light up',
+    );
+    expect(caption(LmStage.feedForward, fed(5)), '$width out, each a weighted sum of the $ff neurons');
+    expect(caption(LmStage.feedForward, fed(7)), "Back to V3's row, to be added");
+    expect(caption(LmStage.feedForward, fed(8)), 'What the feed-forward adds to each place: 12 rows of $width');
+    expect(caption(LmStage.feedForward, 0.99), "Added: block 1's output, 12 × $width");
+    // Forward: the pass layer to layer, each place read out early.
+    double forward(double beat) => beat / LmStage.forward.beats;
+    expect(
+      caption(LmStage.forward, forward(0.5)),
+      'The whole pass, layer to layer: a row a place, a column a layer',
+    );
+    expect(
+      caption(LmStage.forward, forward(2)),
+      'Block 1, as seen: V3 reads out ${ForwardScene.said(last, 0, 3)} at x0, ${ForwardScene.said(last, 2, 3)} after it',
+    );
+    expect(caption(LmStage.forward, forward(3.5)), allOf(startsWith("Block 2's heads: V3 reads "), contains('(head 2)')));
+    expect(
+      caption(LmStage.forward, forward(6.5)),
+      "Block 2's feed-forward: V3 now reads out ${ForwardScene.said(last, 4, 3)}; next is ${trace.token(last.target)}",
+    );
+    expect(
+      caption(LmStage.forward, forward(7.5)),
+      'The final LayerNorm: each row as the output layer reads it, in Predict',
+    );
+    expect(
+      caption(LmStage.forward, 0.99),
+      'Right after x0 and each part: '
+      '${<String>[for (int c = 0; c < trace.readouts; c++) '${ForwardScene.right(last, c)}'].join(', ')} of 12 places',
+    );
+    // The last column read out is the model's own: what Predict draws.
+    final int lastPoint = trace.readouts - 1;
+    int predicted = 0;
+    for (int i = 0; i < trace.peptides.first.inputs; i++) {
+      int best = 0;
+      for (int k = 0; k < trace.allowed.length; k++) {
+        if (trace.probability(last.checkpoint, 0, i, k) > trace.probability(last.checkpoint, 0, i, best)) {
+          best = k;
+        }
+      }
+      if (trace.allowed[best] == trace.targetAt(0, i)) {
+        predicted++;
+      }
+    }
+    expect(ForwardScene.right(last, lastPoint), predicted);
     expect(caption(LmStage.predict, 0.99), contains('next is ${trace.token(last.target)}'));
     expect(caption(LmStage.loss, 0.99), contains(nats(trace.loss(last.step))));
     expect(caption(LmStage.update, 0.5), contains(scientific(trace.steps.learningRate[last.step - 1])));
@@ -202,30 +292,42 @@ void main() {
       expect(found, <int>{for (int p = 0; p < trace.peptides.length; p++) p});
     }
 
-    // Forward's opening: once the token row has landed, a token puts its
-    // place in focus.
-    TrainingFrame forwardAt(double beat) =>
-        timeline.frameIn(LmStage.forward, beat / (4 + 4 * trace.model.layers + 1));
-    LmHit? place;
-    for (double y = size.height - 1; y > size.height / 2 && place == null; y -= 1) {
-      final LmHit? hit = sceneOf(LmStage.forward).hitAt(size, scene, Offset(200, y), forwardAt(1));
-      if (hit is FocusPosition) {
-        place = hit;
-      }
-    }
-    expect(place, isA<FocusPosition>());
-
-    // Forward: a head's map shows it alone; again, all of them.
-    LmHit? head;
-    for (double x = 80; x < size.width && head == null; x += 2) {
-      for (double y = 0; y < size.height / 2 && head == null; y += 2) {
-        final LmHit? hit = sceneOf(LmStage.forward).hit(size, scene, Offset(x, y));
-        if (hit is FocusHead) {
-          head = hit;
+    // Attention, Feed-forward and Forward: a row puts its place in focus,
+    // every place reachable.
+    for (final (LmStage stage, double local) in <(LmStage, double)>[
+      (LmStage.attention, 0),
+      (LmStage.attention, 1),
+      (LmStage.feedForward, 0.02),
+      (LmStage.feedForward, 1),
+      (LmStage.forward, 1),
+    ]) {
+      final Set<int> places = <int>{};
+      for (double y = 0; y < size.height; y += 1) {
+        final LmHit? hit = sceneOf(stage).hitAt(size, scene, Offset(30, y), timeline.frameIn(stage, local));
+        if (hit is FocusPosition) {
+          places.add(hit.position);
         }
       }
+      expect(places, <int>{for (int i = 0; i < trace.peptides.first.inputs; i++) i}, reason: '${stage.label} $local');
     }
-    expect((head! as FocusHead).head, 0);
+    // While the network takes Feed-forward's canvas, a tap asks for nothing.
+    expect(
+      sceneOf(LmStage.feedForward).hitAt(size, scene, const Offset(30, 300), timeline.frameIn(LmStage.feedForward, 0.4)),
+      isNull,
+    );
+
+    // Attention's maps: a head's map shows it alone in Forward; again, both.
+    final TrainingFrame maps = timeline.frameIn(LmStage.attention, 10.4 / LmStage.attention.beats);
+    final AttentionLayout attention = AttentionLayout(size, scene);
+    expect(
+      (sceneOf(LmStage.attention).hitAt(size, scene, attention.map(1).center, maps)! as FocusHead).head,
+      1,
+    );
+    final LmView alone = view(inks, kit, head: 1);
+    expect(
+      (sceneOf(LmStage.attention).hitAt(size, alone, attention.map(1).center, maps)! as FocusHead).head,
+      isNull,
+    );
   });
 
   testWidgets('each stage opens on the last frame of the one before, pixel for pixel', (
@@ -254,7 +356,9 @@ void main() {
       for (final (LmStage before, LmStage after) in <(LmStage, LmStage)>[
         (LmStage.tokenise, LmStage.shift),
         (LmStage.shift, LmStage.embedding),
-        (LmStage.embedding, LmStage.forward),
+        (LmStage.embedding, LmStage.attention),
+        (LmStage.attention, LmStage.feedForward),
+        (LmStage.feedForward, LmStage.forward),
       ]) {
         final List<int> last = await pixels(scene, timeline.frameIn(before, 1));
         final List<int> first = await pixels(scene, timeline.frameIn(after, 0));

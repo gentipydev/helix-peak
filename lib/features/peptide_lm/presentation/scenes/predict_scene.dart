@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
 import '../lm_format.dart';
-import 'forward_scene.dart';
 import 'lm_drawing.dart';
 import 'lm_scene.dart';
 
@@ -156,7 +155,7 @@ final class PredictScene extends LmScene {
     final double u = frame.local;
     final int position = view.position;
     final int finalPoint = 2 * trace.model.layers + 1;
-    final (_, double finalScale) = ForwardScene.scales(view);
+    final (_, double finalScale) = streamScales(view);
     final double weights = headScale(view);
     final int rows = trace.vocab.length;
     final int width = trace.model.width;

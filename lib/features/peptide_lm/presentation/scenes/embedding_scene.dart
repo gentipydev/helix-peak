@@ -6,7 +6,6 @@ import '../../../../shared/format.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
 import '../lm_format.dart';
-import 'forward_scene.dart';
 import 'lm_drawing.dart';
 import 'lm_scene.dart';
 import 'shift_scene.dart';
@@ -301,7 +300,10 @@ final class EmbeddingScene extends LmScene {
     return null;
   }
 
-  static TextStyle _whyStyle(LmView view, {double alpha = 1}) =>
+  static TextStyle _whyStyle(LmView view, {double alpha = 1}) => whyStyle(view, alpha: alpha);
+
+  /// The note's face: what the stages after this one write their notes in.
+  static TextStyle whyStyle(LmView view, {double alpha = 1}) =>
       inked(view.kit.sans, _noteSize, view.inks.quiet, alpha: alpha).copyWith(height: 1.3);
 
   static const double _noteSize = 10.5;
@@ -325,7 +327,7 @@ final class EmbeddingScene extends LmScene {
     final double width = layout.right - layout.noteLeft;
     final double foot = layout.noteTop + noteHeight(view, width);
     for (final (double from, double to, String text) in _notes(view)) {
-      final double alpha = through(beat, from, from + turn) * (1 - through(beat, to - turn, to)) * fade.chrome;
+      final double alpha = through(beat, from, from + turn) * (1 - through(beat, to - turn, to)) * (fade.note ?? fade.chrome);
       if (alpha <= 0) {
         continue;
       }
@@ -394,7 +396,7 @@ final class EmbeddingScene extends LmScene {
     // Each row grows from its token outwards, a soft front a few numbers wide.
     final double front = math.max(2, width / 5);
     final double reach = grow * (width + front);
-    final double scale = ForwardScene.scales(view).$1;
+    final double scale = streamScales(view).$1;
     // From the gather on, a row read is drawn by the places' copies of it.
     final Set<int> copied = beat < _gatherFrom
         ? <int>{}
@@ -468,7 +470,7 @@ final class EmbeddingScene extends LmScene {
     final TrainingTrace trace = view.trace;
     final int n = view.focus.inputs;
     final int width = trace.model.width;
-    final double scale = ForwardScene.scales(view).$1;
+    final double scale = streamScales(view).$1;
     final double placeScale = _placeScale(view);
     final double alone = _span(beat, _placesIn) * (1 - _span(beat, _placesOut));
     // One set of numbers in a cell at a time: the token's go before the
@@ -492,7 +494,7 @@ final class EmbeddingScene extends LmScene {
       for (int i = 0; i < n; i++) gathered[i] > 0 || waiting.add(trace.inputAt(view.peptide, i)),
     ];
     final List<List<double>> values = <List<double>>[
-      for (int i = 0; i < n; i++) <double>[for (int d = 0; d < width; d++) _value(view, i, d, add)],
+      for (int i = 0; i < n; i++) <double>[for (int d = 0; d < width; d++) value(view, i, d, add)],
     ];
     void fill(int i) => layout.fill(canvas, rows[i], <Color>[
       for (int d = 0; d < width; d++)
@@ -551,8 +553,8 @@ final class EmbeddingScene extends LmScene {
   }
 
   /// Place [i]'s number [d]: its token's, with [add] of its place's added;
-  /// all of it, x0.
-  static double _value(LmView view, int i, int d, double add) {
+  /// all of it, x0, as the stage writes it.
+  static double value(LmView view, int i, int d, [double add = 1]) {
     final TrainingTrace trace = view.trace;
     final double token = trace.tokenEmbedding(view.checkpoint, trace.inputAt(view.peptide, i), d);
     final double place = trace.positionEmbedding(view.checkpoint, i, d);
@@ -573,8 +575,8 @@ final class EmbeddingScene extends LmScene {
   }) {
     final TrainingTrace trace = view.trace;
     final int width = trace.model.width;
-    final double scale = ForwardScene.scales(view).$1;
-    final List<double> values = <double>[for (int d = 0; d < width; d++) _value(view, i, d, 1)];
+    final double scale = streamScales(view).$1;
+    final List<double> values = <double>[for (int d = 0; d < width; d++) value(view, i, d)];
     if (fills) {
       layout.fill(canvas, rect, <Color>[for (final double v in values) view.inks.cell(v / scale)]);
     }
@@ -779,13 +781,16 @@ final class EmbeddingScene extends LmScene {
 /// tag. By default, the frame as Embedding draws it.
 @immutable
 final class EmbeddingFade {
-  const EmbeddingFade({this.rows = true, this.chrome = 1});
+  const EmbeddingFade({this.rows = true, this.chrome = 1, this.note});
 
   /// Whether x's rows and the tiles that label them are drawn.
   final bool rows;
 
-  /// The tag.
+  /// The tag, and the note unless [note] says otherwise.
   final double chrome;
+
+  /// The note over the table, apart from the tag.
+  final double? note;
 }
 
 /// Top to bottom: the note, why; the tag; the matrix, a row a token and then a row a
