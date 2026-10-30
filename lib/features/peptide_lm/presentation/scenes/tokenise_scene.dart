@@ -282,6 +282,18 @@ final class TokeniseScene extends LmScene {
     canvas.restore();
   }
 
+  /// A place kept for a token still to come: a tile's outline, empty.
+  void _held(Canvas canvas, LmView view, Rect rect, double alpha) {
+    final Rect tile = rect.deflate(math.min(1.0, rect.width * 0.08));
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(tile, Radius.circular(tile.width * 0.18)),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.8
+        ..color = view.inks.rule.withValues(alpha: alpha),
+    );
+  }
+
   void _row(Canvas canvas, LmView view, _Layout layout, int p, double u, double framing) {
     final TrainingTrace trace = view.trace;
     final TracePeptide peptide = trace.peptides[p];
@@ -307,6 +319,10 @@ final class TokeniseScene extends LmScene {
     final double done = scanned(trace, p, u);
     for (int k = 0; k < ids.length; k++) {
       final Rect rect = layout.batchAt(p, k);
+      if (k == 0 && framing < 1) {
+        // The first place held for `<bos>` until it drops in.
+        _held(canvas, view, rect, 1 - framing);
+      }
       if (k == 0 || k > residues) {
         drawToken(canvas, view, rect, ids[k], alpha: framing);
       } else {
