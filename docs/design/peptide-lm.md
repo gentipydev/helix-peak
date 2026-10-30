@@ -53,7 +53,8 @@ Beside the caption, a player of that stage alone: Replay, and Play/Pause.
    the first frame; `<eos>` drops in after the last residue and padding fills
    to the longest (6 × 41). Then the peptides close
    up into one matrix, a row each: the batch Forward reads, its dataset's tags
-   fading where they are and the batch's coming up over it. The matrix rises
+   fading where they are and the batch's (batch 2D matrix, padding) coming up
+   over it. The matrix rises
    to the top, and the vocabulary turns into a list under it: one token
    after another flies up to its row, its bar swinging down from standing on
    the token to lie along the row while still short, then growing to the

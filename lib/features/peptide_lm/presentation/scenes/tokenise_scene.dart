@@ -224,7 +224,7 @@ final class TokeniseScene extends LmScene {
     final double band = layout.batchTag(lift);
     final Rect dataset = drawTag(canvas, view, 'dataset', Offset(start, layout.datasetTag), alpha: leaving);
     final Rect batch = coming > 0
-        ? drawTag(canvas, view, 'batch', Offset(start, band), alpha: coming)
+        ? drawTag(canvas, view, 'batch 2D matrix', Offset(start, band), alpha: coming)
         : Rect.zero;
     // Padding, on the last place of the shortest peptide, the first.
     final List<int> shortest = frameOf(trace, 0);
