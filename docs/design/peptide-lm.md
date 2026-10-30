@@ -19,10 +19,19 @@ them, and keeps every number through read-only hooks:
   step found them, whole as float32 (the token embedding, 23 × 16, and the
   position embedding, 51 × 16; added 2026-10-30, kept whole since schema 2
   the same day), the
-  residual stream at its ten points, the gradient reaching each, every head's attention map (worked out
-  again from the layer's input, within 4 × 10⁻⁷ of the layer's own output),
-  the logits and the probabilities over the 21 tokens that can follow, and
-  the output layer's clipped gradient and update.
+  residual stream at its six points, whole (float32, since schema 3), the
+  gradient reaching each, every head's attention map (worked out again from
+  the layer's input, within 4 × 10⁻⁷ of the layer's own output), what each
+  block worked out on the way (schema 3: its queries, keys and values, every
+  score before softmax, each head's mix of values, its feed-forward's input,
+  neurons and weights), the stream read out early (the final norm and the
+  output layer applied at every point before it, with the step's own
+  weights: a probe the Forward stage draws, the last point's the model's
+  own output), the logits and the probabilities over the 21 tokens that can
+  follow, and the output layer's clipped gradient and update. `check_trace`
+  holds the insides to each other: softmax of the scores is the map, each
+  head's mix its shares of the values, every neuron GELU of its input, and
+  the feed-forward adds what the stream gained.
 
 Recorded again, the run is the same bytes (CPU, deterministic kernels, one
 thread); `trace.py --check --against <service>` is that proof against what
@@ -31,12 +40,12 @@ production serves. The run itself:
 | | |
 |---|---|
 | data | six peptides, 174 residues: insulin A and B chains and C-peptide, relaxin A and B chains, copeptin; nothing held out |
-| model | 4 blocks of 4 heads, width 16, feed-forward 64, 51 places: 14,727 parameters (recorded again 16 wide on 2026-10-30, for the Embedding stage's numbers; it was 96 wide, 456,887 parameters. Sized to the six's longest, 40 places, the same evening and put back: the user chose to keep the engine's 51, `<bos>` and up to 50 residues, and to explain it on the page) |
+| model | 2 blocks of 2 heads, width 16, feed-forward 64, 51 places: 8,167 parameters (recorded again at 2 × 2 on 2026-10-30, at the user's ask, for the forward pass told in three stages; it was 4 × 4, 14,727 parameters, and before that 96 wide, 456,887. Sized to the six's longest, 40 places, the same evening and put back: the user chose to keep the engine's 51, `<bos>` and up to 50 residues, and to explain it on the page) |
 | training | AdamW 1e−2 (at 1e−3 a model 16 wide never passes one nat in 200 steps), weight decay 0.1 on matrices, 100 warm-up steps then cosine, clip 1.0, dropout 0, all six a step, 200 steps, seed 0 |
-| loss | 3.205 at step 1 (worse than uniform, 3.045) to 0.065 at step 200 |
+| loss | 3.220 at step 1 (worse than uniform, 3.045) to 0.065 at step 200 |
 | baselines | uniform 3.045, unigram 2.856, bigram 2.043 |
 | floor | 0.060 = 6 ln 6 / 180: from `<bos>` alone nothing says which peptide comes |
-| checkpoints | 1, then the first step under uniform (10), unigram (18), bigram (45), one nat (62) and a tenth of one (93), and 200 |
+| checkpoints | 1, then the first step under uniform (13), unigram (21), bigram (49), one nat (66) and a tenth of one (95), and 200 |
 
 Dropout is off so that the forward pass drawn is the forward pass trained.
 
@@ -48,7 +57,7 @@ every step. A tap on a stage plays it once, a beat every two seconds, and it
 holds on its last frame until another is tapped, or the same one again.
 Beside the caption, a player of that stage alone: Replay, and Play/Pause.
 The stage bar keeps its names at full size and scrolls sideways where a
-phone is too narrow for all nine; a stage played whose name stands partly
+phone is too narrow for all eleven; a stage played whose name stands partly
 out of view is scrolled just far enough to show it whole.
 
 1. **Tokenise.** The dataset, a peptide a row folded onto two lines where
@@ -212,39 +221,74 @@ out of view is scrolled just far enough to show it whole.
    user's ask the matrix runs 4 pt from either side of the canvas, the id
    5 pt from its tile and the tile 3 pt from the numbers, so the numbers
    have the width (about 25 pt a cell on a Pro Max).
-4. **Forward.** It opens on Embedding's last frame, pixel for pixel. In its
-   first beat x0's rows stand up as the stream's columns, each turning
-   upright and landing as its place's column, its first number at the top,
-   its numbers going as it narrows; the tiles that labelled the rows come
-   down to the token row; the rail comes up with Embed lit, and the head
-   maps, faint ("x0 stands up as the residual stream: a column a place").
-   The stream is no taller than 250 pt whatever the model's width. The
-   stage, the heads included, is the user's to review next (2026-10-30).
+4. **Attention.** The user's split of 2026-10-30: the forward pass is three
+   stages, each opening on the last frame of the one before, pixel for pixel,
+   on Embedding's layout, a row a place. Block 1's attention, in 14 beats, at
+   the place in focus (insulin A's C11 by default):
+   - x0's table narrows to a strip a place;
+   - head 1:
+     - each place's key comes out of its row, and the place in focus's query
+       passes each key up to its own, a score written beside each (q·k/√8,
+       the run's own);
+     - the places after it are struck through;
+     - softmax makes the scores shares (G1 55%, Q5 29% at step 200);
+     - the keys turn into values, and arcs carry each share of each value
+       into the head's eight-number answer, values riding them: the old green
+       arcs, now carrying numbers;
+   - head 2 the same, quicker (C11 reads C11 29%, C6 27%, C7 26%);
+   - the answers, side by side, are mixed back to 16 ("what C11 read");
+   - every place at once: the two heads' maps, a row a place, built top to
+     bottom;
+   - the table widens again to what attention adds to each place, alone on its
+     own scale, then the sums: x0 + attention.
 
-   Then the residual stream, a column of 16 numbers a position, rises
-   through the tower at the left: each block's LayerNorm, attention (arcs
-   from every earlier position into the one in focus, each against the
-   strongest, particles riding them; above, each head's causal map, nothing
-   above the diagonal) and its contribution added, then the feed-forward
-   (each column breathing out to 64 and back) and its contribution added,
-   then the final norm.
-5. **Predict.** The final column runs down the output layer's 23 rows and
+   Over it a note says why each part happens.
+5. **Feed-forward.** Block 1's feed-forward, in 10 beats:
+   - a copy lifts off the row in focus, its numbers re-written as its
+     LayerNorm's, and stands up as the 16 inputs of a network drawn left to
+     right, numbers beside them;
+   - all 1,024 weights reach the 64 neurons, coloured by the sign of what
+     each carries, the signal riding the strongest, each neuron lit by what
+     GELU lets through (the caption counts those lit);
+   - then the 16 outputs, numbers written;
+   - they lie down onto the row in focus, and every place gains the same
+     network's output, alone, then added: block 1's output.
+6. **Forward.** The pass layer to layer, in 11 beats: block 1's output
+   condenses into a network, a row a place and a column a point of the
+   stream (x0, then after each block's attention and feed-forward), flowing
+   left to right.
+   - Lines: in an attention, from every place to each place after it, as
+     strong as its share (the heads' mean, or the head in focus), the place
+     in focus's bright; in a feed-forward, each place's own line.
+   - Nodes: each is the place **read out early**, the token the output layer
+     would give it if the model stopped there, a probe the user chose,
+     labelled as one in the note and the About sheet. Each is faded by its
+     probability and outlined in the tracer where it is the token that comes
+     next.
+   - The signal runs block 1 again, then block 2 (its heads' reads for the
+     place in focus captioned) and the final norm.
+   - Each column then counts the places it reads out right: at step 200,
+     insulin A 3 · 5 · 11 · 11 · 21 of 22 and copeptin 7 · 9 · 23 · 30 · 40
+     of 40; at step 1, none. C11 reads out T 64% at x0, T 94% after block 1
+     (confidently wrong: CCT comes earlier in the chain) and S 100% after
+     block 2, and S is next.
+7. **Predict.** The final column runs down the output layer's 23 rows and
    each row's logit grows; `<pad>` and `<bos>` are struck to −∞; softmax
    turns the rest into 21 bars in the residues' colours, what came next
-   outlined. Untrained, after GIVEQCCTSIC the model says K 11%; at step 200,
+   outlined. Untrained, after GIVEQCCTSIC the model says K 10%; at step 200,
    S 99.6% (100% as the page rounds it), and S is next.
-6. **Loss.** A ghost bar rises to certainty at the target, the gap bracketed
+8. **Loss.** A ghost bar rises to certainty at the target, the gap bracketed
    and read off the −ln p curve; every target's surprise fills a strip a
    peptide and pools into the step's loss, set against ln 21.
-7. **Backward.** The bars turn into p − y; the error comes down the tower,
+9. **Backward.** The bars turn into p − y; the error comes down the tower,
    each module's gradient norm filling its bar and each position's glowing at
    every point of the stream (by step 200 only `<bos>`'s, the unknowable first
    residue, glows); the clip gauge reads the total against 1.0.
-8. **Update.** The output layer's weights, then the clipped gradient on them,
+10. **Update.** The output layer's weights, then the clipped gradient on them,
    then AdamW's update (drawn magnified, the factor said), then the weights
    moved. Per weight, the gradient differs between modules many times over
    and Adam's step hardly at all. The learning-rate schedule marks the step.
-9. **Loop.** The loss curve draws itself past the three baselines to the
+11. **Loop.** The loss curve draws itself past the three baselines to the
    floor; under it every target's tile lights up with the probability the
    model gives it, all but each peptide's first; the output layer drifts.
 

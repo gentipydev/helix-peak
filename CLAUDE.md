@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Nine stages (`TrainingTimeline`, 105 beats), named on the shared
+Eleven stages (`TrainingTimeline`, 122 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -266,8 +266,8 @@ plays that stage and nothing else: Replay, and Play/Pause (Play from the
 end plays it again); no stepping between stages and no speeds (the user's
 choices of 2026-10-30, which retired the shared `TransportBar` here). The
 caption's box is held at the stage's tallest caption at its width, so the
-canvas never resizes while a stage plays. Tokenise, Shift, Embedding, Forward, Predict, Loss,
-Backward and Update show one training step at the checkpoint picked ("Step N ▾": the
+canvas never resizes while a stage plays. Tokenise, Shift, Embedding, Attention, Feed-forward,
+Forward, Predict, Loss, Backward and Update show one training step at the checkpoint picked ("Step N ▾": the
 steps that kept every activation), and Loop plays all of them. Each stage is a painter in
 `presentation/scenes/`, a pure function of the frame; a tap or a drag on the
 canvas puts a peptide, a position or an attention head in focus. Shift
@@ -285,11 +285,39 @@ across the whole width, every number written out on a soft tile of its colour
 row it reads, one place at a time; the rows read gathering in place order; each place's position
 row, alone and then added; and their sum, x0, both tables the run's own (each
 checkpoint keeps them whole, float32, since the run's schema 2 of
-2026-10-30), and over the table a note of why each part happens. The run is 16 wide for it (recorded again on
-2026-10-30, 14,727 parameters). Forward opens on Embedding's last frame
-(`EmbeddingScene.paintEnd`), and in one beat stands x0's rows up as the
-stream's columns (`forward_opening.dart`). Reduced
-motion shows each stage played through, the loop at its last step. The
+2026-10-30), and over the table a note of why each part happens. The run is 16 wide
+for it, two blocks of two heads (recorded again on 2026-10-30, 8,167
+parameters, schema 3: the stream kept whole, each block's insides, and the
+stream read out early). The forward pass is three stages, each opening on the
+last frame of the one before, pixel for pixel, on Embedding's layout, a row a
+place (`StreamTable`, `stream_table.dart`), the user's split of 2026-10-30:
+- **Attention** (`attention_scene.dart`), block 1's, opens on x0's table. The
+  table narrows to a strip a place. For the place in focus, one head at a time,
+  each place's key comes out of its row and the place in focus's query passes
+  each key up to its own, a score written beside each; softmax makes them
+  shares; the keys turn into values, and arcs carry each share of each value
+  into the head's answer. The places after it are struck through. The heads'
+  answers, side by side, are mixed back to 16. Every place at once then builds
+  the heads' maps. The table widens again to what attention adds, alone, then
+  the sums, `x0 + attention`.
+- **Feed-forward** (`feed_forward_scene.dart`), block 1's: a copy lifts off the
+  row in focus, evened out by its LayerNorm, and stands up as the 16 inputs of
+  a network drawn left to right. All 1,024 weights reach the 64 neurons,
+  coloured by sign, the signal riding the strongest, each neuron lit by what
+  GELU lets through. Then come the 16 outputs, which lie back down onto the
+  row, and what every place gains, alone, then added: block 1's output.
+- **Forward** (`forward_scene.dart`), the pass layer to layer: the rows condense
+  into a network of a row a place and a column a point of the stream, flowing
+  left to right.
+  - In each attention, a line from every place to each place after it, as
+    strong as its share; in each feed-forward, each place's own line.
+  - Each node is the place read out early: the token the output layer would
+    give it if the model stopped there (the user's choice, labelled a probe),
+    faded by how sure, outlined in the tracer where right.
+  - The signal runs block 1 again, then block 2 and the final norm, and each
+    column counts the places it gets right.
+
+Reduced motion shows each stage played through, the loop at its last step. The
 captions and the About sheet are built from the run's own numbers (R4.1).
 Its colours are the theme's (`LmInks`, held by `lm_inks_test`): the accent
 for what flows forward, the tracer for what came next, the helix's honey for
