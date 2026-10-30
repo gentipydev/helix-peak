@@ -68,7 +68,7 @@ Beside the caption, a player of that stage alone: Replay, and Play/Pause.
    vocabulary, token counts (on the bar of the commonest token), special
    tokens (bracketed under their ids) and token ids.
 2. **Forward.** It opens on Tokenise's last frame, pixel for pixel, and in
-   six beats takes the engine's steps from the matrix of ids to the stream
+   seven beats takes the engine's steps from the matrix of ids to the stream
    (the user's ask of 2026-10-30: the stage had jumped from ids to one
    peptide's numbers with nothing between):
    - *the cut* (two beats): the matrix splits as `sequences.batches` cuts it,
@@ -77,6 +77,13 @@ Beside the caption, a player of that stage alone: Replay, and Play/Pause.
      it learns; a place whose target is padding dims in both. The
      vocabulary's bars, counts and tags go, and the list closes up into one
      column at the left. Caption: x and y one place apart, 180 targets;
+   - *the pairs* (one beat; the user found x and y read as the same matrix):
+     a cursor walks down the columns, the peptide in focus's tile in x boxed
+     in the accent and the one under it in y in the tracer, every peptide's
+     pair lying in the same column; the first three places one at a time,
+     each named ("After GI, place 2 learns V: the token under it in y"),
+     then a sweep to the last ("… learns <eos>"), every pair passed left
+     outlined;
    - *the table* (one beat): y goes off to the right and the other peptides
      fade; the peptide in focus spreads to the token row's places and comes
      down to it, its ids turning back into residues; the list goes up its

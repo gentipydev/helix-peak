@@ -95,20 +95,28 @@ void main() {
     expect(caption(LmStage.tokenise, 0.6), 'One batch: both peptides in one matrix, read by Forward in one pass');
     expect(caption(LmStage.tokenise, 0.99), startsWith('The vocabulary, counted: '));
     // Forward's opening, beat by beat: the toy's two layers make its stage
-    // 6 + 8 + 1 beats.
+    // 7 + 8 + 1 beats.
     final int width = trace.model.width;
-    double opening(double beat) => beat / (6 + 4 * trace.model.layers + 1);
+    double opening(double beat) => beat / (7 + 4 * trace.model.layers + 1);
     expect(caption(LmStage.forward, opening(1)), endsWith('${trace.targetCount} targets'));
     expect(
-      caption(LmStage.forward, opening(2.5)),
+      caption(LmStage.forward, opening(2.05)),
+      'After <bos>, place 0 learns G: the token under it in y',
+    );
+    expect(
+      caption(LmStage.forward, opening(2.95)),
+      'After …CCTSIC, place 11 learns <eos>: the token under it in y',
+    );
+    expect(
+      caption(LmStage.forward, opening(3.5)),
       'Both are read at once; toy A is drawn. The vocabulary is the token embedding',
     );
     expect(
-      caption(LmStage.forward, opening(4)),
+      caption(LmStage.forward, opening(5)),
       "Each id picks its row of $width: 12 places from 9 rows, C's three times",
     );
-    expect(caption(LmStage.forward, opening(5.5)), contains('position embedding'));
-    expect(caption(LmStage.forward, opening(5.9)), contains('× $width numbers'));
+    expect(caption(LmStage.forward, opening(6.5)), contains('position embedding'));
+    expect(caption(LmStage.forward, opening(6.9)), contains('× $width numbers'));
     expect(caption(LmStage.predict, 0.99), contains('next is ${trace.token(last.target)}'));
     expect(caption(LmStage.loss, 0.99), contains(nats(trace.loss(last.step))));
     expect(caption(LmStage.update, 0.5), contains(scientific(trace.steps.learningRate[last.step - 1])));
@@ -158,7 +166,7 @@ void main() {
     // Forward's opening: a row of the batch puts its peptide in focus, and
     // once the token row has landed, a token its place.
     TrainingFrame forwardAt(double beat) =>
-        timeline.frameIn(LmStage.forward, beat / (6 + 4 * trace.model.layers + 1));
+        timeline.frameIn(LmStage.forward, beat / (7 + 4 * trace.model.layers + 1));
     final Set<int> cut = <int>{};
     for (double y = 0; y < size.height; y += 1) {
       final LmHit? hit = sceneOf(LmStage.forward).hitAt(size, scene, Offset(200, y), forwardAt(1));

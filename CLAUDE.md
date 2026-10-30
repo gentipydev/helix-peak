@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Seven stages (`TrainingTimeline`, 89 beats), named on the shared
+Seven stages (`TrainingTimeline`, 90 beats), named on the shared
 `StageBar`. A tap on a stage plays it once from its start, at the page's one
 speed, a beat every two seconds (`TrainingRunView.beat`, the old 0.5×), and
 it holds on its last frame (`TrainingTimeline.frameIn`); nothing runs on
@@ -270,9 +270,10 @@ steps that kept every activation), and Loop plays all of them. Each stage is a p
 `presentation/scenes/`, a pure function of the frame; a tap or a drag on the
 canvas puts a peptide, a position or an attention head in focus. Forward
 opens on Tokenise's last frame, pixel for pixel (`TokeniseScene.paintEnd`,
-`TokeniseEnd`), and in six beats draws the engine's steps from ids to the
+`TokeniseEnd`), and in seven beats draws the engine's steps from ids to the
 stream (`forward_opening.dart`): the batch cut into input x and target y one
-place apart, the vocabulary become the token embedding, each id's row lifted
+place apart, each place of x paired with the token under it in y, the
+vocabulary become the token embedding, each id's row lifted
 to stand as its place's column, and the position embedding added, both tables
 the run's own (each checkpoint keeps them since 2026-10-30). Reduced
 motion shows each stage played through, the loop at its last step. The
