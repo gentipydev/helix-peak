@@ -130,11 +130,13 @@ class _TrainingRunViewState extends State<TrainingRunView>
       mono: AppTypography.sequenceSmall(theme.colorScheme.onSurfaceVariant),
       sans: theme.caption ?? theme.textTheme.labelSmall!,
       scaler: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.3),
+      label: theme.textTheme.labelSmall,
     );
     final LmKit? before = _kit;
     if (before == null ||
         before.mono != kit.mono ||
         before.sans != kit.sans ||
+        before.label != kit.label ||
         before.scaler != kit.scaler) {
       before?.dispose();
       _kit = kit;

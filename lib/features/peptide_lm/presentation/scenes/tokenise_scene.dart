@@ -8,10 +8,11 @@ import '../../domain/training_trace.dart';
 import 'lm_drawing.dart';
 import 'lm_scene.dart';
 
-/// Tokenise: a light crosses each peptide and every residue it passes flips
-/// into its id, which flies to its place in the vocabulary; `<bos>` and
-/// `<eos>` drop in to frame each one, padding fills to the longest, and the
-/// targets slide one place along under the inputs.
+/// Tokenise: the dataset, and under it the vocabulary. A light crosses each
+/// peptide and every residue it passes flips into its id, its count in the
+/// vocabulary rising; then `<bos>` and `<eos>` drop in to frame each one and
+/// padding fills to the longest. Each part is named on a tag, as the zoom
+/// names its parts, in the field's words.
 final class TokeniseScene extends LmScene {
   const TokeniseScene();
 
@@ -20,7 +21,6 @@ final class TokeniseScene extends LmScene {
   static const double _stagger = 0.035;
   static const double _frameTo = 0.74;
   static const double _shiftFrom = 0.76;
-  static const double _shiftTo = 0.94;
 
   /// The frame a peptide was trained in: `<bos>`, its residues, `<eos>`, and
   /// padding to the longest.
@@ -36,13 +36,34 @@ final class TokeniseScene extends LmScene {
     return ((local - start) / span).clamp(0.0, 1.0) * (residues + 1);
   }
 
+  /// The token the dataset holds most of, framed: the vocabulary's tallest
+  /// bar once every peptide is read, where its counts are named.
+  static int commonest(TrainingTrace trace) {
+    final List<int> counts = List<int>.filled(trace.vocab.length, 0);
+    for (int p = 0; p < trace.peptides.length; p++) {
+      final List<int> ids = frameOf(trace, p);
+      for (int k = 0; k <= trace.peptides[p].sequence.length + 1; k++) {
+        counts[ids[k]]++;
+      }
+    }
+    int best = 0;
+    for (int id = 1; id < counts.length; id++) {
+      if (counts[id] > counts[best]) {
+        best = id;
+      }
+    }
+    return best;
+  }
+
+  /// The ids' numbers under the vocabulary.
+  static TextStyle _idStyle(LmView view) => inked(view.kit.mono, 8, view.inks.quiet);
+
   @override
   void paint(Canvas canvas, Size size, LmView view, TrainingFrame frame) {
-    final _Layout layout = _Layout(size, view.trace);
+    final _Layout layout = _Layout(size, view);
     final TrainingTrace trace = view.trace;
     final double u = frame.local;
     final double framing = through(u, _scanTo, _frameTo);
-    final double shift = through(u, _shiftFrom, _shiftTo);
 
     // How many of each token have been read so far: the vocabulary's counts.
     final List<int> counts = List<int>.filled(trace.vocab.length, 0);
@@ -61,11 +82,11 @@ final class TokeniseScene extends LmScene {
       }
     }
     final int most = math.max(1, counts.reduce(math.max));
-    _vocabulary(canvas, view, layout, counts, most);
-    _magnifier(canvas, view, layout, u, framing, shift);
     for (int p = 0; p < trace.peptides.length; p++) {
       _row(canvas, view, layout, p, u, framing);
     }
+    _vocabulary(canvas, view, layout, counts, most);
+    _tags(canvas, view, layout, counts, most, u, framing);
   }
 
   void _vocabulary(Canvas canvas, LmView view, _Layout layout, List<int> counts, int most) {
@@ -86,117 +107,101 @@ final class TokeniseScene extends LmScene {
       view.kit.draw(
         canvas,
         '$id',
-        inked(view.kit.mono, 8, view.inks.quiet),
+        _idStyle(view),
         Offset(cell.center.dx, cell.bottom + 2),
         anchor: const Offset(0.5, 0),
       );
     }
   }
 
-  void _magnifier(
+  /// Each part named, as the zoom names its parts: the dataset and its
+  /// padding once the frames close; the vocabulary, its counts once the light
+  /// starts, its special tokens and its ids.
+  void _tags(
     Canvas canvas,
     LmView view,
     _Layout layout,
+    List<int> counts,
+    int most,
     double u,
     double framing,
-    double shift,
   ) {
     final TrainingTrace trace = view.trace;
-    final int p = view.peptide;
-    final List<int> ids = frameOf(trace, p);
-    final int residues = trace.peptides[p].sequence.length;
-    final double cell = layout.magnifierCell;
-    final int shown = layout.magnified;
-    final double done = scanned(trace, p, u);
-    // The window follows the light, then goes back to the start of the frame;
-    // where the whole frame fits, it stays at the start.
-    final double following = (done + 1 - shown / 2)
-        .clamp(0.0, math.max(0, ids.length - shown).toDouble());
-    final double start = following * (1 - framing);
-    final double left = layout.left;
-    final double xTop = layout.magnifierTop;
-    final double yTop = xTop + cell + 8;
-    final Rect window = Rect.fromLTRB(left, xTop - 6, layout.right, yTop + cell + 6);
+    // Plates stand out of the column as far as the focused peptide's card,
+    // so their words line up with what is under them.
+    final double start = layout.left - 6;
+    final double end = layout.right + 6;
 
-    final List<Path> flights = <Path>[];
-    final List<double> reaches = <double>[];
-    canvas.save();
-    canvas.clipRect(window);
-    for (int k = 0; k < ids.length; k++) {
-      final double x = left + (k - start) * cell;
-      if (x < left - cell || x > layout.right) {
-        continue;
-      }
-      final Rect rect = Rect.fromLTWH(x, xTop, cell, cell);
-      if (k == 0 || k > residues) {
-        // The frame's ends and its padding, as ids, dropped in.
-        final double drop = (1 - framing) * cell * 0.5;
-        _idTile(canvas, view, rect.translate(0, -drop), ids[k], alpha: framing);
-        continue;
-      }
-      final double flip = (done - (k - 1)).clamp(0.0, 1.0);
-      _flipping(canvas, view, rect, ids[k], flip);
-      if (flip > 0 && flip < 1) {
-        // The id on its way to the vocabulary.
-        final Rect chip = layout.vocab.at(ids[k]);
-        flights.add(Path()
-          ..moveTo(rect.center.dx, rect.top)
-          ..quadraticBezierTo(
-            (rect.center.dx + chip.center.dx) / 2,
-            (rect.top + chip.bottom) / 2 - 12,
-            chip.center.dx,
-            chip.bottom + 12,
-          ));
-        reaches.add(math.sin(math.pi * flip));
-      }
-    }
-    if (shift > 0) {
-      // The targets: the same frame, one place along, under the inputs.
-      final double ticks = through(shift, 0.7, 1);
-      for (int k = 1; k < ids.length; k++) {
-        final double x = left + (k - shift - start) * cell;
-        if (x < left - cell || x > layout.right) {
-          continue;
-        }
-        final Rect rect = Rect.fromLTWH(x, yTop, cell, cell);
-        final bool pad = k > residues + 1;
-        _idTile(canvas, view, rect, ids[k], alpha: shift);
-        if (ticks > 0) {
-          final double cx = left + (k - 1 - start) * cell + cell / 2;
-          canvas.drawLine(
-            Offset(cx, xTop + cell + 1),
-            Offset(cx, yTop - 1),
-            Paint()
-              ..strokeWidth = 1
-              ..color = (pad ? view.inks.rule : view.inks.signal).withValues(alpha: ticks),
-          );
-          if (pad) {
-            canvas.drawLine(
-              rect.bottomLeft + const Offset(4, -4),
-              rect.topRight + const Offset(-4, 4),
-              Paint()
-                ..strokeWidth = 1
-                ..color = view.inks.quiet.withValues(alpha: ticks),
-            );
-          }
-        }
-      }
-    }
-    canvas.restore();
-    for (int i = 0; i < flights.length; i++) {
-      canvas.drawPath(
-        flights[i],
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1
-          ..color = view.inks.signal.withValues(alpha: 0.7 * reaches[i]),
+    drawTag(canvas, view, 'dataset', Offset(start, layout.datasetTag));
+    // Padding, on the last place of the shortest peptide, the first.
+    final List<int> shortest = frameOf(trace, 0);
+    if (trace.token(shortest.last) == '<pad>') {
+      final Size plate = tagSize(view, 'padding');
+      drawTag(
+        canvas,
+        view,
+        'padding',
+        Offset(end - plate.width, layout.datasetTag),
+        target: layout.batchAt(0, shortest.length - 1).center,
+        alpha: framing,
       );
     }
-    if (shift > 0) {
-      final TextStyle style = inked(view.kit.sans, 10, view.inks.quiet, alpha: shift);
-      view.kit.draw(canvas, 'x', style, Offset(left - 5, xTop + cell / 2), anchor: const Offset(1, 0.5));
-      view.kit.draw(canvas, 'y', style, Offset(left - 5, yTop + cell / 2), anchor: const Offset(1, 0.5));
+
+    final Rect vocabulary = drawTag(canvas, view, 'vocabulary', Offset(start, layout.vocabularyTag));
+    // The counts, on the bar of the token the dataset holds most of.
+    final int top = commonest(trace);
+    final Rect chip = layout.vocab.at(top);
+    final Size counted = tagSize(view, 'token counts');
+    drawTag(
+      canvas,
+      view,
+      'token counts',
+      Offset(
+        math.min(math.max(chip.center.dx - counted.width / 2, vocabulary.right + 8), end - counted.width),
+        layout.vocabularyTag,
+      ),
+      target: Offset(chip.center.dx, chip.top - 3 - layout.histogram * counts[top] / most),
+      alpha: through(u, _scanFrom, _scanFrom + 0.06),
+    );
+
+    // The special tokens, bracketed under their ids.
+    final List<int> specials = <int>[
+      for (int id = 0; id < trace.vocab.length; id++)
+        if (!trace.isResidue(id)) id,
+    ];
+    if (specials.isNotEmpty) {
+      final double x0 = layout.vocab.at(specials.first).left + 2;
+      final double x1 = layout.vocab.at(specials.last).right - 2;
+      final double y = layout.bracket;
+      canvas.drawPath(
+        Path()
+          ..moveTo(x0, y - 3)
+          ..lineTo(x0, y)
+          ..lineTo(x1, y)
+          ..lineTo(x1, y - 3),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.2
+          ..color = view.inks.quiet,
+      );
+      drawTag(
+        canvas,
+        view,
+        'special tokens',
+        Offset(start, layout.partsTag),
+        target: Offset((x0 + x1) / 2, y),
+        dot: false,
+      );
     }
+    // The ids, on the last.
+    final Size ids = tagSize(view, 'token ids');
+    drawTag(
+      canvas,
+      view,
+      'token ids',
+      Offset(end - ids.width, layout.partsTag),
+      target: Offset(layout.vocab.centre(trace.vocab.length - 1), layout.idsBottom + 3),
+    );
   }
 
   /// A token as its id: a plain tile under a stripe of its residue's colour,
@@ -286,12 +291,7 @@ final class TokeniseScene extends LmScene {
     );
     final double done = scanned(trace, p, u);
     for (int k = 0; k < ids.length; k++) {
-      final Rect rect = Rect.fromLTWH(
-        layout.left + k * layout.batchCell,
-        top + layout.label,
-        layout.batchCell,
-        layout.batchCell,
-      );
+      final Rect rect = layout.batchAt(p, k);
       if (k == 0 || k > residues) {
         drawToken(canvas, view, rect, ids[k], alpha: framing);
       } else {
@@ -302,7 +302,7 @@ final class TokeniseScene extends LmScene {
 
   @override
   LmHit? hit(Size size, LmView view, Offset at) {
-    final _Layout layout = _Layout(size, view.trace);
+    final _Layout layout = _Layout(size, view);
     for (int p = 0; p < view.trace.peptides.length; p++) {
       final double top = layout.rowTop(p);
       if (at.dy >= top - 4 && at.dy < top + layout.label + layout.batchCell + 6) {
@@ -336,48 +336,68 @@ final class TokeniseScene extends LmScene {
   }
 }
 
+/// Top to bottom: the dataset's tag and its peptides, a row each; then the
+/// vocabulary's tag, its counts, its tokens and their ids; then the tags
+/// under it. The rows take what room the canvas has, within reason, and the
+/// whole is centred.
 final class _Layout {
-  _Layout(Size size, TrainingTrace trace)
-    : left = 20,
-      right = size.width - 16,
-      peptides = trace.peptides.length {
+  _Layout(Size size, LmView view) : left = 20, right = size.width - 16 {
+    final TrainingTrace trace = view.trace;
+    final int peptides = trace.peptides.length;
     width = right - left;
     final double vocabCell = math.min(22, width / trace.vocab.length);
-    magnifierCell = math.min(34, math.max(18, width / 11));
-    magnified = (width / magnifierCell).floor();
     batchCell = math.min(16, width / (trace.width + 1));
-    // As much room between the rows as the canvas has, within reason, and
-    // the whole of it centred.
-    const double gaps = 24 + 28;
-    final double fixed = histogram + vocabCell + 14 + magnifierCell * 2 + 8 + gaps;
-    final double roomy = batchCell + label + 14;
+    final double tag = tagSize(view, 'dataset').height;
+    final double ids = view.kit.layout('0', TokeniseScene._idStyle(view)).height;
+    final double fixed =
+        tag + _tagGap + tag + _tagGap + histogram + 3 + vocabCell + 2 + ids + _partsGap + tag;
     final double tight = batchCell + label + 5;
-    rowPitch = ((size.height - 12 - fixed) / peptides).clamp(tight, roomy);
-    final double content = fixed + rowPitch * peptides;
+    final double roomy = batchCell + label + 22;
+    final double spare = size.height - 12 - fixed;
+    final double between = math.min(math.max(spare - tight * peptides, 12), 40);
+    rowPitch = math.min(math.max((spare - between - label - batchCell) / math.max(1, peptides - 1), tight), roomy);
+    final double rows = rowPitch * (peptides - 1) + label + batchCell;
+    final double content = fixed + rows + between;
     final double top = math.max(6, (size.height - content) / 2);
+    datasetTag = top;
+    batchTop = top + tag + _tagGap;
+    vocabularyTag = batchTop + rows + between;
     vocab = TokenLayout(
-      Rect.fromLTWH(left, top + histogram, width, vocabCell),
+      Rect.fromLTWH(left, vocabularyTag + tag + _tagGap + histogram + 3, width, vocabCell),
       trace.vocab.length,
       most: 22,
     );
-    magnifierTop = vocab.top + vocab.cell + 14 + 24;
-    batchTop = magnifierTop + magnifierCell * 2 + 8 + 28;
+    idsBottom = vocab.top + vocab.cell + 2 + ids;
+    bracket = idsBottom + 4;
+    partsTag = idsBottom + _partsGap;
   }
+
+  /// From a tag over a block to the block.
+  static const double _tagGap = 8;
+
+  /// From the ids' numbers to the tags under them: room for a bracket and
+  /// its line.
+  static const double _partsGap = 12;
 
   final double left;
   final double right;
-  final int peptides;
   late final double width;
-  late final TokenLayout vocab;
-  late final double magnifierCell;
-  late final int magnified;
-  late final double magnifierTop;
-  late final double batchTop;
   late final double batchCell;
   late final double rowPitch;
+  late final double datasetTag;
+  late final double batchTop;
+  late final double vocabularyTag;
+  late final TokenLayout vocab;
+  late final double idsBottom;
+  late final double bracket;
+  late final double partsTag;
 
-  final double histogram = 16;
+  final double histogram = 24;
   final double label = 14;
 
   double rowTop(int peptide) => batchTop + peptide * rowPitch;
+
+  /// Place [k] of [peptide]'s frame.
+  Rect batchAt(int peptide, int k) =>
+      Rect.fromLTWH(left + k * batchCell, rowTop(peptide) + label, batchCell, batchCell);
 }

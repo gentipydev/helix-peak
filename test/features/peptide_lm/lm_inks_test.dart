@@ -51,6 +51,7 @@ void main() {
     final AnatomyColors anatomy = theme.extension<AnatomyColors>()!;
     expect(inks.ground, theme.colorScheme.surface);
     expect(inks.signal, theme.colorScheme.primary);
+    expect(inks.raised, theme.colorScheme.surfaceContainerLow);
     expect(inks.truth, anatomy.tracer);
     expect(inks.error, NucleotideColors.helix.guanine);
     expect(inks.negative, NucleotideColors.helix.cytosine);

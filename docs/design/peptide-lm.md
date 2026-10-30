@@ -43,11 +43,13 @@ Each is a painter in `lib/features/peptide_lm/presentation/scenes/`, a pure
 function of the frame, at the checkpoint picked ("Step N ▾"); the loop plays
 every step.
 
-1. **Tokenise.** A light crosses each peptide; every residue it passes flips
-   into its id and a line carries it to its chip in the 23-token vocabulary,
-   whose counts rise. `<bos>` and `<eos>` drop in, padding fills to the
-   longest (6 × 41), and in the magnifier the targets slide one place along
-   under the inputs, padding's targets struck out.
+1. **Tokenise.** The dataset, a row a peptide, and under it the 23-token
+   vocabulary. A light crosses each peptide; every residue it passes flips
+   into its id, and the vocabulary's count of it rises. `<bos>` and `<eos>`
+   drop in and padding fills to the longest (6 × 41). Each part is named on a
+   tag, as the zoom names its parts, in the field's words: dataset, padding,
+   vocabulary, token counts (on the bar of the commonest token), special
+   tokens (bracketed under their ids) and token ids.
 2. **Forward.** The residual stream of the peptide in focus, a column of 96
    numbers a position, rises through the tower at the left: the embedding,
    then each block's LayerNorm, attention (arcs from every earlier position

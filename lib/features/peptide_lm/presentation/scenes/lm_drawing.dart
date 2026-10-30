@@ -12,7 +12,8 @@ import 'lm_scene.dart';
 /// out once a checkpoint ([memo]): a scene paints sixty times a second, and
 /// neither a label's layout nor a layer's colour scale changes between frames.
 final class LmKit {
-  LmKit({required this.mono, required this.sans, required this.scaler});
+  LmKit({required this.mono, required this.sans, required this.scaler, TextStyle? label})
+    : label = label ?? sans;
 
   /// Ids, numbers and letters.
   final TextStyle mono;
@@ -20,6 +21,9 @@ final class LmKit {
   /// Labels.
   final TextStyle sans;
   final TextScaler scaler;
+
+  /// A part's name on its plate ([drawTag]), as the zoom names its parts.
+  final TextStyle label;
 
   final Map<(String, TextStyle), TextPainter> _laid =
       <(String, TextStyle), TextPainter>{};
@@ -239,6 +243,72 @@ void drawToken(
       anchor: const Offset(0.5, 0.5),
     );
   }
+}
+
+/// How far a tag's words sit inside its plate: the zoom's.
+const double tagPadding = 6;
+
+/// The size of [text]'s plate ([drawTag]).
+Size tagSize(LmView view, String text) {
+  final TextPainter words = view.kit.layout(text, _tagWords(view, 1));
+  return Size(words.width + 2 * tagPadding, words.height + tagPadding);
+}
+
+TextStyle _tagWords(LmView view, double alpha) => view.kit.label.copyWith(
+  color: view.inks.ink.withValues(alpha: (alpha.clamp(0.0, 1.0) * 8).round() / 8),
+);
+
+/// A part's name on a plate with its top left at [at], as the zoom names its
+/// parts: the label face on the raised surface. A tag set away from what it
+/// names has a line in the quiet ink that lands on [target] with a dot, or
+/// with none where the scene marks the place itself ([dot] false, a bracket
+/// over a span). Returns the plate.
+Rect drawTag(
+  Canvas canvas,
+  LmView view,
+  String text,
+  Offset at, {
+  Offset? target,
+  bool dot = true,
+  double alpha = 1,
+}) {
+  final Rect plate = at & tagSize(view, text);
+  if (alpha <= 0) {
+    return plate;
+  }
+  if (target != null) {
+    final Paint line = Paint()
+      ..strokeWidth = 1.2
+      ..color = view.inks.quiet.withValues(alpha: alpha);
+    canvas.drawLine(_leaderFrom(plate, target), target, line);
+    if (dot) {
+      canvas.drawCircle(target, 2.6, line);
+    }
+  }
+  canvas.drawRRect(
+    RRect.fromRectAndRadius(plate, const Radius.circular(6)),
+    Paint()..color = view.inks.raised.withValues(alpha: 0.88 * alpha),
+  );
+  view.kit.draw(
+    canvas,
+    text,
+    _tagWords(view, alpha),
+    plate.topLeft + const Offset(tagPadding, tagPadding / 2),
+  );
+  return plate;
+}
+
+/// Where a tag's line leaves its plate: straight down or up where what it
+/// names lies under or over the plate, else from the nearer side.
+Offset _leaderFrom(Rect plate, Offset target) {
+  final double x = math.min(math.max(target.dx, plate.left + tagPadding), plate.right - tagPadding);
+  if (target.dy >= plate.bottom) {
+    return Offset(x, plate.bottom);
+  }
+  if (target.dy <= plate.top) {
+    return Offset(x, plate.top);
+  }
+  return Offset(target.dx < plate.left ? plate.left : plate.right, plate.center.dy);
 }
 
 /// A small triangle pointing up, its tip at [tip].

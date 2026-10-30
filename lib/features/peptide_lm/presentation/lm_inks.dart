@@ -23,6 +23,7 @@ final class LmInks {
   const LmInks({
     required this.ground,
     required this.card,
+    required this.raised,
     required this.rule,
     required this.ink,
     required this.quiet,
@@ -42,6 +43,7 @@ final class LmInks {
     return LmInks(
       ground: scheme.surface,
       card: scheme.surfaceContainer,
+      raised: scheme.surfaceContainerLow,
       rule: scheme.outlineVariant,
       ink: scheme.onSurface,
       quiet: scheme.onSurfaceVariant,
@@ -57,6 +59,10 @@ final class LmInks {
 
   final Color ground;
   final Color card;
+
+  /// A tag's plate (`drawTag`): the zoom's, so a part is named as it names
+  /// one.
+  final Color raised;
   final Color rule;
   final Color ink;
   final Color quiet;
@@ -85,6 +91,7 @@ final class LmInks {
   List<Color> get _all => <Color>[
     ground,
     card,
+    raised,
     rule,
     ink,
     quiet,
