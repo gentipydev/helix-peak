@@ -51,8 +51,8 @@ Beside the caption, a player of that stage alone: Replay, and Play/Pause.
    light crosses each peptide; every residue it passes flips into its id,
    and the vocabulary's count of it rises. `<bos>` and `<eos>`
    drop in and padding fills to the longest (6 × 41). Then the peptides close
-   up into one table, a row each: the batch Forward reads, its dataset's tags
-   fading where they are and the batch's coming up over it. The table rises
+   up into one matrix, a row each: the batch Forward reads, its dataset's tags
+   fading where they are and the batch's coming up over it. The matrix rises
    to the top, and the vocabulary turns into a list under it: one token
    after another flies up to its row, its bar swinging down from standing on
    the token to lie along the row while still short, then growing to the

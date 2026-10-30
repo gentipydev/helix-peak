@@ -11,7 +11,7 @@ import 'lm_scene.dart';
 /// Tokenise: the dataset, and under it the vocabulary. A light crosses each
 /// peptide and every residue it passes flips into its id, its count in the
 /// vocabulary rising; then `<bos>` and `<eos>` drop in to frame each one and
-/// padding fills to the longest; then the peptides close up into one table,
+/// padding fills to the longest; then the peptides close up into one matrix,
 /// the batch Forward reads, which rises to the top; and the vocabulary turns
 /// into a list under it, each token's count along its row. Each part is
 /// named on a tag, as the zoom names its parts, in the field's words.
@@ -571,7 +571,7 @@ final class TokeniseScene extends LmScene {
         2 => 'both peptides',
         _ => 'all ${spelled(peptides)} peptides',
       };
-      return 'One batch: $all in one table, read by Forward in one pass';
+      return 'One batch: $all in one matrix, read by Forward in one pass';
     }
     final int top = commonest(trace);
     final int count = totals(trace)[top];
@@ -653,7 +653,7 @@ final class _Layout {
     idsBottom = vocab.top + vocab.cell + 2 + ids;
     bracket = idsBottom + 4;
     partsTag = idsBottom + _partsGap;
-    // The batch as one table: a peptide a row, every place across the
+    // The batch as one matrix: a peptide a row, every place across the
     // width, each tall enough for its number; centred where the dataset
     // was, its tag over it; then risen, its tag where the dataset's was.
     tableWidth = math.min(16, width / frame);

@@ -91,7 +91,7 @@ void main() {
     }
 
     expect(caption(LmStage.tokenise, 0.2), 'Two peptides, 23 residues, become ids in a 23-token vocabulary');
-    expect(caption(LmStage.tokenise, 0.6), 'One batch: both peptides in one table, read by Forward in one pass');
+    expect(caption(LmStage.tokenise, 0.6), 'One batch: both peptides in one matrix, read by Forward in one pass');
     expect(caption(LmStage.tokenise, 0.99), startsWith('The vocabulary, counted: '));
     expect(caption(LmStage.forward, 0.05), contains('× ${trace.model.width} numbers'));
     expect(caption(LmStage.predict, 0.99), contains('next is ${trace.token(last.target)}'));
