@@ -125,7 +125,9 @@ out of view is scrolled just far enough to show it whole.
    (`HelixPeekLM.forward`) in 9 beats:
    - *the table* (beats 0–2.4): y goes off to the right and the other
      peptides fade; the peptide in focus comes down to the foot, a tile a
-     place, its ids kept; the token embedding's tokens and ids come in, top
+     place, its ids kept, under its name as Shift writes it ("insulin A
+     chain · 21 aa", the user's ask: the row is the first peptide, not the
+     batch), which goes as its tiles go up to the rows; the token embedding's tokens and ids come in, top
      to bottom, and its rows grow out on the stream's own scale, then their
      numbers ("The token embedding: 16 learned numbers for each of the 23
      tokens"; then "At step 1 no update has moved them yet; <pad>'s row is

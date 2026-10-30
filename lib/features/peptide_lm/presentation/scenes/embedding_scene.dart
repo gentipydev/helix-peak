@@ -16,7 +16,7 @@ import 'tokenise_scene.dart';
 /// (`HelixPeekLM.forward`: the token embedding of the ids, plus the position
 /// embedding). It opens on Shift's last frame: y goes off to the right, the
 /// other peptides fade, and the peptide in focus comes down to the foot of
-/// the canvas, its ids kept. Over it comes the token embedding, a row of
+/// the canvas under its name, its ids kept. Over it comes the token embedding, a row of
 /// numbers a token, each number written out on a soft tile of its colour.
 /// Each id lights the row it reads; the rows read gather in place order, x
 /// embedded, a row a place, each labelled by the tile that read it; each
@@ -107,6 +107,7 @@ final class EmbeddingScene extends LmScene {
           ySlide: away * (layout.shift.right + 6 - layout.shift.cardLeft),
           chrome: 1 - away,
           card: 1 - away,
+          focusLabel: 0,
         ),
       );
     }
@@ -444,6 +445,21 @@ final class EmbeddingScene extends LmScene {
     final int residues = view.focus.sequence.length;
     final int n = view.focus.inputs;
     final double descend = _span(beat, _descend);
+    // Its name, as Shift writes it over its lines, comes down with it and
+    // stays over it until its tiles go up to the rows.
+    final double named = 1 - through(beat, _gatherFrom, _gatherFrom + _gatherStagger);
+    if (named > 0) {
+      view.kit.draw(
+        canvas,
+        '${view.focus.source.label} · $residues aa',
+        inked(view.kit.sans, 10, view.inks.ink, alpha: named),
+        Offset.lerp(
+          Offset(layout.shift.left, layout.shift.rowTop(p)),
+          Offset(layout.foot(0).left, layout.footTop - ShiftLayout.label),
+          descend,
+        )!,
+      );
+    }
     for (int k = 0; k < ids.length - 1; k++) {
       final Rect from = layout.shift.x(p, k);
       if (k >= n) {
@@ -607,8 +623,8 @@ final class EmbeddingFade {
 /// Top to bottom: the tag; the matrix, a row a token and then a row a
 /// place, its numbers across the width, 4 pt from either side, after a
 /// gutter for the row's id or tile, every row as tall as the canvas allows
-/// for the longer of the two; and at the foot, the peptide in focus, a tile
-/// a place, on one line.
+/// for the longer of the two; and at the foot, the peptide in focus under
+/// its name, a tile a place, on one line.
 final class EmbeddingLayout {
   EmbeddingLayout(Size size, LmView view)
     : shift = ShiftLayout(size, view),
@@ -624,12 +640,12 @@ final class EmbeddingLayout {
     footTile = Size(footStep, math.min(_mostFoot, math.max(footStep, idNumbered + 2)));
     footLeft = left + (span - (inputs - 1) * footStep - footTile.width) / 2;
     final double tag = tagSize(view, 'token embedding').height;
-    final double room = size.height - 2 * _edge - tag - _tagGap - _footGap - footTile.height;
+    final double room = size.height - 2 * _edge - tag - _tagGap - _footGap - ShiftLayout.label - footTile.height;
     pitch = math.min(_mostPitch, room / rows);
-    final double content = tag + _tagGap + rows * pitch + _footGap + footTile.height;
+    final double content = tag + _tagGap + rows * pitch + _footGap + ShiftLayout.label + footTile.height;
     tagTop = math.max(_edge, (size.height - content) / 2);
     tableTop = tagTop + tag + _tagGap;
-    footTop = tableTop + rows * pitch + _footGap;
+    footTop = tableTop + rows * pitch + _footGap + ShiftLayout.label;
     chipSide = (pitch - 3).clamp(3.0, 14.0);
     idSize = (pitch * 0.62).clamp(6.0, 9.5);
     idWidth = view.kit

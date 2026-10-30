@@ -90,7 +90,7 @@ final class ShiftScene extends LmScene {
           Paint()..color = _ink(view.inks.card, fade.card),
         );
       }
-      final double label = named * (focus ? fade.chrome : shown);
+      final double label = named * (focus ? fade.chrome * fade.focusLabel : shown);
       if (label > 0) {
         view.kit.draw(
           canvas,
@@ -318,6 +318,7 @@ final class ShiftFade {
     this.ySlide = 0,
     this.chrome = 1,
     this.card = 1,
+    this.focusLabel = 1,
   });
 
   /// Whether the peptide in focus's x is drawn.
@@ -335,6 +336,10 @@ final class ShiftFade {
 
   /// The card under the peptide in focus.
   final double card;
+
+  /// The name of the peptide in focus, apart from [chrome]: a stage that
+  /// carries it on draws it itself.
+  final double focusLabel;
 }
 
 /// Top to bottom: the input x tag and the peptides, each its name and its
