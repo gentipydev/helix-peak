@@ -136,7 +136,7 @@ void main() {
       'The position embedding: one learned row per place, here rows 0–11 of ${trace.model.context}',
     );
     expect(caption(LmStage.embedding, embedding(14)), startsWith("Each place's row is added to its residue's"));
-    expect(caption(LmStage.embedding, embedding(15.5)), 'x0, 12 × $width: the start of the residual stream');
+    expect(caption(LmStage.embedding, embedding(15.5)), 'x0, 12 × $width: toy A as the model takes it in');
     // Forward's opening: the toy's two layers make its stage 1 + 8 + 1 beats.
     expect(
       caption(LmStage.forward, 0.5 / (1 + 4 * trace.model.layers + 1)),

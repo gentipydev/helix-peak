@@ -78,6 +78,10 @@ final class EmbeddingScene extends LmScene {
   /// gathered.
   static const double _twinFrom = 10.4;
 
+  /// Where the marks go, before the stage's last frame, which Forward opens
+  /// on.
+  static const (double, double) _unmarked = (16.4, 16.8);
+
   /// Where the caption turns: to what the numbers are, the lookup, the
   /// gather, the position embedding and x0. The note over the table turns
   /// with it, but for the still beat, which keeps the table's.
@@ -153,6 +157,72 @@ final class EmbeddingScene extends LmScene {
           ..color = view.inks.signal.withValues(alpha: 0.8 * marked),
       );
     }
+    // The number the note adds up, on both rows.
+    final int? d = _sumAt(view);
+    final double cell = through(beat, _x0Caption, _x0Caption + 0.3) * (1 - _span(beat, _unmarked));
+    if (d == null || cell <= 0) {
+      return;
+    }
+    for (final int i in <int>[twin.$2, twin.$3]) {
+      final Rect row = layout.row(i);
+      final double w = row.width / view.trace.model.width;
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(row.left + d * w, row.top, w, row.height).deflate(0.2),
+          const Radius.circular(3),
+        ),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.6
+          ..color = view.inks.ink.withValues(alpha: cell),
+      );
+    }
+  }
+
+  /// The number of the two marked places whose sum the note writes out:
+  /// the first whose parts, as written, add up to the sum as written at
+  /// both places, and whose position parts differ, so that it shows the
+  /// same token number parted by two places.
+  static int? _sumAt(LmView view) {
+    final (String, int, int)? twin = _twin(view);
+    if (twin == null) {
+      return null;
+    }
+    final TrainingTrace trace = view.trace;
+    final int id = trace.inputAt(view.peptide, twin.$2);
+    double round(double v) => double.parse(fixed(v, EmbeddingLayout.digits).replaceAll('−', '-'));
+    for (int d = 0; d < trace.model.width; d++) {
+      final double token = trace.tokenEmbedding(view.checkpoint, id, d);
+      bool adds(int i) {
+        final double place = trace.positionEmbedding(view.checkpoint, i, d);
+        return (round(token) + round(place) - round(token + place)).abs() < 1e-9;
+      }
+      final double a = round(trace.positionEmbedding(view.checkpoint, twin.$2, d));
+      final double b = round(trace.positionEmbedding(view.checkpoint, twin.$3, d));
+      if (adds(twin.$2) && adds(twin.$3) && a != b && a != 0 && b != 0) {
+        return d;
+      }
+    }
+    return null;
+  }
+
+  /// The note's sum: the marked places' number [_sumAt], token part plus
+  /// position part, each as written.
+  static String _sum(LmView view) {
+    final (String, int, int)? twin = _twin(view);
+    final int? d = _sumAt(view);
+    if (twin == null || d == null) {
+      return 'each row: which residue (token row) plus where (position row)';
+    }
+    final TrainingTrace trace = view.trace;
+    final double token = trace.tokenEmbedding(view.checkpoint, trace.inputAt(view.peptide, twin.$2), d);
+    String at(int i) {
+      final double place = trace.positionEmbedding(view.checkpoint, i, d);
+      final String sign = place < 0 ? '−' : '+';
+      return '${fixed(token, EmbeddingLayout.digits)} $sign ${fixed(place.abs(), EmbeddingLayout.digits)} = '
+          '${fixed(token + place, EmbeddingLayout.digits)}';
+    }
+    return '${twin.$1}s at ${twin.$2} and ${twin.$3}, number ${d + 1}: ${at(twin.$2)}, ${at(twin.$3)}';
   }
 
   // --------------------------------------------------------------- numbers
@@ -278,9 +348,9 @@ final class EmbeddingScene extends LmScene {
       (
         _x0Caption,
         double.infinity,
-        'x0: ${view.focus.source.label} as the model takes it in\n'
-            'each row: which residue (token row) plus where (position row)\n'
-            'next: ${spelled(trace.model.layers)} blocks let each place read the places before it',
+        'x0 = x embedded + position rows, added number by number\n'
+            '${_sum(view)}\n'
+            'next: ${spelled(trace.model.layers)} blocks read x0; each place sees only those before it',
       ),
     ];
   }
@@ -336,7 +406,8 @@ final class EmbeddingScene extends LmScene {
 
   /// How strongly the two places of [_twin] are marked: once their rows have
   /// gathered, while the note names them, through the adding.
-  static double _twinMarked(double beat) => through(beat, _twinFrom, _twinFrom + 0.3) * (1 - through(beat, _x0Caption - 0.3, _x0Caption));
+  static double _twinMarked(double beat) =>
+      through(beat, _twinFrom, _twinFrom + 0.3) * (1 - _span(beat, _unmarked));
 
   // ---------------------------------------------------------------- paint
 
@@ -767,7 +838,7 @@ final class EmbeddingScene extends LmScene {
           ? "Each place's row is added to its residue's"
           : "Each place's row is added to its residue's: ${grouped(times)}× smaller, so the numbers move only a little";
     }
-    return 'x0, ${grouped(inputs)} × $width: the start of the residual stream';
+    return 'x0, ${grouped(inputs)} × $width: ${view.focus.source.label} as the model takes it in';
   }
 
   @override
