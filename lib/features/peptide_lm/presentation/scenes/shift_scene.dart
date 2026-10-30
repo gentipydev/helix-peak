@@ -12,14 +12,13 @@ import 'tokenise_scene.dart';
 /// Shift: input x and next token y, one place apart, as `sequences.batches`
 /// cuts the batch (`frame[:, :-1]` and `frame[:, 1:]`). It opens on
 /// Tokenise's last frame: the vocabulary goes, and the matrix opens out into
-/// its peptides again, each line of x with room under it. Then two moves of
-/// whole lines, every peptide's at once: each line of x drops a copy into the
-/// room under it, the same tokens; and the copy moves one place to the left,
-/// so that under each place lies the token after it. `<bos>` leaves at the
-/// left, never a target, and the token that leaves a second line's start
-/// comes in at the first line's end, as text reflows. x lets go of the
-/// frame's last place, which nothing reads; then the pairs whose target is
-/// padding dim.
+/// its peptides again, input x. Then two moves: under x comes a copy of it,
+/// next token y, the same peptides and tokens; and every line of the copy
+/// moves one place to the left, so that each place of y holds the token after
+/// the same place of x. `<bos>` leaves at the left, never a target, and the
+/// token that leaves a second line's start comes in at the first line's end,
+/// as text reflows. x lets go of the frame's last place, which nothing reads;
+/// then the pairs whose target is padding dim.
 final class ShiftScene extends LmScene {
   const ShiftScene();
 
@@ -30,8 +29,8 @@ final class ShiftScene extends LmScene {
   static const (double, double) _labels = (0.9, 1.3);
   static const (double, double) _xNamed = (1.0, 1.4);
 
-  // The copy comes down, y named as it lands; then it moves one place left,
-  // and x's last place goes; then the padding dims.
+  // The copy comes in under x, y named as it does; then it moves one place
+  // left, and x's last place goes; then the padding dims.
   static const (double, double) _copy = (1.6, 2.3);
   static const (double, double) _yNamed = (1.9, 2.4);
   static const (double, double) _slide = (2.6, 3.6);
@@ -46,6 +45,9 @@ final class ShiftScene extends LmScene {
   /// How far a pair whose target is padding dims: none of the loss is
   /// counted there.
   static const double dimmed = 0.65;
+
+  /// How far above its place the copy comes in from.
+  static const double _comeIn = 16;
 
   static double _span(double at, (double, double) span) => through(at, span.$1, span.$2);
 
@@ -103,7 +105,7 @@ final class ShiftScene extends LmScene {
           _tile(canvas, view, xAt(p, k), ids, k, residues, alpha);
         }
       }
-      _y(canvas, view, layout, p, beat, shown * fade.y, Offset(fade.ySlide, 0), dim);
+      _y(canvas, view, layout, p, beat, shown * fade.y, Offset(fade.ySlide, 0), dim, fade);
     }
     _names(canvas, view, layout, beat, fade);
 
@@ -121,11 +123,11 @@ final class ShiftScene extends LmScene {
     }
   }
 
-  /// [p]'s y: a copy of its frame coming down from x into the room under
-  /// it, then moving one place left, a place's own token leaving it for the
-  /// one after it; `<bos>` going off at the left, and the token that leaves
-  /// the second line's start coming in at the first line's end. Moved, each
-  /// slot under the place whose target it is.
+  /// [p]'s y: a copy of its peptide in x, coming in under x, then each line
+  /// moving one place left, a place's own token leaving it for the one after
+  /// it; `<bos>` going off at the left, and the token that leaves the second
+  /// line's start coming in at the first line's end. Moved, each slot under
+  /// the place of x whose target it is.
   void _y(
     Canvas canvas,
     LmView view,
@@ -135,39 +137,55 @@ final class ShiftScene extends LmScene {
     double alpha,
     Offset away,
     double dim,
+    ShiftFade fade,
   ) {
     final double copy = _span(beat, _copy);
     if (copy <= 0 || alpha <= 0) {
       return;
     }
     final TrainingTrace trace = view.trace;
+    final TracePeptide peptide = trace.peptides[p];
+    final bool focus = p == view.peptide;
     final List<int> ids = TokeniseScene.frameOf(trace, p);
-    final int residues = trace.peptides[p].sequence.length;
+    final int residues = peptide.sequence.length;
+    final double shown = alpha * copy;
+    final Offset come = Offset(0, -_comeIn * (1 - copy)) + away;
+    if (focus && fade.card > 0) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(layout.yCard(p).shift(come), const Radius.circular(6)),
+        Paint()..color = _ink(view.inks.card, fade.card * shown),
+      );
+    }
+    view.kit.draw(
+      canvas,
+      '${peptide.source.label} · $residues aa',
+      inked(view.kit.sans, 10, focus ? view.inks.ink : view.inks.quiet, alpha: shown * (focus ? fade.chrome : 1)),
+      Offset(layout.left, layout.yRowTop(p)) + come,
+    );
     final double slide = _span(beat, _slide);
     if (slide >= 1) {
       for (int i = 0; i < ids.length - 1; i++) {
-        final double shown = alpha * (i >= trace.peptides[p].inputs ? 1 - dimmed * dim : 1);
-        _tile(canvas, view, layout.y(p, i).shift(away), ids, i + 1, residues, shown);
+        final double padded = i >= peptide.inputs ? 1 - dimmed * dim : 1;
+        _tile(canvas, view, layout.y(p, i).shift(come), ids, i + 1, residues, shown * padded);
       }
       return;
     }
-    final Offset down = Offset(0, (layout.tileHeight + ShiftLayout.pairGap) * copy);
     final Offset left = Offset(-layout.tileWidth * slide, 0);
     canvas.save();
     if (slide > 0) {
       // Moving, a line keeps to its columns: what leaves it goes off its
-      // edge, clear of the heads.
+      // edge.
       canvas.clipRect(Rect.fromLTRB(layout.left, -1e4, layout.columnsRight, 1e4));
     }
     for (int k = 0; k < ids.length; k++) {
-      final Rect at = layout.x(p, k).shift(down + left + away);
+      final Rect at = layout.y(p, k).shift(left + come);
       // A line's first token goes off its left end.
       final bool first = k == 0 || k == layout.firstLine;
-      _tile(canvas, view, at, ids, k, residues, alpha * (first ? 1 - slide : 1));
+      _tile(canvas, view, at, ids, k, residues, shown * (first ? 1 - slide : 1));
       if (k == layout.firstLine && slide > 0) {
         // And comes in at the end of the line before, as text reflows.
-        final Rect end = layout.x(p, k - 1).shift(Offset(layout.tileWidth, 0) + down + left + away);
-        _tile(canvas, view, end, ids, k, residues, alpha * slide);
+        final Rect end = layout.y(p, k - 1).shift(Offset(layout.tileWidth, 0) + left + come);
+        _tile(canvas, view, end, ids, k, residues, shown * slide);
       }
     }
     canvas.restore();
@@ -201,10 +219,8 @@ final class ShiftScene extends LmScene {
     }
   }
 
-  /// x and y named: on a tag over the peptides and one under them, and at
-  /// the head of each of their lines.
+  /// x and y named, each on a tag over its peptides.
   void _names(Canvas canvas, LmView view, ShiftLayout layout, double beat, ShiftFade fade) {
-    final TrainingTrace trace = view.trace;
     final double x = _span(beat, _xNamed) * fade.chrome;
     final double y = _span(beat, _yNamed) * fade.chrome;
     if (x > 0) {
@@ -212,23 +228,6 @@ final class ShiftScene extends LmScene {
     }
     if (y > 0) {
       drawTag(canvas, view, 'next token y', Offset(layout.tagStart, layout.yTag), alpha: y);
-    }
-    for (int p = 0; p < trace.peptides.length; p++) {
-      final double shown = p == view.peptide ? 1 : fade.others;
-      for (int line = 0; line < layout.lines; line++) {
-        for (final (String name, int kind, double alpha) in <(String, int, double)>[('x', 0, x), ('y', 1, y)]) {
-          if (alpha * shown <= 0) {
-            continue;
-          }
-          view.kit.draw(
-            canvas,
-            name,
-            inked(view.kit.mono, 9, view.inks.quiet, alpha: alpha * shown),
-            layout.head(p, line, kind),
-            anchor: const Offset(0.5, 0.5),
-          );
-        }
-      }
     }
   }
 
@@ -239,14 +238,16 @@ final class ShiftScene extends LmScene {
   LmHit? hitAt(Size size, LmView view, Offset at, TrainingFrame frame) =>
       _focusAt(size, view, at, _span(frame.local * LmStage.shift.beats, _unfold).roundToDouble());
 
-  /// The peptide whose card, or whose row of the matrix, lies under [at].
+  /// The peptide whose row of the matrix, or whose card in x or y, lies
+  /// under [at].
   LmHit? _focusAt(Size size, LmView view, Offset at, double unfold) {
     final ShiftLayout layout = ShiftLayout(size, view);
     final TokeniseEnd end = TokeniseEnd(size, view);
     for (int p = 0; p < view.trace.peptides.length; p++) {
-      final Rect card = unfold >= 1 ? layout.card(p) : end.card(p);
-      if (at.dy >= card.top && at.dy < card.bottom + 1) {
-        return FocusPeptide(p);
+      for (final Rect card in unfold >= 1 ? <Rect>[layout.card(p), layout.yCard(p)] : <Rect>[end.card(p)]) {
+        if (at.dy >= card.top && at.dy < card.bottom + 1) {
+          return FocusPeptide(p);
+        }
       }
     }
     return null;
@@ -313,82 +314,83 @@ final class ShiftFade {
   final double card;
 }
 
-/// Top to bottom: the input x tag; each peptide's name and lines, a line of
-/// x with its line of y under it, folded onto two pairs of lines where that
-/// leaves its tiles room for their numbers, else on one; the next token y
-/// tag. The tiles are as large as the width and the height both allow, and
-/// the whole is centred. Each line's head, x or y, stands at its left inside
-/// the card.
+/// Top to bottom: the input x tag and the peptides, each its name and its
+/// lines, folded onto two where that leaves its tiles room for their
+/// numbers, else on one; then the next token y tag and the peptides again,
+/// in the same columns. The tiles are as large as the width and the height
+/// both allow, and the whole is centred.
 final class ShiftLayout {
   ShiftLayout(Size size, LmView view) : right = size.width - 16 {
     final TrainingTrace trace = view.trace;
     final int peptides = trace.peptides.length;
+    final int blocks = 2 * peptides;
     frame = trace.width + 1;
     final double width = right - left;
     final double tag = tagSize(view, 'input x').height;
-    final double fixed = 2 * (_edge + tag + _tagGap);
+    final double fixed = 2 * _edge + 2 * (tag + _tagGap) + _groupGap;
     final double room = math.max(0, size.height - fixed);
-    // Folded once, the same place for every peptide, as Tokenise folds it:
-    // a pair stays in its column.
-    final double tallest = (room -
-            peptides * (label + 2 * pairGap + _lineGap) -
-            (peptides - 1) * _leastGap) /
-        (4 * peptides);
+    // Folded once, the same place for every peptide, as Tokenise folds it: a
+    // place keeps its column in x and in y.
+    final double tallest =
+        (room - blocks * (label + _lineGap) - (blocks - 2) * _leastGap) / (2 * blocks);
     final double folded = math.min(math.min(22, width / (frame - frame ~/ 2)), tallest);
-    if (folded >= idNumbered) {
+    if (folded - 2 * _inset(folded) >= idNumbered) {
       firstLine = frame ~/ 2;
       tileWidth = folded;
       tileHeight = folded;
     } else {
-      // Where two pairs of lines cannot number their tiles, one: every place
-      // across the width, each as tall as a number needs once the tile is
-      // drawn inset, and as the height allows.
+      // Where two lines cannot number their tiles, one: every place across
+      // the width, each as tall as a number needs once the tile is drawn
+      // inset, and as the height allows.
       firstLine = frame;
       tileWidth = math.min(16, width / frame);
-      final double numbered = idNumbered + 2 * math.min(1.0, tileWidth * 0.08) + 0.01;
-      final double fits = (room - peptides * (label + pairGap) - (peptides - 1) * _leastGap) / (2 * peptides);
+      final double numbered = idNumbered + 2 * _inset(tileWidth) + 0.01;
+      final double fits = (room - blocks * label - (blocks - 2) * _leastGap) / blocks;
       tileHeight = math.max(
         3,
         math.min(math.max(tileWidth, math.min(16, math.max(numbered, tileWidth * 1.5))), fits),
       );
     }
     lines = firstLine < frame ? 2 : 1;
-    block = label + lines * (2 * tileHeight + pairGap) + (lines - 1) * _lineGap;
+    block = label + lines * tileHeight + (lines - 1) * _lineGap;
     final double gap =
-        peptides < 2 ? 0 : ((room - peptides * block) / (peptides - 1)).clamp(_leastGap, 22.0);
+        peptides < 2 ? 0 : ((room - blocks * block) / (blocks - 2)).clamp(_leastGap, 22.0);
     rowPitch = block + gap;
-    final double rows = peptides * block + (peptides - 1) * gap;
-    final double top = math.max(0, (size.height - fixed - rows) / 2);
+    final double group = peptides * block + (peptides - 1) * gap;
+    final double top = math.max(0, (size.height - fixed - 2 * group) / 2);
     xTag = top + _edge;
     firstRow = xTag + tag + _tagGap;
-    yTag = firstRow + rows + _tagGap;
+    yTag = firstRow + group + _groupGap;
+    drop = yTag + tag + _tagGap - firstRow;
   }
 
-  /// From the canvas's edge to a tag, and from a tag to the peptides.
+  /// How far a tile is drawn inside its place (`drawIdTile`).
+  static double _inset(double side) => math.min(1.0, side * 0.08);
+
+  /// From the canvas's edge to a tag, from a tag to its peptides, and from
+  /// x's last peptide to y's tag.
   static const double _edge = 6;
   static const double _tagGap = 8;
+  static const double _groupGap = 12;
 
-  /// Between a line of x and its line of y, between a peptide's two pairs
-  /// of lines, and the least between two peptides.
-  static const double pairGap = 3;
-  static const double _lineGap = 7;
+  /// Between a peptide's two lines, and the least between two peptides.
+  static const double _lineGap = 3;
   static const double _leastGap = 5;
 
   /// A peptide's name.
   static const double label = 14;
 
-  /// The card's left edge, where the tags start too, as Tokenise's; the
-  /// lines' heads, and the tiles after them.
-  final double cardLeft = 14;
-  final double headCentre = 22;
-  final double left = 30;
+  /// The tiles' columns, as Tokenise's, and the card's left edge, where the
+  /// tags start too.
+  final double left = 20;
   final double right;
+  double get cardLeft => left - 6;
 
   /// A frame's places: `<bos>`, the residues, `<eos>` and padding.
   late final int frame;
 
   /// How many places the first line holds: all of them where it is not
-  /// folded; and how many lines of x a peptide has.
+  /// folded; and how many lines a peptide has.
   late final int firstLine;
   late final int lines;
 
@@ -403,6 +405,9 @@ final class ShiftLayout {
   late final double firstRow;
   late final double yTag;
 
+  /// How far y lies under x.
+  late final double drop;
+
   double get tagStart => cardLeft;
 
   /// The right edge of a line's last column.
@@ -410,29 +415,26 @@ final class ShiftLayout {
 
   double rowTop(int peptide) => firstRow + peptide * rowPitch;
 
-  /// The top of [peptide]'s [line], of x ([kind] 0) or of y (1).
-  double lineTop(int peptide, int line, int kind) =>
-      rowTop(peptide) + label + line * (2 * tileHeight + pairGap + _lineGap) + kind * (tileHeight + pairGap);
+  double yRowTop(int peptide) => rowTop(peptide) + drop;
 
   /// Place [k] of [peptide]'s frame, in x.
   Rect x(int peptide, int k) {
     final int line = k < firstLine ? 0 : 1;
     return Rect.fromLTWH(
       left + (k - line * firstLine) * tileWidth,
-      lineTop(peptide, line, 0),
+      rowTop(peptide) + label + line * (tileHeight + _lineGap),
       tileWidth,
       tileHeight,
     );
   }
 
-  /// Place [i]'s target in y, under its place in x.
-  Rect y(int peptide, int i) => x(peptide, i).shift(Offset(0, tileHeight + pairGap));
+  /// Place [i] of [peptide] in y, in the same column as in x.
+  Rect y(int peptide, int i) => x(peptide, i).shift(Offset(0, drop));
 
-  /// The card under [peptide] in focus: round its name and its lines.
+  /// The card under [peptide] in focus, in x, round its name and its lines.
   Rect card(int peptide) =>
       Rect.fromLTRB(cardLeft, rowTop(peptide) - 4, right + 6, rowTop(peptide) + block + 5);
 
-  /// Where the head of [peptide]'s [line] of x ([kind] 0) or y (1) stands.
-  Offset head(int peptide, int line, int kind) =>
-      Offset(headCentre, lineTop(peptide, line, kind) + tileHeight / 2);
+  /// The card under [peptide] in focus, in y.
+  Rect yCard(int peptide) => card(peptide).shift(Offset(0, drop));
 }

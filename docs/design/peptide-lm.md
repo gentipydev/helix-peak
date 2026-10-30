@@ -74,35 +74,36 @@ out of view is scrolled just far enough to show it whole.
    `sequences.batches` cuts the batch (`frame[:, :-1]`, `frame[:, 1:]`).
    The user's ask of 2026-10-30, to keep each stage to one idea: x and y
    left Forward for a stage of their own, drawn the dataset's way, the
-   vocabulary gone, and each peptide's line of x with its line of y right
-   under it (the user's choice over x and y in two blocks). It opens on
+   vocabulary gone, as two groups, all six peptides as input x and under
+   them all six again as next token y, in the same columns. It opens on
    Tokenise's last frame, pixel for pixel, and is 5 beats:
    - *the open* (1½ beats): the vocabulary's list, bars, counts and tags
-     fade; each row of the matrix opens out into its peptide's card again,
-     each line with room under it; the `input x` tag and an `x` at the head
-     of each x line come up;
-   - *the copy*: each line of x drops a copy of itself into the room under
-     it, every peptide's at once, and the `next token y` tag and the `y`
-     heads come up ("Next token y starts as a copy of x");
-   - *the move*: every copy moves one place to the left, so each token goes
-     from under itself to under the one before it ("One place to the left:
-     under each place, the token after it"). `<bos>` slips off the line's
-     left edge, never a target; the token that leaves a second line's start
-     comes in at the first line's end, as text reflows; x lets go of the
-     frame's last place, which nothing reads;
+     fade; each row of the matrix opens out into its peptide again, named,
+     under the `input x` tag;
+   - *the copy*: under x comes a copy of it, the same peptides and tokens,
+     under the `next token y` tag ("Next token y starts as a copy of x");
+   - *the move*: every line of the copy moves one place to the left, so
+     each place of y holds the token after the same place of x ("One place
+     to the left: under each place, the token after it"). `<bos>` slips off
+     the line's left edge, never a target; the token that leaves a second
+     line's start comes in at the first line's end, as text reflows; x lets
+     go of the frame's last place, which nothing reads;
    - *the padding*: the pairs whose target is padding dim ("Each place
      learns the token after it: 180 targets, 60 pads ignored").
 
    Why so few moves: what the stage must show is that y is x's own
    tokens, moved exactly one place. A copy says the first, one rigid move
    the second, and the move itself says what a target is, each token
-   settling under the place before it. Both are moves of whole lines, so
-   the eye follows six lines, not 240 tiles. A first version also walked
-   the places one at a time under a veil over what each had not read, then
-   swept the rest in a wave and lit every pair at once; the user found it
-   too much for what the stage has to show (2026-10-30). Not seeing ahead
-   is Forward's to draw, in its head maps. The tiles are the dataset's (one
-   line of tall tiles where two pairs of lines cannot number them).
+   settling one place earlier. Both move whole groups and lines, so the eye
+   follows them, not 240 tiles. Two versions came first, both the user's to
+   judge on 2026-10-30: one walked the places one at a time under a veil
+   over what each had not read, swept the rest in a wave and lit every pair
+   at once (too much for what the stage has to show; not seeing ahead is
+   Forward's to draw, in its head maps); one put each line of y right under
+   its line of x, which read as four alternating lines a peptide (confusing,
+   so back to two groups). The tiles are the dataset's, folded onto two
+   lines where both groups' tiles can still carry their ids (the Pro Max),
+   else one line of tall tiles a peptide.
 3. **Forward.** It opens on Shift's last frame, pixel for pixel, and in four
    beats takes the engine's steps from ids to the stream
    (`HelixPeekLM.forward`):

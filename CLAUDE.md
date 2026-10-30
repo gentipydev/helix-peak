@@ -273,9 +273,10 @@ steps that kept every activation), and Loop plays all of them. Each stage is a p
 canvas puts a peptide, a position or an attention head in focus. Shift
 opens on Tokenise's last frame, pixel for pixel (`TokeniseScene.paintEnd`,
 `TokeniseEnd`), and draws input x and next token y one place apart
-(`shift_scene.dart`): the batch opened out into its peptides, each line of x
-with room under it; each line drops a copy into that room, and the copy
-moves one place left, so that under each place lies the token after it. Forward opens on Shift's last frame, pixel for pixel
+(`shift_scene.dart`): the batch opened out into its peptides, input x; under
+it a copy, next token y, in the same columns; and every line of the copy
+moved one place left, so that each place of y holds the token after the
+same place of x. Forward opens on Shift's last frame, pixel for pixel
 (`ShiftScene.paintEnd`, `ShiftLayout`), and in four beats draws the engine's
 steps from ids to the stream (`forward_opening.dart`): the token embedding,
 each id's row lifted to stand as its place's column, and the position
