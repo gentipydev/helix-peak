@@ -245,6 +245,62 @@ void drawToken(
   }
 }
 
+/// How tall a tile must be to carry its id's number.
+const double idNumbered = 11;
+
+/// A token as its id: a plain tile under a stripe of its residue's colour,
+/// the id in the accent; an end of the frame or padding in the quiet ink.
+void drawIdTile(Canvas canvas, LmView view, Rect rect, int id, {double alpha = 1}) {
+  if (alpha <= 0) {
+    return;
+  }
+  final TrainingTrace trace = view.trace;
+  final Rect tile = rect.deflate(math.min(1.0, rect.width * 0.08));
+  final bool residue = trace.isResidue(id);
+  final bool pad = trace.token(id) == '<pad>';
+  final RRect shape = RRect.fromRectAndRadius(tile, Radius.circular(tile.width * 0.18));
+  if (pad) {
+    canvas.drawRRect(
+      shape,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.8
+        ..color = view.inks.rule.withValues(alpha: alpha),
+    );
+  } else {
+    canvas.drawRRect(shape, Paint()..color = view.inks.zero.withValues(alpha: alpha));
+    final Color stripe = residue ? view.inks.residue(trace.token(id)) : view.inks.quiet;
+    final double band = tile.height < 11 ? tile.height * 0.4 : math.max(1.5, tile.height * 0.14);
+    canvas.save();
+    canvas.clipRRect(shape);
+    canvas.drawRect(
+      Rect.fromLTWH(tile.left, tile.top, tile.width, band),
+      Paint()..color = stripe.withValues(alpha: alpha),
+    );
+    canvas.restore();
+  }
+  // The number as large as the tile's height allows, and narrow enough
+  // that the vocabulary's longest id fits across it.
+  final String widest = '8' * '${trace.vocab.length - 1}'.length;
+  final double perPoint = view.kit.layout(widest, inked(view.kit.mono, 10, view.inks.quiet)).width / 10;
+  // Held to the half point below, so the drawn number is never wider.
+  final double size = (math.min(math.min(tile.height * 0.52, tile.width / perPoint), 14) * 2).floorToDouble() / 2;
+  if (tile.height >= idNumbered && size >= 5) {
+    view.kit.draw(
+      canvas,
+      '$id',
+      inked(
+        view.kit.mono,
+        size,
+        residue ? view.inks.signal : view.inks.quiet,
+        alpha: alpha,
+      ),
+      tile.center + Offset(0, tile.height * 0.06),
+      anchor: const Offset(0.5, 0.5),
+    );
+  }
+}
+
 /// How far a tag's words sit inside its plate: the zoom's.
 const double tagPadding = 6;
 

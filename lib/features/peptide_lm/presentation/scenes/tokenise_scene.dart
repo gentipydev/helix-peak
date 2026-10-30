@@ -39,7 +39,7 @@ final class TokeniseScene extends LmScene {
   static final double _listTagsTo = _at(10.7);
 
   /// How tall a tile must be to carry its id's number.
-  static const double _numbered = 11;
+  static const double _numbered = idNumbered;
 
   /// The frame a peptide was trained in: `<bos>`, its residues, `<eos>`, and
   /// padding to the longest.
@@ -97,10 +97,17 @@ final class TokeniseScene extends LmScene {
       inked(view.kit.mono, 10, quiet ? view.inks.quiet : view.inks.ink, alpha: alpha);
 
   @override
-  void paint(Canvas canvas, Size size, LmView view, TrainingFrame frame) {
+  void paint(Canvas canvas, Size size, LmView view, TrainingFrame frame) =>
+      _paint(canvas, size, view, frame.local, const TokeniseFade());
+
+  /// The stage's last frame, with [fade] leaving out or fading what the
+  /// stage after it draws itself or retires: Forward opens on it.
+  void paintEnd(Canvas canvas, Size size, LmView view, TokeniseFade fade) =>
+      _paint(canvas, size, view, 1, fade);
+
+  void _paint(Canvas canvas, Size size, LmView view, double u, TokeniseFade fade) {
     final _Layout layout = _Layout(size, view);
     final TrainingTrace trace = view.trace;
-    final double u = frame.local;
     final double framing = through(u, _scanTo, _frameTo);
     final double table = through(u, _tableFrom, _tableTo);
     final double lift = through(u, _liftFrom, _liftTo);
@@ -122,11 +129,13 @@ final class TokeniseScene extends LmScene {
       }
     }
     final int most = math.max(1, counts.reduce(math.max));
-    for (int p = 0; p < trace.peptides.length; p++) {
-      _row(canvas, view, layout, p, u, framing, table, lift);
+    if (fade.rows) {
+      for (int p = 0; p < trace.peptides.length; p++) {
+        _row(canvas, view, layout, p, u, framing, table, lift);
+      }
     }
-    _vocabulary(canvas, view, layout, counts, most, u);
-    _tags(canvas, view, layout, counts, most, u, framing, table, lift);
+    _vocabulary(canvas, view, layout, counts, most, u, fade);
+    _tags(canvas, view, layout, counts, most, u, framing, table, lift, fade.tags);
   }
 
   /// The vocabulary: a strip of tokens, each count a bar standing on its
@@ -141,6 +150,7 @@ final class TokeniseScene extends LmScene {
     List<int> counts,
     int most,
     double u,
+    TokeniseFade fade,
   ) {
     final TrainingTrace trace = view.trace;
     for (int id = 0; id < trace.vocab.length; id++) {
@@ -160,22 +170,13 @@ final class TokeniseScene extends LmScene {
         canvas.rotate(-math.pi / 2 * (1 - swing));
         canvas.drawRect(
           Rect.fromLTWH(reach, -thick / 2, length, thick),
-          Paint()..color = bar.withValues(alpha: 0.8),
+          Paint()..color = bar.withValues(alpha: 0.8 * fade.bars),
         );
         canvas.restore();
       }
-      drawToken(canvas, view, chip, id);
-      // Its id: under it in the strip, left of it in the list, going round
-      // the tile's corner on the way rather than across it.
-      final double around = math.pi / 2 * q;
-      view.kit.draw(
-        canvas,
-        '$id',
-        _idStyle(view, size: _mix(8, layout.listIdSize, q)),
-        chip.center +
-            Offset(-(chip.width / 2 + 5) * math.sin(around), (chip.height / 2 + 2) * math.cos(around)),
-        anchor: Offset(0.5 + 0.5 * math.sin(around), 0.5 - 0.5 * math.cos(around)),
-      );
+      if (fade.entries) {
+        drawEntry(canvas, view, chip, id, q, layout.listIdSize);
+      }
       // Its count, at the row's end once its bar has grown; padding is
       // none of the data, so it has none.
       final double shown = through(q, 0.75, 1);
@@ -184,12 +185,28 @@ final class TokeniseScene extends LmScene {
         view.kit.draw(
           canvas,
           pad ? '–' : '${counts[id]}',
-          _countStyle(view, alpha: shown, quiet: pad),
+          _countStyle(view, alpha: shown * fade.counts, quiet: pad),
           Offset(layout.listEnd(id), chip.center.dy),
           anchor: const Offset(1, 0.5),
         );
       }
     }
+  }
+
+  /// Token [id]'s tile in the vocabulary and its id: under it in the strip,
+  /// left of it in the list ([q] 1, [listIdSize] its size there), going round
+  /// the tile's corner on the way rather than across it.
+  static void drawEntry(Canvas canvas, LmView view, Rect chip, int id, double q, double listIdSize) {
+    drawToken(canvas, view, chip, id);
+    final double around = math.pi / 2 * q;
+    view.kit.draw(
+      canvas,
+      '$id',
+      _idStyle(view, size: _mix(8, listIdSize, q)),
+      chip.center +
+          Offset(-(chip.width / 2 + 5) * math.sin(around), (chip.height / 2 + 2) * math.cos(around)),
+      anchor: Offset(0.5 + 0.5 * math.sin(around), 0.5 - 0.5 * math.cos(around)),
+    );
   }
 
   static double _mix(double a, double b, double t) => a + (b - a) * t;
@@ -209,6 +226,7 @@ final class TokeniseScene extends LmScene {
     double framing,
     double table,
     double lift,
+    double fade,
   ) {
     final TrainingTrace trace = view.trace;
     // Plates stand out of the column as far as the focused peptide's card,
@@ -219,8 +237,8 @@ final class TokeniseScene extends LmScene {
     // The dataset's tags fade where they are as the table starts to close,
     // and the batch's come up over it as it finishes: no plate travels over
     // a name still fading. The batch's rise with it.
-    final double leaving = 1 - through(table, 0, 0.5);
-    final double coming = through(table, 0.5, 1);
+    final double leaving = (1 - through(table, 0, 0.5)) * fade;
+    final double coming = through(table, 0.5, 1) * fade;
     final double band = layout.batchTag(lift);
     final Rect dataset = drawTag(canvas, view, 'dataset', Offset(start, layout.datasetTag), alpha: leaving);
     final Rect batch = coming > 0
@@ -238,11 +256,11 @@ final class TokeniseScene extends LmScene {
       }
     }
 
-    final double strip = 1 - through(u, _liftFrom, _liftFrom + _at(0.4));
+    final double strip = (1 - through(u, _liftFrom, _liftFrom + _at(0.4))) * fade;
     if (strip > 0) {
       _stripTags(canvas, view, layout, counts, most, start, end, strip * through(u, _scanFrom, _scanFrom + _at(0.48)), strip);
     }
-    final double listed = through(u, _listTagsFrom, _listTagsTo);
+    final double listed = through(u, _listTagsFrom, _listTagsTo) * fade;
     if (listed > 0) {
       _listTags(canvas, view, layout, counts, most, start, end, listed);
     }
@@ -404,62 +422,9 @@ final class TokeniseScene extends LmScene {
     drawTag(canvas, view, 'padding', Offset(x, band), target: pad, alpha: alpha);
   }
 
-  /// A token as its id: a plain tile under a stripe of its residue's colour,
-  /// the id in the accent; an end of the frame or padding in the quiet ink.
-  void _idTile(Canvas canvas, LmView view, Rect rect, int id, {double alpha = 1}) {
-    if (alpha <= 0) {
-      return;
-    }
-    final TrainingTrace trace = view.trace;
-    final Rect tile = rect.deflate(math.min(1.0, rect.width * 0.08));
-    final bool residue = trace.isResidue(id);
-    final bool pad = trace.token(id) == '<pad>';
-    final RRect shape = RRect.fromRectAndRadius(tile, Radius.circular(tile.width * 0.18));
-    if (pad) {
-      canvas.drawRRect(
-        shape,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 0.8
-          ..color = view.inks.rule.withValues(alpha: alpha),
-      );
-    } else {
-      canvas.drawRRect(shape, Paint()..color = view.inks.zero.withValues(alpha: alpha));
-      final Color stripe = residue ? view.inks.residue(trace.token(id)) : view.inks.quiet;
-      final double band = tile.height < 11 ? tile.height * 0.4 : math.max(1.5, tile.height * 0.14);
-      canvas.save();
-      canvas.clipRRect(shape);
-      canvas.drawRect(
-        Rect.fromLTWH(tile.left, tile.top, tile.width, band),
-        Paint()..color = stripe.withValues(alpha: alpha),
-      );
-      canvas.restore();
-    }
-    // The number as large as the tile's height allows, and narrow enough
-    // that the vocabulary's longest id fits across it.
-    final String widest = '8' * '${trace.vocab.length - 1}'.length;
-    final double perPoint = view.kit.layout(widest, inked(view.kit.mono, 10, view.inks.quiet)).width / 10;
-    // Held to the half point below, so the drawn number is never wider.
-    final double size = (math.min(math.min(tile.height * 0.52, tile.width / perPoint), 14) * 2).floorToDouble() / 2;
-    if (tile.height >= _numbered && size >= 5) {
-      view.kit.draw(
-        canvas,
-        '$id',
-        inked(
-          view.kit.mono,
-          size,
-          residue ? view.inks.signal : view.inks.quiet,
-          alpha: alpha,
-        ),
-        tile.center + Offset(0, tile.height * 0.06),
-        anchor: const Offset(0.5, 0.5),
-      );
-    }
-  }
-
   /// A residue's tile part way through turning into its id: [flip] 0 is the
   /// letter, 1 the id.
-  void _flipping(Canvas canvas, LmView view, Rect rect, int id, double flip) {
+  static void drawFlip(Canvas canvas, LmView view, Rect rect, int id, double flip) {
     final double squash = math.cos(math.pi * flip).abs();
     canvas.save();
     canvas.translate(rect.center.dx, rect.center.dy);
@@ -468,7 +433,7 @@ final class TokeniseScene extends LmScene {
     if (flip < 0.5) {
       drawToken(canvas, view, rect, id, outline: flip > 0 ? view.inks.truth : null);
     } else {
-      _idTile(canvas, view, rect, id);
+      drawIdTile(canvas, view, rect, id);
     }
     canvas.restore();
   }
@@ -511,7 +476,7 @@ final class TokeniseScene extends LmScene {
       } else if (k > residues) {
         drawToken(canvas, view, rect, ids[k], alpha: framing);
       } else {
-        _flipping(canvas, view, rect, ids[k], (done - (k - 1)).clamp(0.0, 1.0));
+        drawFlip(canvas, view, rect, ids[k], (done - (k - 1)).clamp(0.0, 1.0));
       }
     }
   }
@@ -573,6 +538,54 @@ final class TokeniseScene extends LmScene {
     return 'Tokenise. ${caption(view, frame)}. In focus, ${focus.source.label}, '
         '${focus.sequence.length} residues.';
   }
+}
+
+/// What Tokenise's last frame leaves out or fades, for the stage that opens
+/// on it: the batch's rows and the vocabulary's entries, which it draws
+/// itself, and the bars, counts and tags it retires. By default, the frame
+/// as Tokenise draws it.
+@immutable
+final class TokeniseFade {
+  const TokeniseFade({
+    this.rows = true,
+    this.entries = true,
+    this.bars = 1,
+    this.counts = 1,
+    this.tags = 1,
+  });
+
+  final bool rows;
+  final bool entries;
+  final double bars;
+  final double counts;
+  final double tags;
+}
+
+/// Where Tokenise's last frame lays its parts, for the stage that opens on
+/// it.
+final class TokeniseEnd {
+  TokeniseEnd(Size size, LmView view) : _layout = _Layout(size, view);
+
+  final _Layout _layout;
+
+  /// Place [k] of [peptide]'s frame in the risen matrix.
+  Rect place(int peptide, int k) => _layout.tableAt(peptide, k, 1);
+
+  /// The card under the peptide in focus, round its row of the matrix.
+  Rect card(int peptide) => _layout.cardAt(peptide, 1, 1);
+
+  /// Where the matrix's tag stands, and where every tag starts and ends.
+  double get tagBand => _layout.batchTag(1);
+  double get tagStart => _layout.left - 6;
+  double get tagEnd => _layout.right + 6;
+
+  /// Token [id]'s tile in the vocabulary's list, and its id's size there.
+  Rect chip(int id) => _layout.listChip(id);
+  double get idSize => _layout.listIdSize;
+
+  /// How many tokens a column of the list holds: all of them where it has
+  /// one.
+  int get perColumn => _layout.perColumn;
 }
 
 /// Top to bottom: the dataset's tag and its peptides, each on two lines
