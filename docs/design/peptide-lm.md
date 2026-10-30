@@ -70,26 +70,34 @@ out of view is scrolled just far enough to show it whole.
    tag, as the zoom names its parts, in the field's words: dataset, padding,
    vocabulary, token counts (on the bar of the commonest token), special
    tokens (bracketed under their ids) and token ids.
-2. **Shift.** Input x and next token y, one place apart, as
+2. **Shift.** Input x and target y, one place apart, as
    `sequences.batches` cuts the batch (`frame[:, :-1]`, `frame[:, 1:]`).
    The user's ask of 2026-10-30, to keep each stage to one idea: x and y
    left Forward for a stage of their own, drawn the dataset's way, the
    vocabulary gone, as two groups, all six peptides as input x and under
-   them all six again as next token y, in the same columns. It opens on
-   Tokenise's last frame, pixel for pixel, and is 5 beats:
+   them all six again as target y, in the same columns. Each tag says
+   what its group is for, beside its plate in the quiet ink: x "what the
+   model reads", y "the answer key: what each place should predict" ("the
+   answer key" where a phone is too narrow). Only x goes into the model;
+   y is what Loss grades its guesses against, which is where it comes back
+   (the user's choice of the two, the same day). It opens on Tokenise's
+   last frame, pixel for pixel, and is 5 beats:
    - *the open* (1½ beats): the vocabulary's list, bars, counts and tags
      fade; each row of the matrix opens out into its peptide again, named,
-     under the `input x` tag;
-   - *the copy*: under x comes a copy of it, the same peptides and tokens,
-     under the `next token y` tag ("Next token y starts as a copy of x");
+     under the `input x` tag, and lets go of the frame's last place, which
+     nothing reads ("Input x: each frame less its last place, 6 × 40
+     tokens");
+   - *the copy*: under x comes a copy of the same peptides, under the
+     `target y` tag ("Target y starts as a copy of the same peptides");
    - *the move*: every line of the copy moves one place to the left, so
      each place of y holds the token after the same place of x ("One place
-     to the left: under each place, the token after it"). `<bos>` slips off
-     the line's left edge, never a target; the token that leaves a second
-     line's start comes in at the first line's end, as text reflows; x lets
-     go of the frame's last place, which nothing reads;
-   - *the padding*: the pairs whose target is padding dim ("Each place
-     learns the token after it: 180 targets, 60 pads ignored").
+     to the left: each place's answer is the token after it"). `<bos>`
+     slips off the line's left edge, never a target; the token that leaves
+     a second line's start comes in at the first line's end, as text
+     reflows;
+   - *the padding*: the pairs whose target is padding dim ("Only x goes in;
+     Loss grades each guess against y: 180 targets"; every caption keeps to
+     two lines on a 375-wide phone, measured in the app's font).
 
    Why so few moves: what the stage must show is that y is x's own
    tokens, moved exactly one place. A copy says the first, one rigid move

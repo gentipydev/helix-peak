@@ -97,17 +97,18 @@ void main() {
     // Shift, beat by beat: x, its copy, the copy one place left, and what
     // that makes.
     double shift(double beat) => beat / LmStage.shift.beats;
-    expect(caption(LmStage.shift, shift(0.5)), 'Input x: the batch the model reads');
-    expect(caption(LmStage.shift, shift(2)), 'Next token y starts as a copy of x');
+    expect(
+      caption(LmStage.shift, shift(0.5)),
+      'Input x: each frame less its last place, ${trace.peptides.length} × ${trace.width} tokens',
+    );
+    expect(caption(LmStage.shift, shift(2)), 'Target y starts as a copy of the same peptides');
     expect(
       caption(LmStage.shift, shift(3)),
-      'One place to the left: under each place, the token after it',
+      "One place to the left: each place's answer is the token after it",
     );
-    final int pads = trace.peptides.length * trace.width - trace.targetCount;
     expect(
       caption(LmStage.shift, 0.99),
-      'Each place learns the token after it: ${trace.targetCount} targets, '
-      '${pads == 1 ? 'one pad' : '$pads pads'} ignored',
+      'Only x goes in; Loss grades each guess against y: ${trace.targetCount} targets',
     );
     // Forward's opening, beat by beat: the toy's two layers make its stage
     // 4 + 8 + 1 beats.

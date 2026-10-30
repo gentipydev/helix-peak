@@ -12,29 +12,30 @@ import 'tokenise_scene.dart';
 /// Shift: input x and next token y, one place apart, as `sequences.batches`
 /// cuts the batch (`frame[:, :-1]` and `frame[:, 1:]`). It opens on
 /// Tokenise's last frame: the vocabulary goes, and the matrix opens out into
-/// its peptides again, input x. Then two moves: under x comes a copy of it,
-/// next token y, the same peptides and tokens; and every line of the copy
+/// its peptides again, input x, what the model reads. Then two moves: under
+/// x comes a copy of it, target y, the same peptides and tokens; and every
+/// line of the copy
 /// moves one place to the left, so that each place of y holds the token after
 /// the same place of x. `<bos>` leaves at the left, never a target, and the
 /// token that leaves a second line's start comes in at the first line's end,
-/// as text reflows. x lets go of the frame's last place, which nothing reads;
-/// then the pairs whose target is padding dim.
+/// as text reflows. Then the pairs whose target is padding dim.
 final class ShiftScene extends LmScene {
   const ShiftScene();
 
   // The opening: Tokenise's vocabulary and tags fade where they stand, the
-  // matrix's rows open out into the peptides, and x is named.
+  // matrix's rows open out into the peptides, and x is named, letting go of
+  // the frame's last place, which nothing reads.
   static const (double, double) _retire = (0.0, 0.5);
   static const (double, double) _unfold = (0.3, 1.3);
   static const (double, double) _labels = (0.9, 1.3);
   static const (double, double) _xNamed = (1.0, 1.4);
+  static const (double, double) _lastOut = (0.9, 1.4);
 
-  // The copy comes in under x, y named as it does; then it moves one place
-  // left, and x's last place goes; then the padding dims.
+  // The copy of the peptides comes in under x, y named as it does; then it
+  // moves one place left; then the padding dims.
   static const (double, double) _copy = (1.6, 2.3);
   static const (double, double) _yNamed = (1.9, 2.4);
   static const (double, double) _slide = (2.6, 3.6);
-  static const (double, double) _lastOut = (2.9, 3.6);
   static const (double, double) _dim = (3.9, 4.5);
 
   /// Where the caption turns: to the copy, the move, and what it makes.
@@ -223,15 +224,38 @@ final class ShiftScene extends LmScene {
     }
   }
 
-  /// x and y named, each on a tag over its peptides.
+  /// x and y named, each on a tag over its peptides, and what each is for
+  /// beside it: the model reads x; y is the answer key its guesses are
+  /// graded against, which never goes in.
   void _names(Canvas canvas, LmView view, ShiftLayout layout, double beat, ShiftFade fade) {
     final double x = _span(beat, _xNamed) * fade.chrome;
     final double y = _span(beat, _yNamed) * fade.chrome;
-    if (x > 0) {
-      drawTag(canvas, view, 'input x', Offset(layout.tagStart, layout.xTag), alpha: x);
+    for (final (String name, List<String> role, double top, double alpha) in <(String, List<String>, double, double)>[
+      ('input x', <String>['what the model reads'], layout.xTag, x),
+      ('target y', <String>['the answer key: what each place should predict', 'the answer key'], layout.yTag, y),
+    ]) {
+      if (alpha <= 0) {
+        continue;
+      }
+      final Rect plate = drawTag(canvas, view, name, Offset(layout.tagStart, top), alpha: alpha);
+      _role(canvas, view, role, plate, layout.right + 6, alpha);
     }
-    if (y > 0) {
-      drawTag(canvas, view, 'next token y', Offset(layout.tagStart, layout.yTag), alpha: y);
+  }
+
+  /// The first of [texts] that fits beside [plate], as far as [end], in the
+  /// quiet ink: in the plate's face, else a size smaller; the shorter ones
+  /// for a narrow phone.
+  static void _role(Canvas canvas, LmView view, List<String> texts, Rect plate, double end, double alpha) {
+    final double room = end - plate.right - 8;
+    final double size = view.kit.label.fontSize ?? 11;
+    for (final String text in texts) {
+      for (final double points in <double>[size, size - 1]) {
+        final TextStyle style = inked(view.kit.label, points, view.inks.quiet, alpha: alpha);
+        if (view.kit.layout(text, style).width <= room) {
+          view.kit.draw(canvas, text, style, Offset(plate.right + 8, plate.center.dy), anchor: const Offset(0, 0.5));
+          return;
+        }
+      }
     }
   }
 
@@ -262,21 +286,16 @@ final class ShiftScene extends LmScene {
     final TrainingTrace trace = view.trace;
     final double beat = frame.local * LmStage.shift.beats;
     if (beat < _copyCaption) {
-      return 'Input x: the batch the model reads';
+      return 'Input x: each frame less its last place, '
+          '${trace.peptides.length} × ${trace.width} tokens';
     }
     if (beat < _slideCaption) {
-      return 'Next token y starts as a copy of x';
+      return 'Target y starts as a copy of the same peptides';
     }
     if (beat < _madeCaption) {
-      return 'One place to the left: under each place, the token after it';
+      return "One place to the left: each place's answer is the token after it";
     }
-    final int padding = trace.peptides.length * trace.width - trace.targetCount;
-    final String ignored = switch (padding) {
-      0 => '',
-      1 => ', one pad ignored',
-      _ => ', ${grouped(padding)} pads ignored',
-    };
-    return 'Each place learns the token after it: ${grouped(trace.targetCount)} targets$ignored';
+    return 'Only x goes in; Loss grades each guess against y: ${grouped(trace.targetCount)} targets';
   }
 
   @override

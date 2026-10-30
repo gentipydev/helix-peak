@@ -71,11 +71,12 @@ class LmAboutSheet extends StatelessWidget {
             ),
             paragraph(
               'Shift',
-              'Input x is each frame less its last place, next token y each frame '
-                  'less its first: under each place lies the token after it, which the '
-                  'place is trained to predict without seeing it. '
-                  '${trace.targetCount} targets in the batch, all learned at once; '
-                  'padding is ignored.',
+              'Input x is each frame less its last place, target y each frame less '
+                  'its first: under each place lies the token after it, which the place '
+                  'is trained to predict without seeing it. Only x goes into the model; '
+                  'y is the answer key its guesses are graded against, '
+                  '${trace.targetCount} targets in the batch, all at once; padding is '
+                  'ignored.',
             ),
             paragraph(
               'Forward',
