@@ -41,9 +41,9 @@ Dropout is off so that the forward pass drawn is the forward pass trained.
 
 Each is a painter in `lib/features/peptide_lm/presentation/scenes/`, a pure
 function of the frame, at the checkpoint picked ("Step N ▾"); the loop plays
-every step. The stage bar is the page's only control, with no player: a tap
-on a stage plays it once, a beat every two seconds, and it holds on its last
-frame until another is tapped, or the same one again.
+every step. A tap on a stage plays it once, a beat every two seconds, and it
+holds on its last frame until another is tapped, or the same one again.
+Beside the caption, a player of that stage alone: Replay, and Play/Pause.
 
 1. **Tokenise.** The dataset, a peptide a row folded onto two lines where
    the canvas lets square tiles carry their numbers (one line of tall tiles

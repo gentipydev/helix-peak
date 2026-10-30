@@ -62,13 +62,13 @@ void main() {
     for (final LmStage stage in LmStage.values) {
       expect(find.byKey(ValueKey<String>('stage-${stage.label}')), findsOneWidget);
     }
-    // No player: the stage bar is the page's only control.
+    // The stage's own player: no stepping between stages, and one speed.
     expect(find.byKey(const ValueKey<String>('transport-phase')), findsNothing);
+    expect(find.byTooltip('Replay'), findsOneWidget);
+    expect(find.byTooltip('Pause'), findsOneWidget);
     for (final String control in <String>[
       'Reset',
       'Step back',
-      'Play',
-      'Pause',
       'Step forward',
       'Playback speed',
     ]) {
@@ -92,6 +92,50 @@ void main() {
     await tester.pump(TrainingRunView.beat * (LmStage.tokenise.beats + 20));
     expect(caption(tester), startsWith('The vocabulary, counted: '));
     expect(tester.binding.hasScheduledFrame, isFalse);
+    expect(find.byTooltip('Play'), findsOneWidget);
+  });
+
+  testWidgets('the player pauses the stage on screen, and plays it on to its end', (
+    WidgetTester tester,
+  ) async {
+    await host(tester);
+    await tester.pump(TrainingRunView.beat * 3);
+    await tester.tap(find.byTooltip('Pause'));
+    await tester.pump();
+    expect(find.byTooltip('Play'), findsOneWidget);
+    await tester.pump(TrainingRunView.beat * 20);
+    expect(caption(tester), startsWith('Two peptides'));
+    expect(tester.binding.hasScheduledFrame, isFalse);
+    await tester.tap(find.byTooltip('Play'));
+    await tester.pump();
+    expect(find.byTooltip('Pause'), findsOneWidget);
+    // On from where it stood: five and a half beats in, the peptides are
+    // being framed (from the start, two and a half would still be scanning).
+    await tester.pump(TrainingRunView.beat * 2.5);
+    expect(caption(tester), startsWith('<bos> and <eos> frame each one'));
+    await tester.pump(TrainingRunView.beat * 20);
+    expect(caption(tester), startsWith('The vocabulary, counted: '));
+    expect(find.byTooltip('Play'), findsOneWidget);
+  });
+
+  testWidgets('the player plays the stage on screen again, and only it', (
+    WidgetTester tester,
+  ) async {
+    await host(tester);
+    await tester.tap(find.byKey(const ValueKey<String>('stage-Loss')));
+    await tester.pump();
+    final String start = caption(tester);
+    await tester.pump(TrainingRunView.beat * (LmStage.loss.beats + 5));
+    expect(caption(tester), isNot(start));
+    await tester.tap(find.byTooltip('Replay'));
+    await tester.pump();
+    expect(caption(tester), start);
+    // Played through, Play plays it again from its start too.
+    await tester.pump(TrainingRunView.beat * (LmStage.loss.beats + 5));
+    expect(caption(tester), isNot(start));
+    await tester.tap(find.byTooltip('Play'));
+    await tester.pump();
+    expect(caption(tester), start);
   });
 
   testWidgets('the stage on screen, tapped again, plays again from its start', (
@@ -142,6 +186,10 @@ void main() {
     await host(tester, reducedMotion: true);
     await tester.pump(const Duration(seconds: 3));
     expect(caption(tester), startsWith('The vocabulary, counted: '));
+    // Nothing to play: the player is off.
+    for (final IconData icon in <IconData>[Icons.replay_rounded, Icons.play_arrow_rounded]) {
+      expect(tester.widget<IconButton>(find.widgetWithIcon(IconButton, icon)).onPressed, isNull);
+    }
   });
 
   testWidgets('while the run is on its way, the page says so', (WidgetTester tester) async {

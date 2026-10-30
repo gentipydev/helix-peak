@@ -75,8 +75,9 @@ class _Waiting extends StatelessWidget {
   );
 }
 
-/// The run itself: the stage on the canvas, a line of its numbers, and the
-/// seven stages, a tap on one playing it once from its start.
+/// The run itself: the stage on the canvas, a line of its numbers with the
+/// stage's own player, and the seven stages, a tap on one playing it once
+/// from its start.
 class TrainingRunView extends StatefulWidget {
   const TrainingRunView({required this.trace, super.key});
 
@@ -106,6 +107,10 @@ class _TrainingRunViewState extends State<TrainingRunView>
   late int _position = _middle(0);
   int? _head;
   bool _resumeOnForeground = false;
+
+  /// What [_reserve] was worked out for, and the height itself.
+  Object? _reserveFor;
+  double _reserve = 0;
 
   TrainingTrace get _trace => widget.trace;
 
@@ -168,6 +173,36 @@ class _TrainingRunViewState extends State<TrainingRunView>
   /// With reduced motion, the stage played through.
   TrainingFrame _frame() => _timeline.frameIn(_stage, _reduced ? 1 : _clock.value);
 
+  /// How tall the stage on screen's tallest caption is at [width], so that
+  /// the caption's box, and the canvas over it, hold still while it plays:
+  /// its captions read through the stage, the loop's at every step.
+  double _captionReserve(
+    LmView view,
+    double width,
+    TextStyle style,
+    TextScaler scaler,
+    TextDirection direction,
+  ) {
+    final Object key = (_stage, width, style, scaler, _checkpoint, _peptide, _position, _head);
+    if (key == _reserveFor) return _reserve;
+    final LmScene scene = sceneOf(_stage);
+    final int samples = _stage == LmStage.loop ? math.max(1, _trace.steps.count - 1) : 96;
+    final TextPainter painter = TextPainter(textDirection: direction, textScaler: scaler);
+    double tallest = 0;
+    for (int i = 0; i <= samples; i++) {
+      painter
+        ..text = TextSpan(
+          text: scene.caption(view, _timeline.frameIn(_stage, i / samples)),
+          style: style,
+        )
+        ..layout(maxWidth: math.max(0, width));
+      tallest = math.max(tallest, painter.height);
+    }
+    painter.dispose();
+    _reserveFor = key;
+    return _reserve = tallest;
+  }
+
   void _apply(LmHit hit) {
     switch (hit) {
       case FocusPeptide(:final int peptide):
@@ -201,6 +236,18 @@ class _TrainingRunViewState extends State<TrainingRunView>
       ..stop()
       ..duration = TrainingRunView.beat * stage.beats;
     if (!_reduced) unawaited(_clock.forward(from: 0));
+  }
+
+  /// Pauses the stage on screen, or plays it on from where it stands: from
+  /// its start again once it has played through.
+  void _toggle() {
+    setState(() {
+      if (_clock.isAnimating) {
+        _clock.stop();
+      } else {
+        unawaited(_clock.forward(from: _clock.value >= 1 ? 0 : null));
+      }
+    });
   }
 
   Future<void> _showAbout() async {
@@ -312,30 +359,55 @@ class _TrainingRunViewState extends State<TrainingRunView>
                 },
               ),
             ),
-            AnimatedBuilder(
-              animation: _clock,
-              builder: (BuildContext context, Widget? child) {
-                final TrainingFrame frame = _frame();
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 6, 20, 2),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: 40 * textScale),
-                    child: Semantics(
-                      liveRegion: true,
-                      child: Text(
-                        sceneOf(frame.stage).caption(view, frame),
-                        key: const ValueKey<String>('peptide-lm-caption'),
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                    ),
-                  ),
-                );
-              },
+            // The icons' own inset puts them 20 from the edge, as the
+            // caption is.
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 6, 8, 2),
+              child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints box) {
+                  final double reserve = _captionReserve(
+                    view,
+                    box.maxWidth - 2 * kMinInteractiveDimension,
+                    DefaultTextStyle.of(context).style.merge(theme.textTheme.bodyMedium),
+                    MediaQuery.textScalerOf(context),
+                    Directionality.of(context),
+                  );
+                  return AnimatedBuilder(
+                    animation: _clock,
+                    builder: (BuildContext context, Widget? child) {
+                      final TrainingFrame frame = _frame();
+                      return ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: math.max(40 * textScale, reserve),
+                        ),
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Semantics(
+                                liveRegion: true,
+                                child: Text(
+                                  sceneOf(frame.stage).caption(view, frame),
+                                  key: const ValueKey<String>('peptide-lm-caption'),
+                                  style: theme.textTheme.bodyMedium,
+                                ),
+                              ),
+                            ),
+                            _StagePlayer(
+                              playing: _clock.isAnimating,
+                              onReplay: _reduced ? null : () => _play(_stage),
+                              onToggle: _reduced ? null : _toggle,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
             // All seven in view, the whole of one step and its loop, scaled
-            // down where a phone is too narrow for them at full size. The
-            // page's only control: a tap plays a stage, the one on screen
-            // again.
+            // down where a phone is too narrow for them at full size. A tap
+            // plays a stage, the one on screen again.
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: FittedBox(
@@ -354,6 +426,45 @@ class _TrainingRunViewState extends State<TrainingRunView>
           ],
         ),
       ),
+    );
+  }
+}
+
+/// The player of the stage on screen, and of nothing else: it plays the
+/// stage again from its start, and pauses it or plays it on. Off with
+/// reduced motion, where each stage is one still.
+class _StagePlayer extends StatelessWidget {
+  const _StagePlayer({
+    required this.playing,
+    required this.onReplay,
+    required this.onToggle,
+  });
+
+  final bool playing;
+  final VoidCallback? onReplay;
+  final VoidCallback? onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final ButtonStyle square = IconButton.styleFrom(
+      minimumSize: const Size.square(kMinInteractiveDimension),
+    );
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        IconButton(
+          style: square,
+          tooltip: 'Replay',
+          onPressed: onReplay,
+          icon: const Icon(Icons.replay_rounded),
+        ),
+        IconButton(
+          style: square,
+          tooltip: playing ? 'Pause' : 'Play',
+          onPressed: onToggle,
+          icon: Icon(playing ? Icons.pause_rounded : Icons.play_arrow_rounded),
+        ),
+      ],
     );
   }
 }
