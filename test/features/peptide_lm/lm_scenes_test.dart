@@ -91,7 +91,7 @@ void main() {
     }
 
     expect(caption(LmStage.tokenise, 0.2), 'Two peptides, 23 residues, become ids in a 23-token vocabulary');
-    expect(caption(LmStage.tokenise, 0.99), contains('${trace.targetCount} targets'));
+    expect(caption(LmStage.tokenise, 0.99), 'One batch: both peptides in one table, read by Forward in one pass');
     expect(caption(LmStage.forward, 0.05), contains('× ${trace.model.width} numbers'));
     expect(caption(LmStage.predict, 0.99), contains('next is ${trace.token(last.target)}'));
     expect(caption(LmStage.loss, 0.99), contains(nats(trace.loss(last.step))));
@@ -115,6 +115,19 @@ void main() {
       }
     }
     expect(found, isA<FocusPeptide>());
+
+    // Tokenise, its table closed: a row of the table puts its peptide in focus.
+    final TrainingFrame closed = timeline.stateAt(
+      timeline.startOf(LmStage.tokenise) + 0.99 * LmStage.tokenise.beats / timeline.beats,
+    );
+    final Set<int> rows = <int>{};
+    for (double y = 0; y < size.height; y += 1) {
+      final LmHit? hit = sceneOf(LmStage.tokenise).hitAt(size, scene, Offset(200, y), closed);
+      if (hit is FocusPeptide) {
+        rows.add(hit.peptide);
+      }
+    }
+    expect(rows, <int>{for (int p = 0; p < trace.peptides.length; p++) p});
 
     // Loop: the last checkpoint's tick, at the right of the chart.
     LmHit? pick;

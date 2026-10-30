@@ -274,8 +274,9 @@ class _TrainingRunViewState extends State<TrainingRunView>
                   return GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTapUp: (TapUpDetails details) {
-                      final LmHit? hit = sceneOf(_frame().stage)
-                          .hit(size, view, details.localPosition);
+                      final TrainingFrame now = _frame();
+                      final LmHit? hit = sceneOf(now.stage)
+                          .hitAt(size, view, details.localPosition, now);
                       if (hit != null) _apply(hit);
                     },
                     onHorizontalDragUpdate: (DragUpdateDetails details) {

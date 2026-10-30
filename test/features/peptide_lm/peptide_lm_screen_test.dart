@@ -105,7 +105,7 @@ void main() {
   ) async {
     await host(tester, reducedMotion: true);
     await tester.pump(const Duration(seconds: 3));
-    expect(caption(tester), startsWith('Each id is trained to predict the one after it'));
+    expect(caption(tester), startsWith('One batch: '));
   });
 
   testWidgets('while the run is on its way, the page says so', (WidgetTester tester) async {

@@ -83,6 +83,10 @@ abstract class LmScene {
 
   LmHit? hit(Size size, LmView view, Offset at) => null;
 
+  /// What a tap asks for at [frame]: [hit], for a scene whose layout holds
+  /// still through its stage.
+  LmHit? hitAt(Size size, LmView view, Offset at, TrainingFrame frame) => hit(size, view, at);
+
   /// The position under a finger dragged along the token row, where the
   /// scene has one there.
   int? positionAt(Size size, LmView view, Offset at) => null;

@@ -48,7 +48,9 @@ every step.
    where it does not), and under it the 23-token vocabulary on one row. A
    light crosses each peptide; every residue it passes flips into its id,
    and the vocabulary's count of it rises. `<bos>` and `<eos>`
-   drop in and padding fills to the longest (6 × 41). Each part is named on a
+   drop in and padding fills to the longest (6 × 41). Then the peptides close
+   up into one table, a row each: the batch Forward reads, its dataset's tags
+   fading where they are and the batch's coming up over it. Each part is named on a
    tag, as the zoom names its parts, in the field's words: dataset, padding,
    vocabulary, token counts (on the bar of the commonest token), special
    tokens (bracketed under their ids) and token ids.
