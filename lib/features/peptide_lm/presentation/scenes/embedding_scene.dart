@@ -44,16 +44,16 @@ final class EmbeddingScene extends LmScene {
   // followed, then the rest left to right, each lit on its own and each a
   // little quicker than the one before, the last at [_lastShare] of the
   // first's time.
-  static const (double, double) _first = (2.4, 3.6);
-  static const double _restFrom = 3.7;
-  static const double _restTo = 10.4;
-  static const double _lastShare = 0.4;
+  static const (double, double) _first = (2.4, 3.4);
+  static const double _restFrom = 3.5;
+  static const double _restTo = 6.5;
+  static const double _lastShare = 0.6;
 
   // The gather: the table goes, and each place's copy of the row it read
   // moves to the place's own row, the tile that read it going up to label
   // it and turning back into its residue.
-  static const (double, double) _tableOut = (10.5, 11.1);
-  static const double _gatherFrom = 10.5;
+  static const (double, double) _tableOut = (6.6, 7.2);
+  static const double _gatherFrom = 6.6;
   static const double _gatherStagger = 0.5;
   static const double _gatherFlight = 1.0;
 
@@ -64,22 +64,26 @@ final class EmbeddingScene extends LmScene {
 
   // The position embedding: each place's row alone, on its own scale, then
   // added: the sum is x0.
-  static const (double, double) _placesIn = (12.1, 12.5);
-  static const (double, double) _placesOut = (12.8, 13.2);
-  static const (double, double) _tokensUnwritten = (12.1, 12.3);
-  static const (double, double) _placesWritten = (12.3, 12.5);
-  static const (double, double) _placesUnwritten = (12.8, 13.0);
-  static const (double, double) _sumsWritten = (13.0, 13.2);
-  static const (double, double) _add = (12.9, 13.3);
+  static const (double, double) _placesIn = (9.4, 9.8);
+  static const (double, double) _placesOut = (10.6, 11.0);
+  static const (double, double) _tokensUnwritten = (9.4, 9.6);
+  static const (double, double) _placesWritten = (9.6, 9.8);
+  static const (double, double) _placesUnwritten = (10.6, 10.8);
+  static const (double, double) _sumsWritten = (10.8, 11.0);
+  static const (double, double) _add = (10.7, 11.1);
+
+  /// Where the two places of one token are marked, once their rows have
+  /// gathered.
+  static const double _twinFrom = 8.1;
 
   /// Where the caption turns: to what the numbers are, the lookup, the
   /// gather, the position embedding and x0. The note over the table turns
   /// with it, but for the still beat, which keeps the table's.
   static const double _numbersCaption = 1.4;
   static const double _lookupCaption = 2.4;
-  static const double _gatherCaption = 10.5;
-  static const double _placesCaption = 12.1;
-  static const double _x0Caption = 13.5;
+  static const double _gatherCaption = 6.6;
+  static const double _placesCaption = 9.4;
+  static const double _x0Caption = 11.4;
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -120,6 +124,32 @@ final class EmbeddingScene extends LmScene {
       _rows(canvas, size, view, layout, beat);
     }
     _focusRow(canvas, view, layout, beat, fade);
+    if (fade.rows) {
+      _twins(canvas, view, layout, beat);
+    }
+  }
+
+  /// The two places of one token, marked as the notes name them: the same
+  /// row once gathered, then parted by their places' rows.
+  void _twins(Canvas canvas, LmView view, EmbeddingLayout layout, double beat) {
+    final double marked = _twinMarked(beat);
+    final (String, int, int)? twin = _twin(view);
+    if (marked <= 0 || twin == null) {
+      return;
+    }
+    for (final int i in <int>[twin.$2, twin.$3]) {
+      final Rect row = layout.row(i);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTRB(layout.label(i).left - 3, row.top, row.right + 1, row.bottom),
+          const Radius.circular(3),
+        ),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.2
+          ..color = view.inks.signal.withValues(alpha: 0.8 * marked),
+      );
+    }
   }
 
   // --------------------------------------------------------------- numbers
@@ -155,17 +185,6 @@ final class EmbeddingScene extends LmScene {
   /// through its lookup: up quickly, held, and down, so only one is lit at
   /// a time.
   static double _lit(double f) => through(f, 0, 0.2) * (1 - through(f, 0.8, 1));
-
-  /// The place being read at [beat], or the last read; null before any.
-  static int? _reading(int n, double beat) {
-    int? at;
-    for (int i = 0; i < n; i++) {
-      if (slot(i, n).$1 <= beat) {
-        at = i;
-      }
-    }
-    return beat < _first.$1 || beat >= _gatherFrom ? null : at;
-  }
 
   /// How far place [i]'s copy of its row has moved to the place's own row.
   static double _gather(int i, int n, double beat) {
@@ -217,93 +236,96 @@ final class EmbeddingScene extends LmScene {
 
   // ----------------------------------------------------------------- note
 
-  /// Why each part happens, a line or two over the table, one part at a
-  /// time, beside the caption under the canvas, which says what happens:
-  /// when it holds, from and to, and what it says.
+  /// Why each part happens, over the table, one part at a time, beside the
+  /// caption under the canvas, which says what happens: when it holds, from
+  /// and to, and what it says, a line a thought.
   static List<(double, double, String)> _notes(LmView view) {
     final TrainingTrace trace = view.trace;
     final int width = trace.model.width;
+    final (String, int, int)? twin = _twin(view);
+    final String what = twin == null
+        ? 'token row: what the residue is, the same wherever it sits'
+        : 'token row: what the residue is, the same for every ${twin.$1}';
+    final String where = twin == null
+        ? 'position row: where it sits, the same whatever residue is there'
+        : 'position row: where it sits, the same at place ${twin.$3} whatever is there';
+    final String both = twin == null
+        ? 'added: each place now carries both'
+        : 'added: each place carries both, so the ${twin.$1}s at ${twin.$2} and ${twin.$3} now differ';
     return <(double, double, String)>[
       (_tableIn.$1, _lookupCaption, 'A model computes with numbers, not letters: each token gets $width of its own.'),
       (_lookupCaption, _gatherCaption, 'The lookup is only this: the id picks its row, no arithmetic.'),
-      (_gatherCaption, _placesCaption, _sameRow(view)),
-      (_placesCaption, _x0Caption, "Attention alone ignores order: each place's own row says where it sits."),
-      (_x0Caption, double.infinity, 'Each place is now $width numbers, which every block reads and adds to.'),
+      (
+        _gatherCaption,
+        _placesCaption,
+        twin == null
+            ? "Each place holds its token's row: nothing yet says where it is."
+            : 'The two ${twin.$1}s at places ${twin.$2} and ${twin.$3} are the same row: '
+                  'nothing yet says where each is.',
+      ),
+      (_placesCaption, _x0Caption, '$what\n$where\n$both'),
+      (
+        _x0Caption,
+        double.infinity,
+        'x0: ${view.focus.source.label} as the model takes it in\n'
+            'each row: which residue (token row) plus where (position row)\n'
+            'next: ${spelled(trace.model.layers)} blocks let each place read the places before it',
+      ),
     ];
   }
 
-  /// That x embedded cannot tell a token's places apart: the first token
-  /// the peptide in focus has at two places, the same row at both.
-  static String _sameRow(LmView view) {
+  /// The first token the peptide in focus has at two places, and the two:
+  /// the same row of the table at both until their places are added.
+  static (String, int, int)? _twin(LmView view) {
     final TrainingTrace trace = view.trace;
     final Map<int, int> first = <int, int>{};
     for (int i = 0; i < view.focus.inputs; i++) {
       final int id = trace.inputAt(view.peptide, i);
       final int? before = first[id];
       if (before != null) {
-        return 'The two ${trace.token(id)}s at places $before and $i are the same row: '
-            'nothing yet says where each is.';
+        return (trace.token(id), before, i);
       }
       first[id] = i;
     }
-    return "Each place holds its token's row: nothing yet says where it is.";
+    return null;
   }
 
-  /// The place being read, named with its token, its id and the row it reads.
-  static String _readout(LmView view, int i) {
-    final int id = view.trace.inputAt(view.peptide, i);
-    return '${view.trace.token(id)} · place $i · id $id → row $id';
-  }
-
-  static TextStyle _whyStyle(LmView view) =>
-      inked(view.kit.sans, _noteSize, view.inks.quiet).copyWith(height: 1.3);
-
-  static TextStyle _readoutStyle(LmView view) => inked(view.kit.sans, _noteSize, view.inks.signal);
+  static TextStyle _whyStyle(LmView view, {double alpha = 1}) =>
+      inked(view.kit.sans, _noteSize, view.inks.quiet, alpha: alpha).copyWith(height: 1.3);
 
   static const double _noteSize = 10.5;
 
-  /// How tall the note is at [width]: a line for the place being read, and
-  /// the most lines any of its parts takes.
+  /// How tall the note is at [width]: the most lines any of its parts takes.
   static double noteHeight(LmView view, double width) => view.kit.memo<double>(
     ('embedding-note', view.peptide, view.kit.scaler, width),
     () {
-      double why = 0;
+      double most = 0;
       for (final (_, _, String text) in _notes(view)) {
-        why = math.max(why, view.kit.paragraph(text, _whyStyle(view), width).height);
+        most = math.max(most, view.kit.paragraph(text, _whyStyle(view), width).height);
       }
-      return view.kit.layout(_readout(view, 0), _readoutStyle(view)).height + _readoutGap + why;
+      return most;
     },
   );
 
-  static const double _readoutGap = 4;
-
-  /// The note over the table, its parts fading out and in at their turns:
-  /// during the lookup, the place being read over why.
+  /// The note over the table, its parts fading out and in at their turns,
+  /// each sitting on the note's foot, by the tag.
   void _note(Canvas canvas, LmView view, EmbeddingLayout layout, double beat, EmbeddingFade fade) {
     const double turn = 0.25;
     final double width = layout.right - layout.noteLeft;
-    final double readout = view.kit.layout(_readout(view, 0), _readoutStyle(view)).height + _readoutGap;
+    final double foot = layout.noteTop + noteHeight(view, width);
     for (final (double from, double to, String text) in _notes(view)) {
       final double alpha = through(beat, from, from + turn) * (1 - through(beat, to - turn, to)) * fade.chrome;
       if (alpha <= 0) {
         continue;
       }
-      view.kit
-          .paragraph(text, inked(view.kit.sans, _noteSize, view.inks.quiet, alpha: alpha).copyWith(height: 1.3), width)
-          .paint(canvas, Offset(layout.noteLeft, layout.noteTop + readout));
-      if (from == _lookupCaption) {
-        final int? i = _reading(view.focus.inputs, beat);
-        if (i != null) {
-          view.kit.draw(
-            canvas,
-            _readout(view, i),
-            inked(view.kit.sans, _noteSize, view.inks.signal, alpha: alpha),
-            Offset(layout.noteLeft, layout.noteTop),
-          );
-        }
-      }
+      final TextPainter lines = view.kit.paragraph(text, _whyStyle(view, alpha: alpha), width);
+      lines.paint(canvas, Offset(layout.noteLeft, foot - lines.height));
     }
   }
+
+  /// How strongly the two places of [_twin] are marked: once their rows have
+  /// gathered, while the note names them, through the adding.
+  static double _twinMarked(double beat) => through(beat, _twinFrom, _twinFrom + 0.3) * (1 - through(beat, _x0Caption - 0.3, _x0Caption));
 
   // ---------------------------------------------------------------- paint
 
@@ -321,13 +343,13 @@ final class EmbeddingScene extends LmScene {
       ),
       (
         'x embedded · $inputs × $width',
-        through(beat, 11.1, 11.5) * (1 - through(beat, 11.9, 12.1)),
+        through(beat, 7.2, 7.6) * (1 - through(beat, 9.2, 9.4)),
       ),
       (
         'position embedding · first $inputs of ${trace.model.context} rows',
-        through(beat, 12.1, 12.35) * (1 - through(beat, 13.0, 13.25)),
+        through(beat, 9.4, 9.65) * (1 - through(beat, 10.9, 11.15)),
       ),
-      ('x0 · $inputs × $width', through(beat, 13.25, 13.5) * fade.chrome),
+      ('x0 · $inputs × $width', through(beat, 11.15, 11.4) * fade.chrome),
     ]) {
       if (alpha > 0) {
         drawTag(canvas, view, text, at, alpha: alpha);

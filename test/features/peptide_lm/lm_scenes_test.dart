@@ -129,13 +129,13 @@ void main() {
       "At step 1 no update has moved them yet; <pad>'s row is zero at every checkpoint",
     );
     expect(caption(LmStage.embedding, embedding(3)), "12 places read 9 rows of the table, C's three times");
-    expect(caption(LmStage.embedding, embedding(9)), "12 places read 9 rows of the table, C's three times");
+    expect(caption(LmStage.embedding, embedding(6)), "12 places read 9 rows of the table, C's three times");
     expect(
-      caption(LmStage.embedding, embedding(11)),
+      caption(LmStage.embedding, embedding(8)),
       'In place order, the rows read are x embedded: 12 × $width, a row a place',
     );
-    expect(caption(LmStage.embedding, embedding(12.5)), startsWith('Adding the position embedding, rows 0–11'));
-    expect(caption(LmStage.embedding, embedding(13.8)), 'x0, 12 × $width: the start of the residual stream');
+    expect(caption(LmStage.embedding, embedding(10)), startsWith('Adding the position embedding, rows 0–11'));
+    expect(caption(LmStage.embedding, embedding(11.8)), 'x0, 12 × $width: the start of the residual stream');
     // Forward's opening: the toy's two layers make its stage 1 + 8 + 1 beats.
     expect(
       caption(LmStage.forward, 0.5 / (1 + 4 * trace.model.layers + 1)),

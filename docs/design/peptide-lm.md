@@ -123,12 +123,13 @@ out of view is scrolled just far enough to show it whole.
    whole width and every number written out on a soft tile of its colour
    (the run was recorded again 16 wide for it, see above). It opens on
    Shift's last frame, pixel for pixel, and takes the engine's first steps
-   (`HelixPeekLM.forward`) in 14 beats. Over the tag, a note says why each
+   (`HelixPeekLM.forward`) in 12 beats. Over the tag, a note says why each
    part happens, in the quiet ink, its parts fading out and in at the
    caption's turns, while the caption under the canvas says what happens,
-   neither repeating the other (the user's ask of 2026-10-30, wording
-   theirs to pick): during the lookup a readout in the accent over it names
-   the place being read.
+   neither repeating the other (the user's ask of 2026-10-30). A live
+   readout of the place being read ("S · place 9 · id 18 → row 18") was
+   tried over it and removed the same evening at the user's word: it
+   switched too fast to read.
    - *the table* (beats 0–2.4): y goes off to the right and the other
      peptides fade; the peptide in focus comes down to the foot, a tile a
      place, its ids kept, under its name as Shift writes it ("insulin A
@@ -140,34 +141,40 @@ out of view is scrolled just far enough to show it whole.
      1 no update has moved them yet; <pad>'s row is zero at every
      checkpoint", or how many updates a later step has had). Note: "A model
      computes with numbers, not letters: each token gets 16 of its own.";
-   - *the lookup* (2.4–10.5): one place at a time, at the user's ask (three
-     or four lit at once was too quick to follow): `<bos>` alone for 1.2
-     beats, then each place in turn, its tile at the foot and the row it
-     reads lit together, held and let go before the next, each place's time
-     falling in a line to 0.4 of the first's, about 1 s to 0.4 s for
-     insulin A (`EmbeddingScene.slot`; a longer peptide is quicker in the
-     same 6.7 beats); a row read stays faintly marked ("22 places read 12
-     rows of the table, C's four times"). Note: the readout, "S · place 9 ·
-     id 18 → row 18", then "The lookup is only this: the id picks its row,
-     no arithmetic.";
-   - *the gather* (10.5–12.1): the table goes, and each place's copy of the
+   - *the lookup* (2.4–6.6): one place at a time (three or four lit at once
+     was too quick to follow; a 13 s version, the user's next ask, was then
+     too slow): `<bos>` alone for a beat, then each place in turn, its tile
+     at the foot and the row it reads lit together, held and let go before
+     the next, each place's time falling in a line to 0.6 of the first's,
+     about 0.35 s to 0.2 s for insulin A (`EmbeddingScene.slot`; a longer
+     peptide is quicker in the same 3 beats); a row read stays faintly
+     marked ("22 places read 12 rows of the table, C's four times"). Note:
+     "The lookup is only this: the id picks its row, no arithmetic.";
+   - *the gather* (6.6–9.4): the table goes, and each place's copy of the
      row it read moves to the place's own row, its numbers going before it
      moves and coming back once it has, so that rows passing one another
      never print over each other; the tile that read it goes up to label the
-     row, turning back into its residue (x embedded, 22 × 16). Note, from
-     the first token at two places: "The two Cs at places 6 and 7 are the
-     same row: nothing yet says where each is.";
-   - *the position embedding* (12.1–13.5): each place's own row alone, on
+     row, turning back into its residue (x embedded, 22 × 16). Once they
+     have landed, the first token's two places are outlined in the accent
+     (the two Cs at 6 and 7), the note naming them, and stay outlined
+     through the adding: "The two Cs at places 6 and 7 are the same row:
+     nothing yet says where each is.";
+   - *the position embedding* (9.4–11.4): each place's own row alone, on
      its own colour scale, its numbers to two places, then added ("Adding
      the position embedding, rows 0–21, 42× smaller than the token rows" for
      insulin A at step 1, 5× at step 200); a cell shows one set of numbers
-     at a time. Note: "Attention alone ignores order: each place's own row
-     says where it sits.";
-   - *x0* (13.5–14): the sum is `x0`, as the engine makes it; the run's
+     at a time. Note, three lines, the mental model the user asked for in
+     place of "attention alone ignores order": "token row: what the residue
+     is, the same for every C / position row: where it sits, the same at
+     place 7 whatever is there / added: each place carries both, so the Cs
+     at 6 and 7 now differ";
+   - *x0* (11.4–12): the sum is `x0`, as the engine makes it; the run's
      stored stream holds it to within its own rounding, and Forward's
      stand-up turns the one into the other ("x0, 22 × 16: the start of the
-     residual stream"). Note: "Each place is now 16 numbers, which every
-     block reads and adds to."
+     residual stream"). Note, what the end result is: "x0: insulin A chain
+     as the model takes it in / each row: which residue (token row) plus
+     where (position row) / next: four blocks let each place read the places
+     before it"
 
    Every number is written to two places. At first the token rows were
    written to one, all that int8 storage (steps of 0.03) allowed; the user
