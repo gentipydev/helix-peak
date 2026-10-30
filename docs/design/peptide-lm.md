@@ -123,7 +123,7 @@ out of view is scrolled just far enough to show it whole.
    whole width and every number written out on a soft tile of its colour
    (the run was recorded again 16 wide for it, see above). It opens on
    Shift's last frame, pixel for pixel, and takes the engine's first steps
-   (`HelixPeekLM.forward`) in 17 beats. Over the tag, a note says why each
+   (`HelixPeekLM.forward`) in 16 beats. Over the tag, a note says why each
    part happens, in the quiet ink, its parts fading out and in at the
    caption's turns, while the caption under the canvas says what happens,
    neither repeating the other (the user's ask of 2026-10-30). A live
@@ -184,17 +184,13 @@ out of view is scrolled just far enough to show it whole.
      is, the same for every C / position row: where it sits, the same at
      place 7 whatever is there / added: each place carries both, so the Cs
      at 6 and 7 now differ";
-   - *x0* (15–17): the sum is `x0`, as the engine makes it; the run's
+   - *x0* (15–16): the sum is `x0`, as the engine makes it; the run's
      stored stream holds it to within its own rounding, and Forward's
-     stand-up turns the one into the other ("x0, 22 × 16: insulin A chain
-     as the model takes it in"). Note, the sum written out on the two
-     marked Cs, the user's ask ("make it more clear"): "x0 = x embedded +
-     position rows, added number by number / Cs at 6 and 7, number 1: −0.57
-     + 0.01 = −0.56, −0.57 − 0.01 = −0.58 / next: four blocks read x0; each
-     place sees only those before it". The number is the first whose parts,
-     as written, add up to the sum as written at both places and whose
-     position parts differ (`_sumAt`); its cell is outlined on both rows.
-     The marks go before the last frame, which Forward opens on.
+     stand-up turns the one into the other ("x0, 22 × 16: the start of the
+     residual stream"). Note, what the end result is: "x0: insulin A chain
+     as the model takes it in / each row: which residue (token row) plus
+     where (position row) / next: four blocks let each place read the places
+     before it"
 
    Every number is written to two places. At first the token rows were
    written to one, all that int8 storage (steps of 0.03) allowed; the user
