@@ -15,8 +15,10 @@ them, and keeps every number through read-only hooks:
   step used, the gradients' norm before clipping and the clip applied, each
   parameter group's gradient and update norm and size, every target's loss,
   and the output layer's weights and biases as the step found them;
-- **at each checkpoint**, everything else: the residual stream at its ten
-  points, the gradient reaching each, every head's attention map (worked out
+- **at each checkpoint**, everything else: the two embedding tables as the
+  step found them (the token embedding, 23 × 96, and the position embedding,
+  51 × 96; added 2026-10-30, every other byte of the run unchanged), the
+  residual stream at its ten points, the gradient reaching each, every head's attention map (worked out
   again from the layer's input, within 4 × 10⁻⁷ of the layer's own output),
   the logits and the probabilities over the 21 tokens that can follow, and
   the output layer's clipped gradient and update.
@@ -65,13 +67,40 @@ Beside the caption, a player of that stage alone: Replay, and Play/Pause.
    tag, as the zoom names its parts, in the field's words: dataset, padding,
    vocabulary, token counts (on the bar of the commonest token), special
    tokens (bracketed under their ids) and token ids.
-2. **Forward.** The residual stream of the peptide in focus, a column of 96
-   numbers a position, rises through the tower at the left: the embedding,
-   then each block's LayerNorm, attention (arcs from every earlier position
-   into the one in focus, each against the strongest, particles riding them;
-   above, each head's causal map, nothing above the diagonal) and its
-   contribution added, then the feed-forward (each column breathing out to
-   384 and back) and its contribution added, then the final norm.
+2. **Forward.** It opens on Tokenise's last frame, pixel for pixel, and in
+   six beats takes the engine's steps from the matrix of ids to the stream
+   (the user's ask of 2026-10-30: the stage had jumped from ids to one
+   peptide's numbers with nothing between):
+   - *the cut* (two beats): the matrix splits as `sequences.batches` cuts it,
+     input x the batch less its last place and target y, under it, the batch
+     less its first, a place to the left, so each place sits over the token
+     it learns; a place whose target is padding dims in both. The
+     vocabulary's bars, counts and tags go, and the list closes up into one
+     column at the left. Caption: x and y one place apart, 180 targets;
+   - *the table* (one beat): y goes off to the right and the other peptides
+     fade; the peptide in focus spreads to the token row's places and comes
+     down to it, its ids turning back into residues; the list goes up its
+     column and in, and its rows grow out into the token embedding, 96
+     numbers a token on the stream's own scale (the padding row zero). The
+     rail comes up with Embed lit;
+   - *the lookup* (two beats): left to right, each place's row in the table
+     lights, is lifted, turns upright and lands as that place's column, its
+     first number at the top; the first places far enough apart to follow
+     one at a time, the rest closer. A repeated id lifts the same row
+     again (C's four times in insulin A);
+   - *the position embedding* (one beat): each place's own row, alone over
+     the columns, drawn larger by as many times as it is smaller than the
+     token rows (×54 for insulin A at step 1, said on its tag and in the
+     caption), then added; the stream is then `x0` as the run kept it, which
+     the sum is to within its rounding, and the head maps come up, faint.
+
+   Then the residual stream, a column of 96 numbers a position, rises
+   through the tower at the left: each block's LayerNorm, attention (arcs
+   from every earlier position into the one in focus, each against the
+   strongest, particles riding them; above, each head's causal map, nothing
+   above the diagonal) and its contribution added, then the feed-forward
+   (each column breathing out to 384 and back) and its contribution added,
+   then the final norm.
 3. **Predict.** The final column runs down the output layer's 23 rows and
    each row's logit grows; `<pad>` and `<bos>` are struck to −∞; softmax
    turns the rest into 21 bars in the residues' colours, what came next

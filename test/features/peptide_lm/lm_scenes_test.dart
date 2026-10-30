@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -93,7 +94,21 @@ void main() {
     expect(caption(LmStage.tokenise, 0.2), 'Two peptides, 23 residues, become ids in a 23-token vocabulary');
     expect(caption(LmStage.tokenise, 0.6), 'One batch: both peptides in one matrix, read by Forward in one pass');
     expect(caption(LmStage.tokenise, 0.99), startsWith('The vocabulary, counted: '));
-    expect(caption(LmStage.forward, 0.05), contains('× ${trace.model.width} numbers'));
+    // Forward's opening, beat by beat: the toy's two layers make its stage
+    // 6 + 8 + 1 beats.
+    final int width = trace.model.width;
+    double opening(double beat) => beat / (6 + 4 * trace.model.layers + 1);
+    expect(caption(LmStage.forward, opening(1)), endsWith('${trace.targetCount} targets'));
+    expect(
+      caption(LmStage.forward, opening(2.5)),
+      'Both are read at once; toy A is drawn. The vocabulary is the token embedding',
+    );
+    expect(
+      caption(LmStage.forward, opening(4)),
+      "Each id picks its row of $width: 12 places from 9 rows, C's three times",
+    );
+    expect(caption(LmStage.forward, opening(5.5)), contains('position embedding'));
+    expect(caption(LmStage.forward, opening(5.9)), contains('× $width numbers'));
     expect(caption(LmStage.predict, 0.99), contains('next is ${trace.token(last.target)}'));
     expect(caption(LmStage.loss, 0.99), contains(nats(trace.loss(last.step))));
     expect(caption(LmStage.update, 0.5), contains(scientific(trace.steps.learningRate[last.step - 1])));
@@ -140,6 +155,27 @@ void main() {
     }
     expect((pick! as PickCheckpoint).index, trace.checkpoints.length - 1);
 
+    // Forward's opening: a row of the batch puts its peptide in focus, and
+    // once the token row has landed, a token its place.
+    TrainingFrame forwardAt(double beat) =>
+        timeline.frameIn(LmStage.forward, beat / (6 + 4 * trace.model.layers + 1));
+    final Set<int> cut = <int>{};
+    for (double y = 0; y < size.height; y += 1) {
+      final LmHit? hit = sceneOf(LmStage.forward).hitAt(size, scene, Offset(200, y), forwardAt(1));
+      if (hit is FocusPeptide) {
+        cut.add(hit.peptide);
+      }
+    }
+    expect(cut, <int>{for (int p = 0; p < trace.peptides.length; p++) p});
+    LmHit? place;
+    for (double y = size.height - 1; y > size.height / 2 && place == null; y -= 1) {
+      final LmHit? hit = sceneOf(LmStage.forward).hitAt(size, scene, Offset(200, y), forwardAt(4));
+      if (hit is FocusPosition) {
+        place = hit;
+      }
+    }
+    expect(place, isA<FocusPosition>());
+
     // Forward: a head's map shows it alone; again, all of them.
     LmHit? head;
     for (double x = 80; x < size.width && head == null; x += 2) {
@@ -151,6 +187,34 @@ void main() {
       }
     }
     expect((head! as FocusHead).head, 0);
+  });
+
+  testWidgets("Forward opens on Tokenise's last frame, pixel for pixel", (WidgetTester tester) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    const Size size = Size(393, 540);
+    Future<List<int>> pixels(LmView scene, TrainingFrame frame) async {
+      final ui.PictureRecorder recorder = ui.PictureRecorder();
+      final Canvas canvas = Canvas(recorder)..drawRect(Offset.zero & size, Paint()..color = inks.ground);
+      LmScenePainter(view: scene, frame: () => frame).paint(canvas, size);
+      final ui.Picture picture = recorder.endRecording();
+      final List<int> bytes = (await tester.runAsync(() async {
+        final ui.Image image = await picture.toImage(size.width.round(), size.height.round());
+        final ByteData? data = await image.toByteData();
+        image.dispose();
+        return data!.buffer.asUint8List().toList();
+      }))!;
+      picture.dispose();
+      return bytes;
+    }
+
+    for (int p = 0; p < trace.peptides.length; p++) {
+      final LmView scene = view(inks, kit, peptide: p, checkpoint: trace.checkpoints.length - 1);
+      final List<int> last = await pixels(scene, timeline.frameIn(LmStage.tokenise, 1));
+      final List<int> first = await pixels(scene, timeline.frameIn(LmStage.forward, 0));
+      expect(last.any((int b) => b != last.first), isTrue);
+      expect(first, last);
+    }
   });
 
   test('numbers are written as the page writes them', () {

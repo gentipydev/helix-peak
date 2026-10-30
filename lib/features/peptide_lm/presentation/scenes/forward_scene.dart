@@ -5,13 +5,14 @@ import 'package:flutter/material.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
 import '../lm_format.dart';
+import 'forward_opening.dart';
 import 'lm_drawing.dart';
 import 'lm_scene.dart';
 
-enum _Part { embed, block, norm }
+enum _Part { opening, block, norm }
 
-/// Where the forward pass is: embedding, a block (counted from 1), or the
-/// final norm, and how far through that part.
+/// Where the forward pass is: its opening ([ForwardOpening]), a block
+/// (counted from 1), or the final norm, and how far through that part.
 @immutable
 final class ForwardMoment {
   const ForwardMoment._(this._part, this.block, this.progress);
@@ -20,7 +21,7 @@ final class ForwardMoment {
   final int block;
   final double progress;
 
-  bool get embedding => _part == _Part.embed;
+  bool get opening => _part == _Part.opening;
 
   bool get norming => _part == _Part.norm;
 
@@ -35,34 +36,36 @@ final class ForwardMoment {
   bool get feedingForward =>
       _part == _Part.block && progress >= addedAttention && progress < fedForward;
 
-  /// The forward pass's parts in proportion: two beats to embed, four a
-  /// block, one for the final norm.
+  /// The forward pass's parts in proportion: six beats to open on the batch
+  /// and embed it, four a block, one for the final norm.
   static ForwardMoment at(int layers, double local) {
-    final double total = 2 + 4.0 * layers + 1;
+    const double open = ForwardOpening.beats;
+    final double total = open + 4.0 * layers + 1;
     final double at = local.clamp(0.0, 1.0) * total;
-    if (at < 2) {
-      return ForwardMoment._(_Part.embed, 0, at / 2);
+    if (at < open) {
+      return ForwardMoment._(_Part.opening, 0, at / open);
     }
-    if (at < 2 + 4 * layers) {
-      final double b = (at - 2) / 4;
+    if (at < open + 4 * layers) {
+      final double b = (at - open) / 4;
       final int block = b.floor();
       return ForwardMoment._(_Part.block, block + 1, b - block);
     }
-    return ForwardMoment._(_Part.norm, layers, (at - 2 - 4 * layers).clamp(0.0, 1.0));
+    return ForwardMoment._(_Part.norm, layers, (at - open - 4 * layers).clamp(0.0, 1.0));
   }
 }
 
-/// Forward: the residual stream, one column of numbers a position, rises
-/// through the blocks. In each, every position reads the ones before it
-/// (attention, the arcs) and what it reads is added to its column; then each
-/// column goes through the feed-forward layer and that is added too.
+/// Forward: it opens on Tokenise's last frame and embeds the batch
+/// ([ForwardOpening]); then the residual stream, one column of numbers a
+/// position, rises through the blocks. In each, every position reads the ones
+/// before it (attention, the arcs) and what it reads is added to its column;
+/// then each column goes through the feed-forward layer and that is added too.
 final class ForwardScene extends LmScene {
   const ForwardScene();
 
   /// The stream's points at the start and end of where [moment] is, and how
   /// far between them it has got.
   static (int, int, double) blend(TrainingTrace trace, ForwardMoment moment) {
-    if (moment.embedding) {
+    if (moment.opening) {
       return (0, 0, 0);
     }
     if (moment.norming) {
@@ -112,12 +115,16 @@ final class ForwardScene extends LmScene {
   @override
   void paint(Canvas canvas, Size size, LmView view, TrainingFrame frame) {
     final TrainingTrace trace = view.trace;
-    final _Layout layout = _Layout(size, view);
+    final ForwardLayout layout = ForwardLayout(size, view);
     final ForwardMoment moment = ForwardMoment.at(trace.model.layers, frame.local);
+    if (moment.opening) {
+      _open(canvas, size, view, layout, moment);
+      return;
+    }
     final int layer = math.max(1, moment.block);
 
     _rail(canvas, view, layout, moment);
-    _heads(canvas, view, layout, layer - 1, _query(view, moment), moment);
+    _heads(canvas, view, layout, layer - 1, _query(view, moment), 1);
     _stream(canvas, view, layout, moment);
     _arcs(canvas, view, layout, layer - 1, moment, frame.local);
     for (int i = 0; i < view.focus.inputs; i++) {
@@ -137,14 +144,57 @@ final class ForwardScene extends LmScene {
     );
   }
 
+  /// The opening, and round it what it hands over to: the rail, lit at the
+  /// embedding once the list has left its column, and as it settles the head
+  /// maps, faint as they are before any block has run, and the place in
+  /// focus.
+  void _open(Canvas canvas, Size size, LmView view, ForwardLayout layout, ForwardMoment moment) {
+    final ForwardOpening opening = ForwardOpening(size, view, layout);
+    final double beat = moment.progress * ForwardOpening.beats;
+    opening.paint(canvas, beat);
+    _faded(canvas, size, view, ForwardOpening.railShown(beat), () => _rail(canvas, view, layout, moment));
+    final double settled = ForwardOpening.settled(beat);
+    _faded(canvas, size, view, settled, () {
+      _heads(canvas, view, layout, 0, _query(view, moment), 0.35);
+      drawToken(
+        canvas,
+        view,
+        layout.tokens.at(view.position),
+        view.trace.inputAt(view.peptide, view.position),
+        outline: view.inks.signal,
+      );
+      drawCaret(
+        canvas,
+        Offset(layout.tokens.centre(view.position), layout.tokens.bounds.bottom + 2),
+        4,
+        view.inks.signal,
+      );
+    });
+  }
+
+  /// [draw], at [alpha] as a whole.
+  static void _faded(Canvas canvas, Size size, LmView view, double alpha, VoidCallback draw) {
+    if (alpha <= 0) {
+      return;
+    }
+    if (alpha >= 1) {
+      draw();
+      return;
+    }
+    // A layer takes only its paint's alpha.
+    canvas.saveLayer(Offset.zero & size, Paint()..color = view.inks.ground.withValues(alpha: alpha));
+    draw();
+    canvas.restore();
+  }
+
   /// The position whose reading the arcs show: the one in focus. The head
   /// maps above show every position's at once.
   static int _query(LmView view, ForwardMoment moment) => view.position;
 
-  void _rail(Canvas canvas, LmView view, _Layout layout, ForwardMoment moment) {
+  void _rail(Canvas canvas, LmView view, ForwardLayout layout, ForwardMoment moment) {
     final ModuleRail rail = layout.rail;
     final List<double> lit = List<double>.filled(rail.count, 0);
-    if (moment.embedding) {
+    if (moment.opening) {
       lit[ModuleRail.embed] = 1;
     } else if (moment.norming) {
       lit[rail.norm] = 1;
@@ -152,7 +202,7 @@ final class ForwardScene extends LmScene {
       lit[rail.block(moment.block)] = 1;
     }
     // Where the stream has been is lit a little.
-    final int reached = moment.embedding
+    final int reached = moment.opening
         ? 0
         : moment.norming
         ? rail.norm
@@ -161,7 +211,7 @@ final class ForwardScene extends LmScene {
       lit[i] = math.max(lit[i], 0.25);
     }
     rail.paint(canvas, view, lit: lit);
-    if (!moment.embedding && !moment.norming) {
+    if (!moment.opening && !moment.norming) {
       final Rect box = rail.box(rail.block(moment.block));
       final double p = moment.progress;
       final String part = p < ForwardMoment.attendFrom
@@ -179,7 +229,7 @@ final class ForwardScene extends LmScene {
     }
   }
 
-  void _stream(Canvas canvas, LmView view, _Layout layout, ForwardMoment moment) {
+  void _stream(Canvas canvas, LmView view, ForwardLayout layout, ForwardMoment moment) {
     final TrainingTrace trace = view.trace;
     final int inputs = view.focus.inputs;
     final int width = trace.model.width;
@@ -189,20 +239,17 @@ final class ForwardScene extends LmScene {
     final double scaleTo = to == 2 * trace.model.layers + 1 ? finalScale : streamScale;
     final double scale = scaleFrom + (scaleTo - scaleFrom) * t;
     final GridMesh grid = GridMesh(layout.grid, inputs, width, columnGap: 1);
-    final double reveal = moment.embedding ? moment.progress * (inputs + 2) : double.infinity;
     for (int i = 0; i < inputs; i++) {
-      final double shown = (reveal - i).clamp(0.0, 1.0);
       for (int d = 0; d < width; d++) {
         final double a = trace.stream(view.checkpoint, from, view.peptide, i, d);
         final double b = from == to ? a : trace.stream(view.checkpoint, to, view.peptide, i, d);
-        final Color color = view.inks.signed((a + (b - a) * t) / scale);
-        grid.cell(i, d, shown >= 1 ? color : Color.lerp(view.inks.ground, color, shown)!);
+        grid.cell(i, d, view.inks.signed((a + (b - a) * t) / scale));
       }
     }
     grid.draw(canvas);
 
     final Rect bounds = layout.grid;
-    if (!moment.embedding && !moment.norming && moment.progress < ForwardMoment.attendFrom) {
+    if (!moment.norming && moment.progress < ForwardMoment.attendFrom) {
       // LayerNorm: a band passing down every column at once.
       final double y = bounds.top + bounds.height * (moment.progress / ForwardMoment.attendFrom);
       canvas.drawRect(
@@ -254,13 +301,12 @@ final class ForwardScene extends LmScene {
   void _arcs(
     Canvas canvas,
     LmView view,
-    _Layout layout,
+    ForwardLayout layout,
     int layer,
     ForwardMoment moment,
     double local,
   ) {
-    if (moment.embedding ||
-        (!moment.norming && moment.progress < ForwardMoment.attendFrom)) {
+    if (!moment.norming && moment.progress < ForwardMoment.attendFrom) {
       return;
     }
     final TrainingTrace trace = view.trace;
@@ -323,17 +369,18 @@ final class ForwardScene extends LmScene {
     }
   }
 
+  /// Each head's map in [layer], its colours at [alpha]: faint before any
+  /// block has run.
   void _heads(
     Canvas canvas,
     LmView view,
-    _Layout layout,
+    ForwardLayout layout,
     int layer,
     int query,
-    ForwardMoment moment,
+    double alpha,
   ) {
     final TrainingTrace trace = view.trace;
     final int inputs = view.focus.inputs;
-    final double alpha = moment.embedding ? 0.35 : 1;
     for (int h = 0; h < trace.model.heads; h++) {
       final Rect square = layout.head(h);
       canvas.drawRect(square, Paint()..color = view.inks.card.withValues(alpha: alpha));
@@ -397,8 +444,17 @@ final class ForwardScene extends LmScene {
   }
 
   @override
+  LmHit? hitAt(Size size, LmView view, Offset at, TrainingFrame frame) {
+    final ForwardMoment moment = ForwardMoment.at(view.trace.model.layers, frame.local);
+    return moment.opening
+        ? ForwardOpening(size, view, ForwardLayout(size, view))
+            .hit(at, moment.progress * ForwardOpening.beats)
+        : hit(size, view, at);
+  }
+
+  @override
   LmHit? hit(Size size, LmView view, Offset at) {
-    final _Layout layout = _Layout(size, view);
+    final ForwardLayout layout = ForwardLayout(size, view);
     for (int h = 0; h < view.trace.model.heads; h++) {
       if (layout.head(h).inflate(6).contains(at)) {
         return FocusHead(view.head == h ? null : h);
@@ -410,7 +466,7 @@ final class ForwardScene extends LmScene {
 
   @override
   int? positionAt(Size size, LmView view, Offset at) =>
-      _Layout(size, view).tokens.indexAt(at, slack: 40);
+      ForwardLayout(size, view).tokens.indexAt(at, slack: 40);
 
   /// Which earlier position [query] reads most in [layer], and how much.
   static (int, double) strongest(LmView view, int layer, int query) {
@@ -437,9 +493,8 @@ final class ForwardScene extends LmScene {
     final ForwardMoment moment = ForwardMoment.at(trace.model.layers, frame.local);
     final int layers = trace.model.layers;
     final int width = trace.model.width;
-    if (moment.embedding) {
-      return 'Each id picks its embedding row and each position its own: '
-          '${view.focus.inputs} × $width numbers';
+    if (moment.opening) {
+      return ForwardOpening.caption(view, moment.progress * ForwardOpening.beats);
     }
     if (moment.norming) {
       return 'Final LayerNorm: the stream the output layer reads';
@@ -464,8 +519,11 @@ final class ForwardScene extends LmScene {
       'Forward pass, step ${view.step}. ${caption(view, frame)}.';
 }
 
-final class _Layout {
-  _Layout(Size size, LmView view) {
+/// Forward's canvas: the rail at the left; over the stream, the head maps
+/// and the arcs' room; the stream, a column a position; and the tokens under
+/// it.
+final class ForwardLayout {
+  ForwardLayout(Size size, LmView view) {
     final TrainingTrace trace = view.trace;
     const double railWidth = 62;
     const double left = 10 + railWidth + 12;
