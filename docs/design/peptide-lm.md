@@ -16,8 +16,8 @@ them, and keeps every number through read-only hooks:
   parameter group's gradient and update norm and size, every target's loss,
   and the output layer's weights and biases as the step found them;
 - **at each checkpoint**, everything else: the two embedding tables as the
-  step found them (the token embedding, 23 × 96, and the position embedding,
-  51 × 96; added 2026-10-30, every other byte of the run unchanged), the
+  step found them (the token embedding, 23 × 16, and the position embedding,
+  51 × 16; added 2026-10-30), the
   residual stream at its ten points, the gradient reaching each, every head's attention map (worked out
   again from the layer's input, within 4 × 10⁻⁷ of the layer's own output),
   the logits and the probabilities over the 21 tokens that can follow, and
@@ -30,12 +30,12 @@ production serves. The run itself:
 | | |
 |---|---|
 | data | six peptides, 174 residues: insulin A and B chains and C-peptide, relaxin A and B chains, copeptin; nothing held out |
-| model | 4 blocks of 4 heads, width 96, feed-forward 384: 456,887 parameters |
-| training | AdamW 1e−3, weight decay 0.1 on matrices, 100 warm-up steps then cosine, clip 1.0, dropout 0, all six a step, 200 steps, seed 0 |
-| loss | 3.145 at step 1 (worse than uniform, 3.045) to 0.068 at step 200 |
+| model | 4 blocks of 4 heads, width 16, feed-forward 64: 14,727 parameters (recorded again 16 wide on 2026-10-30, for the Embedding stage's numbers; it was 96 wide, 456,887 parameters) |
+| training | AdamW 1e−2 (at 1e−3 a model 16 wide never passes one nat in 200 steps), weight decay 0.1 on matrices, 100 warm-up steps then cosine, clip 1.0, dropout 0, all six a step, 200 steps, seed 0 |
+| loss | 3.205 at step 1 (worse than uniform, 3.045) to 0.065 at step 200 |
 | baselines | uniform 3.045, unigram 2.856, bigram 2.043 |
 | floor | 0.060 = 6 ln 6 / 180: from `<bos>` alone nothing says which peptide comes |
-| checkpoints | 1, then the first step under uniform (8), unigram (14), bigram (35), one nat (55) and a tenth of one (100), and 200 |
+| checkpoints | 1, then the first step under uniform (10), unigram (18), bigram (45), one nat (62) and a tenth of one (93), and 200 |
 
 Dropout is off so that the forward pass drawn is the forward pass trained.
 
@@ -47,7 +47,7 @@ every step. A tap on a stage plays it once, a beat every two seconds, and it
 holds on its last frame until another is tapped, or the same one again.
 Beside the caption, a player of that stage alone: Replay, and Play/Pause.
 The stage bar keeps its names at full size and scrolls sideways where a
-phone is too narrow for all eight; a stage played whose name stands partly
+phone is too narrow for all nine; a stage played whose name stands partly
 out of view is scrolled just far enough to show it whole.
 
 1. **Tokenise.** The dataset, a peptide a row folded onto two lines where
@@ -117,50 +117,75 @@ out of view is scrolled just far enough to show it whole.
    parts them), each tile as tall as the height allows and its id drawn at
    0.62 of the tile's height (Tokenise's 0.52; `drawIdTile(numberScale:)`):
    on a Pro Max about 17 × 15 pt drawn, 9 pt ids.
-3. **Forward.** It opens on Shift's last frame, pixel for pixel, and in four
-   beats takes the engine's steps from ids to the stream
-   (`HelixPeekLM.forward`):
-   - *the table* (one beat): y goes off to the right and the other peptides
-     fade; the peptide in focus spreads to the token row's places and comes
-     down to it, its ids turning back into residues; the token embedding's
-     tokens come in, top to bottom, and its rows grow out, 96 numbers a
-     token on the stream's own scale (the padding row zero). The rail comes
-     up with Embed lit;
-   - *the lookup* (two beats): left to right, each place's row in the table
-     lights, is lifted, turns upright and lands as that place's column, its
-     first number at the top; the first places far enough apart to follow
-     one at a time, the rest closer. A repeated id lifts the same row
-     again (C's four times in insulin A);
-   - *the position embedding* (one beat): each place's own row, alone over
-     the columns, drawn larger by as many times as it is smaller than the
-     token rows (×54 for insulin A at step 1, said on its tag and in the
-     caption), then added; the stream is then `x0` as the run kept it, which
-     the sum is to within its rounding, and the head maps come up, faint.
+3. **Embedding.** The user's ask of 2026-10-30: the lookup Forward used to
+   open with, as a stage of its own, the table 16 numbers wide across the
+   whole width and every number written out on a soft tile of its colour
+   (the run was recorded again 16 wide for it, see above). It opens on
+   Shift's last frame, pixel for pixel, and takes the engine's first steps
+   (`HelixPeekLM.forward`) in 9 beats:
+   - *the table* (beats 0–2.4): y goes off to the right and the other
+     peptides fade; the peptide in focus comes down to the foot, a tile a
+     place, its ids kept; the token embedding's tokens and ids come in, top
+     to bottom, and its rows grow out on the stream's own scale, then their
+     numbers ("The token embedding: 16 learned numbers for each of the 23
+     tokens"; then "At step 1 no update has moved them yet; <pad>'s row is
+     zero at every checkpoint", or how many updates a later step has had);
+   - *the lookup* (2.4–5.4): each place's tile at the foot and the row it
+     reads light together, `<bos>` alone first ("<bos> is id 1, so it reads
+     row 1 of the table"), then the rest left to right, closer and closer;
+     a row read stays faintly marked ("Each id picks its row of 16: 22
+     places read 12 rows, C's four times");
+   - *the gather* (5.4–7): the table goes, and each place's copy of the row
+     it read moves to the place's own row, its numbers going before it moves
+     and coming back once it has, so that rows passing one another never
+     print over each other; the tile that read it goes up to label the row,
+     turning back into its residue (x embedded, 22 × 16);
+   - *the position embedding* (7–8.4): each place's own row alone, on its
+     own colour scale, its numbers to two places, then added ("… 42× smaller
+     than its token's" for insulin A at step 1, 5× at step 200); a cell
+     shows one set of numbers at a time;
+   - *x0* (8.4–9): the matrix becomes `x0` as the run kept it, which the sum
+     is to within its rounding.
 
-   Then the residual stream, a column of 96 numbers a position, rises
+   A number is written to as many places as its array's stored step allows
+   (`placesFor`, two at most): the token rows and x0 to one, the position
+   rows to two. Each set is as large as fits its cell, 9 pt at most, and a
+   row too small for 5.5 pt is drawn in its colours alone (copeptin's 40
+   rows on an SE come close). Each row is as tall as the canvas allows for
+   the longer of the vocabulary and the peptide, 22 pt at most.
+4. **Forward.** It opens on Embedding's last frame, pixel for pixel. In its
+   first beat x0's rows stand up as the stream's columns, each turning
+   upright and landing as its place's column, its first number at the top,
+   its numbers going as it narrows; the tiles that labelled the rows come
+   down to the token row; the rail comes up with Embed lit, and the head
+   maps, faint ("x0 stands up as the residual stream: a column a place").
+   The stream is no taller than 250 pt whatever the model's width. The
+   stage, the heads included, is the user's to review next (2026-10-30).
+
+   Then the residual stream, a column of 16 numbers a position, rises
    through the tower at the left: each block's LayerNorm, attention (arcs
    from every earlier position into the one in focus, each against the
    strongest, particles riding them; above, each head's causal map, nothing
    above the diagonal) and its contribution added, then the feed-forward
-   (each column breathing out to 384 and back) and its contribution added,
+   (each column breathing out to 64 and back) and its contribution added,
    then the final norm.
-4. **Predict.** The final column runs down the output layer's 23 rows and
+5. **Predict.** The final column runs down the output layer's 23 rows and
    each row's logit grows; `<pad>` and `<bos>` are struck to −∞; softmax
    turns the rest into 21 bars in the residues' colours, what came next
-   outlined. Untrained, after GIVEQCCTSIC the model says V 17%; at step 200,
-   S 99%, and S is next.
-5. **Loss.** A ghost bar rises to certainty at the target, the gap bracketed
+   outlined. Untrained, after GIVEQCCTSIC the model says K 11%; at step 200,
+   S 99.6% (100% as the page rounds it), and S is next.
+6. **Loss.** A ghost bar rises to certainty at the target, the gap bracketed
    and read off the −ln p curve; every target's surprise fills a strip a
    peptide and pools into the step's loss, set against ln 21.
-6. **Backward.** The bars turn into p − y; the error comes down the tower,
+7. **Backward.** The bars turn into p − y; the error comes down the tower,
    each module's gradient norm filling its bar and each position's glowing at
    every point of the stream (by step 200 only `<bos>`'s, the unknowable first
    residue, glows); the clip gauge reads the total against 1.0.
-7. **Update.** The output layer's weights, then the clipped gradient on them,
+8. **Update.** The output layer's weights, then the clipped gradient on them,
    then AdamW's update (drawn magnified, the factor said), then the weights
    moved. Per weight, the gradient differs between modules many times over
    and Adam's step hardly at all. The learning-rate schedule marks the step.
-8. **Loop.** The loss curve draws itself past the three baselines to the
+9. **Loop.** The loss curve draws itself past the three baselines to the
    floor; under it every target's tile lights up with the probability the
    model gives it, all but each peptide's first; the output layer drifts.
 

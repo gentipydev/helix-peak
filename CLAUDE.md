@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Eight stages (`TrainingTimeline`, 92 beats), named on the shared
+Nine stages (`TrainingTimeline`, 98 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -266,7 +266,7 @@ plays that stage and nothing else: Replay, and Play/Pause (Play from the
 end plays it again); no stepping between stages and no speeds (the user's
 choices of 2026-10-30, which retired the shared `TransportBar` here). The
 caption's box is held at the stage's tallest caption at its width, so the
-canvas never resizes while a stage plays. Tokenise, Shift, Forward, Predict, Loss,
+canvas never resizes while a stage plays. Tokenise, Shift, Embedding, Forward, Predict, Loss,
 Backward and Update show one training step at the checkpoint picked ("Step N ▾": the
 steps that kept every activation), and Loop plays all of them. Each stage is a painter in
 `presentation/scenes/`, a pure function of the frame; a tap or a drag on the
@@ -277,12 +277,18 @@ opens on Tokenise's last frame, pixel for pixel (`TokeniseScene.paintEnd`,
 the model reads; under it a copy, target y, the answer key, in the same
 columns; and every line of the copy moved one place left, so that each place
 of y holds the token after the same place of x. Only x goes into the model;
-Loss grades its guesses against y. Forward opens on Shift's last frame, pixel for pixel
-(`ShiftScene.paintEnd`, `ShiftLayout`), and in four beats draws the engine's
-steps from ids to the stream (`forward_opening.dart`): the token embedding,
-each id's row lifted to stand as its place's column, and the position
-embedding added, both tables the run's own (each checkpoint keeps them since
-2026-10-30). Reduced
+Loss grades its guesses against y. Embedding opens on Shift's last frame, pixel for
+pixel (`ShiftScene.paintEnd`, `ShiftLayout`), and in nine beats draws the
+engine's steps from ids to x0 (`embedding_scene.dart`): the token embedding
+across the whole width, every number written out on a soft tile of its colour
+(`LmInks.cell`) to as many places as its array's stored step allows
+(`placesFor`), and only where it fits; each id lighting the row it reads; the
+rows read gathering in place order; each place's position row, alone and then
+added; and x0 as the run kept it, both tables the run's own (each checkpoint
+keeps them since 2026-10-30). The run is 16 wide for it (recorded again on
+2026-10-30, 14,727 parameters). Forward opens on Embedding's last frame
+(`EmbeddingScene.paintEnd`), and in one beat stands x0's rows up as the
+stream's columns (`forward_opening.dart`). Reduced
 motion shows each stage played through, the loop at its last step. The
 captions and the About sheet are built from the run's own numbers (R4.1).
 Its colours are the theme's (`LmInks`, held by `lm_inks_test`): the accent
