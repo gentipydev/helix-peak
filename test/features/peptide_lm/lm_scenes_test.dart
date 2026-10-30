@@ -94,20 +94,19 @@ void main() {
     expect(caption(LmStage.tokenise, 0.2), 'Two peptides, 23 residues, become ids in a 23-token vocabulary');
     expect(caption(LmStage.tokenise, 0.6), 'One batch: both peptides in one matrix, read by Forward in one pass');
     expect(caption(LmStage.tokenise, 0.99), startsWith('The vocabulary, counted: '));
-    // Shift, beat by beat: the batch opened out, the first places one at a
-    // time, the wave to <eos>, and every place at once.
+    // Shift, beat by beat: x, its copy, the copy one place left, and what
+    // that makes.
     double shift(double beat) => beat / LmStage.shift.beats;
+    expect(caption(LmStage.shift, shift(0.5)), 'Input x: the batch the model reads');
+    expect(caption(LmStage.shift, shift(2)), 'Next token y starts as a copy of x');
     expect(
-      caption(LmStage.shift, shift(0.5)),
-      'Under each place of input x goes the token after it: next token y',
+      caption(LmStage.shift, shift(3)),
+      'One place to the left: under each place, the token after it',
     );
-    expect(caption(LmStage.shift, shift(1.6)), 'After <bos>, place 0 learns G, which it cannot see');
-    expect(caption(LmStage.shift, shift(3.6)), 'After GI, place 2 learns V, which it cannot see');
-    expect(caption(LmStage.shift, shift(5)), 'After …CCTSIC, place 11 learns <eos>, which it cannot see');
     final int pads = trace.peptides.length * trace.width - trace.targetCount;
     expect(
       caption(LmStage.shift, 0.99),
-      'Every place learns at once: ${trace.targetCount} targets, '
+      'Each place learns the token after it: ${trace.targetCount} targets, '
       '${pads == 1 ? 'one pad' : '$pads pads'} ignored',
     );
     // Forward's opening, beat by beat: the toy's two layers make its stage

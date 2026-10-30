@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Eight stages (`TrainingTimeline`, 95 beats), named on the shared
+Eight stages (`TrainingTimeline`, 92 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -274,10 +274,8 @@ canvas puts a peptide, a position or an attention head in focus. Shift
 opens on Tokenise's last frame, pixel for pixel (`TokeniseScene.paintEnd`,
 `TokeniseEnd`), and draws input x and next token y one place apart
 (`shift_scene.dart`): the batch opened out into its peptides, each line of x
-with its line of y under it, and, every peptide at once, the token after each
-place, hidden under a veil from what the place has read, dropping into y
-under it; the first places one at a time, then a wave, then every place at
-once. Forward opens on Shift's last frame, pixel for pixel
+with room under it; each line drops a copy into that room, and the copy
+moves one place left, so that under each place lies the token after it. Forward opens on Shift's last frame, pixel for pixel
 (`ShiftScene.paintEnd`, `ShiftLayout`), and in four beats draws the engine's
 steps from ids to the stream (`forward_opening.dart`): the token embedding,
 each id's row lifted to stand as its place's column, and the position

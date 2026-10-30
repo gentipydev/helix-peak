@@ -76,33 +76,33 @@ out of view is scrolled just far enough to show it whole.
    left Forward for a stage of their own, drawn the dataset's way, the
    vocabulary gone, and each peptide's line of x with its line of y right
    under it (the user's choice over x and y in two blocks). It opens on
-   Tokenise's last frame, pixel for pixel, in 8 beats:
+   Tokenise's last frame, pixel for pixel, and is 5 beats:
    - *the open* (1½ beats): the vocabulary's list, bars, counts and tags
      fade; each row of the matrix opens out into its peptide's card again,
      each line with room under it; the `input x` tag and an `x` at the head
      of each x line come up;
-   - *the first three places* (a beat each): what a place has not read lies
-     under a veil, dimmed and hatched as Forward's head maps hatch what a
-     position never reads; the first token under it, the one after the
-     place, lifts out and drops down and to the left into y under the place
-     ("After GI, place 2 learns V, which it cannot see"), and the veil steps
-     past it. Every peptide drops at once; the one in focus has its pair
-     boxed, x in the accent and y in the tracer. The `next token y` tag and
-     the `y` heads come with the first landing;
-   - *the wave* (2 beats): the rest of the places, every peptide's, one
-     after another, to `<eos>`. The frame's last place is never read (x
-     leaves it out): it goes with the veil;
-   - *every place at once* (1½ beats): every pair lights together, as one
-     pass learns them all, and the pairs whose target is padding dim
-     ("180 targets, 60 pads ignored").
+   - *the copy*: each line of x drops a copy of itself into the room under
+     it, every peptide's at once, and the `next token y` tag and the `y`
+     heads come up ("Next token y starts as a copy of x");
+   - *the move*: every copy moves one place to the left, so each token goes
+     from under itself to under the one before it ("One place to the left:
+     under each place, the token after it"). `<bos>` slips off the line's
+     left edge, never a target; the token that leaves a second line's start
+     comes in at the first line's end, as text reflows; x lets go of the
+     frame's last place, which nothing reads;
+   - *the padding*: the pairs whose target is padding dim ("Each place
+     learns the token after it: 180 targets, 60 pads ignored").
 
-   Why this animation: copying x and sliding it one place left is the
-   engine's own cut, but it leaves each place's meaning to be worked out,
-   and drawn as two blocks it read as one matrix twice. Each place's next
-   token dropping under it says what a target is, and done as a wave the
-   result is the slide anyway. The veil says why it must be learned: a
-   place never sees ahead. The tiles are the dataset's (one line of tall
-   tiles where two pairs of lines cannot number them).
+   Why so few moves: what the stage must show is that y is x's own
+   tokens, moved exactly one place. A copy says the first, one rigid move
+   the second, and the move itself says what a target is, each token
+   settling under the place before it. Both are moves of whole lines, so
+   the eye follows six lines, not 240 tiles. A first version also walked
+   the places one at a time under a veil over what each had not read, then
+   swept the rest in a wave and lit every pair at once; the user found it
+   too much for what the stage has to show (2026-10-30). Not seeing ahead
+   is Forward's to draw, in its head maps. The tiles are the dataset's (one
+   line of tall tiles where two pairs of lines cannot number them).
 3. **Forward.** It opens on Shift's last frame, pixel for pixel, and in four
    beats takes the engine's steps from ids to the stream
    (`HelixPeekLM.forward`):

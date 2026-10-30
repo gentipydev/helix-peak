@@ -6,7 +6,7 @@ import '../../../shared/motion/animation_timeline.dart';
 /// the order the page plays them in, each with its share of the time.
 enum LmStage {
   tokenise('Tokenise', 11),
-  shift('Shift', 8),
+  shift('Shift', 5),
   forward('Forward', 21),
   predict('Predict', 7),
   loss('Loss', 7),
