@@ -11,7 +11,7 @@ void main() {
       <String>['Tokenise', 'Shift', 'Embedding', 'Forward', 'Predict', 'Loss', 'Backward', 'Update', 'Loop'],
     );
     expect(timeline.phases.first.t, 0);
-    expect(timeline.beats, 104);
+    expect(timeline.beats, 105);
   });
 
   test('every stage begins where its phase does, at its start', () {
@@ -34,8 +34,8 @@ void main() {
 
   test('time only moves forward through a stage and through the loop', () {
     TrainingFrame before = timeline.stateAt(0);
-    for (int i = 1; i <= 104 * 60; i++) {
-      final TrainingFrame now = timeline.stateAt(i / (104 * 60));
+    for (int i = 1; i <= 105 * 60; i++) {
+      final TrainingFrame now = timeline.stateAt(i / (105 * 60));
       if (now.stage == before.stage) {
         expect(now.local, greaterThanOrEqualTo(before.local));
         expect(now.step, greaterThanOrEqualTo(before.step));

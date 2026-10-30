@@ -67,12 +67,12 @@ final class EmbeddingScene extends LmScene {
   // The position embedding: each place's row alone, on its own scale, then
   // added: the sum is x0.
   static const (double, double) _placesIn = (11.6, 12.0);
-  static const (double, double) _placesOut = (12.8, 13.2);
+  static const (double, double) _placesOut = (13.4, 13.8);
   static const (double, double) _tokensUnwritten = (11.6, 11.8);
   static const (double, double) _placesWritten = (11.8, 12.0);
-  static const (double, double) _placesUnwritten = (12.8, 13.0);
-  static const (double, double) _sumsWritten = (13.0, 13.2);
-  static const (double, double) _add = (12.9, 13.3);
+  static const (double, double) _placesUnwritten = (13.4, 13.6);
+  static const (double, double) _sumsWritten = (13.6, 13.8);
+  static const (double, double) _add = (13.5, 13.9);
 
   /// Where the two places of one token are marked, once their rows have
   /// gathered.
@@ -85,8 +85,8 @@ final class EmbeddingScene extends LmScene {
   static const double _lookupCaption = 2.4;
   static const double _gatherCaption = 6.6;
   static const double _placesCaption = 11.6;
-  static const double _addCaption = 12.8;
-  static const double _x0Caption = 13.6;
+  static const double _addCaption = 13.4;
+  static const double _x0Caption = 15.0;
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -266,7 +266,15 @@ final class EmbeddingScene extends LmScene {
             : 'The two ${twin.$1}s at places ${twin.$2} and ${twin.$3} are the same row: '
                   'nothing yet says where each is.',
       ),
-      (_placesCaption, _x0Caption, '$what\n$where\n$both'),
+      (
+        _placesCaption,
+        _addCaption,
+        'where it comes from: a second table in the model, random at first and trained like the token one\n'
+            'why ${view.focus.inputs} of ${trace.model.context}: a row for each place the model can hold, '
+            '<bos> and up to ${trace.model.context - 1} residues; ${view.focus.source.label} fills '
+            '${view.focus.inputs}',
+      ),
+      (_addCaption, _x0Caption, '$what\n$where\n$both'),
       (
         _x0Caption,
         double.infinity,
@@ -350,9 +358,9 @@ final class EmbeddingScene extends LmScene {
       ),
       (
         'position embedding · first $inputs of ${trace.model.context} rows',
-        through(beat, 11.6, 11.85) * (1 - through(beat, 13.1, 13.35)),
+        through(beat, 11.6, 11.85) * (1 - through(beat, 13.9, 14.15)),
       ),
-      ('x0 · $inputs × $width', through(beat, 13.35, 13.6) * fade.chrome),
+      ('x0 · $inputs × $width', through(beat, 14.15, 14.4) * fade.chrome),
     ]) {
       if (alpha > 0) {
         drawTag(canvas, view, text, at, alpha: alpha);
@@ -750,8 +758,8 @@ final class EmbeddingScene extends LmScene {
           '${grouped(view.focus.sequence.length)} residues';
     }
     if (beat < _addCaption) {
-      return 'The position embedding: a second learned table, one row per place, '
-          'here rows 0–${inputs - 1}';
+      return 'The position embedding: one learned row per place, here rows 0–${inputs - 1} '
+          'of ${trace.model.context}';
     }
     if (beat < _x0Caption) {
       final int times = smaller(view);

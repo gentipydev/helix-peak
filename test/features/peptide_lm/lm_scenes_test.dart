@@ -133,10 +133,10 @@ void main() {
     expect(caption(LmStage.embedding, embedding(8)), "Each row is one place: <bos>, then toy A's 11 residues");
     expect(
       caption(LmStage.embedding, embedding(12.2)),
-      'The position embedding: a second learned table, one row per place, here rows 0–11',
+      'The position embedding: one learned row per place, here rows 0–11 of ${trace.model.context}',
     );
-    expect(caption(LmStage.embedding, embedding(13.2)), startsWith("Each place's row is added to its residue's"));
-    expect(caption(LmStage.embedding, embedding(14.5)), 'x0, 12 × $width: the start of the residual stream');
+    expect(caption(LmStage.embedding, embedding(14)), startsWith("Each place's row is added to its residue's"));
+    expect(caption(LmStage.embedding, embedding(15.5)), 'x0, 12 × $width: the start of the residual stream');
     // Forward's opening: the toy's two layers make its stage 1 + 8 + 1 beats.
     expect(
       caption(LmStage.forward, 0.5 / (1 + 4 * trace.model.layers + 1)),

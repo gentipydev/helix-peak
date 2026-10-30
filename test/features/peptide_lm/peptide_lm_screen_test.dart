@@ -67,7 +67,7 @@ void main() {
   ) async {
     await host(tester);
     expect(find.text(PeptideLmScreen.title), findsOneWidget);
-    expect(find.text('Recorded run · 1,711 parameters'), findsOneWidget);
+    expect(find.text('Recorded run · 2,015 parameters'), findsOneWidget);
     for (final LmStage stage in LmStage.values) {
       expect(find.byKey(ValueKey<String>('stage-${stage.label}')), findsOneWidget);
     }

@@ -17,7 +17,7 @@ them, and keeps every number through read-only hooks:
   and the output layer's weights and biases as the step found them;
 - **at each checkpoint**, everything else: the two embedding tables as the
   step found them, whole as float32 (the token embedding, 23 × 16, and the
-  position embedding, 40 × 16; added 2026-10-30, kept whole since schema 2
+  position embedding, 51 × 16; added 2026-10-30, kept whole since schema 2
   the same day), the
   residual stream at its ten points, the gradient reaching each, every head's attention map (worked out
   again from the layer's input, within 4 × 10⁻⁷ of the layer's own output),
@@ -31,12 +31,12 @@ production serves. The run itself:
 | | |
 |---|---|
 | data | six peptides, 174 residues: insulin A and B chains and C-peptide, relaxin A and B chains, copeptin; nothing held out |
-| model | 4 blocks of 4 heads, width 16, feed-forward 64, 40 places: 14,551 parameters (recorded again 16 wide on 2026-10-30, for the Embedding stage's numbers, it was 96 wide, 456,887 parameters; and with as many places as the longest of the six reads, `<bos>` and copeptin's 39, at the user's ask the same evening, it held the corpus model's 51) |
+| model | 4 blocks of 4 heads, width 16, feed-forward 64, 51 places: 14,727 parameters (recorded again 16 wide on 2026-10-30, for the Embedding stage's numbers; it was 96 wide, 456,887 parameters. Sized to the six's longest, 40 places, the same evening and put back: the user chose to keep the engine's 51, `<bos>` and up to 50 residues, and to explain it on the page) |
 | training | AdamW 1e−2 (at 1e−3 a model 16 wide never passes one nat in 200 steps), weight decay 0.1 on matrices, 100 warm-up steps then cosine, clip 1.0, dropout 0, all six a step, 200 steps, seed 0 |
-| loss | 3.231 at step 1 (worse than uniform, 3.045) to 0.064 at step 200 |
+| loss | 3.205 at step 1 (worse than uniform, 3.045) to 0.065 at step 200 |
 | baselines | uniform 3.045, unigram 2.856, bigram 2.043 |
 | floor | 0.060 = 6 ln 6 / 180: from `<bos>` alone nothing says which peptide comes |
-| checkpoints | 1, then the first step under uniform (11), unigram (19), bigram (46), one nat (63) and a tenth of one (94), and 200 |
+| checkpoints | 1, then the first step under uniform (10), unigram (18), bigram (45), one nat (62) and a tenth of one (93), and 200 |
 
 Dropout is off so that the forward pass drawn is the forward pass trained.
 
@@ -123,7 +123,7 @@ out of view is scrolled just far enough to show it whole.
    whole width and every number written out on a soft tile of its colour
    (the run was recorded again 16 wide for it, see above). It opens on
    Shift's last frame, pixel for pixel, and takes the engine's first steps
-   (`HelixPeekLM.forward`) in 15 beats. Over the tag, a note says why each
+   (`HelixPeekLM.forward`) in 16 beats. Over the tag, a note says why each
    part happens, in the quiet ink, its parts fading out and in at the
    caption's turns, while the caption under the canvas says what happens,
    neither repeating the other (the user's ask of 2026-10-30). A live
@@ -165,12 +165,17 @@ out of view is scrolled just far enough to show it whole.
      (the two Cs at 6 and 7), the note naming them, and stay outlined
      through the adding: "The two Cs at places 6 and 7 are the same row:
      nothing yet says where each is.";
-   - *the position embedding* (11.6–13.6): each place's own row alone, on
+   - *the position embedding* (11.6–15): each place's own row alone, on
      its own colour scale, its numbers to two places, the rows labelled by
      place (0–21) instead of residue while they show alone, since a position
      row belongs to its place whatever sits there ("The position embedding:
-     a second learned table, one row per place, here rows 0–21"); then added,
-     the residues back ("Each place's row is added to its residue's: 43×
+     one learned row per place, here rows 0–21 of 51"; note: "where it
+     comes from: a second table in the model, random at first and trained
+     like the token one / why 22 of 51: a row for each place the model can
+     hold, <bos> and up to 50 residues; insulin A chain fills 22", the
+     user's two questions answered where they arise, the model kept at the
+     engine's 51 places by their choice); then added,
+     the residues back ("Each place's row is added to its residue's: 42×
      smaller, so the numbers move only a little", 5× at step 200); a cell
      shows one set of numbers at a time. The user asked where the table
      came from and why the chain stays the same while its numbers change:
@@ -179,7 +184,7 @@ out of view is scrolled just far enough to show it whole.
      is, the same for every C / position row: where it sits, the same at
      place 7 whatever is there / added: each place carries both, so the Cs
      at 6 and 7 now differ";
-   - *x0* (13.6–15): the sum is `x0`, as the engine makes it; the run's
+   - *x0* (15–16): the sum is `x0`, as the engine makes it; the run's
      stored stream holds it to within its own rounding, and Forward's
      stand-up turns the one into the other ("x0, 22 × 16: the start of the
      residual stream"). Note, what the end result is: "x0: insulin A chain
@@ -220,7 +225,7 @@ out of view is scrolled just far enough to show it whole.
 5. **Predict.** The final column runs down the output layer's 23 rows and
    each row's logit grows; `<pad>` and `<bos>` are struck to −∞; softmax
    turns the rest into 21 bars in the residues' colours, what came next
-   outlined. Untrained, after GIVEQCCTSIC the model says A 11%; at step 200,
+   outlined. Untrained, after GIVEQCCTSIC the model says K 11%; at step 200,
    S 99.6% (100% as the page rounds it), and S is next.
 6. **Loss.** A ghost bar rises to certainty at the target, the gap bracketed
    and read off the −ln p curve; every target's surprise fills a strip a
