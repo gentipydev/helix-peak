@@ -108,6 +108,10 @@ class _TrainingRunViewState extends State<TrainingRunView>
   int? _head;
   bool _resumeOnForeground = false;
 
+  /// The stage bar, inside its scroll, whose names [_reveal] brings into
+  /// view.
+  final GlobalKey _bar = GlobalKey();
+
   /// What [_reserve] was worked out for, and the height itself.
   Object? _reserveFor;
   double _reserve = 0;
@@ -236,6 +240,45 @@ class _TrainingRunViewState extends State<TrainingRunView>
       ..stop()
       ..duration = TrainingRunView.beat * stage.beats;
     if (!_reduced) unawaited(_clock.forward(from: 0));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _reveal(stage);
+    });
+  }
+
+  /// Scrolls the stage bar just far enough to show [stage]'s name whole,
+  /// where it stands partly out of view; otherwise the bar keeps still.
+  void _reveal(LmStage stage) {
+    final BuildContext? bar = _bar.currentContext;
+    if (bar == null) return;
+    // The bar names each stage by this key.
+    final Key key = ValueKey<String>('stage-${stage.label}');
+    Element? name;
+    void visit(Element element) {
+      if (name != null) return;
+      if (element.widget.key == key) {
+        name = element;
+        return;
+      }
+      element.visitChildren(visit);
+    }
+
+    bar.visitChildElements(visit);
+    final Element? found = name;
+    if (found == null) return;
+    final Duration duration = _reduced ? Duration.zero : const Duration(milliseconds: 220);
+    for (final ScrollPositionAlignmentPolicy policy in <ScrollPositionAlignmentPolicy>[
+      ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+      ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+    ]) {
+      unawaited(
+        Scrollable.ensureVisible(
+          found,
+          duration: duration,
+          curve: Curves.easeOutCubic,
+          alignmentPolicy: policy,
+        ),
+      );
+    }
   }
 
   /// Pauses the stage on screen, or plays it on from where it stands: from
@@ -405,20 +448,28 @@ class _TrainingRunViewState extends State<TrainingRunView>
                 },
               ),
             ),
-            // All seven in view, the whole of one step and its loop, scaled
-            // down where a phone is too narrow for them at full size. A tap
-            // plays a stage, the one on screen again.
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: StageBar(
-                  labels: <String>[
-                    for (final LmStage stage in LmStage.values) stage.label,
-                  ],
-                  index: _stage.index,
-                  reselectable: true,
-                  onSelect: (int i) => _play(LmStage.values[i]),
+            // The whole of one step and its loop in one row, at full size: it
+            // scrolls sideways where a phone is too narrow for it, and is
+            // centred where it is not. A tap plays a stage, the one on
+            // screen again.
+            LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints box) => SingleChildScrollView(
+                key: const ValueKey<String>('peptide-lm-stages'),
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: ConstrainedBox(
+                  key: _bar,
+                  constraints: BoxConstraints(minWidth: math.max(0, box.maxWidth - 8)),
+                  child: Center(
+                    child: StageBar(
+                      labels: <String>[
+                        for (final LmStage stage in LmStage.values) stage.label,
+                      ],
+                      index: _stage.index,
+                      reselectable: true,
+                      onSelect: (int i) => _play(LmStage.values[i]),
+                    ),
+                  ),
                 ),
               ),
             ),

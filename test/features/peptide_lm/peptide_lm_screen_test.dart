@@ -53,6 +53,15 @@ void main() {
   String caption(WidgetTester tester) =>
       tester.widget<Text>(find.byKey(const ValueKey<String>('peptide-lm-caption'))).data!;
 
+  /// Taps [label]'s stage on the bar, scrolled into view first as a reader
+  /// would.
+  Future<void> tapStage(WidgetTester tester, String label) async {
+    final Finder stage = find.byKey(ValueKey<String>('stage-$label'));
+    await tester.ensureVisible(stage);
+    await tester.pump();
+    await tester.tap(stage);
+  }
+
   testWidgets('the run plays from its first stage, every stage named once', (
     WidgetTester tester,
   ) async {
@@ -122,7 +131,7 @@ void main() {
     WidgetTester tester,
   ) async {
     await host(tester);
-    await tester.tap(find.byKey(const ValueKey<String>('stage-Loss')));
+    await tapStage(tester, 'Loss');
     await tester.pump();
     final String start = caption(tester);
     await tester.pump(TrainingRunView.beat * (LmStage.loss.beats + 5));
@@ -144,7 +153,7 @@ void main() {
     await host(tester);
     await tester.pump(TrainingRunView.beat * (LmStage.tokenise.beats + 1));
     expect(caption(tester), startsWith('The vocabulary, counted: '));
-    await tester.tap(find.byKey(const ValueKey<String>('stage-Tokenise')));
+    await tapStage(tester, 'Tokenise');
     await tester.pump();
     expect(caption(tester), startsWith('Two peptides'));
     await tester.pump(TrainingRunView.beat * 7);
@@ -153,12 +162,49 @@ void main() {
 
   testWidgets('a stage on the bar plays from its start', (WidgetTester tester) async {
     await host(tester);
-    await tester.tap(find.byKey(const ValueKey<String>('stage-Loss')));
+    await tapStage(tester, 'Loss');
     await tester.pump();
     expect(caption(tester), contains('−ln p'));
-    await tester.tap(find.byKey(const ValueKey<String>('stage-Loop')));
+    await tapStage(tester, 'Loop');
     await tester.pump();
     expect(caption(tester), startsWith('Step 1 of 20'));
+  });
+
+  testWidgets('the stage bar scrolls, and a stage played comes whole into view', (
+    WidgetTester tester,
+  ) async {
+    await host(tester);
+    final double width = tester.getSize(find.byType(Scaffold)).width;
+    final Finder loop = find.byKey(const ValueKey<String>('stage-Loop'));
+    // Every stage at its full size: more than a phone is wide.
+    expect(tester.getRect(loop).left, greaterThan(width));
+    await tester.drag(find.byKey(const ValueKey<String>('peptide-lm-stages')), const Offset(-2000, 0));
+    await tester.pump();
+    expect(tester.getRect(loop).right, lessThanOrEqualTo(width));
+    await tester.tap(loop);
+    await tester.pump();
+    expect(caption(tester), startsWith('Step 1 of 20'));
+
+    // Back at the start, a stage cut by the edge is scrolled in once played.
+    await tester.drag(find.byKey(const ValueKey<String>('peptide-lm-stages')), const Offset(2000, 0));
+    await tester.pump();
+    final LmStage cut = LmStage.values.firstWhere((LmStage stage) {
+      final Rect rect = tester.getRect(find.byKey(ValueKey<String>('stage-${stage.label}')));
+      return rect.left < width - 8 && rect.right > width;
+    });
+    final Finder name = find.byKey(ValueKey<String>('stage-${cut.label}'));
+    final Rect before = tester.getRect(name);
+    await tester.tapAt(Offset((before.left + width) / 2, before.center.dy));
+    // The frame that plays it, then the scroll's own.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 16));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(caption(tester), isNot(startsWith('Step 1 of 20')));
+    final Rect after = tester.getRect(name);
+    expect(after.left, greaterThanOrEqualTo(0));
+    expect(after.right, lessThanOrEqualTo(width));
+    // Just far enough: its right edge at the bar's.
+    expect(after.right, closeTo(width, 1));
   });
 
   testWidgets('a checkpoint is picked from the menu, by step and loss', (
