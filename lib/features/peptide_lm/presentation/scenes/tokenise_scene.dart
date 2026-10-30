@@ -433,7 +433,7 @@ final class TokeniseScene extends LmScene {
 
   /// A residue's tile part way through turning into its id: [flip] 0 is the
   /// letter, 1 the id.
-  static void drawFlip(Canvas canvas, LmView view, Rect rect, int id, double flip) {
+  static void drawFlip(Canvas canvas, LmView view, Rect rect, int id, double flip, {double numberScale = 0.52}) {
     final double squash = math.cos(math.pi * flip).abs();
     canvas.save();
     canvas.translate(rect.center.dx, rect.center.dy);
@@ -442,7 +442,7 @@ final class TokeniseScene extends LmScene {
     if (flip < 0.5) {
       drawToken(canvas, view, rect, id, outline: flip > 0 ? view.inks.truth : null);
     } else {
-      drawIdTile(canvas, view, rect, id);
+      drawIdTile(canvas, view, rect, id, numberScale: numberScale);
     }
     canvas.restore();
   }

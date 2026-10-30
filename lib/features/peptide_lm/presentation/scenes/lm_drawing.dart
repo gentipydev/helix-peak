@@ -250,7 +250,15 @@ const double idNumbered = 11;
 
 /// A token as its id: a plain tile under a stripe of its residue's colour,
 /// the id in the accent; an end of the frame or padding in the quiet ink.
-void drawIdTile(Canvas canvas, LmView view, Rect rect, int id, {double alpha = 1}) {
+/// The number is [numberScale] of the tile's height, where its width lets it.
+void drawIdTile(
+  Canvas canvas,
+  LmView view,
+  Rect rect,
+  int id, {
+  double alpha = 1,
+  double numberScale = 0.52,
+}) {
   if (alpha <= 0) {
     return;
   }
@@ -284,7 +292,8 @@ void drawIdTile(Canvas canvas, LmView view, Rect rect, int id, {double alpha = 1
   final String widest = '8' * '${trace.vocab.length - 1}'.length;
   final double perPoint = view.kit.layout(widest, inked(view.kit.mono, 10, view.inks.quiet)).width / 10;
   // Held to the half point below, so the drawn number is never wider.
-  final double size = (math.min(math.min(tile.height * 0.52, tile.width / perPoint), 14) * 2).floorToDouble() / 2;
+  final double size =
+      (math.min(math.min(tile.height * numberScale, tile.width / perPoint), 14) * 2).floorToDouble() / 2;
   if (tile.height >= idNumbered && size >= 5) {
     view.kit.draw(
       canvas,

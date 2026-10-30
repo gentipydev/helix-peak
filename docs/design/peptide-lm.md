@@ -103,9 +103,12 @@ out of view is scrolled just far enough to show it whole.
    its line of x, which read as four alternating lines a peptide (confusing,
    so back to two groups). The tiles are the dataset's, folded onto two
    lines where both groups' tiles can still carry their ids (the Pro Max),
-   else one line of tall tiles a peptide. The height keeps folded tiles
-   small, so their columns spread across the whole width with room between
-   them, and the groups stand 28 pt apart (the user's ask, the same day).
+   else one line of tall tiles a peptide. At the user's asks the same day,
+   the groups stand 28 pt apart, and the tiles fill their columns across
+   the whole width, a peptide's two lines touching (the tiles' own inset
+   parts them), each tile as tall as the height allows and its id drawn at
+   0.62 of the tile's height (Tokenise's 0.52; `drawIdTile(numberScale:)`):
+   on a Pro Max about 17 × 15 pt drawn, 9 pt ids.
 3. **Forward.** It opens on Shift's last frame, pixel for pixel, and in four
    beats takes the engine's steps from ids to the stream
    (`HelixPeekLM.forward`):

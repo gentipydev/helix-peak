@@ -49,6 +49,10 @@ final class ShiftScene extends LmScene {
   /// How far above its place the copy comes in from.
   static const double _comeIn = 16;
 
+  /// How large an id is drawn in its tile, of the tile's height: larger
+  /// than Tokenise draws it, the room the stage has being its tiles'.
+  static const double numberScale = 0.62;
+
   static double _span(double at, (double, double) span) => through(at, span.$1, span.$2);
 
   @override
@@ -215,7 +219,7 @@ final class ShiftScene extends LmScene {
     if (k == 0 || k > residues) {
       drawToken(canvas, view, rect, ids[k], alpha: alpha);
     } else {
-      drawIdTile(canvas, view, rect, ids[k], alpha: alpha);
+      drawIdTile(canvas, view, rect, ids[k], alpha: alpha, numberScale: numberScale);
     }
   }
 
@@ -334,10 +338,13 @@ final class ShiftLayout {
     // place keeps its column in x and in y.
     final double tallest =
         (room - blocks * (label + _lineGap) - (blocks - 2) * _leastGap) / (2 * blocks);
-    final double folded = math.min(math.min(22, width / (frame - frame ~/ 2)), tallest);
-    if (folded - 2 * _inset(folded) >= idNumbered) {
+    // A tile as wide as its column and as tall as the height allows, never
+    // taller than wide: next to no room between tiles.
+    final double column = math.min(22, width / (frame - frame ~/ 2));
+    final double folded = math.min(column, tallest);
+    if (folded - 2 * _inset(column) >= idNumbered) {
       firstLine = frame ~/ 2;
-      tileWidth = folded;
+      tileWidth = math.min(column, folded * 1.6);
       tileHeight = folded;
     } else {
       // Where two lines cannot number their tiles, one: every place across
@@ -379,12 +386,13 @@ final class ShiftLayout {
   static const double _tagGap = 8;
   static const double _groupGap = 28;
 
-  /// Between a peptide's two lines, and the least between two peptides.
-  static const double _lineGap = 3;
-  static const double _leastGap = 5;
+  /// Between a peptide's two lines (the tiles' own inset parts them), and
+  /// the least between two peptides.
+  static const double _lineGap = 0;
+  static const double _leastGap = 3;
 
   /// A peptide's name.
-  static const double label = 14;
+  static const double label = 13;
 
   /// The tiles' columns, as Tokenise's, and the card's left edge, where the
   /// tags start too.
@@ -439,9 +447,10 @@ final class ShiftLayout {
   /// Place [i] of [peptide] in y, in the same column as in x.
   Rect y(int peptide, int i) => x(peptide, i).shift(Offset(0, drop));
 
-  /// The card under [peptide] in focus, in x, round its name and its lines.
+  /// The card under [peptide] in focus, in x, round its name and its lines,
+  /// clear of the peptides beside it.
   Rect card(int peptide) =>
-      Rect.fromLTRB(cardLeft, rowTop(peptide) - 4, right + 6, rowTop(peptide) + block + 5);
+      Rect.fromLTRB(cardLeft, rowTop(peptide) - 3, right + 6, rowTop(peptide) + block + 2);
 
   /// The card under [peptide] in focus, in y.
   Rect yCard(int peptide) => card(peptide).shift(Offset(0, drop));

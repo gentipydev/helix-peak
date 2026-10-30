@@ -375,7 +375,7 @@ final class ForwardOpening {
       if (k == 0 || flip <= 0) {
         drawToken(canvas, view, rect, ids[k]);
       } else {
-        TokeniseScene.drawFlip(canvas, view, rect, ids[k], flip);
+        TokeniseScene.drawFlip(canvas, view, rect, ids[k], flip, numberScale: ShiftScene.numberScale);
       }
     }
   }
