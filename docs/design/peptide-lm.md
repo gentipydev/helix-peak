@@ -88,8 +88,14 @@ out of view is scrolled just far enough to show it whole.
      under the `input x` tag, and lets go of the frame's last place, which
      nothing reads ("Input x: each frame less its last place, 6 × 40
      tokens");
-   - *the copy*: under x comes a copy of the same peptides, under the
-     `target y` tag ("Target y starts as a copy of the same peptides");
+   - *the copy* (1½ beats, the user's ask of 2026-10-30 that y be seen
+     to come out of x): a copy of x lifts off it as a shadow, a few
+     points under each line and faint, then falls as one block to its
+     place under x, faint while it crosses x's lines and stronger once it
+     has come out under the last of them, solid as it settles, and the
+     `target y` tag comes in as it lands ("Target y starts as a copy of
+     the same peptides"). The frame's last place, which x let go of,
+     comes back in the copy as it falls;
    - *the move*: every line of the copy moves one place to the left, so
      each place of y holds the token after the same place of x ("One place
      to the left: each place's answer is the token after it"). `<bos>`

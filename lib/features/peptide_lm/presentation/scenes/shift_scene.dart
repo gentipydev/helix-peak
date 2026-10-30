@@ -12,9 +12,9 @@ import 'tokenise_scene.dart';
 /// Shift: input x and next token y, one place apart, as `sequences.batches`
 /// cuts the batch (`frame[:, :-1]` and `frame[:, 1:]`). It opens on
 /// Tokenise's last frame: the vocabulary goes, and the matrix opens out into
-/// its peptides again, input x, what the model reads. Then two moves: under
-/// x comes a copy of it, target y, the same peptides and tokens; and every
-/// line of the copy
+/// its peptides again, input x, what the model reads. Then two moves: a copy
+/// of x lifts off it as a shadow and falls, whole, to its place under x,
+/// target y, the same peptides and tokens; and every line of the copy
 /// moves one place to the left, so that each place of y holds the token after
 /// the same place of x. `<bos>` leaves at the left, never a target, and the
 /// token that leaves a second line's start comes in at the first line's end,
@@ -31,24 +31,30 @@ final class ShiftScene extends LmScene {
   static const (double, double) _xNamed = (1.0, 1.4);
   static const (double, double) _lastOut = (0.9, 1.4);
 
-  // The copy of the peptides comes in under x, y named as it does; then it
-  // moves one place left; then the padding dims.
-  static const (double, double) _copy = (1.6, 2.3);
-  static const (double, double) _yNamed = (1.9, 2.4);
-  static const (double, double) _slide = (2.6, 3.6);
-  static const (double, double) _dim = (3.9, 4.5);
+  // The copy of the peptides lifts off x as its shadow, falls to its place
+  // under x, solid as it settles, and y is named as it lands; then it moves
+  // one place left; then the padding dims.
+  static const (double, double) _lift = (1.5, 1.85);
+  static const (double, double) _fall = (1.85, 2.75);
+  static const (double, double) _land = (2.4, 2.75);
+  static const (double, double) _yNamed = (2.45, 2.85);
+  static const (double, double) _slide = (2.9, 3.9);
+  static const (double, double) _dim = (4.1, 4.7);
 
   /// Where the caption turns: to the copy, the move, and what it makes.
-  static const double _copyCaption = 1.6;
-  static const double _slideCaption = 2.6;
-  static const double _madeCaption = 3.7;
+  static const double _copyCaption = 1.5;
+  static const double _slideCaption = 2.9;
+  static const double _madeCaption = 4.0;
 
   /// How far a pair whose target is padding dims: none of the loss is
   /// counted there.
   static const double dimmed = 0.65;
 
-  /// How far above its place the copy comes in from.
-  static const double _comeIn = 16;
+  /// How far under x the shadow lifts, how strong it is over x, and how
+  /// strong once it has come out under x, until it lands.
+  static const double _shadowDrop = 5;
+  static const double _shadow = 0.2;
+  static const double _ghost = 0.6;
 
   /// How large an id is drawn in its tile, of the tile's height: larger
   /// than Tokenise draws it, the room the stage has being its tiles'.
@@ -110,7 +116,36 @@ final class ShiftScene extends LmScene {
           _tile(canvas, view, xAt(p, k), ids, k, residues, alpha);
         }
       }
-      _y(canvas, view, layout, p, beat, shown * fade.y, Offset(fade.ySlide, 0), dim, fade);
+    }
+    // The copy, over every line of x as it falls past them, faded as one
+    // picture until it lands: a faint shadow over x, stronger once it has
+    // come out under x's last line.
+    final double lift = _span(beat, _lift);
+    if (lift > 0) {
+      void copies() {
+        for (int p = 0; p < trace.peptides.length; p++) {
+          final double shown = p == view.peptide ? 1 : fade.others;
+          if (shown > 0) {
+            _y(canvas, view, layout, p, beat, lift, shown * fade.y, Offset(fade.ySlide, 0), dim, fade);
+          }
+        }
+      }
+
+      final double out = lift * (_ghost + (1 - _ghost) * _span(beat, _land));
+      if (_span(beat, _fall) >= 1) {
+        _faded(canvas, size, view, out, copies);
+      } else {
+        final double under = layout.card(trace.peptides.length - 1).bottom;
+        for (final (Rect part, double alpha) in <(Rect, double)>[
+          (Rect.fromLTRB(0, 0, size.width, under), lift * _shadow),
+          (Rect.fromLTRB(0, under, size.width, size.height), out),
+        ]) {
+          canvas.save();
+          canvas.clipRect(part);
+          _faded(canvas, size, view, alpha, copies);
+          canvas.restore();
+        }
+      }
     }
     _names(canvas, view, layout, beat, fade);
 
@@ -128,7 +163,8 @@ final class ShiftScene extends LmScene {
     }
   }
 
-  /// [p]'s y: a copy of its peptide in x, coming in under x, then each line
+  /// [p]'s y: a copy of its peptide in x, lifting off x as its shadow
+  /// ([lift] of the way) and falling to its place under x, then each line
   /// moving one place left, a place's own token leaving it for the one after
   /// it; `<bos>` going off at the left, and the token that leaves the second
   /// line's start coming in at the first line's end. Moved, each slot under
@@ -139,22 +175,22 @@ final class ShiftScene extends LmScene {
     ShiftLayout layout,
     int p,
     double beat,
-    double alpha,
+    double lift,
+    double shown,
     Offset away,
     double dim,
     ShiftFade fade,
   ) {
-    final double copy = _span(beat, _copy);
-    if (copy <= 0 || alpha <= 0) {
-      return;
-    }
     final TrainingTrace trace = view.trace;
     final TracePeptide peptide = trace.peptides[p];
     final bool focus = p == view.peptide;
     final List<int> ids = TokeniseScene.frameOf(trace, p);
     final int residues = peptide.sequence.length;
-    final double shown = alpha * copy;
-    final Offset come = Offset(0, -_comeIn * (1 - copy)) + away;
+    // From x's place, a little way down as it lifts, then the rest of the
+    // way to y's.
+    final double fall = _span(beat, _fall);
+    final double down = _shadowDrop * lift + (layout.drop - _shadowDrop) * fall;
+    final Offset come = Offset(0, down - layout.drop) + away;
     if (focus && fade.card > 0) {
       canvas.drawRRect(
         RRect.fromRectAndRadius(layout.yCard(p).shift(come), const Radius.circular(6)),
@@ -184,9 +220,11 @@ final class ShiftScene extends LmScene {
     }
     for (int k = 0; k < ids.length; k++) {
       final Rect at = layout.y(p, k).shift(left + come);
-      // A line's first token goes off its left end.
+      // A line's first token goes off its left end; the frame's last place,
+      // which x let go of, comes back as the copy falls.
       final bool first = k == 0 || k == layout.firstLine;
-      _tile(canvas, view, at, ids, k, residues, shown * (first ? 1 - slide : 1));
+      final double back = k == ids.length - 1 ? fall : 1;
+      _tile(canvas, view, at, ids, k, residues, shown * back * (first ? 1 - slide : 1));
       if (k == layout.firstLine && slide > 0) {
         // And comes in at the end of the line before, as text reflows.
         final Rect end = layout.y(p, k - 1).shift(Offset(layout.step, 0) + left + come);
