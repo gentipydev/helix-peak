@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -7,8 +8,6 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/anatomy/stage_bar.dart';
 import '../../../shared/format.dart';
-import '../../../shared/motion/timeline_controller.dart';
-import '../../../shared/motion/transport_bar.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../domain/training_timeline.dart';
@@ -76,30 +75,31 @@ class _Waiting extends StatelessWidget {
   );
 }
 
-/// The run itself: the stage on the canvas, a line of its numbers, the seven
-/// stages, and the reader's controls.
+/// The run itself: the stage on the canvas, a line of its numbers, and the
+/// seven stages, a tap on one playing it once from its start.
 class TrainingRunView extends StatefulWidget {
   const TrainingRunView({required this.trace, super.key});
 
   final TrainingTrace trace;
 
-  /// A beat at 1×: a second.
-  static const Duration beat = Duration(seconds: 1);
+  /// A beat: two seconds, the page's one speed, slow enough to follow each
+  /// change.
+  static const Duration beat = Duration(seconds: 2);
 
   @override
   State<TrainingRunView> createState() => _TrainingRunViewState();
 }
 
 class _TrainingRunViewState extends State<TrainingRunView>
-    with TickerProviderStateMixin, WidgetsBindingObserver {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late final TrainingTimeline _timeline = TrainingTimeline(
     steps: widget.trace.steps.count,
   );
-  late final TimelineController _controller = TimelineController(
-    vsync: this,
-    timeline: _timeline,
-    beat: TrainingRunView.beat,
-  );
+
+  /// How far through [_stage], from 0 to 1, where it stops and holds.
+  late final AnimationController _clock = AnimationController(vsync: this);
+  LmStage _stage = LmStage.tokenise;
+  bool _reduced = false;
   LmKit? _kit;
   int _checkpoint = 0;
   int _peptide = 0;
@@ -116,15 +116,15 @@ class _TrainingRunViewState extends State<TrainingRunView>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      _controller.reducedMotion = MediaQuery.disableAnimationsOf(context);
-      if (!_controller.reducedMotion) _controller.play();
+      if (mounted) _play(LmStage.tokenise);
     });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _reduced = MediaQuery.disableAnimationsOf(context);
+    if (_reduced) _clock.stop();
     final ThemeData theme = Theme.of(context);
     final LmKit kit = LmKit(
       mono: AppTypography.sequenceSmall(theme.colorScheme.onSurfaceVariant),
@@ -148,27 +148,25 @@ class _TrainingRunViewState extends State<TrainingRunView>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      if (_resumeOnForeground) _controller.play();
+      if (_resumeOnForeground && !_reduced) unawaited(_clock.forward());
       _resumeOnForeground = false;
     } else if (state == AppLifecycleState.inactive ||
         state == AppLifecycleState.paused) {
-      _resumeOnForeground = _resumeOnForeground || _controller.isPlaying;
-      _controller.pause();
+      _resumeOnForeground = _resumeOnForeground || _clock.isAnimating;
+      _clock.stop();
     }
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _controller.dispose();
+    _clock.dispose();
     _kit?.dispose();
     super.dispose();
   }
 
-  TrainingFrame _frame() {
-    final TrainingFrame frame = _timeline.stateAt(_controller.t);
-    return _controller.reducedMotion ? frame.completed(_trace.steps.count) : frame;
-  }
+  /// With reduced motion, the stage played through.
+  TrainingFrame _frame() => _timeline.frameIn(_stage, _reduced ? 1 : _clock.value);
 
   void _apply(LmHit hit) {
     switch (hit) {
@@ -189,30 +187,32 @@ class _TrainingRunViewState extends State<TrainingRunView>
   /// Shows [index]'s checkpoint in the six stages; in the loop, goes to it.
   void _pick(int index) {
     setState(() => _checkpoint = index);
-    if (_frame().stage == LmStage.loop) {
-      _controller.pause();
-      _controller.seek(_timeline.loopAt(_trace.checkpoints[index].step.toDouble()));
+    if (_stage == LmStage.loop) {
+      _clock
+        ..stop()
+        ..value = _timeline.loopThrough(_trace.checkpoints[index].step.toDouble());
     }
   }
 
-  /// Plays [stage] from its start.
-  void _goTo(LmStage stage) {
-    _controller.seek(_timeline.startOf(stage));
-    if (!_controller.reducedMotion && !_controller.isPlaying) {
-      _controller.play();
-    }
+  /// Plays [stage] once from its start, and holds on its last frame.
+  void _play(LmStage stage) {
+    setState(() => _stage = stage);
+    _clock
+      ..stop()
+      ..duration = TrainingRunView.beat * stage.beats;
+    if (!_reduced) unawaited(_clock.forward(from: 0));
   }
 
   Future<void> _showAbout() async {
-    final bool resume = _controller.isPlaying;
-    _controller.pause();
+    final bool resume = _clock.isAnimating;
+    _clock.stop();
     await showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
       builder: (BuildContext context) => LmAboutSheet(trace: _trace),
     );
-    if (mounted && resume && !_controller.reducedMotion) _controller.play();
+    if (mounted && resume && !_reduced) unawaited(_clock.forward());
   }
 
   @override
@@ -287,7 +287,7 @@ class _TrainingRunViewState extends State<TrainingRunView>
                       }
                     },
                     child: AnimatedBuilder(
-                      animation: _controller,
+                      animation: _clock,
                       builder: (BuildContext context, Widget? child) {
                         final TrainingFrame frame = _frame();
                         return Semantics(
@@ -303,7 +303,7 @@ class _TrainingRunViewState extends State<TrainingRunView>
                           painter: LmScenePainter(
                             view: view,
                             frame: _frame,
-                            repaint: _controller,
+                            repaint: _clock,
                           ),
                         ),
                       ),
@@ -313,7 +313,7 @@ class _TrainingRunViewState extends State<TrainingRunView>
               ),
             ),
             AnimatedBuilder(
-              animation: _controller,
+              animation: _clock,
               builder: (BuildContext context, Widget? child) {
                 final TrainingFrame frame = _frame();
                 return Padding(
@@ -332,29 +332,23 @@ class _TrainingRunViewState extends State<TrainingRunView>
                 );
               },
             ),
-            AnimatedBuilder(
-              animation: _controller,
-              // All seven in view, the whole of one step and its loop, scaled
-              // down where a phone is too narrow for them at full size.
-              builder: (BuildContext context, Widget? child) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: StageBar(
-                    labels: <String>[
-                      for (final LmStage stage in LmStage.values) stage.label,
-                    ],
-                    index: _frame().stage.index,
-                    reselectable: true,
-                    onSelect: (int i) => _goTo(LmStage.values[i]),
-                  ),
+            // All seven in view, the whole of one step and its loop, scaled
+            // down where a phone is too narrow for them at full size. The
+            // page's only control: a tap plays a stage, the one on screen
+            // again.
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: StageBar(
+                  labels: <String>[
+                    for (final LmStage stage in LmStage.values) stage.label,
+                  ],
+                  index: _stage.index,
+                  reselectable: true,
+                  onSelect: (int i) => _play(LmStage.values[i]),
                 ),
               ),
-            ),
-            TransportBar(
-              controller: _controller,
-              speeds: const <double>[0.5, 1, 2, 4],
-              showPhase: false,
             ),
             const SizedBox(height: 4),
           ],
@@ -396,8 +390,8 @@ class _CheckpointMenu extends StatelessWidget {
       ],
       child: ConstrainedBox(
         constraints: const BoxConstraints(
-          minWidth: TransportBar.target,
-          minHeight: TransportBar.target,
+          minWidth: kMinInteractiveDimension,
+          minHeight: kMinInteractiveDimension,
         ),
         child: Center(
           widthFactor: 1,

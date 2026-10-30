@@ -59,8 +59,8 @@ final class TrainingFrame {
 }
 
 /// The run as a pure function of time: a stage and how far into it, and in
-/// the loop, the step. The clock and the reader's controls are the
-/// `TimelineController`'s.
+/// the loop, the step. The page plays one stage at a time ([frameIn]);
+/// [stateAt] reads the whole run end to end.
 final class TrainingTimeline extends AnimationTimeline<TrainingFrame> {
   const TrainingTimeline({required this.steps}) : assert(steps >= 1, 'a run takes a step');
 
@@ -96,10 +96,23 @@ final class TrainingTimeline extends AnimationTimeline<TrainingFrame> {
   /// Where [stage] begins.
   double startOf(LmStage stage) => _starts[stage.index] / _beats;
 
+  /// How far through the loop it reaches [step], from 0 to 1.
+  double loopThrough(double step) =>
+      steps <= 1 ? 1 : ((step - 1) / (steps - 1)).clamp(0.0, 1.0);
+
   /// Where the loop reaches [step].
-  double loopAt(double step) {
-    final double through = steps <= 1 ? 1 : ((step - 1) / (steps - 1)).clamp(0.0, 1.0);
-    return (_starts[LmStage.loop.index] + LmStage.loop.beats * through) / _beats;
+  double loopAt(double step) =>
+      (_starts[LmStage.loop.index] + LmStage.loop.beats * loopThrough(step)) / _beats;
+
+  /// [stage], [local] of the way through: at 1, the stage played through,
+  /// never the next stage's first frame.
+  TrainingFrame frameIn(LmStage stage, double local) {
+    final double through = local.clamp(0.0, 1.0);
+    return TrainingFrame(
+      stage: stage,
+      local: through,
+      step: stage == LmStage.loop ? 1 + through * (steps - 1) : 1,
+    );
   }
 
   @override
@@ -114,12 +127,6 @@ final class TrainingTimeline extends AnimationTimeline<TrainingFrame> {
     // A moment this close to its stage's start is the start: the step there
     // is the first, not a hair past it.
     final double into = at - _starts[stage.index];
-    final double local =
-        (into <= _epsilon ? 0.0 : into / stage.beats).clamp(0.0, 1.0);
-    return TrainingFrame(
-      stage: stage,
-      local: local,
-      step: stage == LmStage.loop ? 1 + local * (steps - 1) : 1,
-    );
+    return frameIn(stage, into <= _epsilon ? 0.0 : into / stage.beats);
   }
 }

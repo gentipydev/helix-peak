@@ -62,12 +62,48 @@ void main() {
     for (final LmStage stage in LmStage.values) {
       expect(find.byKey(ValueKey<String>('stage-${stage.label}')), findsOneWidget);
     }
-    // The stage bar names the stage; the transport does not name it again.
+    // No player: the stage bar is the page's only control.
     expect(find.byKey(const ValueKey<String>('transport-phase')), findsNothing);
+    for (final String control in <String>[
+      'Reset',
+      'Step back',
+      'Play',
+      'Pause',
+      'Step forward',
+      'Playback speed',
+    ]) {
+      expect(find.byTooltip(control), findsNothing);
+    }
     expect(find.byKey(const ValueKey<String>('peptide-lm-canvas')), findsOneWidget);
     expect(caption(tester), startsWith('Two peptides'));
-    // Playing: a few seconds on, the light has crossed the peptides.
-    await tester.pump(const Duration(seconds: 7));
+    // Playing: a few beats on, the light has crossed the peptides.
+    await tester.pump(TrainingRunView.beat * 7);
+    expect(caption(tester), isNot(startsWith('Two peptides')));
+  });
+
+  testWidgets('a stage plays once, at the one slow speed, and holds on its last frame', (
+    WidgetTester tester,
+  ) async {
+    await host(tester);
+    // Two seconds a beat: at eleven seconds Tokenise's eleven beats are half
+    // played, the peptides still being framed.
+    await tester.pump(const Duration(seconds: 11));
+    expect(caption(tester), startsWith('<bos> and <eos> frame each one'));
+    await tester.pump(TrainingRunView.beat * (LmStage.tokenise.beats + 20));
+    expect(caption(tester), startsWith('The vocabulary, counted: '));
+    expect(tester.binding.hasScheduledFrame, isFalse);
+  });
+
+  testWidgets('the stage on screen, tapped again, plays again from its start', (
+    WidgetTester tester,
+  ) async {
+    await host(tester);
+    await tester.pump(TrainingRunView.beat * (LmStage.tokenise.beats + 1));
+    expect(caption(tester), startsWith('The vocabulary, counted: '));
+    await tester.tap(find.byKey(const ValueKey<String>('stage-Tokenise')));
+    await tester.pump();
+    expect(caption(tester), startsWith('Two peptides'));
+    await tester.pump(TrainingRunView.beat * 7);
     expect(caption(tester), isNot(startsWith('Two peptides')));
   });
 

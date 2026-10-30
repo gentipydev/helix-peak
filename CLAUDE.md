@@ -254,12 +254,15 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Seven stages on one `AnimationTimeline` (`TrainingTimeline`, 85 beats at a
-second each), named on the shared `StageBar` and played by the shared
-`TimelineController` and `TransportBar` (`showPhase: false`, since the bar
-names the stage): Tokenise, Forward, Predict, Loss, Backward and Update show
-one training step at the checkpoint picked ("Step N ▾": the steps that kept
-every activation), and Loop plays all of them. Each stage is a painter in
+Seven stages (`TrainingTimeline`, 85 beats), named on the shared `StageBar`,
+which is the page's only control: there is no player (the user's choice of
+2026-10-30). A tap on a stage plays it once from its start, at the page's one
+speed, a beat every two seconds (`TrainingRunView.beat`, the old 0.5×), and
+it holds on its last frame (`TrainingTimeline.frameIn`); nothing runs on
+into the next stage, and a tap on the stage on screen plays it again. The
+page opens playing Tokenise. Tokenise, Forward, Predict, Loss, Backward and
+Update show one training step at the checkpoint picked ("Step N ▾": the
+steps that kept every activation), and Loop plays all of them. Each stage is a painter in
 `presentation/scenes/`, a pure function of the frame; a tap or a drag on the
 canvas puts a peptide, a position or an attention head in focus. Reduced
 motion shows each stage played through, the loop at its last step. The

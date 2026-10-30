@@ -46,6 +46,23 @@ void main() {
     }
   });
 
+  test('a stage on its own clock ends played through, never in the next stage', () {
+    for (final LmStage stage in LmStage.values) {
+      expect(timeline.frameIn(stage, 0), timeline.stateAt(timeline.startOf(stage)));
+      expect(
+        timeline.frameIn(stage, 1),
+        timeline.stateAt(timeline.startOf(stage)).completed(200),
+      );
+      expect(timeline.frameIn(stage, 1.5).local, 1);
+    }
+    for (final double step in <double>[1, 8, 35.5, 100, 200]) {
+      expect(
+        timeline.frameIn(LmStage.loop, timeline.loopThrough(step)).step,
+        closeTo(step, 1e-6),
+      );
+    }
+  });
+
   test('a stage played through is its still frame, the loop at its last step', () {
     final TrainingFrame start = timeline.stateAt(timeline.startOf(LmStage.loop));
     expect(start.completed(200).local, 1);
