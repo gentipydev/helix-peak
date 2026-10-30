@@ -16,15 +16,17 @@ import 'tokenise_scene.dart';
 /// (`HelixPeekLM.forward`: the token embedding of the ids, plus the position
 /// embedding). It opens on Shift's last frame: y goes off to the right, the
 /// other peptides fade, and the peptide in focus comes down to the foot of
-/// the canvas under its name, its ids kept. Over it comes the token embedding, a row of
-/// numbers a token, each number written out on a soft tile of its colour.
+/// the canvas under its name, its ids kept. Over it comes the token
+/// embedding, a row of numbers a token, each number written out on a soft
+/// tile of its colour.
 /// Each id lights the row it reads; the rows read gather in place order, x
 /// embedded, a row a place, each labelled by the tile that read it; each
-/// place's own row of the position embedding is added; and the matrix is
-/// `x0` as the run kept it, which Forward stands up as its stream.
+/// place's own row of the position embedding is added; and the sum is
+/// `x0`, which Forward stands up as its stream.
 ///
-/// Every number is the run's: the tables the step read its ids through, and
-/// the stream's first point, which the sum is to within its rounding.
+/// Every number is the run's: the tables the step read its ids through, kept
+/// whole, and their sum, x0 as the engine makes it, every number written to
+/// two places.
 final class EmbeddingScene extends LmScene {
   const EmbeddingScene();
 
@@ -60,7 +62,7 @@ final class EmbeddingScene extends LmScene {
   static const double _moveTo = 0.85;
 
   // The position embedding: each place's row alone, on its own scale, then
-  // added; then x0 as the run kept it.
+  // added: the sum is x0.
   static const (double, double) _placesIn = (7.0, 7.4);
   static const (double, double) _placesOut = (7.7, 8.1);
   static const (double, double) _tokensUnwritten = (7.0, 7.2);
@@ -68,7 +70,6 @@ final class EmbeddingScene extends LmScene {
   static const (double, double) _placesUnwritten = (7.7, 7.9);
   static const (double, double) _sumsWritten = (7.9, 8.1);
   static const (double, double) _add = (7.8, 8.2);
-  static const (double, double) _kept = (8.4, 8.9);
 
   /// Where the caption turns: to what the numbers are, the first lookup, the
   /// rest, the gather, the position embedding and x0.
@@ -254,7 +255,7 @@ final class EmbeddingScene extends LmScene {
           )!,
       ]);
     }
-    final TextStyle? style = layout.tokenStyle;
+    final TextStyle? style = layout.numberStyle;
     if (style != null) {
       _faded(canvas, size, view, _span(beat, _written) * leaving, () {
         for (int id = 0; id < count; id++) {
@@ -262,7 +263,7 @@ final class EmbeddingScene extends LmScene {
             continue;
           }
           layout.write(canvas, layout.row(id), <String>[
-            for (int d = 0; d < width; d++) fixed(trace.tokenEmbedding(view.checkpoint, id, d), layout.tokenPlaces),
+            for (int d = 0; d < width; d++) fixed(trace.tokenEmbedding(view.checkpoint, id, d), EmbeddingLayout.digits),
           ], style);
         }
       });
@@ -301,8 +302,8 @@ final class EmbeddingScene extends LmScene {
 
   /// x's rows: each place's copy of the row it read, its numbers going,
   /// moving to its own row, and its numbers back; then each place's own row
-  /// of the position embedding, alone on its own scale, then added; and at
-  /// the last, x0 as the run kept it.
+  /// of the position embedding, alone on its own scale, then added: the
+  /// sum, x0.
   void _rows(Canvas canvas, Size size, LmView view, EmbeddingLayout layout, double beat) {
     if (beat < _gatherFrom) {
       return;
@@ -318,7 +319,6 @@ final class EmbeddingScene extends LmScene {
     final double sumsShown = 1 - _span(beat, _tokensUnwritten) + _span(beat, _sumsWritten);
     final double placesShown = _span(beat, _placesWritten) * (1 - _span(beat, _placesUnwritten));
     final double add = _span(beat, _add);
-    final double kept = _span(beat, _kept);
     final List<double> gathered = <double>[for (int i = 0; i < n; i++) _gather(i, n, beat)];
     // A copy's numbers go before it moves and come back once it has.
     final List<double> moved = <double>[for (final double g in gathered) through(g, _moveFrom, _moveTo)];
@@ -335,7 +335,7 @@ final class EmbeddingScene extends LmScene {
       for (int i = 0; i < n; i++) gathered[i] > 0 || waiting.add(trace.inputAt(view.peptide, i)),
     ];
     final List<List<double>> values = <List<double>>[
-      for (int i = 0; i < n; i++) <double>[for (int d = 0; d < width; d++) _value(view, i, d, add, kept)],
+      for (int i = 0; i < n; i++) <double>[for (int d = 0; d < width; d++) _value(view, i, d, add)],
     ];
     void fill(int i) => layout.fill(canvas, rows[i], <Color>[
       for (int d = 0; d < width; d++)
@@ -354,9 +354,8 @@ final class EmbeddingScene extends LmScene {
         fill(i);
       }
     }
-    final TextStyle? sums = layout.tokenStyle;
+    final TextStyle? sums = layout.numberStyle;
     if (sums != null) {
-      final int places = kept >= 0.5 ? layout.streamPlaces : layout.tokenPlaces;
       _faded(canvas, size, view, sumsShown, () {
         for (int i = 0; i < n; i++) {
           if (!drawn[i] || still[i] <= 0) {
@@ -365,18 +364,18 @@ final class EmbeddingScene extends LmScene {
           layout.write(
             canvas,
             rows[i],
-            <String>[for (int d = 0; d < width; d++) fixed(values[i][d], places)],
+            <String>[for (int d = 0; d < width; d++) fixed(values[i][d], EmbeddingLayout.digits)],
             still[i] >= 1 ? sums : sums.copyWith(color: sums.color!.withValues(alpha: (still[i] * 8).round() / 8)),
           );
         }
       });
     }
-    final TextStyle? positions = layout.placeStyle;
+    final TextStyle? positions = layout.numberStyle;
     if (positions != null) {
       _faded(canvas, size, view, placesShown, () {
         for (int i = 0; i < n; i++) {
           layout.write(canvas, rows[i], <String>[
-            for (int d = 0; d < width; d++) fixed(trace.positionEmbedding(view.checkpoint, i, d), layout.placePlaces),
+            for (int d = 0; d < width; d++) fixed(trace.positionEmbedding(view.checkpoint, i, d), EmbeddingLayout.digits),
           ], positions);
         }
       });
@@ -388,18 +387,13 @@ final class EmbeddingScene extends LmScene {
     }
   }
 
-  /// Place [i]'s number [d]: its token's, with [add] of its place's added,
-  /// and [kept] of the way to x0 as the run kept it.
-  static double _value(LmView view, int i, int d, double add, double kept) {
+  /// Place [i]'s number [d]: its token's, with [add] of its place's added;
+  /// all of it, x0.
+  static double _value(LmView view, int i, int d, double add) {
     final TrainingTrace trace = view.trace;
     final double token = trace.tokenEmbedding(view.checkpoint, trace.inputAt(view.peptide, i), d);
-    final double sum = token + add * trace.positionEmbedding(view.checkpoint, i, d);
-    if (kept <= 0) {
-      return sum;
-    }
-    // At the last, x0 itself, number for number, as Forward stands it up.
-    final double x0 = trace.stream(view.checkpoint, 0, view.peptide, i, d);
-    return kept >= 1 ? x0 : sum + (x0 - sum) * kept;
+    final double place = trace.positionEmbedding(view.checkpoint, i, d);
+    return add >= 1 ? token + place : token + add * place;
   }
 
   /// x0's row [i] as the stage leaves it, across [rect], its numbers at
@@ -417,18 +411,16 @@ final class EmbeddingScene extends LmScene {
     final TrainingTrace trace = view.trace;
     final int width = trace.model.width;
     final double scale = ForwardScene.scales(view).$1;
-    final List<double> values = <double>[
-      for (int d = 0; d < width; d++) trace.stream(view.checkpoint, 0, view.peptide, i, d),
-    ];
+    final List<double> values = <double>[for (int d = 0; d < width; d++) _value(view, i, d, 1)];
     if (fills) {
       layout.fill(canvas, rect, <Color>[for (final double v in values) view.inks.cell(v / scale)]);
     }
-    final TextStyle? style = layout.tokenStyle;
+    final TextStyle? style = layout.numberStyle;
     if (style != null && textAlpha > 0) {
       layout.write(
         canvas,
         rect,
-        <String>[for (final double v in values) fixed(v, layout.streamPlaces)],
+        <String>[for (final double v in values) fixed(v, EmbeddingLayout.digits)],
         textAlpha >= 1 ? style : style.copyWith(color: style.color!.withValues(alpha: (textAlpha * 8).round() / 8)),
       );
     }
@@ -654,14 +646,7 @@ final class EmbeddingLayout {
         _idGap;
     cellsLeft = left + idWidth + chipSide + _chipGap;
     cell = (right - cellsLeft) / width;
-
-    final TraceCheckpoint at = view.checkpoint;
-    tokenPlaces = placesFor(at.tokenEmbeddingScale);
-    placePlaces = placesFor(at.positionEmbeddingScale);
-    streamPlaces = placesFor(at.streamScales[0]);
-    final (double tokens, double positions) = _largest(view);
-    tokenStyle = _style(view, tokens, math.max(tokenPlaces, streamPlaces));
-    placeStyle = _style(view, positions, placePlaces);
+    numberStyle = _style(view, _largest(view));
   }
 
   /// From the canvas's sides, as little as keeps the matrix off the
@@ -726,48 +711,42 @@ final class EmbeddingLayout {
   late final double cellsLeft;
   late final double cell;
 
-  /// How many places each array's numbers are written to: as many as its
-  /// stored step allows.
-  late final int tokenPlaces;
-  late final int placePlaces;
-  late final int streamPlaces;
+  /// How many places every number is written to: the tables are kept whole,
+  /// so a position row's hundredths show, and so does their adding.
+  static const int digits = 2;
 
-  /// What the token rows, their sums and x0 are written in, and the
-  /// position rows; null where the cells are too small for numbers.
-  late final TextStyle? tokenStyle;
-  late final TextStyle? placeStyle;
+  /// What every number is written in, the token rows', the position rows'
+  /// and their sums'; null where the cells are too small for numbers.
+  late final TextStyle? numberStyle;
 
-  /// The largest token row number, sum or x0, and the largest position row
-  /// number, over the table and the places in focus.
-  static (double, double) _largest(LmView view) => view.kit.memo<(double, double)>(
+  /// The largest number written: of the table, or of a place in focus's
+  /// position row or sum.
+  static double _largest(LmView view) => view.kit.memo<double>(
     ('embedding-largest', view.step, view.peptide),
     () {
       final TrainingTrace trace = view.trace;
-      double tokens = 0;
-      double places = 0;
+      double most = 0;
       for (int id = 0; id < trace.vocab.length; id++) {
         for (int d = 0; d < trace.model.width; d++) {
-          tokens = math.max(tokens, trace.tokenEmbedding(view.checkpoint, id, d).abs());
+          most = math.max(most, trace.tokenEmbedding(view.checkpoint, id, d).abs());
         }
       }
       for (int i = 0; i < view.focus.inputs; i++) {
         final int id = trace.inputAt(view.peptide, i);
         for (int d = 0; d < trace.model.width; d++) {
           final double place = trace.positionEmbedding(view.checkpoint, i, d);
-          places = math.max(places, place.abs());
-          tokens = math.max(tokens, (trace.tokenEmbedding(view.checkpoint, id, d) + place).abs());
-          tokens = math.max(tokens, trace.stream(view.checkpoint, 0, view.peptide, i, d).abs());
+          most = math.max(most, math.max(place.abs(), (trace.tokenEmbedding(view.checkpoint, id, d) + place).abs()));
         }
       }
-      return (tokens, places);
+      return most;
     },
   );
 
   /// The numbers' face at the largest size up to 9 points at which the
   /// widest of them fits its cell and its row, or null below [leastNumber].
-  TextStyle? _style(LmView view, double largest, int places) {
+  TextStyle? _style(LmView view, double largest) {
     final int whole = '${largest.floor()}'.length;
-    final String widest = '−${'8' * whole}${places > 0 ? '.${'8' * places}' : ''}';
+    final String widest = '−${'8' * whole}.${'8' * digits}';
     TextStyle at(double points) => inked(view.kit.mono, points, view.inks.ink).copyWith(letterSpacing: 0);
     final double perPoint = view.kit.layout(widest, at(10)).width / 10;
     // Held to the half point below, so a number is never wider than drawn.

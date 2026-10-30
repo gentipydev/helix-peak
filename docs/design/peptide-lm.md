@@ -16,8 +16,9 @@ them, and keeps every number through read-only hooks:
   parameter group's gradient and update norm and size, every target's loss,
   and the output layer's weights and biases as the step found them;
 - **at each checkpoint**, everything else: the two embedding tables as the
-  step found them (the token embedding, 23 × 16, and the position embedding,
-  51 × 16; added 2026-10-30), the
+  step found them, whole as float32 (the token embedding, 23 × 16, and the
+  position embedding, 51 × 16; added 2026-10-30, kept whole since schema 2
+  the same day), the
   residual stream at its ten points, the gradient reaching each, every head's attention map (worked out
   again from the layer's input, within 4 × 10⁻⁷ of the layer's own output),
   the logits and the probabilities over the 21 tokens that can follow, and
@@ -146,18 +147,24 @@ out of view is scrolled just far enough to show it whole.
      own colour scale, its numbers to two places, then added ("… 42× smaller
      than its token's" for insulin A at step 1, 5× at step 200); a cell
      shows one set of numbers at a time;
-   - *x0* (8.4–9): the matrix becomes `x0` as the run kept it, which the sum
-     is to within its rounding.
+   - *x0* (8.4–9): the sum is `x0`, as the engine makes it; the run's
+     stored stream holds it to within its own rounding, and Forward's
+     stand-up turns the one into the other.
 
-   A number is written to as many places as its array's stored step allows
-   (`placesFor`, two at most): the token rows and x0 to one, the position
-   rows to two. Each set is as large as fits its cell, 9 pt at most, and a
-   row too small for 5.5 pt is drawn in its colours alone (copeptin's 40
-   rows on an SE come close). Each row is as tall as the canvas allows for
+   Every number is written to two places. At first the token rows were
+   written to one, all that int8 storage (steps of 0.03) allowed; the user
+   saw that then adding a position row of ±0.02 changed only 67 of insulin
+   A's 352 numbers at step 1, and wrongly by a whole 0.1 where it did. So
+   the run keeps both tables whole (float32, schema 2), and G at place 1
+   reads −0.90 + 0.01 = −0.89; the two Cs at places 6 and 7, the same row of
+   the table, part as soon as their places are added. All are as large as
+   fits a cell, 9 pt at most (about 7 pt on a Pro, 5.5 on an SE), and a row
+   too small for 5.5 pt is drawn in its colours alone (copeptin's 40 rows
+   on an SE come close). Each row is as tall as the canvas allows for
    the longer of the vocabulary and the peptide, 22 pt at most. At the
    user's ask the matrix runs 4 pt from either side of the canvas, the id
    5 pt from its tile and the tile 3 pt from the numbers, so the numbers
-   have the width (about 25 pt a cell and 8.5 pt numbers on a Pro Max).
+   have the width (about 25 pt a cell on a Pro Max).
 4. **Forward.** It opens on Embedding's last frame, pixel for pixel. In its
    first beat x0's rows stand up as the stream's columns, each turning
    upright and landing as its place's column, its first number at the top,

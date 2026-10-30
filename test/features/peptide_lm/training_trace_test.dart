@@ -121,8 +121,8 @@ void main() {
 
   test("each place's x0 is its id's token row plus its place's row", () {
     for (final TraceCheckpoint c in trace.checkpoints) {
-      final double tolerance =
-          (c.streamScales[0] + c.tokenEmbeddingScale + c.positionEmbeddingScale) / 2 + 1e-6;
+      // The tables are whole; x0 is the sum to within half its own step.
+      final double tolerance = c.streamScales[0] / 2 + 1e-5;
       for (int d = 0; d < trace.model.width; d++) {
         expect(trace.tokenEmbedding(c, 0, d), 0);
       }
@@ -156,7 +156,7 @@ void main() {
 
   test('a schema this does not read is refused', () {
     expect(
-      () => TrainingTrace.parse(_edited((Map<String, dynamic> json) => json['schema'] = 2)),
+      () => TrainingTrace.parse(_edited((Map<String, dynamic> json) => json['schema'] = 1)),
       throwsA(isA<FormatException>()),
     );
   });

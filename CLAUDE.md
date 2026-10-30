@@ -281,11 +281,11 @@ Loss grades its guesses against y. Embedding opens on Shift's last frame, pixel 
 pixel (`ShiftScene.paintEnd`, `ShiftLayout`), and in nine beats draws the
 engine's steps from ids to x0 (`embedding_scene.dart`): the token embedding
 across the whole width, every number written out on a soft tile of its colour
-(`LmInks.cell`) to as many places as its array's stored step allows
-(`placesFor`), and only where it fits; each id lighting the row it reads; the
-rows read gathering in place order; each place's position row, alone and then
-added; and x0 as the run kept it, both tables the run's own (each checkpoint
-keeps them since 2026-10-30). The run is 16 wide for it (recorded again on
+(`LmInks.cell`) to two places, and only where it fits; each id lighting the
+row it reads; the rows read gathering in place order; each place's position
+row, alone and then added; and their sum, x0, both tables the run's own (each
+checkpoint keeps them whole, float32, since the run's schema 2 of
+2026-10-30). The run is 16 wide for it (recorded again on
 2026-10-30, 14,727 parameters). Forward opens on Embedding's last frame
 (`EmbeddingScene.paintEnd`), and in one beat stands x0's rows up as the
 stream's columns (`forward_opening.dart`). Reduced

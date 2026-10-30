@@ -278,11 +278,6 @@ void main() {
     expect(fixed(2.06, 1), '2.1');
     expect(fixed(-0.04, 1), '0.0');
     expect(fixed(-0.004, 2), '0.00');
-    // As many places as the step a number is stored in allows, two at most.
-    expect(placesFor(0.031), 1);
-    expect(placesFor(0.0055), 2);
-    expect(placesFor(0.00065), 2);
-    expect(placesFor(0.4), 0);
   });
 
   testWidgets('the embedding writes its numbers out where they fit, and draws colours alone where not', (
@@ -292,20 +287,13 @@ void main() {
     addTearDown(kit.dispose);
     final LmView scene = view(inks, kit);
     final EmbeddingLayout phone = EmbeddingLayout(const Size(375, 450), scene);
-    expect(phone.tokenStyle, isNotNull);
-    expect(phone.placeStyle, isNotNull);
-    expect(phone.tokenStyle!.fontSize, greaterThanOrEqualTo(EmbeddingLayout.leastNumber));
-    // Every number fits its cell.
-    for (final (TextStyle style, String widest) in <(TextStyle, String)>[
-      (phone.tokenStyle!, fixed(-8.8, phone.tokenPlaces)),
-      (phone.placeStyle!, fixed(-0.88, phone.placePlaces)),
-    ]) {
-      expect(kit.layout(widest, style).width, lessThan(phone.cell - 2 * EmbeddingLayout.gap));
-    }
+    final TextStyle style = phone.numberStyle!;
+    expect(style.fontSize, greaterThanOrEqualTo(EmbeddingLayout.leastNumber));
+    // Every number, to two places, fits its cell.
+    expect(EmbeddingLayout.digits, 2);
+    expect(kit.layout(fixed(-8.88, EmbeddingLayout.digits), style).width, lessThan(phone.cell - 2 * EmbeddingLayout.gap));
     // The same rows, too narrow for a number: colours alone.
-    final EmbeddingLayout narrow = EmbeddingLayout(const Size(110, 450), scene);
-    expect(narrow.tokenStyle, isNull);
-    expect(narrow.placeStyle, isNull);
+    expect(EmbeddingLayout(const Size(110, 450), scene).numberStyle, isNull);
     // The table spans the canvas, 4 points from either side.
     expect(phone.row(0).right, 375 - 4);
     expect(phone.left, 4);

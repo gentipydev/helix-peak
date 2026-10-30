@@ -120,7 +120,11 @@ final class ForwardOpening {
         <Color>[
           for (int d = 0; d < width; d++)
             Color.lerp(
-              view.inks.cell(_trace.stream(view.checkpoint, 0, view.peptide, i, d) / scale),
+              view.inks.cell(
+                (_trace.tokenEmbedding(view.checkpoint, _trace.inputAt(view.peptide, i), d) +
+                        _trace.positionEmbedding(view.checkpoint, i, d)) /
+                    scale,
+              ),
               view.inks.signed(_trace.stream(view.checkpoint, 0, view.peptide, i, d) / scale),
               f,
             )!,
