@@ -50,11 +50,7 @@ every step.
    and the vocabulary's count of it rises. `<bos>` and `<eos>`
    drop in and padding fills to the longest (6 × 41). Then the peptides close
    up into one table, a row each: the batch Forward reads, its dataset's tags
-   fading where they are and the batch's coming up over it. Where the rows
-   are folded the table is printed as a wide array is, in two blocks of
-   columns (positions 0–19 over 20–40), so its tiles keep their size and each
-   line moves only up or down into its block, the second lines passing
-   beneath the first, dimmed. Each part is named on a
+   fading where they are and the batch's coming up over it. Each part is named on a
    tag, as the zoom names its parts, in the field's words: dataset, padding,
    vocabulary, token counts (on the bar of the commonest token), special
    tokens (bracketed under their ids) and token ids.
