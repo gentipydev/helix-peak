@@ -133,6 +133,10 @@ final class TraceCheckpoint {
   const TraceCheckpoint({
     required this.step,
     required this.why,
+    required this.tokenEmbedding,
+    required this.tokenEmbeddingScale,
+    required this.positionEmbedding,
+    required this.positionEmbeddingScale,
     required this.stream,
     required this.streamScales,
     required this.pointGrad,
@@ -153,6 +157,14 @@ final class TraceCheckpoint {
   /// Why the step was kept whole: `first`, `uniform`, `unigram`, `bigram`,
   /// `one_nat`, `tenth_nat`, `last`.
   final List<String> why;
+
+  /// The embedding tables as the step found them, the ones its `x0` was made
+  /// from: a row a token, vocab × width, its padding row zero; and a row a
+  /// place, context × width.
+  final Int8List tokenEmbedding;
+  final double tokenEmbeddingScale;
+  final Int8List positionEmbedding;
+  final double positionEmbeddingScale;
 
   /// The residual stream at each point: points × targets × width.
   final Int8List stream;
@@ -316,6 +328,14 @@ final class TrainingTrace {
       steps.groupUpdate[(step - 1) * groups.length + group];
 
   // At a checkpoint.
+
+  /// Token [id]'s embedding row, at [dim].
+  double tokenEmbedding(TraceCheckpoint at, int id, int dim) =>
+      at.tokenEmbedding[id * model.width + dim] * at.tokenEmbeddingScale;
+
+  /// Place [place]'s row of the position embedding, at [dim].
+  double positionEmbedding(TraceCheckpoint at, int place, int dim) =>
+      at.positionEmbedding[place * model.width + dim] * at.positionEmbeddingScale;
 
   double stream(TraceCheckpoint at, int point, int peptide, int position, int dim) =>
       at.stream[(point * targetCount + flat(peptide, position)) * model.width + dim] *
@@ -490,6 +510,18 @@ final class TrainingTrace {
         TraceCheckpoint(
           step: step,
           why: _strings(c['why'], '$what why'),
+          tokenEmbedding: _int8(
+            c['token_embedding'],
+            <int>[vocab.length, model.width],
+            '$what token_embedding',
+          ),
+          tokenEmbeddingScale: _scale(c['token_embedding'], '$what token_embedding'),
+          positionEmbedding: _int8(
+            c['position_embedding'],
+            <int>[model.context, model.width],
+            '$what position_embedding',
+          ),
+          positionEmbeddingScale: _scale(c['position_embedding'], '$what position_embedding'),
           stream: _int8(stream, <int>[points.length, targetCount, model.width], '$what points'),
           streamScales: _scales(stream, points.length, '$what points'),
           pointGrad: _float32(c['point_grad'], <int>[points.length, targetCount], '$what grad'),

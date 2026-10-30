@@ -119,6 +119,34 @@ void main() {
     }
   });
 
+  test("each place's x0 is its id's token row plus its place's row", () {
+    for (final TraceCheckpoint c in trace.checkpoints) {
+      final double tolerance =
+          (c.streamScales[0] + c.tokenEmbeddingScale + c.positionEmbeddingScale) / 2 + 1e-6;
+      for (int d = 0; d < trace.model.width; d++) {
+        expect(trace.tokenEmbedding(c, 0, d), 0);
+      }
+      for (int p = 0; p < trace.peptides.length; p++) {
+        for (int i = 0; i < trace.peptides[p].inputs; i++) {
+          for (int d = 0; d < trace.model.width; d++) {
+            expect(
+              trace.tokenEmbedding(c, trace.inputAt(p, i), d) + trace.positionEmbedding(c, i, d),
+              closeTo(trace.stream(c, 0, p, i, d), tolerance),
+            );
+          }
+        }
+      }
+    }
+  });
+
+  test('a run without its embedding tables is refused', () {
+    final Uint8List bytes = _edited((Map<String, dynamic> json) {
+      ((json['checkpoints'] as List<dynamic>).first as Map<String, dynamic>)
+          .remove('position_embedding');
+    });
+    expect(() => TrainingTrace.parse(bytes), throwsA(isA<FormatException>()));
+  });
+
   test('another run than the one asked for is refused', () {
     expect(
       () => TrainingTrace.parse(toyBytes(), name: 'curated'),
