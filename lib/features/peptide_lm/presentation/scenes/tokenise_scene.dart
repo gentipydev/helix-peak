@@ -235,13 +235,19 @@ final class TokeniseScene extends LmScene {
       );
       canvas.restore();
     }
-    if (tile.height >= 11) {
+    // The number as large as the tile's height allows, and narrow enough
+    // that the vocabulary's longest id fits across it.
+    final String widest = '8' * '${trace.vocab.length - 1}'.length;
+    final double perPoint = view.kit.layout(widest, inked(view.kit.mono, 10, view.inks.quiet)).width / 10;
+    // Held to the half point below, so the drawn number is never wider.
+    final double size = (math.min(math.min(tile.height * 0.46, tile.width / perPoint), 14) * 2).floorToDouble() / 2;
+    if (tile.height >= 11 && size >= 5) {
       view.kit.draw(
         canvas,
         '$id',
         inked(
           view.kit.mono,
-          (tile.height * 0.46).clamp(6.0, 14.0),
+          size,
           residue ? view.inks.signal : view.inks.quiet,
           alpha: alpha,
         ),
@@ -277,7 +283,7 @@ final class TokeniseScene extends LmScene {
     if (focus) {
       canvas.drawRRect(
         RRect.fromRectAndRadius(
-          Rect.fromLTWH(layout.left - 6, top - 4, layout.width + 12, layout.label + layout.batchCell + 9),
+          Rect.fromLTWH(layout.left - 6, top - 4, layout.width + 12, layout.label + layout.batchHeight + 9),
           const Radius.circular(6),
         ),
         Paint()..color = view.inks.card,
@@ -305,7 +311,7 @@ final class TokeniseScene extends LmScene {
     final _Layout layout = _Layout(size, view);
     for (int p = 0; p < view.trace.peptides.length; p++) {
       final double top = layout.rowTop(p);
-      if (at.dy >= top - 4 && at.dy < top + layout.label + layout.batchCell + 6) {
+      if (at.dy >= top - 4 && at.dy < top + layout.label + layout.batchHeight + 6) {
         return FocusPeptide(p);
       }
     }
@@ -346,17 +352,21 @@ final class _Layout {
     final int peptides = trace.peptides.length;
     width = right - left;
     final double vocabCell = math.min(22, width / trace.vocab.length);
-    batchCell = math.min(16, width / (trace.width + 1));
+    // Every place of the longest frame across the width, and each tall
+    // enough for its id's number (11 pt, `_idTile`): taller than wide where
+    // the width cannot give that, up to the 16 pt a wide canvas gives square.
+    batchWidth = math.min(16, width / (trace.width + 1));
+    batchHeight = math.max(batchWidth, math.min(16, math.max(11, batchWidth * 1.5)));
     final double tag = tagSize(view, 'dataset').height;
     final double ids = view.kit.layout('0', TokeniseScene._idStyle(view)).height;
     final double fixed =
         tag + _tagGap + tag + _tagGap + histogram + 3 + vocabCell + 2 + ids + _partsGap + tag;
-    final double tight = batchCell + label + 5;
-    final double roomy = batchCell + label + 22;
+    final double tight = batchHeight + label + 5;
+    final double roomy = batchHeight + label + 22;
     final double spare = size.height - 12 - fixed;
     final double between = math.min(math.max(spare - tight * peptides, 12), 40);
-    rowPitch = math.min(math.max((spare - between - label - batchCell) / math.max(1, peptides - 1), tight), roomy);
-    final double rows = rowPitch * (peptides - 1) + label + batchCell;
+    rowPitch = math.min(math.max((spare - between - label - batchHeight) / math.max(1, peptides - 1), tight), roomy);
+    final double rows = rowPitch * (peptides - 1) + label + batchHeight;
     final double content = fixed + rows + between;
     final double top = math.max(6, (size.height - content) / 2);
     datasetTag = top;
@@ -382,7 +392,8 @@ final class _Layout {
   final double left;
   final double right;
   late final double width;
-  late final double batchCell;
+  late final double batchWidth;
+  late final double batchHeight;
   late final double rowPitch;
   late final double datasetTag;
   late final double batchTop;
@@ -399,5 +410,5 @@ final class _Layout {
 
   /// Place [k] of [peptide]'s frame.
   Rect batchAt(int peptide, int k) =>
-      Rect.fromLTWH(left + k * batchCell, rowTop(peptide) + label, batchCell, batchCell);
+      Rect.fromLTWH(left + k * batchWidth, rowTop(peptide) + label, batchWidth, batchHeight);
 }
