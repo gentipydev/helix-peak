@@ -17,7 +17,7 @@ them, and keeps every number through read-only hooks:
   and the output layer's weights and biases as the step found them;
 - **at each checkpoint**, everything else: the two embedding tables as the
   step found them, whole as float32 (the token embedding, 23 × 16, and the
-  position embedding, 51 × 16; added 2026-10-30, kept whole since schema 2
+  position embedding, 40 × 16; added 2026-10-30, kept whole since schema 2
   the same day), the
   residual stream at its ten points, the gradient reaching each, every head's attention map (worked out
   again from the layer's input, within 4 × 10⁻⁷ of the layer's own output),
@@ -31,12 +31,12 @@ production serves. The run itself:
 | | |
 |---|---|
 | data | six peptides, 174 residues: insulin A and B chains and C-peptide, relaxin A and B chains, copeptin; nothing held out |
-| model | 4 blocks of 4 heads, width 16, feed-forward 64: 14,727 parameters (recorded again 16 wide on 2026-10-30, for the Embedding stage's numbers; it was 96 wide, 456,887 parameters) |
+| model | 4 blocks of 4 heads, width 16, feed-forward 64, 40 places: 14,551 parameters (recorded again 16 wide on 2026-10-30, for the Embedding stage's numbers, it was 96 wide, 456,887 parameters; and with as many places as the longest of the six reads, `<bos>` and copeptin's 39, at the user's ask the same evening, it held the corpus model's 51) |
 | training | AdamW 1e−2 (at 1e−3 a model 16 wide never passes one nat in 200 steps), weight decay 0.1 on matrices, 100 warm-up steps then cosine, clip 1.0, dropout 0, all six a step, 200 steps, seed 0 |
-| loss | 3.205 at step 1 (worse than uniform, 3.045) to 0.065 at step 200 |
+| loss | 3.231 at step 1 (worse than uniform, 3.045) to 0.064 at step 200 |
 | baselines | uniform 3.045, unigram 2.856, bigram 2.043 |
 | floor | 0.060 = 6 ln 6 / 180: from `<bos>` alone nothing says which peptide comes |
-| checkpoints | 1, then the first step under uniform (10), unigram (18), bigram (45), one nat (62) and a tenth of one (93), and 200 |
+| checkpoints | 1, then the first step under uniform (11), unigram (19), bigram (46), one nat (63) and a tenth of one (94), and 200 |
 
 Dropout is off so that the forward pass drawn is the forward pass trained.
 
@@ -167,7 +167,7 @@ out of view is scrolled just far enough to show it whole.
      nothing yet says where each is.";
    - *the position embedding* (11.6–13.6): each place's own row alone, on
      its own colour scale, its numbers to two places, then added ("Adding
-     the position embedding, rows 0–21, 42× smaller than the token rows" for
+     the position embedding, rows 0–21, 43× smaller than the token rows" for
      insulin A at step 1, 5× at step 200); a cell shows one set of numbers
      at a time. Note, three lines, the mental model the user asked for in
      place of "attention alone ignores order": "token row: what the residue
@@ -215,7 +215,7 @@ out of view is scrolled just far enough to show it whole.
 5. **Predict.** The final column runs down the output layer's 23 rows and
    each row's logit grows; `<pad>` and `<bos>` are struck to −∞; softmax
    turns the rest into 21 bars in the residues' colours, what came next
-   outlined. Untrained, after GIVEQCCTSIC the model says K 11%; at step 200,
+   outlined. Untrained, after GIVEQCCTSIC the model says A 11%; at step 200,
    S 99.6% (100% as the page rounds it), and S is next.
 6. **Loss.** A ghost bar rises to certainty at the target, the gap bracketed
    and read off the −ln p curve; every target's surprise fills a strip a

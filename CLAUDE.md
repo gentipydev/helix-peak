@@ -286,7 +286,7 @@ row it reads, one place at a time; the rows read gathering in place order; each 
 row, alone and then added; and their sum, x0, both tables the run's own (each
 checkpoint keeps them whole, float32, since the run's schema 2 of
 2026-10-30), and over the table a note of why each part happens. The run is 16 wide for it (recorded again on
-2026-10-30, 14,727 parameters). Forward opens on Embedding's last frame
+2026-10-30, 40 places, the longest peptide's, 14,551 parameters). Forward opens on Embedding's last frame
 (`EmbeddingScene.paintEnd`), and in one beat stands x0's rows up as the
 stream's columns (`forward_opening.dart`). Reduced
 motion shows each stage played through, the loop at its last step. The
