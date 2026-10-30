@@ -170,7 +170,7 @@ final class ShiftScene extends LmScene {
       }
       return;
     }
-    final Offset left = Offset(-layout.tileWidth * slide, 0);
+    final Offset left = Offset(-layout.step * slide, 0);
     canvas.save();
     if (slide > 0) {
       // Moving, a line keeps to its columns: what leaves it goes off its
@@ -184,7 +184,7 @@ final class ShiftScene extends LmScene {
       _tile(canvas, view, at, ids, k, residues, shown * (first ? 1 - slide : 1));
       if (k == layout.firstLine && slide > 0) {
         // And comes in at the end of the line before, as text reflows.
-        final Rect end = layout.y(p, k - 1).shift(Offset(layout.tileWidth, 0) + left + come);
+        final Rect end = layout.y(p, k - 1).shift(Offset(layout.step, 0) + left + come);
         _tile(canvas, view, end, ids, k, residues, shown * slide);
       }
     }
@@ -316,9 +316,10 @@ final class ShiftFade {
 
 /// Top to bottom: the input x tag and the peptides, each its name and its
 /// lines, folded onto two where that leaves its tiles room for their
-/// numbers, else on one; then the next token y tag and the peptides again,
-/// in the same columns. The tiles are as large as the width and the height
-/// both allow, and the whole is centred.
+/// numbers, else on one; then, set well apart, the next token y tag and the
+/// peptides again, in the same columns. The tiles are as large as the width
+/// and the height both allow, their columns spread across the width, and
+/// the whole is centred.
 final class ShiftLayout {
   ShiftLayout(Size size, LmView view) : right = size.width - 16 {
     final TrainingTrace trace = view.trace;
@@ -352,6 +353,11 @@ final class ShiftLayout {
       );
     }
     lines = firstLine < frame ? 2 : 1;
+    // The columns spread from the left edge to the right, the tiles with room
+    // between them where the height keeps them small; a little room at most.
+    final int columns = frame - (lines == 2 ? firstLine : 0);
+    step = columns < 2 ? tileWidth : math.min((width - tileWidth) / (columns - 1), tileWidth * 1.6);
+    columnsRight = left + (columns - 1) * step + tileWidth;
     block = label + lines * tileHeight + (lines - 1) * _lineGap;
     final double gap =
         peptides < 2 ? 0 : ((room - blocks * block) / (blocks - 2)).clamp(_leastGap, 22.0);
@@ -368,10 +374,10 @@ final class ShiftLayout {
   static double _inset(double side) => math.min(1.0, side * 0.08);
 
   /// From the canvas's edge to a tag, from a tag to its peptides, and from
-  /// x's last peptide to y's tag.
+  /// x's last peptide to y's tag, enough to keep the groups apart.
   static const double _edge = 6;
   static const double _tagGap = 8;
-  static const double _groupGap = 12;
+  static const double _groupGap = 28;
 
   /// Between a peptide's two lines, and the least between two peptides.
   static const double _lineGap = 3;
@@ -397,6 +403,11 @@ final class ShiftLayout {
   late final double tileWidth;
   late final double tileHeight;
 
+  /// From one column to the next, and the right edge of a line's last
+  /// column.
+  late final double step;
+  late final double columnsRight;
+
   /// A peptide's name and lines, and from one peptide's name to the next.
   late final double block;
   late final double rowPitch;
@@ -410,9 +421,6 @@ final class ShiftLayout {
 
   double get tagStart => cardLeft;
 
-  /// The right edge of a line's last column.
-  double get columnsRight => left + (frame - (firstLine < frame ? firstLine : 0)) * tileWidth;
-
   double rowTop(int peptide) => firstRow + peptide * rowPitch;
 
   double yRowTop(int peptide) => rowTop(peptide) + drop;
@@ -421,7 +429,7 @@ final class ShiftLayout {
   Rect x(int peptide, int k) {
     final int line = k < firstLine ? 0 : 1;
     return Rect.fromLTWH(
-      left + (k - line * firstLine) * tileWidth,
+      left + (k - line * firstLine) * step,
       rowTop(peptide) + label + line * (tileHeight + _lineGap),
       tileWidth,
       tileHeight,
