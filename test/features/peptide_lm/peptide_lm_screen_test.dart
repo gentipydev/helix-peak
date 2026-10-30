@@ -105,7 +105,7 @@ void main() {
   ) async {
     await host(tester, reducedMotion: true);
     await tester.pump(const Duration(seconds: 3));
-    expect(caption(tester), startsWith('One batch: '));
+    expect(caption(tester), startsWith('The vocabulary, counted: '));
   });
 
   testWidgets('while the run is on its way, the page says so', (WidgetTester tester) async {

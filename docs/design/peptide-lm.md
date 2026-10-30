@@ -50,7 +50,14 @@ every step.
    and the vocabulary's count of it rises. `<bos>` and `<eos>`
    drop in and padding fills to the longest (6 × 41). Then the peptides close
    up into one table, a row each: the batch Forward reads, its dataset's tags
-   fading where they are and the batch's coming up over it. Each part is named on a
+   fading where they are and the batch's coming up over it. The table rises
+   to the top, and the vocabulary turns into a list under it: one token
+   after another flies up to its row, its bar swinging down from standing on
+   the token to lie along the row while still short, then growing to the
+   list's length, its count coming up at the row's end and its id going
+   round the tile's corner to its left (two columns where one would be too
+   cramped). Padding has no count: it is none of the data. The stage is 11
+   beats; the vocabulary's turn is its last three. Each part is named on a
    tag, as the zoom names its parts, in the field's words: dataset, padding,
    vocabulary, token counts (on the bar of the commonest token), special
    tokens (bracketed under their ids) and token ids.

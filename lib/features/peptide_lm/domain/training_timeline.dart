@@ -5,7 +5,7 @@ import '../../../shared/motion/animation_timeline.dart';
 /// One training step told in six stages, then the loop over every step: the
 /// order the page plays them in, each with its share of the time.
 enum LmStage {
-  tokenise('Tokenise', 8),
+  tokenise('Tokenise', 11),
   forward('Forward', 19),
   predict('Predict', 7),
   loss('Loss', 7),
@@ -111,8 +111,11 @@ final class TrainingTimeline extends AnimationTimeline<TrainingFrame> {
         stage = candidate;
       }
     }
+    // A moment this close to its stage's start is the start: the step there
+    // is the first, not a hair past it.
+    final double into = at - _starts[stage.index];
     final double local =
-        ((at - _starts[stage.index]) / stage.beats).clamp(0.0, 1.0);
+        (into <= _epsilon ? 0.0 : into / stage.beats).clamp(0.0, 1.0);
     return TrainingFrame(
       stage: stage,
       local: local,

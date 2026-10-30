@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Seven stages on one `AnimationTimeline` (`TrainingTimeline`, 82 beats at a
+Seven stages on one `AnimationTimeline` (`TrainingTimeline`, 85 beats at a
 second each), named on the shared `StageBar` and played by the shared
 `TimelineController` and `TransportBar` (`showPhase: false`, since the bar
 names the stage): Tokenise, Forward, Predict, Loss, Backward and Update show
