@@ -85,6 +85,7 @@ final class EmbeddingScene extends LmScene {
   static const double _lookupCaption = 2.4;
   static const double _gatherCaption = 6.6;
   static const double _placesCaption = 11.6;
+  static const double _addCaption = 12.8;
   static const double _x0Caption = 13.6;
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
@@ -616,7 +617,20 @@ final class EmbeddingScene extends LmScene {
       final double gather = _gather(k, n, beat);
       if (gather >= 1) {
         if (fade.rows) {
-          drawToken(canvas, view, layout.label(k), ids[k]);
+          // While the position rows show alone, the rows are places, not
+          // residues: each is labelled with its place, then its residue
+          // again once the two are added.
+          final double place = _span(beat, _placesIn) * (1 - _span(beat, _placesOut));
+          drawToken(canvas, view, layout.label(k), ids[k], alpha: 1 - place);
+          if (place > 0) {
+            view.kit.draw(
+              canvas,
+              '$k',
+              inked(view.kit.mono, layout.idSize, view.inks.ink, alpha: place),
+              layout.label(k).center,
+              anchor: const Offset(0.5, 0.5),
+            );
+          }
         }
         continue;
       }
@@ -735,10 +749,15 @@ final class EmbeddingScene extends LmScene {
       return "Each row is one place: <bos>, then ${view.focus.source.label}'s "
           '${grouped(view.focus.sequence.length)} residues';
     }
+    if (beat < _addCaption) {
+      return 'The position embedding: a second learned table, one row per place, '
+          'here rows 0–${inputs - 1}';
+    }
     if (beat < _x0Caption) {
       final int times = smaller(view);
-      final String rows = 'Adding the position embedding, rows 0–${inputs - 1}';
-      return times < 2 ? rows : '$rows, ${grouped(times)}× smaller than the token rows';
+      return times < 2
+          ? "Each place's row is added to its residue's"
+          : "Each place's row is added to its residue's: ${grouped(times)}× smaller, so the numbers move only a little";
     }
     return 'x0, ${grouped(inputs)} × $width: the start of the residual stream';
   }

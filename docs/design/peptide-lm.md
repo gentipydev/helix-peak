@@ -166,10 +166,15 @@ out of view is scrolled just far enough to show it whole.
      through the adding: "The two Cs at places 6 and 7 are the same row:
      nothing yet says where each is.";
    - *the position embedding* (11.6–13.6): each place's own row alone, on
-     its own colour scale, its numbers to two places, then added ("Adding
-     the position embedding, rows 0–21, 43× smaller than the token rows" for
-     insulin A at step 1, 5× at step 200); a cell shows one set of numbers
-     at a time. Note, three lines, the mental model the user asked for in
+     its own colour scale, its numbers to two places, the rows labelled by
+     place (0–21) instead of residue while they show alone, since a position
+     row belongs to its place whatever sits there ("The position embedding:
+     a second learned table, one row per place, here rows 0–21"); then added,
+     the residues back ("Each place's row is added to its residue's: 43×
+     smaller, so the numbers move only a little", 5× at step 200); a cell
+     shows one set of numbers at a time. The user asked where the table
+     came from and why the chain stays the same while its numbers change:
+     hence the place labels and the two captions. Note, three lines, the mental model the user asked for in
      place of "attention alone ignores order": "token row: what the residue
      is, the same for every C / position row: where it sits, the same at
      place 7 whatever is there / added: each place carries both, so the Cs

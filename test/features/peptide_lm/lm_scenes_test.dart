@@ -131,7 +131,11 @@ void main() {
     expect(caption(LmStage.embedding, embedding(3)), "12 places read 9 rows of the table, C's three times");
     expect(caption(LmStage.embedding, embedding(6)), "12 places read 9 rows of the table, C's three times");
     expect(caption(LmStage.embedding, embedding(8)), "Each row is one place: <bos>, then toy A's 11 residues");
-    expect(caption(LmStage.embedding, embedding(12.2)), startsWith('Adding the position embedding, rows 0–11'));
+    expect(
+      caption(LmStage.embedding, embedding(12.2)),
+      'The position embedding: a second learned table, one row per place, here rows 0–11',
+    );
+    expect(caption(LmStage.embedding, embedding(13.2)), startsWith("Each place's row is added to its residue's"));
     expect(caption(LmStage.embedding, embedding(14.5)), 'x0, 12 × $width: the start of the residual stream');
     // Forward's opening: the toy's two layers make its stage 1 + 8 + 1 beats.
     expect(
