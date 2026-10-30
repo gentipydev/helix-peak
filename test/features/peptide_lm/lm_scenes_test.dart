@@ -111,13 +111,13 @@ void main() {
       caption(LmStage.shift, 0.99),
       'Only x goes in; Loss grades each guess against y: ${trace.targetCount} targets',
     );
-    // Embedding, beat by beat: the table, what its numbers are, the first
-    // lookup and the rest, the gather, the position embedding and x0.
+    // Embedding, beat by beat: the table, what its numbers are, the lookup,
+    // the gather, the position embedding and x0.
     final int width = trace.model.width;
     double embedding(double beat) => beat / LmStage.embedding.beats;
     expect(
       caption(LmStage.embedding, embedding(0.5)),
-      'The token embedding: $width learned numbers for each of the 23 tokens',
+      'The token embedding, 23 × $width, learned with the rest of the model',
     );
     expect(
       caption(LmStage.embedding, embedding(2)),
@@ -128,17 +128,14 @@ void main() {
       sceneOf(LmStage.embedding).caption(view(inks, kit), untrained),
       "At step 1 no update has moved them yet; <pad>'s row is zero at every checkpoint",
     );
-    expect(caption(LmStage.embedding, embedding(3)), '<bos> is id 1, so it reads row 1 of the table');
+    expect(caption(LmStage.embedding, embedding(3)), "12 places read 9 rows of the table, C's three times");
+    expect(caption(LmStage.embedding, embedding(9)), "12 places read 9 rows of the table, C's three times");
     expect(
-      caption(LmStage.embedding, embedding(4)),
-      "Each id picks its row of $width: 12 places read 9 rows, C's three times",
-    );
-    expect(
-      caption(LmStage.embedding, embedding(6)),
+      caption(LmStage.embedding, embedding(11)),
       'In place order, the rows read are x embedded: 12 × $width, a row a place',
     );
-    expect(caption(LmStage.embedding, embedding(7.5)), contains('position embedding'));
-    expect(caption(LmStage.embedding, embedding(8.8)), 'x0: 12 × $width numbers, what the blocks read');
+    expect(caption(LmStage.embedding, embedding(12.5)), startsWith('Adding the position embedding, rows 0–11'));
+    expect(caption(LmStage.embedding, embedding(13.8)), 'x0, 12 × $width: the start of the residual stream');
     // Forward's opening: the toy's two layers make its stage 1 + 8 + 1 beats.
     expect(
       caption(LmStage.forward, 0.5 / (1 + 4 * trace.model.layers + 1)),
@@ -280,6 +277,23 @@ void main() {
     expect(fixed(-0.004, 2), '0.00');
   });
 
+  test('the lookup reads one place at a time, each a little quicker than the one before', () {
+    for (final int n in <int>[12, 22, 40]) {
+      double end = 0;
+      double last = double.infinity;
+      for (int i = 0; i < n; i++) {
+        final (double from, double to) = EmbeddingScene.slot(i, n);
+        expect(from, greaterThanOrEqualTo(end - 1e-9), reason: 'place $i of $n starts after the one before ends');
+        if (i > 1) {
+          expect(to - from, lessThan(last), reason: 'place $i of $n is quicker');
+        }
+        last = to - from;
+        end = to;
+      }
+      expect(end, lessThanOrEqualTo(LmStage.embedding.beats.toDouble()));
+    }
+  });
+
   testWidgets('the embedding writes its numbers out where they fit, and draws colours alone where not', (
     WidgetTester tester,
   ) async {
@@ -294,6 +308,8 @@ void main() {
     expect(kit.layout(fixed(-8.88, EmbeddingLayout.digits), style).width, lessThan(phone.cell - 2 * EmbeddingLayout.gap));
     // The same rows, too narrow for a number: colours alone.
     expect(EmbeddingLayout(const Size(110, 450), scene).numberStyle, isNull);
+    // The note sits over the tag, clear of it.
+    expect(phone.tagTop, greaterThanOrEqualTo(phone.noteTop + EmbeddingScene.noteHeight(scene, phone.right - phone.noteLeft)));
     // The table spans the canvas, 4 points from either side.
     expect(phone.row(0).right, 375 - 4);
     expect(phone.left, 4);

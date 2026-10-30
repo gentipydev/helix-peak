@@ -27,6 +27,8 @@ final class LmKit {
 
   final Map<(String, TextStyle), TextPainter> _laid =
       <(String, TextStyle), TextPainter>{};
+  final Map<(String, TextStyle, double), TextPainter> _wrapped =
+      <(String, TextStyle, double), TextPainter>{};
   final Map<Object, Object> _memo = <Object, Object>{};
 
   // Enough for every label of every stage; past it the cache starts again.
@@ -50,6 +52,21 @@ final class LmKit {
     );
   }
 
+  /// [text] broken into lines no wider than [width], laid out once and kept.
+  TextPainter paragraph(String text, TextStyle style, double width) {
+    if (_wrapped.length > _most) {
+      _clear();
+    }
+    return _wrapped.putIfAbsent(
+      (text, style, width),
+      () => TextPainter(
+        text: TextSpan(text: text, style: style),
+        textDirection: TextDirection.ltr,
+        textScaler: scaler,
+      )..layout(maxWidth: width),
+    );
+  }
+
   /// Draws [text] with its [anchor] at [at]: (0, 0) its top left, (0.5, 0.5)
   /// its centre, (1, 1) its bottom right.
   Size draw(
@@ -68,10 +85,11 @@ final class LmKit {
   }
 
   void _clear() {
-    for (final TextPainter painter in _laid.values) {
+    for (final TextPainter painter in <TextPainter>[..._laid.values, ..._wrapped.values]) {
       painter.dispose();
     }
     _laid.clear();
+    _wrapped.clear();
   }
 
   void dispose() {

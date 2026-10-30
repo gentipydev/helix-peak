@@ -40,19 +40,20 @@ final class EmbeddingScene extends LmScene {
   static const (double, double) _grow = (0.7, 1.3);
   static const (double, double) _written = (1.1, 1.5);
 
-  // The lookup: the first place alone, long enough to be followed, then the
-  // rest left to right, closer and closer.
-  static const (double, double) _first = (2.4, 3.3);
-  static const double _restFrom = 3.4;
-  static const double _restTo = 5.4;
-  static const double _dwell = 0.5;
-  static const double _quickening = 0.7;
+  // The lookup, one place at a time: `<bos>` alone, long enough to be
+  // followed, then the rest left to right, each lit on its own and each a
+  // little quicker than the one before, the last at [_lastShare] of the
+  // first's time.
+  static const (double, double) _first = (2.4, 3.6);
+  static const double _restFrom = 3.7;
+  static const double _restTo = 10.4;
+  static const double _lastShare = 0.4;
 
   // The gather: the table goes, and each place's copy of the row it read
   // moves to the place's own row, the tile that read it going up to label
   // it and turning back into its residue.
-  static const (double, double) _tableOut = (5.4, 6.0);
-  static const double _gatherFrom = 5.4;
+  static const (double, double) _tableOut = (10.5, 11.1);
+  static const double _gatherFrom = 10.5;
   static const double _gatherStagger = 0.5;
   static const double _gatherFlight = 1.0;
 
@@ -63,22 +64,22 @@ final class EmbeddingScene extends LmScene {
 
   // The position embedding: each place's row alone, on its own scale, then
   // added: the sum is x0.
-  static const (double, double) _placesIn = (7.0, 7.4);
-  static const (double, double) _placesOut = (7.7, 8.1);
-  static const (double, double) _tokensUnwritten = (7.0, 7.2);
-  static const (double, double) _placesWritten = (7.2, 7.4);
-  static const (double, double) _placesUnwritten = (7.7, 7.9);
-  static const (double, double) _sumsWritten = (7.9, 8.1);
-  static const (double, double) _add = (7.8, 8.2);
+  static const (double, double) _placesIn = (12.1, 12.5);
+  static const (double, double) _placesOut = (12.8, 13.2);
+  static const (double, double) _tokensUnwritten = (12.1, 12.3);
+  static const (double, double) _placesWritten = (12.3, 12.5);
+  static const (double, double) _placesUnwritten = (12.8, 13.0);
+  static const (double, double) _sumsWritten = (13.0, 13.2);
+  static const (double, double) _add = (12.9, 13.3);
 
-  /// Where the caption turns: to what the numbers are, the first lookup, the
-  /// rest, the gather, the position embedding and x0.
+  /// Where the caption turns: to what the numbers are, the lookup, the
+  /// gather, the position embedding and x0. The note over the table turns
+  /// with it, but for the still beat, which keeps the table's.
   static const double _numbersCaption = 1.4;
-  static const double _firstCaption = 2.4;
-  static const double _restCaption = 3.4;
-  static const double _gatherCaption = 5.4;
-  static const double _placesCaption = 7.0;
-  static const double _x0Caption = 8.4;
+  static const double _lookupCaption = 2.4;
+  static const double _gatherCaption = 10.5;
+  static const double _placesCaption = 12.1;
+  static const double _x0Caption = 13.5;
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -112,6 +113,7 @@ final class EmbeddingScene extends LmScene {
         ),
       );
     }
+    _note(canvas, view, layout, beat, fade);
     _tags(canvas, view, layout, beat, fade);
     _table(canvas, size, view, layout, beat);
     if (fade.rows) {
@@ -122,15 +124,47 @@ final class EmbeddingScene extends LmScene {
 
   // --------------------------------------------------------------- numbers
 
-  /// How far place [i]'s lookup has got, of [n] places: its tile and its row
-  /// lit while it reads.
-  static double _lookup(int i, int n, double beat) {
+  /// When place [i] of [n] is read: `<bos>` on its own, then each of the
+  /// rest in turn, their times falling in a line to [_lastShare] of the
+  /// first's, together filling the lookup.
+  static (double, double) slot(int i, int n) {
     if (i == 0) {
-      return _span(beat, _first);
+      return _first;
     }
-    final double start =
-        _restFrom + (n < 3 ? 0 : math.pow((i - 1) / (n - 2), _quickening) * (_restTo - _dwell - _restFrom));
-    return through(beat, start, start + _dwell);
+    double share(int j) => n < 3 ? 1 : 1 - (1 - _lastShare) * (j - 1) / (n - 2);
+    double total = 0;
+    double before = 0;
+    for (int j = 1; j < n; j++) {
+      total += share(j);
+      if (j < i) {
+        before += share(j);
+      }
+    }
+    const double span = _restTo - _restFrom;
+    final double start = _restFrom + span * before / total;
+    return (start, start + span * share(i) / total);
+  }
+
+  /// How far place [i]'s lookup has got, of [n] places.
+  static double _lookup(int i, int n, double beat) {
+    final (double from, double to) = slot(i, n);
+    return ((beat - from) / (to - from)).clamp(0.0, 1.0);
+  }
+
+  /// How strongly a place and the row it reads are lit, [f] of the way
+  /// through its lookup: up quickly, held, and down, so only one is lit at
+  /// a time.
+  static double _lit(double f) => through(f, 0, 0.2) * (1 - through(f, 0.8, 1));
+
+  /// The place being read at [beat], or the last read; null before any.
+  static int? _reading(int n, double beat) {
+    int? at;
+    for (int i = 0; i < n; i++) {
+      if (slot(i, n).$1 <= beat) {
+        at = i;
+      }
+    }
+    return beat < _first.$1 || beat >= _gatherFrom ? null : at;
   }
 
   /// How far place [i]'s copy of its row has moved to the place's own row.
@@ -181,6 +215,96 @@ final class EmbeddingScene extends LmScene {
     return true;
   }
 
+  // ----------------------------------------------------------------- note
+
+  /// Why each part happens, a line or two over the table, one part at a
+  /// time, beside the caption under the canvas, which says what happens:
+  /// when it holds, from and to, and what it says.
+  static List<(double, double, String)> _notes(LmView view) {
+    final TrainingTrace trace = view.trace;
+    final int width = trace.model.width;
+    return <(double, double, String)>[
+      (_tableIn.$1, _lookupCaption, 'A model computes with numbers, not letters: each token gets $width of its own.'),
+      (_lookupCaption, _gatherCaption, 'The lookup is only this: the id picks its row, no arithmetic.'),
+      (_gatherCaption, _placesCaption, _sameRow(view)),
+      (_placesCaption, _x0Caption, "Attention alone ignores order: each place's own row says where it sits."),
+      (_x0Caption, double.infinity, 'Each place is now $width numbers, which every block reads and adds to.'),
+    ];
+  }
+
+  /// That x embedded cannot tell a token's places apart: the first token
+  /// the peptide in focus has at two places, the same row at both.
+  static String _sameRow(LmView view) {
+    final TrainingTrace trace = view.trace;
+    final Map<int, int> first = <int, int>{};
+    for (int i = 0; i < view.focus.inputs; i++) {
+      final int id = trace.inputAt(view.peptide, i);
+      final int? before = first[id];
+      if (before != null) {
+        return 'The two ${trace.token(id)}s at places $before and $i are the same row: '
+            'nothing yet says where each is.';
+      }
+      first[id] = i;
+    }
+    return "Each place holds its token's row: nothing yet says where it is.";
+  }
+
+  /// The place being read, named with its token, its id and the row it reads.
+  static String _readout(LmView view, int i) {
+    final int id = view.trace.inputAt(view.peptide, i);
+    return '${view.trace.token(id)} · place $i · id $id → row $id';
+  }
+
+  static TextStyle _whyStyle(LmView view) =>
+      inked(view.kit.sans, _noteSize, view.inks.quiet).copyWith(height: 1.3);
+
+  static TextStyle _readoutStyle(LmView view) => inked(view.kit.sans, _noteSize, view.inks.signal);
+
+  static const double _noteSize = 10.5;
+
+  /// How tall the note is at [width]: a line for the place being read, and
+  /// the most lines any of its parts takes.
+  static double noteHeight(LmView view, double width) => view.kit.memo<double>(
+    ('embedding-note', view.peptide, view.kit.scaler, width),
+    () {
+      double why = 0;
+      for (final (_, _, String text) in _notes(view)) {
+        why = math.max(why, view.kit.paragraph(text, _whyStyle(view), width).height);
+      }
+      return view.kit.layout(_readout(view, 0), _readoutStyle(view)).height + _readoutGap + why;
+    },
+  );
+
+  static const double _readoutGap = 4;
+
+  /// The note over the table, its parts fading out and in at their turns:
+  /// during the lookup, the place being read over why.
+  void _note(Canvas canvas, LmView view, EmbeddingLayout layout, double beat, EmbeddingFade fade) {
+    const double turn = 0.25;
+    final double width = layout.right - layout.noteLeft;
+    final double readout = view.kit.layout(_readout(view, 0), _readoutStyle(view)).height + _readoutGap;
+    for (final (double from, double to, String text) in _notes(view)) {
+      final double alpha = through(beat, from, from + turn) * (1 - through(beat, to - turn, to)) * fade.chrome;
+      if (alpha <= 0) {
+        continue;
+      }
+      view.kit
+          .paragraph(text, inked(view.kit.sans, _noteSize, view.inks.quiet, alpha: alpha).copyWith(height: 1.3), width)
+          .paint(canvas, Offset(layout.noteLeft, layout.noteTop + readout));
+      if (from == _lookupCaption) {
+        final int? i = _reading(view.focus.inputs, beat);
+        if (i != null) {
+          view.kit.draw(
+            canvas,
+            _readout(view, i),
+            inked(view.kit.sans, _noteSize, view.inks.signal, alpha: alpha),
+            Offset(layout.noteLeft, layout.noteTop),
+          );
+        }
+      }
+    }
+  }
+
   // ---------------------------------------------------------------- paint
 
   /// The matrix's name, each in turn at the top left: the token embedding,
@@ -197,13 +321,13 @@ final class EmbeddingScene extends LmScene {
       ),
       (
         'x embedded · $inputs × $width',
-        through(beat, 6.0, 6.4) * (1 - through(beat, 6.8, 7.0)),
+        through(beat, 11.1, 11.5) * (1 - through(beat, 11.9, 12.1)),
       ),
       (
         'position embedding · first $inputs of ${trace.model.context} rows',
-        through(beat, 7.0, 7.25) * (1 - through(beat, 7.9, 8.15)),
+        through(beat, 12.1, 12.35) * (1 - through(beat, 13.0, 13.25)),
       ),
-      ('x0 · $inputs × $width', through(beat, 8.15, 8.4) * fade.chrome),
+      ('x0 · $inputs × $width', through(beat, 13.25, 13.5) * fade.chrome),
     ]) {
       if (alpha > 0) {
         drawTag(canvas, view, text, at, alpha: alpha);
@@ -275,7 +399,7 @@ final class EmbeddingScene extends LmScene {
     for (int i = 0; i < n; i++) {
       final int id = trace.inputAt(view.peptide, i);
       final double f = _lookup(i, n, beat);
-      lit[id] = math.max(lit[id], math.sin(math.pi * f));
+      lit[id] = math.max(lit[id], _lit(f));
       read[id] = read[id] || f >= 0.5;
     }
     for (int id = 0; id < count; id++) {
@@ -468,7 +592,7 @@ final class EmbeddingScene extends LmScene {
       final Rect foot = Rect.lerp(from, layout.foot(k), descend)!;
       if (gather <= 0) {
         _tile(canvas, view, foot, ids, k, residues, 1);
-        final double lit = math.sin(math.pi * _lookup(k, n, beat));
+        final double lit = _lit(_lookup(k, n, beat));
         if (lit > 0) {
           canvas.drawRRect(
             RRect.fromRectAndRadius(foot.inflate(1), Radius.circular(foot.width * 0.2)),
@@ -551,17 +675,13 @@ final class EmbeddingScene extends LmScene {
     final int width = trace.model.width;
     final int inputs = view.focus.inputs;
     if (beat < _numbersCaption) {
-      return 'The token embedding: $width learned numbers for each of the ${grouped(trace.vocab.length)} tokens';
+      return 'The token embedding, ${grouped(trace.vocab.length)} × $width, learned with the rest of the model';
     }
-    if (beat < _firstCaption) {
+    if (beat < _lookupCaption) {
       final String moved = view.step == 1
           ? 'At step 1 no update has moved them yet'
           : 'At step ${view.step} they have had ${grouped(view.step - 1)} updates';
       return _padStill(trace) ? "$moved; <pad>'s row is zero at every checkpoint" : moved;
-    }
-    if (beat < _restCaption) {
-      final int id = trace.inputAt(view.peptide, 0);
-      return '${trace.token(id)} is id $id, so it reads row $id of the table';
     }
     if (beat < _gatherCaption) {
       final Map<int, int> uses = <int, int>{};
@@ -578,20 +698,17 @@ final class EmbeddingScene extends LmScene {
       final String again = times < 2
           ? ''
           : ', ${trace.token(most)}\'s ${times == 2 ? 'twice' : '${spelled(times)} times'}';
-      return 'Each id picks its row of $width: ${grouped(inputs)} places read '
-          '${grouped(uses.length)} rows$again';
+      return '${grouped(inputs)} places read ${grouped(uses.length)} rows of the table$again';
     }
     if (beat < _placesCaption) {
       return 'In place order, the rows read are x embedded: ${grouped(inputs)} × $width, a row a place';
     }
     if (beat < _x0Caption) {
       final int times = smaller(view);
-      return times < 2
-          ? 'Plus each place\'s own row of the position embedding'
-          : 'Plus each place\'s own row of the position embedding, '
-                '${grouped(times)}× smaller than its token\'s';
+      final String rows = 'Adding the position embedding, rows 0–${inputs - 1}';
+      return times < 2 ? rows : '$rows, ${grouped(times)}× smaller than the token rows';
     }
-    return 'x0: ${grouped(inputs)} × $width numbers, what the blocks read';
+    return 'x0, ${grouped(inputs)} × $width: the start of the residual stream';
   }
 
   @override
@@ -612,7 +729,7 @@ final class EmbeddingFade {
   final double chrome;
 }
 
-/// Top to bottom: the tag; the matrix, a row a token and then a row a
+/// Top to bottom: the note, why; the tag; the matrix, a row a token and then a row a
 /// place, its numbers across the width, 4 pt from either side, after a
 /// gutter for the row's id or tile, every row as tall as the canvas allows
 /// for the longer of the two; and at the foot, the peptide in focus under
@@ -632,10 +749,14 @@ final class EmbeddingLayout {
     footTile = Size(footStep, math.min(_mostFoot, math.max(footStep, idNumbered + 2)));
     footLeft = left + (span - (inputs - 1) * footStep - footTile.width) / 2;
     final double tag = tagSize(view, 'token embedding').height;
-    final double room = size.height - 2 * _edge - tag - _tagGap - _footGap - ShiftLayout.label - footTile.height;
+    noteLeft = left + tagPadding;
+    final double note = EmbeddingScene.noteHeight(view, right - noteLeft) + _noteGap;
+    final double room =
+        size.height - 2 * _edge - note - tag - _tagGap - _footGap - ShiftLayout.label - footTile.height;
     pitch = math.min(_mostPitch, room / rows);
-    final double content = tag + _tagGap + rows * pitch + _footGap + ShiftLayout.label + footTile.height;
-    tagTop = math.max(_edge, (size.height - content) / 2);
+    final double content = note + tag + _tagGap + rows * pitch + _footGap + ShiftLayout.label + footTile.height;
+    noteTop = math.max(_edge, (size.height - content) / 2);
+    tagTop = noteTop + note;
     tableTop = tagTop + tag + _tagGap;
     footTop = tableTop + rows * pitch + _footGap + ShiftLayout.label;
     chipSide = (pitch - 3).clamp(3.0, 14.0);
@@ -662,6 +783,9 @@ final class EmbeddingLayout {
   /// to the foot.
   static const double _edge = 6;
   static const double _tagGap = 6;
+
+  /// From the note to the tag.
+  static const double _noteGap = 8;
   static const double _footGap = 14;
 
   /// The tallest a row is drawn, however much room the canvas has.
@@ -688,6 +812,11 @@ final class EmbeddingLayout {
 
   final double left = _side;
   final double right;
+
+  /// The note over the tag: its top, and its left edge, under the tag's
+  /// words.
+  late final double noteTop;
+  late final double noteLeft;
 
   /// As many rows as the longer of the vocabulary and the peptide in focus.
   late final int rows;
