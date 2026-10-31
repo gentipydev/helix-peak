@@ -293,16 +293,28 @@ out of view is scrolled just far enough to show it whole.
      values riding them, as Scores' bars go;
    - head 2 reads in full, quicker (C11 reads C11 29%, C6 27%, C7 26% at step
      200);
+   - the heads' answers sit on C11's row and take the room right of the keys
+     that the arcs leave them, at least 50 pt (the user's ask, 2026-10-31,
+     "there is more space"): 170 pt on a Pro Max, was 112; 132 at 402; at 375
+     there is no room to spare and they stay 111;
    - the answers, side by side, are mixed back to 16 ("what C11 read");
    - every place at once: head 1's map, as large as the canvas allows (beats
      5.2–8.6). The two heads' maps stacked beside the table left each half the
      height, rows of 10 pt on a Pro Max and 6.6 at 375 wide, out of line with
      the table's rows; at the user's ask (2026-10-31) only head 1's is drawn.
-     - The x0 rows go into their tiles, and the token column names the map's
-       rows: the map lies on the table's own rows (22, 20 and 14 pt on the
-       three phone canvases), from where the rows started to the canvas's
-       side, riding their edge as they go. Cells are about 19 × 22 pt on a
-       Pro Max (16 × 14 at 375).
+     - The answers' numbers go, and their box grows out of C11's row into the
+       map (beats 5.25–5.9): up to <bos>'s row, down to the column tiles and
+       left to the token column, the map's empty slots and hatch seen only
+       inside it; the x0 rows go into their tiles at the same pace, so the
+       box never covers them. The user picked this over moving the map before
+       the join (head 1's own segment growing into its map and back): after
+       the join the box's halves are mixed, so the box says "C11 read through
+       one row; the map is every place's row", not that its numbers become
+       the shares.
+     - The token column names the map's rows: the map lies on the table's own
+       rows (22, 20 and 14 pt on the three phone canvases), from where the
+       rows started to the canvas's side. Cells are about 19 × 22 pt on a Pro
+       Max (16 × 14 at 375).
      - The user's four choices: each share on a soft tile of the share ramp
        (`LmInks.share`, softened as the tables' tiles are) with its
        percentage written where it fits, the tables' rule (insulin A and

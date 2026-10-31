@@ -532,22 +532,39 @@ void main() {
       }
       expect(layout.mapLeft, layout.stream(0, 1).left);
       expect(layout.mapLeft, greaterThan(table.layout.label(0).right + layout.slide(1)));
-      // As the rows go into their tiles, the map rides their edge, never over
-      // them.
-      for (final double c in <double>[0, 0.25, 0.5, 0.75, 1]) {
-        expect(layout.mapLeftAt(c), greaterThanOrEqualTo(layout.stream(0, 1, c).right - 1e-9), reason: '$size $c');
-      }
-      expect(layout.stream(0, 1, 1).width, 0);
       // The places read: a tile under each column, under the last row, on the
       // canvas.
       for (int j = 0; j < n; j++) {
         final Rect tile = layout.mapTile(j);
         expect(tile.center.dx, closeTo(layout.mapCell(n - 1, j).center.dx, 1e-9));
-        expect(tile.width, lessThan(layout.mapColumn(1)));
+        expect(tile.width, lessThan(layout.mapColumn));
         expect(tile.top, greaterThan(table.row(n - 1).bottom));
         expect(tile.bottom, lessThanOrEqualTo(size.height));
       }
+      // The heads' answers, on the row in focus, end at the canvas's side and
+      // are never shorter than a unit a number, the keys' own; where they are
+      // longer, the arcs keep their least room.
+      final double unit = (layout.kvRight - layout.kvLeft) / trace.headSize;
+      expect(layout.slotCell, greaterThanOrEqualTo(unit - 1e-9), reason: '$size');
+      expect(layout.answers.right, closeTo(table.layout.right - 2, 1e-9));
+      expect(layout.answers.top, greaterThanOrEqualTo(table.row(scene.position).top));
+      expect(layout.answers.bottom, lessThanOrEqualTo(table.row(scene.position).bottom));
+      if (layout.slotCell > unit + 1e-9) {
+        expect(layout.answers.left - layout.kvRight, greaterThanOrEqualTo(AttentionLayout.leastArcs - 1e-9), reason: '$size');
+      }
+      // The answers' box grows into the map: from the answers to the map's
+      // rows and tiles, never over the rows as they go into their tiles.
+      expect(layout.growing(0), layout.answers);
+      expect(layout.growing(1), layout.mapBox);
+      for (final double g in <double>[0, 0.25, 0.5, 0.75, 1]) {
+        expect(layout.growing(g).left, greaterThanOrEqualTo(layout.stream(0, 1, g).right - 1e-9), reason: '$size $g');
+      }
+      expect(layout.stream(0, 1, 1).width, 0);
+      expect(layout.mapBox.bottom, greaterThan(layout.mapTile(0).bottom));
     }
+    // The answers are longer than a unit a number where the canvas has room.
+    final AttentionLayout wide = AttentionLayout(const Size(440, 697), scene);
+    expect(wide.slotCell, greaterThan((wide.kvRight - wide.kvLeft) / trace.headSize));
     // Every row adds to one; the place in focus's row is the shares Scores
     // drew, number for number.
     final List<List<double>> rows = AttentionScene.allShares(scene, AttentionScene.mapHead);

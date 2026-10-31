@@ -327,16 +327,19 @@ of 2026-10-30 and 2026-10-31:
 - **Attention** (`attention_scene.dart`) opens on Scores' last frame. Head 1's
   keys turn into values and arcs carry each share of each value into the
   head's answer, as its bars go. The places after it are struck through. Head
-  2 reads in full, quicker. The heads' answers, side by side, are mixed back to
-  16. Every place at once then fills head 1's map, as large as the canvas
-  allows (head 2's is not drawn; the user's ask of 2026-10-31): the table
-  narrows to its token column, which names the map's rows, and the map moves
-  left into the freed width on the table's own rows, the places read named by
-  tiles under its columns. It comes in as empty slots, the places after each
-  row hatched; the row in focus fills first, with the shares Scores found,
-  then every other row, each share on a soft tile and written as a percentage
-  where it fits. A tap on a row of it puts that place in focus. The table
-  widens again to what attention adds, alone, then the sums, `x0 + attention`.
+  2 reads in full, quicker. The heads' answers, on the row in focus, take the
+  room right of the keys that the arcs leave them (at least 50 pt). Side by
+  side, they are mixed back to 16. Every place at once then fills head 1's
+  map, as large as the canvas allows (head 2's is not drawn; the user's ask
+  of 2026-10-31). The answers' box grows out of the row in focus into the
+  map, up, down and left to the token column, as the table narrows to that
+  column, which names the map's rows; the map lies on the table's own rows,
+  the places read named by tiles under its columns. It comes in as empty
+  slots, the places after each row hatched; the row in focus fills first,
+  with the shares Scores found, then every other row, each share on a soft
+  tile and written as a percentage where it fits. A tap on a row of it puts
+  that place in focus. The table widens again to what attention adds, alone,
+  then the sums, `x0 + attention`.
 - **Feed-forward** (`feed_forward_scene.dart`), block 1's: a copy lifts off the
   row in focus, evened out by its LayerNorm, and stands up as the 16 inputs of
   a network drawn left to right. All 1,024 weights reach the 64 neurons,

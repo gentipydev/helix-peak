@@ -53,13 +53,19 @@ final class AttentionScene extends LmScene {
   // Scores' bars of head 1's shares go as its arcs come.
   static const (double, double) _barsOut = (0.0, 0.6);
 
-  // Head 1's map. x0's tag goes, the table narrows to its token column and
-  // the map comes in riding its rows' edge, as empty slots with the places
-  // after each row hatched; its tag comes. The place in focus's row fills,
-  // a cell at a time, then every other row, top to bottom; then it holds.
+  // Head 1's map, out of the heads' answers. x0's tag goes, and the answers'
+  // numbers and names. Their box grows from the row in focus into the map,
+  // up to the first row, down to the last and left to the token column, as
+  // the table narrows to its tiles at the same pace; inside it, the map's
+  // empty slots, the places after each row hatched. The box's outline goes
+  // once it is the map's, and the map's tag comes. The place in focus's row
+  // fills, a cell at a time, then every other row, top to bottom; then it
+  // holds.
   static const (double, double) _x0TagOut = (5.2, 5.4);
-  static const (double, double) _collapse = (5.25, 5.85);
-  static const (double, double) _mapIn = (5.35, 5.7);
+  static const (double, double) _answersOut = (5.2, 5.35);
+  static const (double, double) _grow = (5.25, 5.9);
+  static const (double, double) _boxOut = (5.85, 6.1);
+  static const (double, double) _mapIn = (5.25, 5.5);
   static const (double, double) _mapTagIn = (5.6, 5.8);
   static const (double, double) _focusRow = (5.9, 6.7);
   static const (double, double) _rows = (6.8, 7.6);
@@ -177,7 +183,7 @@ final class AttentionScene extends LmScene {
   /// from just before its row of the map fills, at the place it reads last,
   /// itself, until the row widens past it.
   static double _outlineRight(AttentionLayout layout, int focus, double beat) {
-    final double row = layout.stream(focus, _squeezeAt(beat), _span(beat, _collapse)).right;
+    final double row = layout.stream(focus, _squeezeAt(beat), _span(beat, _grow)).right;
     final double across = through(beat, _focusRow.$1 - 0.25, _focusRow.$1);
     if (across <= 0) {
       return row;
@@ -195,7 +201,7 @@ final class AttentionScene extends LmScene {
     final StreamTable table = layout.table;
     final int n = view.focus.inputs;
     final double squeeze = _squeezeAt(beat);
-    final double collapse = _span(beat, _collapse);
+    final double collapse = _span(beat, _grow);
     final double alone = _span(beat, _alone);
     final double add = _span(beat, _add);
     final double scale = table.scale;
@@ -584,13 +590,15 @@ final class AttentionScene extends LmScene {
 
   /// Each head's answer for the place in focus, filling as its values
   /// arrive and kept, side by side, till the join mixes them back to the
-  /// stream's width: what the place in focus gains.
+  /// stream's width: what the place in focus gains. Then their numbers and
+  /// names go, and their box grows into head 1's map.
   void _answers(Canvas canvas, LmView view, AttentionLayout layout, double beat) {
     final TrainingTrace trace = view.trace;
     final int heads = trace.model.heads;
     final int focus = view.position;
-    final double gone = 1 - through(beat, _mapFrom, _mapFrom + 0.25);
-    if (gone <= 0) {
+    final double gone = 1 - _span(beat, _answersOut);
+    final double outlined = 1 - _span(beat, _boxOut);
+    if (outlined <= 0) {
       return;
     }
     final double mixScale = _mixScale(view);
@@ -601,7 +609,7 @@ final class AttentionScene extends LmScene {
     final StreamTable table = layout.table;
     final List<double> gain = table.gained(0, 1, focus);
     final double gainScale = table.gainScale(0, 1);
-    for (int h = 0; h < heads; h++) {
+    for (int h = 0; h < heads && gone > 0; h++) {
       final HeadTimes t = times(h, heads);
       final double filled = through(beat, t.values + 0.5, t.end - 0.1);
       final double frame = through(beat, t.values + 0.3, t.values + 0.5);
@@ -644,9 +652,9 @@ final class AttentionScene extends LmScene {
       );
     }
     // The join: a sweep across both answers as one more matrix mixes them.
+    final Rect all = layout.answers;
     final double sweep = through(beat, _joinFrom, _joinFrom + 0.6);
     if (sweep > 0 && sweep < 1) {
-      final Rect all = Rect.fromLTRB(layout.slot(0).left, layout.slot(0).top, layout.slot(heads - 1).right, layout.slot(0).bottom);
       final double x = all.left + all.width * sweep;
       canvas.drawRect(
         Rect.fromLTRB(math.max(all.left, x - 10), all.top - 1, math.min(all.right, x + 2), all.bottom + 1),
@@ -654,13 +662,14 @@ final class AttentionScene extends LmScene {
       );
     }
     if (joined > 0) {
-      final Rect all = Rect.fromLTRB(layout.slot(0).left, layout.slot(0).top, layout.slot(heads - 1).right, layout.slot(0).bottom);
+      // The box round both, which grows into head 1's map: what the place in
+      // focus read came through its row; the map is every place's.
       canvas.drawRRect(
-        RRect.fromRectAndRadius(all.inflate(1), const Radius.circular(2.5)),
+        RRect.fromRectAndRadius(layout.growing(_span(beat, _grow)).inflate(1), const Radius.circular(2.5)),
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.2
-          ..color = view.inks.signal.withValues(alpha: joined * gone),
+          ..color = view.inks.signal.withValues(alpha: joined * outlined),
       );
       view.kit.draw(
         canvas,
@@ -678,8 +687,8 @@ final class AttentionScene extends LmScene {
   /// out. The second's is not drawn.
   static const int mapHead = 0;
 
-  /// How far head 1's map has come: in with its slots as the table narrows,
-  /// and gone as the table widens again.
+  /// How far head 1's map has come: in with its slots as the answers' box
+  /// grows into it, and gone as the table widens again.
   static double _mapShown(double beat) =>
       _span(beat, _mapIn) * (1 - through(beat, _widenFrom, _widenFrom + 0.25));
 
@@ -702,8 +711,8 @@ final class AttentionScene extends LmScene {
   /// a place, the tile at its left naming it; its shares of the places up to
   /// its own, each on a soft tile of its colour, its percentage written on it
   /// where it fits; the places after it struck through, never read; and the
-  /// places read named under the columns. It comes in as empty slots, its
-  /// left edge riding the rows as they go into their tiles.
+  /// places read named under the columns. It comes in as empty slots, seen
+  /// only inside the answers' box as the box grows into it.
   void _map(Canvas canvas, LmView view, AttentionLayout layout, double beat) {
     final double shown = _mapShown(beat);
     if (shown <= 0) {
@@ -712,17 +721,21 @@ final class AttentionScene extends LmScene {
     final TrainingTrace trace = view.trace;
     final int n = view.focus.inputs;
     final int focus = view.position;
-    final double collapse = _span(beat, _collapse);
+    final double grow = _span(beat, _grow);
     final List<List<double>> rows = allShares(view, mapHead);
     final TextStyle? numbers = layout.mapNumbers;
-    _mapHatch(canvas, view, layout, collapse, shown);
+    canvas.save();
+    if (grow < 1) {
+      canvas.clipRRect(RRect.fromRectAndRadius(layout.growing(grow), const Radius.circular(2.5)));
+    }
+    _mapHatch(canvas, view, layout, shown);
     final Paint slot = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8;
     final Paint fill = Paint();
     for (int i = 0; i < n; i++) {
       for (int j = 0; j <= i; j++) {
-        final Rect cell = layout.mapCell(i, j, collapse).deflate(EmbeddingLayout.gap);
+        final Rect cell = layout.mapCell(i, j).deflate(EmbeddingLayout.gap);
         // The tables' corners, less on a small cell, so it stays a tile.
         final RRect shape = RRect.fromRectAndRadius(
           cell,
@@ -753,21 +766,22 @@ final class AttentionScene extends LmScene {
     }
     // The places read, a tile under each column.
     for (int j = 0; j < n; j++) {
-      drawToken(canvas, view, layout.mapTile(j, collapse), trace.inputAt(view.peptide, j), alpha: shown);
+      drawToken(canvas, view, layout.mapTile(j), trace.inputAt(view.peptide, j), alpha: shown);
     }
+    canvas.restore();
   }
 
   /// The places after each row's own, which it never reads: whole cells,
   /// struck through as Scores strikes them.
-  static void _mapHatch(Canvas canvas, LmView view, AttentionLayout layout, double collapse, double alpha) {
+  static void _mapHatch(Canvas canvas, LmView view, AttentionLayout layout, double alpha) {
     final int n = layout.places;
     if (n < 2 || alpha <= 0) {
       return;
     }
-    final Rect first = layout.mapCell(0, 0, collapse);
+    final Rect first = layout.mapCell(0, 0);
     final double column = first.width;
     final double pitch = first.height;
-    final Rect area = Rect.fromLTRB(first.left, first.top, layout.mapCell(0, n - 1, collapse).right, first.top + n * pitch);
+    final Rect area = Rect.fromLTRB(first.left, first.top, layout.mapCell(0, n - 1).right, first.top + n * pitch);
     // Down the steps: each row's first cell after its own.
     final Path steps = Path()..moveTo(first.right, first.top);
     for (int i = 0; i < n - 1; i++) {
@@ -934,18 +948,20 @@ final class AttentionLayout {
       view.kit.layout('−88.88', inked(view.kit.mono, textSize, view.inks.ink)).width + 4,
     );
     // A unit a cell: the narrowed strip 0.8 of it, keys, values and answers
-    // one each, the arcs what is left, at least 50.
+    // one each, the arcs what is left, at least [leastArcs].
     final double unit = math.min(
       7.0,
-      (room - gaps - scoreWidth - 50) / (trace.model.width * 0.8 + trace.headSize + trace.model.width),
+      (room - gaps - scoreWidth - leastArcs) / (trace.model.width * 0.8 + trace.headSize + trace.model.width),
     );
     narrow = trace.model.width * unit * 0.8;
     // The narrowed rows slide left over the ids' gutter.
     scoreLeft = e.cellsLeft - table.gutter + narrow + 6;
     kvLeft = scoreLeft + scoreWidth + 6;
     kvRight = kvLeft + trace.headSize * unit;
-    slotCell = unit;
-    slotsLeft = e.right - trace.model.width * unit - 2;
+    // The heads' answers take the room right of the keys the arcs leave them:
+    // never shorter than a unit a number, nor wider than the table's.
+    slotCell = math.max(unit, math.min(e.cell, (e.right - 2 - kvRight - leastArcs) / trace.model.width));
+    slotsLeft = e.right - trace.model.width * slotCell - 2;
     barLeft = kvRight + 8;
     percentWidth = view.kit.layout('100%', inked(view.kit.mono, textSize, view.inks.ink)).width + 3;
     barRoom = math.max(10.0, e.right - percentWidth - barLeft);
@@ -957,6 +973,9 @@ final class AttentionLayout {
 
   final Size size;
   final StreamTable table;
+
+  /// The least room the arcs have, from the values to the heads' answers.
+  static const double leastArcs = 50;
 
   /// The narrowed strip's width.
   late final double narrow;
@@ -1033,36 +1052,43 @@ final class AttentionLayout {
     );
   }
 
+  /// The heads' answers, side by side on the row in focus: the box head 1's
+  /// map grows out of.
+  Rect get answers => Rect.fromLTRB(slot(0).left, slot(0).top, slot(heads - 1).right, slot(0).bottom);
+
   /// Where head 1's map starts once the strips have gone into their tiles:
   /// where the strips started, right of the tiles slid over the gutter. It
   /// runs to the canvas's side, on the table's rows.
   late final double mapLeft = table.layout.cellsLeft - table.gutter;
 
-  /// The map's left edge [collapse] of the way in: right of the narrowed
-  /// strips, where the scores were, riding their edge as they go.
-  double mapLeftAt(double collapse) => scoreLeft + (mapLeft - scoreLeft) * collapse;
+  /// How wide a column of the map is.
+  late final double mapColumn = (table.layout.right - mapLeft) / places;
 
-  /// How wide a column of the map is, [collapse] of the way in.
-  double mapColumn(double collapse) => (table.layout.right - mapLeftAt(collapse)) / places;
-
-  /// The map's cell at row [i], column [j], [collapse] of the way in: what
-  /// place [i] reads of place [j], on the table's row [i].
-  Rect mapCell(int i, int j, [double collapse = 1]) {
+  /// The map's cell at row [i], column [j]: what place [i] reads of place
+  /// [j], on the table's row [i].
+  Rect mapCell(int i, int j) {
     final Rect row = table.row(i);
-    final double column = mapColumn(collapse);
-    final double left = mapLeftAt(collapse) + j * column;
-    return Rect.fromLTRB(left, row.top, left + column, row.bottom);
+    final double left = mapLeft + j * mapColumn;
+    return Rect.fromLTRB(left, row.top, left + mapColumn, row.bottom);
   }
 
   /// The tile naming the map's column [j], the place read, under its last
   /// row, as the token column names the rows: as tall as theirs, so it
   /// carries its letter where they do, and no wider than its column.
-  Rect mapTile(int j, [double collapse = 1]) {
-    final Rect cell = mapCell(places - 1, j, collapse);
+  Rect mapTile(int j) {
+    final Rect cell = mapCell(places - 1, j);
     final double side = table.layout.chipSide;
     final double wide = math.max(1.0, math.min(side, cell.width - 1));
     return Rect.fromLTWH(cell.center.dx - wide / 2, cell.bottom + 4, wide, side);
   }
+
+  /// What head 1's map takes: its rows and, under them, the tiles naming its
+  /// columns.
+  late final Rect mapBox = Rect.fromLTRB(mapLeft, table.row(0).top, table.layout.right, mapTile(0).bottom + 2);
+
+  /// The answers' box [grow] of the way to the map's: up to the first row,
+  /// down to the tiles and left to the token column.
+  Rect growing(double grow) => Rect.lerp(answers, mapBox, grow)!;
 
   /// What the map's shares are written in: as large as the widest, `100`,
   /// fits a cell, up to 9 points and the rows' own number size; null where
@@ -1074,7 +1100,7 @@ final class AttentionLayout {
     final LmView view = table.view;
     TextStyle at(double points) => inked(view.kit.mono, points, view.inks.ink).copyWith(letterSpacing: 0);
     final double perPoint = view.kit.layout('100', at(10)).width / 10;
-    final double room = mapColumn(1) - 2 * EmbeddingLayout.gap - 2;
+    final double room = mapColumn - 2 * EmbeddingLayout.gap - 2;
     // Held to the half point below, so a number is never wider than drawn.
     final double points = (math.min(9, math.min(table.layout.pitch * 0.62, room / perPoint)) * 2).floorToDouble() / 2;
     return points < EmbeddingLayout.leastNumber ? null : at(points);
