@@ -269,8 +269,8 @@ final class EmbeddingScene extends LmScene {
         _placesCaption,
         _addCaption,
         'where it comes from: a second table in the model, random at first and trained like the token one\n'
-            'why ${view.focus.inputs} of ${trace.model.context}: a row for each place the model can hold, '
-            '<bos> and up to ${trace.model.context - 1} residues; ${view.focus.source.label} fills '
+            "why ${view.focus.inputs} of ${trace.model.context}: ${trace.model.context} is the model's context length, "
+            'a row for each place it can hold, <bos> (<) and up to ${trace.model.context - 1} residues; ${view.focus.source.label} fills '
             '${view.focus.inputs}',
       ),
       (_addCaption, _x0Caption, '$what\n$where\n$both'),
