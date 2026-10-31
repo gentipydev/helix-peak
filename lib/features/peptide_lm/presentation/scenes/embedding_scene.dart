@@ -277,8 +277,7 @@ final class EmbeddingScene extends LmScene {
     final (String, int, int)? twin = _twin(view);
     // Why the sum, as one argument, a sentence a line: attention cannot see
     // order, so each row is given its place; the two places of one token
-    // part; why added and not set side by side; and what training makes of
-    // the place's part.
+    // part; and what training makes of the place's part.
     final String sum = <String>[
       'Attention, next, reads rows as a bag, blind to their order.',
       'So each token row (what) gets a position row (where) added.',
@@ -286,7 +285,6 @@ final class EmbeddingScene extends LmScene {
         'Each row now says what its residue is and where it sits.'
       else
         'The ${twin.$1}s at ${twin.$2} and ${twin.$3} share a token row, but now differ by place.',
-      'Added, not side by side: that makes ${2 * width} numbers; layers take $width.',
       _growth(view),
     ].join('\n');
     return <(double, double, String)>[

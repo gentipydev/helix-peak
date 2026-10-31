@@ -226,9 +226,11 @@ out of view is scrolled just far enough to show it whole.
      answer to "why do we add the token embedding with the position
      embedding": "Attention, next, reads rows as a bag, blind to their
      order. / So each token row (what) gets a position row (where) added. /
-     The Cs at 6 and 7 share a token row, but now differ by place. / Added,
-     not side by side: that makes 32 numbers; layers take 16. / Training
-     grows position rows from 43× smaller to 4× by step 200." (with a
+     The Cs at 6 and 7 share a token row, but now differ by place. /
+     Training grows position rows from 43× smaller to 4× by step 200." (a
+     fifth line, "Added, not side by side: that makes 32 numbers; layers
+     take 16.", was removed at the user's word: adding matrices is
+     obvious) (with a
      causal mask a place reads only the rows up to its own, and those as a
      bag: hence "rows", not "the sequence"). The last sentence is the run's
      own, from the first checkpoint to the last at step 1, to the step in
@@ -236,9 +238,8 @@ out of view is scrolled just far enough to show it whole.
      grew…"); insulin A: 43× at step 1, 10× at 49, 4× by 200, the position
      rows growing about twelvefold while the token rows stay near 1. Each
      sentence keeps one line on an SE in the app's fonts and two in the
-     tests' square font, so the note is no taller than the labelled one
-     (five lines, 70 pt; a Pro's table 14 pt shorter than before the
-     merge, an SE's not at all), and the caption fits the stage's own box
+     tests' square font, so the note is never taller than the stage's
+     others (four lines since the fifth went), and the caption fits the stage's own box
      at every width. The note's room is the tallest it is at any step, so a
      change of step never moves the table. "next: two blocks let each place
      read the places before it" went: Scores' first caption says it

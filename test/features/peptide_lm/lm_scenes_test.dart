@@ -158,7 +158,6 @@ void main() {
         'Attention, next, reads rows as a bag, blind to their order.',
         'So each token row (what) gets a position row (where) added.',
         'The Cs at 6 and 7 share a token row, but now differ by place.',
-        'Added, not side by side: that makes ${2 * width} numbers; layers take $width.',
         'Training ${grown < faint ? 'grew' : 'shrank'} position rows from $faint× smaller to $grown× by step ${last.step}.',
       ],
     );
