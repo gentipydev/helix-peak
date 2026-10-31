@@ -261,9 +261,9 @@ final class EmbeddingScene extends LmScene {
         _gatherCaption,
         _placesCaption,
         twin == null
-            ? "Each place holds its token's row: nothing yet says where it is."
-            : 'The two ${twin.$1}s at places ${twin.$2} and ${twin.$3} are the same row: '
-                  'nothing yet says where each is.',
+            ? "At this stage the model doesn't know order: each place holds only its token's row."
+            : "At this stage the model doesn't know order: "
+                  'the two ${twin.$1}s at places ${twin.$2} and ${twin.$3} are the same row.',
       ),
       (
         _placesCaption,
@@ -756,7 +756,7 @@ final class EmbeddingScene extends LmScene {
       return '${grouped(inputs)} places read ${grouped(uses.length)} rows of the table$again';
     }
     if (beat < _placesCaption) {
-      return "Each row is one place: <bos>, then ${view.focus.source.label}'s "
+      return "Each row is one place: <bos> (<), then ${view.focus.source.label}'s "
           '${grouped(view.focus.sequence.length)} residues';
     }
     if (beat < _addCaption) {

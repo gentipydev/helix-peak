@@ -136,7 +136,7 @@ void main() {
     );
     expect(caption(LmStage.embedding, embedding(3)), "12 places read 9 rows of the table, C's three times");
     expect(caption(LmStage.embedding, embedding(6)), "12 places read 9 rows of the table, C's three times");
-    expect(caption(LmStage.embedding, embedding(8)), "Each row is one place: <bos>, then toy A's 11 residues");
+    expect(caption(LmStage.embedding, embedding(8)), "Each row is one place: <bos> (<), then toy A's 11 residues");
     expect(
       caption(LmStage.embedding, embedding(12.2)),
       'The position embedding: one learned row per place, here rows 0–11 of ${trace.model.context}',

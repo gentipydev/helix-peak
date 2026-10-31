@@ -97,7 +97,7 @@ void main() {
     // Two seconds a beat: at eleven seconds Tokenise's eleven beats are half
     // played, the peptides still being framed.
     await tester.pump(const Duration(seconds: 11));
-    expect(caption(tester), startsWith('<bos> and <eos> frame each one'));
+    expect(caption(tester), startsWith('<bos> (<) and <eos> (>) frame each one'));
     await tester.pump(TrainingRunView.beat * (LmStage.tokenise.beats + 20));
     expect(caption(tester), startsWith('The vocabulary, counted: '));
     expect(tester.binding.hasScheduledFrame, isFalse);
@@ -121,7 +121,7 @@ void main() {
     // On from where it stood: five and a half beats in, the peptides are
     // being framed (from the start, two and a half would still be scanning).
     await tester.pump(TrainingRunView.beat * 2.5);
-    expect(caption(tester), startsWith('<bos> and <eos> frame each one'));
+    expect(caption(tester), startsWith('<bos> (<) and <eos> (>) frame each one'));
     await tester.pump(TrainingRunView.beat * 20);
     expect(caption(tester), startsWith('The vocabulary, counted: '));
     expect(find.byTooltip('Play'), findsOneWidget);

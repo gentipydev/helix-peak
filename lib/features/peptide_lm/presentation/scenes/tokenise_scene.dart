@@ -522,7 +522,7 @@ final class TokeniseScene extends LmScene {
           'become ids in a ${trace.vocab.length}-token vocabulary';
     }
     if (frame.local < _tableFrom) {
-      return '<bos> and <eos> frame each one, <pad> fills to the longest: '
+      return '<bos> (<) and <eos> (>) frame each one, <pad> (·) fills to the longest: '
           '$peptides × ${trace.width + 1} ids';
     }
     if (frame.local < _liftFrom) {
