@@ -230,7 +230,8 @@ out of view is scrolled just far enough to show it whole.
      Training grows position rows from 43× smaller to 4× by step 200." (a
      fifth line, "Added, not side by side: that makes 32 numbers; layers
      take 16.", was removed at the user's word: adding matrices is
-     obvious) (with a
+     obvious), and a last line, the end result the user asked for: "x0:
+     one row per place, carrying what + where; the model's input." (with a
      causal mask a place reads only the rows up to its own, and those as a
      bag: hence "rows", not "the sequence"). The last sentence is the run's
      own, from the first checkpoint to the last at step 1, to the step in
@@ -239,7 +240,7 @@ out of view is scrolled just far enough to show it whole.
      rows growing about twelvefold while the token rows stay near 1. Each
      sentence keeps one line on an SE in the app's fonts and two in the
      tests' square font, so the note is never taller than the stage's
-     others (four lines since the fifth went), and the caption fits the stage's own box
+     others (five lines), and the caption fits the stage's own box
      at every width. The note's room is the tallest it is at any step, so a
      change of step never moves the table. "next: two blocks let each place
      read the places before it" went: Scores' first caption says it

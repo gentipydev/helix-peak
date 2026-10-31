@@ -159,6 +159,7 @@ void main() {
         'So each token row (what) gets a position row (where) added.',
         'The Cs at 6 and 7 share a token row, but now differ by place.',
         'Training ${grown < faint ? 'grew' : 'shrank'} position rows from $faint× smaller to $grown× by step ${last.step}.',
+        "x0: one row per place, carrying what + where; the model's input.",
       ],
     );
     // Scores, block 1's attention up to its shares, at the place in focus
