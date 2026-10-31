@@ -42,7 +42,8 @@ final class ScoresScene extends LmScene {
   static const (double, double) _outline = (0.5, 0.9);
 
   // A copy lifts off the row in focus and stands up on the bench, as the
-  // table's numbers go, the table narrows and the other rows go quiet.
+  // table's numbers go, the table narrows to a thin strip a place and the
+  // other rows go quiet; it widens to Attention's strip as the bench clears.
   static const (double, double) _lift = (0.9, 1.3);
   static const (double, double) _numbersOut = (0.9, 1.15);
   static const (double, double) _squeeze = (1.1, 1.9);
@@ -58,52 +59,69 @@ final class ScoresScene extends LmScene {
   static const (double, double) _learned = (3.9, 4.4);
   static const (double, double) _chartOut = (4.3, 4.6);
 
-  // The query, the key and the value, each from the same row through its own
-  // weights: when each starts, and how long it takes, the first slower.
-  static const List<double> _madeFrom = <double>[4.6, 5.9, 6.8];
-  static const List<double> _madeIn = <double>[1.0, 0.7, 0.7];
+  // The query's weights, a table between the evened row and the query, a
+  // row a query number. Its first row stands up beside the evened row, each
+  // weight by the number it multiplies; the products, their sum and the
+  // bias make the query's first number; the row lies back down and a band
+  // runs down the other rows, each making its number. Then the key's own
+  // table, and the value's, quicker. Each part's table comes at the first
+  // of its pair, and its rows are swept through the second.
+  static const List<(double, double)> _tables = <(double, double)>[(4.6, 5.1), (9.4, 9.7), (10.4, 10.7)];
+  static const List<(double, double)> _sweeps = <(double, double)>[(8.5, 9.3), (9.7, 10.3), (10.7, 11.3)];
+  static const (double, double) _tableOut = (11.3, 11.6);
+  static const (double, double) _rowPicked = (5.1, 5.3);
+  static const (double, double) _rowUp = (5.3, 6.0);
+  static const (double, double) _dim = (5.3, 5.6);
+  static const (double, double) _weightNumbers = (5.9, 6.1);
+  static const (double, double) _rowProducts = (6.1, 7.2);
+  static const (double, double) _rowSum = (7.3, 7.6);
+  static const (double, double) _firstFlies = (7.7, 8.0);
+  static const (double, double) _rowWords = (7.9, 8.1);
+  static const (double, double) _rowDown = (8.0, 8.5);
+  static const (double, double) _undim = (8.2, 8.5);
 
   // Each cut into a slice a head, the slices named.
-  static const (double, double) _cut = (7.7, 8.1);
-  static const (double, double) _headNames = (7.9, 8.2);
-  static const (double, double) _otherHeads = (8.2, 8.5);
+  static const (double, double) _cut = (11.7, 12.1);
+  static const (double, double) _headNames = (11.9, 12.2);
+  static const (double, double) _otherHeads = (12.2, 12.5);
 
   // Every place: the bench clears, head 1's query and key lie down by the
   // row in focus, every place's key comes out of its row.
-  static const (double, double) _networkOut = (8.5, 8.8);
-  static const (double, double) _queryDown = (8.6, 9.3);
-  static const (double, double) _keyDown = (8.7, 9.4);
-  static const double _keysFrom = 9.0;
-  static const (double, double) _loud = (8.8, 9.4);
-  static const (double, double) _struck = (9.3, 9.7);
-  static const (double, double) _named = (9.2, 9.5);
+  static const (double, double) _networkOut = (12.5, 12.8);
+  static const (double, double) _widen = (12.5, 13.1);
+  static const (double, double) _queryDown = (12.6, 13.3);
+  static const (double, double) _keyDown = (12.7, 13.4);
+  static const double _keysFrom = 13.0;
+  static const (double, double) _loud = (12.8, 13.4);
+  static const (double, double) _struck = (13.3, 13.7);
+  static const (double, double) _named = (13.2, 13.5);
 
   // One score worked out, on the bench: the query and the top key fly to it,
   // their products come one after another, then the sum and the division,
   // and the score flies to its place.
-  static const double _workFrom = 9.8;
-  static const (double, double) _lifted = (9.9, 10.4);
-  static const (double, double) _cardWords = (10.3, 10.6);
-  static const (double, double) _products = (10.5, 11.2);
-  static const (double, double) _sum = (11.3, 11.5);
-  static const (double, double) _divided = (11.6, 11.8);
-  static const (double, double) _scoreFlies = (11.9, 12.3);
-  static const (double, double) _cardOut = (11.9, 12.2);
+  static const double _workFrom = 13.8;
+  static const (double, double) _lifted = (13.9, 14.4);
+  static const (double, double) _cardWords = (14.3, 14.6);
+  static const (double, double) _products = (14.5, 15.2);
+  static const (double, double) _sum = (15.3, 15.5);
+  static const (double, double) _divided = (15.6, 15.8);
+  static const (double, double) _scoreFlies = (15.9, 16.3);
+  static const (double, double) _cardOut = (15.9, 16.2);
 
   // The rest: the query passes each key up to `<bos>`, then goes.
-  static const (double, double) _scan = (12.3, 13.3);
-  static const (double, double) _queryOut = (13.3, 13.6);
+  static const (double, double) _scan = (16.3, 17.3);
+  static const (double, double) _queryOut = (17.3, 17.6);
 
   // Softmax: a bar a share, its percentage at its end.
-  static const (double, double) _bars = (13.5, 14.2);
-  static const (double, double) _percents = (13.9, 14.3);
+  static const (double, double) _bars = (17.5, 18.2);
+  static const (double, double) _percents = (17.9, 18.3);
 
   // Why the root: the scores taken back to their plain sums and divided
   // again.
-  static const (double, double) _overIn = (14.8, 15.1);
-  static const (double, double) _away = (15.0, 15.9);
-  static const (double, double) _back = (16.5, 17.3);
-  static const (double, double) _overOut = (17.3, 17.6);
+  static const (double, double) _overIn = (18.8, 19.1);
+  static const (double, double) _away = (19.0, 19.9);
+  static const (double, double) _back = (20.5, 21.3);
+  static const (double, double) _overOut = (21.3, 21.6);
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -123,7 +141,7 @@ final class ScoresScene extends LmScene {
     table.note(canvas, notes(view), beat);
     _stream(canvas, view, layout, beat);
     table.drawTiles(canvas);
-    table.outline(canvas, view.position, attention.stream(view.position, _span(beat, _squeeze)).right, _span(beat, _outline));
+    table.outline(canvas, view.position, _stripAt(layout, view.position, beat).right, _span(beat, _outline));
     _evened(canvas, view, layout, beat);
     _network(canvas, view, layout, beat);
     _lieDown(canvas, view, layout, beat);
@@ -145,7 +163,7 @@ final class ScoresScene extends LmScene {
       final double fade = i == view.position ? 0 : 0.65 * quiet;
       table.drawRow(
         canvas,
-        layout.attention.stream(i, squeeze),
+        _stripAt(layout, i, beat),
         x0,
         scale: scale,
         colors: fade > 0
@@ -154,6 +172,19 @@ final class ScoresScene extends LmScene {
         text: squeeze > 0.02 ? 0 : text,
       );
     }
+  }
+
+  /// Place [i]'s row of x0 at [beat]: written out across the table, then a
+  /// thin strip while the bench is worked, then Attention's strip.
+  static Rect _stripAt(ScoresLayout layout, int i, double beat) {
+    final AttentionLayout attention = layout.attention;
+    final double widen = _span(beat, _widen);
+    if (widen >= 1) {
+      return attention.stream(i, 1);
+    }
+    final Rect full = attention.table.row(i);
+    final double thin = full.width + (layout.thin - full.width) * _span(beat, _squeeze);
+    return Rect.fromLTWH(full.left, full.top, thin + (attention.narrow - layout.thin) * widen, full.height);
   }
 
   // ------------------------------------------------------------ evened out
@@ -332,71 +363,47 @@ final class ScoresScene extends LmScene {
 
   // --------------------------------------------------------------- network
 
-  /// The evened row through each part's weights: the edges, each weight
-  /// times the number it carries; the query, the key and the value filling
-  /// a number at a time; then each cut into a slice a head.
+  /// The evened row through each part's weights: the query's table, its
+  /// first row worked out and the rest swept by a band, then the key's and
+  /// the value's tables, each filling its column a number at a time as its
+  /// row is reached; then each column cut into a slice a head.
   void _network(Canvas canvas, LmView view, ScoresLayout layout, double beat) {
     final double shown = 1 - _span(beat, _networkOut);
-    if (beat < _madeFrom.first || shown <= 0) {
+    if (beat < _tables.first.$1 || shown <= 0) {
       return;
     }
     final TrainingTrace trace = view.trace;
     final int width = trace.model.width;
     final int size = trace.headSize;
-    final RowEvening even = evening(view);
     final double cut = _span(beat, _cut);
     final double others = 1 - 0.65 * _span(beat, _otherHeads);
-    // The edges first, under every column.
+    _weightTables(canvas, view, layout, beat);
     for (int part = 0; part < 3; part++) {
-      final double from = _madeFrom[part];
-      final double long = _madeIn[part];
-      final double edges = through(beat, from, from + 0.4 * long) * (1 - through(beat, from + 1.2 * long, from + 1.4 * long));
-      if (edges > 0) {
-        drawEdges(
-          canvas,
-          view,
-          <(int, int, double)>[
-            for (int out = 0; out < width; out++)
-              for (int d = 0; d < width; d++) (d, out, trace.projection(view.checkpoint, block, part, out, d) * even.evened[d]),
-          ],
-          (int d) => layout.tileAt(layout.inputX, d, 0).centerRight,
-          (int out) => layout.tileAt(layout.outputX[part], out, cut).centerLeft,
-          edges * shown,
-        );
-      }
-    }
-    for (int part = 0; part < 3; part++) {
-      final double from = _madeFrom[part];
-      final double long = _madeIn[part];
-      if (beat < from) {
+      if (beat < _tables[part].$1) {
         continue;
       }
       // Head 1's query and key lie down by the row in focus from here on.
       final bool lying = part < 2 && beat >= (part == 0 ? _queryDown : _keyDown).$1;
       final List<double> values = madeOf(view, part);
+      final List<double> made = <double>[for (int out = 0; out < width; out++) _made(part, out, width, beat)];
       final List<Color> colors = <Color>[
         for (int out = 0; out < width; out++)
           view.inks.signed(values[out] / AttentionScene.qkvScale(view, out ~/ size)).withValues(
-            alpha: through(
-                  beat,
-                  from + long * (0.3 + 0.45 * out / math.max(1, width - 1)),
-                  from + long * (0.45 + 0.45 * out / math.max(1, width - 1)),
-                ) *
+            alpha: made[out] *
                 (out < size ? (part == 2 ? shown : 1) : others * shown) *
                 (lying && out < size ? 0 : 1),
           ),
       ];
       _column(canvas, view, layout, layout.outputX[part], cut, colors);
-      final List<double> written = <double>[for (int out = 0; out < width; out++) values[out]];
       _numbers(
         canvas,
         view,
         layout,
         layout.outputX[part],
         cut,
-        written,
-        through(beat, from + 0.8 * long, from + 1.1 * long) * shown,
-        alphaOf: (int out) => out < size ? (lying ? 0 : 1) : others,
+        values,
+        shown,
+        alphaOf: (int out) => made[out] * (out < size ? (lying ? 0 : 1) : others),
       );
       _title(
         canvas,
@@ -404,9 +411,10 @@ final class ScoresScene extends LmScene {
         layout,
         layout.outputX[part],
         const <String>['query', 'key', 'value'][part],
-        through(beat, from + 0.2 * long, from + 0.5 * long) * shown,
+        through(beat, _tables[part].$1, _tables[part].$1 + 0.3) * shown,
       );
     }
+    _workedRow(canvas, view, layout, beat);
     // The slices named, left of the query's.
     final double names = _span(beat, _headNames) * shown;
     if (names > 0) {
@@ -423,6 +431,211 @@ final class ScoresScene extends LmScene {
           anchor: const Offset(1, 0),
         );
       }
+    }
+  }
+
+  /// When number [out] of [part] is made: the query's first as its sum
+  /// lands, every other as the band reaches its row.
+  static double _madeAt(int part, int out, int width) {
+    if (part == 0 && out == 0) {
+      return _firstFlies.$2;
+    }
+    final (double from, double to) = _sweeps[part];
+    final int first = part == 0 ? 1 : 0;
+    return from + (out - first + 0.6) / (width - first) * (to - from);
+  }
+
+  static double _made(int part, int out, int width, double beat) {
+    final double at = _madeAt(part, out, width);
+    return through(beat, at - 0.12, at);
+  }
+
+  /// The colour scale of [part]'s weights: the query's (0), the key's (1) or
+  /// the value's (2).
+  static double _weightScale(LmView view, int part) => view.kit.memo<double>(
+    ('scores-weights', view.step, part),
+    () {
+      final int width = view.trace.model.width;
+      return percentileScale(<double>[
+        for (int out = 0; out < width; out++)
+          for (int d = 0; d < width; d++) view.trace.projection(view.checkpoint, block, part, out, d),
+      ]);
+    },
+  );
+
+  /// Where the weights stand at the checkpoint in focus.
+  static String weightsStatus(LmView view) => view.step == 1
+      ? 'random start, no update yet'
+      : 'after ${grouped(view.step - 1)} training updates';
+
+  /// Each part's table of weights, a row a number it makes and a column a
+  /// number of the evened row: named over it, where it stands under it; the
+  /// query's dimmed while its first row is worked; a band down the rows as
+  /// they make their numbers. One table replaces the other.
+  void _weightTables(Canvas canvas, LmView view, ScoresLayout layout, double beat) {
+    final TrainingTrace trace = view.trace;
+    final int width = trace.model.width;
+    final Rect area = layout.tableRect;
+    final double gone = 1 - _span(beat, _tableOut);
+    double status = 0;
+    for (int part = 0; part < 3; part++) {
+      final double alpha = _span(beat, _tables[part]) * (part < 2 ? 1 - _span(beat, _tables[part + 1]) : gone);
+      if (alpha <= 0) {
+        continue;
+      }
+      final double dim = part == 0 ? 1 - 0.75 * _span(beat, _dim) * (1 - _span(beat, _undim)) : 1;
+      // The query's first row is away while it is worked.
+      final bool away = part == 0 && beat >= _rowUp.$1 && beat < _rowDown.$2;
+      final double scale = _weightScale(view, part);
+      final GridMesh mesh = GridMesh(area, width, width, columnGap: 0.5, rowGap: 0.5);
+      for (int out = 0; out < width; out++) {
+        for (int d = 0; d < width; d++) {
+          mesh.cell(
+            d,
+            out,
+            away && out == 0
+                ? view.inks.ground.withValues(alpha: 0)
+                : view.inks.signed(trace.projection(view.checkpoint, block, part, out, d) / scale).withValues(
+                    alpha: alpha * dim,
+                  ),
+          );
+        }
+      }
+      mesh.draw(canvas);
+      // Its name goes before the next one comes, never over it.
+      final (double inFrom, double inTo) = _tables[part];
+      final double named = (part == 0 ? through(beat, inFrom, inTo) : through(beat, (inFrom + inTo) / 2, inTo)) *
+          (part < 2 ? 1 - through(beat, _tables[part + 1].$1, (_tables[part + 1].$1 + _tables[part + 1].$2) / 2) : gone);
+      status = math.max(status, alpha);
+      final String name = const <String>['query', 'key', 'value'][part];
+      final TextStyle words = inked(view.kit.sans, 9, view.inks.quiet, alpha: named);
+      final String full = '$name weights · $width × $width';
+      view.kit.draw(
+        canvas,
+        view.kit.layout(full, words).width <= area.width + 6 ? full : '$name weights',
+        words,
+        Offset(area.center.dx, area.top - 4),
+        anchor: const Offset(0.5, 1),
+      );
+      // The band down the rows that make their numbers.
+      final (double from, double to) = _sweeps[part];
+      final double band = through(beat, from, from + 0.1) * (1 - through(beat, to - 0.1, to)) * alpha;
+      if (band > 0) {
+        final int first = part == 0 ? 1 : 0;
+        final double row = first + (width - first) * ((beat - from) / (to - from)).clamp(0.0, 1.0);
+        final double top = area.top + (row - 0.5).clamp(first.toDouble(), width - 1.0) * layout.tile;
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(Rect.fromLTWH(area.left - 2, top, area.width + 4, layout.tile), const Radius.circular(2)),
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.2
+            ..color = view.inks.signal.withValues(alpha: band),
+        );
+      }
+    }
+    // Where the weights stand, under whichever table shows.
+    if (status > 0) {
+      view.kit.draw(
+        canvas,
+        weightsStatus(view),
+        inked(view.kit.sans, 8.5, view.inks.quiet, alpha: status),
+        Offset(area.center.dx, area.bottom + 4),
+        anchor: const Offset(0.5, 0),
+      );
+    }
+    // The query's first row picked out before it stands up.
+    final double picked = _span(beat, _rowPicked) * (1 - _span(beat, (_rowUp.$1, _rowUp.$1 + 0.2)));
+    if (picked > 0) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(layout.tableRow(0).inflate(1), const Radius.circular(2)),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.2
+          ..color = view.inks.signal.withValues(alpha: picked),
+      );
+    }
+  }
+
+  /// The query's first row of weights worked out: it stands up beside the
+  /// evened row, each weight by the number it multiplies; their products,
+  /// one after another; their sum and the bias, the query's first number,
+  /// which flies to its place; and the row lies back down in its table.
+  void _workedRow(Canvas canvas, LmView view, ScoresLayout layout, double beat) {
+    if (beat < _rowUp.$1 || beat >= _rowDown.$2) {
+      return;
+    }
+    final TrainingTrace trace = view.trace;
+    final int width = trace.model.width;
+    final RowEvening even = evening(view);
+    final double scale = _weightScale(view, 0);
+    final List<double> weights = <double>[for (int d = 0; d < width; d++) trace.projection(view.checkpoint, block, 0, 0, d)];
+    final List<double> products = <double>[for (int d = 0; d < width; d++) weights[d] * even.evened[d]];
+    final List<Color> colors = <Color>[for (final double w in weights) view.inks.signed(w / scale)];
+    final double stand = _span(beat, _rowUp) * (1 - _span(beat, _rowDown));
+    final Rect column = layout.columnAt(layout.weightX, 0);
+    if (stand < 1) {
+      layout.attention.table.strip(
+        canvas,
+        from: layout.tableRow(0),
+        to: column,
+        f: stand,
+        colors: colors,
+        lyingGap: 0.5,
+        lyingRadius: 1.5,
+      );
+    } else {
+      _column(canvas, view, layout, layout.weightX, 0, colors);
+    }
+    if (!layout.writes) {
+      return;
+    }
+    final double words = 1 - _span(beat, _rowWords);
+    final double each = (_rowProducts.$2 - _rowProducts.$1) / width;
+    final TextStyle face = inked(view.kit.mono, layout.textSize, view.inks.ink);
+    final double timesWidth = view.kit.layout('× −8.88', face).width;
+    for (int d = 0; d < width; d++) {
+      final Rect tile = layout.tileAt(layout.weightX, d, 0);
+      final double weight = _span(beat, _weightNumbers) * words;
+      if (weight > 0) {
+        view.kit.draw(
+          canvas,
+          '× ${fixed(weights[d], 2)}',
+          face.copyWith(color: face.color!.withValues(alpha: (weight * 8).round() / 8)),
+          Offset(tile.right + 4, tile.center.dy),
+          anchor: const Offset(0, 0.5),
+        );
+      }
+      final double product = through(beat, _rowProducts.$1 + d * each, _rowProducts.$1 + d * each + 0.15) * words;
+      if (product > 0) {
+        view.kit.draw(
+          canvas,
+          '= ${fixed(products[d], 2)}',
+          face.copyWith(color: face.color!.withValues(alpha: (product * 8).round() / 8)),
+          Offset(tile.right + 4 + timesWidth + 6, tile.center.dy),
+          anchor: const Offset(0, 0.5),
+        );
+      }
+    }
+    // The sum and the bias, and the query's first number flying to its place.
+    final double sum = _span(beat, _rowSum) * words;
+    final double bias = trace.projectionBias(view.checkpoint, block, 0, 0);
+    final double first = madeOf(view, 0).first;
+    final Offset at = Offset(layout.tableLeft, layout.tableRect.bottom + 17);
+    final TextStyle line = inked(view.kit.mono, layout.textSize, view.inks.ink, alpha: sum);
+    final String text = 'Σ ${fixed(products.reduce((double a, double b) => a + b), 2)} + bias ${fixed(bias, 2)} = ';
+    view.kit.draw(canvas, text, line, at);
+    final double fly = _span(beat, _firstFlies);
+    if (_span(beat, _rowSum) > 0 && fly < 1) {
+      final TextPainter painter = view.kit.layout(text, line);
+      final Offset from = at + Offset(painter.width, painter.height / 2);
+      final Rect tile = layout.tileAt(layout.outputX[0], 0, 0);
+      view.kit.draw(
+        canvas,
+        fixed(first, 2),
+        inked(view.kit.mono, layout.textSize, view.inks.ink, alpha: _span(beat, _rowSum)),
+        Offset.lerp(from, Offset(tile.right + 4, tile.center.dy), fly)!,
+        anchor: const Offset(0, 0.5),
+      );
     }
   }
 
@@ -846,17 +1059,24 @@ final class ScoresScene extends LmScene {
       ),
       (
         1.4,
-        _madeFrom.first,
+        _tables.first.$1,
         "LayerNorm evens out each place's row: less its mean, over its\n"
             'standard deviation (a z-score); then a learned scale and shift\n'
             'for each column, so every row reaches attention on one scale',
       ),
       (
-        _madeFrom.first,
+        _tables.first.$1,
+        _tables[1].$1,
+        "weights: numbers the model holds, ${width * width} for the query's table;\n"
+            'set at random when the model is built, then nudged by each\n'
+            'training step (Loss, Backward, Update): that is the learning',
+      ),
+      (
+        _tables[1].$1,
         _cut.$1,
         'query: what a place looks for; key: what it offers; value: what\n'
-            'it hands over when read; each number a weighted sum of the\n'
-            'evened row, by weights the run learned, the same at every place',
+            'it hands over when read; each the same evened row through its\n'
+            'own weights, the same weights at every place',
       ),
       (
         _cut.$1,
@@ -918,16 +1138,28 @@ final class ScoresScene extends LmScene {
     if (beat < _learned.$1) {
       return 'Over the standard deviation, ${fixed(even.sd, 2)}: each number a z-score';
     }
-    if (beat < _madeFrom.first) {
+    if (beat < _tables.first.$1) {
       return even.untrained
           ? 'Then a learned scale and shift a column, still 1 and 0 at step ${view.step}'
           : 'Then a learned scale and shift a column: the row attention reads';
     }
-    if (beat < _madeFrom[1]) {
-      return 'The query: $width numbers, each a learned weighted sum of the $width';
+    if (beat < _rowUp.$1) {
+      return view.step == 1
+          ? "The query's weights, $width × $width: still their random start at step 1"
+          : "The query's weights, $width × $width, after ${grouped(view.step - 1)} training updates";
+    }
+    if (beat < _rowSum.$1) {
+      return 'Row 1 of the weights: each evened number times its own weight';
+    }
+    if (beat < _sweeps.first.$1) {
+      return 'Summed, plus a bias of ${fixed(trace.projectionBias(view.checkpoint, block, 0, 0), 2)}: '
+          "${fixed(madeOf(view, 0).first, 2)}, the query's first number";
+    }
+    if (beat < _tables[1].$1) {
+      return "Each row of weights makes one number: the query's $width";
     }
     if (beat < _cut.$1) {
-      return 'Other weights, same row: $width key numbers, then $width value numbers';
+      return 'The key and the value: the same row through weights of their own';
     }
     if (beat < _networkOut.$1) {
       final String rest = heads > 2 ? ', and so on' : '';
@@ -1057,13 +1289,16 @@ final class ScoresLayout {
         ? view.kit.layout('−8.88', inked(view.kit.mono, textSize, view.inks.ink)).width + 4
         : 0;
     right = e.right;
-    final double benchLeft = attention.scoreLeft;
+    thin = width * 1.5;
+    final double benchLeft = e.cellsLeft + thin + 6;
     column = ((right - benchLeft) * 0.045).clamp(8.0, 13.0);
     inputX = benchLeft + number + column / 2;
     chartLeft = inputX + column / 2 + 12;
     chartRight = right - 2;
     final double step = column + number + 10;
     outputX = <double>[for (int p = 0; p < 3; p++) right - number - column / 2 - (2 - p) * step];
+    tableLeft = inputX + column / 2 + 10;
+    tableRight = math.max(tableLeft + width, outputX[0] - column / 2 - 8);
     // One score worked out: three rows of a head's numbers, each under its
     // words, then the sum and the sum over the root.
     cardLeft = attention.barLeft;
@@ -1113,6 +1348,24 @@ final class ScoresLayout {
 
   /// The query's, the key's and the value's columns.
   late final List<double> outputX;
+
+  /// How wide x0's strip a place is while the bench is worked: thinner than
+  /// Attention's, so the weights have the room.
+  late final double thin;
+
+  /// The table of weights, between the evened row and the query.
+  late final double tableLeft;
+  late final double tableRight;
+
+  /// The table: a row a number it makes, level with that number's tile.
+  Rect get tableRect => Rect.fromLTRB(tableLeft, tileAt(0, 0, 0).top, tableRight, tileAt(0, width - 1, 0).bottom);
+
+  /// The table's row [out]: the weights that make number [out].
+  Rect tableRow(int out) => Rect.fromLTRB(tableLeft, tileAt(0, out, 0).top, tableRight, tileAt(0, out, 0).bottom);
+
+  /// Where a row of weights stands while it is worked: just inside the
+  /// table, beside the evened row.
+  double get weightX => tableLeft + column / 2 + 2;
 
   late final double cardLeft;
   late final double cardTop;

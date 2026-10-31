@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 136 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 140 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -298,8 +298,13 @@ of 2026-10-30 and 2026-10-31:
   opens on x0's table. The table narrows to a strip a place, and a copy of the
   row in focus stands up on the bench at its right, evened out on a chart
   beside it: less its mean, over its standard deviation (a z-score), then the norm's learned
-  scale and shift. Its edges, each weight times the number it carries, make a
-  query, a key and a value of 16, which part into a slice a head (head 1
+  scale and shift. The x0 strip goes thin to give the bench room for the
+  query's weights, a 16 × 16 table, a row a query number, named with where it
+  stands (a random start at step 1, so many training updates after). Its first
+  row stands up beside the evened row, each weight by the number it
+  multiplies, and its products, their sum and the bias make the query's first
+  number; a band sweeps the other rows. The key's and the value's own tables
+  follow. The three columns part into a slice a head (head 1
   numbers 1–8, head 2 9–16: why the width must divide by the heads, and the 8
   of √8). Head 1's query and key lie down by the row in focus and every place's
   key comes out of its row. One score is worked out on the bench, the top

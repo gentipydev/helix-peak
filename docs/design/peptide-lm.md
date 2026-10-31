@@ -226,7 +226,7 @@ out of view is scrolled just far enough to show it whole.
    have the width (about 25 pt a cell on a Pro Max).
 4. **Scores.** The user's split of 2026-10-31 (the forward pass had been
    three stages since 2026-10-30): Attention was too much at once, so block
-   1's attention up to its shares is a stage of its own, 18 beats, opening on
+   1's attention up to its shares is a stage of its own, 22 beats, opening on
    Embedding's last frame pixel for pixel, on its layout, a row a place, at
    the place in focus (insulin A's C11 by default). It is drawn from the run's
    schema 4, which keeps the row attention reads, the LayerNorm's scale and
@@ -237,9 +237,17 @@ out of view is scrolled just far enough to show it whole.
      move: less the mean (C11: 0.08 at step 1), over the standard deviation (1.10), a z-score,
      then the learned scale and shift (still 1 and 0 at step 1, which the
      caption says);
-   - the evened row's edges, each weight times the number it carries, make a
-     query of 16 a number at a time, then a key and a value through their own
-     weights; each column parts between its 8th and 9th number: head 1 takes
+   - the query's weights as a 16 × 16 table between the evened row and the
+     query, a row a number it makes, with where they stand under it ("random
+     start, no update yet" at step 1, "after 199 training updates" at step
+     200; the user found "learned" weights unexplained, 2026-10-31, and chose
+     the table over lines). The x0 strip goes thin to give it room. Row 1
+     stands up beside the evened row, each weight by the number it multiplies
+     (C11: −0.57 × −0.08 = 0.04 … ), the products are summed, the bias added
+     (0 at step 1): −0.19, the query's first number, flies to its place; the
+     row lies back down and a band runs down the other rows, each making its
+     number. The key's and the value's own tables replace it in turn. Each
+     column parts between its 8th and 9th number: head 1 takes
      1–8, head 2 9–16. The note says why the width must divide by the heads
      (the model refuses a width they do not, `d_model % nhead`) and that this
      8 is the √8 of the score;
