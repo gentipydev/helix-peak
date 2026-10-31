@@ -918,7 +918,7 @@ final class AttentionScene extends LmScene {
       return 'Every place does what $focus did, its query on the keys up to it';
     }
     if (beat < _gainUnwritten.$1) {
-      return 'What attention adds to each place: ${grouped(n)} rows of $width';
+      return "Each row made as $focus's was: its shares × the values, × output weights";
     }
     return 'Added: x0 + attention, ${grouped(n)} × $width';
   }

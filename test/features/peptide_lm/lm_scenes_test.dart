@@ -284,7 +284,10 @@ void main() {
       caption(LmStage.attention, attention(7.2)),
       'Every place does what V3 did, its query on the keys up to it',
     );
-    expect(caption(LmStage.attention, attention(9.6)), 'What attention adds to each place: 12 rows of $width');
+    expect(
+      caption(LmStage.attention, attention(9.6)),
+      "Each row made as V3's was: its shares × the values, × output weights",
+    );
     expect(caption(LmStage.attention, 0.99), 'Added: x0 + attention, 12 × $width');
     // Feed-forward, block 1's, at V3.
     double fed(double beat) => beat / LmStage.feedForward.beats;
