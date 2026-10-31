@@ -121,8 +121,14 @@ final class AttentionScene extends LmScene {
     );
     table.tag(canvas, 'x0 + attention · $n × $width', through(beat, _gainUnwritten.$2, _gainUnwritten.$2 + 0.2));
     _stream(canvas, size, view, layout, beat);
-    table.drawTiles(canvas);
-    table.outline(canvas, view.position, layout.stream(view.position, _squeezeAt(beat)).right, 1);
+    table.drawTiles(canvas, dx: layout.slide(_squeezeAt(beat)));
+    table.outline(
+      canvas,
+      view.position,
+      layout.stream(view.position, _squeezeAt(beat)).right,
+      1,
+      dx: layout.slide(_squeezeAt(beat)),
+    );
     final int heads = trace.model.heads;
     for (int h = 0; h < heads; h++) {
       _head(canvas, view, layout, beat, h);
@@ -818,7 +824,7 @@ final class AttentionLayout {
   AttentionLayout(this.size, LmView view) : table = StreamTable(size, view) {
     final EmbeddingLayout e = table.layout;
     final TrainingTrace trace = view.trace;
-    final double room = e.right - e.cellsLeft;
+    final double room = e.right - e.cellsLeft + table.gutter;
     const double gaps = 6 + 6;
     // Wide enough for a share, and for a score or the plain sum it came
     // from, to two places.
@@ -833,7 +839,8 @@ final class AttentionLayout {
       (room - gaps - scoreWidth - 50) / (trace.model.width * 0.8 + trace.headSize + trace.model.width),
     );
     narrow = trace.model.width * unit * 0.8;
-    scoreLeft = e.cellsLeft + narrow + 6;
+    // The narrowed rows slide left over the ids' gutter.
+    scoreLeft = e.cellsLeft - table.gutter + narrow + 6;
     kvLeft = scoreLeft + scoreWidth + 6;
     kvRight = kvLeft + trace.headSize * unit;
     slotCell = unit;
@@ -874,7 +881,11 @@ final class AttentionLayout {
   double get textSize => (table.layout.pitch * 0.6).clamp(6.5, 9.0);
 
   /// Place [i]'s row, [squeeze] of the way to the narrowed strip.
-  Rect stream(int i, double squeeze) => table.squeezed(i, narrow, squeeze);
+  Rect stream(int i, double squeeze) => table.squeezed(i, narrow, squeeze).shift(Offset(slide(squeeze), 0));
+
+  /// How far the tiles and the rows have slid left at [squeeze]: over the
+  /// ids' gutter, as far as the canvas's side, once narrowed.
+  double slide(double squeeze) => -table.gutter * squeeze;
 
   Rect _band(int i) => table.row(i).deflate(math.min(1.0, table.layout.pitch * 0.06));
 

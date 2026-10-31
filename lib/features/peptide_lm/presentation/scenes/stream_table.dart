@@ -154,23 +154,28 @@ final class StreamTable {
     canvas.restore();
   }
 
-  /// The tiles that name the places, at the rows' left.
-  void drawTiles(Canvas canvas, {double alpha = 1}) {
+  /// How far left the tiles and the rows can go: over the gutter Embedding
+  /// writes its ids in, which the stream's stages leave empty, so the tiles
+  /// come to the canvas's side, under the tag.
+  double get gutter => layout.label(0).left - layout.left;
+
+  /// The tiles that name the places, at the rows' left, [dx] along.
+  void drawTiles(Canvas canvas, {double alpha = 1, double dx = 0}) {
     for (int i = 0; i < places; i++) {
-      drawToken(canvas, view, layout.label(i), trace.inputAt(view.peptide, i), alpha: alpha);
+      drawToken(canvas, view, layout.label(i).shift(Offset(dx, 0)), trace.inputAt(view.peptide, i), alpha: alpha);
     }
   }
 
-  /// Place [i]'s row outlined, as Embedding marks a row, from its tile to
-  /// [right].
-  void outline(Canvas canvas, int i, double right, double alpha) {
+  /// Place [i]'s row outlined, as Embedding marks a row, from its tile, [dx]
+  /// along, to [right].
+  void outline(Canvas canvas, int i, double right, double alpha, {double dx = 0}) {
     if (alpha <= 0) {
       return;
     }
     final Rect row = layout.row(i);
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromLTRB(layout.label(i).left - 3, row.top, right + 1, row.bottom),
+        Rect.fromLTRB(layout.label(i).left + dx - 3, row.top, right + 1, row.bottom),
         const Radius.circular(3),
       ),
       Paint()

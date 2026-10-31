@@ -122,8 +122,15 @@ final class ScoresScene extends LmScene {
     const EmbeddingScene().paintEnd(canvas, size, view, EmbeddingFade(rows: false, note: 1 - _span(beat, _noteOut)));
     table.note(canvas, notes(view), beat);
     _stream(canvas, view, layout, beat);
-    table.drawTiles(canvas);
-    table.outline(canvas, view.position, attention.stream(view.position, _span(beat, _squeeze)).right, _span(beat, _outline));
+    final double squeeze = _span(beat, _squeeze);
+    table.drawTiles(canvas, dx: attention.slide(squeeze));
+    table.outline(
+      canvas,
+      view.position,
+      attention.stream(view.position, squeeze).right,
+      _span(beat, _outline),
+      dx: attention.slide(squeeze),
+    );
     _evened(canvas, view, layout, beat);
     _network(canvas, view, layout, beat);
     _lieDown(canvas, view, layout, beat);
