@@ -343,7 +343,10 @@ out of view is scrolled just far enough to show it whole.
      the middle of its answer's top, coming straight down onto it. Arcs from
      higher rows already clear the answers and are unchanged (the user's
      ask: "a higher upper arc so they don't touch the segments before");
-   - the answers, side by side, are mixed back to 16 ("what C11 read");
+   - the answers, side by side, are mixed back to 16 by the output
+     weights, a fourth trainable 16 × 16, named in the caption at the
+     user's ask ("The heads' 8 + 8 numbers × output weights 16 × 16: what
+     C11 read"), the motion a colour fade as before;
    - every place at once: head 1's map, as large as the canvas allows (beats
      5.2–8.6). The two heads' maps stacked beside the table left each half the
      height, rows of 10 pt on a Pro Max and 6.6 at 375 wide, out of line with

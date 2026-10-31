@@ -277,7 +277,7 @@ void main() {
     expect(caption(LmStage.attention, attention(2.5)), 'Head 2, its own query and keys: V3 reads ${head(1)}');
     expect(
       caption(LmStage.attention, attention(4.8)),
-      "The two heads' $size + $size numbers, mixed back to $width: what V3 read",
+      "The heads' $size + $size numbers × output weights $width × $width: what V3 read",
     );
     expect(caption(LmStage.attention, attention(5.6)), "Head 1's map: V3's row first, its shares from Scores");
     expect(

@@ -907,9 +907,9 @@ final class AttentionScene extends LmScene {
     }
     if (beat < _mapFrom) {
       return heads > 1
-          ? "The ${spelled(heads)} heads' ${List<String>.filled(heads, '$size').join(' + ')} numbers, "
-                'mixed back to $width: what $focus read'
-          : 'Mixed back to $width: what $focus read';
+          ? "The heads' ${List<String>.filled(heads, '$size').join(' + ')} numbers "
+                '× output weights $width × $width: what $focus read'
+          : 'Its $size numbers × output weights $width × $width: what $focus read';
     }
     if (beat < _rows.$1) {
       return "Head 1's map: $focus's row first, its shares from Scores";
