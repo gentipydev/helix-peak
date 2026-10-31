@@ -297,6 +297,17 @@ out of view is scrolled just far enough to show it whole.
      that the arcs leave them, at least 50 pt (the user's ask, 2026-10-31,
      "there is more space"): 170 pt on a Pro Max, was 112; 132 at 402; at 375
      there is no room to spare and they stay 111;
+   - an arc from a row near the answers' own rose only 6–8 pt above them, so
+     head 2's lower arcs ran along head 1's segment (C11's own about 1 pt
+     above it). Now both handles of such an arc are lifted just enough that,
+     over the answers before its own and its own near side, it keeps half a
+     row above their tops (`AttentionLayout.clearance`, at least 8 pt), plus
+     half that again for each row it starts above the answers' own, so the
+     lifted arcs nest instead of crossing; a lifted arc's first handle moves
+     toward its value, so it climbs early and runs flatter. Every arc ends on
+     the middle of its answer's top, coming straight down onto it. Arcs from
+     higher rows already clear the answers and are unchanged (the user's
+     ask: "a higher upper arc so they don't touch the segments before");
    - the answers, side by side, are mixed back to 16 ("what C11 read");
    - every place at once: head 1's map, as large as the canvas allows (beats
      5.2–8.6). The two heads' maps stacked beside the table left each half the

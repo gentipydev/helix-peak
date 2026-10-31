@@ -546,8 +546,6 @@ final class AttentionScene extends LmScene {
     for (int j = 0; j <= focus; j++) {
       most = math.max(most, share(view, h, j));
     }
-    final Rect slot = layout.slot(h);
-    final Offset end = Offset(slot.center.dx, slot.top);
     // Values ride the arcs while the answer fills, about once a beat.
     final double riding = beat >= t.values + 0.4 && beat < t.end - 0.1 ? (beat - t.values) % 1 : -1;
     for (int j = 0; j <= focus; j++) {
@@ -556,7 +554,7 @@ final class AttentionScene extends LmScene {
       if (part < 0.01) {
         continue;
       }
-      final (Offset, Offset, Offset, Offset) curve = layout.arc(j, end);
+      final (Offset, Offset, Offset, Offset) curve = layout.arc(j, h);
       final Path path = Path()
         ..moveTo(curve.$1.dx, curve.$1.dy)
         ..cubicTo(curve.$2.dx, curve.$2.dy, curve.$3.dx, curve.$3.dy, curve.$4.dx, curve.$4.dy);
@@ -1038,19 +1036,59 @@ final class AttentionLayout {
     return Rect.fromLTRB(left, band.top, left + headSize * slotCell, band.bottom);
   }
 
-  /// The arc from place [j]'s value to [end], the top of a head's answer:
-  /// out of the value level, then down onto the answer from above.
-  (Offset, Offset, Offset, Offset) arc(int j, Offset end) {
+  /// The arc from place [j]'s value to the middle of the top of head [h]'s
+  /// answer: out of the value level, then down onto the answer from above.
+  /// An arc from a row near the answers' own rises first, both its handles
+  /// lifted together just enough that, over the answers before its own and
+  /// the near side of its own, it keeps [clearance] above their tops, and a
+  /// little more for each row it starts above the answers' own, so lifted
+  /// arcs nest rather than cross: it passes over them and lands on its
+  /// target from above. A lifted arc climbs early, its first handle nearer
+  /// its value, and so runs flatter over the answers.
+  (Offset, Offset, Offset, Offset) arc(int j, int h) {
+    final Rect target = slot(h);
+    final Offset end = Offset(target.center.dx, target.top);
     final double y = table.row(j).center.dy;
     final Offset start = Offset(kvRight + 2, y);
     final double lift = math.max(8.0, (end.dy - y) * 0.5);
-    return (
-      start,
-      Offset(start.dx + (end.dx - start.dx) * 0.55, math.min(y, end.dy - 6)),
-      Offset(end.dx, end.dy - lift),
-      end,
-    );
+    final double reach = end.dx - start.dx;
+    final Offset second = Offset(end.dx, end.dy - lift);
+    final double ceiling = end.dy - clearance * (1 + 0.5 * math.max(0, focusRow - j));
+    final double from = slotsLeft - 2;
+    final double to = target.left + target.width * 0.3;
+    Offset first = Offset(start.dx + reach * 0.55, math.min(y, end.dy - 6));
+    double raise = _raise(start, first, second, end, ceiling, from, to);
+    if (raise > 0) {
+      first = Offset(start.dx + reach * (0.55 - 0.35 * (raise / clearance).clamp(0.0, 1.0)), first.dy);
+      raise = _raise(start, first, second, end, ceiling, from, to);
+    }
+    return (start, first.translate(0, -raise), second.translate(0, -raise), end);
   }
+
+  /// How far both handles of the arc from [start] to [end] must go up for it
+  /// to keep above [ceiling] wherever it passes between [from] and [to].
+  static double _raise(Offset start, Offset first, Offset second, Offset end, double ceiling, double from, double to) {
+    double raise = 0;
+    for (int k = 1; k < _arcSamples; k++) {
+      final double t = k / _arcSamples;
+      final double u = 1 - t;
+      final double x = start.dx * u * u * u + first.dx * 3 * u * u * t + second.dx * 3 * u * t * t + end.dx * t * t * t;
+      if (x < from || x > to) {
+        continue;
+      }
+      final double at = start.dy * u * u * u + first.dy * 3 * u * u * t + second.dy * 3 * u * t * t + end.dy * t * t * t;
+      // Each handle raised by r raises the arc here by r times this.
+      final double handles = 3 * u * u * t + 3 * u * t * t;
+      raise = math.max(raise, (at - ceiling) / handles);
+    }
+    return raise;
+  }
+
+  /// How far an arc keeps above the answers it passes over: half a row, and
+  /// never less than its widest stroke and the value riding it leave room for.
+  double get clearance => math.max(8.0, table.layout.pitch * 0.5);
+
+  static const int _arcSamples = 48;
 
   /// The heads' answers, side by side on the row in focus: the box head 1's
   /// map grows out of.

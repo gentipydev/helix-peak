@@ -603,6 +603,45 @@ void main() {
     }
   });
 
+  testWidgets("Attention's arcs pass over the answers before their own and land on it from above", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    Offset along((Offset, Offset, Offset, Offset) c, double t) {
+      final double u = 1 - t;
+      return c.$1 * (u * u * u) + c.$2 * (3 * u * u * t) + c.$3 * (3 * u * t * t) + c.$4 * (t * t * t);
+    }
+
+    for (final int position in <int>[3, 7, trace.peptides.first.inputs - 1]) {
+      final LmView scene = view(inks, kit, position: position);
+      for (final Size size in <Size>[const Size(440, 697), const Size(402, 619), const Size(375, 476)]) {
+        final AttentionLayout layout = AttentionLayout(size, scene);
+        for (int h = 0; h < trace.model.heads; h++) {
+          final Rect target = layout.slot(h);
+          for (int j = 0; j <= position; j++) {
+            final (Offset, Offset, Offset, Offset) curve = layout.arc(j, h);
+            final String where = '$size, place $position, head ${h + 1}, row $j';
+            // From the value's row, onto the middle of its answer's top,
+            // coming straight down onto it.
+            expect(curve.$1.dy, layout.table.row(j).center.dy, reason: where);
+            expect(curve.$4, Offset(target.center.dx, target.top), reason: where);
+            expect(curve.$3.dx, curve.$4.dx, reason: where);
+            expect(curve.$3.dy, lessThan(curve.$4.dy), reason: where);
+            // Over the answers before its own, and its own near side, it keeps
+            // clear of their tops.
+            for (int k = 1; k < 400; k++) {
+              final Offset p = along(curve, k / 400);
+              if (p.dx >= layout.slotsLeft && p.dx <= target.left + target.width * 0.3) {
+                expect(p.dy, lessThanOrEqualTo(target.top - layout.clearance + 1), reason: where);
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+
   test('numbers are written as the page writes them', () {
     expect(nats(3.14482), '3.145');
     expect(percent(0.991), '99%');

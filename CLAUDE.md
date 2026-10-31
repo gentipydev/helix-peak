@@ -326,7 +326,10 @@ of 2026-10-30 and 2026-10-31:
   in Attention (`AttentionScene.shares`).
 - **Attention** (`attention_scene.dart`) opens on Scores' last frame. Head 1's
   keys turn into values and arcs carry each share of each value into the
-  head's answer, as its bars go. The places after it are struck through. Head
+  head's answer, as its bars go; an arc from a row near the answers' own
+  rises first, just enough to keep half a row above the answers it passes
+  over (more for each row higher, so they nest), and comes down onto the
+  middle of its answer from above. The places after it are struck through. Head
   2 reads in full, quicker. The heads' answers, on the row in focus, take the
   room right of the keys that the arcs leave them (at least 50 pt). Side by
   side, they are mixed back to 16. Every place at once then fills head 1's
