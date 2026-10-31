@@ -226,7 +226,7 @@ out of view is scrolled just far enough to show it whole.
    have the width (about 25 pt a cell on a Pro Max).
 4. **Scores.** The user's split of 2026-10-31 (the forward pass had been
    three stages since 2026-10-30): Attention was too much at once, so block
-   1's attention up to its shares is a stage of its own, 20 beats, opening on
+   1's attention up to its shares is a stage of its own, 17 beats, opening on
    Embedding's last frame pixel for pixel, on its layout, a row a place, at
    the place in focus (insulin A's C11 by default). It is drawn from the run's
    schema 4, which keeps the row attention reads, the LayerNorm's scale and
@@ -253,11 +253,10 @@ out of view is scrolled just far enough to show it whole.
      its place; then the query passes every key up to <bos>;
    - softmax makes the scores shares, a bar each across the bench with its
      percentage (S9 23%, I2 11%);
-   - why √8: the divisor is taken back to 1 and put back. The scores grow to
-     the plain sums and the bars sharpen as they go, the real shares outlined
-     (S9 would take 63%; at step 200, G1 85% for 55%); the note says a sum of 8
-     products spreads about √8 times as wide as one, so the division keeps the
-     scores on one scale whatever a head's size.
+   - (a "why √8" part, the divisor taken back to 1 and put back with the
+     bars sharpening, was removed on 2026-10-31 at the user's word: the
+     explanation and its animation were redundant. The stage ends on the
+     shares.)
 
    The shares here, and in Attention's captions, are softmax of the kept
    scores, whole (the u1 maps differed by up to 0.5 points: S9 read 24%).

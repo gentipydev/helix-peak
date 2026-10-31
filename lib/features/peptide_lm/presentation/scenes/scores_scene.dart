@@ -105,13 +105,6 @@ final class ScoresScene extends LmScene {
   static const (double, double) _bars = (15.5, 16.2);
   static const (double, double) _percents = (15.9, 16.3);
 
-  // Why the root: the scores taken back to their plain sums and divided
-  // again.
-  static const (double, double) _overIn = (16.8, 17.1);
-  static const (double, double) _away = (17.0, 17.9);
-  static const (double, double) _back = (18.5, 19.3);
-  static const (double, double) _overOut = (19.3, 19.6);
-
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
   @override
@@ -614,14 +607,6 @@ final class ScoresScene extends LmScene {
   static double _score(LmView view, int j) =>
       view.trace.score(view.checkpoint, block, 0, view.peptide, view.position, j);
 
-  /// What the scores are divided by at [beat]: the root of a head's size, or
-  /// on the way to 1 and back.
-  static double _over(LmView view, double beat) {
-    final double away = _span(beat, _away) * (1 - _span(beat, _back));
-    final int size = view.trace.headSize;
-    return away <= 0 ? math.sqrt(size) : math.pow(size, 0.5 * (1 - away)).toDouble();
-  }
-
   /// Head 1 at the place in focus: every place's key, the query, one score
   /// worked out, every score, the shares; as Attention opens on them.
   void _head(Canvas canvas, LmView view, ScoresLayout layout, double beat) {
@@ -646,24 +631,12 @@ final class ScoresScene extends LmScene {
     _card(canvas, view, layout, beat);
     final double query = beat >= _queryDown.$2 ? 1 - _span(beat, _queryOut) : 0;
     AttentionScene.drawQuery(canvas, view, attention, 0, AttentionScene.scanRow(beat, _scan.$1, _scan.$2, focus), query);
-    final double over = _over(view, beat);
-    final double root = math.sqrt(view.trace.headSize);
-    drawShares(
-      canvas,
-      view,
-      attention,
-      over: over == root ? null : over,
-      ghost: over == root || root <= 1 ? 0 : math.log(root / over) / math.log(root),
-      grow: _span(beat, _bars),
-      labels: _span(beat, _percents),
-    );
-    _divisor(canvas, view, attention, beat);
+    drawShares(canvas, view, attention, grow: _span(beat, _bars), labels: _span(beat, _percents));
     AttentionScene.drawHeadTag(canvas, view, attention, 0, 'query and keys', _span(beat, _named));
   }
 
   /// Each score beside its key: the one worked out first, landing, then each
-  /// as the query passes it; through the divisor's slide, the plain sums and
-  /// back.
+  /// as the query passes it.
   void _scores(Canvas canvas, LmView view, ScoresLayout layout, double beat) {
     if (beat < _scoreFlies.$1) {
       return;
@@ -672,14 +645,13 @@ final class ScoresScene extends LmScene {
     final int focus = view.position;
     final int top = topKey(view);
     final double row = AttentionScene.scanRow(beat, _scan.$1, _scan.$2, focus);
-    final double by = math.sqrt(view.trace.headSize) / _over(view, beat);
     for (int j = 0; j <= focus; j++) {
       final double reached = j == top
           ? (beat >= _scoreFlies.$2 ? 1 : 0)
           : beat < _scan.$1
           ? 0
           : (j - row + 1).clamp(0.0, 1.0);
-      AttentionScene.drawScore(canvas, view, attention, j, by == 1 ? _score(view, j) : _score(view, j) * by, reached);
+      AttentionScene.drawScore(canvas, view, attention, j, _score(view, j), reached);
     }
     // The score worked out, flying from the bench to its place.
     final double fly = _span(beat, _scoreFlies);
@@ -819,43 +791,12 @@ final class ScoresScene extends LmScene {
     );
   }
 
-  /// What the scores are divided by, under the bars, while the divisor is
-  /// taken away and put back.
-  void _divisor(Canvas canvas, LmView view, AttentionLayout layout, double beat) {
-    final double alpha = _span(beat, _overIn) * (1 - _span(beat, _overOut));
-    if (alpha <= 0) {
-      return;
-    }
-    final int size = view.trace.headSize;
-    final double root = math.sqrt(size);
-    final double ghost = root > 1 ? math.log(root / _over(view, beat)) / math.log(root) : 0;
-    final Offset at = Offset(layout.barLeft, layout.table.row(view.position).bottom + 4);
-    final Size words = view.kit.draw(canvas, 'scores ÷ ', inked(view.kit.sans, 9, view.inks.quiet, alpha: alpha), at);
-    final double turn = through(ghost, 0.35, 0.65);
-    view.kit.draw(
-      canvas,
-      '√$size, as the model divides',
-      inked(view.kit.sans, 9, view.inks.quiet, alpha: alpha * (1 - turn)),
-      at + Offset(words.width, 0),
-    );
-    view.kit.draw(
-      canvas,
-      '1: the plain sums',
-      inked(view.kit.sans, 9, view.inks.quiet, alpha: alpha * turn),
-      at + Offset(words.width, 0),
-    );
-  }
-
   /// Head 1's shares at the place in focus, a bar each across the bench
-  /// [grow] of the way out, each with its percentage at its end; with
-  /// [over], the shares the scores would give divided by it instead, the
-  /// real ones outlined at [ghost].
+  /// [grow] of the way out, each with its percentage at its end.
   static void drawShares(
     Canvas canvas,
     LmView view,
     AttentionLayout layout, {
-    double? over,
-    double ghost = 0,
     double grow = 1,
     double labels = 1,
     double alpha = 1,
@@ -863,28 +804,16 @@ final class ScoresScene extends LmScene {
     if (alpha <= 0 || grow <= 0) {
       return;
     }
-    final List<double> real = AttentionScene.shares(view, 0);
-    final List<double> shown = over == null ? real : AttentionScene.shares(view, 0, over: over);
+    final List<double> shown = AttentionScene.shares(view, 0);
     final Paint fill = Paint()..color = view.inks.signal.withValues(alpha: 0.85 * alpha);
-    final Paint outline = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.8
-      ..color = view.inks.quiet.withValues(alpha: ghost * alpha);
     final TextStyle words = inked(view.kit.mono, layout.textSize, view.inks.ink, alpha: labels * alpha);
     for (int j = 0; j <= view.position; j++) {
       final Rect bar = layout.bar(j, shown[j] * grow);
       if (bar.width > 0) {
         canvas.drawRRect(RRect.fromRectAndRadius(bar, const Radius.circular(1)), fill);
       }
-      // Past the real share's outline while it shows, so the two never cross.
-      double end = bar.right;
-      if (ghost > 0) {
-        final Rect was = layout.bar(j, real[j]);
-        canvas.drawRect(was, outline);
-        end = math.max(end, was.right);
-      }
       if (labels > 0) {
-        view.kit.draw(canvas, percent(shown[j]), words, Offset(end + 3, bar.center.dy), anchor: const Offset(0, 0.5));
+        view.kit.draw(canvas, percent(shown[j]), words, Offset(bar.right + 3, bar.center.dy), anchor: const Offset(0, 0.5));
       }
     }
   }
@@ -943,27 +872,17 @@ final class ScoresScene extends LmScene {
             'summed, over √$size: high where the two agree in sign and size;\n'
             '${StreamTable.placeName(view, view.position)} never reads the places after it, struck through',
       ),
-      (
-        _scan.$2,
-        _overIn.$1,
-        'softmax: e to each score, over their sum\n'
-            'shares that add to 100%, the highest score taking most',
-      ),
       lastNote(view),
     ];
   }
 
   /// The stage's last note, which Attention opens with.
-  static (double, double, String) lastNote(LmView view) {
-    final int size = view.trace.headSize;
-    return (
-      _overIn.$1,
-      double.infinity,
-      'why √$size: a sum of $size products spreads about √$size times as wide\n'
-          "as one; over √$size, scores keep one scale whatever a head's size.\n"
-          'Without it the top place takes most, nearly all in wide heads',
-    );
-  }
+  static (double, double, String) lastNote(LmView view) => (
+    _scan.$2,
+    double.infinity,
+    'softmax: e to each score, over their sum\n'
+        'shares that add to 100%, the highest score taking most',
+  );
 
   @override
   String caption(LmView view, TrainingFrame frame) => _caption(view, frame.local * _beats);
@@ -1022,24 +941,7 @@ final class ScoresScene extends LmScene {
       return "$focus's query against each key up to its own: ${grouped(view.position + 1)} "
           '${view.position == 0 ? 'score' : 'scores'}';
     }
-    if (view.position == 0) {
-      return '<bos> reads only itself: 100%, divided or not';
-    }
-    if (beat < _away.$1) {
-      return 'Softmax makes the scores shares of one: ${AttentionScene.readsMost(view, 0)}';
-    }
-    if (beat < _back.$1) {
-      final List<double> plain = AttentionScene.shares(view, 0, over: 1);
-      int most = 0;
-      for (int j = 1; j < plain.length; j++) {
-        if (plain[j] > plain[most]) {
-          most = j;
-        }
-      }
-      return 'Without ÷√$size, the plain sums: ${StreamTable.placeName(view, most)} '
-          'would take ${percent(plain[most])}';
-    }
-    return 'Over √$size, the reading is shared: ${AttentionScene.readsMost(view, 0)}';
+    return 'Softmax makes the scores shares of one: ${AttentionScene.readsMost(view, 0)}';
   }
 
   @override

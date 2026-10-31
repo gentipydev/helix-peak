@@ -218,15 +218,12 @@ final class AttentionScene extends LmScene {
 
   /// What the place in focus reads of each place up to its own in head [h]:
   /// softmax of its scores, worked out from the scores as they are kept,
-  /// whole. With [over], the scores are first taken back to their plain sums
-  /// (times the root of a head's size) and divided by [over] instead.
-  static List<double> shares(LmView view, int h, {double? over}) {
+  /// whole.
+  static List<double> shares(LmView view, int h) {
     List<double> make() {
       final TrainingTrace trace = view.trace;
-      final double by = over == null ? 1 : math.sqrt(trace.headSize) / over;
       final List<double> scores = <double>[
-        for (int j = 0; j <= view.position; j++)
-          trace.score(view.checkpoint, block, h, view.peptide, view.position, j) * by,
+        for (int j = 0; j <= view.position; j++) trace.score(view.checkpoint, block, h, view.peptide, view.position, j),
       ];
       final double top = scores.reduce(math.max);
       final List<double> e = <double>[for (final double s in scores) math.exp(s - top)];
@@ -234,9 +231,7 @@ final class AttentionScene extends LmScene {
       return <double>[for (final double x in e) x / sum];
     }
 
-    return over == null
-        ? view.kit.memo<List<double>>(('attention-shares', view.step, view.peptide, block, h, view.position), make)
-        : make();
+    return view.kit.memo<List<double>>(('attention-shares', view.step, view.peptide, block, h, view.position), make);
   }
 
   /// Place [key]'s share of what the place in focus reads, in head [h].

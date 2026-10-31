@@ -147,9 +147,9 @@ void main() {
     final int size = trace.headSize;
     String name(int j) => j == 0 ? '<bos>' : '${trace.peptides.first.sequence[j - 1]}$j';
     double score(int h, int j) => trace.score(last3.checkpoint, 0, h, 0, 3, j);
-    // The shares, softmax of the scores as kept, times [by].
-    List<double> shares(int h, [double by = 1]) {
-      final List<double> e = <double>[for (int j = 0; j <= 3; j++) math.exp(score(h, j) * by)];
+    // The shares, softmax of the scores as kept.
+    List<double> shares(int h) {
+      final List<double> e = <double>[for (int j = 0; j <= 3; j++) math.exp(score(h, j))];
       final double sum = e.reduce((double a, double b) => a + b);
       return <double>[for (final double x in e) x / sum];
     }
@@ -175,13 +175,6 @@ void main() {
     for (int j = 1; j <= 3; j++) {
       if (score(0, j) > score(0, top)) {
         top = j;
-      }
-    }
-    final List<double> plain = shares(0, math.sqrt(size));
-    int most = 0;
-    for (int j = 1; j <= 3; j++) {
-      if (plain[j] > plain[most]) {
-        most = j;
       }
     }
     double scores(double beat) => beat / LmStage.scores.beats;
@@ -231,11 +224,7 @@ void main() {
     );
     expect(caption(LmStage.scores, scores(14.8)), "V3's query against each key up to its own: 4 scores");
     expect(caption(LmStage.scores, scores(16)), 'Softmax makes the scores shares of one: ${head(0)}');
-    expect(
-      caption(LmStage.scores, scores(18)),
-      'Without ÷√$size, the plain sums: ${name(most)} would take ${percent(plain[most])}',
-    );
-    expect(caption(LmStage.scores, 0.99), 'Over √$size, the reading is shared: ${head(0)}');
+    expect(caption(LmStage.scores, 0.99), 'Softmax makes the scores shares of one: ${head(0)}');
     // Attention, after Scores: head 1's values, head 2, the join, the maps,
     // what attention adds.
     double attention(double beat) => beat / LmStage.attention.beats;

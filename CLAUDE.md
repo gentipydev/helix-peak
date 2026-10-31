@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 138 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 135 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -307,9 +307,9 @@ of 2026-10-30 and 2026-10-31:
   key comes out of its row. One score is worked out on the bench, the top
   one: query over key, their products number by number, the sum, over √8; then
   the query passes every key up to its own. Softmax makes the scores shares,
-  a bar each across the bench; then the divisor is taken back to 1 and put
-  back, the bars sharpening (insulin A's C11 at step 1: S9 23% → 63%) with the
-  real shares outlined. Shares are softmax of the kept scores, whole, here and
+  a bar each across the bench, where the stage ends (the √8 slide that showed
+  why the scores are divided was removed at the user's word, 2026-10-31, as
+  redundant). Shares are softmax of the kept scores, whole, here and
   in Attention (`AttentionScene.shares`).
 - **Attention** (`attention_scene.dart`) opens on Scores' last frame. Head 1's
   keys turn into values and arcs carry each share of each value into the
