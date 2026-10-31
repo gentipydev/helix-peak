@@ -805,7 +805,7 @@ final class EmbeddingScene extends LmScene {
       return 'The position embedding: one trainable row per place, here rows 0–${inputs - 1} '
           'of ${trace.model.context}';
     }
-    return 'Token + position, number by number: x0, the residual stream each block adds to';
+    return 'Token + position, number by number: x0, the rows every block reads and adds to';
   }
 
   @override

@@ -143,7 +143,7 @@ void main() {
     );
     expect(
       caption(LmStage.embedding, embedding(14)),
-      'Token + position, number by number: x0, the residual stream each block adds to',
+      'Token + position, number by number: x0, the rows every block reads and adds to',
     );
     expect(caption(LmStage.embedding, embedding(14.9)), caption(LmStage.embedding, embedding(14)));
     // Why the sum, in one note to the stage's end, a sentence a line, from

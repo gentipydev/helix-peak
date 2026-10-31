@@ -213,8 +213,10 @@ out of view is scrolled just far enough to show it whole.
      13.4, the user's ask: the old tag lingered 0.75 beat under the new
      note), and Scores keeps it. The sum is `x0` as the engine
      makes it; the run's stored stream holds it to within its own rounding.
-     Caption: "Token + position, number by number: x0, the residual stream
-     each block adds to" (the stream's meaning moved here from the note).
+     Caption: "Token + position, number by number: x0, the rows every block
+     reads and adds to" (the residual stream's meaning, moved here from the
+     note, in plain words at the user's choice: "the residual stream each
+     block adds to" read as jargon).
      The two Cs stay outlined to the end, and Scores draws the outlines
      over its own rows as it opens, fading them with the note. Note, the
      user's ask of 2026-10-31 evening: the labelled fragments ("token row:
