@@ -209,7 +209,9 @@ out of view is scrolled just far enough to show it whole.
      same numbers, its tag a beat behind them. The position rows are added,
      the residues back, a cell showing one set of numbers at a time, and the
      tag turns from the position embedding straight to `x0 = token +
-     position · 22 × 16`, which Scores keeps. The sum is `x0` as the engine
+     position · 22 × 16` at the same turn as the note and caption (beat
+     13.4, the user's ask: the old tag lingered 0.75 beat under the new
+     note), and Scores keeps it. The sum is `x0` as the engine
      makes it; the run's stored stream holds it to within its own rounding.
      Caption: "Token row + position row, number by number: x0, the start of
      the residual stream". The two Cs stay outlined to the end, and Scores

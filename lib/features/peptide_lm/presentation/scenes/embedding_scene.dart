@@ -87,6 +87,9 @@ final class EmbeddingScene extends LmScene {
   static const double _placesCaption = 11.6;
   static const double _addCaption = 13.4;
 
+  /// How long the note and the tag take to go or come at a turn.
+  static const double _turn = 0.25;
+
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
   @override
@@ -353,11 +356,10 @@ final class EmbeddingScene extends LmScene {
   /// The note over the table, its parts fading out and in at their turns,
   /// each sitting on the note's foot, by the tag.
   void _note(Canvas canvas, LmView view, EmbeddingLayout layout, double beat, EmbeddingFade fade) {
-    const double turn = 0.25;
     final double width = layout.right - layout.noteLeft;
     final double foot = layout.noteTop + noteHeight(view, width);
     for (final (double from, double to, String text) in notes(view)) {
-      final double alpha = through(beat, from, from + turn) * (1 - through(beat, to - turn, to)) * (fade.note ?? fade.chrome);
+      final double alpha = through(beat, from, from + _turn) * (1 - through(beat, to - _turn, to)) * (fade.note ?? fade.chrome);
       if (alpha <= 0) {
         continue;
       }
@@ -390,9 +392,11 @@ final class EmbeddingScene extends LmScene {
       ),
       (
         'position embedding · first $inputs of ${trace.model.context} rows',
-        through(beat, 11.6, 11.85) * (1 - through(beat, 13.9, 14.15)),
+        through(beat, _placesCaption, _placesCaption + _turn) * (1 - through(beat, _addCaption - _turn, _addCaption)),
       ),
-      ('x0 = token + position · $inputs × $width', through(beat, 14.15, 14.4) * fade.chrome),
+      // x0's name comes with the note and caption that explain the sum, as
+      // the adding starts, never after them.
+      ('x0 = token + position · $inputs × $width', through(beat, _addCaption, _addCaption + _turn) * fade.chrome),
     ]) {
       if (alpha > 0) {
         drawTag(canvas, view, text, at, alpha: alpha);
