@@ -139,7 +139,7 @@ void main() {
     expect(caption(LmStage.embedding, embedding(8)), "Each row is one place: <bos> (<), then toy A's 11 residues");
     expect(
       caption(LmStage.embedding, embedding(12.2)),
-      'The position embedding: one learned row per place, here rows 0–11 of ${trace.model.context}',
+      'The position embedding: one trainable row per place, here rows 0–11 of ${trace.model.context}',
     );
     expect(caption(LmStage.embedding, embedding(14)), startsWith("Each place's row is added to its residue's"));
     expect(caption(LmStage.embedding, embedding(15.5)), 'x0, 12 × $width: the start of the residual stream');

@@ -760,7 +760,7 @@ final class EmbeddingScene extends LmScene {
           '${grouped(view.focus.sequence.length)} residues';
     }
     if (beat < _addCaption) {
-      return 'The position embedding: one learned row per place, here rows 0–${inputs - 1} '
+      return 'The position embedding: one trainable row per place, here rows 0–${inputs - 1} '
           'of ${trace.model.context}';
     }
     if (beat < _x0Caption) {
