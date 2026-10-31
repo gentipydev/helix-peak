@@ -68,7 +68,7 @@ final class ScoresScene extends LmScene {
   // The query, the key and the value, each from the same row through its own
   // weights: when each starts, and how long it takes, the first slower.
   static const List<double> _madeFrom = <double>[6.6, 7.9, 8.8];
-  static const List<double> _madeIn = <double>[3.0, 2.7, 2.7];
+  static const List<double> _madeIn = <double>[1.0, 0.7, 0.7];
 
   // Each cut into a slice a head, the slices named.
   static const (double, double) _cut = (9.7, 10.1);
