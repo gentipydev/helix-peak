@@ -282,7 +282,7 @@ void main() {
     expect(caption(LmStage.attention, attention(5.6)), "Head 1's map: V3's row first, its shares from Scores");
     expect(
       caption(LmStage.attention, attention(7.2)),
-      'Every place at once, its own row: nothing above the diagonal',
+      'Every place does what V3 did, its query on the keys up to it',
     );
     expect(caption(LmStage.attention, attention(9.6)), 'What attention adds to each place: 12 rows of $width');
     expect(caption(LmStage.attention, 0.99), 'Added: x0 + attention, 12 × $width');

@@ -915,7 +915,7 @@ final class AttentionScene extends LmScene {
       return "Head 1's map: $focus's row first, its shares from Scores";
     }
     if (beat < _widenFrom) {
-      return 'Every place at once, its own row: nothing above the diagonal';
+      return 'Every place does what $focus did, its query on the keys up to it';
     }
     if (beat < _gainUnwritten.$1) {
       return 'What attention adds to each place: ${grouped(n)} rows of $width';
