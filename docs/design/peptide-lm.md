@@ -226,7 +226,7 @@ out of view is scrolled just far enough to show it whole.
    have the width (about 25 pt a cell on a Pro Max).
 4. **Scores.** The user's split of 2026-10-31 (the forward pass had been
    three stages since 2026-10-30): Attention was too much at once, so block
-   1's attention up to its shares is a stage of its own, 18 beats, opening on
+   1's attention up to its shares is a stage of its own, 20 beats, opening on
    Embedding's last frame pixel for pixel, on its layout, a row a place, at
    the place in focus (insulin A's C11 by default). It is drawn from the run's
    schema 4, which keeps the row attention reads, the LayerNorm's scale and
@@ -234,9 +234,12 @@ out of view is scrolled just far enough to show it whole.
    - x0's table narrows to a strip a place, and a copy of the row in focus
      lifts off and stands up on the bench at its right, its numbers beside it;
    - evened out (LayerNorm) on a chart beside it, x0's bars outlined as they
-     move: less the mean (C11: 0.08 at step 1), over the standard deviation (1.10), a z-score,
-     then the learned scale and shift (still 1 and 0 at step 1, which the
-     caption says);
+     move: less the mean (C11: 0.08 at step 1), over the standard deviation (1.10), a z-score;
+     then the learned scale and shift, written out where the chart was, a
+     row a number, headed so it reads as the sum z-score × scale + shift =
+     evened (the user found "a learned scale and shift a column" unclear,
+     2026-10-31): × 1.00 + 0.00 at step 1, × 1.21 − 0.01 and the like at
+     step 200;
    - the evened row's edges, each weight times the number it carries, make a
      query of 16 a number at a time, then a key and a value through their own
      weights; each column parts between its 8th and 9th number: head 1 takes

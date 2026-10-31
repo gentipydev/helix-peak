@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 136 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 138 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -297,8 +297,10 @@ of 2026-10-30 and 2026-10-31:
 - **Scores** (`scores_scene.dart`), block 1's attention up to its shares,
   opens on x0's table. The table narrows to a strip a place, and a copy of the
   row in focus stands up on the bench at its right, evened out on a chart
-  beside it: less its mean, over its standard deviation (a z-score), then the norm's learned
-  scale and shift. Its edges, each weight times the number it carries, make a
+  beside it: less its mean, over its standard deviation (a z-score); then
+  the norm's learned scale and shift, written out where the chart was, a row
+  a number, as the sum `z-score × scale + shift = evened` (every scale 1 and
+  shift 0 at step 1). Its edges, each weight times the number it carries, make a
   query, a key and a value of 16, which part into a slice a head (head 1
   numbers 1–8, head 2 9–16: why the width must divide by the heads, and the 8
   of √8). Head 1's query and key lie down by the row in focus and every place's

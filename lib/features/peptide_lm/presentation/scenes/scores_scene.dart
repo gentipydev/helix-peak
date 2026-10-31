@@ -50,60 +50,67 @@ final class ScoresScene extends LmScene {
   static const (double, double) _stand = (1.3, 2.1);
   static const (double, double) _columnNumbers = (2.0, 2.3);
 
-  // Evened out, on a chart beside it: less the mean, over the spread, then
-  // the learned scale and shift.
+  // Evened out, on a chart beside it: less the mean, over the spread.
   static const (double, double) _chartIn = (2.1, 2.4);
   static const (double, double) _centre = (2.5, 3.1);
   static const (double, double) _spread = (3.2, 3.8);
-  static const (double, double) _learned = (3.9, 4.4);
-  static const (double, double) _chartOut = (4.3, 4.6);
+
+  // Then the learned scale and shift, written out where the chart was, a
+  // row a number, as the sum it is: z-score × scale + shift = evened. The
+  // chart goes as the sum's heads come; each row's scale and shift, then its
+  // result; then the evened numbers take the z-scores' place.
+  static const (double, double) _formulaIn = (3.9, 4.2);
+  static const (double, double) _terms = (4.2, 4.8);
+  static const (double, double) _results = (4.8, 5.6);
+  static const (double, double) _learned = (5.8, 6.2);
+  static const (double, double) _formulaOut = (5.8, 6.1);
 
   // The query, the key and the value, each from the same row through its own
   // weights: when each starts, and how long it takes, the first slower.
-  static const List<double> _madeFrom = <double>[4.6, 5.9, 6.8];
-  static const List<double> _madeIn = <double>[1.0, 0.7, 0.7];
+  static const List<double> _madeFrom = <double>[6.6, 7.9, 8.8];
+  static const List<double> _madeIn = <double>[3.0, 2.7, 2.7];
 
   // Each cut into a slice a head, the slices named.
-  static const (double, double) _cut = (7.7, 8.1);
-  static const (double, double) _headNames = (7.9, 8.2);
-  static const (double, double) _otherHeads = (8.2, 8.5);
+  static const (double, double) _cut = (9.7, 10.1);
+  static const (double, double) _headNames = (9.9, 10.2);
+  static const (double, double) _otherHeads = (10.2, 10.5);
 
   // Every place: the bench clears, head 1's query and key lie down by the
   // row in focus, every place's key comes out of its row.
-  static const (double, double) _networkOut = (8.5, 8.8);
-  static const (double, double) _queryDown = (8.6, 9.3);
-  static const (double, double) _keyDown = (8.7, 9.4);
-  static const double _keysFrom = 9.0;
-  static const (double, double) _loud = (8.8, 9.4);
-  static const (double, double) _struck = (9.3, 9.7);
-  static const (double, double) _named = (9.2, 9.5);
+  static const (double, double) _networkOut = (10.5, 10.8);
+  static const (double, double) _queryDown = (10.6, 11.3);
+  static const (double, double) _keyDown = (10.7, 11.4);
+  static const double _keysFrom = 11.0;
+  static const (double, double) _loud = (10.8, 11.4);
+  static const (double, double) _struck = (11.3, 11.7);
+  static const (double, double) _named = (11.2, 11.5);
 
   // One score worked out, on the bench: the query and the top key fly to it,
   // their products come one after another, then the sum and the division,
   // and the score flies to its place.
-  static const double _workFrom = 9.8;
-  static const (double, double) _lifted = (9.9, 10.4);
-  static const (double, double) _cardWords = (10.3, 10.6);
-  static const (double, double) _products = (10.5, 11.2);
-  static const (double, double) _sum = (11.3, 11.5);
-  static const (double, double) _divided = (11.6, 11.8);
-  static const (double, double) _scoreFlies = (11.9, 12.3);
-  static const (double, double) _cardOut = (11.9, 12.2);
+  static const double _workFrom = 11.8;
+  static const (double, double) _lifted = (11.9, 12.4);
+  static const (double, double) _cardWords = (12.3, 12.6);
+  static const (double, double) _products = (12.5, 13.2);
+  static const (double, double) _sum = (13.3, 13.5);
+  static const (double, double) _divided = (13.6, 13.8);
+  static const (double, double) _scoreFlies = (13.9, 14.3);
+  static const (double, double) _cardOut = (13.9, 14.2);
 
   // The rest: the query passes each key up to `<bos>`, then goes.
-  static const (double, double) _scan = (12.3, 13.3);
-  static const (double, double) _queryOut = (13.3, 13.6);
+  static const (double, double) _scan = (14.3, 15.3);
+  static const (double, double) _queryOut = (15.3, 15.6);
 
   // Softmax: a bar a share, its percentage at its end.
-  static const (double, double) _bars = (13.5, 14.2);
-  static const (double, double) _percents = (13.9, 14.3);
+  static const (double, double) _bars = (15.5, 16.2);
+  static const (double, double) _percents = (15.9, 16.3);
 
   // Why the root: the scores taken back to their plain sums and divided
   // again.
-  static const (double, double) _overIn = (14.8, 15.1);
-  static const (double, double) _away = (15.0, 15.9);
-  static const (double, double) _back = (16.5, 17.3);
-  static const (double, double) _overOut = (17.3, 17.6);
+  static const (double, double) _overIn = (16.8, 17.1);
+  static const (double, double) _away = (17.0, 17.9);
+  static const (double, double) _back = (18.5, 19.3);
+  static const (double, double) _overOut = (19.3, 19.6);
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -231,10 +238,11 @@ final class ScoresScene extends LmScene {
     );
     _numbers(canvas, view, layout, layout.inputX, 0, now, _span(beat, _columnNumbers) * alpha, left: true);
     _title(canvas, view, layout, layout.inputX, StreamTable.placeName(view, view.position), alpha);
-    final double chart = _span(beat, _chartIn) * (1 - _span(beat, _chartOut));
+    final double chart = _span(beat, _chartIn) * (1 - _span(beat, _formulaIn));
     if (chart > 0) {
       _chart(canvas, view, layout, now, beat, chart);
     }
+    _formula(canvas, view, layout, beat, alpha);
   }
 
   /// The row's numbers as bars from zero, with its mean and a band of one
@@ -334,6 +342,62 @@ final class ScoresScene extends LmScene {
         Offset((xOf(mean) + xOf(mean + sd)) / 2, y + 5),
         anchor: const Offset(0.5, 0),
       );
+    }
+  }
+
+  /// The norm's last step written out where the chart was, a row a number:
+  /// each z-score times its column's own scale, plus its own shift, the
+  /// evened number. Headed so the row reads as the sum, z-score × scale +
+  /// shift = evened; at step 1 every scale is 1 and every shift 0.
+  void _formula(Canvas canvas, LmView view, ScoresLayout layout, double beat, double alpha) {
+    final double shown = _span(beat, _formulaIn) * (1 - _span(beat, _formulaOut)) * alpha;
+    if (shown <= 0 || !layout.writes) {
+      return;
+    }
+    final RowEvening even = evening(view);
+    final int width = view.trace.model.width;
+    final TextStyle face = inked(view.kit.mono, layout.textSize, view.inks.ink);
+    final double step = view.kit.layout('× −8.88', face).width + 10;
+    final List<double> xs = <double>[layout.chartLeft, layout.chartLeft + step, layout.chartLeft + 2 * step];
+    final Rect column = layout.columnAt(layout.inputX, 0);
+    // The heads: the numbers left of the row are its z-scores, then each
+    // column of terms.
+    final TextStyle words = inked(view.kit.sans, 9, view.inks.quiet, alpha: shown);
+    // Clear of the row's own name, over its tiles.
+    final double name = view.kit
+        .layout(StreamTable.placeName(view, view.position), inked(view.kit.sans, 9, view.inks.quiet))
+        .width;
+    view.kit.draw(
+      canvas,
+      'z-score',
+      words,
+      Offset(math.min(column.left, layout.inputX - name / 2) - 6, column.top - 4),
+      anchor: const Offset(1, 1),
+    );
+    for (final (int k, String head) in <(int, String)>[(0, '× scale'), (1, '+ shift'), (2, '= evened')]) {
+      view.kit.draw(canvas, head, words, Offset(xs[k], column.top - 4), anchor: const Offset(0, 1));
+    }
+    final double fade = 1 - _span(beat, _formulaOut);
+    TextStyle at(double a) => face.copyWith(color: face.color!.withValues(alpha: ((a * fade * alpha) * 8).round() / 8));
+    for (int d = 0; d < width; d++) {
+      final double y = layout.tileAt(layout.inputX, d, 0).center.dy;
+      final double lag = 0.45 * d / math.max(1, width - 1);
+      final double terms = through(beat, _terms.$1 + lag * (_terms.$2 - _terms.$1), _terms.$1 + lag * (_terms.$2 - _terms.$1) + 0.2);
+      final double result = through(beat, _results.$1 + lag * (_results.$2 - _results.$1), _results.$1 + lag * (_results.$2 - _results.$1) + 0.25);
+      final double shift = even.shift[d];
+      if (terms > 0) {
+        view.kit.draw(canvas, '× ${fixed(even.scale[d], 2)}', at(terms), Offset(xs[0], y), anchor: const Offset(0, 0.5));
+        view.kit.draw(
+          canvas,
+          '${shift < 0 && fixed(-shift, 2) != '0.00' ? '−' : '+'} ${fixed(shift.abs(), 2)}',
+          at(terms),
+          Offset(xs[1], y),
+          anchor: const Offset(0, 0.5),
+        );
+      }
+      if (result > 0) {
+        view.kit.draw(canvas, '= ${fixed(even.evened[d], 2)}', at(result), Offset(xs[2], y), anchor: const Offset(0, 0.5));
+      }
     }
   }
 
@@ -922,13 +986,16 @@ final class ScoresScene extends LmScene {
     if (beat < _spread.$1) {
       return 'Less the mean, ${fixed(even.mean, 2)}: the row centres on zero';
     }
-    if (beat < _learned.$1) {
+    if (beat < _formulaIn.$1) {
       return 'Over the standard deviation, ${fixed(even.sd, 2)}: each number a z-score';
+    }
+    if (beat < _results.$1) {
+      return 'Then evened = z-score × scale + shift, each column its own';
     }
     if (beat < _madeFrom.first) {
       return even.untrained
-          ? 'Then a learned scale and shift a column, still 1 and 0 at step ${view.step}'
-          : 'Then a learned scale and shift a column: the row attention reads';
+          ? 'At step 1 every scale is 1 and every shift 0: evened = z-score'
+          : 'Scales and shifts after ${grouped(view.step - 1)} updates: the row attention reads';
     }
     if (beat < _madeFrom[1]) {
       return 'The query: $width numbers, each a learned weighted sum of the $width';

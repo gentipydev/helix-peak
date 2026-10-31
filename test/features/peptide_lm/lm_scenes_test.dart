@@ -198,37 +198,41 @@ void main() {
       caption(LmStage.scores, scores(3.5)),
       'Over the standard deviation, ${fixed(sd, 2)}: each number a z-score',
     );
-    expect(caption(LmStage.scores, scores(4.2)), 'Then a learned scale and shift a column: the row attention reads');
+    expect(caption(LmStage.scores, scores(4.5)), 'Then evened = z-score × scale + shift, each column its own');
     expect(
-      sceneOf(LmStage.scores).caption(view(inks, kit), timeline.frameIn(LmStage.scores, scores(4.2))),
-      'Then a learned scale and shift a column, still 1 and 0 at step 1',
+      caption(LmStage.scores, scores(5.5)),
+      'Scales and shifts after ${last3.step - 1} updates: the row attention reads',
     );
     expect(
-      caption(LmStage.scores, scores(5)),
-      'The query: $width numbers, each a learned weighted sum of the $width',
+      sceneOf(LmStage.scores).caption(view(inks, kit), timeline.frameIn(LmStage.scores, scores(5.5))),
+      'At step 1 every scale is 1 and every shift 0: evened = z-score',
     );
     expect(
       caption(LmStage.scores, scores(7)),
-      'Other weights, same row: $width key numbers, then $width value numbers',
-    );
-    expect(
-      caption(LmStage.scores, scores(8)),
-      'Cut in two: head 1 takes numbers 1–$size of each, head 2 ${size + 1}–${2 * size}',
+      'The query: $width numbers, each a learned weighted sum of the $width',
     );
     expect(
       caption(LmStage.scores, scores(9)),
+      'Other weights, same row: $width key numbers, then $width value numbers',
+    );
+    expect(
+      caption(LmStage.scores, scores(10)),
+      'Cut in two: head 1 takes numbers 1–$size of each, head 2 ${size + 1}–${2 * size}',
+    );
+    expect(
+      caption(LmStage.scores, scores(11)),
       'Every place does the same, with the same weights: 12 keys of $size',
     );
     final String topName = top == 3 ? 'its own' : "${name(top)}'s";
-    expect(caption(LmStage.scores, scores(10.5)), "V3's query times $topName key, number by number: $size products");
+    expect(caption(LmStage.scores, scores(12.5)), "V3's query times $topName key, number by number: $size products");
     expect(
-      caption(LmStage.scores, scores(12)),
+      caption(LmStage.scores, scores(14)),
       'Summed, ${fixed(score(0, top) * math.sqrt(size), 2)}; over √$size, ${fixed(score(0, top), 2)}: $topName score',
     );
-    expect(caption(LmStage.scores, scores(12.8)), "V3's query against each key up to its own: 4 scores");
-    expect(caption(LmStage.scores, scores(14)), 'Softmax makes the scores shares of one: ${head(0)}');
+    expect(caption(LmStage.scores, scores(14.8)), "V3's query against each key up to its own: 4 scores");
+    expect(caption(LmStage.scores, scores(16)), 'Softmax makes the scores shares of one: ${head(0)}');
     expect(
-      caption(LmStage.scores, scores(16)),
+      caption(LmStage.scores, scores(18)),
       'Without ÷√$size, the plain sums: ${name(most)} would take ${percent(plain[most])}',
     );
     expect(caption(LmStage.scores, 0.99), 'Over √$size, the reading is shared: ${head(0)}');
