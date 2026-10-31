@@ -355,7 +355,7 @@ final class EmbeddingScene extends LmScene {
         _span(beat, _tableIn) * (1 - through(beat, _tableOut.$1, _tableOut.$1 + 0.3)),
       ),
       (
-        'x embedded · $inputs × $width',
+        'input x embedded · $inputs × $width',
         through(beat, 7.2, 7.6) * (1 - through(beat, 11.4, 11.6)),
       ),
       (
