@@ -19,10 +19,10 @@ import 'stream_table.dart';
 /// in focus stands up beside it: its numbers less their mean, over their
 /// spread, then the norm's learned scale and shift, the row attention reads.
 /// The model's own weights make a query, a key and a value of the stream's
-/// width from it: each part's weights stand first as a faint web of strings,
-/// a weight on each (the query's moving from the run's random start to the
-/// checkpoint's own), and then the row flows through them, the strings into
-/// each number lit with what they carry, the number made as they land. Each
+/// width from it: each part's column stands empty, then the row flows through
+/// its weights, the strings into each number lit with what they carry, the
+/// number made as they land and the strings left behind, faint, a weight on
+/// each, until the next part comes. Each
 /// is cut into equal slices, one a head. Every place makes its own, with the
 /// same weights. Head 1's query is scored against one key number by number,
 /// summed and divided by the root of a head's size, then against every key
@@ -69,24 +69,22 @@ final class ScoresScene extends LmScene {
   static const (double, double) _formulaOut = (5.8, 6.1);
 
   // The query, the key and the value, each from the same row through its own
-  // weights, one part after the other. A part's column stands as empty slots
-  // and its weights as a faint web of strings from the row to them, a weight
-  // on each, named on a plate under them; the query's web moves from the
-  // run's random start to the checkpoint's own. Then the row flows through:
-  // each number's strings lit from the row out to it, the number made as
-  // they land. A part's web goes as the next one's comes.
+  // weights, one part after the other. A part's column stands as empty
+  // slots, with no strings yet; then the row flows through its weights, each
+  // number's strings lit out of the row into it, the number made as they
+  // land, and the strings left behind, faint: the part's weights, a string
+  // each, named on a plate under them. A part's strings go as the next
+  // part's slots come.
   static const List<(double, double)> _slotsIn = <(double, double)>[(6.6, 6.9), (10.35, 10.55), (11.45, 11.65)];
-  static const List<(double, double)> _webIn = <(double, double)>[(6.7, 7.1), (10.4, 10.6), (11.5, 11.7)];
   static const List<(double, double)> _webOut = <(double, double)>[(10.35, 10.6), (11.45, 11.7), (12.5, 12.7)];
-  static const (double, double) _plateIn = (6.9, 7.2);
+  static const (double, double) _plateIn = (6.95, 7.25);
   static const (double, double) _plateOut = (12.5, 12.7);
-  static const (double, double) _trained = (7.3, 7.9);
 
   // The fans: the query's first three numbers on their own, the first
   // slowly, then the rest of the query in one cascade; the key's and the
   // value's each one cascade. A fan takes [_fanLong] in a cascade.
-  static const List<(double, double)> _alone = <(double, double)>[(8.0, 8.5), (8.65, 8.95), (9.0, 9.25)];
-  static const List<(double, double)> _cascades = <(double, double)>[(9.3, 10.15), (10.6, 11.375), (11.7, 12.475)];
+  static const List<(double, double)> _alone = <(double, double)>[(6.95, 7.55), (7.7, 8.0), (8.05, 8.3)];
+  static const List<(double, double)> _cascades = <(double, double)>[(8.35, 9.2), (10.6, 11.375), (11.7, 12.475)];
   static const double _fanLong = 0.25;
 
   // Each cut into a slice a head, the slices named.
@@ -417,10 +415,10 @@ final class ScoresScene extends LmScene {
 
   static const List<String> _parts = <String>['query', 'key', 'value'];
 
-  /// The evened row through each part's weights: the part's empty slots and
-  /// its web of weights; the row flowing through them, a fan of strings lit
-  /// into each number, the number made as they land; the plate naming the
-  /// weights; then each column cut into a slice a head.
+  /// The evened row through each part's weights: the part's empty slots; the
+  /// row flowing through its weights, a fan of strings lit into each number,
+  /// the number made as they land and the strings left behind, faint; the
+  /// plate naming the weights; then each column cut into a slice a head.
   void _network(Canvas canvas, LmView view, ScoresLayout layout, double beat) {
     final double shown = 1 - _span(beat, _networkOut);
     if (beat < _slotsIn.first.$1 || shown <= 0) {
@@ -431,19 +429,20 @@ final class ScoresScene extends LmScene {
     final int size = trace.headSize;
     final double cut = _span(beat, _cut);
     final double others = 1 - 0.65 * _span(beat, _otherHeads);
-    // The web and its fans first, under every column: one part's at a time,
-    // the web quieter while the row flows through it.
+    // Each part's strings first, under every column, one part's at a time:
+    // those that have landed left faint, quieter while the row flows, and
+    // those running lit.
     for (int part = 0; part < 3; part++) {
-      final double web = _webShown(part, beat) * shown;
+      final double web = _webShown(part, width, beat) * shown;
       if (web > 0) {
-        _web(canvas, view, layout, part, cut, web * (1 - 0.55 * _flowing(part, width, beat)), part == 0 ? _span(beat, _trained) : 1);
+        _web(canvas, view, layout, part, cut, beat, web * (1 - 0.35 * _flowing(part, width, beat)));
         _fans(canvas, view, layout, part, cut, beat, web);
       }
     }
     // The columns already made are one card the later strings pass behind,
     // from the query's to the last made, their numbers clear of them.
     for (int part = 1; part < 3; part++) {
-      _backing(canvas, view, layout, layout.outputX[0], layout.outputX[part - 1], cut, _webShown(part, beat) * shown);
+      _backing(canvas, view, layout, layout.outputX[0], layout.outputX[part - 1], cut, _webShown(part, width, beat) * shown);
     }
     for (int part = 0; part < 3; part++) {
       final (double slotsFrom, double slotsTo) = _slotsIn[part];
@@ -528,20 +527,11 @@ final class ScoresScene extends LmScene {
   }
 
   /// The weight from number [d] of the evened row to number [out] of [part]
-  /// at the checkpoint in focus, [trained] of the way from the run's random
-  /// start, the first checkpoint's.
-  static double _weight(LmView view, int part, int out, int d, double trained) {
-    final TrainingTrace trace = view.trace;
-    final double now = trace.projection(view.checkpoint, block, part, out, d);
-    if (trained >= 1) {
-      return now;
-    }
-    final double start = trace.projection(trace.checkpoints.first, block, part, out, d);
-    return start + (now - start) * trained;
-  }
+  /// at the checkpoint in focus.
+  static double _weight(LmView view, int part, int out, int d) =>
+      view.trace.projection(view.checkpoint, block, part, out, d);
 
-  /// The largest of [part]'s weights, at the run's start or at the
-  /// checkpoint in focus: one scale for its web while it moves.
+  /// The largest of [part]'s weights at the checkpoint in focus.
   static double _weightReach(LmView view, int part) => view.kit.memo<double>(
     ('scores-weight-reach', view.step, part),
     () {
@@ -549,7 +539,7 @@ final class ScoresScene extends LmScene {
       double most = 1e-9;
       for (int out = 0; out < width; out++) {
         for (int d = 0; d < width; d++) {
-          most = math.max(most, math.max(_weight(view, part, out, d, 0).abs(), _weight(view, part, out, d, 1).abs()));
+          most = math.max(most, _weight(view, part, out, d).abs());
         }
       }
       return most;
@@ -565,19 +555,34 @@ final class ScoresScene extends LmScene {
       double most = 1e-9;
       for (int out = 0; out < evened.length; out++) {
         for (int d = 0; d < evened.length; d++) {
-          most = math.max(most, (_weight(view, part, out, d, 1) * evened[d]).abs());
+          most = math.max(most, (_weight(view, part, out, d) * evened[d]).abs());
         }
       }
       return most;
     },
   );
 
-  /// How strong a part's web is drawn: faint, under the strings the row
-  /// lights.
+  /// How strong a part's strings are drawn once they have landed: faint,
+  /// under the strings the row lights.
   static const double _webStrength = 0.5;
 
-  /// How strongly [part]'s web shows at [beat].
-  static double _webShown(int part, double beat) => _span(beat, _webIn[part]) * (1 - _span(beat, _webOut[part]));
+  /// How strongly [part]'s strings show at [beat], of [width] numbers: from
+  /// its first fan until the next part's slots come.
+  static double _webShown(int part, int width, double beat) {
+    final double first = fanAt(part, 0, width).$1;
+    return through(beat, first - 0.05, first) * (1 - _span(beat, _webOut[part]));
+  }
+
+  /// How long the strings into number [out] of [part] stay lit after they
+  /// land, settling into the part's faint weights.
+  static double _relax(int part, int out) => part == 0 && out == 0 ? 0.3 : 0.2;
+
+  /// How far the strings into number [out] of [part] have settled at [beat],
+  /// of [width] numbers: left behind, faint, once the number is made.
+  static double _settled(int part, int out, int width, double beat) {
+    final double landed = fanAt(part, out, width).$2;
+    return through(beat, landed + 0.05, landed + _relax(part, out));
+  }
 
   /// How far the row is flowing through [part]'s web at [beat], of
   /// [width] numbers: from just before its first fan to just after its last.
@@ -605,31 +610,32 @@ final class ScoresScene extends LmScene {
     );
   }
 
-  /// [part]'s weights as strings, a weight on each, from each number of the
-  /// evened row to each number it helps make: in the colour of the weight's
-  /// sign, as strong as it against the part's largest; [trained] of the way
-  /// from the run's random start to the checkpoint's own.
-  void _web(Canvas canvas, LmView view, ScoresLayout layout, int part, double cut, double alpha, double trained) {
+  /// [part]'s strings left behind, a weight on each, from each number of the
+  /// evened row to each number made: in the colour of the weight's sign, as
+  /// strong as it against the part's largest; each number's settling in as
+  /// its lit strings go.
+  void _web(Canvas canvas, LmView view, ScoresLayout layout, int part, double cut, double beat, double alpha) {
     final int width = view.trace.model.width;
     drawEdges(
       canvas,
       view,
       <(int, int, double)>[
         for (int out = 0; out < width; out++)
-          for (int d = 0; d < width; d++) (d, out, _weight(view, part, out, d, trained)),
+          for (int d = 0; d < width; d++) (d, out, _weight(view, part, out, d)),
       ],
       (int d) => layout.tileAt(layout.inputX, d, 0).centerRight,
       (int out) => layout.tileAt(layout.outputX[part], out, cut).centerLeft,
       alpha * _webStrength,
       most: _weightReach(view, part),
+      alphaOf: (int out) => _settled(part, out, width, beat),
     );
   }
 
   /// The row flowing through [part]'s weights: the strings into each number
   /// being made, lit from the row's numbers out to it, each carrying its
   /// number times its weight, in that product's colour and as strong as it
-  /// against the part's largest; lit while they run, then back into the web
-  /// once the number is made.
+  /// against the part's largest; lit while they run, then settling into the
+  /// part's faint weights once the number is made.
   void _fans(Canvas canvas, LmView view, ScoresLayout layout, int part, double cut, double beat, double alpha) {
     final TrainingTrace trace = view.trace;
     final int width = trace.model.width;
@@ -643,7 +649,7 @@ final class ScoresScene extends LmScene {
       if (beat <= from) {
         continue;
       }
-      final double glow = 1 - through(beat, to + 0.05, to + (part == 0 && out == 0 ? 0.3 : 0.2));
+      final double glow = 1 - through(beat, to + 0.05, to + _relax(part, out));
       if (glow <= 0) {
         continue;
       }
@@ -699,15 +705,15 @@ final class ScoresScene extends LmScene {
   }
 
   /// Where the weights stand at the checkpoint in focus: the run's random
-  /// start, or the start and the updates since, once [trained].
-  static String weightsStatus(LmView view, {required bool trained}) {
+  /// start, and the updates since.
+  static String weightsStatus(LmView view) {
     final TrainingTrace trace = view.trace;
     final String start = 'random start (seed ${trace.config.seed})';
     final int updates = view.step - trace.checkpoints.first.step;
     if (updates <= 0) {
       return '$start, no update yet';
     }
-    return trained ? 'after ${grouped(updates)} training ${updates == 1 ? 'update' : 'updates'}' : start;
+    return '$start, then ${grouped(updates)} training ${updates == 1 ? 'update' : 'updates'}';
   }
 
   /// How strongly [part]'s plate shows at [beat]: each comes once the one
@@ -724,8 +730,7 @@ final class ScoresScene extends LmScene {
 
   /// The weights named under their strings, as x0's table is named over
   /// it: whose they are and how many, on a plate; under it, where they
-  /// stand, the query's moving from the run's random start to the
-  /// checkpoint's own with its strings.
+  /// stand, the run's random start and the updates since.
   void _plate(Canvas canvas, LmView view, ScoresLayout layout, double beat, double shown) {
     final int width = view.trace.model.width;
     String named(int part) => '${_parts[part]} weights · $width × $width';
@@ -740,24 +745,11 @@ final class ScoresScene extends LmScene {
       return;
     }
     final Rect plate = layout.plateAt(tagSize(view, named(0)));
-    // At the run's first step the start is all there is; at a later one, the
-    // start, then, past the middle of the move, the updates since.
-    final double middle = (_trained.$1 + _trained.$2) / 2;
-    final List<(String, double)> lines = view.step == view.trace.checkpoints.first.step
-        ? <(String, double)>[(weightsStatus(view, trained: true), 1)]
-        : <(String, double)>[
-            (weightsStatus(view, trained: false), 1 - through(beat, _trained.$1, middle)),
-            (weightsStatus(view, trained: true), through(beat, middle, _trained.$2)),
-          ];
-    for (final (String text, double alpha) in lines) {
-      if (alpha <= 0) {
-        continue;
-      }
-      final TextStyle words = inked(view.kit.sans, 8.5, view.inks.quiet, alpha: alpha * status);
-      final double wide = view.kit.layout(text, words).width;
-      final double left = (plate.center.dx - wide / 2).clamp(layout.benchLeft, math.max(layout.benchLeft, layout.right - wide));
-      view.kit.draw(canvas, text, words, Offset(left, plate.bottom + 3));
-    }
+    final String text = weightsStatus(view);
+    final TextStyle words = inked(view.kit.sans, 8.5, view.inks.quiet, alpha: status);
+    final double wide = view.kit.layout(text, words).width;
+    final double left = (plate.center.dx - wide / 2).clamp(layout.benchLeft, math.max(layout.benchLeft, layout.right - wide));
+    view.kit.draw(canvas, text, words, Offset(left, plate.bottom + 3));
   }
 
   /// The query ([part] 0), key (1) or value (2) of the place in focus, the
@@ -1186,22 +1178,17 @@ final class ScoresScene extends LmScene {
           ? 'At step 1 every scale is 1 and every shift 0: evened = z-score'
           : 'Scales and shifts after ${grouped(view.step - 1)} updates: the row attention reads';
     }
-    if (beat < _trained.$1) {
-      return "The query's ${grouped(width * width)} weights: a string each, $width into every number";
-    }
-    if (beat < fanAt(0, 0, width).$1) {
-      return view.step == trace.checkpoints.first.step
-          ? "Each string's colour is its weight's sign; the stronger, the larger"
-          : 'Training has moved each weight from its random start';
-    }
     if (beat < fanAt(0, 1, width).$1) {
       // Its bias, where training has given it one: every bias starts at 0.
       final bool biased = trace.projectionBias(view.checkpoint, block, 0, 0) != 0;
       return "Query number 1: $focus's numbers × weights, summed"
           '${biased ? ', + bias' : ''}: ${fixed(madeOf(view, 0).first, 2)}';
     }
-    if (beat < _slotsIn[1].$1) {
+    if (beat < fanAt(0, width - 1, width).$2 + 0.15) {
       return 'The other ${grouped(width - 1)} the same way, each through its own $width weights';
+    }
+    if (beat < _slotsIn[1].$1) {
+      return "The query's ${grouped(width * width)} weights: a string each, $width into every number";
     }
     if (beat < _slotsIn[2].$1) {
       return "The key: the same row through the key's own $width × $width weights";

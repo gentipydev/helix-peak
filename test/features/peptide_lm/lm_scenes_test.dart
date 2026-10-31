@@ -201,15 +201,12 @@ void main() {
       sceneOf(LmStage.scores).caption(view(inks, kit), timeline.frameIn(LmStage.scores, scores(5.5))),
       'At step 1 every scale is 1 and every shift 0: evened = z-score',
     );
-    // The query's weights, the model's own: at step 1 as the seed drew them,
-    // later moved by training; then the row through them, query number 1
-    // first, its sum the kept query's.
+    // The row through the query's weights, the model's own: query number 1
+    // first, its sum the kept query's, then the rest, then the weights left
+    // standing; at step 1 as the seed drew them, later moved by training.
     final LmView first = view(inks, kit);
     String scoresAt(LmView at, double beat) =>
         sceneOf(LmStage.scores).caption(at, timeline.frameIn(LmStage.scores, scores(beat)));
-    expect(caption(LmStage.scores, scores(7)), "The query's ${width * width} weights: a string each, $width into every number");
-    expect(caption(LmStage.scores, scores(7.5)), 'Training has moved each weight from its random start');
-    expect(scoresAt(first, 7.5), "Each string's colour is its weight's sign; the stronger, the larger");
     double query1(LmView at) => trace.query(at.checkpoint, 0, 0, 0, 3, 0);
     for (final LmView at in <LmView>[first, last3]) {
       double sum = trace.projectionBias(at.checkpoint, 0, 0, 0);
@@ -219,20 +216,23 @@ void main() {
       expect(sum, closeTo(query1(at), 1e-4));
     }
     expect(trace.projectionBias(first.checkpoint, 0, 0, 0), 0);
-    expect(scoresAt(first, 8.2), "Query number 1: V3's numbers × weights, summed: ${fixed(query1(first), 2)}");
+    expect(scoresAt(first, 7.2), "Query number 1: V3's numbers × weights, summed: ${fixed(query1(first), 2)}");
     expect(
-      caption(LmStage.scores, scores(8.2)),
+      caption(LmStage.scores, scores(7.2)),
       "Query number 1: V3's numbers × weights, summed, + bias: ${fixed(query1(last3), 2)}",
     );
     expect(
-      caption(LmStage.scores, scores(9.5)),
+      caption(LmStage.scores, scores(8.5)),
       'The other ${width - 1} the same way, each through its own $width weights',
     );
+    expect(caption(LmStage.scores, scores(9.8)), "The query's ${width * width} weights: a string each, $width into every number");
     expect(caption(LmStage.scores, scores(11)), "The key: the same row through the key's own $width × $width weights");
     expect(caption(LmStage.scores, scores(12)), 'The value: the same row again, through a third $width × $width');
-    expect(ScoresScene.weightsStatus(first, trained: true), 'random start (seed ${trace.config.seed}), no update yet');
-    expect(ScoresScene.weightsStatus(last3, trained: false), 'random start (seed ${trace.config.seed})');
-    expect(ScoresScene.weightsStatus(last3, trained: true), 'after ${last3.step - 1} training updates');
+    expect(ScoresScene.weightsStatus(first), 'random start (seed ${trace.config.seed}), no update yet');
+    expect(
+      ScoresScene.weightsStatus(last3),
+      'random start (seed ${trace.config.seed}), then ${last3.step - 1} training updates',
+    );
     expect(
       caption(LmStage.scores, scores(13)),
       'Cut in two: head 1 takes numbers 1–$size of each, head 2 ${size + 1}–${2 * size}',
@@ -459,6 +459,51 @@ void main() {
         expect(first, last, reason: '${after.label} opens on ${before.label}');
       }
     }
+  });
+
+  testWidgets('Scores draws no strings until the row flows into the query', (WidgetTester tester) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    const Size size = Size(393, 540);
+    final LmView scene = view(inks, kit);
+    final ScoresLayout layout = ScoresLayout(size, scene);
+    // The band between the evened row's column and the query's.
+    final Rect band = Rect.fromLTRB(
+      layout.inputX + layout.column / 2 + 2,
+      layout.columnAt(layout.inputX, 0).top,
+      layout.outputX[0] - layout.column / 2 - 2,
+      layout.columnAt(layout.inputX, 0).bottom,
+    );
+    Future<int> inked(double beat) async {
+      final ui.PictureRecorder recorder = ui.PictureRecorder();
+      final Canvas canvas = Canvas(recorder)..drawRect(Offset.zero & size, Paint()..color = inks.ground);
+      LmScenePainter(view: scene, frame: () => timeline.frameIn(LmStage.scores, beat / LmStage.scores.beats))
+          .paint(canvas, size);
+      final ui.Picture picture = recorder.endRecording();
+      final Uint8List bytes = (await tester.runAsync(() async {
+        final ui.Image image = await picture.toImage(size.width.round(), size.height.round());
+        final ByteData? data = await image.toByteData();
+        image.dispose();
+        return data!.buffer.asUint8List();
+      }))!;
+      picture.dispose();
+      final int ground = inks.ground.toARGB32();
+      int count = 0;
+      for (int y = band.top.ceil(); y < band.bottom.floor(); y++) {
+        for (int x = band.left.ceil(); x < band.right.floor(); x++) {
+          final int i = (y * size.width.round() + x) * 4;
+          if (bytes[i] != (ground >> 16) & 0xff || bytes[i + 1] != (ground >> 8) & 0xff || bytes[i + 2] != ground & 0xff) {
+            count++;
+          }
+        }
+      }
+      return count;
+    }
+
+    // The query's slots stand empty: nothing between the two columns.
+    expect(await inked(6.9), 0);
+    // Number 1's strings running out of the row.
+    expect(await inked(7.3), greaterThan(0));
   });
 
   test('numbers are written as the page writes them', () {

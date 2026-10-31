@@ -304,17 +304,17 @@ of 2026-10-30 and 2026-10-31:
   key and a value of 16 in turn (the user's ask of 2026-10-31, to read as a
   vector times a matrix drawn at random from the run's seed and nudged by
   every update): each part's column stands as empty slots, the query nearer
-  the row and room between the three, and its 16 × 16 weights as a faint web
-  of strings from the row to the slots, a weight on each (colour its sign,
-  strength its size), named on a plate under them, `query weights · 16 × 16`,
-  with where they stand: `random start (seed 0), no update yet` at step 1;
-  at a later step the query's web moves from step 1's weights to the
-  checkpoint's own, `after N training updates`. Then the row flows through:
-  each number's 16 strings lit out of the row, each carrying its number times
-  its weight, a dot at each tip, the number made only as they land (the
-  query's first alone and slowly, the rest in a cascade; the key's and the
-  value's one cascade each), the later strings passing behind the columns
-  already made. Each column then parts into a slice a head (head 1
+  the row and room between the three, with no strings yet (the user's word:
+  no strings before the row flows). Then the row flows through: each number's
+  16 strings burst out of the row, lit, each carrying its number times its
+  weight, a dot at each tip, the number made only as they land (the query's
+  first alone and slowly, the rest in a cascade; the key's and the value's
+  one cascade each), the later strings passing behind the columns already
+  made. Landed strings stay, faint, a weight on each (colour its sign,
+  strength its size), until the next part's slots come: the part's 16 × 16
+  weights, named on a plate under them, `query weights · 16 × 16`, with where
+  they stand, `random start (seed 0), no update yet` at step 1 and
+  `random start (seed 0), then N training updates` later. Each column then parts into a slice a head (head 1
   numbers 1–8, head 2 9–16: why the width must divide by the heads, and the 8
   of √8). Head 1's query and key lie down by the row in focus and every place's
   key comes out of its row. One score is worked out on the bench, the top

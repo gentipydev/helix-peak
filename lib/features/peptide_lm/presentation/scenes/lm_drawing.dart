@@ -198,7 +198,8 @@ final class LineBatch {
 /// Every edge of a network's layer, (from, to, what it carries), faint, as
 /// strong as what it carries against the strongest, in the colour of its sign;
 /// or against [most], where the edges must keep one scale while what they
-/// carry changes.
+/// carry changes. [alphaOf] gives the edges into one end their own share of
+/// [alpha], where they come one end at a time.
 void drawEdges(
   Canvas canvas,
   LmView view,
@@ -207,6 +208,7 @@ void drawEdges(
   Offset Function(int) to,
   double alpha, {
   double? most,
+  double Function(int to)? alphaOf,
 }) {
   double strongest = 1e-9;
   if (most == null) {
@@ -217,13 +219,17 @@ void drawEdges(
   final double reach = most ?? strongest;
   final LineBatch batch = LineBatch();
   for (final (int a, int b, double c) in edges) {
+    final double share = alphaOf == null ? 1 : alphaOf(b);
+    if (share <= 0) {
+      continue;
+    }
     final double w = math.min(1.0, c.abs() / reach);
     batch.line(
       from(a),
       to(b),
       c >= 0 ? view.inks.positive : view.inks.negative,
       0.5 + 1.3 * w,
-      (0.05 + 0.75 * math.pow(w, 1.4)) * alpha,
+      (0.05 + 0.75 * math.pow(w, 1.4)) * alpha * share,
     );
   }
   batch.draw(canvas);
