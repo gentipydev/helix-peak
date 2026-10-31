@@ -78,14 +78,14 @@ final class EmbeddingScene extends LmScene {
   static const double _twinFrom = 10.4;
 
   /// Where the caption turns: to what the numbers are, the lookup, the
-  /// gather, the position embedding and x0. The note over the table turns
-  /// with it, but for the still beat, which keeps the table's.
+  /// gather, the position embedding, and their sum, x0, which holds to the
+  /// end. The note over the table turns with it, but for the still beat,
+  /// which keeps the table's.
   static const double _numbersCaption = 1.4;
   static const double _lookupCaption = 2.4;
   static const double _gatherCaption = 6.6;
   static const double _placesCaption = 11.6;
   static const double _addCaption = 13.4;
-  static const double _x0Caption = 15.0;
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -126,15 +126,14 @@ final class EmbeddingScene extends LmScene {
       _rows(canvas, size, view, layout, beat);
     }
     _focusRow(canvas, view, layout, beat, fade);
-    if (fade.rows) {
-      _twins(canvas, view, layout, beat);
-    }
+    markTwins(canvas, view, layout, _twinMarked(beat) * fade.twins);
   }
 
-  /// The two places of one token, marked as the notes name them: the same
-  /// row once gathered, then parted by their places' rows.
-  void _twins(Canvas canvas, LmView view, EmbeddingLayout layout, double beat) {
-    final double marked = _twinMarked(beat);
+  /// The two places of one token, marked as the notes name them, at
+  /// [marked]: the same row once gathered, then parted by their places'
+  /// rows, and still marked at the end, where the note says they now
+  /// differ. Scores draws them over its rows as it opens.
+  static void markTwins(Canvas canvas, LmView view, EmbeddingLayout layout, double marked) {
     final (String, int, int)? twin = _twin(view);
     if (marked <= 0 || twin == null) {
       return;
@@ -195,20 +194,44 @@ final class EmbeddingScene extends LmScene {
   }
 
   /// How many times smaller the position embedding's rows are than the
-  /// token rows they are added to, over the places in focus.
-  static int smaller(LmView view) => view.kit.memo<int>(('embedding-places', view.step, view.peptide), () {
-    final TrainingTrace trace = view.trace;
-    double token = 0;
-    double place = 0;
-    for (int i = 0; i < view.focus.inputs; i++) {
-      final int id = trace.inputAt(view.peptide, i);
-      for (int d = 0; d < trace.model.width; d++) {
-        token += math.pow(trace.tokenEmbedding(view.checkpoint, id, d), 2);
-        place += math.pow(trace.positionEmbedding(view.checkpoint, i, d), 2);
+  /// token rows they are added to, over the places in focus, at [at] (the
+  /// checkpoint in view by default).
+  static int smaller(LmView view, [TraceCheckpoint? at]) {
+    final TraceCheckpoint checkpoint = at ?? view.checkpoint;
+    return view.kit.memo<int>(('embedding-places', checkpoint.step, view.peptide), () {
+      final TrainingTrace trace = view.trace;
+      double token = 0;
+      double place = 0;
+      for (int i = 0; i < view.focus.inputs; i++) {
+        final int id = trace.inputAt(view.peptide, i);
+        for (int d = 0; d < trace.model.width; d++) {
+          token += math.pow(trace.tokenEmbedding(checkpoint, id, d), 2);
+          place += math.pow(trace.positionEmbedding(checkpoint, i, d), 2);
+        }
       }
+      return place <= 0 ? 1 : math.max(1, math.sqrt(token / place).round());
+    });
+  }
+
+  /// How the position rows compare with the token rows at the checkpoint in
+  /// view, and how that changes over the run: from its first checkpoint to
+  /// its last, each as the run kept it.
+  static String _sizes(LmView view) {
+    final TrainingTrace trace = view.trace;
+    final TraceCheckpoint first = trace.checkpoints.first;
+    final TraceCheckpoint last = trace.checkpoints.last;
+    String times(int n) => n < 2 ? 'about the size of' : '${grouped(n)}× smaller than';
+    final int now = smaller(view);
+    final int start = smaller(view, first);
+    final int end = smaller(view, last);
+    final String here = '${times(now)} token rows at step ${view.step}';
+    if (first.step == last.step || start == end) {
+      return here;
     }
-    return place <= 0 ? 1 : math.max(1, math.sqrt(token / place).round());
-  });
+    return view.step == first.step
+        ? '$here, ${grouped(end)}× by step ${last.step}'
+        : '$here, ${grouped(start)}× at step ${first.step}';
+  }
 
   /// The position embedding's own colour scale over the places in focus:
   /// its 99th percentile, as the stream's is.
@@ -241,19 +264,20 @@ final class EmbeddingScene extends LmScene {
   /// Why each part happens, over the table, one part at a time, beside the
   /// caption under the canvas, which says what happens: when it holds, from
   /// and to, and what it says, a line a thought.
-  static List<(double, double, String)> _notes(LmView view) {
+  static List<(double, double, String)> notes(LmView view) {
     final TrainingTrace trace = view.trace;
     final int width = trace.model.width;
     final (String, int, int)? twin = _twin(view);
-    final String what = twin == null
-        ? 'token row: what the residue is, the same wherever it sits'
-        : 'token row: what the residue is, the same for every ${twin.$1}';
-    final String where = twin == null
-        ? 'position row: where it sits, the same whatever residue is there'
-        : 'position row: where it sits, the same at place ${twin.$3} whatever is there';
     final String both = twin == null
-        ? 'added: each place now carries both'
-        : 'added: each place carries both, so the ${twin.$1}s at ${twin.$2} and ${twin.$3} now differ';
+        ? 'added: each place carries both; order is in the numbers now'
+        : 'added: each place carries both; the ${twin.$1}s at ${twin.$2} and ${twin.$3} now differ';
+    final String sum = <String>[
+      'token row: what it is; position row: where it sits',
+      both,
+      'size: ${_sizes(view)}',
+      'why add: side by side would make ${2 * width}; every layer takes $width',
+      'residual stream: what each block adds to, never replaces',
+    ].join('\n');
     return <(double, double, String)>[
       (_tableIn.$1, _lookupCaption, 'A model computes with numbers, not letters: each token gets $width of its own.'),
       (_lookupCaption, _gatherCaption, 'The lookup is only this: the id picks its row, no arithmetic.'),
@@ -273,14 +297,7 @@ final class EmbeddingScene extends LmScene {
             'a row for each place it can hold, <bos> (<) and up to ${trace.model.context - 1} residues; ${view.focus.source.label} fills '
             '${view.focus.inputs}',
       ),
-      (_addCaption, _x0Caption, '$what\n$where\n$both'),
-      (
-        _x0Caption,
-        double.infinity,
-        'x0: ${view.focus.source.label} as the model takes it in\n'
-            'each row: which residue (token row) plus where (position row)\n'
-            'next: ${spelled(trace.model.layers)} blocks let each place read the places before it',
-      ),
+      (_addCaption, double.infinity, sum),
     ];
   }
 
@@ -308,13 +325,26 @@ final class EmbeddingScene extends LmScene {
 
   static const double _noteSize = 10.5;
 
-  /// How tall the note is at [width]: the most lines any of its parts takes.
+  /// How tall the note is at [width]: the most lines any of its parts takes,
+  /// at any checkpoint, so the canvas keeps one layout whichever step is
+  /// picked.
   static double noteHeight(LmView view, double width) => view.kit.memo<double>(
     ('embedding-note', view.peptide, view.kit.scaler, width),
     () {
       double most = 0;
-      for (final (_, _, String text) in _notes(view)) {
-        most = math.max(most, view.kit.paragraph(text, _whyStyle(view), width).height);
+      for (final TraceCheckpoint at in view.trace.checkpoints) {
+        final LmView there = LmView(
+          trace: view.trace,
+          checkpoint: at,
+          peptide: view.peptide,
+          position: view.position,
+          head: view.head,
+          inks: view.inks,
+          kit: view.kit,
+        );
+        for (final (_, _, String text) in notes(there)) {
+          most = math.max(most, view.kit.paragraph(text, _whyStyle(view), width).height);
+        }
       }
       return most;
     },
@@ -326,7 +356,7 @@ final class EmbeddingScene extends LmScene {
     const double turn = 0.25;
     final double width = layout.right - layout.noteLeft;
     final double foot = layout.noteTop + noteHeight(view, width);
-    for (final (double from, double to, String text) in _notes(view)) {
+    for (final (double from, double to, String text) in notes(view)) {
       final double alpha = through(beat, from, from + turn) * (1 - through(beat, to - turn, to)) * (fade.note ?? fade.chrome);
       if (alpha <= 0) {
         continue;
@@ -337,13 +367,13 @@ final class EmbeddingScene extends LmScene {
   }
 
   /// How strongly the two places of [_twin] are marked: once their rows have
-  /// gathered, while the note names them, through the adding.
-  static double _twinMarked(double beat) => through(beat, _twinFrom, _twinFrom + 0.3) * (1 - through(beat, _x0Caption - 0.3, _x0Caption));
+  /// gathered, and from then on, while the notes name them.
+  static double _twinMarked(double beat) => through(beat, _twinFrom, _twinFrom + 0.3);
 
   // ---------------------------------------------------------------- paint
 
   /// The matrix's name, each in turn at the top left: the token embedding,
-  /// x embedded, the position embedding's rows, and x0.
+  /// x embedded, the position embedding's rows, and x0 as their sum.
   void _tags(Canvas canvas, LmView view, EmbeddingLayout layout, double beat, EmbeddingFade fade) {
     final TrainingTrace trace = view.trace;
     final int width = trace.model.width;
@@ -362,7 +392,7 @@ final class EmbeddingScene extends LmScene {
         'position embedding · first $inputs of ${trace.model.context} rows',
         through(beat, 11.6, 11.85) * (1 - through(beat, 13.9, 14.15)),
       ),
-      ('x0 · $inputs × $width', through(beat, 14.15, 14.4) * fade.chrome),
+      ('x0 = token + position · $inputs × $width', through(beat, 14.15, 14.4) * fade.chrome),
     ]) {
       if (alpha > 0) {
         drawTag(canvas, view, text, at, alpha: alpha);
@@ -763,13 +793,7 @@ final class EmbeddingScene extends LmScene {
       return 'The position embedding: one trainable row per place, here rows 0–${inputs - 1} '
           'of ${trace.model.context}';
     }
-    if (beat < _x0Caption) {
-      final int times = smaller(view);
-      return times < 2
-          ? "Each place's row is added to its residue's"
-          : "Each place's row is added to its residue's: ${grouped(times)}× smaller, so the numbers move only a little";
-    }
-    return 'x0, ${grouped(inputs)} × $width: the start of the residual stream';
+    return 'Token row + position row, number by number: x0, the start of the residual stream';
   }
 
   @override
@@ -777,11 +801,12 @@ final class EmbeddingScene extends LmScene {
 }
 
 /// What Embedding's last frame leaves out or fades, for the stage that opens
-/// on it: x0's rows and their tiles, which Forward stands up itself, and the
-/// tag. By default, the frame as Embedding draws it.
+/// on it: x0's rows and their tiles, which Forward stands up itself, the
+/// tag, and the marks on the two places the note names, which Scores draws
+/// over its own rows. By default, the frame as Embedding draws it.
 @immutable
 final class EmbeddingFade {
-  const EmbeddingFade({this.rows = true, this.chrome = 1, this.note});
+  const EmbeddingFade({this.rows = true, this.chrome = 1, this.note, this.twins = 1});
 
   /// Whether x's rows and the tiles that label them are drawn.
   final bool rows;
@@ -791,6 +816,9 @@ final class EmbeddingFade {
 
   /// The note over the table, apart from the tag.
   final double? note;
+
+  /// The marks on the two places of one token, which the note names.
+  final double twins;
 }
 
 /// Top to bottom: the note, why; the tag; the matrix, a row a token and then a row a

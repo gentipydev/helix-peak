@@ -135,12 +135,15 @@ final class ScoresScene extends LmScene {
     final ScoresLayout layout = ScoresLayout(size, view);
     final AttentionLayout attention = layout.attention;
     final StreamTable table = attention.table;
-    // Embedding's note goes as this stage's come; its x0 tag stays.
-    const EmbeddingScene().paintEnd(canvas, size, view, EmbeddingFade(rows: false, note: 1 - _span(beat, _noteOut)));
+    // Embedding's note goes as this stage's come, and the marks on the two
+    // places it names with it, drawn over the rows; its x0 tag stays.
+    final double note = 1 - _span(beat, _noteOut);
+    const EmbeddingScene().paintEnd(canvas, size, view, EmbeddingFade(rows: false, note: note, twins: 0));
     table.note(canvas, notes(view), beat);
     _stream(canvas, view, layout, beat);
     final double squeeze = _span(beat, _squeeze);
     table.drawTiles(canvas, dx: attention.slide(squeeze));
+    EmbeddingScene.markTwins(canvas, view, table.layout, note);
     table.outline(
       canvas,
       view.position,

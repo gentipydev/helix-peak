@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 140 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 139 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -278,7 +278,7 @@ the model reads; under it a copy, target y, the answer key, in the same
 columns; and every line of the copy moved one place left, so that each place
 of y holds the token after the same place of x. Only x goes into the model;
 Loss grades its guesses against y. Embedding opens on Shift's last frame, pixel for
-pixel (`ShiftScene.paintEnd`, `ShiftLayout`), and in 16 beats draws the
+pixel (`ShiftScene.paintEnd`, `ShiftLayout`), and in 15 beats draws the
 engine's steps from ids to x0 (`embedding_scene.dart`): the token embedding
 across the whole width, every number written out on a soft tile of its colour
 (`LmInks.cell`) to two places, and only where it fits; each id lighting the

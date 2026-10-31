@@ -141,7 +141,7 @@ out of view is scrolled just far enough to show it whole.
    whole width and every number written out on a soft tile of its colour
    (the run was recorded again 16 wide for it, see above). It opens on
    Shift's last frame, pixel for pixel, and takes the engine's first steps
-   (`HelixPeekLM.forward`) in 16 beats. Over the tag, a note says why each
+   (`HelixPeekLM.forward`) in 15 beats. Over the tag, a note says why each
    part happens, in the quiet ink, its parts fading out and in at the
    caption's turns, while the caption under the canvas says what happens,
    neither repeating the other (the user's ask of 2026-10-30). A live
@@ -172,43 +172,61 @@ out of view is scrolled just far enough to show it whole.
      row it read moves to the place's own row, its numbers going before it
      moves and coming back once it has, so that rows passing one another
      never print over each other; the tile that read it goes up to label the
-     row, turning back into its residue (x embedded, 22 × 16). Slowly, at
+     row, turning back into its residue (input x embedded, 22 × 16, the
+     user's word: input, as Shift names x). Slowly, at
      the user's ask, so that the row of ids is seen to stand up as the column
      of residues: one tile after another, top to bottom, over 2.4 beats, each
      flight 1.4, the peptide's name staying over the row until its last tile
      goes. A copy still waiting on the table's row lies under a place that
      has landed there, its numbers left out. Caption: "Each row is one
-     place: <bos>, then insulin A chain's 21 residues". Once they
+     place: <bos> (<), then insulin A chain's 21 residues" (each special
+     token named with the glyph it is drawn as, here and in Tokenise, the
+     user's ask of 2026-10-31). Once they
      have landed, the first token's two places are outlined in the accent
-     (the two Cs at 6 and 7), the note naming them, and stay outlined
-     through the adding: "The two Cs at places 6 and 7 are the same row:
-     nothing yet says where each is.";
-   - *the position embedding* (11.6–15): each place's own row alone, on
+     (the two Cs at 6 and 7), the note naming them, and stay outlined to
+     the stage's end: "At this stage the model doesn't know order: the two
+     Cs at places 6 and 7 are the same row." (the user's wording, the
+     claim before its example);
+   - *the position embedding* (11.6–13.4): each place's own row alone, on
      its own colour scale, its numbers to two places, the rows labelled by
      place (0–21) instead of residue while they show alone, since a position
      row belongs to its place whatever sits there ("The position embedding:
-     one learned row per place, here rows 0–21 of 51"; note: "where it
-     comes from: a second table in the model, random at first and trained
-     like the token one / why 22 of 51: a row for each place the model can
-     hold, <bos> and up to 50 residues; insulin A chain fills 22", the
-     user's two questions answered where they arise, the model kept at the
-     engine's 51 places by their choice); then added,
-     the residues back ("Each place's row is added to its residue's: 42×
-     smaller, so the numbers move only a little", 5× at step 200); a cell
-     shows one set of numbers at a time. The user asked where the table
-     came from and why the chain stays the same while its numbers change:
-     hence the place labels and the two captions. Note, three lines, the mental model the user asked for in
-     place of "attention alone ignores order": "token row: what the residue
-     is, the same for every C / position row: where it sits, the same at
-     place 7 whatever is there / added: each place carries both, so the Cs
-     at 6 and 7 now differ";
-   - *x0* (15–16): the sum is `x0`, as the engine makes it; the run's
-     stored stream holds it to within its own rounding, and Forward's
-     stand-up turns the one into the other ("x0, 22 × 16: the start of the
-     residual stream"). Note, what the end result is: "x0: insulin A chain
-     as the model takes it in / each row: which residue (token row) plus
-     where (position row) / next: four blocks let each place read the places
-     before it"
+     one trainable row per place, here rows 0–21 of 51", trainable and
+     not learned, since at step 1 nothing is, the user's word of
+     2026-10-31; note: "where it comes from: a second table in the model,
+     random at first and trained like the token one / why 22 of 51: 51 is
+     the model's context length, a row for each place it can hold, <bos>
+     (<) and up to 50 residues; insulin A chain fills 22", the user's two
+     questions answered where they arise, the model kept at the engine's 51
+     places by their choice, and the words "context length" theirs, as the
+     name every reader knows). 51 is the engine's `max_len`, not the
+     longest peptide: copeptin, the longest, fills 40 places, so rows 40–50
+     are never read and never move. The user asked where the table came
+     from and why the chain stays the same while its numbers change: hence
+     the place labels and the two captions;
+   - *the sum, x0* (13.4–15), one screen since 2026-10-31 at the user's
+     word: it had been the adding, then a still beat that only renamed the
+     same numbers, its tag a beat behind them. The position rows are added,
+     the residues back, a cell showing one set of numbers at a time, and the
+     tag turns from the position embedding straight to `x0 = token +
+     position · 22 × 16`, which Scores keeps. The sum is `x0` as the engine
+     makes it; the run's stored stream holds it to within its own rounding.
+     Caption: "Token row + position row, number by number: x0, the start of
+     the residual stream". The two Cs stay outlined to the end, and Scores
+     draws the outlines over its own rows as it opens, fading them with the
+     note. Note, every explanation the user asked for on one screen, a
+     thought a line, each short enough to keep one line on an SE (so an
+     SE's table loses no room, a Pro's one line, 14 pt): "token row: what
+     it is; position row: where it sits / added: each place carries both;
+     the Cs at 6 and 7 now differ / size: 43× smaller than token rows at
+     step 1, 4× by step 200 / why add: side by side would make 32; every
+     layer takes 16 / residual stream: what each block adds to, never
+     replaces". The size line is the run's own, at the step in view against
+     the first or the last (insulin A: 43× at step 1, 10× at 49, 4× by 200;
+     training grows the position rows about twelvefold while the token rows
+     stay near 1). The note's room is the tallest it is at any step, so a
+     change of step never moves the table. "next: two blocks let each place
+     read the places before it" went: Scores' first caption says it
 
    Every number is written to two places. At first the token rows were
    written to one, all that int8 storage (steps of 0.03) allowed; the user

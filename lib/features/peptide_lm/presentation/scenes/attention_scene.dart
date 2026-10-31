@@ -127,7 +127,7 @@ final class AttentionScene extends LmScene {
       canvas,
       size,
       view,
-      EmbeddingFade(rows: false, chrome: 1 - _span(beat, _x0TagOut), note: 0),
+      EmbeddingFade(rows: false, chrome: 1 - _span(beat, _x0TagOut), note: 0, twins: 0),
     );
     table.note(
       canvas,

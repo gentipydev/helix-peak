@@ -10,7 +10,7 @@ import '../../../shared/motion/animation_timeline.dart';
 enum LmStage {
   tokenise('Tokenise', 11),
   shift('Shift', 5),
-  embedding('Embedding', 16),
+  embedding('Embedding', 15),
   scores('Scores', 20),
   attention('Attention', 12),
   feedForward('Feed-forward', 10),

@@ -141,8 +141,25 @@ void main() {
       caption(LmStage.embedding, embedding(12.2)),
       'The position embedding: one trainable row per place, here rows 0–11 of ${trace.model.context}',
     );
-    expect(caption(LmStage.embedding, embedding(14)), startsWith("Each place's row is added to its residue's"));
-    expect(caption(LmStage.embedding, embedding(15.5)), 'x0, 12 × $width: the start of the residual stream');
+    expect(
+      caption(LmStage.embedding, embedding(14)),
+      'Token row + position row, number by number: x0, the start of the residual stream',
+    );
+    expect(caption(LmStage.embedding, embedding(14.9)), caption(LmStage.embedding, embedding(14)));
+    // The sum and why, in one note to the stage's end, from the run's own
+    // numbers: the position rows' size against the token rows' at this step
+    // and how training moves it.
+    expect(
+      EmbeddingScene.notes(last).last.$3.split('\n'),
+      <String>[
+        'token row: what it is; position row: where it sits',
+        'added: each place carries both; the Cs at 6 and 7 now differ',
+        'size: ${EmbeddingScene.smaller(last)}× smaller than token rows at step ${last.step}, '
+            '${EmbeddingScene.smaller(last, trace.checkpoints.first)}× at step 1',
+        'why add: side by side would make ${2 * width}; every layer takes $width',
+        'residual stream: what each block adds to, never replaces',
+      ],
+    );
     // Scores, block 1's attention up to its shares, at the place in focus
     // (V3), beat by beat.
     final LmView last3 = last;
