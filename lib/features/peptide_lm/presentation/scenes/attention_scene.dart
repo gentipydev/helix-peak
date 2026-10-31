@@ -6,6 +6,7 @@ import '../../../../shared/format.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
 import '../lm_format.dart';
+import '../lm_inks.dart';
 import 'embedding_scene.dart';
 import 'lm_drawing.dart';
 import 'lm_scene.dart';
@@ -23,9 +24,13 @@ typedef HeadTimes = ({double keys, double scan, double soft, double shares, doub
 /// place's value, and arcs carry each share of each value into the head's
 /// answer. The other heads follow quicker, each its own keys, query, scores
 /// and shares; their answers, side by side, are mixed back to the stream's
-/// width. Every place does the same at once: a map a head, a row a place.
-/// Last, the table widens again: what attention adds to each place, alone,
-/// and then added, x0 + attention, the first point of the stream after x0.
+/// width. Every place does the same at once: the table narrows to its token
+/// column and head 1's map takes the width beside it, a row a place, the
+/// tiles naming its rows, and under it its columns; the place in focus's row
+/// fills first, with the shares Scores found, then every other row. Head 2's
+/// map is not drawn. Last, the table widens again: what attention adds to
+/// each place, alone, and then added, x0 + attention, the first point of the
+/// stream after x0.
 ///
 /// Every number is the run's: the scores, the shares, and each point of the
 /// stream, whole.
@@ -41,19 +46,30 @@ final class AttentionScene extends LmScene {
   // share what is left before the join.
   static const double _firstHeadTo = 1.6;
   static const double _joinFrom = 4.4;
-  static const double _mapsFrom = 5.2;
-  static const double _widenFrom = 6.6;
-  static const double _widenTo = 7.4;
+  static const double _mapFrom = 5.2;
+  static const double _widenFrom = 8.6;
+  static const double _widenTo = 9.4;
 
   // Scores' bars of head 1's shares go as its arcs come.
   static const (double, double) _barsOut = (0.0, 0.6);
 
+  // Head 1's map. x0's tag goes, the table narrows to its token column and
+  // the map comes in riding its rows' edge, as empty slots with the places
+  // after each row hatched; its tag comes. The place in focus's row fills,
+  // a cell at a time, then every other row, top to bottom; then it holds.
+  static const (double, double) _x0TagOut = (5.2, 5.4);
+  static const (double, double) _collapse = (5.25, 5.85);
+  static const (double, double) _mapIn = (5.35, 5.7);
+  static const (double, double) _mapTagIn = (5.6, 5.8);
+  static const (double, double) _focusRow = (5.9, 6.7);
+  static const (double, double) _rows = (6.8, 7.6);
+
   // What attention added, alone on its own scale, then the sums.
-  static const (double, double) _alone = (6.6, 7.2);
-  static const (double, double) _gainWritten = (7.4, 7.6);
-  static const (double, double) _gainUnwritten = (8.0, 8.2);
-  static const (double, double) _add = (8.1, 8.5);
-  static const (double, double) _sumsWritten = (8.3, 8.5);
+  static const (double, double) _alone = (8.6, 9.2);
+  static const (double, double) _gainWritten = (9.4, 9.6);
+  static const (double, double) _gainUnwritten = (10.0, 10.2);
+  static const (double, double) _add = (10.1, 10.5);
+  static const (double, double) _sumsWritten = (10.3, 10.5);
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -100,12 +116,12 @@ final class AttentionScene extends LmScene {
     final AttentionLayout layout = AttentionLayout(size, view);
     final StreamTable table = layout.table;
     final TrainingTrace trace = view.trace;
-    // Embedding's x0 tag, going as the table widens.
+    // Embedding's x0 tag, going as the table narrows to its token column.
     const EmbeddingScene().paintEnd(
       canvas,
       size,
       view,
-      EmbeddingFade(rows: false, chrome: 1 - through(beat, _widenFrom - 0.1, _widenFrom + 0.1), note: 0),
+      EmbeddingFade(rows: false, chrome: 1 - _span(beat, _x0TagOut), note: 0),
     );
     table.note(
       canvas,
@@ -114,6 +130,12 @@ final class AttentionScene extends LmScene {
     );
     final int width = trace.model.width;
     final int n = view.focus.inputs;
+    // The map's name, gone before the next is written in its place.
+    table.tag(
+      canvas,
+      'head 1 · shares in % · $n × $n',
+      _span(beat, _mapTagIn) * (1 - through(beat, _widenFrom - 0.1, _widenFrom + 0.1)),
+    );
     table.tag(
       canvas,
       'what attention adds · $n × $width',
@@ -121,34 +143,59 @@ final class AttentionScene extends LmScene {
     );
     table.tag(canvas, 'x0 + attention · $n × $width', through(beat, _gainUnwritten.$2, _gainUnwritten.$2 + 0.2));
     _stream(canvas, size, view, layout, beat);
-    table.drawTiles(canvas, dx: layout.slide(_squeezeAt(beat)));
-    table.outline(
+    final double squeeze = _squeezeAt(beat);
+    table.drawTiles(canvas, dx: layout.slide(squeeze));
+    // The row in focus, outlined from its tile to its row's end; while the
+    // map shows, over it, across the places it reads.
+    final bool overMap = _mapShown(beat) > 0;
+    void outline() => table.outline(
       canvas,
       view.position,
-      layout.stream(view.position, _squeezeAt(beat)).right,
+      _outlineRight(layout, view.position, beat),
       1,
-      dx: layout.slide(_squeezeAt(beat)),
+      dx: layout.slide(squeeze),
     );
+    if (!overMap) {
+      outline();
+    }
     final int heads = trace.model.heads;
     for (int h = 0; h < heads; h++) {
       _head(canvas, view, layout, beat, h);
     }
     _answers(canvas, view, layout, beat);
-    _maps(canvas, view, layout, beat);
+    _map(canvas, view, layout, beat);
+    if (overMap) {
+      outline();
+    }
   }
 
   /// How narrow the table is at [beat]: 1 a strip a place, as Scores left
   /// it, 0 written out again.
   static double _squeezeAt(double beat) => 1 - through(beat, _widenFrom, _widenTo);
 
+  /// Where the outline of the row in focus ends at [beat]: at its row's end;
+  /// from just before its row of the map fills, at the place it reads last,
+  /// itself, until the row widens past it.
+  static double _outlineRight(AttentionLayout layout, int focus, double beat) {
+    final double row = layout.stream(focus, _squeezeAt(beat), _span(beat, _collapse)).right;
+    final double across = through(beat, _focusRow.$1 - 0.25, _focusRow.$1);
+    if (across <= 0) {
+      return row;
+    }
+    final double reads = layout.mapCell(focus, focus).right;
+    return math.max(row, layout.mapLeft + (reads - layout.mapLeft) * across);
+  }
+
   // ---------------------------------------------------------------- stream
 
-  /// Each place's row: x0, its numbers going as it narrows; then, wide again,
-  /// what attention adds to it, alone on its own scale, and the sum.
+  /// Each place's row: x0, its numbers going as it narrows, then going into
+  /// its tile while the map shows; then, wide again, out of its tile, what
+  /// attention adds to it, alone on its own scale, and the sum.
   void _stream(Canvas canvas, Size size, LmView view, AttentionLayout layout, double beat) {
     final StreamTable table = layout.table;
     final int n = view.focus.inputs;
     final double squeeze = _squeezeAt(beat);
+    final double collapse = _span(beat, _collapse);
     final double alone = _span(beat, _alone);
     final double add = _span(beat, _add);
     final double scale = table.scale;
@@ -156,7 +203,10 @@ final class AttentionScene extends LmScene {
     final double gainText = _span(beat, _gainWritten) * (1 - _span(beat, _gainUnwritten));
     final double sumText = _span(beat, _sumsWritten);
     for (int i = 0; i < n; i++) {
-      final Rect rect = layout.stream(i, squeeze);
+      final Rect rect = layout.stream(i, squeeze, collapse);
+      if (rect.width < 1) {
+        continue;
+      }
       final List<double> x0 = table.values(0, i);
       if (alone <= 0) {
         table.drawRow(canvas, rect, x0, scale: scale, text: 0);
@@ -219,19 +269,30 @@ final class AttentionScene extends LmScene {
   /// What the place in focus reads of each place up to its own in head [h]:
   /// softmax of its scores, worked out from the scores as they are kept,
   /// whole.
-  static List<double> shares(LmView view, int h) {
-    List<double> make() {
-      final TrainingTrace trace = view.trace;
-      final List<double> scores = <double>[
-        for (int j = 0; j <= view.position; j++) trace.score(view.checkpoint, block, h, view.peptide, view.position, j),
-      ];
-      final double top = scores.reduce(math.max);
-      final List<double> e = <double>[for (final double s in scores) math.exp(s - top)];
-      final double sum = e.reduce((double a, double b) => a + b);
-      return <double>[for (final double x in e) x / sum];
-    }
+  static List<double> shares(LmView view, int h) => view.kit.memo<List<double>>(
+    ('attention-shares', view.step, view.peptide, block, h, view.position),
+    () => _softmax(view, h, view.position),
+  );
 
-    return view.kit.memo<List<double>>(('attention-shares', view.step, view.peptide, block, h, view.position), make);
+  /// Every place's shares in head [h], a row a place, each adding to one:
+  /// what its map draws. The place in focus's row is [shares], number for
+  /// number.
+  static List<List<double>> allShares(LmView view, int h) => view.kit.memo<List<List<double>>>(
+    ('attention-map', view.step, view.peptide, block, h),
+    () => <List<double>>[for (int i = 0; i < view.focus.inputs; i++) _softmax(view, h, i)],
+  );
+
+  /// What place [i] reads of each place up to its own in head [h]: softmax
+  /// of its scores as they are kept.
+  static List<double> _softmax(LmView view, int h, int i) {
+    final TrainingTrace trace = view.trace;
+    final List<double> scores = <double>[
+      for (int j = 0; j <= i; j++) trace.score(view.checkpoint, block, h, view.peptide, i, j),
+    ];
+    final double top = scores.reduce(math.max);
+    final List<double> e = <double>[for (final double s in scores) math.exp(s - top)];
+    final double sum = e.reduce((double a, double b) => a + b);
+    return <double>[for (final double x in e) x / sum];
   }
 
   /// Place [key]'s share of what the place in focus reads, in head [h].
@@ -528,7 +589,7 @@ final class AttentionScene extends LmScene {
     final TrainingTrace trace = view.trace;
     final int heads = trace.model.heads;
     final int focus = view.position;
-    final double gone = 1 - through(beat, _mapsFrom, _mapsFrom + 0.25);
+    final double gone = 1 - through(beat, _mapFrom, _mapFrom + 0.25);
     if (gone <= 0) {
       return;
     }
@@ -611,107 +672,135 @@ final class AttentionScene extends LmScene {
     }
   }
 
-  // ------------------------------------------------------------------- maps
+  // -------------------------------------------------------------------- map
 
-  /// How far the maps have come: in, built a row at a time, and gone as the
-  /// table widens.
-  static double _mapsShown(double beat) =>
-      through(beat, _mapsFrom, _mapsFrom + 0.25) * (1 - through(beat, _widenFrom, _widenFrom + 0.25));
+  /// The head whose map is drawn: the first, whose reading Scores worked
+  /// out. The second's is not drawn.
+  static const int mapHead = 0;
 
-  /// Every place's reading at once: a map a head, a row a place, its shares
-  /// of the places up to its own; above the diagonal, the places after it,
-  /// struck through.
-  void _maps(Canvas canvas, LmView view, AttentionLayout layout, double beat) {
-    final double shown = _mapsShown(beat);
+  /// How far head 1's map has come: in with its slots as the table narrows,
+  /// and gone as the table widens again.
+  static double _mapShown(double beat) =>
+      _span(beat, _mapIn) * (1 - through(beat, _widenFrom, _widenFrom + 0.25));
+
+  /// How far the map's cell at row [i], column [j] has filled at [beat], of
+  /// [n] places, [focus] in focus: the row in focus first, a cell at a time
+  /// from `<bos>`; then every other row, top to bottom, a row at a time.
+  static double mapFilled(int i, int j, int focus, int n, double beat) {
+    if (i == focus) {
+      const double each = 0.25;
+      final double start = _focusRow.$1 + (focus < 1 ? 0 : (_focusRow.$2 - _focusRow.$1 - each) * j / focus);
+      return through(beat, start, start + each);
+    }
+    const double each = 0.2;
+    final int rank = i < focus ? i : i - 1;
+    final double start = _rows.$1 + (n < 3 ? 0 : (_rows.$2 - _rows.$1 - each) * rank / (n - 2));
+    return through(beat, start, start + each);
+  }
+
+  /// Head 1's map, every place's reading at once, on the table's rows: a row
+  /// a place, the tile at its left naming it; its shares of the places up to
+  /// its own, each on a soft tile of its colour, its percentage written on it
+  /// where it fits; the places after it struck through, never read; and the
+  /// places read named under the columns. It comes in as empty slots, its
+  /// left edge riding the rows as they go into their tiles.
+  void _map(Canvas canvas, LmView view, AttentionLayout layout, double beat) {
+    final double shown = _mapShown(beat);
     if (shown <= 0) {
       return;
     }
     final TrainingTrace trace = view.trace;
     final int n = view.focus.inputs;
-    final double built = through(beat, _mapsFrom + 0.2, _mapsFrom + 1.0) * n;
-    for (int h = 0; h < trace.model.heads; h++) {
-      final Rect square = layout.map(h);
-      canvas.drawRect(square, Paint()..color = view.inks.card.withValues(alpha: shown));
-      final GridMesh map = GridMesh(square, n, n);
-      for (int i = 0; i < n; i++) {
-        final double row = (built - i).clamp(0.0, 1.0) * shown;
-        for (int j = 0; j < n; j++) {
-          if (j > i || row <= 0) {
-            map.cell(j, i, view.inks.card.withValues(alpha: shown));
-            continue;
-          }
-          final double w = trace.attention(view.checkpoint, block, h, view.peptide, i, j);
-          map.cell(j, i, Color.lerp(view.inks.card, view.inks.signal, math.sqrt(w) * row)!.withValues(alpha: shown));
+    final int focus = view.position;
+    final double collapse = _span(beat, _collapse);
+    final List<List<double>> rows = allShares(view, mapHead);
+    final TextStyle? numbers = layout.mapNumbers;
+    _mapHatch(canvas, view, layout, collapse, shown);
+    final Paint slot = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.8;
+    final Paint fill = Paint();
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j <= i; j++) {
+        final Rect cell = layout.mapCell(i, j, collapse).deflate(EmbeddingLayout.gap);
+        // The tables' corners, less on a small cell, so it stays a tile.
+        final RRect shape = RRect.fromRectAndRadius(
+          cell,
+          Radius.circular(math.min(EmbeddingLayout.radius, cell.shortestSide * 0.2)),
+        );
+        final double filled = mapFilled(i, j, focus, n, beat);
+        if (filled < 1) {
+          canvas.drawRRect(shape, slot..color = view.inks.quiet.withValues(alpha: 0.6 * shown * (1 - filled)));
+        }
+        if (filled <= 0) {
+          continue;
+        }
+        final double share = rows[i][j];
+        // The share's ramp, softened as the tables' tiles are, so the number
+        // on it reads.
+        final Color colour = Color.lerp(view.inks.zero, view.inks.share(share, view.inks.signal), LmInks.soft)!;
+        canvas.drawRRect(shape, fill..color = Color.lerp(view.inks.ground, colour, filled * shown)!);
+        if (numbers != null) {
+          view.kit.draw(
+            canvas,
+            percentNumber(share),
+            numbers.copyWith(color: numbers.color!.withValues(alpha: (filled * shown * 8).round() / 8)),
+            cell.center,
+            anchor: const Offset(0.5, 0.5),
+          );
         }
       }
-      map.draw(canvas);
-      canvas.save();
-      canvas.clipPath(Path()
-        ..moveTo(square.left + square.width / n, square.top)
-        ..lineTo(square.right, square.top)
-        ..lineTo(square.right, square.bottom - square.height / n)
-        ..close());
-      final Path hatch = Path();
-      for (double d = 0; d < square.width * 2; d += 6) {
-        hatch
-          ..moveTo(square.left + d, square.top)
-          ..lineTo(square.left + d - square.width, square.top + square.width);
-      }
-      canvas.drawPath(
-        hatch,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 0.6
-          ..color = view.inks.rule.withValues(alpha: shown),
-      );
-      canvas.restore();
-      final double rowHeight = square.height / n;
-      canvas.drawRect(
-        Rect.fromLTWH(
-          square.left,
-          square.top + view.position * rowHeight,
-          (view.position + 1) * square.width / n,
-          rowHeight,
-        ),
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.2
-          ..color = view.inks.signal.withValues(alpha: shown * (built > view.position ? 1 : 0)),
-      );
-      final bool chosen = view.head == h;
-      canvas.drawRect(
-        square.inflate(1.5),
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = chosen ? 1.6 : 0.8
-          ..color = (chosen ? view.inks.signal : view.inks.rule).withValues(alpha: shown),
-      );
-      view.kit.draw(
-        canvas,
-        'head ${h + 1}',
-        inked(view.kit.sans, 9, chosen ? view.inks.signal : view.inks.quiet, alpha: shown),
-        Offset(square.left, square.bottom + 3),
-      );
     }
+    // The places read, a tile under each column.
+    for (int j = 0; j < n; j++) {
+      drawToken(canvas, view, layout.mapTile(j, collapse), trace.inputAt(view.peptide, j), alpha: shown);
+    }
+  }
+
+  /// The places after each row's own, which it never reads: whole cells,
+  /// struck through as Scores strikes them.
+  static void _mapHatch(Canvas canvas, LmView view, AttentionLayout layout, double collapse, double alpha) {
+    final int n = layout.places;
+    if (n < 2 || alpha <= 0) {
+      return;
+    }
+    final Rect first = layout.mapCell(0, 0, collapse);
+    final double column = first.width;
+    final double pitch = first.height;
+    final Rect area = Rect.fromLTRB(first.left, first.top, layout.mapCell(0, n - 1, collapse).right, first.top + n * pitch);
+    // Down the steps: each row's first cell after its own.
+    final Path steps = Path()..moveTo(first.right, first.top);
+    for (int i = 0; i < n - 1; i++) {
+      final double x = first.left + (i + 1) * column;
+      final double y = first.top + (i + 1) * pitch;
+      steps
+        ..lineTo(x, y)
+        ..lineTo(x + column, y);
+    }
+    steps
+      ..lineTo(area.right, area.top)
+      ..close();
+    canvas.save();
+    canvas.clipPath(steps);
+    final Path hatch = Path();
+    for (double d = -area.height; d < area.width; d += 6) {
+      hatch
+        ..moveTo(area.left + d, area.bottom)
+        ..lineTo(area.left + d + area.height, area.top);
+    }
+    canvas.drawPath(
+      hatch,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.6
+        ..color = view.inks.rule.withValues(alpha: alpha),
+    );
+    canvas.restore();
   }
 
   // ------------------------------------------------------------------- taps
 
-  @override
-  LmHit? hitAt(Size size, LmView view, Offset at, TrainingFrame frame) {
-    final double beat = frame.local * _beats;
-    final AttentionLayout layout = AttentionLayout(size, view);
-    if (_mapsShown(beat) > 0.5) {
-      for (int h = 0; h < view.trace.model.heads; h++) {
-        if (layout.map(h).inflate(6).contains(at)) {
-          return FocusHead(view.head == h ? null : h);
-        }
-      }
-    }
-    final int? i = layout.table.placeAt(at);
-    return i == null ? null : FocusPosition(i);
-  }
-
+  /// A tap on a row, or on its row of the map, puts its place in focus.
   @override
   LmHit? hit(Size size, LmView view, Offset at) {
     final int? i = AttentionLayout(size, view).table.placeAt(at);
@@ -756,15 +845,28 @@ final class AttentionScene extends LmScene {
         ),
       (
         _joinFrom,
-        _mapsFrom,
+        _mapFrom,
         'the answers side by side, then mixed by one more learned matrix\n'
             "back to the stream's ${trace.model.width} numbers",
       ),
+      // How to read the map, in Scores' words and the values': then what it
+      // says of every row, and why half of it is never read: Shift's y.
       (
-        _mapsFrom,
+        _mapFrom,
+        _rows.$1,
+        "a row: one place's query on each key up to its own, as shares\n"
+            "a column: one place's key and value, read by those after it",
+      ),
+      (
+        _rows.$1,
         _widenFrom,
-        "every place reads at once; a map's row is one place's shares\n"
-            'the hatched half: the places after it, never read',
+        'each row adds to 100%: the first places share it among few\n'
+            'hatched: the places after it, never read; the next is its answer'
+            '${switch (heads) {
+              1 => '',
+              2 => '\nhead 2 reads the same way, with a map of its own',
+              _ => '\nthe other ${spelled(heads - 1)} heads read the same way, each with its own map',
+            }}',
       ),
       (
         _widenFrom,
@@ -791,14 +893,17 @@ final class AttentionScene extends LmScene {
       }
       return "Head 1 hands $focus its shares of each place's value: $size numbers";
     }
-    if (beat < _mapsFrom) {
+    if (beat < _mapFrom) {
       return heads > 1
           ? "The ${spelled(heads)} heads' ${List<String>.filled(heads, '$size').join(' + ')} numbers, "
                 'mixed back to $width: what $focus read'
           : 'Mixed back to $width: what $focus read';
     }
+    if (beat < _rows.$1) {
+      return "Head 1's map: $focus's row first, its shares from Scores";
+    }
     if (beat < _widenFrom) {
-      return 'Every place at once: a map row each, nothing above the diagonal';
+      return 'Every place at once, its own row: nothing above the diagonal';
     }
     if (beat < _gainUnwritten.$1) {
       return 'What attention adds to each place: ${grouped(n)} rows of $width';
@@ -813,8 +918,9 @@ final class AttentionScene extends LmScene {
 /// Attention's canvas, on Embedding's: the rows where Embedding left them,
 /// the table narrowed to a strip a place at the left; beside it each place's
 /// score or share, its key or value; the arcs; and, on the row in focus, a
-/// slot for each head's answer, at the right. The maps take the room right
-/// of the strips.
+/// slot for each head's answer, at the right. Head 1's map lies on the same
+/// rows, once the strips have gone into their tiles: from where the strips
+/// started to the canvas's side, the places read named under it.
 final class AttentionLayout {
   AttentionLayout(this.size, LmView view) : table = StreamTable(size, view) {
     final EmbeddingLayout e = table.layout;
@@ -875,8 +981,11 @@ final class AttentionLayout {
   /// The size scores and shares are written at.
   double get textSize => (table.layout.pitch * 0.6).clamp(6.5, 9.0);
 
-  /// Place [i]'s row, [squeeze] of the way to the narrowed strip.
-  Rect stream(int i, double squeeze) => table.squeezed(i, narrow, squeeze).shift(Offset(slide(squeeze), 0));
+  /// Place [i]'s row, [squeeze] of the way to the narrowed strip, and that
+  /// strip [collapse] of the way into its tile, as it goes while the map
+  /// shows.
+  Rect stream(int i, double squeeze, [double collapse = 0]) =>
+      table.squeezed(i, narrow * (1 - collapse), squeeze).shift(Offset(slide(squeeze), 0));
 
   /// How far the tiles and the rows have slid left at [squeeze]: over the
   /// ids' gutter, as far as the canvas's side, once narrowed.
@@ -924,12 +1033,50 @@ final class AttentionLayout {
     );
   }
 
-  /// Head [h]'s map, the heads' maps stacked in the room right of the strips.
-  Rect map(int h) {
-    final double top = table.row(0).top;
-    final double bottom = table.row(places - 1).bottom;
-    const double label = 14;
-    final double side = math.min(table.layout.right - kvLeft, (bottom - top - heads * label) / heads);
-    return Rect.fromLTWH(kvLeft, top + h * (side + label), side, side);
+  /// Where head 1's map starts once the strips have gone into their tiles:
+  /// where the strips started, right of the tiles slid over the gutter. It
+  /// runs to the canvas's side, on the table's rows.
+  late final double mapLeft = table.layout.cellsLeft - table.gutter;
+
+  /// The map's left edge [collapse] of the way in: right of the narrowed
+  /// strips, where the scores were, riding their edge as they go.
+  double mapLeftAt(double collapse) => scoreLeft + (mapLeft - scoreLeft) * collapse;
+
+  /// How wide a column of the map is, [collapse] of the way in.
+  double mapColumn(double collapse) => (table.layout.right - mapLeftAt(collapse)) / places;
+
+  /// The map's cell at row [i], column [j], [collapse] of the way in: what
+  /// place [i] reads of place [j], on the table's row [i].
+  Rect mapCell(int i, int j, [double collapse = 1]) {
+    final Rect row = table.row(i);
+    final double column = mapColumn(collapse);
+    final double left = mapLeftAt(collapse) + j * column;
+    return Rect.fromLTRB(left, row.top, left + column, row.bottom);
+  }
+
+  /// The tile naming the map's column [j], the place read, under its last
+  /// row, as the token column names the rows: as tall as theirs, so it
+  /// carries its letter where they do, and no wider than its column.
+  Rect mapTile(int j, [double collapse = 1]) {
+    final Rect cell = mapCell(places - 1, j, collapse);
+    final double side = table.layout.chipSide;
+    final double wide = math.max(1.0, math.min(side, cell.width - 1));
+    return Rect.fromLTWH(cell.center.dx - wide / 2, cell.bottom + 4, wide, side);
+  }
+
+  /// What the map's shares are written in: as large as the widest, `100`,
+  /// fits a cell, up to 9 points and the rows' own number size; null where
+  /// that is under the least a number is written, and the map is drawn in
+  /// its colours alone.
+  late final TextStyle? mapNumbers = _mapNumbers();
+
+  TextStyle? _mapNumbers() {
+    final LmView view = table.view;
+    TextStyle at(double points) => inked(view.kit.mono, points, view.inks.ink).copyWith(letterSpacing: 0);
+    final double perPoint = view.kit.layout('100', at(10)).width / 10;
+    final double room = mapColumn(1) - 2 * EmbeddingLayout.gap - 2;
+    // Held to the half point below, so a number is never wider than drawn.
+    final double points = (math.min(9, math.min(table.layout.pitch * 0.62, room / perPoint)) * 2).floorToDouble() / 2;
+    return points < EmbeddingLayout.leastNumber ? null : at(points);
   }
 }

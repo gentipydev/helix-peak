@@ -5,9 +5,16 @@ import '../domain/training_trace.dart';
 /// A loss, in nats, to three places: `3.145`, `0.068`.
 String nats(double value) => value.toStringAsFixed(3);
 
-/// A probability as a percentage, whole above ten and to a tenth below.
-String percent(double p) =>
-    p >= 0.1 ? '${(p * 100).round()}%' : '${(p * 100).toStringAsFixed(1)}%';
+/// A probability as a percentage, whole from ten and to a tenth below.
+String percent(double p) => '${percentNumber(p)}%';
+
+/// A probability as [percent] writes it, without its sign: where a heading
+/// already says the numbers are percentages. A share that rounds to ten is
+/// ten, `10`, never `10.0`.
+String percentNumber(double p) {
+  final String tenth = (p * 100).toStringAsFixed(1);
+  return p >= 0.1 || double.parse(tenth) >= 10 ? '${(p * 100).round()}' : tenth;
+}
 
 const String _minus = '−';
 

@@ -287,17 +287,46 @@ out of view is scrolled just far enough to show it whole.
 
    The shares here, and in Attention's captions, are softmax of the kept
    scores, whole (the u1 maps differed by up to 0.5 points: S9 read 24%).
-5. **Attention.** It opens on Scores' last frame, in 10 beats:
+5. **Attention.** It opens on Scores' last frame, in 12 beats:
    - head 1's scores give way to its shares, its keys turn into values, and
      arcs carry each share of each value into the head's eight-number answer,
      values riding them, as Scores' bars go;
    - head 2 reads in full, quicker (C11 reads C11 29%, C6 27%, C7 26% at step
      200);
    - the answers, side by side, are mixed back to 16 ("what C11 read");
-   - every place at once: the two heads' maps, a row a place, built top to
-     bottom;
-   - the table widens again to what attention adds to each place, alone on its
-     own scale, then the sums: x0 + attention.
+   - every place at once: head 1's map, as large as the canvas allows (beats
+     5.2–8.6). The two heads' maps stacked beside the table left each half the
+     height, rows of 10 pt on a Pro Max and 6.6 at 375 wide, out of line with
+     the table's rows; at the user's ask (2026-10-31) only head 1's is drawn.
+     - The x0 rows go into their tiles, and the token column names the map's
+       rows: the map lies on the table's own rows (22, 20 and 14 pt on the
+       three phone canvases), from where the rows started to the canvas's
+       side, riding their edge as they go. Cells are about 19 × 22 pt on a
+       Pro Max (16 × 14 at 375).
+     - The user's four choices: each share on a soft tile of the share ramp
+       (`LmInks.share`, softened as the tables' tiles are) with its
+       percentage written where it fits, the tables' rule (insulin A and
+       relaxin A; 30–40 places, colours alone); the places read named by
+       tiles under the columns; the map comes in as empty slots, the places
+       after each row hatched as Scores strikes them, and the row in focus
+       fills first, cell by cell from `<bos>`, with the shares Scores found
+       (the same softmax, number for number), then every other row, top to
+       bottom; a tap on a row of it puts that place in focus (no tap picks a
+       head now).
+     - The notes read the map in the earlier stages' words: a row is one
+       place's query on each key up to its own, as shares; a column, one
+       place's key and value; each row adds to 100%, the first places sharing
+       it among few (why the top left is brightest at step 1); the hatched
+       places are never read, as the next one is the answer (Shift's y);
+       head 2 has a map of its own.
+     - Head 1's map at step 1 is diffuse (C11 reads S9 23%); by step 200 it
+       is sharp (L13 reads Q5 94%, Q5 reads E4 92%, the G1 and Q5 columns
+       bright): over the six peptides the mean top share goes from 19% to
+       44%, and rows giving one place half or more from 10 to 59 of 174. A
+       "sharpest row" caption was weighed and left out: at step 1 it always
+       names row 1's two-way split.
+   - the table widens again, out of its tiles, to what attention adds to each
+     place, alone on its own scale, then the sums: x0 + attention.
 
    Over it a note says why each part happens.
 6. **Feed-forward.** Block 1's feed-forward, in 10 beats:
@@ -315,8 +344,9 @@ out of view is scrolled just far enough to show it whole.
    stream (x0, then after each block's attention and feed-forward), flowing
    left to right.
    - Lines: in an attention, from every place to each place after it, as
-     strong as its share (the heads' mean, or the head in focus), the place
-     in focus's bright; in a feed-forward, each place's own line.
+     strong as its share (the heads' mean; no tap picks a head since
+     2026-10-31), the place in focus's bright; in a feed-forward, each place's
+     own line.
    - Nodes: each is the place **read out early**, the token the output layer
      would give it if the model stopped there, a probe the user chose,
      labelled as one in the note and the About sheet. Each is faded by its

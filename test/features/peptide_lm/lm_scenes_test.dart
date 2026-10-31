@@ -18,6 +18,7 @@ import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_drawing.dar
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_scene_painter.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/scores_scene.dart';
+import 'package:helixpeek/features/peptide_lm/presentation/scenes/stream_table.dart';
 
 import 'support/toy_trace.dart';
 
@@ -250,8 +251,8 @@ void main() {
     expect(caption(LmStage.scores, scores(17.8)), "V3's query against each key up to its own: 4 scores");
     expect(caption(LmStage.scores, scores(19)), 'Softmax makes the scores shares of one: ${head(0)}');
     expect(caption(LmStage.scores, 0.99), 'Softmax makes the scores shares of one: ${head(0)}');
-    // Attention, after Scores: head 1's values, head 2, the join, the maps,
-    // what attention adds.
+    // Attention, after Scores: head 1's values, head 2, the join, head 1's
+    // map (the row in focus first, then every row), what attention adds.
     double attention(double beat) => beat / LmStage.attention.beats;
     expect(caption(LmStage.attention, attention(0.5)), "Head 1 hands V3 its shares of each place's value: $size numbers");
     expect(caption(LmStage.attention, attention(2.5)), 'Head 2, its own query and keys: V3 reads ${head(1)}');
@@ -259,11 +260,12 @@ void main() {
       caption(LmStage.attention, attention(4.8)),
       "The two heads' $size + $size numbers, mixed back to $width: what V3 read",
     );
+    expect(caption(LmStage.attention, attention(5.6)), "Head 1's map: V3's row first, its shares from Scores");
     expect(
-      caption(LmStage.attention, attention(5.6)),
-      'Every place at once: a map row each, nothing above the diagonal',
+      caption(LmStage.attention, attention(7.2)),
+      'Every place at once, its own row: nothing above the diagonal',
     );
-    expect(caption(LmStage.attention, attention(7.6)), 'What attention adds to each place: 12 rows of $width');
+    expect(caption(LmStage.attention, attention(9.6)), 'What attention adds to each place: 12 rows of $width');
     expect(caption(LmStage.attention, 0.99), 'Added: x0 + attention, 12 × $width');
     // Feed-forward, block 1's, at V3.
     double fed(double beat) => beat / LmStage.feedForward.beats;
@@ -408,18 +410,18 @@ void main() {
       isNull,
     );
 
-    // Attention's maps: a head's map shows it alone in Forward; again, both.
-    final TrainingFrame maps = timeline.frameIn(LmStage.attention, 6 / LmStage.attention.beats);
+    // Attention's map lies on the table's rows: a tap on a row of it, on a
+    // share it reads or on a place it never reads, puts that row's place in
+    // focus.
+    final TrainingFrame map = timeline.frameIn(LmStage.attention, 8 / LmStage.attention.beats);
     final AttentionLayout attention = AttentionLayout(size, scene);
-    expect(
-      (sceneOf(LmStage.attention).hitAt(size, scene, attention.map(1).center, maps)! as FocusHead).head,
-      1,
-    );
-    final LmView alone = view(inks, kit, head: 1);
-    expect(
-      (sceneOf(LmStage.attention).hitAt(size, alone, attention.map(1).center, maps)! as FocusHead).head,
-      isNull,
-    );
+    final int places = trace.peptides.first.inputs;
+    for (int i = 0; i < places; i++) {
+      for (final int j in <int>[0, places - 1]) {
+        final LmHit? hit = sceneOf(LmStage.attention).hitAt(size, scene, attention.mapCell(i, j).center, map);
+        expect((hit! as FocusPosition).position, i, reason: 'row $i, column $j');
+      }
+    }
   });
 
   testWidgets('each stage opens on the last frame of the one before, pixel for pixel', (
@@ -506,10 +508,95 @@ void main() {
     expect(await inked(7.3), greaterThan(0));
   });
 
+  testWidgets("Attention lays head 1's map on the table's rows, from the token column to the canvas's side", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    final LmView scene = view(inks, kit);
+    final int n = trace.peptides.first.inputs;
+    for (final Size size in <Size>[const Size(440, 697), const Size(402, 619), const Size(375, 476)]) {
+      final AttentionLayout layout = AttentionLayout(size, scene);
+      final StreamTable table = layout.table;
+      for (int i = 0; i < n; i++) {
+        // Each row of the map is its place's row of the table, the tile at
+        // its left naming it.
+        for (final int j in <int>[0, n - 1]) {
+          expect(layout.mapCell(i, j).top, table.row(i).top, reason: '$size row $i');
+          expect(layout.mapCell(i, j).bottom, table.row(i).bottom, reason: '$size row $i');
+        }
+        // From where the narrowed rows started, right of their tiles, to the
+        // canvas's side.
+        expect(layout.mapCell(i, 0).left, closeTo(layout.mapLeft, 1e-9));
+        expect(layout.mapCell(i, n - 1).right, closeTo(table.layout.right, 1e-9));
+      }
+      expect(layout.mapLeft, layout.stream(0, 1).left);
+      expect(layout.mapLeft, greaterThan(table.layout.label(0).right + layout.slide(1)));
+      // As the rows go into their tiles, the map rides their edge, never over
+      // them.
+      for (final double c in <double>[0, 0.25, 0.5, 0.75, 1]) {
+        expect(layout.mapLeftAt(c), greaterThanOrEqualTo(layout.stream(0, 1, c).right - 1e-9), reason: '$size $c');
+      }
+      expect(layout.stream(0, 1, 1).width, 0);
+      // The places read: a tile under each column, under the last row, on the
+      // canvas.
+      for (int j = 0; j < n; j++) {
+        final Rect tile = layout.mapTile(j);
+        expect(tile.center.dx, closeTo(layout.mapCell(n - 1, j).center.dx, 1e-9));
+        expect(tile.width, lessThan(layout.mapColumn(1)));
+        expect(tile.top, greaterThan(table.row(n - 1).bottom));
+        expect(tile.bottom, lessThanOrEqualTo(size.height));
+      }
+    }
+    // Every row adds to one; the place in focus's row is the shares Scores
+    // drew, number for number.
+    final List<List<double>> rows = AttentionScene.allShares(scene, AttentionScene.mapHead);
+    expect(rows.length, n);
+    for (int i = 0; i < n; i++) {
+      expect(rows[i].length, i + 1);
+      expect(rows[i].reduce((double a, double b) => a + b), closeTo(1, 1e-9));
+    }
+    expect(rows[scene.position], AttentionScene.shares(scene, AttentionScene.mapHead));
+    // The row in focus fills first, a cell at a time from <bos>; then every
+    // other row, top to bottom; all of it before the table widens again.
+    final int focus = scene.position;
+    double first(bool Function(double beat) reached) {
+      for (double beat = 0; beat <= LmStage.attention.beats; beat += 0.01) {
+        if (reached(beat)) {
+          return beat;
+        }
+      }
+      return double.infinity;
+    }
+
+    double starts(int i, int j) => first((double b) => AttentionScene.mapFilled(i, j, focus, n, b) > 0);
+    double ends(int i, int j) => first((double b) => AttentionScene.mapFilled(i, j, focus, n, b) >= 1);
+    for (int j = 1; j <= focus; j++) {
+      expect(starts(focus, j), greaterThan(starts(focus, j - 1)), reason: 'cell $j of the row in focus');
+    }
+    final double focusDone = ends(focus, focus);
+    final List<int> others = <int>[for (int i = 0; i < n; i++) if (i != focus) i];
+    for (int k = 0; k < others.length; k++) {
+      final int i = others[k];
+      expect(starts(i, 0), greaterThanOrEqualTo(focusDone), reason: 'row $i after the row in focus');
+      if (k > 0) {
+        expect(starts(i, 0), greaterThan(starts(others[k - 1], 0)), reason: 'row $i after the row above it');
+      }
+      expect(ends(i, i), lessThan(LmStage.attention.beats.toDouble()));
+    }
+  });
+
   test('numbers are written as the page writes them', () {
     expect(nats(3.14482), '3.145');
     expect(percent(0.991), '99%');
     expect(percent(0.0423), '4.2%');
+    // A share that rounds to ten is written whole, as ten.
+    expect(percent(0.09996), '10%');
+    // The map's cells: a percentage without its sign.
+    expect(percentNumber(0.23), '23');
+    expect(percentNumber(0.068), '6.8');
+    expect(percentNumber(1), '100');
+    expect(percentNumber(0.09996), '10');
     expect(scientific(1e-5), '1.0e−5');
     expect(scientific(0.00099996), '1.0e−3');
     expect(signed(-0.0123, 2), '−0.01');

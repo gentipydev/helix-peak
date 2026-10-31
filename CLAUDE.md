@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 138 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 140 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -328,8 +328,15 @@ of 2026-10-30 and 2026-10-31:
   keys turn into values and arcs carry each share of each value into the
   head's answer, as its bars go. The places after it are struck through. Head
   2 reads in full, quicker. The heads' answers, side by side, are mixed back to
-  16. Every place at once then builds the heads' maps. The table widens again
-  to what attention adds, alone, then the sums, `x0 + attention`.
+  16. Every place at once then fills head 1's map, as large as the canvas
+  allows (head 2's is not drawn; the user's ask of 2026-10-31): the table
+  narrows to its token column, which names the map's rows, and the map moves
+  left into the freed width on the table's own rows, the places read named by
+  tiles under its columns. It comes in as empty slots, the places after each
+  row hatched; the row in focus fills first, with the shares Scores found,
+  then every other row, each share on a soft tile and written as a percentage
+  where it fits. A tap on a row of it puts that place in focus. The table
+  widens again to what attention adds, alone, then the sums, `x0 + attention`.
 - **Feed-forward** (`feed_forward_scene.dart`), block 1's: a copy lifts off the
   row in focus, evened out by its LayerNorm, and stands up as the 16 inputs of
   a network drawn left to right. All 1,024 weights reach the 64 neurons,
