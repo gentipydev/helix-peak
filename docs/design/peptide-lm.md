@@ -226,7 +226,7 @@ out of view is scrolled just far enough to show it whole.
    have the width (about 25 pt a cell on a Pro Max).
 4. **Scores.** The user's split of 2026-10-31 (the forward pass had been
    three stages since 2026-10-30): Attention was too much at once, so block
-   1's attention up to its shares is a stage of its own, 17 beats, opening on
+   1's attention up to its shares is a stage of its own, 20 beats, opening on
    Embedding's last frame pixel for pixel, on its layout, a row a place, at
    the place in focus (insulin A's C11 by default). It is drawn from the run's
    schema 4, which keeps the row attention reads, the LayerNorm's scale and
@@ -240,12 +240,37 @@ out of view is scrolled just far enough to show it whole.
      evened (the user found "a learned scale and shift a column" unclear,
      2026-10-31): × 1.00 + 0.00 at step 1, × 1.21 − 0.01 and the like at
      step 200;
-   - the evened row's edges, each weight times the number it carries, make a
-     query of 16 a number at a time, then a key and a value through their own
-     weights; each column parts between its 8th and 9th number: head 1 takes
-     1–8, head 2 9–16. The note says why the width must divide by the heads
-     (the model refuses a width they do not, `d_model % nhead`) and that this
-     8 is the √8 of the score;
+   - the evened row times the model's own weights, the query, then the key,
+     then the value (redone on 2026-10-31 at the user's ask: the strings had
+     all come at once and the numbers after them, two events; it must read as
+     a vector times a matrix drawn at random from a seed and nudged by every
+     update; the user chose "weights first, then the row flows through" over
+     strings growing a number at a time). Each part's column stands as empty
+     slots, the query nearer the row than before and more room between the
+     three (a step a column, its numbers and a gap of 7.5% of the bench,
+     14–26 pt, the query's strings never under 52 pt where the old 10 pt gap
+     allows it), and its 16 × 16 weights as a faint web of strings, a weight
+     on each, in the colour of its sign, as strong as it against the part's
+     largest, named on a plate under them (`query weights · 16 × 16`, as x0's
+     table is named) with where they stand. At step 1 that is
+     `random start (seed 0), no update yet`: the run's `attn_in` at step 1 is
+     PyTorch's draw from seed 0, uniform within ±0.31, every bias 0 (the
+     checkpoint is kept before its step's update). At a later step the
+     query's web moves from step 1's weights to the checkpoint's own, held to
+     one scale, and the line becomes `after N training updates`: by rms the
+     query's and key's weights move 4% by step 13, 10% by 21, 39% by 49 and
+     77% by 200 (47 of the query's 256 change sign), the value's 51%, so the
+     move shows from step 49. Then the row flows through: each number's 16
+     strings light out of the row, each carrying its number times its weight
+     in that product's colour, a dot at each tip, and the number is made only
+     as they land; the query's first alone and slowly (C11 at step 1: 16
+     products summed, −0.19; at step 200 with its bias, −0.29), its second and
+     third quicker, the rest in a cascade; the key's and the value's one
+     cascade each, their strings passing behind the columns already made. The
+     web is quieter while the row flows. Each column then parts between its
+     8th and 9th number: head 1 takes 1–8, head 2 9–16. The note says why the
+     width must divide by the heads (the model refuses a width they do not,
+     `d_model % nhead`) and that this 8 is the √8 of the score;
    - head 1's query and key lie down by the row in focus, every place's key
      comes out of its row, and the places after it are struck through;
    - one score worked out, the top one (S9 at step 1): the query over the key,

@@ -11,7 +11,7 @@ enum LmStage {
   tokenise('Tokenise', 11),
   shift('Shift', 5),
   embedding('Embedding', 16),
-  scores('Scores', 17),
+  scores('Scores', 20),
   attention('Attention', 10),
   feedForward('Feed-forward', 10),
   forward('Forward', 11),

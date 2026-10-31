@@ -17,6 +17,7 @@ import 'package:helixpeek/features/peptide_lm/presentation/scenes/forward_scene.
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_drawing.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_scene_painter.dart';
+import 'package:helixpeek/features/peptide_lm/presentation/scenes/scores_scene.dart';
 
 import 'support/toy_trace.dart';
 
@@ -200,30 +201,54 @@ void main() {
       sceneOf(LmStage.scores).caption(view(inks, kit), timeline.frameIn(LmStage.scores, scores(5.5))),
       'At step 1 every scale is 1 and every shift 0: evened = z-score',
     );
+    // The query's weights, the model's own: at step 1 as the seed drew them,
+    // later moved by training; then the row through them, query number 1
+    // first, its sum the kept query's.
+    final LmView first = view(inks, kit);
+    String scoresAt(LmView at, double beat) =>
+        sceneOf(LmStage.scores).caption(at, timeline.frameIn(LmStage.scores, scores(beat)));
+    expect(caption(LmStage.scores, scores(7)), "The query's ${width * width} weights: a string each, $width into every number");
+    expect(caption(LmStage.scores, scores(7.5)), 'Training has moved each weight from its random start');
+    expect(scoresAt(first, 7.5), "Each string's colour is its weight's sign; the stronger, the larger");
+    double query1(LmView at) => trace.query(at.checkpoint, 0, 0, 0, 3, 0);
+    for (final LmView at in <LmView>[first, last3]) {
+      double sum = trace.projectionBias(at.checkpoint, 0, 0, 0);
+      for (int d = 0; d < width; d++) {
+        sum += trace.projection(at.checkpoint, 0, 0, 0, d) * trace.attnInput(at.checkpoint, 0, 0, 3, d);
+      }
+      expect(sum, closeTo(query1(at), 1e-4));
+    }
+    expect(trace.projectionBias(first.checkpoint, 0, 0, 0), 0);
+    expect(scoresAt(first, 8.2), "Query number 1: V3's numbers × weights, summed: ${fixed(query1(first), 2)}");
     expect(
-      caption(LmStage.scores, scores(7)),
-      'The query: $width numbers, each a learned weighted sum of the $width',
+      caption(LmStage.scores, scores(8.2)),
+      "Query number 1: V3's numbers × weights, summed, + bias: ${fixed(query1(last3), 2)}",
     );
     expect(
-      caption(LmStage.scores, scores(9)),
-      'Other weights, same row: $width key numbers, then $width value numbers',
+      caption(LmStage.scores, scores(9.5)),
+      'The other ${width - 1} the same way, each through its own $width weights',
     );
+    expect(caption(LmStage.scores, scores(11)), "The key: the same row through the key's own $width × $width weights");
+    expect(caption(LmStage.scores, scores(12)), 'The value: the same row again, through a third $width × $width');
+    expect(ScoresScene.weightsStatus(first, trained: true), 'random start (seed ${trace.config.seed}), no update yet');
+    expect(ScoresScene.weightsStatus(last3, trained: false), 'random start (seed ${trace.config.seed})');
+    expect(ScoresScene.weightsStatus(last3, trained: true), 'after ${last3.step - 1} training updates');
     expect(
-      caption(LmStage.scores, scores(10)),
+      caption(LmStage.scores, scores(13)),
       'Cut in two: head 1 takes numbers 1–$size of each, head 2 ${size + 1}–${2 * size}',
     );
     expect(
-      caption(LmStage.scores, scores(11)),
+      caption(LmStage.scores, scores(14)),
       'Every place does the same, with the same weights: 12 keys of $size',
     );
     final String topName = top == 3 ? 'its own' : "${name(top)}'s";
-    expect(caption(LmStage.scores, scores(12.5)), "V3's query times $topName key, number by number: $size products");
+    expect(caption(LmStage.scores, scores(15.5)), "V3's query times $topName key, number by number: $size products");
     expect(
-      caption(LmStage.scores, scores(14)),
+      caption(LmStage.scores, scores(17)),
       'Summed, ${fixed(score(0, top) * math.sqrt(size), 2)}; over √$size, ${fixed(score(0, top), 2)}: $topName score',
     );
-    expect(caption(LmStage.scores, scores(14.8)), "V3's query against each key up to its own: 4 scores");
-    expect(caption(LmStage.scores, scores(16)), 'Softmax makes the scores shares of one: ${head(0)}');
+    expect(caption(LmStage.scores, scores(17.8)), "V3's query against each key up to its own: 4 scores");
+    expect(caption(LmStage.scores, scores(19)), 'Softmax makes the scores shares of one: ${head(0)}');
     expect(caption(LmStage.scores, 0.99), 'Softmax makes the scores shares of one: ${head(0)}');
     // Attention, after Scores: head 1's values, head 2, the join, the maps,
     // what attention adds.
@@ -486,5 +511,70 @@ void main() {
     // The table spans the canvas, 4 points from either side.
     expect(phone.row(0).right, 375 - 4);
     expect(phone.left, 4);
+  });
+
+  test('Scores makes each query, key and value number only as its strings land, one part after another', () {
+    for (final int width in <int>[trace.model.width, 16]) {
+      double previous = 0;
+      double landed = 0;
+      for (int part = 0; part < 3; part++) {
+        // A part's strings leave once the part before has made its last number.
+        expect(ScoresScene.fanAt(part, 0, width).$1, greaterThan(landed), reason: 'part $part, width $width');
+        for (int out = 0; out < width; out++) {
+          final (double from, double to) = ScoresScene.fanAt(part, out, width);
+          expect(from, greaterThanOrEqualTo(previous), reason: 'number $out of part $part, in order');
+          expect(to, greaterThan(from));
+          // The number fills only as its strings land.
+          expect(ScoresScene.madeAt(part, out, width, to - 0.11), 0);
+          expect(ScoresScene.madeAt(part, out, width, to + 0.11), 1);
+          previous = from;
+          landed = math.max(landed, to);
+        }
+      }
+      // The query's first number is made on its own: no other number's
+      // strings leave before it lands.
+      final double alone = ScoresScene.fanAt(0, 0, width).$2;
+      for (int part = 0; part < 3; part++) {
+        for (int out = part == 0 ? 1 : 0; out < width; out++) {
+          expect(ScoresScene.fanAt(part, out, width).$1, greaterThanOrEqualTo(alone));
+        }
+      }
+      expect(landed, lessThan(LmStage.scores.beats.toDouble()));
+    }
+  });
+
+  testWidgets('Scores stands the query nearer the evened row, room between the three, the plate under them', (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    for (final Size size in <Size>[const Size(440, 697), const Size(375, 476)]) {
+      final ScoresLayout layout = ScoresLayout(size, view(inks, kit));
+      final double strings = layout.outputX[0] - layout.column / 2 - (layout.inputX + layout.column / 2);
+      // The query no further from the row than it stood with the old 10
+      // between columns, and nearer where there is room, its strings never
+      // under the least they run unless the old ones already were.
+      final double oldStep = layout.column + layout.numberWidth + 10;
+      final double oldStrings = layout.outputX[2] - 2 * oldStep - layout.column / 2 - (layout.inputX + layout.column / 2);
+      expect(strings, lessThanOrEqualTo(oldStrings + 1e-9), reason: '$size');
+      expect(strings, greaterThanOrEqualTo(math.min(ScoresLayout.leastReach, oldStrings) - 1e-9), reason: '$size');
+      for (int part = 0; part < 2; part++) {
+        // From a column's numbers to the next column: never less than the old 10.
+        final double between = layout.outputX[part + 1] - layout.column / 2 -
+            (layout.outputX[part] + layout.column / 2 + layout.numberWidth);
+        expect(between, greaterThanOrEqualTo(10 - 1e-9), reason: '$size');
+        if (size.width >= 440) {
+          expect(between, greaterThanOrEqualTo(14 - 1e-9), reason: '$size');
+        }
+      }
+      // The value's numbers end at the bench's right.
+      expect(layout.outputX[2] + layout.column / 2 + layout.numberWidth, closeTo(layout.right, 1e-6));
+      // The plate stands under the columns, on the canvas, inside the bench.
+      final Rect plate = layout.plateAt(const Size(120, 18));
+      expect(plate.top, greaterThan(layout.columnAt(layout.inputX, 0).bottom));
+      expect(plate.bottom + 14, lessThanOrEqualTo(size.height));
+      expect(plate.left, greaterThanOrEqualTo(layout.benchLeft));
+      expect(plate.right, lessThanOrEqualTo(layout.right));
+    }
   });
 }

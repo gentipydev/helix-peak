@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 135 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 138 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -300,8 +300,21 @@ of 2026-10-30 and 2026-10-31:
   beside it: less its mean, over its standard deviation (a z-score); then
   the norm's learned scale and shift, written out where the chart was, a row
   a number, as the sum `z-score × scale + shift = evened` (every scale 1 and
-  shift 0 at step 1). Its edges, each weight times the number it carries, make a
-  query, a key and a value of 16, which part into a slice a head (head 1
+  shift 0 at step 1). Then the row times the model's own weights, a query, a
+  key and a value of 16 in turn (the user's ask of 2026-10-31, to read as a
+  vector times a matrix drawn at random from the run's seed and nudged by
+  every update): each part's column stands as empty slots, the query nearer
+  the row and room between the three, and its 16 × 16 weights as a faint web
+  of strings from the row to the slots, a weight on each (colour its sign,
+  strength its size), named on a plate under them, `query weights · 16 × 16`,
+  with where they stand: `random start (seed 0), no update yet` at step 1;
+  at a later step the query's web moves from step 1's weights to the
+  checkpoint's own, `after N training updates`. Then the row flows through:
+  each number's 16 strings lit out of the row, each carrying its number times
+  its weight, a dot at each tip, the number made only as they land (the
+  query's first alone and slowly, the rest in a cascade; the key's and the
+  value's one cascade each), the later strings passing behind the columns
+  already made. Each column then parts into a slice a head (head 1
   numbers 1–8, head 2 9–16: why the width must divide by the heads, and the 8
   of √8). Head 1's query and key lie down by the row in focus and every place's
   key comes out of its row. One score is worked out on the bench, the top

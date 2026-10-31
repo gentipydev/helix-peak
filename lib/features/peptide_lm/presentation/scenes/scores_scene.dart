@@ -18,10 +18,13 @@ import 'stream_table.dart';
 /// row a place. The table narrows to a strip a place, and a copy of the row
 /// in focus stands up beside it: its numbers less their mean, over their
 /// spread, then the norm's learned scale and shift, the row attention reads.
-/// Learned weights make a query, a key and a value of the stream's width
-/// from it, each number a weighted sum of the evened row, and each is cut
-/// into equal slices, one a head. Every place makes its own, with the same
-/// weights. Head 1's query is scored against one key number by number,
+/// The model's own weights make a query, a key and a value of the stream's
+/// width from it: each part's weights stand first as a faint web of strings,
+/// a weight on each (the query's moving from the run's random start to the
+/// checkpoint's own), and then the row flows through them, the strings into
+/// each number lit with what they carry, the number made as they land. Each
+/// is cut into equal slices, one a head. Every place makes its own, with the
+/// same weights. Head 1's query is scored against one key number by number,
 /// summed and divided by the root of a head's size, then against every key
 /// up to its own place; softmax makes the scores shares; and the divisor
 /// taken away and put back shows what it is for. Attention opens on the last
@@ -66,44 +69,60 @@ final class ScoresScene extends LmScene {
   static const (double, double) _formulaOut = (5.8, 6.1);
 
   // The query, the key and the value, each from the same row through its own
-  // weights: when each starts, and how long it takes, the first slower.
-  static const List<double> _madeFrom = <double>[6.6, 7.9, 8.8];
-  static const List<double> _madeIn = <double>[1.0, 0.7, 0.7];
+  // weights, one part after the other. A part's column stands as empty slots
+  // and its weights as a faint web of strings from the row to them, a weight
+  // on each, named on a plate under them; the query's web moves from the
+  // run's random start to the checkpoint's own. Then the row flows through:
+  // each number's strings lit from the row out to it, the number made as
+  // they land. A part's web goes as the next one's comes.
+  static const List<(double, double)> _slotsIn = <(double, double)>[(6.6, 6.9), (10.35, 10.55), (11.45, 11.65)];
+  static const List<(double, double)> _webIn = <(double, double)>[(6.7, 7.1), (10.4, 10.6), (11.5, 11.7)];
+  static const List<(double, double)> _webOut = <(double, double)>[(10.35, 10.6), (11.45, 11.7), (12.5, 12.7)];
+  static const (double, double) _plateIn = (6.9, 7.2);
+  static const (double, double) _plateOut = (12.5, 12.7);
+  static const (double, double) _trained = (7.3, 7.9);
+
+  // The fans: the query's first three numbers on their own, the first
+  // slowly, then the rest of the query in one cascade; the key's and the
+  // value's each one cascade. A fan takes [_fanLong] in a cascade.
+  static const List<(double, double)> _alone = <(double, double)>[(8.0, 8.5), (8.65, 8.95), (9.0, 9.25)];
+  static const List<(double, double)> _cascades = <(double, double)>[(9.3, 10.15), (10.6, 11.375), (11.7, 12.475)];
+  static const double _fanLong = 0.25;
 
   // Each cut into a slice a head, the slices named.
-  static const (double, double) _cut = (9.7, 10.1);
-  static const (double, double) _headNames = (9.9, 10.2);
-  static const (double, double) _otherHeads = (10.2, 10.5);
+  static const (double, double) _cut = (12.7, 13.1);
+  static const (double, double) _headNames = (12.9, 13.2);
+  static const (double, double) _otherHeads = (13.2, 13.5);
 
   // Every place: the bench clears, head 1's query and key lie down by the
   // row in focus, every place's key comes out of its row.
-  static const (double, double) _networkOut = (10.5, 10.8);
-  static const (double, double) _queryDown = (10.6, 11.3);
-  static const (double, double) _keyDown = (10.7, 11.4);
-  static const double _keysFrom = 11.0;
-  static const (double, double) _loud = (10.8, 11.4);
-  static const (double, double) _struck = (11.3, 11.7);
-  static const (double, double) _named = (11.2, 11.5);
+  static const (double, double) _networkOut = (13.5, 13.8);
+  static const (double, double) _queryDown = (13.6, 14.3);
+  static const (double, double) _keyDown = (13.7, 14.4);
+  static const double _keysFrom = 14.0;
+  static const (double, double) _loud = (13.8, 14.4);
+  static const (double, double) _struck = (14.3, 14.7);
+  static const (double, double) _named = (14.2, 14.5);
 
   // One score worked out, on the bench: the query and the top key fly to it,
   // their products come one after another, then the sum and the division,
   // and the score flies to its place.
-  static const double _workFrom = 11.8;
-  static const (double, double) _lifted = (11.9, 12.4);
-  static const (double, double) _cardWords = (12.3, 12.6);
-  static const (double, double) _products = (12.5, 13.2);
-  static const (double, double) _sum = (13.3, 13.5);
-  static const (double, double) _divided = (13.6, 13.8);
-  static const (double, double) _scoreFlies = (13.9, 14.3);
-  static const (double, double) _cardOut = (13.9, 14.2);
+  static const double _workFrom = 14.8;
+  static const (double, double) _lifted = (14.9, 15.4);
+  static const (double, double) _cardWords = (15.3, 15.6);
+  static const (double, double) _products = (15.5, 16.2);
+  static const (double, double) _sum = (16.3, 16.5);
+  static const (double, double) _divided = (16.6, 16.8);
+  static const (double, double) _scoreFlies = (16.9, 17.3);
+  static const (double, double) _cardOut = (16.9, 17.2);
 
   // The rest: the query passes each key up to `<bos>`, then goes.
-  static const (double, double) _scan = (14.3, 15.3);
-  static const (double, double) _queryOut = (15.3, 15.6);
+  static const (double, double) _scan = (17.3, 18.3);
+  static const (double, double) _queryOut = (18.3, 18.6);
 
   // Softmax: a bar a share, its percentage at its end.
-  static const (double, double) _bars = (15.5, 16.2);
-  static const (double, double) _percents = (15.9, 16.3);
+  static const (double, double) _bars = (18.5, 19.2);
+  static const (double, double) _percents = (18.9, 19.3);
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -396,81 +415,68 @@ final class ScoresScene extends LmScene {
 
   // --------------------------------------------------------------- network
 
-  /// The evened row through each part's weights: the edges, each weight
-  /// times the number it carries; the query, the key and the value filling
-  /// a number at a time; then each cut into a slice a head.
+  static const List<String> _parts = <String>['query', 'key', 'value'];
+
+  /// The evened row through each part's weights: the part's empty slots and
+  /// its web of weights; the row flowing through them, a fan of strings lit
+  /// into each number, the number made as they land; the plate naming the
+  /// weights; then each column cut into a slice a head.
   void _network(Canvas canvas, LmView view, ScoresLayout layout, double beat) {
     final double shown = 1 - _span(beat, _networkOut);
-    if (beat < _madeFrom.first || shown <= 0) {
+    if (beat < _slotsIn.first.$1 || shown <= 0) {
       return;
     }
     final TrainingTrace trace = view.trace;
     final int width = trace.model.width;
     final int size = trace.headSize;
-    final RowEvening even = evening(view);
     final double cut = _span(beat, _cut);
     final double others = 1 - 0.65 * _span(beat, _otherHeads);
-    // The edges first, under every column.
+    // The web and its fans first, under every column: one part's at a time,
+    // the web quieter while the row flows through it.
     for (int part = 0; part < 3; part++) {
-      final double from = _madeFrom[part];
-      final double long = _madeIn[part];
-      final double edges = through(beat, from, from + 0.4 * long) * (1 - through(beat, from + 1.2 * long, from + 1.4 * long));
-      if (edges > 0) {
-        drawEdges(
-          canvas,
-          view,
-          <(int, int, double)>[
-            for (int out = 0; out < width; out++)
-              for (int d = 0; d < width; d++) (d, out, trace.projection(view.checkpoint, block, part, out, d) * even.evened[d]),
-          ],
-          (int d) => layout.tileAt(layout.inputX, d, 0).centerRight,
-          (int out) => layout.tileAt(layout.outputX[part], out, cut).centerLeft,
-          edges * shown,
-        );
+      final double web = _webShown(part, beat) * shown;
+      if (web > 0) {
+        _web(canvas, view, layout, part, cut, web * (1 - 0.55 * _flowing(part, width, beat)), part == 0 ? _span(beat, _trained) : 1);
+        _fans(canvas, view, layout, part, cut, beat, web);
       }
     }
+    // The columns already made are one card the later strings pass behind,
+    // from the query's to the last made, their numbers clear of them.
+    for (int part = 1; part < 3; part++) {
+      _backing(canvas, view, layout, layout.outputX[0], layout.outputX[part - 1], cut, _webShown(part, beat) * shown);
+    }
     for (int part = 0; part < 3; part++) {
-      final double from = _madeFrom[part];
-      final double long = _madeIn[part];
-      if (beat < from) {
+      final (double slotsFrom, double slotsTo) = _slotsIn[part];
+      if (beat < slotsFrom) {
         continue;
       }
+      final double standing = through(beat, slotsFrom, slotsTo) * shown;
       // Head 1's query and key lie down by the row in focus from here on.
       final bool lying = part < 2 && beat >= (part == 0 ? _queryDown : _keyDown).$1;
       final List<double> values = madeOf(view, part);
-      final List<Color> colors = <Color>[
+      final List<double> made = <double>[for (int out = 0; out < width; out++) madeAt(part, out, width, beat)];
+      _slots(canvas, view, layout, part, cut, standing, made);
+      _column(canvas, view, layout, layout.outputX[part], cut, <Color>[
         for (int out = 0; out < width; out++)
           view.inks.signed(values[out] / AttentionScene.qkvScale(view, out ~/ size)).withValues(
-            alpha: through(
-                  beat,
-                  from + long * (0.3 + 0.45 * out / math.max(1, width - 1)),
-                  from + long * (0.45 + 0.45 * out / math.max(1, width - 1)),
-                ) *
+            alpha: made[out] *
                 (out < size ? (part == 2 ? shown : 1) : others * shown) *
                 (lying && out < size ? 0 : 1),
           ),
-      ];
-      _column(canvas, view, layout, layout.outputX[part], cut, colors);
-      final List<double> written = <double>[for (int out = 0; out < width; out++) values[out]];
+      ]);
       _numbers(
         canvas,
         view,
         layout,
         layout.outputX[part],
         cut,
-        written,
-        through(beat, from + 0.8 * long, from + 1.1 * long) * shown,
-        alphaOf: (int out) => out < size ? (lying ? 0 : 1) : others,
+        values,
+        shown,
+        alphaOf: (int out) => _written(part, out, width, beat) * (out < size ? (lying ? 0 : 1) : others),
       );
-      _title(
-        canvas,
-        view,
-        layout,
-        layout.outputX[part],
-        const <String>['query', 'key', 'value'][part],
-        through(beat, from + 0.2 * long, from + 0.5 * long) * shown,
-      );
+      _title(canvas, view, layout, layout.outputX[part], _parts[part], standing);
     }
+    _plate(canvas, view, layout, beat, shown);
     // The slices named, left of the query's.
     final double names = _span(beat, _headNames) * shown;
     if (names > 0) {
@@ -487,6 +493,270 @@ final class ScoresScene extends LmScene {
           anchor: const Offset(1, 0),
         );
       }
+    }
+  }
+
+  /// When the strings into number [out] of [part] run, of [width] numbers:
+  /// they leave the evened row at the first and reach the number at the
+  /// second. The query's first numbers on their own, the first slowly, then
+  /// the rest of it in one cascade; the key's and the value's each one
+  /// cascade.
+  static (double, double) fanAt(int part, int out, int width) {
+    final int alone = part == 0 ? math.min(_alone.length, width) : 0;
+    if (out < alone) {
+      return _alone[out];
+    }
+    final (double from, double to) = _cascades[part];
+    final int rest = width - alone;
+    final double stagger = rest < 2 ? 0 : (to - from - _fanLong) / (rest - 1);
+    final double start = from + (out - alone) * stagger;
+    return (start, start + _fanLong);
+  }
+
+  /// How far number [out] of [part] is made at [beat]: it fills as its
+  /// strings land.
+  static double madeAt(int part, int out, int width, double beat) {
+    final double landed = fanAt(part, out, width).$2;
+    return through(beat, landed - 0.1, landed + 0.1);
+  }
+
+  /// How far number [out] of [part] is written beside its tile: once it is
+  /// made.
+  static double _written(int part, int out, int width, double beat) {
+    final double landed = fanAt(part, out, width).$2;
+    return through(beat, landed, landed + 0.15);
+  }
+
+  /// The weight from number [d] of the evened row to number [out] of [part]
+  /// at the checkpoint in focus, [trained] of the way from the run's random
+  /// start, the first checkpoint's.
+  static double _weight(LmView view, int part, int out, int d, double trained) {
+    final TrainingTrace trace = view.trace;
+    final double now = trace.projection(view.checkpoint, block, part, out, d);
+    if (trained >= 1) {
+      return now;
+    }
+    final double start = trace.projection(trace.checkpoints.first, block, part, out, d);
+    return start + (now - start) * trained;
+  }
+
+  /// The largest of [part]'s weights, at the run's start or at the
+  /// checkpoint in focus: one scale for its web while it moves.
+  static double _weightReach(LmView view, int part) => view.kit.memo<double>(
+    ('scores-weight-reach', view.step, part),
+    () {
+      final int width = view.trace.model.width;
+      double most = 1e-9;
+      for (int out = 0; out < width; out++) {
+        for (int d = 0; d < width; d++) {
+          most = math.max(most, math.max(_weight(view, part, out, d, 0).abs(), _weight(view, part, out, d, 1).abs()));
+        }
+      }
+      return most;
+    },
+  );
+
+  /// The largest of what [part]'s strings carry from the row in focus, a
+  /// number of it times a weight.
+  static double _productReach(LmView view, int part) => view.kit.memo<double>(
+    ('scores-product-reach', view.step, view.peptide, view.position, part),
+    () {
+      final List<double> evened = evening(view).evened;
+      double most = 1e-9;
+      for (int out = 0; out < evened.length; out++) {
+        for (int d = 0; d < evened.length; d++) {
+          most = math.max(most, (_weight(view, part, out, d, 1) * evened[d]).abs());
+        }
+      }
+      return most;
+    },
+  );
+
+  /// How strong a part's web is drawn: faint, under the strings the row
+  /// lights.
+  static const double _webStrength = 0.5;
+
+  /// How strongly [part]'s web shows at [beat].
+  static double _webShown(int part, double beat) => _span(beat, _webIn[part]) * (1 - _span(beat, _webOut[part]));
+
+  /// How far the row is flowing through [part]'s web at [beat], of
+  /// [width] numbers: from just before its first fan to just after its last.
+  static double _flowing(int part, int width, double beat) {
+    final double first = fanAt(part, 0, width).$1;
+    final double last = fanAt(part, width - 1, width).$2;
+    return through(beat, first - 0.15, first) * (1 - through(beat, last + 0.1, last + 0.3));
+  }
+
+  /// The columns from [first] to [last] and their numbers as one card in
+  /// the ground's colour, [alpha] strong, so the strings of a part after
+  /// them pass behind.
+  static void _backing(Canvas canvas, LmView view, ScoresLayout layout, double first, double last, double cut, double alpha) {
+    if (alpha <= 0) {
+      return;
+    }
+    final Rect from = layout.columnAt(first, cut);
+    final Rect to = layout.columnAt(last, cut);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTRB(from.left - 3, from.top - 2, to.right + layout.numberWidth + 3, to.bottom + 2),
+        const Radius.circular(3),
+      ),
+      Paint()..color = view.inks.ground.withValues(alpha: alpha),
+    );
+  }
+
+  /// [part]'s weights as strings, a weight on each, from each number of the
+  /// evened row to each number it helps make: in the colour of the weight's
+  /// sign, as strong as it against the part's largest; [trained] of the way
+  /// from the run's random start to the checkpoint's own.
+  void _web(Canvas canvas, LmView view, ScoresLayout layout, int part, double cut, double alpha, double trained) {
+    final int width = view.trace.model.width;
+    drawEdges(
+      canvas,
+      view,
+      <(int, int, double)>[
+        for (int out = 0; out < width; out++)
+          for (int d = 0; d < width; d++) (d, out, _weight(view, part, out, d, trained)),
+      ],
+      (int d) => layout.tileAt(layout.inputX, d, 0).centerRight,
+      (int out) => layout.tileAt(layout.outputX[part], out, cut).centerLeft,
+      alpha * _webStrength,
+      most: _weightReach(view, part),
+    );
+  }
+
+  /// The row flowing through [part]'s weights: the strings into each number
+  /// being made, lit from the row's numbers out to it, each carrying its
+  /// number times its weight, in that product's colour and as strong as it
+  /// against the part's largest; lit while they run, then back into the web
+  /// once the number is made.
+  void _fans(Canvas canvas, LmView view, ScoresLayout layout, int part, double cut, double beat, double alpha) {
+    final TrainingTrace trace = view.trace;
+    final int width = trace.model.width;
+    final List<double> evened = evening(view).evened;
+    final double most = _productReach(view, part);
+    final LineBatch batch = LineBatch();
+    final Paint tip = Paint();
+    final List<(Offset, double, Color)> tips = <(Offset, double, Color)>[];
+    for (int out = 0; out < width; out++) {
+      final (double from, double to) = fanAt(part, out, width);
+      if (beat <= from) {
+        continue;
+      }
+      final double glow = 1 - through(beat, to + 0.05, to + (part == 0 && out == 0 ? 0.3 : 0.2));
+      if (glow <= 0) {
+        continue;
+      }
+      final double reached = through(beat, from, to);
+      final Offset end = layout.tileAt(layout.outputX[part], out, cut).centerLeft;
+      for (int d = 0; d < width; d++) {
+        final double carried = trace.projection(view.checkpoint, block, part, out, d) * evened[d];
+        final double w = math.min(1.0, carried.abs() / most);
+        final Offset start = layout.tileAt(layout.inputX, d, 0).centerRight;
+        final Offset at = Offset.lerp(start, end, reached)!;
+        final Color color = carried >= 0 ? view.inks.positive : view.inks.negative;
+        batch.line(start, at, color, 1.0 + 1.6 * w, (0.45 + 0.55 * math.pow(w, 1.2)) * glow * alpha);
+        // Each number on its way, a dot at the string's tip until it lands.
+        final double travelling = alpha * (1 - through(reached, 0.85, 1));
+        if (travelling > 0) {
+          tips.add((at, 1.3 + 1.2 * w, color.withValues(alpha: (0.55 + 0.45 * w) * travelling)));
+        }
+      }
+    }
+    batch.draw(canvas);
+    for (final (Offset at, double radius, Color color) in tips) {
+      canvas.drawCircle(at, radius, tip..color = color);
+    }
+  }
+
+  /// [part]'s numbers not yet made, each an empty slot outlined in the
+  /// quiet ink, as [made] of the way as its number.
+  static void _slots(
+    Canvas canvas,
+    LmView view,
+    ScoresLayout layout,
+    int part,
+    double cut,
+    double alpha,
+    List<double> made,
+  ) {
+    if (alpha <= 0) {
+      return;
+    }
+    final Paint paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.8;
+    for (int out = 0; out < made.length; out++) {
+      final double a = alpha * (1 - made[out]);
+      if (a <= 0) {
+        continue;
+      }
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(layout.tileAt(layout.outputX[part], out, cut).deflate(1), const Radius.circular(1.5)),
+        paint..color = view.inks.quiet.withValues(alpha: 0.6 * a),
+      );
+    }
+  }
+
+  /// Where the weights stand at the checkpoint in focus: the run's random
+  /// start, or the start and the updates since, once [trained].
+  static String weightsStatus(LmView view, {required bool trained}) {
+    final TrainingTrace trace = view.trace;
+    final String start = 'random start (seed ${trace.config.seed})';
+    final int updates = view.step - trace.checkpoints.first.step;
+    if (updates <= 0) {
+      return '$start, no update yet';
+    }
+    return trained ? 'after ${grouped(updates)} training ${updates == 1 ? 'update' : 'updates'}' : start;
+  }
+
+  /// How strongly [part]'s plate shows at [beat]: each comes once the one
+  /// before has gone, never over it.
+  static double _plateShown(int part, double beat) {
+    final double into = part == 0
+        ? _span(beat, _plateIn)
+        : through(beat, _slotsIn[part].$1 + 0.1, _slotsIn[part].$1 + 0.2);
+    final double out = part < 2
+        ? through(beat, _slotsIn[part + 1].$1, _slotsIn[part + 1].$1 + 0.1)
+        : _span(beat, _plateOut);
+    return into * (1 - out);
+  }
+
+  /// The weights named under their strings, as x0's table is named over
+  /// it: whose they are and how many, on a plate; under it, where they
+  /// stand, the query's moving from the run's random start to the
+  /// checkpoint's own with its strings.
+  void _plate(Canvas canvas, LmView view, ScoresLayout layout, double beat, double shown) {
+    final int width = view.trace.model.width;
+    String named(int part) => '${_parts[part]} weights · $width × $width';
+    for (int part = 0; part < 3; part++) {
+      final double alpha = _plateShown(part, beat) * shown;
+      if (alpha > 0) {
+        drawTag(canvas, view, named(part), layout.plateAt(tagSize(view, named(part))).topLeft, alpha: alpha);
+      }
+    }
+    final double status = _span(beat, _plateIn) * (1 - _span(beat, _plateOut)) * shown;
+    if (status <= 0) {
+      return;
+    }
+    final Rect plate = layout.plateAt(tagSize(view, named(0)));
+    // At the run's first step the start is all there is; at a later one, the
+    // start, then, past the middle of the move, the updates since.
+    final double middle = (_trained.$1 + _trained.$2) / 2;
+    final List<(String, double)> lines = view.step == view.trace.checkpoints.first.step
+        ? <(String, double)>[(weightsStatus(view, trained: true), 1)]
+        : <(String, double)>[
+            (weightsStatus(view, trained: false), 1 - through(beat, _trained.$1, middle)),
+            (weightsStatus(view, trained: true), through(beat, middle, _trained.$2)),
+          ];
+    for (final (String text, double alpha) in lines) {
+      if (alpha <= 0) {
+        continue;
+      }
+      final TextStyle words = inked(view.kit.sans, 8.5, view.inks.quiet, alpha: alpha * status);
+      final double wide = view.kit.layout(text, words).width;
+      final double left = (plate.center.dx - wide / 2).clamp(layout.benchLeft, math.max(layout.benchLeft, layout.right - wide));
+      view.kit.draw(canvas, text, words, Offset(left, plate.bottom + 3));
     }
   }
 
@@ -846,17 +1116,17 @@ final class ScoresScene extends LmScene {
       ),
       (
         1.4,
-        _madeFrom.first,
+        _slotsIn.first.$1,
         "LayerNorm evens out each place's row: less its mean, over its\n"
             'standard deviation (a z-score); then a learned scale and shift\n'
             'for each column, so every row reaches attention on one scale',
       ),
       (
-        _madeFrom.first,
+        _slotsIn.first.$1,
         _cut.$1,
         'query: what a place looks for; key: what it offers; value: what\n'
-            'it hands over when read; each number a weighted sum of the\n'
-            'evened row, by weights the run learned, the same at every place',
+            "it hands over when read; each from the model's own weights,\n"
+            'random at first and nudged by every training step',
       ),
       (
         _cut.$1,
@@ -911,16 +1181,33 @@ final class ScoresScene extends LmScene {
     if (beat < _results.$1) {
       return 'Then evened = z-score × scale + shift, each column its own';
     }
-    if (beat < _madeFrom.first) {
+    if (beat < _slotsIn.first.$1) {
       return even.untrained
           ? 'At step 1 every scale is 1 and every shift 0: evened = z-score'
           : 'Scales and shifts after ${grouped(view.step - 1)} updates: the row attention reads';
     }
-    if (beat < _madeFrom[1]) {
-      return 'The query: $width numbers, each a learned weighted sum of the $width';
+    if (beat < _trained.$1) {
+      return "The query's ${grouped(width * width)} weights: a string each, $width into every number";
+    }
+    if (beat < fanAt(0, 0, width).$1) {
+      return view.step == trace.checkpoints.first.step
+          ? "Each string's colour is its weight's sign; the stronger, the larger"
+          : 'Training has moved each weight from its random start';
+    }
+    if (beat < fanAt(0, 1, width).$1) {
+      // Its bias, where training has given it one: every bias starts at 0.
+      final bool biased = trace.projectionBias(view.checkpoint, block, 0, 0) != 0;
+      return "Query number 1: $focus's numbers × weights, summed"
+          '${biased ? ', + bias' : ''}: ${fixed(madeOf(view, 0).first, 2)}';
+    }
+    if (beat < _slotsIn[1].$1) {
+      return 'The other ${grouped(width - 1)} the same way, each through its own $width weights';
+    }
+    if (beat < _slotsIn[2].$1) {
+      return "The key: the same row through the key's own $width × $width weights";
     }
     if (beat < _cut.$1) {
-      return 'Other weights, same row: $width key numbers, then $width value numbers';
+      return 'The value: the same row again, through a third $width × $width';
     }
     if (beat < _networkOut.$1) {
       final String rest = heads > 2 ? ', and so on' : '';
@@ -1013,9 +1300,10 @@ final class RowEvening {
 /// right of it the bench. While the row in focus is worked on, the bench
 /// starts where the scores will be: the evened row standing at its left, its
 /// numbers left of it, the chart right of it; then the query, the key and
-/// the value standing at the right, their numbers right of them, the edges
-/// between. Once the keys are out, it starts right of them: one score worked
-/// out, then a bar a share.
+/// the value standing at the right, the query nearer the row, their numbers
+/// right of them, the strings between and the weights' plate under them.
+/// Once the keys are out, it starts right of them: one score worked out,
+/// then a bar a share.
 final class ScoresLayout {
   ScoresLayout(Size size, LmView view) : attention = AttentionLayout(size, view) {
     final TrainingTrace trace = view.trace;
@@ -1032,14 +1320,23 @@ final class ScoresLayout {
     final double number = writes
         ? view.kit.layout('−8.88', inked(view.kit.mono, textSize, view.inks.ink)).width + 4
         : 0;
+    numberWidth = number;
     right = e.right;
-    final double benchLeft = attention.scoreLeft;
+    benchLeft = attention.scoreLeft;
     column = ((right - benchLeft) * 0.045).clamp(8.0, 13.0);
     inputX = benchLeft + number + column / 2;
     chartLeft = inputX + column / 2 + 12;
     chartRight = right - 2;
-    final double step = column + number + 10;
-    outputX = <double>[for (int p = 0; p < 3; p++) right - number - column / 2 - (2 - p) * step];
+    // The value at the bench's right, its numbers to the edge, and the key
+    // and the query each a step left of the one after: a column, its
+    // numbers and a gap that grows with the bench, which brings the query
+    // nearer the evened row; never so near that the query's strings have
+    // under [leastReach] to run, nor the gap under the old 10.
+    final double last = right - number - column / 2;
+    final double gap = ((right - benchLeft) * 0.075).clamp(14.0, 26.0);
+    final double nearest = (last - column / 2 - (inputX + column / 2) - leastReach) / 2;
+    final double step = math.max(column + number + 10, math.min(column + number + gap, nearest));
+    outputX = <double>[for (int p = 0; p < 3; p++) last - (2 - p) * step];
     // One score worked out: three rows of a head's numbers, each under its
     // words, then the sum and the sum over the root.
     cardLeft = attention.barLeft;
@@ -1077,10 +1374,19 @@ final class ScoresLayout {
   late final double textSize;
   late final bool writes;
 
+  /// How wide a column's numbers are, with their gap from it.
+  late final double numberWidth;
+
+  /// The bench's sides.
+  late final double benchLeft;
   late final double right;
 
   /// How wide a standing column is.
   late final double column;
+
+  /// The least room the query's strings have, from the evened row's column
+  /// to the query's.
+  static const double leastReach = 52;
 
   /// The evened row's column, and the chart beside it.
   late final double inputX;
@@ -1118,6 +1424,15 @@ final class ScoresLayout {
     x + column / 2,
     tileAt(x, width - 1, cut).bottom,
   );
+
+  /// The plate naming a part's weights, [plate] in size: centred under the
+  /// strings from the evened row to the query, below the columns, inside
+  /// the bench.
+  Rect plateAt(Size plate) {
+    final double centre = (inputX + outputX[0]) / 2;
+    final double left = (centre - plate.width / 2).clamp(benchLeft, math.max(benchLeft, right - plate.width));
+    return Offset(left, columnAt(inputX, 0).bottom + 10) & plate;
+  }
 
   /// Head [h]'s slice of a column at [x], once cut.
   Rect sliceAt(double x, int h) =>
