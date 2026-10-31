@@ -143,21 +143,23 @@ void main() {
     );
     expect(
       caption(LmStage.embedding, embedding(14)),
-      'Token row + position row, number by number: x0, the start of the residual stream',
+      'Token + position, number by number: x0, the residual stream each block adds to',
     );
     expect(caption(LmStage.embedding, embedding(14.9)), caption(LmStage.embedding, embedding(14)));
-    // The sum and why, in one note to the stage's end, from the run's own
-    // numbers: the position rows' size against the token rows' at this step
-    // and how training moves it.
+    // Why the sum, in one note to the stage's end, a sentence a line, from
+    // the run's own numbers: what training did to the position rows' size
+    // against the token rows', from the first step to the last.
+    final int grown = EmbeddingScene.smaller(last);
+    final int faint = EmbeddingScene.smaller(last, trace.checkpoints.first);
+    expect(grown, isNot(faint));
     expect(
       EmbeddingScene.notes(last).last.$3.split('\n'),
       <String>[
-        'token row: what it is; position row: where it sits',
-        'added: each place carries both; the Cs at 6 and 7 now differ',
-        'size: ${EmbeddingScene.smaller(last)}× smaller than token rows at step ${last.step}, '
-            '${EmbeddingScene.smaller(last, trace.checkpoints.first)}× at step 1',
-        'why add: side by side would make ${2 * width}; every layer takes $width',
-        'residual stream: what each block adds to, never replaces',
+        'Attention, next, reads rows as a bag, blind to their order.',
+        'So each token row (what) gets a position row (where) added.',
+        'The Cs at 6 and 7 share a token row, but now differ by place.',
+        'Added, not side by side: that makes ${2 * width} numbers; layers take $width.',
+        'Training ${grown < faint ? 'grew' : 'shrank'} position rows from $faint× smaller to $grown× by step ${last.step}.',
       ],
     );
     // Scores, block 1's attention up to its shares, at the place in focus

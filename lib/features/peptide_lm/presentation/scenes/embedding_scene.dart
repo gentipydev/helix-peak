@@ -216,24 +216,28 @@ final class EmbeddingScene extends LmScene {
     });
   }
 
-  /// How the position rows compare with the token rows at the checkpoint in
-  /// view, and how that changes over the run: from its first checkpoint to
-  /// its last, each as the run kept it.
-  static String _sizes(LmView view) {
+  /// What training does to the position rows' size against the token rows':
+  /// from the run's first checkpoint to its last, or to the step in view
+  /// between them, each as the run kept it.
+  static String _growth(LmView view) {
     final TrainingTrace trace = view.trace;
     final TraceCheckpoint first = trace.checkpoints.first;
     final TraceCheckpoint last = trace.checkpoints.last;
-    String times(int n) => n < 2 ? 'about the size of' : '${grouped(n)}× smaller than';
-    final int now = smaller(view);
+    String times(int n) => n < 2 ? "the token rows' size" : '${grouped(n)}×';
     final int start = smaller(view, first);
     final int end = smaller(view, last);
-    final String here = '${times(now)} token rows at step ${view.step}';
     if (first.step == last.step || start == end) {
-      return here;
+      return 'Position rows are ${times(smaller(view))} smaller than token rows.';
     }
-    return view.step == first.step
-        ? '$here, ${grouped(end)}× by step ${last.step}'
-        : '$here, ${grouped(start)}× at step ${first.step}';
+    // Grows where the position rows come nearer the token rows' size: at the
+    // first step, to the last; later, to the step in view, and in the past
+    // at the last.
+    final bool grows = end < start;
+    final bool done = view.step == last.step;
+    final String verb = grows ? (done ? 'grew' : 'grows') : (done ? 'shrank' : 'shrinks');
+    final TraceCheckpoint to = view.step == first.step ? last : view.checkpoint;
+    return 'Training $verb position rows from ${times(start)} smaller '
+        'to ${times(smaller(view, to))} by step ${to.step}.';
   }
 
   /// The position embedding's own colour scale over the places in focus:
@@ -271,15 +275,19 @@ final class EmbeddingScene extends LmScene {
     final TrainingTrace trace = view.trace;
     final int width = trace.model.width;
     final (String, int, int)? twin = _twin(view);
-    final String both = twin == null
-        ? 'added: each place carries both; order is in the numbers now'
-        : 'added: each place carries both; the ${twin.$1}s at ${twin.$2} and ${twin.$3} now differ';
+    // Why the sum, as one argument, a sentence a line: attention cannot see
+    // order, so each row is given its place; the two places of one token
+    // part; why added and not set side by side; and what training makes of
+    // the place's part.
     final String sum = <String>[
-      'token row: what it is; position row: where it sits',
-      both,
-      'size: ${_sizes(view)}',
-      'why add: side by side would make ${2 * width}; every layer takes $width',
-      'residual stream: what each block adds to, never replaces',
+      'Attention, next, reads rows as a bag, blind to their order.',
+      'So each token row (what) gets a position row (where) added.',
+      if (twin == null)
+        'Each row now says what its residue is and where it sits.'
+      else
+        'The ${twin.$1}s at ${twin.$2} and ${twin.$3} share a token row, but now differ by place.',
+      'Added, not side by side: that makes ${2 * width} numbers; layers take $width.',
+      _growth(view),
     ].join('\n');
     return <(double, double, String)>[
       (_tableIn.$1, _lookupCaption, 'A model computes with numbers, not letters: each token gets $width of its own.'),
@@ -797,7 +805,7 @@ final class EmbeddingScene extends LmScene {
       return 'The position embedding: one trainable row per place, here rows 0–${inputs - 1} '
           'of ${trace.model.context}';
     }
-    return 'Token row + position row, number by number: x0, the start of the residual stream';
+    return 'Token + position, number by number: x0, the residual stream each block adds to';
   }
 
   @override

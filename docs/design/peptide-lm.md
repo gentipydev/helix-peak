@@ -213,20 +213,31 @@ out of view is scrolled just far enough to show it whole.
      13.4, the user's ask: the old tag lingered 0.75 beat under the new
      note), and Scores keeps it. The sum is `x0` as the engine
      makes it; the run's stored stream holds it to within its own rounding.
-     Caption: "Token row + position row, number by number: x0, the start of
-     the residual stream". The two Cs stay outlined to the end, and Scores
-     draws the outlines over its own rows as it opens, fading them with the
-     note. Note, every explanation the user asked for on one screen, a
-     thought a line, each short enough to keep one line on an SE (so an
-     SE's table loses no room, a Pro's one line, 14 pt): "token row: what
-     it is; position row: where it sits / added: each place carries both;
-     the Cs at 6 and 7 now differ / size: 43× smaller than token rows at
-     step 1, 4× by step 200 / why add: side by side would make 32; every
-     layer takes 16 / residual stream: what each block adds to, never
-     replaces". The size line is the run's own, at the step in view against
-     the first or the last (insulin A: 43× at step 1, 10× at 49, 4× by 200;
-     training grows the position rows about twelvefold while the token rows
-     stay near 1). The note's room is the tallest it is at any step, so a
+     Caption: "Token + position, number by number: x0, the residual stream
+     each block adds to" (the stream's meaning moved here from the note).
+     The two Cs stay outlined to the end, and Scores draws the outlines
+     over its own rows as it opens, fading them with the note. Note, the
+     user's ask of 2026-10-31 evening: the labelled fragments ("token row:
+     what it is; position row: where it sits / added: … / size: … / why
+     add: … / residual stream: …") were not clear, so the note is now one
+     argument, a sentence a line, the explanation the user was given in
+     answer to "why do we add the token embedding with the position
+     embedding": "Attention, next, reads rows as a bag, blind to their
+     order. / So each token row (what) gets a position row (where) added. /
+     The Cs at 6 and 7 share a token row, but now differ by place. / Added,
+     not side by side: that makes 32 numbers; layers take 16. / Training
+     grows position rows from 43× smaller to 4× by step 200." (with a
+     causal mask a place reads only the rows up to its own, and those as a
+     bag: hence "rows", not "the sequence"). The last sentence is the run's
+     own, from the first checkpoint to the last at step 1, to the step in
+     view later ("…to 10× by step 49"), in the past at the last ("Training
+     grew…"); insulin A: 43× at step 1, 10× at 49, 4× by 200, the position
+     rows growing about twelvefold while the token rows stay near 1. Each
+     sentence keeps one line on an SE in the app's fonts and two in the
+     tests' square font, so the note is no taller than the labelled one
+     (five lines, 70 pt; a Pro's table 14 pt shorter than before the
+     merge, an SE's not at all), and the caption fits the stage's own box
+     at every width. The note's room is the tallest it is at any step, so a
      change of step never moves the table. "next: two blocks let each place
      read the places before it" went: Scores' first caption says it
 
