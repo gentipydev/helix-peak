@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 154 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 161 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -388,10 +388,23 @@ of 2026-10-30 and 2026-10-31:
   The run keeps no scale and shift of this norm, only what it made
   (`Evening.plain`), so the last step says evened = z-score where the run's
   numbers show that (step 1) and names the learned scale and shift
-  otherwise. The chart goes and the weights grow from the evened inputs. All 1,024 weights reach the 64 neurons,
-  coloured by sign, the signal riding the strongest, each neuron lit by what
-  GELU lets through. Then come the 16 outputs, which lie back down onto the
-  row, and what every place gains, alone, then added: block 1's output.
+  otherwise. The chart goes and the weights grow from the evened inputs. All
+  1,024 weights reach the 64 neurons, each line coloured by the sign of
+  input × weight. Then GELU is worked out (the user's ask of 2026-11-01, for
+  the explanations as clear as they can be, GELU said): the brightest
+  neuron's 16 lines stand out, a dot along each, and the caption gives its
+  sum (`FeedForwardScene.sums`: the evened row × its weights + its bias,
+  from the run); GELU's curve is drawn right of the neurons, where the
+  outputs will be (`GeluChart`, `FeedForwardScene.gelu`, x · Φ(x) as the
+  engine's `nn.GELU`), and the sum goes up to the curve and across to what
+  it passes on; then the neuron with the most negative sum, nearly
+  silenced; then every neuron at once, a point each on the curve, lit by
+  what it passes on, a dot for each lit one along its strongest input.
+  Notes say what a line is (weights' random start or updates since), what a
+  weighted sum is, what GELU is, and why the bend (without it the two layers
+  are one weighted sum). Then come the 16 outputs (each output's dot along
+  its strongest neuron; no GELU), which lie back down onto the row, and what
+  every place gains, alone, then added: block 1's output. 20 beats.
 - **Forward** (`forward_scene.dart`), the pass layer to layer: the rows condense
   into a network of a row a place and a column a point of the stream, flowing
   left to right.
