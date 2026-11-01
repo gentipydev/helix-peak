@@ -31,7 +31,7 @@ import 'weight_flow.dart';
 /// value and each share, whole.
 abstract final class WorkedAnswer {
   /// How long it plays, in beats.
-  static const double beats = 7;
+  static const double beats = 9;
 
   /// The head and the number worked out: head 1's, number 1.
   static const int _head = 0;
@@ -76,25 +76,28 @@ abstract final class WorkedAnswer {
   static const (double, double) _others = (3.5, 4.0);
 
   // Each times its share: the shares come, then what each brings, one after
-  // another, top to bottom; the two places the caption names are marked.
+  // another, top to bottom. Then one place at a time, each with its own
+  // caption: the one with the largest share, and what it adds; then the one
+  // that adds most, and why.
   static const (double, double) _sharesIn = (4.1, 4.35);
   static const (double, double) _brings = (4.4, 5.1);
-  static const (double, double) _marked = (5.0, 5.2);
+  static const (double, double) _markLargest = (5.2, 5.4);
+  static const (double, double) _markMost = (6.2, 6.4);
 
   // What each brings runs into the empty slot, a string each, and makes it.
   static const WeightFlow _sumFlow = WeightFlow(
-    alone: <(double, double)>[(5.35, 5.85)],
-    cascade: (5.85, 5.85),
-    webOut: (6.1, 6.3),
+    alone: <(double, double)>[(7.35, 7.85)],
+    cascade: (7.85, 7.85),
+    webOut: (8.1, 8.3),
     firstRelax: 0.3,
   );
 
   // The table goes, the column's other numbers come back, and it goes back
   // to where it stood, named again.
-  static const (double, double) _tableOut = (6.1, 6.3);
-  static const (double, double) _refill = (6.1, 6.4);
-  static const (double, double) _unpark = (6.35, 6.8);
-  static const (double, double) _namesIn = (6.75, 6.95);
+  static const (double, double) _tableOut = (8.1, 8.3);
+  static const (double, double) _refill = (8.1, 8.4);
+  static const (double, double) _unpark = (8.35, 8.8);
+  static const (double, double) _namesIn = (8.75, 8.95);
 
   /// How long a cell of every other place takes to fill, and what one place
   /// brings to be written.
@@ -428,6 +431,10 @@ abstract final class WorkedAnswer {
       ..strokeWidth = 0.8;
     final Paint fill = Paint();
     TextStyle face(double alpha) => inked(view.kit.mono, at.textSize, view.inks.ink, alpha: alpha);
+    // A number its caption gives as the reason, in the accent.
+    TextStyle lit(TextStyle style, double by) => by <= 0
+        ? style
+        : style.copyWith(color: Color.lerp(style.color, view.inks.signal.withValues(alpha: style.color!.a), by));
     for (int j = 0; j <= focus; j++) {
       final Rect cell = at.cell(j);
       final double filled = made(view, j, local);
@@ -443,12 +450,13 @@ abstract final class WorkedAnswer {
           fill..color = Color.lerp(view.inks.ground, view.inks.signed(numbers[j] / scale), filled * shown)!,
         );
       }
+      final (double shareLit, double valueLit) = _reasons(view, j, local);
       final double written = _written(view, j, local) * shown;
       if (written > 0) {
         view.kit.draw(
           canvas,
           _column(numbers[j], 2),
-          face(written),
+          lit(face(written), valueLit),
           Offset(at.valueLeft, cell.center.dy),
           anchor: const Offset(0, 0.5),
         );
@@ -457,7 +465,7 @@ abstract final class WorkedAnswer {
         view.kit.draw(
           canvas,
           '${tenth(shares[j])} ×',
-          face(sharesShown),
+          lit(face(sharesShown), shareLit),
           Offset(at.shareRight, cell.center.dy),
           anchor: const Offset(1, 0.5),
         );
@@ -481,17 +489,42 @@ abstract final class WorkedAnswer {
       Offset(at.valueLeft, at.cell(0).top - 3),
       anchor: const Offset(0, 1),
     );
-    final double marked = _span(local, _marked) * shown;
-    if (marked > 0) {
-      final (int most, int largest) = named(view);
-      final Paint line = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1
-        ..color = view.inks.signal.withValues(alpha: 0.85 * marked);
-      for (final int j in <int>{most, largest}) {
-        canvas.drawRRect(RRect.fromRectAndRadius(at.line(j), const Radius.circular(2.5)), line);
+    final (int most, int largest) = named(view);
+    for (final (int j, double alpha) in <(int, double)>[
+      (largest, marks(view, local).$1 * shown),
+      if (most != largest) (most, marks(view, local).$2 * shown),
+    ]) {
+      if (alpha > 0) {
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(at.line(j), const Radius.circular(2.5)),
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1
+            ..color = view.inks.signal.withValues(alpha: 0.85 * alpha),
+        );
       }
     }
+  }
+
+  /// How strongly the row with the largest share, and then the row that adds
+  /// most, are marked at [local]: each comes with its own caption; the first
+  /// steps back, faint, as the second comes. One place that is both is
+  /// marked once, from the first.
+  static (double, double) marks(LmView view, double local) {
+    final (int most, int largest) = named(view);
+    final double second = most == largest ? 0 : _span(local, _markMost);
+    return (_span(local, _markLargest) * (1 - 0.65 * second), second);
+  }
+
+  /// How strongly [j]'s share and [j]'s value are written in the accent at
+  /// [local]: the numbers its caption gives. The largest share, and its
+  /// value, the reason it adds what it does; then the value of the place
+  /// that adds most, the reason it does.
+  static (double, double) _reasons(LmView view, int j, double local) {
+    final (int most, int largest) = named(view);
+    final (double first, double second) = marks(view, local);
+    final double share = j == largest ? first : 0;
+    return (share, math.max(share, j == most && most != largest ? second : 0));
   }
 
   /// The value weights named on a plate under their strings, as Scores names
@@ -646,8 +679,11 @@ abstract final class WorkedAnswer {
     if (local < _sharesIn.$1) {
       return 'Every place the same: its own row, the same weights';
     }
+    if (local < _markLargest.$1) {
+      return 'Each place adds its value 1 × its share: the last column';
+    }
     if (local < _sumFlow.fanAt(0, 1).$1) {
-      return _bringsCaption(view);
+      return _bringsCaption(view, local);
     }
     if (local < _tableOut.$1) {
       return "Summed: ${fixed(answer(view), 2)}, number 1 of head 1's answer";
@@ -655,20 +691,29 @@ abstract final class WorkedAnswer {
     return 'Numbers 2–$width the same way, each head with its own shares';
   }
 
-  /// What the places bring, share times value: the one that brings most and
-  /// the one read most, which need not be the same place.
-  static String _bringsCaption(LmView view) {
+  /// What the places add, one place at a time: the one with the largest
+  /// share, and what it adds; then the one that adds most, and why. Which
+  /// adds most is share times value, so the largest share need not.
+  static String _bringsCaption(LmView view, double local) {
     final List<double> each = brought(view);
+    final List<double> numbers = values(view);
+    final List<double> shares = AttentionScene.shares(view, _head);
     if (each.length == 1) {
-      return 'Share × value: ${StreamTable.placeName(view, 0)} alone, 100%, brings ${term(each[0], 3)}';
+      return '${StreamTable.placeName(view, 0)} alone: a share of 100%, so it adds its whole value, '
+          '${term(each[0], 3)}';
     }
     final (int most, int largest) = named(view);
-    final String mostName = StreamTable.placeName(view, most);
+    final String large = StreamTable.placeName(view, largest);
     if (most == largest) {
-      return 'Share × value: $mostName, read most, also brings most: ${term(each[most], 3)}';
+      return 'Largest share: $large, ${tenth(shares[largest])}, of a value of ${term(numbers[largest], 2)}: '
+          'it adds most, ${term(each[largest], 3)}';
     }
-    return 'Share × value: $mostName brings most, ${term(each[most], 3)}; '
-        '${StreamTable.placeName(view, largest)}, read most, ${term(each[largest], 3)}';
+    if (local < _markMost.$1) {
+      return 'Largest share: $large, ${tenth(shares[largest])}, but its value is ${term(numbers[largest], 2)}: '
+          'it adds only ${term(each[largest], 3)}';
+    }
+    return '${StreamTable.placeName(view, most)} adds most, ${term(each[most], 3)}: a smaller share, '
+        '${tenth(shares[most])}, but its value is ${term(numbers[most], 2)}';
   }
 }
 

@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 149 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 151 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -338,7 +338,7 @@ of 2026-10-30 and 2026-10-31:
   query's (the user's choice of 2026-11-01, over strings down to a segment
   under the row): each head's answer stands up off the row, a slice a head
   with Scores' cut, where Scores stood the evened row. Number 1 of head 1's
-  answer is then worked out (`worked_answer.dart`, 7 beats, the user's ask of
+  answer is then worked out (`worked_answer.dart`, 9 beats, the user's ask of
   2026-11-01: where each place's value comes from, and how the values make
   the answer): the column goes to the bench's right edge, number 1 an empty
   slot; a copy of the row in focus stands up where Scores stood it, evened,
@@ -347,7 +347,10 @@ of 2026-10-30 and 2026-10-31:
   −1.22); `<bos>`'s row takes its place and the same weights make its own
   (+0.11; the user's pick: the place in focus, then `<bos>`); every other
   place's comes on its row; each is written times its share (to a tenth, so
-  share × value reads right), what it brings after it, and those run, a
+  share × value reads right), what it adds after it; then one place at a
+  time, each with its own caption and its reasons lit in the accent, the
+  largest share and what it adds, then the place that adds most and why
+  (the user's ask: "brings most" and "read most" said nothing); those run, a
   string each, into the slot and make it again (0.30); numbers 2–16 come
   back with a caption (the user's pick, no pass over them), and the column
   goes back to where it stood, the frame it opened on. Then an empty column

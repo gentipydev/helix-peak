@@ -308,15 +308,29 @@ void main() {
         largest = j;
       }
     }
-    expect(
-      caption(LmStage.attention, attention(10)),
-      most == largest
-          ? 'Share × value: ${name(most)}, read most, also brings most: ${WorkedAnswer.term(brought[most], 3)}'
-          : 'Share × value: ${name(most)} brings most, ${WorkedAnswer.term(brought[most], 3)}; '
-                '${name(largest)}, read most, ${WorkedAnswer.term(brought[largest], 3)}',
-    );
-    expect(caption(LmStage.attention, attention(11)), "Summed: ${fixed(answer1, 2)}, number 1 of head 1's answer");
-    expect(caption(LmStage.attention, attention(11.8)), 'Numbers 2–$width the same way, each head with its own shares');
+    String share(int j) => WorkedAnswer.tenth(shares(0)[j]);
+    expect(caption(LmStage.attention, attention(10)), 'Each place adds its value 1 × its share: the last column');
+    // Then one place at a time: the largest share, and what it adds; then the
+    // place that adds most, and why.
+    if (most == largest) {
+      final String both = 'Largest share: ${name(most)}, ${share(most)}, of a value of '
+          '${WorkedAnswer.term(value1(most), 2)}: it adds most, ${WorkedAnswer.term(brought[most], 3)}';
+      expect(caption(LmStage.attention, attention(11)), both);
+      expect(caption(LmStage.attention, attention(12)), both);
+    } else {
+      expect(
+        caption(LmStage.attention, attention(11)),
+        'Largest share: ${name(largest)}, ${share(largest)}, but its value is '
+        '${WorkedAnswer.term(value1(largest), 2)}: it adds only ${WorkedAnswer.term(brought[largest], 3)}',
+      );
+      expect(
+        caption(LmStage.attention, attention(12)),
+        '${name(most)} adds most, ${WorkedAnswer.term(brought[most], 3)}: a smaller share, '
+        '${share(most)}, but its value is ${WorkedAnswer.term(value1(most), 2)}',
+      );
+    }
+    expect(caption(LmStage.attention, attention(13)), "Summed: ${fixed(answer1, 2)}, number 1 of head 1's answer");
+    expect(caption(LmStage.attention, attention(13.8)), 'Numbers 2–$width the same way, each head with its own shares');
     // Number 1 of what attention adds: the stream's own gain across it, the
     // output weights' sum of the heads' answers, with its bias once training
     // has given it one (every bias starts at 0).
@@ -328,25 +342,25 @@ void main() {
     expect(trace.outBias(first.checkpoint, 0, 0), 0);
     expect(trace.outBias(last3.checkpoint, 0, 0), isNot(0));
     expect(
-      attentionAt(first, 13),
+      attentionAt(first, 15),
       'Output number 1: all $width × their weights, summed: ${fixed(gained(first), 2)}',
     );
     expect(
-      attentionAt(last3, 13),
+      attentionAt(last3, 15),
       'Output number 1: all $width × their weights, summed, + bias: ${fixed(gained(last3), 2)}',
     );
     expect(
-      caption(LmStage.attention, attention(14)),
+      caption(LmStage.attention, attention(16)),
       'The other ${width - 1} the same: ${width * width} output weights, $width into each',
     );
-    expect(caption(LmStage.attention, attention(14.6)), 'What attention adds to V3');
-    expect(caption(LmStage.attention, attention(15.6)), "Head 1's map: V3's row first, its shares from Scores");
+    expect(caption(LmStage.attention, attention(16.6)), 'What attention adds to V3');
+    expect(caption(LmStage.attention, attention(17.6)), "Head 1's map: V3's row first, its shares from Scores");
     expect(
-      caption(LmStage.attention, attention(17.2)),
+      caption(LmStage.attention, attention(19.2)),
       'Every place does what V3 did, its query on the keys up to it',
     );
     expect(
-      caption(LmStage.attention, attention(19.6)),
+      caption(LmStage.attention, attention(21.6)),
       "Each row made as V3's was: its shares × the values, × output weights",
     );
     expect(caption(LmStage.attention, 0.99), 'Added: x0 + attention, 12 × $width');
@@ -496,7 +510,7 @@ void main() {
     // Attention's map lies on the table's rows: a tap on a row of it, on a
     // share it reads or on a place it never reads, puts that row's place in
     // focus.
-    final TrainingFrame map = timeline.frameIn(LmStage.attention, 18 / LmStage.attention.beats);
+    final TrainingFrame map = timeline.frameIn(LmStage.attention, 20 / LmStage.attention.beats);
     final AttentionLayout attention = AttentionLayout(size, scene);
     final int places = trace.peptides.first.inputs;
     for (int i = 0; i < places; i++) {

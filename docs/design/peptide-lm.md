@@ -326,7 +326,7 @@ out of view is scrolled just far enough to show it whole.
 
    The shares here, and in Attention's captions, are softmax of the kept
    scores, whole (the u1 maps differed by up to 0.5 points: S9 read 24%).
-5. **Attention.** It opens on Scores' last frame, in 22 beats:
+5. **Attention.** It opens on Scores' last frame, in 24 beats:
    - head 1's scores give way to its shares, its keys turn into values, and
      arcs carry each share of each value into the head's eight-number answer,
      values riding them, as Scores' bars go;
@@ -347,7 +347,7 @@ out of view is scrolled just far enough to show it whole.
      the middle of its answer's top, coming straight down onto it. Arcs from
      higher rows already clear the answers and are unchanged (the user's
      ask: "a higher upper arc so they don't touch the segments before");
-   - number 1 of head 1's answer, worked out (beats 5.3–12.3,
+   - number 1 of head 1's answer, worked out (beats 5.3–14.3,
      `worked_answer.dart`). Once the answers stand side by side, the user
      asked on 2026-11-01 for what the page left unsaid: where each place's
      value comes from (Scores made only C11's: "+0.11 is the first value of
@@ -358,7 +358,7 @@ out of view is scrolled just far enough to show it whole.
      0.30, is what the part draws. The user's two picks: the place in focus
      and then `<bos>` through the same strings, and the other fifteen
      numbers left to a caption. It opens and ends on the frame the answers
-     stand in, so the output weights follow 7 beats later, unchanged.
+     stand in, so the output weights follow 9 beats later, unchanged.
      - The goal: the column goes to the bench's right edge, its other
        numbers gone and their tiles faint, number 1 an empty slot, outlined
        ("Number 1 of head 1's answer, 0.30, worked out").
@@ -378,14 +378,21 @@ out of view is scrolled just far enough to show it whole.
        evened row and the value weights (and their bias, once training has
        made one: "+ bias", as Scores folds its own).
      - How they make the answer: each share comes before its value, to a
-       tenth, so share × value reads right ("6.8% × ■ +0.11 = +0.007");
-       then what each place brings, one after another; the place that brings
-       most and the place read most are marked ("Share × value: Q5 brings
-       most, +0.208; S9, read most, −0.027": the largest share need not
-       bring most). Places after C11 are hatched, never read. What each
-       brings then runs, a string each, into the empty slot, and number 1 is
-       made again ("Summed: 0.30, number 1 of head 1's answer"); the strings
-       are the arcs' work, written out.
+       tenth, so share × value reads right ("6.8% × ■ +0.11 = +0.007"); then
+       what each place adds, one after another ("Each place adds its value 1
+       × its share: the last column"). Then one place at a time, marked, the
+       numbers its caption gives lit in the accent: the largest share
+       ("Largest share: S9, 23.4%, but its value is −0.11: it adds only
+       −0.027"), then the place that adds most ("Q5 adds most, +0.208: a
+       smaller share, 11.2%, but its value is +1.86"). The first version
+       said both in one caption ("Q5 brings most, +0.208; S9, read most,
+       −0.027") with both rows marked at once; the user asked what "brings
+       most" and "read most" meant, so the part grew 2 beats (9). One place
+       that is both is marked once ("Largest share: G1, 54.9%, of a value of
+       +1.74: it adds most, +0.957", step 200). Places after C11 are
+       hatched, never read. What each adds then runs, a string each, into
+       the empty slot, and number 1 is made again ("Summed: 0.30, number 1
+       of head 1's answer"); the strings are the arcs' work, written out.
      - The rest: the table goes, numbers 2–16 come back, and the column goes
        back to where it stood ("Numbers 2–16 the same way, each head with
        its own shares").
@@ -397,12 +404,12 @@ out of view is scrolled just far enough to show it whole.
        1s. Head 2's note stays on through the join, and the output weights'
        note comes after the part.
      - At step 200 the same table reads G1 54.9% × 1.74 and Q5 29.5% × 1.85,
-       summed 1.35 ("Share × value: G1, read most, also brings most").
+       summed 1.35.
      - The 0.11 of out_proj's number 1 (0.1135) is not `<bos>`'s value 1
        (0.1084); the two round alike at step 1, so the next caption names
        its column: "Output number 1: …".
    - the answers, side by side, through the output weights, a fourth trainable
-     16 × 16 (beats 4.4–5.3, then 12.3–15.2). The user asked on 2026-11-01 how
+     16 × 16 (beats 4.4–5.3, then 14.3–17.2). The user asked on 2026-11-01 how
      C11's row of what attention adds (0.11, 0.44, −0.19, …) is made: it had
      been a caption over a colour fade ("The heads' 8 + 8 numbers × output
      weights 16 × 16: what C11 read"), so the numbers seemed to come from
@@ -436,11 +443,11 @@ out of view is scrolled just far enough to show it whole.
      −0.17, 0.16, 0.38, 0.01, −0.06, 0.29, −0.13, −0.17, 0.21, 0.46, −0.23
      (the app's live check holds these against what production serves);
    - every place at once: head 1's map, as large as the canvas allows (beats
-     15.2–18.6). The two heads' maps stacked beside the table left each half the
+     17.2–20.6). The two heads' maps stacked beside the table left each half the
      height, rows of 10 pt on a Pro Max and 6.6 at 375 wide, out of line with
      the table's rows; at the user's ask (2026-10-31) only head 1's is drawn.
      - The answers' numbers go, and their box grows out of C11's row into the
-       map (beats 15.25–15.9): up to <bos>'s row, down to the column tiles and
+       map (beats 17.25–17.9): up to <bos>'s row, down to the column tiles and
        left to the token column, the map's empty slots and hatch seen only
        inside it; the x0 rows go into their tiles at the same pace, so the
        box never covers them. The user picked this over moving the map before

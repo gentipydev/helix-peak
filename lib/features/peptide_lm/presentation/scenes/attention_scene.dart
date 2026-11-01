@@ -54,9 +54,9 @@ final class AttentionScene extends LmScene {
   // share what is left before the join.
   static const double _firstHeadTo = 1.6;
   static const double _joinFrom = 4.4;
-  static const double _mapFrom = 15.2;
-  static const double _widenFrom = 18.6;
-  static const double _widenTo = 19.4;
+  static const double _mapFrom = 17.2;
+  static const double _widenFrom = 20.6;
+  static const double _widenTo = 21.4;
 
   // Number 1 of head 1's answer worked out, once the answers stand side by
   // side and before they go through the output weights: it opens and ends
@@ -73,18 +73,18 @@ final class AttentionScene extends LmScene {
   // answers sat. Its box comes, and the map grows out of it.
   static const (double, double) _stand = (4.6, 5.1);
   static const (double, double) _joinedIn = (5.0, 5.25);
-  static const (double, double) _outSlotsIn = (12.3, 12.55);
-  static const (double, double) _outPlateIn = (12.4, 12.65);
+  static const (double, double) _outSlotsIn = (14.3, 14.55);
+  static const (double, double) _outPlateIn = (14.4, 14.65);
   static const WeightFlow _outFlow = WeightFlow(
-    alone: <(double, double)>[(12.7, 13.3)],
-    cascade: (13.45, 14.25),
-    webOut: (14.55, 14.8),
+    alone: <(double, double)>[(14.7, 15.3)],
+    cascade: (15.45, 16.25),
+    webOut: (16.55, 16.8),
     firstRelax: 0.3,
   );
-  static const (double, double) _benchOut = (14.55, 14.8);
-  static const (double, double) _outNumbersOut = (14.55, 14.65);
-  static const (double, double) _lieDown = (14.65, 15.1);
-  static const (double, double) _boxIn = (14.95, 15.15);
+  static const (double, double) _benchOut = (16.55, 16.8);
+  static const (double, double) _outNumbersOut = (16.55, 16.65);
+  static const (double, double) _lieDown = (16.65, 17.1);
+  static const (double, double) _boxIn = (16.95, 17.15);
 
   // Scores' bars of head 1's shares go as its arcs come.
   static const (double, double) _barsOut = (0.0, 0.6);
@@ -97,21 +97,21 @@ final class AttentionScene extends LmScene {
   // once it is the map's, and the map's tag comes. The place in focus's row
   // fills, a cell at a time, then every other row, top to bottom; then it
   // holds.
-  static const (double, double) _x0TagOut = (15.2, 15.4);
-  static const (double, double) _answersOut = (15.2, 15.35);
-  static const (double, double) _grow = (15.25, 15.9);
-  static const (double, double) _boxOut = (15.85, 16.1);
-  static const (double, double) _mapIn = (15.25, 15.5);
-  static const (double, double) _mapTagIn = (15.6, 15.8);
-  static const (double, double) _focusRow = (15.9, 16.7);
-  static const (double, double) _rows = (16.8, 17.6);
+  static const (double, double) _x0TagOut = (17.2, 17.4);
+  static const (double, double) _answersOut = (17.2, 17.35);
+  static const (double, double) _grow = (17.25, 17.9);
+  static const (double, double) _boxOut = (17.85, 18.1);
+  static const (double, double) _mapIn = (17.25, 17.5);
+  static const (double, double) _mapTagIn = (17.6, 17.8);
+  static const (double, double) _focusRow = (17.9, 18.7);
+  static const (double, double) _rows = (18.8, 19.6);
 
   // What attention added, alone on its own scale, then the sums.
-  static const (double, double) _alone = (18.6, 19.2);
-  static const (double, double) _gainWritten = (19.4, 19.6);
-  static const (double, double) _gainUnwritten = (20.0, 20.2);
-  static const (double, double) _add = (20.1, 20.5);
-  static const (double, double) _sumsWritten = (20.3, 20.5);
+  static const (double, double) _alone = (20.6, 21.2);
+  static const (double, double) _gainWritten = (21.4, 21.6);
+  static const (double, double) _gainUnwritten = (22.0, 22.2);
+  static const (double, double) _add = (22.1, 22.5);
+  static const (double, double) _sumsWritten = (22.3, 22.5);
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
