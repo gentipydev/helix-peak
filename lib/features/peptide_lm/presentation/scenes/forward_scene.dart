@@ -6,69 +6,100 @@ import '../../../../shared/format.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
 import '../lm_format.dart';
+import 'block_two_scene.dart';
 import 'embedding_scene.dart';
-import 'feed_forward_scene.dart';
 import 'lm_drawing.dart';
 import 'lm_scene.dart';
+import 'scores_scene.dart';
 import 'stream_table.dart';
 
-/// Forward: the whole pass, layer to layer. It opens on Feed-forward's last
-/// frame, block 1's output a row a place, whose rows condense into a column
-/// of a network: a row a place, a column a point of the stream (x0, and the
-/// stream after each block's attention and feed-forward), flowing left to
-/// right. Between the columns: in an attention, a line from every place to
-/// each place after it, as strong as its share; in a feed-forward, each
-/// place's own line. Each node is the place read out early: the token the
-/// output layer would give it if the model stopped there, faded by how sure
-/// it is, outlined when it is the token that comes next.
+/// Forward: the place in focus's row through the whole pass, layer to
+/// layer, down the canvas ([TowerLayout]). It opens on Block 2's last frame,
+/// block 2's output a row a place. The other rows go; the place's row goes
+/// to its slot on a ladder of the stream's points and waits there, faint,
+/// while the route comes in: a slot of empty tiles for each point, each part
+/// named in the gap before its slot. x0 comes in at the top, as Embedding
+/// made it; then, a part at a time, what it adds comes in as a thin strip,
+/// and a copy of the row above drops through it into the next slot, turning
+/// into the sum as it passes, the last of them onto the row that waited.
+/// The final LayerNorm takes the last drop: the row Predict reads. Only the
+/// row last made writes its numbers.
 ///
-/// The signal runs through block 1 again, then through block 2 and the
-/// final LayerNorm; last, each column counts the places it gets right.
+/// Every number is the run's: each point of the stream, whole.
 final class ForwardScene extends LmScene {
   const ForwardScene();
 
   static double get _beats => LmStage.forward.beats.toDouble();
 
-  // The open: block 1's output condenses into its column; the columns before
-  // it come in, with their lines.
-  static const (double, double) _numbersOut = (0.0, 0.25);
-  static const (double, double) _condense = (0.2, 1.0);
-  static const (double, double) _becomeNodes = (0.7, 1.0);
-  static const (double, double) _restIn = (0.6, 1.2);
+  // The open: the table goes, the place's row to its slot, its tile to the
+  // ladder's top; the route comes in, then x0.
+  static const (double, double) _tagOut = (0.15, 0.4);
+  static const (double, double) _tableOut = (0.2, 0.7);
+  static const (double, double) _numbersOut = (0.2, 0.5);
+  static const (double, double) _move = (0.3, 1.0);
+  static const (double, double) _wait = (0.8, 1.1);
+  static const (double, double) _routeIn = (0.7, 1.1);
+  static const (double, double) _tagIn = (0.9, 1.1);
+  static const (double, double) _x0In = (1.0, 1.4);
 
-  // Block 1 run again, quickly; the blocks after it each in their turn; the
-  // final norm; the counts.
-  static const double _replayFrom = 1.2;
-  static const double _replayTo = 2.6;
-  static const double _blocksFrom = 2.8;
-  static const double _blocksTo = 7.0;
-  static const (double, double) _norm = (7.0, 8.0);
-  static const (double, double) _counted = (8.0, 9.0);
+  // The climb, a part at a time, then the final LayerNorm and the row it
+  // makes, outlined.
+  static const double _climbFrom = 1.6;
+  static const double _finalFrom = 8.4;
+  static const double _plainFrom = 9.6;
+  static const (double, double) _outlined = (10.2, 10.6);
+  static const double _endFrom = 10.6;
+
+  /// The longest a part takes.
+  static const double _mostPart = 1.7;
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
-  /// When the signal crosses each gap between columns: from, to.
-  static (double, double) crossing(int gap, int layers) {
-    final int block = gap ~/ 2;
-    final bool attention = gap.isEven;
-    if (block == 0) {
-      const double half = (_replayTo - _replayFrom) * 0.55;
-      return attention ? (_replayFrom, _replayFrom + half) : (_replayFrom + half, _replayTo);
+  /// The part that makes slot [k], 1 to the last, of a model of [layers]
+  /// blocks: when it starts and how long it takes. Each block's attention
+  /// and feed-forward in turn, then the final LayerNorm.
+  static (double, double) _part(int k, int layers) {
+    if (k > 2 * layers) {
+      return (_finalFrom, _mostPart);
     }
-    final double span = (_blocksTo - _blocksFrom) / math.max(1, layers - 1);
-    final double start = _blocksFrom + (block - 1) * span;
-    return attention ? (start, start + span * 0.58) : (start + span * 0.62, start + span);
+    final double step = (_finalFrom - _climbFrom) / (2 * layers);
+    return (_climbFrom + (k - 1) * step, math.min(_mostPart, step));
   }
 
-  /// When column [c]'s nodes come: the first three with the open, the rest
-  /// as the signal reaches them.
-  static double _column(int c, double beat, int layers) {
-    if (c <= 2) {
-      return c == 2 ? 1 : _span(beat, _restIn);
-    }
-    final (double from, double to) = crossing(c - 1, layers);
-    return through(beat, from + (to - from) * 0.6, to);
+  /// How far the copy dropping into slot [k] has come at [beat], of a model
+  /// of [layers] blocks: through the strip of what its part adds.
+  static double dropped(int k, int layers, double beat) {
+    final (double t, double p) = _part(k, layers);
+    return through(beat, t + 0.2 * p, t + 0.68 * p);
   }
+
+  /// How strongly slot [k]'s strip shows at [beat]: in as its part starts.
+  static double _stripShown(int k, int layers, double beat) {
+    final (double t, double p) = _part(k, layers);
+    return through(beat, t, t + 0.2 * p);
+  }
+
+  /// How strongly slot [k]'s row writes its numbers at [beat]: from when it
+  /// lands until the copy of it starts to drop into the next.
+  static double _written(int k, int layers, double beat) {
+    double on;
+    if (k == 0) {
+      on = _span(beat, _x0In);
+    } else {
+      final (double t, double p) = _part(k, layers);
+      on = through(beat, t + 0.68 * p, t + 0.82 * p);
+    }
+    if (k == 2 * layers + 1) {
+      return on;
+    }
+    final (double t, double p) = _part(k + 1, layers);
+    return on * (1 - through(beat, t + 0.18 * p, t + 0.26 * p));
+  }
+
+  /// How far slot [k] has its row at [beat]: x0 as it comes in, the others
+  /// once their copy has landed.
+  static double _landed(int k, int layers, double beat) =>
+      k == 0 ? _span(beat, _x0In) : (dropped(k, layers, beat) >= 1 ? 1 : 0);
 
   @override
   void paint(Canvas canvas, Size size, LmView view, TrainingFrame frame) =>
@@ -76,265 +107,155 @@ final class ForwardScene extends LmScene {
 
   void _paint(Canvas canvas, Size size, LmView view, double beat) {
     if (beat <= 0) {
-      const FeedForwardScene().paintEnd(canvas, size, view);
+      const BlockTwoScene().paintEnd(canvas, size, view);
       return;
     }
-    final NetworkLayout layout = NetworkLayout(size, view);
+    final TowerLayout layout = TowerLayout(size, view);
     final StreamTable table = layout.table;
-    final TrainingTrace trace = view.trace;
     final int n = view.focus.inputs;
-    final int width = trace.model.width;
-    table.note(canvas, _feedForwardNote(view), beat);
-    table.note(canvas, notes(view), beat);
-    table.tag(canvas, "block 1's output · $n × $width", 1 - through(beat, 0.2, 0.5));
-    _header(canvas, view, layout, beat);
-    _edges(canvas, view, layout, beat);
-    _condensing(canvas, view, layout, beat);
-    _nodes(canvas, view, layout, beat);
-    table.drawTiles(canvas);
-    table.outline(canvas, view.position, layout.columnX(layout.columns - 1) + layout.node / 2 + 3, 1);
-    _counts(canvas, view, layout, beat);
-  }
-
-  /// Feed-forward's last note, going as this stage's come.
-  static List<(double, double, String)> _feedForwardNote(LmView view) => <(double, double, String)>[
-    (
-      double.negativeInfinity,
-      0.25,
-      'nothing is overwritten: the output is added to the row\n'
-          'next: block 2 does both again, with its own weights',
-    ),
-  ];
-
-  // ---------------------------------------------------------------- reading
-
-  /// What place [i] reads out at column [c]: the token the output layer
-  /// would give it, and how sure.
-  static (int, double) readout(LmView view, int c, int i) {
-    final TrainingTrace trace = view.trace;
-    int best = 0;
-    double most = -1;
-    for (int k = 0; k < trace.allowed.length; k++) {
-      final double p = trace.readout(view.checkpoint, c, view.peptide, i, k);
-      if (p > most) {
-        most = p;
-        best = k;
-      }
-    }
-    return (trace.allowed[best], most);
-  }
-
-  /// How many places column [c] reads out right.
-  static int right(LmView view, int c) {
-    int count = 0;
-    for (int i = 0; i < view.focus.inputs; i++) {
-      if (readout(view, c, i).$1 == view.trace.targetAt(view.peptide, i)) {
-        count++;
-      }
-    }
-    return count;
-  }
-
-  /// Place [key]'s share of what place [query] reads in [block]: the heads'
-  /// mean, or the head in focus.
-  static double share(LmView view, int block, int query, int key) => view.head == null
-      ? view.trace.meanAttention(view.checkpoint, block, view.peptide, query, key)
-      : view.trace.attention(view.checkpoint, block, view.head!, view.peptide, query, key);
-
-  // ------------------------------------------------------------------ paint
-
-  /// The columns named: x0, and each block over its two columns; the final
-  /// norm at the right.
-  void _header(Canvas canvas, LmView view, NetworkLayout layout, double beat) {
-    final double shown = _span(beat, _restIn);
-    if (shown <= 0) {
-      return;
-    }
-    final double y = layout.headerY;
-    final TextStyle face = inked(view.kit.sans, 9, view.inks.quiet, alpha: shown);
-    view.kit.draw(canvas, 'x0', face, Offset(layout.columnX(0), y), anchor: const Offset(0.5, 1));
-    for (int b = 0; b < layout.layers; b++) {
-      final double left = layout.columnX(2 * b + 1) - layout.node / 2;
-      final double right = layout.columnX(2 * b + 2) + layout.node / 2;
-      final Paint line = Paint()
-        ..strokeWidth = 0.8
-        ..color = view.inks.rule.withValues(alpha: shown);
-      canvas.drawLine(Offset(left, y + 2), Offset(right, y + 2), line);
-      view.kit.draw(canvas, 'block ${b + 1}', face, Offset((left + right) / 2, y), anchor: const Offset(0.5, 1));
-    }
-    final double norm = _span(beat, _norm);
-    final double x = layout.normX;
-    canvas.drawLine(
-      Offset(x, layout.table.row(0).top),
-      Offset(x, layout.table.row(view.focus.inputs - 1).bottom),
-      Paint()
-        ..strokeWidth = norm > 0 ? 1.4 : 0.8
-        ..color = Color.lerp(view.inks.rule, view.inks.signal, math.sin(math.pi * norm))!.withValues(alpha: shown),
+    final int width = view.trace.model.width;
+    table.note(
+      canvas,
+      <(double, double, String)>[(double.negativeInfinity, 0.25, BlockTwoScene.notes(view).last.$3), ...notes(view)],
+      beat,
     );
-    view.kit.draw(canvas, 'norm', face, Offset(layout.table.layout.right, y), anchor: const Offset(1, 1));
+    table.tag(canvas, "block 2's output · $n × $width", 1 - _span(beat, _tagOut));
+    final String name = tag(view);
+    drawTag(canvas, view, name, layout.tagAt(tagSize(view, name)), alpha: _span(beat, _tagIn));
+    _table(canvas, size, view, layout, beat);
+    _route(canvas, view, layout, beat);
+    _rows(canvas, view, layout, beat);
+    // The place's tile, from its row to the ladder's top.
+    drawToken(
+      canvas,
+      view,
+      Rect.lerp(table.layout.label(view.position), layout.chip, _span(beat, _move))!,
+      view.trace.inputAt(view.peptide, view.position),
+    );
+    final double outlined = _span(beat, _outlined);
+    if (outlined > 0) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(layout.slot(layout.points - 1).inflate(2), const Radius.circular(3)),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.2
+          ..color = view.inks.signal.withValues(alpha: 0.85 * outlined),
+      );
+    }
   }
 
-  /// Every line: each place's own, straight through; and in each attention,
-  /// one from every place to each place after it, as strong as its share,
-  /// the place in focus's in the accent. The signal rides them as it crosses.
-  void _edges(Canvas canvas, LmView view, NetworkLayout layout, double beat) {
-    final int n = view.focus.inputs;
-    final int focus = view.position;
-    final double rest = _span(beat, _restIn);
-    final LineBatch batch = LineBatch();
-    final List<(Offset, Offset, double, bool)> riders = <(Offset, Offset, double, bool)>[];
-    for (int gap = 0; gap < layout.columns - 1; gap++) {
-      final (double from, double to) = crossing(gap, layout.layers);
-      // Block 1's lines come with the open; the rest as the signal reaches
-      // them.
-      final double shown = gap < 2 ? rest : through(beat, from, from + 0.4);
-      if (shown <= 0) {
-        continue;
-      }
-      final double left = layout.columnX(gap) + layout.node / 2 + 1;
-      final double right = layout.columnX(gap + 1) - layout.node / 2 - 1;
-      final double riding = beat >= from && beat < to ? (beat - from) / (to - from) : -1;
-      for (int i = 0; i < n; i++) {
-        final double y = layout.table.row(i).center.dy;
-        batch.line(Offset(left, y), Offset(right, y), view.inks.quiet, 0.8, 0.45 * shown);
-      }
-      if (gap.isEven) {
-        final int block = gap ~/ 2;
-        for (int i = 0; i < n; i++) {
-          double most = 1e-9;
-          for (int j = 0; j <= i; j++) {
-            most = math.max(most, share(view, block, i, j));
-          }
-          for (int j = 0; j < i; j++) {
-            final double w = share(view, block, i, j);
-            final Offset a = Offset(left, layout.table.row(j).center.dy);
-            final Offset b = Offset(right, layout.table.row(i).center.dy);
-            if (i == focus) {
-              final double r = w / most;
-              batch.line(a, b, view.inks.signal, 0.6 + 2.4 * r, (0.15 + 0.85 * r) * shown);
-              if (riding >= 0 && r >= 0.05) {
-                riders.add((a, b, r, true));
-              }
-            } else {
-              batch.line(a, b, view.inks.signal, 0.6, (0.03 + 0.35 * w) * shown);
-              if (riding >= 0 && w >= 0.25) {
-                riders.add((a, b, w, false));
-              }
-            }
-          }
-        }
-      }
-      if (riding >= 0) {
-        for (int i = 0; i < n; i++) {
-          final double y = layout.table.row(i).center.dy;
-          riders.add((Offset(left, y), Offset(right, y), i == focus ? 1 : 0.5, i == focus));
-        }
-      }
-    }
-    batch.draw(canvas);
-    // The signal: a pulse a line, crossing as the gap is crossed.
-    for (int gap = 0; gap < layout.columns - 1; gap++) {
-      final (double from, double to) = crossing(gap, layout.layers);
-      if (beat < from || beat >= to) {
-        continue;
-      }
-      final double s = ((beat - from) / (to - from)).clamp(0.0, 1.0);
-      final double fade = through(beat, from, from + 0.15) * (1 - through(beat, to - 0.15, to));
-      final double left = layout.columnX(gap) + layout.node / 2 + 1;
-      final double right = layout.columnX(gap + 1) - layout.node / 2 - 1;
-      for (final (Offset a, Offset b, double w, bool bright) in riders) {
-        if (a.dx < left - 0.5 || b.dx > right + 0.5) {
+  /// The ladder's name: the place in focus, a row a point of the stream.
+  static String tag(LmView view) =>
+      "${StreamTable.placeName(view, view.position)}'s row, layer to layer · "
+      '${view.trace.points.length} × ${view.trace.model.width}';
+
+  /// Block 2's table going: every row but the place in focus's, their
+  /// tiles, and the place's outline.
+  void _table(Canvas canvas, Size size, LmView view, TowerLayout layout, double beat) {
+    final StreamTable table = layout.table;
+    final int output = layout.points - 2;
+    drawFaded(canvas, size, view, 1 - _span(beat, _tableOut), () {
+      for (int i = 0; i < table.places; i++) {
+        if (i == view.position) {
           continue;
         }
-        canvas.drawCircle(
-          Offset.lerp(a, b, s)!,
-          bright ? 1 + 2.2 * math.sqrt(w) : 1.1,
-          Paint()..color = view.inks.signal.withValues(alpha: (bright ? 0.95 : 0.45) * fade),
-        );
+        table.drawRow(canvas, table.row(i), table.values(output, i), scale: table.scale);
+        drawToken(canvas, view, table.layout.label(i), view.trace.inputAt(view.peptide, i));
       }
-    }
+      table.outline(canvas, view.position, table.row(view.position).right, 1);
+    });
   }
 
-  /// Block 1's output condensing from its rows into its column.
-  void _condensing(Canvas canvas, LmView view, NetworkLayout layout, double beat) {
-    final double condense = _span(beat, _condense);
-    final double gone = _span(beat, _becomeNodes);
-    if (gone >= 1) {
-      return;
-    }
-    final StreamTable table = layout.table;
-    const int after = 2 * FeedForwardScene.block + 2;
-    final double text = 1 - _span(beat, _numbersOut);
-    for (int i = 0; i < view.focus.inputs; i++) {
-      final Rect full = table.row(i);
-      final Rect node = layout.nodeRect(2, i);
-      final Rect rect = Rect.lerp(full, Rect.fromLTRB(node.left - 4, full.top, node.right + 4, full.bottom), condense)!;
-      final List<double> values = table.values(after, i);
-      table.drawRow(
-        canvas,
-        rect,
-        values,
-        scale: table.scale,
-        fill: 1 - gone,
-        text: condense > 0.02 ? 0 : text,
-      );
-    }
-  }
-
-  /// Each node: the place read out early, faded by how sure, outlined in the
-  /// tracer once the counts come where it is right.
-  void _nodes(Canvas canvas, LmView view, NetworkLayout layout, double beat) {
-    final TrainingTrace trace = view.trace;
-    final double counted = _span(beat, _counted);
-    for (int c = 0; c < layout.columns; c++) {
-      final double shown = c == 2 ? _span(beat, _becomeNodes) : _column(c, beat, layout.layers);
-      if (shown <= 0) {
-        continue;
-      }
-      for (int i = 0; i < view.focus.inputs; i++) {
-        final (int id, double p) = readout(view, c, i);
-        final Rect rect = layout.nodeRect(c, i);
-        drawToken(canvas, view, rect, id, alpha: shown * (0.25 + 0.75 * p));
-        if (counted > 0 && id == trace.targetAt(view.peptide, i)) {
-          // As drawToken shapes its tile, outlined in the tracer.
-          final Rect tile = rect.deflate(math.min(1.0, rect.width * 0.08));
-          canvas.drawRRect(
-            RRect.fromRectAndRadius(tile, Radius.circular(tile.width * 0.18)).inflate(0.8),
-            Paint()
-              ..style = PaintingStyle.stroke
-              ..strokeWidth = 1.4
-              ..color = view.inks.truth.withValues(alpha: counted * shown),
-          );
-        }
-      }
-    }
-  }
-
-  /// Under each column, how many places it reads out right.
-  void _counts(Canvas canvas, LmView view, NetworkLayout layout, double beat) {
-    final double shown = _span(beat, _counted);
+  /// The route: each point's slot, empty tiles until its row lands; each
+  /// part named in the gap before its slot; x0 named by the ladder's top.
+  void _route(Canvas canvas, LmView view, TowerLayout layout, double beat) {
+    final double shown = _span(beat, _routeIn);
     if (shown <= 0) {
       return;
     }
-    final double y = layout.table.row(view.focus.inputs - 1).bottom + 4;
-    for (int c = 0; c < layout.columns; c++) {
-      view.kit.draw(
+    final int layers = view.trace.model.layers;
+    final TextStyle face = inked(view.kit.sans, 9, view.inks.quiet, alpha: shown);
+    for (int k = 0; k < layout.points; k++) {
+      final double landed = _landed(k, layers, beat);
+      if (landed < 1) {
+        layout.drawSlots(canvas, k, 0.6 * shown * (1 - landed));
+      }
+      view.kit.draw(canvas, partName(k, layers), face, layout.labelAt(k));
+    }
+  }
+
+  /// Slot [k]'s name, over it: x0, then the part that makes each row.
+  static String partName(int k, int layers) => switch (k) {
+    0 => 'x0, as Embedding made it',
+    _ when k > 2 * layers => 'final LayerNorm: what Predict reads',
+    _ => "+ block ${(k - 1) ~/ 2 + 1}'s ${k.isOdd ? 'attention' : 'feed-forward'}",
+  };
+
+  /// The rows: each part's strip as its part starts; each row once landed,
+  /// its numbers written until the next drop; the place's row from the
+  /// table, waiting faint in its slot until the climb reaches it; and each
+  /// copy as it drops, turning into the sum as it passes the strip.
+  void _rows(Canvas canvas, LmView view, TowerLayout layout, double beat) {
+    final StreamTable table = layout.table;
+    final int layers = view.trace.model.layers;
+    final int focus = view.position;
+    final int last = layout.points - 1;
+    final double finalScale = streamScales(view).$2;
+    double scaleOf(int k) => k == last ? finalScale : table.scale;
+    List<Color> colours(int k) => <Color>[
+      for (final double v in table.values(k, focus)) view.inks.cell(v / scaleOf(k)),
+    ];
+    for (int k = 1; k < last; k++) {
+      final double shown = _stripShown(k, layers, beat);
+      if (shown > 0) {
+        table.drawRow(canvas, layout.strip(k), table.gained(k - 1, k, focus), scale: layout.gainScale, text: 0, fill: shown);
+      }
+    }
+    for (int k = 0; k <= last; k++) {
+      final double landed = _landed(k, layers, beat);
+      if (landed > 0) {
+        final List<double> values = table.values(k, focus);
+        table.drawRow(canvas, layout.slot(k), values, scale: scaleOf(k), fill: landed, text: 0);
+        layout.write(canvas, layout.slot(k), values, _written(k, layers, beat));
+      }
+    }
+    final int waiting = last - 1;
+    if (dropped(waiting, layers, beat) < 1) {
+      table.drawRow(
         canvas,
-        grouped(right(view, c)),
-        inked(view.kit.mono, 10, view.inks.truth, alpha: shown),
-        Offset(layout.columnX(c), y),
-        anchor: const Offset(0.5, 0),
+        Rect.lerp(table.row(focus), layout.slot(waiting), _span(beat, _move))!,
+        table.values(waiting, focus),
+        scale: table.scale,
+        fill: 1 - 0.7 * _span(beat, _wait),
+        text: 1 - _span(beat, _numbersOut),
       );
     }
-    view.kit.draw(
-      canvas,
-      'places read out right, of ${grouped(view.focus.inputs)}',
-      inked(view.kit.sans, 9, view.inks.quiet, alpha: shown),
-      Offset(layout.table.layout.label(0).left, y + 15),
-    );
+    for (int k = 1; k <= last; k++) {
+      final double drop = dropped(k, layers, beat);
+      if (drop <= 0 || drop >= 1) {
+        continue;
+      }
+      final List<Color> above = colours(k - 1);
+      final List<Color> below = colours(k);
+      final double turn = through(drop, 0.3, 0.75);
+      table.drawRow(
+        canvas,
+        Rect.lerp(layout.slot(k - 1), layout.slot(k), drop)!,
+        table.values(k, focus),
+        scale: scaleOf(k),
+        colors: <Color>[for (int d = 0; d < above.length; d++) Color.lerp(above[d], below[d], turn)!],
+        text: 0,
+      );
+    }
   }
 
   // ------------------------------------------------------------------- taps
+
+  /// While block 2's table still shows, a row puts its place in focus; the
+  /// ladder is one place's, and asks for nothing.
+  @override
+  LmHit? hitAt(Size size, LmView view, Offset at, TrainingFrame frame) =>
+      frame.local * _beats < _tableOut.$1 ? hit(size, view, at) : null;
 
   @override
   LmHit? hit(Size size, LmView view, Offset at) {
@@ -342,43 +263,58 @@ final class ForwardScene extends LmScene {
     return i == null ? null : FocusPosition(i);
   }
 
-  @override
-  int? positionAt(Size size, LmView view, Offset at) => StreamTable(size, view).placeAt(at);
-
   // ---------------------------------------------------------------- caption
 
-  static List<(double, double, String)> notes(LmView view) => <(double, double, String)>[
-    (
-      0.25,
-      _replayFrom,
-      'each node: what the output layer would say if the model stopped there,\n'
-          'read out early; faded by how sure, outlined where it is right',
-    ),
-    (
-      _replayFrom,
-      _blocksFrom,
-'slanting lines: attention, a place reading those before it\n'
-          'straight lines: each place going on, its stream added to',
-    ),
-    (
-      _blocksFrom,
-      _norm.$1,
-      'block 2 does the same two things with its own weights,\n'
-          'reading what block 1 added',
-    ),
-    (
-      _norm.$1,
-      double.infinity,
-      // Only where the run bears it out: untrained, nothing sharpens.
-      '${right(view, view.trace.readouts - 1) > right(view, 0) ? 'layer by layer the guesses sharpen: that is the forward pass' : 'at step ${view.step} no layer gets more places right than x0 does yet'}\n'
-          'next: Predict reads the last column whole',
-    ),
-  ];
+  /// The place in focus's row going into the final LayerNorm, block 2's
+  /// output, and what the norm made of it, as the run kept it.
+  static Evening evening(LmView view) => view.kit.memo<Evening>(
+    ('final-evening', view.step, view.peptide, view.position),
+    () {
+      final int last = view.trace.points.length - 1;
+      return Evening(
+        <double>[
+          for (int d = 0; d < view.trace.model.width; d++)
+            view.trace.stream(view.checkpoint, last - 1, view.peptide, view.position, d),
+        ],
+        <double>[
+          for (int d = 0; d < view.trace.model.width; d++)
+            view.trace.stream(view.checkpoint, last, view.peptide, view.position, d),
+        ],
+      );
+    },
+  );
 
-  /// Place [i]'s readout at column [c] as the caption says it: `T 64%`.
-  static String said(LmView view, int c, int i) {
-    final (int id, double p) = readout(view, c, i);
-    return '${view.trace.token(id)} ${percent(p)}';
+  /// Why each part happens, over the ladder, a line a thought.
+  static List<(double, double, String)> notes(LmView view) {
+    final TrainingTrace trace = view.trace;
+    final int layers = trace.model.layers;
+    return <(double, double, String)>[
+      (
+        0.25,
+        layers > 1 ? _part(3, layers).$1 : _finalFrom,
+        'each part reads the row as it stands and adds to it:\n'
+            'the row is never replaced, only added to',
+      ),
+      if (layers > 1)
+        (
+          _part(3, layers).$1,
+          _finalFrom,
+          'each block after the first reads the row the one before\n'
+              'left, and adds to it the same way, with weights of its own',
+        ),
+      (
+        _finalFrom,
+        _endFrom,
+        'one last evening out, as before each part, with its own\n'
+            'scale and shift: the output layer reads rows of one size',
+      ),
+      (
+        _endFrom,
+        double.infinity,
+        'every place goes down the same pass at once: ${grouped(view.focus.inputs)} rows\n'
+            "next: Predict turns ${StreamTable.placeName(view, view.position)}'s last row into a guess",
+      ),
+    ];
   }
 
   @override
@@ -386,89 +322,184 @@ final class ForwardScene extends LmScene {
     final TrainingTrace trace = view.trace;
     final double beat = frame.local * _beats;
     final int layers = trace.model.layers;
-    final int last = 2 * layers;
     final String focus = StreamTable.placeName(view, view.position);
-    if (beat < _replayFrom) {
-      return 'The whole pass, layer to layer: a row a place, a column a layer';
+    if (beat < _climbFrom) {
+      final String blocks = switch (layers) {
+        1 => 'its block',
+        2 => 'both blocks',
+        _ => 'all ${spelled(layers)} blocks',
+      };
+      return "$focus's row after $blocks: how it was built, part by part";
     }
-    if (beat < _blocksFrom) {
-      return 'Block 1, as seen: $focus reads out ${said(view, 0, view.position)} at x0, '
-          '${said(view, 2, view.position)} after it';
-    }
-    if (beat < _norm.$1) {
-      final double span = (_blocksTo - _blocksFrom) / math.max(1, layers - 1);
-      final int block = math.min(layers - 1, 1 + ((beat - _blocksFrom) / span).floor());
-      if (beat < _blocksFrom + (block - 1 + 0.6) * span) {
-        final List<String> reads = <String>[
-          for (int h = 0; h < trace.model.heads; h++)
-            '${_strongest(view, block, h)} (head ${h + 1})',
-        ];
-        return "Block ${block + 1}'s heads: $focus reads ${reads.join(', ')}";
+    if (beat < _finalFrom) {
+      final double step = (_finalFrom - _climbFrom) / (2 * layers);
+      final int k = 1 + math.min(2 * layers - 1, math.max(0, ((beat - _climbFrom) / step).floor()));
+      final int b = (k - 1) ~/ 2 + 1;
+      if (k.isOdd) {
+        return b == 1
+            ? "Block 1's attention adds what $focus gathered from the places up to it"
+            : "Block $b's attention reads that row anew and adds what it gathers";
       }
-      return "Block ${block + 1}'s feed-forward: $focus now reads out ${said(view, 2 * block + 2, view.position)}"
-          '${block == layers - 1 ? '; next is ${trace.token(view.target)}' : ''}';
+      return b < layers
+          ? "Block $b's feed-forward adds its network's output: block $b's output"
+          : "Block $b's feed-forward adds its own: $focus's row as block $b left it";
     }
-    if (beat < _counted.$1) {
-      return 'The final LayerNorm: each row as the output layer reads it, in Predict';
+    final Evening even = evening(view);
+    if (beat < _plainFrom) {
+      return 'The final LayerNorm: mean ${fixed(even.mean, 2)}, standard deviation ${fixed(even.sd, 2)}';
     }
-    final List<String> counts = <String>[for (int c = 0; c <= last; c++) grouped(right(view, c))];
-    return 'Right after x0 and each part: ${counts.join(', ')} of ${grouped(view.focus.inputs)} places';
-  }
-
-  /// The place head [h] of [block] reads most at the place in focus, and its
-  /// share.
-  static String _strongest(LmView view, int block, int h) {
-    int best = 0;
-    double most = -1;
-    for (int key = 0; key <= view.position; key++) {
-      final double w = view.trace.attention(view.checkpoint, block, h, view.peptide, view.position, key);
-      if (w > most) {
-        most = w;
-        best = key;
-      }
+    if (beat < _endFrom) {
+      return even.plain
+          ? 'At step ${grouped(view.step)} every scale is 1 and every shift 0: evened = z-score'
+          : 'Then its own learned scale and shift: the row Predict reads';
     }
-    return '${StreamTable.placeName(view, best)} ${percent(most)}';
+    return "$focus's row as Predict reads it: x0 and ${spelled(2 * layers)} parts' additions, evened";
   }
 
   @override
   String describe(LmView view, TrainingFrame frame) => 'Forward pass, step ${view.step}. ${caption(view, frame)}.';
 }
 
-/// Forward's canvas, on Embedding's: the rows where they were, the tiles
-/// naming them at the left as the network's inputs; a column a point of the
-/// stream, attentions wider than feed-forwards; the final norm at the right;
-/// the blocks named over the columns, the counts under them.
-final class NetworkLayout {
-  NetworkLayout(Size size, LmView view)
+/// Forward's canvas, on Embedding's: a ladder of the stream's points for the
+/// place in focus, a row a point with the table's own columns, as tall as
+/// the room allows up to [_mostRow]; in the gap before each, the part that
+/// makes it named over a thin strip of what it adds; the ladder centred in
+/// the room Embedding gives the table and its foot, its name over it, the
+/// place's tile by its top row.
+final class TowerLayout {
+  TowerLayout(Size size, LmView view)
     : table = StreamTable(size, view),
-      layers = view.trace.model.layers {
+      points = view.trace.points.length,
+      _view = view {
     final EmbeddingLayout e = table.layout;
-    columns = 2 * layers + 1;
-    node = math.min(18.0, math.max(5.0, e.pitch - 3));
-    const double normRoom = 16;
-    final double first = e.cellsLeft + 4 + node / 2;
-    final double last = e.right - normRoom - node / 2;
-    // An attention takes twice a feed-forward's room.
-    final List<double> weights = <double>[for (int gap = 0; gap < columns - 1; gap++) gap.isEven ? 2 : 1];
-    final double total = weights.fold<double>(0, (double a, double b) => a + b);
-    _x = <double>[first];
-    for (final double w in weights) {
-      _x.add(_x.last + (last - first) * w / total);
-    }
-    normX = last + node / 2 + normRoom / 2;
-    headerY = table.row(0).top - 4;
+    label = view.kit.layout('+ block 1', inked(view.kit.sans, 9, view.inks.quiet)).height;
+    final double top = e.tableTop;
+    final double room = math.max(0.0, e.footTop + e.footTile.height - top);
+    final int gaps = points - 1;
+    head = label + _air / 2;
+    row = ((room - head - gaps * (label + _air)) / (points + gaps * _stripShare)).clamp(2.0, _mostRow);
+    stripHeight = row * _stripShare;
+    final double least = label + _air + stripHeight;
+    gap = gaps == 0 ? 0.0 : ((room - head - points * row) / gaps).clamp(least, math.max(least, 2 * row));
+    final double height = head + points * row + gaps * gap;
+    first = top + head + math.max(0.0, (room - height) / 2);
   }
 
   final StreamTable table;
-  final int layers;
-  late final int columns;
-  late final double node;
-  late final List<double> _x;
-  late final double normX;
-  late final double headerY;
+  final int points;
+  final LmView _view;
 
-  double columnX(int c) => _x[c];
+  /// The tallest a row is drawn.
+  static const double _mostRow = 30;
 
-  /// Place [i]'s node in column [c].
-  Rect nodeRect(int c, int i) => Rect.fromCenter(center: Offset(_x[c], table.row(i).center.dy), width: node, height: node);
+  /// A strip's height, of a row's.
+  static const double _stripShare = 0.38;
+
+  /// Over a part's name, between it and its strip, and under the strip.
+  static const double _air = 9;
+
+  /// A part's name's height, the room over the first row for x0's, a row's
+  /// height, a strip's, a gap's, and the top of the first row.
+  late final double label;
+  late final double head;
+  late final double row;
+  late final double stripHeight;
+  late final double gap;
+  late final double first;
+
+  EmbeddingLayout get _e => table.layout;
+
+  /// Slot [k]'s row: point [k] of the stream.
+  Rect slot(int k) {
+    final double top = first + k * (row + gap);
+    return Rect.fromLTRB(_e.cellsLeft, top, _e.right, top + row);
+  }
+
+  /// Where the gap before slot [k] starts its content: the part's name, then
+  /// its strip, centred in the gap.
+  double _contentTop(int k) => slot(k - 1).bottom + (gap - (label + 3 + stripHeight)) / 2;
+
+  /// Slot [k]'s name, its top left: over its strip, or over the first row.
+  Offset labelAt(int k) => Offset(_e.cellsLeft + 1, k == 0 ? first - head : _contentTop(k));
+
+  /// The strip of what the part before slot [k] adds.
+  Rect strip(int k) {
+    final double top = _contentTop(k) + label + 3;
+    return Rect.fromLTRB(_e.cellsLeft, top, _e.right, top + stripHeight);
+  }
+
+  /// The place's tile, by the top row, as a row's tile sits by it in the
+  /// table: as large as the row and the gutter allow, up to the table's
+  /// largest.
+  Rect get chip {
+    final double side = math.max(_e.chipSide, math.min(14.0, math.min(row - 3, _e.cellsLeft - 3 - _e.left)));
+    return Rect.fromLTWH(_e.cellsLeft - 3 - side, slot(0).center.dy - side / 2, side, side);
+  }
+
+  /// Where a tag of [size] sits: over the ladder, at the table's left.
+  Offset tagAt(Size size) => Offset(_e.left, math.max(_e.tagTop, first - head - size.height - 4));
+
+  /// What the ladder's numbers are written in: as large, up to 9 points, as
+  /// the widest of its rows' numbers fits a tile and a row; null where that
+  /// is under the least a number is written.
+  late final TextStyle? numberStyle = _numberStyle();
+
+  TextStyle? _numberStyle() {
+    double most = 0;
+    for (int k = 0; k < points; k++) {
+      for (final double v in table.values(k, _view.position)) {
+        most = math.max(most, v.abs());
+      }
+    }
+    final String widest = '−${'8' * '${most.floor()}'.length}.${'8' * EmbeddingLayout.digits}';
+    TextStyle at(double size) => inked(_view.kit.mono, size, _view.inks.ink).copyWith(letterSpacing: 0);
+    final double perPoint = _view.kit.layout(widest, at(10)).width / 10;
+    final double cell = (_e.right - _e.cellsLeft) / _view.trace.model.width;
+    // Held to the half point below, so a number is never wider than drawn.
+    final double size =
+        (math.min(9, math.min(row * 0.62, (cell - 2 * EmbeddingLayout.gap - 2) / perPoint)) * 2).floorToDouble() / 2;
+    return size < EmbeddingLayout.leastNumber ? null : at(size);
+  }
+
+  /// [numbers] across [rect] in the ladder's face, [alpha] as strongly.
+  void write(Canvas canvas, Rect rect, List<double> numbers, double alpha) {
+    final TextStyle? style = numberStyle;
+    if (style == null || alpha <= 0) {
+      return;
+    }
+    _e.write(
+      canvas,
+      rect,
+      <String>[for (final double v in numbers) fixed(v, EmbeddingLayout.digits)],
+      alpha >= 1 ? style : style.copyWith(color: style.color!.withValues(alpha: (alpha * 8).round() / 8)),
+    );
+  }
+
+  /// The colour scale of the strips: what every part adds to every place,
+  /// one scale for them all, so strips can be set against each other.
+  double get gainScale => _view.kit.memo<double>(
+    ('forward-gain', _view.step, _view.peptide),
+    () => percentileScale(<double>[
+      for (int k = 1; k < points - 1; k++)
+        for (int i = 0; i < table.places; i++) ...table.gained(k - 1, k, i),
+    ]),
+  );
+
+  /// Slot [k]'s tiles, empty: an outline each, at [alpha].
+  void drawSlots(Canvas canvas, int k, double alpha) {
+    if (alpha <= 0) {
+      return;
+    }
+    final Rect rect = slot(k);
+    final int count = _view.trace.model.width;
+    final double w = rect.width / count;
+    final Paint paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.8
+      ..color = _view.inks.quiet.withValues(alpha: alpha);
+    for (int d = 0; d < count; d++) {
+      final Rect tile = Rect.fromLTWH(rect.left + d * w, rect.top, w, rect.height).deflate(EmbeddingLayout.gap);
+      canvas.drawRRect(RRect.fromRectAndRadius(tile, const Radius.circular(EmbeddingLayout.radius)), paint);
+    }
+  }
 }

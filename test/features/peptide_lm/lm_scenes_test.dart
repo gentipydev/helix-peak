@@ -452,45 +452,38 @@ void main() {
     expect(caption(LmStage.blockTwo, second(8)), "Added: block 1's output + attention, 12 × $width");
     expect(caption(LmStage.blockTwo, second(9)), "Block 2's feed-forward, each place alone: its own $width → $ff → $width");
     expect(caption(LmStage.blockTwo, 0.99), "Added: block 2's output, 12 × $width");
-    // Forward: the pass layer to layer, each place read out early.
+    // Forward: V3's row through the whole pass, a part at a time, then the
+    // final LayerNorm, worked as Feed-forward's on the run's own numbers.
     double forward(double beat) => beat / LmStage.forward.beats;
-    expect(
-      caption(LmStage.forward, forward(0.5)),
-      'The whole pass, layer to layer: a row a place, a column a layer',
-    );
+    expect(caption(LmStage.forward, forward(0.5)), "V3's row after both blocks: how it was built, part by part");
     expect(
       caption(LmStage.forward, forward(2)),
-      'Block 1, as seen: V3 reads out ${ForwardScene.said(last, 0, 3)} at x0, ${ForwardScene.said(last, 2, 3)} after it',
-    );
-    expect(caption(LmStage.forward, forward(3.5)), allOf(startsWith("Block 2's heads: V3 reads "), contains('(head 2)')));
-    expect(
-      caption(LmStage.forward, forward(6.5)),
-      "Block 2's feed-forward: V3 now reads out ${ForwardScene.said(last, 4, 3)}; next is ${trace.token(last.target)}",
+      "Block 1's attention adds what V3 gathered from the places up to it",
     );
     expect(
-      caption(LmStage.forward, forward(7.5)),
-      'The final LayerNorm: each row as the output layer reads it, in Predict',
+      caption(LmStage.forward, forward(4)),
+      "Block 1's feed-forward adds its network's output: block 1's output",
     );
+    expect(caption(LmStage.forward, forward(5.5)), "Block 2's attention reads that row anew and adds what it gathers");
+    expect(caption(LmStage.forward, forward(7.5)), "Block 2's feed-forward adds its own: V3's row as block 2 left it");
+    final Evening finalEven = ForwardScene.evening(last);
+    final int lastPoint = trace.points.length - 1;
+    expect(finalEven.x, <double>[for (int d = 0; d < width; d++) trace.stream(last.checkpoint, lastPoint - 1, 0, 3, d)]);
+    expect(finalEven.evened, <double>[for (int d = 0; d < width; d++) trace.stream(last.checkpoint, lastPoint, 0, 3, d)]);
     expect(
-      caption(LmStage.forward, 0.99),
-      'Right after x0 and each part: '
-      '${<String>[for (int c = 0; c < trace.readouts; c++) '${ForwardScene.right(last, c)}'].join(', ')} of 12 places',
+      caption(LmStage.forward, forward(9)),
+      'The final LayerNorm: mean ${fixed(finalEven.mean, 2)}, standard deviation ${fixed(finalEven.sd, 2)}',
     );
-    // The last column read out is the model's own: what Predict draws.
-    final int lastPoint = trace.readouts - 1;
-    int predicted = 0;
-    for (int i = 0; i < trace.peptides.first.inputs; i++) {
-      int best = 0;
-      for (int k = 0; k < trace.allowed.length; k++) {
-        if (trace.probability(last.checkpoint, 0, i, k) > trace.probability(last.checkpoint, 0, i, best)) {
-          best = k;
-        }
-      }
-      if (trace.allowed[best] == trace.targetAt(0, i)) {
-        predicted++;
-      }
-    }
-    expect(ForwardScene.right(last, lastPoint), predicted);
+    // Trained, the final norm moved the z-scores; at step 1 it left them
+    // alone.
+    expect(finalEven.plain, isFalse);
+    expect(caption(LmStage.forward, forward(10)), 'Then its own learned scale and shift: the row Predict reads');
+    expect(ForwardScene.evening(view(inks, kit)).plain, isTrue);
+    expect(
+      sceneOf(LmStage.forward).caption(view(inks, kit), timeline.frameIn(LmStage.forward, forward(10))),
+      'At step 1 every scale is 1 and every shift 0: evened = z-score',
+    );
+    expect(caption(LmStage.forward, 0.99), "V3's row as Predict reads it: x0 and four parts' additions, evened");
     expect(caption(LmStage.predict, 0.99), contains('next is ${trace.token(last.target)}'));
     expect(caption(LmStage.loss, 0.99), contains(nats(trace.loss(last.step))));
     expect(caption(LmStage.update, 0.5), contains(scientific(trace.steps.learningRate[last.step - 1])));
@@ -564,7 +557,7 @@ void main() {
       (LmStage.blockTwo, 0),
       (LmStage.blockTwo, 0.3),
       (LmStage.blockTwo, 1),
-      (LmStage.forward, 1),
+      (LmStage.forward, 0),
     ]) {
       final Set<int> places = <int>{};
       for (double y = 0; y < size.height; y += 1) {
@@ -575,6 +568,12 @@ void main() {
       }
       expect(places, <int>{for (int i = 0; i < trace.peptides.first.inputs; i++) i}, reason: '${stage.label} $local');
     }
+    // Forward's ladder is one place's: once the table has gone, a tap asks
+    // for nothing.
+    expect(
+      sceneOf(LmStage.forward).hitAt(size, scene, const Offset(30, 300), timeline.frameIn(LmStage.forward, 0.5)),
+      isNull,
+    );
     // While the network takes Feed-forward's canvas, a tap asks for nothing.
     expect(
       sceneOf(LmStage.feedForward).hitAt(size, scene, const Offset(30, 300), timeline.frameIn(LmStage.feedForward, 0.4)),
@@ -625,7 +624,7 @@ void main() {
         (LmStage.scores, LmStage.attention),
         (LmStage.attention, LmStage.feedForward),
         (LmStage.feedForward, LmStage.blockTwo),
-        (LmStage.feedForward, LmStage.forward),
+        (LmStage.blockTwo, LmStage.forward),
       ]) {
         final List<int> last = await pixels(scene, timeline.frameIn(before, 1));
         final List<int> first = await pixels(scene, timeline.frameIn(after, 0));
@@ -1054,6 +1053,50 @@ void main() {
       }
     }
     expect(ends(n - 1, n - 1), lessThan(5.6));
+  });
+
+  testWidgets("Forward's ladder: a row a point of the stream, on the canvas, each landing in turn", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    final int layers = trace.model.layers;
+    for (int c = 0; c < trace.checkpoints.length; c++) {
+      for (int p = 0; p < trace.peptides.length; p++) {
+        final LmView scene = view(inks, kit, checkpoint: c, peptide: p, position: trace.peptides[p].inputs - 1);
+        for (final Size size in const <Size>[Size(375, 476), Size(393, 540), Size(440, 697)]) {
+          final TowerLayout layout = TowerLayout(size, scene);
+          // A slot a point: x0, each part's output, the final norm's.
+          expect(layout.points, 2 * layers + 2);
+          for (int k = 1; k < layout.points; k++) {
+            expect(layout.slot(k).top, greaterThan(layout.slot(k - 1).bottom), reason: 'slot $k');
+            // Each strip and name lies in the gap before its slot.
+            expect(layout.labelAt(k).dy, greaterThanOrEqualTo(layout.slot(k - 1).bottom));
+            expect(layout.strip(k).bottom, lessThanOrEqualTo(layout.slot(k).top));
+          }
+          expect(layout.labelAt(0).dy + layout.label, lessThanOrEqualTo(layout.slot(0).top));
+          // The ladder keeps to the canvas, under its name, and its rows'
+          // numbers are written.
+          expect(layout.slot(layout.points - 1).bottom, lessThanOrEqualTo(size.height));
+          expect(layout.tagAt(const Size(100, 20)).dy, greaterThanOrEqualTo(layout.table.layout.tagTop));
+          expect(layout.numberStyle, isNotNull, reason: '$size p$p');
+        }
+      }
+    }
+    // Each copy lands after the one before, the final norm's last.
+    for (int k = 2; k < 2 * layers + 2; k++) {
+      double lands(int slot) {
+        for (double beat = 0; beat <= LmStage.forward.beats; beat += 0.01) {
+          if (ForwardScene.dropped(slot, layers, beat) >= 1) {
+            return beat;
+          }
+        }
+        return double.infinity;
+      }
+
+      expect(lands(k), greaterThan(lands(k - 1)), reason: 'slot $k');
+      expect(lands(k), lessThan(LmStage.forward.beats - 1));
+    }
   });
 
   testWidgets("Attention's arcs pass over the answers before their own and land on it from above", (

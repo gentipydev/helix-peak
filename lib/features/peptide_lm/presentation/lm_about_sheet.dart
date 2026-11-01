@@ -125,16 +125,15 @@ class LmAboutSheet extends StatelessWidget {
             ),
             paragraph(
               'Forward',
-              'The ${spelled(model.layers)} blocks run in turn, each reading what the one '
-                  'before it added; a final LayerNorm hands each place to the output layer. '
-                  'Drawn layer to layer, each place is read out early: the token the output '
-                  'layer would give it if the model stopped there. That readout is a probe, '
-                  'worked out from the run\'s own weights, not a part of the model.'
+              'Every part reads a place\'s row as it stands and adds its output to it, so after '
+                  'the ${spelled(model.layers)} blocks the row is x0 plus what each of the '
+                  '${spelled(2 * model.layers)} parts added. A final LayerNorm, with a scale and shift '
+                  'of its own, evens it out once more, and the output layer reads that row.'
                   '${config.dropout == 0 ? ' Dropout is off for this run, so the forward pass drawn is the one trained.' : ''}',
             ),
             paragraph(
               'Predict',
-              'A final LayerNorm, then one linear layer, gives each position '
+              'The output layer, one linear layer, gives each position '
                   '${trace.vocab.length} scores, its logits. <pad> and <bos> can never '
                   'come next, so theirs are set to −∞, and softmax turns the other '
                   '$allowed into probabilities that sum to one.',
