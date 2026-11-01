@@ -12,7 +12,7 @@ enum LmStage {
   shift('Shift', 5),
   embedding('Embedding', 15),
   scores('Scores', 20),
-  attention('Attention', 15),
+  attention('Attention', 22),
   feedForward('Feed-forward', 10),
   forward('Forward', 11),
   predict('Predict', 7),

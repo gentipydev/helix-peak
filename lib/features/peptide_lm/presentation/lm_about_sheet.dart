@@ -103,8 +103,10 @@ class LmAboutSheet extends StatelessWidget {
             paragraph(
               'Attention',
               'Each head hands the place its shares of the places\' values, never of '
-                  'those after it. The heads\' answers, side by side, are mixed back to '
-                  '${model.width} numbers and added to the stream.',
+                  'those after it, number by number: number 1 of its answer is each '
+                  'place\'s value number 1 times its share, summed, and so on. The heads\' '
+                  'answers, side by side, are mixed back to ${model.width} numbers and added '
+                  'to the stream.',
             ),
             paragraph(
               'Feed-forward',

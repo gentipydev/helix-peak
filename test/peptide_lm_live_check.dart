@@ -63,6 +63,7 @@ void main() {
     expect(trace.loss(1), greaterThan(math.log(trace.allowed.length) - 0.5));
 
     expectTheWorkedExample(trace);
+    expectTheWorkedAnswer(trace);
   });
 }
 
@@ -103,4 +104,37 @@ void expectTheWorkedExample(TrainingTrace trace) {
       '0.01', '−0.06', '0.29', '−0.13', '−0.17', '0.21', '0.46', '−0.23',
     ],
   );
+}
+
+/// Number 1 of head 1's answer, worked out as Attention draws it: insulin A
+/// chain's C11 at step 1, block 1. Each place's value 1, up to C11; its
+/// share, softmax of the scores as kept; what each brings, their product,
+/// summed: the answer's number 1, 0.30. `<bos>`'s value 1, 0.108, only rounds
+/// like the output's number 1, 0.1135.
+void expectTheWorkedAnswer(TrainingTrace trace) {
+  final TraceCheckpoint first = trace.checkpoints.first;
+  expect(first.step, 1);
+  const int c11 = 11;
+  final List<double> scores = <double>[for (int j = 0; j <= c11; j++) trace.score(first, 0, 0, 0, c11, j)];
+  final double top = scores.reduce(math.max);
+  final List<double> e = <double>[for (final double s in scores) math.exp(s - top)];
+  final double total = e.reduce((double a, double b) => a + b);
+  final List<double> shares = <double>[for (final double x in e) x / total];
+  final List<double> values = <double>[for (int j = 0; j <= c11; j++) trace.value(first, 0, 0, 0, j, 0)];
+  expect(
+    values.map((double v) => v.toStringAsFixed(3)),
+    <String>['0.108', '1.089', '0.455', '0.598', '-0.363', '1.859', '-1.221', '-1.208', '0.180', '-0.114', '0.464', '-1.221'],
+  );
+  expect(
+    shares.map((double s) => (s * 100).toStringAsFixed(1)),
+    <String>['6.8', '5.3', '11.3', '7.7', '6.0', '11.2', '2.5', '2.5', '9.7', '23.4', '11.2', '2.5'],
+  );
+  double answer = 0;
+  for (int j = 0; j <= c11; j++) {
+    answer += shares[j] * values[j];
+  }
+  expect(answer, closeTo(0.3011, 5e-5));
+  expect(trace.mixed(first, 0, 0, 0, c11, 0), closeTo(answer, 1e-5));
+  expect(fixed(values.first, 2), '0.11');
+  expect((values.first - 0.1135).abs(), greaterThan(0.004));
 }
