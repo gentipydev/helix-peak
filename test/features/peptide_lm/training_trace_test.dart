@@ -142,7 +142,6 @@ void main() {
   test("each block's scores softmax to its map, and each mix is the shares of the values", () {
     for (final TraceCheckpoint c in trace.checkpoints) {
       for (int b = 0; b < trace.model.layers; b++) {
-        final TraceBlock block = c.blocks[b];
         for (int head = 0; head < trace.model.heads; head++) {
           for (int p = 0; p < trace.peptides.length; p++) {
             for (int q = 0; q < trace.peptides[p].inputs; q++) {
@@ -162,7 +161,8 @@ void main() {
                 for (int k = 0; k <= q; k++) {
                   mix += shares[k] / sum * trace.value(c, b, head, p, k, d);
                 }
-                expect(trace.mixed(c, b, head, p, q, d), closeTo(mix, block.mixedScale / 2 + 1e-5));
+                // Whole: the shares of the values, to float32's own rounding.
+                expect(trace.mixed(c, b, head, p, q, d), closeTo(mix, 1e-5));
               }
             }
           }
@@ -217,6 +217,28 @@ void main() {
                 }
                 expect(dot / math.sqrt(size), closeTo(trace.score(c, b, head, p, i, k), 1e-5));
               }
+            }
+          }
+        }
+      }
+    }
+  });
+
+  test("what attention adds is its output weights' sum of the heads' answers: what the stream gained", () {
+    final int width = trace.model.width;
+    final int size = trace.headSize;
+    for (final TraceCheckpoint c in trace.checkpoints) {
+      for (int b = 0; b < trace.model.layers; b++) {
+        for (int p = 0; p < trace.peptides.length; p++) {
+          for (int i = 0; i < trace.peptides[p].inputs; i++) {
+            for (int out = 0; out < width; out++) {
+              // The heads' answers side by side, each number times its weight.
+              double added = trace.outBias(c, b, out);
+              for (int d = 0; d < width; d++) {
+                added += trace.outWeight(c, b, out, d) * trace.mixed(c, b, d ~/ size, p, i, d % size);
+              }
+              final double gained = trace.stream(c, 2 * b + 1, p, i, out) - trace.stream(c, 2 * b, p, i, out);
+              expect(added, closeTo(gained, 1e-4));
             }
           }
         }
@@ -297,6 +319,16 @@ void main() {
     }
   });
 
+  test("a run without its attention's output weights is refused", () {
+    for (final String key in <String>['attn_out', 'attn_out_bias']) {
+      final Uint8List bytes = _edited((Map<String, dynamic> json) {
+        final Map<String, dynamic> first = (json['checkpoints'] as List<dynamic>).first as Map<String, dynamic>;
+        ((first['blocks'] as List<dynamic>).last as Map<String, dynamic>).remove(key);
+      });
+      expect(() => TrainingTrace.parse(bytes), throwsA(isA<FormatException>()), reason: key);
+    }
+  });
+
   test('a run without its embedding tables is refused', () {
     final Uint8List bytes = _edited((Map<String, dynamic> json) {
       ((json['checkpoints'] as List<dynamic>).first as Map<String, dynamic>)
@@ -313,7 +345,7 @@ void main() {
   });
 
   test('a schema this does not read is refused', () {
-    for (final int schema in <int>[1, 2, 3]) {
+    for (final int schema in <int>[1, 2, 3, 4]) {
       expect(
         () => TrainingTrace.parse(_edited((Map<String, dynamic> json) => json['schema'] = schema)),
         throwsA(isA<FormatException>()),

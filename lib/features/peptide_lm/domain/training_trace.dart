@@ -131,8 +131,9 @@ final class TraceSteps {
 /// evened out by its first LayerNorm, that norm's scale and shift, the
 /// weights that make the queries, keys and values from it, those (heads side
 /// by side, a head's `size` numbers each), every score before softmax, each
-/// head's mix of values before the output projection, and its feed-forward's
-/// input, neurons and weights.
+/// head's mix of values before the output projection, the output weights
+/// that mix the heads back into one row, and its feed-forward's input,
+/// neurons and weights.
 @immutable
 final class TraceBlock {
   const TraceBlock({
@@ -146,7 +147,8 @@ final class TraceBlock {
     required this.value,
     required this.scores,
     required this.mixed,
-    required this.mixedScale,
+    required this.outWeight,
+    required this.outBias,
     required this.ffInput,
     required this.hidden,
     required this.hiddenScale,
@@ -179,9 +181,15 @@ final class TraceBlock {
   /// the attention maps are laid out: whole, written out.
   final Float32List scores;
 
-  /// targets × width: each head's share-weighted sum of the values.
-  final Int8List mixed;
-  final double mixedScale;
+  /// targets × width: each head's share-weighted sum of the values, heads
+  /// side by side, whole.
+  final Float32List mixed;
+
+  /// The weights that mix the heads' answers back into one row, as the step
+  /// found them: width × width, a row an output number; and their biases.
+  /// What attention adds to a place is their sum of its [mixed].
+  final Float32List outWeight;
+  final Float32List outBias;
 
   /// The feed-forward's input, its row after LayerNorm: targets × width,
   /// whole.
@@ -305,7 +313,7 @@ final class TrainingTrace {
          for (final TracePeptide p in peptides) p.inputs * (p.inputs + 1) ~/ 2,
        ]);
 
-  static const int schema = 4;
+  static const int schema = 5;
 
   final String name;
 
@@ -476,7 +484,14 @@ final class TrainingTrace {
 
   /// What [head] handed [position]: its shares of the values, summed.
   double mixed(TraceCheckpoint at, int block, int head, int peptide, int position, int d) =>
-      at.blocks[block].mixed[_headed(peptide, position, head, d)] * at.blocks[block].mixedScale;
+      at.blocks[block].mixed[_headed(peptide, position, head, d)];
+
+  /// The output weight from number [d] of the heads' answers, side by side,
+  /// to number [out] of what attention adds; and that number's bias.
+  double outWeight(TraceCheckpoint at, int block, int out, int d) =>
+      at.blocks[block].outWeight[out * model.width + d];
+
+  double outBias(TraceCheckpoint at, int block, int out) => at.blocks[block].outBias[out];
 
   /// [query]'s score against [key] in [head] of [block], before softmax.
   double score(TraceCheckpoint at, int block, int head, int peptide, int query, int key) =>
@@ -762,8 +777,9 @@ final class TrainingTrace {
       key: _float32(json['key'], rows, '$what key'),
       value: _float32(json['value'], rows, '$what value'),
       scores: _float32(json['scores'], <int>[model.heads, triangle], '$what scores'),
-      mixed: _int8(json['mixed'], rows, '$what mixed'),
-      mixedScale: _scale(json['mixed'], '$what mixed'),
+      mixed: _float32(json['mixed'], rows, '$what mixed'),
+      outWeight: _float32(json['attn_out'], <int>[model.width, model.width], '$what attn_out'),
+      outBias: _float32(json['attn_out_bias'], <int>[model.width], '$what attn_out_bias'),
       ffInput: _float32(json['ff_input'], rows, '$what ff_input'),
       hidden: _int8(json['hidden'], <int>[targets, model.feedForward], '$what hidden'),
       hiddenScale: _scale(json['hidden'], '$what hidden'),
