@@ -303,8 +303,18 @@ final class FeedForwardScene extends LmScene {
     if (outIn > 0) {
       drawEdges(canvas, view, outEdges, layout.hiddenAt, layout.outputAt, outIn);
     }
-    _pulses(canvas, view, inEdges, layout.inputAt, layout.hiddenAt, beat, _fireFrom, _outFrom, gone);
-    _pulses(canvas, view, outEdges, layout.hiddenAt, layout.outputAt, beat, _outIn.$2, _networkOut.$1, gone);
+    // Into the neurons, a dot for each neuron that lights up, along the
+    // input that pushes it hardest: the largest input × weight it receives.
+    final double brightest = neurons.fold<double>(0, math.max);
+    final List<(int, int, double)> pushes = <(int, int, double)>[
+      for (int u = 0; u < ff; u++)
+        if (brightest > 0 && neurons[u] >= 0.1 * brightest)
+          inEdges
+              .where(((int, int, double) e) => e.$2 == u)
+              .reduce(((int, int, double) a, (int, int, double) b) => b.$3.abs() > a.$3.abs() ? b : a),
+    ];
+    _pulses(canvas, view, pushes, layout.inputAt, layout.hiddenAt, beat, _fireFrom, _outFrom, gone);
+    _pulses(canvas, view, _strongest(outEdges), layout.hiddenAt, layout.outputAt, beat, _outIn.$2, _networkOut.$1, gone);
     // The inputs, numbers to their left.
     final TextStyle face = inked(view.kit.mono, layout.textSize, view.inks.ink);
     final double inputAlpha = nodes * gone;
@@ -394,15 +404,22 @@ final class FeedForwardScene extends LmScene {
     );
   }
 
-  /// How many edges carry the signal's pulses: the strongest of each layer.
+  /// How many of the edges out carry the signal's pulses: the strongest.
   static const int _riders = 40;
 
-  /// The signal riding the strongest edges from [start] to [end], about once
-  /// a beat, each pulse as large as what its edge carries.
+  /// [edges]' strongest [_riders].
+  static List<(int, int, double)> _strongest(List<(int, int, double)> edges) =>
+      (List<(int, int, double)>.of(edges)
+            ..sort(((int, int, double) a, (int, int, double) b) => b.$3.abs().compareTo(a.$3.abs())))
+          .take(_riders)
+          .toList();
+
+  /// The signal riding [riders] from [start] to [end], about once a beat,
+  /// each pulse as large as what its edge carries.
   static void _pulses(
     Canvas canvas,
     LmView view,
-    List<(int, int, double)> edges,
+    List<(int, int, double)> riders,
     Offset Function(int) from,
     Offset Function(int) to,
     double beat,
@@ -410,16 +427,14 @@ final class FeedForwardScene extends LmScene {
     double end,
     double alpha,
   ) {
-    if (beat < start || beat >= end || alpha <= 0) {
+    if (beat < start || beat >= end || alpha <= 0 || riders.isEmpty) {
       return;
     }
-    final List<(int, int, double)> strongest = List<(int, int, double)>.of(edges)
-      ..sort(((int, int, double) a, (int, int, double) b) => b.$3.abs().compareTo(a.$3.abs()));
-    final double most = math.max(1e-9, strongest.first.$3.abs());
+    final double most = riders.fold<double>(1e-9, (double m, (int, int, double) e) => math.max(m, e.$3.abs()));
     final double fade = through(beat, start, start + 0.2) * (1 - through(beat, end - 0.2, end)) * alpha;
     final double phase = (beat - start) % 1;
     final Paint paint = Paint();
-    for (final (int a, int b, double c) in strongest.take(_riders)) {
+    for (final (int a, int b, double c) in riders) {
       final double w = c.abs() / most;
       final Offset p = Offset.lerp(from(a), to(b), phase)!;
       canvas.drawCircle(p, 0.8 + 1.8 * math.sqrt(w), paint..color = view.inks.signal.withValues(alpha: 0.9 * fade));
