@@ -638,7 +638,7 @@ final class FeedForwardScene extends LmScene {
       final double lag = 0.6 * u / math.max(1, ff - 1);
       final double on = through(beat, _lit.$1 + lag * (_lit.$2 - _lit.$1), _lit.$1 + lag * (_lit.$2 - _lit.$1) + 0.25);
       if (on > 0) {
-        canvas.drawCircle(chart.at(z[u], gelu(z[u])), 2.6, dot..color = view.inks.ink.withValues(alpha: alpha * on));
+        canvas.drawCircle(chart.at(z[u], gelu(z[u])), 1.0, dot..color = view.inks.ink.withValues(alpha: alpha * on));
       }
     }
   }
