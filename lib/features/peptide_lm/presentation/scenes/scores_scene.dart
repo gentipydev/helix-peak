@@ -199,7 +199,7 @@ final class ScoresScene extends LmScene {
   );
 
   /// The colour scale of the rows attention reads, over the places in focus.
-  static double _evenScale(LmView view) => view.kit.memo<double>(
+  static double evenScale(LmView view) => view.kit.memo<double>(
     ('scores-even-scale', view.step, view.peptide),
     () => percentileScale(<double>[
       for (int i = 0; i < view.focus.inputs; i++)
@@ -217,7 +217,7 @@ final class ScoresScene extends LmScene {
     final List<double> now = even.at(centre, spread, learned);
     final double toward = (centre + spread + learned) / 3;
     final double x0Scale = streamScales(view).$1;
-    final double scale = x0Scale + (_evenScale(view) - x0Scale) * toward;
+    final double scale = x0Scale + (evenScale(view) - x0Scale) * toward;
     return (now, <Color>[for (final double v in now) view.inks.cell(v / scale)]);
   }
 
