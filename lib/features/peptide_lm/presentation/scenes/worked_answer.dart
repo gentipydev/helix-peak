@@ -447,7 +447,7 @@ abstract final class WorkedAnswer {
       if (written > 0) {
         view.kit.draw(
           canvas,
-          signed(numbers[j], 2),
+          _column(numbers[j], 2),
           face(written),
           Offset(at.valueLeft, cell.center.dy),
           anchor: const Offset(0, 0.5),
@@ -466,7 +466,7 @@ abstract final class WorkedAnswer {
       if (brings > 0) {
         view.kit.draw(
           canvas,
-          '= ${signed(each[j], 3)}',
+          '= ${_column(each[j], 3)}',
           face(brings),
           Offset(at.productLeft, cell.center.dy),
           anchor: const Offset(0, 0.5),
@@ -583,6 +583,19 @@ abstract final class WorkedAnswer {
   /// share times its value reads right.
   static String tenth(double share) => '${(share * 100).toStringAsFixed(1)}%';
 
+  /// A term of the sum to [digits] places, its sign always shown, as the
+  /// terms of a sum are; but no sign on one that rounds to nothing, as
+  /// [fixed] writes it: `+0.007`, `−1.22`, `0.000`.
+  static String term(double value, int digits) =>
+      double.parse(value.abs().toStringAsFixed(digits)) == 0 ? fixed(value, digits) : signed(value, digits);
+
+  /// [term] in a column of them: one that rounds to nothing takes a space
+  /// where the others have their sign, so the points line up.
+  static String _column(double value, int digits) {
+    final String text = term(value, digits);
+    return text.startsWith('+') || text.startsWith('−') ? text : ' $text';
+  }
+
   /// Why each part happens, over the table, a line a thought, in beats from
   /// its start.
   static List<(double, double, String)> notes(LmView view) {
@@ -624,11 +637,11 @@ abstract final class WorkedAnswer {
     }
     if (first == null ? local < _sharesIn.$1 : local < _liftFirst.$1) {
       return "${StreamTable.placeName(view, focus)}'s value 1, as in Scores: "
-          'its row × $width weights$bias: ${signed(numbers[focus], 2)}';
+          'its row × $width weights$bias: ${term(numbers[focus], 2)}';
     }
     if (first != null && local < _benchOut.$1) {
       return "${StreamTable.placeName(view, first)}'s value 1: its own row, "
-          'the same $width weights$bias: ${signed(numbers[first], 2)}';
+          'the same $width weights$bias: ${term(numbers[first], 2)}';
     }
     if (local < _sharesIn.$1) {
       return 'Every place the same: its own row, the same weights';
@@ -647,15 +660,15 @@ abstract final class WorkedAnswer {
   static String _bringsCaption(LmView view) {
     final List<double> each = brought(view);
     if (each.length == 1) {
-      return 'Share × value: ${StreamTable.placeName(view, 0)} alone, 100%, brings ${signed(each[0], 3)}';
+      return 'Share × value: ${StreamTable.placeName(view, 0)} alone, 100%, brings ${term(each[0], 3)}';
     }
     final (int most, int largest) = named(view);
     final String mostName = StreamTable.placeName(view, most);
     if (most == largest) {
-      return 'Share × value: $mostName, read most, also brings most: ${signed(each[most], 3)}';
+      return 'Share × value: $mostName, read most, also brings most: ${term(each[most], 3)}';
     }
-    return 'Share × value: $mostName brings most, ${signed(each[most], 3)}; '
-        '${StreamTable.placeName(view, largest)}, read most, ${signed(each[largest], 3)}';
+    return 'Share × value: $mostName brings most, ${term(each[most], 3)}; '
+        '${StreamTable.placeName(view, largest)}, read most, ${term(each[largest], 3)}';
   }
 }
 

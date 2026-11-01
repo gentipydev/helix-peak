@@ -290,11 +290,11 @@ void main() {
     expect(caption(LmStage.attention, attention(5.5)), "Number 1 of head 1's answer, ${fixed(answer1, 2)}, worked out");
     expect(
       caption(LmStage.attention, attention(6.8)),
-      "V3's value 1, as in Scores: its row × $width weights$valueBias: ${signed(value1(3), 2)}",
+      "V3's value 1, as in Scores: its row × $width weights$valueBias: ${WorkedAnswer.term(value1(3), 2)}",
     );
     expect(
       caption(LmStage.attention, attention(8)),
-      "<bos>'s value 1: its own row, the same $width weights$valueBias: ${signed(value1(0), 2)}",
+      "<bos>'s value 1: its own row, the same $width weights$valueBias: ${WorkedAnswer.term(value1(0), 2)}",
     );
     expect(caption(LmStage.attention, attention(9)), 'Every place the same: its own row, the same weights');
     final List<double> brought = <double>[for (int j = 0; j <= 3; j++) shares(0)[j] * value1(j)];
@@ -311,9 +311,9 @@ void main() {
     expect(
       caption(LmStage.attention, attention(10)),
       most == largest
-          ? 'Share × value: ${name(most)}, read most, also brings most: ${signed(brought[most], 3)}'
-          : 'Share × value: ${name(most)} brings most, ${signed(brought[most], 3)}; '
-                '${name(largest)}, read most, ${signed(brought[largest], 3)}',
+          ? 'Share × value: ${name(most)}, read most, also brings most: ${WorkedAnswer.term(brought[most], 3)}'
+          : 'Share × value: ${name(most)} brings most, ${WorkedAnswer.term(brought[most], 3)}; '
+                '${name(largest)}, read most, ${WorkedAnswer.term(brought[largest], 3)}',
     );
     expect(caption(LmStage.attention, attention(11)), "Summed: ${fixed(answer1, 2)}, number 1 of head 1's answer");
     expect(caption(LmStage.attention, attention(11.8)), 'Numbers 2–$width the same way, each head with its own shares');
@@ -754,6 +754,15 @@ void main() {
       // In between, the table: not the frame it opens on.
       expect(await pixels(scene, from + 4.8), isNot(opens), reason: 'peptide $p');
     }
+  });
+
+  test('the worked answer writes its terms signed, but not one that rounds to nothing', () {
+    expect(WorkedAnswer.term(0.0074, 3), '+0.007');
+    expect(WorkedAnswer.term(-1.2213, 2), '−1.22');
+    expect(WorkedAnswer.term(-0.0003, 3), '0.000');
+    expect(WorkedAnswer.term(0.0004, 2), '0.00');
+    expect(WorkedAnswer.tenth(0.0676), '6.8%');
+    expect(WorkedAnswer.tenth(0.2341), '23.4%');
   });
 
   test('the output weights take the heads\' answers only once number 1 is worked out', () {
