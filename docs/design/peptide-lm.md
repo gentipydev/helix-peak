@@ -520,15 +520,16 @@ out of view is scrolled just far enough to show it whole.
      of input × weight and as bright as its size; a note says so, and where
      the weights stand (random start at step 1, the updates since);
    - GELU worked out: the brightest neuron's 16 lines stand out, ringed
-     and numbered, a dot along each, its sum in the caption (insulin A's
+     and numbered, a dot running once along each, GELU's curve beside the
+     neurons from then on, its sum in the caption (insulin A's
      C11 at step 1: neuron 36, 1.10; the evened row × its weights + its
-     bias, from the run); GELU's curve comes in right of the neurons, where
-     the outputs will be, its line in the accent, and the sum goes up to it
+     bias, from the run); the curve stands right of the neurons, where the
+     outputs will be, its line in the accent, and the sum goes up to it
      and across, GELU(1.10) = 0.95; then the neuron with the most negative
      sum, 57, GELU(−1.83) = −0.06, nearly nothing; then every neuron at
-     once, lit by what it passes on, and the 23 that light (a tenth of the
-     brightest or more) a white dot each on the curve, a dot for each along
-     its strongest input. Notes: a weighted sum and its bias; GELU(x) = x ×
+     once, lit by what it passes on, the 23 that light (a tenth of the
+     brightest or more) a dot each along its strongest input, and the curve
+     its line alone. Notes: a weighted sum and its bias; GELU(x) = x ×
      the chance that a standard normal number falls below x; why the bend
      (without it the two layers are one weighted sum). Each neuron the run
      kept is GELU of its sum to its int8 step (held by `lm_scenes_test`).
@@ -536,7 +537,9 @@ out of view is scrolled just far enough to show it whole.
      point for every neuron (57a696e); taken out for a concise note and a
      small curve, its line alone (226c1f8), the curve then grown to its room
      with the lit neurons as white dots (243dce7); the three examples then
-     wanted back, to see how GELU is worked out;
+     wanted back, to see how GELU is worked out (299b353), the dots into a
+     worked neuron running once, the curve from its start, and no points on
+     the curve while every neuron lights;
    - then the 16 outputs, numbers written, each output's dot along the
      neuron that pushes it hardest;
    - they lie down onto the row in focus, and every place gains the same

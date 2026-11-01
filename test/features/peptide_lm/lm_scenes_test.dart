@@ -431,8 +431,8 @@ void main() {
     );
     expect(caption(LmStage.feedForward, fed(13)), 'All $ff the same way: ${FeedForwardScene.litNeurons(last)} light up');
     expect(caption(LmStage.feedForward, fed(16)), '$width out, each a weighted sum of the $ff neurons, plus a bias');
-    expect(caption(LmStage.feedForward, fed(17.6)), "Back to V3's row, to be added");
-    expect(caption(LmStage.feedForward, fed(18.5)), 'What the feed-forward adds to each place: 12 rows of $width');
+    expect(caption(LmStage.feedForward, fed(17.2)), "Back to V3's row, to be added");
+    expect(caption(LmStage.feedForward, fed(18.0)), 'What the feed-forward adds to each place: 12 rows of $width');
     expect(caption(LmStage.feedForward, 0.99), "Added: block 1's output, 12 × $width");
     // Block 2: block 1's two parts again, on block 1's output; head 1's map,
     // block 1's and then its own; what each part adds, alone, then added.

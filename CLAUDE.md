@@ -393,15 +393,16 @@ of 2026-10-30, 2026-10-31 and 2026-11-01:
   input × weight. Then GELU is worked out (the user's asks of 2026-11-01:
   the explanations as clear as they can be, GELU said; taken out for a
   note and a small curve, then wanted back to see how GELU is worked
-  out): the brightest neuron's 16 lines stand out, a dot along each, and
-  the caption gives its sum (`FeedForwardScene.sums`: the evened row × its
+  out): the brightest neuron's 16 lines stand out, a dot running once along
+  each, GELU's curve beside them from then on, and the caption gives its
+  sum (`FeedForwardScene.sums`: the evened row × its
   weights + its bias, from the run); GELU's curve is drawn right of the
   neurons, where the outputs will be, its line in the accent (`GeluChart`,
-  `FeedForwardScene.gelu`, x · Φ(x) as the engine's `nn.GELU`), and the sum
+  `FeedForwardScene.gelu`, x · Φ(x) as the engine's `nn.GELU`); the sum
   goes up to the curve and across to what it passes on; then the neuron
   with the most negative sum, nearly silenced; then every neuron at once,
-  lit by what it passes on, and those that light a white dot each on the
-  curve at its sum, a dot for each along its strongest input. Notes say
+  lit by what it passes on, a dot for each that lights along its strongest
+  input, and the curve its line alone (the user's word: no points on it). Notes say
   what a line is (weights' random start or updates since), what a weighted
   sum is, what GELU is, and why the bend (without it the two layers are
   one weighted sum). Then come the 16 outputs (each output's dot along its
