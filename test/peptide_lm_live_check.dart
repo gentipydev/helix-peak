@@ -13,6 +13,7 @@ import 'package:helixpeek/core/network/dio_api_client.dart';
 import 'package:helixpeek/core/network/track_client.dart';
 import 'package:helixpeek/features/peptide_lm/data/training_run_repository.dart';
 import 'package:helixpeek/features/peptide_lm/domain/training_trace.dart';
+import 'package:helixpeek/features/peptide_lm/presentation/lm_format.dart';
 
 void main() {
   final String baseUrl = Platform.environment['LIVE_BACKEND'] ?? '';
@@ -60,5 +61,46 @@ void main() {
     // Learned by heart but the first residue: the last step sits by the floor.
     expect(trace.loss(trace.steps.count) - trace.floor, lessThan(0.05));
     expect(trace.loss(1), greaterThan(math.log(trace.allowed.length) - 0.5));
+
+    expectTheWorkedExample(trace);
   });
+}
+
+/// The worked example Attention draws (docs/design/peptide-lm.md): insulin A
+/// chain's C11 at step 1, block 1. Its heads' answers, side by side, through
+/// the output weights' first row, plus its bias, make the first number
+/// attention adds, 0.11; and the 16 the page writes are what the stream gained
+/// across attention.
+void expectTheWorkedExample(TrainingTrace trace) {
+  final TraceCheckpoint first = trace.checkpoints.first;
+  expect(first.step, 1);
+  expect(trace.peptides.first.sequence, 'GIVEQCCTSICSLYQLENYCN');
+  const int c11 = 11;
+  final List<double> answers = <double>[
+    for (int h = 0; h < trace.model.heads; h++)
+      for (int d = 0; d < trace.headSize; d++) trace.mixed(first, 0, h, 0, c11, d),
+  ];
+  expect(
+    answers.map((double v) => v.toStringAsFixed(3)),
+    <String>[
+      '0.301', '-0.415', '0.451', '-0.604', '0.464', '0.112', '0.297', '0.352', //
+      '0.018', '0.222', '-0.222', '-0.079', '0.051', '-0.231', '-0.344', '-0.709',
+    ],
+  );
+  expect(trace.outBias(first, 0, 0), 0);
+  double number1 = trace.outBias(first, 0, 0);
+  for (int d = 0; d < trace.model.width; d++) {
+    number1 += trace.outWeight(first, 0, 0, d) * answers[d];
+  }
+  expect(number1, closeTo(0.1135, 5e-5));
+  expect(
+    <String>[
+      for (int d = 0; d < trace.model.width; d++)
+        fixed(trace.stream(first, 1, 0, c11, d) - trace.stream(first, 0, 0, c11, d), 2),
+    ],
+    <String>[
+      '0.11', '0.44', '−0.19', '0.40', '0.04', '−0.17', '0.16', '0.38', //
+      '0.01', '−0.06', '0.29', '−0.13', '−0.17', '0.21', '0.46', '−0.23',
+    ],
+  );
 }

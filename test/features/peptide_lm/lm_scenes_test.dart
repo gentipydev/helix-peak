@@ -270,22 +270,37 @@ void main() {
     expect(caption(LmStage.scores, scores(17.8)), "V3's query against each key up to its own: 4 scores");
     expect(caption(LmStage.scores, scores(19)), 'Softmax makes the scores shares of one: ${head(0)}');
     expect(caption(LmStage.scores, 0.99), 'Softmax makes the scores shares of one: ${head(0)}');
-    // Attention, after Scores: head 1's values, head 2, the join, head 1's
-    // map (the row in focus first, then every row), what attention adds.
+    // Attention, after Scores: head 1's values, head 2, the heads' answers
+    // through the output weights, head 1's map (the row in focus first, then
+    // every row), what attention adds.
     double attention(double beat) => beat / LmStage.attention.beats;
     expect(caption(LmStage.attention, attention(0.5)), "Head 1 hands V3 its shares of each place's value: $size numbers");
     expect(caption(LmStage.attention, attention(2.5)), 'Head 2, its own query and keys: V3 reads ${head(1)}');
+    expect(caption(LmStage.attention, attention(4.8)), "The heads' $size + $size numbers, side by side: $width");
+    // Number 1 of what attention adds: the stream's own gain across it, the
+    // output weights' sum of the heads' answers, with its bias once training
+    // has given it one (every bias starts at 0).
+    double gained(LmView at) =>
+        trace.stream(at.checkpoint, 1, 0, 3, 0) -
+        (trace.tokenEmbedding(at.checkpoint, trace.inputAt(0, 3), 0) + trace.positionEmbedding(at.checkpoint, 3, 0));
+    String attentionAt(LmView at, double beat) =>
+        sceneOf(LmStage.attention).caption(at, timeline.frameIn(LmStage.attention, attention(beat)));
+    expect(trace.outBias(first.checkpoint, 0, 0), 0);
+    expect(trace.outBias(last3.checkpoint, 0, 0), isNot(0));
+    expect(attentionAt(first, 6), 'Number 1: all $width × their weights, summed: ${fixed(gained(first), 2)}');
+    expect(attentionAt(last3, 6), 'Number 1: all $width × their weights, summed, + bias: ${fixed(gained(last3), 2)}');
     expect(
-      caption(LmStage.attention, attention(4.8)),
-      "The heads' $size + $size numbers × output weights $width × $width: what V3 read",
+      caption(LmStage.attention, attention(7)),
+      'The other ${width - 1} the same: ${width * width} output weights, $width into each',
     );
-    expect(caption(LmStage.attention, attention(5.6)), "Head 1's map: V3's row first, its shares from Scores");
+    expect(caption(LmStage.attention, attention(7.6)), 'What attention adds to V3');
+    expect(caption(LmStage.attention, attention(8.6)), "Head 1's map: V3's row first, its shares from Scores");
     expect(
-      caption(LmStage.attention, attention(7.2)),
+      caption(LmStage.attention, attention(10.2)),
       'Every place does what V3 did, its query on the keys up to it',
     );
     expect(
-      caption(LmStage.attention, attention(9.6)),
+      caption(LmStage.attention, attention(12.6)),
       "Each row made as V3's was: its shares × the values, × output weights",
     );
     expect(caption(LmStage.attention, 0.99), 'Added: x0 + attention, 12 × $width');
@@ -435,7 +450,7 @@ void main() {
     // Attention's map lies on the table's rows: a tap on a row of it, on a
     // share it reads or on a place it never reads, puts that row's place in
     // focus.
-    final TrainingFrame map = timeline.frameIn(LmStage.attention, 8 / LmStage.attention.beats);
+    final TrainingFrame map = timeline.frameIn(LmStage.attention, 11 / LmStage.attention.beats);
     final AttentionLayout attention = AttentionLayout(size, scene);
     final int places = trace.peptides.first.inputs;
     for (int i = 0; i < places; i++) {
@@ -528,6 +543,104 @@ void main() {
     expect(await inked(6.9), 0);
     // Number 1's strings running out of the row.
     expect(await inked(7.3), greaterThan(0));
+  });
+
+  testWidgets("Attention draws no output strings until the heads' answers flow into the output weights", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    const Size size = Size(393, 540);
+    final LmView scene = view(inks, kit);
+    // On Scores' bench: the answers stand where the evened row stood, the
+    // output where the query stood; the band between them, under the
+    // columns' names, as Scores' test takes it.
+    final ScoresLayout bench = ScoresLayout(size, scene);
+    final Rect band = Rect.fromLTRB(
+      bench.inputX + bench.column / 2 + 2,
+      bench.columnAt(bench.inputX, 0).top,
+      bench.outputX[0] - bench.column / 2 - 2,
+      bench.columnAt(bench.inputX, 0).bottom,
+    );
+    Future<int> inked(double beat) async {
+      final ui.PictureRecorder recorder = ui.PictureRecorder();
+      final Canvas canvas = Canvas(recorder)..drawRect(Offset.zero & size, Paint()..color = inks.ground);
+      LmScenePainter(view: scene, frame: () => timeline.frameIn(LmStage.attention, beat / LmStage.attention.beats))
+          .paint(canvas, size);
+      final ui.Picture picture = recorder.endRecording();
+      final Uint8List bytes = (await tester.runAsync(() async {
+        final ui.Image image = await picture.toImage(size.width.round(), size.height.round());
+        final ByteData? data = await image.toByteData();
+        image.dispose();
+        return data!.buffer.asUint8List();
+      }))!;
+      picture.dispose();
+      final int ground = inks.ground.toARGB32();
+      int count = 0;
+      for (int y = band.top.ceil(); y < band.bottom.floor(); y++) {
+        for (int x = band.left.ceil(); x < band.right.floor(); x++) {
+          final int i = (y * size.width.round() + x) * 4;
+          if (bytes[i] != (ground >> 16) & 0xff || bytes[i + 1] != (ground >> 8) & 0xff || bytes[i + 2] != ground & 0xff) {
+            count++;
+          }
+        }
+      }
+      return count;
+    }
+
+    final double flows = AttentionScene.outputFanAt(0, trace.model.width).$1;
+    // The output's slots stand empty: nothing between the two columns.
+    expect(await inked(flows - 0.05), 0);
+    // Number 1's strings running out of the heads' answers.
+    expect(await inked(flows + 0.3), greaterThan(0));
+  });
+
+  test('Attention makes each number it adds only as its strings land, number 1 alone, after the heads', () {
+    for (final int width in <int>[trace.model.width, 16]) {
+      final double heads = AttentionScene.times(trace.model.heads - 1, trace.model.heads).end;
+      double previous = 0;
+      for (int out = 0; out < width; out++) {
+        final (double from, double to) = AttentionScene.outputFanAt(out, width);
+        expect(from, greaterThan(heads), reason: 'number $out of $width, after the heads');
+        expect(from, greaterThanOrEqualTo(previous), reason: 'number $out of $width, in order');
+        expect(to, greaterThan(from));
+        // The number fills only as its strings land.
+        expect(AttentionScene.outputMadeAt(out, width, to - 0.11), 0);
+        expect(AttentionScene.outputMadeAt(out, width, to + 0.11), 1);
+        expect(to, lessThan(LmStage.attention.beats.toDouble()));
+        previous = from;
+      }
+      // Number 1 is made on its own: no other number's strings leave before
+      // it lands.
+      final double alone = AttentionScene.outputFanAt(0, width).$2;
+      for (int out = 1; out < width; out++) {
+        expect(AttentionScene.outputFanAt(out, width).$1, greaterThanOrEqualTo(alone));
+      }
+    }
+  });
+
+  testWidgets('what Attention writes as it adds is the output weights times the heads\' answers, and the stream\'s gain', (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    final int width = trace.model.width;
+    for (int c = 0; c < trace.checkpoints.length; c++) {
+      final LmView scene = view(inks, kit, checkpoint: c);
+      final List<double> answers = AttentionScene.joinedAnswers(scene);
+      expect(answers.length, width);
+      final List<double> gain = StreamTable(const Size(393, 540), scene).gained(0, 1, scene.position);
+      for (int out = 0; out < width; out++) {
+        // The strings into number [out] carry its weights times the answers;
+        // their sum, with its bias, is what the stream gained.
+        double sum = trace.outBias(scene.checkpoint, 0, out);
+        for (int d = 0; d < width; d++) {
+          sum += trace.outWeight(scene.checkpoint, 0, out, d) * answers[d];
+        }
+        expect(sum, closeTo(gain[out], 1e-4), reason: 'step ${scene.step}, number ${out + 1}');
+        expect(fixed(sum, 2), fixed(gain[out], 2), reason: 'step ${scene.step}, number ${out + 1}');
+      }
+    }
   });
 
   testWidgets("Attention lays head 1's map on the table's rows, from the token column to the canvas's side", (
