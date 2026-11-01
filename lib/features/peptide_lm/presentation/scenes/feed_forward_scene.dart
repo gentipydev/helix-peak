@@ -10,6 +10,7 @@ import 'attention_scene.dart';
 import 'embedding_scene.dart';
 import 'lm_drawing.dart';
 import 'lm_scene.dart';
+import 'scores_scene.dart';
 import 'stream_table.dart';
 
 /// Feed-forward, block 1's second part, as the engine runs it (the block's
@@ -31,39 +32,47 @@ final class FeedForwardScene extends LmScene {
 
   static double get _beats => LmStage.feedForward.beats.toDouble();
 
-  // The copy lifts off the row in focus, evened out, as the other rows go
-  // quiet; it stands up as the inputs, the table fading under the network.
+  // The copy lifts off the row in focus as the other rows go quiet, its
+  // numbers x0 + attention's.
   static const (double, double) _quiet = (0.0, 0.6);
-  static const (double, double) _lift = (0.0, 0.6);
-  static const (double, double) _evened = (0.3, 0.8);
-  static const (double, double) _stand = (0.8, 1.6);
-  static const (double, double) _tableOut = (0.8, 1.3);
-  static const (double, double) _nodes = (1.5, 1.8);
+  static const (double, double) _lift = (0.4, 1.0);
+
+  // The block's second LayerNorm evens the copy out, a step at a time, as
+  // Scores' first did: less its mean, over its standard deviation, then the
+  // norm's own scale and shift. The row it was lifted from keeps its numbers.
+  static const (double, double) _centre = (1.6, 2.1);
+  static const (double, double) _spread = (2.3, 2.8);
+  static const (double, double) _learned = (3.0, 3.3);
+
+  // It stands up as the inputs, the table fading under the network.
+  static const (double, double) _stand = (3.8, 4.6);
+  static const (double, double) _tableOut = (3.8, 4.3);
+  static const (double, double) _nodes = (4.5, 4.8);
 
   // The neurons: the edges in, the signal along them, and each neuron lit.
-  static const (double, double) _hiddenIn = (1.8, 2.3);
-  static const double _fireFrom = 2.3;
-  static const (double, double) _lit = (3.0, 4.0);
-  static const double _outFrom = 4.4;
+  static const (double, double) _hiddenIn = (4.8, 5.3);
+  static const double _fireFrom = 5.3;
+  static const (double, double) _lit = (6.0, 7.0);
+  static const double _outFrom = 7.4;
 
   // The outputs: the edges out, the signal along them, and each output.
-  static const (double, double) _outIn = (4.4, 4.8);
-  static const (double, double) _outputs = (5.2, 6.0);
-  static const (double, double) _outputNumbers = (5.8, 6.3);
+  static const (double, double) _outIn = (7.4, 7.8);
+  static const (double, double) _outputs = (8.2, 9.0);
+  static const (double, double) _outputNumbers = (8.8, 9.3);
 
   // The outputs lie down on the row in focus; the network goes and the table
   // comes back.
-  static const (double, double) _networkOut = (6.4, 6.8);
-  static const (double, double) _layDown = (6.5, 7.3);
-  static const (double, double) _tableIn = (6.8, 7.4);
+  static const (double, double) _networkOut = (9.4, 9.8);
+  static const (double, double) _layDown = (9.5, 10.3);
+  static const (double, double) _tableIn = (9.8, 10.4);
 
   // What the feed-forward added, alone on its own scale, then the sums.
-  static const (double, double) _alone = (7.4, 7.8);
-  static const (double, double) _numbersOut = (7.4, 7.6);
-  static const (double, double) _gainWritten = (7.6, 7.8);
-  static const (double, double) _gainUnwritten = (8.2, 8.4);
-  static const (double, double) _add = (8.3, 8.7);
-  static const (double, double) _sumsWritten = (8.5, 8.7);
+  static const (double, double) _alone = (10.4, 10.8);
+  static const (double, double) _numbersOut = (10.4, 10.6);
+  static const (double, double) _gainWritten = (10.6, 10.8);
+  static const (double, double) _gainUnwritten = (11.2, 11.4);
+  static const (double, double) _add = (11.3, 11.7);
+  static const (double, double) _sumsWritten = (11.5, 11.7);
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -162,6 +171,23 @@ final class FeedForwardScene extends LmScene {
 
   // ---------------------------------------------------------------- the copy
 
+  /// The row in focus evened out as the block's second LayerNorm does it:
+  /// x0 + attention's numbers, and the row the network reads. The run keeps
+  /// no scale and shift of this norm, only what it made.
+  static Evening evening(LmView view) => view.kit.memo<Evening>(
+    ('ff-evening', view.step, view.peptide, view.position),
+    () => Evening(
+      <double>[
+        for (int d = 0; d < view.trace.model.width; d++)
+          view.trace.stream(view.checkpoint, _before, view.peptide, view.position, d),
+      ],
+      <double>[
+        for (int d = 0; d < view.trace.model.width; d++)
+          view.trace.ffInput(view.checkpoint, block, view.peptide, view.position, d),
+      ],
+    ),
+  );
+
   /// The row in focus, as the network reads it: a copy lifting off its row,
   /// evened out, and standing up as the inputs; then the outputs, lying down
   /// onto the row.
@@ -176,21 +202,20 @@ final class FeedForwardScene extends LmScene {
     final double stand = _span(beat, _stand);
     final double nodes = _span(beat, _nodes);
     if (lift > 0 && nodes < 1) {
-      final double evened = _span(beat, _evened);
-      final List<double> raw = table.values(_before, focus);
-      final List<double> input = layout.inputs(focus);
-      final double scale = table.scale;
+      final double centre = _span(beat, _centre);
+      final double spread = _span(beat, _spread);
+      final double learned = _span(beat, _learned);
+      final List<double> now = evening(view).at(centre, spread, learned);
+      final double toward = (centre + spread + learned) / 3;
+      final double scale = table.scale + (layout.inputScale - table.scale) * toward;
       final Rect lifted = row.shift(Offset(0, -layout.table.layout.pitch * 0.55 * lift));
       table.strip(
         canvas,
         from: lifted,
         to: layout.inputColumn,
         f: stand,
-        colors: <Color>[
-          for (int d = 0; d < width; d++)
-            Color.lerp(view.inks.cell(raw[d] / scale), view.inks.cell(input[d] / layout.inputScale), evened)!,
-        ],
-        numbers: stand > 0 ? null : <double>[for (int d = 0; d < width; d++) raw[d] * (1 - evened) + input[d] * evened],
+        colors: <Color>[for (int d = 0; d < width; d++) view.inks.cell(now[d] / scale)],
+        numbers: stand > 0 ? null : now,
         alpha: (0.2 + 0.8 * lift) * (1 - nodes),
         outlined: true,
       );
@@ -415,9 +440,16 @@ final class FeedForwardScene extends LmScene {
     return <(double, double, String)>[
       (
         0.25,
-        _hiddenIn.$1,
+        _centre.$1,
         'Attention moved numbers between places. The feed-forward works\n'
             'on each place alone: the same network at all ${grouped(view.focus.inputs)}',
+      ),
+      (
+        _centre.$1,
+        _hiddenIn.$1,
+        "LayerNorm again, the block's second, with its own scale and shift:\n"
+            'the row itself keeps its numbers; the network reads an evened\n'
+            'copy, as attention did',
       ),
       (
         _hiddenIn.$1,
@@ -448,11 +480,27 @@ final class FeedForwardScene extends LmScene {
     final int ff = trace.model.feedForward;
     final int n = view.focus.inputs;
     final String focus = StreamTable.placeName(view, view.position);
-    if (beat < _stand.$1) {
+    final Evening even = evening(view);
+    if (beat < _lift.$2) {
       return 'Block 1, feed-forward: one small network, each place on its own';
     }
+    if (beat < _centre.$1) {
+      return "LayerNorm first evens out $focus's row: mean ${fixed(even.mean, 2)}, "
+          'standard deviation ${fixed(even.sd, 2)}';
+    }
+    if (beat < _spread.$1) {
+      return 'Less the mean, ${fixed(even.mean, 2)}: the row centres on zero';
+    }
+    if (beat < _learned.$1) {
+      return 'Over the standard deviation, ${fixed(even.sd, 2)}: each number a z-score';
+    }
+    if (beat < _stand.$1) {
+      return even.plain
+          ? 'At step ${grouped(view.step)} every scale is 1 and every shift 0: evened = z-score'
+          : "Then this norm's own learned scale and shift: the row the network reads";
+    }
     if (beat < _hiddenIn.$1) {
-      return "$focus's row, evened out (LayerNorm): its $width numbers go in";
+      return "$focus's evened row: its $width numbers go in";
     }
     if (beat < _outIn.$1) {
       return '$ff neurons, each a weighted sum of the $width through GELU: '

@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 151 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 154 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -372,7 +372,14 @@ of 2026-10-30 and 2026-10-31:
   that place in focus. The table widens again to what attention adds, alone,
   then the sums, `x0 + attention`.
 - **Feed-forward** (`feed_forward_scene.dart`), block 1's: a copy lifts off the
-  row in focus, evened out by its LayerNorm, and stands up as the 16 inputs of
+  row in focus, and the block's second LayerNorm evens it out a step at a
+  time, as Scores worked the first: less its mean, over its standard
+  deviation, then its own scale and shift, each step its caption with the
+  row's own numbers, the row it came from keeping its own (the user's ask of
+  2026-11-01: the copy's numbers changed with nothing saying why). The run
+  keeps no scale and shift of this norm, only what it made, so the last step
+  says evened = z-score where the run's numbers show that (step 1) and names
+  the learned scale and shift otherwise. It stands up as the 16 inputs of
   a network drawn left to right. All 1,024 weights reach the 64 neurons,
   coloured by sign, the signal riding the strongest, each neuron lit by what
   GELU lets through. Then come the 16 outputs, which lie back down onto the

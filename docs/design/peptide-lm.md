@@ -485,9 +485,21 @@ out of view is scrolled just far enough to show it whole.
      place, alone on its own scale, then the sums: x0 + attention.
 
    Over it a note says why each part happens.
-6. **Feed-forward.** Block 1's feed-forward, in 10 beats:
-   - a copy lifts off the row in focus, its numbers re-written as its
-     LayerNorm's, and stands up as the 16 inputs of a network drawn left to
+6. **Feed-forward.** Block 1's feed-forward, in 13 beats:
+   - a copy lifts off the row in focus, x0 + attention's numbers, and the
+     block's second LayerNorm evens it out a step at a time, as Scores
+     worked the first, in 3 beats added on 2026-11-01 at the user's ask (the
+     copy's numbers had changed in half a second with nothing saying why):
+     the caption names it with the row's mean and standard deviation; less
+     the mean; over the standard deviation, z-scores; then the norm's own
+     scale and shift. The run keeps no scale and shift of this norm, only
+     its output (`ff_input`), so that last step says "evened = z-score"
+     where the output is the z-scores to float32's precision (step 1) and
+     names the learned scale and shift otherwise. A note says the row itself
+     keeps its numbers and the network reads an evened copy, as attention
+     did. Scores' chart and its `z-score × scale + shift` sum are not drawn
+     again (each fact said once);
+   - the evened copy stands up as the 16 inputs of a network drawn left to
      right, numbers beside them;
    - all 1,024 weights reach the 64 neurons, coloured by the sign of what
      each carries, the signal riding the strongest, each neuron lit by what

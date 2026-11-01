@@ -371,15 +371,44 @@ void main() {
       caption(LmStage.feedForward, fed(0.5)),
       'Block 1, feed-forward: one small network, each place on its own',
     );
-    expect(caption(LmStage.feedForward, fed(1.2)), "V3's row, evened out (LayerNorm): its $width numbers go in");
+    // The block's second LayerNorm, worked as Scores worked the first, on
+    // x0 + attention's row: the network reads what the run kept it made.
+    final Evening fedEven = FeedForwardScene.evening(last);
+    final List<double> fedRow = <double>[
+      for (int d = 0; d < width; d++) trace.stream(last.checkpoint, 1, last.peptide, 3, d),
+    ];
+    expect(fedEven.x, fedRow);
+    expect(fedEven.mean, closeTo(fedRow.reduce((double a, double b) => a + b) / width, 1e-9));
+    expect(fedEven.at(1, 1, 1), <double>[
+      for (int d = 0; d < width; d++) trace.ffInput(last.checkpoint, FeedForwardScene.block, last.peptide, 3, d),
+    ]);
     expect(
-      caption(LmStage.feedForward, fed(3)),
+      caption(LmStage.feedForward, fed(1.2)),
+      "LayerNorm first evens out V3's row: mean ${fixed(fedEven.mean, 2)}, "
+      'standard deviation ${fixed(fedEven.sd, 2)}',
+    );
+    expect(caption(LmStage.feedForward, fed(1.9)), 'Less the mean, ${fixed(fedEven.mean, 2)}: the row centres on zero');
+    expect(
+      caption(LmStage.feedForward, fed(2.6)),
+      'Over the standard deviation, ${fixed(fedEven.sd, 2)}: each number a z-score',
+    );
+    // Trained, the norm moved the z-scores; at step 1 it left them alone.
+    expect(fedEven.plain, isFalse);
+    expect(caption(LmStage.feedForward, fed(3.5)), "Then this norm's own learned scale and shift: the row the network reads");
+    expect(FeedForwardScene.evening(view(inks, kit)).plain, isTrue);
+    expect(
+      sceneOf(LmStage.feedForward).caption(view(inks, kit), timeline.frameIn(LmStage.feedForward, fed(3.5))),
+      'At step 1 every scale is 1 and every shift 0: evened = z-score',
+    );
+    expect(caption(LmStage.feedForward, fed(4.2)), "V3's evened row: its $width numbers go in");
+    expect(
+      caption(LmStage.feedForward, fed(6)),
       '$ff neurons, each a weighted sum of the $width through GELU: '
       '${FeedForwardScene.litNeurons(last)} light up',
     );
-    expect(caption(LmStage.feedForward, fed(5)), '$width out, each a weighted sum of the $ff neurons');
-    expect(caption(LmStage.feedForward, fed(7)), "Back to V3's row, to be added");
-    expect(caption(LmStage.feedForward, fed(8)), 'What the feed-forward adds to each place: 12 rows of $width');
+    expect(caption(LmStage.feedForward, fed(8)), '$width out, each a weighted sum of the $ff neurons');
+    expect(caption(LmStage.feedForward, fed(10)), "Back to V3's row, to be added");
+    expect(caption(LmStage.feedForward, fed(11)), 'What the feed-forward adds to each place: 12 rows of $width');
     expect(caption(LmStage.feedForward, 0.99), "Added: block 1's output, 12 × $width");
     // Forward: the pass layer to layer, each place read out early.
     double forward(double beat) => beat / LmStage.forward.beats;

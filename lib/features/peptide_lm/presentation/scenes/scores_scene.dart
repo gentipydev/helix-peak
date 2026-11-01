@@ -1077,14 +1077,12 @@ final class ScoresScene extends LmScene {
   String describe(LmView view, TrainingFrame frame) => 'Scores, step ${view.step}. ${caption(view, frame)}.';
 }
 
-/// The row in focus evened out as the block's first LayerNorm does it: x0's
-/// numbers, their mean and standard deviation, the z-scores, and what the norm's learned
-/// scale and shift make of them, the row attention reads, as the run kept it.
-final class RowEvening {
-  RowEvening(LmView view) {
-    final TrainingTrace trace = view.trace;
-    final int width = trace.model.width;
-    x = <double>[for (int d = 0; d < width; d++) EmbeddingScene.value(view, view.position, d)];
+/// A row evened out by a LayerNorm: its numbers [x], their mean and standard
+/// deviation, the z-scores, and [evened], what the norm made of them, as the
+/// run kept it.
+class Evening {
+  Evening(this.x, this.evened) {
+    final int width = x.length;
     mean = x.reduce((double a, double b) => a + b) / width;
     double variance = 0;
     for (final double v in x) {
@@ -1093,12 +1091,6 @@ final class RowEvening {
     // The engine's epsilon, as its LayerNorm adds it.
     sd = math.sqrt(variance / width + 1e-5);
     z = <double>[for (final double v in x) (v - mean) / sd];
-    scale = <double>[for (int d = 0; d < width; d++) trace.normScale(view.checkpoint, ScoresScene.block, d)];
-    shift = <double>[for (int d = 0; d < width; d++) trace.normShift(view.checkpoint, ScoresScene.block, d)];
-    evened = <double>[
-      for (int d = 0; d < width; d++) trace.attnInput(view.checkpoint, ScoresScene.block, view.peptide, view.position, d),
-    ];
-    untrained = scale.every((double s) => s == 1) && shift.every((double s) => s == 0);
     double most = 1e-6;
     for (final List<double> row in <List<double>>[x, z, evened]) {
       for (final double v in row) {
@@ -1108,19 +1100,26 @@ final class RowEvening {
     reach = most * 1.08;
   }
 
-  late final List<double> x;
+  final List<double> x;
   late final double mean;
   late final double sd;
   late final List<double> z;
-  late final List<double> scale;
-  late final List<double> shift;
-  late final List<double> evened;
-
-  /// Whether the norm's scale is still all 1 and its shift all 0.
-  late final bool untrained;
+  final List<double> evened;
 
   /// How far from zero the chart reaches: past every number it draws.
   late final double reach;
+
+  /// Whether the norm left the z-scores as they were, to float32's
+  /// precision: its scale still 1 and its shift 0, read off the run's own
+  /// numbers where it keeps no scale and shift.
+  bool get plain {
+    for (int d = 0; d < z.length; d++) {
+      if ((evened[d] - z[d]).abs() > 1e-4 * math.max(1, z[d].abs())) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   /// The row [centre] of the way less its mean, [spread] of the way over its
   /// standard deviation, then [learned] of the way through the norm's scale
@@ -1136,6 +1135,33 @@ final class RowEvening {
             : (x[d] - mean * centre) / (1 + (sd - 1) * spread),
     ];
   }
+}
+
+/// The row in focus evened out as the block's first LayerNorm does it: x0's
+/// numbers, their mean and standard deviation, the z-scores, and what the
+/// norm's learned scale and shift make of them, the row attention reads, as
+/// the run kept it.
+final class RowEvening extends Evening {
+  RowEvening(LmView view)
+    : scale = <double>[
+        for (int d = 0; d < view.trace.model.width; d++) view.trace.normScale(view.checkpoint, ScoresScene.block, d),
+      ],
+      shift = <double>[
+        for (int d = 0; d < view.trace.model.width; d++) view.trace.normShift(view.checkpoint, ScoresScene.block, d),
+      ],
+      super(
+        <double>[for (int d = 0; d < view.trace.model.width; d++) EmbeddingScene.value(view, view.position, d)],
+        <double>[
+          for (int d = 0; d < view.trace.model.width; d++)
+            view.trace.attnInput(view.checkpoint, ScoresScene.block, view.peptide, view.position, d),
+        ],
+      );
+
+  final List<double> scale;
+  final List<double> shift;
+
+  /// Whether the norm's scale is still all 1 and its shift all 0.
+  bool get untrained => scale.every((double s) => s == 1) && shift.every((double s) => s == 0);
 }
 
 /// Scores' canvas, on Attention's: the table narrowed to a strip a place, and
