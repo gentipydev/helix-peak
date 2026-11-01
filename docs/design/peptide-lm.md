@@ -64,7 +64,7 @@ every step. A tap on a stage plays it once, a beat every two seconds, and it
 holds on its last frame until another is tapped, or the same one again.
 Beside the caption, a player of that stage alone: Replay, and Play/Pause.
 The stage bar keeps its names at full size and scrolls sideways where a
-phone is too narrow for all thirteen; a stage played whose name stands partly
+phone is too narrow for all twelve; a stage played whose name stands partly
 out of view is scrolled just far enough to show it whole.
 
 1. **Tokenise.** The dataset, a peptide a row folded onto two lines where
@@ -544,44 +544,23 @@ out of view is scrolled just far enough to show it whole.
      neuron that pushes it hardest;
    - they lie down onto the row in focus, and every place gains the same
      network's output, alone, then added: block 1's output.
-7. **Block 2.** The second block on the first one's output, in 13 beats, in
-   the earlier stages' own words. Until 2026-11-01 Forward drew block 2 as
-   more lines between columns of tokens; the user found that stage crowded
-   and not explanatory and asked for its concerns to be split. It opens on
-   Feed-forward's last frame:
-   - the rows go into their tiles (Attention's narrowing, in one move) and
-     head 1's map lies on them, block 1's, as Attention drew it, its tag
-     `block 1 · head 1`; then each cell turns to block 2's own share
-     (`block 2 · head 1`), the row in focus first, a cell at a time from
-     `<bos>`, then every other row, top to bottom: the colour moves along the
-     shares' ramp and the number is swapped half way, never written between
-     the two. Insulin A's C11 at step 1: block 1's head 1 read S9 23%, block
-     2's reads Q5 12%, I10 12%; at step 200, G1 55% and T8 46%;
-   - the map goes and the rows come back out as what block 2's attention
-     adds, alone on its own scale, then added: block 1's output + attention;
-   - what block 2's feed-forward adds, alone, then added: block 2's output.
-   Notes: the recipe (LayerNorm, attention, add; LayerNorm, feed-forward,
-   add) with weights of its own, where they stand; that it reads rows that
-   already carry block 1's additions, head 2 with a map of its own; nothing
-   overwritten; the same network shape as Feed-forward drew, 2,128 weights
-   and biases of its own. Its LayerNorms and network are named, not drawn a
-   third time. Attention's map pieces are shared for it (`drawMapCell`,
-   `drawMapHatch`, `drawMapTiles`, `fillAt`, its shares for any block),
-   485 sampled Attention frames proved byte-identical.
-8. **Forward.** The place in focus's row through the whole pass, layer to
+7. **Forward.** The place in focus's row through the whole pass, layer to
    layer, down the canvas, in 12 beats (`TowerLayout`): a slot a point of the
    stream, six for two blocks, with the table's own columns, each named over
    it: x0, as Embedding made it; + block 1's attention; + block 1's
    feed-forward; + block 2's attention; + block 2's feed-forward; final
    LayerNorm: what Predict reads.
-   - It opens on Block 2's last frame. The table goes; the place's row goes
-     to block 2's output's slot and waits there, faint; its tile goes to the
-     ladder's top; the route comes in as empty slots, every part named.
+   - It opens on Feed-forward's last frame. The table goes; the place's row
+     goes to block 1's output's slot and waits there, faint; its tile goes to
+     the ladder's top; the route comes in as empty slots, every part named.
    - x0 fills the top. A part at a time, what it adds comes in as a thin
      strip (the four on one scale, so they can be set against each other)
      and a copy of the row above drops through it into the next slot,
-     turning into the sum as it passes; the fourth lands on the row that
-     waited.
+     turning into the sum as it passes: block 1's two land on the row that
+     waited, then block 2's go on. Block 2's attention's caption sets its
+     head 1's top read against block 1's, as Attention's map reads them
+     (insulin A's C11: Q5 12% against S9 23% at step 1, T8 46% against G1
+     55% at step 200): its weights, and so its maps, are its own.
    - The last drop goes through the final LayerNorm: the caption gives the
      row's mean and standard deviation (C11 at step 1: 0.19 and 1.23), then,
      from the run's numbers (`Evening.plain`), evened = z-score at step 1 and
@@ -604,24 +583,28 @@ out of view is scrolled just far enough to show it whole.
    of 22; at step 1, none). It drew Predict's output layer and Loss's grading
    against y before either stage, its last column was Predict's answer, and
    at step 1 its nodes read nothing right; the readout is kept in the run for
-   Predict's review.
-9. **Predict.** The final column runs down the output layer's 23 rows and
+   Predict's review. The same day a Block 2 stage came between Feed-forward
+   and Forward (head 1's map turning from block 1's shares to block 2's, then
+   what block 2's two parts add, alone and added, 13 beats); the user found
+   it redundant with the ladder and it was removed, its one fact, block 2's
+   own reading, kept in the caption above.
+8. **Predict.** The final column runs down the output layer's 23 rows and
    each row's logit grows; `<pad>` and `<bos>` are struck to −∞; softmax
    turns the rest into 21 bars in the residues' colours, what came next
    outlined. Untrained, after GIVEQCCTSIC the model says K 10%; at step 200,
    S 99.6% (100% as the page rounds it), and S is next.
-10. **Loss.** A ghost bar rises to certainty at the target, the gap bracketed
+9. **Loss.** A ghost bar rises to certainty at the target, the gap bracketed
    and read off the −ln p curve; every target's surprise fills a strip a
    peptide and pools into the step's loss, set against ln 21.
-11. **Backward.** The bars turn into p − y; the error comes down the tower,
+10. **Backward.** The bars turn into p − y; the error comes down the tower,
    each module's gradient norm filling its bar and each position's glowing at
    every point of the stream (by step 200 only `<bos>`'s, the unknowable first
    residue, glows); the clip gauge reads the total against 1.0.
-12. **Update.** The output layer's weights, then the clipped gradient on them,
+11. **Update.** The output layer's weights, then the clipped gradient on them,
    then AdamW's update (drawn magnified, the factor said), then the weights
    moved. Per weight, the gradient differs between modules many times over
    and Adam's step hardly at all. The learning-rate schedule marks the step.
-13. **Loop.** The loss curve draws itself past the three baselines to the
+12. **Loop.** The loss curve draws itself past the three baselines to the
    floor; under it every target's tile lights up with the probability the
    model gives it, all but each peptide's first; the output layer drifts.
 
