@@ -11,6 +11,7 @@ import 'embedding_scene.dart';
 import 'lm_drawing.dart';
 import 'lm_scene.dart';
 import 'stream_table.dart';
+import 'weight_flow.dart';
 
 /// Scores, block 1's attention up to its shares, as the engine works it
 /// (the block's first LayerNorm, then `nn.MultiheadAttention`'s own
@@ -76,16 +77,22 @@ final class ScoresScene extends LmScene {
   // each, named on a plate under them. A part's strings go as the next
   // part's slots come.
   static const List<(double, double)> _slotsIn = <(double, double)>[(6.6, 6.9), (10.35, 10.55), (11.45, 11.65)];
-  static const List<(double, double)> _webOut = <(double, double)>[(10.35, 10.6), (11.45, 11.7), (12.5, 12.7)];
   static const (double, double) _plateIn = (6.95, 7.25);
   static const (double, double) _plateOut = (12.5, 12.7);
 
   // The fans: the query's first three numbers on their own, the first
   // slowly, then the rest of the query in one cascade; the key's and the
-  // value's each one cascade. A fan takes [_fanLong] in a cascade.
-  static const List<(double, double)> _alone = <(double, double)>[(6.95, 7.55), (7.7, 8.0), (8.05, 8.3)];
-  static const List<(double, double)> _cascades = <(double, double)>[(8.35, 9.2), (10.6, 11.375), (11.7, 12.475)];
-  static const double _fanLong = 0.25;
+  // value's each one cascade.
+  static const List<WeightFlow> _flows = <WeightFlow>[
+    WeightFlow(
+      alone: <(double, double)>[(6.95, 7.55), (7.7, 8.0), (8.05, 8.3)],
+      cascade: (8.35, 9.2),
+      webOut: (10.35, 10.6),
+      firstRelax: 0.3,
+    ),
+    WeightFlow(cascade: (10.6, 11.375), webOut: (11.45, 11.7)),
+    WeightFlow(cascade: (11.7, 12.475), webOut: (12.5, 12.7)),
+  ];
 
   // Each cut into a slice a head, the slices named.
   static const (double, double) _cut = (12.7, 13.1);
@@ -241,7 +248,11 @@ final class ScoresScene extends LmScene {
       return;
     }
     final double alpha = 1 - gone;
-    _column(canvas, view, layout, layout.inputX, 0, <Color>[for (final Color c in colors) c.withValues(alpha: c.a * alpha)]);
+    drawColumn(
+      canvas,
+      (int d) => layout.tileAt(layout.inputX, d, 0),
+      <Color>[for (final Color c in colors) c.withValues(alpha: c.a * alpha)],
+    );
     canvas.drawRRect(
       RRect.fromRectAndRadius(column.inflate(1), const Radius.circular(3)),
       Paint()
@@ -249,8 +260,24 @@ final class ScoresScene extends LmScene {
         ..strokeWidth = 1.2
         ..color = view.inks.signal.withValues(alpha: 0.85 * alpha),
     );
-    _numbers(canvas, view, layout, layout.inputX, 0, now, _span(beat, _columnNumbers) * alpha, left: true);
-    _title(canvas, view, layout, layout.inputX, StreamTable.placeName(view, view.position), alpha);
+    drawColumnNumbers(
+      canvas,
+      view,
+      (int d) => layout.tileAt(layout.inputX, d, 0),
+      now,
+      _span(beat, _columnNumbers) * alpha,
+      textSize: layout.textSize,
+      writes: layout.writes,
+      left: true,
+    );
+    drawColumnTitle(
+      canvas,
+      view,
+      StreamTable.placeName(view, view.position),
+      alpha,
+      x: layout.inputX,
+      top: layout.columnAt(layout.inputX, 0).top,
+    );
     final double chart = _span(beat, _chartIn) * (1 - _span(beat, _formulaIn));
     if (chart > 0) {
       _chart(canvas, view, layout, now, beat, chart);
@@ -436,16 +463,44 @@ final class ScoresScene extends LmScene {
     // those that have landed left faint, quieter while the row flows, and
     // those running lit.
     for (int part = 0; part < 3; part++) {
-      final double web = _webShown(part, width, beat) * shown;
+      final WeightFlow flow = _flows[part];
+      final double web = flow.webShown(width, beat) * shown;
       if (web > 0) {
-        _web(canvas, view, layout, part, cut, beat, web * (1 - 0.35 * _flowing(part, width, beat)));
-        _fans(canvas, view, layout, part, cut, beat, web);
+        Offset from(int d) => layout.tileAt(layout.inputX, d, 0).centerRight;
+        Offset to(int out) => layout.tileAt(layout.outputX[part], out, cut).centerLeft;
+        double weight(int out, int d) => _weight(view, part, out, d);
+        drawWeights(
+          canvas,
+          view,
+          flow,
+          inputs: width,
+          outputs: width,
+          weight: weight,
+          from: from,
+          to: to,
+          most: _weightReach(view, part),
+          beat: beat,
+          alpha: web,
+        );
+        drawFans(
+          canvas,
+          view,
+          flow,
+          input: evening(view).evened,
+          outputs: width,
+          weight: weight,
+          from: from,
+          to: to,
+          most: _productReach(view, part),
+          beat: beat,
+          alpha: web,
+        );
       }
     }
     // The columns already made are one card the later strings pass behind,
     // from the query's to the last made, their numbers clear of them.
     for (int part = 1; part < 3; part++) {
-      _backing(canvas, view, layout, layout.outputX[0], layout.outputX[part - 1], cut, _webShown(part, width, beat) * shown);
+      _backing(canvas, view, layout, layout.outputX[0], layout.outputX[part - 1], cut, _flows[part].webShown(width, beat) * shown);
     }
     for (int part = 0; part < 3; part++) {
       final (double slotsFrom, double slotsTo) = _slotsIn[part];
@@ -457,8 +512,9 @@ final class ScoresScene extends LmScene {
       final bool lying = part < 2 && beat >= (part == 0 ? _queryDown : _keyDown).$1;
       final List<double> values = madeOf(view, part);
       final List<double> made = <double>[for (int out = 0; out < width; out++) madeAt(part, out, width, beat)];
-      _slots(canvas, view, layout, part, cut, standing, made);
-      _column(canvas, view, layout, layout.outputX[part], cut, <Color>[
+      Rect tile(int out) => layout.tileAt(layout.outputX[part], out, cut);
+      drawSlots(canvas, view, tile, standing, made);
+      drawColumn(canvas, tile, <Color>[
         for (int out = 0; out < width; out++)
           view.inks.signed(values[out] / AttentionScene.qkvScale(view, out ~/ size)).withValues(
             alpha: made[out] *
@@ -466,17 +522,24 @@ final class ScoresScene extends LmScene {
                 (lying && out < size ? 0 : 1),
           ),
       ]);
-      _numbers(
+      drawColumnNumbers(
         canvas,
         view,
-        layout,
-        layout.outputX[part],
-        cut,
+        tile,
         values,
         shown,
-        alphaOf: (int out) => _written(part, out, width, beat) * (out < size ? (lying ? 0 : 1) : others),
+        textSize: layout.textSize,
+        writes: layout.writes,
+        alphaOf: (int out) => _flows[part].written(out, width, beat) * (out < size ? (lying ? 0 : 1) : others),
       );
-      _title(canvas, view, layout, layout.outputX[part], _parts[part], standing);
+      drawColumnTitle(
+        canvas,
+        view,
+        _parts[part],
+        standing,
+        x: layout.outputX[part],
+        top: layout.columnAt(layout.outputX[part], 0).top,
+      );
     }
     _plate(canvas, view, layout, beat, shown);
     // The slices named, left of the query's.
@@ -503,31 +566,11 @@ final class ScoresScene extends LmScene {
   /// second. The query's first numbers on their own, the first slowly, then
   /// the rest of it in one cascade; the key's and the value's each one
   /// cascade.
-  static (double, double) fanAt(int part, int out, int width) {
-    final int alone = part == 0 ? math.min(_alone.length, width) : 0;
-    if (out < alone) {
-      return _alone[out];
-    }
-    final (double from, double to) = _cascades[part];
-    final int rest = width - alone;
-    final double stagger = rest < 2 ? 0 : (to - from - _fanLong) / (rest - 1);
-    final double start = from + (out - alone) * stagger;
-    return (start, start + _fanLong);
-  }
+  static (double, double) fanAt(int part, int out, int width) => _flows[part].fanAt(out, width);
 
   /// How far number [out] of [part] is made at [beat]: it fills as its
   /// strings land.
-  static double madeAt(int part, int out, int width, double beat) {
-    final double landed = fanAt(part, out, width).$2;
-    return through(beat, landed - 0.1, landed + 0.1);
-  }
-
-  /// How far number [out] of [part] is written beside its tile: once it is
-  /// made.
-  static double _written(int part, int out, int width, double beat) {
-    final double landed = fanAt(part, out, width).$2;
-    return through(beat, landed, landed + 0.15);
-  }
+  static double madeAt(int part, int out, int width, double beat) => _flows[part].madeAt(out, width, beat);
 
   /// The weight from number [d] of the evened row to number [out] of [part]
   /// at the checkpoint in focus.
@@ -537,16 +580,11 @@ final class ScoresScene extends LmScene {
   /// The largest of [part]'s weights at the checkpoint in focus.
   static double _weightReach(LmView view, int part) => view.kit.memo<double>(
     ('scores-weight-reach', view.step, part),
-    () {
-      final int width = view.trace.model.width;
-      double most = 1e-9;
-      for (int out = 0; out < width; out++) {
-        for (int d = 0; d < width; d++) {
-          most = math.max(most, _weight(view, part, out, d).abs());
-        }
-      }
-      return most;
-    },
+    () => weightReach(
+      view.trace.model.width,
+      view.trace.model.width,
+      (int out, int d) => _weight(view, part, out, d),
+    ),
   );
 
   /// The largest of what [part]'s strings carry from the row in focus, a
@@ -555,45 +593,9 @@ final class ScoresScene extends LmScene {
     ('scores-product-reach', view.step, view.peptide, view.position, part),
     () {
       final List<double> evened = evening(view).evened;
-      double most = 1e-9;
-      for (int out = 0; out < evened.length; out++) {
-        for (int d = 0; d < evened.length; d++) {
-          most = math.max(most, (_weight(view, part, out, d) * evened[d]).abs());
-        }
-      }
-      return most;
+      return productReach(evened, evened.length, (int out, int d) => _weight(view, part, out, d));
     },
   );
-
-  /// How strong a part's strings are drawn once they have landed: faint,
-  /// under the strings the row lights.
-  static const double _webStrength = 0.5;
-
-  /// How strongly [part]'s strings show at [beat], of [width] numbers: from
-  /// its first fan until the next part's slots come.
-  static double _webShown(int part, int width, double beat) {
-    final double first = fanAt(part, 0, width).$1;
-    return through(beat, first - 0.05, first) * (1 - _span(beat, _webOut[part]));
-  }
-
-  /// How long the strings into number [out] of [part] stay lit after they
-  /// land, settling into the part's faint weights.
-  static double _relax(int part, int out) => part == 0 && out == 0 ? 0.3 : 0.2;
-
-  /// How far the strings into number [out] of [part] have settled at [beat],
-  /// of [width] numbers: left behind, faint, once the number is made.
-  static double _settled(int part, int out, int width, double beat) {
-    final double landed = fanAt(part, out, width).$2;
-    return through(beat, landed + 0.05, landed + _relax(part, out));
-  }
-
-  /// How far the row is flowing through [part]'s web at [beat], of
-  /// [width] numbers: from just before its first fan to just after its last.
-  static double _flowing(int part, int width, double beat) {
-    final double first = fanAt(part, 0, width).$1;
-    final double last = fanAt(part, width - 1, width).$2;
-    return through(beat, first - 0.15, first) * (1 - through(beat, last + 0.1, last + 0.3));
-  }
 
   /// The columns from [first] to [last] and their numbers as one card in
   /// the ground's colour, [alpha] strong, so the strings of a part after
@@ -611,100 +613,6 @@ final class ScoresScene extends LmScene {
       ),
       Paint()..color = view.inks.ground.withValues(alpha: alpha),
     );
-  }
-
-  /// [part]'s strings left behind, a weight on each, from each number of the
-  /// evened row to each number made: in the colour of the weight's sign, as
-  /// strong as it against the part's largest; each number's settling in as
-  /// its lit strings go.
-  void _web(Canvas canvas, LmView view, ScoresLayout layout, int part, double cut, double beat, double alpha) {
-    final int width = view.trace.model.width;
-    drawEdges(
-      canvas,
-      view,
-      <(int, int, double)>[
-        for (int out = 0; out < width; out++)
-          for (int d = 0; d < width; d++) (d, out, _weight(view, part, out, d)),
-      ],
-      (int d) => layout.tileAt(layout.inputX, d, 0).centerRight,
-      (int out) => layout.tileAt(layout.outputX[part], out, cut).centerLeft,
-      alpha * _webStrength,
-      most: _weightReach(view, part),
-      alphaOf: (int out) => _settled(part, out, width, beat),
-    );
-  }
-
-  /// The row flowing through [part]'s weights: the strings into each number
-  /// being made, lit from the row's numbers out to it, each carrying its
-  /// number times its weight, in that product's colour and as strong as it
-  /// against the part's largest; lit while they run, then settling into the
-  /// part's faint weights once the number is made.
-  void _fans(Canvas canvas, LmView view, ScoresLayout layout, int part, double cut, double beat, double alpha) {
-    final TrainingTrace trace = view.trace;
-    final int width = trace.model.width;
-    final List<double> evened = evening(view).evened;
-    final double most = _productReach(view, part);
-    final LineBatch batch = LineBatch();
-    final Paint tip = Paint();
-    final List<(Offset, double, Color)> tips = <(Offset, double, Color)>[];
-    for (int out = 0; out < width; out++) {
-      final (double from, double to) = fanAt(part, out, width);
-      if (beat <= from) {
-        continue;
-      }
-      final double glow = 1 - through(beat, to + 0.05, to + _relax(part, out));
-      if (glow <= 0) {
-        continue;
-      }
-      final double reached = through(beat, from, to);
-      final Offset end = layout.tileAt(layout.outputX[part], out, cut).centerLeft;
-      for (int d = 0; d < width; d++) {
-        final double carried = trace.projection(view.checkpoint, block, part, out, d) * evened[d];
-        final double w = math.min(1.0, carried.abs() / most);
-        final Offset start = layout.tileAt(layout.inputX, d, 0).centerRight;
-        final Offset at = Offset.lerp(start, end, reached)!;
-        final Color color = carried >= 0 ? view.inks.positive : view.inks.negative;
-        batch.line(start, at, color, 1.0 + 1.6 * w, (0.45 + 0.55 * math.pow(w, 1.2)) * glow * alpha);
-        // Each number on its way, a dot at the string's tip until it lands.
-        final double travelling = alpha * (1 - through(reached, 0.85, 1));
-        if (travelling > 0) {
-          tips.add((at, 1.3 + 1.2 * w, color.withValues(alpha: (0.55 + 0.45 * w) * travelling)));
-        }
-      }
-    }
-    batch.draw(canvas);
-    for (final (Offset at, double radius, Color color) in tips) {
-      canvas.drawCircle(at, radius, tip..color = color);
-    }
-  }
-
-  /// [part]'s numbers not yet made, each an empty slot outlined in the
-  /// quiet ink, as [made] of the way as its number.
-  static void _slots(
-    Canvas canvas,
-    LmView view,
-    ScoresLayout layout,
-    int part,
-    double cut,
-    double alpha,
-    List<double> made,
-  ) {
-    if (alpha <= 0) {
-      return;
-    }
-    final Paint paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.8;
-    for (int out = 0; out < made.length; out++) {
-      final double a = alpha * (1 - made[out]);
-      if (a <= 0) {
-        continue;
-      }
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(layout.tileAt(layout.outputX[part], out, cut).deflate(1), const Radius.circular(1.5)),
-        paint..color = view.inks.quiet.withValues(alpha: 0.6 * a),
-      );
-    }
   }
 
   /// Where the weights stand at the checkpoint in focus: the run's random
@@ -747,12 +655,15 @@ final class ScoresScene extends LmScene {
     if (status <= 0) {
       return;
     }
-    final Rect plate = layout.plateAt(tagSize(view, named(0)));
-    final String text = weightsStatus(view);
-    final TextStyle words = inked(view.kit.sans, 8.5, view.inks.quiet, alpha: status);
-    final double wide = view.kit.layout(text, words).width;
-    final double left = (plate.center.dx - wide / 2).clamp(layout.benchLeft, math.max(layout.benchLeft, layout.right - wide));
-    view.kit.draw(canvas, text, words, Offset(left, plate.bottom + 3));
+    drawPlateStatus(
+      canvas,
+      view,
+      layout.plateAt(tagSize(view, named(0))),
+      weightsStatus(view),
+      status,
+      left: layout.benchLeft,
+      right: layout.right,
+    );
   }
 
   /// The query ([part] 0), key (1) or value (2) of the place in focus, the
@@ -768,65 +679,6 @@ final class ScoresScene extends LmScene {
           _ => trace.value(view.checkpoint, block, out ~/ size, view.peptide, view.position, out % size),
         },
     ];
-  }
-
-  /// A column of [colors] standing at [x], [cut] of the way to its heads'
-  /// slices.
-  static void _column(Canvas canvas, LmView view, ScoresLayout layout, double x, double cut, List<Color> colors) {
-    final Paint paint = Paint();
-    for (int d = 0; d < colors.length; d++) {
-      if (colors[d].a <= 0) {
-        continue;
-      }
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(layout.tileAt(x, d, cut).deflate(0.5), const Radius.circular(1.5)),
-        paint..color = colors[d],
-      );
-    }
-  }
-
-  /// A column's numbers, at its [left] or its right.
-  static void _numbers(
-    Canvas canvas,
-    LmView view,
-    ScoresLayout layout,
-    double x,
-    double cut,
-    List<double> numbers,
-    double alpha, {
-    bool left = false,
-    double Function(int d)? alphaOf,
-  }) {
-    if (alpha <= 0 || !layout.writes) {
-      return;
-    }
-    for (int d = 0; d < numbers.length; d++) {
-      final double a = alpha * (alphaOf == null ? 1 : alphaOf(d));
-      if (a <= 0) {
-        continue;
-      }
-      final Rect tile = layout.tileAt(x, d, cut);
-      view.kit.draw(
-        canvas,
-        fixed(numbers[d], 2),
-        inked(view.kit.mono, layout.textSize, view.inks.ink, alpha: a),
-        left ? Offset(tile.left - 4, tile.center.dy) : Offset(tile.right + 4, tile.center.dy),
-        anchor: Offset(left ? 1 : 0, 0.5),
-      );
-    }
-  }
-
-  /// A column's name over it.
-  static void _title(Canvas canvas, LmView view, ScoresLayout layout, double x, String text, double alpha) {
-    if (alpha > 0) {
-      view.kit.draw(
-        canvas,
-        text,
-        inked(view.kit.sans, 9, view.inks.quiet, alpha: alpha),
-        Offset(x, layout.columnAt(x, 0).top - 4),
-        anchor: const Offset(0.5, 1),
-      );
-    }
   }
 
   /// Head 1's slices of the query and key lying down by the row in focus:
