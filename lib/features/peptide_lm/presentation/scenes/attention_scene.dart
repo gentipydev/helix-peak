@@ -319,28 +319,28 @@ final class AttentionScene extends LmScene {
     },
   );
 
-  /// What the place in focus reads of each place up to its own in head [h]:
-  /// softmax of its scores, worked out from the scores as they are kept,
-  /// whole.
-  static List<double> shares(LmView view, int h) => view.kit.memo<List<double>>(
-    ('attention-shares', view.step, view.peptide, block, h, view.position),
-    () => _softmax(view, h, view.position),
+  /// What the place in focus reads of each place up to its own in head [h]
+  /// of [layer], this stage's block unless another is named: softmax of its
+  /// scores, worked out from the scores as they are kept, whole.
+  static List<double> shares(LmView view, int h, {int layer = block}) => view.kit.memo<List<double>>(
+    ('attention-shares', view.step, view.peptide, layer, h, view.position),
+    () => _softmax(view, h, view.position, layer),
   );
 
-  /// Every place's shares in head [h], a row a place, each adding to one:
-  /// what its map draws. The place in focus's row is [shares], number for
-  /// number.
-  static List<List<double>> allShares(LmView view, int h) => view.kit.memo<List<List<double>>>(
-    ('attention-map', view.step, view.peptide, block, h),
-    () => <List<double>>[for (int i = 0; i < view.focus.inputs; i++) _softmax(view, h, i)],
+  /// Every place's shares in head [h] of [layer], a row a place, each adding
+  /// to one: what its map draws. The place in focus's row is [shares],
+  /// number for number.
+  static List<List<double>> allShares(LmView view, int h, {int layer = block}) => view.kit.memo<List<List<double>>>(
+    ('attention-map', view.step, view.peptide, layer, h),
+    () => <List<double>>[for (int i = 0; i < view.focus.inputs; i++) _softmax(view, h, i, layer)],
   );
 
-  /// What place [i] reads of each place up to its own in head [h]: softmax
-  /// of its scores as they are kept.
-  static List<double> _softmax(LmView view, int h, int i) {
+  /// What place [i] reads of each place up to its own in head [h] of
+  /// [layer]: softmax of its scores as they are kept.
+  static List<double> _softmax(LmView view, int h, int i, int layer) {
     final TrainingTrace trace = view.trace;
     final List<double> scores = <double>[
-      for (int j = 0; j <= i; j++) trace.score(view.checkpoint, block, h, view.peptide, i, j),
+      for (int j = 0; j <= i; j++) trace.score(view.checkpoint, layer, h, view.peptide, i, j),
     ];
     final double top = scores.reduce(math.max);
     final List<double> e = <double>[for (final double s in scores) math.exp(s - top)];
@@ -348,8 +348,9 @@ final class AttentionScene extends LmScene {
     return <double>[for (final double x in e) x / sum];
   }
 
-  /// Place [key]'s share of what the place in focus reads, in head [h].
-  static double share(LmView view, int h, int key) => shares(view, h)[key];
+  /// Place [key]'s share of what the place in focus reads, in head [h] of
+  /// [layer].
+  static double share(LmView view, int h, int key, {int layer = block}) => shares(view, h, layer: layer)[key];
 
   /// Head [h]'s part: every place's key, then its value; the query passing
   /// the keys; each score, then each share; and the arcs carrying the values
@@ -966,15 +967,30 @@ final class AttentionScene extends LmScene {
   /// How far the map's cell at row [i], column [j] has filled at [beat], of
   /// [n] places, [focus] in focus: the row in focus first, a cell at a time
   /// from `<bos>`; then every other row, top to bottom, a row at a time.
-  static double mapFilled(int i, int j, int focus, int n, double beat) {
+  static double mapFilled(int i, int j, int focus, int n, double beat) =>
+      fillAt(i, j, focus, n, beat, focusRow: _focusRow, rows: _rows);
+
+  /// How far a map's cell at row [i], column [j] has come at [beat], in the
+  /// order a map fills: the row in focus a cell at a time from `<bos>`
+  /// through [focusRow], then every other row, top to bottom, a row at a
+  /// time through [rows].
+  static double fillAt(
+    int i,
+    int j,
+    int focus,
+    int n,
+    double beat, {
+    required (double, double) focusRow,
+    required (double, double) rows,
+  }) {
     if (i == focus) {
       const double each = 0.25;
-      final double start = _focusRow.$1 + (focus < 1 ? 0 : (_focusRow.$2 - _focusRow.$1 - each) * j / focus);
+      final double start = focusRow.$1 + (focus < 1 ? 0 : (focusRow.$2 - focusRow.$1 - each) * j / focus);
       return through(beat, start, start + each);
     }
     const double each = 0.2;
     final int rank = i < focus ? i : i - 1;
-    final double start = _rows.$1 + (n < 3 ? 0 : (_rows.$2 - _rows.$1 - each) * rank / (n - 2));
+    final double start = rows.$1 + (n < 3 ? 0 : (rows.$2 - rows.$1 - each) * rank / (n - 2));
     return through(beat, start, start + each);
   }
 
@@ -989,62 +1005,86 @@ final class AttentionScene extends LmScene {
     if (shown <= 0) {
       return;
     }
-    final TrainingTrace trace = view.trace;
     final int n = view.focus.inputs;
     final int focus = view.position;
     final double grow = _span(beat, _grow);
     final List<List<double>> rows = allShares(view, mapHead);
-    final TextStyle? numbers = layout.mapNumbers;
     canvas.save();
     if (grow < 1) {
       canvas.clipRRect(RRect.fromRectAndRadius(layout.growing(grow), const Radius.circular(2.5)));
     }
-    _mapHatch(canvas, view, layout, shown);
-    final Paint slot = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.8;
-    final Paint fill = Paint();
+    drawMapHatch(canvas, view, layout, shown);
     for (int i = 0; i < n; i++) {
       for (int j = 0; j <= i; j++) {
-        final Rect cell = layout.mapCell(i, j).deflate(EmbeddingLayout.gap);
-        // The tables' corners, less on a small cell, so it stays a tile.
-        final RRect shape = RRect.fromRectAndRadius(
-          cell,
-          Radius.circular(math.min(EmbeddingLayout.radius, cell.shortestSide * 0.2)),
-        );
-        final double filled = mapFilled(i, j, focus, n, beat);
-        if (filled < 1) {
-          canvas.drawRRect(shape, slot..color = view.inks.quiet.withValues(alpha: 0.6 * shown * (1 - filled)));
-        }
-        if (filled <= 0) {
-          continue;
-        }
-        final double share = rows[i][j];
-        // The share's ramp, softened as the tables' tiles are, so the number
-        // on it reads.
-        final Color colour = Color.lerp(view.inks.zero, view.inks.share(share, view.inks.signal), LmInks.soft)!;
-        canvas.drawRRect(shape, fill..color = Color.lerp(view.inks.ground, colour, filled * shown)!);
-        if (numbers != null) {
-          view.kit.draw(
-            canvas,
-            percentNumber(share),
-            numbers.copyWith(color: numbers.color!.withValues(alpha: (filled * shown * 8).round() / 8)),
-            cell.center,
-            anchor: const Offset(0.5, 0.5),
-          );
-        }
+        drawMapCell(canvas, view, layout, i, j, share: rows[i][j], filled: mapFilled(i, j, focus, n, beat), shown: shown);
       }
     }
-    // The places read, a tile under each column.
-    for (int j = 0; j < n; j++) {
-      drawToken(canvas, view, layout.mapTile(j), trace.inputAt(view.peptide, j), alpha: shown);
-    }
+    drawMapTiles(canvas, view, layout, shown);
     canvas.restore();
+  }
+
+  /// A head's map's cell at row [i], column [j]: [filled] of the way from
+  /// an empty slot to a soft tile in [share]'s colour, [shown] as strongly
+  /// as the map. The share is written on it where the map's numbers fit:
+  /// [written], [share] unless another is named, as strongly as [writing],
+  /// or as the tile is filled.
+  static void drawMapCell(
+    Canvas canvas,
+    LmView view,
+    AttentionLayout layout,
+    int i,
+    int j, {
+    required double share,
+    required double filled,
+    required double shown,
+    double? written,
+    double? writing,
+  }) {
+    final Rect cell = layout.mapCell(i, j).deflate(EmbeddingLayout.gap);
+    // The tables' corners, less on a small cell, so it stays a tile.
+    final RRect shape = RRect.fromRectAndRadius(
+      cell,
+      Radius.circular(math.min(EmbeddingLayout.radius, cell.shortestSide * 0.2)),
+    );
+    if (filled < 1) {
+      canvas.drawRRect(
+        shape,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 0.8
+          ..color = view.inks.quiet.withValues(alpha: 0.6 * shown * (1 - filled)),
+      );
+    }
+    if (filled <= 0) {
+      return;
+    }
+    // The share's ramp, softened as the tables' tiles are, so the number on
+    // it reads.
+    final Color colour = Color.lerp(view.inks.zero, view.inks.share(share, view.inks.signal), LmInks.soft)!;
+    canvas.drawRRect(shape, Paint()..color = Color.lerp(view.inks.ground, colour, filled * shown)!);
+    final TextStyle? numbers = layout.mapNumbers;
+    final double alpha = writing ?? filled * shown;
+    if (numbers != null && alpha > 0) {
+      view.kit.draw(
+        canvas,
+        percentNumber(written ?? share),
+        numbers.copyWith(color: numbers.color!.withValues(alpha: (alpha * 8).round() / 8)),
+        cell.center,
+        anchor: const Offset(0.5, 0.5),
+      );
+    }
+  }
+
+  /// The places a map reads, a tile under each of its columns.
+  static void drawMapTiles(Canvas canvas, LmView view, AttentionLayout layout, double alpha) {
+    for (int j = 0; j < layout.places; j++) {
+      drawToken(canvas, view, layout.mapTile(j), view.trace.inputAt(view.peptide, j), alpha: alpha);
+    }
   }
 
   /// The places after each row's own, which it never reads: whole cells,
   /// struck through as Scores strikes them.
-  static void _mapHatch(Canvas canvas, LmView view, AttentionLayout layout, double alpha) {
+  static void drawMapHatch(Canvas canvas, LmView view, AttentionLayout layout, double alpha) {
     final int n = layout.places;
     if (n < 2 || alpha <= 0) {
       return;
@@ -1099,13 +1139,13 @@ final class AttentionScene extends LmScene {
 
   /// The places [h] reads most at the place in focus: the largest share, and
   /// the next where it is a tenth or more.
-  static String readsMost(LmView view, int h) {
+  static String readsMost(LmView view, int h, {int layer = block}) {
+    double of(int key) => share(view, h, key, layer: layer);
     final List<int> order = <int>[for (int j = 0; j <= view.position; j++) j]
-      ..sort((int a, int b) => share(view, h, b).compareTo(share(view, h, a)));
+      ..sort((int a, int b) => of(b).compareTo(of(a)));
     return <String>[
       for (int k = 0; k < math.min(2, order.length); k++)
-        if (k == 0 || share(view, h, order[k]) >= 0.1)
-          '${StreamTable.placeName(view, order[k])} ${percent(share(view, h, order[k]))}',
+        if (k == 0 || of(order[k]) >= 0.1) '${StreamTable.placeName(view, order[k])} ${percent(of(order[k]))}',
     ].join(', ');
   }
 
