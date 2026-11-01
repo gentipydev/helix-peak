@@ -101,6 +101,44 @@ void main() {
     }
   });
 
+  test("each logit is the last row times its token's weights, plus its bias, whole", () {
+    final int last = trace.points.length - 1;
+    for (final TraceCheckpoint c in trace.checkpoints) {
+      for (int r = 0; r < trace.vocab.length; r++) {
+        for (int d = 0; d < trace.model.width; d++) {
+          // The step's own int8 copy of the output layer rounds the whole one.
+          final double step = trace.steps.headWeightScales[c.step - 1];
+          expect(trace.outputWeight(c, r, d), closeTo(trace.headWeight(c.step, r, d), step / 2 + 1e-7));
+        }
+      }
+      for (int p = 0; p < trace.peptides.length; p++) {
+        for (int i = 0; i < trace.peptides[p].inputs; i++) {
+          for (int r = 0; r < trace.vocab.length; r++) {
+            double sum = trace.outputBias(c, r);
+            for (int d = 0; d < trace.model.width; d++) {
+              sum += trace.stream(c, last, p, i, d) * trace.outputWeight(c, r, d);
+            }
+            expect(trace.logit(c, p, i, r), closeTo(sum, 1e-5));
+          }
+          // Softmax of the logits over what can come next is the model's own
+          // probabilities, as the run kept them to the nearest 255th.
+          double top = double.negativeInfinity;
+          for (final int id in trace.allowed) {
+            top = math.max(top, trace.logit(c, p, i, id));
+          }
+          double total = 0;
+          for (final int id in trace.allowed) {
+            total += math.exp(trace.logit(c, p, i, id) - top);
+          }
+          for (int column = 0; column < trace.allowed.length; column++) {
+            final double share = math.exp(trace.logit(c, p, i, trace.allowed[column]) - top) / total;
+            expect(trace.probability(c, p, i, column), closeTo(share, 0.5 / 255 + 1e-6));
+          }
+        }
+      }
+    }
+  });
+
   test('the update a checkpoint kept is how far the output layer moved', () {
     for (final TraceCheckpoint c in trace.checkpoints) {
       if (c.step == trace.steps.count) {
@@ -345,7 +383,7 @@ void main() {
   });
 
   test('a schema this does not read is refused', () {
-    for (final int schema in <int>[1, 2, 3, 4]) {
+    for (final int schema in <int>[1, 2, 3, 4, 5]) {
       expect(
         () => TrainingTrace.parse(_edited((Map<String, dynamic> json) => json['schema'] = schema)),
         throwsA(isA<FormatException>()),

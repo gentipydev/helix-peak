@@ -222,8 +222,8 @@ final class TraceCheckpoint {
     required this.blocks,
     required this.readout,
     required this.readoutScale,
+    required this.headWeight,
     required this.logits,
-    required this.logitScale,
     required this.probs,
     required this.probScale,
     required this.headGrad,
@@ -265,9 +265,14 @@ final class TraceCheckpoint {
   final Uint8List readout;
   final double readoutScale;
 
-  /// targets × vocab.
-  final Int8List logits;
-  final double logitScale;
+  /// The output layer's weights as the step found them, whole: a row of
+  /// width a token, vocab × width. Its biases are the step's own
+  /// ([TraceSteps.headBias]), kept whole every step.
+  final Float32List headWeight;
+
+  /// What the output layer made of the last point, targets × vocab, whole:
+  /// each the last row times a token's weights, summed, plus its bias.
+  final Float32List logits;
 
   /// targets × the tokens that can come next.
   final Uint8List probs;
@@ -313,7 +318,7 @@ final class TrainingTrace {
          for (final TracePeptide p in peptides) p.inputs * (p.inputs + 1) ~/ 2,
        ]);
 
-  static const int schema = 5;
+  static const int schema = 6;
 
   final String name;
 
@@ -537,7 +542,14 @@ final class TrainingTrace {
   }
 
   double logit(TraceCheckpoint at, int peptide, int position, int token) =>
-      at.logits[flat(peptide, position) * vocab.length + token] * at.logitScale;
+      at.logits[flat(peptide, position) * vocab.length + token];
+
+  /// The output layer's weight from number [dim] of the last row to token
+  /// [row]'s logit, as the step at [at] found it, whole.
+  double outputWeight(TraceCheckpoint at, int row, int dim) => at.headWeight[row * model.width + dim];
+
+  /// Token [row]'s bias in the output layer at [at], whole.
+  double outputBias(TraceCheckpoint at, int row) => headBias(at.step, row);
 
   /// The probability given to the [column]th token of [allowed].
   double probability(TraceCheckpoint at, int peptide, int position, int column) =>
@@ -716,8 +728,8 @@ final class TrainingTrace {
             '$what readout',
           ),
           readoutScale: _scale(c['readout'], '$what readout'),
-          logits: _int8(c['logits'], <int>[targetCount, vocab.length], '$what logits'),
-          logitScale: _scale(c['logits'], '$what logits'),
+          headWeight: _float32(c['head_weight'], <int>[vocab.length, model.width], '$what head_weight'),
+          logits: _float32(c['logits'], <int>[targetCount, vocab.length], '$what logits'),
           probs: _uint8(c['probs'], <int>[targetCount, allowed.length], '$what probs'),
           probScale: _scale(c['probs'], '$what probs'),
           headGrad: _int8(c['head_grad'], <int>[vocab.length, model.width], '$what head_grad'),
