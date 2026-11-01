@@ -53,38 +53,42 @@ final class FeedForwardScene extends LmScene {
   static const (double, double) _chartOut = (4.9, 5.2);
 
   // The neurons: the edges in. Then the brightest neuron alone, its 16
-  // edges standing out, its sum through GELU's curve, drawn beside the
-  // neurons; then the neuron GELU silences most; then every neuron at once,
-  // each lit by what it passes on, a point each on the curve.
+  // edges standing out and its 16 terms running in once, GELU's curve
+  // beside the neurons from then on, and its sum through the curve; then
+  // the neuron GELU silences most; then every neuron at once, each lit by
+  // what it passes on, the curve alone.
   static const (double, double) _hiddenIn = (5.3, 5.8);
   static const (double, double) _first = (7.0, 7.4);
-  static const (double, double) _geluIn = (8.8, 9.2);
-  static const (double, double) _firstThrough = (9.3, 9.9);
-  static const (double, double) _second = (10.6, 11.0);
-  static const (double, double) _secondThrough = (11.1, 11.7);
-  static const (double, double) _all = (12.4, 12.8);
-  static const (double, double) _lit = (12.6, 13.6);
-  static const (double, double) _geluOut = (14.6, 14.9);
-  static const double _outFrom = 15.0;
+  static const (double, double) _geluIn = (7.0, 7.4);
+  static const double _firstRuns = 7.2;
+  static const double _geluSaid = 8.4;
+  static const (double, double) _firstThrough = (8.6, 9.2);
+  static const (double, double) _second = (10.0, 10.4);
+  static const double _secondRuns = 10.2;
+  static const (double, double) _secondThrough = (11.0, 11.6);
+  static const (double, double) _all = (12.2, 12.6);
+  static const (double, double) _lit = (12.4, 13.4);
+  static const (double, double) _geluOut = (14.2, 14.5);
+  static const double _outFrom = 14.6;
 
   // The outputs: the edges out, the signal along them, and each output.
-  static const (double, double) _outIn = (15.0, 15.4);
-  static const (double, double) _outputs = (15.8, 16.6);
-  static const (double, double) _outputNumbers = (16.4, 16.9);
+  static const (double, double) _outIn = (14.6, 15.0);
+  static const (double, double) _outputs = (15.4, 16.2);
+  static const (double, double) _outputNumbers = (16.0, 16.5);
 
   // The outputs lie down on the row in focus; the network goes and the table
   // comes back.
-  static const (double, double) _networkOut = (17.0, 17.4);
-  static const (double, double) _layDown = (17.1, 17.9);
-  static const (double, double) _tableIn = (17.4, 18.0);
+  static const (double, double) _networkOut = (16.6, 17.0);
+  static const (double, double) _layDown = (16.7, 17.5);
+  static const (double, double) _tableIn = (17.0, 17.6);
 
   // What the feed-forward added, alone on its own scale, then the sums.
-  static const (double, double) _alone = (18.0, 18.4);
-  static const (double, double) _numbersOut = (18.0, 18.2);
-  static const (double, double) _gainWritten = (18.2, 18.4);
-  static const (double, double) _gainUnwritten = (18.8, 19.0);
-  static const (double, double) _add = (18.9, 19.3);
-  static const (double, double) _sumsWritten = (19.1, 19.3);
+  static const (double, double) _alone = (17.6, 18.0);
+  static const (double, double) _numbersOut = (17.6, 17.8);
+  static const (double, double) _gainWritten = (17.8, 18.0);
+  static const (double, double) _gainUnwritten = (18.4, 18.6);
+  static const (double, double) _add = (18.5, 18.9);
+  static const (double, double) _sumsWritten = (18.7, 18.9);
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -334,8 +338,8 @@ final class FeedForwardScene extends LmScene {
     // hardest.
     final double brightest = neurons.fold<double>(0, math.max);
     for (final (int u, double start, double end) in <(int, double, double)>[
-      (first, _first.$1 + 0.2, _firstThrough.$2),
-      (second, _second.$1 + 0.2, _secondThrough.$2),
+      (first, _firstRuns, _firstRuns + 1),
+      (second, _secondRuns, _secondRuns + 1),
     ]) {
       _pulses(
         canvas,
@@ -535,7 +539,7 @@ final class FeedForwardScene extends LmScene {
   /// GELU's curve beside the neurons, where the outputs will be: the sum
   /// along, what is passed on up. The neurons worked out go through it, a
   /// guide from the sum up to the curve and across to what it passes on;
-  /// then every neuron, a point each on the curve, lit as its neuron.
+  /// while every neuron lights at once, the curve alone.
   void _geluChart(Canvas canvas, LmView view, FeedForwardLayout layout, double beat) {
     final double alpha = _span(beat, _geluIn) * (1 - _span(beat, _geluOut));
     if (alpha <= 0) {
@@ -581,7 +585,9 @@ final class FeedForwardScene extends LmScene {
       (second, _secondThrough, 1 - _span(beat, _all)),
     ]) {
       final double f = _span(beat, span);
-      if (f <= 0) {
+      // Every neuron at once: the curve alone.
+      final double kept = alpha * (1 - _span(beat, _all));
+      if (f <= 0 || kept <= 0) {
         continue;
       }
       final TextStyle numbers = inked(view.kit.mono, 8.5, view.inks.ink, alpha: alpha * named);
@@ -612,7 +618,7 @@ final class FeedForwardScene extends LmScene {
       canvas.drawCircle(
         onCurve,
         3,
-        Paint()..color = _lightOf(view, neurons, u, 1).withValues(alpha: alpha * up),
+        Paint()..color = _lightOf(view, neurons, u, 1).withValues(alpha: kept * up),
       );
       canvas.drawCircle(
         onCurve,
@@ -620,29 +626,7 @@ final class FeedForwardScene extends LmScene {
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1
-          ..color = view.inks.signal.withValues(alpha: alpha * up),
-      );
-    }
-    // Every other neuron, a point each, as it goes through.
-    final int ff = z.length;
-    for (int u = 0; u < ff; u++) {
-      if (u == first || u == second) {
-        continue;
-      }
-      final double lag = 0.6 * u / math.max(1, ff - 1);
-      final double on = through(beat, _lit.$1 + lag * (_lit.$2 - _lit.$1), _lit.$1 + lag * (_lit.$2 - _lit.$1) + 0.25);
-      if (on <= 0) {
-        continue;
-      }
-      final Offset p = chart.at(z[u], gelu(z[u]));
-      canvas.drawCircle(p, 2.2, Paint()..color = _lightOf(view, neurons, u, 1).withValues(alpha: alpha * on));
-      canvas.drawCircle(
-        p,
-        2.2,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 0.8
-          ..color = view.inks.rule.withValues(alpha: alpha * on),
+          ..color = view.inks.signal.withValues(alpha: kept * up),
       );
     }
   }
@@ -757,12 +741,12 @@ final class FeedForwardScene extends LmScene {
       ),
       (
         _first.$1,
-        _geluIn.$1,
+        _geluSaid,
         'a weighted sum: each input times its weight, the $width added up,\n'
             "plus the neuron's own bias, a number trained like the weights",
       ),
       (
-        _geluIn.$1,
+        _geluSaid,
         _all.$1,
         'GELU, the Gaussian error linear unit: GELU(x) = x × the chance\n'
             'that a standard normal number falls below x. A large positive\n'
@@ -824,7 +808,7 @@ final class FeedForwardScene extends LmScene {
     }
     final (int first, int second) = worked(view);
     final List<double> z = sums(view);
-    if (beat < _geluIn.$1) {
+    if (beat < _geluSaid) {
       return 'Neuron ${first + 1} adds up its $width inputs × weights, plus its bias: ${_through(z[first]).$1}';
     }
     if (beat < _second.$1) {
