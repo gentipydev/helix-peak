@@ -326,7 +326,7 @@ out of view is scrolled just far enough to show it whole.
 
    The shares here, and in Attention's captions, are softmax of the kept
    scores, whole (the u1 maps differed by up to 0.5 points: S9 read 24%).
-5. **Attention.** It opens on Scores' last frame, in 15 beats:
+5. **Attention.** It opens on Scores' last frame, in 22 beats:
    - head 1's scores give way to its shares, its keys turn into values, and
      arcs carry each share of each value into the head's eight-number answer,
      values riding them, as Scores' bars go;
@@ -347,32 +347,85 @@ out of view is scrolled just far enough to show it whole.
      the middle of its answer's top, coming straight down onto it. Arcs from
      higher rows already clear the answers and are unchanged (the user's
      ask: "a higher upper arc so they don't touch the segments before");
-   - the answers, side by side, through the output weights, a fourth
-     trainable 16 × 16 (beats 4.4–8.2). The user asked on 2026-11-01 how
+   - number 1 of head 1's answer, worked out (beats 5.3–12.3,
+     `worked_answer.dart`). Once the answers stand side by side, the user
+     asked on 2026-11-01 for what the page left unsaid: where each place's
+     value comes from (Scores made only C11's: "+0.11 is the first value of
+     the multiplication of the <bos> x0 embedding with the value matrix and
+     that is NOT CLEAR AT ALL"), and how the values become the answer's
+     numbers (only motion along the arcs showed it). Their table, place ·
+     score · share · value (number 1) · share × value, summed to 0.301 →
+     0.30, is what the part draws. The user's two picks: the place in focus
+     and then `<bos>` through the same strings, and the other fifteen
+     numbers left to a caption. It opens and ends on the frame the answers
+     stand in, so the output weights follow 7 beats later, unchanged.
+     - The goal: the column goes to the bench's right edge, its other
+       numbers gone and their tiles faint, number 1 an empty slot, outlined
+       ("Number 1 of head 1's answer, 0.30, worked out").
+     - Where the values come from: a copy of C11's row lifts off and stands
+       up where Scores stood it, evened, its numbers at its left. The cells
+       of number 1 of every place's value come, empty, on the places' rows
+       where Scores stood the query, headed "value 1", and the plate `value
+       weights · 16 × 16`. The 16 value weights into number 1 run from the
+       row into C11's cell, lit with what they carry, and make −1.22, then
+       settle faint, a weight on each ("C11's value 1, as in Scores: its
+       row × 16 weights: −1.22"). Then `<bos>`'s row lifts off, outlined, and
+       takes C11's place, and the same weights make +0.11 on its own row
+       ("`<bos>`'s value 1: its own row, the same 16 weights: +0.11"): two
+       faint fans, one pattern of weights. Every other place's value 1 then
+       comes, top to bottom ("Every place the same: its own row, the same
+       weights"). The values are the run's own; each recomputes from the
+       evened row and the value weights (and their bias, once training has
+       made one: "+ bias", as Scores folds its own).
+     - How they make the answer: each share comes before its value, to a
+       tenth, so share × value reads right ("6.8% × ■ +0.11 = +0.007");
+       then what each place brings, one after another; the place that brings
+       most and the place read most are marked ("Share × value: Q5 brings
+       most, +0.208; S9, read most, −0.027": the largest share need not
+       bring most). Places after C11 are hatched, never read. What each
+       brings then runs, a string each, into the empty slot, and number 1 is
+       made again ("Summed: 0.30, number 1 of head 1's answer"); the strings
+       are the arcs' work, written out.
+     - The rest: the table goes, numbers 2–16 come back, and the column goes
+       back to where it stood ("Numbers 2–16 the same way, each head with
+       its own shares").
+     - Notes: a value is made as a query is, a place's evened row × weights,
+       one 16 × 16 for every place; the shares are weights too, made fresh
+       at each place from its query and the keys, not learned like the
+       matrices; the shares add to 100%, so the sum is an average of the
+       values, and number by number, answer number 1 mixes only the values'
+       1s. Head 2's note stays on through the join, and the output weights'
+       note comes after the part.
+     - At step 200 the same table reads G1 54.9% × 1.74 and Q5 29.5% × 1.85,
+       summed 1.35 ("Share × value: G1, read most, also brings most").
+     - The 0.11 of out_proj's number 1 (0.1135) is not `<bos>`'s value 1
+       (0.1084); the two round alike at step 1, so the next caption names
+       its column: "Output number 1: …".
+   - the answers, side by side, through the output weights, a fourth trainable
+     16 × 16 (beats 4.4–5.3, then 12.3–15.2). The user asked on 2026-11-01 how
      C11's row of what attention adds (0.11, 0.44, −0.19, …) is made: it had
      been a caption over a colour fade ("The heads' 8 + 8 numbers × output
      weights 16 × 16: what C11 read"), so the numbers seemed to come from
-     nowhere. The run keeps the weights since its schema 5, and the mix
-     whole, so the strings add up to the row written. Shown stills of two
-     layouts, the user chose Scores' own staging over strings down to a
-     segment under the row (`weight_flow.dart`, Scores' flow promoted, its
-     frames byte-identical): each head's answer stands up off the row, a
-     slice a head with Scores' cut and its labels, where Scores stood the
-     evened row ("The heads' 8 + 8 numbers, side by side: 16"); an empty
-     column stands where Scores stood the query, the plate `output weights
-     · 16 × 16` under the strings with where they stand (`random start
-     (seed 0), no update yet` at step 1); the row flows through as through
-     the query's weights, number 1 alone and slowly ("Number 1: all 16 ×
-     their weights, summed: 0.11"), then the other 15 in one cascade ("The
-     other 15 the same: 256 output weights, 16 into each"); the bench clears
-     and the column, what attention adds, lies down onto the row where the
-     answers sat ("What attention adds to C11"), and the map grows from
-     there as before. The bias is folded in as Scores folds its own: "+
-     bias" in the caption once training has made it nonzero (0 at step 1).
-     Note: "Output weights mix the heads' findings into one row of 16. / A
-     fourth trainable 16 × 16, random at first like the others." The stage
-     gained three beats, not the two first planned, so each new caption has
-     about 2 s, as Scores' do.
+     nowhere. The run keeps the weights since its schema 5, and the mix whole,
+     so the strings add up to the row written. Shown stills of two layouts,
+     the user chose Scores' own staging over strings down to a segment under
+     the row (`weight_flow.dart`, Scores' flow promoted, its frames
+     byte-identical): each head's answer stands up off the row, a slice a head
+     with Scores' cut and its labels, where Scores stood the evened row ("The
+     heads' 8 + 8 numbers, side by side: 16"); an empty column stands where
+     Scores stood the query, the plate `output weights · 16 × 16` under the
+     strings with where they stand (`random start (seed 0), no update yet` at
+     step 1); the row flows through as through the query's weights, number 1
+     alone and slowly ("Output number 1: all 16 × their weights, summed:
+     0.11"), then the other 15 in one cascade ("The other 15 the same: 256
+     output weights, 16 into each"); the bench clears and the column, what
+     attention adds, lies down onto the row where the answers sat ("What
+     attention adds to C11"), and the map grows from there as before. The bias
+     is folded in as Scores folds its own: "+ bias" in the caption once
+     training has made it nonzero (0 at step 1). Note: "Output weights mix the
+     heads' findings into one row of 16. / A fourth trainable 16 × 16, random
+     at first like the others." The stage gained three beats, not the two
+     first planned, so each new caption has about 2 s, as Scores' do.
      The worked example, insulin A's C11 at step 1, block 1: head 1's answer
      0.301, −0.415, 0.451, −0.604, 0.464, 0.112, 0.297, 0.352; head 2's
      0.018, 0.222, −0.222, −0.079, 0.051, −0.231, −0.344, −0.709; the output
@@ -383,11 +436,11 @@ out of view is scrolled just far enough to show it whole.
      −0.17, 0.16, 0.38, 0.01, −0.06, 0.29, −0.13, −0.17, 0.21, 0.46, −0.23
      (the app's live check holds these against what production serves);
    - every place at once: head 1's map, as large as the canvas allows (beats
-     8.2–11.6). The two heads' maps stacked beside the table left each half the
+     15.2–18.6). The two heads' maps stacked beside the table left each half the
      height, rows of 10 pt on a Pro Max and 6.6 at 375 wide, out of line with
      the table's rows; at the user's ask (2026-10-31) only head 1's is drawn.
      - The answers' numbers go, and their box grows out of C11's row into the
-       map (beats 8.25–8.9): up to <bos>'s row, down to the column tiles and
+       map (beats 15.25–15.9): up to <bos>'s row, down to the column tiles and
        left to the token column, the map's empty slots and hatch seen only
        inside it; the x0 rows go into their tiles at the same pace, so the
        box never covers them. The user picked this over moving the map before
