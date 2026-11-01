@@ -17,11 +17,10 @@ import 'stream_table.dart';
 /// second LayerNorm, then `linear1`, GELU and `linear2`). It opens on
 /// Attention's last frame, x0 + attention a row a place. A copy of the row in
 /// focus stands up off it as the network's inputs, and the LayerNorm evens
-/// them out on Scores' chart; their weights reach every one of the neurons.
-/// One neuron's sum is worked out and goes through GELU, drawn as its curve
-/// beside the neurons; then the neuron GELU silences most; then every neuron
-/// at once, each lit by what GELU lets through. Their weights reach the
-/// outputs, and the outputs lie down onto the row in focus. Every place goes through the same network, alone: what
+/// them out on Scores' chart; their weights reach every one of the neurons,
+/// which light by what
+/// GELU lets through; theirs reach the outputs; and the outputs lie down onto
+/// the row in focus. Every place goes through the same network, alone: what
 /// it adds to each, alone on its own scale, and then added, block 1's output.
 ///
 /// Every number is the run's: the inputs, the neurons, the weights as the
@@ -52,39 +51,33 @@ final class FeedForwardScene extends LmScene {
   static const (double, double) _learned = (4.0, 4.3);
   static const (double, double) _chartOut = (4.9, 5.2);
 
-  // The neurons: the edges in. Then the brightest neuron alone, its 16
-  // edges standing out, its sum through GELU's curve, drawn beside the
-  // neurons; then the neuron GELU silences most; then every neuron at once,
-  // each lit by what it passes on, a point each on the curve.
+  // The neurons: the edges in, the signal along them, and each neuron lit;
+  // GELU's curve beside them, small, where the outputs will be.
   static const (double, double) _hiddenIn = (5.3, 5.8);
-  static const (double, double) _first = (7.0, 7.4);
-  static const (double, double) _geluIn = (8.8, 9.2);
-  static const (double, double) _firstThrough = (9.3, 9.9);
-  static const (double, double) _second = (10.6, 11.0);
-  static const (double, double) _secondThrough = (11.1, 11.7);
-  static const (double, double) _all = (12.4, 12.8);
-  static const (double, double) _lit = (12.6, 13.6);
-  static const (double, double) _geluOut = (14.6, 14.9);
-  static const double _outFrom = 15.0;
+  static const double _fireFrom = 5.8;
+  static const (double, double) _curveIn = (5.8, 6.1);
+  static const (double, double) _lit = (6.5, 7.5);
+  static const (double, double) _curveOut = (8.5, 8.8);
+  static const double _outFrom = 8.9;
 
   // The outputs: the edges out, the signal along them, and each output.
-  static const (double, double) _outIn = (15.0, 15.4);
-  static const (double, double) _outputs = (15.8, 16.6);
-  static const (double, double) _outputNumbers = (16.4, 16.9);
+  static const (double, double) _outIn = (8.9, 9.3);
+  static const (double, double) _outputs = (9.7, 10.5);
+  static const (double, double) _outputNumbers = (10.3, 10.8);
 
   // The outputs lie down on the row in focus; the network goes and the table
   // comes back.
-  static const (double, double) _networkOut = (17.0, 17.4);
-  static const (double, double) _layDown = (17.1, 17.9);
-  static const (double, double) _tableIn = (17.4, 18.0);
+  static const (double, double) _networkOut = (10.9, 11.3);
+  static const (double, double) _layDown = (11.0, 11.8);
+  static const (double, double) _tableIn = (11.3, 11.9);
 
   // What the feed-forward added, alone on its own scale, then the sums.
-  static const (double, double) _alone = (18.0, 18.4);
-  static const (double, double) _numbersOut = (18.0, 18.2);
-  static const (double, double) _gainWritten = (18.2, 18.4);
-  static const (double, double) _gainUnwritten = (18.8, 19.0);
-  static const (double, double) _add = (18.9, 19.3);
-  static const (double, double) _sumsWritten = (19.1, 19.3);
+  static const (double, double) _alone = (11.9, 12.3);
+  static const (double, double) _numbersOut = (11.9, 12.1);
+  static const (double, double) _gainWritten = (12.1, 12.3);
+  static const (double, double) _gainUnwritten = (12.7, 12.9);
+  static const (double, double) _add = (12.8, 13.2);
+  static const (double, double) _sumsWritten = (13.0, 13.2);
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -125,7 +118,7 @@ final class FeedForwardScene extends LmScene {
       table.outline(canvas, view.position, table.row(view.position).right, 1);
     });
     _network(canvas, size, view, layout, beat);
-    _geluChart(canvas, view, layout, beat);
+    _curve(canvas, view, layout, beat);
     _chart(canvas, view, layout, beat);
     _copy(canvas, view, layout, beat);
   }
@@ -308,47 +301,17 @@ final class FeedForwardScene extends LmScene {
       for (int d = 0; d < width; d++)
         for (int u = 0; u < ff; u++) (u, d, neurons[u] * trace.ffOut(view.checkpoint, block, d, u)),
     ];
-    // While one neuron is worked out, its 16 edges stand out of the rest.
-    final (int first, int second) = worked(view);
-    final double one = _span(beat, _first) * (1 - _span(beat, _second));
-    final double two = _span(beat, _second) * (1 - _span(beat, _all));
-    double picked(int u) => u == first ? one : (u == second ? two : 0);
     if (hiddenIn > 0) {
-      drawEdges(
-        canvas,
-        view,
-        inEdges,
-        layout.inputAt,
-        layout.hiddenAt,
-        hiddenIn,
-        alphaOf: (int u) => 1 - 0.85 * (one + two) + 0.85 * picked(u),
-      );
+      drawEdges(canvas, view, inEdges, layout.inputAt, layout.hiddenAt, hiddenIn);
     }
     if (outIn > 0) {
       drawEdges(canvas, view, outEdges, layout.hiddenAt, layout.outputAt, outIn);
     }
-    // Into a neuron worked out, a dot along each of its 16 edges. Then into
-    // every neuron, a dot for each that lights up, along the input that
-    // pushes it hardest: the largest input × weight it receives. Into the
-    // outputs, a dot for each output, along the neuron that pushes it
-    // hardest.
+    // Into the neurons, a dot for each neuron that lights up, along the
+    // input that pushes it hardest: the largest input × weight it receives.
+    // Into the outputs, a dot for each output, along the neuron that pushes
+    // it hardest.
     final double brightest = neurons.fold<double>(0, math.max);
-    for (final (int u, double start, double end) in <(int, double, double)>[
-      (first, _first.$1 + 0.2, _firstThrough.$2),
-      (second, _second.$1 + 0.2, _secondThrough.$2),
-    ]) {
-      _pulses(
-        canvas,
-        view,
-        <(int, int, double)>[...inEdges.where(((int, int, double) e) => e.$2 == u)],
-        layout.inputAt,
-        layout.hiddenAt,
-        beat,
-        start,
-        end,
-        gone,
-      );
-    }
     _pulses(
       canvas,
       view,
@@ -359,7 +322,7 @@ final class FeedForwardScene extends LmScene {
       layout.inputAt,
       layout.hiddenAt,
       beat,
-      _all.$2,
+      _fireFrom,
       _outFrom,
       gone,
     );
@@ -388,35 +351,18 @@ final class FeedForwardScene extends LmScene {
         anchor: const Offset(1, 0.5),
       );
     }
-    // The neurons, lit by what each lets through: a neuron worked out as it
-    // goes through GELU, the rest all at once. A neuron worked out is ringed
-    // and numbered while it is.
+    // The neurons, lit by what each lets through.
     if (hiddenIn > 0) {
+      final double most = neurons.fold<double>(1e-6, math.max);
       for (int u = 0; u < ff; u++) {
-        final double through = u == first
-            ? _span(beat, _firstThrough)
-            : (u == second ? _span(beat, _secondThrough) : lit);
-        _node(canvas, view, layout.hiddenAt(u), layout.hiddenRadius, _lightOf(view, neurons, u, through), hiddenIn);
-      }
-      for (final (int u, double ring) in <(int, double)>[(first, one), (second, two)]) {
-        if (ring <= 0) {
-          continue;
-        }
-        final Offset at = layout.hiddenAt(u);
-        canvas.drawCircle(
-          at,
-          layout.hiddenRadius + 2.2,
-          Paint()
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 1.2
-            ..color = view.inks.signal.withValues(alpha: ring * hiddenIn),
-        );
-        view.kit.draw(
+        final double on = (neurons[u] / most).clamp(0.0, 1.0) * lit;
+        _node(
           canvas,
-          '${u + 1}',
-          inked(view.kit.mono, 8.5, view.inks.signal, alpha: ring * hiddenIn),
-          Offset(at.dx + layout.hiddenRadius + 5, at.dy),
-          anchor: const Offset(0, 0.5),
+          view,
+          layout.hiddenAt(u),
+          layout.hiddenRadius,
+          Color.lerp(view.inks.zero, view.inks.signal, on)!,
+          hiddenIn,
         );
       }
     }
@@ -464,15 +410,6 @@ final class FeedForwardScene extends LmScene {
     }
   }
 
-  /// Neuron [u]'s colour, [through] of the way lit: the accent as strong as
-  /// what it passes on against the brightest, dark for what GELU silences.
-  static Color _lightOf(LmView view, List<double> neurons, int u, double through) {
-    final double most = neurons.fold<double>(1e-6, math.max);
-    return Color.lerp(view.inks.zero, view.inks.signal, (neurons[u] / most).clamp(0.0, 1.0) * through)!;
-  }
-
-  // ------------------------------------------------------------------- GELU
-
   /// GELU, as the engine's `nn.GELU` has it: [x] times the chance that a
   /// standard normal number falls below [x], x · Φ(x).
   static double gelu(double x) => 0.5 * x * (1 + _erf(x / math.sqrt2));
@@ -487,83 +424,39 @@ final class FeedForwardScene extends LmScene {
     return x < 0 ? -y : y;
   }
 
-  /// What each neuron of the place in focus adds up to before GELU: its 16
-  /// inputs, the evened row, times its weights, plus its bias. GELU of each
-  /// is the neuron the run kept.
-  static List<double> sums(LmView view) => view.kit.memo<List<double>>(
-    ('ff-sums', view.step, view.peptide, view.position),
-    () {
-      final TrainingTrace trace = view.trace;
-      final int width = trace.model.width;
-      return <double>[
-        for (int u = 0; u < trace.model.feedForward; u++)
-          List<double>.generate(
-                width,
-                (int d) =>
-                    trace.ffInput(view.checkpoint, block, view.peptide, view.position, d) *
-                    trace.ffIn(view.checkpoint, block, u, d),
-              ).fold<double>(0, (double a, double b) => a + b) +
-              trace.ffInBias(view.checkpoint, block, u),
-      ];
-    },
-  );
+  /// How far either way of 0 GELU's curve is drawn, and how far below.
+  static const double _reach = 2.5;
+  static const double _low = -0.5;
 
-  /// The two neurons worked out: the brightest, and the one whose sum is
-  /// the most negative, the one GELU silences most.
-  static (int, int) worked(LmView view) {
-    final List<double> z = sums(view);
-    int top = 0;
-    int low = 0;
-    for (int u = 1; u < z.length; u++) {
-      if (z[u] > z[top]) {
-        top = u;
-      }
-      if (z[u] < z[low]) {
-        low = u;
-      }
-    }
-    return (top, low);
-  }
-
-  /// A sum as the captions write it, and GELU of it as written, so the
-  /// caption's sum reads right.
-  static (String, String) _through(double z) {
-    final String sum = fixed(z, 2);
-    return (sum, fixed(gelu(double.parse(sum.replaceAll('−', '-'))), 2));
-  }
-
-  /// GELU's curve beside the neurons, where the outputs will be: the sum
-  /// along, what is passed on up. The neurons worked out go through it, a
-  /// guide from the sum up to the curve and across to what it passes on;
-  /// then every neuron, a point each on the curve, lit as its neuron.
-  void _geluChart(Canvas canvas, LmView view, FeedForwardLayout layout, double beat) {
-    final double alpha = _span(beat, _geluIn) * (1 - _span(beat, _geluOut));
+  /// GELU's curve, small, right of the neurons while they light, the sum
+  /// along and what is passed on up: the curve alone, in the accent.
+  void _curve(Canvas canvas, LmView view, FeedForwardLayout layout, double beat) {
+    final double alpha = _span(beat, _curveIn) * (1 - _span(beat, _curveOut));
     if (alpha <= 0) {
       return;
     }
-    final TrainingTrace trace = view.trace;
-    final List<double> z = sums(view);
-    final List<double> neurons = <double>[
-      for (int u = 0; u < trace.model.feedForward; u++) trace.hidden(view.checkpoint, block, view.peptide, view.position, u),
-    ];
-    final GeluChart chart = layout.gelu(z.fold<double>(0, (double m, double v) => math.max(m, v.abs())));
+    final Rect area = layout.curveArea;
+    Offset at(double x, double y) => Offset(
+      area.left + (x + _reach) / (2 * _reach) * area.width,
+      area.bottom - (y - _low) / (_reach - _low) * area.height,
+    );
     final Paint axis = Paint()
       ..strokeWidth = 1
       ..color = view.inks.quiet.withValues(alpha: alpha);
-    canvas.drawLine(chart.at(-chart.reach, 0), chart.at(chart.reach, 0), axis);
-    canvas.drawLine(chart.at(0, chart.low), chart.at(0, chart.reach), axis);
-    for (int k = -chart.reach.floor(); k <= chart.reach.floor(); k++) {
+    canvas.drawLine(at(-_reach, 0), at(_reach, 0), axis);
+    canvas.drawLine(at(0, _low), at(0, _reach), axis);
+    for (int k = -_reach.floor(); k <= _reach.floor(); k++) {
       if (k != 0) {
-        canvas.drawLine(chart.at(k.toDouble(), 0), chart.at(k.toDouble(), 0) + const Offset(0, 3), axis);
+        canvas.drawLine(at(k.toDouble(), 0), at(k.toDouble(), 0) + const Offset(0, 3), axis);
       }
     }
     final TextStyle words = inked(view.kit.sans, 8.5, view.inks.quiet, alpha: alpha);
-    view.kit.draw(canvas, 'sum', words, chart.at(chart.reach, 0) + const Offset(0, -4), anchor: const Offset(1, 1));
-    view.kit.draw(canvas, 'GELU(sum)', words, chart.at(0, chart.reach) + const Offset(0, -3), anchor: const Offset(0.5, 1));
+    view.kit.draw(canvas, 'sum', words, at(_reach, 0) + const Offset(0, -4), anchor: const Offset(1, 1));
+    view.kit.draw(canvas, 'GELU(sum)', words, at(0, _reach) + const Offset(0, -3), anchor: const Offset(0.5, 1));
     final Path curve = Path();
-    for (int i = 0; i <= 96; i++) {
-      final double x = -chart.reach + 2 * chart.reach * i / 96;
-      final Offset p = chart.at(x, gelu(x));
+    for (int i = 0; i <= 80; i++) {
+      final double x = -_reach + 2 * _reach * i / 80;
+      final Offset p = at(x, gelu(x));
       i == 0 ? curve.moveTo(p.dx, p.dy) : curve.lineTo(p.dx, p.dy);
     }
     canvas.drawPath(
@@ -571,80 +464,8 @@ final class FeedForwardScene extends LmScene {
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.6
-        ..color = view.inks.signal.withValues(alpha: 0.9 * alpha),
+        ..color = view.inks.signal.withValues(alpha: alpha),
     );
-    // The neurons worked out, each through the curve, its numbers and
-    // guides until the next is.
-    final (int first, int second) = worked(view);
-    for (final (int u, (double, double) span, double named) in <(int, (double, double), double)>[
-      (first, _firstThrough, 1 - _span(beat, _second)),
-      (second, _secondThrough, 1 - _span(beat, _all)),
-    ]) {
-      final double f = _span(beat, span);
-      if (f <= 0) {
-        continue;
-      }
-      final TextStyle numbers = inked(view.kit.mono, 8.5, view.inks.ink, alpha: alpha * named);
-      final double g = gelu(z[u]);
-      final Offset foot = chart.at(z[u], 0);
-      final Offset onCurve = chart.at(z[u], g);
-      final Offset across = chart.at(0, g);
-      final Paint guide = Paint()
-        ..strokeWidth = 1
-        ..color = view.inks.ink.withValues(alpha: 0.7 * alpha * named);
-      final double up = (f * 2).clamp(0.0, 1.0);
-      final double over = (f * 2 - 1).clamp(0.0, 1.0);
-      dashedLine(canvas, foot, Offset.lerp(foot, onCurve, up)!, guide);
-      if (over > 0) {
-        dashedLine(canvas, onCurve, Offset.lerp(onCurve, across, over)!, guide);
-      }
-      final (String sum, String passed) = _through(z[u]);
-      view.kit.draw(canvas, sum, numbers, foot + Offset(0, g >= 0 ? 5 : -5), anchor: Offset(0.5, g >= 0 ? 0 : 1));
-      if (over >= 1) {
-        view.kit.draw(
-          canvas,
-          passed,
-          numbers,
-          across + Offset(z[u] >= 0 ? -5 : 5, 0),
-          anchor: Offset(z[u] >= 0 ? 1 : 0, g >= 0 ? 0.5 : 0),
-        );
-      }
-      canvas.drawCircle(
-        onCurve,
-        3,
-        Paint()..color = _lightOf(view, neurons, u, 1).withValues(alpha: alpha * up),
-      );
-      canvas.drawCircle(
-        onCurve,
-        3,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1
-          ..color = view.inks.signal.withValues(alpha: alpha * up),
-      );
-    }
-    // Every other neuron, a point each, as it goes through.
-    final int ff = z.length;
-    for (int u = 0; u < ff; u++) {
-      if (u == first || u == second) {
-        continue;
-      }
-      final double lag = 0.6 * u / math.max(1, ff - 1);
-      final double on = through(beat, _lit.$1 + lag * (_lit.$2 - _lit.$1), _lit.$1 + lag * (_lit.$2 - _lit.$1) + 0.25);
-      if (on <= 0) {
-        continue;
-      }
-      final Offset p = chart.at(z[u], gelu(z[u]));
-      canvas.drawCircle(p, 2.2, Paint()..color = _lightOf(view, neurons, u, 1).withValues(alpha: alpha * on));
-      canvas.drawCircle(
-        p,
-        2.2,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 0.8
-          ..color = view.inks.rule.withValues(alpha: alpha * on),
-      );
-    }
   }
 
   /// A node: a disc in [color], a ring round it.
@@ -749,39 +570,16 @@ final class FeedForwardScene extends LmScene {
       ),
       (
         _hiddenIn.$1,
-        _first.$1,
-        'every line is one weight: $width × $ff = ${grouped(width * ff)} of them,\n'
-            '${ScoresScene.weightsStatus(view)}\n'
-            'a line shows input × weight: red pushes its neuron up,\n'
-            'blue pushes it down, and the brighter, the harder',
-      ),
-      (
-        _first.$1,
-        _geluIn.$1,
-        'a weighted sum: each input times its weight, the $width added up,\n'
-            "plus the neuron's own bias, a number trained like the weights",
-      ),
-      (
-        _geluIn.$1,
-        _all.$1,
-        'GELU, the Gaussian error linear unit: GELU(x) = x × the chance\n'
-            'that a standard normal number falls below x. A large positive\n'
-            'sum passes almost whole; a large negative one, nearly 0',
-      ),
-      (
-        _all.$1,
         _outIn.$1,
-        'why the bend: without it, both layers would add up to a single\n'
-            'weighted sum; with it, a neuron fires only for its own pattern\n'
-            "lit: a tenth of the brightest or more; each lit one's dot comes\n"
-            'from the input that pushes it hardest',
+        'a neuron: a weighted sum of the $width inputs, plus a bias, then GELU\n'
+            'GELU(x) = x × the chance a standard normal number is below x:\n'
+            'a positive sum passes almost whole, a negative one nearly 0',
       ),
       (
         _outIn.$1,
         _networkOut.$1,
         '$width → $ff → $width: wide in the middle, to hold many patterns,\n'
-            'then back to $width, with no GELU, so each output can be up or\n'
-            'down, to be added to the row',
+            'narrow again, to be added to the row',
       ),
       (
         _networkOut.$1,
@@ -819,27 +617,15 @@ final class FeedForwardScene extends LmScene {
           ? 'At step ${grouped(view.step)} every scale is 1 and every shift 0: evened = z-score'
           : "Then this norm's own learned scale and shift: the row the network reads";
     }
-    if (beat < _first.$1) {
-      return 'Each of the $ff neurons gets all $width inputs, each × its own weight';
-    }
-    final (int first, int second) = worked(view);
-    final List<double> z = sums(view);
-    if (beat < _geluIn.$1) {
-      return 'Neuron ${first + 1} adds up its $width inputs × weights, plus its bias: ${_through(z[first]).$1}';
-    }
-    if (beat < _second.$1) {
-      final (String sum, String passed) = _through(z[first]);
-      return 'GELU decides what it passes on: GELU($sum) = $passed';
-    }
-    if (beat < _all.$1) {
-      final (String sum, String passed) = _through(z[second]);
-      return 'Neuron ${second + 1} adds up to $sum: GELU($sum) = $passed, nearly nothing';
+    if (beat < _hiddenIn.$1) {
+      return "$focus's evened row: its $width numbers go in";
     }
     if (beat < _outIn.$1) {
-      return 'All $ff the same way: ${grouped(litNeurons(view))} light up';
+      return '$ff neurons, each a weighted sum of the $width through GELU: '
+          '${grouped(litNeurons(view))} light up';
     }
     if (beat < _networkOut.$1) {
-      return '$width out, each a weighted sum of the $ff neurons, plus a bias';
+      return '$width out, each a weighted sum of the $ff neurons';
     }
     if (beat < _alone.$1) {
       return "Back to $focus's row, to be added";
@@ -898,21 +684,14 @@ final class FeedForwardLayout {
   int get _width => _view.trace.model.width;
   int get _ff => _view.trace.model.feedForward;
 
-  /// GELU's chart for sums as far as [most] either way, right of the
-  /// neurons where the outputs will be, its axes through 0, centred on the
-  /// network's height.
-  GeluChart gelu(double most) {
-    final double reach = math.max(1.5, most * 1.1);
-    final double left = hiddenX + hiddenRadius + 30;
+  /// Where GELU's small curve is drawn: in the middle of the room right of
+  /// the neurons, where the outputs will be, at the network's middle.
+  Rect get curveArea {
+    final double left = hiddenX + hiddenRadius + 16;
     final double right = table.layout.right - 8;
-    final double height = math.min((right - left) * 0.9, bottom - top);
-    const double low = -0.4;
-    final double centre = (top + bottom) / 2;
-    return GeluChart(
-      reach: reach,
-      low: low,
-      area: Rect.fromLTRB(left, centre - height / 2, right, centre + height / 2),
-    );
+    final double width = math.min(130.0, (right - left) * 0.75);
+    final Offset centre = Offset((left + right) / 2, (top + bottom) / 2);
+    return Rect.fromCenter(center: centre, width: width, height: width * 0.8);
   }
 
   /// The size the inputs' and outputs' numbers are written at.
@@ -941,22 +720,5 @@ final class FeedForwardLayout {
   double get inputScale => _view.kit.memo<double>(
     ('ff-input', _view.step, _view.peptide, FeedForwardScene.block),
     () => percentileScale(<double>[for (int i = 0; i < _view.focus.inputs; i++) ...inputs(i)]),
-  );
-}
-
-/// GELU's chart: sums from −[reach] to [reach] across [area], what is
-/// passed on from [low] to [reach] up it.
-@immutable
-final class GeluChart {
-  const GeluChart({required this.reach, required this.low, required this.area});
-
-  final double reach;
-  final double low;
-  final Rect area;
-
-  /// Where (sum [x], passed on [y]) is drawn.
-  Offset at(double x, double y) => Offset(
-    area.left + (x + reach) / (2 * reach) * area.width,
-    area.bottom - (y - low) / (reach - low) * area.height,
   );
 }

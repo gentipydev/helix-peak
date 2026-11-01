@@ -14,7 +14,7 @@ enum LmStage {
   embedding('Embedding', 15),
   scores('Scores', 20),
   attention('Attention', 24),
-  feedForward('Feed-forward', 20),
+  feedForward('Feed-forward', 14),
   blockTwo('Block 2', 13),
   forward('Forward', 12),
   predict('Predict', 7),
