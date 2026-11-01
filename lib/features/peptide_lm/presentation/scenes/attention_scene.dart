@@ -1001,39 +1001,17 @@ final class AttentionScene extends LmScene {
       canvas.clipRRect(RRect.fromRectAndRadius(layout.growing(grow), const Radius.circular(2.5)));
     }
     _mapHatch(canvas, view, layout, shown);
-    final Paint slot = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.8;
-    final Paint fill = Paint();
     for (int i = 0; i < n; i++) {
       for (int j = 0; j <= i; j++) {
-        final Rect cell = layout.mapCell(i, j).deflate(EmbeddingLayout.gap);
-        // The tables' corners, less on a small cell, so it stays a tile.
-        final RRect shape = RRect.fromRectAndRadius(
-          cell,
-          Radius.circular(math.min(EmbeddingLayout.radius, cell.shortestSide * 0.2)),
+        drawShareCell(
+          canvas,
+          view,
+          layout.mapCell(i, j),
+          share: rows[i][j],
+          filled: mapFilled(i, j, focus, n, beat),
+          shown: shown,
+          numbers: numbers,
         );
-        final double filled = mapFilled(i, j, focus, n, beat);
-        if (filled < 1) {
-          canvas.drawRRect(shape, slot..color = view.inks.quiet.withValues(alpha: 0.6 * shown * (1 - filled)));
-        }
-        if (filled <= 0) {
-          continue;
-        }
-        final double share = rows[i][j];
-        // The share's ramp, softened as the tables' tiles are, so the number
-        // on it reads.
-        final Color colour = Color.lerp(view.inks.zero, view.inks.share(share, view.inks.signal), LmInks.soft)!;
-        canvas.drawRRect(shape, fill..color = Color.lerp(view.inks.ground, colour, filled * shown)!);
-        if (numbers != null) {
-          view.kit.draw(
-            canvas,
-            percentNumber(share),
-            numbers.copyWith(color: numbers.color!.withValues(alpha: (filled * shown * 8).round() / 8)),
-            cell.center,
-            anchor: const Offset(0.5, 0.5),
-          );
-        }
       }
     }
     // The places read, a tile under each column.
@@ -1041,6 +1019,53 @@ final class AttentionScene extends LmScene {
       drawToken(canvas, view, layout.mapTile(j), trace.inputAt(view.peptide, j), alpha: shown);
     }
     canvas.restore();
+  }
+
+  /// A cell of a map of shares at [cell], as head 1's map draws its own and
+  /// Predict's map draws every place's guess: [filled] of the way from an
+  /// empty slot, outlined in the quiet ink, to a soft tile in [share]'s
+  /// colour, [shown] as strongly as the map; the share written on it as a
+  /// percentage in [numbers], where the map's cells fit one.
+  static void drawShareCell(
+    Canvas canvas,
+    LmView view,
+    Rect cell, {
+    required double share,
+    required double filled,
+    required double shown,
+    TextStyle? numbers,
+  }) {
+    final Rect tile = cell.deflate(EmbeddingLayout.gap);
+    // The tables' corners, less on a small cell, so it stays a tile.
+    final RRect shape = RRect.fromRectAndRadius(
+      tile,
+      Radius.circular(math.min(EmbeddingLayout.radius, tile.shortestSide * 0.2)),
+    );
+    if (filled < 1) {
+      canvas.drawRRect(
+        shape,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 0.8
+          ..color = view.inks.quiet.withValues(alpha: 0.6 * shown * (1 - filled)),
+      );
+    }
+    if (filled <= 0) {
+      return;
+    }
+    // The share's ramp, softened as the tables' tiles are, so the number on
+    // it reads.
+    final Color colour = Color.lerp(view.inks.zero, view.inks.share(share, view.inks.signal), LmInks.soft)!;
+    canvas.drawRRect(shape, Paint()..color = Color.lerp(view.inks.ground, colour, filled * shown)!);
+    if (numbers != null) {
+      view.kit.draw(
+        canvas,
+        percentNumber(share),
+        numbers.copyWith(color: numbers.color!.withValues(alpha: (filled * shown * 8).round() / 8)),
+        tile.center,
+        anchor: const Offset(0.5, 0.5),
+      );
+    }
   }
 
   /// The places after each row's own, which it never reads: whole cells,
@@ -1428,15 +1453,18 @@ final class AttentionLayout {
   /// fits a cell, up to 9 points and the rows' own number size; null where
   /// that is under the least a number is written, and the map is drawn in
   /// its colours alone.
-  late final TextStyle? mapNumbers = _mapNumbers();
+  late final TextStyle? mapNumbers = shareNumbers(table.view, mapColumn, table.layout.pitch);
 
-  TextStyle? _mapNumbers() {
-    final LmView view = table.view;
+  /// What a map's shares are written in, its columns [column] wide and its
+  /// rows [pitch] tall: as large as the widest, `100`, fits a cell, up to 9
+  /// points and the rows' own number size; null where that is under the
+  /// least a number is written, and the map is drawn in its colours alone.
+  static TextStyle? shareNumbers(LmView view, double column, double pitch) {
     TextStyle at(double points) => inked(view.kit.mono, points, view.inks.ink).copyWith(letterSpacing: 0);
     final double perPoint = view.kit.layout('100', at(10)).width / 10;
-    final double room = mapColumn - 2 * EmbeddingLayout.gap - 2;
+    final double room = column - 2 * EmbeddingLayout.gap - 2;
     // Held to the half point below, so a number is never wider than drawn.
-    final double points = (math.min(9, math.min(table.layout.pitch * 0.62, room / perPoint)) * 2).floorToDouble() / 2;
+    final double points = (math.min(9, math.min(pitch * 0.62, room / perPoint)) * 2).floorToDouble() / 2;
     return points < EmbeddingLayout.leastNumber ? null : at(points);
   }
 }
