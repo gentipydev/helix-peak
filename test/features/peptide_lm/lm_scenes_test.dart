@@ -17,6 +17,7 @@ import 'package:helixpeek/features/peptide_lm/presentation/scenes/forward_scene.
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_drawing.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_scene_painter.dart';
+import 'package:helixpeek/features/peptide_lm/presentation/scenes/predict_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/scores_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/stream_table.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/worked_answer.dart';
@@ -473,7 +474,47 @@ void main() {
       'At step 1 every scale is 1 and every shift 0: evened = z-score',
     );
     expect(caption(LmStage.forward, 0.99), "V3's row as Predict reads it: x0 and four parts' additions, evened");
-    expect(caption(LmStage.predict, 0.99), contains('next is ${trace.token(last.target)}'));
+    // Predict, beat by beat: the last row, the slots, the top logit worked
+    // out, the rest, the strike, softmax in two steps, the answer, and every
+    // place's guess.
+    double predict(double beat) => beat / LmStage.predict.beats;
+    final int guess = PredictScene.top(last, 3);
+    final String guessed = trace.token(guess);
+    final List<double> predicted = PredictScene.logits(last, 3);
+    final List<double> given = PredictScene.shares(last, 3);
+    expect(caption(LmStage.predict, predict(0.5)), "V3's last row, as Forward left it: what the output layer reads");
+    expect(caption(LmStage.predict, predict(2)), 'A logit per token: 23 slots, the vocabulary in id order');
+    expect(
+      caption(LmStage.predict, predict(2.8)),
+      "$guessed's logit: V3's row × $guessed's $width weights, summed, + bias: ${fixed(predicted[guess], 2)}",
+    );
+    expect(caption(LmStage.predict, predict(4)), 'The other 22 the same way, each through its own $width weights');
+    expect(caption(LmStage.predict, predict(5.2)), "The output layer's ${23 * width} weights: a string each, $width into every logit");
+    expect(caption(LmStage.predict, predict(6.5)), '<pad> (·) and <bos> (<) can never come next: their logits, −∞');
+    double total = 0;
+    for (final int id in trace.allowed) {
+      total += math.exp(predicted[id]);
+    }
+    expect(
+      caption(LmStage.predict, predict(7.5)),
+      "e to each logit: all positive, the largest pulls ahead: $guessed's ${exponential(math.exp(predicted[guess]))}",
+    );
+    expect(
+      caption(LmStage.predict, predict(8.5)),
+      startsWith('Over their sum, ${exponential(total)}: shares of 100%, $guessed ${percent(given[guess])}'),
+    );
+    final String next = trace.token(last.target);
+    expect(
+      caption(LmStage.predict, predict(10)),
+      guess == last.target
+          ? 'After GIV the model gives $next ${percent(given[guess])}, and $next is next'
+          : 'After GIV the model gives $guessed ${percent(given[guess])}; next is $next, given ${percent(given[last.target])}',
+    );
+    expect(caption(LmStage.predict, predict(11)), 'Every place guesses at once, with the same weights: 12 rows of 21');
+    expect(
+      caption(LmStage.predict, 0.99),
+      'Outlined, what came next (y): the top guess at ${PredictScene.right(last)} of 12 places',
+    );
     expect(caption(LmStage.loss, 0.99), contains(nats(trace.loss(last.step))));
     expect(caption(LmStage.update, 0.5), contains(scientific(trace.steps.learningRate[last.step - 1])));
     final TrainingFrame end = timeline.stateAt(1);
@@ -560,6 +601,20 @@ void main() {
       sceneOf(LmStage.forward).hitAt(size, scene, const Offset(30, 300), timeline.frameIn(LmStage.forward, 0.5)),
       isNull,
     );
+    // Predict's bench is one place's: a tap asks for nothing; once its map has
+    // come, a row of it puts its place in focus, every place reachable.
+    expect(
+      sceneOf(LmStage.predict).hitAt(size, scene, const Offset(30, 300), timeline.frameIn(LmStage.predict, 0.4)),
+      isNull,
+    );
+    final PredictLayout predicted = PredictLayout(size, scene);
+    for (int i = 0; i < trace.peptides.first.inputs; i++) {
+      for (final int k in <int>[0, trace.allowed.length - 1]) {
+        final LmHit? hit = sceneOf(LmStage.predict)
+            .hitAt(size, scene, predicted.mapCell(i, k).center, timeline.frameIn(LmStage.predict, 1));
+        expect((hit! as FocusPosition).position, i, reason: 'row $i, column $k');
+      }
+    }
     // While the network takes Feed-forward's canvas, a tap asks for nothing.
     expect(
       sceneOf(LmStage.feedForward).hitAt(size, scene, const Offset(30, 300), timeline.frameIn(LmStage.feedForward, 0.4)),
@@ -610,6 +665,7 @@ void main() {
         (LmStage.scores, LmStage.attention),
         (LmStage.attention, LmStage.feedForward),
         (LmStage.feedForward, LmStage.forward),
+        (LmStage.forward, LmStage.predict),
       ]) {
         final List<int> last = await pixels(scene, timeline.frameIn(before, 1));
         final List<int> first = await pixels(scene, timeline.frameIn(after, 0));
@@ -1051,6 +1107,101 @@ void main() {
 
       expect(lands(k), greaterThan(lands(k - 1)), reason: 'slot $k');
       expect(lands(k), lessThan(LmStage.forward.beats - 1));
+    }
+  });
+
+  testWidgets("Predict's shares are softmax of the run's whole logits, the top logit worked out first", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    final int last = trace.points.length - 1;
+    for (int c = 0; c < trace.checkpoints.length; c++) {
+      for (int p = 0; p < trace.peptides.length; p++) {
+        for (int i = 0; i < trace.peptides[p].inputs; i++) {
+          final LmView scene = view(inks, kit, checkpoint: c, peptide: p, position: i);
+          final TraceCheckpoint at = trace.checkpoints[c];
+          final List<double> logits = PredictScene.logits(scene, i);
+          final List<double> shares = PredictScene.shares(scene, i);
+          // Each logit is what its strings carry, summed, plus its bias.
+          for (int r = 0; r < trace.vocab.length; r++) {
+            double made = trace.outputBias(at, r);
+            for (int d = 0; d < trace.model.width; d++) {
+              made += trace.stream(at, last, p, i, d) * trace.outputWeight(at, r, d);
+            }
+            expect(logits[r], closeTo(made, 1e-5));
+          }
+          // The shares add to one over what can come next, nothing to the
+          // two that never do, and are the model's own probabilities.
+          expect(shares.reduce((double a, double b) => a + b), closeTo(1, 1e-9));
+          for (int r = 0; r < trace.vocab.length; r++) {
+            final int column = trace.allowedIndex(r);
+            if (column < 0) {
+              expect(shares[r], 0);
+            } else {
+              expect(shares[r], closeTo(trace.probability(at, p, i, column), 0.5 / 255 + 1e-6));
+            }
+          }
+          // The top logit is worked out first, alone, then the rest in id
+          // order; the map's row is the shares in id order.
+          final int best = PredictScene.top(scene, i);
+          for (final int id in trace.allowed) {
+            expect(logits[id], lessThanOrEqualTo(logits[best]));
+          }
+          final List<int> order = PredictScene.flowOrder(scene);
+          expect(order.first, best);
+          expect(order.toSet(), <int>{for (int r = 0; r < trace.vocab.length; r++) r});
+          expect(PredictScene.allShares(scene)[i], <double>[for (final int id in trace.allowed) shares[id]]);
+        }
+      }
+    }
+  });
+
+  testWidgets("Predict's bench and map keep to the canvas, the strings room to run, the bars room to grow", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    for (int c = 0; c < trace.checkpoints.length; c++) {
+      for (int p = 0; p < trace.peptides.length; p++) {
+        final LmView scene = view(inks, kit, checkpoint: c, peptide: p, position: trace.peptides[p].inputs - 1);
+        for (final Size size in const <Size>[Size(375, 476), Size(393, 540), Size(440, 697)]) {
+          final PredictLayout layout = PredictLayout(size, scene);
+          final String where = '$size c$c p$p';
+          // The bench under the note and the tag's place, its plate on the
+          // canvas under the columns.
+          expect(layout.benchTop, greaterThanOrEqualTo(layout.table.layout.tableTop), reason: where);
+          final Rect plate = layout.plateAt(tagSize(scene, PredictScene.plateText(scene)));
+          expect(plate.top, greaterThanOrEqualTo(layout.benchBottom), reason: where);
+          expect(plate.bottom + 14, lessThanOrEqualTo(size.height), reason: where);
+          // The strings run at least as far as Scores' do; the tokens' tiles
+          // end at the canvas's side; the bars have room to grow.
+          expect(layout.logitX - layout.inputX - layout.column, greaterThanOrEqualTo(ScoresLayout.leastReach), reason: where);
+          expect(layout.chip(0, 0).right, closeTo(layout.right, 1e-9), reason: where);
+          expect(layout.barRoom, greaterThanOrEqualTo(100), reason: where);
+          // Slid left, the logits keep their name on the canvas.
+          final double named = kit.layout(PredictScene.logitsTitle, inked(kit.sans, 9, inks.quiet)).width;
+          expect(layout.logitX + layout.slideBy - named / 2, greaterThanOrEqualTo(0), reason: where);
+          // The shares' standing column is their tiles, one on top of the
+          // other, so lying down it lands on the map's row cell for cell.
+          final Rect column = layout.shareColumn;
+          expect(column.top, layout.shareTile(layout.firstAllowed).top);
+          expect(column.bottom, closeTo(layout.shareTile(layout.lastAllowed).bottom, 1e-9));
+          expect(layout.lastAllowed - layout.firstAllowed + 1, trace.allowed.length);
+          for (int i = 0; i < scene.focus.inputs; i++) {
+            final Rect row = layout.mapRow(i);
+            final double w = row.width / trace.allowed.length;
+            for (int k = 0; k < trace.allowed.length; k++) {
+              final Rect cell = layout.mapCell(i, k);
+              expect(cell.left, closeTo(row.left + k * w, 1e-9));
+              expect(cell.width, closeTo(w, 1e-9));
+              expect(cell.top, row.top);
+            }
+          }
+          // The map's tiles under its last row, on the canvas.
+          expect(layout.mapTile(0).bottom, lessThanOrEqualTo(size.height), reason: where);
+        }
+      }
     }
   });
 

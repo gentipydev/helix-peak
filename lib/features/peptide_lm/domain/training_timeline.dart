@@ -15,7 +15,7 @@ enum LmStage {
   attention('Attention', 24),
   feedForward('Feed-forward', 20),
   forward('Forward', 12),
-  predict('Predict', 7),
+  predict('Predict', 14),
   loss('Loss', 7),
   backward('Backward', 8),
   update('Update', 8),

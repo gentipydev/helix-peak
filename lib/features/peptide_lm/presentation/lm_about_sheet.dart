@@ -127,10 +127,13 @@ class LmAboutSheet extends StatelessWidget {
             ),
             paragraph(
               'Predict',
-              'The output layer, one linear layer, gives each position '
-                  '${trace.vocab.length} scores, its logits. <pad> and <bos> can never '
-                  'come next, so theirs are set to −∞, and softmax turns the other '
-                  '$allowed into probabilities that sum to one.',
+              'The output layer, one linear layer, has a row of ${model.width} weights and a '
+                  'bias for each of the ${trace.vocab.length} tokens. A place\'s last row times a '
+                  'token\'s weights, summed, plus its bias, is that token\'s score, its logit: '
+                  'high where the two agree in sign and size. <pad> and <bos> can never come '
+                  'next, so theirs are set to −∞; softmax raises e to each of the other '
+                  '$allowed and divides each by their sum, probabilities that add to one. '
+                  'Every place makes its guess at once, with the same weights.',
             ),
             paragraph(
               'Loss',

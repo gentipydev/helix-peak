@@ -64,7 +64,56 @@ void main() {
 
     expectTheWorkedExample(trace);
     expectTheWorkedAnswer(trace);
+    expectTheWorkedLogit(trace);
   });
+}
+
+/// The logit Predict works out (docs/design/peptide-lm.md): insulin A
+/// chain's C11, its last row times the output layer's weights of the token
+/// it gives most, summed, plus its bias, and softmax of the 21's logits. At
+/// step 1, K: 1.00, e to it 2.72 of the 21's 27.12, 10%; the S that comes
+/// next is given 1.3%. At step 200, S: 9.14, 100%.
+void expectTheWorkedLogit(TrainingTrace trace) {
+  const int c11 = 11;
+  final int last = trace.points.length - 1;
+  for (final (TraceCheckpoint at, String token, String logit, String power, String sum, String share)
+      in <(TraceCheckpoint, String, String, String, String, String)>[
+        (trace.checkpoints.first, 'K', '1.00', '2.72', '27.12', '10%'),
+        (trace.checkpoints.last, 'S', '9.14', '9,318', '9,347', '100%'),
+      ]) {
+    final List<double> logits = <double>[
+      for (int r = 0; r < trace.vocab.length; r++) trace.logit(at, 0, c11, r),
+    ];
+    int top = trace.allowed.first;
+    for (final int id in trace.allowed) {
+      if (logits[id] > logits[top]) {
+        top = id;
+      }
+    }
+    expect(trace.token(top), token);
+    double made = trace.outputBias(at, top);
+    for (int d = 0; d < trace.model.width; d++) {
+      made += trace.stream(at, last, 0, c11, d) * trace.outputWeight(at, top, d);
+    }
+    expect(made, closeTo(logits[top], 1e-5));
+    expect(fixed(logits[top], 2), logit);
+    double total = 0;
+    for (final int id in trace.allowed) {
+      total += math.exp(logits[id]);
+    }
+    expect(exponential(math.exp(logits[top])), power);
+    expect(exponential(total), sum);
+    expect(percent(math.exp(logits[top]) / total), share);
+  }
+  // The S that comes next, at step 1.
+  final TraceCheckpoint first = trace.checkpoints.first;
+  final int s = trace.vocab.indexOf('S');
+  double total = 0;
+  for (final int id in trace.allowed) {
+    total += math.exp(trace.logit(first, 0, c11, id));
+  }
+  expect(trace.targetAt(0, c11), s);
+  expect(percent(math.exp(trace.logit(first, 0, c11, s)) / total), '1.3%');
 }
 
 /// The worked example Attention draws (docs/design/peptide-lm.md): insulin A

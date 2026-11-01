@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import '../../../shared/format.dart';
 import '../domain/training_trace.dart';
 
 /// A loss, in nats, to three places: `3.145`, `0.068`.
@@ -28,6 +29,10 @@ String fixed(double value, int digits) {
   final String text = value.abs().toStringAsFixed(digits);
   return value < 0 && double.parse(text) != 0 ? '$_minus$text' : text;
 }
+
+/// e to a logit, or a sum of them, as Predict writes it: to two places under
+/// a hundred, then whole and grouped, `2.72`, `9,318`.
+String exponential(double value) => value < 100 ? fixed(value, 2) : grouped(value.round());
 
 /// A small number in E notation, the minus a true one: `1.0e−3`. Neither of
 /// the app's faces has a superscript minus.
