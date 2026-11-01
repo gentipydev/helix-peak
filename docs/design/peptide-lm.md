@@ -30,7 +30,9 @@ them, and keeps every number through read-only hooks:
   float32 rather than int8, the training byte for byte the same; schema 5,
   2026-11-01, for Attention: the output weights and biases that mix the
   heads' answers back into one row, and the mix whole, the training again
-  byte for byte the same), the stream read out early (the final norm and the
+  byte for byte the same; schema 6, 2026-11-02, for Predict: the output
+  layer's weights at each checkpoint, and the logits whole, the training byte
+  for byte the same), the stream read out early (the final norm and the
   output layer applied at every point before it, with the step's own
   weights: a probe the Forward stage drew until 2026-11-01, kept for
   Predict's review, the last point's the model's own output), the logits and the probabilities over the 21 tokens that can
@@ -588,11 +590,49 @@ out of view is scrolled just far enough to show it whole.
    what block 2's two parts add, alone and added, 13 beats); the user found
    it redundant with the ladder and it was removed, its one fact, block 2's
    own reading, kept in the caption above.
-8. **Predict.** The final column runs down the output layer's 23 rows and
-   each row's logit grows; `<pad>` and `<bos>` are struck to −∞; softmax
-   turns the rest into 21 bars in the residues' colours, what came next
-   outlined. Untrained, after GIVEQCCTSIC the model says K 10%; at step 200,
-   S 99.6% (100% as the page rounds it), and S is next.
+8. **Predict.** The place's last row through the output layer and softmax,
+   in 14 beats (`PredictLayout`, on Embedding's), the user's picks of
+   2026-11-02: the run kept again whole (schema 6), the output layer drawn as
+   Scores draws a row through its weights, softmax worked in two steps, and
+   an end on every place's guess.
+   - It opens on Forward's last frame (`ForwardScene.paintEnd`; `ForwardFade`
+     fades the ladder and leaves out its last row). The ladder goes; the last
+     row's numbers go, and it turns straight off its slot into a standing
+     column at the left, as Feed-forward stands its copy, its numbers left of
+     it.
+   - A slot a token stands at the right, 23 in id order, each with its tile,
+     the vocabulary as Embedding listed it, titled logits, the plate
+     `output layer · 23 × 16` under the strings with where its weights stand
+     (random start, or the updates since).
+   - The row flows through the weights (`weight_flow.dart`): the top logit of
+     the 21 that can come next alone and slowly, its caption the sum
+     (insulin A's C11 at step 1: K's logit, the row × K's 16 weights, summed,
+     + bias: 1.00), then the other 22 in one cascade; the 368 strings stay,
+     faint, a weight on each. A logit is high where row and weights agree in
+     sign and size.
+   - `<pad>` and `<bos>` can never come next: their numbers go, −∞ comes, and
+     their rows are hatched as Attention strikes what is never read. The bench
+     clears, and the logits slide left with their numbers and tiles.
+   - Softmax in two steps, each its caption: a bar on each token's row grows
+     to e to its logit, the largest across the room (e to K's 1.00 is 2.72;
+     at step 200 S's 9.14 makes 9,318 and every other bar vanishes); then
+     every bar shrinks by the same sum (27.12) into its share, written at its
+     end, against a dashed 100%. What came next is outlined in the tracer:
+     after …CCTSIC the model gives K 10%, and the S that comes next 1.3%; at
+     step 200, S 100%.
+   - Every place at once: the bars turn into tiles, which lie down onto the
+     place's row of a map, a row a place and a column a token that can come
+     next, drawn as head 1's map is (`AttentionScene.drawShareCell`, a share
+     that rounds to nothing unwritten); every other row fills, top to bottom,
+     and each row's next token, Shift's y, is outlined: the top guess is right
+     at 0 of insulin A's 22 places at step 1, 21 at step 200, where `<bos>`'s
+     row spreads a sixth over the six first residues, the floor Loss explains.
+   - Shares are softmax of the logits as the run keeps them, whole (as
+     Attention's are of the scores); Loss and Backward still read the stored
+     probabilities, to the nearest 255th. Every number is the run's: the last
+     row, the output layer's weights and biases as the step found them, the
+     logits. On the bench a tap asks for nothing; on the map a row puts its
+     place in focus.
 9. **Loss.** A ghost bar rises to certainty at the target, the gap bracketed
    and read off the −ln p curve; every target's surprise fills a strip a
    peptide and pools into the step's loss, set against ln 21.

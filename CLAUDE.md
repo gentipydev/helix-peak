@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 162 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 169 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -292,7 +292,9 @@ insides, the row each block's attention reads evened out with its LayerNorm's
 scale and shift and the weights that make the queries, keys and values, those
 whole, and the stream read out early; schema 5 since 2026-11-01: the output
 weights that mix the heads' answers back into one row, and the heads' mix
-whole). The forward pass is four stages, each
+whole; schema 6 since 2026-11-02: the output layer's weights at each
+checkpoint and its logits whole, for Predict). The forward pass is four
+stages, each
 opening on the last frame of the one before, pixel for pixel, on Embedding's
 layout, a row a place (`StreamTable`, `stream_table.dart`), the user's splits
 of 2026-10-30 and 2026-10-31:
@@ -433,6 +435,31 @@ of 2026-10-30 and 2026-10-31:
   readout; it is for Predict's review. A Block 2 stage (block 2's map, then
   what its parts add) was built the same day and removed at the user's word
   as redundant with the ladder; don't re-add it.
+
+**Predict** (`predict_scene.dart`, 14 beats, the user's picks of
+2026-11-02) opens on Forward's last frame, pixel for pixel
+(`ForwardScene.paintEnd`, `ForwardFade`), and turns the place's last row into
+a guess, as the engine's output layer and softmax do (`PredictLayout`, on
+Embedding's): the ladder goes and the row turns off its slot into a standing
+column at the left; a slot for each of the 23 tokens stands at the right, its
+tile beside it, in id order, under the plate `output layer · 23 × 16`. The
+row flows through the output layer's weights as Scores' row goes through the
+query's (`weight_flow.dart`): the top logit alone and slowly, its caption the
+sum (insulin A's C11 at step 1: K, 1.00), then the other 22 in one cascade,
+the 368 strings left faint. `<pad>` and `<bos>` are struck to −∞, the bench
+clears and the logits slide left; softmax is worked out in two steps, each bar
+growing to e to its logit, the largest across the room (e to K's 1.00 is
+2.72; at step 200 e to S's 9.14 is 9,318 and the rest vanish), then every bar
+shrinking by their sum (27.12) into its share of a dashed 100% (K 10%), what
+came next outlined in the tracer. Then every place at once: the shares turn
+into tiles and lie down onto the place's row of a map, a row a place and a
+column a token that can come next, drawn as head 1's map is
+(`AttentionScene.drawShareCell`); every other row fills, and each row's next
+token (Shift's y) is outlined: the top guess is right at 0 of insulin A's 22
+places at step 1, 21 at step 200 (`<bos>`'s row spreads a sixth over the six
+first residues). Shares are softmax of the whole logits, as Attention's are of
+the whole scores; Loss and Backward still read the stored probabilities. On
+the bench a tap asks for nothing; on the map a row puts its place in focus.
 
 Reduced motion shows each stage played through, the loop at its last step. The
 captions and the About sheet are built from the run's own numbers (R4.1).
