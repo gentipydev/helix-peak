@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../domain/training_timeline.dart';
 import 'attention_scene.dart';
 import 'backward_scene.dart';
+import 'block_two_scene.dart';
 import 'embedding_scene.dart';
 import 'feed_forward_scene.dart';
 import 'forward_scene.dart';
@@ -22,6 +23,7 @@ LmScene sceneOf(LmStage stage) => switch (stage) {
   LmStage.scores => const ScoresScene(),
   LmStage.attention => const AttentionScene(),
   LmStage.feedForward => const FeedForwardScene(),
+  LmStage.blockTwo => const BlockTwoScene(),
   LmStage.forward => const ForwardScene(),
   LmStage.predict => const PredictScene(),
   LmStage.loss => const LossScene(),

@@ -116,6 +116,14 @@ class LmAboutSheet extends StatelessWidget {
                   '${model.width} out, added to the stream.',
             ),
             paragraph(
+              'Block 2',
+              'The second block runs the same two parts on what the first one left: a '
+                  'LayerNorm and attention with ${spelled(model.heads)} heads of its own, then a '
+                  'LayerNorm and a feed-forward of its own, ${model.width} → ${model.feedForward} → '
+                  '${model.width}, each adding to the stream. Its weights are its own, so are its '
+                  'maps, and the rows it reads already carry what block 1 added.',
+            ),
+            paragraph(
               'Forward',
               'The ${spelled(model.layers)} blocks run in turn, each reading what the one '
                   'before it added; a final LayerNorm hands each place to the output layer. '

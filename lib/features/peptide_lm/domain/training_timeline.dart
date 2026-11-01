@@ -2,11 +2,12 @@ import 'package:flutter/foundation.dart';
 
 import '../../../shared/motion/animation_timeline.dart';
 
-/// One training step told in eleven stages, then the loop over every step:
+/// One training step told in twelve stages, then the loop over every step:
 /// the order the page plays them in, each with its share of the time. The
-/// forward pass is four of them: block 1's attention in two, its scores and
-/// then what it hands over, and its feed-forward, each close up; then the
-/// whole pass layer to layer.
+/// forward pass is five of them: block 1's attention in two, its scores and
+/// then what it hands over, and its feed-forward, each close up; block 2,
+/// the same two parts on block 1's output; then one place's row through the
+/// whole pass, layer to layer.
 enum LmStage {
   tokenise('Tokenise', 11),
   shift('Shift', 5),
@@ -14,6 +15,7 @@ enum LmStage {
   scores('Scores', 20),
   attention('Attention', 24),
   feedForward('Feed-forward', 20),
+  blockTwo('Block 2', 13),
   forward('Forward', 11),
   predict('Predict', 7),
   loss('Loss', 7),
