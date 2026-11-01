@@ -108,9 +108,14 @@ final class ForwardScene extends LmScene {
 
   @override
   void paint(Canvas canvas, Size size, LmView view, TrainingFrame frame) =>
-      _paint(canvas, size, view, frame.local * _beats);
+      _paint(canvas, size, view, frame.local * _beats, const ForwardFade());
 
-  void _paint(Canvas canvas, Size size, LmView view, double beat) {
+  /// The stage's last frame, with [fade] leaving out or fading what the stage
+  /// after it draws itself: Predict opens on it.
+  void paintEnd(Canvas canvas, Size size, LmView view, [ForwardFade fade = const ForwardFade()]) =>
+      _paint(canvas, size, view, _beats, fade);
+
+  void _paint(Canvas canvas, Size size, LmView view, double beat, ForwardFade fade) {
     if (beat <= 0) {
       const FeedForwardScene().paintEnd(canvas, size, view);
       return;
@@ -123,22 +128,25 @@ final class ForwardScene extends LmScene {
       canvas,
       <(double, double, String)>[(double.negativeInfinity, 0.25, FeedForwardScene.notes(view).last.$3), ...notes(view)],
       beat,
+      alpha: fade.note,
     );
-    table.tag(canvas, "block 1's output · $n × $width", 1 - _span(beat, _tagOut));
-    final String name = tag(view);
-    drawTag(canvas, view, name, layout.tagAt(tagSize(view, name)), alpha: _span(beat, _tagIn));
-    _table(canvas, size, view, layout, beat);
-    _route(canvas, view, layout, beat);
-    _rows(canvas, view, layout, beat);
-    // The place's tile, from its row to the ladder's top.
-    drawToken(
-      canvas,
-      view,
-      Rect.lerp(table.layout.label(view.position), layout.chip, _span(beat, _move))!,
-      view.trace.inputAt(view.peptide, view.position),
-    );
+    drawFaded(canvas, size, view, fade.ladder, () {
+      table.tag(canvas, "block 1's output · $n × $width", 1 - _span(beat, _tagOut));
+      final String name = tag(view);
+      drawTag(canvas, view, name, layout.tagAt(tagSize(view, name)), alpha: _span(beat, _tagIn));
+      _table(canvas, size, view, layout, beat);
+      _route(canvas, view, layout, beat);
+      _rows(canvas, view, layout, beat, lastRow: fade.lastRow);
+      // The place's tile, from its row to the ladder's top.
+      drawToken(
+        canvas,
+        view,
+        Rect.lerp(table.layout.label(view.position), layout.chip, _span(beat, _move))!,
+        view.trace.inputAt(view.peptide, view.position),
+      );
+    });
     final double outlined = _span(beat, _outlined);
-    if (outlined > 0) {
+    if (outlined > 0 && fade.lastRow) {
       canvas.drawRRect(
         RRect.fromRectAndRadius(layout.slot(layout.points - 1).inflate(2), const Radius.circular(3)),
         Paint()
@@ -197,10 +205,11 @@ final class ForwardScene extends LmScene {
   };
 
   /// The rows: each part's strip as its part starts; each row once landed,
-  /// its numbers written until the next drop; the place's row from the
-  /// table, waiting faint in its slot until the climb reaches it; and each
-  /// copy as it drops, turning into the sum as it passes the strip.
-  void _rows(Canvas canvas, LmView view, TowerLayout layout, double beat) {
+  /// its numbers written until the next drop, the last unless [lastRow] is
+  /// false; the place's row from the table, waiting faint in its slot until
+  /// the climb reaches it; and each copy as it drops, turning into the sum as
+  /// it passes the strip.
+  void _rows(Canvas canvas, LmView view, TowerLayout layout, double beat, {bool lastRow = true}) {
     final StreamTable table = layout.table;
     final int layers = view.trace.model.layers;
     final int focus = view.position;
@@ -218,7 +227,7 @@ final class ForwardScene extends LmScene {
     }
     for (int k = 0; k <= last; k++) {
       final double landed = _landed(k, layers, beat);
-      if (landed > 0) {
+      if (landed > 0 && (lastRow || k < last)) {
         final List<double> values = table.values(k, focus);
         table.drawRow(canvas, layout.slot(k), values, scale: scaleOf(k), fill: landed, text: 0);
         layout.write(canvas, layout.slot(k), values, _written(k, layers, beat));
@@ -377,6 +386,22 @@ final class ForwardScene extends LmScene {
 
   @override
   String describe(LmView view, TrainingFrame frame) => 'Forward pass, step ${view.step}. ${caption(view, frame)}.';
+}
+
+/// What Forward's last frame fades or leaves out, for the stage that opens on
+/// it: the ladder, every part of it but its last row (its slots, strips,
+/// names, tags and the place's tile); that last row and its outline, which
+/// Predict stands up itself; and the note. By default, the frame as Forward
+/// draws it.
+@immutable
+final class ForwardFade {
+  const ForwardFade({this.ladder = 1, this.note = 1, this.lastRow = true});
+
+  final double ladder;
+  final double note;
+
+  /// Whether the last row, what Predict reads, and its outline are drawn.
+  final bool lastRow;
 }
 
 /// Forward's canvas, on Embedding's: a ladder of the stream's points for the
