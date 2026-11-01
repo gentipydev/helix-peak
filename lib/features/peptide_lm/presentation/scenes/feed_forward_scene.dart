@@ -466,6 +466,30 @@ final class FeedForwardScene extends LmScene {
         ..strokeWidth = 1.6
         ..color = view.inks.signal.withValues(alpha: alpha),
     );
+    // The neurons that light, a white dot each on the curve, at their sum:
+    // the evened row times their weights, plus their bias.
+    final TrainingTrace trace = view.trace;
+    final List<double> neurons = <double>[
+      for (int u = 0; u < trace.model.feedForward; u++) trace.hidden(view.checkpoint, block, view.peptide, view.position, u),
+    ];
+    final double most = neurons.fold<double>(0, math.max);
+    final double shown = alpha * _span(beat, _lit);
+    if (most <= 0 || shown <= 0) {
+      return;
+    }
+    final Paint dot = Paint()..color = view.inks.ink.withValues(alpha: shown);
+    for (int u = 0; u < neurons.length; u++) {
+      if (neurons[u] < 0.1 * most) {
+        continue;
+      }
+      double sum = trace.ffInBias(view.checkpoint, block, u);
+      for (int d = 0; d < trace.model.width; d++) {
+        sum += trace.ffInput(view.checkpoint, block, view.peptide, view.position, d) * trace.ffIn(view.checkpoint, block, u, d);
+      }
+      if (sum.abs() <= _reach) {
+        canvas.drawCircle(at(sum, gelu(sum)), 2.6, dot);
+      }
+    }
   }
 
   /// A node: a disc in [color], a ring round it.
@@ -689,7 +713,7 @@ final class FeedForwardLayout {
   Rect get curveArea {
     final double left = hiddenX + hiddenRadius + 16;
     final double right = table.layout.right - 8;
-    final double width = math.min(130.0, (right - left) * 0.75);
+    final double width = right - left - 4;
     final Offset centre = Offset((left + right) / 2, (top + bottom) / 2);
     return Rect.fromCenter(center: centre, width: width, height: width * 0.8);
   }
