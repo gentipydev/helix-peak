@@ -11,7 +11,6 @@ import 'package:helixpeek/features/peptide_lm/domain/training_trace.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/lm_format.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/lm_inks.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/attention_scene.dart';
-import 'package:helixpeek/features/peptide_lm/presentation/scenes/block_two_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/embedding_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/feed_forward_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/forward_scene.dart';
@@ -434,38 +433,28 @@ void main() {
     expect(caption(LmStage.feedForward, fed(17.2)), "Back to V3's row, to be added");
     expect(caption(LmStage.feedForward, fed(18.0)), 'What the feed-forward adds to each place: 12 rows of $width');
     expect(caption(LmStage.feedForward, 0.99), "Added: block 1's output, 12 × $width");
-    // Block 2: block 1's two parts again, on block 1's output; head 1's map,
-    // block 1's and then its own; what each part adds, alone, then added.
-    double second(double beat) => beat / LmStage.blockTwo.beats;
-    expect(caption(LmStage.blockTwo, second(0.5)), "Block 2: the same two parts again, on block 1's output, 12 × $width");
-    expect(
-      caption(LmStage.blockTwo, second(2)),
-      "Block 1's head 1, as Attention drew it: V3 read ${AttentionScene.readsMost(last, 0, layer: 0)}",
-    );
-    expect(
-      caption(LmStage.blockTwo, second(3)),
-      "Block 2's head 1, its own weights: V3 reads ${AttentionScene.readsMost(last, 0, layer: 1)}",
-    );
-    expect(AttentionScene.readsMost(last, 0, layer: 1), isNot(AttentionScene.readsMost(last, 0, layer: 0)));
-    expect(caption(LmStage.blockTwo, second(4.5)), "Every place reads anew with block 2's weights: 12 rows");
-    expect(caption(LmStage.blockTwo, second(6.5)), "What block 2's attention adds to each place, made as in Attention");
-    expect(caption(LmStage.blockTwo, second(8)), "Added: block 1's output + attention, 12 × $width");
-    expect(caption(LmStage.blockTwo, second(9)), "Block 2's feed-forward, each place alone: its own $width → $ff → $width");
-    expect(caption(LmStage.blockTwo, 0.99), "Added: block 2's output, 12 × $width");
     // Forward: V3's row through the whole pass, a part at a time, then the
     // final LayerNorm, worked as Feed-forward's on the run's own numbers.
     double forward(double beat) => beat / LmStage.forward.beats;
-    expect(caption(LmStage.forward, forward(0.5)), "V3's row after both blocks: how it was built, part by part");
+    expect(caption(LmStage.forward, forward(0.5)), 'The whole pass for V3: x0, both blocks, then what Predict reads');
     expect(
       caption(LmStage.forward, forward(2)),
       "Block 1's attention adds what V3 gathered from the places up to it",
     );
+    expect(caption(LmStage.forward, forward(4)), "Block 1's feed-forward adds its own: V3's row as block 1 left it");
+    // Block 2's attention, its head 1 against block 1's, as Attention's map
+    // reads them.
     expect(
-      caption(LmStage.forward, forward(4)),
-      "Block 1's feed-forward adds its network's output: block 1's output",
+      caption(LmStage.forward, forward(5.5)),
+      "Block 2's attention: V3 reads ${ForwardScene.readsMost(last, 1)} "
+      '(block 1: ${ForwardScene.readsMost(last, 0)})',
     );
-    expect(caption(LmStage.forward, forward(5.5)), "Block 2's attention reads that row anew and adds what it gathers");
-    expect(caption(LmStage.forward, forward(7.5)), "Block 2's feed-forward adds its own: V3's row as block 2 left it");
+    expect(ForwardScene.readsMost(last, 0), AttentionScene.readsMost(last, AttentionScene.mapHead).split(', ').first);
+    expect(ForwardScene.readsMost(last, 1), isNot(ForwardScene.readsMost(last, 0)));
+    expect(
+      caption(LmStage.forward, forward(7.5)),
+      "Block 2's feed-forward adds its network's output: block 2's output",
+    );
     final Evening finalEven = ForwardScene.evening(last);
     final int lastPoint = trace.points.length - 1;
     expect(finalEven.x, <double>[for (int d = 0; d < width; d++) trace.stream(last.checkpoint, lastPoint - 1, 0, 3, d)]);
@@ -544,8 +533,8 @@ void main() {
       expect(found, <int>{for (int p = 0; p < trace.peptides.length; p++) p});
     }
 
-    // Scores, Attention, Feed-forward, Block 2 and Forward: a row, or its row
-    // of a map, puts its place in focus, every place reachable.
+    // Scores, Attention, Feed-forward and Forward: a row, or its row of a
+    // map, puts its place in focus, every place reachable.
     for (final (LmStage stage, double local) in <(LmStage, double)>[
       (LmStage.scores, 0),
       (LmStage.scores, 0.3),
@@ -554,9 +543,6 @@ void main() {
       (LmStage.attention, 1),
       (LmStage.feedForward, 0.01),
       (LmStage.feedForward, 1),
-      (LmStage.blockTwo, 0),
-      (LmStage.blockTwo, 0.3),
-      (LmStage.blockTwo, 1),
       (LmStage.forward, 0),
     ]) {
       final Set<int> places = <int>{};
@@ -623,8 +609,7 @@ void main() {
         (LmStage.embedding, LmStage.scores),
         (LmStage.scores, LmStage.attention),
         (LmStage.attention, LmStage.feedForward),
-        (LmStage.feedForward, LmStage.blockTwo),
-        (LmStage.blockTwo, LmStage.forward),
+        (LmStage.feedForward, LmStage.forward),
       ]) {
         final List<int> last = await pixels(scene, timeline.frameIn(before, 1));
         final List<int> first = await pixels(scene, timeline.frameIn(after, 0));
@@ -1002,7 +987,7 @@ void main() {
     }
   });
 
-  testWidgets("Block 2's map is head 1's of block 2, turning from block 1's in Attention's order", (
+  testWidgets("a block's shares are softmax of its own kept scores, block 2's as block 1's", (
     WidgetTester tester,
   ) async {
     final (LmInks inks, LmKit kit) = await _drawing(tester);
@@ -1010,49 +995,19 @@ void main() {
     for (int c = 0; c < trace.checkpoints.length; c++) {
       final LmView scene = view(inks, kit, checkpoint: c);
       final TraceCheckpoint at = scene.checkpoint;
-      final int n = scene.focus.inputs;
-      final List<List<double>> rows = AttentionScene.allShares(scene, AttentionScene.mapHead, layer: BlockTwoScene.block);
-      for (int i = 0; i < n; i++) {
-        expect(rows[i].reduce((double a, double b) => a + b), closeTo(1, 1e-9));
-        for (int j = 0; j <= i; j++) {
-          // Softmax of block 2's kept scores is its kept map, to the map's
-          // own step.
-          expect(
-            rows[i][j],
-            closeTo(trace.attention(at, BlockTwoScene.block, AttentionScene.mapHead, 0, i, j), at.attentionScale / 2 + 1e-6),
-          );
+      for (int layer = 0; layer < trace.model.layers; layer++) {
+        final List<List<double>> rows = AttentionScene.allShares(scene, AttentionScene.mapHead, layer: layer);
+        for (int i = 0; i < scene.focus.inputs; i++) {
+          expect(rows[i].reduce((double a, double b) => a + b), closeTo(1, 1e-9));
+          for (int j = 0; j <= i; j++) {
+            // Softmax of the block's kept scores is its kept map, to the
+            // map's own step.
+            expect(rows[i][j], closeTo(trace.attention(at, layer, AttentionScene.mapHead, 0, i, j), at.attentionScale / 2 + 1e-6));
+          }
         }
-      }
-      expect(
-        rows[scene.position],
-        AttentionScene.shares(scene, AttentionScene.mapHead, layer: BlockTwoScene.block),
-      );
-    }
-    // The row in focus turns first, a cell at a time from <bos>; then every
-    // other row, top to bottom; all of it before the map goes.
-    const int focus = 3;
-    const int n = 12;
-    double first(bool Function(double beat) reached) {
-      for (double beat = 0; beat <= LmStage.blockTwo.beats; beat += 0.01) {
-        if (reached(beat)) {
-          return beat;
-        }
-      }
-      return double.infinity;
-    }
-
-    double starts(int i, int j) => first((double b) => BlockTwoScene.turnedAt(i, j, focus, n, b) > 0);
-    double ends(int i, int j) => first((double b) => BlockTwoScene.turnedAt(i, j, focus, n, b) >= 1);
-    for (int j = 1; j <= focus; j++) {
-      expect(starts(focus, j), greaterThan(starts(focus, j - 1)));
-    }
-    expect(starts(0, 0), greaterThanOrEqualTo(ends(focus, focus)));
-    for (int i = 1; i < n; i++) {
-      if (i != focus && i - 1 != focus) {
-        expect(starts(i, 0), greaterThan(starts(i - 1, 0)));
+        expect(rows[scene.position], AttentionScene.shares(scene, AttentionScene.mapHead, layer: layer));
       }
     }
-    expect(ends(n - 1, n - 1), lessThan(5.6));
   });
 
   testWidgets("Forward's ladder: a row a point of the stream, on the canvas, each landing in turn", (

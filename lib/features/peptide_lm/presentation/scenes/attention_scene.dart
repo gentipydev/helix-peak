@@ -45,7 +45,7 @@ typedef HeadTimes = ({double keys, double scan, double soft, double shares, doub
 final class AttentionScene extends LmScene {
   const AttentionScene();
 
-  /// The block this stage shows; Block 2 shows the second.
+  /// The block this stage shows; Forward shows them all.
   static const int block = 0;
 
   static double get _beats => LmStage.attention.beats.toDouble();
@@ -967,30 +967,15 @@ final class AttentionScene extends LmScene {
   /// How far the map's cell at row [i], column [j] has filled at [beat], of
   /// [n] places, [focus] in focus: the row in focus first, a cell at a time
   /// from `<bos>`; then every other row, top to bottom, a row at a time.
-  static double mapFilled(int i, int j, int focus, int n, double beat) =>
-      fillAt(i, j, focus, n, beat, focusRow: _focusRow, rows: _rows);
-
-  /// How far a map's cell at row [i], column [j] has come at [beat], in the
-  /// order a map fills: the row in focus a cell at a time from `<bos>`
-  /// through [focusRow], then every other row, top to bottom, a row at a
-  /// time through [rows].
-  static double fillAt(
-    int i,
-    int j,
-    int focus,
-    int n,
-    double beat, {
-    required (double, double) focusRow,
-    required (double, double) rows,
-  }) {
+  static double mapFilled(int i, int j, int focus, int n, double beat) {
     if (i == focus) {
       const double each = 0.25;
-      final double start = focusRow.$1 + (focus < 1 ? 0 : (focusRow.$2 - focusRow.$1 - each) * j / focus);
+      final double start = _focusRow.$1 + (focus < 1 ? 0 : (_focusRow.$2 - _focusRow.$1 - each) * j / focus);
       return through(beat, start, start + each);
     }
     const double each = 0.2;
     final int rank = i < focus ? i : i - 1;
-    final double start = rows.$1 + (n < 3 ? 0 : (rows.$2 - rows.$1 - each) * rank / (n - 2));
+    final double start = _rows.$1 + (n < 3 ? 0 : (_rows.$2 - _rows.$1 - each) * rank / (n - 2));
     return through(beat, start, start + each);
   }
 
@@ -1005,86 +990,62 @@ final class AttentionScene extends LmScene {
     if (shown <= 0) {
       return;
     }
+    final TrainingTrace trace = view.trace;
     final int n = view.focus.inputs;
     final int focus = view.position;
     final double grow = _span(beat, _grow);
     final List<List<double>> rows = allShares(view, mapHead);
+    final TextStyle? numbers = layout.mapNumbers;
     canvas.save();
     if (grow < 1) {
       canvas.clipRRect(RRect.fromRectAndRadius(layout.growing(grow), const Radius.circular(2.5)));
     }
-    drawMapHatch(canvas, view, layout, shown);
+    _mapHatch(canvas, view, layout, shown);
+    final Paint slot = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.8;
+    final Paint fill = Paint();
     for (int i = 0; i < n; i++) {
       for (int j = 0; j <= i; j++) {
-        drawMapCell(canvas, view, layout, i, j, share: rows[i][j], filled: mapFilled(i, j, focus, n, beat), shown: shown);
+        final Rect cell = layout.mapCell(i, j).deflate(EmbeddingLayout.gap);
+        // The tables' corners, less on a small cell, so it stays a tile.
+        final RRect shape = RRect.fromRectAndRadius(
+          cell,
+          Radius.circular(math.min(EmbeddingLayout.radius, cell.shortestSide * 0.2)),
+        );
+        final double filled = mapFilled(i, j, focus, n, beat);
+        if (filled < 1) {
+          canvas.drawRRect(shape, slot..color = view.inks.quiet.withValues(alpha: 0.6 * shown * (1 - filled)));
+        }
+        if (filled <= 0) {
+          continue;
+        }
+        final double share = rows[i][j];
+        // The share's ramp, softened as the tables' tiles are, so the number
+        // on it reads.
+        final Color colour = Color.lerp(view.inks.zero, view.inks.share(share, view.inks.signal), LmInks.soft)!;
+        canvas.drawRRect(shape, fill..color = Color.lerp(view.inks.ground, colour, filled * shown)!);
+        if (numbers != null) {
+          view.kit.draw(
+            canvas,
+            percentNumber(share),
+            numbers.copyWith(color: numbers.color!.withValues(alpha: (filled * shown * 8).round() / 8)),
+            cell.center,
+            anchor: const Offset(0.5, 0.5),
+          );
+        }
       }
     }
-    drawMapTiles(canvas, view, layout, shown);
+    // The places read, a tile under each column.
+    for (int j = 0; j < n; j++) {
+      drawToken(canvas, view, layout.mapTile(j), trace.inputAt(view.peptide, j), alpha: shown);
+    }
     canvas.restore();
-  }
-
-  /// A head's map's cell at row [i], column [j]: [filled] of the way from
-  /// an empty slot to a soft tile in [share]'s colour, [shown] as strongly
-  /// as the map. The share is written on it where the map's numbers fit:
-  /// [written], [share] unless another is named, as strongly as [writing],
-  /// or as the tile is filled.
-  static void drawMapCell(
-    Canvas canvas,
-    LmView view,
-    AttentionLayout layout,
-    int i,
-    int j, {
-    required double share,
-    required double filled,
-    required double shown,
-    double? written,
-    double? writing,
-  }) {
-    final Rect cell = layout.mapCell(i, j).deflate(EmbeddingLayout.gap);
-    // The tables' corners, less on a small cell, so it stays a tile.
-    final RRect shape = RRect.fromRectAndRadius(
-      cell,
-      Radius.circular(math.min(EmbeddingLayout.radius, cell.shortestSide * 0.2)),
-    );
-    if (filled < 1) {
-      canvas.drawRRect(
-        shape,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 0.8
-          ..color = view.inks.quiet.withValues(alpha: 0.6 * shown * (1 - filled)),
-      );
-    }
-    if (filled <= 0) {
-      return;
-    }
-    // The share's ramp, softened as the tables' tiles are, so the number on
-    // it reads.
-    final Color colour = Color.lerp(view.inks.zero, view.inks.share(share, view.inks.signal), LmInks.soft)!;
-    canvas.drawRRect(shape, Paint()..color = Color.lerp(view.inks.ground, colour, filled * shown)!);
-    final TextStyle? numbers = layout.mapNumbers;
-    final double alpha = writing ?? filled * shown;
-    if (numbers != null && alpha > 0) {
-      view.kit.draw(
-        canvas,
-        percentNumber(written ?? share),
-        numbers.copyWith(color: numbers.color!.withValues(alpha: (alpha * 8).round() / 8)),
-        cell.center,
-        anchor: const Offset(0.5, 0.5),
-      );
-    }
-  }
-
-  /// The places a map reads, a tile under each of its columns.
-  static void drawMapTiles(Canvas canvas, LmView view, AttentionLayout layout, double alpha) {
-    for (int j = 0; j < layout.places; j++) {
-      drawToken(canvas, view, layout.mapTile(j), view.trace.inputAt(view.peptide, j), alpha: alpha);
-    }
   }
 
   /// The places after each row's own, which it never reads: whole cells,
   /// struck through as Scores strikes them.
-  static void drawMapHatch(Canvas canvas, LmView view, AttentionLayout layout, double alpha) {
+  static void _mapHatch(Canvas canvas, LmView view, AttentionLayout layout, double alpha) {
     final int n = layout.places;
     if (n < 2 || alpha <= 0) {
       return;

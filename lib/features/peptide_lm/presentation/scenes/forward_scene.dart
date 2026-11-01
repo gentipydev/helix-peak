@@ -6,24 +6,25 @@ import '../../../../shared/format.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
 import '../lm_format.dart';
-import 'block_two_scene.dart';
+import 'attention_scene.dart';
 import 'embedding_scene.dart';
+import 'feed_forward_scene.dart';
 import 'lm_drawing.dart';
 import 'lm_scene.dart';
 import 'scores_scene.dart';
 import 'stream_table.dart';
 
 /// Forward: the place in focus's row through the whole pass, layer to
-/// layer, down the canvas ([TowerLayout]). It opens on Block 2's last frame,
-/// block 2's output a row a place. The other rows go; the place's row goes
-/// to its slot on a ladder of the stream's points and waits there, faint,
-/// while the route comes in: a slot of empty tiles for each point, each part
-/// named in the gap before its slot. x0 comes in at the top, as Embedding
-/// made it; then, a part at a time, what it adds comes in as a thin strip,
-/// and a copy of the row above drops through it into the next slot, turning
-/// into the sum as it passes, the last of them onto the row that waited.
-/// The final LayerNorm takes the last drop: the row Predict reads. Only the
-/// row last made writes its numbers.
+/// layer, down the canvas ([TowerLayout]). It opens on Feed-forward's last
+/// frame, block 1's output a row a place. The other rows go; the place's row
+/// goes to its slot on a ladder of the stream's points and waits there,
+/// faint, while the route comes in: a slot of empty tiles for each point,
+/// each part named in the gap before its slot. x0 comes in at the top, as
+/// Embedding made it; then, a part at a time, what it adds comes in as a
+/// thin strip, and a copy of the row above drops through it into the next
+/// slot, turning into the sum as it passes: block 1's two onto the row that
+/// waited, then block 2's. The final LayerNorm takes the last drop: the row
+/// Predict reads. Only the row last made writes its numbers.
 ///
 /// Every number is the run's: each point of the stream, whole.
 final class ForwardScene extends LmScene {
@@ -54,6 +55,10 @@ final class ForwardScene extends LmScene {
   static const double _mostPart = 1.7;
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
+
+  /// The point Feed-forward leaves the stream at, block 1's output: where
+  /// the place's row waits for the climb.
+  static int get _waiting => 2 * FeedForwardScene.block + 2;
 
   /// The part that makes slot [k], 1 to the last, of a model of [layers]
   /// blocks: when it starts and how long it takes. Each block's attention
@@ -107,7 +112,7 @@ final class ForwardScene extends LmScene {
 
   void _paint(Canvas canvas, Size size, LmView view, double beat) {
     if (beat <= 0) {
-      const BlockTwoScene().paintEnd(canvas, size, view);
+      const FeedForwardScene().paintEnd(canvas, size, view);
       return;
     }
     final TowerLayout layout = TowerLayout(size, view);
@@ -116,10 +121,10 @@ final class ForwardScene extends LmScene {
     final int width = view.trace.model.width;
     table.note(
       canvas,
-      <(double, double, String)>[(double.negativeInfinity, 0.25, BlockTwoScene.notes(view).last.$3), ...notes(view)],
+      <(double, double, String)>[(double.negativeInfinity, 0.25, FeedForwardScene.notes(view).last.$3), ...notes(view)],
       beat,
     );
-    table.tag(canvas, "block 2's output · $n × $width", 1 - _span(beat, _tagOut));
+    table.tag(canvas, "block 1's output · $n × $width", 1 - _span(beat, _tagOut));
     final String name = tag(view);
     drawTag(canvas, view, name, layout.tagAt(tagSize(view, name)), alpha: _span(beat, _tagIn));
     _table(canvas, size, view, layout, beat);
@@ -149,11 +154,11 @@ final class ForwardScene extends LmScene {
       "${StreamTable.placeName(view, view.position)}'s row, layer to layer · "
       '${view.trace.points.length} × ${view.trace.model.width}';
 
-  /// Block 2's table going: every row but the place in focus's, their
+  /// Feed-forward's table going: every row but the place in focus's, their
   /// tiles, and the place's outline.
   void _table(Canvas canvas, Size size, LmView view, TowerLayout layout, double beat) {
     final StreamTable table = layout.table;
-    final int output = layout.points - 2;
+    final int output = _waiting;
     drawFaded(canvas, size, view, 1 - _span(beat, _tableOut), () {
       for (int i = 0; i < table.places; i++) {
         if (i == view.position) {
@@ -219,7 +224,7 @@ final class ForwardScene extends LmScene {
         layout.write(canvas, layout.slot(k), values, _written(k, layers, beat));
       }
     }
-    final int waiting = last - 1;
+    final int waiting = _waiting;
     if (dropped(waiting, layers, beat) < 1) {
       table.drawRow(
         canvas,
@@ -329,7 +334,7 @@ final class ForwardScene extends LmScene {
         2 => 'both blocks',
         _ => 'all ${spelled(layers)} blocks',
       };
-      return "$focus's row after $blocks: how it was built, part by part";
+      return 'The whole pass for $focus: x0, $blocks, then what Predict reads';
     }
     if (beat < _finalFrom) {
       final double step = (_finalFrom - _climbFrom) / (2 * layers);
@@ -338,11 +343,12 @@ final class ForwardScene extends LmScene {
       if (k.isOdd) {
         return b == 1
             ? "Block 1's attention adds what $focus gathered from the places up to it"
-            : "Block $b's attention reads that row anew and adds what it gathers";
+            : "Block $b's attention: $focus reads ${readsMost(view, b - 1)} "
+                  '(block 1: ${readsMost(view, AttentionScene.block)})';
       }
-      return b < layers
-          ? "Block $b's feed-forward adds its network's output: block $b's output"
-          : "Block $b's feed-forward adds its own: $focus's row as block $b left it";
+      return k == _waiting
+          ? "Block $b's feed-forward adds its own: $focus's row as block $b left it"
+          : "Block $b's feed-forward adds its network's output: block $b's output";
     }
     final Evening even = evening(view);
     if (beat < _plainFrom) {
@@ -354,6 +360,19 @@ final class ForwardScene extends LmScene {
           : 'Then its own learned scale and shift: the row Predict reads';
     }
     return "$focus's row as Predict reads it: x0 and ${spelled(2 * layers)} parts' additions, evened";
+  }
+
+  /// The place head 1 of [layer] reads most at the place in focus, and its
+  /// share, as Attention's map draws it.
+  static String readsMost(LmView view, int layer) {
+    final List<double> shares = AttentionScene.shares(view, AttentionScene.mapHead, layer: layer);
+    int best = 0;
+    for (int j = 1; j < shares.length; j++) {
+      if (shares[j] > shares[best]) {
+        best = j;
+      }
+    }
+    return '${StreamTable.placeName(view, best)} ${percent(shares[best])}';
   }
 
   @override

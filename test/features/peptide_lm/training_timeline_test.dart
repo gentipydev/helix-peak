@@ -5,7 +5,7 @@ import 'package:helixpeek/shared/motion/animation_timeline.dart';
 void main() {
   const TrainingTimeline timeline = TrainingTimeline(steps: 200);
 
-  test('the thirteen stages, in order, named as the page names them', () {
+  test('the twelve stages, in order, named as the page names them', () {
     expect(
       timeline.phases.map((PhaseMark mark) => mark.name),
       <String>[
@@ -15,7 +15,6 @@ void main() {
         'Scores',
         'Attention',
         'Feed-forward',
-        'Block 2',
         'Forward',
         'Predict',
         'Loss',
@@ -25,7 +24,7 @@ void main() {
       ],
     );
     expect(timeline.phases.first.t, 0);
-    expect(timeline.beats, 175);
+    expect(timeline.beats, 162);
   });
 
   test('every stage begins where its phase does, at its start', () {
