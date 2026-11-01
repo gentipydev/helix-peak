@@ -485,10 +485,12 @@ out of view is scrolled just far enough to show it whole.
      place, alone on its own scale, then the sums: x0 + attention.
 
    Over it a note says why each part happens.
-6. **Feed-forward.** Block 1's feed-forward, in 14 beats:
-   - a copy lifts off the row in focus, x0 + attention's numbers, and stands
-     up as the 16 inputs of a network drawn left to right, numbers beside
-     them;
+6. **Feed-forward.** Block 1's feed-forward, in 13 beats:
+   - a copy of the row in focus, x0 + attention's numbers, turns straight
+     off it and stands up as the 16 inputs of a network drawn left to
+     right, numbers beside them (it lifted off the row first until
+     2026-11-01, when the user found that opening no longer needed once the
+     chart does the evening out);
    - before any weight is drawn, the block's second LayerNorm evens the
      inputs out on Scores' chart, drawn beside them where the network will
      be (`ScoresScene.eveningChart`, shared; Scores' frames proved

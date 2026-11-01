@@ -15,9 +15,10 @@ import 'stream_table.dart';
 
 /// Feed-forward, block 1's second part, as the engine runs it (the block's
 /// second LayerNorm, then `linear1`, GELU and `linear2`). It opens on
-/// Attention's last frame, x0 + attention a row a place. A copy lifts off the
-/// row in focus, evened out by the LayerNorm, and stands up as the network's
-/// inputs; its weights reach every one of the neurons, which light by what
+/// Attention's last frame, x0 + attention a row a place. A copy of the row in
+/// focus stands up off it as the network's inputs, and the LayerNorm evens
+/// them out on Scores' chart; their weights reach every one of the neurons,
+/// which light by what
 /// GELU lets through; theirs reach the outputs; and the outputs lie down onto
 /// the row in focus. Every place goes through the same network, alone: what
 /// it adds to each, alone on its own scale, and then added, block 1's output.
@@ -32,49 +33,48 @@ final class FeedForwardScene extends LmScene {
 
   static double get _beats => LmStage.feedForward.beats.toDouble();
 
-  // The copy lifts off the row in focus as the other rows go quiet, its
-  // numbers x0 + attention's, and stands up as the inputs, the table fading
-  // under the network.
+  // A copy of the row in focus, x0 + attention's numbers, stands up off it
+  // as the inputs as the other rows go quiet, the table fading under the
+  // network.
   static const (double, double) _quiet = (0.0, 0.6);
-  static const (double, double) _lift = (0.4, 1.0);
-  static const (double, double) _stand = (1.2, 2.0);
-  static const (double, double) _tableOut = (1.2, 1.7);
-  static const (double, double) _nodes = (1.9, 2.2);
+  static const (double, double) _stand = (0.3, 1.1);
+  static const (double, double) _tableOut = (0.3, 0.8);
+  static const (double, double) _nodes = (1.0, 1.3);
 
   // The block's second LayerNorm evens the inputs out on Scores' chart,
   // beside them where the network will be: less their mean, over their
   // standard deviation, then the norm's own scale and shift. The row they
   // came from keeps its numbers.
-  static const (double, double) _chartIn = (2.2, 2.5);
-  static const (double, double) _centre = (2.7, 3.3);
-  static const (double, double) _spread = (3.6, 4.2);
-  static const (double, double) _learned = (4.5, 4.8);
-  static const (double, double) _chartOut = (5.4, 5.7);
+  static const (double, double) _chartIn = (1.3, 1.6);
+  static const (double, double) _centre = (2.2, 2.8);
+  static const (double, double) _spread = (3.1, 3.7);
+  static const (double, double) _learned = (4.0, 4.3);
+  static const (double, double) _chartOut = (4.9, 5.2);
 
   // The neurons: the edges in, the signal along them, and each neuron lit.
-  static const (double, double) _hiddenIn = (5.8, 6.3);
-  static const double _fireFrom = 6.3;
-  static const (double, double) _lit = (7.0, 8.0);
-  static const double _outFrom = 8.4;
+  static const (double, double) _hiddenIn = (5.3, 5.8);
+  static const double _fireFrom = 5.8;
+  static const (double, double) _lit = (6.5, 7.5);
+  static const double _outFrom = 7.9;
 
   // The outputs: the edges out, the signal along them, and each output.
-  static const (double, double) _outIn = (8.4, 8.8);
-  static const (double, double) _outputs = (9.2, 10.0);
-  static const (double, double) _outputNumbers = (9.8, 10.3);
+  static const (double, double) _outIn = (7.9, 8.3);
+  static const (double, double) _outputs = (8.7, 9.5);
+  static const (double, double) _outputNumbers = (9.3, 9.8);
 
   // The outputs lie down on the row in focus; the network goes and the table
   // comes back.
-  static const (double, double) _networkOut = (10.4, 10.8);
-  static const (double, double) _layDown = (10.5, 11.3);
-  static const (double, double) _tableIn = (10.8, 11.4);
+  static const (double, double) _networkOut = (9.9, 10.3);
+  static const (double, double) _layDown = (10.0, 10.8);
+  static const (double, double) _tableIn = (10.3, 10.9);
 
   // What the feed-forward added, alone on its own scale, then the sums.
-  static const (double, double) _alone = (11.4, 11.8);
-  static const (double, double) _numbersOut = (11.4, 11.6);
-  static const (double, double) _gainWritten = (11.6, 11.8);
-  static const (double, double) _gainUnwritten = (12.2, 12.4);
-  static const (double, double) _add = (12.3, 12.7);
-  static const (double, double) _sumsWritten = (12.5, 12.7);
+  static const (double, double) _alone = (10.9, 11.3);
+  static const (double, double) _numbersOut = (10.9, 11.1);
+  static const (double, double) _gainWritten = (11.1, 11.3);
+  static const (double, double) _gainUnwritten = (11.7, 11.9);
+  static const (double, double) _add = (11.8, 12.2);
+  static const (double, double) _sumsWritten = (12.0, 12.2);
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -224,30 +224,26 @@ final class FeedForwardScene extends LmScene {
     ),
   );
 
-  /// The row in focus, as the network reads it: a copy lifting off its row,
-  /// evened out, and standing up as the inputs; then the outputs, lying down
-  /// onto the row.
+  /// The row in focus, as the network reads it: a copy standing up off its
+  /// row as the inputs; then the outputs, lying down onto the row.
   void _copy(Canvas canvas, LmView view, FeedForwardLayout layout, double beat) {
     final TrainingTrace trace = view.trace;
     final int width = trace.model.width;
     final int focus = view.position;
     final StreamTable table = layout.table;
     final Rect row = table.row(focus);
-    // Up and standing.
-    final double lift = _span(beat, _lift);
+    // Standing: the copy comes in as it turns, over the row's own numbers.
     final double stand = _span(beat, _stand);
     final double nodes = _span(beat, _nodes);
-    if (lift > 0 && nodes < 1) {
+    if (stand > 0 && nodes < 1) {
       final (List<double> now, double scale) = _inputsAt(view, layout, beat);
-      final Rect lifted = row.shift(Offset(0, -layout.table.layout.pitch * 0.55 * lift));
       table.strip(
         canvas,
-        from: lifted,
+        from: row,
         to: layout.inputColumn,
         f: stand,
         colors: <Color>[for (int d = 0; d < width; d++) view.inks.cell(now[d] / scale)],
-        numbers: stand > 0 ? null : now,
-        alpha: (0.2 + 0.8 * lift) * (1 - nodes),
+        alpha: through(beat, _stand.$1, _stand.$1 + 0.15) * (1 - nodes),
         outlined: true,
       );
     }
@@ -512,7 +508,7 @@ final class FeedForwardScene extends LmScene {
     final int n = view.focus.inputs;
     final String focus = StreamTable.placeName(view, view.position);
     final Evening even = evening(view);
-    if (beat < _lift.$2) {
+    if (beat < _nodes.$1) {
       return 'Block 1, feed-forward: one small network, each place on its own';
     }
     if (beat < _centre.$1) {

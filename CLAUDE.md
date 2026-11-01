@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 155 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 154 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -371,9 +371,10 @@ of 2026-10-30 and 2026-10-31:
   tile and written as a percentage where it fits. A tap on a row of it puts
   that place in focus. The table widens again to what attention adds, alone,
   then the sums, `x0 + attention`.
-- **Feed-forward** (`feed_forward_scene.dart`), block 1's: a copy lifts off the
-  row in focus, x0 + attention's numbers, and stands up as the 16 inputs of
-  a network drawn left to right. Before any weight is drawn, the block's
+- **Feed-forward** (`feed_forward_scene.dart`), block 1's: a copy of the row
+  in focus, x0 + attention's numbers, turns straight off it and stands up as
+  the 16 inputs of a network drawn left to right (no lift-off first since
+  the chart came, the user's word of 2026-11-01). Before any weight is drawn, the block's
   second LayerNorm evens the inputs out on Scores' own chart beside them
   (`ScoresScene.eveningChart`, shared, Scores pixel-identical), where the
   network will be: less their mean, over their standard deviation, then the
