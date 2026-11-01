@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 139 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 142 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -290,7 +290,9 @@ for it, two blocks of two heads (recorded again on 2026-10-30, 8,167
 parameters; schema 4 since 2026-10-31: the stream kept whole, each block's
 insides, the row each block's attention reads evened out with its LayerNorm's
 scale and shift and the weights that make the queries, keys and values, those
-whole, and the stream read out early). The forward pass is four stages, each
+whole, and the stream read out early; schema 5 since 2026-11-01: the output
+weights that mix the heads' answers back into one row, and the heads' mix
+whole). The forward pass is four stages, each
 opening on the last frame of the one before, pixel for pixel, on Embedding's
 layout, a row a place (`StreamTable`, `stream_table.dart`), the user's splits
 of 2026-10-30 and 2026-10-31:
@@ -332,7 +334,16 @@ of 2026-10-30 and 2026-10-31:
   middle of its answer from above. The places after it are struck through. Head
   2 reads in full, quicker. The heads' answers, on the row in focus, take the
   room right of the keys that the arcs leave them (at least 50 pt). Side by
-  side, they are mixed back to 16. Every place at once then fills head 1's
+  side, they go through the output weights as Scores' row goes through the
+  query's (the user's choice of 2026-11-01, over strings down to a segment
+  under the row): each head's answer stands up off the row, a slice a head
+  with Scores' cut, where Scores stood the evened row; an empty column stands
+  where it stood the query, the plate `output weights · 16 × 16` under the
+  strings (`weight_flow.dart`, promoted from Scores); each number of what
+  attention adds is made as its 16 strings land, number 1 alone and slowly
+  (insulin A's C11 at step 1: 0.11), the other 15 in one cascade; the bench
+  clears and the column lies down onto the row, where the answers sat. Every
+  place at once then fills head 1's
   map, as large as the canvas allows (head 2's is not drawn; the user's ask
   of 2026-10-31). The answers' box grows out of the row in focus into the
   map, up, down and left to the token column, as the table narrows to that
