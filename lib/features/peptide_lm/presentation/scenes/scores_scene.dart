@@ -290,15 +290,46 @@ final class ScoresScene extends LmScene {
   /// the mean, the band centres on zero; over the standard deviation, it
   /// spans one either side; the learned scale and shift move each bar
   /// a little, and the band goes.
-  void _chart(Canvas canvas, LmView view, ScoresLayout layout, List<double> now, double beat, double alpha) {
-    final RowEvening even = evening(view);
-    final double centre = _span(beat, _centre);
-    final double spread = _span(beat, _spread);
-    final double learned = _span(beat, _learned);
-    final double half = (layout.chartRight - layout.chartLeft) / 2;
-    final double zero = layout.chartLeft + half;
+  void _chart(Canvas canvas, LmView view, ScoresLayout layout, List<double> now, double beat, double alpha) =>
+      eveningChart(
+        canvas,
+        view,
+        evening(view),
+        now,
+        tileAt: (int d) => layout.tileAt(layout.inputX, d, 0),
+        left: layout.chartLeft,
+        right: layout.chartRight,
+        centre: _span(beat, _centre),
+        spread: _span(beat, _spread),
+        learned: _span(beat, _learned),
+        alpha: alpha,
+      );
+
+  /// A row being evened out, drawn as Scores draws it: its numbers [now] as
+  /// bars from zero between [left] and [right], each level with its tile
+  /// ([tileAt]), with its mean and a band of one standard deviation either
+  /// side of it, bracketed under the chart: less the mean ([centre] of the
+  /// way), the band centres on zero; over the standard deviation ([spread]),
+  /// it spans one either side; the learned scale and shift ([learned]) move
+  /// each bar a little, and the band goes. The row's own bars stay outlined
+  /// behind them.
+  static void eveningChart(
+    Canvas canvas,
+    LmView view,
+    Evening even,
+    List<double> now, {
+    required Rect Function(int d) tileAt,
+    required double left,
+    required double right,
+    required double centre,
+    required double spread,
+    required double learned,
+    required double alpha,
+  }) {
+    final double half = (right - left) / 2;
+    final double zero = left + half;
     double xOf(double v) => zero + v / even.reach * half;
-    final Rect column = layout.columnAt(layout.inputX, 0);
+    final Rect column = Rect.fromLTRB(left, tileAt(0).top, right, tileAt(now.length - 1).bottom);
     // The band and the mean, while they mean what they say.
     final double band = alpha * (1 - learned);
     final double mean = even.mean * (1 - centre);
@@ -332,7 +363,7 @@ final class ScoresScene extends LmScene {
       ..strokeWidth = 0.8
       ..color = view.inks.quiet.withValues(alpha: 0.8 * ghost);
     for (int d = 0; d < now.length; d++) {
-      final Rect tile = layout.tileAt(layout.inputX, d, 0);
+      final Rect tile = tileAt(d);
       final double thick = (tile.height * 0.5).clamp(1.0, 7.0);
       if (ghost > 0) {
         canvas.drawRect(

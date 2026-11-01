@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 154 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 155 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -372,15 +372,18 @@ of 2026-10-30 and 2026-10-31:
   that place in focus. The table widens again to what attention adds, alone,
   then the sums, `x0 + attention`.
 - **Feed-forward** (`feed_forward_scene.dart`), block 1's: a copy lifts off the
-  row in focus, and the block's second LayerNorm evens it out a step at a
-  time, as Scores worked the first: less its mean, over its standard
-  deviation, then its own scale and shift, each step its caption with the
-  row's own numbers, the row it came from keeping its own (the user's ask of
-  2026-11-01: the copy's numbers changed with nothing saying why). The run
-  keeps no scale and shift of this norm, only what it made, so the last step
-  says evened = z-score where the run's numbers show that (step 1) and names
-  the learned scale and shift otherwise. It stands up as the 16 inputs of
-  a network drawn left to right. All 1,024 weights reach the 64 neurons,
+  row in focus, x0 + attention's numbers, and stands up as the 16 inputs of
+  a network drawn left to right. Before any weight is drawn, the block's
+  second LayerNorm evens the inputs out on Scores' own chart beside them
+  (`ScoresScene.eveningChart`, shared, Scores pixel-identical), where the
+  network will be: less their mean, over their standard deviation, then the
+  norm's own scale and shift, each step its caption with the row's own
+  numbers (the user's asks of 2026-11-01: the copy's numbers changed with
+  nothing saying why, and numbers changing alone still did not explain it).
+  The run keeps no scale and shift of this norm, only what it made
+  (`Evening.plain`), so the last step says evened = z-score where the run's
+  numbers show that (step 1) and names the learned scale and shift
+  otherwise. The chart goes and the weights grow from the evened inputs. All 1,024 weights reach the 64 neurons,
   coloured by sign, the signal riding the strongest, each neuron lit by what
   GELU lets through. Then come the 16 outputs, which lie back down onto the
   row, and what every place gains, alone, then added: block 1's output.
