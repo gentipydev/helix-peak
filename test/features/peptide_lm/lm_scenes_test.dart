@@ -401,32 +401,38 @@ void main() {
       sceneOf(LmStage.feedForward).caption(view(inks, kit), timeline.frameIn(LmStage.feedForward, fed(4.5))),
       'At step 1 every scale is 1 and every shift 0: evened = z-score',
     );
-    expect(caption(LmStage.feedForward, fed(5.1)), "V3's evened row: its $width numbers go in");
-    expect(
-      caption(LmStage.feedForward, fed(6.5)),
-      '$ff neurons, each a weighted sum of the $width through GELU: '
-      '${FeedForwardScene.litNeurons(last)} light up',
-    );
-    // The curve drawn is the run's GELU: each neuron it kept is GELU of its
-    // weighted sum plus its bias, to the neuron's int8 step.
-    expect(FeedForwardScene.gelu(0), 0);
-    expect(FeedForwardScene.gelu(1), closeTo(0.841345, 1e-6));
-    expect(FeedForwardScene.gelu(-0.751791), closeTo(-0.169971, 1e-6));
+    expect(caption(LmStage.feedForward, fed(5.1)), 'Each of the $ff neurons gets all $width inputs, each × its own weight');
+    // Each neuron is GELU of its sum, the run's to its int8 step: the
+    // brightest worked out, then the one GELU silences most.
+    final List<double> z = FeedForwardScene.sums(last);
     final double hiddenStep = last.checkpoint.blocks[FeedForwardScene.block].hiddenScale;
     for (int u = 0; u < ff; u++) {
-      double sum = trace.ffInBias(last.checkpoint, FeedForwardScene.block, u);
-      for (int d = 0; d < width; d++) {
-        sum += trace.ffInput(last.checkpoint, FeedForwardScene.block, last.peptide, 3, d) *
-            trace.ffIn(last.checkpoint, FeedForwardScene.block, u, d);
-      }
       expect(
-        FeedForwardScene.gelu(sum),
+        FeedForwardScene.gelu(z[u]),
         closeTo(trace.hidden(last.checkpoint, FeedForwardScene.block, last.peptide, 3, u), hiddenStep / 2 + 1e-4),
       );
     }
-    expect(caption(LmStage.feedForward, fed(9.5)), '$width out, each a weighted sum of the $ff neurons');
-    expect(caption(LmStage.feedForward, fed(11.4)), "Back to V3's row, to be added");
-    expect(caption(LmStage.feedForward, fed(12.3)), 'What the feed-forward adds to each place: 12 rows of $width');
+    expect(FeedForwardScene.gelu(0), 0);
+    expect(FeedForwardScene.gelu(1), closeTo(0.841345, 1e-6));
+    expect(FeedForwardScene.gelu(-0.751791), closeTo(-0.169971, 1e-6));
+    final (int bright, int low) = FeedForwardScene.worked(last);
+    expect(z[bright], z.reduce(math.max));
+    expect(z[low], z.reduce(math.min));
+    String sum(double v) => fixed(v, 2);
+    String passed(double v) => fixed(FeedForwardScene.gelu(double.parse(sum(v).replaceAll('−', '-'))), 2);
+    expect(
+      caption(LmStage.feedForward, fed(7.5)),
+      'Neuron ${bright + 1} adds up its $width inputs × weights, plus its bias: ${sum(z[bright])}',
+    );
+    expect(caption(LmStage.feedForward, fed(9.5)), 'GELU decides what it passes on: GELU(${sum(z[bright])}) = ${passed(z[bright])}');
+    expect(
+      caption(LmStage.feedForward, fed(11.5)),
+      'Neuron ${low + 1} adds up to ${sum(z[low])}: GELU(${sum(z[low])}) = ${passed(z[low])}, nearly nothing',
+    );
+    expect(caption(LmStage.feedForward, fed(13)), 'All $ff the same way: ${FeedForwardScene.litNeurons(last)} light up');
+    expect(caption(LmStage.feedForward, fed(16)), '$width out, each a weighted sum of the $ff neurons, plus a bias');
+    expect(caption(LmStage.feedForward, fed(17.6)), "Back to V3's row, to be added");
+    expect(caption(LmStage.feedForward, fed(18.5)), 'What the feed-forward adds to each place: 12 rows of $width');
     expect(caption(LmStage.feedForward, 0.99), "Added: block 1's output, 12 × $width");
     // Block 2: block 1's two parts again, on block 1's output; head 1's map,
     // block 1's and then its own; what each part adds, alone, then added.

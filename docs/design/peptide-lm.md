@@ -493,7 +493,7 @@ out of view is scrolled just far enough to show it whole.
      place, alone on its own scale, then the sums: x0 + attention.
 
    Over it a note says why each part happens.
-6. **Feed-forward.** Block 1's feed-forward, in 14 beats:
+6. **Feed-forward.** Block 1's feed-forward, in 20 beats:
    - a copy of the row in focus, x0 + attention's numbers, turns straight
      off it and stands up as the 16 inputs of a network drawn left to
      right, numbers beside them (it lifted off the row first until
@@ -519,18 +519,24 @@ out of view is scrolled just far enough to show it whole.
    - all 1,024 weights reach the 64 neurons, each line coloured by the sign
      of input × weight and as bright as its size; a note says so, and where
      the weights stand (random start at step 1, the updates since);
-   - each neuron lit by what GELU lets through, a dot for each lit one (a
-     tenth of the brightest or more) along the input that pushes it
-     hardest; meanwhile GELU's curve stands small right of the neurons,
-     where the outputs will be, its line alone in the accent, and the note
-     says what GELU is: GELU(x) = x × the chance a standard normal number
-     is below x, so a positive sum passes almost whole and a negative one
-     nearly 0. On 2026-11-01 GELU was worked out instead on a large curve
-     (the brightest neuron's sum up to it and across, then the most
-     negative one's, then a point for every neuron; 20 beats), and taken
-     out the same day at the user's word: a concise note and a small curve,
-     the line alone, are enough. The test still holds every neuron the run
-     kept to GELU of its sum, to its int8 step;
+   - GELU worked out: the brightest neuron's 16 lines stand out, ringed
+     and numbered, a dot along each, its sum in the caption (insulin A's
+     C11 at step 1: neuron 36, 1.10; the evened row × its weights + its
+     bias, from the run); GELU's curve comes in right of the neurons, where
+     the outputs will be, its line in the accent, and the sum goes up to it
+     and across, GELU(1.10) = 0.95; then the neuron with the most negative
+     sum, 57, GELU(−1.83) = −0.06, nearly nothing; then every neuron at
+     once, lit by what it passes on, and the 23 that light (a tenth of the
+     brightest or more) a white dot each on the curve, a dot for each along
+     its strongest input. Notes: a weighted sum and its bias; GELU(x) = x ×
+     the chance that a standard normal number falls below x; why the bend
+     (without it the two layers are one weighted sum). Each neuron the run
+     kept is GELU of its sum to its int8 step (held by `lm_scenes_test`).
+     History, all 2026-11-01 at the user's asks: first worked out with a
+     point for every neuron (57a696e); taken out for a concise note and a
+     small curve, its line alone (226c1f8), the curve then grown to its room
+     with the lit neurons as white dots (243dce7); the three examples then
+     wanted back, to see how GELU is worked out;
    - then the 16 outputs, numbers written, each output's dot along the
      neuron that pushes it hardest;
    - they lie down onto the row in focus, and every place gains the same
