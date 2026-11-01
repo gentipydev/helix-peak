@@ -305,16 +305,34 @@ final class FeedForwardScene extends LmScene {
     }
     // Into the neurons, a dot for each neuron that lights up, along the
     // input that pushes it hardest: the largest input × weight it receives.
+    // Into the outputs, a dot for each output, along the neuron that pushes
+    // it hardest.
     final double brightest = neurons.fold<double>(0, math.max);
-    final List<(int, int, double)> pushes = <(int, int, double)>[
-      for (int u = 0; u < ff; u++)
-        if (brightest > 0 && neurons[u] >= 0.1 * brightest)
-          inEdges
-              .where(((int, int, double) e) => e.$2 == u)
-              .reduce(((int, int, double) a, (int, int, double) b) => b.$3.abs() > a.$3.abs() ? b : a),
-    ];
-    _pulses(canvas, view, pushes, layout.inputAt, layout.hiddenAt, beat, _fireFrom, _outFrom, gone);
-    _pulses(canvas, view, _strongest(outEdges), layout.hiddenAt, layout.outputAt, beat, _outIn.$2, _networkOut.$1, gone);
+    _pulses(
+      canvas,
+      view,
+      <(int, int, double)>[
+        for (int u = 0; u < ff; u++)
+          if (brightest > 0 && neurons[u] >= 0.1 * brightest) _hardest(inEdges, u),
+      ],
+      layout.inputAt,
+      layout.hiddenAt,
+      beat,
+      _fireFrom,
+      _outFrom,
+      gone,
+    );
+    _pulses(
+      canvas,
+      view,
+      <(int, int, double)>[for (int d = 0; d < width; d++) _hardest(outEdges, d)],
+      layout.hiddenAt,
+      layout.outputAt,
+      beat,
+      _outIn.$2,
+      _networkOut.$1,
+      gone,
+    );
     // The inputs, numbers to their left.
     final TextStyle face = inked(view.kit.mono, layout.textSize, view.inks.ink);
     final double inputAlpha = nodes * gone;
@@ -404,15 +422,10 @@ final class FeedForwardScene extends LmScene {
     );
   }
 
-  /// How many of the edges out carry the signal's pulses: the strongest.
-  static const int _riders = 40;
-
-  /// [edges]' strongest [_riders].
-  static List<(int, int, double)> _strongest(List<(int, int, double)> edges) =>
-      (List<(int, int, double)>.of(edges)
-            ..sort(((int, int, double) a, (int, int, double) b) => b.$3.abs().compareTo(a.$3.abs())))
-          .take(_riders)
-          .toList();
+  /// Of [edges] into node [to], the one that carries most, either way.
+  static (int, int, double) _hardest(List<(int, int, double)> edges, int to) => edges
+      .where(((int, int, double) e) => e.$2 == to)
+      .reduce(((int, int, double) a, (int, int, double) b) => b.$3.abs() > a.$3.abs() ? b : a);
 
   /// The signal riding [riders] from [start] to [end], about once a beat,
   /// each pulse as large as what its edge carries.
