@@ -96,7 +96,7 @@ final class FeedForwardScene extends LmScene {
   void paint(Canvas canvas, Size size, LmView view, TrainingFrame frame) =>
       _paint(canvas, size, view, frame.local * _beats);
 
-  /// The stage's last frame: Forward opens on it.
+  /// The stage's last frame: Block 2 opens on it.
   void paintEnd(Canvas canvas, Size size, LmView view) => _paint(canvas, size, view, _beats);
 
   void _paint(Canvas canvas, Size size, LmView view, double beat) {

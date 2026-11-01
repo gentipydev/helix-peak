@@ -45,7 +45,7 @@ typedef HeadTimes = ({double keys, double scan, double soft, double shares, doub
 final class AttentionScene extends LmScene {
   const AttentionScene();
 
-  /// The block this stage shows; Forward shows them all.
+  /// The block this stage shows; Block 2 shows the second.
   static const int block = 0;
 
   static double get _beats => LmStage.attention.beats.toDouble();

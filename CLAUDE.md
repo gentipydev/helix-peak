@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 161 beats), named on the shared
+Thirteen stages (`TrainingTimeline`, 175 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -267,7 +267,7 @@ end plays it again); no stepping between stages and no speeds (the user's
 choices of 2026-10-30, which retired the shared `TransportBar` here). The
 caption's box is held at the stage's tallest caption at its width, so the
 canvas never resizes while a stage plays. Tokenise, Shift, Embedding, Scores, Attention,
-Feed-forward, Forward, Predict, Loss, Backward and Update show one training step at the checkpoint picked ("Step N ▾": the
+Feed-forward, Block 2, Forward, Predict, Loss, Backward and Update show one training step at the checkpoint picked ("Step N ▾": the
 steps that kept every activation), and Loop plays all of them. Each stage is a painter in
 `presentation/scenes/`, a pure function of the frame; a tap or a drag on the
 canvas puts a peptide, a position or an attention head in focus. Shift
@@ -292,10 +292,10 @@ insides, the row each block's attention reads evened out with its LayerNorm's
 scale and shift and the weights that make the queries, keys and values, those
 whole, and the stream read out early; schema 5 since 2026-11-01: the output
 weights that mix the heads' answers back into one row, and the heads' mix
-whole). The forward pass is four stages, each
+whole). The forward pass is five stages, each
 opening on the last frame of the one before, pixel for pixel, on Embedding's
 layout, a row a place (`StreamTable`, `stream_table.dart`), the user's splits
-of 2026-10-30 and 2026-10-31:
+of 2026-10-30, 2026-10-31 and 2026-11-01:
 - **Scores** (`scores_scene.dart`), block 1's attention up to its shares,
   opens on x0's table. The table narrows to a strip a place, and a copy of the
   row in focus stands up on the bench at its right, evened out on a chart
@@ -405,16 +405,37 @@ of 2026-10-30 and 2026-10-31:
   are one weighted sum). Then come the 16 outputs (each output's dot along
   its strongest neuron; no GELU), which lie back down onto the row, and what
   every place gains, alone, then added: block 1's output. 20 beats.
-- **Forward** (`forward_scene.dart`), the pass layer to layer: the rows condense
-  into a network of a row a place and a column a point of the stream, flowing
-  left to right.
-  - In each attention, a line from every place to each place after it, as
-    strong as its share; in each feed-forward, each place's own line.
-  - Each node is the place read out early: the token the output layer would
-    give it if the model stopped there (the user's choice, labelled a probe),
-    faded by how sure, outlined in the tracer where right.
-  - The signal runs block 1 again, then block 2 and the final norm, and each
-    column counts the places it gets right.
+- **Block 2** (`block_two_scene.dart`), the second block on the first's
+  output, in the earlier stages' own words (the user's ask of 2026-11-01:
+  Forward was crowded and did not explain, so its concerns were split). The
+  rows go into their tiles and head 1's map lies on them, block 1's, as
+  Attention drew it (`AttentionScene.drawMapCell`, `drawMapHatch`,
+  `drawMapTiles`, shared, Attention pixel-identical); each cell then turns
+  to block 2's own share, the row in focus first, a cell at a time, then
+  every other row, its colour along the shares' ramp and its number swapped
+  half way. The map goes and the rows come back out as what block 2's
+  attention adds, alone on its own scale, then added; then what its
+  feed-forward adds, alone, then added: block 2's output. Its LayerNorms
+  and network are named in the notes, not drawn a third time. 13 beats.
+- **Forward** (`forward_scene.dart`), the place in focus's row through the
+  whole pass, layer to layer, down the canvas (`TowerLayout`): a slot a
+  point of the stream, the table's own columns, each named over it (x0, +
+  block 1's attention, ..., final LayerNorm: what Predict reads). The table
+  goes and the place's row waits, faint, in block 2's output's slot while
+  the route comes in as empty slots; x0 fills the top. A part at a time,
+  what it adds comes in as a thin strip (one scale for the four) and a copy
+  of the row above drops through it into the next slot, turning into the
+  sum, the fourth onto the row that waited; the last drop goes through the
+  final LayerNorm (mean and standard deviation in the caption; z-score at
+  step 1, its own learned scale and shift after), and that row, outlined, is
+  what Predict reads. Only the row last made writes its numbers, in the
+  ladder's own face (`TowerLayout.numberStyle`, so a 40-place peptide's
+  numbers show too). Once the table has gone a tap asks for nothing. 12
+  beats. Until 2026-11-01 Forward drew every place read out early through
+  the output layer (a probe, the user's pick of 2026-10-30) as a network of
+  tokens; it drew Predict's layer and Loss's grading before either stage
+  and at step 1 read nothing right, so it left the screen. The run still
+  keeps the readout; it is for Predict's review.
 
 Reduced motion shows each stage played through, the loop at its last step. The
 captions and the About sheet are built from the run's own numbers (R4.1).
