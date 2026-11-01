@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
@@ -356,35 +357,36 @@ final class ScoresScene extends LmScene {
       anchor: const Offset(0.5, 0),
     );
     final Paint paint = Paint();
-    // x0's bars, outlined, while the bars move away from them.
-    final double ghost = alpha * math.min(1, (centre + spread + learned) * 3) * (1 - learned * 0.5);
-    final Paint was = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.8
-      ..color = view.inks.quiet.withValues(alpha: 0.8 * ghost);
+    Color ink(double v) => v >= 0 ? view.inks.positive : view.inks.negative;
+    // Each bar hangs from the mean line, coloured by its side of it, so less
+    // the mean slides the whole row onto zero as one, nothing growing or
+    // shrinking, and over the standard deviation draws every bar in toward
+    // zero by the same factor. Behind each, faint and as thick, where it
+    // stood before the step under way: the centred row while it is drawn
+    // in, the z-scores while the scale and shift move them.
+    final List<double> centred = even.at(1, 0, 0);
+    final double drawnIn = alpha * math.min(1, spread * 4) * (1 - math.min(1, learned * 4));
+    final double scored = alpha * math.min(1, learned * 4);
     for (int d = 0; d < now.length; d++) {
       final Rect tile = tileAt(d);
       final double thick = (tile.height * 0.5).clamp(1.0, 7.0);
-      if (ghost > 0) {
-        canvas.drawRect(
-          Rect.fromLTRB(
-            math.min(zero, xOf(even.x[d])),
-            tile.center.dy - thick / 2,
-            math.max(zero, xOf(even.x[d])),
-            tile.center.dy + thick / 2,
-          ),
-          was,
-        );
-      }
-      canvas.drawRect(
-        Rect.fromLTRB(
-          math.min(zero, xOf(now[d])),
-          tile.center.dy - thick / 2,
-          math.max(zero, xOf(now[d])),
-          tile.center.dy + thick / 2,
-        ),
-        paint..color = (now[d] >= 0 ? view.inks.positive : view.inks.negative).withValues(alpha: 0.85 * alpha),
+      Rect bar(double from, double to) => Rect.fromLTRB(
+        math.min(xOf(from), xOf(to)),
+        tile.center.dy - thick / 2,
+        math.max(xOf(from), xOf(to)),
+        tile.center.dy + thick / 2,
       );
+      final Rect solid = bar(mean, now[d]);
+      // Only where the bar is not: under it, the bar would take two tones.
+      canvas.save();
+      canvas.clipRect(solid, clipOp: ui.ClipOp.difference);
+      for (final (double v, double a) in <(double, double)>[(centred[d], drawnIn), (even.z[d], scored)]) {
+        if (a > 0) {
+          canvas.drawRect(bar(0, v), paint..color = ink(v).withValues(alpha: 0.3 * a));
+        }
+      }
+      canvas.restore();
+      canvas.drawRect(solid, paint..color = ink(now[d] - mean).withValues(alpha: 0.85 * alpha));
     }
     if (band > 0) {
       canvas.drawLine(

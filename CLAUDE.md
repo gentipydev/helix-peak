@@ -299,7 +299,11 @@ of 2026-10-30 and 2026-10-31:
 - **Scores** (`scores_scene.dart`), block 1's attention up to its shares,
   opens on x0's table. The table narrows to a strip a place, and a copy of the
   row in focus stands up on the bench at its right, evened out on a chart
-  beside it: less its mean, over its standard deviation (a z-score); then
+  beside it: less its mean, over its standard deviation (a z-score), its
+  bars hanging from the mean line, so the first slides the whole row onto
+  zero as one and the second draws every bar in by the same factor, a
+  faint tail where each stood (the user's dislike of 2026-11-01: bars on
+  zero shrank and grew unevenly, x0's outlined over them); then
   the norm's learned scale and shift, written out where the chart was, a row
   a number, as the sum `z-score × scale + shift = evened` (every scale 1 and
   shift 0 at step 1). Then the row times the model's own weights, a query, a

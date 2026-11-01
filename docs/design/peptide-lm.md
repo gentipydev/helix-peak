@@ -272,8 +272,16 @@ out of view is scrolled just far enough to show it whole.
    shift, the weights that make the queries, keys and values, and those whole.
    - x0's table narrows to a strip a place, and a copy of the row in focus
      lifts off and stands up on the bench at its right, its numbers beside it;
-   - evened out (LayerNorm) on a chart beside it, x0's bars outlined as they
-     move: less the mean (C11: 0.08 at step 1), over the standard deviation (1.10), a z-score;
+   - evened out (LayerNorm) on a chart beside it, each bar hanging from the
+     mean line and coloured by its side of it, so that less the mean (C11:
+     0.08 at step 1) slides the whole row onto zero as one, no bar growing
+     or shrinking, and over the standard deviation (1.10) draws every bar
+     in toward zero by the same factor, a z-score, a faint tail of the same
+     thickness left where each bar stood (only where the bar is not). Until
+     2026-11-01 the bars stood on zero, x0's outlined over them: less the
+     mean shrank the positive bars and grew the negative ones, and a bar
+     grown past its outline looked thinner beyond it, which the user
+     disliked in Feed-forward's copy of the chart;
      then the learned scale and shift, written out where the chart was, a
      row a number, headed so it reads as the sum z-score × scale + shift =
      evened (the user found "a learned scale and shift a column" unclear,
@@ -493,11 +501,12 @@ out of view is scrolled just far enough to show it whole.
      chart does the evening out);
    - before any weight is drawn, the block's second LayerNorm evens the
      inputs out on Scores' chart, drawn beside them where the network will
-     be (`ScoresScene.eveningChart`, shared; Scores' frames proved
-     byte-identical at steps 1 and 21, at 440 × 697 and 375 × 560): the
-     caption names it with the row's mean and standard deviation; less the
-     mean, the band centres on zero; over the standard deviation, z-scores;
-     then the norm's own scale and shift, and the band goes. Added on
+     be (`ScoresScene.eveningChart`, shared, so Scores' bars hang from the
+     mean too): the caption names it with the row's mean and standard
+     deviation; less the mean, the bars, the mean line and the band slide
+     onto zero as one; over the standard deviation, z-scores; then the
+     norm's own scale and shift, the z-scores left faint behind the bars,
+     and the band goes. Added on
      2026-11-01 at the user's asks: the copy's numbers had changed in half a
      second with nothing saying why, and a first fix, the numbers changing
      on the lying copy step by step, still did not make it clear. The run
