@@ -55,46 +55,49 @@ final class BackwardScene extends LmScene {
   static const (double, double) _fly = (1.4, 2.1);
   static const (double, double) _barsIn = (1.6, 2.2);
 
+  // The guess read: the second caption, and what came next named on its row.
+  static const double _guess = 2.4;
+
   // p − y: what the target lacks of 100%, then every other share; then the
   // bars condense into a column where the logits were made, which slides
   // back to where Predict made them.
-  static const (double, double) _lack = (2.5, 3.2);
-  static const (double, double) _excess = (3.3, 4.0);
-  static const (double, double) _condense = (4.1, 4.8);
+  static const (double, double) _lack = (3.5, 4.2);
+  static const (double, double) _excess = (4.3, 5.0);
+  static const (double, double) _condense = (5.1, 5.8);
 
   // Back through the output layer: the place's last row stands at the left
   // with empty slots for its gradient beside it; the errors run back along
   // the strings, the largest number of the gradient alone and slowly, the
   // rest in one cascade.
-  static const (double, double) _columnsIn = (4.8, 5.4);
+  static const (double, double) _columnsIn = (5.8, 6.4);
   static const WeightFlow _flow = WeightFlow(
-    alone: <(double, double)>[(5.6, 6.4)],
-    cascade: (6.8, 7.8),
-    webOut: (11.0, 11.4),
+    alone: <(double, double)>[(6.6, 7.4)],
+    cascade: (7.8, 8.8),
+    webOut: (12.0, 12.4),
     firstRelax: 0.3,
   );
 
   // The weights' own gradients: each string relit by its error times the
   // number at its start, the strongest named; then every place's, averaged.
-  static const (double, double) _own = (8.6, 9.2);
-  static const (double, double) _strongest = (9.2, 9.6);
-  static const (double, double) _mean = (9.9, 10.6);
+  static const (double, double) _own = (9.6, 10.2);
+  static const (double, double) _strongest = (10.2, 10.6);
+  static const (double, double) _mean = (10.9, 11.6);
 
   // The climb: the bench clears, the gradient lies down into the ladder's
   // last slot as the route comes in; then a part at a time from the last.
-  static const (double, double) _benchOut = (11.0, 11.4);
-  static const (double, double) _lieDown = (11.1, 11.8);
-  static const (double, double) _routeIn = (11.3, 11.8);
-  static const double _climbFrom = 12.0;
-  static const double _climbTo = 17.5;
+  static const (double, double) _benchOut = (12.0, 12.4);
+  static const (double, double) _lieDown = (12.1, 12.8);
+  static const (double, double) _routeIn = (12.3, 12.8);
+  static const double _climbFrom = 13.0;
+  static const double _climbTo = 18.5;
 
   // Every place: the ladder goes, the place's x0 gradient goes home to its
   // row of the table, and every other place's comes in; last, all the
   // gradients' length against the clip.
-  static const (double, double) _ladderOut = (18.3, 18.8);
-  static const (double, double) _home = (18.3, 19.1);
-  static const (double, double) _othersIn = (18.6, 19.2);
-  static const double _totalFrom = 19.4;
+  static const (double, double) _ladderOut = (19.3, 19.8);
+  static const (double, double) _home = (19.3, 20.1);
+  static const (double, double) _othersIn = (19.6, 20.2);
+  static const double _totalFrom = 20.4;
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -441,13 +444,24 @@ final class BackwardScene extends LmScene {
         }
         final double named = bars * (id == target ? 1 - lack : 1 - excess);
         if (named > 0 && percentNumber(p[id]) != '0.0') {
-          view.kit.draw(
+          final Size written = view.kit.draw(
             canvas,
             percent(p[id]),
             words.copyWith(color: words.color!.withValues(alpha: named)),
             Offset(drawn.right + 3, drawn.center.dy),
             anchor: const Offset(0, 0.5),
           );
+          // What came next, named on its row while the guess is read.
+          final double told = named * through(beat, _guess, _guess + 0.3);
+          if (id == target && told > 0) {
+            view.kit.draw(
+              canvas,
+              targetLabel,
+              inked(view.kit.sans, 9, view.inks.truth, alpha: told),
+              Offset(drawn.right + 3 + written.width + 8, drawn.center.dy),
+              anchor: const Offset(0, 0.5),
+            );
+          }
         }
       }
     }
@@ -495,6 +509,9 @@ final class BackwardScene extends LmScene {
     _columns(canvas, view, layout, beat, gone);
     _strings(canvas, view, layout, beat, gone);
   }
+
+  /// What the target's row is called while the guess is read.
+  static const String targetLabel = 'what truly came next';
 
   /// The error column's name.
   static const String errorTitle = 'p − y';
@@ -1012,9 +1029,17 @@ final class BackwardScene extends LmScene {
     if (beat < _back.$2) {
       return 'To lower the loss, ${nats(trace.loss(view.step))}, which way should each weight move?';
     }
-    if (beat < _lack.$1) {
+    if (beat < _guess) {
       final double cost = LossScene.surprises(view)[view.peptide][view.position];
-      return "$focus's cost first, ${LossScene.cost(cost)} nats: $next was given ${percent(p[view.target])}";
+      return 'Start at one place, $focus: its cost, ${LossScene.cost(cost)} nats, '
+          "is −ln of $next's ${percent(p[view.target])}";
+    }
+    if (beat < _lack.$1) {
+      final int best = PredictScene.top(view, view.position);
+      return best == view.target
+          ? "$focus's guess: $next on top at ${percent(p[best])}, what truly came next"
+          : "$focus's guess: ${trace.token(best)} on top at ${percent(p[best])}; "
+                'the true next, $next, got ${percent(p[view.target])}';
     }
     if (beat < _excess.$1) {
       final String lack = signedNumber(p[view.target] - 1);

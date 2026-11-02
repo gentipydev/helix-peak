@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 192 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 193 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -550,7 +550,7 @@ the line alone; on the batch a line puts its peptide in focus, and a target
 of the focus line its place; while the key swings, or the line shrinks, a
 tap asks for nothing.
 
-**Backward** (`backward_scene.dart`, 20 beats, the user's picks of
+**Backward** (`backward_scene.dart`, 21 beats, the user's picks of
 2026-11-02) is the forward pass played back, along the same strings and the
 same ladder, carrying how the loss would change instead of numbers. It opens
 on Loss's last frame, pixel for pixel (`LossScene.paintEnd`, `LossFade`,

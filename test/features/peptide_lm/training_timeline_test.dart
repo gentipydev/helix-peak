@@ -24,7 +24,7 @@ void main() {
       ],
     );
     expect(timeline.phases.first.t, 0);
-    expect(timeline.beats, 192);
+    expect(timeline.beats, 193);
   });
 
   test('every stage begins where its phase does, at its start', () {
