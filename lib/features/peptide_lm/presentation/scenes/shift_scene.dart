@@ -276,14 +276,14 @@ final class ShiftScene extends LmScene {
         continue;
       }
       final Rect plate = drawTag(canvas, view, name, Offset(layout.tagStart, top), alpha: alpha);
-      _role(canvas, view, role, plate, layout.right + 6, alpha);
+      drawRole(canvas, view, role, plate, layout.right + 6, alpha);
     }
   }
 
-  /// The first of [texts] that fits beside [plate], as far as [end], in the
-  /// quiet ink: in the plate's face, else a size smaller; the shorter ones
-  /// for a narrow phone.
-  static void _role(Canvas canvas, LmView view, List<String> texts, Rect plate, double end, double alpha) {
+  /// What a tag's group is for, beside its [plate]: the first of [texts]
+  /// that fits, as far as [end], in the quiet ink: in the plate's face, else
+  /// a size smaller; the shorter ones for a narrow phone.
+  static void drawRole(Canvas canvas, LmView view, List<String> texts, Rect plate, double end, double alpha) {
     final double room = end - plate.right - 8;
     final double size = view.kit.label.fontSize ?? 11;
     for (final String text in texts) {
