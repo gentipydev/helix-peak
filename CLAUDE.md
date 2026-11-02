@@ -297,7 +297,12 @@ checkpoint and its logits whole, for Predict). The forward pass is four
 stages, each
 opening on the last frame of the one before, pixel for pixel, on Embedding's
 layout, a row a place (`StreamTable`, `stream_table.dart`), the user's splits
-of 2026-10-30 and 2026-10-31:
+of 2026-10-30 and 2026-10-31. Scores, Attention and Feed-forward work block 1
+alone and name it on what they label: `block 1 · query weights · 16 × 16`,
+`block 1 · head 1 · values`, `block 1 · head 1 · shares in % · 22 × 22`,
+`x0 + block 1's attention`, `what block 1's feed-forward adds` (the user's
+ask of 2026-11-02, after the stages read as the whole model until Forward
+showed a block 2); block 2 is Forward's:
 - **Scores** (`scores_scene.dart`), block 1's attention up to its shares,
   opens on x0's table. The table narrows to a strip a place, and a copy of the
   row in focus stands up on the bench at its right, evened out on a chart
@@ -320,13 +325,17 @@ of 2026-10-30 and 2026-10-31:
   one cascade each), the later strings passing behind the columns already
   made. Landed strings stay, faint, a weight on each (colour its sign,
   strength its size), until the next part's slots come: the part's 16 × 16
-  weights, named on a plate under them, `query weights · 16 × 16`, with where
+  weights, named on a plate under them, `block 1 · query weights · 16 × 16`, with where
   they stand, `random start (seed 0), no update yet` at step 1 and
   `random start (seed 0), then N training updates` later. Each column then parts into a slice a head (head 1
   numbers 1–8, head 2 9–16: why the width must divide by the heads, and the 8
   of √8). Head 1's query and key lie down by the row in focus and every place's
-  key comes out of its row. One score is worked out on the bench, the top
-  one: query over key, their products number by number, the sum, over √8; then
+  key comes out of its row, under head 1's tag (`block 1 · head 1 · query and
+  keys`); x0's tag steps aside just before it comes and is back once head 2's
+  tag has gone in Attention (the head tag lay on its tail, `22 × 16` showing
+  through its plate; the user's pick of 2026-11-02). One score is worked out
+  on the bench, the top one: query over key, their products number by
+  number, the sum, over √8; then
   the query passes every key up to its own. Softmax makes the scores shares,
   a bar each across the bench, where the stage ends (the √8 slide that showed
   why the scores are divided was removed at the user's word, 2026-10-31, as
@@ -363,7 +372,7 @@ of 2026-10-30 and 2026-10-31:
   written); numbers 2–16 come, written, with a caption (the user's pick, no
   pass over them), and the column goes where Scores stood the evened row,
   with Scores' cut and the heads named. Then an empty column
-  stands where Scores stood the query, the plate `output weights · 16 × 16`
+  stands where Scores stood the query, the plate `block 1 · output weights · 16 × 16`
   under the strings (`weight_flow.dart`, promoted from Scores); each number
   of what attention adds is made as its 16 strings land, number 1 alone and
   slowly ("Output number 1": insulin A's C11 at step 1, 0.11, which only
@@ -379,9 +388,9 @@ of 2026-10-30 and 2026-10-31:
   with the shares Scores found, then every other row, each share on a soft
   tile and written as a percentage where it fits. A tap on a row of it puts
   that place in focus. The table widens again to what attention adds, alone,
-  then the sums, `x0 + attention`.
+  then the sums, `x0 + block 1's attention`.
 - **Feed-forward** (`feed_forward_scene.dart`), block 1's: a copy of the row
-  in focus, x0 + attention's numbers, turns straight off it and stands up as
+  in focus, `x0 + block 1's attention`, turns straight off it and stands up as
   the 16 inputs of a network drawn left to right (no lift-off first since
   the chart came, the user's word of 2026-11-01). Before any weight is drawn, the block's
   second LayerNorm evens the inputs out on Scores' own chart beside them
@@ -423,9 +432,17 @@ of 2026-10-30 and 2026-10-31:
   comes in as empty slots; x0 fills the top. A part at a time, what it adds
   comes in as a thin strip (one scale for the four) and a copy of the row
   above drops through it into the next slot, turning into the sum: block 1's
-  two onto the row that waited, then block 2's, whose attention's caption
-  sets its head 1's top read against block 1's (insulin A's C11 at step 1:
-  Q5 12% against S9 23%). The last drop goes through the final LayerNorm
+  two onto the row that waited, then block 2's. Block 2's attention reads
+  every place's row as block 1 left it (the note: each block after the first
+  reads the rows the one before left), so its caption follows its head 1's
+  top read back into block 1: `In block 2, C11 reads T8 46%, which in block 1
+  read C6 37%` (insulin A at step 200; at step 1 Q5 12%, which read E4 33%).
+  Where the place read is the one in focus, or read itself most in block 1,
+  there is no second hop, and it sets the top read against block 1's,
+  `In block 2, V3 reads V3 51% (block 1: G1 89%)` (step 200; 430 of the run's 1,260
+  places and steps; the two-hop replaced that comparison wherever there is
+  one, the call the user left to me on 2026-11-02, for both do not fit two
+  lines at 375). The last drop goes through the final LayerNorm
   (mean and standard deviation in the caption; z-score at step 1, its own
   learned scale and shift after), and that row, outlined, is what Predict
   reads. Only the row last made writes its numbers, in the ladder's own face

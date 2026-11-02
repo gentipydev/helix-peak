@@ -312,7 +312,7 @@ out of view is scrolled just far enough to show it whole.
      next part's slots come, faint (quieter still while the row flows): the
      part's 16 × 16 weights, a weight on each, in the colour of its sign, as
      strong as it against the part's largest, named on a plate under them
-     (`query weights · 16 × 16`, as x0's table is named) with where they
+     (`block 1 · query weights · 16 × 16`, as x0's table is named) with where they
      stand: `random start (seed 0), no update yet` at step 1, the run's
      `attn_in` there being PyTorch's draw from seed 0, uniform within ±0.31,
      every bias 0 (the checkpoint is kept before its step's update); later,
@@ -323,7 +323,12 @@ out of view is scrolled just far enough to show it whole.
      width must divide by the heads (the model refuses a width they do not,
      `d_model % nhead`) and that this 8 is the √8 of the score;
    - head 1's query and key lie down by the row in focus, every place's key
-     comes out of its row, and the places after it are struck through;
+     comes out of its row, and the places after it are struck through; head
+     1's tag, `block 1 · head 1 · query and keys`, names them over the keys,
+     and x0's tag steps aside just before it comes (13.9–14.2), back once
+     head 2's tag has gone in Attention (4.55–4.8): until 2026-11-02 the head
+     tag lay on x0's, `22 × 16` showing through its plate, and the user chose
+     this over leaving the head tags unnamed;
    - one score worked out, the top one (S9 at step 1): the query over the key,
      their products number by number, Σ = 3.60, ÷ √8 = 1.27, which flies to
      its place; then the query passes every key up to <bos>;
@@ -443,8 +448,8 @@ out of view is scrolled just far enough to show it whole.
      its labels, where Scores stood the evened row (stood up off the row
      before the worked answer until 2026-11-02, "The heads' 8 + 8 numbers,
      side by side: 16"; now the worked answer leaves them there); an empty
-     column stands where Scores stood the query, the plate `output weights ·
-     16 × 16` under the
+     column stands where Scores stood the query, the plate `block 1 · output
+     weights · 16 × 16` under the
      strings with where they stand (`random start (seed 0), no update yet` at
      step 1); the row flows through as through the query's weights, number 1
      alone and slowly ("Output number 1: all 16 × their weights, summed:
@@ -506,11 +511,17 @@ out of view is scrolled just far enough to show it whole.
        "sharpest row" caption was weighed and left out: at step 1 it always
        names row 1's two-way split.
    - the table widens again, out of its tiles, to what attention adds to each
-     place, alone on its own scale, then the sums: x0 + attention.
+     place, alone on its own scale, then the sums: x0 + block 1's attention.
+   - What the stage names of the block it names as block 1's: its head tags,
+     the value and output weights' plates, head 1's map (`block 1 · head 1 ·
+     shares in % · 22 × 22`), what block 1's attention adds and the sums (the
+     user's ask of 2026-11-02: Scores, Attention and Feed-forward work block 1
+     alone, and until then only Scores' first caption and Feed-forward's said
+     so, Attention never).
 
    Over it a note says why each part happens.
 6. **Feed-forward.** Block 1's feed-forward, in 20 beats:
-   - a copy of the row in focus, x0 + attention's numbers, turns straight
+   - a copy of the row in focus, x0 + block 1's attention, turns straight
      off it and stands up as the 16 inputs of a network drawn left to
      right, numbers beside them (it lifted off the row first until
      2026-11-01, when the user found that opening no longer needed once the
@@ -573,10 +584,21 @@ out of view is scrolled just far enough to show it whole.
      strip (the four on one scale, so they can be set against each other)
      and a copy of the row above drops through it into the next slot,
      turning into the sum as it passes: block 1's two land on the row that
-     waited, then block 2's go on. Block 2's attention's caption sets its
-     head 1's top read against block 1's, as Attention's map reads them
-     (insulin A's C11: Q5 12% against S9 23% at step 1, T8 46% against G1
-     55% at step 200): its weights, and so its maps, are its own.
+     waited, then block 2's go on. Block 2's attention reads every place's
+     row as block 1 left it, so a place it reads brings what that place read
+     there: its caption follows head 1's top read back a block, as
+     Attention's map reads them, "In block 2, C11 reads T8 46%, which in
+     block 1 read C6 37%" (insulin A at step 200; at step 1 Q5 12%, which
+     read E4 33%). Where the place read is the one in focus, or read itself
+     most in block 1, there is no second hop and the caption sets the top
+     read against block 1's: "In block 2, V3 reads V3 51% (block 1: G1 89%)"
+     (step 200). Over the run's 1,260 places and steps, 830 follow the two
+     hops. Until 2026-11-02 the caption was only that comparison, "Block 2's
+     attention: C11 reads Q5 12% (block 1: S9 23%)"; the two together do not
+     fit two lines at 375, and the two hops say why block 2 reads otherwise
+     (the call the user left to me). "Block 2's attention: …" took three
+     lines at 375 wherever the place read had read <bos>, so it opens
+     "In block 2, …".
    - The last drop goes through the final LayerNorm: the caption gives the
      row's mean and standard deviation (C11 at step 1: 0.19 and 1.23), then,
      from the run's numbers (`Evening.plain`), evened = z-score at step 1 and
@@ -587,7 +609,7 @@ out of view is scrolled just far enough to show it whole.
      here. Once the table has gone a tap asks for nothing: the ladder is one
      place's.
    - Notes: each part reads the row as it stands and adds to it, never
-     replacing it; each block after the first reads the row the one before
+     replacing it; each block after the first reads the rows the one before
      left, with weights of its own; one last evening out, so the output layer
      reads rows of one size; every place goes down the same pass at once,
      and Predict turns the last row into a guess.
