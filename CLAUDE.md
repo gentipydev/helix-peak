@@ -530,10 +530,12 @@ cost over it, the others quiet (honey at half strength, the user's choice
 over residue colours, whose lightness skews heights). The line then shrinks
 into its place among the batch's lines, the other five come in, their
 padding dimmed and never scored, and their bars rise, on one scale for
-every step (`LossScene.ceiling`, 5 nats). Last, the bars level out into
-their mean, the step's loss, brightening to the loss's full honey, each
-leaving a ghost where it stood above it, and a legend names the loss and
-the even guess. The last caption names what the
+every step (`LossScene.ceiling`, 5 nats). Last, their mean, the step's
+loss, as LayerNorm's chart draws a row's mean: a line in the loss's full
+honey draws itself across every line's bars, named "mean" once, the bars
+left at their own heights, and a legend names the loss and the even guess
+(the bars levelling out into the mean, with ghosts, was tried first and
+left the user asking why every bar changed; don't bring it back). The last caption names what the
 checkpoint was kept for passing (worse than an even guess at step 1; first
 under it, under residue counts, under residue pairs, under one nat, under a
 tenth; at step 200, the floor, 0.060), and where the `<bos>` places hold

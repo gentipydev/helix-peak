@@ -778,12 +778,18 @@ out of view is scrolled just far enough to show it whole.
      checkpoint, 4.66, up to 5 nats). At step 1 they stand 2.06–4.66 around
      the dashed line; at step 49 most are under it; at step 200 only six
      stand, each peptide's first, ln 6 apiece.
-   - *the mean* (4.4 beats; picked over a mean line drawn across): the bars
-     level out into their mean, water finding its level, brightening from
-     quiet to the loss's full honey, so the one number the step lowers is
-     the strongest mark; each leaves a ghost where it stood above it, in the
-     quiet honey (clipped to above the level, as Scores' chart keeps its
-     tails); a legend, honey `loss 3.220` and dashed `even guess 3.045`.
+   - *the mean* (4.4 beats): a line in the loss's full honey draws itself
+     across every line's bars at their mean, the step's loss, named "mean"
+     once, at the first line's end, as LayerNorm's chart in Scores and
+     Feed-forward draws a row's mean; the bars stay at their own heights,
+     quiet; a legend, the honey line `loss 3.220` and dashed `even guess
+     3.045`; the note's first line, "The honey line is the mean of all 180
+     bars: the step's loss". The user first picked the bars levelling out
+     into the mean (water finding its level, ghosts above, brightening to
+     full honey) over a mean line, then, seeing it, asked why every bar
+     changed: nothing named the pour, and it looked as if each target's
+     cost had changed. Offered the mean line or the pour with words, they
+     chose the line.
 
    The first cut (14 beats) went from the curve straight to all six lines
    and levelled them in full honey; the user found it crowded and asked why
