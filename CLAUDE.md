@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 170 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 177 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -503,9 +503,41 @@ row's own, and p(y), the share the guess gave it, the number Loss scores
 and certain guess is one square filling its lit slot: the top guess is right
 at 0 of insulin A's 22 places at step 1, 21 at step 200 (`<bos>`'s row
 spreads a sixth over the six first residues). Shares are softmax of the whole
-logits, as Attention's are of the whole scores; Loss and Backward still read
-the stored probabilities. On the bench a tap asks for nothing; on the map a
+logits, as Attention's are of the whole scores; Backward still reads the
+stored probabilities. On the bench a tap asks for nothing; on the map a
 row, or its answer, puts its place in focus.
+
+**Loss** (`loss_scene.dart`, 14 beats, the user's picks of 2026-11-02)
+opens on Predict's last frame, pixel for pixel (`PredictScene.paintEnd`,
+`PredictFade`), and scores each guess by −ln p(y), then takes their mean
+(`LossLayout`, on Predict's): every cell of the map but what came next goes,
+and each row's lit slot slides along its row to the key, beside its y, the
+focus row's outline narrowing with it. On the bench that leaves, −ln p(y) is
+worked out on its curve, as Feed-forward works GELU (`LossChart`): p(y) from
+0 to 100% along, nats up, the curve drawn from a sure, right guess up; an
+even guess, 1/21 a token, costs ln 21 = 3.045 on a dashed line across it;
+then the place in focus's square flies down to the p(y) axis and a guide
+runs up to the curve and across to its cost (insulin A's C11 at step 1:
+1.34%, −ln 0.0134 = 4.31, the sum worked from the share as written). Then
+every target at once, paying Shift's y off (the user's choice of
+2026-10-30): the key's y tiles swing down, kept upright
+(`StreamTable.turnedAt`), into the peptide's line of target y, as Shift drew
+it, the other lines come in, their padding dimmed and never scored, and a
+bar in the loss's honey rises on each of the 180 targets to its −ln p(y),
+on one scale for every step (`LossScene.ceiling`, 5 nats), the even guess
+dashed across each line. Last, the bars level out into their mean, the
+step's loss, each leaving a faint ghost where it stood above it, and a
+legend names the loss and the even guess. The last caption names what the
+checkpoint was kept for passing (worse than an even guess at step 1; first
+under it, under residue counts, under residue pairs, under one nat, under a
+tenth; at step 200, the floor, 0.060), and where the `<bos>` places hold
+over half the loss the note says so (93% at step 200: from `<bos>` alone no
+model can know which of six peptides comes). Each p(y) is Predict's own
+share: −ln of it is the run's kept loss for that target within 5 × 10⁻⁴ at
+every checkpoint, and their mean the step's loss (`lm_scenes_test`, the live
+check). On the table a row puts its place in focus; on the batch a line puts
+its peptide in focus, and a target of the focus line its place; while the
+key swings a tap asks for nothing.
 
 Reduced motion shows each stage played through, the loop at its last step. The
 captions and the About sheet are built from the run's own numbers (R4.1).

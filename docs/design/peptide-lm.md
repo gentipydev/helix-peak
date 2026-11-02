@@ -721,14 +721,76 @@ out of view is scrolled just far enough to show it whole.
        `<bos>`'s row spreads a sixth over the six first residues, the
        floor Loss explains.
    - Shares are softmax of the logits as the run keeps them, whole (as
-     Attention's are of the scores); Loss and Backward still read the stored
-     probabilities, to the nearest 255th. Every number is the run's: the last
+     Attention's are of the scores), and so are Loss's; Backward still reads
+     the stored probabilities, to the nearest 255th. Every number is the run's: the last
      row, the output layer's weights and biases as the step found them, the
      logits. On the bench a tap asks for nothing; on the map a row, or its
      answer, puts its place in focus.
-9. **Loss.** A ghost bar rises to certainty at the target, the gap bracketed
-   and read off the −ln p curve; every target's surprise fills a strip a
-   peptide and pools into the step's loss, set against ln 21.
+9. **Loss.** Each guess scored by −ln p(y), and their mean, the step's
+   loss: 14 beats, opening on Predict's last frame, pixel for pixel. The
+   user's ask of 2026-11-02 was to start where Predict leaves off, reuse the
+   earlier stages' parts and make the stage far clearer. It had opened on a
+   bar chart of the 21 tokens in the old look, worked "−ln 0.01 = 4.315" for
+   a share of 1.34% (the share rounded, the cost not), boxed the answer in a
+   white dashed ghost, and ended on 180 honey strips nearly alike at step 1;
+   it read the stored probabilities, not Predict's shares. Now, four parts,
+   the user's three picks (all recommended):
+   - *p(y) alone* (2 beats): every cell of the map but what came next goes,
+     and each row's lit slot slides along its row to the key, beside its y
+     (the map's last column); the focus row's outline narrows with its slot,
+     clear of the chart to come, its tile ringed instead
+     (`outlineToken`, `drawToken`'s ring, shared). "Loss reads one share a
+     place, p(y): here from 1.3% to 8.1%"; the note answers why the other
+     20 still count: all 21 add to 100%, so p(y) rises only as they fall.
+   - *−ln p(y), worked* (4.4 beats; picked over a scale labelled in both
+     units, and over words alone): the curve on the bench the gather left,
+     drawn as Feed-forward draws GELU's (`LossChart`): p(y) along, from 0 to
+     100%, nats up; the curve draws itself up from a sure, right guess; an
+     even guess, 1/21 a token, costs ln 21 = 3.045 at every place, a dashed
+     line across the chart where the curve meets it at 1/21; then the place
+     in focus's square flies from its slot down to the p(y) axis, a dot as
+     it lands, and a guide runs up to the curve and across to the nats axis,
+     each number written where it meets its axis over the axis's own
+     ("C11 gave S 1.34%: −ln 0.0134 = 4.31 nats, over an even guess"; the
+     sum is worked from the share as written, to three figures, so it reads
+     right). The note: 0 for a sure, right guess; each halving of p(y) adds
+     ln 2 = 0.69 nats; a sure miss costs most.
+   - *every target* (3.8 beats; picked over the key as six columns, and
+     over the peptide in focus alone): the key's y tiles swing down,
+     counter-clockwise about their moving middle, kept upright
+     (`StreamTable.turnedAt`, `turn`'s maths), into the focus peptide's line
+     of target y, as Shift drew it, the user's choice of 2026-10-30 paid
+     off; the other lines come in under their names, Shift's tag `target y`
+     with its gloss ("−ln p(y), a bar each", `ShiftScene.drawRole`,
+     promoted), padding dimmed (`ShiftScene.dimmed`), the focus line on
+     Shift's card and its target in focus ringed. A bar in the loss's honey
+     rises on each of the 180 targets to its −ln p(y), on one scale for every
+     step (`LossScene.ceiling`: the largest cost at any checkpoint, 4.66, up
+     to 5 nats), the even guess dashed across each line. At step 1 they
+     stand 2.06–4.66 around the dashed line; at step 49 most are under it;
+     at step 200 only six stand, each peptide's first, ln 6 apiece.
+   - *the mean* (3.8 beats; picked over a mean line drawn across): the bars
+     level out into their mean, water finding its level, each leaving a
+     faint ghost where it stood above it (clipped to above the level, as
+     Scores' chart keeps its tails); a legend, honey `loss 3.220` and dashed
+     `even guess 3.045`. The caption names what the checkpoint was kept for
+     passing (its `why`): worse than an even guess at step 1, then the first
+     step under it (13), under residue counts (21), under residue pairs
+     (49), under one nat (66), under a tenth (95), and at 200 "the floor
+     here is 0.060". The note calls it cross-entropy, says Backward comes
+     next, and where the `<bos>` places hold over half the loss says how
+     much (63% at step 95, 93% at 200: from `<bos>` alone no model can know
+     which of six peptides comes).
+
+   Each p(y) is Predict's own share, softmax of the whole logits; −ln of it
+   is the loss the run kept for that target within 5 × 10⁻⁴ (the stored
+   u2 step, 1.2 × 10⁻⁴ in fact) at every checkpoint, and their mean is the
+   step's loss to 10⁻⁴ (`lm_scenes_test` on the toy run,
+   `expectTheLoss` in the live check on the curated one). On the table a row
+   puts its place in focus; on the batch a line puts its peptide in focus,
+   and a target of the focus line its place; while the key swings a tap asks
+   for nothing. Every caption keeps to two lines at 375, 402 and 440 wide, at
+   every peptide, place and step, and every note to its own lines.
 10. **Backward.** The bars turn into p − y; the error comes down the tower,
    each module's gradient norm filling its bar and each position's glowing at
    every point of the stream (by step 200 only `<bos>`'s, the unknowable first
