@@ -21,12 +21,15 @@ import 'stream_table.dart';
 /// leaves, −ln p(y) is worked out on its curve: an even guess, 1/21 a token,
 /// scores ln 21, on a dashed line across it; the place in focus's square
 /// flies down to the p(y) axis, and a guide runs up to the curve and across
-/// to its cost in nats. Then every target at once: the key's y tiles swing
-/// down into the peptide's line of target y, as Shift drew it, the other
-/// peptides' lines come in, their padding dimmed and never scored, and a bar
-/// in the loss's honey rises on each target to its −ln p(y), the even guess
-/// dashed across each line. Last, the bars level out into their mean, each
-/// leaving a faint ghost where it stood above it: the step's loss.
+/// to its cost in nats. Then the peptide alone: the key's y tiles swing down
+/// into its line of target y, as Shift drew it, across the canvas, and a bar
+/// rises on each target to its −ln p(y) on the cost's axis, the even guess
+/// dashed across; the place in focus's bar in the loss's full honey, the
+/// others quieter. Then the whole batch: the line shrinks into its place
+/// among Shift's lines, the others come in, their padding dimmed and never
+/// scored, and their bars rise. Last, the bars level out into their mean,
+/// brightening to the loss's full honey, each leaving a ghost where it stood
+/// above it: the step's loss.
 ///
 /// Every number is the run's: each p(y) is Predict's own share, softmax of
 /// the whole logits, and −ln of it is the loss the run kept for that target;
@@ -55,20 +58,31 @@ final class LossScene extends LmScene {
   static const (double, double) _up = (4.4, 4.8);
   static const (double, double) _across = (4.8, 5.2);
 
-  // Every target: the bench and the table clear; the key's y tiles swing
-  // down into the focus peptide's line; the other lines come in; every bar
-  // rises.
+  // The peptide alone: the bench and the table clear; the key's y tiles
+  // swing down into the peptide's line, across the canvas; the tag, its name
+  // and the cost's axis come; its bars rise.
   static const (double, double) _benchOut = (6.4, 6.8);
   static const (double, double) _swing = (6.6, 7.6);
-  static const (double, double) _batchIn = (7.4, 8.0);
-  static const (double, double) _rise = (8.2, 9.2);
+  static const (double, double) _soloIn = (7.4, 7.8);
+  static const (double, double) _soloRise = (7.9, 8.9);
 
-  // The mean: the bars level out; the loss joins the legend.
-  static const (double, double) _level = (10.2, 11.4);
-  static const (double, double) _lossIn = (11.2, 11.6);
+  // The batch: the line shrinks into its place among Shift's lines; the
+  // others come in, and their bars rise.
+  static const (double, double) _zoom = (9.8, 10.8);
+  static const (double, double) _batchIn = (10.4, 11.0);
+  static const (double, double) _rise = (11.0, 11.8);
+
+  // The mean: the bars level out, brightening to the loss's full honey; the
+  // loss joins the legend.
+  static const (double, double) _level = (12.6, 13.8);
+  static const (double, double) _lossIn = (13.6, 14.0);
+
+  /// How far toward the loss's honey a bar is drawn before the mean: quiet,
+  /// so the place in focus's bar, at full honey, and then the mean stand out.
+  static const double _quiet = 0.5;
 
   /// How strong the ghost of a bar's old height is, once levelled.
-  static const double _ghost = 0.28;
+  static const double _ghost = 0.6;
 
   /// A bar's width, of its column's.
   static const double _barWidth = 0.7;
@@ -115,7 +129,7 @@ final class LossScene extends LmScene {
       _key(canvas, view, layout, beat, 1 - out);
       _chart(canvas, view, layout, beat, 1 - out);
     }
-    _batch(canvas, view, layout, beat);
+    _targets(canvas, view, layout, beat);
   }
 
   // ------------------------------------------------------------------ data
@@ -390,101 +404,176 @@ final class LossScene extends LmScene {
   /// The radius of the worked place's dot on the p(y) axis.
   static const double _dot = 2.5;
 
-  // ------------------------------------------------------------- the batch
+  // ----------------------------------------------------------- the targets
 
-  /// Every target at once, as Shift drew target y: the key's tiles swinging
-  /// down into the peptide in focus's line, the other lines coming in, their
-  /// padding dimmed; a bar on each target rising to its −ln p(y), the even
-  /// guess dashed across each line; then the bars levelling out into their
-  /// mean, each old height left as a faint ghost above the level; the
-  /// legend under it all.
-  void _batch(Canvas canvas, LmView view, LossLayout layout, double beat) {
+  /// A bar's colour before the mean: the loss's honey, quieter.
+  static Color quietBar(LmView view) => Color.lerp(view.inks.zero, view.inks.error, _quiet)!;
+
+  /// The targets, as Shift drew target y. First the peptide in focus alone,
+  /// across the canvas: the key's tiles swing down into its line, its name,
+  /// the tag and the cost's axis come, and its bars rise. Then the line
+  /// shrinks into its place among the batch's, the others come in with their
+  /// padding dimmed, and their bars rise; last, the bars level out into their
+  /// mean. The legend under it all.
+  void _targets(Canvas canvas, LmView view, LossLayout layout, double beat) {
     if (beat < _swing.$1) {
       return;
     }
     final TrainingTrace trace = view.trace;
     final double swing = _span(beat, _swing);
+    final double alone = _span(beat, _soloIn);
+    final double zoom = _span(beat, _zoom);
     final double shown = _span(beat, _batchIn);
-    final double rise = _span(beat, _rise);
-    final double level = _span(beat, _level);
     final int focus = view.peptide;
     final int n = view.focus.inputs;
+    if (alone > 0) {
+      final Rect plate = drawTag(canvas, view, batchTag, Offset(layout.table.layout.left, layout.table.layout.tagTop), alpha: alone);
+      ShiftScene.drawRole(canvas, view, _batchRole, plate, layout.size.width - 10, alone);
+    }
+    // The batch: the card the line in focus lands on, the other lines, and
+    // the line in focus's padding.
     if (shown > 0) {
-      final Rect plate = drawTag(canvas, view, batchTag, Offset(layout.table.layout.left, layout.table.layout.tagTop), alpha: shown);
-      ShiftScene.drawRole(canvas, view, _batchRole, plate, layout.size.width - 10, shown);
-    }
-    for (int p = 0; p < trace.peptides.length; p++) {
-      final TracePeptide peptide = trace.peptides[p];
-      final bool focused = p == focus;
-      if (shown <= 0) {
-        continue;
-      }
-      if (focused) {
-        canvas.drawRRect(
-          RRect.fromRectAndRadius(layout.card(p), const Radius.circular(6)),
-          Paint()..color = view.inks.card.withValues(alpha: view.inks.card.a * shown),
-        );
-      }
-      view.kit.draw(
-        canvas,
-        '${peptide.source.label} · ${peptide.sequence.length} aa',
-        inked(view.kit.sans, 10, focused ? view.inks.ink : view.inks.quiet, alpha: shown),
-        Offset(layout.batchLeft, layout.lineTop(p)),
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(layout.card(focus), const Radius.circular(6)),
+        Paint()..color = view.inks.card.withValues(alpha: view.inks.card.a * shown),
       );
-      for (int i = focused ? n : 0; i < layout.columns; i++) {
-        final double padded = i < peptide.inputs ? 1 : 1 - ShiftScene.dimmed;
-        drawToken(canvas, view, layout.tile(p, i), trace.targets[p][i], alpha: shown * padded);
+      for (int p = 0; p < trace.peptides.length; p++) {
+        final TracePeptide peptide = trace.peptides[p];
+        if (p != focus) {
+          _name(canvas, view, p, Offset(layout.batchLeft, layout.lineTop(p)), shown);
+        }
+        for (int i = p == focus ? n : 0; i < layout.columns; i++) {
+          final double padded = i < peptide.inputs ? 1 : 1 - ShiftScene.dimmed;
+          drawToken(canvas, view, layout.tile(p, i), trace.targets[p][i], alpha: shown * padded);
+        }
       }
     }
+    // The line in focus: swung down from the key, alone across the canvas,
+    // then shrinking into its place.
+    _name(canvas, view, focus, layout.focusName(zoom), alone);
     for (int i = 0; i < n; i++) {
-      drawToken(canvas, view, layout.swung(i, swing), trace.targetAt(focus, i));
+      drawToken(canvas, view, swing < 1 ? layout.swung(i, swing) : layout.focusTile(i, zoom), trace.targetAt(focus, i));
     }
-    outlineToken(canvas, layout.tile(focus, view.position), view.inks.signal, alpha: shown);
-    if (rise > 0) {
-      _bars(canvas, view, layout, rise, level);
-    }
-    _legend(canvas, view, layout, rise, _span(beat, _lossIn));
+    outlineToken(canvas, layout.focusTile(view.position, zoom), view.inks.signal, alpha: alone);
+    _axis(canvas, view, layout, zoom, alone * (1 - zoom));
+    _bars(canvas, view, layout, beat);
+    _legend(canvas, view, layout, _span(beat, _soloRise), _span(beat, _lossIn));
   }
 
-  /// Each target's bar, [rise] of the way up to its −ln p(y), and [level] of
-  /// the way from there to their mean; the even guess dashed across each
-  /// line over them.
-  void _bars(Canvas canvas, LmView view, LossLayout layout, double rise, double level) {
+  /// Peptide [p]'s name over its line, as Shift names it.
+  static void _name(Canvas canvas, LmView view, int p, Offset at, double alpha) {
+    if (alpha <= 0) {
+      return;
+    }
+    final TracePeptide peptide = view.trace.peptides[p];
+    view.kit.draw(
+      canvas,
+      '${peptide.source.label} · ${peptide.sequence.length} aa',
+      inked(view.kit.sans, 10, p == view.peptide ? view.inks.ink : view.inks.quiet, alpha: alpha),
+      at,
+    );
+  }
+
+  /// The cost's axis at the left of the line alone, in whole nats, as the
+  /// curve's; shrinking with the line, [zoom] of the way into the batch, as
+  /// it goes.
+  void _axis(Canvas canvas, LmView view, LossLayout layout, double zoom, double alpha) {
+    if (alpha <= 0) {
+      return;
+    }
+    final double x = layout.focusTile(0, zoom).left - 4;
+    final double base = layout.focusBase(zoom) - 1;
+    final double scale = layout.focusScale(zoom);
+    final double top = base - layout.chart.ceiling * scale;
+    canvas.drawLine(
+      Offset(x, base),
+      Offset(x, top),
+      Paint()
+        ..strokeWidth = 1
+        ..color = view.inks.rule.withValues(alpha: alpha),
+    );
+    final TextStyle numbers = inked(view.kit.mono, 8.5, view.inks.quiet, alpha: alpha);
+    for (int n = 0; n <= layout.chart.ceiling.round(); n++) {
+      view.kit.draw(canvas, '$n', numbers, Offset(x - 4, base - n * scale), anchor: const Offset(1, 0.5));
+    }
+    view.kit.draw(
+      canvas,
+      'nats',
+      inked(view.kit.sans, 8.5, view.inks.quiet, alpha: alpha),
+      Offset(x, top - 6),
+      anchor: const Offset(0.5, 1),
+    );
+  }
+
+  /// Each target's bar, rising to its −ln p(y) (the line in focus's first,
+  /// alone, then the others'), and levelling out into their mean; quiet
+  /// until then but the place in focus's, and brightening to the loss's full
+  /// honey as they level, each old height left as a ghost above the level;
+  /// the even guess dashed across each line over them; and, while the line
+  /// is alone, the place in focus's cost over its bar.
+  void _bars(Canvas canvas, LmView view, LossLayout layout, double beat) {
     final TrainingTrace trace = view.trace;
     final List<List<double>> costs = surprises(view);
     final double mean = trace.loss(view.step);
-    final double scale = layout.barRoom / layout.chart.ceiling;
-    final Paint bar = Paint()..color = view.inks.error.withValues(alpha: 0.92 * rise);
-    final Paint ghost = Paint()..color = view.inks.error.withValues(alpha: _ghost * level * rise);
+    final double zoom = _span(beat, _zoom);
+    final double level = _span(beat, _level);
+    final Color quiet = quietBar(view);
+    final Color levelled = Color.lerp(quiet, view.inks.error, level)!;
     for (int p = 0; p < trace.peptides.length; p++) {
-      final double base = layout.base(p) - 1;
+      final bool focused = p == view.peptide;
+      final double rise = _span(beat, focused ? _soloRise : _rise);
+      if (rise <= 0) {
+        continue;
+      }
+      final double base = (focused ? layout.focusBase(zoom) : layout.base(p)) - 1;
+      final double scale = focused ? layout.focusScale(zoom) : layout.batchScale;
+      Rect tile(int i) => focused ? layout.focusTile(i, zoom) : layout.tile(p, i);
+      final Paint ghost = Paint()..color = quiet.withValues(alpha: _ghost * level * rise);
       for (int i = 0; i < costs[p].length; i++) {
-        final Rect tile = layout.tile(p, i);
+        final Rect under = tile(i);
         final double was = costs[p][i];
         final double height = (was + (mean - was) * level) * rise * scale;
-        final double width = layout.step * _barWidth;
-        final Rect drawn = Rect.fromLTWH(tile.center.dx - width / 2, base - height, width, height);
+        final double width = under.width * _barWidth;
+        final Rect drawn = Rect.fromLTWH(under.center.dx - width / 2, base - height, width, height);
         if (level > 0 && was > mean) {
           canvas.drawRect(Rect.fromLTRB(drawn.left, base - was * rise * scale, drawn.right, drawn.top), ghost);
         }
         if (height > 0) {
+          final Color colour = focused && i == view.position ? view.inks.error : levelled;
           canvas.drawRRect(
             RRect.fromRectAndCorners(drawn, topLeft: const Radius.circular(1), topRight: const Radius.circular(1)),
-            bar,
+            Paint()..color = colour.withValues(alpha: 0.92 * rise),
           );
         }
       }
       final double y = base - trace.uniform * scale;
       dashedLine(
         canvas,
-        Offset(layout.tile(p, 0).left, y),
-        Offset(layout.tile(p, costs[p].length - 1).right, y),
+        Offset(tile(0).left, y),
+        Offset(tile(costs[p].length - 1).right, y),
         Paint()
           ..strokeWidth = 1
           ..color = view.inks.quiet.withValues(alpha: 0.85 * rise),
         dash: 3,
         gap: 2,
       );
+    }
+    final double written = through(beat, _soloRise.$2 - 0.2, _soloRise.$2) * (1 - zoom);
+    if (written > 0) {
+      // On a backing of the ground, where it crosses the even guess's line.
+      final double was = costs[view.peptide][view.position];
+      final Rect under = layout.focusTile(view.position, zoom);
+      final TextStyle style = inked(view.kit.mono, 9, view.inks.error, alpha: written);
+      final Size size = view.kit.layout(cost(was), style).size;
+      final Offset at = Offset(under.center.dx, layout.focusBase(zoom) - 1 - was * layout.focusScale(zoom) - 3);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(at.dx - size.width / 2 - 2, at.dy - size.height - 1, size.width + 4, size.height + 2),
+          const Radius.circular(2),
+        ),
+        Paint()..color = view.inks.ground.withValues(alpha: 0.85 * written),
+      );
+      view.kit.draw(canvas, cost(was), style, at, anchor: const Offset(0.5, 1));
     }
   }
 
@@ -538,9 +627,10 @@ final class LossScene extends LmScene {
 
   // ------------------------------------------------------------------- taps
 
-  /// While the table shows, a row puts its place in focus; once the batch
-  /// has come, a line puts its peptide in focus, and a target of the focus
-  /// line its place; while the key swings, a tap asks for nothing.
+  /// While the table shows, a row puts its place in focus; while the line
+  /// in focus is alone, one of its targets; once the batch has come, a line
+  /// puts its peptide in focus, and a target of the focus line its place;
+  /// while the key swings, or the line shrinks, a tap asks for nothing.
   @override
   LmHit? hitAt(Size size, LmView view, Offset at, TrainingFrame frame) {
     final double beat = frame.local * _beats;
@@ -548,7 +638,13 @@ final class LossScene extends LmScene {
       final int? i = StreamTable(size, view).placeAt(at);
       return i == null ? null : FocusPosition(i);
     }
-    return beat < _batchIn.$1 ? null : LossLayout(size, view).hitAt(at);
+    if (beat < _soloIn.$1) {
+      return null;
+    }
+    if (beat < _zoom.$1) {
+      return LossLayout(size, view).soloHitAt(at);
+    }
+    return beat < _zoom.$2 ? null : LossLayout(size, view).hitAt(at);
   }
 
   @override
@@ -576,6 +672,12 @@ final class LossScene extends LmScene {
       ),
       (
         _benchOut.$1,
+        _zoom.$1,
+        'A bar a place: its cost, −ln p(y), read off the curve.\n'
+            'Over the dashed line, a guess did worse than an even one.',
+      ),
+      (
+        _zoom.$1,
         _level.$1,
         'Every place of every peptide is scored the same way.\n'
             'Padding is no data: its ${grouped(trace.pads)} places are never scored.',
@@ -620,21 +722,22 @@ final class LossScene extends LmScene {
       return '${StreamTable.placeName(view, view.position)} gave ${trace.token(view.target)} $percentage: '
           '−ln $share = $written nats, $than';
     }
+    if (beat < _soloRise.$1) {
+      return "Target y, as Shift made it: ${view.focus.source.label}'s ${grouped(view.focus.inputs)} targets";
+    }
+    if (beat < _zoom.$1) {
+      final List<double> line = surprises(view)[view.peptide];
+      return "Each target's −ln p(y), as ${StreamTable.placeName(view, view.position)}'s: "
+          'from ${cost(line.reduce(math.min))} to ${cost(line.reduce(math.max))} nats';
+    }
     if (beat < _rise.$1) {
-      return 'Target y, as Shift made it: ${grouped(trace.targetCount)} targets across '
+      return 'The whole batch: ${grouped(trace.targetCount)} targets across '
           '${spelled(trace.peptides.length)} peptides';
     }
     if (beat < _level.$1) {
-      double least = double.infinity;
-      double most = 0;
-      for (final List<double> costs in surprises(view)) {
-        for (final double cost in costs) {
-          least = math.min(least, cost);
-          most = math.max(most, cost);
-        }
-      }
-      return "Every target's −ln p(y), as ${StreamTable.placeName(view, view.position)}'s: "
-          'from ${cost(least)} to ${cost(most)} nats';
+      final List<double> all = <double>[for (final List<double> line in surprises(view)) ...line];
+      return "All ${grouped(trace.targetCount)} targets' −ln p(y): "
+          'from ${cost(all.reduce(math.min))} to ${cost(all.reduce(math.max))} nats';
     }
     return mean(view);
   }
@@ -694,9 +797,12 @@ final class LossChart {
 /// cells and the key as Predict left them, each row's lit slot gathering into
 /// the map's last column, beside its y; the bench, between the rows' tiles
 /// and that column, over the places' rows, holds −ln p(y)'s chart. Then the
-/// batch, as Shift drew target y, in Shift's columns: a line a peptide, its
-/// name over a room for its targets' bars over its tiles, padding and all;
-/// the lines centred in the room the table had, and the legend under them.
+/// peptide in focus alone, its targets across the canvas, a column each, the
+/// cost's axis at their left and their bars as tall as the room keeps in
+/// proportion; then the batch, as Shift drew target y, in Shift's columns: a
+/// line a peptide, its name over a room for its targets' bars over its tiles,
+/// padding and all; the lines centred in the room the table had, and the
+/// legend under them, where it stays.
 final class LossLayout {
   LossLayout(this.size, LmView view)
     : predict = PredictLayout(size, view),
@@ -742,6 +848,21 @@ final class LossLayout {
     final double block = lines * pitch - _lineGap;
     firstLine = top + math.max(0.0, (bottom - top - block) / 2);
     legendTop = firstLine + block + _legendGap;
+    batchScale = barRoom / ceiling;
+
+    // The peptide in focus alone, over the room the batch takes: its targets
+    // across the canvas, the axis's numbers at their left; bars no taller
+    // than in proportion to the line's width.
+    final double axis = view.kit.layout('8', inked(view.kit.mono, 8.5, view.inks.quiet)).width + _axisGap;
+    final double across = right - batchLeft - axis;
+    soloStep = math.min(_mostSoloStep, across / n);
+    soloLeft = batchLeft + axis + (across - n * soloStep) / 2;
+    soloTileHeight = math.max(soloStep, math.min(soloStep * _tallTile, _mostSoloTile));
+    final double soloRoom = legendTop - _legendGap - top;
+    final double soloFixed = ShiftLayout.label + _soloAbove + soloTileHeight;
+    soloBarRoom = math.max(_leastBars, math.min(soloRoom - soloFixed, n * soloStep * _soloAspect));
+    soloLineTop = top + math.max(0.0, (soloRoom - soloFixed - soloBarRoom) / 2);
+    soloScale = soloBarRoom / ceiling;
   }
 
   final Size size;
@@ -769,6 +890,15 @@ final class LossLayout {
   static const double _tallTile = 1.25;
   static const double _mostTile = 14;
 
+  /// The line alone: its columns at the most, its tiles at the most, from
+  /// the axis's numbers to the first column, from its name to its bars' room,
+  /// and how tall that room is, of the line's width, at most.
+  static const double _mostSoloStep = 30;
+  static const double _mostSoloTile = 22;
+  static const double _axisGap = 12;
+  static const double _soloAbove = 16;
+  static const double _soloAspect = 1.0;
+
   /// Between two lines, the bars' room at the least and at the most, from
   /// the canvas's foot, from the lines to the legend, and between its items.
   static const double _lineGap = 8;
@@ -791,10 +921,38 @@ final class LossLayout {
   late final double tileHeight;
 
   /// A line's room for its bars, from one line's top to the next, and where
-  /// the first starts.
+  /// the first starts; how tall a nat is drawn.
   late final double barRoom;
   late final double pitch;
   late final double firstLine;
+  late final double batchScale;
+
+  /// The line in focus alone: where its first column starts, how wide each
+  /// is, how tall its tiles; where it starts, its name; its bars' room, and
+  /// how tall a nat is drawn there.
+  late final double soloLeft;
+  late final double soloStep;
+  late final double soloTileHeight;
+  late final double soloLineTop;
+  late final double soloBarRoom;
+  late final double soloScale;
+
+  /// The line alone's tiles' top, which its bars stand on.
+  double get soloBase => soloLineTop + ShiftLayout.label + _soloAbove + soloBarRoom;
+
+  /// The line alone's tile at place [i].
+  Rect soloTile(int i) => Rect.fromLTWH(soloLeft + i * soloStep, soloBase, soloStep, soloTileHeight);
+
+  /// The line in focus's tile at place [i], [z] of the way from alone to its
+  /// place in the batch; its tiles' top, how tall a nat is drawn, and where
+  /// its name is, the same way.
+  Rect focusTile(int i, double z) => z <= 0 ? soloTile(i) : Rect.lerp(soloTile(i), tile(_view.peptide, i), z)!;
+
+  double focusBase(double z) => soloBase + (base(_view.peptide) - soloBase) * z;
+
+  double focusScale(double z) => soloScale + (batchScale - soloScale) * z;
+
+  Offset focusName(double z) => Offset(batchLeft, soloLineTop + (lineTop(_view.peptide) - soloLineTop) * z);
 
   /// The legend: its top, its height, and how far its first item reaches.
   late final double legendTop;
@@ -828,16 +986,28 @@ final class LossLayout {
   Rect card(int p) => Rect.fromLTRB(batchLeft - 6, lineTop(p) - 3, batchLeft + columns * step + 6, base(p) + tileHeight + 3);
 
   /// The peptide in focus's target at place [i], [s] of the way from its
-  /// tile in the key, standing, to its tile on its line, lying, turned as a
-  /// strip turns and kept upright.
+  /// tile in the key, standing, to its tile on its line alone, lying: the
+  /// column tips over to the left about its last tile, which moves the
+  /// least, so the whole stays on the canvas, each tile kept upright.
   Rect swung(int i, double s) {
     final int n = _view.focus.inputs;
-    final Rect lying = Rect.fromLTWH(batchLeft, base(_view.peptide), n * step, tileHeight);
-    final Rect key = predict.answerTile(0);
-    final Rect standing = Rect.fromLTRB(key.left, table.row(0).top, key.right, table.row(n - 1).bottom);
-    final Offset centre = StreamTable.turnedAt(from: lying, to: standing, f: 1 - s, along: (i + 0.5) / n);
+    final Rect key = predict.answerTile(n - 1);
+    final Offset pivot = Offset.lerp(key.center, soloTile(n - 1).center, s)!;
+    final double angle = -math.pi / 2 - math.pi / 2 * s;
+    final double reach = (n - 1 - i) * (table.layout.pitch + (soloStep - table.layout.pitch) * s);
+    final Offset centre = pivot + Offset(math.cos(angle), math.sin(angle)) * reach;
     final double chip = key.width;
-    return Rect.fromCenter(center: centre, width: chip + (step - chip) * s, height: chip + (tileHeight - chip) * s);
+    return Rect.fromCenter(center: centre, width: chip + (soloStep - chip) * s, height: chip + (soloTileHeight - chip) * s);
+  }
+
+  /// What a tap on the line alone asks for: one of its targets puts its
+  /// place in focus.
+  LmHit? soloHitAt(Offset at) {
+    if (at.dy < soloLineTop || at.dy >= soloBase + soloTileHeight + 3) {
+      return null;
+    }
+    final int i = ((at.dx - soloLeft) / soloStep).floor();
+    return i >= 0 && i < _view.focus.inputs ? FocusPosition(i) : null;
   }
 
   /// What a tap on the batch asks for: a line puts its peptide in focus, a

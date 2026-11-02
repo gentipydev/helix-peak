@@ -557,11 +557,18 @@ void main() {
     expect(double.parse(written), closeTo(given[last.target], given[last.target] * 5e-3));
     expect(spent, LossScene.cost(-math.log(double.parse(written))));
     expect(caption(LmStage.loss, loss(5)), startsWith('V3 gave $next $percentage: −ln $written = $spent nats, '));
-    expect(caption(LmStage.loss, loss(7)), 'Target y, as Shift made it: 25 targets across two peptides');
-    final List<double> costs = <double>[for (final List<double> line in LossScene.surprises(last)) ...line];
+    // The peptide in focus alone, then the whole batch.
+    expect(caption(LmStage.loss, loss(7)), "Target y, as Shift made it: toy A's 12 targets");
+    final List<double> line = LossScene.surprises(last).first;
     expect(
       caption(LmStage.loss, loss(9)),
-      "Every target's −ln p(y), as V3's: from ${LossScene.cost(costs.reduce(math.min))} to ${LossScene.cost(costs.reduce(math.max))} nats",
+      "Each target's −ln p(y), as V3's: from ${LossScene.cost(line.reduce(math.min))} to ${LossScene.cost(line.reduce(math.max))} nats",
+    );
+    expect(caption(LmStage.loss, loss(10.5)), 'The whole batch: 25 targets across two peptides');
+    final List<double> costs = <double>[for (final List<double> line in LossScene.surprises(last)) ...line];
+    expect(
+      caption(LmStage.loss, loss(12)),
+      "All 25 targets' −ln p(y): from ${LossScene.cost(costs.reduce(math.min))} to ${LossScene.cost(costs.reduce(math.max))} nats",
     );
     expect(caption(LmStage.loss, 0.99), 'The loss, their mean: ${nats(trace.loss(last.step))} nats; the floor here is ${nats(trace.floor)}');
     // At each checkpoint, the mean says what the step was kept for passing.
@@ -689,9 +696,10 @@ void main() {
       expect((key! as FocusPosition).position, i, reason: 'row $i, its answer');
     }
     // Loss: while the table shows, a row puts its place in focus, every place
-    // reachable; while the key swings, a tap asks for nothing; on the batch,
-    // a line puts its peptide in focus, and a target of the focus line its
-    // place.
+    // reachable; while the key swings, or the line shrinks, a tap asks for
+    // nothing; on the line alone, a target puts its place in focus; on the
+    // batch, a line puts its peptide in focus, and a target of the focus line
+    // its place.
     for (final double beat in <double>[1, 4.5]) {
       final Set<int> places = <int>{};
       for (double y = 0; y < size.height; y += 1) {
@@ -708,6 +716,15 @@ void main() {
       isNull,
     );
     final LossLayout scored = LossLayout(size, scene);
+    final TrainingFrame alone = timeline.frameIn(LmStage.loss, 9 / LmStage.loss.beats);
+    for (int i = 0; i < trace.peptides.first.inputs; i++) {
+      final LmHit? hit = sceneOf(LmStage.loss).hitAt(size, scene, scored.soloTile(i).center, alone);
+      expect((hit! as FocusPosition).position, i, reason: 'target $i alone');
+    }
+    expect(
+      sceneOf(LmStage.loss).hitAt(size, scene, scored.soloTile(0).center, timeline.frameIn(LmStage.loss, 10.3 / LmStage.loss.beats)),
+      isNull,
+    );
     final TrainingFrame batch = timeline.frameIn(LmStage.loss, 1);
     for (int i = 0; i < trace.peptides.first.inputs; i++) {
       final LmHit? hit = sceneOf(LmStage.loss).hitAt(size, scene, scored.tile(0, i).center, batch);
@@ -1517,7 +1534,7 @@ void main() {
     expect(ceiling, greaterThanOrEqualTo(trace.uniform));
   });
 
-  testWidgets("Loss's chart keeps to its bench, its batch to the canvas, and the key swings onto its line", (
+  testWidgets("Loss's chart keeps to its bench, its line alone and its batch to the canvas, the key swinging onto the one and shrinking into the other", (
     WidgetTester tester,
   ) async {
     final (LmInks inks, LmKit kit) = await _drawing(tester);
@@ -1553,16 +1570,36 @@ void main() {
           for (int q = 0; q + 1 < trace.peptides.length; q++) {
             expect(layout.card(q).bottom, lessThan(layout.lineTop(q + 1) - 3), reason: '$where line $q');
           }
-          // The key's tiles swing from where Predict left them onto the
-          // line of the peptide in focus.
+          // The line alone: across the canvas, its tiles larger than the
+          // batch's where it has fewer places, its bars' room taller, under
+          // the tag's place and over the legend.
+          expect(layout.soloLineTop, greaterThanOrEqualTo(table.layout.tableTop), reason: where);
+          expect(layout.soloTile(0).left, greaterThan(layout.batchLeft), reason: where);
+          expect(layout.soloTile(n - 1).right, lessThanOrEqualTo(size.width), reason: where);
+          expect(layout.soloBase + layout.soloTileHeight, lessThanOrEqualTo(layout.legendTop), reason: where);
+          expect(layout.soloStep, greaterThanOrEqualTo(layout.step - 1e-9), reason: where);
+          expect(layout.soloBarRoom, greaterThanOrEqualTo(layout.barRoom), reason: where);
+          // The key's tiles swing from where Predict left them onto the line
+          // alone, which then shrinks into its place in the batch, its scale
+          // and tiles' top with it.
           for (int i = 0; i < n; i++) {
             final Rect start = layout.swung(i, 0);
             final Rect end = layout.swung(i, 1);
             expect((start.center - layout.predict.answerTile(i).center).distance, lessThan(1e-6), reason: '$where tile $i');
             expect(start.width, closeTo(layout.predict.answerTile(i).width, 1e-9), reason: '$where tile $i');
-            expect((end.center - layout.tile(p, i).center).distance, lessThan(1e-6), reason: '$where tile $i');
-            expect(end.height, closeTo(layout.tile(p, i).height, 1e-9), reason: '$where tile $i');
+            expect((end.center - layout.soloTile(i).center).distance, lessThan(1e-6), reason: '$where tile $i');
+            expect(end.height, closeTo(layout.soloTile(i).height, 1e-9), reason: '$where tile $i');
+            // Swinging, it never leaves the canvas.
+            for (double s = 0; s <= 1; s += 0.05) {
+              final Offset at = layout.swung(i, s).center;
+              expect(at.dx, inInclusiveRange(0, size.width), reason: '$where tile $i at $s');
+              expect(at.dy, inInclusiveRange(0, size.height), reason: '$where tile $i at $s');
+            }
+            expect(layout.focusTile(i, 0), layout.soloTile(i));
+            expect(layout.focusTile(i, 1), layout.tile(p, i));
           }
+          expect(layout.focusBase(1), closeTo(layout.base(p), 1e-9), reason: where);
+          expect(layout.focusScale(1), closeTo(layout.batchScale, 1e-9), reason: where);
         }
       }
     }

@@ -176,17 +176,6 @@ final class StreamTable {
     canvas.restore();
   }
 
-  /// Where the point [along] a row (0 its first end, 1 its last) lies [f] of
-  /// the way from lying across [from] to standing in [to], as [turn] carries
-  /// it: for what turns with the row but stays upright, a tile's letter.
-  static Offset turnedAt({required Rect from, required Rect to, required double f, required double along}) {
-    final Offset centre = Offset.lerp(from.center, to.center, f)!;
-    final double length = from.width + (to.height - from.width) * f;
-    final double x = length * (along - 0.5);
-    final double angle = math.pi / 2 * f;
-    return centre + Offset(x * math.cos(angle), x * math.sin(angle));
-  }
-
   /// How far right a [strip] from [from] to [to] reaches at [f], turning
   /// about its middle.
   static double stripRight(Rect from, Rect to, double f) {
