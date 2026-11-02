@@ -727,7 +727,7 @@ out of view is scrolled just far enough to show it whole.
      logits. On the bench a tap asks for nothing; on the map a row, or its
      answer, puts its place in focus.
 9. **Loss.** Each guess scored by −ln p(y), and their mean, the step's
-   loss: 14 beats, opening on Predict's last frame, pixel for pixel. The
+   loss: 17 beats, opening on Predict's last frame, pixel for pixel. The
    user's ask of 2026-11-02 was to start where Predict leaves off, reuse the
    earlier stages' parts and make the stage far clearer. It had opened on a
    bar chart of the 21 tokens in the old look, worked "−ln 0.01 = 4.315" for
@@ -755,25 +755,45 @@ out of view is scrolled just far enough to show it whole.
      sum is worked from the share as written, to three figures, so it reads
      right). The note: 0 for a sure, right guess; each halving of p(y) adds
      ln 2 = 0.69 nats; a sure miss costs most.
-   - *every target* (3.8 beats; picked over the key as six columns, and
-     over the peptide in focus alone): the key's y tiles swing down,
-     counter-clockwise about their moving middle, kept upright
-     (`StreamTable.turnedAt`, `turn`'s maths), into the focus peptide's line
-     of target y, as Shift drew it, the user's choice of 2026-10-30 paid
-     off; the other lines come in under their names, Shift's tag `target y`
-     with its gloss ("−ln p(y), a bar each", `ShiftScene.drawRole`,
-     promoted), padding dimmed (`ShiftScene.dimmed`), the focus line on
-     Shift's card and its target in focus ringed. A bar in the loss's honey
-     rises on each of the 180 targets to its −ln p(y), on one scale for every
-     step (`LossScene.ceiling`: the largest cost at any checkpoint, 4.66, up
-     to 5 nats), the even guess dashed across each line. At step 1 they
-     stand 2.06–4.66 around the dashed line; at step 49 most are under it;
-     at step 200 only six stand, each peptide's first, ln 6 apiece.
-   - *the mean* (3.8 beats; picked over a mean line drawn across): the bars
-     level out into their mean, water finding its level, each leaving a
-     faint ghost where it stood above it (clipped to above the level, as
-     Scores' chart keeps its tails); a legend, honey `loss 3.220` and dashed
-     `even guess 3.045`. The caption names what the checkpoint was kept for
+   - *the peptide alone* (3.4 beats): the key's y tiles tip over to the
+     left about the column's last tile, which moves least, so a long
+     peptide stays on the canvas, each tile upright, into the peptide's line
+     of target y, as Shift drew it, alone across the canvas (insulin A:
+     tiles ~18 pt, letters 14 pt), the user's choice of 2026-10-30 paid off;
+     Shift's tag `target y` with its gloss ("−ln p(y), a bar each",
+     `ShiftScene.drawRole`, promoted), the cost's axis in whole nats at the
+     line's left, as the curve's. A bar rises on each target to its −ln
+     p(y), as tall as the line is wide at most, the even guess dashed
+     across; the place in focus's bar in the loss's full honey with its cost
+     over it (4.31 for C11 at step 1, on a ground backing where it crosses
+     the dashed line), every other bar quiet, honey at half strength. No
+     mean here: the step's loss is the batch's, said once. At step 200 one
+     bar stands, `<bos>`'s, 1.80.
+   - *the batch* (2.8 beats; picked over the key as six columns, and over
+     the peptide in focus alone): the line shrinks into its place among
+     Shift's lines, its axis with it; the other five come in under their
+     names, padding dimmed (`ShiftScene.dimmed`), the focus line on Shift's
+     card and its target in focus ringed, and their bars rise, on one scale
+     for every step (`LossScene.ceiling`: the largest cost at any
+     checkpoint, 4.66, up to 5 nats). At step 1 they stand 2.06–4.66 around
+     the dashed line; at step 49 most are under it; at step 200 only six
+     stand, each peptide's first, ln 6 apiece.
+   - *the mean* (4.4 beats; picked over a mean line drawn across): the bars
+     level out into their mean, water finding its level, brightening from
+     quiet to the loss's full honey, so the one number the step lowers is
+     the strongest mark; each leaves a ghost where it stood above it, in the
+     quiet honey (clipped to above the level, as Scores' chart keeps its
+     tails); a legend, honey `loss 3.220` and dashed `even guess 3.045`.
+
+   The first cut (14 beats) went from the curve straight to all six lines
+   and levelled them in full honey; the user found it crowded and asked why
+   the whole dataset was there (one step is one batch, so the step's loss
+   is all six's), then asked for the peptide alone first and the dataset
+   after, and for the bars not to be honey everywhere. Residue colours were
+   rendered beside the honey and a quiet honey, and set aside: the
+   palette's lightness skews the bars' heights, a residue's colour reads as
+   the residue's cost when the cost is the guess's at that place, and the
+   levelled mean became a rainbow. The caption names what the checkpoint was kept for
      passing (its `why`): worse than an even guess at step 1, then the first
      step under it (13), under residue counts (21), under residue pairs
      (49), under one nat (66), under a tenth (95), and at 200 "the floor
@@ -789,8 +809,10 @@ out of view is scrolled just far enough to show it whole.
    `expectTheLoss` in the live check on the curated one). On the table a row
    puts its place in focus; on the batch a line puts its peptide in focus,
    and a target of the focus line its place; while the key swings a tap asks
-   for nothing. Every caption keeps to two lines at 375, 402 and 440 wide, at
-   every peptide, place and step, and every note to its own lines.
+   for nothing, and so does the line while it shrinks; on the line alone a
+   target puts its place in focus. Every caption keeps to two lines at 375,
+   402 and 440 wide, at every peptide, place and step, and every note to its
+   own lines.
 10. **Backward.** The bars turn into p − y; the error comes down the tower,
    each module's gradient norm filling its bar and each position's glowing at
    every point of the stream (by step 200 only `<bos>`'s, the unknowable first
