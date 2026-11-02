@@ -851,9 +851,10 @@ out of view is scrolled just far enough to show it whole.
    probabilities) is gone. The same evening, at the user's ask for as many
    explanations as possible, every mini-step got its own caption and note,
    held for reading (two seconds a beat, 4 to 6 seconds each, so 21 beats
-   became 51), and the canvas names its marks: y, the answer key, outlined
-   on the target's row; a legend line over the bars in the rows of `<pad>`
-   and `<bos>` (outlined y, blue what the target lacks, clay what the others
+   became 51), and the canvas names its marks: y, the answer key, as the
+   target's lit row, brightened while read (an outline was tried and
+   dropped at the user's word: too heavy); a legend line over the bars in the rows of `<pad>`
+   and `<bos>` (lit y, blue what the target lacks, clay what the others
    took, their sum 0); number 10 worked out in a box (S −0.99 × 0.23 =
    −0.23, M, R, the other 18 −0.09, sum −0.32); the gradient read, its
    extremes ringed; −0.99 × 1.94 = −1.92 on the strongest string; and at each

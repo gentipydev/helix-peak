@@ -556,7 +556,7 @@ same ladder, carrying how the loss would change instead of numbers. Every
 mini-step holds for its own caption (what happens, in the run's numbers) and
 its own note (why), and names its marks on the canvas where they need it (the
 user's ask, the same evening: "as many explanations as possible"): the
-answer key y outlined on the target's row; a legend line over the bars, in
+answer key y as the target's lit row, brightened while read; a legend line over the bars, in
 the rows of the two tokens that never come next, naming each colour of
 p − y as it comes and their sum to 0; the first gradient number worked out
 in a box beside its strings (the three tokens bringing most, error × weight,

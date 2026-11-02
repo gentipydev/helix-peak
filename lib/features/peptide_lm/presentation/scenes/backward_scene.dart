@@ -432,24 +432,14 @@ final class BackwardScene extends LmScene {
       if (trace.allowedIndex(target) >= 0) {
         final Rect drawn = bench.bar(target, p[target]);
         final Rect band = PredictScene.litBand(bench, target, drawn, view.kit.layout(percent(p[target]), words).width);
+        // The lit row is the answer key, y: the room the target's bar would
+        // fill were the guess right and sure. It brightens while y is read,
+        // and settles as what the target lacks fills it.
+        final double key = _span(beat, _keyIn) * (1 - lack);
         canvas.drawRRect(
           RRect.fromRectAndRadius(band, const Radius.circular(3)),
-          Paint()..color = view.inks.truth.withValues(alpha: PredictScene.answerLight * bars),
+          Paint()..color = view.inks.truth.withValues(alpha: PredictScene.answerLight * (1 + _keyLight * key) * bars),
         );
-        // The answer key, y, on its row: 100% at what came next.
-        final double key = _span(beat, _keyIn) * bars;
-        if (key > 0) {
-          canvas.drawRRect(
-            RRect.fromRectAndRadius(
-              Rect.fromLTRB(bench.barLeft - 1.5, drawn.top - 1.5, bench.barLeft + bench.barRoom + 1.5, drawn.bottom + 1.5),
-              const Radius.circular(2),
-            ),
-            Paint()
-              ..style = PaintingStyle.stroke
-              ..strokeWidth = 1.2
-              ..color = view.inks.truth.withValues(alpha: 0.9 * key),
-          );
-        }
         if (lack > 0) {
           final double whole = bench.barLeft + bench.barRoom;
           canvas.drawRRect(
@@ -552,7 +542,7 @@ final class BackwardScene extends LmScene {
     final String next = view.trace.token(view.target);
     final double given = PredictScene.shares(view, view.position)[view.target];
     return <(double, double, String, Color)>[
-      (_keyFrom, _lackFrom, 'outlined: y, the answer key, 100% at $next', view.inks.truth),
+      (_keyFrom, _lackFrom, 'lit: y, the answer key, 100% at $next', view.inks.truth),
       (_lackFrom, _excessFrom, 'blue: what $next lacks of it, p − y = ${signedNumber(given - 1)}', view.inks.negative),
       (_excessFrom, _sumFrom, 'clay: what each other token took, its share', view.inks.positive),
       (
@@ -578,6 +568,9 @@ final class BackwardScene extends LmScene {
       }
     }
   }
+
+  /// How much brighter the lit row is while it is read as y.
+  static const double _keyLight = 0.9;
 
   /// What the target's row is called while the guess is read.
   static const String targetLabel = 'what truly came next';
@@ -1219,7 +1212,7 @@ final class BackwardScene extends LmScene {
         _lackFrom,
         "y is the answer key: Shift's target y, at this one place.\n"
             'A sure, right guess would match it: $next at 100%, the rest 0.\n'
-            "The outline on $next's row is y; every other token's y is 0.",
+            "The lit row is y for $next, 100%; every other token's y is 0.",
       ),
       (
         _lackFrom,
