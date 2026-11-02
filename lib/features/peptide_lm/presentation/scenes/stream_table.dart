@@ -154,6 +154,15 @@ final class StreamTable {
     canvas.restore();
   }
 
+  /// How far right a [strip] from [from] to [to] reaches at [f], turning
+  /// about its middle.
+  static double stripRight(Rect from, Rect to, double f) {
+    final double angle = math.pi / 2 * f;
+    final double length = from.width + (to.height - from.width) * f;
+    final double thick = from.height + (to.width - from.height) * f;
+    return Offset.lerp(from.center, to.center, f)!.dx + length / 2 * math.cos(angle) + thick / 2 * math.sin(angle);
+  }
+
   /// How far left the tiles and the rows can go: over the gutter Embedding
   /// writes its ids in, which the stream's stages leave empty, so the tiles
   /// come to the canvas's side, under the tag.

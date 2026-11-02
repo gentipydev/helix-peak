@@ -272,32 +272,30 @@ void main() {
     expect(caption(LmStage.scores, scores(17.8)), "V3's query against each key up to its own: 4 scores");
     expect(caption(LmStage.scores, scores(19)), 'Softmax makes the scores shares of one: ${head(0)}');
     expect(caption(LmStage.scores, 0.99), 'Softmax makes the scores shares of one: ${head(0)}');
-    // Attention, after Scores: head 1's values, head 2, the heads' answers,
-    // number 1 of head 1's worked out, the answers through the output
-    // weights, head 1's map (the row in focus first, then every row), what
-    // attention adds.
+    // Attention, after Scores: head 1's values, head 2, number 1 of head 1's
+    // answer worked out, the answers through the output weights, head 1's map
+    // (the row in focus first, then every row), what attention adds.
     double attention(double beat) => beat / LmStage.attention.beats;
     expect(caption(LmStage.attention, attention(0.5)), "Head 1 hands V3 its shares of each place's value: $size numbers");
     expect(caption(LmStage.attention, attention(2.5)), 'Head 2, its own query and keys: V3 reads ${head(1)}');
-    expect(caption(LmStage.attention, attention(4.8)), "The heads' $size + $size numbers, side by side: $width");
-    // Number 1 of head 1's answer worked out: V3's own value, as Scores made
-    // it, then <bos>'s through the same weights, with their bias once
-    // training has given them one; every place times its share; their sum,
-    // the answer as the run kept it.
+    // Number 1 of head 1's answer worked out, its number not given till it is
+    // made: V3's own value, as Scores made it, then <bos>'s through the same
+    // weights, with their bias once training has given them one; every place
+    // times its share; their sum, the answer as the run kept it.
     double value1(int j) => trace.value(last3.checkpoint, 0, 0, 0, j, 0);
     final String valueBias = trace.projectionBias(last3.checkpoint, 0, 2, 0) != 0 ? ', + bias' : '';
     expect(valueBias, isNotEmpty);
     final double answer1 = trace.mixed(last3.checkpoint, 0, 0, 0, 3, 0);
-    expect(caption(LmStage.attention, attention(5.5)), "Number 1 of head 1's answer, ${fixed(answer1, 2)}, worked out");
+    expect(caption(LmStage.attention, attention(4.8)), "Number 1 of head 1's answer, worked out");
     expect(
-      caption(LmStage.attention, attention(6.8)),
+      caption(LmStage.attention, attention(5.9)),
       "V3's value 1, as in Scores: its row × $width weights$valueBias: ${WorkedAnswer.term(value1(3), 2)}",
     );
     expect(
-      caption(LmStage.attention, attention(8)),
+      caption(LmStage.attention, attention(7.1)),
       "<bos>'s value 1: its own row, the same $width weights$valueBias: ${WorkedAnswer.term(value1(0), 2)}",
     );
-    expect(caption(LmStage.attention, attention(9)), 'Every place the same: its own row, the same weights');
+    expect(caption(LmStage.attention, attention(8.1)), 'Every place the same: its own row, the same weights');
     final List<double> brought = <double>[for (int j = 0; j <= 3; j++) shares(0)[j] * value1(j)];
     int most = 0;
     int largest = 0;
@@ -310,28 +308,28 @@ void main() {
       }
     }
     String share(int j) => WorkedAnswer.tenth(shares(0)[j]);
-    expect(caption(LmStage.attention, attention(10)), 'Each place adds its value 1 × its share: the last column');
+    expect(caption(LmStage.attention, attention(9.1)), 'Each place adds its value 1 × its share: the last column');
     // Then one place at a time: the largest share, and what it adds; then the
     // place that adds most, and why.
     if (most == largest) {
       final String both = 'Largest share: ${name(most)}, ${share(most)}, of a value of '
           '${WorkedAnswer.term(value1(most), 2)}: it adds most, ${WorkedAnswer.term(brought[most], 3)}';
-      expect(caption(LmStage.attention, attention(11)), both);
-      expect(caption(LmStage.attention, attention(12)), both);
+      expect(caption(LmStage.attention, attention(10.1)), both);
+      expect(caption(LmStage.attention, attention(11.1)), both);
     } else {
       expect(
-        caption(LmStage.attention, attention(11)),
+        caption(LmStage.attention, attention(10.1)),
         'Largest share: ${name(largest)}, ${share(largest)}, but its value is '
         '${WorkedAnswer.term(value1(largest), 2)}: it adds only ${WorkedAnswer.term(brought[largest], 3)}',
       );
       expect(
-        caption(LmStage.attention, attention(12)),
+        caption(LmStage.attention, attention(11.1)),
         '${name(most)} adds most, ${WorkedAnswer.term(brought[most], 3)}: a smaller share, '
         '${share(most)}, but its value is ${WorkedAnswer.term(value1(most), 2)}',
       );
     }
-    expect(caption(LmStage.attention, attention(13)), "Summed: ${fixed(answer1, 2)}, number 1 of head 1's answer");
-    expect(caption(LmStage.attention, attention(13.8)), 'Numbers 2–$width the same way, each head with its own shares');
+    expect(caption(LmStage.attention, attention(12.1)), "Summed: ${fixed(answer1, 2)}, number 1 of head 1's answer");
+    expect(caption(LmStage.attention, attention(12.9)), 'Numbers 2–$width the same way, each head with its own shares');
     // Number 1 of what attention adds: the stream's own gain across it, the
     // output weights' sum of the heads' answers, with its bias once training
     // has given it one (every bias starts at 0).
@@ -343,25 +341,25 @@ void main() {
     expect(trace.outBias(first.checkpoint, 0, 0), 0);
     expect(trace.outBias(last3.checkpoint, 0, 0), isNot(0));
     expect(
-      attentionAt(first, 15),
+      attentionAt(first, 14.1),
       'Output number 1: all $width × their weights, summed: ${fixed(gained(first), 2)}',
     );
     expect(
-      attentionAt(last3, 15),
+      attentionAt(last3, 14.1),
       'Output number 1: all $width × their weights, summed, + bias: ${fixed(gained(last3), 2)}',
     );
     expect(
-      caption(LmStage.attention, attention(16)),
+      caption(LmStage.attention, attention(15.1)),
       'The other ${width - 1} the same: ${width * width} output weights, $width into each',
     );
-    expect(caption(LmStage.attention, attention(16.6)), 'What attention adds to V3');
-    expect(caption(LmStage.attention, attention(17.6)), "Head 1's map: V3's row first, its shares from Scores");
+    expect(caption(LmStage.attention, attention(15.7)), 'What attention adds to V3');
+    expect(caption(LmStage.attention, attention(16.7)), "Head 1's map: V3's row first, its shares from Scores");
     expect(
-      caption(LmStage.attention, attention(19.2)),
+      caption(LmStage.attention, attention(18.3)),
       'Every place does what V3 did, its query on the keys up to it',
     );
     expect(
-      caption(LmStage.attention, attention(21.6)),
+      caption(LmStage.attention, attention(20.7)),
       "Each row made as V3's was: its shares × the values, × output weights",
     );
     expect(caption(LmStage.attention, 0.99), 'Added: x0 + attention, 12 × $width');
@@ -624,7 +622,7 @@ void main() {
     // Attention's map lies on the table's rows: a tap on a row of it, on a
     // share it reads or on a place it never reads, puts that row's place in
     // focus.
-    final TrainingFrame map = timeline.frameIn(LmStage.attention, 20 / LmStage.attention.beats);
+    final TrainingFrame map = timeline.frameIn(LmStage.attention, 19.1 / LmStage.attention.beats);
     final AttentionLayout attention = AttentionLayout(size, scene);
     final int places = trace.peptides.first.inputs;
     for (int i = 0; i < places; i++) {
@@ -851,7 +849,7 @@ void main() {
     }
   });
 
-  testWidgets('the worked answer opens and ends on the frame the answers stand in, pixel for pixel', (
+  testWidgets('the worked answer hands the output weights the column it ends on, pixel for pixel', (
     WidgetTester tester,
   ) async {
     final (LmInks inks, LmKit kit) = await _drawing(tester);
@@ -877,11 +875,28 @@ void main() {
     expect(to - from, closeTo(WorkedAnswer.beats, 1e-9));
     for (int p = 0; p < trace.peptides.length; p++) {
       final LmView scene = view(inks, kit, peptide: p, checkpoint: trace.checkpoints.length - 1);
-      final List<int> opens = await pixels(scene, from);
-      expect(opens.any((int b) => b != opens.first), isTrue);
-      expect(await pixels(scene, to), opens, reason: 'peptide $p');
-      // In between, the table: not the frame it opens on.
-      expect(await pixels(scene, from + 4.8), isNot(opens), reason: 'peptide $p');
+      final List<int> takes = await pixels(scene, to);
+      expect(takes.any((int b) => b != takes.first), isTrue);
+      // Its last frame, drawn by the worked answer, a hair before the note
+      // over it turns over, is the frame the output weights open on.
+      expect(await pixels(scene, to - 1e-4), takes, reason: 'peptide $p');
+      // In between, the table: not that frame.
+      expect(await pixels(scene, from + 4.8), isNot(takes), reason: 'peptide $p');
+    }
+  });
+
+  test("no number of the heads' answers is written before number 1 is made, and all of them after", () {
+    final int width = trace.model.width;
+    for (double local = 0; local <= WorkedAnswer.beats; local += 0.01) {
+      if (WorkedAnswer.answerMade(local) > 0) {
+        break;
+      }
+      for (int d = 0; d < width; d++) {
+        expect(WorkedAnswer.answerWritten(d, local), 0, reason: 'number ${d + 1} at $local');
+      }
+    }
+    for (int d = 0; d < width; d++) {
+      expect(WorkedAnswer.answerWritten(d, WorkedAnswer.beats), 1, reason: 'number ${d + 1}');
     }
   });
 
@@ -896,7 +911,7 @@ void main() {
 
   test('the output weights take the heads\' answers only once number 1 is worked out', () {
     final (double from, double to) = AttentionScene.worked;
-    expect(from, greaterThan(AttentionScene.times(trace.model.heads - 1, trace.model.heads).end));
+    expect(from, greaterThanOrEqualTo(AttentionScene.times(trace.model.heads - 1, trace.model.heads).end));
     expect(AttentionScene.outputFanAt(0, trace.model.width).$1, greaterThan(to));
   });
 

@@ -25,11 +25,13 @@ typedef HeadTimes = ({double keys, double scan, double soft, double shares, doub
 /// its scores and its shares at the place in focus. Each key turns into its
 /// place's value, and arcs carry each share of each value into the head's
 /// answer. The other heads follow quicker, each its own keys, query, scores
-/// and shares. Their answers, side by side, stand up as a column where Scores
-/// stood the evened row. Number 1 of head 1's is worked out
-/// ([WorkedAnswer]): where each place's value comes from, the same weights
-/// for every place, and what each brings, its share of it, summed. Then the
-/// answers flow through the output weights into what attention adds, as
+/// and shares. Then number 1 of head 1's answer is worked out
+/// ([WorkedAnswer]): the answers stand up off the row at the bench's right
+/// edge, faint and unwritten, number 1 an empty slot; where each place's
+/// value comes from, the same weights for every place, and what each brings,
+/// its share of it, summed; then the answers are written, side by side,
+/// where Scores stood the evened row. Then they flow through the output
+/// weights into what attention adds, as
 /// Scores makes a query: number 1 alone and slowly, then the rest in one
 /// cascade; the column made lies down onto the row in focus.
 /// Every place does the same at once: the table narrows to its token
@@ -54,37 +56,36 @@ final class AttentionScene extends LmScene {
   // share what is left before the join.
   static const double _firstHeadTo = 1.6;
   static const double _joinFrom = 4.4;
-  static const double _mapFrom = 17.2;
-  static const double _widenFrom = 20.6;
-  static const double _widenTo = 21.4;
+  static const double _mapFrom = 16.3;
+  static const double _widenFrom = 19.7;
+  static const double _widenTo = 20.5;
 
-  // Number 1 of head 1's answer worked out, once the answers stand side by
-  // side and before they go through the output weights: it opens and ends
-  // on the same frame. Everything after it is [WorkedAnswer.beats] later.
-  static const double _mixFrom = 5.3;
+  // Number 1 of head 1's answer worked out, as soon as head 2 has read: the
+  // answers stand up off the row in focus into its column, and it ends on
+  // them written, where Scores stood the evened row, for the output weights.
+  // Everything after it is [WorkedAnswer.beats] later.
+  static const double _mixFrom = _joinFrom;
   static const double _mixTo = _mixFrom + WorkedAnswer.beats;
 
-  // The heads' answers through the output weights. They stand up off the row
-  // in focus into a column where Scores stood the evened row, a slice a head;
-  // number 1 is worked out; an empty column stands where Scores stood the
-  // query, the weights' plate under the strings; the row flows through them,
-  // number 1 alone and slowly, then the rest in one cascade; the bench
-  // clears, and the column made, what attention adds, lies down where the
-  // answers sat. Its box comes, and the map grows out of it.
-  static const (double, double) _stand = (4.6, 5.1);
-  static const (double, double) _joinedIn = (5.0, 5.25);
-  static const (double, double) _outSlotsIn = (14.3, 14.55);
-  static const (double, double) _outPlateIn = (14.4, 14.65);
+  // The heads' answers through the output weights, standing where Scores
+  // stood the evened row, a slice a head: an empty column stands where
+  // Scores stood the query, the weights' plate under the strings; the row
+  // flows through them, number 1 alone and slowly, then the rest in one
+  // cascade; the bench clears, and the column made, what attention adds,
+  // lies down where the answers sat. Its box comes, and the map grows out
+  // of it.
+  static const (double, double) _outSlotsIn = (13.4, 13.65);
+  static const (double, double) _outPlateIn = (13.5, 13.75);
   static const WeightFlow _outFlow = WeightFlow(
-    alone: <(double, double)>[(14.7, 15.3)],
-    cascade: (15.45, 16.25),
-    webOut: (16.55, 16.8),
+    alone: <(double, double)>[(13.8, 14.4)],
+    cascade: (14.55, 15.35),
+    webOut: (15.65, 15.9),
     firstRelax: 0.3,
   );
-  static const (double, double) _benchOut = (16.55, 16.8);
-  static const (double, double) _outNumbersOut = (16.55, 16.65);
-  static const (double, double) _lieDown = (16.65, 17.1);
-  static const (double, double) _boxIn = (16.95, 17.15);
+  static const (double, double) _benchOut = (15.65, 15.9);
+  static const (double, double) _outNumbersOut = (15.65, 15.75);
+  static const (double, double) _lieDown = (15.75, 16.2);
+  static const (double, double) _boxIn = (16.05, 16.25);
 
   // Scores' bars of head 1's shares go as its arcs come.
   static const (double, double) _barsOut = (0.0, 0.6);
@@ -97,21 +98,21 @@ final class AttentionScene extends LmScene {
   // once it is the map's, and the map's tag comes. The place in focus's row
   // fills, a cell at a time, then every other row, top to bottom; then it
   // holds.
-  static const (double, double) _x0TagOut = (17.2, 17.4);
-  static const (double, double) _answersOut = (17.2, 17.35);
-  static const (double, double) _grow = (17.25, 17.9);
-  static const (double, double) _boxOut = (17.85, 18.1);
-  static const (double, double) _mapIn = (17.25, 17.5);
-  static const (double, double) _mapTagIn = (17.6, 17.8);
-  static const (double, double) _focusRow = (17.9, 18.7);
-  static const (double, double) _rows = (18.8, 19.6);
+  static const (double, double) _x0TagOut = (16.3, 16.5);
+  static const (double, double) _answersOut = (16.3, 16.45);
+  static const (double, double) _grow = (16.35, 17.0);
+  static const (double, double) _boxOut = (16.95, 17.2);
+  static const (double, double) _mapIn = (16.35, 16.6);
+  static const (double, double) _mapTagIn = (16.7, 16.9);
+  static const (double, double) _focusRow = (17.0, 17.8);
+  static const (double, double) _rows = (17.9, 18.7);
 
   // What attention added, alone on its own scale, then the sums.
-  static const (double, double) _alone = (20.6, 21.2);
-  static const (double, double) _gainWritten = (21.4, 21.6);
-  static const (double, double) _gainUnwritten = (22.0, 22.2);
-  static const (double, double) _add = (22.1, 22.5);
-  static const (double, double) _sumsWritten = (22.3, 22.5);
+  static const (double, double) _alone = (19.7, 20.3);
+  static const (double, double) _gainWritten = (20.5, 20.7);
+  static const (double, double) _gainUnwritten = (21.1, 21.3);
+  static const (double, double) _add = (21.2, 21.6);
+  static const (double, double) _sumsWritten = (21.4, 21.6);
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -218,8 +219,9 @@ final class AttentionScene extends LmScene {
   /// Whether number 1 of head 1's answer is being worked out at [beat].
   static bool _working(double beat) => beat >= _mixFrom && beat < _mixTo;
 
-  /// When number 1 of head 1's answer is worked out, in beats: it opens and
-  /// ends on the frame the answers stand in.
+  /// When number 1 of head 1's answer is worked out, in beats: it opens on
+  /// the answers on the row in focus and ends on them written, where the
+  /// output weights take them.
   static (double, double) get worked => (_mixFrom, _mixTo);
 
   /// How narrow the table is at [beat]: 1 a strip a place, as Scores left
@@ -307,7 +309,7 @@ final class AttentionScene extends LmScene {
   );
 
   /// The scale of what the heads hand the places in focus.
-  static double _mixScale(LmView view) => view.kit.memo<double>(
+  static double answerScale(LmView view) => view.kit.memo<double>(
     ('attention-mix', view.step, view.peptide, block),
     () {
       final TrainingTrace trace = view.trace;
@@ -642,10 +644,10 @@ final class AttentionScene extends LmScene {
   // ---------------------------------------------------------------- answers
 
   /// Each head's answer for the place in focus, filling as its values
-  /// arrive and kept, side by side, till they stand up to go through the
-  /// output weights; once what those make has lain down in their place, the
-  /// row holds what the place in focus gains. Then their names go, and their
-  /// box grows into head 1's map.
+  /// arrive and kept, side by side, till they stand up for number 1 to be
+  /// worked out; once what the output weights make of them has lain down in
+  /// their place, the row holds what the place in focus gains. Then their
+  /// names go, and their box grows into head 1's map.
   void _answers(Canvas canvas, LmView view, AttentionLayout layout, double beat) {
     final TrainingTrace trace = view.trace;
     final int heads = trace.model.heads;
@@ -655,9 +657,9 @@ final class AttentionScene extends LmScene {
     if (outlined <= 0) {
       return;
     }
-    final double mixScale = _mixScale(view);
+    final double mixScale = answerScale(view);
     // Off the row from when they stand up until the output has lain down.
-    final bool away = beat >= _stand.$1 && beat < _lieDown.$2;
+    final bool away = beat >= _mixFrom + WorkedAnswer.stand.$1 && beat < _lieDown.$2;
     final double joined = beat >= _lieDown.$2 ? 1 : 0;
     // One label under the answers at a time: each head's, then the join's.
     final double headLabels = 1 - through(beat, _joinFrom, _joinFrom + 0.2);
@@ -789,7 +791,7 @@ final class AttentionScene extends LmScene {
     final int slice = trace.headSize;
     final int heads = trace.model.heads;
     final List<double> joined = joinedAnswers(view);
-    final double mixScale = _mixScale(view);
+    final double mixScale = answerScale(view);
     final List<Color> colours = <Color>[for (final double v in joined) view.inks.signed(v / mixScale)];
     Rect at(int d) => bench.tileAt(x, d, 1);
     drawColumn(canvas, at, <Color>[
@@ -824,48 +826,29 @@ final class AttentionScene extends LmScene {
     }
   }
 
-  /// The heads' answers through the output weights, on Scores' bench: each
-  /// head's answer stands up off the row in focus into its slice of a column
-  /// where Scores stood the evened row, Scores' cut between them; an empty
-  /// column stands where Scores stood the query, named on a plate under the
+  /// The heads' answers through the output weights, on Scores' bench, where
+  /// number 1 being worked out left them: standing where Scores stood the
+  /// evened row, a slice a head, Scores' cut between them; an empty column
+  /// stands where Scores stood the query, named on a plate under the
   /// strings; the row flows through, each number's strings lit with what they
   /// carry, the number made, what attention adds, as they land; then the
   /// bench clears and the column lies down onto the row, where the answers
   /// sat.
   void _output(Canvas canvas, Size size, LmView view, AttentionLayout layout, double beat) {
-    // Number 1 being worked out draws the answers itself, wherever they go.
-    if (beat < _stand.$1 || beat >= _lieDown.$2 || _working(beat)) {
+    // Until number 1 is worked out, it draws the answers itself.
+    if (beat < _mixTo || beat >= _lieDown.$2) {
       return;
     }
     final TrainingTrace trace = view.trace;
     final StreamTable table = layout.table;
     final ScoresLayout bench = ScoresLayout(size, view);
     final int width = trace.model.width;
-    final int slice = trace.headSize;
-    final int heads = trace.model.heads;
     final List<double> joined = joinedAnswers(view);
-    final double mixScale = _mixScale(view);
-    final List<Color> mixColours = <Color>[for (final double v in joined) view.inks.signed(v / mixScale)];
     final List<double> gain = table.gained(0, 1, view.position);
     final double gainScale = table.gainScale(0, 1);
     final List<Color> gainColours = <Color>[for (final double v in gain) view.inks.signed(v / gainScale)];
     Rect inTile(int d) => bench.tileAt(bench.inputX, d, 1);
     Rect outTile(int out) => bench.tileAt(bench.outputX[0], out, 0);
-    final double stand = _span(beat, _stand);
-    if (stand < 1) {
-      for (int h = 0; h < heads; h++) {
-        table.strip(
-          canvas,
-          from: layout.slot(h),
-          to: bench.sliceAt(bench.inputX, h),
-          f: stand,
-          colors: mixColours.sublist(h * slice, (h + 1) * slice),
-          lyingGap: 0.5,
-          lyingRadius: 1.5,
-        );
-      }
-      return;
-    }
     final double shown = 1 - _span(beat, _benchOut);
     if (shown > 0) {
       final double web = _outFlow.webShown(width, beat);
@@ -900,7 +883,6 @@ final class AttentionScene extends LmScene {
           alpha: web,
         );
       }
-      final double written = _span(beat, _joinedIn) * shown;
       // Scores' cut, named in the band the strings will cross, till they flow.
       final double flows = _outFlow.fanAt(0, width).$1;
       drawJoined(
@@ -909,9 +891,9 @@ final class AttentionScene extends LmScene {
         bench,
         x: bench.inputX,
         tile: (int d) => shown,
-        number: (int d) => written,
-        title: written,
-        labels: written * (1 - through(beat, flows - 0.25, flows - 0.1)),
+        number: (int d) => shown,
+        title: shown,
+        labels: shown * (1 - through(beat, flows - 0.25, flows - 0.1)),
       );
       final double slots = _span(beat, _outSlotsIn) * shown;
       final List<double> made = <double>[for (int out = 0; out < width; out++) _outFlow.madeAt(out, width, beat)];
@@ -1147,8 +1129,8 @@ final class AttentionScene extends LmScene {
         'value: what a place hands over when it is read\n'
             "the head's answer: each value times its share, summed",
       ),
-      // Kept while the answers stand side by side, then number 1 is worked
-      // out, and the output weights take them.
+      // Kept while the other heads read; then number 1 is worked out, and
+      // the output weights take the answers.
       if (heads > 1)
         (
           first.end,
@@ -1208,11 +1190,7 @@ final class AttentionScene extends LmScene {
       }
       return "Head 1 hands $focus its shares of each place's value: $size numbers";
     }
-    if (beat < _mixFrom) {
-      return heads > 1
-          ? "The heads' ${List<String>.filled(heads, '$size').join(' + ')} numbers, side by side: $width"
-          : 'Its $size numbers, into the output weights';
-    }
+    // Number 1 is worked out as soon as the heads have read.
     if (beat < _mixTo) {
       return WorkedAnswer.caption(view, beat - _mixFrom);
     }

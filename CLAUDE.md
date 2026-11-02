@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 169 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 168 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -342,12 +342,14 @@ of 2026-10-30 and 2026-10-31:
   room right of the keys that the arcs leave them (at least 50 pt). Side by
   side, they go through the output weights as Scores' row goes through the
   query's (the user's choice of 2026-11-01, over strings down to a segment
-  under the row): each head's answer stands up off the row, a slice a head
-  with Scores' cut, where Scores stood the evened row. Number 1 of head 1's
-  answer is then worked out (`worked_answer.dart`, 9 beats, the user's ask of
+  under the row), but first, as soon as head 2 has read, number 1 of head
+  1's answer is worked out (`worked_answer.dart`, 9 beats, the user's ask of
   2026-11-01: where each place's value comes from, and how the values make
-  the answer): the column goes to the bench's right edge, number 1 an empty
-  slot; a copy of the row in focus stands up where Scores stood it, evened,
+  the answer). No number of the answers is written before it is: they stand
+  up off the row straight to the bench's right edge, a slice a head, faint
+  and unwritten, number 1 an empty slot (the user's ask of 2026-11-02:
+  showing the numbers, explaining them, then showing them again said
+  nothing); a copy of the row in focus stands up where Scores stood it, evened,
   and the 16 value weights into number 1 run from it into a cell on its row,
   number 1 of its value as Scores made it (insulin A's C11 at step 1:
   −1.22); `<bos>`'s row takes its place and the same weights make its own
@@ -357,9 +359,10 @@ of 2026-10-30 and 2026-10-31:
   time, each with its own caption and its reasons lit in the accent, the
   largest share and what it adds, then the place that adds most and why
   (the user's ask: "brings most" and "read most" said nothing); those run, a
-  string each, into the slot and make it again (0.30); numbers 2–16 come
-  back with a caption (the user's pick, no pass over them), and the column
-  goes back to where it stood, the frame it opened on. Then an empty column
+  string each, into the slot and make it (0.30, the first time it is
+  written); numbers 2–16 come, written, with a caption (the user's pick, no
+  pass over them), and the column goes where Scores stood the evened row,
+  with Scores' cut and the heads named. Then an empty column
   stands where Scores stood the query, the plate `output weights · 16 × 16`
   under the strings (`weight_flow.dart`, promoted from Scores); each number
   of what attention adds is made as its 16 strings land, number 1 alone and

@@ -13,19 +13,21 @@ import 'weight_flow.dart';
 
 /// Number 1 of head 1's answer for the place in focus, worked out: where
 /// each place's value comes from, and what each brings to the answer.
-/// Attention plays it once the heads' answers stand side by side, before
-/// they go through the output weights, and it opens and ends on that frame.
+/// Attention plays it as soon as the heads have read, before their answers
+/// go through the output weights: it opens on the answers on the row in
+/// focus, and ends on them written where the output weights take them. No
+/// number of theirs is written before number 1 is made.
 ///
-/// The answers' column goes to the bench's right edge, its other numbers
-/// gone and their tiles faint, its first an empty slot. A copy of the place
-/// in focus's row lifts off and stands up where Scores stood it, evened; the
-/// 16 value weights into number 1 run from it, a string each, into a cell on
-/// its row: number 1 of its value, as Scores made it. `<bos>`'s row takes its
-/// place and runs through the same weights into its own cell, and every
-/// other place's comes, each on its row. Each is multiplied by its share,
-/// what it brings written beside it; those run, a string each, into the
-/// empty slot and make it. The answers' other numbers come back, and the
-/// column goes back to where it stood.
+/// The answers stand up off the row at the bench's right edge, unwritten,
+/// their tiles going faint, the first emptying into a slot. A copy of the
+/// place in focus's row lifts off and stands up where Scores stood it,
+/// evened; the 16 value weights into number 1 run from it, a string each,
+/// into a cell on its row: number 1 of its value, as Scores made it.
+/// `<bos>`'s row takes its place and runs through the same weights into its
+/// own cell, and every other place's comes, each on its row. Each is
+/// multiplied by its share, what it brings written beside it; those run, a
+/// string each, into the empty slot and make it. The answers' other numbers
+/// come, and the column goes where Scores stood the evened row, named.
 ///
 /// Every number is the run's: the evened rows, the value weights, each
 /// value and each share, whole.
@@ -36,13 +38,15 @@ abstract final class WorkedAnswer {
   /// The head and the number worked out: head 1's, number 1.
   static const int _head = 0;
 
-  // The goal: the column's names and its other numbers go, their tiles go
-  // faint; it goes to the bench's right edge, and its first number empties
-  // into a slot.
-  static const (double, double) _namesOut = (0.0, 0.2);
-  static const (double, double) _faint = (0.0, 0.3);
-  static const (double, double) _park = (0.15, 0.6);
+  /// When the heads' answers stand up off the row in focus, at the bench's
+  /// right edge, once the heads' names under them have gone.
+  static const (double, double) stand = (0.2, 0.6);
+
+  // The goal: the answers' tiles go faint as they stand, unwritten, and
+  // their first number empties into a slot, marked once they stand.
+  static const (double, double) _faint = (0.2, 0.6);
   static const (double, double) _empty = (0.45, 0.7);
+  static const (double, double) _marked = (0.6, 0.75);
 
   // The place in focus's value, number 1, as Scores made it: a copy of its
   // row lifts off and stands up where Scores stood it; every place's cell
@@ -92,8 +96,8 @@ abstract final class WorkedAnswer {
     firstRelax: 0.3,
   );
 
-  // The table goes, the column's other numbers come back, and it goes back
-  // to where it stood, named again.
+  // The table goes, the column's other numbers come, written, and it goes
+  // where Scores stood the evened row, named.
   static const (double, double) _tableOut = (8.1, 8.3);
   static const (double, double) _refill = (8.1, 8.4);
   static const (double, double) _unpark = (8.35, 8.8);
@@ -245,6 +249,11 @@ abstract final class WorkedAnswer {
   /// How far the answer's number 1 is made again, as the strings of what
   /// every place brings land in its slot.
   static double answerMade(double local) => _sumFlow.madeAt(0, 1, local);
+
+  /// How strongly number [d] of the heads' answers is written at [local]:
+  /// not at all until number 1 is made; number 1 as what every place brings
+  /// lands in its slot, the rest as they come after it.
+  static double answerWritten(int d, double local) => d == 0 ? _sumFlow.written(0, 1, local) : _span(local, _refill);
 
   // ------------------------------------------------------------------ paint
 
@@ -574,39 +583,81 @@ abstract final class WorkedAnswer {
     );
   }
 
-  /// The heads' answers, side by side: their names and every number but the
-  /// first going, the other tiles faint; to the bench's right edge, the
-  /// first an empty slot, marked, until what every place brings makes it;
-  /// then the rest back, and back to where they stood, named again.
+  /// The heads' answers, side by side: each head's stands up off the row in
+  /// focus into its slice of a column at the bench's right edge, unwritten,
+  /// its tiles going faint, the first emptying into a slot, marked, until
+  /// what every place brings makes it; then the rest come, written, and the
+  /// column goes where Scores stood the evened row, named.
   static void _answers(Canvas canvas, LmView view, WorkedLayout at, double local) {
-    final double x = at.columnX(_span(local, _park) - _span(local, _unpark));
+    final double up = _span(local, stand);
+    if (up <= 0) {
+      return;
+    }
     final double faint = _span(local, _faint) * (1 - _span(local, _refill));
     final double emptied = _span(local, _empty);
     final double remade = answerMade(local);
-    final double names = 1 - _span(local, _namesOut) + _span(local, _namesIn);
-    final double rest = 1 - _span(local, _namesOut) + _span(local, _refill);
     final double first = (1 - emptied) + remade;
-    final double firstNumber = (1 - emptied) + _sumFlow.written(0, 1, local);
+    double tile(int d) => d == 0 ? first : 1 - 0.82 * faint;
+    if (up < 1) {
+      _stand(canvas, view, at, up, tile);
+      return;
+    }
+    final double x = at.columnX(1 - _span(local, _unpark));
+    final double names = _span(local, _namesIn);
     AttentionScene.drawJoined(
       canvas,
       view,
       at.bench,
       x: x,
-      tile: (int d) => d == 0 ? first : 1 - 0.82 * faint,
-      number: (int d) => d == 0 ? firstNumber : rest,
+      tile: tile,
+      number: (int d) => answerWritten(d, local),
       title: names,
       labels: names,
     );
     final Rect slot = at.bench.tileAt(x, 0, 1);
-    drawSlots(canvas, view, (int out) => slot, emptied, <double>[remade]);
-    if (faint > 0) {
+    final double marked = _span(local, _marked);
+    drawSlots(canvas, view, (int out) => slot, emptied * marked, <double>[remade]);
+    if (faint * marked > 0) {
       canvas.drawRRect(
         RRect.fromRectAndRadius(slot.inflate(1.5), const Radius.circular(2.5)),
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.2
-          ..color = view.inks.signal.withValues(alpha: 0.85 * faint),
+          ..color = view.inks.signal.withValues(alpha: 0.85 * faint * marked),
       );
+    }
+  }
+
+  /// Each head's answer [up] of the way from its slot on the row in focus to
+  /// its slice of the column at the bench's right edge, number d's tile
+  /// [tile] of d strong. Turning about its middle so near the edge, a strip
+  /// would swing past it: it keeps left of where it lay and where it will
+  /// stand.
+  static void _stand(Canvas canvas, LmView view, WorkedLayout at, double up, double Function(int d) tile) {
+    final List<double> joined = AttentionScene.joinedAnswers(view);
+    final double scale = AttentionScene.answerScale(view);
+    final int slice = view.trace.headSize;
+    Color colour(int d) {
+      final Color c = view.inks.signed(joined[d] / scale);
+      return c.withValues(alpha: c.a * tile(d));
+    }
+
+    for (int h = 0; h < view.trace.model.heads; h++) {
+      final Rect from = at.rows.slot(h);
+      final Rect to = at.bench.sliceAt(at.parkX, h);
+      final double over = StreamTable.stripRight(from, to, up) - math.max(from.right, to.right);
+      canvas.save();
+      canvas.translate(-math.max(0.0, over), 0);
+      at.rows.table.strip(
+        canvas,
+        from: from,
+        to: to,
+        f: up,
+        colors: <Color>[for (int d = h * slice; d < (h + 1) * slice; d++) colour(d)],
+        lyingGap: 0.5,
+        lyingRadius: 1.5,
+      );
+      canvas.restore();
     }
   }
 
@@ -665,8 +716,9 @@ abstract final class WorkedAnswer {
     final List<double> numbers = values(view);
     // Its bias, where training has given it one: every bias starts at 0.
     final String bias = trace.projectionBias(view.checkpoint, AttentionScene.block, 2, _head) != 0 ? ', + bias' : '';
+    // The number itself only once it is made: "Summed: …".
     if (local < _liftOwn.$1) {
-      return "Number 1 of head 1's answer, ${fixed(answer(view), 2)}, worked out";
+      return "Number 1 of head 1's answer, worked out";
     }
     if (first == null ? local < _sharesIn.$1 : local < _liftFirst.$1) {
       return "${StreamTable.placeName(view, focus)}'s value 1, as in Scores: "
