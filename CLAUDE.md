@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 168 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 170 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -379,7 +379,7 @@ showed a block 2); block 2 is Forward's:
   rounds like `<bos>`'s value 1), the other 15 in one cascade; the bench
   clears and the column lies down onto the row, where the answers sat. Every
   place at once then fills head 1's
-  map, as large as the canvas allows (head 2's is not drawn; the user's ask
+  map, as large as the canvas allows (one map at a time, the user's ask
   of 2026-10-31). The answers' box grows out of the row in focus into the
   map, up, down and left to the token column, as the table narrows to that
   column, which names the map's rows; the map lies on the table's own rows,
@@ -387,8 +387,16 @@ showed a block 2); block 2 is Forward's:
   slots, the places after each row hatched; the row in focus fills first,
   with the shares Scores found, then every other row, each share on a soft
   tile and written as a percentage where it fits. A tap on a row of it puts
-  that place in focus. The table widens again to what attention adds, alone,
-  then the sums, `x0 + block 1's attention`.
+  that place in focus. Then head 2's map takes the same rows (the user's ask
+  of 2026-11-02: what attention adds is both heads' answers through the
+  output weights, and only head 1's map was drawn): head 1's cells empty to
+  their slots, `block 1 · head 2 · shares in % · 22 × 22` takes the tag's
+  place, and head 2's map fills the same way, a little quicker, its caption
+  counting the rows whose place read most changes (insulin A at step 200:
+  17 of 22; 19 at step 1), its note that the two answers, side by side, go
+  through the output weights. The table widens again to what attention
+  adds, alone ("Every row made as C11's: both heads' answers × output
+  weights"), then the sums, `x0 + block 1's attention`. 25 beats.
 - **Feed-forward** (`feed_forward_scene.dart`), block 1's: a copy of the row
   in focus, `x0 + block 1's attention`, turns straight off it and stands up as
   the 16 inputs of a network drawn left to right (no lift-off first since

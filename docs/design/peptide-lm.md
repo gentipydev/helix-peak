@@ -341,7 +341,7 @@ out of view is scrolled just far enough to show it whole.
 
    The shares here, and in Attention's captions, are softmax of the kept
    scores, whole (the u1 maps differed by up to 0.5 points: S9 read 24%).
-5. **Attention.** It opens on Scores' last frame, in 23 beats:
+5. **Attention.** It opens on Scores' last frame, in 25 beats:
    - head 1's scores give way to its shares, its keys turn into values, and
      arcs carry each share of each value into the head's eight-number answer,
      values riding them, as Scores' bars go;
@@ -502,16 +502,35 @@ out of view is scrolled just far enough to show it whole.
        place's query on each key up to its own, as shares; a column, one
        place's key and value; each row adds to 100%, the first places sharing
        it among few (why the top left is brightest at step 1); the hatched
-       places are never read, as the next one is the answer (Shift's y);
-       head 2 has a map of its own.
+       places are never read, as the next one is the answer (Shift's y).
      - Head 1's map at step 1 is diffuse (C11 reads S9 23%); by step 200 it
        is sharp (L13 reads Q5 94%, Q5 reads E4 92%, the G1 and Q5 columns
        bright): over the six peptides the mean top share goes from 19% to
        44%, and rows giving one place half or more from 10 to 59 of 174. A
        "sharpest row" caption was weighed and left out: at step 1 it always
        names row 1's two-way split.
+   - then head 2's map on the same rows (the user's ask of 2026-11-02: what
+     attention adds is both heads' answers through the output weights, and
+     until then only head 1's map was drawn, as the user asked on
+     2026-10-31, one map at a time as large as the canvas): from 19.4 head
+     1's cells empty to their slots and its tag gives way to `block 1 ·
+     head 2 · shares in % · 22 × 22`; head 2's map fills as head 1's did, a
+     little quicker, the row in focus first (19.75–20.25), then every other
+     row (20.3–20.9), and holds until the table widens at 21.7. With more
+     than two heads, each later head's map takes an equal share of that
+     span. Its caption counts the rows whose place read most is another than
+     in head 1's map, "Head 2's map: the place read most changes in 17 of
+     22 rows" (insulin A at step 200; 19 at step 1; over the six peptides
+     143 of 174 rows at step 200); C11's own reads are already in head 2's
+     caption earlier in the stage (C11 29%, C6 27% at step 200, against
+     head 1's G1 55%, Q5 30%). Its note: head 2 reads with its own query
+     and keys, a map of its own, and the two answers, side by side, go
+     through the output weights.
    - the table widens again, out of its tiles, to what attention adds to each
-     place, alone on its own scale, then the sums: x0 + block 1's attention.
+     place, alone on its own scale ("Every row made as C11's: both heads'
+     answers × output weights"; until 2026-11-02 "Each row made as C11's
+     was: its shares × the values, × output weights", one head's shares and
+     three lines at 375), then the sums: x0 + block 1's attention.
    - What the stage names of the block it names as block 1's: its head tags,
      the value and output weights' plates, head 1's map (`block 1 · head 1 ·
      shares in % · 22 × 22`), what block 1's attention adds and the sums (the
