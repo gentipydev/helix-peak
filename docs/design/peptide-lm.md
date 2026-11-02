@@ -623,8 +623,11 @@ out of view is scrolled just far enough to show it whole.
      from the run's numbers (`Evening.plain`), evened = z-score at step 1 and
      its own learned scale and shift after. That row, outlined in the accent,
      is what Predict reads.
-   - Only the row last made writes its numbers, in the ladder's own face, so
-     a 40-place peptide, whose table is drawn in colours alone, has numbers
+   - Each row writes its numbers from when it lands to the end, so x0's can
+     be read against every row after it (the user's ask of 2026-11-02, over
+     only the row last made writing them); each copy drops out from under the
+     row it copies, its numbers left clear. They are in the ladder's own face,
+     so a 40-place peptide, whose table is drawn in colours alone, has numbers
      here. Once the table has gone a tap asks for nothing: the ladder is one
      place's.
    - Notes: each part reads the row as it stands and adds to it, never

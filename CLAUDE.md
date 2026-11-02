@@ -453,8 +453,11 @@ showed a block 2); block 2 is Forward's:
   lines at 375). The last drop goes through the final LayerNorm
   (mean and standard deviation in the caption; z-score at step 1, its own
   learned scale and shift after), and that row, outlined, is what Predict
-  reads. Only the row last made writes its numbers, in the ladder's own face
-  (`TowerLayout.numberStyle`, so a 40-place peptide's numbers show too).
+  reads. Each row writes its numbers from when it lands to the end, so x0's
+  can be read against every row after it (the user's ask of 2026-11-02; each
+  copy drops out from under the row it copies, its numbers left clear), in
+  the ladder's own face (`TowerLayout.numberStyle`, so a 40-place peptide's
+  numbers show too).
   Once the table has gone a tap asks for nothing. 12 beats. Until
   2026-11-01 Forward drew every place read out early through the output
   layer (a probe, the user's pick of 2026-10-30) as a network of tokens; it
