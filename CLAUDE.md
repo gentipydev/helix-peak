@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 180 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 192 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -293,7 +293,9 @@ scale and shift and the weights that make the queries, keys and values, those
 whole, and the stream read out early; schema 5 since 2026-11-01: the output
 weights that mix the heads' answers back into one row, and the heads' mix
 whole; schema 6 since 2026-11-02: the output layer's weights at each
-checkpoint and its logits whole, for Predict). The forward pass is four
+checkpoint and its logits whole, for Predict; schema 7 the same day: the
+loss's gradient at every point of the stream, whole, for Backward). The
+forward pass is four
 stages, each
 opening on the last frame of the one before, pixel for pixel, on Embedding's
 layout, a row a place (`StreamTable`, `stream_table.dart`), the user's splits
@@ -503,8 +505,8 @@ row's own, and p(y), the share the guess gave it, the number Loss scores
 and certain guess is one square filling its lit slot: the top guess is right
 at 0 of insulin A's 22 places at step 1, 21 at step 200 (`<bos>`'s row
 spreads a sixth over the six first residues). Shares are softmax of the whole
-logits, as Attention's are of the whole scores; Backward still reads the
-stored probabilities. On the bench a tap asks for nothing; on the map a
+logits, as Attention's are of the whole scores, and Loss's and Backward's
+are Predict's. On the bench a tap asks for nothing; on the map a
 row, or its answer, puts its place in focus.
 
 **Loss** (`loss_scene.dart`, 17 beats, the user's picks of 2026-11-02)
@@ -547,6 +549,47 @@ check). On the table a row puts its place in focus, and so does a target of
 the line alone; on the batch a line puts its peptide in focus, and a target
 of the focus line its place; while the key swings, or the line shrinks, a
 tap asks for nothing.
+
+**Backward** (`backward_scene.dart`, 20 beats, the user's picks of
+2026-11-02) is the forward pass played back, along the same strings and the
+same ladder, carrying how the loss would change instead of numbers. It opens
+on Loss's last frame, pixel for pixel (`LossScene.paintEnd`, `LossFade`,
+whose `zoom` takes the line in focus back out of the batch): the other lines,
+the card, the mean's line and the legend go, and the line in focus grows back
+into the line alone, Loss's zoom in reverse; then its tiles and bars go and
+the place's target flies up to its row of Predict's bench, the shares as
+softmax left them (`PredictScene.barColour`, `litBand`, `drawWhole`,
+promoted). There the gradient starts: p − y, each share less one at what
+came next, so the target's row fills to the dashed 100% in the negative ink,
+"raise its logit", and every other bar turns positive, its own share,
+"lower each"; the bars condense into a column where the logits were made,
+signed, `<pad>` and `<bos>` struck. The place's last row stands at the left
+as Predict stood it, with empty slots for its gradient beside it, and the
+errors run back along the output layer's strings (`weight_flow.dart`, the
+closures transposed, the tips in the loss's honey): the largest number of the
+gradient alone (insulin A's C11 at step 1: number 10, −0.32), the rest in a
+cascade. Each string is then relit by its own gradient, the error at its end
+times the row's number at its start, the strongest named (S from 6, −1.91),
+and then by the batch's, every place's added and divided by the 180 targets,
+the output layer's gradient as the run kept it. The gradient's column lies
+down into Forward's ladder and climbs it from the bottom (`TowerLayout`, its
+number face sized for the gradient, `styleFor`): back through the final
+LayerNorm, then each part from the last, its strip what it sends back (the
+gradient above less the one below), a copy of the gradient under it rising
+through it into the slot above and turning into the sum, each row framed in
+honey; attention's captions count the later places whose blame comes back
+through it. At x0 its gradient goes on to its token row and its position
+row, and Forward's opening plays in reverse: the row goes home to the table
+and every place's x0 gradient comes in (at step 200 only `<bos>`'s is left);
+the last caption sets all the gradients' length against the clip (none of
+the seven checkpoints is clipped). Every number is the run's: the shares are
+Predict's; each point's gradient is the one the run kept whole (schema 7),
+drawn times the 180 targets, what the sum of their costs sends back; the
+ladder's, the strips' and the table's colours, and the strings' strength,
+are the whole batch's at that step, so a place with nothing left to learn is
+drawn as faint as it is. While the batch shows a line puts its peptide in
+focus; on the line alone a target its place; on the bench and the ladder a
+tap asks for nothing; on the table a row puts its place in focus.
 
 Reduced motion shows each stage played through, the loop at its last step. The
 captions and the About sheet are built from the run's own numbers (R4.1).

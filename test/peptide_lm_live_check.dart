@@ -66,7 +66,80 @@ void main() {
     expectTheWorkedAnswer(trace);
     expectTheWorkedLogit(trace);
     expectTheLoss(trace);
+    expectTheBackward(trace);
   });
+}
+
+/// What Backward draws (docs/design/peptide-lm.md): the gradient the run kept
+/// at every point is as long as its kept norm, and at the last point it is
+/// the output layer's weights times p − y over the targets. Insulin A chain's
+/// C11 at step 1: p − y at S is −0.987, and the row's gradient times the 180
+/// targets has its largest number at number 10, −0.32, its length 0.64. At the
+/// last step, `<bos>`'s row holds nearly all of insulin A's gradient at x0.
+void expectTheBackward(TrainingTrace trace) {
+  final int last = trace.points.length - 1;
+  for (final TraceCheckpoint c in trace.checkpoints) {
+    for (int p = 0; p < trace.peptides.length; p++) {
+      for (int i = 0; i < trace.peptides[p].inputs; i++) {
+        for (int k = 0; k <= last; k++) {
+          double squares = 0;
+          for (int d = 0; d < trace.model.width; d++) {
+            squares += math.pow(trace.streamGrad(c, k, p, i, d), 2);
+          }
+          final double norm = trace.pointGrad(c, k, p, i);
+          expect(math.sqrt(squares), closeTo(norm, 1e-5 * norm + 1e-12));
+        }
+      }
+    }
+  }
+  List<double> rowGradient(TraceCheckpoint at, int peptide, int i) {
+    double top = double.negativeInfinity;
+    for (final int id in trace.allowed) {
+      top = math.max(top, trace.logit(at, peptide, i, id));
+    }
+    double total = 0;
+    for (final int id in trace.allowed) {
+      total += math.exp(trace.logit(at, peptide, i, id) - top);
+    }
+    return <double>[
+      for (int d = 0; d < trace.model.width; d++)
+        <double>[
+          for (final int id in trace.allowed)
+            trace.outputWeight(at, id, d) *
+                (math.exp(trace.logit(at, peptide, i, id) - top) / total - (id == trace.targetAt(peptide, i) ? 1 : 0)),
+        ].fold<double>(0, (double sum, double v) => sum + v),
+    ];
+  }
+
+  final int insulinA = trace.peptides.indexWhere((TracePeptide p) => p.source.label == 'insulin A chain');
+  expect(insulinA, isNot(-1));
+  final TraceCheckpoint first = trace.checkpoints.first;
+  final List<double> row = rowGradient(first, insulinA, 11);
+  for (int d = 0; d < trace.model.width; d++) {
+    expect(row[d], closeTo(trace.streamGrad(first, last, insulinA, 11, d) * trace.targetCount, 1e-6));
+  }
+  int largest = 0;
+  for (int d = 1; d < row.length; d++) {
+    if (row[d].abs() > row[largest].abs()) {
+      largest = d;
+    }
+  }
+  expect(largest + 1, 10);
+  expect(fixed(row[largest], 2), '−0.32');
+  final double length = math.sqrt(row.fold<double>(0, (double sum, double v) => sum + v * v));
+  expect(length.toStringAsFixed(2), '0.64');
+  // At the last step nearly all of insulin A's gradient at x0 is <bos>'s.
+  final TraceCheckpoint end = trace.checkpoints.last;
+  double bos = 0;
+  double all = 0;
+  for (int i = 0; i < trace.peptides[insulinA].inputs; i++) {
+    final double squares = math.pow(trace.pointGrad(end, 0, insulinA, i), 2).toDouble();
+    all += squares;
+    if (i == 0) {
+      bos = squares;
+    }
+  }
+  expect(bos / all, greaterThan(0.99));
 }
 
 /// What Loss draws (docs/design/peptide-lm.md): each target's −ln p(y), p(y)

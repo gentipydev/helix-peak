@@ -721,8 +721,7 @@ out of view is scrolled just far enough to show it whole.
        `<bos>`'s row spreads a sixth over the six first residues, the
        floor Loss explains.
    - Shares are softmax of the logits as the run keeps them, whole (as
-     Attention's are of the scores), and so are Loss's; Backward still reads
-     the stored probabilities, to the nearest 255th. Every number is the run's: the last
+     Attention's are of the scores), and so are Loss's and Backward's. Every number is the run's: the last
      row, the output layer's weights and biases as the step found them, the
      logits. On the bench a tap asks for nothing; on the map a row, or its
      answer, puts its place in focus.
@@ -819,10 +818,37 @@ out of view is scrolled just far enough to show it whole.
    target puts its place in focus. Every caption keeps to two lines at 375,
    402 and 440 wide, at every peptide, place and step, and every note to its
    own lines.
-10. **Backward.** The bars turn into p − y; the error comes down the tower,
-   each module's gradient norm filling its bar and each position's glowing at
-   every point of the stream (by step 200 only `<bos>`'s, the unknowable first
-   residue, glows); the clip gauge reads the total against 1.0.
+10. **Backward** (20 beats, reworked 2026-11-02; the user's picks: the
+   run re-recorded as schema 7 with the stream's gradient whole, one stage,
+   and the opening back to the place in focus, then its bars). The forward
+   pass played back, along the same strings and the same ladder. It opens on
+   Loss's last frame pixel for pixel (`LossScene.paintEnd`, `LossFade`): the
+   other lines, the card, the mean and the legend go, the line in focus grows
+   back to stand alone (Loss's zoom reversed), then its target flies to its
+   row of Predict's shares, settled, the dashed 100%, its row lit. p − y: the
+   target's row fills to 100% in the negative ink ("raise its logit"), every
+   other bar turns positive, its share ("lower each"), and the bars condense
+   into a signed column where the logits were made. The place's last row
+   stands at the left with its gradient's empty slots beside it; the errors
+   run back along the output layer's strings, the largest number alone
+   (insulin A's C11 at step 1: number 10, −0.32), the rest in a cascade. Each
+   string is relit by its own gradient, its error times the number at its
+   start (the strongest, S from 6, −1.91), then by the batch's mean, the
+   output layer's gradient as the run kept it (held to `head_grad` within its
+   int8 step). The gradient lies down into Forward's ladder and climbs it:
+   the final LayerNorm, then each part from the last, its strip what it sends
+   back, a copy rising through it into the sum; attention's captions count the
+   later places that send blame back. At x0 it goes to the token and position
+   rows, and every place's x0 gradient comes in on the table (at step 200
+   99.9% of insulin A's is `<bos>`'s, the unknowable first residue); the last
+   caption sets the gradients' length against the clip (none of the seven
+   checkpoints is clipped; steps 59 to 73 were, nine of them). Numbers are the
+   run's gradients times the 180 targets, what each place's own cost sends
+   back; ÷ 180 is said once, at the output layer's mean. Colours and string
+   strength are the whole batch's at that step, so a place with nothing left
+   to learn is drawn faint (copeptin's R20 at step 200 is all 0.00). The old
+   stage (a module rail, a clip gauge, a dot per place and point, the stored
+   probabilities) is gone.
 11. **Update.** The output layer's weights, then the clipped gradient on them,
    then AdamW's update (drawn magnified, the factor said), then the weights
    moved. Per weight, the gradient differs between modules many times over
