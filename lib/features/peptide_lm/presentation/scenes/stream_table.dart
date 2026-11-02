@@ -125,6 +125,46 @@ final class StreamTable {
     if (alpha <= 0) {
       return;
     }
+    turn(
+      canvas,
+      from: from,
+      to: to,
+      f: f,
+      draw: (Rect strip) {
+        layout.fill(
+          canvas,
+          strip,
+          <Color>[for (final Color c in colors) c.withValues(alpha: c.a * alpha)],
+          gap: lyingGap * (1 - f) + standingGap * f,
+          radius: lyingRadius * (1 - f) + standingRadius * f,
+        );
+        if (outlined) {
+          canvas.drawRRect(
+            RRect.fromRectAndRadius(strip.inflate(1), const Radius.circular(3)),
+            Paint()
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 1.2
+              ..color = view.inks.signal.withValues(alpha: 0.85 * alpha),
+          );
+        }
+        if (numbers != null) {
+          drawRow(canvas, strip, numbers, scale: 1, fill: 0, text: alpha);
+        }
+      },
+    );
+  }
+
+  /// A row [f] of the way from lying across [from] to standing in [to], its
+  /// first cell at the top, turning about its middle as it goes: [draw] is
+  /// handed the row as it lies, centred on the origin, with the canvas moved
+  /// and turned under it, so whatever it draws along the row turns with it.
+  static void turn(
+    Canvas canvas, {
+    required Rect from,
+    required Rect to,
+    required double f,
+    required void Function(Rect strip) draw,
+  }) {
     final Offset centre = Offset.lerp(from.center, to.center, f)!;
     final double length = from.width + (to.height - from.width) * f;
     final double thick = from.height + (to.width - from.height) * f;
@@ -132,25 +172,7 @@ final class StreamTable {
     canvas.save();
     canvas.translate(centre.dx, centre.dy);
     canvas.rotate(math.pi / 2 * f);
-    layout.fill(
-      canvas,
-      strip,
-      <Color>[for (final Color c in colors) c.withValues(alpha: c.a * alpha)],
-      gap: lyingGap * (1 - f) + standingGap * f,
-      radius: lyingRadius * (1 - f) + standingRadius * f,
-    );
-    if (outlined) {
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(strip.inflate(1), const Radius.circular(3)),
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.2
-          ..color = view.inks.signal.withValues(alpha: 0.85 * alpha),
-      );
-    }
-    if (numbers != null) {
-      drawRow(canvas, strip, numbers, scale: 1, fill: 0, text: alpha);
-    }
+    draw(strip);
     canvas.restore();
   }
 

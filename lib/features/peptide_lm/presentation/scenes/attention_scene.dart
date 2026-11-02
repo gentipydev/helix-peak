@@ -1121,8 +1121,7 @@ final class AttentionScene extends LmScene {
     canvas.restore();
   }
 
-  /// A cell of a map of shares at [cell], as head 1's map draws its own and
-  /// Predict's map draws every place's guess: [filled] of the way from an
+  /// A cell of a head's map of shares at [cell]: [filled] of the way from an
   /// empty slot, outlined in the quiet ink, to a soft tile in [share]'s
   /// colour, [shown] as strongly as the map; the share written on it as a
   /// percentage in [numbers], where the map's cells fit one.

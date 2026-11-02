@@ -536,7 +536,7 @@ void main() {
     expect(caption(LmStage.predict, predict(11)), 'Every place guesses at once, with the same weights: 12 rows of 21');
     expect(
       caption(LmStage.predict, 0.99),
-      'Outlined, what came next (y): the top guess at ${PredictScene.right(last)} of 12 places',
+      'Lit, what came next (y): the top guess at ${PredictScene.right(last)} of 12 places',
     );
     expect(caption(LmStage.loss, 0.99), contains(nats(trace.loss(last.step))));
     expect(caption(LmStage.update, 0.5), contains(scientific(trace.steps.learningRate[last.step - 1])));
@@ -637,6 +637,10 @@ void main() {
             .hitAt(size, scene, predicted.mapCell(i, k).center, timeline.frameIn(LmStage.predict, 1));
         expect((hit! as FocusPosition).position, i, reason: 'row $i, column $k');
       }
+      // So does the row's end, where the answer key names what came next.
+      final LmHit? key = sceneOf(LmStage.predict)
+          .hitAt(size, scene, predicted.answerTile(i).center, timeline.frameIn(LmStage.predict, 1));
+      expect((key! as FocusPosition).position, i, reason: 'row $i, its answer');
     }
     // While the network takes Feed-forward's canvas, a tap asks for nothing.
     expect(
@@ -1331,6 +1335,72 @@ void main() {
           }
           // The map's tiles under its last row, on the canvas.
           expect(layout.mapTile(0).bottom, lessThanOrEqualTo(size.height), reason: where);
+          // The answer key at the map's right: each row's next token on a
+          // tile as large as the row's own and centred on the row, clear of
+          // the map; the widest share given, 100%, between the tile and the
+          // canvas's side, clear of the place in focus's outline.
+          for (int i = 0; i < scene.focus.inputs; i++) {
+            final Rect tile = layout.answerTile(i);
+            expect(tile.left, greaterThanOrEqualTo(layout.mapRow(i).right + 4), reason: '$where row $i');
+            expect(tile.center.dy, closeTo(layout.table.row(i).center.dy, 1e-9), reason: '$where row $i');
+            expect(tile.width, closeTo(layout.table.layout.chipSide, 1e-9), reason: '$where row $i');
+          }
+          final TextStyle? given = layout.givenStyle;
+          if (given != null) {
+            expect(
+              layout.answerTile(0).right + 3 + kit.layout('100%', given).width,
+              lessThanOrEqualTo(layout.givenRight + 1e-9),
+              reason: where,
+            );
+            // The two names over the key keep apart, whatever the font.
+            final TextStyle named = PredictScene.titleStyle(scene);
+            expect(
+              layout.answerTile(0).center.dx + kit.layout(PredictScene.answerTitle, named).width / 2 + 4,
+              lessThanOrEqualTo(layout.givenRight - kit.layout(PredictScene.givenTitle, named).width + 1e-9),
+              reason: where,
+            );
+          }
+          expect(layout.givenRight, lessThan(layout.right), reason: where);
+        }
+      }
+    }
+  });
+
+  testWidgets("Predict's map draws a share as that share of its slot, a place's squares making one slot", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    for (final int c in <int>[0, trace.checkpoints.length - 1]) {
+      for (int p = 0; p < trace.peptides.length; p++) {
+        final LmView scene = view(inks, kit, checkpoint: c, peptide: p, position: 0);
+        final List<List<double>> rows = PredictScene.allShares(scene);
+        for (final Size size in const <Size>[Size(375, 476), Size(440, 697)]) {
+          final PredictLayout layout = PredictLayout(size, scene);
+          for (int i = 0; i < scene.focus.inputs; i++) {
+            final String where = '$size c$c p$p row $i';
+            double area = 0;
+            double slotArea = 0;
+            for (int k = 0; k < trace.allowed.length; k++) {
+              // The slot: a square inside its cell, at its centre.
+              final Rect cell = layout.mapCell(i, k);
+              final RRect slot = PredictScene.slotOf(cell);
+              expect(slot.width, closeTo(slot.height, 1e-9), reason: where);
+              expect(cell.contains(slot.outerRect.topLeft) && cell.contains(slot.outerRect.bottomRight), isTrue, reason: where);
+              expect((slot.center - cell.center).distance, lessThan(1e-9), reason: where);
+              // The share: the slot scaled about its centre, its area, and
+              // so its corners' too, that share of the slot's.
+              final double share = rows[i][k];
+              final RRect fill = PredictScene.fillOf(slot, share);
+              expect((fill.center - slot.center).distance, lessThan(1e-9), reason: where);
+              expect(fill.width * fill.height, closeTo(share * slot.width * slot.height, 1e-9), reason: where);
+              expect(fill.tlRadiusX, closeTo(slot.tlRadiusX * math.sqrt(share), 1e-9), reason: where);
+              area += fill.width * fill.height;
+              slotArea = slot.width * slot.height;
+            }
+            // A place's shares add to one, so its squares make one slot.
+            expect(area, closeTo(slotArea, 1e-6), reason: where);
+          }
         }
       }
     }

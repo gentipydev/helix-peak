@@ -6,7 +6,6 @@ import '../../../../shared/format.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
 import '../lm_format.dart';
-import '../lm_inks.dart';
 import 'attention_scene.dart';
 import 'embedding_scene.dart';
 import 'forward_scene.dart';
@@ -143,10 +142,14 @@ void drawProbabilityBars(
 /// logits are struck to −∞. The bench clears and the logits slide left; a bar
 /// on each token's row grows to e to its logit, and every bar shrinks by
 /// their sum into its share; what came next is outlined. Then every place at
-/// once: the shares turn into tiles and lie down onto the place's row of a
-/// map, a row a place and a column a token that can come next, as head 1's
-/// map is drawn; every other place's row fills, and what came next at each is
-/// outlined: Shift's y, which Loss grades the guesses against.
+/// once: each bar goes into a square in a slot, the square's area that share
+/// of the slot's, so a place's squares together make one slot, and the slot
+/// of what came next lights as its outline goes; the slots lie down onto the
+/// place's row of a map, a row a place and a column a token that can come
+/// next. Every other place's squares grow in, and the slot of what came next
+/// at each lights, Shift's y, written again at the map's right with the
+/// share it was given, which Loss scores: a right and certain guess is one
+/// square filling its lit slot.
 ///
 /// Every number is the run's: the last row, the output layer's weights and
 /// biases as the step found them, and the logits, whole; the shares are
@@ -192,9 +195,10 @@ final class PredictScene extends LmScene {
   static const (double, double) _percents = (8.6, 8.9);
   static const (double, double) _answer = (9.4, 9.7);
 
-  // Every place: the bars turn into tiles as the logits go; the map comes in
-  // and the tiles lie down onto the place's row; every other row fills, top
-  // to bottom; what came next at each is outlined.
+  // Every place: the bars go into their squares as the logits go; the map's
+  // slots come in and the place's slots lie down onto its row; every other
+  // row's squares grow in, top to bottom; what came next at each lights, and
+  // the answer key comes in at the right.
   static const (double, double) _tiles = (10.6, 10.9);
   static const (double, double) _logitsOut = (10.6, 10.9);
   static const (double, double) _mapIn = (10.9, 11.2);
@@ -205,6 +209,17 @@ final class PredictScene extends LmScene {
 
   /// How long a row of the map takes to fill.
   static const double _rowFill = 0.2;
+
+  /// How far a share's square goes from the slot's colour to the accent at
+  /// the least, so a small share still reads; a certainty is the accent.
+  static const double _fillFloor = 0.5;
+
+  /// How far toward the tracer the slot of what came next is lit: a soft
+  /// fill, well under the squares, so the answer never outshouts the guess.
+  static const double _lit = 0.13;
+
+  /// The smallest side a square is drawn with: less is a speck.
+  static const double _leastFill = 0.4;
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -346,10 +361,78 @@ final class PredictScene extends LmScene {
     () => productReach(row, view.trace.vocab.length, (int out, int d) => view.trace.outputWeight(view.checkpoint, out, d)),
   );
 
-  /// A share's tile: its ramp, softened as the tables' tiles are, as a map's
-  /// cell fills in it.
-  static Color _shareColour(LmView view, double share) =>
-      Color.lerp(view.inks.zero, view.inks.share(share, view.inks.signal), LmInks.soft)!;
+  /// A map's cell's slot: the largest square its cell holds, inset as the
+  /// tables' tiles are and centred in it, its corners theirs, less on a small
+  /// cell; square, so a share's square in it is square too.
+  static RRect slotOf(Rect cell) {
+    final double side = math.max(0.0, cell.shortestSide - 2 * EmbeddingLayout.gap);
+    return RRect.fromRectAndRadius(
+      Rect.fromCenter(center: cell.center, width: side, height: side),
+      Radius.circular(math.min(EmbeddingLayout.radius, side * 0.2)),
+    );
+  }
+
+  /// A share's square in [slot]: the slot's own shape, corners and all,
+  /// scaled about its centre by the share's square root, so its area is that
+  /// share of the slot's and a place's squares together make one slot;
+  /// [grown] of the way from nothing.
+  static RRect fillOf(RRect slot, double share, {double grown = 1}) {
+    final double scale = math.sqrt(share.clamp(0.0, 1.0)) * grown;
+    return RRect.fromRectAndRadius(
+      Rect.fromCenter(center: slot.center, width: slot.width * scale, height: slot.height * scale),
+      Radius.circular(slot.tlRadiusX * scale),
+    );
+  }
+
+  /// A share's square's colour: the accent, muted for the least of them so
+  /// a small share still reads, the accent itself for a certainty.
+  static Color fillColour(LmView view, double share) => Color.lerp(
+    view.inks.zero,
+    view.inks.signal,
+    _fillFloor + (1 - _fillFloor) * math.sqrt(share.clamp(0.0, 1.0)),
+  )!;
+
+  /// A slot, [shown] as strongly as the map, [lit] of the way to the soft
+  /// light that marks what came next.
+  static void drawSlot(Canvas canvas, LmView view, RRect slot, {double shown = 1, double lit = 0}) {
+    if (shown <= 0) {
+      return;
+    }
+    final Color light = Color.lerp(view.inks.zero, view.inks.truth, _lit)!;
+    canvas.drawRRect(slot, Paint()..color = Color.lerp(view.inks.zero, light, lit)!.withValues(alpha: shown));
+  }
+
+  /// A cell of the map at [cell]: its slot, lit [lit] of the way where it is
+  /// what came next, and in it [share]'s square, grown [grown] of the way,
+  /// all [shown] as strongly as the map.
+  static void drawShare(
+    Canvas canvas,
+    LmView view,
+    Rect cell, {
+    required double share,
+    double grown = 1,
+    double shown = 1,
+    double lit = 0,
+  }) {
+    if (shown <= 0) {
+      return;
+    }
+    final RRect slot = slotOf(cell);
+    drawSlot(canvas, view, slot, shown: shown, lit: lit);
+    final RRect fill = fillOf(slot, share, grown: grown);
+    if (math.min(fill.width, fill.height) < _leastFill) {
+      return;
+    }
+    canvas.drawRRect(fill, Paint()..color = fillColour(view, share).withValues(alpha: shown));
+  }
+
+  /// The answer key's names over it: what came next, and the share given it,
+  /// in a column's name's face.
+  static const String answerTitle = 'y';
+  static const String givenTitle = 'p(y)';
+
+  static TextStyle titleStyle(LmView view, {double alpha = 1}) =>
+      inked(view.kit.sans, 9, view.inks.quiet, alpha: alpha);
 
   /// The logits' column's name.
   static const String logitsTitle = 'logits';
@@ -543,8 +626,9 @@ final class PredictScene extends LmScene {
   /// Softmax on the logits' rows: a bar each of the tokens that can come
   /// next, growing to e to its logit, the largest across the room; then
   /// every bar shrinking by their sum into its share, written at its end;
-  /// what came next outlined. As the map comes, each bar turns into its
-  /// share's tile, a standing column the map's row is made of.
+  /// what came next outlined. As the map comes, each bar goes into its
+  /// share's square, in a slot of a standing column the map's row is made
+  /// of; the slot of what came next lights as its outline goes.
   void _bars(Canvas canvas, LmView view, PredictLayout layout, double beat) {
     final double grow = _span(beat, _exp);
     if (grow <= 0 || beat >= _lieDown.$1) {
@@ -571,10 +655,15 @@ final class PredictScene extends LmScene {
     for (final int id in trace.allowed) {
       final Rect drawn = layout.bar(id, reach(id));
       if (tiles > 0) {
-        final Rect at = Rect.lerp(drawn, layout.shareTile(id).deflate(0.5), tiles)!;
+        final RRect slot = slotOf(layout.shareTile(id));
+        drawSlot(canvas, view, slot, shown: tiles, lit: id == view.target ? tiles : 0);
+        final RRect square = fillOf(slot, p[id]);
         canvas.drawRRect(
-          RRect.fromRectAndRadius(at, Radius.circular(1 + 0.5 * tiles)),
-          paint..color = Color.lerp(bar, _shareColour(view, p[id]), tiles)!,
+          RRect.fromRectAndRadius(
+            Rect.lerp(drawn, square.outerRect, tiles)!,
+            Radius.circular(1 + (square.tlRadiusX - 1) * tiles),
+          ),
+          paint..color = Color.lerp(bar, fillColour(view, p[id]), tiles)!,
         );
       } else if (drawn.width > 0) {
         canvas.drawRRect(RRect.fromRectAndRadius(drawn, const Radius.circular(1)), paint..color = bar);
@@ -642,10 +731,12 @@ final class PredictScene extends LmScene {
 
   /// Every place's guess at once, on the table's rows as head 1's map lies:
   /// a row a place, the tile at its left naming it; a column a token that
-  /// can come next, named by a tile under it; each share on a soft tile,
-  /// written as a percentage where it fits. It comes in as empty slots; the
-  /// place in focus's shares lie down onto its row; every other row fills;
-  /// what came next at each place is outlined in the tracer.
+  /// can come next, named by a tile under it; each share a square in its
+  /// slot, its area that share of the slot's, no number on it. The slots come
+  /// in empty; the place in focus's lie down onto its row, squares and the
+  /// lit slot of what came next with them; every other row's squares grow
+  /// in; then the slot of what came next at each place lights, and the
+  /// answer key comes in at the map's right.
   void _map(Canvas canvas, LmView view, PredictLayout layout, double beat) {
     final double shown = _span(beat, _mapIn);
     if (shown <= 0) {
@@ -657,6 +748,7 @@ final class PredictScene extends LmScene {
     final int focus = view.position;
     final List<int> allowed = trace.allowed;
     final List<List<double>> rows = allShares(view);
+    final double answers = _span(beat, _answers);
     table.tag(canvas, mapTag(view), shown);
     table.drawTiles(canvas, alpha: shown, dx: -table.gutter);
     for (int k = 0; k < allowed.length; k++) {
@@ -664,47 +756,80 @@ final class PredictScene extends LmScene {
     }
     for (int i = 0; i < n; i++) {
       final double filled = _filled(i, focus, n, beat);
+      final int answer = trace.allowedIndex(trace.targetAt(view.peptide, i));
+      // The place in focus's slot came lit off the bench; every other
+      // place's lights with the answer key.
+      final double lit = i == focus && beat >= _lieDown.$2 ? 1 : answers;
       for (int k = 0; k < allowed.length; k++) {
-        AttentionScene.drawShareCell(
+        drawShare(
           canvas,
           view,
           layout.mapCell(i, k),
           share: rows[i][k],
-          filled: filled,
+          grown: filled,
           shown: shown,
-          // A share that rounds to nothing is left unwritten: its tile says so.
-          numbers: percentNumber(rows[i][k]) == '0.0' ? null : layout.mapNumbers,
+          lit: k == answer ? lit : 0,
         );
       }
     }
+    // The place in focus's slots, its squares in them, lying down from the
+    // bench onto its row.
     final double lie = _span(beat, _lieDown);
     if (beat >= _lieDown.$1 && lie < 1) {
-      table.strip(
+      final int answer = trace.allowedIndex(view.target);
+      StreamTable.turn(
         canvas,
         from: layout.mapRow(focus),
         to: layout.shareColumn,
         f: 1 - lie,
-        colors: <Color>[for (final double s in rows[focus]) _shareColour(view, s)],
-        lyingRadius: layout.mapRadius,
+        draw: (Rect strip) {
+          final double w = strip.width / allowed.length;
+          for (int k = 0; k < allowed.length; k++) {
+            drawShare(
+              canvas,
+              view,
+              Rect.fromLTWH(strip.left + k * w, strip.top, w, strip.height),
+              share: rows[focus][k],
+              lit: k == answer ? 1 : 0,
+            );
+          }
+        },
       );
     }
     table.outline(canvas, focus, layout.right, _span(beat, _focusOutline), dx: -table.gutter);
-    final double answers = _span(beat, _answers);
-    if (answers > 0) {
-      final Paint line = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.2
-        ..color = view.inks.truth.withValues(alpha: answers);
-      for (int i = 0; i < n; i++) {
-        final int k = trace.allowedIndex(trace.targetAt(view.peptide, i));
-        if (k < 0) {
-          continue;
-        }
-        canvas.drawRRect(
-          RRect.fromRectAndRadius(layout.mapCell(i, k).deflate(0.5), Radius.circular(layout.mapRadius)),
-          line,
+    _answerKey(canvas, view, layout, answers);
+  }
+
+  /// The answer key at the map's right, as Shift's y: each place's next
+  /// token on a tile at its row's end, and the share its guess gave it, the
+  /// number Loss scores; their names over them.
+  void _answerKey(Canvas canvas, LmView view, PredictLayout layout, double alpha) {
+    if (alpha <= 0) {
+      return;
+    }
+    final TrainingTrace trace = view.trace;
+    final TextStyle? given = layout.givenStyle;
+    final TextStyle? written = given?.copyWith(color: given.color!.withValues(alpha: (alpha * 8).round() / 8));
+    for (int i = 0; i < view.focus.inputs; i++) {
+      final int next = trace.targetAt(view.peptide, i);
+      drawToken(canvas, view, layout.answerTile(i), next, alpha: alpha);
+      if (written != null) {
+        view.kit.draw(
+          canvas,
+          percent(shares(view, i)[next]),
+          written,
+          Offset(layout.givenRight, layout.table.row(i).center.dy),
+          anchor: const Offset(1, 0.5),
         );
       }
+    }
+    // Named as a column is (`drawColumnTitle`), the shares' name flush with
+    // their right edge.
+    final double top = layout.table.layout.tableTop - 4;
+    final TextStyle named = titleStyle(view, alpha: alpha);
+    view.kit.draw(canvas, answerTitle, named, Offset(layout.answerTile(0).center.dx, top), anchor: const Offset(0.5, 1));
+    if (written != null) {
+      view.kit.draw(canvas, givenTitle, named, Offset(layout.givenRight, top), anchor: const Offset(1, 1));
     }
   }
 
@@ -778,10 +903,16 @@ final class PredictScene extends LmScene {
       ),
       (
         _tiles.$1,
-        double.infinity,
+        _answers.$1,
         'Every place goes through the same output layer: ${grouped(view.focus.inputs)} guesses.\n'
-            "Each row adds to 100%; outlined, what came next: Shift's y.\n"
-            'Next, Loss scores each guess by the share it gave that answer.',
+            "A square's area is its share; a row's add up to one slot: 100%.",
+      ),
+      (
+        _answers.$1,
+        double.infinity,
+        "At the right, Shift's y and p(y), the share each guess gave it.\n"
+            'Certain and right, a row is one square filling its lit slot.\n'
+            'Next, Loss scores each place by p(y) alone.',
       ),
     ];
   }
@@ -840,7 +971,7 @@ final class PredictScene extends LmScene {
     if (beat < _answers.$1) {
       return 'Every place guesses at once, with the same weights: ${grouped(n)} rows of ${grouped(trace.allowed.length)}';
     }
-    return 'Outlined, what came next (y): the top guess at ${grouped(right(view))} of ${grouped(n)} places';
+    return 'Lit, what came next (y): the top guess at ${grouped(right(view))} of ${grouped(n)} places';
   }
 
   @override
@@ -854,7 +985,10 @@ final class PredictScene extends LmScene {
 /// left of it, its tiles through the rows' height; the logits at the right,
 /// their numbers right of them and each token's tile at the canvas's side.
 /// Once the logits slide left, the bars take the room right of their tiles.
-/// Then the map, on the table's own rows, as head 1's map lies.
+/// Then the map, on the table's own rows, as head 1's map lies, and at its
+/// right the answer key: each row's next token on a tile as large as the
+/// tiles naming the rows, and the share it was given, written up to the
+/// canvas's side.
 final class PredictLayout {
   PredictLayout(Size size, LmView view)
     : table = StreamTable(size, view),
@@ -900,8 +1034,27 @@ final class PredictLayout {
     firstAllowed = allowed.reduce(math.min);
     lastAllowed = allowed.reduce(math.max);
     mapLeft = e.cellsLeft - table.gutter;
-    mapColumn = (right - mapLeft) / allowed.length;
-    mapNumbers = AttentionLayout.shareNumbers(view, mapColumn, e.pitch);
+    // The answer key, from the canvas's side in: the shares given, clear of
+    // the place in focus's outline; then the tiles; then the map.
+    final TextStyle? given = _givenStyle(view, e.pitch);
+    givenStyle = given;
+    givenRight = right - _outlineRoom;
+    if (given == null) {
+      answerLeft = givenRight - e.chipSide;
+    } else {
+      // Room for the widest share, 100%, right of the tiles; and for the
+      // shares' name over them, clear of the tiles' own, which can be the
+      // wider where the rows, and so the numbers, are small.
+      final TextStyle named = PredictScene.titleStyle(view);
+      final double numbers = view.kit.layout('100%', given).width + _givenGap + e.chipSide;
+      final double names = view.kit.layout(PredictScene.givenTitle, named).width +
+          _titleGap +
+          view.kit.layout(PredictScene.answerTitle, named).width / 2 +
+          e.chipSide / 2;
+      answerLeft = givenRight - math.max(numbers, names);
+    }
+    mapRight = answerLeft - _answerGap;
+    mapColumn = (mapRight - mapLeft) / allowed.length;
   }
 
   final StreamTable table;
@@ -919,6 +1072,16 @@ final class PredictLayout {
   /// token's tile.
   static const double _plateGap = 10;
   static const double _chipGap = 4;
+
+  /// From the map to the answer key's tiles, from a tile to its share, and
+  /// from the shares to the canvas's side, where the outline of the place in
+  /// focus runs.
+  static const double _answerGap = 6;
+  static const double _givenGap = 3;
+  static const double _outlineRoom = 2;
+
+  /// Between the answer key's two names.
+  static const double _titleGap = 4;
 
   late final double left;
   late final double right;
@@ -952,11 +1115,27 @@ final class PredictLayout {
   late final int firstAllowed;
   late final int lastAllowed;
 
-  /// Where the map starts, how wide its columns are, and what its shares are
-  /// written in, or null where they are drawn in their colours alone.
+  /// Where the map starts and ends, and how wide its columns are.
   late final double mapLeft;
+  late final double mapRight;
   late final double mapColumn;
-  late final TextStyle? mapNumbers;
+
+  /// The answer key: where its tiles start, where the shares given end, and
+  /// what those are written in, or null where the rows are too small for a
+  /// number.
+  late final double answerLeft;
+  late final double givenRight;
+  late final TextStyle? givenStyle;
+
+  /// The shares given to what came next are written as the table's rows
+  /// write their numbers: at most 9 points, and not below the least a number
+  /// is written.
+  static TextStyle? _givenStyle(LmView view, double pitch) {
+    final double points = (math.min(9, pitch * 0.62) * 2).floorToDouble() / 2;
+    return points < EmbeddingLayout.leastNumber
+        ? null
+        : inked(view.kit.mono, points, view.inks.ink).copyWith(letterSpacing: 0);
+  }
 
   static double _largest(List<double> values) {
     double most = 0;
@@ -1029,7 +1208,15 @@ final class PredictLayout {
   }
 
   /// Place [i]'s row of the map, every column of it.
-  Rect mapRow(int i) => Rect.fromLTRB(mapLeft, table.row(i).top, right, table.row(i).bottom);
+  Rect mapRow(int i) => Rect.fromLTRB(mapLeft, table.row(i).top, mapRight, table.row(i).bottom);
+
+  /// The tile of what came next after place [i], at its row's end: as large
+  /// as the tile naming the row, centred on it.
+  Rect answerTile(int i) {
+    final Rect row = table.row(i);
+    final double side = table.layout.chipSide;
+    return Rect.fromLTWH(answerLeft, row.center.dy - side / 2, side, side);
+  }
 
   /// The tile naming the map's column [k], under its last row, as Attention
   /// names the places read.
@@ -1038,11 +1225,5 @@ final class PredictLayout {
     final double side = table.layout.chipSide;
     final double wide = math.max(1.0, math.min(side, cell.width - 1));
     return Rect.fromLTWH(cell.center.dx - wide / 2, cell.bottom + 4, wide, side);
-  }
-
-  /// A map's cell's corners, as [AttentionScene.drawShareCell] rounds them.
-  double get mapRadius {
-    final Rect tile = mapCell(0, 0).deflate(EmbeddingLayout.gap);
-    return math.min(EmbeddingLayout.radius, tile.shortestSide * 0.2);
   }
 }

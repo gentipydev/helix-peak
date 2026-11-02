@@ -133,7 +133,9 @@ class LmAboutSheet extends StatelessWidget {
                   'high where the two agree in sign and size. <pad> and <bos> can never come '
                   'next, so theirs are set to −∞; softmax raises e to each of the other '
                   '$allowed and divides each by their sum, probabilities that add to one. '
-                  'Every place makes its guess at once, with the same weights.',
+                  'Every place makes its guess at once, with the same weights. On the map each '
+                  'probability is a square, its area that share of its slot, so a place\'s squares '
+                  'add up to one slot; the slot of the token that came next is lit.',
             ),
             paragraph(
               'Loss',
