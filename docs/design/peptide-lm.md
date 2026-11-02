@@ -678,19 +678,48 @@ out of view is scrolled just far enough to show it whole.
      end, against a dashed 100%. What came next is outlined in the tracer:
      after …CCTSIC the model gives K 10%, and the S that comes next 1.3%; at
      step 200, S 100%.
-   - Every place at once: the bars turn into tiles, which lie down onto the
-     place's row of a map, a row a place and a column a token that can come
-     next, drawn as head 1's map is (`AttentionScene.drawShareCell`, a share
-     that rounds to nothing unwritten); every other row fills, top to bottom,
-     and each row's next token, Shift's y, is outlined: the top guess is right
-     at 0 of insulin A's 22 places at step 1, 21 at step 200, where `<bos>`'s
-     row spreads a sixth over the six first residues, the floor Loss explains.
+   - Every place at once, on a map of shares drawn as squares (the user's
+     picks of 2026-11-02, redrawing the first map, which was head 1's: a
+     soft tile and a number on every cell and a white box on each answer).
+     Why it was redrawn, measured on insulin A at step 1:
+     - Every share lay between 1% and 21% (median 4%). On head 1's ramp,
+       softened for the numbers on it, the cells spanned ~1.4:1 in
+       luminance. The boxes, in the tracer's white, stood ~11.6:1 against
+       a cell, and 462 numbers ~9.5:1, so the marks outshouted the data.
+     - No row's top guess could be seen without reading every number.
+     - The tracer, the walk's one unambiguous box, had become 22.
+
+     Now:
+     - Each share is a square in a dark slot, its area that share of the
+       slot's (`PredictScene.slotOf`, the largest square its cell holds;
+       `fillOf`, the slot scaled about its centre by the share's square
+       root). A place's squares therefore add up to one slot.
+     - Squares are the accent, muted for the least and the accent itself
+       for a certainty (`fillColour`). There is no number in the field and
+       no outline.
+     - Each bar goes into its square in a standing column of slots, and the
+       slot of what came next lights as the tracer's outline goes. The
+       column lies down onto the place's row (`StreamTable.turn`, the
+       strip's turn, promoted, every other stage's frames byte-identical),
+       then every other row's squares grow in, top to bottom.
+     - Then the slot of what came next lights at every place: a soft fill
+       13% toward the tracer (`drawSlot`), ~1.7:1 on a slot, under the
+       squares.
+     - The answer key comes in at the map's right, as Shift's y: each row's
+       next token on a tile as large as the row's own, and p(y), the share
+       the guess gave it, the number Loss scores. It is titled `y` and
+       `p(y)`, its room the wider of the widest share and the two titles.
+     - A right and certain guess is one square filling its lit slot. The
+       top guess is right at 0 of insulin A's 22 places at step 1 (p(y)
+       median 4%), 9 at step 49 (13%) and 21 at step 200 (99.5%). There
+       `<bos>`'s row spreads a sixth over the six first residues, the
+       floor Loss explains.
    - Shares are softmax of the logits as the run keeps them, whole (as
      Attention's are of the scores); Loss and Backward still read the stored
      probabilities, to the nearest 255th. Every number is the run's: the last
      row, the output layer's weights and biases as the step found them, the
-     logits. On the bench a tap asks for nothing; on the map a row puts its
-     place in focus.
+     logits. On the bench a tap asks for nothing; on the map a row, or its
+     answer, puts its place in focus.
 9. **Loss.** A ghost bar rises to certainty at the target, the gap bracketed
    and read off the −ln p curve; every target's surprise fills a strip a
    peptide and pools into the step's loss, set against ln 21.

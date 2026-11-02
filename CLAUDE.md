@@ -482,15 +482,28 @@ clears and the logits slide left; softmax is worked out in two steps, each bar
 growing to e to its logit, the largest across the room (e to K's 1.00 is
 2.72; at step 200 e to S's 9.14 is 9,318 and the rest vanish), then every bar
 shrinking by their sum (27.12) into its share of a dashed 100% (K 10%), what
-came next outlined in the tracer. Then every place at once: the shares turn
-into tiles and lie down onto the place's row of a map, a row a place and a
-column a token that can come next, drawn as head 1's map is
-(`AttentionScene.drawShareCell`); every other row fills, and each row's next
-token (Shift's y) is outlined: the top guess is right at 0 of insulin A's 22
-places at step 1, 21 at step 200 (`<bos>`'s row spreads a sixth over the six
-first residues). Shares are softmax of the whole logits, as Attention's are of
-the whole scores; Loss and Backward still read the stored probabilities. On
-the bench a tap asks for nothing; on the map a row puts its place in focus.
+came next outlined in the tracer. Then every place at once, on a map of its
+own look (the user's picks of 2026-11-02, after the first map, head 1's tiles
+with a number on every cell and a white box on each answer, read as noise:
+at step 1 the cells spanned ~1.4:1 while the boxes and 462 numbers stood at
+~10:1). Each share is a square in a dark slot, its area that share of the
+slot's (`PredictScene.slotOf`/`fillOf`, the slot the largest square its cell
+holds), so a place's squares add up to one slot; no number in the field and
+no outline. Each bar goes into its square in a standing column of slots, the
+slot of what came next lighting as the tracer's outline goes, and the column
+lies down onto the place's row (`StreamTable.turn`, the strip's turn,
+promoted); every other row's squares grow in, top to bottom. Then the slot of
+what came next at every place lights, a soft fill toward the tracer
+(`drawSlot`, never louder than the squares), and the answer key comes in at
+the map's right: each row's next token, Shift's y, on a tile as large as the
+row's own, and p(y), the share the guess gave it, the number Loss scores
+(`PredictLayout.answerTile`, `givenStyle`; titled `y` and `p(y)`). A right
+and certain guess is one square filling its lit slot: the top guess is right
+at 0 of insulin A's 22 places at step 1, 21 at step 200 (`<bos>`'s row
+spreads a sixth over the six first residues). Shares are softmax of the whole
+logits, as Attention's are of the whole scores; Loss and Backward still read
+the stored probabilities. On the bench a tap asks for nothing; on the map a
+row, or its answer, puts its place in focus.
 
 Reduced motion shows each stage played through, the loop at its last step. The
 captions and the About sheet are built from the run's own numbers (R4.1).
