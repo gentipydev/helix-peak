@@ -37,11 +37,12 @@ typedef HeadTimes = ({double keys, double scan, double soft, double shares, doub
 /// Every place does the same at once: the table narrows to its token
 /// column and head 1's map takes the width beside it, a row a place, the
 /// tiles naming its rows, and under it its columns; the place in focus's row
-/// fills first, with the shares Scores found, then every other row. Head 2's
-/// map is not drawn. Last, the table widens again: what attention adds to
-/// each place, alone, and then added, x0 + block 1's attention, the first
-/// point of the stream after x0. What the stage names, the block's parts
-/// and sums, it names as block 1's.
+/// fills first, with the shares Scores found, then every other row. Then
+/// head 2's map takes the same rows, filled the same way: what attention
+/// adds is both heads' answers through the output weights. Last, the table
+/// widens again: what attention adds to each place, alone, and then added,
+/// x0 + block 1's attention, the first point of the stream after x0. What
+/// the stage names, the block's parts and sums, it names as block 1's.
 ///
 /// Every number is the run's: the scores, the shares, and each point of the
 /// stream, whole.
@@ -58,8 +59,8 @@ final class AttentionScene extends LmScene {
   static const double _firstHeadTo = 1.6;
   static const double _joinFrom = 4.4;
   static const double _mapFrom = 16.3;
-  static const double _widenFrom = 19.7;
-  static const double _widenTo = 20.5;
+  static const double _widenFrom = 21.7;
+  static const double _widenTo = 22.5;
 
   // Number 1 of head 1's answer worked out, as soon as head 2 has read: the
   // answers stand up off the row in focus into its column, and it ends on
@@ -108,12 +109,19 @@ final class AttentionScene extends LmScene {
   static const (double, double) _focusRow = (17.0, 17.8);
   static const (double, double) _rows = (17.9, 18.7);
 
+  // Then head 2's map on the same rows (the user's ask of 2026-11-02: what
+  // attention adds mixes both heads' answers): head 1's cells empty to their
+  // slots and its tag goes, head 2's tag comes, and its map fills as head
+  // 1's did, a little quicker; then it holds. The heads after the first
+  // share this span between them.
+  static const double _mapTurnFrom = 19.4;
+
   // What attention added, alone on its own scale, then the sums.
-  static const (double, double) _alone = (19.7, 20.3);
-  static const (double, double) _gainWritten = (20.5, 20.7);
-  static const (double, double) _gainUnwritten = (21.1, 21.3);
-  static const (double, double) _add = (21.2, 21.6);
-  static const (double, double) _sumsWritten = (21.4, 21.6);
+  static const (double, double) _alone = (21.7, 22.3);
+  static const (double, double) _gainWritten = (22.5, 22.7);
+  static const (double, double) _gainUnwritten = (23.1, 23.3);
+  static const (double, double) _add = (23.2, 23.6);
+  static const (double, double) _sumsWritten = (23.4, 23.6);
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -194,12 +202,11 @@ final class AttentionScene extends LmScene {
     );
     final int width = trace.model.width;
     final int n = view.focus.inputs;
-    // The map's name, gone before the next is written in its place.
-    table.tag(
-      canvas,
-      'block 1 · head 1 · shares in % · $n × $n',
-      _span(beat, _mapTagIn) * (1 - through(beat, _widenFrom - 0.1, _widenFrom + 0.1)),
-    );
+    // Each head's map named in turn, each name gone before the next is
+    // written in its place.
+    for (int h = 0; h < trace.model.heads; h++) {
+      table.tag(canvas, 'block 1 · head ${h + 1} · shares in % · $n × $n', mapTagShown(h, trace.model.heads, beat));
+    }
     table.tag(
       canvas,
       "what block 1's attention adds · $n × $width",
@@ -965,36 +972,117 @@ final class AttentionScene extends LmScene {
 
   // -------------------------------------------------------------------- map
 
-  /// The head whose map is drawn: the first, whose reading Scores worked
-  /// out. The second's is not drawn.
+  /// The head whose map comes first: the first, whose reading Scores worked
+  /// out. The others' follow it on the same rows.
   static const int mapHead = 0;
 
-  /// How far head 1's map has come: in with its slots as the answers' box
-  /// grows into it, and gone as the table widens again.
+  /// How far the map has come: in with its slots as the answers' box grows
+  /// into it, and gone as the table widens again.
   static double _mapShown(double beat) =>
       _span(beat, _mapIn) * (1 - through(beat, _widenFrom, _widenFrom + 0.25));
 
-  /// How far the map's cell at row [i], column [j] has filled at [beat], of
-  /// [n] places, [focus] in focus: the row in focus first, a cell at a time
-  /// from `<bos>`; then every other row, top to bottom, a row at a time.
-  static double mapFilled(int i, int j, int focus, int n, double beat) {
-    if (i == focus) {
-      const double each = 0.25;
-      final double start = _focusRow.$1 + (focus < 1 ? 0 : (_focusRow.$2 - _focusRow.$1 - each) * j / focus);
-      return through(beat, start, start + each);
+  /// Head 2's own pace, in beats, scaled to each later head's share of the
+  /// span after head 1's map when there are more than two.
+  static double _mapPace(int heads) => (_widenFrom - _mapTurnFrom) / math.max(1, heads - 1) / 2.3;
+
+  /// When head [h]'s map, of [heads], does each part: its tag comes over
+  /// [tagIn]; its row in focus fills over [focus], then every other row
+  /// over [rows]; from [away] its cells empty to their slots and its tag
+  /// goes, as the next head's map comes (never, for the last, which holds
+  /// until the table widens). Head 1's map comes out of the heads' answers;
+  /// each later head's takes the rows once the one before has emptied.
+  static ({(double, double) tagIn, (double, double) focus, (double, double) rows, double away}) mapTimes(
+    int h,
+    int heads,
+  ) {
+    final double pace = _mapPace(heads);
+    final double share = 2.3 * pace;
+    final double away = h < heads - 1 ? _mapTurnFrom + h * share : double.infinity;
+    if (h == 0) {
+      return (tagIn: _mapTagIn, focus: _focusRow, rows: _rows, away: away);
     }
-    const double each = 0.2;
-    final int rank = i < focus ? i : i - 1;
-    final double start = _rows.$1 + (n < 3 ? 0 : (_rows.$2 - _rows.$1 - each) * rank / (n - 2));
-    return through(beat, start, start + each);
+    final double start = _mapTurnFrom + (h - 1) * share;
+    return (
+      tagIn: (start + 0.15 * pace, start + 0.35 * pace),
+      focus: (start + 0.35 * pace, start + 0.85 * pace),
+      rows: (start + 0.9 * pace, start + 1.5 * pace),
+      away: away,
+    );
   }
 
-  /// Head 1's map, every place's reading at once, on the table's rows: a row
-  /// a place, the tile at its left naming it; its shares of the places up to
-  /// its own, each on a soft tile of its colour, its percentage written on it
-  /// where it fits; the places after it struck through, never read; and the
-  /// places read named under the columns. It comes in as empty slots, seen
-  /// only inside the answers' box as the box grows into it.
+  /// The head whose map the grid draws at [beat], of [heads]: each until
+  /// its cells have emptied, then the next.
+  static int mapHeadAt(double beat, int heads) {
+    for (int h = 0; h < heads - 1; h++) {
+      if (beat < mapTimes(h, heads).away + 0.3 * _mapPace(heads)) {
+        return h;
+      }
+    }
+    return heads - 1;
+  }
+
+  /// How strongly head [h]'s map is named at [beat], of [heads]: each tag
+  /// gone before the next is written in its place.
+  static double mapTagShown(int h, int heads, double beat) {
+    final ({(double, double) tagIn, (double, double) focus, (double, double) rows, double away}) t = mapTimes(h, heads);
+    return _span(beat, t.tagIn) *
+        (1 - through(beat, t.away, t.away + 0.15 * _mapPace(heads))) *
+        (1 - through(beat, _widenFrom - 0.1, _widenFrom + 0.1));
+  }
+
+  /// How far the map's cell at row [i], column [j] has filled at [beat], of
+  /// [n] places, [focus] in focus, in head [head]'s map of [heads]: the row
+  /// in focus first, a cell at a time from `<bos>`; then every other row,
+  /// top to bottom, a row at a time; and back to its slot as the next
+  /// head's map comes.
+  static double mapFilled(int i, int j, int focus, int n, double beat, {int head = 0, int heads = 1}) {
+    final ({(double, double) tagIn, (double, double) focus, (double, double) rows, double away}) t =
+        mapTimes(head, heads);
+    final double emptied = through(beat, t.away, t.away + 0.3 * _mapPace(heads));
+    if (i == focus) {
+      final double span = t.focus.$2 - t.focus.$1;
+      final double each = math.min(0.25, span / 2);
+      final double start = t.focus.$1 + (focus < 1 ? 0 : (span - each) * j / focus);
+      return through(beat, start, start + each) * (1 - emptied);
+    }
+    final double span = t.rows.$2 - t.rows.$1;
+    final double each = math.min(0.2, span / 3);
+    final int rank = i < focus ? i : i - 1;
+    final double start = t.rows.$1 + (n < 3 ? 0 : (span - each) * rank / (n - 2));
+    return through(beat, start, start + each) * (1 - emptied);
+  }
+
+  /// How many rows of head [h]'s map put their largest share on another
+  /// place than head [h] − 1's map does: the first of the largest in each.
+  static int movedRows(LmView view, int h) {
+    final List<List<double>> now = allShares(view, h);
+    final List<List<double>> before = allShares(view, h - 1);
+    int top(List<double> row) {
+      int best = 0;
+      for (int j = 1; j < row.length; j++) {
+        if (row[j] > row[best]) {
+          best = j;
+        }
+      }
+      return best;
+    }
+
+    int moved = 0;
+    for (int i = 0; i < now.length; i++) {
+      if (top(now[i]) != top(before[i])) {
+        moved++;
+      }
+    }
+    return moved;
+  }
+
+  /// Each head's map in turn, every place's reading at once, on the table's
+  /// rows: a row a place, the tile at its left naming it; its shares of the
+  /// places up to its own, each on a soft tile of its colour, its percentage
+  /// written on it where it fits; the places after it struck through, never
+  /// read; and the places read named under the columns. Head 1's comes in as
+  /// empty slots, seen only inside the answers' box as the box grows into
+  /// it; each later head's fills the slots the one before emptied.
   void _map(Canvas canvas, LmView view, AttentionLayout layout, double beat) {
     final double shown = _mapShown(beat);
     if (shown <= 0) {
@@ -1004,7 +1092,9 @@ final class AttentionScene extends LmScene {
     final int n = view.focus.inputs;
     final int focus = view.position;
     final double grow = _span(beat, _grow);
-    final List<List<double>> rows = allShares(view, mapHead);
+    final int heads = trace.model.heads;
+    final int head = mapHeadAt(beat, heads);
+    final List<List<double>> rows = allShares(view, head);
     final TextStyle? numbers = layout.mapNumbers;
     canvas.save();
     if (grow < 1) {
@@ -1018,7 +1108,7 @@ final class AttentionScene extends LmScene {
           view,
           layout.mapCell(i, j),
           share: rows[i][j],
-          filled: mapFilled(i, j, focus, n, beat),
+          filled: mapFilled(i, j, focus, n, beat, head: head, heads: heads),
           shown: shown,
           numbers: numbers,
         );
@@ -1184,15 +1274,18 @@ final class AttentionScene extends LmScene {
       ),
       (
         _rows.$1,
-        _widenFrom,
+        heads > 1 ? _mapTurnFrom : _widenFrom,
         'each row adds to 100%: the first places share it among few\n'
-            'hatched: the places after it, never read; the next is its answer'
-            '${switch (heads) {
-              1 => '',
-              2 => '\nhead 2 reads the same way, with a map of its own',
-              _ => '\nthe other ${spelled(heads - 1)} heads read the same way, each with its own map',
-            }}',
+            'hatched: the places after it, never read; the next is its answer',
       ),
+      // The other heads' maps, and where their answers go with head 1's.
+      if (heads > 1)
+        (
+          _mapTurnFrom,
+          _widenFrom,
+          '${heads == 2 ? 'head 2 reads with its own query and keys: a map of its own' : 'the other ${spelled(heads - 1)} heads read with their own: a map each'}\n'
+              'the ${spelled(heads)} answers, side by side, go through the output weights',
+        ),
       (
         _widenFrom,
         double.infinity,
@@ -1242,10 +1335,26 @@ final class AttentionScene extends LmScene {
       return "Head 1's map: $focus's row first, its shares from Scores";
     }
     if (beat < _widenFrom) {
-      return 'Every place does what $focus did, its query on the keys up to it';
+      // The head whose map's span this is: head 1's until its map gives way.
+      int h = 0;
+      while (h < heads - 1 && beat >= mapTimes(h, heads).away) {
+        h++;
+      }
+      if (h == 0) {
+        return 'Every place does what $focus did, its query on the keys up to it';
+      }
+      final int moved = movedRows(view, h);
+      return moved == 0
+          ? "Head ${h + 1}'s map: every row reads most the same place as head $h's"
+          : "Head ${h + 1}'s map: the place read most changes in ${grouped(moved)} of ${grouped(n)} rows";
     }
     if (beat < _gainUnwritten.$1) {
-      return "Each row made as $focus's was: its shares × the values, × output weights";
+      final String answers = switch (heads) {
+        1 => "its head's answer",
+        2 => "both heads' answers",
+        _ => "all ${spelled(heads)} heads' answers",
+      };
+      return "Every row made as $focus's: $answers × output weights";
     }
     return "Added: x0 + block 1's attention, ${grouped(n)} × $width";
   }

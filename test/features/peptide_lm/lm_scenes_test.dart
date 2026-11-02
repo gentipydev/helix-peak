@@ -358,9 +358,13 @@ void main() {
       caption(LmStage.attention, attention(18.3)),
       'Every place does what V3 did, its query on the keys up to it',
     );
+    // Then head 2's map on the same rows: how many rows read most another
+    // place than in head 1's.
+    expect(caption(LmStage.attention, attention(20.5)), "Head 2's map: the place read most changes in 11 of 12 rows");
+    expect(AttentionScene.movedRows(last, 1), 11);
     expect(
-      caption(LmStage.attention, attention(20.7)),
-      "Each row made as V3's was: its shares × the values, × output weights",
+      caption(LmStage.attention, attention(22.7)),
+      "Every row made as V3's: both heads' answers × output weights",
     );
     expect(caption(LmStage.attention, 0.99), "Added: x0 + block 1's attention, 12 × $width");
     // Feed-forward, block 1's, at V3.
@@ -643,13 +647,16 @@ void main() {
     // Attention's map lies on the table's rows: a tap on a row of it, on a
     // share it reads or on a place it never reads, puts that row's place in
     // focus.
-    final TrainingFrame map = timeline.frameIn(LmStage.attention, 19.1 / LmStage.attention.beats);
+    // So does head 2's, which takes the same rows after it.
     final AttentionLayout attention = AttentionLayout(size, scene);
     final int places = trace.peptides.first.inputs;
-    for (int i = 0; i < places; i++) {
-      for (final int j in <int>[0, places - 1]) {
-        final LmHit? hit = sceneOf(LmStage.attention).hitAt(size, scene, attention.mapCell(i, j).center, map);
-        expect((hit! as FocusPosition).position, i, reason: 'row $i, column $j');
+    for (final double beat in <double>[19.1, 21.0]) {
+      final TrainingFrame map = timeline.frameIn(LmStage.attention, beat / LmStage.attention.beats);
+      for (int i = 0; i < places; i++) {
+        for (final int j in <int>[0, places - 1]) {
+          final LmHit? hit = sceneOf(LmStage.attention).hitAt(size, scene, attention.mapCell(i, j).center, map);
+          expect((hit! as FocusPosition).position, i, reason: 'beat $beat, row $i, column $j');
+        }
       }
     }
   });
@@ -1116,6 +1123,54 @@ void main() {
         expect(starts(i, 0), greaterThan(starts(others[k - 1], 0)), reason: 'row $i after the row above it');
       }
       expect(ends(i, i), lessThan(LmStage.attention.beats.toDouble()));
+    }
+    // Then head 2's map on the same rows, filled the same way: its row in
+    // focus first, then every other row, top to bottom; each cell only once
+    // every cell of head 1's has emptied to its slot; all of it while its
+    // name is up, before the table widens; and the two maps' names never up
+    // together.
+    final int heads = trace.model.heads;
+    expect(heads, 2);
+    double filledIn(int h, int i, int j, double b) => AttentionScene.mapFilled(i, j, focus, n, b, head: h, heads: heads);
+    double startsIn(int h, int i, int j) => first((double b) => filledIn(h, i, j, b) > 0);
+    double endsIn(int h, int i, int j) => first((double b) => filledIn(h, i, j, b) >= 1);
+    // Head 1's own fill is the same whether or not a head follows it.
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j <= i; j++) {
+        expect(startsIn(0, i, j), starts(i, j), reason: 'head 1, cell $i, $j');
+        expect(endsIn(0, i, j), ends(i, j), reason: 'head 1, cell $i, $j');
+      }
+    }
+    double head1Gone = 0;
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j <= i; j++) {
+        final double full = endsIn(0, i, j);
+        head1Gone = math.max(head1Gone, first((double b) => b > full && filledIn(0, i, j, b) <= 0));
+      }
+    }
+    expect(head1Gone, lessThan(LmStage.attention.beats.toDouble()));
+    for (int j = 1; j <= focus; j++) {
+      expect(startsIn(1, focus, j), greaterThan(startsIn(1, focus, j - 1)), reason: 'head 2, cell $j of the row in focus');
+    }
+    final double head2FocusDone = endsIn(1, focus, focus);
+    final double named = first((double b) => AttentionScene.mapTagShown(1, heads, b) >= 1);
+    final double unnamed = first((double b) => b > named && AttentionScene.mapTagShown(1, heads, b) < 1);
+    for (int k = 0; k < others.length; k++) {
+      final int i = others[k];
+      expect(startsIn(1, i, 0), greaterThanOrEqualTo(head2FocusDone), reason: 'head 2, row $i after the row in focus');
+      if (k > 0) {
+        expect(startsIn(1, i, 0), greaterThan(startsIn(1, others[k - 1], 0)), reason: 'head 2, row $i after the one above');
+      }
+      expect(endsIn(1, i, i), lessThan(unnamed), reason: 'head 2, row $i full while its name is up');
+    }
+    for (int i = 0; i < n; i++) {
+      expect(startsIn(1, i, 0), greaterThanOrEqualTo(head1Gone), reason: "head 2, row $i after head 1's cells have emptied");
+    }
+    for (double b = 0; b <= LmStage.attention.beats; b += 0.01) {
+      expect(AttentionScene.mapTagShown(0, heads, b) * AttentionScene.mapTagShown(1, heads, b), 0, reason: 'names at $b');
+      if ((b - head1Gone).abs() > 0.02) {
+        expect(AttentionScene.mapHeadAt(b, heads), b < head1Gone ? 0 : 1, reason: 'the map drawn at $b');
+      }
     }
   });
 
