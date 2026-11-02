@@ -153,9 +153,13 @@ class LmAboutSheet extends StatelessWidget {
             paragraph(
               'Backward',
               'Backpropagation carries the loss\'s gradient back through every layer '
-                  'by the chain rule. At the output it is p − y: the probabilities, '
-                  'less one at the token that came next. Where all the gradients\' norm '
-                  'is over ${config.gradClip}, every one is scaled down to it.',
+                  'by the chain rule, along the same weights the forward pass used. At the '
+                  'output it is p − y: the probabilities, less one at the token that came '
+                  'next. Each weight\'s gradient is the error that reaches its end times '
+                  'the number at its start, summed over every place and divided by their '
+                  'count, as the loss is their mean; each + of the residual stream passes '
+                  'the gradient back whole. Where all the gradients\' norm is over '
+                  '${config.gradClip}, every one is scaled down to it.',
             ),
             paragraph(
               'Update',

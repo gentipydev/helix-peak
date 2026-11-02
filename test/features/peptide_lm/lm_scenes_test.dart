@@ -11,6 +11,7 @@ import 'package:helixpeek/features/peptide_lm/domain/training_trace.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/lm_format.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/lm_inks.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/attention_scene.dart';
+import 'package:helixpeek/features/peptide_lm/presentation/scenes/backward_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/embedding_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/feed_forward_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/forward_scene.dart';
@@ -787,6 +788,7 @@ void main() {
         (LmStage.feedForward, LmStage.forward),
         (LmStage.forward, LmStage.predict),
         (LmStage.predict, LmStage.loss),
+        (LmStage.loss, LmStage.backward),
       ]) {
         final List<int> last = await pixels(scene, timeline.frameIn(before, 1));
         final List<int> first = await pixels(scene, timeline.frameIn(after, 0));
@@ -1765,6 +1767,126 @@ void main() {
       expect(plate.bottom + 14, lessThanOrEqualTo(size.height));
       expect(plate.left, greaterThanOrEqualTo(layout.benchLeft));
       expect(plate.right, lessThanOrEqualTo(layout.right));
+    }
+  });
+
+  testWidgets("Backward's gradient is the run's: p − y back along the output layer, and the batch's mean its kept gradient", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    final int last = trace.points.length - 1;
+    for (int c = 0; c < trace.checkpoints.length; c++) {
+      final TraceCheckpoint at = trace.checkpoints[c];
+      for (int p = 0; p < trace.peptides.length; p++) {
+        for (int i = 0; i < trace.peptides[p].inputs; i++) {
+          final LmView scene = view(inks, kit, checkpoint: c, peptide: p, position: i);
+          final String where = 'step ${scene.step} p$p i$i';
+          // p − y: each share less one at what came next, adding to nothing.
+          final List<double> error = BackwardScene.errors(scene, i);
+          final List<double> shares = PredictScene.shares(scene, i);
+          expect(error[trace.targetAt(p, i)], closeTo(shares[trace.targetAt(p, i)] - 1, 1e-12), reason: where);
+          expect(error.reduce((double a, double b) => a + b), closeTo(0, 1e-9), reason: where);
+          // Back along the output layer's strings, the last row's gradient
+          // is the run's own, times the targets the loss is the mean of.
+          final List<double> row = BackwardScene.rowGradient(scene);
+          final double norm = trace.pointGrad(at, last, p, i) * trace.targetCount;
+          for (int d = 0; d < trace.model.width; d++) {
+            expect(row[d], closeTo(trace.streamGrad(at, last, p, i, d) * trace.targetCount, 1e-4 * norm + 1e-7), reason: where);
+          }
+          // Every rung of the ladder is the run's, as long as its kept norm.
+          final List<List<double>> rungs = BackwardScene.ladder(scene);
+          for (int k = 0; k <= last; k++) {
+            final double length = math.sqrt(rungs[k].fold<double>(0, (double sum, double v) => sum + v * v));
+            final double kept = trace.pointGrad(at, k, p, i) * trace.targetCount;
+            expect(length, closeTo(kept, 1e-5 * kept + 1e-9), reason: '$where point $k');
+          }
+        }
+      }
+      // The batch's mean over every place is the output layer's gradient the
+      // run kept, clipped, to its int8 step.
+      final LmView scene = view(inks, kit, checkpoint: c);
+      final List<List<double>> mean = BackwardScene.meanGradient(scene);
+      final double clip = trace.steps.clip[scene.step - 1];
+      for (int r = 0; r < trace.vocab.length; r++) {
+        for (int d = 0; d < trace.model.width; d++) {
+          expect(mean[r][d] * clip, closeTo(trace.headGrad(at, r, d), at.headGradScale / 2 + 1e-7), reason: 'step ${scene.step} r$r d$d');
+          if (trace.allowedIndex(r) < 0) {
+            expect(mean[r][d], 0);
+          }
+        }
+      }
+    }
+  });
+
+  testWidgets("Backward's captions carry the run's numbers", (WidgetTester tester) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    const BackwardScene scene = BackwardScene();
+    for (int c = 0; c < trace.checkpoints.length; c++) {
+      final LmView v = view(inks, kit, checkpoint: c);
+      String at(double beat) => scene.caption(v, timeline.frameIn(LmStage.backward, beat / LmStage.backward.beats));
+      final List<double> shares = PredictScene.shares(v, v.position);
+      expect(at(0.5), contains(nats(trace.loss(v.step))));
+      expect(at(2.8), contains(BackwardScene.signedNumber(shares[v.target] - 1)));
+      final int d = BackwardScene.firstMade(v);
+      expect(at(6.0), contains('Number ${d + 1}'));
+      expect(at(6.0), contains(fixed(BackwardScene.rowGradient(v)[d], 2)));
+      expect(at(12.5), contains('final LayerNorm'));
+      expect(at(LmStage.backward.beats.toDouble()), contains(nats(trace.steps.gradNorm[v.step - 1])));
+      // Every caption of the stage is a sentence of the run's, never empty.
+      for (double beat = 0; beat <= LmStage.backward.beats; beat += 0.25) {
+        expect(at(beat), isNotEmpty);
+      }
+    }
+  });
+
+  testWidgets('a tap on Backward asks for the batch, the line, nothing on the bench and ladder, then a place', (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    const Size size = Size(393, 540);
+    const BackwardScene scene = BackwardScene();
+    final LmView v = view(inks, kit);
+    TrainingFrame at(double beat) => timeline.frameIn(LmStage.backward, beat / LmStage.backward.beats);
+    final LossLayout loss = LossLayout(size, v);
+    // The batch: another line puts its peptide in focus.
+    final int other = v.peptide == 0 ? 1 : 0;
+    final LmHit? line = scene.hitAt(size, v, loss.tile(other, 0).center, at(0.1));
+    expect(line, isA<FocusPeptide>());
+    expect((line! as FocusPeptide).peptide, other);
+    // While the line goes back out of the batch, nothing.
+    expect(scene.hitAt(size, v, loss.soloTile(1).center, at(0.8)), isNull);
+    // The line alone: a target puts its place in focus.
+    final LmHit? place = scene.hitAt(size, v, loss.soloTile(1).center, at(1.35));
+    expect(place, isA<FocusPosition>());
+    expect((place! as FocusPosition).position, 1);
+    // The bench and the ladder ask for nothing.
+    final StreamTable table = StreamTable(size, v);
+    expect(scene.hitAt(size, v, table.row(2).center, at(6)), isNull);
+    expect(scene.hitAt(size, v, table.row(2).center, at(14)), isNull);
+    // The table: a row puts its place in focus.
+    final LmHit? row = scene.hitAt(size, v, table.row(2).center, at(LmStage.backward.beats.toDouble()));
+    expect(row, isA<FocusPosition>());
+    expect((row! as FocusPosition).position, 2);
+  });
+
+  testWidgets("Backward's gradient column stands between the last row and the errors, its numbers clear of both", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    for (final Size size in <Size>[const Size(440, 697), const Size(375, 476)]) {
+      final BackwardLayout layout = BackwardLayout(size, view(inks, kit));
+      final PredictLayout bench = layout.predict;
+      // Room for the gradient's numbers between the two columns...
+      expect(layout.gradientColumn.left - bench.inputColumn.right, greaterThanOrEqualTo(bench.numberWidth), reason: '$size');
+      // ...and for the strings between it and the errors.
+      expect(bench.logitTile(0, 0).left - layout.gradientColumn.right, greaterThan(40), reason: '$size');
+      for (int d = 0; d < trace.model.width; d++) {
+        expect(layout.gradientTile(d).top, closeTo(bench.inputTile(d).top, 1e-9));
+      }
     }
   });
 }

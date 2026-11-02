@@ -15,15 +15,6 @@ import 'scores_scene.dart';
 import 'stream_table.dart';
 import 'weight_flow.dart';
 
-/// The tokens that can come next in the order the bars stand: the residues,
-/// then `<eos>`.
-List<int> barOrder(TrainingTrace trace) => <int>[
-  for (final int id in trace.allowed)
-    if (trace.isResidue(id)) id,
-  for (final int id in trace.allowed)
-    if (!trace.isResidue(id)) id,
-];
-
 /// The biggest the output layer's weights get in the whole run, so a heatmap
 /// of them is on one scale at every step.
 double headScale(LmView view) => view.kit.memo<double>(('head-scale', view.trace.name), () {
@@ -38,16 +29,6 @@ double headScale(LmView view) => view.kit.memo<double>(('head-scale', view.trace
   }
   return most;
 });
-
-/// The probability each token that can come next is given at [position] of
-/// the peptide in focus, in [barOrder].
-List<double> probabilities(LmView view, int position) {
-  final TrainingTrace trace = view.trace;
-  return <double>[
-    for (final int id in barOrder(trace))
-      trace.probability(view.checkpoint, view.peptide, position, trace.allowedIndex(id)),
-  ];
-}
 
 /// Predict: the last row Forward made for the place in focus goes through the
 /// output layer, as the engine's `lm_head` takes it, and softmax makes its
