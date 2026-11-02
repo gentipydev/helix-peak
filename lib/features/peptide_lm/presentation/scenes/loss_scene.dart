@@ -27,9 +27,9 @@ import 'stream_table.dart';
 /// dashed across; the place in focus's bar in the loss's full honey, the
 /// others quieter. Then the whole batch: the line shrinks into its place
 /// among Shift's lines, the others come in, their padding dimmed and never
-/// scored, and their bars rise. Last, the bars level out into their mean,
-/// brightening to the loss's full honey, each leaving a ghost where it stood
-/// above it: the step's loss.
+/// scored, and their bars rise. Last, their mean, the step's loss, is drawn
+/// as a line in the loss's full honey across every line's bars, as
+/// LayerNorm's chart draws a row's mean, the bars left as they stand.
 ///
 /// Every number is the run's: each p(y) is Predict's own share, softmax of
 /// the whole logits, and −ln of it is the loss the run kept for that target;
@@ -72,17 +72,17 @@ final class LossScene extends LmScene {
   static const (double, double) _batchIn = (10.4, 11.0);
   static const (double, double) _rise = (11.0, 11.8);
 
-  // The mean: the bars level out, brightening to the loss's full honey; the
-  // loss joins the legend.
-  static const (double, double) _level = (12.6, 13.8);
-  static const (double, double) _lossIn = (13.6, 14.0);
+  // The mean: a line in the loss's full honey draws itself across every
+  // line's bars at their mean; the loss joins the legend.
+  static const (double, double) _meanIn = (12.6, 13.4);
+  static const (double, double) _lossIn = (13.2, 13.6);
 
-  /// How far toward the loss's honey a bar is drawn before the mean: quiet,
-  /// so the place in focus's bar, at full honey, and then the mean stand out.
+  /// How far toward the loss's honey a bar is drawn: quiet, so the place in
+  /// focus's bar, at full honey, and the mean's line stand out.
   static const double _quiet = 0.5;
 
-  /// How strong the ghost of a bar's old height is, once levelled.
-  static const double _ghost = 0.6;
+  /// How thick the mean's line is.
+  static const double _meanLine = 1.8;
 
   /// A bar's width, of its column's.
   static const double _barWidth = 0.7;
@@ -406,15 +406,15 @@ final class LossScene extends LmScene {
 
   // ----------------------------------------------------------- the targets
 
-  /// A bar's colour before the mean: the loss's honey, quieter.
+  /// A bar's colour: the loss's honey, quieter.
   static Color quietBar(LmView view) => Color.lerp(view.inks.zero, view.inks.error, _quiet)!;
 
   /// The targets, as Shift drew target y. First the peptide in focus alone,
   /// across the canvas: the key's tiles swing down into its line, its name,
   /// the tag and the cost's axis come, and its bars rise. Then the line
   /// shrinks into its place among the batch's, the others come in with their
-  /// padding dimmed, and their bars rise; last, the bars level out into their
-  /// mean. The legend under it all.
+  /// padding dimmed, and their bars rise; last, their mean's line. The legend
+  /// under it all.
   void _targets(Canvas canvas, LmView view, LossLayout layout, double beat) {
     if (beat < _swing.$1) {
       return;
@@ -474,6 +474,21 @@ final class LossScene extends LmScene {
     );
   }
 
+  /// The mean's line named, as LayerNorm's chart names its mean: right of
+  /// the line's end where the first line's padding leaves room, else over it.
+  static void _meanName(Canvas canvas, LmView view, LossLayout layout, Offset end, double alpha) {
+    if (alpha <= 0) {
+      return;
+    }
+    final TextStyle words = inked(view.kit.sans, 8.5, view.inks.quiet, alpha: alpha);
+    final double width = view.kit.layout('mean', words).width;
+    if (end.dx + 5 + width <= layout.size.width - 4) {
+      view.kit.draw(canvas, 'mean', words, end + const Offset(5, 0), anchor: const Offset(0, 0.5));
+    } else {
+      view.kit.draw(canvas, 'mean', words, end + const Offset(0, -4), anchor: const Offset(1, 1));
+    }
+  }
+
   /// The cost's axis at the left of the line alone, in whole nats, as the
   /// curve's; shrinking with the line, [zoom] of the way into the batch, as
   /// it goes.
@@ -506,19 +521,18 @@ final class LossScene extends LmScene {
   }
 
   /// Each target's bar, rising to its −ln p(y) (the line in focus's first,
-  /// alone, then the others'), and levelling out into their mean; quiet
-  /// until then but the place in focus's, and brightening to the loss's full
-  /// honey as they level, each old height left as a ghost above the level;
-  /// the even guess dashed across each line over them; and, while the line
-  /// is alone, the place in focus's cost over its bar.
+  /// alone, then the others'), quiet but the place in focus's, in the loss's
+  /// full honey; the even guess dashed across each line over them; then the
+  /// mean of all of them, the step's loss, a line in full honey drawing
+  /// itself across each line's bars, named once, at the first line's end;
+  /// and, while the line is alone, the place in focus's cost over its bar.
   void _bars(Canvas canvas, LmView view, LossLayout layout, double beat) {
     final TrainingTrace trace = view.trace;
     final List<List<double>> costs = surprises(view);
     final double mean = trace.loss(view.step);
     final double zoom = _span(beat, _zoom);
-    final double level = _span(beat, _level);
+    final double drawn = _span(beat, _meanIn);
     final Color quiet = quietBar(view);
-    final Color levelled = Color.lerp(quiet, view.inks.error, level)!;
     for (int p = 0; p < trace.peptides.length; p++) {
       final bool focused = p == view.peptide;
       final double rise = _span(beat, focused ? _soloRise : _rise);
@@ -528,35 +542,49 @@ final class LossScene extends LmScene {
       final double base = (focused ? layout.focusBase(zoom) : layout.base(p)) - 1;
       final double scale = focused ? layout.focusScale(zoom) : layout.batchScale;
       Rect tile(int i) => focused ? layout.focusTile(i, zoom) : layout.tile(p, i);
-      final Paint ghost = Paint()..color = quiet.withValues(alpha: _ghost * level * rise);
       for (int i = 0; i < costs[p].length; i++) {
         final Rect under = tile(i);
-        final double was = costs[p][i];
-        final double height = (was + (mean - was) * level) * rise * scale;
+        final double height = costs[p][i] * rise * scale;
         final double width = under.width * _barWidth;
-        final Rect drawn = Rect.fromLTWH(under.center.dx - width / 2, base - height, width, height);
-        if (level > 0 && was > mean) {
-          canvas.drawRect(Rect.fromLTRB(drawn.left, base - was * rise * scale, drawn.right, drawn.top), ghost);
-        }
         if (height > 0) {
-          final Color colour = focused && i == view.position ? view.inks.error : levelled;
+          final Color colour = focused && i == view.position ? view.inks.error : quiet;
           canvas.drawRRect(
-            RRect.fromRectAndCorners(drawn, topLeft: const Radius.circular(1), topRight: const Radius.circular(1)),
+            RRect.fromRectAndCorners(
+              Rect.fromLTWH(under.center.dx - width / 2, base - height, width, height),
+              topLeft: const Radius.circular(1),
+              topRight: const Radius.circular(1),
+            ),
             Paint()..color = colour.withValues(alpha: 0.92 * rise),
           );
         }
       }
+      final double left = tile(0).left;
+      final double right = tile(costs[p].length - 1).right;
       final double y = base - trace.uniform * scale;
       dashedLine(
         canvas,
-        Offset(tile(0).left, y),
-        Offset(tile(costs[p].length - 1).right, y),
+        Offset(left, y),
+        Offset(right, y),
         Paint()
           ..strokeWidth = 1
           ..color = view.inks.quiet.withValues(alpha: 0.85 * rise),
         dash: 3,
         gap: 2,
       );
+      if (drawn > 0) {
+        final double level = base - mean * scale;
+        canvas.drawLine(
+          Offset(left, level),
+          Offset(left + (right - left) * drawn, level),
+          Paint()
+            ..strokeWidth = _meanLine
+            ..strokeCap = StrokeCap.round
+            ..color = view.inks.error,
+        );
+        if (p == 0) {
+          _meanName(canvas, view, layout, Offset(right, level), through(beat, _meanIn.$2 - 0.2, _meanIn.$2));
+        }
+      }
     }
     final double written = through(beat, _soloRise.$2 - 0.2, _soloRise.$2) * (1 - zoom);
     if (written > 0) {
@@ -577,17 +605,21 @@ final class LossScene extends LmScene {
     }
   }
 
-  /// Under the lines: the loss, a honey swatch and its number, once the bars
-  /// have levelled; and the even guess, a dashed swatch and its number, with
-  /// the bars.
+  /// Under the lines: the loss, the mean's line and its number, once it is
+  /// drawn; and the even guess, a dashed swatch and its number, with the
+  /// bars.
   void _legend(Canvas canvas, LmView view, LossLayout layout, double even, double loss) {
     final TrainingTrace trace = view.trace;
     final double y = layout.legendTop + layout.legendHeight / 2;
     double x = layout.batchLeft;
     if (loss > 0) {
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(Rect.fromLTWH(x, y - 2, _swatch, 4), const Radius.circular(1)),
-        Paint()..color = view.inks.error.withValues(alpha: 0.92 * loss),
+      canvas.drawLine(
+        Offset(x, y),
+        Offset(x + _swatch, y),
+        Paint()
+          ..strokeWidth = _meanLine
+          ..strokeCap = StrokeCap.round
+          ..color = view.inks.error.withValues(alpha: loss),
       );
       view.kit.draw(
         canvas,
@@ -678,14 +710,15 @@ final class LossScene extends LmScene {
       ),
       (
         _zoom.$1,
-        _level.$1,
+        _meanIn.$1,
         'Every place of every peptide is scored the same way.\n'
             'Padding is no data: its ${grouped(trace.pads)} places are never scored.',
       ),
       (
-        _level.$1,
+        _meanIn.$1,
         double.infinity,
-        'This is cross-entropy, the loss language models train on.\n'
+        'The honey line is the mean of all ${grouped(trace.targetCount)} bars: the step\'s loss.\n'
+            'This is cross-entropy, the loss language models train on.\n'
             'Next, Backward finds how each weight should move to lower it.'
             '${first > 0.5 ? '\n${percent(first)} is at <bos>: no model can know which of '
                       '${spelled(peptides)} peptides comes.' : ''}',
@@ -734,7 +767,7 @@ final class LossScene extends LmScene {
       return 'The whole batch: ${grouped(trace.targetCount)} targets across '
           '${spelled(trace.peptides.length)} peptides';
     }
-    if (beat < _level.$1) {
+    if (beat < _meanIn.$1) {
       final List<double> all = <double>[for (final List<double> line in surprises(view)) ...line];
       return "All ${grouped(trace.targetCount)} targets' −ln p(y): "
           'from ${cost(all.reduce(math.min))} to ${cost(all.reduce(math.max))} nats';
