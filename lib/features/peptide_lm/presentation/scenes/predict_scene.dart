@@ -135,7 +135,7 @@ final class PredictScene extends LmScene {
 
   /// How far toward the tracer the slot of what came next is lit: a soft
   /// fill, well under the squares, so the answer never outshouts the guess.
-  static const double _lit = 0.13;
+  static const double answerLight = 0.13;
 
   /// The smallest side a square is drawn with: less is a speck.
   static const double _leastFill = 0.4;
@@ -323,7 +323,7 @@ final class PredictScene extends LmScene {
     if (shown <= 0) {
       return;
     }
-    final Color light = Color.lerp(view.inks.zero, view.inks.truth, _lit)!;
+    final Color light = Color.lerp(view.inks.zero, view.inks.truth, answerLight)!;
     canvas.drawRRect(slot, Paint()..color = Color.lerp(view.inks.zero, light, lit)!.withValues(alpha: shown));
   }
 
@@ -569,7 +569,7 @@ final class PredictScene extends LmScene {
     final double settle = _span(beat, _share);
     final double tiles = _span(beat, _tiles);
     final double labels = _span(beat, _percents) * (1 - tiles);
-    final Color bar = view.inks.signal.withValues(alpha: 0.85);
+    final Color bar = barColour(view);
     final TextStyle words = inked(view.kit.mono, layout.textSize, view.inks.ink, alpha: labels);
     final Paint paint = Paint();
     double reach(int id) {
@@ -585,19 +585,11 @@ final class PredictScene extends LmScene {
     final int target = view.target;
     if (answer > 0 && tiles < 1 && trace.allowedIndex(target) >= 0) {
       final Rect drawn = layout.bar(target, reach(target));
-      final Rect tile = layout.chip(target, layout.slideBy);
-      final double label = view.kit.layout(percent(p[target]), words).width;
-      final Rect row = layout.row(target);
-      final Rect lit = Rect.fromLTRB(
-        tile.left - 3,
-        row.top + 1,
-        math.min(layout.right, math.max(layout.barLeft + layout.barRoom, drawn.right + label + 6)),
-        row.bottom - 1,
-      );
+      final Rect lit = litBand(layout, target, drawn, view.kit.layout(percent(p[target]), words).width);
       final RRect slot = slotOf(layout.shareTile(target));
       canvas.drawRRect(
         RRect.fromRectAndRadius(Rect.lerp(lit, slot.outerRect, tiles)!, Radius.circular(3 + (slot.tlRadiusX - 3) * tiles)),
-        Paint()..color = view.inks.truth.withValues(alpha: _lit * answer * (1 - tiles)),
+        Paint()..color = view.inks.truth.withValues(alpha: answerLight * answer * (1 - tiles)),
       );
     }
 
@@ -623,26 +615,49 @@ final class PredictScene extends LmScene {
     }
     // The room a bar of 100% would take, its end dashed and named, while the
     // bars are shares.
-    final double whole = settle * (1 - tiles);
-    if (whole > 0) {
-      final Rect column = layout.shareColumn;
-      final double x = layout.barLeft + layout.barRoom;
-      dashedLine(
-        canvas,
-        Offset(x, column.top),
-        Offset(x, column.bottom),
-        Paint()
-          ..strokeWidth = 0.8
-          ..color = view.inks.rule.withValues(alpha: whole),
-      );
-      view.kit.draw(
-        canvas,
-        percent(1),
-        inked(view.kit.mono, 8.5, view.inks.quiet, alpha: whole),
-        Offset(x, column.top - 3),
-        anchor: const Offset(0.5, 1),
-      );
+    drawWhole(canvas, view, layout, settle * (1 - tiles));
+  }
+
+  /// A share's bar's colour on the bench: the accent, a little under full.
+  static Color barColour(LmView view) => view.inks.signal.withValues(alpha: 0.85);
+
+  /// What came next's row of the bench, lit: from its tile, slid left with
+  /// the logits, to the dashed 100%, or past its bar [drawn] and its
+  /// percentage, [label] wide, where those reach further.
+  static Rect litBand(PredictLayout layout, int target, Rect drawn, double label) {
+    final Rect tile = layout.chip(target, layout.slideBy);
+    final Rect row = layout.row(target);
+    return Rect.fromLTRB(
+      tile.left - 3,
+      row.top + 1,
+      math.min(layout.right, math.max(layout.barLeft + layout.barRoom, drawn.right + label + 6)),
+      row.bottom - 1,
+    );
+  }
+
+  /// The room a bar of 100% would take: its end dashed down the bars and
+  /// named over them, [alpha] as strongly.
+  static void drawWhole(Canvas canvas, LmView view, PredictLayout layout, double alpha) {
+    if (alpha <= 0) {
+      return;
     }
+    final Rect column = layout.shareColumn;
+    final double x = layout.barLeft + layout.barRoom;
+    dashedLine(
+      canvas,
+      Offset(x, column.top),
+      Offset(x, column.bottom),
+      Paint()
+        ..strokeWidth = 0.8
+        ..color = view.inks.rule.withValues(alpha: alpha),
+    );
+    view.kit.draw(
+      canvas,
+      percent(1),
+      inked(view.kit.mono, 8.5, view.inks.quiet, alpha: alpha),
+      Offset(x, column.top - 3),
+      anchor: const Offset(0.5, 1),
+    );
   }
 
   // --------------------------------------------------------------- the map

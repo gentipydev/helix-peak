@@ -94,9 +94,16 @@ final class LossScene extends LmScene {
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
   @override
-  void paint(Canvas canvas, Size size, LmView view, TrainingFrame frame) => _paint(canvas, size, view, frame.local * _beats);
+  void paint(Canvas canvas, Size size, LmView view, TrainingFrame frame) =>
+      _paint(canvas, size, view, frame.local * _beats, const LossFade());
 
-  void _paint(Canvas canvas, Size size, LmView view, double beat) {
+  /// The stage's last frame, with [fade] leaving out or fading what the stage
+  /// after it draws itself or retires, and taking the line in focus back out
+  /// of the batch: Backward opens on it.
+  void paintEnd(Canvas canvas, Size size, LmView view, [LossFade fade = const LossFade()]) =>
+      _paint(canvas, size, view, _beats, fade);
+
+  void _paint(Canvas canvas, Size size, LmView view, double beat, LossFade fade) {
     if (beat <= 0) {
       const PredictScene().paintEnd(canvas, size, view);
       return;
@@ -124,12 +131,13 @@ final class LossScene extends LmScene {
       canvas,
       <(double, double, String)>[(double.negativeInfinity, 0.25, PredictScene.notes(view).last.$3), ...notes(view)],
       beat,
+      alpha: fade.note,
     );
     if (out < 1) {
       _key(canvas, view, layout, beat, 1 - out);
       _chart(canvas, view, layout, beat, 1 - out);
     }
-    _targets(canvas, view, layout, beat);
+    _targets(canvas, view, layout, beat, fade);
   }
 
   // ------------------------------------------------------------------ data
@@ -415,49 +423,64 @@ final class LossScene extends LmScene {
   /// shrinks into its place among the batch's, the others come in with their
   /// padding dimmed, and their bars rise; last, their mean's line. The legend
   /// under it all.
-  void _targets(Canvas canvas, LmView view, LossLayout layout, double beat) {
+  void _targets(Canvas canvas, LmView view, LossLayout layout, double beat, LossFade fade) {
     if (beat < _swing.$1) {
       return;
     }
     final TrainingTrace trace = view.trace;
     final double swing = _span(beat, _swing);
     final double alone = _span(beat, _soloIn);
-    final double zoom = _span(beat, _zoom);
+    final double zoom = math.min(_span(beat, _zoom), fade.zoom);
     final double shown = _span(beat, _batchIn);
     final int focus = view.peptide;
     final int n = view.focus.inputs;
-    if (alone > 0) {
-      final Rect plate = drawTag(canvas, view, batchTag, Offset(layout.table.layout.left, layout.table.layout.tagTop), alpha: alone);
-      ShiftScene.drawRole(canvas, view, _batchRole, plate, layout.size.width - 10, alone);
+    if (alone > 0 && fade.tag > 0) {
+      final Rect plate = drawTag(
+        canvas,
+        view,
+        batchTag,
+        Offset(layout.table.layout.left, layout.table.layout.tagTop),
+        alpha: alone * fade.tag,
+      );
+      ShiftScene.drawRole(canvas, view, _batchRole, plate, layout.size.width - 10, alone * fade.tag);
     }
     // The batch: the card the line in focus lands on, the other lines, and
     // the line in focus's padding.
     if (shown > 0) {
       canvas.drawRRect(
         RRect.fromRectAndRadius(layout.card(focus), const Radius.circular(6)),
-        Paint()..color = view.inks.card.withValues(alpha: view.inks.card.a * shown),
+        Paint()..color = view.inks.card.withValues(alpha: view.inks.card.a * shown * fade.card),
       );
       for (int p = 0; p < trace.peptides.length; p++) {
         final TracePeptide peptide = trace.peptides[p];
         if (p != focus) {
-          _name(canvas, view, p, Offset(layout.batchLeft, layout.lineTop(p)), shown);
+          _name(canvas, view, p, Offset(layout.batchLeft, layout.lineTop(p)), shown * fade.others);
         }
         for (int i = p == focus ? n : 0; i < layout.columns; i++) {
           final double padded = i < peptide.inputs ? 1 : 1 - ShiftScene.dimmed;
-          drawToken(canvas, view, layout.tile(p, i), trace.targets[p][i], alpha: shown * padded);
+          drawToken(canvas, view, layout.tile(p, i), trace.targets[p][i], alpha: shown * padded * fade.others);
         }
       }
     }
     // The line in focus: swung down from the key, alone across the canvas,
     // then shrinking into its place.
-    _name(canvas, view, focus, layout.focusName(zoom), alone);
+    _name(canvas, view, focus, layout.focusName(zoom), alone * fade.line);
     for (int i = 0; i < n; i++) {
-      drawToken(canvas, view, swing < 1 ? layout.swung(i, swing) : layout.focusTile(i, zoom), trace.targetAt(focus, i));
+      final double a = i == view.position ? fade.place : fade.line;
+      if (a > 0) {
+        drawToken(
+          canvas,
+          view,
+          swing < 1 ? layout.swung(i, swing) : layout.focusTile(i, zoom),
+          trace.targetAt(focus, i),
+          alpha: a,
+        );
+      }
     }
-    outlineToken(canvas, layout.focusTile(view.position, zoom), view.inks.signal, alpha: alone);
-    _axis(canvas, view, layout, zoom, alone * (1 - zoom));
-    _bars(canvas, view, layout, beat);
-    _legend(canvas, view, layout, _span(beat, _soloRise), _span(beat, _lossIn));
+    outlineToken(canvas, layout.focusTile(view.position, zoom), view.inks.signal, alpha: alone * fade.place);
+    _axis(canvas, view, layout, zoom, alone * (1 - zoom) * fade.line);
+    _bars(canvas, view, layout, beat, fade, zoom);
+    _legend(canvas, view, layout, _span(beat, _soloRise) * fade.legend, _span(beat, _lossIn) * fade.legend);
   }
 
   /// Peptide [p]'s name over its line, as Shift names it.
@@ -526,17 +549,17 @@ final class LossScene extends LmScene {
   /// mean of all of them, the step's loss, a line in full honey drawing
   /// itself across each line's bars, named once, at the first line's end;
   /// and, while the line is alone, the place in focus's cost over its bar.
-  void _bars(Canvas canvas, LmView view, LossLayout layout, double beat) {
+  void _bars(Canvas canvas, LmView view, LossLayout layout, double beat, LossFade fade, double zoom) {
     final TrainingTrace trace = view.trace;
     final List<List<double>> costs = surprises(view);
     final double mean = trace.loss(view.step);
-    final double zoom = _span(beat, _zoom);
     final double drawn = _span(beat, _meanIn);
     final Color quiet = quietBar(view);
     for (int p = 0; p < trace.peptides.length; p++) {
       final bool focused = p == view.peptide;
       final double rise = _span(beat, focused ? _soloRise : _rise);
-      if (rise <= 0) {
+      final double kept = focused ? fade.line : fade.others;
+      if (rise <= 0 || (kept <= 0 && fade.mean <= 0)) {
         continue;
       }
       final double base = (focused ? layout.focusBase(zoom) : layout.base(p)) - 1;
@@ -546,7 +569,7 @@ final class LossScene extends LmScene {
         final Rect under = tile(i);
         final double height = costs[p][i] * rise * scale;
         final double width = under.width * _barWidth;
-        if (height > 0) {
+        if (height > 0 && kept > 0) {
           final Color colour = focused && i == view.position ? view.inks.error : quiet;
           canvas.drawRRect(
             RRect.fromRectAndCorners(
@@ -554,24 +577,26 @@ final class LossScene extends LmScene {
               topLeft: const Radius.circular(1),
               topRight: const Radius.circular(1),
             ),
-            Paint()..color = colour.withValues(alpha: 0.92 * rise),
+            Paint()..color = colour.withValues(alpha: 0.92 * rise * kept),
           );
         }
       }
       final double left = tile(0).left;
       final double right = tile(costs[p].length - 1).right;
       final double y = base - trace.uniform * scale;
-      dashedLine(
-        canvas,
-        Offset(left, y),
-        Offset(right, y),
-        Paint()
-          ..strokeWidth = 1
-          ..color = view.inks.quiet.withValues(alpha: 0.85 * rise),
-        dash: 3,
-        gap: 2,
-      );
-      if (drawn > 0) {
+      if (kept > 0) {
+        dashedLine(
+          canvas,
+          Offset(left, y),
+          Offset(right, y),
+          Paint()
+            ..strokeWidth = 1
+            ..color = view.inks.quiet.withValues(alpha: 0.85 * rise * kept),
+          dash: 3,
+          gap: 2,
+        );
+      }
+      if (drawn > 0 && fade.mean > 0) {
         final double level = base - mean * scale;
         canvas.drawLine(
           Offset(left, level),
@@ -579,14 +604,14 @@ final class LossScene extends LmScene {
           Paint()
             ..strokeWidth = _meanLine
             ..strokeCap = StrokeCap.round
-            ..color = view.inks.error,
+            ..color = fade.mean >= 1 ? view.inks.error : view.inks.error.withValues(alpha: view.inks.error.a * fade.mean),
         );
         if (p == 0) {
-          _meanName(canvas, view, layout, Offset(right, level), through(beat, _meanIn.$2 - 0.2, _meanIn.$2));
+          _meanName(canvas, view, layout, Offset(right, level), through(beat, _meanIn.$2 - 0.2, _meanIn.$2) * fade.mean);
         }
       }
     }
-    final double written = through(beat, _soloRise.$2 - 0.2, _soloRise.$2) * (1 - zoom);
+    final double written = through(beat, _soloRise.$2 - 0.2, _soloRise.$2) * (1 - zoom) * fade.line;
     if (written > 0) {
       // On a backing of the ground, where it crosses the even guess's line.
       final double was = costs[view.peptide][view.position];
@@ -807,6 +832,39 @@ final class LossScene extends LmScene {
 
   @override
   String describe(LmView view, TrainingFrame frame) => 'Loss, step ${view.step}. ${caption(view, frame)}.';
+}
+
+/// What Loss's last frame fades or leaves out, for the stage that opens on
+/// it: the note; the batch's tag; the other lines, their names, tiles, bars
+/// and even-guess lines; the card under the line in focus; the mean's line
+/// and its name; the legend; the line in focus's tiles, name, bars, axis and
+/// cost, all but the place in focus's tile and its ring, faded apart
+/// ([place]); and how far the line in focus stands in its place in the batch
+/// ([zoom], 1), taking it back out to the line alone as it goes to 0. By
+/// default, the frame as Loss draws it.
+@immutable
+final class LossFade {
+  const LossFade({
+    this.note = 1,
+    this.tag = 1,
+    this.others = 1,
+    this.card = 1,
+    this.mean = 1,
+    this.legend = 1,
+    this.line = 1,
+    this.place = 1,
+    this.zoom = 1,
+  });
+
+  final double note;
+  final double tag;
+  final double others;
+  final double card;
+  final double mean;
+  final double legend;
+  final double line;
+  final double place;
+  final double zoom;
 }
 
 /// −ln p(y)'s chart on the bench: p(y) from 0 to 100% along, its cost in

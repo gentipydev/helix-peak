@@ -512,6 +512,13 @@ final class TowerLayout {
         most = math.max(most, v.abs());
       }
     }
+    return styleFor(most);
+  }
+
+  /// The ladder's face for numbers as large as [most]: as large, up to 9
+  /// points, as the widest of them fits a tile and a row; null where that is
+  /// under the least a number is written.
+  TextStyle? styleFor(double most) {
     final String widest = '−${'8' * '${most.floor()}'.length}.${'8' * EmbeddingLayout.digits}';
     TextStyle at(double size) => inked(_view.kit.mono, size, _view.inks.ink).copyWith(letterSpacing: 0);
     final double perPoint = _view.kit.layout(widest, at(10)).width / 10;
@@ -523,8 +530,12 @@ final class TowerLayout {
   }
 
   /// [numbers] across [rect] in the ladder's face, [alpha] as strongly.
-  void write(Canvas canvas, Rect rect, List<double> numbers, double alpha) {
-    final TextStyle? style = numberStyle;
+  void write(Canvas canvas, Rect rect, List<double> numbers, double alpha) =>
+      writeIn(canvas, rect, numbers, alpha, numberStyle);
+
+  /// [numbers] across [rect] in [style], [alpha] as strongly; nothing where
+  /// [style] is null, too small to write in.
+  void writeIn(Canvas canvas, Rect rect, List<double> numbers, double alpha, TextStyle? style) {
     if (style == null || alpha <= 0) {
       return;
     }

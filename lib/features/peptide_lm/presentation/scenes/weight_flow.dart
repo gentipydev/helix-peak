@@ -161,8 +161,8 @@ void drawWeights(
 /// numbers being made, lit from the row's [input] numbers ([from]) out to it
 /// ([to]), each carrying its number times its [weight], in that product's
 /// colour and as strong as it against [most]; a dot at each tip until it
-/// lands; lit while they run, then settling into the faint weights once the
-/// number is made.
+/// lands, in the product's colour or in [tip]; lit while they run, then
+/// settling into the faint weights once the number is made.
 void drawFans(
   Canvas canvas,
   LmView view,
@@ -175,9 +175,10 @@ void drawFans(
   required double most,
   required double beat,
   required double alpha,
+  Color? tip,
 }) {
   final LineBatch batch = LineBatch();
-  final Paint tip = Paint();
+  final Paint dot = Paint();
   final List<(Offset, double, Color)> tips = <(Offset, double, Color)>[];
   for (int out = 0; out < outputs; out++) {
     final (double leaves, double lands) = flow.fanAt(out, outputs);
@@ -200,13 +201,13 @@ void drawFans(
       // Each number on its way, a dot at the string's tip until it lands.
       final double travelling = alpha * (1 - through(reached, 0.85, 1));
       if (travelling > 0) {
-        tips.add((at, 1.3 + 1.2 * w, color.withValues(alpha: (0.55 + 0.45 * w) * travelling)));
+        tips.add((at, 1.3 + 1.2 * w, (tip ?? color).withValues(alpha: (0.55 + 0.45 * w) * travelling)));
       }
     }
   }
   batch.draw(canvas);
   for (final (Offset at, double radius, Color color) in tips) {
-    canvas.drawCircle(at, radius, tip..color = color);
+    canvas.drawCircle(at, radius, dot..color = color);
   }
 }
 
@@ -246,7 +247,8 @@ void drawColumn(Canvas canvas, Rect Function(int d) tile, List<Color> colors) {
 }
 
 /// A column's [numbers], each beside its tile ([tile]), at its [left] or its
-/// right, in [textSize] where the bench [writes] numbers.
+/// right, in [textSize] where the bench [writes] numbers: to two places, or
+/// as [format] writes them.
 void drawColumnNumbers(
   Canvas canvas,
   LmView view,
@@ -257,6 +259,7 @@ void drawColumnNumbers(
   required bool writes,
   bool left = false,
   double Function(int d)? alphaOf,
+  String Function(double value)? format,
 }) {
   if (alpha <= 0 || !writes) {
     return;
@@ -269,7 +272,7 @@ void drawColumnNumbers(
     final Rect at = tile(d);
     view.kit.draw(
       canvas,
-      fixed(numbers[d], 2),
+      format == null ? fixed(numbers[d], 2) : format(numbers[d]),
       inked(view.kit.mono, textSize, view.inks.ink, alpha: a),
       left ? Offset(at.left - 4, at.center.dy) : Offset(at.right + 4, at.center.dy),
       anchor: Offset(left ? 1 : 0, 0.5),
