@@ -313,8 +313,8 @@ final class ForwardScene extends LmScene {
         (
           _part(3, layers).$1,
           _finalFrom,
-          'each block after the first reads the row the one before\n'
-              'left, and adds to it the same way, with weights of its own',
+          'each block after the first reads the rows the one before\n'
+              'left, and adds to them the same way, with weights of its own',
         ),
       (
         _finalFrom,
@@ -352,8 +352,7 @@ final class ForwardScene extends LmScene {
       if (k.isOdd) {
         return b == 1
             ? "Block 1's attention adds what $focus gathered from the places up to it"
-            : "Block $b's attention: $focus reads ${readsMost(view, b - 1)} "
-                  '(block 1: ${readsMost(view, AttentionScene.block)})';
+            : readsThrough(view, b);
       }
       return k == _waiting
           ? "Block $b's feed-forward adds its own: $focus's row as block $b left it"
@@ -371,17 +370,40 @@ final class ForwardScene extends LmScene {
     return "$focus's row as Predict reads it: x0 and ${spelled(2 * layers)} parts' additions, evened";
   }
 
-  /// The place head 1 of [layer] reads most at the place in focus, and its
-  /// share, as Attention's map draws it.
-  static String readsMost(LmView view, int layer) {
-    final List<double> shares = AttentionScene.shares(view, AttentionScene.mapHead, layer: layer);
+  /// Block [b]'s attention at the place in focus, followed back a block: the
+  /// place its head 1 reads most, and the place that one's head 1 read most
+  /// in the block before, whose share its row now carries. Where the place
+  /// read is the one in focus, or read itself most, there is no second hop,
+  /// and the caption sets the top read against block 1's instead.
+  static String readsThrough(LmView view, int b) {
+    final String focus = StreamTable.placeName(view, view.position);
+    final (int read, double share) = topRead(view, b - 1, view.position);
+    final (int before, double then) = topRead(view, b - 2, read);
+    if (read == view.position || before == read) {
+      return 'In block $b, $focus reads ${readsMost(view, b - 1)} (block 1: ${readsMost(view, AttentionScene.block)})';
+    }
+    return 'In block $b, $focus reads ${StreamTable.placeName(view, read)} ${percent(share)}, '
+        'which in block ${b - 1} read ${StreamTable.placeName(view, before)} ${percent(then)}';
+  }
+
+  /// The place head 1 of [layer] reads most at place [i], and its share, as
+  /// Attention's map draws it: the first of the largest.
+  static (int, double) topRead(LmView view, int layer, int i) {
+    final List<double> shares = AttentionScene.allShares(view, AttentionScene.mapHead, layer: layer)[i];
     int best = 0;
     for (int j = 1; j < shares.length; j++) {
       if (shares[j] > shares[best]) {
         best = j;
       }
     }
-    return '${StreamTable.placeName(view, best)} ${percent(shares[best])}';
+    return (best, shares[best]);
+  }
+
+  /// The place head 1 of [layer] reads most at the place in focus, and its
+  /// share, as Attention's map draws it.
+  static String readsMost(LmView view, int layer) {
+    final (int best, double share) = topRead(view, layer, view.position);
+    return '${StreamTable.placeName(view, best)} ${percent(share)}';
   }
 
   @override

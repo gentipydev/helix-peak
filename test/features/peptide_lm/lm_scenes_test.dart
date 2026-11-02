@@ -441,13 +441,34 @@ void main() {
       "Block 1's attention adds what V3 gathered from the places up to it",
     );
     expect(caption(LmStage.forward, forward(4)), "Block 1's feed-forward adds its own: V3's row as block 1 left it");
-    // Block 2's attention, its head 1 against block 1's, as Attention's map
-    // reads them.
+    // Block 2's attention, followed back a block: the place its head 1 reads
+    // most, and what that place's head 1 read most in block 1, as
+    // Attention's map reads them. T8 reads C7 most, and C7 had read E4.
+    String forwardAt(int position) {
+      final TrainingFrame frame = timeline.stateAt(
+        timeline.startOf(LmStage.forward) + forward(5.5) * LmStage.forward.beats / timeline.beats,
+      );
+      final LmView scene = view(inks, kit, checkpoint: trace.checkpoints.length - 1, position: position);
+      return sceneOf(frame.stage).caption(scene, frame);
+    }
+
+    expect(forwardAt(8), 'In block 2, T8 reads C7 30%, which in block 1 read E4 95%');
+    expect(ForwardScene.topRead(last, 1, 8).$1, 7);
+    expect(ForwardScene.topRead(last, 0, 7).$1, 4);
+    // With no second hop it sets its head 1's top read against block 1's:
+    // V3 reads itself most in block 2, and E4 reads <bos>, which can read
+    // only itself.
     expect(
       caption(LmStage.forward, forward(5.5)),
-      "Block 2's attention: V3 reads ${ForwardScene.readsMost(last, 1)} "
-      '(block 1: ${ForwardScene.readsMost(last, 0)})',
+      'In block 2, V3 reads ${ForwardScene.readsMost(last, 1)} (block 1: ${ForwardScene.readsMost(last, 0)})',
     );
+    expect(ForwardScene.topRead(last, 1, 3).$1, 3);
+    final LmView e4 = view(inks, kit, checkpoint: trace.checkpoints.length - 1, position: 4);
+    expect(
+      forwardAt(4),
+      'In block 2, E4 reads ${ForwardScene.readsMost(e4, 1)} (block 1: ${ForwardScene.readsMost(e4, 0)})',
+    );
+    expect(ForwardScene.topRead(e4, 1, 4).$1, 0);
     expect(ForwardScene.readsMost(last, 0), AttentionScene.readsMost(last, AttentionScene.mapHead).split(', ').first);
     expect(ForwardScene.readsMost(last, 1), isNot(ForwardScene.readsMost(last, 0)));
     expect(

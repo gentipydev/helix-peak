@@ -117,7 +117,7 @@ class LmAboutSheet extends StatelessWidget {
             ),
             paragraph(
               'Forward',
-              'Each block after the first runs the same two parts on the row the one before '
+              'Each block after the first runs the same two parts on the rows the one before '
                   'left, with weights, and so maps, of its own. '
                   'Every part reads a place\'s row as it stands and adds its output to it, so after '
                   'the ${spelled(model.layers)} blocks the row is x0 plus what each of the '
