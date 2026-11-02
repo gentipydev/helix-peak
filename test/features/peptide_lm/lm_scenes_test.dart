@@ -1803,10 +1803,23 @@ void main() {
           }
         }
       }
-      // The batch's mean over every place is the output layer's gradient the
-      // run kept, clipped, to its int8 step.
+      // Each place's p − y times its last row, averaged over every place, is
+      // the output layer's gradient the run kept, clipped, to its int8 step:
+      // what Update moves that layer by.
       final LmView scene = view(inks, kit, checkpoint: c);
-      final List<List<double>> mean = BackwardScene.meanGradient(scene);
+      final List<List<double>> mean = <List<double>>[
+        for (int r = 0; r < trace.vocab.length; r++) List<double>.filled(trace.model.width, 0),
+      ];
+      for (int p = 0; p < trace.peptides.length; p++) {
+        for (int i = 0; i < trace.peptides[p].inputs; i++) {
+          final List<double> error = BackwardScene.errors(view(inks, kit, checkpoint: c, peptide: p, position: i), i);
+          for (int r = 0; r < trace.vocab.length; r++) {
+            for (int d = 0; d < trace.model.width; d++) {
+              mean[r][d] += error[r] * trace.stream(at, last, p, i, d) / trace.targetCount;
+            }
+          }
+        }
+      }
       final double clip = trace.steps.clip[scene.step - 1];
       for (int r = 0; r < trace.vocab.length; r++) {
         for (int d = 0; d < trace.model.width; d++) {
@@ -1832,7 +1845,7 @@ void main() {
       final int d = BackwardScene.firstMade(v);
       expect(at(20.0), contains('Number ${d + 1}'));
       expect(at(20.0), contains(fixed(BackwardScene.rowGradient(v)[d], 2)));
-      expect(at(34.5), contains('final LayerNorm'));
+      expect(at(29.5), contains('final LayerNorm'));
       expect(at(LmStage.backward.beats.toDouble()), contains(nats(trace.steps.gradNorm[v.step - 1])));
       // Every caption of the stage is a sentence of the run's, never empty.
       for (double beat = 0; beat <= LmStage.backward.beats; beat += 0.25) {
@@ -1865,7 +1878,7 @@ void main() {
     // The bench and the ladder ask for nothing.
     final StreamTable table = StreamTable(size, v);
     expect(scene.hitAt(size, v, table.row(2).center, at(20)), isNull);
-    expect(scene.hitAt(size, v, table.row(2).center, at(38)), isNull);
+    expect(scene.hitAt(size, v, table.row(2).center, at(33)), isNull);
     // The table: a row puts its place in focus.
     final LmHit? row = scene.hitAt(size, v, table.row(2).center, at(LmStage.backward.beats.toDouble()));
     expect(row, isA<FocusPosition>());

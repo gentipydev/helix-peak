@@ -818,7 +818,7 @@ out of view is scrolled just far enough to show it whole.
    target puts its place in focus. Every caption keeps to two lines at 375,
    402 and 440 wide, at every peptide, place and step, and every note to its
    own lines.
-10. **Backward** (51 beats, reworked 2026-11-02; the user's picks: the
+10. **Backward** (46 beats, reworked 2026-11-02; the user's picks: the
    run re-recorded as schema 7 with the stream's gradient whole, one stage,
    and the opening back to the place in focus, then its bars). The forward
    pass played back, along the same strings and the same ladder. It opens on
@@ -831,11 +831,8 @@ out of view is scrolled just far enough to show it whole.
    into a signed column where the logits were made. The place's last row
    stands at the left with its gradient's empty slots beside it; the errors
    run back along the output layer's strings, the largest number alone
-   (insulin A's C11 at step 1: number 10, −0.32), the rest in a cascade. Each
-   string is relit by its own gradient, its error times the number at its
-   start (the strongest, S from 6, −1.91), then by the batch's mean, the
-   output layer's gradient as the run kept it (held to `head_grad` within its
-   int8 step). The gradient lies down into Forward's ladder and climbs it:
+   (insulin A's C11 at step 1: number 10, −0.32), the rest in a cascade. The
+   gradient lies down into Forward's ladder and climbs it:
    the final LayerNorm, then each part from the last, its strip what it sends
    back, a copy rising through it into the sum; attention's captions count the
    later places that send blame back. At x0 it goes to the token and position
@@ -844,7 +841,7 @@ out of view is scrolled just far enough to show it whole.
    caption sets the gradients' length against the clip (none of the seven
    checkpoints is clipped; steps 59 to 73 were, nine of them). Numbers are the
    run's gradients times the 180 targets, what each place's own cost sends
-   back; ÷ 180 is said once, at the output layer's mean. Colours and string
+   back; ÷ 180 is said once, in the note where every place climbs. Colours and string
    strength are the whole batch's at that step, so a place with nothing left
    to learn is drawn faint (copeptin's R20 at step 200 is all 0.00). The old
    stage (a module rail, a clip gauge, a dot per place and point, the stored
@@ -857,8 +854,20 @@ out of view is scrolled just far enough to show it whole.
    and `<bos>` (lit y, blue what the target lacks, clay what the others
    took, their sum 0); number 10 worked out in a box (S −0.99 × 0.23 =
    −0.23, M, R, the other 18 −0.09, sum −0.32); the gradient read, its
-   extremes ringed; −0.99 × 1.94 = −1.92 on the strongest string; and at each
-   + of the climb one number worked out beside the part's name.
+   extremes ringed; and at each + of the climb one number worked out beside
+   the part's name. Later that night the user asked whether the third and
+   fourth animations on the strings were needed, and they were cut (51 → 46
+   beats): each string relit by its own weight's gradient, the error at its
+   end × the number at its start (S from 6, −0.99 × 1.94 = −1.92), then by
+   the batch's mean, the output layer's gradient as the run kept it. Both
+   reused the strings that had just carried the errors back, with a new
+   meaning; the strings ended on the gradient column while the number
+   multiplied stood two columns left, in the place's row; and the batch's
+   strings sat between columns that were still the one place's. Backward is
+   now one flow, the error carried back row by row to x0. A weight's own
+   gradient (error × the number that went in, averaged over the 180) is for
+   Update to open on when it is reworked; the unit test still holds that
+   mean to the run's kept `head_grad`.
 11. **Update.** The output layer's weights, then the clipped gradient on them,
    then AdamW's update (drawn magnified, the factor said), then the weights
    moved. Per weight, the gradient differs between modules many times over

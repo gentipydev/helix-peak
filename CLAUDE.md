@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 223 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 218 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -550,7 +550,7 @@ the line alone; on the batch a line puts its peptide in focus, and a target
 of the focus line its place; while the key swings, or the line shrinks, a
 tap asks for nothing.
 
-**Backward** (`backward_scene.dart`, 51 beats, the user's picks of
+**Backward** (`backward_scene.dart`, 46 beats, the user's picks of
 2026-11-02) is the forward pass played back, along the same strings and the
 same ladder, carrying how the loss would change instead of numbers. Every
 mini-step holds for its own caption (what happens, in the run's numbers) and
@@ -580,11 +580,14 @@ as Predict stood it, with empty slots for its gradient beside it, and the
 errors run back along the output layer's strings (`weight_flow.dart`, the
 closures transposed, the tips in the loss's honey): the largest number of the
 gradient alone (insulin A's C11 at step 1: number 10, −0.32), the rest in a
-cascade. Each string is then relit by its own gradient, the error at its end
-times the row's number at its start, the strongest named (S from 6, −1.91),
-and then by the batch's, every place's added and divided by the 180 targets,
-the output layer's gradient as the run kept it. The gradient's column lies
-down into Forward's ladder and climbs it from the bottom (`TowerLayout`, its
+cascade, then the gradient read, its extremes ringed. Two mini-steps after it,
+each string relit by its own weight's gradient (error × the number at its
+start) and then by the batch's mean, were cut at the user's word the same
+night: the same strings again, ending on the gradient column while the
+number multiplied stood two columns left, and the batch's strings beside
+columns that were still the one place's. A weight's gradient is Update's to
+show when it is reworked; ÷ 180 is said in the note where every place
+climbs. The gradient's column lies down into Forward's ladder and climbs it from the bottom (`TowerLayout`, its
 number face sized for the gradient, `styleFor`): back through the final
 LayerNorm, then each part from the last, its strip what it sends back (the
 gradient above less the one below), a copy of the gradient under it rising

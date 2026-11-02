@@ -25,10 +25,8 @@ import 'weight_flow.dart';
 /// target's row fills to 100% in the negative ink and every other bar turns
 /// positive. Those 23 numbers stand where the logits were made, and run back
 /// along the output layer's strings into the place's last row: each of its
-/// numbers made from every token's error times its weight. Each string's own
-/// gradient is the error at its end times the number at its start, and every
-/// place adds its own: their mean is what Update moves the output layer by.
-/// Then the place's gradient lies down into Forward's ladder and climbs it,
+/// numbers made from every token's error times its weight. Then the place's
+/// gradient lies down into Forward's ladder and climbs it,
 /// through the final LayerNorm, then each part from the last: every + passes
 /// it up whole, and each part adds what it sends back, on a strip between the
 /// rungs. At x0 it goes on to the two embedding rows that made x0, and every
@@ -38,8 +36,8 @@ import 'weight_flow.dart';
 /// logits; the gradient at each point is the one the run kept, whole, at
 /// every place. The loss is the mean over the targets, so the run's numbers
 /// are drawn times their count: what each place's own cost sends back, the
-/// sum of the costs' gradients; the mean, divided again, is said where the
-/// output layer's gradient is.
+/// sum of the costs' gradients; the mean, divided again, is said once every
+/// place has climbed.
 final class BackwardScene extends LmScene {
   const BackwardScene();
 
@@ -83,41 +81,33 @@ final class BackwardScene extends LmScene {
   static const WeightFlow _flow = WeightFlow(
     alone: <(double, double)>[(19.2, 20.4)],
     cascade: (22.2, 23.6),
-    webOut: (31.5, 31.9),
+    webOut: (26.5, 26.9),
     firstRelax: 0.6,
   );
   static const (double, double) _worked = (20.2, 20.6);
   static const double _othersFrom = 22.0;
   static const double _readFrom = 24.5;
 
-  // D. The weights' own gradients: each string relit by its error times the
-  // number at its start, the strongest worked out; then every place's,
-  // averaged.
-  static const (double, double) _own = (26.5, 27.1);
-  static const (double, double) _strongest = (27.1, 27.5);
-  static const double _meanFrom = 29.0;
-  static const (double, double) _mean = (29.2, 29.9);
-
-  // E. The climb: the bench clears, the gradient lies down into the ladder's
+  // D. The climb: the bench clears, the gradient lies down into the ladder's
   // last slot as the route comes in; then a part at a time from the last,
   // one number of it worked out at each +.
-  static const (double, double) _benchOut = (31.5, 31.9);
-  static const (double, double) _lieDown = (31.6, 32.3);
-  static const (double, double) _routeIn = (31.8, 32.3);
-  static const double _climbFrom = 33.5;
-  static const double _climbTo = 44.0;
+  static const (double, double) _benchOut = (26.5, 26.9);
+  static const (double, double) _lieDown = (26.6, 27.3);
+  static const (double, double) _routeIn = (26.8, 27.3);
+  static const double _climbFrom = 28.5;
+  static const double _climbTo = 39.0;
 
   /// The longest a part's motion takes on the climb; the rest of its turn
   /// holds for its caption and note.
   static const double _mostRise = 1.1;
 
-  // F. Every place: the ladder goes, the place's x0 gradient goes home to its
+  // E. Every place: the ladder goes, the place's x0 gradient goes home to its
   // row of the table, and every other place's comes in; last, all the
   // gradients' length against the clip.
-  static const (double, double) _ladderOut = (46.0, 46.5);
-  static const (double, double) _home = (46.0, 46.8);
-  static const (double, double) _othersIn = (46.3, 46.9);
-  static const double _totalFrom = 48.5;
+  static const (double, double) _ladderOut = (41.0, 41.5);
+  static const (double, double) _home = (41.0, 41.8);
+  static const (double, double) _othersIn = (41.3, 41.9);
+  static const double _totalFrom = 43.5;
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -223,39 +213,6 @@ final class BackwardScene extends LmScene {
     final int first = firstMade(view);
     return <int>[first, for (int d = 0; d < view.trace.model.width; d++) if (d != first) d];
   }
-
-  /// The output layer's gradient over the whole batch, a row a token, a
-  /// number a column of the last row: each place's error at the token times
-  /// its last row's number, summed over every place and divided by their
-  /// count, as the loss is their mean.
-  static List<List<double>> meanGradient(LmView view) => view.kit.memo<List<List<double>>>(
-    ('backward-mean', view.step),
-    () {
-      final TrainingTrace trace = view.trace;
-      final int width = trace.model.width;
-      final int last = trace.points.length - 1;
-      final List<List<double>> sum = <List<double>>[
-        for (int r = 0; r < trace.vocab.length; r++) List<double>.filled(width, 0),
-      ];
-      for (int p = 0; p < trace.peptides.length; p++) {
-        final LmView there = _on(view, p);
-        for (int i = 0; i < trace.peptides[p].inputs; i++) {
-          final List<double> error = errors(there, i);
-          for (int r = 0; r < trace.vocab.length; r++) {
-            if (error[r] == 0) {
-              continue;
-            }
-            for (int d = 0; d < width; d++) {
-              sum[r][d] += error[r] * trace.stream(view.checkpoint, last, p, i, d);
-            }
-          }
-        }
-      }
-      return <List<double>>[
-        for (final List<double> row in sum) <double>[for (final double v in row) v / trace.targetCount],
-      ];
-    },
-  );
 
   /// [view] with [peptide] in focus, at its first place.
   static LmView _on(LmView view, int peptide) => peptide == view.peptide
@@ -405,7 +362,7 @@ final class BackwardScene extends LmScene {
   /// target lacks of 100% and what every other token took, condensing into a
   /// column of errors where the logits were made; the place's last row and
   /// the slots of its gradient at the left; the errors running back along the
-  /// strings into them; then each string's own gradient, and the batch's.
+  /// strings into them.
   void _bench(Canvas canvas, LmView view, BackwardLayout layout, double beat) {
     final double gone = _span(beat, _benchOut);
     if (beat < _barsIn.$1 || gone >= 1) {
@@ -642,7 +599,7 @@ final class BackwardScene extends LmScene {
     layout.frame(canvas, view, layout.gradientColumn, shown * kept);
     // Read: the number that should rise most and the one that should fall
     // most, ringed in the loss's honey.
-    final double read = through(beat, _readFrom, _readFrom + 0.3) * (1 - _span(beat, _own)) * shown;
+    final double read = through(beat, _readFrom, _readFrom + 0.3) * shown;
     if (read > 0) {
       final (int low, int high) = extremes(view);
       for (final int d in <int>{low, high}) {
@@ -664,28 +621,16 @@ final class BackwardScene extends LmScene {
     );
     drawColumnTitle(canvas, view, gradientTitle, shown, x: layout.gradientX, top: bench.benchTop);
 
-    // The weights' plate, under the strings: where they stand, then, once
-    // every place has added its own, what their gradient is.
+    // The weights' plate, under the strings: where they stand.
     final String named = PredictScene.plateText(view);
     final Rect plate = bench.plateAt(tagSize(view, named));
     drawTag(canvas, view, named, plate.topLeft, alpha: shown);
-    final double mean = _span(beat, _mean);
-    if (mean < 1) {
-      drawPlateStatus(canvas, view, plate, ScoresScene.weightsStatus(view), shown * (1 - mean), left: bench.left, right: bench.right);
-    }
-    if (mean > 0) {
-      drawPlateStatus(canvas, view, plate, meanStatus(view), shown * mean, left: bench.left, right: bench.right);
-    }
+    drawPlateStatus(canvas, view, plate, ScoresScene.weightsStatus(view), shown, left: bench.left, right: bench.right);
   }
-
-  /// What the plate says once every place has added its own.
-  static String meanStatus(LmView view) => 'gradient: the mean over ${grouped(view.trace.targetCount)} places';
 
   /// The strings, played back: the errors running from the column where the
   /// logits were made into each number of the gradient, a dot at each tip in
-  /// the loss's honey; left faint, a weight on each; then each relit by its
-  /// own gradient for the place in focus, the strongest named, and last by
-  /// the batch's.
+  /// the loss's honey; left faint, a weight on each, until the bench clears.
   void _strings(Canvas canvas, LmView view, BackwardLayout layout, double beat, double gone) {
     final TrainingTrace trace = view.trace;
     final int width = trace.model.width;
@@ -696,8 +641,6 @@ final class BackwardScene extends LmScene {
     Offset from(int j) => layout.predict.logitTile(allowed[j], 0).centerLeft;
     Offset toRank(int k) => layout.gradientTile(order[k]).centerRight;
     double weight(int k, int j) => trace.outputWeight(view.checkpoint, allowed[j], order[k]);
-    final double own = _span(beat, _own);
-    final double mean = _span(beat, _mean);
     final double web = _flow.webShown(width, beat) * (1 - gone);
     if (web > 0) {
       drawWeights(
@@ -711,7 +654,7 @@ final class BackwardScene extends LmScene {
         to: toRank,
         most: weightReach(width, allowed.length, weight),
         beat: beat,
-        alpha: web * (1 - own),
+        alpha: web,
       );
       drawFans(
         canvas,
@@ -729,71 +672,6 @@ final class BackwardScene extends LmScene {
       );
     }
     _workedBox(canvas, view, layout, beat, gone);
-    if (own <= 0 || gone >= 1) {
-      return;
-    }
-    // Each string's own gradient for the place in focus: its error times the
-    // number of the last row at its start.
-    final List<double> row = layout.predict.lastRow;
-    Offset to(int d) => layout.gradientTile(d).centerRight;
-    final double ownShown = own * (1 - mean) * (1 - gone);
-    if (ownShown > 0) {
-      drawEdges(
-        canvas,
-        view,
-        <(int, int, double)>[
-          for (int j = 0; j < allowed.length; j++)
-            for (int d = 0; d < width; d++) (j, d, input[j] * row[d]),
-        ],
-        from,
-        to,
-        ownShown,
-        most: errorReach(view) * row.fold<double>(1e-9, (double most, double v) => math.max(most, v.abs())),
-      );
-    }
-    final List<List<double>> batch = meanGradient(view);
-    final double meanShown = mean * (1 - gone);
-    if (meanShown > 0) {
-      drawEdges(
-        canvas,
-        view,
-        <(int, int, double)>[
-          for (int j = 0; j < allowed.length; j++)
-            for (int d = 0; d < width; d++) (j, d, batch[allowed[j]][d]),
-        ],
-        from,
-        to,
-        meanShown,
-      );
-    }
-    // The strongest string of the place's own, lit in the loss's honey, its
-    // two ends ringed: the error and the number it multiplies.
-    final double strongest = _span(beat, _strongest) * (1 - mean) * (1 - gone);
-    if (strongest > 0 && hasStrongest(view)) {
-      final (int j, int d) = strongestString(view);
-      final Paint honey = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.6
-        ..strokeCap = StrokeCap.round
-        ..color = view.inks.error.withValues(alpha: strongest);
-      canvas.drawLine(from(j), to(d), honey);
-      final Paint ring = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.2
-        ..color = view.inks.error.withValues(alpha: strongest);
-      canvas.drawRRect(RRect.fromRectAndRadius(layout.predict.logitTile(allowed[j], 0).inflate(1.5), const Radius.circular(2.5)), ring);
-      canvas.drawRRect(RRect.fromRectAndRadius(layout.predict.inputTile(d).inflate(1.5), const Radius.circular(2.5)), ring);
-      // Worked out on the string: error × number = its gradient.
-      final (String error, String number, String product, _, _) = strongestWorked(view);
-      layout.label(
-        canvas,
-        view,
-        '$error × $number = $product',
-        Offset.lerp(from(j), to(d), 0.5)!,
-        strongest,
-        ink: view.inks.error,
-      );
-    }
   }
 
   /// The first number of the gradient worked out beside its strings while
@@ -857,53 +735,6 @@ final class BackwardScene extends LmScene {
     );
     view.kit.draw(canvas, 'sum', quiet, Offset(x, y), anchor: const Offset(0, 0.5));
     view.kit.draw(canvas, sum, mono.copyWith(color: view.inks.error.withValues(alpha: alpha)), Offset(box.right - 8, y), anchor: const Offset(1, 0.5));
-  }
-
-  /// The place in focus's strongest string: which of the tokens that can
-  /// come next ([TrainingTrace.allowed]'s index) and which number of the last
-  /// row it joins.
-  static (int, int) strongestString(LmView view) {
-    final TrainingTrace trace = view.trace;
-    final List<double> error = errors(view, view.position);
-    final List<double> row = lastRow(view);
-    int bestJ = 0;
-    int bestD = 0;
-    double most = -1;
-    for (int j = 0; j < trace.allowed.length; j++) {
-      for (int d = 0; d < row.length; d++) {
-        final double v = (error[trace.allowed[j]] * row[d]).abs();
-        if (v > most) {
-          most = v;
-          bestJ = j;
-          bestD = d;
-        }
-      }
-    }
-    return (bestJ, bestD);
-  }
-
-  /// Whether the place in focus's strongest string writes as anything at two
-  /// places: a place with nothing left to learn has none to name.
-  static bool hasStrongest(LmView view) {
-    final (int j, int d) = strongestString(view);
-    return signedNumber(errors(view, view.position)[view.trace.allowed[j]] * lastRow(view)[d]) != '0.00';
-  }
-
-  /// The largest of the batch's gradient on the output layer: which token,
-  /// which number of the last row, and the gradient.
-  static (int, int, double) largestMean(LmView view) {
-    final List<List<double>> batch = meanGradient(view);
-    int bestR = view.trace.allowed.first;
-    int bestD = 0;
-    for (final int r in view.trace.allowed) {
-      for (int d = 0; d < batch[r].length; d++) {
-        if (batch[r][d].abs() > batch[bestR][bestD].abs()) {
-          bestR = r;
-          bestD = d;
-        }
-      }
-    }
-    return (bestR, bestD, batch[bestR][bestD]);
   }
 
   // ------------------------------------------------------------ the ladder
@@ -1190,8 +1021,8 @@ final class BackwardScene extends LmScene {
         _alone,
         'The loss is one number; lowering it means moving the weights.\n'
             "A weight's gradient: how fast the loss rises as it rises.\n"
-            'Update moves each weight a little against its own gradient.\n'
-            'Backward finds all ${grouped(trace.model.parameters)} in one pass, from the loss back.',
+            'Backward carries the error back, row by row, from the loss;\n'
+            "each weight's gradient comes from it, as Update will show.",
       ),
       (
         _alone,
@@ -1257,25 +1088,10 @@ final class BackwardScene extends LmScene {
       ),
       (
         _readFrom,
-        _own.$1,
+        _benchOut.$1,
         "A number's sign says which way it should go to lower the cost.\n"
             "But $focus's row is not a weight: nothing updates it directly.\n"
             'Its gradient goes on down, to the layers that made the row.',
-      ),
-      (
-        _own.$1,
-        _meanFrom,
-        "A weight's own gradient: the error at its end × the number\n"
-            "that went in at its start: $focus's number, at the left.\n"
-            'A large number into a large error: that string moves most;\n'
-            'a string that carried 0 has nothing to learn.',
-      ),
-      (
-        _meanFrom,
-        _benchOut.$1,
-        'Every place sends its own errors back through the same weights.\n'
-            'The loss is the mean of the ${grouped(targets)}, so each gradient is: ÷ ${grouped(targets)}.\n'
-            "These ${grouped(trace.vocab.length * width)} are the output layer's gradient: what Update uses.",
       ),
       (
         _benchOut.$1,
@@ -1297,7 +1113,8 @@ final class BackwardScene extends LmScene {
         _totalFrom,
         'Every place climbs the same ladder at once, a row each.\n'
             'A token row gets the sum over every place that read it,\n'
-            'a position row the sum at its place across the ${spelled(trace.peptides.length)} peptides.',
+            'a position row the sum at its place across the ${spelled(trace.peptides.length)} peptides.\n'
+            'The loss is the mean of the ${grouped(targets)} costs: each sum is ÷ ${grouped(targets)}.',
       ),
       (
         _totalFrom,
@@ -1329,8 +1146,7 @@ final class BackwardScene extends LmScene {
                 'up the stream, and into the network, which sends its share.\n'
                 'The row above gets both, added: the sum at the right.'
           : 'Block $block works as block ${block + 1}: each + passes the gradient up whole,\n'
-                'each part adds what it sends back, and its own weights get\n'
-                'their gradients the same way: error × the number that went in.';
+                'and each part adds what it sends back through its own weights.';
     }
     if (later == 0) {
       return 'Attention lets later places read a row, but none follows $focus:\n'
@@ -1396,23 +1212,13 @@ final class BackwardScene extends LmScene {
     if (beat < _readFrom) {
       return 'The other ${grouped(width - 1)} the same way, back along the strings Predict used';
     }
-    if (beat < _own.$1) {
+    if (beat < _benchOut.$1) {
       final (int low, int high) = extremes(view);
       final List<double> g = rowGradient(view);
       return signedNumber(g[low]) == '0.00' && signedNumber(g[high]) == '0.00'
           ? 'Read it: every number is about 0.00; little goes on down'
           : 'Read it: number ${low + 1}, ${fixed(g[low], 2)}, should rise; '
                 'number ${high + 1}, ${signedNumber(g[high])}, should fall';
-    }
-    if (beat < _meanFrom) {
-      if (!hasStrongest(view)) {
-        return "A string's gradient: its error × $focus's number; all 0.00 here";
-      }
-      final (String error, String number, String product, String token, int d) = strongestWorked(view);
-      return "A string's gradient: its error × $focus's number; $token's from ${d + 1}: $product";
-    }
-    if (beat < _benchOut.$1) {
-      return 'Every place adds its own; their mean, ÷ ${grouped(trace.targetCount)}, is what Update will use';
     }
     if (beat < _climbFrom) {
       return "$focus's gradient climbs back up the ladder Forward came down";
@@ -1454,18 +1260,6 @@ final class BackwardScene extends LmScene {
       }
     }
     return (low, high);
-  }
-
-  /// The strongest string worked out as written: its error, the number at
-  /// its start, their product from the two as written, so it reads right;
-  /// its token and the number's place.
-  static (String, String, String, String, int) strongestWorked(LmView view) {
-    final (int j, int d) = strongestString(view);
-    final int id = view.trace.allowed[j];
-    final String error = signedNumber(errors(view, view.position)[id]);
-    final String number = fixed(lastRow(view)[d], 2);
-    final double product = _parse(error) * _parse(number);
-    return (error, number, signedNumber(product), view.trace.token(id), d);
   }
 
   /// A number as written, its true minus read back.
@@ -1626,23 +1420,6 @@ final class BackwardLayout {
         ..strokeWidth = 1.3
         ..color = view.inks.error.withValues(alpha: alpha),
     );
-  }
-
-  /// [text] centred on [at] on a backing of the ground, in [ink], kept on
-  /// the canvas.
-  void label(Canvas canvas, LmView view, String text, Offset at, double alpha, {required Color ink}) {
-    if (alpha <= 0) {
-      return;
-    }
-    final TextStyle style = inked(view.kit.mono, 9, ink, alpha: alpha);
-    final Size size = view.kit.layout(text, style).size;
-    final double x = at.dx.clamp(size.width / 2 + 6, this.size.width - size.width / 2 - 6);
-    final Rect back = Rect.fromCenter(center: Offset(x, at.dy), width: size.width + 8, height: size.height + 4);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(back, const Radius.circular(3)),
-      Paint()..color = view.inks.ground.withValues(alpha: 0.9 * alpha),
-    );
-    view.kit.draw(canvas, text, style, Offset(x, at.dy), anchor: const Offset(0.5, 0.5));
   }
 
   /// A gradient's frame, in the loss's honey: what flows back.

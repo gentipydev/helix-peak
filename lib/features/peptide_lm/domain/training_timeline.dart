@@ -17,7 +17,7 @@ enum LmStage {
   forward('Forward', 12),
   predict('Predict', 14),
   loss('Loss', 17),
-  backward('Backward', 51),
+  backward('Backward', 46),
   update('Update', 8),
   loop('Loop', 25);
 
