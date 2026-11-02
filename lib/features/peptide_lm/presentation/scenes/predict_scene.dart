@@ -225,9 +225,14 @@ final class PredictScene extends LmScene {
 
   @override
   void paint(Canvas canvas, Size size, LmView view, TrainingFrame frame) =>
-      _paint(canvas, size, view, frame.local * _beats);
+      _paint(canvas, size, view, frame.local * _beats, const PredictFade());
 
-  void _paint(Canvas canvas, Size size, LmView view, double beat) {
+  /// The stage's last frame, with [fade] leaving out or fading what the stage
+  /// after it draws itself or retires: Loss opens on it.
+  void paintEnd(Canvas canvas, Size size, LmView view, [PredictFade fade = const PredictFade()]) =>
+      _paint(canvas, size, view, _beats, fade);
+
+  void _paint(Canvas canvas, Size size, LmView view, double beat, PredictFade fade) {
     if (beat <= 0) {
       const ForwardScene().paintEnd(canvas, size, view);
       return;
@@ -245,11 +250,12 @@ final class PredictScene extends LmScene {
       canvas,
       <(double, double, String)>[(double.negativeInfinity, 0.25, ForwardScene.notes(view).last.$3), ...notes(view)],
       beat,
+      alpha: fade.note,
     );
     _lastRow(canvas, view, layout, beat);
     _bench(canvas, view, layout, beat);
     _bars(canvas, view, layout, beat);
-    _map(canvas, view, layout, beat);
+    _map(canvas, view, layout, beat, fade);
   }
 
   // ------------------------------------------------------------------ data
@@ -742,7 +748,7 @@ final class PredictScene extends LmScene {
   /// lit slot of what came next with them; every other row's squares grow
   /// in; then the slot of what came next at each place lights, and the
   /// answer key comes in at the map's right.
-  void _map(Canvas canvas, LmView view, PredictLayout layout, double beat) {
+  void _map(Canvas canvas, LmView view, PredictLayout layout, double beat, PredictFade fade) {
     final double shown = _span(beat, _mapIn);
     if (shown <= 0) {
       return;
@@ -754,10 +760,10 @@ final class PredictScene extends LmScene {
     final List<int> allowed = trace.allowed;
     final List<List<double>> rows = allShares(view);
     final double answers = _span(beat, _answers);
-    table.tag(canvas, mapTag(view), shown);
-    table.drawTiles(canvas, alpha: shown, dx: -table.gutter);
+    table.tag(canvas, mapTag(view), shown * fade.tag);
+    table.drawTiles(canvas, alpha: shown * fade.rows, dx: -table.gutter);
     for (int k = 0; k < allowed.length; k++) {
-      drawToken(canvas, view, layout.mapTile(k), allowed[k], alpha: shown);
+      drawToken(canvas, view, layout.mapTile(k), allowed[k], alpha: shown * fade.others);
     }
     for (int i = 0; i < n; i++) {
       final double filled = _filled(i, focus, n, beat);
@@ -772,7 +778,7 @@ final class PredictScene extends LmScene {
           layout.mapCell(i, k),
           share: rows[i][k],
           grown: filled,
-          shown: shown,
+          shown: shown * (k == answer ? fade.answers : fade.others),
           lit: k == answer ? lit : 0,
         );
       }
@@ -801,24 +807,27 @@ final class PredictScene extends LmScene {
         },
       );
     }
-    table.outline(canvas, focus, layout.right, _span(beat, _focusOutline), dx: -table.gutter);
-    _answerKey(canvas, view, layout, answers);
+    table.outline(canvas, focus, layout.right, _span(beat, _focusOutline) * fade.outline, dx: -table.gutter);
+    _answerKey(canvas, view, layout, answers, fade);
   }
 
   /// The answer key at the map's right, as Shift's y: each place's next
   /// token on a tile at its row's end, and the share its guess gave it, the
-  /// number Loss scores; their names over them.
-  void _answerKey(Canvas canvas, LmView view, PredictLayout layout, double alpha) {
+  /// number Loss scores; their names over them. [fade] takes the tiles and
+  /// the shares given, with the names, apart.
+  void _answerKey(Canvas canvas, LmView view, PredictLayout layout, double alpha, PredictFade fade) {
     if (alpha <= 0) {
       return;
     }
     final TrainingTrace trace = view.trace;
+    final double tiles = alpha * fade.key;
+    final double numbers = alpha * fade.given;
     final TextStyle? given = layout.givenStyle;
-    final TextStyle? written = given?.copyWith(color: given.color!.withValues(alpha: (alpha * 8).round() / 8));
+    final TextStyle? written = given?.copyWith(color: given.color!.withValues(alpha: (numbers * 8).round() / 8));
     for (int i = 0; i < view.focus.inputs; i++) {
       final int next = trace.targetAt(view.peptide, i);
-      drawToken(canvas, view, layout.answerTile(i), next, alpha: alpha);
-      if (written != null) {
+      drawToken(canvas, view, layout.answerTile(i), next, alpha: tiles);
+      if (written != null && numbers > 0) {
         view.kit.draw(
           canvas,
           percent(shares(view, i)[next]),
@@ -830,8 +839,11 @@ final class PredictScene extends LmScene {
     }
     // Named as a column is (`drawColumnTitle`), the shares' name flush with
     // their right edge.
+    if (numbers <= 0) {
+      return;
+    }
     final double top = layout.table.layout.tableTop - 4;
-    final TextStyle named = titleStyle(view, alpha: alpha);
+    final TextStyle named = titleStyle(view, alpha: numbers);
     view.kit.draw(canvas, answerTitle, named, Offset(layout.answerTile(0).center.dx, top), anchor: const Offset(0.5, 1));
     if (written != null) {
       view.kit.draw(canvas, givenTitle, named, Offset(layout.givenRight, top), anchor: const Offset(1, 1));
@@ -984,6 +996,35 @@ final class PredictScene extends LmScene {
 
   @override
   String describe(LmView view, TrainingFrame frame) => 'Predict, step ${view.step}. ${caption(view, frame)}.';
+}
+
+/// What Predict's last frame fades or leaves out, for the stage that opens on
+/// it: the note; the map's tag; the tiles naming its rows; every cell of it
+/// but what came next, with the tiles naming its columns; the cells of what
+/// came next, which Loss moves itself; the outline of the place in focus;
+/// and the answer key, its tiles apart from the shares given and their
+/// names. By default, the frame as Predict draws it.
+@immutable
+final class PredictFade {
+  const PredictFade({
+    this.note = 1,
+    this.tag = 1,
+    this.rows = 1,
+    this.others = 1,
+    this.answers = 1,
+    this.outline = 1,
+    this.key = 1,
+    this.given = 1,
+  });
+
+  final double note;
+  final double tag;
+  final double rows;
+  final double others;
+  final double answers;
+  final double outline;
+  final double key;
+  final double given;
 }
 
 /// Predict's canvas, on Embedding's, as the stream's stages are: the note
