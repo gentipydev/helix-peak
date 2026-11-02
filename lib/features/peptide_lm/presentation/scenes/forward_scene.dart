@@ -24,7 +24,8 @@ import 'stream_table.dart';
 /// thin strip, and a copy of the row above drops through it into the next
 /// slot, turning into the sum as it passes: block 1's two onto the row that
 /// waited, then block 2's. The final LayerNorm takes the last drop: the row
-/// Predict reads. Only the row last made writes its numbers.
+/// Predict reads. Each row writes its numbers from when it lands to the end,
+/// so x0's can be read against every row after it.
 ///
 /// Every number is the run's: each point of the stream, whole.
 final class ForwardScene extends LmScene {
@@ -85,20 +86,13 @@ final class ForwardScene extends LmScene {
   }
 
   /// How strongly slot [k]'s row writes its numbers at [beat]: from when it
-  /// lands until the copy of it starts to drop into the next.
+  /// lands, and on to the end, so each row's numbers stand over the next's.
   static double _written(int k, int layers, double beat) {
-    double on;
     if (k == 0) {
-      on = _span(beat, _x0In);
-    } else {
-      final (double t, double p) = _part(k, layers);
-      on = through(beat, t + 0.68 * p, t + 0.82 * p);
+      return _span(beat, _x0In);
     }
-    if (k == 2 * layers + 1) {
-      return on;
-    }
-    final (double t, double p) = _part(k + 1, layers);
-    return on * (1 - through(beat, t + 0.18 * p, t + 0.26 * p));
+    final (double t, double p) = _part(k, layers);
+    return through(beat, t + 0.68 * p, t + 0.82 * p);
   }
 
   /// How far slot [k] has its row at [beat]: x0 as it comes in, the others
@@ -204,11 +198,11 @@ final class ForwardScene extends LmScene {
     _ => "+ block ${(k - 1) ~/ 2 + 1}'s ${k.isOdd ? 'attention' : 'feed-forward'}",
   };
 
-  /// The rows: each part's strip as its part starts; each row once landed,
-  /// its numbers written until the next drop, the last unless [lastRow] is
-  /// false; the place's row from the table, waiting faint in its slot until
-  /// the climb reaches it; and each copy as it drops, turning into the sum as
-  /// it passes the strip.
+  /// The rows: each part's strip as its part starts; the place's row from
+  /// the table, waiting faint in its slot until the climb reaches it; each
+  /// copy as it drops, turning into the sum as it passes the strip, out from
+  /// under the row it copies; and each row once landed, its numbers written
+  /// from then on, the last unless [lastRow] is false.
   void _rows(Canvas canvas, LmView view, TowerLayout layout, double beat, {bool lastRow = true}) {
     final StreamTable table = layout.table;
     final int layers = view.trace.model.layers;
@@ -223,14 +217,6 @@ final class ForwardScene extends LmScene {
       final double shown = _stripShown(k, layers, beat);
       if (shown > 0) {
         table.drawRow(canvas, layout.strip(k), table.gained(k - 1, k, focus), scale: layout.gainScale, text: 0, fill: shown);
-      }
-    }
-    for (int k = 0; k <= last; k++) {
-      final double landed = _landed(k, layers, beat);
-      if (landed > 0 && (lastRow || k < last)) {
-        final List<double> values = table.values(k, focus);
-        table.drawRow(canvas, layout.slot(k), values, scale: scaleOf(k), fill: landed, text: 0);
-        layout.write(canvas, layout.slot(k), values, _written(k, layers, beat));
       }
     }
     final int waiting = _waiting;
@@ -260,6 +246,15 @@ final class ForwardScene extends LmScene {
         colors: <Color>[for (int d = 0; d < above.length; d++) Color.lerp(above[d], below[d], turn)!],
         text: 0,
       );
+    }
+    // Over the copies, so a row's numbers stay clear as its copy leaves it.
+    for (int k = 0; k <= last; k++) {
+      final double landed = _landed(k, layers, beat);
+      if (landed > 0 && (lastRow || k < last)) {
+        final List<double> values = table.values(k, focus);
+        table.drawRow(canvas, layout.slot(k), values, scale: scaleOf(k), fill: landed, text: 0);
+        layout.write(canvas, layout.slot(k), values, _written(k, layers, beat));
+      }
     }
   }
 
