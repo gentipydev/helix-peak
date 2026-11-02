@@ -39,8 +39,9 @@ typedef HeadTimes = ({double keys, double scan, double soft, double shares, doub
 /// tiles naming its rows, and under it its columns; the place in focus's row
 /// fills first, with the shares Scores found, then every other row. Head 2's
 /// map is not drawn. Last, the table widens again: what attention adds to
-/// each place, alone, and then added, x0 + attention, the first point of the
-/// stream after x0.
+/// each place, alone, and then added, x0 + block 1's attention, the first
+/// point of the stream after x0. What the stage names, the block's parts
+/// and sums, it names as block 1's.
 ///
 /// Every number is the run's: the scores, the shares, and each point of the
 /// stream, whole.
@@ -148,6 +149,25 @@ final class AttentionScene extends LmScene {
     return 0;
   }
 
+  /// How strongly head [h]'s tag shows at [beat]: in with its keys, out as
+  /// it ends.
+  static double headTagShown(double beat, int h, int heads) {
+    final HeadTimes t = times(h, heads);
+    return through(beat, t.keys, t.keys + 0.3) * (1 - through(beat, t.end - 0.1, t.end + 0.15));
+  }
+
+  /// How strongly x0's tag shows at [beat]: away from Scores' head 1 until
+  /// the last head's tag has gone, never under one, then going for the map.
+  static double x0TagShown(double beat, int heads) {
+    final double back = times(heads - 1, heads).end + 0.15;
+    return through(beat, back, back + 0.25) * (1 - _span(beat, _x0TagOut));
+  }
+
+  /// x0 and what block 1's attention adds, the stream's first point after
+  /// x0, as its table is named: Feed-forward opens on it.
+  static String sumTag(LmView view) =>
+      "x0 + block 1's attention · ${view.focus.inputs} × ${view.trace.model.width}";
+
   @override
   void paint(Canvas canvas, Size size, LmView view, TrainingFrame frame) =>
       _paint(canvas, size, view, frame.local * _beats);
@@ -159,12 +179,13 @@ final class AttentionScene extends LmScene {
     final AttentionLayout layout = AttentionLayout(size, view);
     final StreamTable table = layout.table;
     final TrainingTrace trace = view.trace;
-    // Embedding's x0 tag, going as the table narrows to its token column.
+    // Embedding's x0 tag, away while the heads' tags are up, going as the
+    // table narrows to its token column.
     const EmbeddingScene().paintEnd(
       canvas,
       size,
       view,
-      EmbeddingFade(rows: false, chrome: 1 - _span(beat, _x0TagOut), note: 0, twins: 0),
+      EmbeddingFade(rows: false, chrome: x0TagShown(beat, trace.model.heads), note: 0, twins: 0),
     );
     table.note(
       canvas,
@@ -176,15 +197,15 @@ final class AttentionScene extends LmScene {
     // The map's name, gone before the next is written in its place.
     table.tag(
       canvas,
-      'head 1 · shares in % · $n × $n',
+      'block 1 · head 1 · shares in % · $n × $n',
       _span(beat, _mapTagIn) * (1 - through(beat, _widenFrom - 0.1, _widenFrom + 0.1)),
     );
     table.tag(
       canvas,
-      'what attention adds · $n × $width',
+      "what block 1's attention adds · $n × $width",
       through(beat, _widenFrom + 0.1, _widenFrom + 0.3) * (1 - through(beat, _gainUnwritten.$1, _gainUnwritten.$2)),
     );
-    table.tag(canvas, 'x0 + attention · $n × $width', through(beat, _gainUnwritten.$2, _gainUnwritten.$2 + 0.2));
+    table.tag(canvas, sumTag(view), through(beat, _gainUnwritten.$2, _gainUnwritten.$2 + 0.2));
     _stream(canvas, size, view, layout, beat);
     final double squeeze = _squeezeAt(beat);
     table.drawTiles(canvas, dx: layout.slide(squeeze));
@@ -382,18 +403,25 @@ final class AttentionScene extends LmScene {
       ScoresScene.drawShares(canvas, view, layout, alpha: 1 - _span(beat, _barsOut));
     }
     _arcs(canvas, view, layout, beat, h, t, shown);
-    final double named = through(beat, t.keys, t.keys + 0.3) * (1 - through(beat, t.end - 0.1, t.end + 0.15));
+    final double named = headTagShown(beat, h, trace.model.heads);
     drawHeadTag(canvas, view, layout, h, beat < t.values + 0.2 ? 'query and keys' : 'values', named);
   }
 
-  /// Head [h]'s name over its strips, and what they hold.
+  /// Head [h]'s tag, its block and what its strips hold.
+  static String headTag(int h, String what) => 'block 1 · head ${h + 1} · $what';
+
+  /// Head [h]'s name over its strips, and what they hold: kept on the
+  /// canvas, its left edge set by its longer words so it holds still as
+  /// they change.
   static void drawHeadTag(Canvas canvas, LmView view, AttentionLayout layout, int h, String what, double alpha) {
     if (alpha > 0) {
+      final EmbeddingLayout e = layout.table.layout;
+      final double widest = tagSize(view, headTag(h, 'query and keys')).width;
       drawTag(
         canvas,
         view,
-        'head ${h + 1} · $what',
-        Offset(layout.kvLeft - tagPadding, layout.table.layout.tagTop),
+        headTag(h, what),
+        Offset(math.max(e.left, math.min(layout.kvLeft - tagPadding, e.right - widest)), e.tagTop),
         alpha: alpha,
       );
     }
@@ -916,7 +944,7 @@ final class AttentionScene extends LmScene {
       drawColumnTitle(canvas, view, 'output', slots, x: bench.outputX[0], top: bench.columnAt(bench.outputX[0], 0).top);
       final double plate = _span(beat, _outPlateIn) * shown;
       if (plate > 0) {
-        final String name = 'output weights · $width × $width';
+        final String name = ScoresScene.weightsName(view, 'output');
         final Rect at = bench.plateAt(tagSize(view, name));
         drawTag(canvas, view, name, at.topLeft, alpha: plate);
         drawPlateStatus(canvas, view, at, ScoresScene.weightsStatus(view), plate, left: bench.benchLeft, right: bench.right);
@@ -1219,7 +1247,7 @@ final class AttentionScene extends LmScene {
     if (beat < _gainUnwritten.$1) {
       return "Each row made as $focus's was: its shares × the values, × output weights";
     }
-    return 'Added: x0 + attention, ${grouped(n)} × $width';
+    return "Added: x0 + block 1's attention, ${grouped(n)} × $width";
   }
 
   @override

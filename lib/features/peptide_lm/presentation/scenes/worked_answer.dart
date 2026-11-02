@@ -543,8 +543,7 @@ abstract final class WorkedAnswer {
     if (shown <= 0) {
       return;
     }
-    final int width = view.trace.model.width;
-    final String name = 'value weights · $width × $width';
+    final String name = ScoresScene.weightsName(view, 'value');
     final Rect plate = at.bench.plateAt(tagSize(view, name));
     drawTag(canvas, view, name, plate.topLeft, alpha: shown);
     drawPlateStatus(

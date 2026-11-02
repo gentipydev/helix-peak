@@ -362,7 +362,7 @@ void main() {
       caption(LmStage.attention, attention(20.7)),
       "Each row made as V3's was: its shares × the values, × output weights",
     );
-    expect(caption(LmStage.attention, 0.99), 'Added: x0 + attention, 12 × $width');
+    expect(caption(LmStage.attention, 0.99), "Added: x0 + block 1's attention, 12 × $width");
     // Feed-forward, block 1's, at V3.
     double fed(double beat) => beat / LmStage.feedForward.beats;
     final int ff = trace.model.feedForward;
@@ -671,6 +671,46 @@ void main() {
         expect(first, last, reason: '${after.label} opens on ${before.label}');
       }
     }
+  });
+
+  testWidgets("Scores, Attention and Feed-forward name the block's parts and sums as block 1's", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    final LmView scene = view(inks, kit);
+    final int width = trace.model.width;
+    final int n = scene.focus.inputs;
+    expect(ScoresScene.weightsName(scene, 'query'), 'block 1 · query weights · $width × $width');
+    expect(ScoresScene.weightsName(scene, 'output'), 'block 1 · output weights · $width × $width');
+    expect(AttentionScene.headTag(0, 'query and keys'), 'block 1 · head 1 · query and keys');
+    expect(AttentionScene.headTag(1, 'values'), 'block 1 · head 2 · values');
+    expect(AttentionScene.sumTag(scene), "x0 + block 1's attention · $n × $width");
+  });
+
+  test("x0's tag steps aside while a head's tag is up, in Scores and in Attention", () {
+    final int heads = trace.model.heads;
+    final double scoresEnd = LmStage.scores.beats.toDouble();
+    for (double beat = 0; beat <= scoresEnd; beat += 0.01) {
+      expect(ScoresScene.x0TagShown(beat) * ScoresScene.headTagShown(beat), 0, reason: 'Scores at $beat');
+    }
+    // Scores ends on head 1's tag alone, as Attention opens.
+    expect(ScoresScene.x0TagShown(scoresEnd), 0);
+    expect(ScoresScene.headTagShown(scoresEnd), 1);
+    expect(AttentionScene.x0TagShown(0, heads), 0);
+    expect(AttentionScene.headTagShown(0, 0, heads), 1);
+    for (double beat = 0; beat <= LmStage.attention.beats; beat += 0.01) {
+      for (int h = 0; h < heads; h++) {
+        expect(
+          AttentionScene.x0TagShown(beat, heads) * AttentionScene.headTagShown(beat, h, heads),
+          0,
+          reason: 'Attention at $beat, head ${h + 1}',
+        );
+      }
+    }
+    // Back once the heads have read, until the map takes the row.
+    expect(AttentionScene.x0TagShown(10, heads), 1);
+    expect(AttentionScene.x0TagShown(LmStage.attention.beats.toDouble(), heads), 0);
   });
 
   testWidgets('Scores draws no strings until the row flows into the query', (WidgetTester tester) async {

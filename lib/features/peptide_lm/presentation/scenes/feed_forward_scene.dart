@@ -15,9 +15,10 @@ import 'stream_table.dart';
 
 /// Feed-forward, block 1's second part, as the engine runs it (the block's
 /// second LayerNorm, then `linear1`, GELU and `linear2`). It opens on
-/// Attention's last frame, x0 + attention a row a place. A copy of the row in
-/// focus stands up off it as the network's inputs, and the LayerNorm evens
-/// them out on Scores' chart; their weights reach every one of the neurons.
+/// Attention's last frame, x0 + block 1's attention a row a place. A copy of
+/// the row in focus stands up off it as the network's inputs, and the
+/// LayerNorm evens them out on Scores' chart; their weights reach every one
+/// of the neurons.
 /// One neuron's sum is worked out and goes through GELU, drawn as its curve
 /// beside the neurons; then the neuron GELU silences most; then every neuron
 /// at once, each lit by what GELU lets through. Their weights reach the
@@ -116,10 +117,10 @@ final class FeedForwardScene extends LmScene {
     table.note(canvas, notes(view), beat);
     final double shown = 1 - _span(beat, _tableOut) + _span(beat, _tableIn);
     // The table's name goes with it while the network takes the canvas.
-    table.tag(canvas, 'x0 + attention · $n × $width', (1 - _span(beat, _numbersOut)) * shown);
+    table.tag(canvas, AttentionScene.sumTag(view), (1 - _span(beat, _numbersOut)) * shown);
     table.tag(
       canvas,
-      'what the feed-forward adds · $n × $width',
+      "what block 1's feed-forward adds · $n × $width",
       through(beat, _numbersOut.$2, _numbersOut.$2 + 0.2) * (1 - _span(beat, _gainUnwritten)),
     );
     table.tag(canvas, "block 1's output · $n × $width", through(beat, _gainUnwritten.$2, _gainUnwritten.$2 + 0.2));

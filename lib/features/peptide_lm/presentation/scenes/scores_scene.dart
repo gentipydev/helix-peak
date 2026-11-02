@@ -110,6 +110,10 @@ final class ScoresScene extends LmScene {
   static const (double, double) _struck = (14.3, 14.7);
   static const (double, double) _named = (14.2, 14.5);
 
+  // x0's tag steps aside just before head 1's tag takes its row, which it
+  // would otherwise lie under; Attention brings it back after the heads.
+  static const (double, double) _x0TagOut = (13.9, 14.2);
+
   // One score worked out, on the bench: the query and the top key fly to it,
   // their products come one after another, then the sum and the division,
   // and the score flies to its place.
@@ -144,9 +148,15 @@ final class ScoresScene extends LmScene {
     final AttentionLayout attention = layout.attention;
     final StreamTable table = attention.table;
     // Embedding's note goes as this stage's come, and the marks on the two
-    // places it names with it, drawn over the rows; its x0 tag stays.
+    // places it names with it, drawn over the rows; its x0 tag stays until
+    // head 1's tag comes.
     final double note = 1 - _span(beat, _noteOut);
-    const EmbeddingScene().paintEnd(canvas, size, view, EmbeddingFade(rows: false, note: note, twins: 0));
+    const EmbeddingScene().paintEnd(
+      canvas,
+      size,
+      view,
+      EmbeddingFade(rows: false, chrome: x0TagShown(beat), note: note, twins: 0),
+    );
     table.note(canvas, notes(view), beat);
     _stream(canvas, view, layout, beat);
     final double squeeze = _span(beat, _squeeze);
@@ -648,6 +658,13 @@ final class ScoresScene extends LmScene {
     );
   }
 
+  /// A part's weights by name, [part] `query`, `key`, `value` or `output`:
+  /// the block's own, on the plate under their strings.
+  static String weightsName(LmView view, String part) {
+    final int width = view.trace.model.width;
+    return 'block 1 · $part weights · $width × $width';
+  }
+
   /// Where the weights stand at the checkpoint in focus: the run's random
   /// start, and the updates since.
   static String weightsStatus(LmView view) {
@@ -676,8 +693,7 @@ final class ScoresScene extends LmScene {
   /// it: whose they are and how many, on a plate; under it, where they
   /// stand, the run's random start and the updates since.
   void _plate(Canvas canvas, LmView view, ScoresLayout layout, double beat, double shown) {
-    final int width = view.trace.model.width;
-    String named(int part) => '${_parts[part]} weights · $width × $width';
+    String named(int part) => weightsName(view, _parts[part]);
     for (int part = 0; part < 3; part++) {
       final double alpha = _plateShown(part, beat) * shown;
       if (alpha > 0) {
@@ -782,8 +798,15 @@ final class ScoresScene extends LmScene {
     final double query = beat >= _queryDown.$2 ? 1 - _span(beat, _queryOut) : 0;
     AttentionScene.drawQuery(canvas, view, attention, 0, AttentionScene.scanRow(beat, _scan.$1, _scan.$2, focus), query);
     drawShares(canvas, view, attention, grow: _span(beat, _bars), labels: _span(beat, _percents));
-    AttentionScene.drawHeadTag(canvas, view, attention, 0, 'query and keys', _span(beat, _named));
+    AttentionScene.drawHeadTag(canvas, view, attention, 0, 'query and keys', headTagShown(beat));
   }
+
+  /// How strongly x0's tag shows at [beat]: it goes before head 1's tag
+  /// comes, never under it.
+  static double x0TagShown(double beat) => 1 - _span(beat, _x0TagOut);
+
+  /// How strongly head 1's tag shows at [beat].
+  static double headTagShown(double beat) => _span(beat, _named);
 
   /// Each score beside its key: the one worked out first, landing, then each
   /// as the query passes it.
