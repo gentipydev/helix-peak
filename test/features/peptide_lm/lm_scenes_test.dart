@@ -530,8 +530,9 @@ void main() {
     expect(
       caption(LmStage.predict, predict(10)),
       guess == last.target
-          ? 'After GIV the model gives $next ${percent(given[guess])}, and $next is next'
-          : 'After GIV the model gives $guessed ${percent(given[guess])}; next is $next, given ${percent(given[last.target])}',
+          ? 'Top bet after GIV: $next, ${percent(given[guess])}, the true next ${trace.isResidue(last.target) ? 'residue' : 'token'}'
+          : 'Top bet after GIV: $guessed, ${percent(given[guess])}. '
+                'True next ${trace.isResidue(last.target) ? 'residue' : 'token'}, $next, got ${percent(given[last.target])}',
     );
     expect(caption(LmStage.predict, predict(11)), 'Every place guesses at once, with the same weights: 12 rows of 21');
     expect(

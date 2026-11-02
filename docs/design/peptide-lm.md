@@ -679,8 +679,11 @@ out of view is scrolled just far enough to show it whole.
      toward the tracer behind its row from its tile to the dashed 100% (it
      was a white outline until the map's redraw, then replaced at the user's
      ask the same day): the room its bar would fill were the guess right and
-     certain. After …CCTSIC the model gives K 10%, and the S that comes next 1.3%; at
-     step 200, S 100%.
+     certain. "Top bet after …CCTSIC: K, 10%. True next residue, S, got
+     1.3%" ("token" for <eos>); at step 200, "…: S, 100%, the true next
+     residue". It said
+     "next is S, given 1.3%" until the user read S as the model's second
+     guess (2026-11-02): guess and answer key are now named apart.
    - Every place at once, on a map of shares drawn as squares (the user's
      picks of 2026-11-02, redrawing the first map, which was head 1's: a
      soft tile and a number on every cell and a white box on each answer).

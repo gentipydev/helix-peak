@@ -969,9 +969,12 @@ final class PredictScene extends LmScene {
     if (beat < _tiles.$1) {
       final String after = readSoFar(trace, view.peptide, view.position);
       final String next = trace.token(view.target);
+      // What came next named as what it is: <eos> ends the frame, no residue.
+      final String kind = trace.isResidue(view.target) ? 'residue' : 'token';
       return best == view.target
-          ? 'After $after the model gives $next ${percent(p[best])}, and $next is next'
-          : 'After $after the model gives $name ${percent(p[best])}; next is $next, given ${percent(p[view.target])}';
+          ? 'Top bet after $after: $next, ${percent(p[best])}, the true next $kind'
+          : 'Top bet after $after: $name, ${percent(p[best])}. '
+                'True next $kind, $next, got ${percent(p[view.target])}';
     }
     if (beat < _answers.$1) {
       return 'Every place guesses at once, with the same weights: ${grouped(n)} rows of ${grouped(trace.allowed.length)}';
