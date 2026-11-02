@@ -139,6 +139,45 @@ void main() {
     }
   });
 
+  test("the stream's gradient is as long as its norm, and last the weights times p − y", () {
+    final int last = trace.points.length - 1;
+    for (final TraceCheckpoint c in trace.checkpoints) {
+      for (int p = 0; p < trace.peptides.length; p++) {
+        for (int i = 0; i < trace.peptides[p].inputs; i++) {
+          for (int k = 0; k <= last; k++) {
+            double squares = 0;
+            for (int d = 0; d < trace.model.width; d++) {
+              squares += math.pow(trace.streamGrad(c, k, p, i, d), 2);
+            }
+            final double norm = trace.pointGrad(c, k, p, i);
+            expect(math.sqrt(squares), closeTo(norm, 1e-5 * norm + 1e-12));
+          }
+          // Only the output layer reads the last point: its gradient there is
+          // each token's weights times its share less one at what came next,
+          // over the targets the loss is the mean of.
+          double top = double.negativeInfinity;
+          for (final int id in trace.allowed) {
+            top = math.max(top, trace.logit(c, p, i, id));
+          }
+          double total = 0;
+          for (final int id in trace.allowed) {
+            total += math.exp(trace.logit(c, p, i, id) - top);
+          }
+          final double norm = trace.pointGrad(c, last, p, i);
+          for (int d = 0; d < trace.model.width; d++) {
+            double sum = 0;
+            for (final int id in trace.allowed) {
+              final double error = math.exp(trace.logit(c, p, i, id) - top) / total -
+                  (id == trace.targetAt(p, i) ? 1 : 0);
+              sum += trace.outputWeight(c, id, d) * error;
+            }
+            expect(trace.streamGrad(c, last, p, i, d), closeTo(sum / trace.targetCount, 1e-4 * norm + 1e-9));
+          }
+        }
+      }
+    }
+  });
+
   test('the update a checkpoint kept is how far the output layer moved', () {
     for (final TraceCheckpoint c in trace.checkpoints) {
       if (c.step == trace.steps.count) {
@@ -383,7 +422,7 @@ void main() {
   });
 
   test('a schema this does not read is refused', () {
-    for (final int schema in <int>[1, 2, 3, 4, 5]) {
+    for (final int schema in <int>[1, 2, 3, 4, 5, 6]) {
       expect(
         () => TrainingTrace.parse(_edited((Map<String, dynamic> json) => json['schema'] = schema)),
         throwsA(isA<FormatException>()),

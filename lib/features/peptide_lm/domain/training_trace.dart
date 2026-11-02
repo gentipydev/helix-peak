@@ -217,6 +217,7 @@ final class TraceCheckpoint {
     required this.positionEmbedding,
     required this.stream,
     required this.pointGrad,
+    required this.streamGrad,
     required this.attention,
     required this.attentionScale,
     required this.blocks,
@@ -250,6 +251,11 @@ final class TraceCheckpoint {
 
   /// The norm of the loss's gradient reaching each point: points × targets.
   final Float32List pointGrad;
+
+  /// The loss's gradient itself at each point, whole: points × targets ×
+  /// width, each row as long as its [pointGrad]. The loss is the mean over
+  /// the targets, so each number carries one over their count.
+  final Float32List streamGrad;
 
   /// Every head's attention, layers × heads × each peptide's lower triangle.
   final Uint8List attention;
@@ -318,7 +324,7 @@ final class TrainingTrace {
          for (final TracePeptide p in peptides) p.inputs * (p.inputs + 1) ~/ 2,
        ]);
 
-  static const int schema = 6;
+  static const int schema = 7;
 
   final String name;
 
@@ -437,6 +443,11 @@ final class TrainingTrace {
 
   double pointGrad(TraceCheckpoint at, int point, int peptide, int position) =>
       at.pointGrad[point * targetCount + flat(peptide, position)];
+
+  /// The loss's gradient at [point] of the stream, at [position], number
+  /// [dim]: how fast the step's loss rises as that number rises.
+  double streamGrad(TraceCheckpoint at, int point, int peptide, int position, int dim) =>
+      at.streamGrad[(point * targetCount + flat(peptide, position)) * model.width + dim];
 
   double attention(
     TraceCheckpoint at,
@@ -706,6 +717,11 @@ final class TrainingTrace {
           ),
           stream: _float32(c['points'], <int>[points.length, targetCount, model.width], '$what points'),
           pointGrad: _float32(c['point_grad'], <int>[points.length, targetCount], '$what grad'),
+          streamGrad: _float32(
+            c['stream_grad'],
+            <int>[points.length, targetCount, model.width],
+            '$what stream_grad',
+          ),
           attention: _uint8(
             c['attention'],
             <int>[model.layers, model.heads, triangle],
