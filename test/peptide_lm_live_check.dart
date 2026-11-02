@@ -65,7 +65,54 @@ void main() {
     expectTheWorkedExample(trace);
     expectTheWorkedAnswer(trace);
     expectTheWorkedLogit(trace);
+    expectTheLoss(trace);
   });
+}
+
+/// What Loss draws (docs/design/peptide-lm.md): each target's −ln p(y), p(y)
+/// softmax of the whole logits as Predict takes it, is the loss the run kept
+/// for that target, and their mean is the step's loss. Insulin A chain's C11
+/// at step 1 gave the S that came next 0.0134: −ln 0.0134 = 4.31. At the last
+/// step, each peptide's first target, read from `<bos>` alone, costs about
+/// ln 6, and those six hold most of the loss: the floor.
+void expectTheLoss(TrainingTrace trace) {
+  double cost(TraceCheckpoint at, int peptide, int i) {
+    double top = double.negativeInfinity;
+    for (final int id in trace.allowed) {
+      top = math.max(top, trace.logit(at, peptide, i, id));
+    }
+    double total = 0;
+    for (final int id in trace.allowed) {
+      total += math.exp(trace.logit(at, peptide, i, id) - top);
+    }
+    return -(trace.logit(at, peptide, i, trace.targetAt(peptide, i)) - top - math.log(total));
+  }
+
+  for (final TraceCheckpoint at in trace.checkpoints) {
+    double sum = 0;
+    double first = 0;
+    for (int p = 0; p < trace.peptides.length; p++) {
+      for (int i = 0; i < trace.peptides[p].inputs; i++) {
+        final double spent = cost(at, p, i);
+        expect(spent, closeTo(trace.targetLoss(at.step, p, i), 5e-4), reason: 'step ${at.step} p$p i$i');
+        sum += spent;
+        if (i == 0) {
+          first += spent;
+        }
+      }
+    }
+    expect(sum / trace.targetCount, closeTo(trace.loss(at.step), 1e-4), reason: 'step ${at.step}');
+    if (at == trace.checkpoints.last) {
+      expect(first / sum, greaterThan(0.9));
+      for (int p = 0; p < trace.peptides.length; p++) {
+        expect(cost(at, p, 0), closeTo(math.log(trace.peptides.length), 0.02), reason: 'p$p');
+      }
+    }
+  }
+  const int c11 = 11;
+  final double given = math.exp(-cost(trace.checkpoints.first, 0, c11));
+  expect(given.toStringAsPrecision(3), '0.0134');
+  expect(fixed(-math.log(double.parse(given.toStringAsPrecision(3))), 2), '4.31');
 }
 
 /// The logit Predict works out (docs/design/peptide-lm.md): insulin A

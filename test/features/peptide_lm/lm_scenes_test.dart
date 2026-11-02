@@ -17,6 +17,7 @@ import 'package:helixpeek/features/peptide_lm/presentation/scenes/forward_scene.
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_drawing.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_scene_painter.dart';
+import 'package:helixpeek/features/peptide_lm/presentation/scenes/loss_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/predict_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/scores_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/stream_table.dart';
@@ -539,7 +540,51 @@ void main() {
       caption(LmStage.predict, 0.99),
       'Lit, what came next (y): the top guess at ${PredictScene.right(last)} of 12 places',
     );
-    expect(caption(LmStage.loss, 0.99), contains(nats(trace.loss(last.step))));
+    // Loss, beat by beat: p(y) alone, −ln on its curve, the place in focus
+    // worked out, target y, every target's cost, and their mean.
+    double loss(double beat) => beat / LmStage.loss.beats;
+    final List<double> answered = <double>[
+      for (int i = 0; i < last.focus.inputs; i++) PredictScene.shares(last, i)[trace.targetAt(0, i)],
+    ];
+    expect(
+      caption(LmStage.loss, loss(1)),
+      'Loss reads one share a place, p(y): here from ${percent(answered.reduce(math.min))} to ${percent(answered.reduce(math.max))}',
+    );
+    expect(caption(LmStage.loss, loss(3)), '−ln p(y), in nats: an even guess, 1/21 a token, scores ln 21 = ${nats(trace.uniform)}');
+    final (String written, String percentage, String spent) = LossScene.worked(last);
+    // The worked sum reads right: the share to three figures, its cost
+    // worked out from the share as written.
+    expect(double.parse(written), closeTo(given[last.target], given[last.target] * 5e-3));
+    expect(spent, LossScene.cost(-math.log(double.parse(written))));
+    expect(caption(LmStage.loss, loss(5)), startsWith('V3 gave $next $percentage: −ln $written = $spent nats, '));
+    expect(caption(LmStage.loss, loss(7)), 'Target y, as Shift made it: 25 targets across two peptides');
+    final List<double> costs = <double>[for (final List<double> line in LossScene.surprises(last)) ...line];
+    expect(
+      caption(LmStage.loss, loss(9)),
+      "Every target's −ln p(y), as V3's: from ${LossScene.cost(costs.reduce(math.min))} to ${LossScene.cost(costs.reduce(math.max))} nats",
+    );
+    expect(caption(LmStage.loss, 0.99), 'The loss, their mean: ${nats(trace.loss(last.step))} nats; the floor here is ${nats(trace.floor)}');
+    // At each checkpoint, the mean says what the step was kept for passing.
+    for (int c = 0; c < trace.checkpoints.length; c++) {
+      final LmView at = view(inks, kit, checkpoint: c);
+      final String head = 'The loss, their mean: ${nats(trace.loss(at.step))} nats';
+      final List<String> why = trace.checkpoints[c].why;
+      expect(
+        LossScene.mean(at),
+        why.contains('uniform')
+            ? '$head, first under an even guess, ${nats(trace.uniform)}'
+            : why.contains('unigram')
+            ? '$head, first under residue counts, ${nats(trace.unigram)}'
+            : why.contains('bigram')
+            ? '$head, first under residue pairs, ${nats(trace.bigram)}'
+            : why.contains('one_nat')
+            ? '$head, the first step under one nat'
+            : why.contains('last')
+            ? '$head; the floor here is ${nats(trace.floor)}'
+            : '$head, ${trace.loss(at.step) > trace.uniform ? 'worse than' : 'under'} an even guess, ${nats(trace.uniform)}',
+        reason: 'step ${at.step}',
+      );
+    }
     expect(caption(LmStage.update, 0.5), contains(scientific(trace.steps.learningRate[last.step - 1])));
     final TrainingFrame end = timeline.stateAt(1);
     expect(sceneOf(LmStage.loop).caption(last, end), startsWith('Step 20 of 20 · ${nats(trace.loss(20))} nats'));
@@ -643,6 +688,33 @@ void main() {
           .hitAt(size, scene, predicted.answerTile(i).center, timeline.frameIn(LmStage.predict, 1));
       expect((key! as FocusPosition).position, i, reason: 'row $i, its answer');
     }
+    // Loss: while the table shows, a row puts its place in focus, every place
+    // reachable; while the key swings, a tap asks for nothing; on the batch,
+    // a line puts its peptide in focus, and a target of the focus line its
+    // place.
+    for (final double beat in <double>[1, 4.5]) {
+      final Set<int> places = <int>{};
+      for (double y = 0; y < size.height; y += 1) {
+        final LmHit? hit = sceneOf(LmStage.loss)
+            .hitAt(size, scene, Offset(30, y), timeline.frameIn(LmStage.loss, beat / LmStage.loss.beats));
+        if (hit is FocusPosition) {
+          places.add(hit.position);
+        }
+      }
+      expect(places, <int>{for (int i = 0; i < trace.peptides.first.inputs; i++) i}, reason: 'Loss at $beat');
+    }
+    expect(
+      sceneOf(LmStage.loss).hitAt(size, scene, const Offset(200, 300), timeline.frameIn(LmStage.loss, 7 / LmStage.loss.beats)),
+      isNull,
+    );
+    final LossLayout scored = LossLayout(size, scene);
+    final TrainingFrame batch = timeline.frameIn(LmStage.loss, 1);
+    for (int i = 0; i < trace.peptides.first.inputs; i++) {
+      final LmHit? hit = sceneOf(LmStage.loss).hitAt(size, scene, scored.tile(0, i).center, batch);
+      expect((hit! as FocusPosition).position, i, reason: 'target $i');
+    }
+    final LmHit? line = sceneOf(LmStage.loss).hitAt(size, scene, scored.tile(1, 0).center, batch);
+    expect((line! as FocusPeptide).peptide, 1);
     // While the network takes Feed-forward's canvas, a tap asks for nothing.
     expect(
       sceneOf(LmStage.feedForward).hitAt(size, scene, const Offset(30, 300), timeline.frameIn(LmStage.feedForward, 0.4)),
@@ -697,6 +769,7 @@ void main() {
         (LmStage.attention, LmStage.feedForward),
         (LmStage.feedForward, LmStage.forward),
         (LmStage.forward, LmStage.predict),
+        (LmStage.predict, LmStage.loss),
       ]) {
         final List<int> last = await pixels(scene, timeline.frameIn(before, 1));
         final List<int> first = await pixels(scene, timeline.frameIn(after, 0));
@@ -1401,6 +1474,94 @@ void main() {
             }
             // A place's shares add to one, so its squares make one slot.
             expect(area, closeTo(slotArea, 1e-6), reason: where);
+          }
+        }
+      }
+    }
+  });
+
+  testWidgets("Loss scores each target by −ln of Predict's own p(y), and their mean is the step's loss", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    for (int c = 0; c < trace.checkpoints.length; c++) {
+      final LmView scene = view(inks, kit, checkpoint: c);
+      final List<List<double>> costs = LossScene.surprises(scene);
+      expect(costs.length, trace.peptides.length);
+      double sum = 0;
+      int count = 0;
+      for (int p = 0; p < trace.peptides.length; p++) {
+        expect(costs[p].length, trace.peptides[p].inputs);
+        for (int i = 0; i < trace.peptides[p].inputs; i++) {
+          final String where = 'step ${scene.step} p$p i$i';
+          // Predict's own share of what came next...
+          expect(LossScene.given(scene, p, i), PredictScene.shares(view(inks, kit, checkpoint: c, peptide: p), i)[trace.targetAt(p, i)]);
+          expect(math.exp(-costs[p][i]), closeTo(LossScene.given(scene, p, i), 1e-12), reason: where);
+          // ...whose −ln is the loss the run kept for that target, and never
+          // over the scale the bars and the chart are drawn on.
+          expect(costs[p][i], closeTo(trace.targetLoss(scene.step, p, i), 5e-4), reason: where);
+          expect(costs[p][i], lessThanOrEqualTo(LossScene.ceiling(scene)), reason: where);
+          sum += costs[p][i];
+          count++;
+        }
+      }
+      expect(count, trace.targetCount);
+      expect(sum / count, closeTo(trace.loss(scene.step), 1e-4), reason: 'step ${scene.step}');
+      expect(LossScene.bosShare(scene), inInclusiveRange(0, 1));
+    }
+    // One scale for every step: a whole number of nats, never under an even
+    // guess's cost.
+    final double ceiling = LossScene.ceiling(view(inks, kit));
+    expect(ceiling, ceiling.roundToDouble());
+    expect(ceiling, greaterThanOrEqualTo(trace.uniform));
+  });
+
+  testWidgets("Loss's chart keeps to its bench, its batch to the canvas, and the key swings onto its line", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    for (int c = 0; c < trace.checkpoints.length; c++) {
+      for (int p = 0; p < trace.peptides.length; p++) {
+        final LmView scene = view(inks, kit, checkpoint: c, peptide: p, position: trace.peptides[p].inputs - 1);
+        for (final Size size in const <Size>[Size(375, 476), Size(393, 540), Size(440, 697)]) {
+          final LossLayout layout = LossLayout(size, scene);
+          final StreamTable table = layout.table;
+          final int n = scene.focus.inputs;
+          final String where = '$size c$c p$p';
+          // The chart on the bench: right of the rows' tiles, left of the
+          // gathered column, over the places' rows, and large enough to read.
+          final Rect plot = layout.chart.area;
+          expect(plot.left, greaterThan(layout.predict.mapLeft), reason: where);
+          expect(plot.right, lessThan(layout.keySlot(0).left), reason: where);
+          expect(plot.top, greaterThanOrEqualTo(table.row(0).top), reason: where);
+          expect(plot.bottom, lessThanOrEqualTo(table.row(n - 1).bottom), reason: where);
+          expect(plot.width, greaterThan(100), reason: where);
+          expect(plot.height, greaterThan(60), reason: where);
+          // Each row's lit slot starts where the map has it and gathers into
+          // the map's last column, beside the key.
+          for (int i = 0; i < n; i++) {
+            expect(layout.answerCell(i, 0), layout.predict.mapCell(i, trace.allowedIndex(trace.targetAt(p, i))));
+            expect(layout.answerCell(i, 1), layout.predict.mapCell(i, trace.allowed.length - 1));
+          }
+          // The batch under the tag's place, a line a peptide, apart, and its
+          // legend on the canvas.
+          expect(layout.lineTop(0), greaterThanOrEqualTo(table.layout.tableTop), reason: where);
+          expect(layout.legendTop + layout.legendHeight, lessThanOrEqualTo(size.height), reason: where);
+          expect(layout.card(p).right, lessThanOrEqualTo(size.width), reason: where);
+          for (int q = 0; q + 1 < trace.peptides.length; q++) {
+            expect(layout.card(q).bottom, lessThan(layout.lineTop(q + 1) - 3), reason: '$where line $q');
+          }
+          // The key's tiles swing from where Predict left them onto the
+          // line of the peptide in focus.
+          for (int i = 0; i < n; i++) {
+            final Rect start = layout.swung(i, 0);
+            final Rect end = layout.swung(i, 1);
+            expect((start.center - layout.predict.answerTile(i).center).distance, lessThan(1e-6), reason: '$where tile $i');
+            expect(start.width, closeTo(layout.predict.answerTile(i).width, 1e-9), reason: '$where tile $i');
+            expect((end.center - layout.tile(p, i).center).distance, lessThan(1e-6), reason: '$where tile $i');
+            expect(end.height, closeTo(layout.tile(p, i).height, 1e-9), reason: '$where tile $i');
           }
         }
       }

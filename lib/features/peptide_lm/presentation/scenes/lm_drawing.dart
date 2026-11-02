@@ -363,13 +363,7 @@ void drawToken(
     canvas.drawRRect(shape, Paint()..color = fill.withValues(alpha: alpha));
   }
   if (outline != null) {
-    canvas.drawRRect(
-      shape.inflate(0.5),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.4
-        ..color = outline.withValues(alpha: alpha),
-    );
+    outlineToken(canvas, rect, outline, alpha: alpha);
   }
   if (tile.height >= 8.5) {
     view.kit.draw(
@@ -385,6 +379,24 @@ void drawToken(
       anchor: const Offset(0.5, 0.5),
     );
   }
+}
+
+/// A token's tile ringed in [color], as [drawToken] rings one, round the tile
+/// [rect] holds: for a tile drawn already, or one that moves while its ring
+/// comes and goes.
+void outlineToken(Canvas canvas, Rect rect, Color color, {double alpha = 1}) {
+  if (alpha <= 0) {
+    return;
+  }
+  final Rect tile = rect.deflate(math.min(1.0, rect.width * 0.08));
+  final RRect shape = RRect.fromRectAndRadius(tile, Radius.circular(tile.width * 0.18));
+  canvas.drawRRect(
+    shape.inflate(0.5),
+    Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.4
+      ..color = color.withValues(alpha: alpha),
+  );
 }
 
 /// How tall a tile must be to carry its id's number.

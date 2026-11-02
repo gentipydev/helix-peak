@@ -140,7 +140,9 @@ class LmAboutSheet extends StatelessWidget {
             paragraph(
               'Loss',
               'Cross-entropy: −ln of the probability given to the token that came '
-                  'next, averaged over the batch\'s ${trace.targetCount} targets. '
+                  'next, p(y), averaged over the batch\'s ${trace.targetCount} targets. The '
+                  'other probabilities count only through p(y), for all of them add to one, '
+                  'and padding is never scored. '
                   'Guessing evenly scores ln $allowed = ${nats(trace.uniform)} nats; '
                   'counting residues, ${nats(trace.unigram)}; the residue before, '
                   '${nats(trace.bigram)}. No model can score under '

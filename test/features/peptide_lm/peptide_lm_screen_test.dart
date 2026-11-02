@@ -164,7 +164,7 @@ void main() {
     await host(tester);
     await tapStage(tester, 'Loss');
     await tester.pump();
-    expect(caption(tester), contains('−ln p'));
+    expect(caption(tester), startsWith('Loss reads one share a place, p(y)'));
     await tapStage(tester, 'Loop');
     await tester.pump();
     expect(caption(tester), startsWith('Step 1 of 20'));
