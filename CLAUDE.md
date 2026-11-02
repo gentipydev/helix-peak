@@ -482,7 +482,9 @@ clears and the logits slide left; softmax is worked out in two steps, each bar
 growing to e to its logit, the largest across the room (e to K's 1.00 is
 2.72; at step 200 e to S's 9.14 is 9,318 and the rest vanish), then every bar
 shrinking by their sum (27.12) into its share of a dashed 100% (K 10%), what
-came next outlined in the tracer. Then every place at once, on a map of its
+came next lit: a soft band toward the tracer behind its row, from its tile to
+the dashed 100%, the room its bar would fill if right and certain (the user's
+ask of 2026-11-02, replacing the white box there too). Then every place at once, on a map of its
 own look (the user's picks of 2026-11-02, after the first map, head 1's tiles
 with a number on every cell and a white box on each answer, read as noise:
 at step 1 the cells spanned ~1.4:1 while the boxes and 462 numbers stood at
@@ -490,7 +492,7 @@ at step 1 the cells spanned ~1.4:1 while the boxes and 462 numbers stood at
 slot's (`PredictScene.slotOf`/`fillOf`, the slot the largest square its cell
 holds), so a place's squares add up to one slot; no number in the field and
 no outline. Each bar goes into its square in a standing column of slots, the
-slot of what came next lighting as the tracer's outline goes, and the column
+light on what came next gathering into its slot, and the column
 lies down onto the place's row (`StreamTable.turn`, the strip's turn,
 promoted); every other row's squares grow in, top to bottom. Then the slot of
 what came next at every place lights, a soft fill toward the tracer

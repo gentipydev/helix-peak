@@ -675,8 +675,11 @@ out of view is scrolled just far enough to show it whole.
      to e to its logit, the largest across the room (e to K's 1.00 is 2.72;
      at step 200 S's 9.14 makes 9,318 and every other bar vanishes); then
      every bar shrinks by the same sum (27.12) into its share, written at its
-     end, against a dashed 100%. What came next is outlined in the tracer:
-     after …CCTSIC the model gives K 10%, and the S that comes next 1.3%; at
+     end, against a dashed 100%. What came next is lit, a soft band 13%
+     toward the tracer behind its row from its tile to the dashed 100% (it
+     was a white outline until the map's redraw, then replaced at the user's
+     ask the same day): the room its bar would fill were the guess right and
+     certain. After …CCTSIC the model gives K 10%, and the S that comes next 1.3%; at
      step 200, S 100%.
    - Every place at once, on a map of shares drawn as squares (the user's
      picks of 2026-11-02, redrawing the first map, which was head 1's: a
@@ -698,7 +701,7 @@ out of view is scrolled just far enough to show it whole.
        for a certainty (`fillColour`). There is no number in the field and
        no outline.
      - Each bar goes into its square in a standing column of slots, and the
-       slot of what came next lights as the tracer's outline goes. The
+       band on what came next gathers into its slot, which stays lit. The
        column lies down onto the place's row (`StreamTable.turn`, the
        strip's turn, promoted, every other stage's frames byte-identical),
        then every other row's squares grow in, top to bottom.

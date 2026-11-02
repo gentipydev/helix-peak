@@ -141,10 +141,10 @@ void drawProbabilityBars(
 /// stay, faint, a weight on each. `<pad>` and `<bos>` never come next: their
 /// logits are struck to −∞. The bench clears and the logits slide left; a bar
 /// on each token's row grows to e to its logit, and every bar shrinks by
-/// their sum into its share; what came next is outlined. Then every place at
+/// their sum into its share; what came next is lit. Then every place at
 /// once: each bar goes into a square in a slot, the square's area that share
 /// of the slot's, so a place's squares together make one slot, and the slot
-/// of what came next lights as its outline goes; the slots lie down onto the
+/// of what came next takes its row's light; the slots lie down onto the
 /// place's row of a map, a row a place and a column a token that can come
 /// next. Every other place's squares grow in, and the slot of what came next
 /// at each lights, Shift's y, written again at the map's right with the
@@ -189,7 +189,7 @@ final class PredictScene extends LmScene {
   static const (double, double) _slide = (6.4, 7.0);
 
   // Softmax: each bar grows to e to its logit, then every bar shrinks by the
-  // sum into its share; then what came next is outlined.
+  // sum into its share; then what came next is lit.
   static const (double, double) _exp = (7.0, 7.7);
   static const (double, double) _share = (8.2, 8.8);
   static const (double, double) _percents = (8.6, 8.9);
@@ -626,9 +626,9 @@ final class PredictScene extends LmScene {
   /// Softmax on the logits' rows: a bar each of the tokens that can come
   /// next, growing to e to its logit, the largest across the room; then
   /// every bar shrinking by their sum into its share, written at its end;
-  /// what came next outlined. As the map comes, each bar goes into its
+  /// what came next lit. As the map comes, each bar goes into its
   /// share's square, in a slot of a standing column the map's row is made
-  /// of; the slot of what came next lights as its outline goes.
+  /// of; the light on what came next gathers into its slot.
   void _bars(Canvas canvas, LmView view, PredictLayout layout, double beat) {
     final double grow = _span(beat, _exp);
     if (grow <= 0 || beat >= _lieDown.$1) {
@@ -650,6 +650,30 @@ final class PredictScene extends LmScene {
     double reach(int id) {
       final double e = math.exp(made[id] - most);
       return grow * (e + (p[id] - e) * settle);
+    }
+
+    // What came next: its row lit softly, as the map lights its slot, from
+    // its tile to the dashed 100%, the room its bar would fill were the
+    // guess right and certain. As the map comes, the light gathers into its
+    // slot in the standing column.
+    final double answer = _span(beat, _answer);
+    final int target = view.target;
+    if (answer > 0 && tiles < 1 && trace.allowedIndex(target) >= 0) {
+      final Rect drawn = layout.bar(target, reach(target));
+      final Rect tile = layout.chip(target, layout.slideBy);
+      final double label = view.kit.layout(percent(p[target]), words).width;
+      final Rect row = layout.row(target);
+      final Rect lit = Rect.fromLTRB(
+        tile.left - 3,
+        row.top + 1,
+        math.min(layout.right, math.max(layout.barLeft + layout.barRoom, drawn.right + label + 6)),
+        row.bottom - 1,
+      );
+      final RRect slot = slotOf(layout.shareTile(target));
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(Rect.lerp(lit, slot.outerRect, tiles)!, Radius.circular(3 + (slot.tlRadiusX - 3) * tiles)),
+        Paint()..color = view.inks.truth.withValues(alpha: _lit * answer * (1 - tiles)),
+      );
     }
 
     for (final int id in trace.allowed) {
@@ -692,25 +716,6 @@ final class PredictScene extends LmScene {
         inked(view.kit.mono, 8.5, view.inks.quiet, alpha: whole),
         Offset(x, column.top - 3),
         anchor: const Offset(0.5, 1),
-      );
-    }
-    // What came next, its tile, bar and share outlined in the tracer.
-    final double answer = _span(beat, _answer) * (1 - tiles);
-    final int target = view.target;
-    if (answer > 0 && trace.allowedIndex(target) >= 0) {
-      final Rect drawn = layout.bar(target, reach(target));
-      final Rect tile = layout.chip(target, layout.slideBy);
-      final double label = view.kit.layout(percent(p[target]), words).width;
-      final Rect band = layout.row(target);
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromLTRB(tile.left - 3, band.top + 0.5, math.min(layout.right, drawn.right + label + 6), band.bottom - 0.5),
-          const Radius.circular(3),
-        ),
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.2
-          ..color = view.inks.truth.withValues(alpha: answer),
       );
     }
   }
