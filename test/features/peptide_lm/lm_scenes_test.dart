@@ -1828,11 +1828,11 @@ void main() {
       String at(double beat) => scene.caption(v, timeline.frameIn(LmStage.backward, beat / LmStage.backward.beats));
       final List<double> shares = PredictScene.shares(v, v.position);
       expect(at(0.5), contains(nats(trace.loss(v.step))));
-      expect(at(3.8), contains(BackwardScene.signedNumber(shares[v.target] - 1)));
+      expect(at(10.5), contains(BackwardScene.signedNumber(shares[v.target] - 1)));
       final int d = BackwardScene.firstMade(v);
-      expect(at(7.0), contains('Number ${d + 1}'));
-      expect(at(7.0), contains(fixed(BackwardScene.rowGradient(v)[d], 2)));
-      expect(at(13.5), contains('final LayerNorm'));
+      expect(at(20.0), contains('Number ${d + 1}'));
+      expect(at(20.0), contains(fixed(BackwardScene.rowGradient(v)[d], 2)));
+      expect(at(34.5), contains('final LayerNorm'));
       expect(at(LmStage.backward.beats.toDouble()), contains(nats(trace.steps.gradNorm[v.step - 1])));
       // Every caption of the stage is a sentence of the run's, never empty.
       for (double beat = 0; beat <= LmStage.backward.beats; beat += 0.25) {
@@ -1857,15 +1857,15 @@ void main() {
     expect(line, isA<FocusPeptide>());
     expect((line! as FocusPeptide).peptide, other);
     // While the line goes back out of the batch, nothing.
-    expect(scene.hitAt(size, v, loss.soloTile(1).center, at(0.8)), isNull);
+    expect(scene.hitAt(size, v, loss.soloTile(1).center, at(1.0)), isNull);
     // The line alone: a target puts its place in focus.
-    final LmHit? place = scene.hitAt(size, v, loss.soloTile(1).center, at(1.35));
+    final LmHit? place = scene.hitAt(size, v, loss.soloTile(1).center, at(3.0));
     expect(place, isA<FocusPosition>());
     expect((place! as FocusPosition).position, 1);
     // The bench and the ladder ask for nothing.
     final StreamTable table = StreamTable(size, v);
-    expect(scene.hitAt(size, v, table.row(2).center, at(6)), isNull);
-    expect(scene.hitAt(size, v, table.row(2).center, at(14)), isNull);
+    expect(scene.hitAt(size, v, table.row(2).center, at(20)), isNull);
+    expect(scene.hitAt(size, v, table.row(2).center, at(38)), isNull);
     // The table: a row puts its place in focus.
     final LmHit? row = scene.hitAt(size, v, table.row(2).center, at(LmStage.backward.beats.toDouble()));
     expect(row, isA<FocusPosition>());

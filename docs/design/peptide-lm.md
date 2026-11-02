@@ -818,7 +818,7 @@ out of view is scrolled just far enough to show it whole.
    target puts its place in focus. Every caption keeps to two lines at 375,
    402 and 440 wide, at every peptide, place and step, and every note to its
    own lines.
-10. **Backward** (20 beats, reworked 2026-11-02; the user's picks: the
+10. **Backward** (51 beats, reworked 2026-11-02; the user's picks: the
    run re-recorded as schema 7 with the stream's gradient whole, one stage,
    and the opening back to the place in focus, then its bars). The forward
    pass played back, along the same strings and the same ladder. It opens on
@@ -848,7 +848,16 @@ out of view is scrolled just far enough to show it whole.
    strength are the whole batch's at that step, so a place with nothing left
    to learn is drawn faint (copeptin's R20 at step 200 is all 0.00). The old
    stage (a module rail, a clip gauge, a dot per place and point, the stored
-   probabilities) is gone.
+   probabilities) is gone. The same evening, at the user's ask for as many
+   explanations as possible, every mini-step got its own caption and note,
+   held for reading (two seconds a beat, 4 to 6 seconds each, so 21 beats
+   became 51), and the canvas names its marks: y, the answer key, outlined
+   on the target's row; a legend line over the bars in the rows of `<pad>`
+   and `<bos>` (outlined y, blue what the target lacks, clay what the others
+   took, their sum 0); number 10 worked out in a box (S −0.99 × 0.23 =
+   −0.23, M, R, the other 18 −0.09, sum −0.32); the gradient read, its
+   extremes ringed; −0.99 × 1.94 = −1.92 on the strongest string; and at each
+   + of the climb one number worked out beside the part's name.
 11. **Update.** The output layer's weights, then the clipped gradient on them,
    then AdamW's update (drawn magnified, the factor said), then the weights
    moved. Per weight, the gradient differs between modules many times over

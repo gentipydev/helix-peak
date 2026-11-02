@@ -45,59 +45,79 @@ final class BackwardScene extends LmScene {
 
   static double get _beats => LmStage.backward.beats.toDouble();
 
-  // Back to the place in focus: the batch's other lines, its card, the
-  // mean's line and the legend go; the line in focus goes back out of the
-  // batch to stand alone; then it goes, and its target flies to its row of
-  // the shares, which come in.
+  // Every mini-step holds long enough for its caption and its note to be
+  // read: a beat is two seconds.
+
+  // A. Back to the place in focus: the batch's other lines, its card, the
+  // mean's line and the legend go as the line in focus goes back out of the
+  // batch to stand alone, its cost over its bar; then it goes, and its
+  // target flies to its row of the shares, which come in.
   static const (double, double) _othersOut = (0.2, 0.7);
-  static const (double, double) _back = (0.3, 1.3);
-  static const (double, double) _lineOut = (1.4, 1.8);
-  static const (double, double) _fly = (1.4, 2.1);
-  static const (double, double) _barsIn = (1.6, 2.2);
+  static const (double, double) _back = (0.5, 1.7);
+  static const double _alone = 2.5;
+  static const (double, double) _lineOut = (5.0, 5.4);
+  static const (double, double) _fly = (5.0, 5.7);
+  static const (double, double) _barsIn = (5.2, 5.8);
+  static const double _guess = 5.8;
 
-  // The guess read: the second caption, and what came next named on its row.
-  static const double _guess = 2.4;
+  // B. p − y, a reading at a time: the answer key y, outlined on the
+  // target's row; what the target lacks of it; what every other token took;
+  // the two adding to nothing. Then the bars condense into a column where the
+  // logits were made, which slides back to where Predict made them.
+  static const double _keyFrom = 8.0;
+  static const (double, double) _keyIn = (8.1, 8.6);
+  static const double _lackFrom = 10.0;
+  static const (double, double) _lack = (10.2, 10.9);
+  static const double _excessFrom = 12.5;
+  static const (double, double) _excess = (12.7, 13.4);
+  static const double _sumFrom = 14.5;
+  static const (double, double) _condense = (16.5, 17.2);
 
-  // p − y: what the target lacks of 100%, then every other share; then the
-  // bars condense into a column where the logits were made, which slides
-  // back to where Predict made them.
-  static const (double, double) _lack = (3.5, 4.2);
-  static const (double, double) _excess = (4.3, 5.0);
-  static const (double, double) _condense = (5.1, 5.8);
-
-  // Back through the output layer: the place's last row stands at the left
-  // with empty slots for its gradient beside it; the errors run back along
-  // the strings, the largest number of the gradient alone and slowly, the
-  // rest in one cascade.
-  static const (double, double) _columnsIn = (5.8, 6.4);
+  // C. Back through the output layer: the place's last row stands at the
+  // left with empty slots for its gradient beside it; the errors run back
+  // along the strings, the largest number of the gradient alone and slowly,
+  // worked out beside its strings, then the rest in one cascade; then the
+  // gradient read, its most negative and most positive numbers ringed.
+  static const (double, double) _columnsIn = (17.2, 17.8);
+  static const double _firstFrom = 19.0;
   static const WeightFlow _flow = WeightFlow(
-    alone: <(double, double)>[(6.6, 7.4)],
-    cascade: (7.8, 8.8),
-    webOut: (12.0, 12.4),
-    firstRelax: 0.3,
+    alone: <(double, double)>[(19.2, 20.4)],
+    cascade: (22.2, 23.6),
+    webOut: (31.5, 31.9),
+    firstRelax: 0.6,
   );
+  static const (double, double) _worked = (20.2, 20.6);
+  static const double _othersFrom = 22.0;
+  static const double _readFrom = 24.5;
 
-  // The weights' own gradients: each string relit by its error times the
-  // number at its start, the strongest named; then every place's, averaged.
-  static const (double, double) _own = (9.6, 10.2);
-  static const (double, double) _strongest = (10.2, 10.6);
-  static const (double, double) _mean = (10.9, 11.6);
+  // D. The weights' own gradients: each string relit by its error times the
+  // number at its start, the strongest worked out; then every place's,
+  // averaged.
+  static const (double, double) _own = (26.5, 27.1);
+  static const (double, double) _strongest = (27.1, 27.5);
+  static const double _meanFrom = 29.0;
+  static const (double, double) _mean = (29.2, 29.9);
 
-  // The climb: the bench clears, the gradient lies down into the ladder's
-  // last slot as the route comes in; then a part at a time from the last.
-  static const (double, double) _benchOut = (12.0, 12.4);
-  static const (double, double) _lieDown = (12.1, 12.8);
-  static const (double, double) _routeIn = (12.3, 12.8);
-  static const double _climbFrom = 13.0;
-  static const double _climbTo = 18.5;
+  // E. The climb: the bench clears, the gradient lies down into the ladder's
+  // last slot as the route comes in; then a part at a time from the last,
+  // one number of it worked out at each +.
+  static const (double, double) _benchOut = (31.5, 31.9);
+  static const (double, double) _lieDown = (31.6, 32.3);
+  static const (double, double) _routeIn = (31.8, 32.3);
+  static const double _climbFrom = 33.5;
+  static const double _climbTo = 44.0;
 
-  // Every place: the ladder goes, the place's x0 gradient goes home to its
+  /// The longest a part's motion takes on the climb; the rest of its turn
+  /// holds for its caption and note.
+  static const double _mostRise = 1.1;
+
+  // F. Every place: the ladder goes, the place's x0 gradient goes home to its
   // row of the table, and every other place's comes in; last, all the
   // gradients' length against the clip.
-  static const (double, double) _ladderOut = (19.3, 19.8);
-  static const (double, double) _home = (19.3, 20.1);
-  static const (double, double) _othersIn = (19.6, 20.2);
-  static const double _totalFrom = 20.4;
+  static const (double, double) _ladderOut = (46.0, 46.5);
+  static const (double, double) _home = (46.0, 46.8);
+  static const (double, double) _othersIn = (46.3, 46.9);
+  static const double _totalFrom = 48.5;
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -416,6 +436,20 @@ final class BackwardScene extends LmScene {
           RRect.fromRectAndRadius(band, const Radius.circular(3)),
           Paint()..color = view.inks.truth.withValues(alpha: PredictScene.answerLight * bars),
         );
+        // The answer key, y, on its row: 100% at what came next.
+        final double key = _span(beat, _keyIn) * bars;
+        if (key > 0) {
+          canvas.drawRRect(
+            RRect.fromRectAndRadius(
+              Rect.fromLTRB(bench.barLeft - 1.5, drawn.top - 1.5, bench.barLeft + bench.barRoom + 1.5, drawn.bottom + 1.5),
+              const Radius.circular(2),
+            ),
+            Paint()
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 1.2
+              ..color = view.inks.truth.withValues(alpha: 0.9 * key),
+          );
+        }
         if (lack > 0) {
           final double whole = bench.barLeft + bench.barRoom;
           canvas.drawRRect(
@@ -466,6 +500,8 @@ final class BackwardScene extends LmScene {
       }
     }
 
+    _legend(canvas, view, bench, beat, bars);
+
     // The column of errors, where the logits were made: each token's tile,
     // its number beside it, its chip; the two that never come next struck.
     final double column = shown * condense;
@@ -508,6 +544,39 @@ final class BackwardScene extends LmScene {
 
     _columns(canvas, view, layout, beat, gone);
     _strings(canvas, view, layout, beat, gone);
+  }
+
+  /// What each mark of p − y is, as it comes, a line each with its ink: the
+  /// key's outline, what the target lacks, what the others took, their sum.
+  static List<(double, double, String, Color)> legend(LmView view) {
+    final String next = view.trace.token(view.target);
+    final double given = PredictScene.shares(view, view.position)[view.target];
+    return <(double, double, String, Color)>[
+      (_keyFrom, _lackFrom, 'outlined: y, the answer key, 100% at $next', view.inks.truth),
+      (_lackFrom, _excessFrom, 'blue: what $next lacks of it, p − y = ${signedNumber(given - 1)}', view.inks.negative),
+      (_excessFrom, _sumFrom, 'clay: what each other token took, its share', view.inks.positive),
+      (
+        _sumFrom,
+        _condense.$1,
+        '${signedNumber(given - 1)} + ${fixed(1 - given, 2)} = 0: the two cancel',
+        view.inks.ink,
+      ),
+    ];
+  }
+
+  /// The legend's line over the bars, in the rows of the two tokens that
+  /// never come next, which have none.
+  void _legend(Canvas canvas, LmView view, PredictLayout bench, double beat, double alpha) {
+    if (alpha <= 0) {
+      return;
+    }
+    final double y = (bench.row(0).top + bench.row(1).bottom) / 2;
+    for (final (double from, double to, String text, Color ink) in legend(view)) {
+      final double shown = through(beat, from, from + 0.3) * (1 - through(beat, to - 0.3, to)) * alpha;
+      if (shown > 0) {
+        view.kit.draw(canvas, text, inked(view.kit.sans, 9.5, ink, alpha: shown), Offset(bench.barLeft, y), anchor: const Offset(0, 0.5));
+      }
+    }
   }
 
   /// What the target's row is called while the guess is read.
@@ -578,6 +647,17 @@ final class BackwardScene extends LmScene {
       ]);
     }
     layout.frame(canvas, view, layout.gradientColumn, shown * kept);
+    // Read: the number that should rise most and the one that should fall
+    // most, ringed in the loss's honey.
+    final double read = through(beat, _readFrom, _readFrom + 0.3) * (1 - _span(beat, _own)) * shown;
+    if (read > 0) {
+      final (int low, int high) = extremes(view);
+      for (final int d in <int>{low, high}) {
+        if (signedNumber(g[d]) != '0.00') {
+          layout.ring(canvas, view, layout.gradientTile(d), read);
+        }
+      }
+    }
     drawColumnNumbers(
       canvas,
       view,
@@ -655,6 +735,7 @@ final class BackwardScene extends LmScene {
         tip: view.inks.error,
       );
     }
+    _workedBox(canvas, view, layout, beat, gone);
     if (own <= 0 || gone >= 1) {
       return;
     }
@@ -709,7 +790,80 @@ final class BackwardScene extends LmScene {
         ..color = view.inks.error.withValues(alpha: strongest);
       canvas.drawRRect(RRect.fromRectAndRadius(layout.predict.logitTile(allowed[j], 0).inflate(1.5), const Radius.circular(2.5)), ring);
       canvas.drawRRect(RRect.fromRectAndRadius(layout.predict.inputTile(d).inflate(1.5), const Radius.circular(2.5)), ring);
+      // Worked out on the string: error × number = its gradient.
+      final (String error, String number, String product, _, _) = strongestWorked(view);
+      layout.label(
+        canvas,
+        view,
+        '$error × $number = $product',
+        Offset.lerp(from(j), to(d), 0.5)!,
+        strongest,
+        ink: view.inks.error,
+      );
     }
+  }
+
+  /// The first number of the gradient worked out beside its strings while
+  /// they run: the three tokens bringing most, each error × weight, then the
+  /// rest together and the sum, on a backing of the ground.
+  void _workedBox(Canvas canvas, LmView view, BackwardLayout layout, double beat, double gone) {
+    final double alpha = _span(beat, _worked) * (1 - through(beat, _othersFrom - 0.3, _othersFrom)) * (1 - gone);
+    if (alpha <= 0) {
+      return;
+    }
+    final PredictLayout bench = layout.predict;
+    final int d = firstMade(view);
+    final (List<(int, String, String, String)> terms, int rest, String brought, String sum) = workedNumber(view, d);
+    final TextStyle mono = inked(view.kit.mono, 9, view.inks.ink, alpha: alpha);
+    final TextStyle quiet = inked(view.kit.sans, 9, view.inks.quiet, alpha: alpha);
+    const double chip = 11;
+    const double line = 15;
+    final List<String> rows = <String>[for (final (_, String e, String w, String product) in terms) '$e × $w = $product'];
+    final String others = 'the other ${grouped(rest)}';
+    double wide = view.kit.layout('number ${d + 1}', quiet).width;
+    for (final String row in rows) {
+      wide = math.max(wide, chip + 6 + view.kit.layout(row, mono).width);
+    }
+    final double tail = view.kit.layout(brought, mono).width;
+    wide = math.max(wide, view.kit.layout(others, quiet).width + 10 + tail);
+    final double left = layout.gradientColumn.right + 14;
+    final double right = bench.logitTile(0, 0).left - 14;
+    if (left + wide + 16 > right) {
+      return;
+    }
+    final Rect box = Rect.fromLTWH(left, bench.benchTop, wide + 16, line * (rows.length + 3) + 10);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(box, const Radius.circular(6)),
+      Paint()..color = view.inks.ground.withValues(alpha: 0.92 * alpha),
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(box, const Radius.circular(6)),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = view.inks.rule.withValues(alpha: alpha),
+    );
+    final double x = box.left + 8;
+    double y = box.top + 5 + line / 2;
+    view.kit.draw(canvas, 'number ${d + 1}', quiet, Offset(x, y), anchor: const Offset(0, 0.5));
+    for (int k = 0; k < terms.length; k++) {
+      y += line;
+      drawToken(canvas, view, Rect.fromCenter(center: Offset(x + chip / 2, y), width: chip, height: chip), terms[k].$1, alpha: alpha);
+      view.kit.draw(canvas, rows[k], mono, Offset(x + chip + 6, y), anchor: const Offset(0, 0.5));
+    }
+    y += line;
+    view.kit.draw(canvas, others, quiet, Offset(x, y), anchor: const Offset(0, 0.5));
+    view.kit.draw(canvas, brought, mono, Offset(box.right - 8, y), anchor: const Offset(1, 0.5));
+    y += line;
+    canvas.drawLine(
+      Offset(x, y - line / 2 + 1),
+      Offset(box.right - 8, y - line / 2 + 1),
+      Paint()
+        ..strokeWidth = 0.8
+        ..color = view.inks.rule.withValues(alpha: alpha),
+    );
+    view.kit.draw(canvas, 'sum', quiet, Offset(x, y), anchor: const Offset(0, 0.5));
+    view.kit.draw(canvas, sum, mono.copyWith(color: view.inks.error.withValues(alpha: alpha)), Offset(box.right - 8, y), anchor: const Offset(1, 0.5));
   }
 
   /// The place in focus's strongest string: which of the tokens that can
@@ -766,7 +920,15 @@ final class BackwardScene extends LmScene {
   /// last slot up, then each part from the last.
   static (double, double) _rise(int k, int points) {
     final double step = (_climbTo - _climbFrom) / math.max(1, points - 1);
-    return (_climbFrom + (points - 2 - k) * step, step);
+    return (_climbFrom + (points - 2 - k) * step, math.min(step, _mostRise));
+  }
+
+  /// When the climb into slot [k] holds the stage, its caption and note:
+  /// from its start to the next part's.
+  static (double, double) _turnOf(int k, int points) {
+    final double step = (_climbTo - _climbFrom) / math.max(1, points - 1);
+    final double from = _climbFrom + (points - 2 - k) * step;
+    return (from, from + step);
   }
 
   /// How far the copy rising into slot [k] has come at [beat].
@@ -877,6 +1039,52 @@ final class BackwardScene extends LmScene {
         );
         layout.frame(canvas, view, at, 1);
       }
+      // At each +, one number worked out while the part holds: the row under
+      // it plus what the part sends back makes the row above, its three
+      // tiles ringed; through the final LayerNorm, what the norm divides by.
+      final int d = firstMade(view);
+      for (int k = 0; k < last; k++) {
+        final (double t, double p) = _rise(k, points);
+        final (_, double end) = _turnOf(k, points);
+        final double sum = through(beat, t + 0.68 * p, t + 0.68 * p + 0.25) * (1 - through(beat, end - 0.25, end));
+        if (sum <= 0) {
+          continue;
+        }
+        final double right = tower.slot(0).right;
+        final double labelY = tower.labelAt(k + 1).dy;
+        final TextStyle face = inked(view.kit.mono, 9, view.inks.error, alpha: sum);
+        if (k + 1 == last) {
+          view.kit.draw(
+            canvas,
+            '÷ ${fixed(ForwardScene.evening(view).sd, 2)}, less shift and stretch',
+            inked(view.kit.sans, 9, view.inks.error, alpha: sum),
+            Offset(right, labelY),
+            anchor: const Offset(1, 0),
+          );
+          continue;
+        }
+        final String below = fixed(rungs[k + 1][d], 2);
+        final String above = fixed(rungs[k][d], 2);
+        final double sent = _parse(above) - _parse(below);
+        final String added = sent < 0 ? '− ${fixed(-sent, 2)}' : '+ ${fixed(sent, 2)}';
+        // Beside the part's name where it fits; without "number" where only
+        // that fits, the ringed tiles saying which; else not at all.
+        final double named = tower.labelAt(k + 1).dx +
+            view.kit.layout(partName(k + 1, layers), inked(view.kit.sans, 9, view.inks.quiet)).width +
+            12;
+        final String worked = '$below $added = $above';
+        final String text = <String>['number ${d + 1}: $worked', worked].firstWhere(
+          (String t) => right - view.kit.layout(t, face).width >= named,
+          orElse: () => '',
+        );
+        if (text.isNotEmpty) {
+          view.kit.draw(canvas, text, face, Offset(right, labelY), anchor: const Offset(1, 0));
+        }
+        for (final Rect row in <Rect>[tower.slot(k + 1), tower.strip(k + 1), tower.slot(k)]) {
+          final double w = row.width / view.trace.model.width;
+          layout.ring(canvas, view, Rect.fromLTWH(row.left + d * w, row.top, w, row.height), sum);
+        }
+      }
       // Each row once landed, its numbers written; x0's goes home with the
       // table, so it is drawn there.
       for (int k = 0; k <= last; k++) {
@@ -968,53 +1176,179 @@ final class BackwardScene extends LmScene {
 
   // ---------------------------------------------------------------- caption
 
-  /// Why each part happens, over the canvas, a line a thought.
+  /// Why each mini-step happens, over the canvas, a line a thought: each
+  /// mini-step its own note, read while it holds.
   static List<(double, double, String)> notes(LmView view) {
     final TrainingTrace trace = view.trace;
     final String focus = StreamTable.placeName(view, view.position);
+    final String next = trace.token(view.target);
     final int width = trace.model.width;
+    final int targets = trace.targetCount;
+    final double given = PredictScene.shares(view, view.position)[view.target];
+    final int others = trace.allowed.length - 1;
+    final int d = firstMade(view) + 1;
+    final String clip = trace.config.gradClip.toStringAsFixed(1);
+    final String token = trace.token(trace.inputAt(view.peptide, view.position));
+    final int points = trace.points.length;
+    final int later = view.focus.inputs - 1 - view.position;
     return <(double, double, String)>[
       (
         0.25,
-        _lack.$1,
-        "A weight's gradient: how fast the loss rises as it rises.\n"
-            'Update moves each weight a little against its own.\n'
+        _alone,
+        'The loss is one number; lowering it means moving the weights.\n'
+            "A weight's gradient: how fast the loss rises as it rises.\n"
+            'Update moves each weight a little against its own gradient.\n'
             'Backward finds all ${grouped(trace.model.parameters)} in one pass, from the loss back.',
       ),
       (
-        _lack.$1,
-        _columnsIn.$1,
-        "The gradient at each logit is its share less the target's 100%.\n"
-            'A sure, right guess sends nothing back: p − y is 0.',
+        _alone,
+        _guess,
+        "The loss is the mean of the ${grouped(targets)} places' costs, one a guess.\n"
+            "Each cost can be followed back on its own: $focus's first.\n"
+            '${given < 0.5 ? 'Its cost is high: the guess gave what came next only ${percent(given)}.' : 'Its cost is low: the guess gave what came next ${percent(given)}.'}',
       ),
       (
-        _columnsIn.$1,
+        _guess,
+        _keyFrom,
+        "Predict's shares for $focus: a bar a token, all adding to 100%.\n"
+            "The dashed line is 100%, where $next's bar reaches if sure.\n"
+            '${given < 0.95 ? 'To lower the cost, $next\'s bar must grow, so the rest shrink.' : '$next\'s bar is near 100% already: little is left to gain.'}',
+      ),
+      (
+        _keyFrom,
+        _lackFrom,
+        "y is the answer key: Shift's target y, at this one place.\n"
+            'A sure, right guess would match it: $next at 100%, the rest 0.\n'
+            "The outline on $next's row is y; every other token's y is 0.",
+      ),
+      (
+        _lackFrom,
+        _excessFrom,
+        "p − y, each share less the key, is the slope of $focus's cost\n"
+            "at each logit, the token's score before softmax.\n"
+            "Negative: raising $next's logit lowers the cost; at most −1.",
+      ),
+      (
+        _excessFrom,
+        _sumFrom,
+        'For the other ${grouped(others)}, y is 0: p − y is the share each took.\n'
+            "Positive: lowering that token's logit lowers the cost.\n"
+            'The larger its share, the harder that token is pushed down.',
+      ),
+      (
+        _sumFrom,
+        _condense.$1,
+        "The others' shares add to ${percent(1 - given)}, all that $next lacks of 100%.\n"
+            'So the ${grouped(trace.vocab.length)} add to 0: raising $next means lowering the rest.\n'
+            '${PredictScene.blocked(trace)} never come next: their p − y is 0.',
+      ),
+      (
+        _condense.$1,
+        _firstFrom,
+        "Each logit was made from $focus's row: $width numbers, a string each.\n"
+            "Now the reverse: how $focus's cost changes with each of the $width.\n"
+            "That is the row's gradient, one number for each of its own.",
+      ),
+      (
+        _firstFrom,
+        _othersFrom,
+        "Every token's error runs back along its string to number $d,\n"
+            "times that string's weight: the same weights Predict used.\n"
+            "Their sum is number $d's gradient; big errors weigh most.",
+      ),
+      (
+        _othersFrom,
+        _readFrom,
+        'Each number of the row gets its own ${grouped(trace.vocab.length)} strings and sum.\n'
+            'This is the chain rule: the error at the output × the weights.',
+      ),
+      (
+        _readFrom,
         _own.$1,
-        "Each logit was made along $width strings from $focus's row.\n"
-            'Backward sends its error back along them, × each weight.',
+        "A number's sign says which way it should go to lower the cost.\n"
+            "But $focus's row is not a weight: nothing updates it directly.\n"
+            'Its gradient goes on down, to the layers that made the row.',
       ),
       (
         _own.$1,
+        _meanFrom,
+        "A weight's own gradient: the error at its end × the number\n"
+            "that went in at its start: $focus's number, at the left.\n"
+            'A large number into a large error: that string moves most;\n'
+            'a string that carried 0 has nothing to learn.',
+      ),
+      (
+        _meanFrom,
         _benchOut.$1,
-        'A string that carried a large number into a large error moves most.\n'
-            'The loss is the mean of ${grouped(trace.targetCount)} costs, so each gradient is ÷ ${grouped(trace.targetCount)}.',
+        'Every place sends its own errors back through the same weights.\n'
+            'The loss is the mean of the ${grouped(targets)}, so each gradient is: ÷ ${grouped(targets)}.\n'
+            "These ${grouped(trace.vocab.length * width)} are the output layer's gradient: what Update uses.",
       ),
       (
         _benchOut.$1,
+        _climbFrom,
+        "Forward built $focus's last row a part at a time, from x0 down.\n"
+            'Backward visits the same rows in reverse, from the last up.\n'
+            "A row's gradient: how the costs change with each of its numbers.",
+      ),
+      for (int k = points - 2; k >= 0; k--) (_turnOf(k, points).$1, _turnOf(k, points).$2, climbNote(view, k, later)),
+      (
+        _climbTo,
         _home.$1,
-        'Every + passes the gradient back up unchanged;\n'
-            'each part adds what its own weights send back,\n'
-            'and those weights get their gradients the same way.',
+        "Embedding made x0: $token's token row + place ${view.position}'s row.\n"
+            "Back through that +, both rows get x0's gradient whole.\n"
+            "$token's row is shared: every $token in the batch adds to it.",
       ),
       (
         _home.$1,
+        _totalFrom,
+        'Every place climbs the same ladder at once, a row each.\n'
+            'A token row gets the sum over every place that read it,\n'
+            'a position row the sum at its place across the ${spelled(trace.peptides.length)} peptides.',
+      ),
+      (
+        _totalFrom,
         double.infinity,
-        "A token row gets the sum of x0's gradients wherever it was read,\n"
-            'a position row the sum at its place across the ${spelled(trace.peptides.length)} peptides.\n'
-            'Over the clip, ${trace.config.gradClip.toStringAsFixed(1)}, every gradient would shrink by one factor.\n'
+        'The length of all ${grouped(trace.model.parameters)} gradients together is the step\'s size.\n'
+            'Over $clip, every gradient would shrink by one factor: a guard.\n'
             'Next, Update moves every weight a step against its gradient.',
       ),
     ];
+  }
+
+  /// The note while the gradient climbs into slot [k], through the part that
+  /// made the slot under it; [later] places come after the one in focus.
+  static String climbNote(LmView view, int k, int later) {
+    final TrainingTrace trace = view.trace;
+    final int part = k + 1;
+    final String focus = StreamTable.placeName(view, view.position);
+    if (part > 2 * trace.model.layers) {
+      return 'The final LayerNorm made the row: less its mean, over its spread.\n'
+          'Back through it, the gradient is divided by that spread too,\n'
+          'less any part that would only shift or stretch the row.';
+    }
+    final int block = (part - 1) ~/ 2 + 1;
+    final bool last = block == trace.model.layers;
+    if (part.isEven) {
+      return last
+          ? "Forward added the feed-forward's output to the row: row + FF.\n"
+                'Back through a +, the gradient goes both ways unchanged:\n'
+                'up the stream, and into the network, which sends its share.\n'
+                'The row above gets both, added: the sum at the right.'
+          : 'Block $block works as block ${block + 1}: each + passes the gradient up whole,\n'
+                'each part adds what it sends back, and its own weights get\n'
+                'their gradients the same way: error × the number that went in.';
+    }
+    if (later == 0) {
+      return 'Attention lets later places read a row, but none follows $focus:\n'
+          'its gradient still carries only its own cost.';
+    }
+    return last
+        ? "Attention let later places read $focus's row, as its map showed.\n"
+              "Their costs depend on $focus's row too, and send blame back:\n"
+              "from here up, $focus's gradient carries their costs as well."
+        : "Block $block's attention sends back blame from every place that\n"
+              "read $focus's row in block $block, so x0's gradient carries them too.";
   }
 
   @override
@@ -1026,7 +1360,7 @@ final class BackwardScene extends LmScene {
     final String next = trace.token(view.target);
     final List<double> p = PredictScene.shares(view, view.position);
     final int width = trace.model.width;
-    if (beat < _back.$2) {
+    if (beat < _alone) {
       return 'To lower the loss, ${nats(trace.loss(view.step))}, which way should each weight move?';
     }
     if (beat < _guess) {
@@ -1034,45 +1368,55 @@ final class BackwardScene extends LmScene {
       return 'Start at one place, $focus: its cost, ${LossScene.cost(cost)} nats, '
           "is −ln of $next's ${percent(p[view.target])}";
     }
-    if (beat < _lack.$1) {
+    if (beat < _keyFrom) {
       final int best = PredictScene.top(view, view.position);
       return best == view.target
           ? "$focus's guess: $next on top at ${percent(p[best])}, what truly came next"
           : "$focus's guess: ${trace.token(best)} on top at ${percent(p[best])}; "
                 'the true next, $next, got ${percent(p[view.target])}';
     }
-    if (beat < _excess.$1) {
+    if (beat < _lackFrom) {
+      return 'y, the answer key: 1 for $next, the true next; 0 for the other ${grouped(trace.allowed.length - 1)}';
+    }
+    if (beat < _excessFrom) {
       final String lack = signedNumber(p[view.target] - 1);
-      return 'At $next, the target: p − y = ${percent(p[view.target])} − 100% = $lack'
-          '${lack == '0.00' ? ': nothing to raise' : ': raise its logit'}';
+      return lack == '0.00'
+          ? 'At $next: p − y = ${p[view.target].toStringAsFixed(3)} − 1 = 0.00: nothing to raise'
+          : 'At $next: p − y = ${p[view.target].toStringAsFixed(3)} − 1 = $lack, the gap: raise its logit';
+    }
+    if (beat < _sumFrom) {
+      return _largestOthers(view) == null
+          ? 'The others: y is 0, so p − y is their share, all 0.00 here'
+          : 'The others: y is 0, so p − y is the share: ${_largestOthers(view)}';
     }
     if (beat < _condense.$1) {
-      return _largestOthers(view) == null
-          ? 'Every other token: its own share, all 0.00 here: nothing to lower'
-          : 'Every other token: its own share, ${_largestOthers(view)}: lower each';
+      return 'All ${grouped(trace.vocab.length)} add to 0: the others took ${percent(1 - p[view.target])}, '
+          'what $next lacked';
     }
-    if (beat < _columnsIn.$1) {
-      return 'p − y at all ${grouped(trace.vocab.length)} logits: what the others took is what $next lacked';
+    if (beat < _firstFrom) {
+      return "$focus's last row, as Predict read it, and $width slots for its gradient";
     }
-    if (beat < _flow.fanAt(0, width).$1) {
-      return "$focus's last row as Predict read it, and $width slots for its gradient";
-    }
-    if (beat < _flow.fanAt(1, width).$1) {
+    if (beat < _othersFrom) {
       final int d = firstMade(view);
       return "Number ${d + 1} of $focus's gradient: errors × weights, summed: ${fixed(rowGradient(view)[d], 2)}";
     }
-    if (beat < _own.$1) {
-      return 'The other ${grouped(width - 1)} the same way: back along the strings Predict used';
+    if (beat < _readFrom) {
+      return 'The other ${grouped(width - 1)} the same way, back along the strings Predict used';
     }
-    if (beat < _mean.$1) {
+    if (beat < _own.$1) {
+      final (int low, int high) = extremes(view);
+      final List<double> g = rowGradient(view);
+      return signedNumber(g[low]) == '0.00' && signedNumber(g[high]) == '0.00'
+          ? 'Read it: every number is about 0.00; little goes on down'
+          : 'Read it: number ${low + 1}, ${fixed(g[low], 2)}, should rise; '
+                'number ${high + 1}, ${signedNumber(g[high])}, should fall';
+    }
+    if (beat < _meanFrom) {
       if (!hasStrongest(view)) {
         return "A string's gradient: its error × $focus's number; all 0.00 here";
       }
-      final (int j, int d) = strongestString(view);
-      final int id = trace.allowed[j];
-      final double v = errors(view, view.position)[id] * lastRow(view)[d];
-      return "A string's gradient: its error × $focus's number; ${trace.token(id)}'s from ${d + 1}: "
-          '${signedNumber(v)}';
+      final (String error, String number, String product, String token, int d) = strongestWorked(view);
+      return "A string's gradient: its error × $focus's number; $token's from ${d + 1}: $product";
     }
     if (beat < _benchOut.$1) {
       return 'Every place adds its own; their mean, ÷ ${grouped(trace.targetCount)}, is what Update will use';
@@ -1082,9 +1426,12 @@ final class BackwardScene extends LmScene {
     }
     final int points = trace.points.length;
     if (beat < _climbTo) {
-      final double step = (_climbTo - _climbFrom) / math.max(1, points - 1);
-      final int j = math.min(points - 2, math.max(0, ((beat - _climbFrom) / step).floor()));
-      return climb(view, points - 2 - j);
+      for (int k = 0; k <= points - 2; k++) {
+        final (double from, double to) = _turnOf(k, points);
+        if (beat >= from && beat < to) {
+          return climb(view, k);
+        }
+      }
     }
     if (beat < _home.$1) {
       final String token = trace.token(trace.inputAt(view.peptide, view.position));
@@ -1097,6 +1444,64 @@ final class BackwardScene extends LmScene {
           : "Every place at once: each row's gradient at x0";
     }
     return total(view);
+  }
+
+  /// The numbers of the place's gradient that should rise most and fall
+  /// most: its most negative and its most positive.
+  static (int, int) extremes(LmView view) {
+    final List<double> g = rowGradient(view);
+    int low = 0;
+    int high = 0;
+    for (int d = 1; d < g.length; d++) {
+      if (g[d] < g[low]) {
+        low = d;
+      }
+      if (g[d] > g[high]) {
+        high = d;
+      }
+    }
+    return (low, high);
+  }
+
+  /// The strongest string worked out as written: its error, the number at
+  /// its start, their product from the two as written, so it reads right;
+  /// its token and the number's place.
+  static (String, String, String, String, int) strongestWorked(LmView view) {
+    final (int j, int d) = strongestString(view);
+    final int id = view.trace.allowed[j];
+    final String error = signedNumber(errors(view, view.position)[id]);
+    final String number = fixed(lastRow(view)[d], 2);
+    final double product = _parse(error) * _parse(number);
+    return (error, number, signedNumber(product), view.trace.token(id), d);
+  }
+
+  /// A number as written, its true minus read back.
+  static double _parse(String written) => double.parse(written.replaceAll('−', '-').replaceAll('+', ''));
+
+  /// Number [d] of the place's gradient worked out as written: the three
+  /// tokens whose error × weight bring most, each (token, error, weight,
+  /// product); then what the rest bring, and the sum, as the column writes
+  /// it, the rest found from the two so the whole adds up.
+  static (List<(int, String, String, String)>, int, String, String) workedNumber(LmView view, int d) {
+    final TrainingTrace trace = view.trace;
+    final List<double> error = errors(view, view.position);
+    final List<int> ranked = <int>[...trace.allowed]
+      ..sort((int a, int b) {
+        final double x = (error[a] * trace.outputWeight(view.checkpoint, a, d)).abs();
+        final double y = (error[b] * trace.outputWeight(view.checkpoint, b, d)).abs();
+        return x != y ? y.compareTo(x) : a.compareTo(b);
+      });
+    final List<(int, String, String, String)> terms = <(int, String, String, String)>[];
+    double brought = 0;
+    for (final int id in ranked.take(3)) {
+      final String e = signedNumber(error[id]);
+      final String w = fixed(trace.outputWeight(view.checkpoint, id, d), 2);
+      final String product = signedNumber(_parse(e) * _parse(w));
+      brought += _parse(product);
+      terms.add((id, e, w, product));
+    }
+    final String sum = fixed(rowGradient(view)[d], 2);
+    return (terms, trace.allowed.length - terms.length, signedNumber(_parse(sum) - brought), sum);
   }
 
   /// The climb into slot [k], through the part that made the slot under it.
@@ -1214,6 +1619,37 @@ final class BackwardLayout {
     final int width = predict.width;
     final double h = (predict.benchBottom - predict.benchTop) / width;
     return Rect.fromLTWH(gradientX - predict.column / 2, predict.benchTop + d * h, predict.column, h);
+  }
+
+  /// A tile ringed in the loss's honey: one number followed.
+  void ring(Canvas canvas, LmView view, Rect tile, double alpha) {
+    if (alpha <= 0) {
+      return;
+    }
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(tile.inflate(1), const Radius.circular(2.5)),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.3
+        ..color = view.inks.error.withValues(alpha: alpha),
+    );
+  }
+
+  /// [text] centred on [at] on a backing of the ground, in [ink], kept on
+  /// the canvas.
+  void label(Canvas canvas, LmView view, String text, Offset at, double alpha, {required Color ink}) {
+    if (alpha <= 0) {
+      return;
+    }
+    final TextStyle style = inked(view.kit.mono, 9, ink, alpha: alpha);
+    final Size size = view.kit.layout(text, style).size;
+    final double x = at.dx.clamp(size.width / 2 + 6, this.size.width - size.width / 2 - 6);
+    final Rect back = Rect.fromCenter(center: Offset(x, at.dy), width: size.width + 8, height: size.height + 4);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(back, const Radius.circular(3)),
+      Paint()..color = view.inks.ground.withValues(alpha: 0.9 * alpha),
+    );
+    view.kit.draw(canvas, text, style, Offset(x, at.dy), anchor: const Offset(0.5, 0.5));
   }
 
   /// A gradient's frame, in the loss's honey: what flows back.

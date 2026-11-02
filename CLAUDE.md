@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 193 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 223 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -550,9 +550,21 @@ the line alone; on the batch a line puts its peptide in focus, and a target
 of the focus line its place; while the key swings, or the line shrinks, a
 tap asks for nothing.
 
-**Backward** (`backward_scene.dart`, 21 beats, the user's picks of
+**Backward** (`backward_scene.dart`, 51 beats, the user's picks of
 2026-11-02) is the forward pass played back, along the same strings and the
-same ladder, carrying how the loss would change instead of numbers. It opens
+same ladder, carrying how the loss would change instead of numbers. Every
+mini-step holds for its own caption (what happens, in the run's numbers) and
+its own note (why), and names its marks on the canvas where they need it (the
+user's ask, the same evening: "as many explanations as possible"): the
+answer key y outlined on the target's row; a legend line over the bars, in
+the rows of the two tokens that never come next, naming each colour of
+p − y as it comes and their sum to 0; the first gradient number worked out
+in a box beside its strings (the three tokens bringing most, error × weight,
+the rest, the sum); the gradient read, its most negative and positive
+numbers ringed; the strongest string's error × number written on it; and at
+each + of the climb one number worked out beside the part's name, its three
+tiles ringed (`number 10: −0.17 + 0.02 = −0.15`, without "number" where only
+that fits), the final LayerNorm's spread beside its own. It opens
 on Loss's last frame, pixel for pixel (`LossScene.paintEnd`, `LossFade`,
 whose `zoom` takes the line in focus back out of the batch): the other lines,
 the card, the mean's line and the legend go, and the line in focus grows back

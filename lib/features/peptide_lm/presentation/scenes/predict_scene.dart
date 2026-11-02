@@ -235,7 +235,7 @@ final class PredictScene extends LmScene {
 
   /// The two that never come next, named as the captions name them, with
   /// the glyph each is drawn as: `<pad> (·) and <bos> (<)`.
-  static String _blocked(TrainingTrace trace) => <String>[
+  static String blocked(TrainingTrace trace) => <String>[
     for (int r = 0; r < trace.vocab.length; r++)
       if (trace.allowedIndex(r) < 0) '${trace.token(r)} (${glyph(trace, r)})',
   ].join(' and ');
@@ -823,7 +823,7 @@ final class PredictScene extends LmScene {
       (
         _struck.$1,
         _exp.$1,
-        '${_blocked(trace)} are never what comes next.\n'
+        '${blocked(trace)} are never what comes next.\n'
             'Set to −∞, e to the logit is 0: softmax gives them nothing.',
       ),
       (
@@ -881,7 +881,7 @@ final class PredictScene extends LmScene {
       return "The output layer's ${grouped(count * width)} weights: a string each, $width into every logit";
     }
     if (beat < _exp.$1) {
-      return '${_blocked(trace)} can never come next: their logits, −∞';
+      return '${blocked(trace)} can never come next: their logits, −∞';
     }
     double sum = 0;
     for (final int id in trace.allowed) {
