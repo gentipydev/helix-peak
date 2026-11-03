@@ -67,7 +67,105 @@ void main() {
     expectTheWorkedLogit(trace);
     expectTheLoss(trace);
     expectTheBackward(trace);
+    expectTheUpdate(trace);
   });
+}
+
+/// What Update draws (docs/design/peptide-lm.md): a weight's gradient is
+/// every place's p − y at its end times its last row's number at its start,
+/// averaged over the targets, times the clip, the gradient the optimiser read;
+/// all the gradients' length is the step's norm; and the update is AdamW's
+/// step from the running averages the step found. Insulin A chain's C11 at
+/// step 1: its strongest string is S's from number 6, −0.99 × 1.94 = −1.92;
+/// over all 180 places −4.075, ÷ 180 = −0.0226; the 8,167 gradients' length
+/// 0.611, under the clip; and AdamW, with no past, moves S's weight from 6
+/// by the rate: −0.0598 + 0.0001 = −0.0597.
+void expectTheUpdate(TrainingTrace trace) {
+  final int last = trace.points.length - 1;
+  List<double> errors(TraceCheckpoint at, int peptide, int i) {
+    double top = double.negativeInfinity;
+    for (final int id in trace.allowed) {
+      top = math.max(top, trace.logit(at, peptide, i, id));
+    }
+    double total = 0;
+    for (final int id in trace.allowed) {
+      total += math.exp(trace.logit(at, peptide, i, id) - top);
+    }
+    return <double>[
+      for (int r = 0; r < trace.vocab.length; r++)
+        (trace.allowedIndex(r) < 0 ? 0 : math.exp(trace.logit(at, peptide, i, r) - top) / total) -
+            (r == trace.targetAt(peptide, i) ? 1 : 0),
+    ];
+  }
+
+  final int insulinA = trace.peptides.indexWhere((TracePeptide p) => p.source.label == 'insulin A chain');
+  expect(insulinA, isNot(-1));
+  final TraceCheckpoint first = trace.checkpoints.first;
+  final List<double> error = errors(first, insulinA, 11);
+  final List<double> row = <double>[for (int d = 0; d < trace.model.width; d++) trace.stream(first, last, insulinA, 11, d)];
+  int r = 0;
+  int d = 0;
+  for (int k = 0; k < error.length; k++) {
+    for (int e = 0; e < row.length; e++) {
+      if ((error[k] * row[e]).abs() > (error[r] * row[d]).abs()) {
+        r = k;
+        d = e;
+      }
+    }
+  }
+  expect(trace.token(r), 'S');
+  expect(d + 1, 6);
+  expect(signed(error[r], 2), '−0.99');
+  expect(fixed(row[d], 2), '1.94');
+  // Every place's pull on it, summed, over the targets, is the gradient.
+  double all = 0;
+  for (int p = 0; p < trace.peptides.length; p++) {
+    for (int i = 0; i < trace.peptides[p].inputs; i++) {
+      all += errors(first, p, i)[r] * trace.stream(first, last, p, i, d);
+    }
+  }
+  expect(signed(all, 3), '−4.075');
+  expect(signed(all / trace.targetCount, 4), '−0.0226');
+  expect(all / trace.targetCount * trace.steps.clip[0], closeTo(trace.headGrad(first, r, d), 1e-6));
+  // All the gradients' length, the groups' lengths added as squares.
+  double squares = 0;
+  for (int g = 0; g < trace.groups.length; g++) {
+    squares += math.pow(trace.groupGrad(1, g), 2);
+  }
+  expect(math.sqrt(squares), closeTo(trace.steps.gradNorm[0], 1e-4));
+  expect(nats(trace.steps.gradNorm[0]), '0.611');
+  expect(trace.steps.clip.every((double c) => c <= 1), isTrue);
+  final List<int> clipped = <int>[
+    for (int s = 0; s < trace.steps.count; s++)
+      if (trace.steps.clip[s] < 1) s + 1,
+  ];
+  expect(clipped, <int>[59, 60, 61, 62, 64, 70, 71, 72, 73]);
+  // AdamW's rule from the running averages the step found makes the update
+  // the run kept, at every checkpoint, for every weight.
+  final TraceOptimizer adam = trace.optimizer;
+  expect(adam.name, 'AdamW');
+  for (final TraceCheckpoint c in trace.checkpoints) {
+    final double rate = trace.steps.learningRate[c.step - 1];
+    for (int k = 0; k < trace.vocab.length; k++) {
+      for (int e = 0; e < trace.model.width; e++) {
+        final double g = trace.headGrad(c, k, e);
+        final double mean = (adam.beta1 * trace.headAdamMean(c, k, e) + (1 - adam.beta1) * g) / (1 - math.pow(adam.beta1, c.step));
+        final double square = (adam.beta2 * trace.headAdamSquare(c, k, e) + (1 - adam.beta2) * g * g) / (1 - math.pow(adam.beta2, c.step));
+        final double ratio = mean / (math.sqrt(square) + adam.eps);
+        final double w = trace.outputWeight(c, k, e);
+        expect(
+          trace.headUpdate(c, k, e),
+          closeTo(-rate * (adam.weightDecay * w + ratio), 4e-7 * w.abs() + 1e-5 * (rate * ratio).abs() + 1e-12),
+        );
+      }
+    }
+  }
+  // At step 1, with no past, S's weight from 6 moves by the rate.
+  final double w = trace.outputWeight(first, r, d);
+  final double moved = trace.headUpdate(first, r, d);
+  expect(fixed(w, 4), '−0.0598');
+  expect(signed(moved, 4), '+0.0001');
+  expect(fixed(w + moved, 4), '−0.0597');
 }
 
 /// What Backward draws (docs/design/peptide-lm.md): the gradient the run kept
