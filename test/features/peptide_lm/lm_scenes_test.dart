@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/core/theme/app_typography.dart';
+import 'package:helixpeek/features/peptide_lm/domain/loop_pace.dart';
 import 'package:helixpeek/features/peptide_lm/domain/training_timeline.dart';
 import 'package:helixpeek/features/peptide_lm/domain/training_trace.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/lm_format.dart';
@@ -18,6 +19,7 @@ import 'package:helixpeek/features/peptide_lm/presentation/scenes/forward_scene.
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_drawing.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_scene_painter.dart';
+import 'package:helixpeek/features/peptide_lm/presentation/scenes/loop_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/loss_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/predict_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/scores_scene.dart';
@@ -596,7 +598,12 @@ void main() {
     }
     expect(caption(LmStage.update, 21.0 / LmStage.update.beats), contains(nats(trace.steps.gradNorm[last.step - 1])));
     final TrainingFrame end = timeline.stateAt(1);
-    expect(sceneOf(LmStage.loop).caption(last, end), startsWith('Step 20 of 20 · ${nats(trace.loss(20))} nats'));
+    expect(
+      sceneOf(LmStage.loop).caption(last, end),
+      'Step 20 of 20: ${trace.peptides[0].source.label} right at '
+      '${PredictScene.right(last)} of its ${trace.peptides[0].inputs} places',
+    );
+    expect(sceneOf(LmStage.loop).caption(view(inks, kit), timeline.frameIn(LmStage.loop, 0)), startsWith('Step 1 of 20 done'));
   });
 
   testWidgets('a tap asks for what lies under it', (WidgetTester tester) async {
@@ -757,6 +764,69 @@ void main() {
     }
   });
 
+  testWidgets("Loop draws each step's own guesses, and holds each kept step on the run's numbers", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    const Size size = Size(393, 540);
+    final LoopPace pace = LoopPace.of(trace);
+    for (int p = 0; p < trace.peptides.length; p++) {
+      final LmView scene = view(inks, kit, peptide: p, position: 1);
+      for (int c = 0; c < trace.checkpoints.length; c++) {
+        final TraceCheckpoint at = trace.checkpoints[c];
+        // The map the run draws at a kept step is Predict's there, to the
+        // 255th the steps keep it in.
+        final List<List<double>> drawn = LoopScene.shares(scene, at.step.toDouble());
+        final LmView there = LoopScene.at(scene, c);
+        for (int i = 0; i < trace.peptides[p].inputs; i++) {
+          for (int k = 0; k < trace.allowed.length; k++) {
+            expect(drawn[i][k], closeTo(PredictScene.shares(there, i)[trace.allowed[k]], 0.5 / 255 + 1e-6));
+          }
+        }
+        if (c == 0) {
+          continue;
+        }
+        // Held there, the caption names the step, its loss and, but where
+        // it names the commonest guess, the run's count of right guesses.
+        final String held = sceneOf(LmStage.loop).caption(scene, timeline.frameIn(LmStage.loop, pace.landing(c)));
+        expect(held, startsWith('Step ${at.step}: ${nats(trace.loss(at.step))}'));
+        int right = 0;
+        for (int q = 0; q < trace.peptides.length; q++) {
+          right += PredictScene.right(LoopScene.at(scene, c, peptide: q));
+        }
+        if (!at.why.contains('unigram')) {
+          expect(held, contains('right at $right of ${trace.targetCount}'));
+        }
+      }
+    }
+
+    // While Update's frame shows, a tap asks for nothing; held, a kept
+    // step's tick picks it and a row of the map its place.
+    final LmView scene = view(inks, kit);
+    final LoopLayout layout = LoopLayout(size, scene);
+    final TrainingFrame opening = timeline.frameIn(LmStage.loop, 0.5 / LmStage.loop.beats);
+    for (double y = 0; y < size.height; y += 4) {
+      expect(sceneOf(LmStage.loop).hitAt(size, scene, Offset(200, y), opening), isNull);
+    }
+    final TrainingFrame held = timeline.frameIn(LmStage.loop, pace.landing(trace.checkpoints.length - 1));
+    for (int c = 0; c < trace.checkpoints.length; c++) {
+      final LmHit? hit = sceneOf(LmStage.loop).hitAt(
+        size,
+        scene,
+        Offset(layout.x(trace.checkpoints[c].step.toDouble()), layout.plot.bottom + 3),
+        held,
+      );
+      expect(hit, isA<PickCheckpoint>());
+      expect((hit! as PickCheckpoint).index, c);
+    }
+    for (int i = 0; i < trace.peptides[0].inputs; i++) {
+      final LmHit? hit = sceneOf(LmStage.loop).hitAt(size, scene, layout.map.cell(i, 3).center, held);
+      expect(hit, isA<FocusPosition>());
+      expect((hit! as FocusPosition).position, i);
+    }
+  });
+
   testWidgets('each stage opens on the last frame of the one before, pixel for pixel', (
     WidgetTester tester,
   ) async {
@@ -791,6 +861,7 @@ void main() {
         (LmStage.predict, LmStage.loss),
         (LmStage.loss, LmStage.backward),
         (LmStage.backward, LmStage.update),
+        (LmStage.update, LmStage.loop),
       ]) {
         final List<int> last = await pixels(scene, timeline.frameIn(before, 1));
         final List<int> first = await pixels(scene, timeline.frameIn(after, 0));
