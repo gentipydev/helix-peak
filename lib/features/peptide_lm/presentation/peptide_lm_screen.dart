@@ -10,6 +10,7 @@ import '../../../shared/anatomy/stage_bar.dart';
 import '../../../shared/format.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
+import '../domain/loop_pace.dart';
 import '../domain/training_timeline.dart';
 import '../domain/training_trace.dart';
 import 'cubit/peptide_lm_cubit.dart';
@@ -93,9 +94,7 @@ class TrainingRunView extends StatefulWidget {
 
 class _TrainingRunViewState extends State<TrainingRunView>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
-  late final TrainingTimeline _timeline = TrainingTimeline(
-    steps: widget.trace.steps.count,
-  );
+  static const TrainingTimeline _timeline = TrainingTimeline();
 
   /// How far through [_stage], from 0 to 1, where it stops and holds.
   late final AnimationController _clock = AnimationController(vsync: this);
@@ -179,7 +178,8 @@ class _TrainingRunViewState extends State<TrainingRunView>
 
   /// How tall the stage on screen's tallest caption is at [width], so that
   /// the caption's box, and the canvas over it, hold still while it plays:
-  /// its captions read through the stage, the loop's at every step.
+  /// its captions read through the stage, the loop's once in each of its
+  /// parts, each of which keeps one caption.
   double _captionReserve(
     LmView view,
     double width,
@@ -190,13 +190,15 @@ class _TrainingRunViewState extends State<TrainingRunView>
     final Object key = (_stage, width, style, scaler, _checkpoint, _peptide, _position, _head);
     if (key == _reserveFor) return _reserve;
     final LmScene scene = sceneOf(_stage);
-    final int samples = _stage == LmStage.loop ? math.max(1, _trace.steps.count - 1) : 96;
+    final List<double> moments = _stage == LmStage.loop
+        ? LoopPace.of(_trace).samples
+        : <double>[for (int i = 0; i <= 96; i++) i / 96];
     final TextPainter painter = TextPainter(textDirection: direction, textScaler: scaler);
     double tallest = 0;
-    for (int i = 0; i <= samples; i++) {
+    for (final double local in moments) {
       painter
         ..text = TextSpan(
-          text: scene.caption(view, _timeline.frameIn(_stage, i / samples)),
+          text: scene.caption(view, _timeline.frameIn(_stage, local)),
           style: style,
         )
         ..layout(maxWidth: math.max(0, width));
@@ -223,13 +225,13 @@ class _TrainingRunViewState extends State<TrainingRunView>
     }
   }
 
-  /// Shows [index]'s checkpoint in the eight stages; in the loop, goes to it.
+  /// Shows [index]'s checkpoint in every stage; in the loop, holds it there.
   void _pick(int index) {
     setState(() => _checkpoint = index);
     if (_stage == LmStage.loop) {
       _clock
         ..stop()
-        ..value = _timeline.loopThrough(_trace.checkpoints[index].step.toDouble());
+        ..value = LoopPace.of(_trace).landing(index);
     }
   }
 

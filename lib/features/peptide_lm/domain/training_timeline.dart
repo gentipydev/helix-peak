@@ -6,7 +6,8 @@ import '../../../shared/motion/animation_timeline.dart';
 /// the order the page plays them in, each with its share of the time. The
 /// forward pass is four of them: block 1's attention in two, its scores and
 /// then what it hands over, and its feed-forward, each close up; then one
-/// place's row through the whole pass, layer to layer.
+/// place's row through the whole pass, layer to layer. How the loop spends
+/// its own beats is `LoopPace`'s.
 enum LmStage {
   tokenise('Tokenise', 11),
   shift('Shift', 5),
@@ -19,7 +20,7 @@ enum LmStage {
   loss('Loss', 17),
   backward('Backward', 44),
   update('Update', 38),
-  loop('Loop', 25);
+  loop('Loop', 44);
 
   const LmStage(this.label, this.beats);
 
@@ -27,13 +28,13 @@ enum LmStage {
   final int beats;
 }
 
-/// What the page shows at one moment.
+/// What the page shows at one moment: a stage, and how far into it. Where
+/// the loop has got to is `LoopPace`'s to say, from [local].
 @immutable
 final class TrainingFrame {
   const TrainingFrame({
     required this.stage,
     required this.local,
-    required this.step,
   });
 
   final LmStage stage;
@@ -41,39 +42,25 @@ final class TrainingFrame {
   /// How far through its stage, from 0 to 1.
   final double local;
 
-  /// The step the loop has reached, from 1 to the run's last, and between
-  /// two while it moves. 1 outside the loop.
-  final double step;
-
   /// The stage played through: the still frame reduced motion shows.
-  TrainingFrame completed(int steps) => TrainingFrame(
-    stage: stage,
-    local: 1,
-    step: stage == LmStage.loop ? steps.toDouble() : step,
-  );
+  TrainingFrame completed() => TrainingFrame(stage: stage, local: 1);
 
   @override
   bool operator ==(Object other) =>
-      other is TrainingFrame &&
-      other.stage == stage &&
-      other.local == local &&
-      other.step == step;
+      other is TrainingFrame && other.stage == stage && other.local == local;
 
   @override
-  int get hashCode => Object.hash(stage, local, step);
+  int get hashCode => Object.hash(stage, local);
 
   @override
-  String toString() => 'TrainingFrame(${stage.name} $local, step $step)';
+  String toString() => 'TrainingFrame(${stage.name} $local)';
 }
 
-/// The run as a pure function of time: a stage and how far into it, and in
-/// the loop, the step. The page plays one stage at a time ([frameIn]);
-/// [stateAt] reads the whole run end to end.
+/// The run as a pure function of time: a stage and how far into it. The page
+/// plays one stage at a time ([frameIn]); [stateAt] reads the whole run end
+/// to end.
 final class TrainingTimeline extends AnimationTimeline<TrainingFrame> {
-  const TrainingTimeline({required this.steps}) : assert(steps >= 1, 'a run takes a step');
-
-  /// How many steps the run took.
-  final int steps;
+  const TrainingTimeline();
 
   static final List<int> _starts = <int>[
     for (int i = 0; i < LmStage.values.length; i++)
@@ -104,24 +91,10 @@ final class TrainingTimeline extends AnimationTimeline<TrainingFrame> {
   /// Where [stage] begins.
   double startOf(LmStage stage) => _starts[stage.index] / _beats;
 
-  /// How far through the loop it reaches [step], from 0 to 1.
-  double loopThrough(double step) =>
-      steps <= 1 ? 1 : ((step - 1) / (steps - 1)).clamp(0.0, 1.0);
-
-  /// Where the loop reaches [step].
-  double loopAt(double step) =>
-      (_starts[LmStage.loop.index] + LmStage.loop.beats * loopThrough(step)) / _beats;
-
   /// [stage], [local] of the way through: at 1, the stage played through,
   /// never the next stage's first frame.
-  TrainingFrame frameIn(LmStage stage, double local) {
-    final double through = local.clamp(0.0, 1.0);
-    return TrainingFrame(
-      stage: stage,
-      local: through,
-      step: stage == LmStage.loop ? 1 + through * (steps - 1) : 1,
-    );
-  }
+  TrainingFrame frameIn(LmStage stage, double local) =>
+      TrainingFrame(stage: stage, local: local.clamp(0.0, 1.0));
 
   @override
   TrainingFrame stateAt(double t) {
@@ -132,8 +105,8 @@ final class TrainingTimeline extends AnimationTimeline<TrainingFrame> {
         stage = candidate;
       }
     }
-    // A moment this close to its stage's start is the start: the step there
-    // is the first, not a hair past it.
+    // A moment this close to its stage's start is the start, not a hair
+    // past it.
     final double into = at - _starts[stage.index];
     return frameIn(stage, into <= _epsilon ? 0.0 : into / stage.beats);
   }

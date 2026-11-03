@@ -53,7 +53,7 @@ Future<(LmInks, LmKit)> _drawing(WidgetTester tester) async {
 
 void main() {
   final TrainingTrace trace = toyTrace();
-  final TrainingTimeline timeline = TrainingTimeline(steps: trace.steps.count);
+  const TrainingTimeline timeline = TrainingTimeline();
 
   LmView view(LmInks inks, LmKit kit, {int checkpoint = 0, int peptide = 0, int position = 3, int? head}) =>
       LmView(

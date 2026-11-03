@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../domain/loop_pace.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
 import '../lm_format.dart';
@@ -51,10 +52,11 @@ final class LoopScene extends LmScene {
   @override
   void paint(Canvas canvas, Size size, LmView view, TrainingFrame frame) {
     final _Layout layout = _Layout(size, view);
-    _chart(canvas, view, layout, frame.step);
-    _map(canvas, view, layout, frame.step);
+    final double step = LoopPace.of(view.trace).at(frame.local).step;
+    _chart(canvas, view, layout, step);
+    _map(canvas, view, layout, step);
     if (layout.weights.height >= 24) {
-      _weights(canvas, view, layout, frame.step);
+      _weights(canvas, view, layout, step);
     }
   }
 
@@ -316,7 +318,7 @@ final class LoopScene extends LmScene {
   String caption(LmView view, TrainingFrame frame) {
     final TrainingTrace trace = view.trace;
     final int count = trace.steps.count;
-    final double step = frame.step;
+    final double step = LoopPace.of(trace).at(frame.local).step;
     final int shown = step.round().clamp(1, count);
     final String line = 'Step $shown of $count · ${nats(between(step, trace.loss, count))} nats · '
         'lr ${scientific(trace.steps.learningRate[shown - 1])}';
