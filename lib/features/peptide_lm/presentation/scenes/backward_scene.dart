@@ -12,7 +12,6 @@ import 'lm_drawing.dart';
 import 'lm_scene.dart';
 import 'loss_scene.dart';
 import 'predict_scene.dart';
-import 'scores_scene.dart';
 import 'stream_table.dart';
 import 'weight_flow.dart';
 
@@ -102,12 +101,12 @@ final class BackwardScene extends LmScene {
   static const double _mostRise = 1.1;
 
   // E. Every place: the ladder goes, the place's x0 gradient goes home to its
-  // row of the table, and every other place's comes in; last, all the
-  // gradients' length against the clip.
+  // row of the table, and every other place's comes in, to the stage's end:
+  // all the gradients' length against the clip is Update's, once every
+  // weight has its gradient.
   static const (double, double) _ladderOut = (41.0, 41.5);
   static const (double, double) _home = (41.0, 41.8);
   static const (double, double) _othersIn = (41.3, 41.9);
-  static const double _totalFrom = 43.5;
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -374,7 +373,6 @@ final class BackwardScene extends LmScene {
     final double condense = _span(beat, _condense);
     final double dx = bench.slideBy * (1 - condense);
     final List<double> p = PredictScene.shares(view, view.position);
-    final List<double> error = errors(view, view.position);
     final int target = view.target;
     final bool landed = beat >= _fly.$2;
 
@@ -449,15 +447,45 @@ final class BackwardScene extends LmScene {
 
     _legend(canvas, view, bench, beat, bars);
 
-    // The column of errors, where the logits were made: each token's tile,
-    // its number beside it, its chip; the two that never come next struck.
-    final double column = shown * condense;
-    drawColumn(canvas, (int r) => bench.logitTile(r, dx), <Color>[
-      for (int r = 0; r < trace.vocab.length; r++)
-        trace.allowedIndex(r) < 0 ? Colors.transparent : view.inks.signed(error[r]).withValues(alpha: column),
-    ]);
+    // The column of errors, where the logits were made.
     final double lackWritten = through(beat, _lack.$2 - 0.2, _lack.$2);
     final double excessWritten = through(beat, _excess.$2 - 0.2, _excess.$2);
+    drawErrors(
+      canvas,
+      view,
+      bench,
+      dx: dx,
+      tiles: shown * condense,
+      shown: shown,
+      written: (int r) => r == target ? lackWritten : excessWritten,
+      chipShown: (int r) => r != target || landed,
+    );
+
+    _columns(canvas, view, layout, beat, gone);
+    _strings(canvas, view, layout, beat, gone);
+  }
+
+  /// The column of errors where the logits were made, [dx] along: each
+  /// token's tile, its p − y written beside it (each [written] of the way,
+  /// never at the two that never come next), its chip where [chipShown]
+  /// says; the two that never come next struck. The tiles and the column's
+  /// name at [tiles], the numbers and chips at [shown].
+  static void drawErrors(
+    Canvas canvas,
+    LmView view,
+    PredictLayout bench, {
+    required double dx,
+    required double tiles,
+    required double shown,
+    required double Function(int r) written,
+    bool Function(int r)? chipShown,
+  }) {
+    final TrainingTrace trace = view.trace;
+    final List<double> error = errors(view, view.position);
+    drawColumn(canvas, (int r) => bench.logitTile(r, dx), <Color>[
+      for (int r = 0; r < trace.vocab.length; r++)
+        trace.allowedIndex(r) < 0 ? Colors.transparent : view.inks.signed(error[r]).withValues(alpha: tiles),
+    ]);
     drawColumnNumbers(
       canvas,
       view,
@@ -466,31 +494,24 @@ final class BackwardScene extends LmScene {
       shown,
       textSize: bench.textSize,
       writes: bench.writes,
-      alphaOf: (int r) => trace.allowedIndex(r) < 0
-          ? 0
-          : r == target
-          ? lackWritten
-          : excessWritten,
+      alphaOf: (int r) => trace.allowedIndex(r) < 0 ? 0 : written(r),
       format: signedNumber,
     );
     for (int r = 0; r < trace.vocab.length; r++) {
       final Rect tile = bench.logitTile(r, dx);
-      if (trace.allowedIndex(r) < 0 && column > 0) {
+      if (trace.allowedIndex(r) < 0 && tiles > 0) {
         AttentionScene.hatch(
           canvas,
           view,
           Rect.fromLTRB(tile.left - 2, tile.top + 0.5, bench.chip(r, dx).right + 2, tile.bottom - 0.5),
-          column,
+          tiles,
         );
       }
-      if (r != target || landed) {
+      if (chipShown == null || chipShown(r)) {
         drawToken(canvas, view, bench.chip(r, dx), r, alpha: shown);
       }
     }
-    drawColumnTitle(canvas, view, errorTitle, column, x: bench.logitX + dx, top: bench.benchTop);
-
-    _columns(canvas, view, layout, beat, gone);
-    _strings(canvas, view, layout, beat, gone);
+    drawColumnTitle(canvas, view, errorTitle, tiles, x: bench.logitX + dx, top: bench.benchTop);
   }
 
   /// What each mark of p − y is, as it comes, a line each with its ink: the
@@ -548,35 +569,7 @@ final class BackwardScene extends LmScene {
     }
     final PredictLayout bench = layout.predict;
     final int width = view.trace.model.width;
-    final List<double> row = bench.lastRow;
-    drawColumn(canvas, bench.inputTile, <Color>[
-      for (final double v in row) view.inks.cell(v / bench.lastScale).withValues(alpha: shown),
-    ]);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(bench.inputColumn.inflate(1), const Radius.circular(3)),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.2
-        ..color = view.inks.signal.withValues(alpha: 0.85 * shown),
-    );
-    drawColumnNumbers(
-      canvas,
-      view,
-      bench.inputTile,
-      row,
-      shown,
-      textSize: bench.textSize,
-      writes: bench.writes,
-      left: true,
-    );
-    drawColumnTitle(
-      canvas,
-      view,
-      StreamTable.placeName(view, view.position),
-      shown,
-      x: bench.inputX,
-      top: bench.inputColumn.top,
-    );
+    drawLastRow(canvas, view, bench, shown);
 
     // The gradient: empty slots, each made as its strings land.
     final List<double> g = rowGradient(view);
@@ -622,10 +615,42 @@ final class BackwardScene extends LmScene {
     drawColumnTitle(canvas, view, gradientTitle, shown, x: layout.gradientX, top: bench.benchTop);
 
     // The weights' plate, under the strings: where they stand.
-    final String named = PredictScene.plateText(view);
-    final Rect plate = bench.plateAt(tagSize(view, named));
-    drawTag(canvas, view, named, plate.topLeft, alpha: shown);
-    drawPlateStatus(canvas, view, plate, ScoresScene.weightsStatus(view), shown, left: bench.left, right: bench.right);
+    PredictScene.drawPlate(canvas, view, bench, shown);
+  }
+
+  /// The place's last row standing at the bench's left, as Predict stood
+  /// it: its tiles, outlined in the accent, its numbers at its left, its
+  /// name over it.
+  static void drawLastRow(Canvas canvas, LmView view, PredictLayout bench, double alpha) {
+    final List<double> row = bench.lastRow;
+    drawColumn(canvas, bench.inputTile, <Color>[
+      for (final double v in row) view.inks.cell(v / bench.lastScale).withValues(alpha: alpha),
+    ]);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(bench.inputColumn.inflate(1), const Radius.circular(3)),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2
+        ..color = view.inks.signal.withValues(alpha: 0.85 * alpha),
+    );
+    drawColumnNumbers(
+      canvas,
+      view,
+      bench.inputTile,
+      row,
+      alpha,
+      textSize: bench.textSize,
+      writes: bench.writes,
+      left: true,
+    );
+    drawColumnTitle(
+      canvas,
+      view,
+      StreamTable.placeName(view, view.position),
+      alpha,
+      x: bench.inputX,
+      top: bench.inputColumn.top,
+    );
   }
 
   /// The strings, played back: the errors running from the column where the
@@ -703,17 +728,7 @@ final class BackwardScene extends LmScene {
       return;
     }
     final Rect box = Rect.fromLTWH(left, bench.benchTop, wide + 16, line * (rows.length + 3) + 10);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(box, const Radius.circular(6)),
-      Paint()..color = view.inks.ground.withValues(alpha: 0.92 * alpha),
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(box, const Radius.circular(6)),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1
-        ..color = view.inks.rule.withValues(alpha: alpha),
-    );
+    drawCard(canvas, view, box, alpha);
     final double x = box.left + 8;
     double y = box.top + 5 + line / 2;
     view.kit.draw(canvas, 'number ${d + 1}', quiet, Offset(x, y), anchor: const Offset(0, 0.5));
@@ -1011,7 +1026,6 @@ final class BackwardScene extends LmScene {
     final double given = PredictScene.shares(view, view.position)[view.target];
     final int others = trace.allowed.length - 1;
     final int d = firstMade(view) + 1;
-    final String clip = trace.config.gradClip.toStringAsFixed(1);
     final String token = trace.token(trace.inputAt(view.peptide, view.position));
     final int points = trace.points.length;
     final int later = view.focus.inputs - 1 - view.position;
@@ -1110,18 +1124,12 @@ final class BackwardScene extends LmScene {
       ),
       (
         _home.$1,
-        _totalFrom,
+        double.infinity,
         'Every place climbs the same ladder at once, a row each.\n'
             'A token row gets the sum over every place that read it,\n'
             'a position row the sum at its place across the ${spelled(trace.peptides.length)} peptides.\n'
-            'The loss is the mean of the ${grouped(targets)} costs: each sum is ÷ ${grouped(targets)}.',
-      ),
-      (
-        _totalFrom,
-        double.infinity,
-        'The length of all ${grouped(trace.model.parameters)} gradients together is the step\'s size.\n'
-            'Over $clip, every gradient would shrink by one factor: a guard.\n'
-            'Next, Update moves every weight a step against its gradient.',
+            'The loss is the mean of the ${grouped(targets)} costs: each sum is ÷ ${grouped(targets)}.\n'
+            'Next, Update gives every weight its gradient, then its step.',
       ),
     ];
   }
@@ -1236,13 +1244,10 @@ final class BackwardScene extends LmScene {
       final String token = trace.token(trace.inputAt(view.peptide, view.position));
       return "x0 = $token's token row + place ${view.position}'s row: both get its gradient";
     }
-    if (beat < _totalFrom) {
-      final double first = bosShare(view);
-      return first > 0.5
-          ? "Every place at once: ${percent(first)} of x0's gradient is at <bos>"
-          : "Every place at once: each row's gradient at x0";
-    }
-    return total(view);
+    final double first = bosShare(view);
+    return first > 0.5
+        ? "Every place at once: ${percent(first)} of x0's gradient is at <bos>"
+        : "Every place at once: each row's gradient at x0";
   }
 
   /// The numbers of the place's gradient that should rise most and fall
@@ -1308,18 +1313,6 @@ final class BackwardScene extends LmScene {
     return later == 0
         ? "Block $block's attention: no later place reads $focus, only its own cost"
         : "Block $block's attention: plus blame from ${grouped(later)} later places that read it";
-  }
-
-  /// The step's gradients' length against the clip.
-  static String total(LmView view) {
-    final TrainingTrace trace = view.trace;
-    final double norm = trace.steps.gradNorm[view.step - 1];
-    final double limit = trace.config.gradClip;
-    final double clip = trace.steps.clip[view.step - 1];
-    final String all = 'All ${grouped(trace.model.parameters)} gradients: length ${nats(norm)}';
-    return clip < 1
-        ? '$all, over the clip, ${limit.toStringAsFixed(1)}: each × ${fixed(clip, 2)}'
-        : '$all, under the clip, ${limit.toStringAsFixed(1)}: none is scaled';
   }
 
   /// The two largest shares of the tokens but what came next, with their

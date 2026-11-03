@@ -667,10 +667,10 @@ final class ScoresScene extends LmScene {
 
   /// Where the weights stand at the checkpoint in focus: the run's random
   /// start, and the updates since.
-  static String weightsStatus(LmView view) {
+  static String weightsStatus(LmView view, {bool after = false}) {
     final TrainingTrace trace = view.trace;
     final String start = 'random start (seed ${trace.config.seed})';
-    final int updates = view.step - trace.checkpoints.first.step;
+    final int updates = view.step - trace.checkpoints.first.step + (after ? 1 : 0);
     if (updates <= 0) {
       return '$start, no update yet';
     }

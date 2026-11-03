@@ -1846,7 +1846,7 @@ void main() {
       expect(at(20.0), contains('Number ${d + 1}'));
       expect(at(20.0), contains(fixed(BackwardScene.rowGradient(v)[d], 2)));
       expect(at(29.5), contains('final LayerNorm'));
-      expect(at(LmStage.backward.beats.toDouble()), contains(nats(trace.steps.gradNorm[v.step - 1])));
+      expect(at(LmStage.backward.beats.toDouble()), startsWith('Every place at once'));
       // Every caption of the stage is a sentence of the run's, never empty.
       for (double beat = 0; beat <= LmStage.backward.beats; beat += 0.25) {
         expect(at(beat), isNotEmpty);

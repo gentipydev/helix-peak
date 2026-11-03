@@ -235,6 +235,22 @@ void drawEdges(
   batch.draw(canvas);
 }
 
+/// A card on the ground for words worked out over a busy canvas: [box]
+/// backed by the ground, nearly opaque, and outlined in the rule.
+void drawCard(Canvas canvas, LmView view, Rect box, double alpha) {
+  canvas.drawRRect(
+    RRect.fromRectAndRadius(box, const Radius.circular(6)),
+    Paint()..color = view.inks.ground.withValues(alpha: 0.92 * alpha),
+  );
+  canvas.drawRRect(
+    RRect.fromRectAndRadius(box, const Radius.circular(6)),
+    Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1
+      ..color = view.inks.rule.withValues(alpha: alpha),
+  );
+}
+
 /// A grid of flat cells drawn in one call: a residual stream, a weight matrix.
 final class GridMesh {
   GridMesh(

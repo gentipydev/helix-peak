@@ -518,13 +518,19 @@ final class PredictScene extends LmScene {
       x: layout.logitX + dx,
       top: layout.benchTop,
     );
-    final double plate = _span(beat, _plateIn) * (1 - cleared);
-    if (plate > 0) {
-      final String named = plateText(view);
-      final Rect at = layout.plateAt(tagSize(view, named));
-      drawTag(canvas, view, named, at.topLeft, alpha: plate);
-      drawPlateStatus(canvas, view, at, ScoresScene.weightsStatus(view), plate, left: layout.left, right: layout.right);
+    drawPlate(canvas, view, layout, _span(beat, _plateIn) * (1 - cleared));
+  }
+
+  /// The output layer's plate under the strings, naming its weights, and
+  /// where they stand: [status], or as the step found them.
+  static void drawPlate(Canvas canvas, LmView view, PredictLayout layout, double alpha, {String? status}) {
+    if (alpha <= 0) {
+      return;
     }
+    final String named = plateText(view);
+    final Rect at = layout.plateAt(tagSize(view, named));
+    drawTag(canvas, view, named, at.topLeft, alpha: alpha);
+    drawPlateStatus(canvas, view, at, status ?? ScoresScene.weightsStatus(view), alpha, left: layout.left, right: layout.right);
   }
 
   // -------------------------------------------------------------- the bars
