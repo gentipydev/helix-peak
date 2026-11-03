@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 218 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 246 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -294,7 +294,10 @@ whole, and the stream read out early; schema 5 since 2026-11-01: the output
 weights that mix the heads' answers back into one row, and the heads' mix
 whole; schema 6 since 2026-11-02: the output layer's weights at each
 checkpoint and its logits whole, for Predict; schema 7 the same day: the
-loss's gradient at every point of the stream, whole, for Backward). The
+loss's gradient at every point of the stream, whole, for Backward; schema 8
+since 2026-11-03: the output layer's clipped gradient, AdamW's two running
+averages for it as the step found them, and the update, whole, with the
+optimiser's settings, for Update). The
 forward pass is four
 stages, each
 opening on the last frame of the one before, pixel for pixel, on Embedding's
@@ -586,7 +589,7 @@ start) and then by the batch's mean, were cut at the user's word the same
 night: the same strings again, ending on the gradient column while the
 number multiplied stood two columns left, and the batch's strings beside
 columns that were still the one place's. A weight's gradient is Update's to
-show when it is reworked; ÷ 180 is said in the note where every place
+show (see below); ÷ 180 is said in the note where every place
 climbs. The gradient's column lies down into Forward's ladder and climbs it from the bottom (`TowerLayout`, its
 number face sized for the gradient, `styleFor`): back through the final
 LayerNorm, then each part from the last, its strip what it sends back (the
@@ -595,9 +598,10 @@ through it into the slot above and turning into the sum, each row framed in
 honey; attention's captions count the later places whose blame comes back
 through it. At x0 its gradient goes on to its token row and its position
 row, and Forward's opening plays in reverse: the row goes home to the table
-and every place's x0 gradient comes in (at step 200 only `<bos>`'s is left);
-the last caption sets all the gradients' length against the clip (none of
-the seven checkpoints is clipped). Every number is the run's: the shares are
+and every place's x0 gradient comes in (at step 200 only `<bos>`'s is left),
+where the stage ends: all the gradients' length against the clip moved to
+Update on 2026-11-03, for it needs every weight's gradient (Backward 46 → 44
+beats). Every number is the run's: the shares are
 Predict's; each point's gradient is the one the run kept whole (schema 7),
 drawn times the 180 targets, what the sum of their costs sends back; the
 ladder's, the strips' and the table's colours, and the strings' strength,
@@ -605,6 +609,49 @@ are the whole batch's at that step, so a place with nothing left to learn is
 drawn as faint as it is. While the batch shows a line puts its peptide in
 focus; on the line alone a target its place; on the bench and the ladder a
 tap asks for nothing; on the table a row puts its place in focus.
+
+**Update** (`update_scene.dart`, 38 beats, the user's picks of 2026-11-03)
+gives every weight its gradient, guards their length and takes AdamW's step.
+It opens on Backward's last frame, pixel for pixel (`BackwardScene.paintEnd`,
+`BackwardFade`): the x0 table goes and the output layer's bench comes back as
+Backward stood it before the climb (`BackwardScene.drawLastRow`,
+`drawErrors`, `PredictScene.drawPlate`, promoted): the place's last row at
+the left, its p − y where the logits were made, and between them the 368
+strings, faint, drawn from the row's numbers, each a weight. One string is
+worked, the place's largest error × number (insulin A's C11 at step 1: S's
+from number 6, its ends ringed, `−0.99 × 1.94 = −1.92` written on it from the
+written factors): a weight's gradient is the error at its end times the number
+at its start. Then the same weight at every place (the user's pick over every
+place's whole grid added): every place's last row on the table, the worked
+number's column lit; the table narrows to that column, each place's p − y at
+the worked token beside it (the rows where it came next softly lit) and each
+place's pull, its row's product; the peptide's pulls added under them, then a
+card of the six peptides' sums and all 180 (−4.075), and ÷ 180, as the loss
+is their mean (−0.0226, the gradient the optimiser read). Every weight at
+once: the output layer's gradient as a grid on the bench's token rows, the
+worked mean flying into its cell, `<pad>` and `<bos>` struck (never next, no
+gradient). The grid shrinks into its row of a chart of the run's ten groups,
+each named with its weights and a honey bar of its gradients' length (the
+error reaching each weight's end × the number at its start, every layer the
+same way); then all 8,167 together, their lengths added as squares, against
+the clip's dashed 1.0 (no checkpoint is clipped; nine of the run's steps
+were). Then AdamW on the worked token's 16 weights (the user's pick of a
+re-recorded run, schema 8, so every checkpoint's step is worked, not only step
+1's): the grid's row stands up as its gradients beside the weights, a bar a
+weight on Scores' evening-chart way of drawing a row (bars from a dashed 0);
+the bars move to AdamW's running mean, a tick marks each running size, each
+bar goes over its own size to its ratio (at step 1, with no past, every one
+±1: the sign alone), then flips and scales by the rate, a small schedule
+marking this step, into the step; the bars condense into a step column and
+a copy of the weights goes through it to after (`−0.0598 + 0.0001 = −0.0597`
+at number 6). Last the step lies back into the grid: every weight's step
+(0.0001 each at step 1, whatever its gradient), then the layer after, its
+plate's status one update on (`ScoresScene.weightsStatus(after:)`). Every
+number is the run's and held to it (`lm_scenes_test`, the live check): the
+pulls added and ÷ 180, times the clip, are the kept gradient; AdamW's rule
+from the kept running averages makes every kept update. On the table of
+every place's last rows a row puts its place in focus; elsewhere a tap asks
+for nothing.
 
 Reduced motion shows each stage played through, the loop at its last step. The
 captions and the About sheet are built from the run's own numbers (R4.1).

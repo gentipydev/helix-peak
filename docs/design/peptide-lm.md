@@ -837,9 +837,10 @@ out of view is scrolled just far enough to show it whole.
    back, a copy rising through it into the sum; attention's captions count the
    later places that send blame back. At x0 it goes to the token and position
    rows, and every place's x0 gradient comes in on the table (at step 200
-   99.9% of insulin A's is `<bos>`'s, the unknowable first residue); the last
-   caption sets the gradients' length against the clip (none of the seven
-   checkpoints is clipped; steps 59 to 73 were, nine of them). Numbers are the
+   99.9% of insulin A's is `<bos>`'s, the unknowable first residue), where the
+   stage ends: the gradients' length against the clip, its last caption
+   until 2026-11-03, moved to Update, which is where every weight has its
+   gradient (46 → 44 beats). Numbers are the
    run's gradients times the 180 targets, what each place's own cost sends
    back; ÷ 180 is said once, in the note where every place climbs. Colours and string
    strength are the whole batch's at that step, so a place with nothing left
@@ -865,13 +866,36 @@ out of view is scrolled just far enough to show it whole.
    multiplied stood two columns left, in the place's row; and the batch's
    strings sat between columns that were still the one place's. Backward is
    now one flow, the error carried back row by row to x0. A weight's own
-   gradient (error × the number that went in, averaged over the 180) is for
-   Update to open on when it is reworked; the unit test still holds that
-   mean to the run's kept `head_grad`.
-11. **Update.** The output layer's weights, then the clipped gradient on them,
-   then AdamW's update (drawn magnified, the factor said), then the weights
-   moved. Per weight, the gradient differs between modules many times over
-   and Adam's step hardly at all. The learning-rate schedule marks the step.
+   gradient (error × the number that went in, averaged over the 180) is what
+   Update opens on.
+11. **Update** (38 beats, reworked 2026-11-03; the user's picks: the same
+   weight at every place on the table, over every place's whole grid added;
+   and the run re-recorded as schema 8, AdamW's running averages for the
+   output layer kept, so the step is worked out at every checkpoint). It
+   opens on Backward's last frame pixel for pixel and goes back to the output
+   layer's strings, from the place in focus's last row to its p − y. One
+   string is worked: the place's largest error × number (insulin A's C11 at
+   step 1: S's from number 6, −0.99 × 1.94 = −1.92, written from the written
+   factors). The same weight at every place, on the table of every place's
+   last row, narrowed to the worked column: each place's p − y at the worked
+   token, its pull, the peptide's sum (−1.31), a card of the six peptides'
+   sums and all 180 (−4.075), ÷ 180 = −0.0226, the kept gradient. Every
+   weight at once, a grid on the bench's token rows; it shrinks into its row
+   of a chart of the ten groups' gradient lengths, and all 8,167 together,
+   0.611, are set against the clip's 1.0 (none of the seven checkpoints is
+   clipped; steps 59 to 73 were, nine of them). AdamW on the worked token's
+   16 weights, a bar each: the gradient; the running mean (0.9 of the last
+   and 0.1 of this, corrected for starting at zero); the running size as a
+   tick (a light tick, not an outline: Backward's white borders were
+   removed at the user's word); each bar over its own size, its ratio (±1 at
+   step 1: no past, the sign alone; at step 49 from −1.18 to +1.41); times
+   −rate, the schedule marking the step; the bars condense into a step
+   column and the weights go through it to after (−0.0598 + 0.0001 =
+   −0.0597). Last every weight's step on the grid (0.0001 each at step 1,
+   soft tiles; the full ramp read as a loud checkerboard) and the layer
+   after, its plate one update on. The old stage (a grid lerping gradient →
+   update → weights, module bars against their largest, a lone schedule) is
+   gone, and with it `ModuleRail`.
 12. **Loop.** The loss curve draws itself past the three baselines to the
    floor; under it every target's tile lights up with the probability the
    model gives it, all but each peptide's first; the output layer drifts.

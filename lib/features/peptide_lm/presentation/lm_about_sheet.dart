@@ -155,17 +155,22 @@ class LmAboutSheet extends StatelessWidget {
               'Backpropagation carries the loss\'s gradient back through every layer '
                   'by the chain rule, along the same weights the forward pass used. At the '
                   'output it is p − y: the probabilities, less one at the token that came '
-                  'next. Each weight\'s gradient is the error that reaches its end times '
-                  'the number at its start, summed over every place and divided by their '
-                  'count, as the loss is their mean; each + of the residual stream passes '
-                  'the gradient back whole. Where all the gradients\' norm is over '
-                  '${config.gradClip}, every one is scaled down to it.',
+                  'next. Each + of the residual stream passes the gradient back whole, and '
+                  'each part adds what its own weights send back.',
             ),
             paragraph(
               'Update',
-              'AdamW moves each weight by about the learning rate times its '
-                  'gradient\'s running mean over its running size, so steps are even '
-                  'where gradients are not, and shrinks the weight matrices by '
+              'Each weight\'s gradient is the error that reaches its end times the number '
+                  'at its start, summed over every place that used it and divided by their '
+                  'count, as the loss is their mean; a bias is a weight whose number at the '
+                  'start is always 1. Where all the gradients\' length is over '
+                  '${config.gradClip}, every one is scaled down by one factor. AdamW keeps '
+                  'two running averages for each weight, of its gradient and of its square, '
+                  '${trace.optimizer.beta1} and ${trace.optimizer.beta2} of the last each step, '
+                  'each corrected for starting at zero, and moves the weight against its '
+                  'gradient by the rate times the first over the root of the second, so steps '
+                  'are even where gradients are not: at step 1, with no past, every weight '
+                  'the loss reaches moves by the rate. It also shrinks the weight matrices by '
                   '${config.weightDecay} of the rate each step. The rate warms up over '
                   '${config.warmupSteps} steps to ${scientific(config.learningRate)}, '
                   'then falls on a cosine to ${scientific(config.etaMin)}.',
