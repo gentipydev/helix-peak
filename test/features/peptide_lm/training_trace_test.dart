@@ -183,14 +183,45 @@ void main() {
       if (c.step == trace.steps.count) {
         continue;
       }
-      final double tolerance = trace.steps.headWeightScales[c.step - 1] +
-          trace.steps.headWeightScales[c.step] +
-          c.headUpdateScale;
+      // Two steps' int8 copies of the weights, each within half its step.
+      final double tolerance =
+          (trace.steps.headWeightScales[c.step - 1] + trace.steps.headWeightScales[c.step]) / 2 + 1e-7;
       for (int r = 0; r < trace.vocab.length; r++) {
         for (int d = 0; d < trace.model.width; d++) {
           final double moved =
               trace.headWeight(c.step + 1, r, d) - trace.headWeight(c.step, r, d);
           expect(trace.headUpdate(c, r, d), closeTo(moved, tolerance));
+        }
+      }
+    }
+  });
+
+  test("the update is AdamW's step from the running averages the step found", () {
+    expect(trace.optimizer.name, 'AdamW');
+    expect(trace.optimizer.beta1, 0.9);
+    expect(trace.optimizer.beta2, 0.999);
+    expect(trace.optimizer.weightDecay, trace.config.weightDecay);
+    final TraceOptimizer adam = trace.optimizer;
+    for (final TraceCheckpoint c in trace.checkpoints) {
+      final double rate = trace.steps.learningRate[c.step - 1];
+      for (int r = 0; r < trace.vocab.length; r++) {
+        for (int d = 0; d < trace.model.width; d++) {
+          final double g = trace.headGrad(c, r, d);
+          if (c.step == 1) {
+            expect(trace.headAdamMean(c, r, d), 0);
+            expect(trace.headAdamSquare(c, r, d), 0);
+          }
+          final double mean = adam.beta1 * trace.headAdamMean(c, r, d) + (1 - adam.beta1) * g;
+          final double square = adam.beta2 * trace.headAdamSquare(c, r, d) + (1 - adam.beta2) * g * g;
+          final double ratio = (mean / (1 - math.pow(adam.beta1, c.step))) /
+              (math.sqrt(square / (1 - math.pow(adam.beta2, c.step))) + adam.eps);
+          final double w = trace.outputWeight(c, r, d);
+          final double step = -rate * (adam.weightDecay * w + ratio);
+          expect(
+            trace.headUpdate(c, r, d),
+            closeTo(step, 4e-7 * w.abs() + 1e-5 * (rate * ratio).abs() + 1e-12),
+            reason: 'step ${c.step} r$r d$d',
+          );
         }
       }
     }
@@ -422,7 +453,7 @@ void main() {
   });
 
   test('a schema this does not read is refused', () {
-    for (final int schema in <int>[1, 2, 3, 4, 5, 6]) {
+    for (final int schema in <int>[1, 2, 3, 4, 5, 6, 7]) {
       expect(
         () => TrainingTrace.parse(_edited((Map<String, dynamic> json) => json['schema'] = schema)),
         throwsA(isA<FormatException>()),

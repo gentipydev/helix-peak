@@ -78,6 +78,33 @@ final class TraceConfig {
   final int seed;
 }
 
+/// How the run's optimiser steps the output layer's weights: AdamW, with
+/// these betas, epsilon and decay, its param group's own.
+@immutable
+final class TraceOptimizer {
+  const TraceOptimizer({
+    required this.name,
+    required this.beta1,
+    required this.beta2,
+    required this.eps,
+    required this.weightDecay,
+  });
+
+  final String name;
+
+  /// How much of the running mean, and of the running square, each step
+  /// keeps: the rest is the new gradient's.
+  final double beta1;
+  final double beta2;
+
+  /// Added to the running size before it divides, so a gradient of zero
+  /// never divides by zero.
+  final double eps;
+
+  /// Each step shrinks a weight by the rate times this, of itself.
+  final double weightDecay;
+}
+
 /// What every step kept: its losses and learning rate, its gradients' norms,
 /// each target's loss, and the output layer's weights as the step found them.
 @immutable
@@ -228,9 +255,9 @@ final class TraceCheckpoint {
     required this.probs,
     required this.probScale,
     required this.headGrad,
-    required this.headGradScale,
+    required this.headAdamMean,
+    required this.headAdamSquare,
     required this.headUpdate,
-    required this.headUpdateScale,
   });
 
   final int step;
@@ -284,11 +311,14 @@ final class TraceCheckpoint {
   final Uint8List probs;
   final double probScale;
 
-  /// The output layer's gradient, clipped, and the update the step made.
-  final Int8List headGrad;
-  final double headGradScale;
-  final Int8List headUpdate;
-  final double headUpdateScale;
+  /// The output layer's gradient, clipped, as the optimiser read it; AdamW's
+  /// running averages for its weights as the step found them, of the
+  /// gradient and of its square (zero before the first step); and the
+  /// update the step made: each vocab × width, whole.
+  final Float32List headGrad;
+  final Float32List headAdamMean;
+  final Float32List headAdamSquare;
+  final Float32List headUpdate;
 }
 
 /// One recorded training run of HelixPeekLM, as `pipeline/denovo/trace.py`
@@ -306,6 +336,7 @@ final class TrainingTrace {
     required this.allowed,
     required this.model,
     required this.config,
+    required this.optimizer,
     required this.peptides,
     required this.inputs,
     required this.targets,
@@ -324,7 +355,7 @@ final class TrainingTrace {
          for (final TracePeptide p in peptides) p.inputs * (p.inputs + 1) ~/ 2,
        ]);
 
-  static const int schema = 7;
+  static const int schema = 8;
 
   final String name;
 
@@ -335,6 +366,7 @@ final class TrainingTrace {
   final List<int> allowed;
   final TraceModel model;
   final TraceConfig config;
+  final TraceOptimizer optimizer;
   final List<TracePeptide> peptides;
 
   /// The batch as it was trained: each peptide's ids, and the ids it was
@@ -566,11 +598,18 @@ final class TrainingTrace {
   double probability(TraceCheckpoint at, int peptide, int position, int column) =>
       at.probs[flat(peptide, position) * allowed.length + column] * at.probScale;
 
-  double headGrad(TraceCheckpoint at, int row, int dim) =>
-      at.headGrad[row * model.width + dim] * at.headGradScale;
+  /// The output layer's clipped gradient at token [row]'s weight from
+  /// number [dim], as the optimiser read it.
+  double headGrad(TraceCheckpoint at, int row, int dim) => at.headGrad[row * model.width + dim];
 
-  double headUpdate(TraceCheckpoint at, int row, int dim) =>
-      at.headUpdate[row * model.width + dim] * at.headUpdateScale;
+  /// AdamW's running average of that weight's gradient, and of its square,
+  /// as the step found them: before this step's gradient joins them.
+  double headAdamMean(TraceCheckpoint at, int row, int dim) => at.headAdamMean[row * model.width + dim];
+
+  double headAdamSquare(TraceCheckpoint at, int row, int dim) => at.headAdamSquare[row * model.width + dim];
+
+  /// How far the step moved that weight.
+  double headUpdate(TraceCheckpoint at, int row, int dim) => at.headUpdate[row * model.width + dim];
 
   /// The run read from [bytes], or a [FormatException] saying why it cannot
   /// be: another run than [name], another schema, or an array whose shape is
@@ -610,6 +649,18 @@ final class TrainingTrace {
       gradClip: _double(settings, 'grad_clip'),
       dropout: _double(settings, 'dropout'),
       seed: _int(settings, 'seed'),
+    );
+    final Map<String, Object?> stepper = _object(json['optimizer'], 'the optimizer');
+    final List<Object?> betas = _list(stepper, 'betas');
+    if (betas.length != 2 || betas.any((Object? b) => b is! num || b < 0 || b >= 1)) {
+      throw const FormatException("AdamW's betas are not two numbers under one");
+    }
+    final TraceOptimizer optimizer = TraceOptimizer(
+      name: _string(stepper, 'name'),
+      beta1: (betas[0]! as num).toDouble(),
+      beta2: (betas[1]! as num).toDouble(),
+      eps: _double(stepper, 'eps'),
+      weightDecay: _double(stepper, 'weight_decay'),
     );
 
     final List<TracePeptide> peptides = <TracePeptide>[
@@ -748,14 +799,10 @@ final class TrainingTrace {
           logits: _float32(c['logits'], <int>[targetCount, vocab.length], '$what logits'),
           probs: _uint8(c['probs'], <int>[targetCount, allowed.length], '$what probs'),
           probScale: _scale(c['probs'], '$what probs'),
-          headGrad: _int8(c['head_grad'], <int>[vocab.length, model.width], '$what head_grad'),
-          headGradScale: _scale(c['head_grad'], '$what head_grad'),
-          headUpdate: _int8(
-            c['head_update'],
-            <int>[vocab.length, model.width],
-            '$what head_update',
-          ),
-          headUpdateScale: _scale(c['head_update'], '$what head_update'),
+          headGrad: _float32(c['head_grad'], <int>[vocab.length, model.width], '$what head_grad'),
+          headAdamMean: _float32(c['head_adam_mean'], <int>[vocab.length, model.width], '$what head_adam_mean'),
+          headAdamSquare: _float32(c['head_adam_square'], <int>[vocab.length, model.width], '$what head_adam_square'),
+          headUpdate: _float32(c['head_update'], <int>[vocab.length, model.width], '$what head_update'),
         ),
       );
     }
@@ -769,6 +816,7 @@ final class TrainingTrace {
       allowed: List<int>.unmodifiable(allowed),
       model: model,
       config: config,
+      optimizer: optimizer,
       peptides: List<TracePeptide>.unmodifiable(peptides),
       inputs: List<List<int>>.unmodifiable(inputs),
       targets: List<List<int>>.unmodifiable(targets),

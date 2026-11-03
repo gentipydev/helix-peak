@@ -24,9 +24,12 @@ final class UpdateScene extends LmScene {
 
   /// How many times the update is drawn larger than the weights' own scale.
   static double magnification(LmView view) {
-    final double update = view.checkpoint.headUpdateScale * 127;
+    final double update = _largest(view.checkpoint.headUpdate);
     return update <= 0 ? 1 : headScale(view) / update;
   }
+
+  static double _largest(List<double> values) =>
+      values.fold<double>(0, (double most, double v) => math.max(most, v.abs()));
 
   @override
   void paint(Canvas canvas, Size size, LmView view, TrainingFrame frame) {
@@ -36,8 +39,8 @@ final class UpdateScene extends LmScene {
     final int rows = trace.vocab.length;
     final int width = trace.model.width;
     final double weights = headScale(view);
-    final double gradientScale = math.max(1e-12, view.checkpoint.headGradScale * 127);
-    final double updateScale = math.max(1e-12, view.checkpoint.headUpdateScale * 127);
+    final double gradientScale = math.max(1e-12, _largest(view.checkpoint.headGrad));
+    final double updateScale = math.max(1e-12, _largest(view.checkpoint.headUpdate));
 
     // Which picture the matrix shows, and how far into the next it has turned.
     final double toGradient = through(u, _gradientFrom, _gradientTo);

@@ -1823,7 +1823,7 @@ void main() {
       final double clip = trace.steps.clip[scene.step - 1];
       for (int r = 0; r < trace.vocab.length; r++) {
         for (int d = 0; d < trace.model.width; d++) {
-          expect(mean[r][d] * clip, closeTo(trace.headGrad(at, r, d), at.headGradScale / 2 + 1e-7), reason: 'step ${scene.step} r$r d$d');
+          expect(mean[r][d] * clip, closeTo(trace.headGrad(at, r, d), 1e-6), reason: 'step ${scene.step} r$r d$d');
           if (trace.allowedIndex(r) < 0) {
             expect(mean[r][d], 0);
           }
