@@ -254,7 +254,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 246 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 265 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -268,7 +268,7 @@ choices of 2026-10-30, which retired the shared `TransportBar` here). The
 caption's box is held at the stage's tallest caption at its width, so the
 canvas never resizes while a stage plays. Tokenise, Shift, Embedding, Scores, Attention,
 Feed-forward, Forward, Predict, Loss, Backward and Update show one training step at the checkpoint picked ("Step N ▾": the
-steps that kept every activation), and Loop plays all of them. Each stage is a painter in
+steps that kept every activation), and Loop plays all of them, from step 1 (`LoopPace`). Each stage is a painter in
 `presentation/scenes/`, a pure function of the frame; a tap or a drag on the
 canvas puts a peptide, a position or an attention head in focus. Shift
 opens on Tokenise's last frame, pixel for pixel (`TokeniseScene.paintEnd`,
@@ -297,7 +297,9 @@ checkpoint and its logits whole, for Predict; schema 7 the same day: the
 loss's gradient at every point of the stream, whole, for Backward; schema 8
 since 2026-11-03: the output layer's clipped gradient, AdamW's two running
 averages for it as the step found them, and the update, whole, with the
-optimiser's settings, for Update). The
+optimiser's settings, for Update; schema 9 the same day: every step's
+probabilities over the tokens that can come next at every place, for Loop,
+a kept step's the same bytes as its checkpoint's). The
 forward pass is four
 stages, each
 opening on the last frame of the one before, pixel for pixel, on Embedding's
@@ -652,6 +654,41 @@ pulls added and ÷ 180, times the clip, are the kept gradient; AdamW's rule
 from the kept running averages makes every kept update. On the table of
 every place's last rows a row puts its place in focus; elsewhere a tap asks
 for nothing.
+
+**Loop** (`loop_scene.dart`, 44 beats, the user's picks of 2026-11-03) is
+that step again and again, 200 times, on the batch made once: what the
+training does, as the stages showed it, seen over the run. Its pace is the
+domain's (`LoopPace`, a pure function of the run: `TrainingFrame` carries no
+step since): it opens on Update's last frame, pixel for pixel
+(`UpdateScene.paintEnd`, `UpdateFade`), every weight moved once; Update's
+grid goes, and step 1 is put back together on a canvas of Loop's own
+(`LoopLayout`): its guesses as Predict's map, on rows of its own under the
+note (`share_map.dart`: `ShareMapLayout` and `ShareMap`, Predict's map
+promoted, Predict, Loss and Backward byte-identical), and their cost, the
+first point of a curve in the loss's honey above the map, the levels to beat
+dashed and named in Loss's words (even guess, residue counts, residue pairs)
+and the floor dotted, Update's rate schedule under it
+(`UpdateScene.drawSchedule`, promoted). Then the run: steps 2 to 4 one at a
+time (each a hair lower: −0.003, −0.005, −0.008, the rate warming up), then a
+move to each step the run kept whole and a hold there for its caption and
+note (the user's pick): the level the loss passed, brightened, the run's
+count of right guesses (insulin A's at checkpoint 1: right at 12 of 180 at
+step 13; L, the commonest residue, the top guess at 80 places at step 21;
+71 at 49; 139 at 66; 175 at 95), and the steps whose gradients went over the
+clip. A move of many steps takes at least 1.2 beats and the rest goes by how
+far the loss falls on it, so the burst between steps 50 and 95, where the
+squares jump into their lit slots one place after another, gets the time.
+The map is drawn from every step's own probabilities (schema 9, the user's
+pick), lerped between whole steps; every number written (p(y), the head's
+loss, the rate) is a kept step's whole one, and only while the run stands,
+for numbers that change every frame cannot be read. The moves carry no note,
+so the eye is on the map. The end: every row but `<bos>`'s dims, its six
+squares a sixth each, 93% of the loss, the floor; then the run whole and how
+far the weight Update worked travelled (S's from number 6: −0.0598 to
+0.0938; the weights appear in the opening only, the user's pick). The run
+always starts at step 1, whichever checkpoint is picked: the opening names
+it. A kept step's tick picks it and holds the run there; a row of the map
+puts its place in focus; nothing while Update's frame shows.
 
 Reduced motion shows each stage played through, the loop at its last step. The
 captions and the About sheet are built from the run's own numbers (R4.1).

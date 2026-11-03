@@ -177,10 +177,12 @@ class LmAboutSheet extends StatelessWidget {
             ),
             paragraph(
               'Loop',
-              'The same batch, ${trace.steps.count} times. Every step\'s loss, '
-                  'gradients and output layer are kept; ${spelled(trace.checkpoints.length)} '
-                  'steps keep every activation too: the first, the first below each '
-                  'baseline and below one nat and a tenth of one, and the last.',
+              'The same step, ${trace.steps.count} times, on the batch made once: only the '
+                  'weights change. Every step\'s loss, gradients, output layer and guesses at '
+                  'every place are kept, so the map is drawn at every step; '
+                  '${spelled(trace.checkpoints.length)} steps keep every activation too: the '
+                  'first, the first below each baseline and below one nat and a tenth of one, '
+                  'and the last; the page holds at each, with the level it passed.',
             ),
           ],
         ),

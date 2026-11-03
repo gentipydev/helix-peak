@@ -14,7 +14,10 @@ them, and keeps every number through read-only hooks:
 - **every step**: the loss (residues and `<eos>` apart), the learning rate the
   step used, the gradients' norm before clipping and the clip applied, each
   parameter group's gradient and update norm and size, every target's loss,
-  and the output layer's weights and biases as the step found them;
+  the output layer's weights and biases as the step found them, and (schema 9,
+  2026-11-03, for Loop) the probabilities over the 21 tokens that can come
+  next at every place, in 255ths, a kept step's the same bytes as its
+  checkpoint's;
 - **at each checkpoint**, everything else: the two embedding tables as the
   step found them, whole as float32 (the token embedding, 23 × 16, and the
   position embedding, 51 × 16; added 2026-10-30, kept whole since schema 2
@@ -896,9 +899,41 @@ out of view is scrolled just far enough to show it whole.
    after, its plate one update on. The old stage (a grid lerping gradient →
    update → weights, module bars against their largest, a lone schedule) is
    gone, and with it `ModuleRail`.
-12. **Loop.** The loss curve draws itself past the three baselines to the
-   floor; under it every target's tile lights up with the probability the
-   model gives it, all but each peptide's first; the output layer drifts.
+12. **Loop** (44 beats, reworked 2026-11-03; the user's picks: Predict's map
+   at every step, the run re-recorded as schema 9 for it; a hold at each
+   kept step; the weights in the opening only). Training is the step the
+   stages showed, 200 times on the batch made once; Loop shows what that
+   does. It opens on Update's last frame pixel for pixel (every weight moved
+   once), and puts step 1 back together on a canvas of its own: its guesses
+   as Predict's map, on rows of its own (`share_map.dart`, Predict's map
+   promoted, its frames byte-identical), and their cost, 3.220, the first
+   point of a curve in the loss's honey, the levels dashed in Loss's words
+   (even guess 3.045, residue counts 2.856, residue pairs 2.043), the floor
+   dotted (0.060), Update's rate schedule under it. Steps 2 to 4 go one at a
+   time, each a hair lower (−0.003, −0.005, −0.008, the rate warming up), then
+   the run moves to each kept step and holds there (`LoopPace`, a pure
+   function of the run; the moves share the beats by how far the loss falls
+   on them, at least 1.2 each). What the map shows, in order, is the
+   mental model's last piece: random guesses worse than even at step 1
+   (right at 7 of 180); no better than an even guess at 13 (12); at 21 the
+   guesses follow residue counts, L, the commonest residue (23 of 180
+   targets), the top guess at 80 places; at 49 they follow the residue
+   before (71); then the burst, squares jumping into their lit slots one
+   place after another (p(y) over ½ at 0 places before step 50, 75 at 66,
+   166 at 80), one nat at 66 (139), a tenth at 95 (175), nine steps from 59
+   to 73 over the clip; then the rate's cosine flattens the loss to 0.065
+   against the floor. The end dims every row but `<bos>`'s: from `<bos>` no
+   model can tell which of six peptides comes, so each first residue gets a
+   sixth (16.5% each), ln 6 at six of 180 places, 93% of the loss, the
+   floor. Last, the run whole: insulin A right at 21 of its 22 places, only
+   the weights changed (S's from number 6, which Update worked: −0.0598 to
+   0.0938), nothing held out, learned by heart. Squares are the steps' own
+   probabilities, lerped between whole steps; every number written is a
+   kept step's, whole, and only while the run stands. The moves carry no
+   note, so the eye is on the map. The run starts at step 1 whatever
+   checkpoint is picked; a tick picks a checkpoint and holds the run there.
+   The old stage (residue-coloured tiles lit by p(y), the output layer's
+   grid drifting, an `lr` strip, one linear sweep) is gone.
 
 ## Colours
 
