@@ -1213,7 +1213,7 @@ final class UpdateScene extends LmScene {
       }
     }
 
-    _schedule(canvas, view, layout, _span(beat, _scheduleIn) * (1 - gone) * alpha);
+    drawSchedule(canvas, view, layout.schedule, _span(beat, _scheduleIn) * (1 - gone) * alpha, step: view.step.toDouble());
   }
 
   /// A standing column at [x], a tile a number in [colours], [numbers]
@@ -1369,14 +1369,14 @@ final class UpdateScene extends LmScene {
     view.kit.draw(canvas, '+$end', face, Offset(zero + half, y), anchor: const Offset(1, 0));
   }
 
-  /// The learning rate at every step, warm-up then cosine, this one marked,
-  /// small, under the chart.
-  void _schedule(Canvas canvas, LmView view, UpdateLayout layout, double alpha) {
+  /// The learning rate at every step, warm-up then cosine, in [area], small;
+  /// [step] marked on it, on the line between two steps while it moves; named
+  /// with its rate at the area's left where [named].
+  static void drawSchedule(Canvas canvas, LmView view, Rect area, double alpha, {required double step, bool named = true}) {
     if (alpha <= 0) {
       return;
     }
     final TrainingTrace trace = view.trace;
-    final Rect area = layout.schedule;
     final int count = trace.steps.count;
     double top = 0;
     for (int s = 0; s < count; s++) {
@@ -1402,10 +1402,17 @@ final class UpdateScene extends LmScene {
         ..strokeWidth = 1.2
         ..color = view.inks.quiet.withValues(alpha: alpha),
     );
-    canvas.drawCircle(at(view.step), 3.5, Paint()..color = view.inks.signal.withValues(alpha: alpha));
+    final int whole = step.round().clamp(1, count);
+    final Offset mark = step == whole
+        ? at(whole)
+        : Offset.lerp(at(step.floor().clamp(1, count)), at(step.ceil().clamp(1, count)), step - step.floor())!;
+    canvas.drawCircle(mark, 3.5, Paint()..color = view.inks.signal.withValues(alpha: alpha));
+    if (!named) {
+      return;
+    }
     view.kit.draw(
       canvas,
-      'rate ${rate(trace.steps.learningRate[view.step - 1])}',
+      'rate ${rate(trace.steps.learningRate[whole - 1])}',
       inked(view.kit.mono, 8.5, view.inks.signal, alpha: alpha),
       Offset(area.left - 6, area.center.dy),
       anchor: const Offset(1, 0.5),
