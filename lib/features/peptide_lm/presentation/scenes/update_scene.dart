@@ -6,204 +6,1375 @@ import '../../../../shared/format.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
 import '../lm_format.dart';
+import 'attention_scene.dart';
+import 'backward_scene.dart';
 import 'lm_drawing.dart';
 import 'lm_scene.dart';
 import 'predict_scene.dart';
+import 'scores_scene.dart';
+import 'stream_table.dart';
+import 'weight_flow.dart';
 
-/// Update: AdamW turns the clipped gradient into a step for every weight,
-/// about the learning rate in size whatever the gradient's, and the weights
-/// move by it. Shown on the output layer, whose rows are the tokens the
-/// prediction's bars stand for.
+/// Update: Backward found how the cost changes with every row, but training
+/// changes weights. A weight's gradient comes from the two ends of its
+/// string: the error that came back to its end times the number that went in
+/// at its start, at every place that used it, averaged.
+///
+/// The stage opens on Backward's last frame, every place's gradient at x0,
+/// and goes back to the output layer's strings, from the place in focus's
+/// last row to its p − y. One string is worked (insulin A's C11 at step 1:
+/// S's from number 6, −0.99 × 1.94 = −1.92). Then the same weight at every
+/// place, on the table, each place's pull on it, added over the batch and
+/// ÷ 180; then every weight at once, the output layer's gradient, a cell a
+/// weight; then every layer's gradients' length, and all of them together
+/// against the clip. Then AdamW on the worked token's weights: their
+/// gradients, AdamW's running mean of each and running size, their ratio,
+/// times the rate, against the gradient, the weights before and after; then
+/// every weight's step on the grid, and the layer after.
+///
+/// Every number is the run's: each place's p − y is Predict's shares less
+/// what came next, its last row the stream's; the gradient and AdamW's
+/// running averages are those the step's optimiser read, and the update the
+/// one it made.
 final class UpdateScene extends LmScene {
   const UpdateScene();
 
-  static const double _gradientFrom = 0.15;
-  static const double _gradientTo = 0.4;
-  static const double _updateTo = 0.6;
-  static const double _movedTo = 0.85;
+  static double get _beats => LmStage.update.beats.toDouble();
 
-  /// How many times the update is drawn larger than the weights' own scale.
-  static double magnification(LmView view) {
-    final double update = _largest(view.checkpoint.headUpdate);
-    return update <= 0 ? 1 : headScale(view) / update;
-  }
+  // Every mini-step holds long enough for its caption and its note to be
+  // read: a beat is two seconds.
 
-  static double _largest(List<double> values) =>
-      values.fold<double>(0, (double most, double v) => math.max(most, v.abs()));
+  // A. Back to the output layer: Backward's table goes, and the bench comes
+  // in, the place's last row at the left, its p − y at the right, and the
+  // output layer's strings between them, faint.
+  static const (double, double) _tableOut = (0.1, 0.6);
+  static const (double, double) _benchIn = (0.4, 1.2);
+
+  // B. One weight: the other strings dim, the worked one lights from its
+  // start to its end, its two ends ringed; then its product written on it.
+  static const double _oneFrom = 2.6;
+  static const (double, double) _dim = (2.6, 3.0);
+  static const (double, double) _lit = (2.7, 3.3);
+  static const (double, double) _rings = (3.1, 3.4);
+  static const double _productFrom = 4.8;
+  static const (double, double) _product = (4.8, 5.2);
+
+  // C. The same weight at every place: the bench goes and every place's last
+  // row comes onto the table, the worked number's column lit; the table
+  // narrows to that column; each place's p − y at the worked token comes
+  // beside it, then the pulls, top to bottom; the peptide's sum, then the
+  // six peptides' in a box; the mean.
+  static const double _placesFrom = 7.0;
+  static const (double, double) _benchOut = (7.0, 7.4);
+  static const (double, double) _rowsIn = (7.2, 7.8);
+  static const (double, double) _columnLit = (7.8, 8.1);
+  static const double _pullsFrom = 8.8;
+  static const (double, double) _othersOut = (8.8, 9.1);
+  static const (double, double) _narrow = (9.0, 9.4);
+  static const (double, double) _errorsIn = (9.3, 9.7);
+  static const (double, double) _pulls = (9.7, 10.5);
+  static const double _sumsFrom = 10.8;
+  static const (double, double) _peptideSum = (10.8, 11.1);
+  static const (double, double) _boxIn = (11.0, 11.3);
+  static const (double, double) _boxLines = (11.2, 12.2);
+  static const double _meanFrom = 12.6;
+  static const (double, double) _mean = (12.6, 12.9);
+
+  // D. Every weight: the table goes and the grid comes on the bench's rows
+  // as empty slots; the worked mean flies into its cell; the rest fill.
+  static const double _gridFrom = 14.4;
+  static const (double, double) _placesOut = (14.4, 14.8);
+  static const (double, double) _gridIn = (14.6, 15.0);
+  static const (double, double) _fly = (14.8, 15.3);
+  static const (double, double) _cells = (15.3, 16.3);
+
+  // E. Every layer: the grid shrinks into the output layer's row of a chart
+  // of the run's groups, and the others come in; then their length all
+  // together, against the clip.
+  static const double _layersFrom = 17.4;
+  static const (double, double) _shrink = (17.4, 18.1);
+  static const (double, double) _groupsIn = (17.9, 19.0);
+  static const double _clipFrom = 20.0;
+  static const (double, double) _totalIn = (20.0, 20.8);
+  static const (double, double) _clipLine = (20.4, 20.8);
+
+  // F. AdamW on the worked token's weights: the chart goes and the grid comes
+  // back faint; the token's row of it stands up as a column, the weights
+  // beside it, a bar each; the bars move to the running mean, take a mark at
+  // the running size, go to their ratio, then flip and scale to the step;
+  // they condense into a column, and the weights go through it to after.
+  static const double _adamFrom = 23.0;
+  static const (double, double) _chartOut = (23.0, 23.4);
+  static const (double, double) _gridBack = (23.2, 23.6);
+  static const (double, double) _standUp = (23.6, 24.3);
+  static const (double, double) _gridAway = (24.0, 24.4);
+  static const (double, double) _weightsIn = (24.1, 24.5);
+  static const (double, double) _barsIn = (24.3, 24.8);
+  static const double _runningFrom = 25.0;
+  static const (double, double) _toMean = (25.2, 26.0);
+  static const double _sizeFrom = 27.0;
+  static const (double, double) _marks = (27.2, 27.8);
+  static const double _ratioFrom = 29.0;
+  static const (double, double) _toRatio = (29.2, 30.0);
+  static const double _rateFrom = 31.0;
+  static const (double, double) _toStep = (31.2, 32.0);
+  static const (double, double) _scheduleIn = (31.3, 31.8);
+  static const double _afterFrom = 33.0;
+  static const (double, double) _condense = (33.2, 33.8);
+  static const (double, double) _slide = (33.8, 34.6);
+
+  // G. Every weight: the columns go, the step lies down into its row of the
+  // grid, and the grid shows every weight's step; then the weights after.
+  static const double _stepsFrom = 35.0;
+  static const (double, double) _adamOut = (35.0, 35.4);
+  static const (double, double) _lieDown = (35.2, 35.9);
+  static const (double, double) _gridSteps = (35.5, 36.0);
+  static const double _layerFrom = 36.5;
+  static const (double, double) _toAfter = (36.6, 37.2);
+
+  static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
+
+  /// [a] to [b], [t] of the way.
+  static double _lerp(double a, double b, double t) => a + (b - a) * t;
 
   @override
-  void paint(Canvas canvas, Size size, LmView view, TrainingFrame frame) {
-    final TrainingTrace trace = view.trace;
-    final _Layout layout = _Layout(size, view);
-    final double u = frame.local;
-    final int rows = trace.vocab.length;
-    final int width = trace.model.width;
-    final double weights = headScale(view);
-    final double gradientScale = math.max(1e-12, _largest(view.checkpoint.headGrad));
-    final double updateScale = math.max(1e-12, _largest(view.checkpoint.headUpdate));
+  void paint(Canvas canvas, Size size, LmView view, TrainingFrame frame) =>
+      _paint(canvas, size, view, frame.local * _beats, const UpdateFade());
 
-    // Which picture the matrix shows, and how far into the next it has turned.
-    final double toGradient = through(u, _gradientFrom, _gradientTo);
-    final double toUpdate = through(u, _gradientTo, _updateTo);
-    final double toMoved = through(u, _updateTo, _movedTo);
-    final GridMesh matrix = GridMesh(layout.matrix, width, rows, rowGap: 0.6);
-    for (int r = 0; r < rows; r++) {
-      for (int d = 0; d < width; d++) {
-        final double w = trace.headWeight(view.step, r, d);
-        final double g = trace.headGrad(view.checkpoint, r, d);
-        final double delta = trace.headUpdate(view.checkpoint, r, d);
-        final Color before = view.inks.signed(w / weights);
-        final Color gradient = view.inks.signed(g / gradientScale);
-        final Color update = view.inks.signed(delta / updateScale);
-        final Color after = view.inks.signed((w + delta) / weights);
-        final Color shown;
-        if (toUpdate <= 0) {
-          shown = Color.lerp(before, gradient, toGradient)!;
-        } else if (toMoved <= 0) {
-          shown = Color.lerp(gradient, update, toUpdate)!;
-        } else {
-          shown = Color.lerp(update, after, toMoved)!;
-        }
-        matrix.cell(d, r, shown);
-      }
+  /// The stage's last frame, with [fade] leaving out or fading what the stage
+  /// after it draws itself.
+  void paintEnd(Canvas canvas, Size size, LmView view, [UpdateFade fade = const UpdateFade()]) =>
+      _paint(canvas, size, view, _beats, fade);
+
+  void _paint(Canvas canvas, Size size, LmView view, double beat, UpdateFade fade) {
+    if (beat <= 0) {
+      const BackwardScene().paintEnd(canvas, size, view);
+      return;
     }
-    matrix.draw(canvas);
-    final double rowHeight = layout.matrix.height / rows;
-    for (int r = 0; r < rows; r++) {
-      final double y = layout.matrix.top + (r + 0.5) * rowHeight;
-      view.kit.draw(
-        canvas,
-        glyph(trace, r),
-        inked(
-          view.kit.mono,
-          math.min(9, rowHeight + 2),
-          trace.isResidue(r) ? view.inks.residue(trace.token(r)) : view.inks.quiet,
-        ),
-        Offset(layout.matrix.left - 4, y),
-        anchor: const Offset(1, 0.5),
-      );
-      if (trace.allowedIndex(r) < 0) {
-        // Never a target, so its row learns nothing: only the decay moves it.
-        dashedLine(
-          canvas,
-          Offset(layout.matrix.left, y),
-          Offset(layout.matrix.right, y),
-          Paint()
-            ..strokeWidth = 0.8
-            ..color = view.inks.quiet,
-          dash: 2,
-          gap: 3,
+    final UpdateLayout layout = UpdateLayout(size, view);
+    final double tableGone = _span(beat, _tableOut);
+    if (tableGone < 1) {
+      const BackwardScene().paintEnd(canvas, size, view, BackwardFade(note: 0, table: 1 - tableGone));
+    }
+    layout.table.note(
+      canvas,
+      <(double, double, String)>[(double.negativeInfinity, 0.25, BackwardScene.notes(view).last.$3), ...notes(view)],
+      beat,
+      alpha: fade.note,
+    );
+    _bench(canvas, view, layout, beat);
+    _places(canvas, view, layout, beat);
+    _grid(canvas, view, layout, beat, fade);
+    _layers(canvas, view, layout, beat);
+    _adam(canvas, view, layout, beat);
+  }
+
+  // ------------------------------------------------------------------ data
+
+  /// [view] with [peptide] in focus, at its first place.
+  static LmView _on(LmView view, int peptide) => peptide == view.peptide
+      ? view
+      : LmView(
+          trace: view.trace,
+          checkpoint: view.checkpoint,
+          peptide: peptide,
+          position: 0,
+          head: view.head,
+          inks: view.inks,
+          kit: view.kit,
         );
+
+  /// Place [i] of [peptide]'s last row, as Forward left it: what the output
+  /// layer read there, number by number.
+  static List<double> lastRow(LmView view, int peptide, int i) => <double>[
+    for (int d = 0; d < view.trace.model.width; d++)
+      view.trace.stream(view.checkpoint, view.trace.points.length - 1, peptide, i, d),
+  ];
+
+  /// The weight worked out: of the place in focus's strings, the one whose
+  /// error at its end times the number at its start is the largest; its
+  /// token and its number.
+  static (int, int) worked(LmView view) => view.kit.memo<(int, int)>(
+    ('update-worked', view.step, view.peptide, view.position),
+    () {
+      final List<double> error = BackwardScene.errors(view, view.position);
+      final List<double> row = lastRow(view, view.peptide, view.position);
+      (int, int) best = (view.target, 0);
+      double most = -1;
+      for (int r = 0; r < error.length; r++) {
+        for (int d = 0; d < row.length; d++) {
+          final double pull = (error[r] * row[d]).abs();
+          if (pull > most) {
+            most = pull;
+            best = (r, d);
+          }
+        }
+      }
+      return best;
+    },
+  );
+
+  /// The worked string's error, its number and their product, as written:
+  /// the product from the written factors, so it reads right.
+  static (String, String, String) workedProduct(LmView view) {
+    final (int r, int d) = worked(view);
+    final String error = BackwardScene.signedNumber(BackwardScene.errors(view, view.position)[r]);
+    final String number = fixed(lastRow(view, view.peptide, view.position)[d], 2);
+    return (error, number, BackwardScene.signedNumber(_parse(error) * _parse(number)));
+  }
+
+  /// Every place's pull on the worked weight, a list a peptide: its error at
+  /// the weight's end times its last row's number at the weight's start,
+  /// what that place's own cost asks of the weight.
+  static List<List<double>> pulls(LmView view) => view.kit.memo<List<List<double>>>(
+    ('update-pulls', view.step, view.peptide, view.position),
+    () {
+      final TrainingTrace trace = view.trace;
+      final (int r, int d) = worked(view);
+      final int last = trace.points.length - 1;
+      return <List<double>>[
+        for (int p = 0; p < trace.peptides.length; p++)
+          <double>[
+            for (int i = 0; i < trace.peptides[p].inputs; i++)
+              BackwardScene.errors(_on(view, p), i)[r] * trace.stream(view.checkpoint, last, p, i, d),
+          ],
+      ];
+    },
+  );
+
+  /// Place [i] of the peptide in focus's pull as its row writes it: its
+  /// written error times its written number, so each row reads right.
+  static String writtenPull(LmView view, int i) {
+    final (int r, int d) = worked(view);
+    final String error = BackwardScene.signedNumber(BackwardScene.errors(view, i)[r]);
+    final String number = fixed(lastRow(view, view.peptide, i)[d], 2);
+    return BackwardScene.signedNumber(_parse(error) * _parse(number));
+  }
+
+  /// A peptide's pulls added.
+  static double peptideSum(LmView view, int peptide) =>
+      pulls(view)[peptide].fold<double>(0, (double sum, double v) => sum + v);
+
+  /// Every place's pull added, as written: to three places.
+  static String totalWritten(LmView view) {
+    double all = 0;
+    for (int p = 0; p < view.trace.peptides.length; p++) {
+      all += peptideSum(view, p);
+    }
+    return signed(all, 3);
+  }
+
+  /// The worked weight's gradient as written: the written total over the
+  /// targets, so the division reads right; to four places.
+  static String meanWritten(LmView view) => signed(_parse(totalWritten(view)) / view.trace.targetCount, 4);
+
+  /// The largest pull of the batch on the worked weight: the scale its pulls
+  /// are drawn on.
+  static double pullScale(LmView view) {
+    double most = 1e-9;
+    for (final List<double> line in pulls(view)) {
+      for (final double v in line) {
+        most = math.max(most, v.abs());
       }
     }
-    // The row of the token the position in focus was trained to predict.
-    final double targetY = layout.matrix.top + view.target * rowHeight;
-    canvas.drawRect(
-      Rect.fromLTWH(layout.matrix.left - 1, targetY - 0.5, layout.matrix.width + 2, rowHeight + 1),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.2
-        ..color = view.inks.truth,
-    );
-    final String title = toUpdate <= 0 && toGradient < 0.5
-        ? 'Output layer, $rows × $width'
-        : toMoved <= 0 && toUpdate < 0.5
-        ? 'Gradient, clipped'
-        : toMoved < 0.5
-        ? 'AdamW update, drawn × ${grouped(magnification(view).round())}'
-        : 'Output layer after the step';
-    view.kit.draw(
-      canvas,
-      title,
-      inked(view.kit.sans, 10, view.inks.ink),
-      Offset(layout.matrix.left, layout.matrix.top - 4),
-      anchor: const Offset(0, 1),
-    );
-
-    _groups(canvas, view, layout, through(u, _movedTo, 1));
-    _schedule(canvas, view, layout);
+    return most;
   }
 
-  /// For each module, its typical weight's gradient against its typical
-  /// weight's step (each the root mean square): the gradients differ between
-  /// modules many times over, Adam's steps far less.
-  void _groups(Canvas canvas, LmView view, _Layout layout, double emphasis) {
-    final TrainingTrace trace = view.trace;
-    final List<double> gradients = perWeight(trace, view.step, trace.groupGrad);
-    final List<double> steps = perWeight(trace, view.step, trace.groupUpdate);
-    final double gradientTop = gradients.reduce(math.max);
-    final double stepTop = steps.reduce(math.max);
-    final ModuleRail rail = ModuleRail(Rect.zero, trace.model.layers);
-    final Rect area = layout.groups;
-    final double slot = area.width / rail.count;
-    final double plot = area.height - 14;
-    final double alpha = 0.55 + 0.45 * emphasis;
-    for (int i = 0; i < rail.count; i++) {
-      final double x = area.left + i * slot;
-      final double g = gradientTop <= 0 ? 0 : gradients[i] / gradientTop;
-      final double m = stepTop <= 0 ? 0 : steps[i] / stepTop;
-      canvas.drawRect(
-        Rect.fromLTWH(x + slot * 0.18, area.top + plot * (1 - g), slot * 0.3, plot * g),
-        Paint()..color = view.inks.error.withValues(alpha: alpha),
-      );
-      canvas.drawRect(
-        Rect.fromLTWH(x + slot * 0.52, area.top + plot * (1 - m), slot * 0.3, plot * m),
-        Paint()..color = view.inks.signal.withValues(alpha: alpha),
-      );
-      view.kit.draw(
-        canvas,
-        rail.label(i).replaceFirst('Block ', 'B'),
-        inked(view.kit.sans, 8.5, view.inks.quiet),
-        Offset(x + slot / 2, area.top + plot + 3),
-        anchor: const Offset(0.5, 0),
-      );
-    }
-    final Size gradient = view.kit.draw(
-      canvas,
-      'gradient',
-      inked(view.kit.sans, 9.5, view.inks.error),
-      Offset(area.left, area.top - 4),
-      anchor: const Offset(0, 1),
-    );
-    final Size step = view.kit.draw(
-      canvas,
-      'step',
-      inked(view.kit.sans, 9.5, view.inks.signal),
-      Offset(area.left + gradient.width + 10, area.top - 4),
-      anchor: const Offset(0, 1),
-    );
-    view.kit.draw(
-      canvas,
-      'per weight, each against its largest',
-      inked(view.kit.sans, 9.5, view.inks.quiet),
-      Offset(area.left + gradient.width + step.width + 20, area.top - 4),
-      anchor: const Offset(0, 1),
-    );
-  }
-
-  /// Each rail box's typical weight's [values] at [step]: the box's norm
-  /// over the root of how many weights it holds.
-  static List<double> perWeight(
-    TrainingTrace trace,
-    int step,
-    double Function(int step, int group) values,
-  ) {
-    final ModuleRail rail = ModuleRail(Rect.zero, trace.model.layers);
-    final List<double> squares = List<double>.filled(rail.count, 0);
-    final List<int> sizes = List<int>.filled(rail.count, 0);
-    for (int g = 0; g < trace.groups.length; g++) {
-      final int box = rail.boxOf(trace.groups[g]);
-      final double value = values(step, g);
-      squares[box] += value * value;
-      sizes[box] += trace.groupSizes[g];
-    }
-    return <double>[
-      for (int i = 0; i < rail.count; i++) sizes[i] == 0 ? 0 : math.sqrt(squares[i] / sizes[i]),
+  /// The places of the peptide in focus whose next token is the worked one.
+  static List<int> nextAt(LmView view) {
+    final (int r, _) = worked(view);
+    return <int>[
+      for (int i = 0; i < view.focus.inputs; i++)
+        if (view.trace.targetAt(view.peptide, i) == r) i,
     ];
   }
 
-  /// The learning rate at every step, warm-up then cosine, and this one.
-  void _schedule(Canvas canvas, LmView view, _Layout layout) {
+  /// How many places of the whole batch had the worked token next.
+  static int nextInBatch(LmView view) {
+    final (int r, _) = worked(view);
+    int count = 0;
+    for (int p = 0; p < view.trace.peptides.length; p++) {
+      for (int i = 0; i < view.trace.peptides[p].inputs; i++) {
+        if (view.trace.targetAt(p, i) == r) {
+          count += 1;
+        }
+      }
+    }
+    return count;
+  }
+
+  /// The colour scale of the output layer's gradient: the 99th percentile
+  /// of its sizes.
+  static double gradientScale(LmView view) => view.kit.memo<double>(
+    ('update-gradient-scale', view.step),
+    () => percentileScale(<double>[
+      for (int r = 0; r < view.trace.vocab.length; r++)
+        for (int d = 0; d < view.trace.model.width; d++) view.trace.headGrad(view.checkpoint, r, d),
+    ]),
+  );
+
+  /// The output layer's largest gradient: its token, its number, its value.
+  static (int, int, double) largestGradient(LmView view) {
+    final TrainingTrace trace = view.trace;
+    (int, int, double) best = (0, 0, 0);
+    for (int r = 0; r < trace.vocab.length; r++) {
+      for (int d = 0; d < trace.model.width; d++) {
+        final double g = trace.headGrad(view.checkpoint, r, d);
+        if (g.abs() > best.$3.abs()) {
+          best = (r, d, g);
+        }
+      }
+    }
+    return best;
+  }
+
+  /// The smallest and largest gradient sizes of the weights into the tokens
+  /// that can come next.
+  static (double, double) gradientRange(LmView view) {
+    final TrainingTrace trace = view.trace;
+    double least = double.infinity;
+    double most = 0;
+    for (final int r in trace.allowed) {
+      for (int d = 0; d < trace.model.width; d++) {
+        final double g = trace.headGrad(view.checkpoint, r, d).abs();
+        least = math.min(least, g);
+        most = math.max(most, g);
+      }
+    }
+    return (least, most);
+  }
+
+  /// The smallest and largest steps of the weights into the tokens that can
+  /// come next.
+  static (double, double) stepRange(LmView view) {
+    final TrainingTrace trace = view.trace;
+    double least = double.infinity;
+    double most = 0;
+    for (final int r in trace.allowed) {
+      for (int d = 0; d < trace.model.width; d++) {
+        final double s = trace.headUpdate(view.checkpoint, r, d).abs();
+        least = math.min(least, s);
+        most = math.max(most, s);
+      }
+    }
+    return (least, most);
+  }
+
+  /// What AdamW makes of the weight from number [d] into token [r]: its
+  /// running mean of the gradient and its running size, each brought up to
+  /// date with this step's gradient and corrected for starting at zero;
+  /// their ratio; and the step the rule makes of it, with the decay.
+  static (double, double, double, double) adamOf(TrainingTrace trace, TraceCheckpoint at, int r, int d) {
+    final TraceOptimizer adam = trace.optimizer;
+    final int t = at.step;
+    final double g = trace.headGrad(at, r, d);
+    final double mean = (adam.beta1 * trace.headAdamMean(at, r, d) + (1 - adam.beta1) * g) /
+        (1 - math.pow(adam.beta1, t));
+    final double square = (adam.beta2 * trace.headAdamSquare(at, r, d) + (1 - adam.beta2) * g * g) /
+        (1 - math.pow(adam.beta2, t));
+    final double size = math.sqrt(square);
+    final double ratio = mean / (size + adam.eps);
+    final double rate = trace.steps.learningRate[t - 1];
+    return (mean, size, ratio, -rate * (adam.weightDecay * trace.outputWeight(at, r, d) + ratio));
+  }
+
+  /// The worked token's row through AdamW.
+  static AdamRow adam(LmView view) => view.kit.memo<AdamRow>(
+    ('update-adam', view.step, view.peptide, view.position),
+    () {
+      final TrainingTrace trace = view.trace;
+      final (int r, _) = worked(view);
+      final List<double> gradient = <double>[];
+      final List<double> mean = <double>[];
+      final List<double> size = <double>[];
+      final List<double> ratio = <double>[];
+      final List<double> step = <double>[];
+      final List<double> before = <double>[];
+      final List<double> after = <double>[];
+      for (int d = 0; d < trace.model.width; d++) {
+        final (double m, double s, double q, _) = adamOf(trace, view.checkpoint, r, d);
+        final double w = trace.outputWeight(view.checkpoint, r, d);
+        final double moved = trace.headUpdate(view.checkpoint, r, d);
+        gradient.add(trace.headGrad(view.checkpoint, r, d));
+        mean.add(m);
+        size.add(s);
+        ratio.add(q);
+        step.add(moved);
+        before.add(w);
+        after.add(w + moved);
+      }
+      return AdamRow(
+        token: r,
+        gradient: gradient,
+        mean: mean,
+        size: size,
+        ratio: ratio,
+        step: step,
+        before: before,
+        after: after,
+      );
+    },
+  );
+
+  /// Whether every ratio of the worked row is −1 or +1, the gradient's sign
+  /// alone: AdamW with no past, as at step 1.
+  static bool signsAlone(LmView view) {
+    final AdamRow row = adam(view);
+    for (int d = 0; d < row.ratio.length; d++) {
+      if (row.gradient[d] != 0 && (row.ratio[d].abs() - 1).abs() >= 1e-3) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /// The places a weight, its step and what it becomes are written to: the
+  /// first figure of the row's largest step, and never fewer than four.
+  static int stepDigits(LmView view) {
+    final double most = adam(view).step.fold<double>(0, (double m, double v) => math.max(m, v.abs()));
+    return most <= 0 ? 4 : math.max(4, -(math.log(most) / math.ln10).floor());
+  }
+
+  /// The places a gradient, its running mean and its running size are
+  /// written to: three figures of the row's largest, and never fewer than
+  /// four.
+  static int gradientDigits(LmView view) {
+    final AdamRow row = adam(view);
+    double most = 0;
+    for (int d = 0; d < row.gradient.length; d++) {
+      most = math.max(most, math.max(row.gradient[d].abs(), math.max(row.mean[d].abs(), row.size[d])));
+    }
+    return most <= 0 ? 4 : math.max(4, 2 - (math.log(most) / math.ln10).floor());
+  }
+
+  /// A learning rate written plainly, to its first two figures: 0.0001,
+  /// 0.0013, 0.000012.
+  static String rate(double value) {
+    if (value <= 0) {
+      return '0';
+    }
+    final int digits = 1 - (math.log(value * (1 + 1e-6)) / math.ln10).floor();
+    final String text = value.toStringAsFixed(math.max(0, digits));
+    return text.contains('.') ? text.replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '') : text;
+  }
+
+  /// A group of the run's parameters as the page names it.
+  static String groupName(String group) {
+    if (group == 'token_embedding') {
+      return 'token embedding';
+    }
+    if (group == 'position_embedding') {
+      return 'position embedding';
+    }
+    if (group == 'final_norm') {
+      return 'final LayerNorm';
+    }
+    if (group == 'head') {
+      return 'output layer';
+    }
+    final int dot = group.indexOf('.');
+    final String block = group.substring('block'.length, dot);
+    final String part = switch (group.substring(dot + 1)) {
+      'attention' => 'attention',
+      'feed_forward' => 'feed-forward',
+      'norms' => 'LayerNorms',
+      final String other => other,
+    };
+    return "block $block's $part";
+  }
+
+  /// The step's gradients' length against the clip.
+  static String total(LmView view) {
+    final TrainingTrace trace = view.trace;
+    final double norm = trace.steps.gradNorm[view.step - 1];
+    final double limit = trace.config.gradClip;
+    final double clip = trace.steps.clip[view.step - 1];
+    final String all = 'All ${grouped(trace.model.parameters)} gradients: length ${nats(norm)}';
+    return clip < 1
+        ? '$all, over the clip, ${limit.toStringAsFixed(1)}: each × ${fixed(clip, 2)}'
+        : '$all, under the clip, ${limit.toStringAsFixed(1)}: none is scaled';
+  }
+
+  /// A number as written, its true minus read back.
+  static double _parse(String written) => double.parse(written.replaceAll('−', '-').replaceAll('+', ''));
+
+  // ------------------------------------------------------------- the bench
+
+  /// The output layer, as Backward left it before the climb: the place's last
+  /// row at the left, its p − y where the logits were made, the strings
+  /// between them, faint; the worked string lit and worked out.
+  void _bench(Canvas canvas, LmView view, UpdateLayout layout, double beat) {
+    final double shown = _span(beat, _benchIn) * (1 - _span(beat, _benchOut));
+    if (shown <= 0) {
+      return;
+    }
+    final PredictLayout bench = layout.bench;
+    _strings(canvas, view, layout, beat, shown);
+    BackwardScene.drawLastRow(canvas, view, bench, shown);
+    BackwardScene.drawErrors(canvas, view, bench, dx: 0, tiles: shown, shown: shown, written: (int r) => 1);
+    PredictScene.drawPlate(canvas, view, bench, shown);
+    _ends(canvas, view, layout, beat, shown);
+  }
+
+  /// The output layer's strings, a weight each, faint in its weight's colour;
+  /// dimmed while the worked one lights, in the loss's honey, from its start
+  /// to its end.
+  void _strings(Canvas canvas, LmView view, UpdateLayout layout, double beat, double alpha) {
+    final TrainingTrace trace = view.trace;
+    final PredictLayout bench = layout.bench;
+    final int width = trace.model.width;
+    final int count = trace.vocab.length;
+    double weight(int token, int d) => trace.outputWeight(view.checkpoint, token, d);
+    drawEdges(
+      canvas,
+      view,
+      <(int, int, double)>[
+        for (int token = 0; token < count; token++)
+          for (int d = 0; d < width; d++) (d, token, weight(token, d)),
+      ],
+      (int d) => bench.inputTile(d).centerRight,
+      (int token) => bench.logitTile(token, 0).centerLeft,
+      alpha * WeightFlow.webStrength * (1 - 0.6 * _span(beat, _dim)),
+      most: weightReach(count, width, weight),
+    );
+    final double lit = _span(beat, _lit);
+    if (lit > 0) {
+      final (int r, int d) = worked(view);
+      final Offset from = bench.inputTile(d).centerRight;
+      final Offset to = bench.logitTile(r, 0).centerLeft;
+      canvas.drawLine(
+        from,
+        Offset.lerp(from, to, lit)!,
+        Paint()
+          ..strokeWidth = 2.2
+          ..strokeCap = StrokeCap.round
+          ..color = view.inks.error.withValues(alpha: alpha),
+      );
+    }
+  }
+
+  /// The worked string's two ends ringed, the number at its start in the
+  /// accent and the error at its end in honey, and its product written on
+  /// it, on a card.
+  void _ends(Canvas canvas, LmView view, UpdateLayout layout, double beat, double alpha) {
+    final PredictLayout bench = layout.bench;
+    final (int r, int d) = worked(view);
+    final double rings = _span(beat, _rings) * alpha;
+    if (rings > 0) {
+      _ring(canvas, bench.inputTile(d), view.inks.signal, rings);
+      layout.backward.ring(canvas, view, bench.logitTile(r, 0), rings);
+    }
+    final double written = _span(beat, _product) * alpha;
+    if (written <= 0) {
+      return;
+    }
+    final (String error, String number, String product) = workedProduct(view);
+    final TextStyle mono = inked(view.kit.mono, 9, view.inks.ink, alpha: written);
+    final TextStyle honey = inked(view.kit.mono, 9, view.inks.error, alpha: written);
+    final String factors = '$error × $number = ';
+    final double first = view.kit.layout(factors, mono).width;
+    final double wide = first + view.kit.layout(product, honey).width;
+    final double tall = view.kit.layout(factors, mono).height;
+    final Offset from = bench.inputTile(d).centerRight;
+    final Offset to = bench.logitTile(r, 0).centerLeft;
+    final Offset middle = Offset.lerp(from, to, 0.5)!;
+    final double left = (middle.dx - wide / 2 - 6).clamp(from.dx + 4, math.max(from.dx + 4, to.dx - wide - 16));
+    final Rect card = Rect.fromLTWH(left, middle.dy - tall / 2 - 16, wide + 12, tall + 8);
+    drawCard(canvas, view, card, written);
+    view.kit.draw(canvas, factors, mono, Offset(card.left + 6, card.center.dy), anchor: const Offset(0, 0.5));
+    view.kit.draw(canvas, product, honey, Offset(card.left + 6 + first, card.center.dy), anchor: const Offset(0, 0.5));
+  }
+
+  /// A tile ringed in [color].
+  static void _ring(Canvas canvas, Rect tile, Color color, double alpha) {
+    if (alpha <= 0) {
+      return;
+    }
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(tile.inflate(1), const Radius.circular(2.5)),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.3
+        ..color = color.withValues(alpha: color.a * alpha),
+    );
+  }
+
+  // ------------------------------------------------------------ the places
+
+  /// The same weight at every place: every place's last row on the table,
+  /// the worked number's column lit; the table narrowed to that column, each
+  /// place's p − y at the worked token beside it, and each place's pull;
+  /// the peptide's sum under them; the six peptides' sums in a box, and the
+  /// mean.
+  void _places(Canvas canvas, LmView view, UpdateLayout layout, double beat) {
+    if (beat < _rowsIn.$1) {
+      return;
+    }
+    final double alpha = 1 - _span(beat, _placesOut);
+    if (alpha <= 0) {
+      return;
+    }
+    final StreamTable table = layout.table;
+    final int places = table.places;
+    final (int r, int d) = worked(view);
+    final double rows = _span(beat, _rowsIn) * alpha;
+    final double others = 1 - _span(beat, _othersOut);
+    final double narrow = _span(beat, _narrow);
+    final double errorsShown = _span(beat, _errorsIn) * alpha;
+    final double scale = layout.bench.lastScale;
+    final TextStyle? style = table.layout.numberStyle;
+
+    table.tag(canvas, rowsTag(view), rows * others);
+    table.drawTiles(canvas, alpha: rows, dx: -table.gutter);
+
+    // Where the worked token came next, the row lit softly, as Predict lights
+    // what came next.
+    for (final int i in nextAt(view)) {
+      final Rect row = table.row(i);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTRB(table.layout.label(i).left - table.gutter - 2, row.top, layout.column(2).right + 2, row.bottom),
+          const Radius.circular(3),
+        ),
+        Paint()..color = view.inks.truth.withValues(alpha: PredictScene.answerLight * errorsShown),
+      );
+    }
+
+    // The worked column, outlined while the whole rows show, going with the
+    // column as the table narrows.
+    final double lit = _span(beat, _columnLit) * (1 - narrow) * rows;
+    if (lit > 0) {
+      final double dx = (layout.column(0).left - layout.tableCell(0, d).left) * narrow;
+      final Rect first = layout.tableCell(0, d).shift(Offset(dx, 0));
+      final Rect last = layout.tableCell(places - 1, d).shift(Offset(dx, 0));
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(Rect.fromLTRB(first.left - 1, first.top - 1, first.right + 1, last.bottom + 1), const Radius.circular(3)),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.2
+          ..color = view.inks.signal.withValues(alpha: 0.85 * lit),
+      );
+    }
+
+    final List<double> line = pulls(view)[view.peptide];
+    final double pullMost = pullScale(view);
+    for (int i = 0; i < places; i++) {
+      final List<double> h = lastRow(view, view.peptide, i);
+      final double rowTop = table.row(i).top;
+      // Every other number of the row, until the table narrows.
+      if (others > 0) {
+        for (int k = 0; k < h.length; k++) {
+          if (k != d) {
+            layout.cellAt(canvas, view, layout.tableCell(i, k), view.inks.cell(h[k] / scale), fixed(h[k], 2), rows * others);
+          }
+        }
+      }
+      // The worked number, sliding beside the tiles as the table narrows.
+      final Rect from = layout.tableCell(i, d);
+      final Rect to = layout.column(0).shift(Offset(0, rowTop - layout.column(0).top));
+      layout.cellAt(canvas, view, Rect.lerp(from, to, narrow)!, view.inks.cell(h[d] / scale), fixed(h[d], 2), rows);
+      // Its p − y at the worked token.
+      if (errorsShown > 0) {
+        final double e = BackwardScene.errors(view, i)[r];
+        layout.cellAt(
+          canvas,
+          view,
+          layout.column(1).shift(Offset(0, rowTop - layout.column(1).top)),
+          view.inks.cell(e),
+          BackwardScene.signedNumber(e),
+          errorsShown,
+        );
+      }
+      // Its pull, made top to bottom.
+      final double made = _pullMade(i, places, beat) * alpha;
+      if (made > 0) {
+        final Rect cell = layout.column(2).shift(Offset(0, rowTop - layout.column(2).top));
+        layout.cellAt(canvas, view, cell, view.inks.cell(line[i] / pullMost), writtenPull(view, i), made);
+        if (i == view.position) {
+          layout.backward.ring(canvas, view, cell, made);
+        }
+      }
+    }
+    // The place in focus's row, outlined from its tile to the columns' end.
+    table.outline(
+      canvas,
+      view.position,
+      _lerp(table.row(view.position).right, layout.column(2).right, narrow),
+      rows,
+      dx: -table.gutter,
+    );
+
+    // The columns' names, once the table has narrowed, where the tag was.
+    final double named = through(beat, _narrow.$2 - 0.1, _narrow.$2 + 0.2) * alpha;
+    if (named > 0) {
+      for (int k = 0; k < 3; k++) {
+        final double shown = k == 0
+            ? named
+            : k == 1
+            ? math.min(named, errorsShown)
+            : math.min(named, _pullMade(0, places, beat));
+        drawColumnTitle(canvas, view, layout.columnTitles[k], shown, x: layout.column(k).center.dx, top: table.layout.tableTop);
+      }
+    }
+
+    // The peptide's pulls added, under its column.
+    final double summed = _span(beat, _peptideSum) * alpha;
+    if (summed > 0) {
+      final Rect cell = layout.column(2).shift(Offset(0, table.row(places - 1).bottom + 3 - layout.column(2).top));
+      canvas.drawLine(
+        Offset(cell.left, cell.top - 1.5),
+        Offset(cell.right, cell.top - 1.5),
+        Paint()
+          ..strokeWidth = 0.8
+          ..color = view.inks.rule.withValues(alpha: summed),
+      );
+      view.kit.draw(
+        canvas,
+        signed(peptideSum(view, view.peptide), 2),
+        inked(view.kit.mono, style?.fontSize ?? 8, view.inks.error, alpha: summed),
+        Offset(cell.center.dx, cell.top + 1),
+        anchor: const Offset(0.5, 0),
+      );
+      view.kit.draw(
+        canvas,
+        '${grouped(places)} places',
+        inked(view.kit.sans, 8.5, view.inks.quiet, alpha: summed),
+        Offset(cell.left - 6, cell.top + 1),
+        anchor: const Offset(1, 0),
+      );
+    }
+
+    _box(canvas, view, layout, beat, alpha);
+  }
+
+  /// How far place [i] of [places] has its pull made at [beat]: top to
+  /// bottom over the pulls' turn.
+  static double _pullMade(int i, int places, double beat) {
+    final double from = _pulls.$1 + (_pulls.$2 - _pulls.$1 - 0.15) * (places <= 1 ? 0 : i / (places - 1));
+    return through(beat, from, from + 0.15);
+  }
+
+  /// The batch's sums on a card at the right: each peptide's pulls added, a
+  /// line each, the one in focus inked; all of them; the mean.
+  void _box(Canvas canvas, LmView view, UpdateLayout layout, double beat, double alpha) {
+    final double shown = _span(beat, _boxIn) * alpha;
+    if (shown <= 0) {
+      return;
+    }
+    final TrainingTrace trace = view.trace;
+    final Rect card = layout.box;
+    drawCard(canvas, view, card, shown);
+    final int peptides = trace.peptides.length;
+    final double line = layout.boxLine;
+    final double text = layout.boxText;
+    final double left = card.left + 8;
+    final double right = card.right - 8;
+    double y = card.top + 5 + line / 2;
+    final double each = (_boxLines.$2 - _boxLines.$1) / (peptides + 1);
+    for (int p = 0; p < peptides; p++) {
+      final double a = through(beat, _boxLines.$1 + each * p, _boxLines.$1 + each * (p + 1)) * shown;
+      if (a > 0) {
+        final Color ink = p == view.peptide ? view.inks.ink : view.inks.quiet;
+        view.kit.draw(canvas, trace.peptides[p].source.label, inked(view.kit.sans, text, ink, alpha: a), Offset(left, y), anchor: const Offset(0, 0.5));
+        view.kit.draw(canvas, signed(peptideSum(view, p), 2), inked(view.kit.mono, text, ink, alpha: a), Offset(right, y), anchor: const Offset(1, 0.5));
+      }
+      y += line;
+    }
+    final double all = through(beat, _boxLines.$2 - each, _boxLines.$2) * shown;
+    if (all > 0) {
+      canvas.drawLine(
+        Offset(left, y - line / 2 + 1),
+        Offset(right, y - line / 2 + 1),
+        Paint()
+          ..strokeWidth = 0.8
+          ..color = view.inks.rule.withValues(alpha: all),
+      );
+      view.kit.draw(
+        canvas,
+        'all ${grouped(trace.targetCount)} places',
+        inked(view.kit.sans, text, view.inks.ink, alpha: all),
+        Offset(left, y),
+        anchor: const Offset(0, 0.5),
+      );
+      view.kit.draw(canvas, totalWritten(view), inked(view.kit.mono, text, view.inks.ink, alpha: all), Offset(right, y), anchor: const Offset(1, 0.5));
+    }
+    y += line;
+    final double mean = _span(beat, _mean) * shown;
+    if (mean > 0) {
+      view.kit.draw(
+        canvas,
+        '÷ ${grouped(trace.targetCount)}',
+        inked(view.kit.sans, text, view.inks.ink, alpha: mean),
+        Offset(left, y),
+        anchor: const Offset(0, 0.5),
+      );
+      final Size wide = view.kit.draw(
+        canvas,
+        meanWritten(view),
+        inked(view.kit.mono, text, view.inks.error, alpha: mean),
+        Offset(right, y),
+        anchor: const Offset(1, 0.5),
+      );
+      layout.backward.ring(canvas, view, Rect.fromLTWH(right - wide.width - 2, y - wide.height / 2 - 1, wide.width + 4, wide.height + 2), mean);
+    }
+  }
+
+  /// The table's tag while every place's last row shows.
+  static String rowsTag(LmView view) => 'last rows · ${view.focus.inputs} × ${view.trace.model.width}';
+
+  // -------------------------------------------------------------- the grid
+
+  /// The output layer as a grid on the bench's rows, a cell a weight: its
+  /// gradient, the worked mean flying into its cell and the rest filling;
+  /// shrinking into its row of the chart; back, faint, while the worked
+  /// row stands up; then every weight's step, and the weights after.
+  void _grid(Canvas canvas, LmView view, UpdateLayout layout, double beat, UpdateFade fade) {
+    final int groups = view.trace.groups.length;
+    final (int r, int d) = worked(view);
+    if (beat >= _adamOut.$1) {
+      final double shown = _span(beat, _gridSteps) * fade.grid;
+      final double after = _span(beat, _toAfter);
+      _drawGrid(
+        canvas,
+        view,
+        layout,
+        layout.grid,
+        shown,
+        made: (int k, int e) => 1,
+        colour: (int k, int e) => Color.lerp(_stepColour(view, k, e), _afterColour(view, k, e), after)!,
+        hidden: beat < _lieDown.$2 ? r : null,
+        ringed: shown,
+        status: after >= 0.5 ? ScoresScene.weightsStatus(view, after: true) : null,
+      );
+      return;
+    }
+    if (beat >= _gridBack.$1) {
+      final double shown = 0.5 * _span(beat, _gridBack) * (1 - _span(beat, _gridAway));
+      if (shown > 0) {
+        _drawGrid(
+          canvas,
+          view,
+          layout,
+          layout.grid,
+          shown,
+          made: (int k, int e) => 1,
+          colour: (int k, int e) => _gradientColour(view, k, e),
+          hidden: beat >= _standUp.$1 ? r : null,
+          struck: true,
+        );
+      }
+      return;
+    }
+    if (beat < _gridIn.$1 || beat >= _shrink.$2) {
+      return;
+    }
+    final double shrink = _span(beat, _shrink);
+    _drawGrid(
+      canvas,
+      view,
+      layout,
+      Rect.lerp(layout.grid, layout.chartBar(groups - 1), shrink)!,
+      _span(beat, _gridIn) * (1 - shrink),
+      made: (int k, int e) => _cellMade(k, e, r, d, view.trace.vocab.length, beat),
+      colour: (int k, int e) => _gradientColour(view, k, e),
+      struck: true,
+      ringed: through(beat, _fly.$2 - 0.05, _fly.$2 + 0.15) * (1 - shrink),
+      chrome: _span(beat, _gridIn) * (1 - through(beat, _shrink.$1, _shrink.$1 + 0.3)),
+    );
+    // The worked mean, flying from the box into its cell.
+    final double fly = _span(beat, _fly);
+    if (fly > 0 && fly < 1) {
+      final Rect target = layout.gridCell(r, d);
+      view.kit.draw(
+        canvas,
+        meanWritten(view),
+        inked(view.kit.mono, 9, view.inks.error, alpha: 1 - 0.6 * fly),
+        Offset.lerp(layout.meanAt, target.center, fly)!,
+        anchor: const Offset(0.5, 0.5),
+      );
+    }
+  }
+
+  /// The grid in [rect] at [alpha]: each cell [made] of the way from an
+  /// empty slot to its [colour]; token [hidden]'s row left out, where it is
+  /// drawn standing or lying elsewhere; never-next rows [struck]; the rows'
+  /// tokens, the numbers' names, the worked cell [ringed], and the plate
+  /// with its [status].
+  void _drawGrid(
+    Canvas canvas,
+    LmView view,
+    UpdateLayout layout,
+    Rect rect,
+    double alpha, {
+    required double Function(int k, int e) made,
+    required Color Function(int k, int e) colour,
+    int? hidden,
+    bool struck = false,
+    double ringed = 0,
+    String? status,
+    double? chrome,
+  }) {
+    if (alpha <= 0) {
+      return;
+    }
+    final double around = chrome ?? alpha;
+    final TrainingTrace trace = view.trace;
+    final PredictLayout bench = layout.bench;
+    final int count = trace.vocab.length;
+    final int width = trace.model.width;
+    final GridMesh mesh = GridMesh(rect, width, count, columnGap: rect.width / width * 0.08, rowGap: rect.height / count * 0.12);
+    final Color slot = Color.lerp(view.inks.ground, view.inks.zero, 0.6)!;
+    for (int k = 0; k < count; k++) {
+      for (int e = 0; e < width; e++) {
+        final Color fill = k == hidden ? Colors.transparent : Color.lerp(slot, colour(k, e), made(k, e))!;
+        mesh.cell(e, k, fill.withValues(alpha: fill.a * alpha));
+      }
+    }
+    mesh.draw(canvas);
+    // The rows' tokens, the numbers' names and the plate stay where they
+    // are, fading, while the cells move.
+    if (around > 0) {
+      for (int k = 0; k < count; k++) {
+        drawToken(canvas, view, bench.chip(k, 0), k, alpha: around);
+      }
+      final TextStyle face = inked(view.kit.mono, math.min(8, layout.gridCell(0, 0).width * 0.45), view.inks.quiet, alpha: around);
+      for (int e = 0; e < width; e++) {
+        view.kit.draw(canvas, '${e + 1}', face, Offset(layout.gridCell(0, e).center.dx, bench.benchTop - 3), anchor: const Offset(0.5, 1));
+      }
+      PredictScene.drawPlate(canvas, view, bench, around, status: status);
+    }
+    if (struck) {
+      final double h = rect.height / count;
+      for (int k = 0; k < count; k++) {
+        if (trace.allowedIndex(k) < 0 && h >= 2) {
+          AttentionScene.hatch(canvas, view, Rect.fromLTWH(rect.left, rect.top + k * h, rect.width, h).deflate(0.5), alpha);
+        }
+      }
+    }
+    if (rect != layout.grid) {
+      return;
+    }
+    final (int r, int d) = worked(view);
+    layout.backward.ring(canvas, view, layout.gridCell(r, d), ringed);
+  }
+
+  /// Cell ([k], [e])'s colours: the output layer's gradient, the step, the
+  /// weight after it.
+  static Color _gradientColour(LmView view, int k, int e) =>
+      view.inks.signed(view.trace.headGrad(view.checkpoint, k, e) / gradientScale(view));
+
+  static Color _stepColour(LmView view, int k, int e) =>
+      view.inks.cell(view.trace.headUpdate(view.checkpoint, k, e) / math.max(1e-12, stepRange(view).$2));
+
+  static Color _afterColour(LmView view, int k, int e) => view.inks.cell(
+    (view.trace.outputWeight(view.checkpoint, k, e) + view.trace.headUpdate(view.checkpoint, k, e)) / headScale(view),
+  );
+
+  /// How far cell ([k], [e]) has filled at [beat]: the worked cell as its
+  /// mean lands, the others a row at a time, top to bottom.
+  static double _cellMade(int k, int e, int r, int d, int count, double beat) {
+    if (k == r && e == d) {
+      return through(beat, _fly.$2 - 0.1, _fly.$2);
+    }
+    final double from = _cells.$1 + (_cells.$2 - _cells.$1 - 0.2) * (count <= 1 ? 0 : k / (count - 1));
+    return through(beat, from, from + 0.2);
+  }
+
+  // ------------------------------------------------------------ the layers
+
+  /// Every group of the run's weights, a row each in the model's order, with
+  /// a bar of its gradients' length; then all of them together, against the
+  /// clip.
+  void _layers(Canvas canvas, LmView view, UpdateLayout layout, double beat) {
+    if (beat < _shrink.$1) {
+      return;
+    }
+    final double alpha = 1 - _span(beat, _chartOut);
+    if (alpha <= 0) {
+      return;
+    }
+    final TrainingTrace trace = view.trace;
+    final int groups = trace.groups.length;
+    final double clip = trace.config.gradClip;
+    final double norm = trace.steps.gradNorm[view.step - 1];
+    for (int g = 0; g < groups; g++) {
+      final bool output = g == groups - 1;
+      final double come = output ? through(beat, _shrink.$2 - 0.2, _shrink.$2) : _groupShown(g, groups, beat);
+      final double shown = come * alpha;
+      if (shown <= 0) {
+        continue;
+      }
+      final double length = trace.groupGrad(view.step, g);
+      _chartRow(
+        canvas,
+        view,
+        layout,
+        g,
+        groupName(trace.groups[g]),
+        trace.groupSizes[g],
+        output ? length : length * come,
+        nats(length),
+        shown,
+        ink: view.inks.error.withValues(alpha: 0.85),
+      );
+    }
+    // All of them together, under a rule.
+    final double all = _span(beat, _totalIn) * alpha;
+    if (all > 0) {
+      final Rect row = layout.chartRow(groups + 1);
+      canvas.drawLine(
+        Offset(layout.bench.left, row.top - 2),
+        Offset(layout.bench.right, row.top - 2),
+        Paint()
+          ..strokeWidth = 0.8
+          ..color = view.inks.rule.withValues(alpha: all),
+      );
+      _chartRow(canvas, view, layout, groups + 1, 'all', trace.model.parameters, norm * _span(beat, _totalIn), nats(norm), all, ink: view.inks.error, thick: 1.4, numberInk: view.inks.error);
+    }
+    // The clip, a dashed line across every row at its length.
+    final double line = _span(beat, _clipLine) * alpha;
+    if (line > 0) {
+      final double x = layout.chartX(clip);
+      final Rect first = layout.chartRow(0);
+      final Rect last = layout.chartRow(groups + 1);
+      dashedLine(
+        canvas,
+        Offset(x, first.top),
+        Offset(x, last.bottom),
+        Paint()
+          ..strokeWidth = 1
+          ..color = view.inks.ink.withValues(alpha: 0.7 * line),
+      );
+      view.kit.draw(
+        canvas,
+        'clip ${clip.toStringAsFixed(1)}',
+        inked(view.kit.sans, 9, view.inks.ink, alpha: line),
+        Offset(x, first.top - 3),
+        anchor: const Offset(0.5, 1),
+      );
+    }
+  }
+
+  /// A row of the chart: its name and how many weights it holds, a bar
+  /// [length] long in [ink], its [number] at the bar's end.
+  void _chartRow(
+    Canvas canvas,
+    LmView view,
+    UpdateLayout layout,
+    int g,
+    String name,
+    int weights,
+    double length,
+    String number,
+    double alpha, {
+    required Color ink,
+    double thick = 1,
+    Color? numberInk,
+  }) {
+    final Rect row = layout.chartRow(g);
+    final Size named = view.kit.draw(
+      canvas,
+      name,
+      inked(view.kit.sans, 9, view.inks.ink, alpha: alpha),
+      Offset(layout.bench.left, row.center.dy),
+      anchor: const Offset(0, 0.5),
+    );
+    view.kit.draw(
+      canvas,
+      ' · ${grouped(weights)}',
+      inked(view.kit.sans, 9, view.inks.quiet, alpha: alpha),
+      Offset(layout.bench.left + named.width, row.center.dy),
+      anchor: const Offset(0, 0.5),
+    );
+    final Rect bar = layout.chartBarOf(g, length, thick: thick);
+    canvas.drawRRect(RRect.fromRectAndRadius(bar, const Radius.circular(1.5)), Paint()..color = ink.withValues(alpha: ink.a * alpha));
+    view.kit.draw(
+      canvas,
+      number,
+      inked(view.kit.mono, 8.5, numberInk ?? view.inks.ink, alpha: alpha),
+      Offset(bar.right + 4, row.center.dy),
+      anchor: const Offset(0, 0.5),
+    );
+  }
+
+  /// How far group [g] of [groups] has come in: one after another, the
+  /// output layer's own from the grid.
+  static double _groupShown(int g, int groups, double beat) {
+    final double from = _groupsIn.$1 + (_groupsIn.$2 - _groupsIn.$1 - 0.25) * (groups <= 2 ? 0 : g / (groups - 2));
+    return through(beat, from, from + 0.25);
+  }
+
+  // -------------------------------------------------------------- AdamW
+
+  /// AdamW on the worked token's row of weights: the row standing up out of
+  /// the grid as its gradients, the weights beside it, a bar each; the bars
+  /// through the running mean, the running size and their ratio to the step;
+  /// condensed into a column, the weights going through it to after; then
+  /// the step lying back down into the grid.
+  void _adam(Canvas canvas, LmView view, UpdateLayout layout, double beat) {
+    if (beat < _standUp.$1 || beat >= _lieDown.$2) {
+      return;
+    }
+    final StreamTable table = layout.table;
+    final AdamRow row = adam(view);
+    final int width = view.trace.model.width;
+    final int d = worked(view).$2;
+    final double alpha = 1 - _span(beat, _adamOut);
+    final double gradientMost = layout.adamScale;
+    final double stepMost = math.max(1e-12, row.step.fold<double>(0, (double m, double v) => math.max(m, v.abs())));
+    final int stepPlaces = stepDigits(view);
+    List<Color> cells(List<double> values, double scale) => <Color>[for (final double v in values) view.inks.cell(v / scale)];
+
+    // The gradients, standing up out of the grid's row; gone as the bars
+    // condense.
+    final double stand = _span(beat, _standUp);
+    final double gone = _span(beat, _condense);
+    if (stand < 1) {
+      table.strip(
+        canvas,
+        from: layout.gridRow(row.token),
+        to: layout.adamColumn(layout.gradientX),
+        f: stand,
+        // From the faint grid's strength to its own as it lifts.
+        alpha: 0.5 + 0.5 * through(stand, 0, 0.35),
+        colors: <Color>[
+          for (int e = 0; e < width; e++)
+            Color.lerp(_gradientColour(view, row.token, e), view.inks.cell(row.gradient[e] / gradientMost), stand)!,
+        ],
+      );
+    } else {
+      _column(canvas, view, layout, layout.gradientX, cells(row.gradient, gradientMost), row.gradient, gradientDigits(view), alpha * (1 - gone), title: 'gradient');
+    }
+
+    // The weights as the step found them, at the left.
+    final double weights = _span(beat, _weightsIn) * alpha;
+    _column(
+      canvas,
+      view,
+      layout,
+      layout.weightsX,
+      cells(row.before, layout.weightScale),
+      row.before,
+      stepPlaces,
+      weights,
+      left: true,
+      title: "${view.trace.token(row.token)}'s weights",
+    );
+
+    // The chart: a bar a weight, through AdamW's rule.
+    final double bars = _span(beat, _barsIn) * (1 - gone) * alpha;
+    if (bars > 0) {
+      _chart(canvas, view, layout, beat, bars);
+    }
+
+    // The steps, condensed into a column where the bars' zero was; lying back
+    // down into the grid at the end.
+    final double lying = _span(beat, _lieDown);
+    final List<Color> steps = <Color>[for (final double v in row.step) view.inks.cell(v / stepMost)];
+    if (gone > 0 && beat < _lieDown.$1) {
+      _column(canvas, view, layout, layout.stepX, steps, row.step, stepPlaces, gone * alpha, title: 'step', signedNumbers: true);
+    } else if (beat >= _lieDown.$1) {
+      table.strip(
+        canvas,
+        from: layout.gridRow(row.token),
+        to: layout.adamColumn(layout.stepX),
+        f: 1 - lying,
+        colors: <Color>[for (int e = 0; e < width; e++) Color.lerp(steps[e], _stepColour(view, row.token, e), lying)!],
+      );
+    }
+
+    // A copy of the weights going through the steps to after.
+    final double slide = _span(beat, _slide);
+    if (slide > 0 && beat < _lieDown.$1) {
+      final double turn = through(slide, 0.45, 0.6);
+      final List<Color> moving = <Color>[
+        for (int e = 0; e < width; e++)
+          Color.lerp(view.inks.cell(row.before[e] / layout.weightScale), view.inks.cell(row.after[e] / layout.weightScale), turn)!,
+      ];
+      if (slide < 1) {
+        final double x = _lerp(layout.weightsX, layout.afterX, slide);
+        drawColumn(canvas, (int e) => layout.adamTile(x, e), <Color>[for (final Color c in moving) c.withValues(alpha: c.a * alpha)]);
+      } else {
+        _column(canvas, view, layout, layout.afterX, moving, row.after, stepPlaces, alpha, title: 'after');
+      }
+    }
+
+    // The worked number's row, ringed in every column it stands in.
+    if (weights > 0) {
+      layout.backward.ring(canvas, view, layout.adamTile(layout.weightsX, d), weights);
+      if (stand >= 1 && gone < 1) {
+        layout.backward.ring(canvas, view, layout.adamTile(layout.gradientX, d), weights * (1 - gone));
+      }
+      if (gone > 0 && beat < _lieDown.$1) {
+        layout.backward.ring(canvas, view, layout.adamTile(layout.stepX, d), weights * gone);
+      }
+      if (slide >= 1 && beat < _lieDown.$1) {
+        layout.backward.ring(canvas, view, layout.adamTile(layout.afterX, d), weights);
+      }
+    }
+
+    _schedule(canvas, view, layout, _span(beat, _scheduleIn) * (1 - gone) * alpha);
+  }
+
+  /// A standing column at [x], a tile a number in [colours], [numbers]
+  /// written to [digits] places at its right, or its [left]; its [title]
+  /// over it.
+  void _column(
+    Canvas canvas,
+    LmView view,
+    UpdateLayout layout,
+    double x,
+    List<Color> colours,
+    List<double> numbers,
+    int digits,
+    double alpha, {
+    bool left = false,
+    String? title,
+    bool signedNumbers = false,
+  }) {
+    if (alpha <= 0) {
+      return;
+    }
+    drawColumn(canvas, (int e) => layout.adamTile(x, e), <Color>[for (final Color c in colours) c.withValues(alpha: c.a * alpha)]);
+    drawColumnNumbers(
+      canvas,
+      view,
+      (int e) => layout.adamTile(x, e),
+      numbers,
+      alpha,
+      textSize: layout.adamText,
+      writes: layout.adamWrites,
+      left: left,
+      format: (double v) => signedNumbers && double.parse(v.abs().toStringAsFixed(digits)) != 0 ? signed(v, digits) : fixed(v, digits),
+    );
+    if (title != null) {
+      drawColumnTitle(canvas, view, title, alpha, x: x, top: layout.bench.benchTop);
+    }
+  }
+
+  /// The bars, a weight each, from a dashed zero: its gradient; moving to
+  /// its running mean; marked at its running size; each over its own size,
+  /// its ratio; then times the rate against it, its step. Behind each, faint,
+  /// where it stood before the move under way; the worked number's value at
+  /// its bar's end.
+  void _chart(Canvas canvas, LmView view, UpdateLayout layout, double beat, double alpha) {
+    final AdamRow row = adam(view);
+    final int width = row.gradient.length;
+    final int d = worked(view).$2;
+    final double zero = layout.chartZero;
+    final double half = layout.chartHalf;
+    final double gs = layout.adamScale;
+    final double mean = _span(beat, _toMean);
+    final double marks = _span(beat, _marks) * (1 - _span(beat, _toStep));
+    final double ratio = _span(beat, _toRatio);
+    final double step = _span(beat, _toStep);
+    final double stepMost = math.max(1e-12, row.step.fold<double>(0, (double m, double v) => math.max(m, v.abs())));
+    final double ratioMost = math.max(1, row.ratio.fold<double>(0, (double m, double v) => math.max(m, v.abs())));
+
+    // The scale a number of the row is drawn on at the moment: the
+    // gradients', each going over to its own size as the ratio comes.
+    double scaleOf(int e) => gs + (math.max(1e-12, row.size[e]) * ratioMost - gs) * ratio;
+
+    // Where a number of the row lies, as a share of the half width.
+    double shareOf(int e) {
+      final double before = (row.gradient[e] + (row.mean[e] - row.gradient[e]) * mean) / scaleOf(e);
+      return before + (row.step[e] / stepMost - before) * step;
+    }
+
+    double tailOf(int e) => step > 0
+        ? row.ratio[e] / ratioMost
+        : ratio > 0
+        ? row.mean[e] / gs
+        : row.gradient[e] / gs;
+
+    dashedLine(
+      canvas,
+      Offset(zero, layout.bench.benchTop - 2),
+      Offset(zero, layout.bench.benchBottom + 2),
+      Paint()
+        ..strokeWidth = 1
+        ..color = view.inks.quiet.withValues(alpha: alpha),
+    );
+    final bool moving = (mean > 0 && mean < 1) || (ratio > 0 && ratio < 1) || (step > 0 && step < 1);
+    final Paint paint = Paint();
+    for (int e = 0; e < width; e++) {
+      final Rect tile = layout.adamTile(zero, e);
+      final double thick = (tile.height * 0.5).clamp(1.0, 7.0);
+      Rect bar(double share) => Rect.fromLTRB(
+        math.min(zero, zero + share * half),
+        tile.center.dy - thick / 2,
+        math.max(zero, zero + share * half),
+        tile.center.dy + thick / 2,
+      );
+      if (moving) {
+        final double tail = tailOf(e);
+        canvas.drawRect(bar(tail), paint..color = (tail >= 0 ? view.inks.positive : view.inks.negative).withValues(alpha: 0.22 * alpha));
+      }
+      final double share = shareOf(e);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(bar(share), const Radius.circular(1)),
+        paint..color = (share >= 0 ? view.inks.positive : view.inks.negative).withValues(alpha: 0.9 * alpha),
+      );
+      // The running size: a tick as far as the bar would reach were this
+      // step's mean as large as the weight's gradients have lately been.
+      if (marks > 0) {
+        final double x = zero + (row.mean[e] >= 0 ? 1 : -1) * row.size[e] / scaleOf(e) * half;
+        canvas.drawLine(
+          Offset(x, tile.center.dy - thick / 2 - 3),
+          Offset(x, tile.center.dy + thick / 2 + 3),
+          Paint()
+            ..strokeWidth = 1.4
+            ..strokeCap = StrokeCap.round
+            ..color = view.inks.ink.withValues(alpha: 0.75 * marks * alpha),
+        );
+      }
+    }
+
+    // The worked number's value at its bar's end, as the move under way
+    // leaves it.
+    final int digits = gradientDigits(view);
+    final String? value = step >= 1
+        ? signed(row.step[d], stepDigits(view))
+        : step > 0
+        ? null
+        : ratio >= 1
+        ? signed(row.ratio[d], 2)
+        : ratio > 0
+        ? null
+        : marks >= 1
+        ? 'size ${fixed(row.size[d], digits)}'
+        : mean >= 1
+        ? signed(row.mean[d], digits)
+        : mean > 0
+        ? null
+        : signed(row.gradient[d], digits);
+    if (value != null) {
+      final Rect tile = layout.adamTile(zero, d);
+      final double share = shareOf(d);
+      final double end = zero + share * half;
+      final TextStyle honey = inked(view.kit.mono, math.min(8.5, layout.adamText + 0.5), view.inks.error, alpha: alpha);
+      final double wide = view.kit.layout(value, honey).width;
+      final double x = share >= 0 ? math.min(end + 4, layout.chartRight - wide) : math.max(end - 4 - wide, layout.chartLeft);
+      drawCard(canvas, view, Rect.fromLTWH(x - 3, tile.top + 1, wide + 6, tile.height - 2), alpha);
+      view.kit.draw(canvas, value, honey, Offset(x, tile.center.dy), anchor: const Offset(0, 0.5));
+    }
+
+    // The scale's ends, under the chart: the gradients', then the ratio's,
+    // then the step's.
+    final TextStyle face = inked(view.kit.mono, 8, view.inks.quiet, alpha: alpha);
+    final String end = step >= 0.5 ? fixed(stepMost, stepDigits(view)) : ratio >= 0.5 ? fixed(ratioMost, 2) : fixed(gs, digits);
+    final double y = layout.bench.benchBottom + 4;
+    view.kit.draw(canvas, '0', face, Offset(zero, y), anchor: const Offset(0.5, 0));
+    view.kit.draw(canvas, '−$end', face, Offset(zero - half, y), anchor: const Offset(0, 0));
+    view.kit.draw(canvas, '+$end', face, Offset(zero + half, y), anchor: const Offset(1, 0));
+  }
+
+  /// The learning rate at every step, warm-up then cosine, this one marked,
+  /// small, under the chart.
+  void _schedule(Canvas canvas, LmView view, UpdateLayout layout, double alpha) {
+    if (alpha <= 0) {
+      return;
+    }
     final TrainingTrace trace = view.trace;
     final Rect area = layout.schedule;
     final int count = trace.steps.count;
@@ -229,68 +1400,593 @@ final class UpdateScene extends LmScene {
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.2
-        ..color = view.inks.quiet,
+        ..color = view.inks.quiet.withValues(alpha: alpha),
     );
-    final Offset here = at(view.step);
-    canvas.drawCircle(here, 4, Paint()..color = view.inks.signal);
+    canvas.drawCircle(at(view.step), 3.5, Paint()..color = view.inks.signal.withValues(alpha: alpha));
     view.kit.draw(
       canvas,
-      'lr ${scientific(trace.steps.learningRate[view.step - 1])}',
-      inked(view.kit.mono, 9, view.inks.signal),
-      Offset(area.left, area.top - 3),
-      anchor: const Offset(0, 1),
+      'rate ${rate(trace.steps.learningRate[view.step - 1])}',
+      inked(view.kit.mono, 8.5, view.inks.signal, alpha: alpha),
+      Offset(area.left - 6, area.center.dy),
+      anchor: const Offset(1, 0.5),
     );
   }
 
+  // ------------------------------------------------------------------- taps
+
+  /// Before the table goes, a row of it puts its place in focus, as at
+  /// Backward's end; on the table of every place's last row, a row puts its
+  /// place in focus; on the bench, the box, the grid, the chart and AdamW's
+  /// columns a tap asks for nothing.
   @override
-  String caption(LmView view, TrainingFrame frame) {
+  LmHit? hitAt(Size size, LmView view, Offset at, TrainingFrame frame) {
+    final double beat = frame.local * _beats;
+    if (beat < _tableOut.$2) {
+      return const BackwardScene().hit(size, view, at);
+    }
+    if (beat >= _rowsIn.$2 && beat < _placesOut.$1) {
+      if (beat >= _boxIn.$1 && UpdateLayout(size, view).box.inflate(4).contains(at)) {
+        return null;
+      }
+      return hit(size, view, at);
+    }
+    return null;
+  }
+
+  @override
+  LmHit? hit(Size size, LmView view, Offset at) {
+    final int? i = StreamTable(size, view).placeAt(at);
+    return i == null ? null : FocusPosition(i);
+  }
+
+  // ---------------------------------------------------------------- caption
+
+  /// Why each mini-step happens, over the canvas, a line a thought.
+  static List<(double, double, String)> notes(LmView view) {
     final TrainingTrace trace = view.trace;
-    final double lr = trace.steps.learningRate[view.step - 1];
-    final int warmup = trace.config.warmupSteps;
-    if (frame.local < _gradientTo) {
-      final double clip = trace.steps.clip[view.step - 1];
-      return clip < 1
-          ? 'The gradient, clipped × ${clip.toStringAsFixed(2)}, lands on the weights'
-          : 'The gradient, not clipped, lands on the weights';
-    }
-    if (frame.local < _updateTo) {
-      final String phase = view.step <= warmup
-          ? 'warm-up step ${view.step} of $warmup'
-          : 'cosine, step ${view.step} of ${trace.steps.count}';
-      return 'AdamW: lr ${scientific(lr)}, $phase';
-    }
-    double moved = 0;
-    for (int r = 0; r < trace.vocab.length; r++) {
-      for (int d = 0; d < trace.model.width; d++) {
-        moved = math.max(moved, trace.headUpdate(view.checkpoint, r, d).abs());
+    final String focus = StreamTable.placeName(view, view.position);
+    final (int r, int d) = worked(view);
+    final String token = trace.token(r);
+    final (String error, String number, String product) = workedProduct(view);
+    final int targets = trace.targetCount;
+    final int width = trace.model.width;
+    final double made = _parse(product);
+    final List<int> next = nextAt(view);
+    final TraceOptimizer stepper = trace.optimizer;
+    final AdamRow row = adam(view);
+    final (int largeToken, int largeNumber, double large) = largestGradient(view);
+    final int biases = trace.vocab.length;
+    int clipped = 0;
+    int firstClipped = 0;
+    int lastClipped = 0;
+    for (int s = 0; s < trace.steps.count; s++) {
+      if (trace.steps.clip[s] < 1) {
+        clipped += 1;
+        firstClipped = firstClipped == 0 ? s + 1 : firstClipped;
+        lastClipped = s + 1;
       }
     }
-    return 'The output layer moved ${scientific(moved)} at most this step';
+    final (double least, double most) = gradientRange(view);
+    final (double stepLeast, double stepMost) = stepRange(view);
+    final int places = stepDigits(view);
+    final int digits = gradientDigits(view);
+    double rms = 0;
+    for (final double w in row.before) {
+      rms += w * w;
+    }
+    rms = math.sqrt(rms / row.before.length);
+    final double rowLeast = row.gradient.fold<double>(double.infinity, (double m, double v) => math.min(m, v.abs()));
+    final double rowMost = row.gradient.fold<double>(0, (double m, double v) => math.max(m, v.abs()));
+    final double ratioLeast = row.ratio.fold<double>(double.infinity, math.min);
+    final double ratioMost = row.ratio.fold<double>(-double.infinity, math.max);
+    final double rowStep = row.step.fold<double>(0, (double m, double v) => math.max(m, v.abs()));
+    final String nextWords = next.isEmpty
+        ? '$token came next nowhere here: every p − y is its share.'
+        : 'Where $token came next, p − y is its share less 1: '
+              '${<String>[for (final int i in next.take(3)) BackwardScene.signedNumber(BackwardScene.errors(view, i)[r])].join(', ')}.';
+    final int batchNext = nextInBatch(view);
+    return <(double, double, String)>[
+      (
+        0.25,
+        _oneFrom,
+        'Backward found how the cost changes with every row.\n'
+            'Training changes weights, not rows: each string here is one.\n'
+            "A weight's gradient comes from the two ends of its string.",
+      ),
+      (
+        _oneFrom,
+        _productFrom,
+        "The weight multiplies number ${d + 1} on its way into $token's logit.\n"
+            "Nudge it up: $token's logit rises $number × the nudge,\n"
+            "and $focus's cost $error × that.",
+      ),
+      (
+        _productFrom,
+        _placesFrom,
+        '${made < 0 ? "Negative: raising this weight lowers $focus's cost." : made > 0 ? "Positive: lowering this weight lowers $focus's cost." : "About 0: $focus's cost asks nothing of it now."}\n'
+            'But all ${grouped(targets)} places used this weight, each with its two ends.',
+      ),
+      (
+        _placesFrom,
+        _pullsFrom,
+        "Every place's last row went through the same weights.\n"
+            'This one multiplied number ${d + 1} of each of them.',
+      ),
+      (
+        _pullsFrom,
+        _sumsFrom,
+        '$nextWords\n'
+            "Elsewhere it is $token's own share, small: a light push.\n"
+            "Each place's pull: its p − y × its number ${d + 1}.",
+      ),
+      (
+        _sumsFrom,
+        _meanFrom,
+        'Every place of every peptide used this weight: all ${grouped(targets)} pull.\n'
+            '${batchNext == 0 ? '$token came next nowhere: each pull is a light push.' : '${spelledLeading(batchNext)} of them had $token next: theirs are the big pulls.'}',
+      ),
+      (
+        _meanFrom,
+        _gridFrom,
+        "The loss is the mean of the ${grouped(targets)} costs, so a weight's gradient\n"
+            'is the mean of its ${grouped(targets)} pulls.',
+      ),
+      (
+        _gridFrom,
+        _layersFrom,
+        "A row a token, a column one of the last rows' ${spelled(width)} numbers.\n"
+            "Largest: ${trace.token(largeToken)}'s from number ${largeNumber + 1}, ${fixed(large, 3)}. Never-next rows: 0.\n"
+            'With its ${grouped(biases)} biases, weights whose start is always 1: '
+            '${grouped(trace.vocab.length * width + biases)}.',
+      ),
+      (
+        _layersFrom,
+        _clipFrom,
+        'Each: the error reaching its end × the number at its start,\n'
+            "averaged over the ${grouped(targets)} places. A bar is one group's length:\n"
+            'the root of its gradients squared and summed.',
+      ),
+      (
+        _clipFrom,
+        _adamFrom,
+        'Lengths add as squares: the total is the root of their squares.\n'
+            'Over ${trace.config.gradClip.toStringAsFixed(1)}, every gradient would shrink by one factor: a guard.\n'
+            '${clipped == 0 ? 'No step of the run went over it.' : "${spelledLeading(clipped)} of the run's ${grouped(trace.steps.count)} steps went over, between steps $firstClipped and $lastClipped."}',
+      ),
+      (
+        _adamFrom,
+        _runningFrom,
+        'AdamW keeps two running averages for every weight:\n'
+            'of its gradient, and of its gradient squared.\n'
+            'Its step comes from the two, not from this gradient alone.',
+      ),
+      (
+        _runningFrom,
+        _sizeFrom,
+        'The running mean: ${_share(stepper.beta1)} of the last one and ${_share(1 - stepper.beta1)} of this gradient,\n'
+            'corrected for starting at zero: it smooths a jittery gradient.\n'
+            '${view.step == 1 ? 'At step 1 there is no past: it is the gradient itself.' : 'After ${grouped(view.step - 1)} steps it holds every one, the latest most.'}',
+      ),
+      (
+        _sizeFrom,
+        _ratioFrom,
+        'The running size: the root of the running mean of its square,\n'
+            '${_share(stepper.beta2)} of the last and ${_share(1 - stepper.beta2)} of this one, corrected the same way.\n'
+            "It says how large this weight's gradients have lately been.",
+      ),
+      (
+        _ratioFrom,
+        _rateFrom,
+        'Over its own size, every weight steps about as far as the rest.\n'
+            '${signsAlone(view) ? 'Here ${fixed(rowLeast, digits)} to ${fixed(rowMost, digits)}: every one ±1.' : 'Here ratios from ${signed(ratioLeast, 2)} to ${signed(ratioMost, 2)}: a sign that holds nears ±1.'}',
+      ),
+      (
+        _rateFrom,
+        _afterFrom,
+        'The minus: each weight moves against its gradient, downhill.\n'
+            'The rate climbs to ${rate(trace.config.learningRate)} over ${grouped(trace.config.warmupSteps)} steps, then falls on a cosine;\n'
+            'decay also takes ${_share(stepper.weightDecay)} × the rate of each weight itself.',
+      ),
+      (
+        _afterFrom,
+        _stepsFrom,
+        'One step moves a weight by a hair: ${fixed(rowStep, places)} at most.\n'
+            'Weights are near ${fixed(rms, 2)}: it takes many steps to change a guess.',
+      ),
+      (
+        _stepsFrom,
+        _layerFrom,
+        '${least > 0 ? 'The gradients ranged ${grouped((most / least).round())}×' : 'The gradients ranged widely'}'
+            '${stepLeast >= 0.9 * stepMost ? "; Adam's steps hardly differ.\n" : ',\nAdam\'s steps from ${fixed(stepLeast, places)} to ${fixed(stepMost, places)}.\n'}'
+            'Never-next rows have no gradient: decay alone moves them.',
+      ),
+      (
+        _layerFrom,
+        double.infinity,
+        "Every layer's weights took the same kind of step at once.\n"
+            'Next, Loop: this whole step, ${grouped(trace.steps.count)} times.',
+      ),
+    ];
   }
+
+  /// A share as the notes write it: 0.9, 0.1, 0.999, 0.001.
+  static String _share(double value) =>
+      value.toStringAsFixed(6).replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '');
 
   @override
-  String describe(LmView view, TrainingFrame frame) =>
-      'Update, step ${view.step}. ${caption(view, frame)}.';
-}
+  String caption(LmView view, TrainingFrame frame) => _caption(view, frame.local * _beats);
 
-final class _Layout {
-  _Layout(Size size, LmView view) {
-    const double left = 16;
-    final double right = size.width - 16;
-    final double width = right - left;
-    const double labels = 14;
-    final int rows = view.trace.vocab.length;
-    final double rowHeight = ((size.height * 0.42) / rows).clamp(3.5, 9.0);
-    final double groupsHeight = (size.height * 0.18).clamp(50.0, 96.0);
-    const double scheduleHeight = 40;
-    final double content = 22 + rowHeight * rows + 34 + groupsHeight + 30 + scheduleHeight;
-    final double top = math.max(8, (size.height - content) / 2);
-    matrix = Rect.fromLTWH(left + labels, top + 22, width - labels, rowHeight * rows);
-    groups = Rect.fromLTWH(left, matrix.bottom + 34, width, groupsHeight);
-    schedule = Rect.fromLTWH(left, groups.bottom + 30, width, scheduleHeight);
+  String _caption(LmView view, double beat) {
+    final TrainingTrace trace = view.trace;
+    final String focus = StreamTable.placeName(view, view.position);
+    final (int r, int d) = worked(view);
+    final String token = trace.token(r);
+    final (String error, String number, String product) = workedProduct(view);
+    final int targets = trace.targetCount;
+    if (beat < _oneFrom) {
+      return "Back to the output layer: $focus's row, its p − y and the "
+          '${grouped(trace.vocab.length * trace.model.width)} weights';
+    }
+    if (beat < _productFrom) {
+      return "One weight: $token's from number ${d + 1}, $focus's $number to its p − y, $error";
+    }
+    if (beat < _placesFrom) {
+      return product == '0.00'
+          ? 'Its gradient for $focus: $error × $number = 0.00: nothing left to learn'
+          : 'Its gradient for $focus: $error at its end × $number at its start = $product';
+    }
+    if (beat < _pullsFrom) {
+      return "The same weight at every place: number ${d + 1} of each place's last row";
+    }
+    if (beat < _sumsFrom) {
+      final List<int> next = nextAt(view);
+      if (next.isEmpty) {
+        return "× each place's p − y at $token, its share: $token never came next here";
+      }
+      if (next.length > 2) {
+        return "× each place's p − y at $token, near −1 at the ${grouped(next.length)} where $token came next";
+      }
+      final String named = <String>[
+        for (final int i in next) '${BackwardScene.signedNumber(BackwardScene.errors(view, i)[r])} at ${StreamTable.placeName(view, i)}',
+      ].join(', ');
+      return '× each p − y at $token: $named, where $token came next';
+    }
+    if (beat < _meanFrom) {
+      return "${_capital(view.focus.source.label)}'s ${grouped(view.focus.inputs)} pulls add to "
+          '${signed(peptideSum(view, view.peptide), 2)}; all ${grouped(targets)}, to ${totalWritten(view)}';
+    }
+    if (beat < _gridFrom) {
+      return "÷ ${grouped(targets)}, as the loss is their mean: ${meanWritten(view)}, this weight's gradient";
+    }
+    if (beat < _layersFrom) {
+      return "Every weight the same way: the output layer's gradient, ${trace.vocab.length} × ${trace.model.width}";
+    }
+    if (beat < _clipFrom) {
+      return "Every layer's weights get theirs the same way: ${grouped(trace.model.parameters)} gradients";
+    }
+    if (beat < _adamFrom) {
+      return total(view);
+    }
+    final AdamRow row = adam(view);
+    final int digits = gradientDigits(view);
+    if (beat < _runningFrom) {
+      return "AdamW turns each gradient into a step: $token's ${spelled(trace.model.width)} weights first";
+    }
+    if (beat < _sizeFrom) {
+      return view.step == 1
+          ? "Adam's running mean: at step 1, with no past, the gradient itself"
+          : "Adam's running mean, past and present: ${signed(row.mean[d], digits)} at number ${d + 1}";
+    }
+    if (beat < _ratioFrom) {
+      return view.step == 1
+          ? 'Its running size, the root of its mean square: at step 1, its size'
+          : 'Its running size, the root of its mean square: ${fixed(row.size[d], digits)} at number ${d + 1}';
+    }
+    if (beat < _rateFrom) {
+      return signsAlone(view)
+          ? '÷ its own size: at step ${grouped(view.step)}, every one −1 or +1, the sign alone'
+          : '÷ its running size: their ratio, ${signed(row.ratio[d], 2)} at number ${d + 1}';
+    }
+    if (beat < _afterFrom) {
+      final int warmup = trace.config.warmupSteps;
+      final String phase = view.step <= warmup
+          ? 'warm-up step ${grouped(view.step)} of ${grouped(warmup)}'
+          : 'cosine step ${grouped(view.step)} of ${grouped(trace.steps.count)}';
+      return '× −${rate(trace.steps.learningRate[view.step - 1])}, the rate at $phase: the step';
+    }
+    final int places = stepDigits(view);
+    if (beat < _stepsFrom) {
+      final String before = fixed(row.before[d], places);
+      final String step = signed(row.step[d], places);
+      final String after = fixed(_parse(before) + _parse(step), places);
+      final String added = step.startsWith('−') ? '− ${step.substring(1)}' : '+ ${step.substring(1)}';
+      return places <= 5
+          ? "$token's weight from ${d + 1} + its step: $before $added = $after"
+          : 'Number ${d + 1}: $before $added = $after';
+    }
+    if (beat < _layerFrom) {
+      final (double least, double most) = stepRange(view);
+      return least >= 0.9 * most
+          ? "Every weight's step: ${fixed(most, places)} each at step ${grouped(view.step)}, whatever its gradient"
+          : "Every weight's step: ${fixed(least, places)} to ${fixed(most, places)}, against its gradient";
+    }
+    return 'The output layer after one update; every layer moved the same way';
   }
 
-  late final Rect matrix;
-  late final Rect groups;
+  /// [text] with its first letter a capital, as a caption starts.
+  static String _capital(String text) => text.isEmpty ? text : '${text[0].toUpperCase()}${text.substring(1)}';
+
+  @override
+  String describe(LmView view, TrainingFrame frame) => 'Update, step ${view.step}. ${caption(view, frame)}.';
+}
+
+/// What the worked token's row of weights is through AdamW: each number's
+/// gradient, its running mean and running size as the step brought them up
+/// to date, corrected for starting at zero, their ratio, the step the run
+/// took, and the weight before and after it.
+@immutable
+final class AdamRow {
+  const AdamRow({
+    required this.token,
+    required this.gradient,
+    required this.mean,
+    required this.size,
+    required this.ratio,
+    required this.step,
+    required this.before,
+    required this.after,
+  });
+
+  final int token;
+  final List<double> gradient;
+  final List<double> mean;
+  final List<double> size;
+  final List<double> ratio;
+  final List<double> step;
+  final List<double> before;
+  final List<double> after;
+}
+
+/// What Update's last frame fades, for the stage that opens on it: the note,
+/// and the grid of the weights after. By default, the frame as Update draws
+/// it.
+@immutable
+final class UpdateFade {
+  const UpdateFade({this.note = 1, this.grid = 1});
+
+  final double note;
+  final double grid;
+}
+
+/// Update's canvas, on Backward's, which is on Predict's and the table's:
+/// the bench; the table narrowed to three columns, and the batch's box at
+/// its right; the grid on the bench's rows; the chart of the run's groups;
+/// AdamW's columns and its chart.
+final class UpdateLayout {
+  UpdateLayout(this.size, LmView view) : backward = BackwardLayout(size, view), _view = view {
+    final TrainingTrace trace = view.trace;
+    final PredictLayout predict = backward.predict;
+    _cellsLeft = backward.table.layout.cellsLeft;
+    _cell = backward.table.layout.cell;
+    // The narrowed table's three columns, as far apart as their names need.
+    final (int r, int d) = UpdateScene.worked(view);
+    columnTitles = <String>['number ${d + 1}', '× p − y at ${trace.token(r)}', '= pull'];
+    final TextStyle titleStyle = inked(view.kit.sans, 9, view.inks.quiet);
+    final List<double> titles = <double>[for (final String t in columnTitles) view.kit.layout(t, titleStyle).width];
+    double step = _cell + 8;
+    for (int k = 0; k < 2; k++) {
+      step = math.max(step, titles[k] / 2 + titles[k + 1] / 2 + 8);
+    }
+    _columnStep = step;
+    // The box at the table's right, its words as large as the room left
+    // allows, up to 9 points.
+    final TextStyle label = inked(view.kit.sans, 9, view.inks.quiet);
+    final TextStyle mono = inked(view.kit.mono, 9, view.inks.ink);
+    double names = view.kit.layout('all ${grouped(trace.targetCount)} places', label).width;
+    for (final TracePeptide p in trace.peptides) {
+      names = math.max(names, view.kit.layout(p.source.label, label).width);
+    }
+    final double numbers = view.kit.layout('−8.8888', mono).width;
+    final double room = predict.right - column(2).right - 14;
+    final double shrink = ((room - 30) / (names + numbers)).clamp(0.6, 1.0);
+    boxText = (9 * shrink * 2).floorToDouble() / 2;
+    boxLine = math.max(11.0, 15 * shrink);
+    final double wide = math.min(room, (names + numbers) * boxText / 9 + 30);
+    box = Rect.fromLTWH(
+      predict.right - wide,
+      backward.table.layout.tableTop,
+      wide,
+      boxLine * (trace.peptides.length + 2) + 10,
+    );
+    meanAt = Offset(
+      box.right - 8 - numbers * boxText / 9 / 2,
+      box.top + 5 + boxLine * (trace.peptides.length + 1) + boxLine / 2,
+    );
+
+    // The grid, where the bench's columns and strings were.
+    grid = Rect.fromLTRB(predict.inputColumn.left, predict.benchTop, predict.logitTile(0, 0).right, predict.benchBottom);
+
+    // The chart: a row a group, a gap, and all of them.
+    final int groups = trace.groups.length;
+    _chartPitch = math.min(22.0, (predict.benchBottom - predict.benchTop) / (groups + 2));
+    _chartTop = predict.benchTop + (predict.benchBottom - predict.benchTop - _chartPitch * (groups + 2)) / 2;
+    final TextStyle name = inked(view.kit.sans, 9, view.inks.ink);
+    double widest = view.kit.layout('all · ${grouped(trace.model.parameters)}', name).width;
+    for (int g = 0; g < groups; g++) {
+      widest = math.max(
+        widest,
+        view.kit.layout('${UpdateScene.groupName(trace.groups[g])} · ${grouped(trace.groupSizes[g])}', name).width,
+      );
+    }
+    _barsLeft = predict.left + widest + 10;
+    _barsRight = predict.right - view.kit.layout('8.888', inked(view.kit.mono, 8.5, view.inks.ink)).width - 8;
+    double top = trace.config.gradClip * 1.15;
+    for (int g = 0; g < groups; g++) {
+      top = math.max(top, trace.groupGrad(view.step, g) * 1.05);
+    }
+    _chartReach = math.max(top, trace.steps.gradNorm[view.step - 1] * 1.05);
+
+    // AdamW's columns: the weights at the left, their numbers left of them;
+    // the gradients, their numbers right of them; the chart; after at the
+    // right.
+    adamText = math.min(9.0, (predict.benchBottom - predict.benchTop) / trace.model.width * 0.62);
+    adamWrites = adamText >= 5.5;
+    final TextStyle face = inked(view.kit.mono, adamText, view.inks.ink);
+    final int steps = UpdateScene.stepDigits(view);
+    final int grads = UpdateScene.gradientDigits(view);
+    final AdamRow row = UpdateScene.adam(view);
+    double widestOf(List<double> values, int digits) {
+      double most = 0;
+      for (final double v in values) {
+        most = math.max(most, view.kit.layout(signed(v, digits), face).width);
+      }
+      return adamWrites ? most + 4 : 0;
+    }
+
+    final double standing = predict.column;
+    final TextStyle titled = inked(view.kit.sans, 9, view.inks.quiet);
+    final double named = view.kit.layout("${trace.token(r)}'s weights", titled).width / 2 +
+        view.kit.layout('gradient', titled).width / 2 +
+        8;
+    weightsX = math.max(predict.left + widestOf(row.before, steps) + standing / 2, predict.left + view.kit.layout("${trace.token(r)}'s weights", titled).width / 2);
+    gradientX = weightsX + math.max(standing + 10, named);
+    chartLeft = gradientX + standing / 2 + widestOf(<double>[...row.gradient, ...row.mean], grads) + 10;
+    afterX = predict.right - widestOf(row.after, steps) - standing / 2;
+    chartRight = afterX - standing / 2 - 10;
+    chartZero = (chartLeft + chartRight) / 2;
+    chartHalf = (chartRight - chartLeft) / 2;
+    stepX = chartZero;
+    double gs = 1e-12;
+    for (int e = 0; e < row.gradient.length; e++) {
+      gs = math.max(gs, math.max(row.gradient[e].abs(), math.max(row.mean[e].abs(), row.size[e])));
+    }
+    adamScale = gs;
+    double ws = 1e-9;
+    for (int e = 0; e < row.before.length; e++) {
+      ws = math.max(ws, math.max(row.before[e].abs(), row.after[e].abs()));
+    }
+    weightScale = ws;
+    schedule = Rect.fromLTWH(chartLeft + 64, predict.benchBottom + 16, math.max(20, chartRight - chartLeft - 64), 16);
+  }
+
+  final Size size;
+  final BackwardLayout backward;
+  final LmView _view;
+
+  PredictLayout get bench => backward.predict;
+
+  StreamTable get table => backward.table;
+
+  late final double _cellsLeft;
+  late final double _cell;
+  late final double _columnStep;
+
+  /// The narrowed table's columns' names.
+  late final List<String> columnTitles;
+
+  /// The batch's box, and where its mean is written.
+  late final Rect box;
+  late final Offset meanAt;
+
+  /// The box's words' size, and a line of it.
+  late final double boxText;
+  late final double boxLine;
+
+  /// The output layer as a grid on the bench's rows.
+  late final Rect grid;
+
+  late final double _chartPitch;
+  late final double _chartTop;
+  late final double _barsLeft;
+  late final double _barsRight;
+  late final double _chartReach;
+
+  /// AdamW's numbers' size, and whether they are written; its columns, the
+  /// chart between them, its zero and half width; and the scales its bars
+  /// and tiles are drawn on.
+  late final double adamText;
+  late final bool adamWrites;
+  late final double weightsX;
+  late final double gradientX;
+  late final double stepX;
+  late final double afterX;
+  late final double chartLeft;
+  late final double chartRight;
+  late final double chartZero;
+  late final double chartHalf;
+  late final double adamScale;
+  late final double weightScale;
+
+  /// The rate's schedule, small, under the chart.
   late final Rect schedule;
+
+  /// Place [i]'s number [k] on the table.
+  Rect tableCell(int i, int k) {
+    final Rect row = table.row(i);
+    return Rect.fromLTWH(_cellsLeft + k * _cell, row.top, _cell, row.height);
+  }
+
+  /// The narrowed table's column [k], at its first row.
+  Rect column(int k) {
+    final Rect row = table.row(0);
+    return Rect.fromLTWH(_cellsLeft + k * _columnStep, row.top, _cell, row.height);
+  }
+
+  /// A number on a soft tile, written in the table's face where it fits.
+  void cellAt(Canvas canvas, LmView view, Rect cell, Color colour, String text, double alpha) {
+    if (alpha <= 0) {
+      return;
+    }
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(cell.deflate(1), const Radius.circular(3)),
+      Paint()..color = Color.lerp(view.inks.ground, colour, alpha)!,
+    );
+    final TextStyle? style = table.layout.numberStyle;
+    if (style != null) {
+      view.kit.draw(
+        canvas,
+        text,
+        style.copyWith(color: style.color!.withValues(alpha: (alpha * 8).round() / 8)),
+        cell.center,
+        anchor: const Offset(0.5, 0.5),
+      );
+    }
+  }
+
+  /// The grid's cell for token [k]'s weight from number [e], and token [k]'s
+  /// row of it.
+  Rect gridCell(int k, int e) {
+    final double w = grid.width / _view.trace.model.width;
+    final double h = grid.height / _view.trace.vocab.length;
+    return Rect.fromLTWH(grid.left + e * w, grid.top + k * h, w, h);
+  }
+
+  Rect gridRow(int k) {
+    final double h = grid.height / _view.trace.vocab.length;
+    return Rect.fromLTWH(grid.left, grid.top + k * h, grid.width, h);
+  }
+
+  /// The chart's row [g]: a group's, the gap after the last, then all.
+  Rect chartRow(int g) => Rect.fromLTWH(bench.left, _chartTop + g * _chartPitch, bench.right - bench.left, _chartPitch);
+
+  /// Where [value] lies along the chart's bars.
+  double chartX(double value) => _barsLeft + (_barsRight - _barsLeft) * (value / _chartReach).clamp(0.0, 1.0);
+
+  /// Group [g]'s bar, [value] long; [thick] times a bar's own thickness.
+  Rect chartBarOf(int g, double value, {double thick = 1}) {
+    final Rect row = chartRow(g);
+    final double h = (row.height * 0.42 * thick).clamp(2.0, 10.0);
+    return Rect.fromLTRB(_barsLeft, row.center.dy - h / 2, math.max(_barsLeft + 1, chartX(value)), row.center.dy + h / 2);
+  }
+
+  /// Group [g]'s bar, as long as its gradients' length.
+  Rect chartBar(int g) => chartBarOf(g, _view.trace.groupGrad(_view.step, g));
+
+  /// A standing column of AdamW's at [x], and its tile [e].
+  Rect adamColumn(double x) => Rect.fromLTRB(x - bench.column / 2, bench.benchTop, x + bench.column / 2, bench.benchBottom);
+
+  Rect adamTile(double x, int e) {
+    final double h = (bench.benchBottom - bench.benchTop) / _view.trace.model.width;
+    return Rect.fromLTWH(x - bench.column / 2, bench.benchTop + e * h, bench.column, h);
+  }
 }

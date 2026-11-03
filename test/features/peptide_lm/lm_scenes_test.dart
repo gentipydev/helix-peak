@@ -22,6 +22,7 @@ import 'package:helixpeek/features/peptide_lm/presentation/scenes/loss_scene.dar
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/predict_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/scores_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/stream_table.dart';
+import 'package:helixpeek/features/peptide_lm/presentation/scenes/update_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/worked_answer.dart';
 
 import 'support/toy_trace.dart';
@@ -593,7 +594,7 @@ void main() {
         reason: 'step ${at.step}',
       );
     }
-    expect(caption(LmStage.update, 0.5), contains(scientific(trace.steps.learningRate[last.step - 1])));
+    expect(caption(LmStage.update, 21.0 / LmStage.update.beats), contains(nats(trace.steps.gradNorm[last.step - 1])));
     final TrainingFrame end = timeline.stateAt(1);
     expect(sceneOf(LmStage.loop).caption(last, end), startsWith('Step 20 of 20 · ${nats(trace.loss(20))} nats'));
   });
@@ -789,6 +790,7 @@ void main() {
         (LmStage.forward, LmStage.predict),
         (LmStage.predict, LmStage.loss),
         (LmStage.loss, LmStage.backward),
+        (LmStage.backward, LmStage.update),
       ]) {
         final List<int> last = await pixels(scene, timeline.frameIn(before, 1));
         final List<int> first = await pixels(scene, timeline.frameIn(after, 0));
@@ -1899,6 +1901,164 @@ void main() {
       expect(bench.logitTile(0, 0).left - layout.gradientColumn.right, greaterThan(40), reason: '$size');
       for (int d = 0; d < trace.model.width; d++) {
         expect(layout.gradientTile(d).top, closeTo(bench.inputTile(d).top, 1e-9));
+      }
+    }
+  });
+
+  testWidgets("Update's gradient is every place's pull, averaged, and its step AdamW's", (WidgetTester tester) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    for (int c = 0; c < trace.checkpoints.length; c++) {
+      final TraceCheckpoint at = trace.checkpoints[c];
+      for (int p = 0; p < trace.peptides.length; p++) {
+        for (final int i in <int>[0, 3, trace.peptides[p].inputs - 1]) {
+          final LmView scene = view(inks, kit, checkpoint: c, peptide: p, position: i);
+          final String where = 'step ${scene.step} p$p i$i';
+          // The worked string is the place's largest error × number.
+          final (int r, int d) = UpdateScene.worked(scene);
+          final List<double> error = BackwardScene.errors(scene, i);
+          final List<double> row = UpdateScene.lastRow(scene, p, i);
+          for (int k = 0; k < error.length; k++) {
+            for (int e = 0; e < row.length; e++) {
+              expect((error[k] * row[e]).abs(), lessThanOrEqualTo((error[r] * row[d]).abs() + 1e-15), reason: where);
+            }
+          }
+          // Every place's pull on it, added and over the targets, times the
+          // clip, is the gradient the optimiser read.
+          double all = 0;
+          for (int q = 0; q < trace.peptides.length; q++) {
+            all += UpdateScene.peptideSum(scene, q);
+          }
+          final double clip = trace.steps.clip[scene.step - 1];
+          expect(all / trace.targetCount * clip, closeTo(trace.headGrad(at, r, d), 1e-6), reason: where);
+          expect(UpdateScene.pulls(scene)[p][i], closeTo(error[r] * row[d], 1e-12), reason: where);
+          // The written mean reads right from the written total.
+          final double total = double.parse(UpdateScene.totalWritten(scene).replaceAll('−', '-').replaceAll('+', ''));
+          expect(
+            double.parse(UpdateScene.meanWritten(scene).replaceAll('−', '-').replaceAll('+', '')),
+            closeTo(total / trace.targetCount, 5e-5),
+            reason: where,
+          );
+        }
+      }
+      // AdamW's rule from the running averages the step found makes the
+      // update the run kept, for every weight; at step 1, with no past, each
+      // ratio is the gradient's sign alone.
+      final double rate = trace.steps.learningRate[at.step - 1];
+      for (int r = 0; r < trace.vocab.length; r++) {
+        for (int d = 0; d < trace.model.width; d++) {
+          final (_, _, double ratio, double step) = UpdateScene.adamOf(trace, at, r, d);
+          final double w = trace.outputWeight(at, r, d);
+          expect(
+            trace.headUpdate(at, r, d),
+            closeTo(step, 4e-7 * w.abs() + 1e-5 * (rate * ratio).abs() + 1e-12),
+            reason: 'step ${at.step} r$r d$d',
+          );
+          final double g = trace.headGrad(at, r, d);
+          if (at.step == 1 && g != 0) {
+            expect(ratio, closeTo(g.sign, 1e-4), reason: 'r$r d$d');
+          }
+          if (trace.allowedIndex(r) < 0) {
+            expect(g, 0, reason: 'never next: r$r d$d');
+          }
+        }
+      }
+      final AdamRow row = UpdateScene.adam(view(inks, kit, checkpoint: c));
+      for (int d = 0; d < trace.model.width; d++) {
+        expect(row.after[d], closeTo(row.before[d] + row.step[d], 1e-12));
+      }
+    }
+  });
+
+  testWidgets("Update's captions carry the run's numbers", (WidgetTester tester) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    const UpdateScene scene = UpdateScene();
+    for (int c = 0; c < trace.checkpoints.length; c++) {
+      final LmView v = view(inks, kit, checkpoint: c);
+      String at(double beat) => scene.caption(v, timeline.frameIn(LmStage.update, beat / LmStage.update.beats));
+      final (String error, String number, String product) = UpdateScene.workedProduct(v);
+      expect(at(1), startsWith('Back to the output layer'));
+      expect(at(3.5), contains('$number to its p − y'));
+      expect(at(3.5), endsWith(error));
+      if (product != '0.00') {
+        expect(at(5.5), endsWith(product));
+      }
+      expect(at(12), contains(UpdateScene.totalWritten(v)));
+      expect(at(13.5), contains(UpdateScene.meanWritten(v)));
+      expect(at(21), UpdateScene.total(v));
+      expect(at(21), contains(nats(trace.steps.gradNorm[v.step - 1])));
+      final AdamRow row = UpdateScene.adam(v);
+      final int d = UpdateScene.worked(v).$2;
+      expect(at(34), contains(fixed(row.before[d], UpdateScene.stepDigits(v))));
+      expect(at(37.5), startsWith('The output layer after one update'));
+      // Every caption of the stage is a sentence of the run's, never empty.
+      for (double beat = 0; beat <= LmStage.update.beats; beat += 0.25) {
+        expect(at(beat), isNotEmpty);
+      }
+    }
+    // At step 1 AdamW has no past: the ratio is the sign.
+    final LmView first = view(inks, kit);
+    String at(double beat) => scene.caption(first, timeline.frameIn(LmStage.update, beat / LmStage.update.beats));
+    expect(at(26), contains('with no past, the gradient itself'));
+    expect(UpdateScene.signsAlone(first), isTrue);
+    expect(at(30), contains('the sign alone'));
+  });
+
+  testWidgets('a tap on Update asks for a place on the tables, nothing elsewhere', (WidgetTester tester) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    const Size size = Size(393, 540);
+    const UpdateScene scene = UpdateScene();
+    final LmView v = view(inks, kit);
+    TrainingFrame at(double beat) => timeline.frameIn(LmStage.update, beat / LmStage.update.beats);
+    final StreamTable table = StreamTable(size, v);
+    // Backward's table, as the stage opens on it.
+    final LmHit? opening = scene.hitAt(size, v, table.row(2).center, at(0));
+    expect(opening, isA<FocusPosition>());
+    expect((opening! as FocusPosition).position, 2);
+    // The bench asks for nothing.
+    expect(scene.hitAt(size, v, table.row(2).center, at(4)), isNull);
+    // Every place's last row: a row puts its place in focus, the box nothing.
+    final LmHit? row = scene.hitAt(size, v, Offset(table.layout.cellsLeft + 4, table.row(2).center.dy), at(10));
+    expect(row, isA<FocusPosition>());
+    expect((row! as FocusPosition).position, 2);
+    expect(scene.hitAt(size, v, UpdateLayout(size, v).box.center, at(12)), isNull);
+    // The grid, the chart and AdamW's columns ask for nothing.
+    for (final double beat in <double>[16, 20, 30, 37]) {
+      expect(scene.hitAt(size, v, table.row(2).center, at(beat)), isNull, reason: 'beat $beat');
+    }
+  });
+
+  testWidgets("Update's table, box, chart and AdamW's columns keep to the canvas, clear of each other", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    for (final Size size in <Size>[const Size(440, 697), const Size(375, 476)]) {
+      for (int c = 0; c < trace.checkpoints.length; c++) {
+        final LmView v = view(inks, kit, checkpoint: c);
+        final UpdateLayout layout = UpdateLayout(size, v);
+        final String where = '$size step ${v.step}';
+        // The narrowed table's columns in order, the box right of them and on
+        // the canvas.
+        expect(layout.column(1).left, greaterThan(layout.column(0).right), reason: where);
+        expect(layout.column(2).left, greaterThan(layout.column(1).right), reason: where);
+        expect(layout.box.left, greaterThanOrEqualTo(layout.column(2).right + 10), reason: where);
+        expect(layout.box.right, lessThanOrEqualTo(size.width), reason: where);
+        // The grid where the bench's columns were; the chart's bars from its
+        // names to its numbers, the clip on it.
+        expect(layout.grid.left, greaterThanOrEqualTo(0), reason: where);
+        expect(layout.grid.right, lessThanOrEqualTo(layout.bench.chip(0, 0).left), reason: where);
+        expect(layout.chartX(trace.config.gradClip), lessThan(layout.chartX(double.infinity)), reason: where);
+        // AdamW: the weights, the gradients, the chart and after, in order,
+        // on the canvas; the zero in the chart's middle.
+        expect(layout.weightsX, lessThan(layout.gradientX), reason: where);
+        expect(layout.gradientX, lessThan(layout.chartLeft), reason: where);
+        expect(layout.chartLeft, lessThan(layout.chartZero), reason: where);
+        expect(layout.chartZero, lessThan(layout.chartRight), reason: where);
+        expect(layout.chartRight, lessThan(layout.afterX), reason: where);
+        expect(layout.afterX, lessThan(size.width), reason: where);
       }
     }
   });
