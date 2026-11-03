@@ -106,7 +106,8 @@ final class TraceOptimizer {
 }
 
 /// What every step kept: its losses and learning rate, its gradients' norms,
-/// each target's loss, and the output layer's weights as the step found them.
+/// each target's loss, the output layer's weights as the step found them, and
+/// its probabilities at every place.
 @immutable
 final class TraceSteps {
   const TraceSteps({
@@ -124,6 +125,8 @@ final class TraceSteps {
     required this.headWeight,
     required this.headWeightScales,
     required this.headBias,
+    required this.probs,
+    required this.probScale,
   });
 
   final int count;
@@ -152,6 +155,12 @@ final class TraceSteps {
   final Int8List headWeight;
   final Float64List headWeightScales;
   final Float32List headBias;
+
+  /// What each step gave every token that can come next at every place:
+  /// `count` × targets × the allowed tokens, in [probScale]s, quantised as a
+  /// checkpoint's own (`TraceCheckpoint.probs`), so a kept step's are its.
+  final Uint8List probs;
+  final double probScale;
 }
 
 /// What one block worked out at a checkpoint, as the step ran it: each row
@@ -355,7 +364,7 @@ final class TrainingTrace {
          for (final TracePeptide p in peptides) p.inputs * (p.inputs + 1) ~/ 2,
        ]);
 
-  static const int schema = 8;
+  static const int schema = 9;
 
   final String name;
 
@@ -454,6 +463,12 @@ final class TrainingTrace {
 
   double headBias(int step, int row) =>
       steps.headBias[(step - 1) * vocab.length + row];
+
+  /// The probability step [step] gave the [column]th token of [allowed] at
+  /// [position] of [peptide], as every step keeps it, in 255ths.
+  double stepProbability(int step, int peptide, int position, int column) =>
+      steps.probs[((step - 1) * targetCount + flat(peptide, position)) * allowed.length + column] *
+      steps.probScale;
 
   double groupGrad(int step, int group) =>
       steps.groupGrad[(step - 1) * groups.length + group];
@@ -737,6 +752,8 @@ final class TrainingTrace {
       headWeight: _int8(headSpec, <int>[count, vocab.length, model.width], 'head_weight'),
       headWeightScales: _scales(headSpec, count, 'head_weight'),
       headBias: _float32(stepJson['head_bias'], <int>[count, vocab.length], 'head_bias'),
+      probs: _uint8(stepJson['probs'], <int>[count, targetCount, allowed.length], 'probs'),
+      probScale: _scale(stepJson['probs'], 'probs'),
     );
 
     final List<TraceCheckpoint> checkpoints = <TraceCheckpoint>[];

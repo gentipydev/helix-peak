@@ -101,6 +101,34 @@ void main() {
     }
   });
 
+  test("every step's probabilities add to one, give what came next its loss, and a kept step's are its own", () {
+    for (int step = 1; step <= trace.steps.count; step++) {
+      for (int p = 0; p < trace.peptides.length; p++) {
+        for (int i = 0; i < trace.peptides[p].inputs; i++) {
+          double sum = 0;
+          for (int column = 0; column < trace.allowed.length; column++) {
+            sum += trace.stepProbability(step, p, i, column);
+          }
+          expect(sum, closeTo(1, 21 / 255));
+          final int target = trace.allowedIndex(trace.targetAt(p, i));
+          expect(
+            trace.stepProbability(step, p, i, target),
+            closeTo(math.exp(-trace.targetLoss(step, p, i)), 0.5 / 255 + 0.5 / 4096 + 1e-6),
+          );
+        }
+      }
+    }
+    for (final TraceCheckpoint c in trace.checkpoints) {
+      for (int p = 0; p < trace.peptides.length; p++) {
+        for (int i = 0; i < trace.peptides[p].inputs; i++) {
+          for (int column = 0; column < trace.allowed.length; column++) {
+            expect(trace.stepProbability(c.step, p, i, column), trace.probability(c, p, i, column));
+          }
+        }
+      }
+    }
+  });
+
   test("each logit is the last row times its token's weights, plus its bias, whole", () {
     final int last = trace.points.length - 1;
     for (final TraceCheckpoint c in trace.checkpoints) {
@@ -437,6 +465,17 @@ void main() {
     }
   });
 
+  test("a run without every step's probabilities, or with them shaped otherwise, is refused", () {
+    final Uint8List missing = _edited((Map<String, dynamic> json) {
+      (json['steps'] as Map<String, dynamic>).remove('probs');
+    });
+    expect(() => TrainingTrace.parse(missing), throwsA(isA<FormatException>()));
+    final Uint8List reshaped = _edited((Map<String, dynamic> json) {
+      ((json['steps'] as Map<String, dynamic>)['probs'] as Map<String, dynamic>)['shape'] = <int>[20, 21, 25];
+    });
+    expect(() => TrainingTrace.parse(reshaped), throwsA(isA<FormatException>()));
+  });
+
   test('a run without its embedding tables is refused', () {
     final Uint8List bytes = _edited((Map<String, dynamic> json) {
       ((json['checkpoints'] as List<dynamic>).first as Map<String, dynamic>)
@@ -453,7 +492,7 @@ void main() {
   });
 
   test('a schema this does not read is refused', () {
-    for (final int schema in <int>[1, 2, 3, 4, 5, 6, 7]) {
+    for (final int schema in <int>[1, 2, 3, 4, 5, 6, 7, 8]) {
       expect(
         () => TrainingTrace.parse(_edited((Map<String, dynamic> json) => json['schema'] = schema)),
         throwsA(isA<FormatException>()),
