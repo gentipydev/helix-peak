@@ -12,6 +12,7 @@ import 'forward_scene.dart';
 import 'lm_drawing.dart';
 import 'lm_scene.dart';
 import 'scores_scene.dart';
+import 'share_map.dart';
 import 'stream_table.dart';
 import 'weight_flow.dart';
 
@@ -682,28 +683,19 @@ final class PredictScene extends LmScene {
     final List<List<double>> rows = allShares(view);
     final double answers = _span(beat, _answers);
     table.tag(canvas, mapTag(view), shown * fade.tag);
-    table.drawTiles(canvas, alpha: shown * fade.rows, dx: -table.gutter);
-    for (int k = 0; k < allowed.length; k++) {
-      drawToken(canvas, view, layout.mapTile(k), allowed[k], alpha: shown * fade.others);
-    }
-    for (int i = 0; i < n; i++) {
-      final double filled = _filled(i, focus, n, beat);
-      final int answer = trace.allowedIndex(trace.targetAt(view.peptide, i));
+    ShareMap.drawRowTiles(canvas, view, layout.map, alpha: shown * fade.rows);
+    ShareMap.drawColumnTiles(canvas, view, layout.map, alpha: shown * fade.others);
+    ShareMap.drawCells(
+      canvas,
+      view,
+      layout.map,
+      rows,
+      grown: (int i) => _filled(i, focus, n, beat),
+      shown: (int i, int k, bool answer) => shown * (answer ? fade.answers : fade.others),
       // The place in focus's slot came lit off the bench; every other
       // place's lights with the answer key.
-      final double lit = i == focus && beat >= _lieDown.$2 ? 1 : answers;
-      for (int k = 0; k < allowed.length; k++) {
-        drawShare(
-          canvas,
-          view,
-          layout.mapCell(i, k),
-          share: rows[i][k],
-          grown: filled,
-          shown: shown * (k == answer ? fade.answers : fade.others),
-          lit: k == answer ? lit : 0,
-        );
-      }
-    }
+      lit: (int i) => i == focus && beat >= _lieDown.$2 ? 1 : answers,
+    );
     // The place in focus's slots, its squares in them, lying down from the
     // bench onto its row.
     final double lie = _span(beat, _lieDown);
@@ -728,7 +720,7 @@ final class PredictScene extends LmScene {
         },
       );
     }
-    table.outline(canvas, focus, layout.right, _span(beat, _focusOutline) * fade.outline, dx: -table.gutter);
+    ShareMap.drawOutline(canvas, view, layout.map, focus, _span(beat, _focusOutline) * fade.outline);
     _answerKey(canvas, view, layout, answers, fade);
   }
 
@@ -740,35 +732,14 @@ final class PredictScene extends LmScene {
     if (alpha <= 0) {
       return;
     }
-    final TrainingTrace trace = view.trace;
-    final double tiles = alpha * fade.key;
-    final double numbers = alpha * fade.given;
-    final TextStyle? given = layout.givenStyle;
-    final TextStyle? written = given?.copyWith(color: given.color!.withValues(alpha: (numbers * 8).round() / 8));
-    for (int i = 0; i < view.focus.inputs; i++) {
-      final int next = trace.targetAt(view.peptide, i);
-      drawToken(canvas, view, layout.answerTile(i), next, alpha: tiles);
-      if (written != null && numbers > 0) {
-        view.kit.draw(
-          canvas,
-          percent(shares(view, i)[next]),
-          written,
-          Offset(layout.givenRight, layout.table.row(i).center.dy),
-          anchor: const Offset(1, 0.5),
-        );
-      }
-    }
-    // Named as a column is (`drawColumnTitle`), the shares' name flush with
-    // their right edge.
-    if (numbers <= 0) {
-      return;
-    }
-    final double top = layout.table.layout.tableTop - 4;
-    final TextStyle named = titleStyle(view, alpha: numbers);
-    view.kit.draw(canvas, answerTitle, named, Offset(layout.answerTile(0).center.dx, top), anchor: const Offset(0.5, 1));
-    if (written != null) {
-      view.kit.draw(canvas, givenTitle, named, Offset(layout.givenRight, top), anchor: const Offset(1, 1));
-    }
+    ShareMap.drawAnswerKey(
+      canvas,
+      view,
+      layout.map,
+      tiles: alpha * fade.key,
+      numbers: alpha * fade.given,
+      given: (int i) => shares(view, i)[view.trace.targetAt(view.peptide, i)],
+    );
   }
 
   /// The map's name: every place's next-token probabilities, a row a place,
@@ -1003,28 +974,18 @@ final class PredictLayout {
     final List<int> allowed = trace.allowed;
     firstAllowed = allowed.reduce(math.min);
     lastAllowed = allowed.reduce(math.max);
-    mapLeft = e.cellsLeft - table.gutter;
-    // The answer key, from the canvas's side in: the shares given, clear of
-    // the place in focus's outline; then the tiles; then the map.
-    final TextStyle? given = _givenStyle(view, e.pitch);
-    givenStyle = given;
-    givenRight = right - _outlineRoom;
-    if (given == null) {
-      answerLeft = givenRight - e.chipSide;
-    } else {
-      // Room for the widest share, 100%, right of the tiles; and for the
-      // shares' name over them, clear of the tiles' own, which can be the
-      // wider where the rows, and so the numbers, are small.
-      final TextStyle named = PredictScene.titleStyle(view);
-      final double numbers = view.kit.layout('100%', given).width + _givenGap + e.chipSide;
-      final double names = view.kit.layout(PredictScene.givenTitle, named).width +
-          _titleGap +
-          view.kit.layout(PredictScene.answerTitle, named).width / 2 +
-          e.chipSide / 2;
-      answerLeft = givenRight - math.max(numbers, names);
-    }
-    mapRight = answerLeft - _answerGap;
-    mapColumn = (mapRight - mapLeft) / allowed.length;
+    // The map, on the table's own rows, its tiles slid over the gutter
+    // Embedding wrote its ids in.
+    map = ShareMapLayout(
+      view: view,
+      top: e.tableTop,
+      pitch: e.pitch,
+      chipSide: e.chipSide,
+      labelLeft: e.label(0).left,
+      dx: -table.gutter,
+      mapLeft: e.cellsLeft - table.gutter,
+      right: right,
+    );
   }
 
   final StreamTable table;
@@ -1042,16 +1003,6 @@ final class PredictLayout {
   /// token's tile.
   static const double _plateGap = 10;
   static const double _chipGap = 4;
-
-  /// From the map to the answer key's tiles, from a tile to its share, and
-  /// from the shares to the canvas's side, where the outline of the place in
-  /// focus runs.
-  static const double _answerGap = 6;
-  static const double _givenGap = 3;
-  static const double _outlineRoom = 2;
-
-  /// Between the answer key's two names.
-  static const double _titleGap = 4;
 
   late final double left;
   late final double right;
@@ -1085,27 +1036,20 @@ final class PredictLayout {
   late final int firstAllowed;
   late final int lastAllowed;
 
+  /// The map of every place's guess and its answer key, on the table's rows.
+  late final ShareMapLayout map;
+
   /// Where the map starts and ends, and how wide its columns are.
-  late final double mapLeft;
-  late final double mapRight;
-  late final double mapColumn;
+  double get mapLeft => map.mapLeft;
+  double get mapRight => map.mapRight;
+  double get mapColumn => map.mapColumn;
 
   /// The answer key: where its tiles start, where the shares given end, and
   /// what those are written in, or null where the rows are too small for a
   /// number.
-  late final double answerLeft;
-  late final double givenRight;
-  late final TextStyle? givenStyle;
-
-  /// The shares given to what came next are written as the table's rows
-  /// write their numbers: at most 9 points, and not below the least a number
-  /// is written.
-  static TextStyle? _givenStyle(LmView view, double pitch) {
-    final double points = (math.min(9, pitch * 0.62) * 2).floorToDouble() / 2;
-    return points < EmbeddingLayout.leastNumber
-        ? null
-        : inked(view.kit.mono, points, view.inks.ink).copyWith(letterSpacing: 0);
-  }
+  double get answerLeft => map.answerLeft;
+  double get givenRight => map.givenRight;
+  TextStyle? get givenStyle => map.givenStyle;
 
   static double _largest(List<double> values) {
     double most = 0;
@@ -1171,29 +1115,16 @@ final class PredictLayout {
 
   /// The map's cell at row [i], column [k]: what place [i] gives the [k]th
   /// token that can come next, on the table's row [i].
-  Rect mapCell(int i, int k) {
-    final Rect r = table.row(i);
-    final double x = mapLeft + k * mapColumn;
-    return Rect.fromLTRB(x, r.top, x + mapColumn, r.bottom);
-  }
+  Rect mapCell(int i, int k) => map.cell(i, k);
 
   /// Place [i]'s row of the map, every column of it.
-  Rect mapRow(int i) => Rect.fromLTRB(mapLeft, table.row(i).top, mapRight, table.row(i).bottom);
+  Rect mapRow(int i) => map.mapRow(i);
 
   /// The tile of what came next after place [i], at its row's end: as large
   /// as the tile naming the row, centred on it.
-  Rect answerTile(int i) {
-    final Rect row = table.row(i);
-    final double side = table.layout.chipSide;
-    return Rect.fromLTWH(answerLeft, row.center.dy - side / 2, side, side);
-  }
+  Rect answerTile(int i) => map.answerTile(i);
 
   /// The tile naming the map's column [k], under its last row, as Attention
   /// names the places read.
-  Rect mapTile(int k) {
-    final Rect cell = mapCell(_view.focus.inputs - 1, k);
-    final double side = table.layout.chipSide;
-    final double wide = math.max(1.0, math.min(side, cell.width - 1));
-    return Rect.fromLTWH(cell.center.dx - wide / 2, cell.bottom + 4, wide, side);
-  }
+  Rect mapTile(int k) => map.columnTile(k);
 }
