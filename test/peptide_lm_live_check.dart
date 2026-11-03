@@ -68,7 +68,142 @@ void main() {
     expectTheLoss(trace);
     expectTheBackward(trace);
     expectTheUpdate(trace);
+    expectTheLoop(trace);
   });
+}
+
+/// What Loop draws (docs/design/peptide-lm.md): Predict's map at every step,
+/// from the probabilities every step kept, a kept step's the same bytes as
+/// its checkpoint's; and at each kept step, held, the level the loss passed
+/// and the right guesses there. Learned in order: an even guess at step 13
+/// (right at 12 of 180), residue counts at 21 (L, the commonest residue, 23
+/// of 180, the top guess at 80 places), residue pairs at 49 (71), one nat at
+/// 66 (139), a tenth at 95 (175); then each `<bos>` place a sixth for each
+/// first residue, 93% of the loss; and the weight Update worked, S's from
+/// number 6, from −0.0598 to 0.0938.
+void expectTheLoop(TrainingTrace trace) {
+  final int count = trace.steps.count;
+  final int allowed = trace.allowed.length;
+  // Every step's probabilities: a kept step's are its checkpoint's, and the
+  // share at what came next is the target's own loss, within the roundings.
+  for (final TraceCheckpoint c in trace.checkpoints) {
+    for (int p = 0; p < trace.peptides.length; p++) {
+      for (int i = 0; i < trace.peptides[p].inputs; i++) {
+        for (int k = 0; k < allowed; k++) {
+          expect(trace.stepProbability(c.step, p, i, k), trace.probability(c, p, i, k));
+        }
+      }
+    }
+  }
+  final double bound = 0.5 / 255 + trace.steps.targetLossScale / 2 + 1e-6;
+  for (int step = 1; step <= count; step++) {
+    for (int p = 0; p < trace.peptides.length; p++) {
+      for (int i = 0; i < trace.peptides[p].inputs; i++) {
+        final int y = trace.allowedIndex(trace.targetAt(p, i));
+        expect(
+          (trace.stepProbability(step, p, i, y) - math.exp(-trace.targetLoss(step, p, i))).abs(),
+          lessThanOrEqualTo(bound),
+        );
+      }
+    }
+  }
+
+  // The loss never rises, and first passes each level at the kept steps.
+  for (int step = 2; step <= count; step++) {
+    expect(trace.loss(step), lessThanOrEqualTo(trace.loss(step - 1)));
+  }
+  int firstUnder(double level) => <int>[for (int s = 1; s <= count; s++) s].firstWhere((int s) => trace.loss(s) < level);
+  expect(<int>[
+    firstUnder(trace.uniform),
+    firstUnder(trace.unigram),
+    firstUnder(trace.bigram),
+    firstUnder(1),
+    firstUnder(0.1),
+  ], <int>[13, 21, 49, 66, 95]);
+  expect(trace.checkpoints.map((TraceCheckpoint c) => c.step), <int>[1, 13, 21, 49, 66, 95, 200]);
+
+  // The top guess, from the whole logits: right at each kept step.
+  int topAt(TraceCheckpoint c, int p, int i) {
+    int best = trace.allowed.first;
+    for (final int id in trace.allowed) {
+      if (trace.logit(c, p, i, id) > trace.logit(c, p, i, best)) {
+        best = id;
+      }
+    }
+    return best;
+  }
+
+  final List<int> right = <int>[];
+  for (final TraceCheckpoint c in trace.checkpoints) {
+    int n = 0;
+    for (int p = 0; p < trace.peptides.length; p++) {
+      for (int i = 0; i < trace.peptides[p].inputs; i++) {
+        n += topAt(c, p, i) == trace.targetAt(p, i) ? 1 : 0;
+      }
+    }
+    right.add(n);
+  }
+  expect(right, <int>[7, 12, 26, 71, 139, 175, 175]);
+
+  // Step 21, under residue counts: L, the commonest residue, is the top
+  // guess at 80 places.
+  final TraceCheckpoint counts = trace.checkpoints[2];
+  int guessedL = 0;
+  int targetsL = 0;
+  final int l = trace.vocab.indexOf('L');
+  for (int p = 0; p < trace.peptides.length; p++) {
+    for (int i = 0; i < trace.peptides[p].inputs; i++) {
+      guessedL += topAt(counts, p, i) == l ? 1 : 0;
+      targetsL += trace.targetAt(p, i) == l ? 1 : 0;
+    }
+  }
+  expect(guessedL, 80);
+  expect(targetsL, 23);
+
+  // Sure, over half on what came next, from the steps' own probabilities.
+  int sure(int step) {
+    int n = 0;
+    for (int p = 0; p < trace.peptides.length; p++) {
+      for (int i = 0; i < trace.peptides[p].inputs; i++) {
+        n += trace.stepProbability(step, p, i, trace.allowedIndex(trace.targetAt(p, i))) > 0.5 ? 1 : 0;
+      }
+    }
+    return n;
+  }
+
+  expect(<int>[sure(13), sure(21), sure(66), sure(80), sure(95)], <int>[0, 0, 75, 166, 174]);
+
+  // At the end, what is left: each <bos> place spreads a sixth over the six
+  // first residues, and holds 93% of the loss.
+  final TraceCheckpoint last = trace.checkpoints.last;
+  double bos = 0;
+  double all = 0;
+  for (int p = 0; p < trace.peptides.length; p++) {
+    for (int i = 0; i < trace.peptides[p].inputs; i++) {
+      double top = double.negativeInfinity;
+      for (final int id in trace.allowed) {
+        top = math.max(top, trace.logit(last, p, i, id));
+      }
+      double sum = 0;
+      for (final int id in trace.allowed) {
+        sum += math.exp(trace.logit(last, p, i, id) - top);
+      }
+      final double given = math.exp(trace.logit(last, p, i, trace.targetAt(p, i)) - top) / sum;
+      if (i == 0) {
+        expect(given, closeTo(1 / trace.peptides.length, 0.01));
+        bos -= math.log(given);
+      } else {
+        expect(given, greaterThan(0.5));
+      }
+      all -= math.log(given);
+    }
+  }
+  expect(percent(bos / all), '93%');
+
+  // The weight Update worked, S's from number 6, over the run.
+  final int s = trace.vocab.indexOf('S');
+  expect(fixed(trace.outputWeight(trace.checkpoints.first, s, 5), 4), '−0.0598');
+  expect(fixed(trace.outputWeight(last, s, 5) + trace.headUpdate(last, s, 5), 4), '0.0938');
 }
 
 /// What Update draws (docs/design/peptide-lm.md): a weight's gradient is
