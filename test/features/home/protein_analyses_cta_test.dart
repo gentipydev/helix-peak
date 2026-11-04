@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:helixpeek/core/config/env.dart';
 import 'package:helixpeek/features/home/presentation/screens/home_screen.dart';
 import 'package:helixpeek/features/home/presentation/widgets/protein_analyses_cta.dart';
 
@@ -63,22 +65,55 @@ void main() {
     expect(find.byIcon(Icons.chevron_right_rounded), findsOneWidget);
   });
 
-  testWidgets(
-    'home offers the walk, then replication, then the peptide language '
-    'model, and nothing else',
-    (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
-      await tester.pump();
-      expect(find.byType(ProteinAnalysesCta), findsNWidgets(3));
-      expect(
-        tester.getCenter(find.text('Protein Analyses')).dy,
-        lessThan(tester.getCenter(find.text('DNA Replication')).dy),
-      );
-      expect(
-        tester.getCenter(find.text('DNA Replication')).dy,
-        lessThan(tester.getCenter(find.text('Peptide Language Model')).dy),
-      );
-      expect(find.text('Lab'), findsNothing);
-    },
-  );
+  group('home', () {
+    tearDown(() => dotenv.clean());
+
+    testWidgets(
+      'with no .env flag, home offers the walk, then the peptide language '
+      'model, and nothing else',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+        await tester.pump();
+        expect(find.byType(ProteinAnalysesCta), findsNWidgets(2));
+        expect(find.text('DNA Replication'), findsNothing);
+        expect(
+          tester.getCenter(find.text('Protein Analyses')).dy,
+          lessThan(tester.getCenter(find.text('Peptide Language Model')).dy),
+        );
+        expect(find.text('Lab'), findsNothing);
+      },
+    );
+
+    for (final String value in <String>['false', '', 'yes', '1']) {
+      testWidgets('SHOW_DNA_REPLICATION=$value keeps replication off home', (
+        WidgetTester tester,
+      ) async {
+        dotenv.loadFromString(envString: 'SHOW_DNA_REPLICATION=$value');
+        expect(Env.showDnaReplication, isFalse);
+        await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+        await tester.pump();
+        expect(find.text('DNA Replication'), findsNothing);
+      });
+    }
+
+    testWidgets(
+      'SHOW_DNA_REPLICATION=true offers the walk, then replication, then the '
+      'peptide language model',
+      (WidgetTester tester) async {
+        dotenv.loadFromString(envString: 'SHOW_DNA_REPLICATION=true');
+        expect(Env.showDnaReplication, isTrue);
+        await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+        await tester.pump();
+        expect(find.byType(ProteinAnalysesCta), findsNWidgets(3));
+        expect(
+          tester.getCenter(find.text('Protein Analyses')).dy,
+          lessThan(tester.getCenter(find.text('DNA Replication')).dy),
+        );
+        expect(
+          tester.getCenter(find.text('DNA Replication')).dy,
+          lessThan(tester.getCenter(find.text('Peptide Language Model')).dy),
+        );
+      },
+    );
+  });
 }

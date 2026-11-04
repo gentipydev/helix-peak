@@ -1,6 +1,6 @@
 # Peptide Language Model: one training run, stage by stage
 
-The home screen's third row. It shows HelixPeekLM, the backend's de novo
+The home screen's last row. It shows HelixPeekLM, the backend's de novo
 peptide model (`helix-peek-backend/pipeline/denovo/`), learning the curated
 proteins' peptides, one stage of a training step at a time, and then the
 whole run.

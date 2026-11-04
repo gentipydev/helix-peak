@@ -4,7 +4,8 @@
 
 ## Experience
 
-Home → DNA Replication opens an animation immediately, in every build. There is
+Home → DNA Replication opens an animation immediately, in every build; home
+offers the row only where `.env` sets `SHOW_DNA_REPLICATION=true`. There is
 no protein picker, record download or gene-specific error list. Links from when
 it was a lab flow, `/lab/replication` and `/lab/replication/<slug>`, redirect to
 this view at `/replication`. The subject is a human origin firing and one of its two

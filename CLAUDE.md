@@ -217,8 +217,10 @@ which is Material's in the bright ink.
 
 ## Replication (`lib/features/replication/`)
 
-A story of its own subject at `/replication`, the home screen's DNA
-Replication row, in every build: no record and no track. It began in the lab
+A story of its own subject at `/replication`, in every build: no record and
+no track. Home offers it as its DNA Replication row only where `.env` sets
+`SHOW_DNA_REPLICATION=true` (`Env.showDnaReplication`, off by default, the
+user's choice of 2026-11-04); the route is there either way. It began in the lab
 and left it; links from then (`/lab/replication`, `/lab/replication/<slug>`)
 redirect. `replication_routes.dart` wraps it in `AppTheme.analysis`, which the
 lab's shell used to give it. A 212 s guided tour (`ReplicationTimeline`,
@@ -242,7 +244,7 @@ A label's line must land on what it names (`replication_targets_test`).
 
 ## Peptide Language Model (`lib/features/peptide_lm/`)
 
-The home screen's third row, at `/peptide-lm`, in every build: one training
+The home screen's last row, at `/peptide-lm`, in every build: one training
 run of the backend's de novo model, HelixPeekLM (`pipeline/denovo/` in the
 backend), on the curated proteins' peptides, played stage by stage. It is a
 recorded run and says so ("Recorded run" under its title): the backend's

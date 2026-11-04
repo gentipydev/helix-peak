@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/config/env.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -32,10 +33,11 @@ class HomeScreen extends StatelessWidget {
                 ProteinAnalysesCta(
                   onPressed: () => context.push(RoutePaths.search),
                 ),
-                ProteinAnalysesCta(
-                  label: 'DNA Replication',
-                  onPressed: () => context.push(RoutePaths.replication),
-                ),
+                if (Env.showDnaReplication)
+                  ProteinAnalysesCta(
+                    label: 'DNA Replication',
+                    onPressed: () => context.push(RoutePaths.replication),
+                  ),
                 ProteinAnalysesCta(
                   label: 'Peptide Language Model',
                   onPressed: () => context.push(RoutePaths.peptideLm),
