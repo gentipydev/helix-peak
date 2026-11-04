@@ -137,6 +137,30 @@ convention is, where it comes from, and what it decided:
   the bone marrow is a femur drawn so, from anatomy rather than from the
   anatomogram's outline, and the zoom goes into it in its upper end ("The
   bone marrow" below).
+- **The bladder.** Anatomy plates open it from the front (Gray 1918, Fig.
+  1140). Moderately full it holds about half a litre and is an oval about
+  12 cm long. Its mucosa, "of a pale rose color", is loosely attached to
+  the muscle and folded when it is contracted, the folds effaced when it is
+  distended; over the trigone it is bound to the muscle and always smooth.
+  The trigone's angles are the internal urethral orifice, somewhat
+  crescentic, in the most dependent part, and the ureters' orifices,
+  slit-like, about 2.5 cm apart and as far from the urethral orifice when
+  it is contracted, up to about 5 cm when it is distended. Its base is the
+  torus uretericus, a slightly curved ridge that shows as a pale band and
+  runs on past the orifices as the plicae uretericae, raised by the ureters
+  in their 2 cm oblique course through the wall. Its wall has four coats,
+  the muscle's middle layer thickened round the urethral orifice into the
+  sphincter vesicae; its arteries are the superior, middle and inferior
+  vesical; the female urethra is about 4 cm long and 6 mm across (Gray
+  1918). Measured in adults: the wall 2.0 ± 0.4 mm at 338 mL on ultrasound
+  in 95 (Kanyilmaz et al. 2013), and on CT 1.9 mm in women whose bladder
+  is 9 cm long or more (Feinberg et al. 2026); the detrusor 1.2 mm in women
+  and 1.4 in men, the same from 250 mL on (Oelke et al. 2006); the lamina
+  propria 0.46 to 3.07 mm deep in resected bladders (Paner et al. 2007).
+  GTEx samples the central posterior wall (GTEx Portal). *Consequence:*
+  the bladder is drawn so, part-filled and opened from the front, from
+  anatomy rather than from the anatomogram's outline ("The bladder"
+  below).
 - **Histology.** Haematoxylin stains nuclei and ribosome-rich cytoplasm;
   eosin stains protein; fat, mucus and lumens take neither. A ×40 objective
   under a standard eyepiece shows a field about half a millimetre across.
@@ -275,9 +299,15 @@ Sources:
   (<https://www.ebi.ac.uk/gxa/licence.html>), which asks to be cited as
   "Expression Atlas in 2026: enabling FAIR and open expression data through
   community collaboration and integration", Nucleic Acids Research, 2025.
+- Feinberg GL, Torkzad C, Terris MK. Sagittal long-axis bladder diameter
+  and CT-measured bladder wall thickness in healthy female patients.
+  Cureus 2026;18:e116549.
 - Gibcus JH et al. A pathway for mitotic chromosome formation. Science
   2018;359:eaao6135.
 - Gray H. Anatomy of the Human Body, 20th edn. Lea & Febiger, 1918.
+- GTEx Portal. Tissue site details, dataset gtex_v10: each tissue's
+  sampling site (<https://gtexportal.org/api/v2/dataset/tissueSiteDetail>,
+  read 2026-11-04).
 - Halladjian S et al. ScaleTrotter: illustrative visual travels across
   negative scales. IEEE Trans Vis Comput Graph 2020;26:654–664.
 - Hoshi O, Ushiki T. Three-dimensional structure of G-banded human
@@ -285,6 +315,9 @@ Sources:
   Cytol 2001;64:475–482.
 - ISCN 2020: An International System for Human Cytogenomic Nomenclature.
   Karger, 2020.
+- Kanyilmaz S, Calis FA, Cinar Y. Bladder wall thickness and ultrasound
+  estimated bladder weight in healthy adults with portative ultrasound
+  device. J Res Med Sci 2013;18:103–106.
 - Kanz F, Fitzl C, Vlcek A, Frommlet F. Sex estimation using the femur of
   Austrians born in the 19th to the middle of the 20th century. Anthropol
   Anz 2015;72:117–127.
@@ -330,8 +363,14 @@ Sources:
 - Niu J et al. Age-related marrow conversion and developing epiphysis in
   the proximal femur: evaluation with STIR MR imaging. J Huazhong Univ Sci
   Technolog Med Sci 2007;27:617–621.
+- Oelke M, Höfner K, Jonas U, et al. Ultrasound measurement of detrusor
+  wall thickness in healthy adults. Neurourol Urodyn 2006;25:308–317.
 - Ou HD et al. ChromEMT: visualizing 3D chromatin structure and compaction
   in interphase and mitotic cells. Science 2017;357:eaag0025.
+- Paner GP, Ro JY, Wojcik EM, et al. Further characterization of the
+  muscle layers and lamina propria of the urinary bladder by systematic
+  histologic mapping: implications for pathologic staging of invasive
+  urothelial carcinoma. Am J Surg Pathol 2007;31:1420–1429.
 - Paulson JR, Laemmli UK. The structure of histone-depleted metaphase
   chromosomes. Cell 1977;12:817–828.
 - Poonperm R et al. Chromosome scaffold is a double-stranded assembly of
@@ -541,8 +580,9 @@ body drew for it (`OrganArt`), so the step is one shape seen closer. It
 comes up over the body's own drawing of the organ early in the step, and
 `zoom_anatomy_test` holds the two to the same point of the screen while both
 show. On the way in, the body's line art and its unlit organs give way. The
-pancreas, the testis and the bone marrow's femur then draw in to outlines
-of their own ("The pancreas", "The testis" and "The bone marrow" below).
+pancreas, the testis, the bone marrow's femur and the bladder then draw in
+to outlines of their own ("The pancreas", "The testis", "The bone marrow"
+and "The bladder" below).
 
 **Its real size.** The anatomogram is a diagram: it draws a stomach 11 cm
 long and a pancreas 9. Each organ therefore knows how many times its drawn
@@ -557,6 +597,8 @@ dot of the accent in a thin ring of the bright ink, in a soft glow
 it, fading with their distance from it. The pancreas and the testis have
 their own neighbours instead, and the figure's parts go as those come up.
 The femur has none but its artery, and the figure's parts stay round it.
+Round the bladder they stay too, all but the figure's smooth muscle, which
+the anatomogram draws as the bladder's own wall.
 
 **Its anatomy.** The twenty's paths reach thirteen organs. Seven kinds have
 a study of their own (`OrganStudy`), and the pancreas, the testis and the
@@ -586,7 +628,7 @@ Every other outline is sculpted with a surface for its kind:
 | Look | Organs |
 |---|---|
 | lobules | glands, ovary, prostate, breast, placenta |
-| a wall round a lumen | bladder, gallbladder, uterus, gullet |
+| a wall round a lumen | gallbladder, uterus, gullet |
 | fibres | heart, tongue |
 | airways from the hilum | lung |
 | cortex and pyramids | kidney |
@@ -764,6 +806,66 @@ from the front, its head to the left
   head's medial edge, the greater trochanter's lateral edge, each
   condyle's outer edge, and either side of the shaft 30, 50 and 70% of
   the way down.
+
+**The bladder.** It is drawn as a fresh specimen under the same lamp,
+part-filled and opened from the front: its front wall cut away, the inside
+of its back half seen as the body shows it
+(`presentation/scenes/organs/bladder/`, the user's choices of 2026-11-04),
+in the neutrals but for its arteries and the accent:
+
+- *Its shape* is a plate's (`bladder_anatomy.dart`, in millimetres): the
+  cut's outline, drawn to the female anatomogram's own proportions 100 mm
+  across, as the card has it, its top nearly level, its sides widest about
+  3.5 cm down, its floor running into a short neck where the urethra
+  leaves.
+- *Where it is sampled.* The anatomogram's own site is the central
+  posterior wall, above the trigone, where GTEx samples the bladder: the
+  body's ping and the dive go there unchanged, and the drawing is laid so
+  that its own site lies on it.
+- *Its urothelium* is the inside of the back half. It is smooth over the
+  trigone, whose corners are the ureters' slit-like orifices, 35 mm apart,
+  at the ends of the torus uretericus, a pale band over a crease, and whose
+  apex is the urethra's crescentic orifice at the neck; the plicae run up
+  and out from the orifices. The trigone is seen foreshortened, as a front
+  view of the sloping base shows it. Twelve low folds lie round the base
+  and the lower sides, wandering, some broken, none in the upper third,
+  where the dome stretches first.
+- *Its cut wall* is a band of its coats round the opening, about 2 mm: the
+  serosa, the detrusor (1.2 mm on the sides), the lamina propria and the
+  urothelium, never thinner than a pixel there. The detrusor thickens into
+  the sphincter round the neck, and the band parts where the urethra's
+  lumen runs on.
+- *In the accent,* by the kind of organ: the urothelium, one flat tone,
+  the mark over a neutral as the stomach's mucosa is, cut by its anatomy
+  as crisp lines, for every cell; the Atlas gives no other cell the
+  bladder as its home.
+- *Round it,* dimmer than the bladder: both ureters coming down beside it
+  to its lateral angles at the torus's level and the urethra leaving its
+  neck, pale lit tubes cut short; the superior vesical arteries over its
+  shoulders and the inferior vesical round its lower corners, in the blood
+  red, cut short, their branches running in under the wall. The figure's
+  own parts stay faint round it, all but its smooth muscle: the
+  anatomogram draws that part as the bladder's own wall (on the female
+  figure two outlines enclosing 41 of its 42 points), and round an opaque
+  specimen it showed as a second outline a few millimetres outside it. An
+  organ names the figure's parts it leaves out (`_SpecimenOrgan`'s
+  `notAround`, none by default).
+- *Its names* (the user's choice): `urothelium` at the site, its line in
+  the accent, and `trigone`, `ureteric orifice`, `ureter`, `detrusor`,
+  `urethra` and the figure's own `uterus` (the anatomogram's endometrium,
+  as the fallopian tube names it) or `prostate` below it, in the quiet
+  ink, set round it at the canvas's corners. The orifice and its ureter
+  are named on the body's right, the detrusor and the uterus on its left,
+  and the trigone off its middle, so that no name's line meets another's.
+- *Its view* is framed 1.25 times as tall as wide
+  (`ZoomDepth.bladderUpright`): its names fit every phone's canvas up to
+  1.4, and at 1.25 the ureters' cut ends stay in the view.
+- *On the step from the body* it comes up as the stomach does: the
+  anatomogram's outline, flat and lit in the mark, draws in to the
+  bladder's own, matched at the middle of the dome (its top is nearly
+  level, so its topmost point could change sides), at each side's
+  outermost point and at the neck, and becomes the bed the bladder comes
+  up over.
 
 **The glide.** The camera carries the organ from where it lies in the body
 to the middle of the view over the first three fifths of the step. From the
@@ -1285,6 +1387,13 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   nutrient canal is drawn in the cut, though it pierces the linea aspera
   behind it. At the stop its trabeculae are every fourth line of the
   lattice; the true lattice comes in only as the view closes on the bone.
+- **A bladder from a plate.** One bladder, the same in every body,
+  part-filled whatever the gene. Its folds are laid by rule and its
+  trigone seen foreshortened; the uvula vesicae, the prostate's middle
+  lobe, a man's alone, is not drawn. The figure's uterus is named where
+  the anatomogram draws its outline below the bladder, and the
+  anatomogram's smooth muscle, the bladder's own wall, is not drawn round
+  it.
 - **One field a tissue.** Wherever in the organ it is cut, and for every
   gene that goes there with the same kind of cell. "Lymphoid tissue" is a
   lymph node, and skin has no keratin layer of its own.
@@ -1368,6 +1477,12 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   (`marrow_art.dart`). `presentation/scenes/cut_face.dart`: the cut face
   it and the eye are laid with. `columnAnchors` in `zoom_scene.dart` sets
   its names in columns, and the chromosome's.
+- `presentation/scenes/organs/bladder/`: the bladder in millimetres, with
+  every source (`bladder_anatomy.dart`), every number its look is tuned by
+  (`bladder_style.dart`), its form posed on each figure, with the coats,
+  the trigone, the orifices, the folds, the tubes and its names' places,
+  the figure's uterus or prostate among them (`bladder_form.dart`), and its
+  meshes and how it is drawn (`bladder_art.dart`).
 - `presentation/scenes/tissue/`: the slide (`tissue_slide.dart`), the engine
   (`slide_builder.dart`) and the recipes (`recipes_glands.dart`,
   `recipes_linings.dart`, `recipes_bulk.dart`).
@@ -1392,8 +1507,9 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   its own and `ZOOM_ORGAN_ATLAS=/tmp/organs` every tissue's organ, the ones
   no catalog protein reaches included, the pancreas on both figures about
   each kind of cell that lights a part of it of its own, the testis
-  about each kind of cell that lives in it, and the bone marrow on both
-  figures about an erythroid cell, a megakaryocyte and a leukocyte. The picture at the top of this page
+  about each kind of cell that lives in it, the bone marrow on both
+  figures about an erythroid cell, a megakaryocyte and a leukocyte, and
+  the bladder on both figures about its urothelial cell. The picture at the top of this page
   is insulin's nine stops from it.
 - The chromosome's tests: `chromosome_look_test` holds its look (each
   globule's material picked the same every time and shared by every
@@ -1498,6 +1614,27 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   what it names, clear of the bone, of one another and of the scale bar.
   `zoom_domain_test` holds its site to the femur's upper fifth, well inside
   it. `zoom_paint_timing_check` times it with hemoglobin's zoom.
+- `bladder_form_test` holds the bladder to 100 mm on the body's outline of
+  it, laid a few millimetres at most to put its site on the body's, on
+  either figure; its site on the central posterior wall, above the trigone
+  and clear of its folds and its wall; its wall to its measured thickness,
+  thickest round the neck, its detrusor and lamina propria as deep as they
+  are measured; its coats one inside another; the trigone's orifices as
+  far apart as Gray measured them, the torus bowed up from the neck and no
+  fold crossing it; the folds round the base and the lower sides, none in
+  the upper third, never crossing; the tubes leaving it and the arteries
+  outside it, their branches running in under its wall; the step's marks
+  the same on either outline; the figure's uterus or prostate named inside
+  it, out from the bladder and off the urethra; and the same bladder every
+  time. `bladder_art_test` holds the mark to the urothelium alone, the
+  hand-over to the body's own outline with no layer, mesh or point, the
+  figure's parts round it at its stop but its smooth muscle, the meshes
+  the same every time, its seven names, and the steps to it and back to
+  0.08 a frame and 1.5 px. `bladder_names_test` sets its names in the
+  app's own type for S100P on seven phone canvases: above the bladder or
+  below its floor, clear of it, of what runs on beside it, of one another
+  and of the scale bar, no line through another's plate or crossing
+  another. `zoom_paint_timing_check` times it with S100P's zoom.
 - `zoom_routes_test` holds the route outside the lab, the redirects, and the
   whole trip from the walk and back under the app's own routes.
   `zoom_entry_test`, among the walk's tests, holds where the gene page
