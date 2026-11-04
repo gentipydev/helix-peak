@@ -737,21 +737,27 @@ seen:
   CC BY 4.0), the organs the Atlas reads the gene raised in lit;
   `tool/zoom/anatomogram.py` generates `anatomy_figures.g.dart` from it,
   and the body carries its credit, with the Atlas's, in one caption line;
-- the organ as the same outline, grown to its real size and sculpted, the
-  figure's parts faint round it, and inside it the gene's place; the
-  pancreas and the testis are drawn from anatomy as lit specimens among
-  their neighbours, which their scene draws in to from the body's outline
-  (`presentation/scenes/organs/pancreas/`: lobules among the duodenum,
-  spleen and vessels; `presentation/scenes/organs/testis/`: cut down its
-  length, its coiled tubules at their true size, among its epididymis,
-  ductules and cord), and so is the brain, cut down its middle
-  (`presentation/scenes/organs/brain/`), the bone marrow as a femur
-  cut down its length, its red marrow in the upper end, among the figure's
-  faint parts, its names in columns at the canvas's edges
-  (`presentation/scenes/organs/bone_marrow/`), and the urinary bladder,
-  opened from the front, its urothelium in the mark, among the figure's
-  faint parts but its smooth muscle, which the anatomogram draws as the
-  bladder's own wall (`presentation/scenes/organs/bladder/`);
+- the organ: twenty-one are drawn from general anatomy as lit specimens
+  (`presentation/scenes/organs/<organ>/`, four files each: the anatomy in
+  millimetres with its sources, the style, the form, the art), the part
+  the zoom's cell lives in in the accent, by the Atlas's name for the cell
+  or its kind and never by gene, their main parts named at the canvas's
+  edges: the pancreas among its neighbours; the testis and the bone
+  marrow's femur cut down their length, and the brain down its middle;
+  the salivary gland's parotid and the thyroid in place; the eye cut
+  through its optic nerve; the heart, the kidney and the liver cut open
+  from front to back; the stomach, the esophagus and the urinary bladder
+  opened from the front; the front of the thigh for skeletal muscle; the
+  adrenal cut on its kidney; the pituitary cut down its middle in the
+  brain's own frame; a lymph node cut through its hilum; the fallopian
+  tube opened along its length; and blocks of skin, placenta and
+  abdominal fat. Fifteen draw in from the body's own outline of them, most
+  with the figure's parts kept faint round them (round the bladder all but
+  its smooth muscle, which the anatomogram draws as the bladder's own
+  wall); the six the body draws no outline of that shows them crossfade.
+  The other organs are the anatomogram's outline, grown to its real size
+  and sculpted with a surface for its kind, the figure's parts faint round
+  it, and a vessel and a parathyroid gland have drawings of their own;
 - the tissue as a section under an eyepiece (`TissueSlide`: one engine, a
   recipe a tissue architecture, the zoom's cell laid where it lives);
 - the cell, the protein glowing where the Atlas finds it, and the nucleus

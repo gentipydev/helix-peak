@@ -137,6 +137,193 @@ convention is, where it comes from, and what it decided:
   the bone marrow is a femur drawn so, from anatomy rather than from the
   anatomogram's outline, and the zoom goes into it in its upper end ("The
   bone marrow" below).
+- **The salivary gland.** A dissection of the face shows the parotid from
+  the side, below and in front of the ear, its front edge over the masseter,
+  an accessory part detached below the zygomatic arch, the submandibular
+  gland below the jaw (Gray 1918); its duct runs forward over the masseter
+  and turns in at its front edge (Iwanaga et al. 2026), and the facial
+  nerve's five branches leave its front edge and its lower pole, the buccal
+  running along the duct in three sides of four (Sagkriotis et al. 2026).
+  Measured: the superficial lobe a median 36 by 44 mm on ultrasound and the
+  submandibular gland 35 by 23 (Fang et al. 2019); the duct 35 ± 8 mm to its
+  bend, its lumen 0.8 to 2 mm (Avishai et al. 2022); an accessory gland on a
+  tenth of sides, 15.8 by 5.0 mm (Ahn et al. 2017); the nerve's trunk 2.5 mm
+  across (Khoa et al. 2019); the superficial temporal artery 1.88 mm at the
+  arch (Nguyen et al. 2026) and its vein 1.3 (Nokovitch et al. 2021); the
+  ear 66 by 28 mm (Cho et al. 2025). *Consequence:* the salivary gland is
+  its parotid drawn so, in place ("The salivary gland" below).
+- **The brain.** Its medial face is drawn over the MNI152 2009c average of
+  152 adult brains, the anatomical fiducials raters placed on it (the
+  commissures, the genu and the splenium, the pineal, the colliculi, the
+  mammillary bodies, the culmen) taken unscaled (Lau et al. 2019), its sulci
+  and arteries after the atlases of each (Ono et al. 1990; Duvernoy 1999)
+  and Gray's Anatomy (Standring 2020). On MRI a pons is 23 mm deep and a
+  medulla 13 (Singh et al. 2019). *Consequence:* the brain is drawn so, cut
+  down its middle ("The brain" below).
+- **The eye.** Gray's and Netter's plates cut it level through its optic
+  nerve. Measured: the globe about 24 mm (Gray 1918); the cornea 11.71 mm
+  across (Rüfer et al. 2005) and 0.52 thick in the middle (Maurice 1969),
+  the anterior chamber 3.05 deep and the lens's curves as Le Grand's
+  schematic eye has them (Le Grand and El Hage 1980); the lens 9.21 by 4.18
+  mm (Xue and Zou 2019); the iris 0.45 to 0.60 mm (Wang et al. 2011); the
+  sclera 0.39 to 1.0 mm (Olsen et al. 1998); the choroid 0.287 mm under the
+  fovea (Margolis and Spaide 2009); the retina 0.32 mm at the fovea's rim
+  and 0.08 at the ora serrata, the fovea 1.5 mm across and 3.4 mm from the
+  disc's edge (Yamada 1969; Polyak 1941, as Webvision gathers them); the
+  optic nerve 2.76 mm across 3 mm behind the globe and its sheath 5.10
+  (Watcharakorn et al. 2021), its central artery piercing the sheath about
+  10 mm behind (Singh and Dass 1960); the medial and lateral recti inserting
+  5.5 and 6.9 mm behind the limbus, their bellies 4.1 and 3.4 mm thick (Rana
+  et al. 2022). *Consequence:* the eye is drawn so, cut through its nerve
+  ("The eye" below).
+- **The heart.** Every textbook cuts it open from front to back to show the
+  four chambers, the valves and the great vessels (Gray 1918; OpenStax 2022,
+  fig. 19.9), a composite that no one plane holds. Measured in men in
+  diastole: the left ventricle 52 ± 5 mm across, its wall 8.3 mm at the base
+  and 5.6 at the apex, the septum 9.0, the atria 58 by 43 and 53 by 48 mm,
+  the aortic annulus 23 and the pulmonary trunk 23 (Kawel-Boehm et al.
+  2020); the right ventricle's free wall 3 to 5 mm (Lang et al. 2015); the
+  mitral annulus about 31 mm across (Nemes et al. 2025) and the tricuspid 33
+  ± 4 (Muraru et al. 2022); the pulmonary veins 9 to 13 mm wide (Kim et al.
+  2005); the inferior vena cava 21 at most (Rudski et al. 2010); the
+  coronaries 2.8 to 4.2 mm near their origins (Dodge et al. 1992). GTEx
+  takes heart muscle from the anterior left ventricle (its tissue
+  procurement SOP). *Consequence:* heart muscle is the heart drawn so, gone
+  into in its left ventricle's wall ("The heart" below).
+- **Skeletal muscle.** The plates draw the front of the thigh from the iliac
+  spines to the knee (Netter; Gray 1918, fig. 430). Its muscles were
+  measured in 21 limbs from people the figure's height: the rectus femoris
+  36.3 cm long, the sartorius 44.8 and the adductor longus 21.8, with their
+  fibres' angles (Ward et al. 2009). Human muscle is biopsied from the
+  vastus lateralis with the Bergström needle (Shanely et al. 2014), best
+  between half and three quarters of the way down it, just in front of the
+  iliotibial tract (Chen et al. 2019). *Consequence:* skeletal muscle is the
+  front of the thigh drawn so, gone into in its vastus lateralis there
+  ("Skeletal muscle" below).
+- **The kidney.** Every plate cuts it open from front to back: the cortex
+  and its columns, the pyramids and their papillae, the calyces and the
+  pelvis in the sinus, the vessels at the hilum. Measured: 12 by 6 cm in the
+  textbooks (Alyami et al. 2024) and 10.7 cm long on ultrasound, its cortex
+  1.1 cm thick (El-Reshaid and Abdul-Fattah 2014); 21 pyramids on average
+  (Gregory et al. 2023); some 918,000 glomeruli (Hughson et al. 2014), each
+  about 0.23 mm across (Sasaki et al. 2018), about two to a square
+  millimetre of a cut (Sasaki et al. 2019); the thick ascending limb of the
+  loop of Henle running up through the outer medulla and the medullary rays
+  (Lake et al. 2023), its cells making most of the uromodulin (Karagiannidis
+  et al. 2024); the renal artery 5.5 mm across (Abd Elrahim 2020). A kidney
+  is biopsied at its lower pole, through its cortex (Granata et al. 2021).
+  *Consequence:* the kidney is drawn so, and gone into in its lower pole's
+  cortex ("The kidney" below).
+- **The liver.** It is read as a coronal CT reads it: the vena cava behind
+  the caudate lobe, the hepatic veins fanning out of it, the portal vein
+  dividing at the porta, its branches in Glisson's sheaths, the gallbladder
+  in its fossa, the round ligament parting the lobes (Marcinkevičiūtė et al.
+  2026; Gray 1918). Measured: 199 by 150 mm in fifty cadavers (Gupta, Sodhi
+  and Yadav 2008) and 14.0 cm long in the midclavicular line in 2,080 adults
+  (Kratzer et al. 2003); the portal vein 10.79 mm (Ayele et al. 2022), the
+  right hepatic vein 8.97 (Gündoğdu 2023), the vena cava 21 at most (Rudski
+  et al. 2010), the bile duct 3.1 to 4.4 (Hela and Maitra 2025), the
+  gallbladder 7 to 10 cm long (Gray 1918). *Consequence:* the liver is drawn
+  so, a composite of its cut ("The liver" below).
+- **The stomach.** The plates open it from the front: the fundus, the body,
+  the antrum and the pyloric canal, the rugae for the most part lengthwise,
+  the pylorus a ring of its circular muscle, the arteries along its two
+  curvatures (Gray 1918). Its wall is 5.1 ± 1.1 mm on ultrasound (Rapaccini
+  et al. 1988) and 3.27 on endoscopic ultrasound (Larsen et al. 2011),
+  thickest in the antrum and thinnest in the fundus in resected stomachs
+  (Endo et al. 2025); the left gastric artery is 2.7 mm across and the right
+  1.6 (Tuan et al. 2026), the right gastroepiploic 2.49 at its origin
+  (Howell et al. 2018). *Consequence:* the stomach is drawn so, opened from
+  the front ("The stomach" below).
+- **The esophagus.** Gray (1918) gives its course, 23 to 25 cm from the
+  cricoid to the cardia, its curves, its constrictions and its abdominal
+  part, and its four coats. Its wall is 4 to 5.7 mm thick where it is
+  contracted and 1.9 to 2.7 where it is distended, on CT (Xia et al. 2009);
+  its muscle is thickest at the gastroesophageal ring (Liebermann-Meffert et
+  al. 1979); the cricopharyngeus is the upper sphincter's lower third
+  (Sivarao and Goyal 2000); the aorta beside it is 2.4 to 2.6 cm across
+  (Hager et al. 2002). GTEx takes its mucosa in its lower third, at least 4
+  cm above the gastroesophageal junction (GTEx Portal). *Consequence:* the
+  esophagus is drawn so, opened from the front down its length, and gone
+  into in its lower third ("The esophagus" below).
+- **The skin.** GTEx takes sun-exposed skin 2 cm below the knee, on the
+  leg's inner side (GTEx Portal). Measured: the epidermis 56.6 to 81.5 µm
+  (Sandby-Møller et al. 2003), 76.5 pooled (Xu et al. 2017); the calf's
+  dermis 1.72 mm and its whole skin 1.83 (Wang et al. 2025); 57 eccrine
+  glands to the square centimetre of the leg, each coil about 3.5 mm of tube
+  40 µm across (Taylor and Machado-Moreira 2013); two vascular plexuses
+  joined by paired vessels (Braverman 1997); melanocytes in the basal layer,
+  955 to the square millimetre (Xu et al. 2017), and in the hair bulb
+  (Slominski et al. 2005); the calf's follicles the fewest of seven sites
+  (Otberg et al. 2004); the follicle, its sebaceous gland and its arrector
+  pili, and the sweat glands, as Gray (1918) describes them, his Pacinian
+  corpuscles only on the palm, the sole and the genitals. *Consequence:* the
+  skin is a block of it cut there ("The skin" below).
+- **The thyroid.** It is seen from the front in place: each lobe about 5 cm
+  long, the isthmus over the second and third tracheal rings, the carotids
+  and the jugulars at its sides; cut, it is brownish red, of vesicles parted
+  by septa from its capsule (Gray 1918). In 132 women it held 17.5 ml
+  (Hegedüs et al. 1983), so its lobes are drawn 20 mm across; the common
+  carotid is 6.10 mm and the internal 4.66 (Krejza et al. 2006); the
+  trachea's lumen 14.8 mm (Zahedi-Nejad et al. 2011); the thyroid
+  cartilage's laminae 27 mm tall (Vadgaonkar et al. 2024). A pyramidal lobe
+  rises in 42.8% of people (Ostrowski et al. 2023), less than half, so none
+  is drawn. *Consequence:* the thyroid is drawn so, its right lobe cut open
+  ("The thyroid" below).
+- **The adrenal.** Each gland lies above and in front of its kidney's upper
+  end, 3 to 5 cm long and 4 to 6 mm thick, the right roughly triangular, its
+  vein to the vena cava, the left crescentic, its vein to the renal vein;
+  cut, the cortex is deep yellow and the medulla dark (Gray 1918). On CT the
+  right gland's body is 0.61 cm across and the left's 0.79, their limbs
+  about 0.3 (Vincent et al. 1994). *Consequence:* the adrenal is drawn so,
+  each side of its own shape, cut through its thickness ("The adrenal"
+  below).
+- **The pituitary.** It is about 1 cm across in its fossa, its anterior lobe
+  kidney-shaped round the posterior, the pars intermedia a thin lamina
+  between them, the chiasm in front of its stalk (Gray 1918), and 5.78 mm
+  tall and 10.25 long on MRI (Saba et al. 2017); the brain's own lobes, on
+  its template (Lau et al. 2019), are 7.2 by 11.2. *Consequence:* the
+  pituitary is drawn cut down its middle in the brain's own coordinates, so
+  the two stops agree ("The pituitary" below).
+- **The lymph node.** It is a bean with a hilum, afferent vessels all round
+  it, its cortex lighter than its medulla, trabeculae from its capsule and a
+  sinus under it, follicles in the cortex and cords in the medulla (Gray
+  1918); cortex, paracortex and medulla, B cells in the follicles and T
+  cells in the paracortex (Willard-Mack 2006). A normal node is under 10 mm
+  across its short axis and oval, its long axis more than twice its short
+  (Möller et al. 2026). *Consequence:* the node is drawn so, 18 by 8.4 mm,
+  cut through its hilum ("The lymph node" below).
+- **The fallopian tube.** It is about 10 cm long: its isthmus, its ampulla
+  arching over the ovary, its infundibulum ringed by fimbriae, one of them
+  attached to the ovary; its mucosa in longitudinal folds, far more
+  extensive in the ampulla than in the isthmus, ciliated, as on the
+  fimbriae's inner faces (Gray 1918). *Consequence:* the tube is drawn so,
+  along the anatomogram's own course, opened along its length ("The
+  fallopian tube" below).
+- **The placenta.** Its villi branch in the intervillous space, bathed in
+  maternal blood, some anchored to the basal plate; septa rise from the
+  basal plate between its lobules and never reach the chorionic plate; the
+  cord's vessels radiate under the amnion (Gray 1918; Quaye et al. 2026). It
+  is 39.9 mm thick in utero at 40 weeks (Ali et al. 2026) and 1.72 cm once
+  delivered (Park et al. 2018); a converted spiral artery is 0.4 to 0.5 mm
+  across, its mouth 2.4 mm, opening into a lobule's villus-free cavity, the
+  lobules 2 to 3 cm (Burton et al. 2009); the cord is 186 mm² in section
+  (Rostamzadeh et al. 2015) and coils 0.34 times a centimetre (Celik et al.
+  2026); the uterine wall is 6.3 to 6.9 mm at 34 weeks (Louwagie et al.
+  2021), thicker behind the placenta (Degani et al. 1998). *Consequence:*
+  the placenta is a block cut through its whole thickness in its uterine
+  wall ("The placenta" below).
+- **The fat.** The abdomen's subcutaneous tissue has a superficial layer of
+  round lobes between vertical septa, a membranous layer, and a deep layer
+  of large flat lobes between oblique septa (Lancerotto et al. 2011; Markman
+  and Barton 1987; Fede et al. 2025). In 300 women of normal weight it is
+  17.48 mm thick by ultrasound, its superficial layer 8.18 (Annunziata et
+  al. 2025), and the skin over it 2.29 mm (Sim et al. 2014); perforators of
+  the deep inferior epigastric artery reach the skin through the rectus
+  (Childs et al. 2023). Abdominal fat is biopsied at the navel's level 4 to
+  8 cm beside it (Dineen et al. 2023; Lynch et al. 2024; Lempesis et al.
+  2024). *Consequence:* adipose tissue is a block of the abdominal wall cut
+  5 cm beside the navel ("The fat" below).
 - **The bladder.** Anatomy plates open it from the front (Gray 1918, Fig.
   1140). Moderately full it holds about half a litre and is an oval about
   12 cm long. Its mucosa, "of a pale rose color", is loosely attached to
@@ -273,6 +460,27 @@ convention is, where it comes from, and what it decided:
 
 Sources:
 
+- Abd Elrahim E. Computed tomography evaluation of renal artery morphometry
+  in adults. The impact of age and gender. Saudi Med J 2020;41:34–37.
+- Ahn D, Yeo CK, Han SY, Kim JK. The accessory parotid gland and facial
+  process of the parotid gland on computed tomography. PLoS One
+  2017;12:e0184633.
+- Ali MM et al. Relationship between Placental Thickness and Gestational Age
+  and Development of Novel Normative Percentile Charts and Table of
+  Placental Thickness During Pregnancy: A Systematic Review. J Med
+  Ultrasound 2026;34:9–21.
+- Alyami AS et al. Normal sonographic measurements for kidney dimensions in
+  Saudi adult population: A cross-sectional prospective study. Medicine
+  (Baltimore) 2024;103:e38607.
+- Annunziata G et al. Association among measurements obtained using portable
+  ultrasonography with sex, body mass index, and age in a large sample of
+  adult population. J Transl Med 2025;23:236.
+- Avishai G et al. Anatomical Features of the Parotid Duct in Sialography as
+  an Aid to Endoscopy-A Retrospective Study. Diagnostics (Basel)
+  2022;12:1868.
+- Ayele T et al. Ultrasonographic Determination of Portal Vein Diameter
+  Among Adults with and without Chronic Liver Disease at Selected Referral
+  Hospitals in Southern Ethiopia. Int J Gen Med 2022;15:45–52.
 - Baumgartner M et al. Genes occupy a fixed and symmetrical position on
   sister chromatids. Cell 1991;64:761–766.
 - Beckwith KS et al. Nanoscale DNA tracing reveals the self-organization
@@ -284,8 +492,25 @@ Sources:
   chromosomes is not chromatin. Mol Cell 2016;64:790–802.
 - Boyle S et al. The spatial organization of human chromosomes within the
   nuclei of normal and emerin-mutant cells. Hum Mol Genet 2001;10:211–219.
+- Braverman IM. The cutaneous microcirculation: ultrastructure and
+  microanatomical organization. Microcirculation 1997;4:329–340.
+- Burton GJ, Woods AW, Jauniaux E, Kingdom JC. Rheological and physiological
+  consequences of conversion of the maternal spiral arteries for
+  uteroplacental blood flow during human pregnancy. Placenta
+  2009;30:473–482.
+- Celik ZB et al. Umbilical Coiling Index, Doppler Parameters, and Cord
+  Blood Gas Analysis: Lack of Correlation in Uncomplicated Term Pregnancies.
+  J Clin Med 2026;15:1810.
 - Chasis JA, Mohandas N. Erythroblastic islands: niches for erythropoiesis.
   Blood 2008;112:470–478.
+- Chen X et al. Neurovascular structures in human vastus lateralis muscle
+  and the ideal biopsy site. Scand J Med Sci Sports 2019;29:504–514.
+- Childs C et al. Cutaneous Perfusion Dynamics of the Lower Abdomen in
+  Healthy Normal Weight, Overweight and Obese Women: Methods Development
+  Using Infrared Thermography with Applications for Future Wound Management
+  after Caesarean Section. Int J Environ Res Public Health 2023;20:5100.
+- Cho E et al. Anthropometry of the External Ear in Korean Adults: A
+  Multicenter Study. J Korean Med Sci 2025;40:e107.
 - Croft JA et al. Differences in the localization and morphology of
   chromosomes in the human nucleus. J Cell Biol 1999;145:1119–1131.
 - Daban JR. Stacked thin layers of metaphase chromatin explain the
@@ -293,50 +518,150 @@ Sources:
 - Davey CA et al. Solvent mediated interactions in the structure of the
   nucleosome core particle at 1.9 Å resolution. J Mol Biol
   2002;319:1097–1113.
+- Degani S et al. Myometrial thickness in pregnancy: longitudinal
+  sonographic study. J Ultrasound Med 1998;17:661–665.
+- Dineen RA et al. Tissue glucocorticoid metabolism in adrenal
+  insufficiency: a prospective study of dual-release hydrocortisone therapy.
+  J Clin Endocrinol Metab 2023;108:3178–3189.
+- Dodge JT, Brown BG, Bolson EL, Dodge HT. Lumen diameter of normal human
+  coronary arteries. Influence of age, sex, anatomic variation, and left
+  ventricular hypertrophy or dilation. Circulation 1992;86:232–246.
+- Duvernoy HM. The Human Brain: Surface, Blood Supply, and Three-Dimensional
+  Sectional Anatomy, 2nd edn. Springer, 1999.
+- El-Reshaid W, Abdul-Fattah H. Sonographic assessment of renal size in
+  healthy adults. Med Princ Pract 2014;23:432–436.
 - EMBL. Condensin shaping mitotic chromosomes by looping DNA. Illustration
   by Tobias Wüstefeld/Illustratoren.de, EurekAlert! multimedia 936863.
+- Endo Y et al. Factors Affecting Histological Gastric Wall Thickness in
+  Japanese Patients with Obesity. Obes Surg 2025;35:946–951.
 - Expression Atlas, EMBL-EBI: anatomograms, CC BY 4.0
   (<https://www.ebi.ac.uk/gxa/licence.html>), which asks to be cited as
   "Expression Atlas in 2026: enabling FAIR and open expression data through
   community collaboration and integration", Nucleic Acids Research, 2025.
+- EyeWiki, American Academy of Ophthalmology. Ora serrata.
+- Fang KM et al. Ultrasonographic and elastographic biometry in adult major
+  salivary glands: a preliminary case-control report. Sci Rep 2019;9:8885.
+- Fede C et al. The Human Superficial Fascia: A Narrative Review. Int J Mol
+  Sci 2025;26:1289.
 - Feinberg GL, Torkzad C, Terris MK. Sagittal long-axis bladder diameter
   and CT-measured bladder wall thickness in healthy female patients.
   Cureus 2026;18:e116549.
 - Gibcus JH et al. A pathway for mitotic chromosome formation. Science
   2018;359:eaao6135.
+- Granata A et al. Performing an Ultrasound-Guided Percutaneous Needle
+  Kidney Biopsy: An Up-To-Date Procedural Review. Diagnostics (Basel)
+  2021;11:2186.
 - Gray H. Anatomy of the Human Body, 20th edn. Lea & Febiger, 1918.
+- Gregory AV et al. The Number and Size of Individual Kidney Medullary
+  Pyramids is Associated with Clinical Characteristics, Kidney Biopsy
+  Findings, and CKD Outcomes among Kidney Donors. J Am Soc Nephrol
+  2023;34:1752–1763.
+- GTEx Consortium. Tissue procurement standard operating procedure (heart:
+  the anterior left ventricle), as `tool/zoom/anatomogram.py` cites it.
 - GTEx Portal. Tissue site details, dataset gtex_v10: each tissue's
   sampling site (<https://gtexportal.org/api/v2/dataset/tissueSiteDetail>,
   read 2026-11-04).
+- Gündoğdu E. Relationship of the Presence of the Inferior Right Hepatic
+  Vein with the Right Hepatic Vein Diameter and CT Liver Volumetry. Indian J
+  Radiol Imaging 2023;33:332–337.
+- Gupta M, Sodhi L, Yadav TD. Morphology of liver. Indian J Surg
+  2008;70:3–7.
+- Hager A et al. Diameters of the thoracic aorta throughout life as measured
+  with helical computed tomography. J Thorac Cardiovasc Surg
+  2002;123:1060–1066.
 - Halladjian S et al. ScaleTrotter: illustrative visual travels across
   negative scales. IEEE Trans Vis Comput Graph 2020;26:654–664.
+- Hegedüs L et al. The determination of thyroid volume by ultrasound and its
+  relationship to body weight, age, and sex in normal subjects. J Clin
+  Endocrinol Metab 1983;56:260–263.
+- Hela S, Maitra D. Age-Related Variation in the Diameter of the Common Bile
+  Duct and Its Association With Anthropometric Parameters: An
+  Ultrasonographic Study in an Eastern Indian Cohort. Cureus 2025;17:e95232.
 - Hoshi O, Ushiki T. Three-dimensional structure of G-banded human
   metaphase chromosomes observed by atomic force microscopy. Arch Histol
   Cytol 2001;64:475–482.
+- Howell AC et al. Anatomical Basis of the Gastroepiploic Vascularized Lymph
+  Node Transfer: A Radiographic Evaluation Using Computed Tomographic
+  Angiography. Plast Reconstr Surg 2018;142:1046–1052.
+- Hughson MD et al. Hypertension, glomerular hypertrophy and
+  nephrosclerosis: the effect of race. Nephrol Dial Transplant
+  2014;29:1399–1409.
 - ISCN 2020: An International System for Human Cytogenomic Nomenclature.
   Karger, 2020.
+- Iwanaga J et al. Facial landmark-based localization of the parotid duct: a
+  cadaveric study with ultrasonographic feasibility assessment. Sci Rep
+  2026;16:11082.
 - Kanyilmaz S, Calis FA, Cinar Y. Bladder wall thickness and ultrasound
   estimated bladder weight in healthy adults with portative ultrasound
   device. J Res Med Sci 2013;18:103–106.
 - Kanz F, Fitzl C, Vlcek A, Frommlet F. Sex estimation using the femur of
   Austrians born in the 19th to the middle of the 20th century. Anthropol
   Anz 2015;72:117–127.
+- Karagiannidis AG et al. Uromodulin biology. Nephrol Dial Transplant
+  2024;39:1073–1087.
 - Karlsson M et al. A single-cell type transcriptomics map of human tissues.
   Sci Adv 2021;7:eabh2169.
+- Kawel-Boehm N et al. Reference ranges ("normal values") for cardiovascular
+  magnetic resonance (CMR) in adults and children: 2020 update. J Cardiovasc
+  Magn Reson 2020;22:87.
+- Khoa TD et al. Anatomical Characteristics of Facial Nerve Trunk in
+  Vietnamese Adult Cadavers. Open Access Maced J Med Sci 2019;7:4230–4238.
+- Kim YH, Marom EM, Herndon JE, McAdams HP. Pulmonary vein diameter,
+  cross-sectional area, and shape: CT analysis. Radiology 2005;235:43–50.
 - Kizilkanat E et al. Location, number and clinical significance of
   nutrient foramina in human long bones. Ann Anat 2007;189:87–95.
 - Koch JC. The laws of bone architecture. Am J Anat 1917;21:177–298.
+- Kolb H, Fernandez E, Nelson R (eds). Webvision: The Organization of the
+  Retina and Visual System. University of Utah
+  (<https://webvision.med.utah.edu>).
+- Kratzer W et al. Factors affecting liver size: a sonographic survey of
+  2080 subjects. J Ultrasound Med 2003;22:1155–1161.
+- Krejza J et al. Carotid artery diameter in men and women and the relation
+  to body and neck size. Stroke 2006;37:1103–1105.
 - Kulkarni M et al. CT based measurement of anatomical dimensions of femur
   and its relevance in nail designs for proximal femoral fractures. J
   Orthop 2020;20:63–69.
 - Lafontaine DLJ, Riback JA, Bascetin R, Brangwynne CP. The nucleolus as a
   multiphase liquid condensate. Nat Rev Mol Cell Biol 2021;22:165–182.
+- Lake BB et al. An atlas of healthy and injured cell states and niches in
+  the human kidney. Nature 2023;619:585–594.
+- Lancerotto L et al. Layers of the abdominal wall: anatomical investigation
+  of subcutaneous tissue and superficial fascia. Surg Radiol Anat
+  2011;33:835–842.
+- Lang RM et al. Recommendations for cardiac chamber quantification by
+  echocardiography in adults: an update from the American Society of
+  Echocardiography and the European Association of Cardiovascular Imaging.
+  Eur Heart J Cardiovasc Imaging 2015;16:233–270.
+- Larsen MC, Yan BM, Morton J, Van Dam J. Determination of the relationship
+  between gastric wall thickness and body mass index with endoscopic
+  ultrasound. Obes Surg 2011;21:300–304.
+- Lau JC et al. A framework for evaluating correspondence between brain
+  images using anatomical fiducials. Hum Brain Mapp 2019;40:4163–4179.
+- Le Grand Y, El Hage SG. Physiological Optics. Springer, 1980.
+- Lempesis IG et al. Impaired mitochondrial respiration in upper compared to
+  lower body differentiated human adipocytes and adipose tissue. J Clin
+  Endocrinol Metab 2024;109:e2291–e2301.
+- Liebermann-Meffert D, Allgöwer M, Schmid P, Blum AL. Muscular equivalent
+  of the lower esophageal sphincter. Gastroenterology 1979;76:31–38.
 - Lotti F et al. The European Academy of Andrology (EAA) ultrasound study
   on healthy, fertile men: scrotal ultrasound reference ranges and
   associations with clinical, seminal, and biochemical characteristics.
   Andrology 2021;9:559–576.
+- Louwagie EM et al. Longitudinal ultrasonic dimensions and parametric solid
+  models of the gravid uterus and cervix. PLoS One 2021;16:e0242118.
 - Luger K et al. Crystal structure of the nucleosome core particle at 2.8 Å
   resolution. Nature 1997;389:251–260.
+- Lynch CE et al. Adipose biopsy techniques for studies in human exercise
+  physiology. Am J Physiol Regul Integr Comp Physiol 2024;326:R220–R229.
+- Marcinkevičiūtė K, Šilinskaitė U, Lukšaitė-Lukštė R, Kvietkauskas M.
+  Radiology for surgeons: liver anatomy. Front Surg 2026;13:1743615.
+- Margolis R, Spaide RF. A pilot study of enhanced depth imaging optical
+  coherence tomography of the choroid in normal eyes. Am J Ophthalmol
+  2009;147:811–815.
+- Markman B, Barton FE. Anatomy of the subcutaneous tissue of the trunk and
+  lower extremity. Plast Reconstr Surg 1987;80:248–254.
+- Maurice DM. The cornea and sclera. In: Davson H (ed.), The Eye, 2nd edn,
+  vol. 1. Academic Press, 1969.
 - McStay B. Nucleolar organizer regions: genomic 'dark matter' requiring
   illumination. Genes Dev 2016;30:1598–1610.
 - Middleton WD et al. High-resolution sonography of the normal extrapelvic
@@ -344,6 +669,9 @@ Sources:
 - Mitchell DG et al. Hematopoietic and fatty bone marrow distribution in
   the normal and ischemic hip: new observations with 1.5-T MR imaging.
   Radiology 1986;161:199–202.
+- Möller K et al. Lymph Node Assessment with Multiparametric Ultrasound:
+  Normal Values, Morphologic Patterns, and Diagnostic Algorithms. Cancers
+  (Basel) 2026;18:1045.
 - Moore SG, Dawson KL. Red and yellow marrow in the femur: age-related
   changes in appearance at MR imaging. Radiology 1990;175:219–223.
 - Morales J et al. A joint NCBI and EMBL-EBI transcript set for clinical
@@ -351,55 +679,136 @@ Sources:
 - Moyzis RK et al. A highly conserved repetitive DNA sequence, (TTAGGG)n,
   present at the telomeres of human chromosomes. Proc Natl Acad Sci USA
   1988;85:6622–6626.
+- Muraru D et al. Reference ranges of tricuspid annulus geometry in healthy
+  adults using a dedicated three-dimensional echocardiography software
+  package. Front Cardiovasc Med 2022;9:1011931.
 - Musacchio A, Desai A. A molecular view of kinetochore assembly and
   function. Biology (Basel) 2017;6:5.
 - Nakanishi K et al. MR-based three-dimensional presentation of cartilage
   thickness in the femoral head. Eur Radiol 2001;11:2178–2183.
 - Naumova N et al. Organization of the mitotic chromosome. Science
   2013;342:948–953.
+- Nemes A, Ambrus N, Lengyel C. Insights into the relationship between
+  mitral annular dimensions, derived sphincter-like features and systolic
+  longitudinal excursion of the mitral annular plane in healthy adults from
+  the MAGYAR-Healthy Study. Quant Imaging Med Surg 2025;15:4748–4757.
+- Netter FH. Atlas of Human Anatomy. Elsevier: "Muscles of thigh: anterior
+  view".
+- Nguyen PD, Pham DD, Le TQ, Nguyen VH. Topographic and morphometric anatomy
+  of the superficial temporal artery for STA-MCA bypass in Vietnamese
+  adults. Surg Radiol Anat 2026;48:221.
 - Niimura Y, Gojobori T. In silico chromosome staining: reconstruction of
   Giemsa bands from the whole human genome sequence. Proc Natl Acad Sci
   USA 2002;99:797–802.
 - Niu J et al. Age-related marrow conversion and developing epiphysis in
   the proximal femur: evaluation with STIR MR imaging. J Huazhong Univ Sci
   Technolog Med Sci 2007;27:617–621.
+- Nokovitch L et al. [Anatomical characteristics of the superficial temporal
+  venous system and implications in microsurgery]. Ann Chir Plast Esthet
+  2021;66:250–256.
 - Oelke M, Höfner K, Jonas U, et al. Ultrasound measurement of detrusor
   wall thickness in healthy adults. Neurourol Urodyn 2006;25:308–317.
+- Olsen TW, Aaberg SY, Geroski DH, Edelhauser HF. Human sclera: thickness
+  and surface area. Am J Ophthalmol 1998;125:237–241.
+- Ono M, Kubik S, Abernathey CD. Atlas of the Cerebral Sulci. Thieme, 1990.
+- OpenStax. Anatomy and Physiology 2e. Rice University, 2022, fig. 19.9.
+- Ostrowski P et al. The prevalence and anatomy of the pyramidal lobe of the
+  thyroid gland: A meta-analysis with implications for thyroid surgery. Clin
+  Anat 2023;36:937–945.
+- Otberg N et al. Variations of hair follicle size and distribution in
+  different body sites. J Invest Dermatol 2004;122:14–19.
 - Ou HD et al. ChromEMT: visualizing 3D chromatin structure and compaction
   in interphase and mitotic cells. Science 2017;357:eaag0025.
 - Paner GP, Ro JY, Wojcik EM, et al. Further characterization of the
   muscle layers and lamina propria of the urinary bladder by systematic
   histologic mapping: implications for pathologic staging of invasive
   urothelial carcinoma. Am J Surg Pathol 2007;31:1420–1429.
+- Park BY et al. Placental gross shape differences in a high autism risk
+  cohort and the general population. PLoS One 2018;13:e0191276.
 - Paulson JR, Laemmli UK. The structure of histone-depleted metaphase
   chromosomes. Cell 1977;12:817–828.
+- Polyak SL. The Retina. University of Chicago Press, 1941.
 - Poonperm R et al. Chromosome scaffold is a double-stranded assembly of
   scaffold proteins. Sci Rep 2015;5:11916.
+- Quaye D et al. The human placenta development and anatomy. Arch Gynecol
+  Obstet 2026;313:234.
+- Radiopaedia.org: the long posterior ciliary arteries, as
+  `eye_anatomy.dart` cites it.
 - Raman JD, Goldstein M. Intraoperative characterization of arterial
   vasculature in spermatic cord. Urology 2004;64:561–564.
+- Rana K et al. Normative measurements of orbital structures by magnetic
+  resonance imaging. Int Ophthalmol 2022;42:3869–3875.
+- Rapaccini GL et al. Gastric wall thickness in normal and neoplastic
+  subjects: a prospective study performed by abdominal ultrasound.
+  Gastrointest Radiol 1988;13:197–199.
 - Ricordi C et al. Islet isolation assessment in man and large animals.
   Acta Diabetol Lat 1990;27:185–195.
+- Rostamzadeh S, Kalantari M, Shahriari M, Shakiba M. Sonographic
+  Measurement of the Umbilical Cord and Its Vessels and Their Relation with
+  Fetal Anthropometric Measurements. Iran J Radiol 2015;12:e12230.
+- Rudski LG et al. Guidelines for the echocardiographic assessment of the
+  right heart in adults: a report from the American Society of
+  Echocardiography endorsed by the European Association of Echocardiography,
+  a registered branch of the European Society of Cardiology, and the
+  Canadian Society of Echocardiography. J Am Soc Echocardiogr
+  2010;23:685–713.
+- Rüfer F, Schröder A, Erb C. White-to-white corneal diameter: normal values
+  in healthy humans obtained with the Orbscan II topography system. Cornea
+  2005;24:259–261.
+- Saba M, Ebrahimi HA, Ahmadi-Pour H, Khodadoust M. Height, shape and
+  anterior-posterior diameter of pituitary gland on magnetic resonance
+  imaging among patients with multiple sclerosis compared to normal
+  individuals. Iran J Neurol 2017;16:218–220.
+- Sagkriotis E, Gyftopoulos K, Goulioumis A. Extratemporal Facial Nerve:
+  Surgical Landmarks, Risk Zones, and a Practical Framework for Safe
+  Dissection. Laryngoscope Investig Otolaryngol 2026;11:e70544.
+- Sandby-Møller J, Poulsen T, Wulf HC. Epidermal thickness at different body
+  sites: relationship to age, gender, pigmentation, blood content, skin type
+  and smoking habits. Acta Derm Venereol 2003;83:410–413.
 - Sandhar S, Nedopil AJ, Hull ML. Cartilage thickness at the apex of
   femoral resections in kinematically aligned total knee arthroplasty is
   close to 2.5 millimeters. J Exp Orthop 2026;13:e70641.
+- Sasaki T et al. Bowman Capsule Volume and Related Factors in Adults With
+  Normal Renal Function. Kidney Int Rep 2018;3:314–320.
+- Sasaki T et al. Estimation of nephron number in living humans by combining
+  unenhanced computed tomography with biopsy-based stereology. Sci Rep
+  2019;9:14400.
 - Schones DE et al. Dynamic regulation of nucleosome positioning in the
   human genome. Cell 2008;132:887–898.
 - Schröck E et al. Multicolor spectral karyotyping of human chromosomes.
   Science 1996;273:494–497.
+- Shanely RA et al. Human skeletal muscle biopsy procedures using the
+  modified Bergström technique. J Vis Exp 2014;91:51812.
 - Shemilt LA et al. Scanning electron microscope studies of human
   metaphase chromosomes. Philos Trans A Math Phys Eng Sci
   2014;372:20130144.
+- Sim KH et al. The appropriateness of the length of insulin needles based
+  on determination of skin and subcutaneous fat thickness in the abdomen and
+  upper arm in patients with type 2 diabetes. Diabetes Metab J
+  2014;38:120–133.
 - Singh M, Nagrath AR, Maini PS. Changes in trabecular pattern of the upper
   end of the femur as an index of osteoporosis. J Bone Joint Surg Am
   1970;52:457–467.
+- Singh S, Dass R. The central artery of the retina. I. Origin and course.
+  Br J Ophthalmol 1960;44:193–212.
+- Singh S, Sharma BR, Bhatta M, Poudel N. Measurement of anteroposterior
+  diameters of normal brainstem by magnetic resonance imaging. J Gandaki Med
+  Coll Nepal 2019;12:53–58.
 - Sivak MV, Sullivan BH. Endoscopic retrograde pancreatography. Am J Dig
   Dis 1976;21:263–269.
+- Sivarao DV, Goyal RK. Functional anatomy and physiology of the upper
+  esophageal sphincter. Am J Med 2000;108 Suppl 4a:27S–37S.
+- Slominski A et al. Hair follicle pigmentation. J Invest Dermatol
+  2005;124:13–21.
 - Speicher MR, Ballard SG, Ward DC. Karyotyping human chromosomes by
   combinatorial multi-fluor FISH. Nat Genet 1996;12:368–375.
 - Standring S (ed.). Gray's Anatomy: The Anatomical Basis of Clinical
   Practice, 42nd edn. Elsevier, 2020.
 - Sumner AT. Scanning electron microscopy of mammalian chromosomes from
   prophase to telophase. Chromosoma 1991;100:410–418.
+- Taylor NA, Machado-Moreira CA. Regional variations in transepidermal water
+  loss, eccrine sweat gland density, sweat secretion rates and electrolyte
+  composition in resting and exercising humans. Extrem Physiol Med 2013;2:4.
 - Thiesen DM et al. A comparison between Asians and Caucasians in the
   dimensions of the femoral isthmus based on a 3D-CT analysis of 1189 adult
   femurs. Eur J Trauma Emerg Surg 2022;48:2379–2386.
@@ -407,18 +816,49 @@ Sources:
   2017;356:eaal3321.
 - Trask BJ. Fluorescence in situ hybridization: applications in
   cytogenetics and gene mapping. Trends Genet 1991;7:149–154.
+- Tuan HNA et al. Computed Tomography-Based Anatomical and Morphometric
+  Analysis of the Left and Right Gastric Arteries in a Vietnamese
+  Population. Anat Histol Embryol 2026;55:e70162.
 - Uhlén M et al. Tissue-based map of the human proteome. Science
   2015;347:1260419.
 - Ushiki T, Hoshi O. Atomic force microscopy for imaging human metaphase
   chromosomes. Chromosome Res 2008;16:383–396.
+- Vadgaonkar R et al. Morphometry of the thyroid cartilage, epiglottis and
+  piriform sinus: An anatomical study. F1000Res 2024;13:115.
+- Vincent JM, Morrison ID, Armstrong P, Reznek RH. The size of normal
+  adrenal glands on computed tomography. Clin Radiol 1994;49:453–455.
 - Wako T et al. Human metaphase chromosome consists of randomly arranged
   chromatin fibres with up to 30-nm diameter. Sci Rep 2020;10:8948.
 - Walther N et al. A quantitative map of human Condensins provides new
   insights into mitotic chromosome architecture. J Cell Biol
   2018;217:2309–2328.
+- Wang BS et al. Increased iris thickness and association with primary angle
+  closure glaucoma. Br J Ophthalmol 2011;95:46–50.
 - Wang X et al. Regional differences in islet distribution in the human
   pancreas: preferential beta-cell loss in the head region in patients
   with type 2 diabetes. PLoS One 2013;8:e67454.
+- Wang Y et al. Quantification of normal skin thickness using very
+  high-frequency ultrasound: a clinical study in Chinese adults. Quant
+  Imaging Med Surg 2025;15:5218–5231.
+- Ward SR, Eng CM, Smallwood LH, Lieber RL. Are current measurements of
+  lower extremity muscle architecture accurate? Clin Orthop Relat Res
+  2009;467:1074–1082.
+- Watcharakorn A, Witayapiboon S, Mingkwansook V. Measurement of normal
+  diameter of optic nerve and optic nerve sheath using MRI. Sci Technol Asia
+  2021;26:167–173.
+- Willard-Mack CL. Normal structure, function, and histology of lymph nodes.
+  Toxicol Pathol 2006;34:409–424.
+- Xia F, Mao J, Ding J, Yang H. Observation of normal appearance and wall
+  thickness of esophagus on CT images. Eur J Radiol 2009;72:406–411.
+- Xu H et al. Reference values for skin microanatomy: A systematic review
+  and meta-analysis of ex vivo studies. J Am Acad Dermatol
+  2017;77:1133–1144.e4.
+- Xue Q, Zou H. Panoramic observation of crystalline lenses with 25 MHz
+  ultrasonograph. J Ophthalmol 2019;2019:8319027.
+- Yamada E. Some structural features of the fovea centralis in the human
+  retina. Arch Ophthalmol 1969;82:151–159.
+- Zahedi-Nejad N et al. Normal dimensions of trachea and two main bronchi in
+  the Iranian population. Pol J Radiol 2011;76:28–31.
 
 ## Visual language
 
@@ -579,10 +1019,12 @@ as the figure's own edge.
 body drew for it (`OrganArt`), so the step is one shape seen closer. It
 comes up over the body's own drawing of the organ early in the step, and
 `zoom_anatomy_test` holds the two to the same point of the screen while both
-show. On the way in, the body's line art and its unlit organs give way. The
-pancreas, the testis, the bone marrow's femur and the bladder then draw in
-to outlines of their own ("The pancreas", "The testis", "The bone marrow"
-and "The bladder" below).
+show. On the way in, the body's line art and its unlit organs give way.
+Fifteen of the specimens below then draw in to outlines of their own
+(`_SpecimenOrgan`, `OutlineMorph`), each becoming the bed its specimen
+comes up over (`SpecimenStep`). The brain, the eye, the skin, the lymph
+node, the placenta and the fat, which the body draws no outline of that
+shows them, come up over the body's drawing instead, a crossfade.
 
 **Its real size.** The anatomogram is a diagram: it draws a stomach 11 cm
 long and a pancreas 9. Each organ therefore knows how many times its drawn
@@ -594,50 +1036,63 @@ dot of the accent in a thin ring of the bright ink, in a soft glow
 (`Sculpt.beacon`). It gives way to the loupe as it opens there.
 
 **In place.** The figure's own parts near the organ are drawn faintly round
-it, fading with their distance from it. The pancreas and the testis have
-their own neighbours instead, and the figure's parts go as those come up.
-The femur has none but its artery, and the figure's parts stay round it.
-Round the bladder they stay too, all but the figure's smooth muscle, which
-the anatomogram draws as the bladder's own wall.
+it, fading with their distance from it, so it is seen at a glance where in
+the body it lies (the user's ask of 2026-10-21). They stay round the bone
+marrow, the heart, the thigh, the kidney, the liver, the stomach, the
+esophagus, the thyroid, the adrenal, the fallopian tube and the bladder,
+round the bladder all but the figure's smooth muscle, which the anatomogram
+draws as the bladder's own wall (`_SpecimenOrgan`'s `notAround`); the
+kidney and the adrenal keep the body's flat drawing of the other one beside
+them, and the thigh the body's four other muscles until its own come up.
+Round the pancreas, the testis, the salivary gland and the pituitary they
+give way to the specimen's own neighbours; the six specimens that
+crossfade come up with none of the figure round them.
 
-**Its anatomy.** The twenty's paths reach thirteen organs. Seven kinds have
-a study of their own (`OrganStudy`), and the pancreas, the testis and the
-bone marrow drawings of their own (below); in each the part the zoom's cell
-lives in is in the accent, by the kind of organ and of cell, never by gene:
+**Its anatomy.** The fifty-four curated proteins' paths reach all
+thirty-six of the organs the zoom draws. Twenty-one are drawn from anatomy
+as specimens, each in a section below, in the neutrals but for vessels,
+nerves and the accent; in each the part the zoom's cell lives in is in the
+accent, by the kind of organ and of cell, never by gene: one flat tone cut
+by its anatomy (the user's choice of 2026-10-19), but in the pancreas, the
+testis and the salivary gland, drawn before it, a wash over their lobules
+or tubules:
 
-| Organ (proteins) | Drawn | In the accent |
+| Organ (proteins) | Drawn as | In the accent, by the cell |
 |---|---|---|
-| Salivary gland (AMY1A, LYZ) | lobules, the duct out of its hilum | the acini |
-| Liver (EPO, SOD1) | two lobes either side of the falciform ligament, portal vessels from the hilum | the lobules, as a honeycomb |
-| Adipose tissue (LEP) | lobes parted by septa, small vessels | the lobes |
-| Skeletal muscle (MB, DMD) | fascicles along its length, tendon at its ends | the fibres |
-| Fallopian tube (RLN2) | opened along its length: its wall, its lumen | the folds of its mucosa |
-| Stomach (TP53) | opened: its wall, the rugae, arcades of vessels along its curvatures | the mucosa |
-| Pituitary gland (GH1) | from the side: posterior lobe, stalk, hypothalamus, the sella turcica | the anterior lobe |
+| Pancreas (CFTR, GCG, INS) | from the front, the stomach taken away | its islets, its ducts, or its lobules |
+| Testis (UBB, IZUMO1, GAPDHS, DMC1) | cut down its length | its tubules, or its Leydig clusters |
+| Salivary gland (AMY1A, LYZ) | the parotid in place, from the side | its acini, its ducts, or the gland |
+| Brain (OXT, PRNP, AVP, S100B, B3GAT1, DNM1, LGI1) | cut down its middle | its cortex, or the choroid plexus |
+| Eye (RCVRN) | cut level through its optic nerve | its retina, or its pigment epithelium |
+| Bone marrow (HBB, TNF, PPBP, FPR1) | a femur cut down its length | its red marrow |
+| Heart (PLN) | cut open from front to back | its myocardium, or its epicardium |
+| Skeletal muscle (DMD, MB) | the front of the thigh | the vastus lateralis |
+| Kidney (UMOD) | cut open from front to back | its cortex, loops of Henle, collecting ducts, papillae or glomeruli |
+| Liver (EPO, SOD1) | cut open from front to back | its parenchyma, or its bile ducts |
+| Stomach (TP53) | opened from the front | its mucosa, or its muscularis |
+| Esophagus (CSTB) | opened from the front, its whole length | its mucosa, or its submucosal glands |
+| Skin (TYRP1) | a block cut from the leg | its basal layer and hair bulbs, its basal layer, its epidermis, its follicles' sheaths, its sebaceous gland, its sweat glands, or its dermis |
+| Thyroid (TG) | from the front in place, a lobe cut open | its follicles, or its C cells |
+| Adrenal (CYP17A1) | cut through its thickness on its kidney | its cortex, or its medulla |
+| Pituitary (GH1) | cut down its middle, in the brain's frame | its anterior lobe, or its posterior |
+| Lymph node (APP) | cut through its hilum | its sinuses, follicles, paracortex, medullary cords or cortex |
+| Fallopian tube (RLN2) | opened along its length in place | its mucosa, or its muscular coat |
+| Placenta (CGB3, PAPPA) | a block cut through it in its wall | its villi, or its decidua |
+| Adipose tissue (LEP) | a block of the abdominal wall | both layers of its fat |
+| Urinary bladder (S100P) | opened from the front | its urothelium |
 
-The brain (OXT, AVP) is the anatomogram's own brain cut down its middle,
-with its sulci, the corpus callosum, the cerebellum's folia and arbor
-vitae and the brainstem, the cortex in the accent; for the choroid plexus
-(PRNP), the lateral ventricle opened, its fronds in the accent. The lymph
-node (APP) is drawn from general anatomy: capsule, follicles, medulla and
-the sinuses, which are in the accent for an endothelial cell, the follicles
-for a leukocyte.
+The vessel (GAS6) and the parathyroid gland (CASR) have drawings of their
+own: a length of artery, and a gland on the back of the thyroid. The
+other thirteen kinds are the anatomogram's own outline, sculpted with a
+surface for its kind:
 
-Every other outline is sculpted with a surface for its kind:
-
-| Look | Organs |
+| Look | Organs (proteins) |
 |---|---|
-| lobules | glands, ovary, prostate, breast, placenta |
-| a wall round a lumen | gallbladder, uterus, gullet |
-| fibres | heart, tongue |
-| airways from the hilum | lung |
-| cortex and pyramids | kidney |
-| coils | intestine, epididymis, seminal vesicle |
-
-Where the anatomogram has no outline that shows a tissue, the organ is
-drawn from general anatomy: a length of artery, a block of skin, a
-parathyroid gland on the back of the thyroid, the eye cut level with the
-retina lining it.
+| lobules | breast (LALBA), ovary (PADI6), prostate (ACP3) |
+| a wall round a lumen | gallbladder (FGF19), uterus (PAEP), cervix (SLPI), vagina (ALOX12) |
+| fibres | smooth muscle (LOXL2), tongue (CKMT2) |
+| airways from the hilum | lung (SFTPD) |
+| coils | intestine (FABP6), epididymis (NPC2), seminal vesicle (ANGPT1) |
 
 **The pancreas.** It is drawn as a fresh specimen under the zoom's one lamp,
 with the stomach taken away (`presentation/scenes/organs/pancreas/`, the
@@ -665,7 +1120,10 @@ the accent:
   third part; the bile duct, seen where it really shows from the front,
   above the duodenum and in the crease beside the head (the user's choice
   over a faint course through the head). The vessels are in the blood red,
-  the veins darker. Nothing is named: the card names the organ.
+  the veins darker. Its names (the user's ask of 2026-10-18): where the
+  cell lives, `islets` for an endocrine cell or `ducts` for a duct cell,
+  its line in the accent, and the `duodenum` and the `spleen` in the quiet
+  ink, set round it; for any other cell the card names the gland.
 - *In the accent,* by the zoom's cell: for an endocrine cell its islets, a
   few hundred drawn at their true size (80 to 240 µm across, never less
   than a pixel), more of them toward the tail and where the gland is
@@ -726,15 +1184,16 @@ the neutrals but for its vessels and the accent:
   the site.
 - *Its names,* the main parts and no more (the user's choice): where the
   cell lives, at the site, its line in the accent (`seminiferous tubules`,
-  or `interstitium` for a Leydig cell), and the `epididymis`, the `rete
-  testis` and the `vas deferens`, in the quiet ink. They are set round the
+  or `interstitium` for a Leydig cell), and the `epididymis`, the
+  `rete testis` and the `vas deferens`, in the quiet ink. They are set round the
   testis and the epididymis; above the head the cord only fades, and a name
   may lie beside its end.
-- *Its view* is framed 1.2 times as tall as wide (`ZoomDepth.testisUpright`),
+- *Its view* is framed 1.1 times as tall as wide (`ZoomDepth.testisUpright`),
   where the anatomogram's oval framed it at 1.45. With the head lifted above
-  it and the tail below, the specimen is taller than the oval, and at 1.45
-  its names had no room on a canvas 320 by 420. The testis is about 290
-  points tall on a phone 390 wide.
+  it and the tail below, the specimen is taller than the oval: at 1.45 its
+  names had no room on a canvas 320 by 420, and at 1.2 none on an iPhone
+  SE's 375 by 459 under a germ cell's card (the user's choice of
+  2026-10-19).
 - *On the step from the body* it comes up as the pancreas does, by the same
   code (`OutlineMorph`, `SpecimenStep`, `_SpecimenOrgan`): the oval, flat
   and lit in the mark, draws in to the testis's outline, matched at their
@@ -806,6 +1265,402 @@ from the front, its head to the left
   head's medial edge, the greater trochanter's lateral edge, each
   condyle's outer edge, and either side of the shaft 30, 50 and 70% of
   the way down.
+
+**The salivary gland.** It is its parotid drawn in place, seen from the side
+with the face to the left, as a dissection shows it with the skin taken away
+(`presentation/scenes/organs/salivary_gland/`, the user's choices of
+2026-10-19):
+
+- *Its shape* is a plate's (`salivary_anatomy.dart`, in millimetres on a
+  gland 60 mm from pole to pole): the parotid below and in front of the ear,
+  its front edge over the masseter, its accessory part detached below the
+  zygomatic arch, its lobules about 3 mm across, a size no study gives.
+- *Round it,* in place of the figure's parts: the masseter, the ear, the
+  arch and the jaw; the parotid duct running forward over the masseter; the
+  facial nerve's five branches leaving its edge, in the helix's honey
+  (`ZoomInks.nerve`); the superficial temporal artery and vein; the
+  submandibular gland below the jaw.
+- *In the accent,* by the cell's shape: its acini for an acinar cell; its
+  ducts for a duct cell, a window down the main duct laying them bare; else
+  the gland's lobules washed.
+- *Its names:* where the cell lives where that is a part of its own
+  (`acini`, `ducts`), and the `parotid duct`, the `facial nerve` and the
+  `submandibular gland`, in the quiet ink, round it.
+- *Its view* is framed 0.7 times as tall as wide
+  (`ZoomDepth.salivaryUpright`), so its names have room above and below it
+  on an iPhone SE's canvas.
+- *On the step from the body* the anatomogram's outline draws in to the
+  parotid's, met at their tops and their bottoms (`OutlineMorph`'s
+  `bottoms`; met at their leftmost points, the step jolted), and becomes the
+  bed its lobules come up on, while the figure's parts give way to its own.
+
+**The brain.** It is cut down its middle, the medial face of its right half
+seen from the left, front to the left (`presentation/scenes/organs/brain/`,
+the user's choices of 2026-10-19):
+
+- *Its shape* (`brain_anatomy.dart`, in millimetres from the anterior
+  commissure on a brain 17 cm long): the fiducials on the MNI152 template
+  where raters placed them (Lau et al. 2019), the rest drawn over its
+  slices: the medial face and its sulci, the corpus callosum, the third
+  ventricle's walls, the thalamus and the hypothalamus, the brainstem, and
+  the vermis with its arbor vitae.
+- *In the accent,* by the tissue: for the cerebral cortex the cortex, one
+  flat tone cut along its sulci as crisp creases, the user's choice over a
+  lit and shaded cortex they read as a photograph; for the choroid plexus
+  the lateral ventricle opened through the septum, the plexus in it.
+- *Round it,* its arteries in their sulci and on the pons; no skull, no dura
+  and no figure.
+- *Its names:* `cortex` where the cell lives in it, and the
+  `corpus callosum`, the `thalamus`, the `hypothalamus`, the `cerebellum`
+  and the `brainstem`, round it.
+- *Its view* is framed by its width.
+- *On the step from the body* it crossfades, the body drawing the brain from
+  the front.
+
+**The eye.** It is the right eye cut level through its optic nerve and seen
+from above, turned a quarter to the left at the user's ask, its cornea to
+the left (`presentation/scenes/organs/eye/`, the user's choices of
+2026-10-19):
+
+- *Its shape* (`eye_anatomy.dart`, in millimetres on a globe 24 mm across,
+  at the sizes above): the sclera, the choroid and the retina from the ora
+  serrata to the disc, thinning into the fovea; the cornea, the iris on the
+  lens, the ciliary body and the lens on its zonules; behind it the optic
+  nerve through the lamina cribrosa in its sheath, the central vessels in
+  it, shown 9 mm; the medial and lateral recti; the long posterior ciliary
+  arteries.
+- *In the accent,* by the cell's shape: the retina, one flat tone at its
+  true thickness with a halo a pixel wide, so that it reads; for a pigment
+  epithelial cell the pigment epithelium under it. The rest is lit softly,
+  the nerve in the helix's honey.
+- *Round it,* its recti and its vessels; no orbit, no lids and no figure.
+- *Its names:* `pigment epithelium` for that cell, and the `cornea`, the
+  `lens` and the `optic nerve`, round it; the card names the retina.
+- *Its view* is framed 0.8 (`ZoomDepth.eyeUpright`).
+- *On the step from the body* it crossfades: the section is drawn about the
+  body's circle of the eye, as large as that circle as the step begins, and
+  grows to the eye's own.
+
+**The heart.** It is cut open from front to back and seen from the front,
+its right on the left: the composite every textbook draws
+(`presentation/scenes/organs/heart/`, the user's choice of 2026-10-22):
+
+- *Its shape* (`heart_anatomy.dart`, in millimetres from the crux, at the
+  sizes above): the four chambers emptied, a rim inside each (`OpeningRim`),
+  the valves' leaflets, the papillary muscles and the moderator band, the
+  septum down to the apex, its long axis 25° from upright as the textbooks
+  draw it; the great vessels rising above it, cut short (`TubeEnd`); the
+  coronary arteries in the fat of the grooves.
+- *Where it is sampled:* in the left ventricle's free wall, where GTEx takes
+  heart muscle (`SITE_RIGHT` in the tool).
+- *In the accent,* by the cell's shape: the myocardium, one flat tone; for
+  an epicardial cell the epicardium.
+- *Round it,* the lungs and the rest of the figure stay, faint.
+- *Its names:* the `right atrium`, the `left atrium`, the `right ventricle`,
+  the `left ventricle` and where the cell lives, round it, the atria's above
+  and the ventricles' below.
+- *Its view* is framed 0.95 (`ZoomDepth.heartUpright`).
+- *On the step from the body* the anatomogram's outline is first grown to
+  the heart's own size, by the square root of their areas, then draws in at
+  six marks, over 0.55 of the detail.
+
+**Skeletal muscle.** It is the front of the right thigh, from the iliac
+spines to the knee, drawn at a person's size
+(`presentation/scenes/organs/skeletal_muscle/`, the user's choices of
+2026-10-22):
+
+- *Its shape* (`thigh_anatomy.dart`): every muscle in shares of the thigh
+  where each figure draws it, across from its lateral edge and down the
+  femur, so the one drawing lies in either figure's thigh, and widths in
+  millimetres: the vastus lateralis under the iliotibial tract, the rectus
+  femoris, the vastus medialis, the sartorius crossing them, the tensor
+  fasciae latae, the adductor longus and the gracilis; the femoral triangle
+  with the femoral nerve, artery and vein; the patella and its ligament.
+- *Where it is sampled:* the vastus lateralis 60% of the way down it
+  (`FOLLOW_OUTERMOST`, `SITE_LEVEL` and `FRAME_WHOLE` in the tool).
+- *In the accent:* the vastus lateralis, one flat tone, for every cell.
+- *Round it,* the figure stays, faint, and the body's four other thigh
+  outlines give way as the muscles come up.
+- *Its names:* `vastus lateralis`, `rectus femoris`, `sartorius` and
+  `vastus medialis`, in a column at either edge, level with each.
+- *Its view* is framed 1.2 (`ZoomDepth.muscleUpright`), standing whole on
+  the squattest canvas.
+- *On the step from the body* nothing grows; the vastus lateralis's outline
+  draws in at seven marks, over 0.7 of the detail.
+
+**The kidney.** It is cut open from front to back, drawn as a right kidney
+and mirrored for a left: the anatomogram follows the body's right kidney on
+the female figure and its left on the male
+(`presentation/scenes/organs/kidney/`, the user's choices of 2026-10-23):
+
+- *Its shape* (`kidney_anatomy.dart`, in millimetres on a kidney 120 mm
+  long): the cortex and its columns; eight pyramids, their outer medulla and
+  their papillae; the medullary rays; a quarter of the glomeruli a cut
+  shows; the calyces and the pelvis in the sinus, emptied (`OpeningRim`);
+  the arteries and veins of the sinus.
+- *Where it is sampled:* the lower pole's lateral cortex, where a kidney is
+  biopsied (`SITE_LATERAL`, held inside the anatomogram's cortex by
+  `SITE_WITHIN`).
+- *In the accent,* by the Atlas's name for the cell (`KidneyHome`): the
+  loops of Henle, in the outer medulla and the medullary rays, for a cell of
+  the ascending limb; the collecting ducts for a principal or intercalated
+  cell; the papillae; the glomeruli for a podocyte or mesangial cell; else
+  the cortex.
+- *Round it,* the renal artery and vein cut short past the hilum and the
+  ureter fading below it; the other kidney flat, as the body drew it, and
+  the figure faint.
+- *Its names:* where the cell lives, the `cortex` unless it is that, the
+  `medulla`, the `renal pelvis` and the `ureter`, in a column at either
+  edge: the parenchyma's on the kidney's lateral side, the pelvis's and the
+  ureter's on its hilum's.
+- *Its view* is framed 1.2 (`ZoomDepth.kidneyUpright`).
+- *On the step from the body* the outline draws in at four marks, one its
+  hilum.
+
+**The liver.** It is cut open from front to back, a composite as a coronal
+CT is read (`presentation/scenes/organs/liver/`, the user's choices of
+2026-10-23):
+
+- *Its shape* (`liver_anatomy.dart`, in millimetres, 220 across and 155
+  tall): its parenchyma; the vena cava behind the caudate lobe and the three
+  hepatic veins, emptied (`OpeningRim`); the portal vein dividing at the
+  porta, its branches in their sheaths, each with an artery and a bile duct;
+  the gallbladder in its fossa; the round ligament; and the small vessels
+  the cut crosses everywhere else.
+- *In the accent,* by the Atlas's name for the cell: the parenchyma, one
+  flat tone; for a cholangiocyte the bile ducts.
+- *Round it,* the trunks cut short, the bile duct and the ligament fading;
+  the figure stays, faint.
+- *Its names:* where the cell lives (`parenchyma`, or `bile ducts`), and the
+  `inferior vena cava`, the `hepatic veins`, the `portal vein`, the
+  `gallbladder`, the `right lobe` and the `left lobe`, round it at the
+  canvas's corners.
+- *Its view* is framed 1.0 (`ZoomDepth.liverUpright`).
+- *On the step from the body* the outline draws in at three marks, over 0.55
+  of the detail.
+
+**The stomach.** It is opened from the front, its front wall cut away and
+the inside of its back wall seen (`presentation/scenes/organs/stomach/`, the
+user's choices of 2026-10-23):
+
+- *Its shape* (`stomach_anatomy.dart`, in millimetres, 250 long, to the
+  anatomogram's proportions): its mucosa, its rugae laid between the two
+  curvatures' inner edges and gathering toward the pylorus, the gastric
+  canal's three along the lesser curvature; the cut wall's four coats round
+  it, thickening into the pyloric ring; the esophagus's pale lining meeting
+  the mucosa at the Z-line's tongues.
+- *In the accent,* by the Atlas's name for the cell: the mucosa, flat, its
+  rugae crisp creases in it; for a smooth muscle cell or an interstitial
+  cell of Cajal, the muscularis in the cut wall.
+- *Round it,* the arteries along its curvatures, their branches running in
+  under the wall, and the esophagus and the duodenum, each cut short; the
+  figure stays, faint.
+- *Its names:* where the cell lives, and the `esophagus`, the `fundus`, the
+  `body`, the `rugae`, the `antrum`, the `pylorus` and the `duodenum`, round
+  it at the canvas's corners.
+- *Its view* is framed 1.0 (`ZoomDepth.stomachUpright`).
+- *On the step from the body* the outline draws in at three marks.
+
+**The esophagus.** It is opened from the front down its whole length, the
+inside of its back wall seen (`presentation/scenes/organs/esophagus/`, the
+user's choices of 2026-10-23):
+
+- *Its shape* (`esophagus_anatomy.dart`, in millimetres from the cricoid's
+  lower border, 250 long, along its curves as Gray words them): its lining
+  and its folds; the cut wall's coats down either side, thickening into its
+  two sphincters; its glands in the submucosa; the stomach's mucosa meeting
+  its lining at the Z-line, the cut run on a little into the cardia.
+- *Where it is sampled:* in its lower third, at least 4 cm above the
+  junction, where GTEx takes its mucosa (`SITE_LEVEL`), the view closing a
+  little below the box's middle (`FRAME_DOWN`).
+- *In the accent,* by the Atlas's name for the cell: the mucosa; for a cell
+  of its submucosal glands, the glands.
+- *Round it,* the pharynx above and the stomach's cardia below, cut short,
+  the diaphragm either side of the hiatus, the aortic arch and the
+  descending aorta in the blood red; the figure stays, faint.
+- *Its names:* eleven, in a column at either edge, level with each: where
+  the cell lives, the `pharynx`, the `upper sphincter`, `cervical`, the
+  `aortic arch`, `thoracic`, the `diaphragm`, the `lower sphincter`,
+  `abdominal`, the `Z-line` and the `stomach`. A column's names follow their
+  parts off the canvas as the view closes (`ZoomCallout.follows`).
+- *Its view* is framed 1.45, as tall as a phone lets it
+  (`ZoomDepth.esophagusUpright`).
+- *On the step from the body* the outline draws in at six marks laid at
+  fixed heights: marks by share of the box paired points 28 mm apart.
+
+**The skin.** It is a block cut from the left leg, 2 cm below the knee on
+its inner side, where GTEx takes it: 3 mm across, its top the surface, its
+front the cut, its right side a second cut in shade
+(`presentation/scenes/organs/skin/`, the user's choices of 2026-10-23):
+
+- *Its shape* (`skin_anatomy.dart`, at the sizes above): the epidermis over
+  its rete ridges, the dermis and the fat; a follicle, its sebaceous gland
+  and its arrector pili, and one more follicle cut obliquely; two sweat
+  glands and their ducts; the two vascular plexuses and their risers; a
+  nerve; the surface's furrows, pores and two hairs.
+- *Where it is sampled:* the tool finds the site 2 cm below the femur's
+  lowest point in the leg's skin (`SITE_BELOW`), and the view closes on it
+  (`FRAME_AT_SITE`).
+- *In the accent,* by the Atlas's name for the cell (`SkinHome`): the basal
+  layer and the hair bulbs for a melanocyte; the basal layer for a basal
+  keratinocyte; the epidermis for another keratinocyte or a Langerhans cell;
+  the follicles' sheaths; the sebaceous gland; the sweat glands; else the
+  dermis.
+- *Its names:* where the cell lives, and the `epidermis`, the `dermis`, the
+  `sebaceous gland`, the `arrector pili`, the `sweat gland`, the
+  `hair follicle` and the `subcutis`, less the home's, in a column at either
+  edge.
+- *Its card* reads "About 2 mm thick" (`TissueAnatomy.thickness`).
+- *Its view* is framed 0.48 (`ZoomDepth.skinUpright`), the block a little
+  over a third of the canvas wide; the step on to the tissue is short, so
+  its names are gone by 0.3 of it (`OrganArt.namesLeaving`).
+- *On the step from the body* it crossfades: the body draws the skin as the
+  figure's own edge.
+
+**The thyroid.** It is seen from the front in place, its right lobe, the one
+the body goes into, cut open from front to back to show its parenchyma
+parted into lobules (`presentation/scenes/organs/thyroid/`, the user's
+choices of 2026-10-24):
+
+- *Its shape* (`thyroid_anatomy.dart`, in millimetres from the thyroid
+  notch): two lobes 50 mm long and 20 across, the isthmus over the second
+  and third rings; the thyroid and cricoid cartilages and the trachea and
+  its rings; the carotids and the jugulars at its sides; the superior
+  thyroid arteries and the middle and inferior thyroid veins.
+- *In the accent,* by the Atlas's name for the cell: the cut lobe's
+  follicles; for a parafollicular cell, its C cells.
+- *Round it,* those, each cut short; the figure stays, faint.
+- *Its names:* where the cell lives, and the `larynx`, the `jugular vein`,
+  the `carotid artery`, the `isthmus` and the `trachea`, round it.
+- *Its view* is framed 0.75 (`ZoomDepth.thyroidUpright`).
+- *On the step from the body* the outline draws in at seven marks, met first
+  at the lobe it starts from (`OutlineMorph`'s `start`): the anatomogram's
+  two apices are of a height, and which is higher flips by figure.
+
+**The adrenal.** It is cut through the middle of its thickness on its
+kidney's upper pole, each side of its own shape
+(`presentation/scenes/organs/adrenal/`, the user's choices of 2026-10-24):
+
+- *Its shape* (`adrenal_anatomy.dart`, in millimetres): the right gland a
+  cocked hat 48 mm across and 42 tall, its vein short to the vena cava; the
+  left a crescent 21 across and 50 tall on the kidney's medial border, its
+  vein to the renal vein; the cortex round the medulla in its body, the
+  limbs all cortex, the zona reticularis a line against the medulla.
+- *In the accent,* by the Atlas's name for the cell: the cortex; for a
+  chromaffin cell, the medulla.
+- *Round it,* the central vein cut short past its hilum and the suprarenal
+  arteries coming in to its edge; the body's kidney under it, lit at its
+  pole, the other adrenal flat, and the figure faint. The vena cava is not
+  drawn: it would hide the right gland.
+- *Its names:* where the cell lives, the other of the cortex and the
+  medulla, the `central vein` and the `kidney`, round it.
+- *Its view* is framed 1.0 (`ZoomDepth.adrenalUpright`).
+- *On the step from the body* the outline draws in at three marks, over 0.55
+  of the detail.
+
+**The pituitary.** It is cut down its middle in the brain's own millimetres,
+so that its lobes, its stalk, the chiasm and the hypothalamus over it are
+the very ones the brain's stop draws
+(`presentation/scenes/organs/pituitary/`, the user's choices of 2026-10-24):
+
+- *Its shape* (`pituitary_anatomy.dart`, reading `BrainAnatomy`): the
+  anterior lobe round the posterior, the pars intermedia a cleft between
+  them, on its stalk; in the sella turcica of the sphenoid bone, cut, the
+  sinus below it in front.
+- *In the accent,* by the Atlas's name for the cell: the anterior lobe; for
+  a pituicyte, the posterior.
+- *Round it,* in place of the figure's parts, which give way: the
+  hypothalamus, the chiasm and the mammillary body, the bone cut in an ivory
+  a little deeper than the femur's and its sinus with a rim, the diaphragma
+  sellae, the portal vessels down the stalk; the bone fades below and the
+  brain above where the view stops needing them.
+- *Its names:* where the cell lives, the other lobe, the `stalk`, the
+  `optic chiasm`, the `hypothalamus` and the `sphenoid sinus`, round it.
+- *Its view* is framed 0.45 (`ZoomDepth.pituitaryUpright`): its scene is
+  three times the gland.
+- *On the step from the body* the anatomogram's outline draws in to the
+  gland's and becomes its bed.
+
+**The lymph node.** It is cut in two through its hilum, 18 mm long and 8.4
+across (`presentation/scenes/organs/lymph_node/`, the user's choices of
+2026-10-24):
+
+- *Its shape* (`node_anatomy.dart`, in millimetres): the capsule and the
+  subcapsular sinus; trabeculae and their sinuses; thirteen follicles, the
+  primary dark, the secondary with a pale germinal centre under a mantle
+  cap; the paracortex; the medulla, its cords and sinuses converging on the
+  hilum.
+- *Where it is sampled:* in the subcapsular sinus at its crown.
+- *In the accent,* by the Atlas's name for the cell: the sinuses for a
+  lymphatic endothelial cell, the follicles for a B cell, the paracortex for
+  a T cell or a dendritic cell, the medullary cords for a plasma cell, else
+  the cortex.
+- *Round it,* the afferent lymphatics, beaded at their valves, and the
+  efferent lymphatic, the artery and the vein at the hilum, cut short; no
+  figure.
+- *Its names:* where the cell lives, the `follicles` and the `paracortex`
+  unless they are that, the `medulla`, the `afferent lymphatic` and the
+  `efferent lymphatic`, round it; gone by 0.27 of the step on to the tissue.
+- *Its view* is framed 1.2 (`ZoomDepth.nodeUpright`).
+- *On the step from the body* it comes up over the body's drawing of its
+  chain of nodes, a crossfade.
+
+**The fallopian tube.** It is the body's right tube in place, opened along
+its length (`presentation/scenes/organs/fallopian_tube/`, the user's choices
+of 2026-10-24):
+
+- *Its shape* (`fallopian_anatomy.dart`, in millimetres along the
+  anatomogram's own course, drawn 110 mm long, the anatomogram's tube at
+  0.66 of the size its outline grows to): the interstitial part at the
+  uterus, the isthmus with low folds, the ampulla with tall branching ones,
+  the infundibulum's fimbriae over the ovary; the mesosalpinx under it, the
+  tubal arteries along it.
+- *Where it is sampled:* in the infundibulum, where the anatomogram goes in.
+- *In the accent,* by the Atlas's name for the cell: the mucosa and the
+  fimbriae's inner faces; for a smooth muscle cell, the muscular coat.
+- *Round it,* the figure's own uterus and ovary, faint, and named.
+- *Its names:* where the cell lives, the `ampulla`, the `isthmus`, the
+  `fimbriae`, the `ovary` and the `uterus`, round it.
+- *Its view* is framed 1.45 (`ZoomDepth.tubeUpright`).
+- *On the step from the body* the outline draws in at three marks, over 0.75
+  of the detail: faster, it jolted.
+
+**The placenta.** It is a block 5 cm across cut through the whole thickness
+of a placenta at term, in its uterine wall beside the cord's insertion
+(`presentation/scenes/organs/placenta/`, the user's choices of 2026-10-24):
+
+- *Its shape* (`placenta_anatomy.dart`, at the sizes above): on top the
+  amnion over the chorionic plate, its vessels and the cord's root; down the
+  cut face two lobules' villous trees round their villus-free cavities, the
+  intervillous space, the septa, the basal plate and the decidua, spiral
+  arteries opening through it, and a slice of the uterine muscle.
+- *In the accent,* by the Atlas's name for the cell: the villi; for a
+  decidual stromal or an extravillous cell, the decidua.
+- *Its names:* six, in a column at either edge: where the cell lives, the
+  `umbilical cord`, the `chorionic plate`, the other of the villi and the
+  decidua, the `intervillous space` and a `spiral artery`.
+- *Its card* reads "About 4 cm thick".
+- *Its view* is framed 0.48 (`ZoomDepth.placentaUpright`).
+- *On the step from the body* it comes up over the figure on its own, with
+  none of the figure round it.
+
+**The fat.** It is a block 4 cm across cut through the abdominal wall 5 cm
+beside the navel, where abdominal fat is biopsied
+(`presentation/scenes/organs/adipose/`, the user's choices of 2026-10-24):
+
+- *Its shape* (`adipose_anatomy.dart`, at the sizes above): the skin; the
+  superficial fat in small round lobules between vertical septa; the
+  membranous layer, Scarpa's fascia; the deep fat in large flat lobules
+  between oblique septa; the rectus sheath and the rectus, cut; the
+  superficial epigastric vessels and the perforators.
+- *Where it is sampled:* the tool finds the site 5 cm beside the navel, in
+  the fat (`SITE_BESIDE`), and the view closes on it (`FRAME_AT_SITE`).
+- *In the accent:* both layers of the fat, flat, for any cell.
+- *Its names:* the `fat lobules`, a `septum`, `Scarpa's fascia`, the
+  `deep fat` and the `rectus`, in a column at either edge.
+- *Its card* reads "About 1.7 cm thick".
+- *Its view* is framed 0.55 (`ZoomDepth.adiposeUpright`).
+- *On the step from the body* it comes up over the figure on its own.
 
 **The bladder.** It is drawn as a fresh specimen under the same lamp,
 part-filled and opened from the front: its front wall cut away, the inside
@@ -1387,6 +2242,48 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   nutrient canal is drawn in the cut, though it pierces the linea aspera
   behind it. At the stop its trabeculae are every fourth line of the
   lattice; the true lattice comes in only as the view closes on the bone.
+- **A parotid for a salivary gland.** Whatever gland the Atlas reads, it is
+  drawn as the left parotid, in place; its lobules are 3 mm across, a size
+  no study gives.
+- **One brain, from a template.** The brain is the average of 152 adult
+  brains, the same in every body. A cell of the brain lives in its cortex
+  unless its tissue is the choroid plexus: S100B's Bergmann glia, of the
+  cerebellum, and B3GAT1's oligodendrocytes, of the white matter, are drawn
+  in the cortex too.
+- **An eye that reads.** One eye, the right, turned so its cornea faces
+  left. Its retina, true to its thickness, is a hairline at the stop, so a
+  halo a pixel wide is drawn round it.
+- **A heart in one cut.** No one plane holds the four chambers and the great
+  vessels, the right ventricle lying in front of the left and the great
+  arteries crossing: the cut is a composite, its long axis more upright than
+  a heart lies, as the textbooks draw it.
+- **A thigh for skeletal muscle.** Skeletal muscle is the front of the
+  thigh, gone into in its vastus lateralis, whatever muscle the Atlas reads;
+  its vasti run from the trochanter to the patella as the plates draw them,
+  longer than measured.
+- **A kidney, mirrored.** One kidney, drawn as a right kidney and mirrored
+  for a left; its cut shows a quarter of the glomeruli a real cut would.
+- **A liver and a stomach, composites.** No one plane holds the liver's vena
+  cava, behind the portal vein, and its gallbladder, in front of it; the
+  stomach's and the esophagus's folds are laid by rule, as a plate lays
+  them.
+- **Skin from one place.** Every skin is the left leg's, below the knee,
+  where GTEx takes it, whatever the Atlas reads; two hairs stand on its top
+  where a leg has more; no Pacinian corpuscle is drawn, Gray placing them on
+  the palm, the sole and the genitals.
+- **A thyroid without its pyramidal lobe**, which fewer than half of people
+  have, and **an adrenal without its vena cava**, which would hide the right
+  gland.
+- **A pituitary on the brain's template.** Its lobes are the brain's own, so
+  the two stops agree, a little larger than the MRI measures they sit
+  beside.
+- **A tube at a tube's length.** The anatomogram's arch is longer for its
+  box than a tube is: the tube, and the figure round it, are drawn at 0.66
+  of the size its outline grows to.
+- **One placenta, at term**, a block of it, whatever the pregnancy; its
+  card's thickness is a placenta's in utero, thicker than one delivered.
+- **Fat from the abdominal wall.** Adipose tissue is the subcutaneous fat
+  beside the navel, for a visceral adipocyte too.
 - **A bladder from a plate.** One bladder, the same in every body,
   part-filled whatever the gene. Its folds are laid by rule and its
   trigone seen foreshortened; the uvula vesicae, the prostate's middle
@@ -1453,15 +2350,19 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   and the tube it turns
   into the band's strip as (`chromosome_tube.dart`); its colours are
   `core/theme/chromosome_colors.dart`.
-- `presentation/scenes/organ_art.dart`: every organ's drawing, and
-  `organ_studies.dart`, the seven studies.
+- `presentation/scenes/organ_art.dart`: every organ's drawing:
+  `_SpecimenOrgan` for the fifteen specimens that draw in from the body's
+  outline, a class of its own for each of the six that crossfade,
+  `_DrawnOrgan` for the thirteen drawn on the anatomogram's outline, and
+  `_VesselOrgan` and `_ParathyroidOrgan`.
 - `presentation/scenes/organs/pancreas/`: the pancreas and its neighbours in
   centimetres (`pancreas_anatomy.dart`), every number its look is tuned by
   (`pancreas_style.dart`), its form in the organ's scene, with the relief,
-  lobules, islets, tubes and window (`pancreas_form.dart`), the light and
-  palette (`pancreas_shading.dart`) and the meshes and how the step comes
-  up (`pancreas_art.dart`). `presentation/scenes/coloured_mesh.dart`: the
-  coloured meshes it and the chromosome are laid with.
+  lobules, islets, tubes and window (`pancreas_form.dart`), and the meshes
+  and how the step comes up (`pancreas_art.dart`); its light and palette
+  are every specimen's (`specimen_light.dart`).
+  `presentation/scenes/coloured_mesh.dart`: the coloured meshes the
+  specimens and the chromosome are laid with.
 - `presentation/scenes/organs/testis/`: the testis and what lies round it in
   millimetres (`testis_anatomy.dart`), every number its look is tuned by
   (`testis_style.dart`), its form, with the septa, lobules, tubules, rete,
@@ -1483,6 +2384,22 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   the trigone, the orifices, the folds, the tubes and its names' places,
   the figure's uterus or prostate among them (`bladder_form.dart`), and its
   meshes and how it is drawn (`bladder_art.dart`).
+- `presentation/scenes/organs/`: the other specimens, each in its folder
+  in the same four files, `*_anatomy.dart` (in millimetres, every size with
+  its source, the drawing's choices listed as such), `*_style.dart` (every
+  number its look is tuned by), `*_form.dart` (its geometry posed on each
+  figure, its home rule, its names' places) and `*_art.dart` (its meshes
+  and how it is drawn): `salivary_gland/`, `brain/`, `eye/`, `heart/`,
+  `skeletal_muscle/` (the thigh), `kidney/`, `liver/`, `stomach/`,
+  `esophagus/`, `skin/`, `thyroid/`, `adrenal/`, `pituitary/`,
+  `lymph_node/`, `fallopian_tube/`, `placenta/` and `adipose/`. What they
+  share, in `presentation/scenes/`: the lamp and the palette
+  (`specimen_light.dart`), the coloured meshes, a cut face (`cut_face.dart`),
+  an outline inflated into a relief (`relief.dart`), vessels, ducts and
+  nerves laid and lit (`tube_course.dart`), a tube's cut end
+  (`tube_end.dart`), an emptied cavity's rim (`opening_rim.dart`), lobules
+  (`lobules.dart`, `lobule_domes.dart`), and the step from the body
+  (`outline_morph.dart`, `specimen_step.dart`).
 - `presentation/scenes/tissue/`: the slide (`tissue_slide.dart`), the engine
   (`slide_builder.dart`) and the recipes (`recipes_glands.dart`,
   `recipes_linings.dart`, `recipes_bulk.dart`).
@@ -1503,14 +2420,16 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   writes every stop and two moments in each segment, at 390 and 320 pixels.
   `ZOOM_GENES` narrows the proteins and `ZOOM_BETWEEN=0` leaves out the
   moments; `ZOOM_MOMENTS=nucleus+2,nucleus+10,chromosome` draws those
-  moments and no others (a stop, or a share of the step that leaves it). `ZOOM_TISSUE_ATLAS=/tmp/atlas` writes every recipe's slide on
-  its own and `ZOOM_ORGAN_ATLAS=/tmp/organs` every tissue's organ, the ones
-  no catalog protein reaches included, the pancreas on both figures about
-  each kind of cell that lights a part of it of its own, the testis
-  about each kind of cell that lives in it, the bone marrow on both
-  figures about an erythroid cell, a megakaryocyte and a leukocyte, and
-  the bladder on both figures about its urothelial cell. The picture at the top of this page
-  is insulin's nine stops from it.
+  moments and no others (a stop, or a share of the step that leaves it).
+  `ZOOM_TISSUE_ATLAS=/tmp/atlas` writes every recipe's slide on its own and
+  `ZOOM_ORGAN_ATLAS=/tmp/organs` every tissue's organ, the ones no catalog
+  protein reaches included, the pancreas on both figures about each kind of
+  cell that lights a part of it of its own, the testis about each kind of
+  cell that lives in it, the bone marrow on both figures about an erythroid
+  cell, a megakaryocyte and a leukocyte, and every other specimen about a
+  cell of each part of it a cell can light, on both figures where it is
+  drawn on both. The picture at the top of this page is insulin's nine stops
+  from it.
 - The chromosome's tests: `chromosome_look_test` holds its look (each
   globule's material picked the same every time and shared by every
   protein on a chromosome, the centromere's only about it, the telomeres'
@@ -1564,10 +2483,11 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   and the cell's name to land on its outline.
 - `zoom_anatomy_test` holds every protein's organ to a figure that has it,
   the lit organs to the Atlas's reading, the organ's scene to the outline
-  the body drew, and every organ the twenty reach to a drawing of its own
-  with its site and its accent inside its outline. `zoom_domain_test` holds
-  the figures themselves: 1.70 m tall, every part inside its figure with its
-  site inside it, and the generated file to its source, commit and licence.
+  the body drew, and every organ the curated proteins reach to a drawing of
+  its own with its site and its accent inside its outline.
+  `zoom_domain_test` holds the figures themselves: 1.70 m tall, every part
+  inside its figure with its site inside it, and the generated file to its
+  source, commit and licence.
 - `pancreas_form_test` holds the pancreas's site to the anatomogram's, well
   inside the head at every stage of the step, the gland to its real size
   about the same middle, the step's outline to the very curve the body drew
@@ -1635,6 +2555,18 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   below its floor, clear of it, of what runs on beside it, of one another
   and of the scale bar, no line through another's plate or crossing
   another. `zoom_paint_timing_check` times it with S100P's zoom.
+- Each of the other seventeen specimens has a `*_form_test` (its size and
+  place on either figure, its site where it is sampled, its parts at their
+  measured sizes, its home rule over the Atlas's names, the step's marks
+  the same on either outline, each name on what it names, and the same
+  drawing every time) and a `*_art_test` (the mark only where the cell
+  lives, the hand-over and the stop, its meshes the same every time, its
+  names, and the steps to it and back to 0.08 a frame and 1.5 px, or its
+  crossfade). All but the salivary gland, the brain and the eye have a
+  `*_names_test` that sets their names in the app's own type on real phone
+  canvases, an iPhone SE's among them: round it at the corners or in a
+  column at either edge, clear of the specimen, of one another and of the
+  scale bar.
 - `zoom_routes_test` holds the route outside the lab, the redirects, and the
   whole trip from the walk and back under the app's own routes.
   `zoom_entry_test`, among the walk's tests, holds where the gene page
