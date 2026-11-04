@@ -13,6 +13,9 @@ import 'organs/adipose/adipose_form.dart';
 import 'organs/adrenal/adrenal_art.dart';
 import 'organs/adrenal/adrenal_form.dart';
 import 'organs/adrenal/adrenal_style.dart';
+import 'organs/bladder/bladder_art.dart';
+import 'organs/bladder/bladder_form.dart';
+import 'organs/bladder/bladder_style.dart';
 import 'organs/bone_marrow/marrow_art.dart';
 import 'organs/bone_marrow/marrow_form.dart';
 import 'organs/brain/brain_anatomy.dart';
@@ -98,8 +101,9 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// its middle, the eye, cut level through its optic nerve, the bone
 /// marrow, its femur cut down its length, the heart, cut open, skeletal
 /// muscle, the front of the thigh, the kidney and the liver, each cut open
-/// from front to back, the stomach and the esophagus, each opened from
-/// the front, the skin, a block of it cut from the leg, the thyroid, seen
+/// from front to back, the stomach, the esophagus and the bladder, each
+/// opened from the front, the skin, a block of it cut from the leg, the
+/// thyroid, seen
 /// from the front in place, one lobe cut open, the adrenal, cut through its
 /// thickness on its kidney's upper pole, the pituitary, cut down its
 /// middle as the brain is, a lymph node, cut through its hilum, the
@@ -266,6 +270,13 @@ abstract class OrganArt {
         cell: cellName,
         level: level,
       ),
+      OrganKind.bladder when part != null => _BladderOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        level: level,
+      ),
       _ =>
         part == null
             ? _AnyOrgan()
@@ -428,7 +439,6 @@ _Look _lookOf(OrganKind kind) => switch (kind) {
   OrganKind.epididymis ||
   OrganKind.seminalVesicle => _Look.coils,
   OrganKind.smoothMuscle || OrganKind.tongue => _Look.fibres,
-  OrganKind.bladder ||
   OrganKind.gallbladder ||
   OrganKind.uterus ||
   OrganKind.cervix ||
@@ -442,13 +452,16 @@ const Set<String> _notAround = <String>{'UBERON_0000014', 'UBERON_0001013'};
 
 /// The figure's parts round an organ, faint, as the body drew them: as far
 /// out as the view reaches, and a little beyond for the way in. [placed]
-/// takes a point of the figure into the organ's scene.
+/// takes a point of the figure into the organ's scene. The parts [leaving]
+/// names are left out: the figure's drawing of what the organ draws as its
+/// own (the smooth muscle the anatomogram draws as the bladder's wall).
 final class _Surroundings {
   _Surroundings(
     AnatomyPart part,
     AnatomyFigure? figure,
-    Offset Function(Offset) placed,
-  ) {
+    Offset Function(Offset) placed, {
+    Set<String> leaving = const <String>{},
+  }) {
     if (figure == null) {
       return;
     }
@@ -458,7 +471,9 @@ final class _Surroundings {
       height: 2.6,
     );
     for (final MapEntry<String, AnatomyPart> other in figure.parts.entries) {
-      if (_notAround.contains(other.key) || identical(other.value, part)) {
+      if (_notAround.contains(other.key) ||
+          leaving.contains(other.key) ||
+          identical(other.value, part)) {
         continue;
       }
       for (final List<Offset> contour in other.value.contours) {
@@ -733,7 +748,9 @@ final class _DrawnOrgan extends OrganArt {
 /// it lies on, while the figure's parts round it give way to its own
 /// neighbours, which come up with it in one layer (`SpecimenStep`); or,
 /// for an organ with none of its own ([_amongFigure]), stay round it, faint,
-/// as they do round an organ the body's outline draws.
+/// as they do round an organ the body's outline draws; all but the parts
+/// [notAround] names, the figure's drawing of what the specimen draws as
+/// its own.
 abstract class _SpecimenOrgan extends OrganArt {
   _SpecimenOrgan(
     AnatomyPart part,
@@ -742,9 +759,10 @@ abstract class _SpecimenOrgan extends OrganArt {
     AnatomyFigure? figure,
     this.level = 1,
     double? real,
+    Set<String> notAround = const <String>{},
   }) : real = real ?? anatomy.metres / part.extent {
     Offset placed(Offset p) => (p - part.centre) * (this.real / view);
-    _around = _Surroundings(part, figure, placed);
+    _around = _Surroundings(part, figure, placed, leaving: notAround);
   }
 
   @override
@@ -2597,6 +2615,122 @@ final class _EsophagusOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => EsophagusArt.bedOf(inks, _form.home);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The urinary bladder, drawn from general anatomy as a specimen opened
+/// from the front (`BladderArt`): its front wall cut away, the urothelium
+/// of its back half seen from inside, smooth over the trigone between the
+/// ureters' slits and the urethra's crescent and folded low round its
+/// base, the cut wall's coats round it thickening into the sphincter at its
+/// neck; the ureters, the urethra and the vesical arteries cut short;
+/// reached from the body's own outline of it (`_SpecimenOrgan`), which
+/// draws in toward the bladder's own and becomes the bed it lies on, the
+/// figure staying round it, faint, all but its smooth muscle, which the
+/// anatomogram draws as the bladder's own wall. Its urothelium is in the
+/// mark, whatever the cell: no other cell the Atlas names lives in the
+/// bladder (the user's choices of 2026-11-04).
+final class _BladderOrgan extends _SpecimenOrgan {
+  _BladderOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    super.level,
+  }) : _form = BladderForm.place(
+         part: part,
+         anatomy: anatomy,
+         view: view,
+         figure: figure,
+       ),
+       super(notAround: _ownWall);
+
+  /// The figure's smooth muscle, which the anatomogram draws round the
+  /// bladder as its wall: the bladder's own detrusor here.
+  static const Set<String> _ownWall = <String>{'UBERON_0001135'};
+
+  final BladderForm _form;
+
+  @override
+  bool get _amongFigure => true;
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark, at the place its tissue is
+  // sampled; and its trigone, a ureter's orifice, the ureter, its
+  // detrusor, its urethra and the figure's uterus or prostate below it, in
+  // the quiet ink (the user's choices of 2026-11-04).
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'home', word: 'urothelium', at: _form.site, home: true),
+    (key: 'trigone', word: 'trigone', at: _form.trigoneName, home: false),
+    (
+      key: 'orifice',
+      word: 'ureteric orifice',
+      at: _form.orificeName,
+      home: false,
+    ),
+    (key: 'ureter', word: 'ureter', at: _form.ureterName, home: false),
+    (key: 'detrusor', word: 'detrusor', at: _form.detrusorName, home: false),
+    (key: 'urethra', word: 'urethra', at: _form.urethraName, home: false),
+    if ((_form.neighbourWord, _form.neighbourName)
+        case (final String word, final Offset at))
+      (key: 'neighbour', word: word, at: at, home: false),
+  ];
+
+  // Set round all of it, out at the canvas's corners, as the stomach's
+  // are: the bladder is wider than it is tall. Round the bladder and what
+  // runs on beside it where it shows, with room to either side and past a
+  // cut end. The figure's faint uterus or prostate, which a name points
+  // into, may lie under a name, as the figure's parts round any organ may.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(BladderStyle.nameClear);
+    return <Offset>[
+      for (int i = 0; i < _form.outlinePoints.length; i += 4)
+        _form.outlinePoints[i],
+      for (final TubeCourse tube in _form.beside)
+        for (int i = 0; i < tube.length; i++)
+          if ((i % 4 == 0 || i == tube.length - 1) &&
+              tube.shown[i] > BladderStyle.nameShown) ...<Offset>[
+            tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+            tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+            if (i == tube.length - 1)
+              tube.centres[i] +
+                  Offset(tube.across[i].dy, -tube.across[i].dx) *
+                      (tube.radius[i] + clear),
+          ],
+    ];
+  }();
+
+  BladderArt? _art;
+
+  BladderArt _artFor(ZoomInks inks) {
+    final BladderArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = BladderArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => BladderArt.bedOf(inks);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

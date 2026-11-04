@@ -194,7 +194,8 @@ void main() {
     // about a cell of each part of it, the thyroid, the adrenal and the
     // pituitary on both figures about a cell of each part of each, the
     // lymph node, the fallopian tube and the placenta about a cell of each
-    // part of each, and the fat about an adipocyte.
+    // part of each, the fat about an adipocyte, and the bladder on both
+    // figures about its urothelial cell.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -466,6 +467,17 @@ void main() {
         CellShape.adipocyte,
         'Adipocytes (Subcutaneous)',
       ),
+      for (final AnatomyFigure body in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ])
+        (
+          'bladder-${body.name}',
+          tissueAnatomy['urinary bladder']!,
+          body,
+          CellShape.epithelial,
+          'Urothelial cells',
+        ),
     ];
     for (final (
           String name,

@@ -247,6 +247,14 @@ final class ZoomDepth {
   /// receding, it leaves its names room in a column at either edge.
   static const double adiposeUpright = 0.55;
 
+  /// How much taller than wide the bladder is framed: opened from the
+  /// front, its ureters coming down to it from above and to the side and
+  /// its urethra leaving below, it is wider than it is tall; framed as
+  /// close as leaves the ureters' cut ends inside the view, its names have
+  /// room above it and below it on every phone's canvas (they have up to
+  /// 1.4).
+  static const double bladderUpright = 1.25;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -278,8 +286,9 @@ final class ZoomDepth {
   /// pituitary, cut down its middle, as [pituitaryUpright], a lymph node,
   /// cut through its hilum, as [nodeUpright], the fallopian tube, opened
   /// along its length, as [tubeUpright], the placenta, a block of it, as
-  /// [placentaUpright], and the fat, a block of the abdominal wall, as
-  /// [adiposeUpright].
+  /// [placentaUpright], the fat, a block of the abdominal wall, as
+  /// [adiposeUpright], and the bladder, opened from the front, as
+  /// [bladderUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -340,6 +349,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.fallopianTube) {
       return tubeUpright;
+    }
+    if (anatomy.organ == OrganKind.bladder) {
+      return bladderUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)
