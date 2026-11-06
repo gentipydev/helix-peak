@@ -693,7 +693,14 @@ it. A kept step's tick picks it and holds the run there; a row of the map
 puts its place in focus; nothing while Update's frame shows.
 
 Reduced motion shows each stage played through, the loop at its last step. The
-captions and the About sheet are built from the run's own numbers (R4.1).
+captions, the stages' info pages and the About sheet are built from the run's
+own numbers (R4.1). The ⓘ opens the stage on screen's own page where it has
+one (`LmScene.info`, an `LmInfo` that `LmInfoSheet` draws; Tokenise's since
+2026-11-06), and the About sheet, how the whole model learns, where it has
+none yet. Every page is the screen's key, the user's pick for all twelve: a
+lead saying what the stage takes and gives, then a short section for each
+part its canvas tags, why it is there, a link to a later stage beside what it
+explains.
 Its colours are the theme's (`LmInks`, held by `lm_inks_test`): the accent
 for what flows forward, the tracer for what came next, the helix's honey for
 the loss and what flows back, and the helix's denim and clay, from the base

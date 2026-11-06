@@ -935,6 +935,52 @@ out of view is scrolled just far enough to show it whole.
    The old stage (residue-coloured tiles lit by p(y), the output layer's
    grid drifting, an `lr` strip, one linear sweep) is gone.
 
+## Info pages
+
+The ⓘ opens the stage on screen's own page where it has one
+(`LmScene.info`, an `LmInfo` that `LmInfoSheet` draws), and the About
+sheet, how the whole model learns, where it has none yet. Tokenise has one
+(2026-11-06); the others follow one at a time, each taking the About
+sheet's place for its stage. Every page is the screen's key, the user's
+pick for all twelve (over four fixed headings, Takes · Gives · Why · Leads
+to, and over questions as headings): a lead saying what the stage takes and
+what it gives, then a short section for each part its canvas tags, in the
+order they come, saying why it is there, a link to a later stage beside
+what it explains and said there once. Every number is the run's own, as
+the captions' are. The sheet is as tall as its words, up to four fifths of
+the screen, as the About sheet always was.
+
+A sentence stays only where it explains a mark on the canvas, keeps a
+reader from a wrong model, or names at its source what a later stage
+shows. Tokenise's, part by part:
+- the lead: six peptides, 174 residues, become one 6 × 41 matrix of ids,
+  all the model sees of them; made once, the same at every step, nothing
+  learned (so the step menu changes nothing here);
+- token ids: an id is its token's row, a name and not an amount: C, 4, and
+  D, 5, are neighbours only in the alphabet (the first pair whose ids and
+  letters both follow on; the preview's A and C have B between them).
+  Embedding gives every token but `<pad>`, whose row the engine holds at
+  zero, 16 trainable numbers, and Predict ends on the same vocabulary, the
+  21 tokens that can come next;
+- special tokens, a paragraph each, named by the glyph the canvas draws:
+  `<bos>` gives the first residue a place to be predicted from and, alike
+  in all six, leaves it one in six however long the model trains (said only
+  where the first residues all differ); `<eos>` teaches where a peptide
+  ends; `<pad>` squares the batch, never read by a real token (a place
+  reads only up to its own, and pads come last) and never scored;
+- batch 2D matrix: all six at once, the whole dataset every step, none held
+  out, so the run shows a model learning six peptides, not generalising;
+- token counts: guessing by these counts alone costs 2.856 nats, Loss's and
+  Loop's residue counts, first beaten at step 21, the checkpoint the run
+  kept for it (said only where it kept one). The model's mean guess
+  converges on these counts: r = −0.12 at step 1, 0.77 at 21, 1.00 at 49.
+
+Left out: the peptides' names and the commonest count (the canvas and the
+caption say them), the floor and residue counts worked out (Loss's and
+Loop's own notes carry them), text models' word pieces, and why only six
+peptides. The page scrolls by about 73 pt on a 440 × 956 phone and more on
+smaller ones.
+
 ## Colours
 
 `LmInks`, every one the theme's (`lm_inks_test`): the accent for what flows
