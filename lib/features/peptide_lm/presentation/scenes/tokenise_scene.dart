@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import '../../../../shared/format.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
+import '../lm_format.dart';
+import '../lm_info_sheet.dart';
 import 'lm_drawing.dart';
 import 'lm_scene.dart';
 
@@ -546,6 +548,90 @@ final class TokeniseScene extends LmScene {
     final TracePeptide focus = view.focus;
     return 'Tokenise. ${caption(view, frame)}. In focus, ${focus.source.label}, '
         '${focus.sequence.length} residues.';
+  }
+
+  /// Tokenise's own page: what it takes and gives, then each part its canvas
+  /// names, why it is there and what later stage it shapes, in the run's
+  /// numbers.
+  @override
+  LmInfo info(LmView view) {
+    final TrainingTrace trace = view.trace;
+    final int peptides = trace.peptides.length;
+    final String count = spelled(peptides);
+    final String noun = peptides == 1 ? 'peptide' : 'peptides';
+    final String every = switch (peptides) {
+      1 => 'the one',
+      2 => 'both',
+      _ => 'all $count',
+    };
+    final int frame = trace.width + 1;
+    final (int, int)? pair = neighbours(trace);
+    final String example = pair == null
+        ? '.'
+        : ': ${trace.token(pair.$1)}, ${pair.$1}, and ${trace.token(pair.$2)}, ${pair.$2}, '
+              'are neighbours only in the alphabet.';
+    final bool firstsDiffer =
+        peptides > 1 && trace.peptides.map((TracePeptide p) => p.sequence[0]).toSet().length == peptides;
+    final int? counted = passedCounts(trace);
+    String special(String name) => '$name (${glyph(trace, trace.vocab.indexOf(name))})';
+    return LmInfo(
+      title: LmStage.tokenise.label,
+      lead: '${spelledLeading(peptides)} $noun, ${grouped(trace.residues)} residues, become one '
+          '$peptides × $frame matrix of ids: from here on the model sees ids, never letters. '
+          'Made once, before training, it is the same at every step: nothing here is learned.',
+      sections: <LmInfoSection>[
+        LmInfoSection('Token ids', <String>[
+          'Each residue is one token, and its id is its row in the vocabulary. An id is a name, '
+              'not an amount$example Embedding gives each token but <pad> ${trace.model.width} '
+              'trainable numbers of its own; Predict ends on the same vocabulary, a probability for '
+              'each of the ${trace.allowed.length} tokens that can come next.',
+        ]),
+        LmInfoSection('Special tokens', <String>[
+          '${special('<bos>')} opens every peptide, so its first residue has a place to be '
+              'predicted from.'
+              '${firstsDiffer ? ' Alike in $every, it leaves that guess at one in $count, however '
+                        'long the model trains.' : ''}',
+          '${special('<eos>')} closes each one, so the model learns where a peptide ends.',
+          '${special('<pad>')} fills each to the longest, $frame places, so the $count stack into '
+              'one matrix. A place reads only the places up to its own, and pads come last: no real '
+              'token reads one, and none is scored.',
+        ]),
+        LmInfoSection('Batch 2D matrix', <String>[
+          'A row a peptide, $every read at once. With so few, the batch is the whole dataset, every '
+              'step; none is held out, so the run shows a model learning $count $noun, not '
+              'generalising.',
+        ]),
+        LmInfoSection('Token counts', <String>[
+          'Guessing each next token by these counts alone would cost ${nats(trace.unigram)} nats, '
+              'the level Loss and Loop call residue counts'
+              '${counted == null ? '' : '; the model first beats it at step $counted'}.',
+        ]),
+      ],
+    );
+  }
+
+  /// The first two residues whose ids follow on only because their letters
+  /// do, or null where no two do.
+  static (int, int)? neighbours(TrainingTrace trace) {
+    for (int id = 0; id + 1 < trace.vocab.length; id++) {
+      if (trace.isResidue(id) &&
+          trace.isResidue(id + 1) &&
+          trace.token(id + 1).codeUnitAt(0) == trace.token(id).codeUnitAt(0) + 1) {
+        return (id, id + 1);
+      }
+    }
+    return null;
+  }
+
+  /// The step the run kept for first doing better than guessing by residue
+  /// counts, or null where it never did.
+  static int? passedCounts(TrainingTrace trace) {
+    for (final TraceCheckpoint checkpoint in trace.checkpoints) {
+      if (checkpoint.why.contains('unigram')) {
+        return checkpoint.step;
+      }
+    }
+    return null;
   }
 }
 

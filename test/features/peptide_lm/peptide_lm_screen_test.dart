@@ -160,6 +160,60 @@ void main() {
     expect(caption(tester), isNot(startsWith('Two peptides')));
   });
 
+  testWidgets("the info button opens the stage's own page, and how the model learns where it has none", (
+    WidgetTester tester,
+  ) async {
+    await host(tester);
+    final Finder info = find.byKey(const ValueKey<String>('peptide-lm-info'));
+    final Finder sheet = find.byKey(const ValueKey<String>('peptide-lm-info-sheet'));
+    Finder inSheet(String text) => find.descendant(of: sheet, matching: find.text(text));
+
+    Finder scroll() => find.descendant(of: sheet, matching: find.byType(Scrollable));
+
+    // The page opens on Tokenise, which has a page of its own.
+    expect(tester.widget<IconButton>(info).tooltip, 'About Tokenise');
+    await tester.tap(info);
+    await tester.pumpAndSettle();
+    for (final String title in <String>['Tokenise', 'Token ids', 'Special tokens', 'Batch 2D matrix', 'Token counts']) {
+      await tester.scrollUntilVisible(inSheet(title), 120, scrollable: scroll());
+      expect(inSheet(title), findsOneWidget, reason: title);
+    }
+    expect(find.text('How this model learns'), findsNothing);
+
+    // Put away; Shift has none yet, so its ⓘ opens how the whole model
+    // learns, every paragraph of it.
+    Navigator.of(tester.element(sheet)).pop();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(sheet, findsNothing);
+    await tapStage(tester, 'Shift');
+    await tester.pump();
+    expect(tester.widget<IconButton>(info).tooltip, 'How this model learns');
+    await tester.tap(info);
+    await tester.pumpAndSettle();
+    expect(inSheet('How this model learns'), findsOneWidget);
+    expect(inSheet('Token ids'), findsNothing);
+    for (final String title in <String>[
+      'This run',
+      'The data',
+      'Tokenise',
+      'Shift',
+      'Embedding',
+      'Scores',
+      'Attention',
+      'Feed-forward',
+      'Forward',
+      'Predict',
+      'Loss',
+      'Backward',
+      'Update',
+      'Loop',
+    ]) {
+      await tester.scrollUntilVisible(inSheet(title), 120, scrollable: scroll());
+      expect(inSheet(title), findsOneWidget, reason: title);
+    }
+  });
+
   testWidgets('a stage on the bar plays from its start', (WidgetTester tester) async {
     await host(tester);
     await tapStage(tester, 'Loss');

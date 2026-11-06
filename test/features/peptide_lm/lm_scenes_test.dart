@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -10,6 +11,7 @@ import 'package:helixpeek/features/peptide_lm/domain/loop_pace.dart';
 import 'package:helixpeek/features/peptide_lm/domain/training_timeline.dart';
 import 'package:helixpeek/features/peptide_lm/domain/training_trace.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/lm_format.dart';
+import 'package:helixpeek/features/peptide_lm/presentation/lm_info_sheet.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/lm_inks.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/attention_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/backward_scene.dart';
@@ -24,8 +26,10 @@ import 'package:helixpeek/features/peptide_lm/presentation/scenes/loss_scene.dar
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/predict_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/scores_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/stream_table.dart';
+import 'package:helixpeek/features/peptide_lm/presentation/scenes/tokenise_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/update_scene.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/scenes/worked_answer.dart';
+import 'package:helixpeek/shared/format.dart';
 
 import 'support/toy_trace.dart';
 
@@ -2132,5 +2136,102 @@ void main() {
         expect(layout.afterX, lessThan(size.width), reason: where);
       }
     }
+  });
+
+  testWidgets("Tokenise's info page says the run's own numbers; no other stage has one yet", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    LmView on(TrainingTrace run) => LmView(
+      trace: run,
+      checkpoint: run.checkpoints.first,
+      peptide: 0,
+      position: 3,
+      head: null,
+      inks: inks,
+      kit: kit,
+    );
+    String words(LmInfo info) => <String>[
+      info.lead!,
+      for (final LmInfoSection section in info.sections) ...section.paragraphs,
+    ].join('\n');
+
+    final LmInfo info = const TokeniseScene().info(on(trace));
+    expect(info.title, LmStage.tokenise.label);
+    // A section a tag on the canvas, in the order they come.
+    expect(info.sections.map((LmInfoSection s) => s.title), <String>[
+      'Token ids',
+      'Special tokens',
+      'Batch 2D matrix',
+      'Token counts',
+    ]);
+    // What it takes and what it gives.
+    final int peptides = trace.peptides.length;
+    final int frame = trace.width + 1;
+    expect(
+      info.lead,
+      startsWith(
+        '${spelledLeading(peptides)} peptides, ${grouped(trace.residues)} residues, '
+        'become one $peptides × $frame matrix of ids',
+      ),
+    );
+    final String page = words(info);
+    expect(page, contains('${trace.model.width} trainable numbers'));
+    expect(page, contains('each of the ${trace.allowed.length} tokens that can come next'));
+    expect(page, contains('to the longest, $frame places'));
+    for (final String name in <String>['<bos>', '<eos>', '<pad>']) {
+      expect(page, contains('$name (${glyph(trace, trace.vocab.indexOf(name))})'));
+    }
+    // Two ids side by side only because their letters are.
+    final (int, int) pair = TokeniseScene.neighbours(trace)!;
+    expect(pair.$2, pair.$1 + 1);
+    expect(trace.token(pair.$2).codeUnitAt(0), trace.token(pair.$1).codeUnitAt(0) + 1);
+    expect(
+      page,
+      contains(
+        '${trace.token(pair.$1)}, ${pair.$1}, and ${trace.token(pair.$2)}, ${pair.$2}, '
+        'are neighbours only in the alphabet',
+      ),
+    );
+    // The toy's first residues differ, so <bos> leaves one in two.
+    expect(page, contains('one in ${spelled(peptides)}'));
+    // The counts' level, and the step the run kept for first passing it.
+    final int passed = trace.checkpoints.firstWhere((TraceCheckpoint c) => c.why.contains('unigram')).step;
+    expect(page, contains('would cost ${nats(trace.unigram)} nats'));
+    expect(page, endsWith('first beats it at step $passed.'));
+
+    // Only Tokenise has a page of its own so far.
+    for (final LmStage stage in LmStage.values.where((LmStage s) => s != LmStage.tokenise)) {
+      expect(sceneOf(stage).info(on(trace)), isNull, reason: stage.name);
+    }
+
+    // A run whose first residues coincide claims no one-in-N guess, and a
+    // run never under residue counts no step that beat them.
+    TrainingTrace edited(void Function(Map<String, Object?> json) edit) {
+      final Map<String, Object?> json = jsonDecode(utf8.decode(toyBytes())) as Map<String, Object?>;
+      edit(json);
+      return TrainingTrace.parse(Uint8List.fromList(utf8.encode(jsonEncode(json))), name: 'toy');
+    }
+
+    final TrainingTrace alike = edited((Map<String, Object?> json) {
+      final List<Object?> runs = json['peptides']! as List<Object?>;
+      final Map<String, Object?> second = runs[1]! as Map<String, Object?>;
+      final String first = (runs[0]! as Map<String, Object?>)['sequence']! as String;
+      second['sequence'] = '${first[0]}${(second['sequence']! as String).substring(1)}';
+    });
+    expect(words(const TokeniseScene().info(on(alike))), isNot(contains('one in')));
+    final TrainingTrace never = edited((Map<String, Object?> json) {
+      for (final Object? checkpoint in json['checkpoints']! as List<Object?>) {
+        final Map<String, Object?> kept = checkpoint! as Map<String, Object?>;
+        kept['why'] = <Object?>[
+          for (final Object? why in kept['why']! as List<Object?>)
+            if (why != 'unigram') why,
+        ];
+      }
+    });
+    final String unbeaten = words(const TokeniseScene().info(on(never)));
+    expect(unbeaten, isNot(contains('first beats it')));
+    expect(unbeaten, endsWith('call residue counts.'));
   });
 }

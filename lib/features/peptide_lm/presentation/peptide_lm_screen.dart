@@ -16,6 +16,7 @@ import '../domain/training_trace.dart';
 import 'cubit/peptide_lm_cubit.dart';
 import 'lm_about_sheet.dart';
 import 'lm_format.dart';
+import 'lm_info_sheet.dart';
 import 'lm_inks.dart';
 import 'scenes/lm_drawing.dart';
 import 'scenes/lm_scene.dart';
@@ -295,14 +296,17 @@ class _TrainingRunViewState extends State<TrainingRunView>
     });
   }
 
-  Future<void> _showAbout() async {
+  /// The stage on screen's own info page, [info], or how the whole model
+  /// learns where it has none yet; the stage holds still while it is up.
+  Future<void> _showInfo(LmInfo? info) async {
     final bool resume = _clock.isAnimating;
     _clock.stop();
     await showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
-      builder: (BuildContext context) => LmAboutSheet(trace: _trace),
+      builder: (BuildContext context) =>
+          info == null ? LmAboutSheet(trace: _trace) : LmInfoSheet(info: info),
     );
     if (mounted && resume && !_reduced) unawaited(_clock.forward());
   }
@@ -321,6 +325,7 @@ class _TrainingRunViewState extends State<TrainingRunView>
       kit: _kit!,
     );
     final double textScale = MediaQuery.textScalerOf(context).scale(14) / 14;
+    final LmInfo? info = sceneOf(_stage).info(view);
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: math.max(kToolbarHeight, 44 * textScale),
@@ -348,8 +353,9 @@ class _TrainingRunViewState extends State<TrainingRunView>
             onSelected: _pick,
           ),
           IconButton(
-            tooltip: 'How this model learns',
-            onPressed: _showAbout,
+            key: const ValueKey<String>('peptide-lm-info'),
+            tooltip: info == null ? 'How this model learns' : 'About ${_stage.label}',
+            onPressed: () => _showInfo(info),
             icon: const Icon(Icons.info_outline_rounded),
           ),
         ],
