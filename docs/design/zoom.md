@@ -348,6 +348,35 @@ convention is, where it comes from, and what it decided:
   the bladder is drawn so, part-filled and opened from the front, from
   anatomy rather than from the anatomogram's outline ("The bladder"
   below).
+- **The breast.** Anatomy plates show it from the front, its lower half
+  dissected down to the gland (Gray 1918, Fig. 1172, after Luschka). It
+  extends from the second rib to the sixth and from the side of the sternum
+  to near the mid-axillary line, its long axis up and out toward the
+  axilla; the nipple lies just below the centre, about the fourth
+  intercostal space, its smooth muscle circular round its base, on the
+  areola, which bears the areolar glands. The gland is lobes of lobules,
+  each lobe's ducts uniting in one that converges on the areola; it is
+  thicker at the centre than at the edge and joined to the skin by Cooper's
+  ligamenta suspensoria; fat fills the intervals between its lobes, but
+  none lies beneath the areola and the nipple; its arteries come from the
+  axillary's thoracic branches, the intercostals and the internal thoracic,
+  and its lymph passes to the pectoral axillary nodes (Gray 1918). Modern
+  counts give 5 to 9 orifices on the nipple, each a separate ductal system
+  (Love and Barsky 2004), a median of 23 ducts in the nipple (Rusby et al.
+  2007), and by ultrasound 9 main ducts 1.9 to 2.0 mm across, all branching
+  within the areola's radius, the first 8 mm from the nipple, with no
+  sinuses (Ramsay et al. 2005). A lobule spans a median 740 µm before the
+  menopause (Wetstein et al. 2020); the areola is 4.5 to 5.1 cm across and
+  the nipple 1.2 cm (Al-Qattan et al. 2019; Archibong et al. 2021); the
+  skin 0.5 to 2.7 mm, thicker medially and below (Pope et al. 1984; Willson
+  et al. 1982); the fascia under the nipple and the areola holds smooth
+  muscle (Komiya et al. 2015); the internal thoracic artery reaches the
+  nipple through the first to third intercostal spaces, the second most
+  often (Thuy et al. 2025), its main branch at least 1 mm across (Hosny et
+  al. 2025). GTEx samples the central subareolar region of the right
+  breast, 1 to 2 cm under the nipple (GTEx Portal). *Consequence:* the
+  breast is drawn so, a resting adult's, in place from the front, its lower
+  half dissected ("The breast" below).
 - **Histology.** Haematoxylin stains nuclei and ribosome-rich cytoplasm;
   eosin stains protein; fat, mucus and lumens take neither. A ×40 objective
   under a standard eyepiece shows a field about half a millimetre across.
@@ -465,6 +494,9 @@ Sources:
 - Ahn D, Yeo CK, Han SY, Kim JK. The accessory parotid gland and facial
   process of the parotid gland on computed tomography. PLoS One
   2017;12:e0184633.
+- Al-Qattan MM, Aldakhil SS, Al-Hassan TS, Al-Qahtani A. Anthropometric
+  Breast Measurement: Analysis of the Average Breast in Young Nulliparous
+  Saudi Female Population. Plast Reconstr Surg Glob Open 2019;7:e2326.
 - Ali MM et al. Relationship between Placental Thickness and Gestational Age
   and Development of Novel Normative Percentile Charts and Table of
   Placental Thickness During Pregnancy: A Systematic Review. J Med
@@ -475,6 +507,8 @@ Sources:
 - Annunziata G et al. Association among measurements obtained using portable
   ultrasonography with sex, body mass index, and age in a large sample of
   adult population. J Transl Med 2025;23:236.
+- Archibong OR, Abikoye FO, Osisanya TO. Anthropometric Breast Measurements
+  of Nulliparous Women in Lagos Nigeria. J West Afr Coll Surg 2021;11:1–6.
 - Avishai G et al. Anatomical Features of the Parotid Duct in Sialography as
   an Aid to Endoscopy-A Retrospective Study. Diagnostics (Basel)
   2022;12:1868.
@@ -560,7 +594,7 @@ Sources:
   the anterior left ventricle), as `tool/zoom/anatomogram.py` cites it.
 - GTEx Portal. Tissue site details, dataset gtex_v10: each tissue's
   sampling site (<https://gtexportal.org/api/v2/dataset/tissueSiteDetail>,
-  read 2026-11-04).
+  read 2026-11-04; the breast's 2026-11-05).
 - Gündoğdu E. Relationship of the Presence of the Inferior Right Hepatic
   Vein with the Right Hepatic Vein Diameter and CT Liver Volumetry. Indian J
   Radiol Imaging 2023;33:332–337.
@@ -580,6 +614,9 @@ Sources:
 - Hoshi O, Ushiki T. Three-dimensional structure of G-banded human
   metaphase chromosomes observed by atomic force microscopy. Arch Histol
   Cytol 2001;64:475–482.
+- Hosny H, Mansour S, El-Essawy NM. Duplex Study of the Nipple-Areola
+  Complex Blood Supply in the Female Breast. Aesthet Surg J Open Forum
+  2025;7:ojae090.
 - Howell AC et al. Anatomical Basis of the Gastroepiploic Vascularized Lymph
   Node Transfer: A Radiographic Evaluation Using Computed Tomographic
   Angiography. Plast Reconstr Surg 2018;142:1046–1052.
@@ -614,6 +651,8 @@ Sources:
 - Kolb H, Fernandez E, Nelson R (eds). Webvision: The Organization of the
   Retina and Visual System. University of Utah
   (<https://webvision.med.utah.edu>).
+- Komiya T et al. Anatomy of the superficial layer of superficial fascia
+  around the nipple-areola complex. Aesthetic Plast Surg 2015;39:209–213.
 - Kratzer W et al. Factors affecting liver size: a sonographic survey of
   2080 subjects. J Ultrasound Med 2003;22:1155–1161.
 - Krejza J et al. Carotid artery diameter in men and women and the relation
@@ -649,6 +688,8 @@ Sources:
   Andrology 2021;9:559–576.
 - Louwagie EM et al. Longitudinal ultrasonic dimensions and parametric solid
   models of the gravid uterus and cervix. PLoS One 2021;16:e0242118.
+- Love SM, Barsky SH. Anatomy of the nipple and breast ducts revisited.
+  Cancer 2004;101:1947–1957.
 - Luger K et al. Crystal structure of the nucleosome core particle at 2.8 Å
   resolution. Nature 1997;389:251–260.
 - Lynch CE et al. Adipose biopsy techniques for studies in human exercise
@@ -732,10 +773,15 @@ Sources:
   scaffold proteins. Sci Rep 2015;5:11916.
 - Quaye D et al. The human placenta development and anatomy. Arch Gynecol
   Obstet 2026;313:234.
+- Pope TL, Read ME, Medsker T, Buschi AJ, Brenbridge AN. Breast skin
+  thickness: normal range and causes of thickening shown on film-screen
+  mammography. J Can Assoc Radiol 1984;35:365–368.
 - Radiopaedia.org: the long posterior ciliary arteries, as
   `eye_anatomy.dart` cites it.
 - Raman JD, Goldstein M. Intraoperative characterization of arterial
   vasculature in spermatic cord. Urology 2004;64:561–564.
+- Ramsay DT, Kent JC, Hartmann RA, Hartmann PE. Anatomy of the lactating
+  human breast redefined with ultrasound imaging. J Anat 2005;206:525–534.
 - Rana K et al. Normative measurements of orbital structures by magnetic
   resonance imaging. Int Ophthalmol 2022;42:3869–3875.
 - Rapaccini GL et al. Gastric wall thickness in normal and neoplastic
@@ -755,6 +801,9 @@ Sources:
 - Rüfer F, Schröder A, Erb C. White-to-white corneal diameter: normal values
   in healthy humans obtained with the Orbscan II topography system. Cornea
   2005;24:259–261.
+- Rusby JE et al. Breast duct anatomy in the human nipple: three-dimensional
+  patterns and clinical implications. Breast Cancer Res Treat
+  2007;106:171–179.
 - Saba M, Ebrahimi HA, Ahmadi-Pour H, Khodadoust M. Height, shape and
   anterior-posterior diameter of pituitary gland on magnetic resonance
   imaging among patients with multiple sclerosis compared to normal
@@ -814,6 +863,9 @@ Sources:
   femurs. Eur J Trauma Emerg Surg 2022;48:2379–2386.
 - Thul PJ et al. A subcellular map of the human proteome. Science
   2017;356:eaal3321.
+- Thuy TTH et al. The Main Blood Supply for The Nipple-Areola Complex of
+  Breast Hypertrophy Evaluated by Multi-Slice Computed Tomography. Med Arch
+  2025;79:267–270.
 - Trask BJ. Fluorescence in situ hybridization: applications in
   cytogenetics and gene mapping. Trends Genet 1991;7:149–154.
 - Tuan HNA et al. Computed Tomography-Based Anatomical and Morphometric
@@ -846,8 +898,13 @@ Sources:
 - Watcharakorn A, Witayapiboon S, Mingkwansook V. Measurement of normal
   diameter of optic nerve and optic nerve sheath using MRI. Sci Technol Asia
   2021;26:167–173.
+- Wetstein SC et al. Deep learning assessment of breast terminal duct
+  lobular unit involution: Towards automated prediction of breast cancer
+  risk. PLoS One 2020;15:e0231653.
 - Willard-Mack CL. Normal structure, function, and histology of lymph nodes.
   Toxicol Pathol 2006;34:409–424.
+- Willson SA, Adam EJ, Tucker AK. Patterns of breast skin thickness in
+  normal mammograms. Clin Radiol 1982;33:691–693.
 - Xia F, Mao J, Ding J, Yang H. Observation of normal appearance and wall
   thickness of esophagus on CT images. Eur J Radiol 2009;72:406–411.
 - Xu H et al. Reference values for skin microanatomy: A systematic review
@@ -1020,11 +1077,13 @@ body drew for it (`OrganArt`), so the step is one shape seen closer. It
 comes up over the body's own drawing of the organ early in the step, and
 `zoom_anatomy_test` holds the two to the same point of the screen while both
 show. On the way in, the body's line art and its unlit organs give way.
-Fifteen of the specimens below then draw in to outlines of their own
-(`_SpecimenOrgan`, `OutlineMorph`), each becoming the bed its specimen
-comes up over (`SpecimenStep`). The brain, the eye, the skin, the lymph
-node, the placenta and the fat, which the body draws no outline of that
-shows them, come up over the body's drawing instead, a crossfade.
+Sixteen of the specimens below then draw in to outlines of their own
+(`_SpecimenOrgan`, `OutlineMorph`), each becoming the bed its specimen comes
+up over (`SpecimenStep`); the breast's is its mound, its outline without the
+axillary tail, which comes up with the rest of it. The brain, the eye, the
+skin, the lymph node, the placenta and the fat, which the body draws no
+outline of that shows them, come up over the body's drawing instead, a
+crossfade.
 
 **Its real size.** The anatomogram is a diagram: it draws a stomach 11 cm
 long and a pancreas 9. Each organ therefore knows how many times its drawn
@@ -1039,17 +1098,17 @@ dot of the accent in a thin ring of the bright ink, in a soft glow
 it, fading with their distance from it, so it is seen at a glance where in
 the body it lies (the user's ask of 2026-10-21). They stay round the bone
 marrow, the heart, the thigh, the kidney, the liver, the stomach, the
-esophagus, the thyroid, the adrenal, the fallopian tube and the bladder,
-round the bladder all but the figure's smooth muscle, which the anatomogram
-draws as the bladder's own wall (`_SpecimenOrgan`'s `notAround`); the
-kidney and the adrenal keep the body's flat drawing of the other one beside
-them, and the thigh the body's four other muscles until its own come up.
-Round the pancreas, the testis, the salivary gland and the pituitary they
-give way to the specimen's own neighbours; the six specimens that
-crossfade come up with none of the figure round them.
+esophagus, the thyroid, the adrenal, the fallopian tube, the bladder and the
+breast, round the bladder all but the figure's smooth muscle, which the
+anatomogram draws as the bladder's own wall (`_SpecimenOrgan`'s
+`notAround`); the kidney and the adrenal keep the body's flat drawing of the
+other one beside them, and the thigh the body's four other muscles until its
+own come up. Round the pancreas, the testis, the salivary gland and the
+pituitary they give way to the specimen's own neighbours; the six specimens
+that crossfade come up with none of the figure round them.
 
 **Its anatomy.** The fifty-four curated proteins' paths reach all
-thirty-six of the organs the zoom draws. Twenty-one are drawn from anatomy
+thirty-six of the organs the zoom draws. Twenty-two are drawn from anatomy
 as specimens, each in a section below, in the neutrals but for vessels,
 nerves and the accent; in each the part the zoom's cell lives in is in the
 accent, by the kind of organ and of cell, never by gene: one flat tone cut
@@ -1080,15 +1139,16 @@ or tubules:
 | Placenta (CGB3, PAPPA) | a block cut through it in its wall | its villi, or its decidua |
 | Adipose tissue (LEP) | a block of the abdominal wall | both layers of its fat |
 | Urinary bladder (S100P) | opened from the front | its urothelium |
+| Breast (LALBA) | from the front in place, its lower half dissected | its ducts and lobules, its fat, or its nipple and areola |
 
 The vessel (GAS6) and the parathyroid gland (CASR) have drawings of their
 own: a length of artery, and a gland on the back of the thyroid. The
-other thirteen kinds are the anatomogram's own outline, sculpted with a
+other twelve kinds are the anatomogram's own outline, sculpted with a
 surface for its kind:
 
 | Look | Organs (proteins) |
 |---|---|
-| lobules | breast (LALBA), ovary (PADI6), prostate (ACP3) |
+| lobules | ovary (PADI6), prostate (ACP3) |
 | a wall round a lumen | gallbladder (FGF19), uterus (PAEP), cervix (SLPI), vagina (ALOX12) |
 | fibres | smooth muscle (LOXL2), tongue (CKMT2) |
 | airways from the hilum | lung (SFTPD) |
@@ -1722,6 +1782,70 @@ in the neutrals but for its arteries and the accent:
   outermost point and at the neck, and becomes the bed the bladder comes
   up over.
 
+**The breast.** It is the body's right breast, a resting adult's, drawn as a
+fresh specimen under the same lamp and seen from the front in place, its
+lower half dissected as Gray's plate is
+(`presentation/scenes/organs/breast/`, the user's choices of 2026-11-05),
+in the neutrals but for its arteries and the accent:
+
+- *Its shape* (`breast_anatomy.dart`, in millimetres from the nipple): its
+  base 150 mm across at the nipple, as the card has it, to the female
+  anatomogram's proportions, its long axis up and out, its axillary tail
+  running on toward the axilla; the nipple 2 mm below the middle.
+- *Where it is sampled.* The anatomogram already goes into the right
+  breast's middle, where GTEx samples its central subareolar region: the
+  body's ping and the dive go there unchanged, and the drawing is laid so
+  that its own site, on a duct under the areola 10.5 mm below the nipple,
+  lies on it. The mound's middle then sits about 12 mm above the oval's.
+- *The upper half* keeps its skin, a lit dome in a warm neutral: the areola
+  45 mm across, deeper and warmer, its areolar glands small domes, and the
+  nipple 12.3 mm across, whole, casting its shadow on the areola.
+- *The cut.* The skin, and the fat over the gland, are taken away below a
+  cut just under the nipple and round the lower edge. The cut skin is a
+  band of its dermis under its paler epidermis, 2 to 2.3 mm, and the upper
+  skin's edge casts a thin shadow on the dissection.
+- *The lower half.* Five of the nine duct systems round the nipple run into
+  it, each first branching under the areola 8 mm out from the nipple and
+  forking twice more through its lobe, a lobulated wedge reaching 44 to
+  53 mm out; there are no sinuses. The lobules, 0.74 mm across, lie in
+  clusters of six at the branches' ends and in pairs on short side ducts.
+  Under the areola there is fibrous tissue round the converging ducts and
+  no fat; elsewhere the fat lies in lobules 6 mm apart between pale septa,
+  round the lobes and between them, and seven Cooper's ligaments run out
+  through it to the cut skin as paler strands.
+- *In the accent,* by the Atlas's name for the cell, one flat tone cut by
+  its anatomy as crisp lines: the lobes and their ducts, those under the
+  areola never thinner than 1.6 px, their lumens and lobules dark, for
+  every epithelial cell, luminal or myoepithelial, and any cell with no
+  part of its own at this size; the fat's lobules between their septa for
+  an adipocyte; the nipple and the areola's upper half, its glands as
+  rings, for a smooth muscle cell.
+- *Round it,* dimmer than the breast: the pectoralis major it lies on, lit
+  as the thigh's muscles are, its fascicles faint grooves converging on the
+  humerus, whole within 5 mm of the breast and gone by 28 mm; the internal
+  thoracic perforators through the first, second and third intercostal
+  spaces, the second the widest, in under its medial edge, and the lateral
+  thoracic artery down beside its lateral edge, its branches in under the
+  edge, each cut short, in the blood red. The figure's own parts stay faint
+  round it, its axillary nodes beside the tail.
+- *Its names* (the user's choice): where the cell lives, its line in the
+  accent, and the `nipple`, the `areola`, a `Cooper's ligament`, the `fat`,
+  the `pectoralis major`, the `axillary tail` and the figure's own
+  `axillary nodes` in the quiet ink, each but the one the home's name
+  stands for, set round it at the canvas's corners, the long ones on two
+  lines so that each band takes its four in one row.
+- *Its view* is framed as tall as it is wide (`ZoomDepth.breastUpright`):
+  its names fit every phone's canvas the names test sets, an iPhone SE 3's
+  among them; on the first iPhone SE's, 256 wide inside the inset, they do
+  not.
+- *On the step from the body* the anatomogram's oval, flat and lit in the
+  mark, draws in to the breast's mound, its outline without the tail,
+  matched at the middle of its top, at each side's outermost point and at
+  its lowest, over 0.7 of the detail (`BreastStyle.settling`), and becomes
+  the bed the breast comes up over. The tail comes up with the rest of the
+  breast: drawn in to the whole outline, its 5 cm past the oval jolted the
+  step at any settle.
+
 **The glide.** The camera carries the organ from where it lies in the body
 to the middle of the view over the first three fifths of the step. From the
 head or the thigh that is a long way, and `zoom_smoothness_test` plays every
@@ -2291,6 +2415,13 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   the anatomogram draws its outline below the bladder, and the
   anatomogram's smooth muscle, the bladder's own wall, is not drawn round
   it.
+- **A breast at rest, from a plate.** One resting adult woman's breast,
+  the same on both figures (most of GTEx's breast samples are men's) and
+  for every cell, a lactating one too. Its ducts are the modern count, nine
+  systems and no sinuses, five drawn in the dissected half; their courses,
+  forks and widths (1.2 mm at rest), the lobes' shapes and the lobules'
+  clusters are laid by rule, the lobules far fewer than a section counts.
+  Its axillary tail, which the anatomogram does not draw, comes up with it.
 - **One field a tissue.** Wherever in the organ it is cut, and for every
   gene that goes there with the same kind of cell. "Lymphoid tissue" is a
   lymph node, and skin has no keratin layer of its own.
@@ -2351,9 +2482,9 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   into the band's strip as (`chromosome_tube.dart`); its colours are
   `core/theme/chromosome_colors.dart`.
 - `presentation/scenes/organ_art.dart`: every organ's drawing:
-  `_SpecimenOrgan` for the fifteen specimens that draw in from the body's
+  `_SpecimenOrgan` for the sixteen specimens that draw in from the body's
   outline, a class of its own for each of the six that crossfade,
-  `_DrawnOrgan` for the thirteen drawn on the anatomogram's outline, and
+  `_DrawnOrgan` for the twelve drawn on the anatomogram's outline, and
   `_VesselOrgan` and `_ParathyroidOrgan`.
 - `presentation/scenes/organs/pancreas/`: the pancreas and its neighbours in
   centimetres (`pancreas_anatomy.dart`), every number its look is tuned by
@@ -2384,6 +2515,13 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   the trigone, the orifices, the folds, the tubes and its names' places,
   the figure's uterus or prostate among them (`bladder_form.dart`), and its
   meshes and how it is drawn (`bladder_art.dart`).
+- `presentation/scenes/organs/breast/`: the breast in millimetres, with
+  every source (`breast_anatomy.dart`), every number its look is tuned by
+  (`breast_style.dart`), its form posed on each figure, with its mound, the
+  cut, the lobes, ducts and lobules, the fat, the ligaments, the
+  pectoralis, the arteries and its names' places, the figure's axillary
+  nodes among them (`breast_form.dart`), and its meshes and how it is
+  drawn (`breast_art.dart`).
 - `presentation/scenes/organs/`: the other specimens, each in its folder
   in the same four files, `*_anatomy.dart` (in millimetres, every size with
   its source, the drawing's choices listed as such), `*_style.dart` (every
@@ -2555,6 +2693,28 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   below its floor, clear of it, of what runs on beside it, of one another
   and of the scale bar, no line through another's plate or crossing
   another. `zoom_paint_timing_check` times it with S100P's zoom.
+- `breast_form_test` holds the breast to 150 mm across at its nipple on
+  the body's outline, its mound moved a little over a centimetre to put its
+  site on the body's, on either figure; its site under the areola on a duct
+  below the cut; the nipple whole above the cut and the areola's upper half
+  with it, each as wide as measured; five duct systems running in to the
+  nipple, each first branching about 8 mm out, every branch running outward
+  and in its lobe, none as wide as a lactating breast's, the lobules in the
+  lobes; the fat between the lobes and none under the areola, the
+  ligaments out through it; the tail toward the figure's axillary nodes,
+  named clear of the pectoralis and in view; the arteries cut short and
+  the branches under the edge; the pectoralis fading with its distance;
+  the step's marks the same on the mound and the body's oval; the home
+  rule; and the same breast every time. `breast_art_test` holds the mark
+  to each home alone, the hand-over to the body's own outline with no
+  layer, mesh or point, the figure's parts round it at its stop, the
+  meshes the same every time and inside its bounds, its names for each
+  home on both figures, and the steps to it and back to 0.08 a frame and
+  1.5 px. `breast_names_test` sets its names in the app's own type for
+  LALBA on seven phone canvases: above the breast or below its floor,
+  clear of it, of its arteries, of one another and of the scale bar, no
+  line through another's plate or crossing another.
+  `zoom_paint_timing_check` times it with LALBA's zoom.
 - Each of the other seventeen specimens has a `*_form_test` (its size and
   place on either figure, its site where it is sampled, its parts at their
   measured sizes, its home rule over the Atlas's names, the step's marks
