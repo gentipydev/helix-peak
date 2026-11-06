@@ -15,6 +15,7 @@ import 'package:helixpeek/features/zoom/domain/zoom_path.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/contour.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organ_art.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/adrenal/adrenal_form.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/breast/breast_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/esophagus/esophagus_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/fallopian_tube/fallopian_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/kidney/kidney_form.dart';
@@ -194,8 +195,9 @@ void main() {
     // about a cell of each part of it, the thyroid, the adrenal and the
     // pituitary on both figures about a cell of each part of each, the
     // lymph node, the fallopian tube and the placenta about a cell of each
-    // part of each, the fat about an adipocyte, and the bladder on both
-    // figures about its urothelial cell.
+    // part of each, the fat about an adipocyte, the bladder on both
+    // figures about its urothelial cell, and the breast on both figures
+    // about a cell of each part of it.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -478,6 +480,22 @@ void main() {
           CellShape.epithelial,
           'Urothelial cells',
         ),
+      for (final AnatomyFigure body in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ])
+        for (final (String cell, CellShape shape) in <(String, CellShape)>[
+          ('Breast lactating cells', CellShape.acinar),
+          ('Adipocytes (Breast)', CellShape.adipocyte),
+          ('Smooth muscle cells', CellShape.spindle),
+        ])
+          (
+            'breast-${body.name}-${BreastHome.of(cell).name}',
+            tissueAnatomy['breast']!,
+            body,
+            shape,
+            cell,
+          ),
     ];
     for (final (
           String name,

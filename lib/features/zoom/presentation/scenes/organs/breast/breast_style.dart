@@ -31,6 +31,11 @@ abstract final class BreastStyle {
   static const int morphPoints = 300;
   static const double bed = 0.5;
 
+  /// Over how much of its detail the body's oval is drawn in to the
+  /// breast's mound: more than other specimens' (`SpecimenStep`), since the
+  /// mound settles a centimetre above the oval.
+  static const double settling = 0.7;
+
   /// How finely the ducts, the ligaments and the tubes are followed, and
   /// the seed the gland, the fat and the arteries' branches are laid by.
   static const double edgeStep = 0.4;

@@ -22,6 +22,9 @@ import 'organs/brain/brain_anatomy.dart';
 import 'organs/brain/brain_art.dart';
 import 'organs/brain/brain_form.dart';
 import 'organs/brain/brain_style.dart';
+import 'organs/breast/breast_art.dart';
+import 'organs/breast/breast_form.dart';
+import 'organs/breast/breast_style.dart';
 import 'organs/esophagus/esophagus_art.dart';
 import 'organs/esophagus/esophagus_form.dart';
 import 'organs/esophagus/esophagus_style.dart';
@@ -102,7 +105,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// marrow, its femur cut down its length, the heart, cut open, skeletal
 /// muscle, the front of the thigh, the kidney and the liver, each cut open
 /// from front to back, the stomach, the esophagus and the bladder, each
-/// opened from the front, the skin, a block of it cut from the leg, the
+/// opened from the front, the breast, seen from the front in place, its
+/// lower half dissected, the skin, a block of it cut from the leg, the
 /// thyroid, seen
 /// from the front in place, one lobe cut open, the adrenal, cut through its
 /// thickness on its kidney's upper pole, the pituitary, cut down its
@@ -123,8 +127,10 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// pituitary for a pituicyte, the sinuses of a lymph node for a lymphatic
 /// endothelial cell, the muscular coat of a fallopian tube for a smooth
 /// muscle cell, the decidua of a placenta for a decidual stromal cell, both
-/// layers of the fat for any cell of it), by the kind of organ and of cell,
-/// never by gene.
+/// layers of the fat for any cell of it, the fat of a breast for an
+/// adipocyte and its nipple and areola for a smooth muscle cell, else the
+/// ducts and lobules of its gland), by the kind of organ and of cell, never
+/// by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -275,6 +281,14 @@ abstract class OrganArt {
         anatomy,
         view,
         figure: figure,
+        level: level,
+      ),
+      OrganKind.breast when part != null => _BreastOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        cell: cellName,
         level: level,
       ),
       _ =>
@@ -2731,6 +2745,142 @@ final class _BladderOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => BladderArt.bedOf(inks);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The breast, drawn from general anatomy as a specimen seen from the front
+/// in place, its lower half dissected (`BreastArt`): the upper half under
+/// its skin, the areola and the nipple at its middle; the lower half's skin,
+/// and the fat over the gland, taken away below a cut just under the
+/// nipple, to show its lobes and their ducts running in to the nipple, the
+/// lobules at their ends, the fat between them and the ligaments through
+/// it; round it the pectoralis major, fading out with its distance from it,
+/// and its arteries, cut short; reached from the body's own outline of it
+/// (`_SpecimenOrgan`), which draws in toward the breast's own and becomes
+/// the bed it lies on, the figure staying round it, faint. Where the zoom's
+/// cell lives is in the mark, by the Atlas's name for the cell: the ducts
+/// and lobules of its gland, its fat for an adipocyte, or its nipple and
+/// areola for a smooth muscle cell; its parts, the muscle it lies on, its
+/// axillary tail and the figure's axillary nodes beside it are named in the
+/// quiet ink (the user's choices of 2026-11-05).
+final class _BreastOrgan extends _SpecimenOrgan {
+  _BreastOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    String? cell,
+    super.level,
+  }) : _form = BreastForm.place(
+         part: part,
+         anatomy: anatomy,
+         view: view,
+         figure: figure,
+         home: BreastHome.of(cell),
+       );
+
+  final BreastForm _form;
+
+  @override
+  bool get _amongFigure => true;
+
+  @override
+  double _settleOf(double detail) =>
+      SpecimenStep.settle(detail, span: BreastStyle.settling);
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark, at the place its tissue is
+  // sampled; and, in the quiet ink, the nipple and the areola, the gland
+  // where it is not the home, a ligament, the fat, the pectoralis, the
+  // axillary tail and the figure's axillary nodes beside it, each but the
+  // one the home's name stands for (the user's choices of 2026-11-05).
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'home', word: _form.home.word, at: _form.homeName, home: true),
+    if (_form.home != BreastHome.nipple) ...<OrganName>[
+      (key: 'nipple', word: 'nipple', at: _form.nippleName, home: false),
+      (key: 'areola', word: 'areola', at: _form.areolaName, home: false),
+    ],
+    if (_form.home != BreastHome.gland)
+      (
+        key: 'gland',
+        word: BreastHome.gland.word,
+        at: _form.glandName,
+        home: false,
+      ),
+    (
+      key: 'ligament',
+      word: 'Cooper\u2019s\nligament',
+      at: _form.ligamentName,
+      home: false,
+    ),
+    if (_form.home != BreastHome.fat)
+      (key: 'fat', word: 'fat', at: _form.fatName, home: false),
+    (
+      key: 'pectoralis',
+      word: 'pectoralis\nmajor',
+      at: _form.pectoralisName,
+      home: false,
+    ),
+    (key: 'tail', word: 'axillary\ntail', at: _form.tailName, home: false),
+    if (_form.nodesName case final Offset at)
+      (key: 'nodes', word: 'axillary\nnodes', at: at, home: false),
+  ];
+
+  // Set round all of it, out at the canvas's corners, as the bladder's
+  // are: the breast is wider than it is tall. Round the breast and its
+  // arteries where they show, with room to either side and past a cut end.
+  // The pectoralis and the figure's nodes, which fade round it, may lie
+  // under a name, as the figure's parts round any organ may.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(BreastStyle.nameClear);
+    return <Offset>[
+      for (int i = 0; i < _form.outlinePoints.length; i += 4)
+        _form.outlinePoints[i],
+      for (final TubeCourse tube in _form.beside)
+        for (int i = 0; i < tube.length; i++)
+          if ((i % 4 == 0 || i == tube.length - 1) &&
+              tube.shown[i] > BreastStyle.nameShown) ...<Offset>[
+            tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+            tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+            if (i == tube.length - 1)
+              tube.centres[i] +
+                  Offset(tube.across[i].dy, -tube.across[i].dx) *
+                      (tube.radius[i] + clear),
+          ],
+    ];
+  }();
+
+  BreastArt? _art;
+
+  BreastArt _artFor(ZoomInks inks) {
+    final BreastArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = BreastArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => BreastArt.bedOf(inks);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

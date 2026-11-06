@@ -46,9 +46,9 @@ enum BreastHome {
 
   /// What its name says.
   String get word => switch (this) {
-    gland => 'ducts and lobules',
+    gland => 'ducts and\nlobules',
     fat => 'fat',
-    nipple => 'nipple and areola',
+    nipple => 'nipple and\nareola',
   };
 }
 
@@ -76,23 +76,28 @@ final class BreastForm {
     this.home = BreastHome.gland,
     this.nodesOutline,
   }) : scale = length / BreastAnatomy.length {
-    final List<Offset> knots = <Offset>[
-      for (final Offset p in BreastAnatomy.outline) place(p),
-    ];
     final List<Offset> diagramDense = Contour(diagram)
         .sampled(BreastStyle.outlineSpan)
         .points;
     // Drawn the same way round as the body's outline, so the one can be
     // drawn in toward the other.
-    final List<Offset> template = _area(knots).sign != _area(diagramDense).sign
-        ? knots.reversed.toList()
-        : knots;
+    List<Offset> sameWay(List<Offset> mm) {
+      final List<Offset> knots = <Offset>[for (final Offset p in mm) place(p)];
+      return _area(knots).sign != _area(diagramDense).sign
+          ? knots.reversed.toList()
+          : knots;
+    }
+
+    final List<Offset> template = sameWay(BreastAnatomy.outline);
     outline = Contour(template).toPath();
     outlinePoints = Contour(template).sampled(BreastStyle.outlineSpan).points;
     box = _bounds(outlinePoints);
+    moundPoints = Contour(sameWay(BreastAnatomy.mound))
+        .sampled(BreastStyle.outlineSpan)
+        .points;
     _diagramBox = _bounds(diagramDense);
     _morph = OutlineMorph(
-      template: outlinePoints,
+      template: moundPoints,
       diagram: diagramDense,
       diagramPath: Contour(diagram).toPath(),
       count: BreastStyle.morphPoints,
@@ -173,6 +178,10 @@ final class BreastForm {
   late final List<Offset> outlinePoints;
   late final Rect box;
 
+  /// The points the breast's mound, its outline without its axillary tail,
+  /// is followed by: what the body's oval draws in to.
+  late final List<Offset> moundPoints;
+
   /// [millimetres] in the scene's units.
   double mm(double millimetres) => millimetres * scale;
 
@@ -197,7 +206,7 @@ final class BreastForm {
       (marks[1].dx + marks[3].dx) / 2,
       (marks[0].dy + marks[2].dy) / 2,
     );
-    return (middle(marksOf(outlinePoints)) - middle(marksOf(outlineAt(0))))
+    return (middle(marksOf(moundPoints)) - middle(marksOf(outlineAt(0))))
             .distance /
         scale;
   }
@@ -207,8 +216,8 @@ final class BreastForm {
   ];
 
   /// The flat shape the step from the body draws: the body's outline at
-  /// [settle] 0, the breast's at 1, and [bed] of the way on toward the bed
-  /// it lies on.
+  /// [settle] 0, the breast's mound at 1, and [bed] of the way on toward the
+  /// bed it lies on.
   Path pathAt(double settle, {double bed = 0}) =>
       _morph.pathAt(settle, bed: bed);
 
@@ -389,7 +398,7 @@ final class BreastForm {
     if (!_reach.contains(mm)) {
       return 0;
     }
-    if (_inside(_outlineMm, mm)) {
+    if (_inside(_coarseMm, mm)) {
       return 1;
     }
     final double d = _toLine(_coarseMm, mm, closed: true);
@@ -691,11 +700,11 @@ final class BreastForm {
     return best;
   }
 
-  /// Where the step from the body meets the breast's outline and the
-  /// body's: the middle of the top, in place of the topmost point, which on
-  /// the breast is its axillary tail's tip; each side's outermost point,
-  /// the lateral below the tail, and the lowest, each picked out of either
-  /// outline alike.
+  /// Where the step from the body meets the breast's mound and the body's
+  /// outline: the middle of the top, in place of the topmost point, which a
+  /// hair's difference could move along the nearly level top; each side's
+  /// outermost point, and the lowest, each picked out of either outline
+  /// alike.
   static int _topMiddle(List<Offset> points) {
     final Rect box = _bounds(points);
     int best = -1;
@@ -730,8 +739,8 @@ final class BreastForm {
     return best;
   }
 
-  /// The points of the breast's own outline where the step from the body
-  /// meets the body's, for tests: the top's middle, then the rest in the
+  /// The points of the breast's mound where the step from the body meets
+  /// the body's outline, for tests: the top's middle, then the rest in the
   /// order round it from there.
   List<Offset> marksOf(List<Offset> points) => <Offset>[
     points[_topMiddle(points)],

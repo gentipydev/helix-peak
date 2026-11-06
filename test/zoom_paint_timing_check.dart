@@ -78,6 +78,7 @@ void main() {
       TestCatalog.bySlug('pappa')!,
       TestCatalog.leptin,
       TestCatalog.bySlug('s100p')!,
+      TestCatalog.bySlug('lactalbumin')!,
     ]) {
       final ZoomStage stage = ZoomStage(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),

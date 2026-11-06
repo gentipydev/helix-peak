@@ -322,8 +322,9 @@ void main() {
     // from anatomy since 2026-10-22, the kidney, the liver, the stomach and
     // the esophagus since 2026-10-23, the thyroid, the adrenal, the
     // pituitary, the lymph node, the fallopian tube, the placenta and the
-    // fat since 2026-10-24, when the last study went, and the bladder since
-    // 2026-11-04): never the organ drawn for no tissue at all.
+    // fat since 2026-10-24, when the last study went, the bladder since
+    // 2026-11-04 and the breast since 2026-11-05): never the organ drawn for
+    // no tissue at all.
     const Set<OrganKind> drawn = <OrganKind>{
       OrganKind.brain,
       OrganKind.lymphNode,

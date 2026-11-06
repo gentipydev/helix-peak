@@ -74,17 +74,17 @@ import '../../tube_course.dart';
 ///
 /// Drawing choices, measured by none of these: the outline, drawn to the
 /// female anatomogram's own proportions, 150 mm across, as the zoom's card
-/// has it, and its axillary tail; the nipple 2 mm below the middle; the
-/// skin's cut just under the nipple, and how thick the skin is drawn along
-/// it; five duct systems in the lower half, of the nine round the nipple,
-/// their courses, how they fork and how wide each branch is at rest (the
-/// main ducts 1.2 mm, under the lactating 1.9); the lobes' shapes and
-/// reach; the lobules' clusters; the fat lobules' size; the ligaments'
-/// courses; the areolar glands and the nipple's orifices, where each lies;
-/// the pectoralis major's borders; the arteries' courses, where they are
-/// cut, and the lateral thoracic artery's width; the place the body goes
-/// in, on a duct under the areola 10.5 mm below the nipple, GTEx's subareolar
-/// region seen from the front.
+/// has it, its axillary tail, and its mound without the tail; the nipple
+/// 2 mm below the middle; the skin's cut just under the nipple, and how
+/// thick the skin is drawn along it; five duct systems in the lower half, of
+/// the nine round the nipple, their courses, how they fork and how wide each
+/// branch is at rest (the main ducts 1.2 mm, under the lactating 1.9); the
+/// lobes' shapes and reach; the lobules' clusters; the fat lobules' size;
+/// the ligaments' courses; the areolar glands and the nipple's orifices,
+/// where each lies; the pectoralis major's borders; the arteries' courses,
+/// where they are cut, and the lateral thoracic artery's width; the place
+/// the body goes in, on a duct under the areola 10.5 mm below the nipple,
+/// GTEx's subareolar region seen from the front.
 abstract final class BreastAnatomy {
   /// How wide the breast is, across at the nipple's height: the zoom's
   /// card's 15 cm.
@@ -132,6 +132,44 @@ abstract final class BreastAnatomy {
     Offset(-60, -65),
     Offset(-46, -62.5),
     Offset(-28, -61.3),
+  ];
+
+  /// The breast's mound: its outline without its axillary tail, a round
+  /// shoulder in its place, inside the outline everywhere. The body's oval
+  /// draws in to this, the bed the breast lies on; the tail, which the
+  /// anatomogram does not draw, comes up with the rest of the breast.
+  static const List<Offset> mound = <Offset>[
+    Offset(-8, -60.5),
+    Offset(8, -60),
+    Offset(24, -58.5),
+    Offset(40, -54),
+    Offset(53, -47),
+    Offset(63, -38),
+    Offset(70, -27),
+    Offset(74, -14),
+    Offset(75.2, -1),
+    Offset(74, 12),
+    Offset(70.5, 24),
+    Offset(64.5, 35),
+    Offset(55.5, 44),
+    Offset(43, 51),
+    Offset(28, 55),
+    Offset(12, 57),
+    Offset(-4, 57.3),
+    Offset(-20, 56),
+    Offset(-35, 52.5),
+    Offset(-49, 46),
+    Offset(-60, 37),
+    Offset(-68, 25.5),
+    Offset(-73.5, 12),
+    Offset(-75.3, -2),
+    Offset(-76.1, -15),
+    Offset(-75.8, -28),
+    Offset(-73, -40),
+    Offset(-66.5, -50.5),
+    Offset(-57, -57.5),
+    Offset(-44, -61),
+    Offset(-28, -61.1),
   ];
 
   /// Where the axillary tail runs, from its root to its tip: where it is
@@ -323,10 +361,11 @@ abstract final class BreastAnatomy {
 
   // Where the parts are named.
 
-  /// The areola, in its upper half off the nipple; the pectoralis, above
+  /// The areola, in its upper half off the nipple, toward the middle; the
+  /// pectoralis, above
   /// the breast toward the middle; the fat, low on the lateral side; a
   /// ligament, low on the medial side; the gland, a lobe below the site.
-  static const Offset areolaName = Offset(-11, -15);
+  static const Offset areolaName = Offset(10, -15);
   static const Offset pectoralisName = Offset(30, -72);
   static const Offset fatName = Offset(-44, 30);
   static const Offset ligamentName = Offset(40, 42);

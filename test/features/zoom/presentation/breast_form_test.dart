@@ -323,10 +323,12 @@ void main() {
     }
   });
 
-  test('the step from the body meets the breast’s outline and the body’s at '
-      'the same places, in the same order round them from the middle of its '
-      'top', () {
+  test('the step from the body draws the body’s oval in to the breast’s '
+      'mound, the breast without its axillary tail, which lies inside its '
+      'outline; meeting the two at the same places, in the same order round '
+      'them from the middle of the top', () {
     for (final AnatomyFigure figure in _figures) {
+      final String what = figure.name;
       final AnatomyPart part = _part(figure);
       final BreastForm form = _form(figure);
       final double real = _anatomy.metres / part.extent;
@@ -334,6 +336,20 @@ void main() {
         for (final Offset p in part.followed)
           (p - part.centre) * (real / _view),
       ]).sampled(8).points;
+      // The mound inside the outline, the tail outside the mound.
+      for (final Offset p in form.moundPoints) {
+        expect(
+          form.contains(p) ||
+              _distanceTo(form.outlinePoints, p) < form.mm(0.05),
+          isTrue,
+          reason: '$what: ${form.toMm(p)}',
+        );
+      }
+      expect(
+        _inside(form.moundPoints, form.place(BreastAnatomy.tailTip)),
+        isFalse,
+        reason: what,
+      );
       List<int> order(List<Offset> points) {
         final List<Offset> marks = form.marksOf(points);
         final int start = points.indexOf(marks.first);
@@ -348,42 +364,35 @@ void main() {
       }
 
       // Both the same way round, as the morph lays them.
-      final double way = _area(form.outlinePoints).sign;
+      final double way = _area(form.moundPoints).sign;
       final List<Offset> bodyWay = _area(body).sign == way
           ? body
           : body.reversed.toList();
-      expect(order(form.outlinePoints), order(bodyWay), reason: figure.name);
-      expect(
-        form.marksOf(form.outlinePoints).toSet(),
-        hasLength(4),
-        reason: figure.name,
-      );
-      // The top's middle on the mound's, not the tail's tip, on either
-      // outline; the medial side's outermost point to the right, the
-      // lateral's to the left, below the tail.
+      expect(order(form.moundPoints), order(bodyWay), reason: what);
+      expect(form.marksOf(form.moundPoints).toSet(), hasLength(4));
+      // The top's middle on the middle of either's top; the medial side's
+      // outermost point to the right, the lateral's to the left.
       for (final List<Offset> points in <List<Offset>>[
-        form.outlinePoints,
+        form.moundPoints,
         bodyWay,
       ]) {
         final List<Offset> marks = form.marksOf(points);
         final Rect box = _bounds(points);
-        expect(marks[0].dy - box.top, lessThan(box.height * 0.12));
+        expect(marks[0].dy - box.top, lessThan(box.height * 0.05));
         expect(
-          marks[0].dx,
-          greaterThan(box.left + box.width * 0.35),
-          reason: figure.name,
+          (marks[0].dx - box.center.dx).abs(),
+          lessThan(box.width * 0.08),
+          reason: what,
         );
         expect(marks[1].dx, greaterThan(box.center.dx));
+        expect(marks[2].dy, closeTo(box.bottom, 1e-9));
         expect(marks[3].dx, lessThan(box.center.dx));
-        expect(marks[3].dy, greaterThan(box.top + box.height * 0.45));
       }
-      // The body's outline at the hand-over, the breast's own once
-      // settled.
-      final List<Offset> settled = form.outlineAt(1);
+      // The body's outline at the hand-over, the mound once settled.
       expect(
-        _bounds(settled).width,
-        closeTo(form.box.width, form.mm(1)),
-        reason: figure.name,
+        _bounds(form.outlineAt(1)).width,
+        closeTo(_bounds(form.moundPoints).width, form.mm(1)),
+        reason: what,
       );
     }
   });
@@ -404,7 +413,7 @@ void main() {
       expect(BreastHome.of('Adipocytes (Breast)'), BreastHome.fat);
       expect(BreastHome.of('Adipocytes'), BreastHome.fat);
       expect(BreastHome.of('Smooth muscle cells'), BreastHome.nipple);
-      expect(BreastHome.gland.word, 'ducts and lobules');
+      expect(BreastHome.gland.word, 'ducts and\nlobules');
     },
   );
 

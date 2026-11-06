@@ -255,6 +255,12 @@ final class ZoomDepth {
   /// 1.4).
   static const double bladderUpright = 1.25;
 
+  /// How much taller than wide the breast is framed: seen from the front in
+  /// place, its axillary tail running up and out toward the axilla and its
+  /// arteries coming to it from either side, it is wider than it is tall,
+  /// and its names need room above it and below it on every phone's canvas.
+  static const double breastUpright = 1.0;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -287,8 +293,9 @@ final class ZoomDepth {
   /// cut through its hilum, as [nodeUpright], the fallopian tube, opened
   /// along its length, as [tubeUpright], the placenta, a block of it, as
   /// [placentaUpright], the fat, a block of the abdominal wall, as
-  /// [adiposeUpright], and the bladder, opened from the front, as
-  /// [bladderUpright].
+  /// [adiposeUpright], the bladder, opened from the front, as
+  /// [bladderUpright], and the breast, seen from the front in place, its
+  /// lower half dissected, as [breastUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -352,6 +359,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.bladder) {
       return bladderUpright;
+    }
+    if (anatomy.organ == OrganKind.breast) {
+      return breastUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)
