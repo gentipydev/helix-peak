@@ -700,7 +700,10 @@ one (`LmScene.info`, an `LmInfo` that `LmInfoSheet` draws; Tokenise's since
 none yet. Every page is the screen's key, the user's pick for all twelve: a
 lead saying what the stage takes and gives, then a short section for each
 part its canvas tags, why it is there, a link to a later stage beside what it
-explains.
+explains. `docs/design/peptide-lm-info-pages.md` is how to write the next:
+the rules for the words, the steps, the code, the two tests that list which
+stages have pages, the tools, the engine and the run's checked facts, and a
+brief for each stage still to come.
 Its colours are the theme's (`LmInks`, held by `lm_inks_test`): the accent
 for what flows forward, the tracer for what came next, the helix's honey for
 the loss and what flows back, and the helix's denim and clay, from the base
@@ -1065,6 +1068,15 @@ dart run build_runner build    # after editing gene_record_dto.dart
   nothing jumps. It writes its verdict to `check.json` (`ok`, `unsuitable`,
   `fault`); the backend's worker runs it on every such model before storing
   it (`pipeline/structure/experimental.py`).
+- `WORDS=<file> TRACE=<trace.json> flutter test test/peptide_lm_words_check.dart`
+  writes every caption, note and info page of the Peptide LM's stages, from a
+  recorded run (`TRACE`: the backend's `pipeline/denovo/runs/curated/trace.json`),
+  at its first and last checkpoints: what a stage's info page must not say again.
+- `SHOTS=<dir> TRACE=<trace.json> STAGES=tokenise SIZES=440x956,375x667 flutter
+  test test/peptide_lm_info_shots_check.dart` plays each stage to its end on the
+  real page, taps its ⓘ and writes the sheet as PNGs, scrolled and not, with how
+  far it scrolls (`STEP` picks a checkpoint), and the About sheet alone, for
+  byte-for-byte proofs.
 - `SHOT_DIR=<dir> flutter test test/goldens` writes PNGs (the catalog walk,
   ClinVar, constraint and impact tests do too). Also:
   `TRANSLATION_SHOT_DIR`, `SELECTION_SHOT_DIR`, `HELIX_OUT`, `HELIX_MOTION=1`.

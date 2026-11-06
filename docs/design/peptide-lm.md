@@ -937,6 +937,9 @@ out of view is scrolled just far enough to show it whole.
 
 ## Info pages
 
+How to write the next one, with a brief for each stage still to come, is
+`peptide-lm-info-pages.md`; this section keeps each page's record.
+
 The ⓘ opens the stage on screen's own page where it has one
 (`LmScene.info`, an `LmInfo` that `LmInfoSheet` draws), and the About
 sheet, how the whole model learns, where it has none yet. Tokenise has one
