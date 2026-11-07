@@ -267,6 +267,13 @@ final class ZoomDepth {
   /// either edge, need room beside it on every phone's canvas.
   static const double cervixUpright = 0.75;
 
+  /// How much taller than wide the epididymis is framed: cut down its
+  /// length on the back of its testis, the testis whole beside it and the
+  /// cord rising above it, it stands taller than it is wide, but the testis
+  /// leaves no room for a column of names either side, and its names, in
+  /// rows above it and below it, need room there on every phone's canvas.
+  static const double epididymisUpright = 0.85;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -301,8 +308,9 @@ final class ZoomDepth {
   /// [placentaUpright], the fat, a block of the abdominal wall, as
   /// [adiposeUpright], the bladder, opened from the front, as
   /// [bladderUpright], the breast, seen from the front in place, its lower
-  /// half dissected, as [breastUpright], and the cervix, opened along its
-  /// canal, as [cervixUpright].
+  /// half dissected, as [breastUpright], the cervix, opened along its
+  /// canal, as [cervixUpright], and the epididymis, cut down its length on
+  /// its testis, as [epididymisUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -372,6 +380,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.cervix) {
       return cervixUpright;
+    }
+    if (anatomy.organ == OrganKind.epididymis) {
+      return epididymisUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)

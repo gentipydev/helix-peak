@@ -51,7 +51,7 @@ abstract final class EpididymisStyle {
   /// How high the testis stands up off the page, a share of how deep it is
   /// from front to back, and the grid it is laid on.
   static const double testisDome = 0.6;
-  static const double meshCell = 0.4;
+  static const double meshCell = 0.6;
 
   /// The vas deferens, pale and firm; the cord's vessels, blood eased
   /// toward the ground, a vein more than an artery, as the testis's are.

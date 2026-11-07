@@ -16,6 +16,7 @@ import 'package:helixpeek/features/zoom/presentation/scenes/contour.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organ_art.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/adrenal/adrenal_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/breast/breast_form.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/epididymis/epididymis_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/esophagus/esophagus_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/fallopian_tube/fallopian_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/kidney/kidney_form.dart';
@@ -197,8 +198,10 @@ void main() {
     // lymph node, the fallopian tube and the placenta about a cell of each
     // part of each, the fat about an adipocyte, the bladder on both
     // figures about its urothelial cell, the breast on both figures about
-    // a cell of each part of it, and the cervix, the female figure's alone,
-    // about the tissue's own cell, none the Atlas names living there.
+    // a cell of each part of it, the cervix, the female figure's alone,
+    // about the tissue's own cell, none the Atlas names living there, and
+    // the epididymis, the male figure's alone, about a cell of its duct and
+    // one of its efferent ductules.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -504,6 +507,17 @@ void main() {
         CellShape.epithelial,
         null,
       ),
+      for (final String cell in <String>[
+        'Epididymal principal cells',
+        'Epididymal efferent duct ciliated cells',
+      ])
+        (
+          'epididymis-male-${EpididymisHome.of(cell).name}',
+          tissueAnatomy['epididymis']!,
+          AnatomyFigure.male,
+          CellShape.epithelial,
+          cell,
+        ),
     ];
     for (final (
           String name,

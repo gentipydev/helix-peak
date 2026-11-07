@@ -341,10 +341,11 @@ final class EpididymisForm {
     ];
   }();
 
-  /// Whether [mm] lies in the [k]th cone, short of the tunica.
+  /// Whether [mm] lies in the [k]th cone, as far in from its sides, the
+  /// tunica and the septa, as the tunica is thick.
   static bool _coneHolds(Offset mm, int k) =>
       _inside(_conesMm[k], mm) &&
-      _toLine(_outlineMm, mm) > EpididymisAnatomy.tunica;
+      _toLine(_conesMm[k], mm) > EpididymisAnatomy.tunica;
 
   /// The cones, the septa between them and the ductules, in millimetres.
   /// For tests.
@@ -385,6 +386,7 @@ final class EpididymisForm {
       columns * rows,
       (_) => <int>[],
     );
+    final _Spans spans = _Spans(_ductMm, area, 0.05);
     final List<DuctProfile> out = <DuctProfile>[];
     final List<List<(Offset, double)>> discs = <List<(Offset, double)>>[];
     int cellOf(Offset p) =>
@@ -403,19 +405,12 @@ final class EpididymisForm {
       final double long =
           r * (1 + (EpididymisAnatomy.profileLong - 1) * stretch * stretch);
       final double turn = random.nextDouble() * math.pi;
-      if (!inDuct(p)) {
-        continue;
-      }
       const double clear = EpididymisAnatomy.profileClear;
-      if (_toLine(_outlineMm, p) < long + EpididymisAnatomy.tunica + clear ||
-          -_headward(p) < long + clear ||
-          _ductSeptaMm.any(
-            (List<Offset> septum) =>
-                _toLine(septum, p, closed: false) < long + clear,
-          )) {
+      if (-_headward(p) < long + clear || !spans.holds(p)) {
         continue;
       }
-      // As three discs along its length, to keep it clear of the others.
+      // As three discs along its length, to keep it clear of the others:
+      // the cheaper test first, then the edges and the septa.
       final Offset along = Offset(math.cos(turn), math.sin(turn));
       final List<(Offset, double)> mine = <(Offset, double)>[
         (p, r),
@@ -434,6 +429,11 @@ final class EpididymisForm {
             continue;
           }
           for (final int other in grid[j * columns + i]) {
+            // Far enough apart however each is turned.
+            if ((out[other].at - p).distance >
+                out[other].long + long + EpididymisAnatomy.profileGap) {
+              continue;
+            }
             for (final (Offset q, double rq) in discs[other]) {
               for (final (Offset m, double rm) in mine) {
                 if ((q - m).distance < rq + rm + EpididymisAnatomy.profileGap) {
@@ -444,7 +444,12 @@ final class EpididymisForm {
           }
         }
       }
-      if (!free) {
+      if (!free ||
+          _toLine(_outlineMm, p) < long + EpididymisAnatomy.tunica + clear ||
+          _ductSeptaMm.any(
+            (List<Offset> septum) =>
+                _toLine(septum, p, closed: false) < long + clear,
+          )) {
         continue;
       }
       grid[c].add(out.length);
@@ -671,6 +676,46 @@ final class EpididymisForm {
 }
 
 // Geometry, in the anatomy's millimetres.
+
+/// Where a polygon lies, row by row across its box: each row's stretches
+/// inside it, for a quick test of whether a point does, to within a row.
+final class _Spans {
+  _Spans(List<Offset> polygon, Rect box, this.row)
+    : _top = box.top,
+      _rows = <List<double>>[
+        for (double y = box.top + row / 2; y < box.bottom; y += row)
+          () {
+            final List<double> xs = <double>[];
+            final int n = polygon.length;
+            for (int i = 0; i < n; i++) {
+              final Offset a = polygon[i];
+              final Offset b = polygon[(i + 1) % n];
+              if ((a.dy <= y) != (b.dy <= y)) {
+                xs.add(a.dx + (y - a.dy) * (b.dx - a.dx) / (b.dy - a.dy));
+              }
+            }
+            return xs..sort();
+          }(),
+      ];
+
+  final double row;
+  final double _top;
+  final List<List<double>> _rows;
+
+  bool holds(Offset p) {
+    final int j = ((p.dy - _top) / row).floor();
+    if (j < 0 || j >= _rows.length) {
+      return false;
+    }
+    final List<double> xs = _rows[j];
+    for (int k = 0; k + 1 < xs.length; k += 2) {
+      if (p.dx >= xs[k] && p.dx <= xs[k + 1]) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
 
 /// [polygon] cut down to where [side] is above nothing, by the straight
 /// line [side] is measured from.

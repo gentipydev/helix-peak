@@ -28,6 +28,9 @@ import 'organs/breast/breast_style.dart';
 import 'organs/cervix/cervix_art.dart';
 import 'organs/cervix/cervix_form.dart';
 import 'organs/cervix/cervix_style.dart';
+import 'organs/epididymis/epididymis_art.dart';
+import 'organs/epididymis/epididymis_form.dart';
+import 'organs/epididymis/epididymis_style.dart';
 import 'organs/esophagus/esophagus_art.dart';
 import 'organs/esophagus/esophagus_form.dart';
 import 'organs/esophagus/esophagus_style.dart';
@@ -109,8 +112,9 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// muscle, the front of the thigh, the kidney and the liver, each cut open
 /// from front to back, the stomach, the esophagus and the bladder, each
 /// opened from the front, the breast, seen from the front in place, its
-/// lower half dissected, the cervix, opened along its canal, the skin, a
-/// block of it cut from the leg, the thyroid, seen
+/// lower half dissected, the cervix, opened along its canal, the
+/// epididymis, cut down its length on its testis, the skin, a block of it
+/// cut from the leg, the thyroid, seen
 /// from the front in place, one lobe cut open, the adrenal, cut through its
 /// thickness on its kidney's upper pole, the pituitary, cut down its
 /// middle as the brain is, a lymph node, cut through its hilum, the
@@ -133,7 +137,9 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// layers of the fat for any cell of it, the fat of a breast for an
 /// adipocyte and its nipple and areola for a smooth muscle cell, else the
 /// ducts and lobules of its gland, the vaginal part of a cervix, its
-/// ectocervix, for any), by the kind of organ and of cell, never by gene.
+/// ectocervix, for any, the duct of an epididymis for a cell of its duct
+/// and the efferent ductules in its head for one of theirs), by the kind
+/// of organ and of cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -301,6 +307,14 @@ abstract class OrganArt {
         figure: figure,
         level: level,
       ),
+      OrganKind.epididymis when part != null => _EpididymisOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        cell: cellName,
+        level: level,
+      ),
       _ =>
         part == null
             ? _AnyOrgan()
@@ -459,9 +473,7 @@ enum _Look { lobules, hollow, fibres, airways, coils }
 
 _Look _lookOf(OrganKind kind) => switch (kind) {
   OrganKind.lung => _Look.airways,
-  OrganKind.intestine ||
-  OrganKind.epididymis ||
-  OrganKind.seminalVesicle => _Look.coils,
+  OrganKind.intestine || OrganKind.seminalVesicle => _Look.coils,
   OrganKind.smoothMuscle || OrganKind.tongue => _Look.fibres,
   OrganKind.gallbladder ||
   OrganKind.uterus ||
@@ -3045,6 +3057,132 @@ final class _CervixOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => CervixArt.bedOf(inks);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The epididymis, drawn from general anatomy as a specimen seen from its
+/// lateral side and cut down its length on the back of its testis
+/// (`EpididymisArt`): the efferent ductules coiled in the cones of its head,
+/// its duct cut across its coils in the body and the tail, in segments; the
+/// testis whole beside it, the sinus between them; the vas deferens rising
+/// behind it into the cord with the testicular artery and the pampiniform
+/// plexus, fading out above; the tunica vaginalis laid open round them;
+/// reached from the body's own outline of it (`_SpecimenOrgan`), which
+/// draws in toward the epididymis's own and becomes the bed it lies on,
+/// the figure staying round it, faint, all but its testis, which the
+/// specimen draws whole beside it. Where the zoom's cell lives is in the
+/// mark, by the Atlas's name for the cell: the duct, or the efferent
+/// ductules for a cell of theirs; its parts and what lies round it are
+/// named in the quiet ink.
+final class _EpididymisOrgan extends _SpecimenOrgan {
+  _EpididymisOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    String? cell,
+    super.level,
+  }) : _form = EpididymisForm.place(
+         part: part,
+         anatomy: anatomy,
+         view: view,
+         home: EpididymisHome.of(cell),
+       ),
+       super(notAround: _ownTestis);
+
+  /// The figure's testis, which the specimen draws whole beside the
+  /// epididymis.
+  static const Set<String> _ownTestis = <String>{'UBERON_0000473'};
+
+  final EpididymisForm _form;
+
+  @override
+  bool get _amongFigure => true;
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark, at the place its tissue is
+  // sampled (the efferent ductules' at the cone nearest it); and, in the
+  // quiet ink, the other of the duct and the ductules, the tail, the vas
+  // deferens and the testis. The head and the body are not named apart: in
+  // man the head is the efferent ductules and the body the duct. The sinus
+  // between the body and the testis is drawn, unnamed: its name's line
+  // crossed the others' on the squattest phones.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'home', word: _form.home.word, at: _form.homeName, home: true),
+    (
+      key: 'other',
+      word: switch (_form.home) {
+        EpididymisHome.duct => EpididymisHome.ductules.word,
+        EpididymisHome.ductules => EpididymisHome.duct.word,
+      },
+      at: _form.otherName,
+      home: false,
+    ),
+    (key: 'tail', word: 'tail', at: _form.tailName, home: false),
+    (key: 'vas', word: 'vas deferens', at: _form.vasName, home: false),
+    (key: 'testis', word: 'testis', at: _form.testisName, home: false),
+  ];
+
+  // Set round all of it, out at the canvas's corners, as the testis's are:
+  // round the epididymis, the testis and the vas deferens where it shows
+  // beside them, with room to either side. Above the head the cord only
+  // fades, and the names may lie beside its end.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(EpididymisStyle.nameClear);
+    double top = double.infinity;
+    for (final Offset p in <Offset>[
+      ..._form.outlinePoints,
+      ..._form.testisPoints,
+    ]) {
+      top = math.min(top, p.dy);
+    }
+    return <Offset>[
+      for (int i = 0; i < _form.outlinePoints.length; i += 4)
+        _form.outlinePoints[i],
+      for (int i = 0; i < _form.testisPoints.length; i += 2)
+        _form.testisPoints[i],
+      for (final TubeCourse tube in _form.beside)
+        for (int i = 0; i < tube.length; i++)
+          if (i % 4 == 0 &&
+              tube.shown[i] > EpididymisStyle.nameShown &&
+              tube.centres[i].dy >= top) ...<Offset>[
+            tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+            tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+          ],
+    ];
+  }();
+
+  EpididymisArt? _art;
+
+  EpididymisArt _artFor(ZoomInks inks) {
+    final EpididymisArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = EpididymisArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => EpididymisArt.bedOf(inks);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
