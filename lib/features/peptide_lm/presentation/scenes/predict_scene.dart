@@ -6,6 +6,7 @@ import '../../../../shared/format.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
 import '../lm_format.dart';
+import '../lm_info_sheet.dart';
 import 'attention_scene.dart';
 import 'embedding_scene.dart';
 import 'forward_scene.dart';
@@ -888,6 +889,56 @@ final class PredictScene extends LmScene {
 
   @override
   String describe(LmView view, TrainingFrame frame) => 'Predict, step ${view.step}. ${caption(view, frame)}.';
+
+  /// Predict's own page: what it takes and gives, that a guess is its whole
+  /// row, and that the output layer is a table of its own, in the run's
+  /// numbers.
+  @override
+  LmInfo info(LmView view) {
+    final TrainingTrace trace = view.trace;
+    final int vocab = trace.vocab.length;
+    final int eos = trace.vocab.indexOf('<eos>');
+    int answers = 0;
+    for (final List<int> row in trace.targets) {
+      answers += row.where((int id) => id == eos).length;
+    }
+    final String times = switch (answers) {
+      1 => 'once',
+      2 => 'twice',
+      _ => '${spelled(answers)} times',
+    };
+    return LmInfo(
+      title: LmStage.predict.label,
+      lead: "Every place's last row becomes its guess: a probability for each of the ${trace.allowed.length} "
+          'tokens that can come next, a row of the map. The guess is the whole row, not its top letter: '
+          'writing a peptide, a model would draw each next token from these shares.',
+      sections: <LmInfoSection>[
+        LmInfoSection('Output layer', <String>[
+          'Its ${grouped(vocab * trace.model.width)} weights and $vocab biases are a table of their own, not '
+              "the token embedding's rows used again"
+              '${ownOutputRow(trace) ? ': the row for <eos> (${glyph(trace, eos)}) learns here, where <eos> is an '
+                        'answer $times, while its row in the token embedding never moves.' : '.'}',
+        ]),
+      ],
+    );
+  }
+
+  /// Whether `<eos>`'s row of the output layer moved over the run while its
+  /// row of the token embedding never did: one token, two tables.
+  static bool ownOutputRow(TrainingTrace trace) {
+    final int eos = trace.vocab.indexOf('<eos>');
+    if (eos < 0 || !EmbeddingScene.rowStill(trace, eos)) {
+      return false;
+    }
+    final TraceCheckpoint first = trace.checkpoints.first;
+    final TraceCheckpoint last = trace.checkpoints.last;
+    for (int d = 0; d < trace.model.width; d++) {
+      if (trace.outputWeight(last, eos, d) != trace.outputWeight(first, eos, d)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
 
 /// What Predict's last frame fades or leaves out, for the stage that opens on

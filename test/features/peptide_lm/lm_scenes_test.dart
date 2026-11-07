@@ -2238,6 +2238,7 @@ void main() {
       LmStage.attention,
       LmStage.feedForward,
       LmStage.forward,
+      LmStage.predict,
     };
     for (final LmStage stage in LmStage.values.where((LmStage s) => !paged.contains(s))) {
       expect(sceneOf(stage).info(on(trace, inks, kit)), isNull, reason: stage.name);
@@ -2470,5 +2471,42 @@ void main() {
     final String page = words(info);
     expect(page, contains('here the ${spelled(2 * trace.model.layers)} can be set against each other'));
     expect(page, endsWith('so two blocks reach two hops back.'));
+  });
+
+  testWidgets("Predict's info page says a guess is its whole row, from an output layer of its own", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    final LmInfo info = const PredictScene().info(on(trace, inks, kit));
+    expect(info.title, LmStage.predict.label);
+    expect(info.sections.map((LmInfoSection s) => s.title), <String>['Output layer']);
+    expect(info.lead, contains('a probability for each of the ${trace.allowed.length} tokens that can come next'));
+    // The output layer, as the run counts it: its weights and a bias a token.
+    final int head = trace.groupSizes[trace.groups.indexOf('head')];
+    final int vocab = trace.vocab.length;
+    final String page = words(info);
+    expect(page, contains('Its ${grouped(head - vocab)} weights and $vocab biases are a table of their own'));
+    // <eos> ends each of the toy's two peptides: an answer twice, its output
+    // row trained while its embedding row never moves.
+    final int eos = trace.vocab.indexOf('<eos>');
+    expect(PredictScene.ownOutputRow(trace), isTrue);
+    expect(
+      page,
+      endsWith(
+        'the row for <eos> (${glyph(trace, eos)}) learns here, where <eos> is an answer twice, while its row in '
+        'the token embedding never moves.',
+      ),
+    );
+
+    // Its embedding row nudged, <eos> no longer shows two tables apart.
+    final TrainingTrace moved = edited(
+      (Map<String, Object?> json) => floats(
+        lastKept(json)['token_embedding'],
+        (Float32List rows) => rows[eos * trace.model.width] += 0.5,
+      ),
+    );
+    expect(PredictScene.ownOutputRow(moved), isFalse);
+    expect(words(const PredictScene().info(on(moved, inks, kit))), endsWith("not the token embedding's rows used again."));
   });
 }
