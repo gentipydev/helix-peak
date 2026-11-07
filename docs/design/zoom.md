@@ -406,6 +406,34 @@ convention is, where it comes from, and what it decided:
   samples the ectocervix, squamous, and the endocervix, glandular (GTEx
   Portal). *Consequence:* the cervix is drawn so, opened along its canal as
   GTEx opens it, its back half seen from the front ("The cervix" below).
+- **The epididymis.** Anatomy plates show it on the right testis seen from
+  its lateral side, the tunica vaginalis laid open (Gray 1918, Fig. 1148),
+  and cut down its length with the testis to show the ducts (Fig. 1149).
+  It is a long, narrow, flattened body on the lateral edge of the testis's
+  back, its head enlarged at the upper end, its tail pointed at the lower,
+  running on as the ductus deferens, its body between, the sinus of the
+  epididymis a pouch between the body and the testis. Twelve to fifteen or
+  twenty efferent ductules leave the rete testis, perforate the tunica
+  albuginea and, exceedingly convoluted, form the coni vasculosi, which
+  together make the head, each cone a single duct; opposite their bases
+  they open into one duct whose convolutions make the body and the tail,
+  over 6 m long unravelled and wider as it nears the ductus deferens,
+  held together by areolar tissue and bands of fibrous tissue. The
+  ductus deferens begins at the tail, at first very tortuous, and rises
+  behind the testis and medial to the epididymis into the cord, with the
+  testicular artery and the pampiniform plexus; the tunica albuginea is
+  bluish-white; the testis 4 to 5 cm long, 2.5 broad and 3 from front to
+  back, its upper end forward (Gray 1918). In man the proximal epididymis
+  is formed by the efferent ducts alone (Sullivan et al. 2019), which join
+  the epididymal duct near the border of the head and the body (Saitoh et
+  al. 1990); 14.7 efferent ducts on average, 3.0 m long together, fill most
+  of the head, and the epididymal duct is in segments parted by little or
+  no connective tissue (Nakata et al. 2024). On ultrasound in 248 healthy
+  fertile men the head is at most 12 mm and the tail at most 6, the vas
+  deferens at most 4.5, the testis about 17 ml (Lotti et al. 2021); the
+  vas deferens 1.5 to 2.7 mm thick (Middleton et al. 2009). GTEx samples no
+  epididymis. *Consequence:* the epididymis is drawn so, on its testis from
+  the side, cut down its length ("The epididymis" below).
 - **Histology.** Haematoxylin stains nuclei and ribosome-rich cytoplasm;
   eosin stains protein; fat, mucus and lumens take neither. A ×40 objective
   under a standard eyepiece shows a field about half a millimetre across.
@@ -627,7 +655,8 @@ Sources:
   the anterior left ventricle), as `tool/zoom/anatomogram.py` cites it.
 - GTEx Portal. Tissue site details, dataset gtex_v10: each tissue's
   sampling site (<https://gtexportal.org/api/v2/dataset/tissueSiteDetail>,
-  read 2026-11-04; the breast's 2026-11-05, the cervix's 2026-11-07).
+  read 2026-11-04; the breast's 2026-11-05, the cervix's 2026-11-07; its 54
+  sites, none of them the epididymis, 2026-11-07).
 - Gündoğdu E. Relationship of the Presence of the Inferior Right Hepatic
   Vein with the Right Hepatic Vein Diameter and CT Liver Volumetry. Indian J
   Radiol Imaging 2023;33:332–337.
@@ -765,6 +794,9 @@ Sources:
   package. Front Cardiovasc Med 2022;9:1011931.
 - Musacchio A, Desai A. A molecular view of kinetochore assembly and
   function. Biology (Basel) 2017;6:5.
+- Nakata H, Iseki S, Mizokami A. Three-dimensional analysis of junctions
+  between efferent and epididymal ducts in the human caput epididymis.
+  Andrology 2024;12:87–97.
 - Nakanishi K et al. MR-based three-dimensional presentation of cartilage
   thickness in the femoral head. Eur Radiol 2001;11:2178–2183.
 - Naumova N et al. Organization of the mitotic chromosome. Science
@@ -844,6 +876,8 @@ Sources:
 - Rusby JE et al. Breast duct anatomy in the human nipple: three-dimensional
   patterns and clinical implications. Breast Cancer Res Treat
   2007;106:171–179.
+- Saitoh K, Terada T, Hatakeyama S. A morphological study of the efferent
+  ducts of the human epididymis. Int J Androl 1990;13:369–376.
 - Saba M, Ebrahimi HA, Ahmadi-Pour H, Khodadoust M. Height, shape and
   anterior-posterior diameter of pituitary gland on magnetic resonance
   imaging among patients with multiple sclerosis compared to normal
@@ -893,6 +927,8 @@ Sources:
   combinatorial multi-fluor FISH. Nat Genet 1996;12:368–375.
 - Standring S (ed.). Gray's Anatomy: The Anatomical Basis of Clinical
   Practice, 42nd edn. Elsevier, 2020.
+- Sullivan R et al. Revisiting structure/functions of the human
+  epididymis. Andrology 2019;7:748–757.
 - Sumner AT. Scanning electron microscopy of mammalian chromosomes from
   prophase to telophase. Chromosoma 1991;100:410–418.
 - Taylor NA, Machado-Moreira CA. Regional variations in transepidermal water
@@ -1124,13 +1160,15 @@ body drew for it (`OrganArt`), so the step is one shape seen closer. It
 comes up over the body's own drawing of the organ early in the step, and
 `zoom_anatomy_test` holds the two to the same point of the screen while both
 show. On the way in, the body's line art and its unlit organs give way.
-Seventeen of the specimens below then draw in to outlines of their own
+Eighteen of the specimens below then draw in to outlines of their own
 (`_SpecimenOrgan`, `OutlineMorph`), each becoming the bed its specimen comes
 up over (`SpecimenStep`); the breast's is its mound, its outline without the
 axillary tail, which comes up with the rest of it, and the cervix's is the
 one of the body's two halves of it that the body follows, which draws in to
 the cervix's canal and its wall on that side, the other half giving way
-under the cervix as it comes up. The brain, the eye, the
+under the cervix as it comes up; the epididymis's band draws in to the
+epididymis on its testis's back, and the testis comes up beside it where
+the body drew the testis. The brain, the eye, the
 skin, the lymph node, the placenta and the fat, which the body draws no
 outline of that shows them, come up over the body's drawing instead, a
 crossfade.
@@ -1149,18 +1187,20 @@ it, fading with their distance from it, so it is seen at a glance where in
 the body it lies (the user's ask of 2026-10-21). They stay round the bone
 marrow, the heart, the thigh, the kidney, the liver, the stomach, the
 esophagus, the thyroid, the adrenal, the fallopian tube, the bladder, the
-breast and the cervix, round the bladder all but the figure's smooth muscle,
-which the anatomogram draws as the bladder's own wall, and round the cervix
-all but the figure's vagina, which the cervix draws as its own vault
-(`_SpecimenOrgan`'s `notAround`); the kidney and the adrenal keep the body's
-flat drawing of the other one beside them, the thigh the body's four other
+breast, the cervix and the epididymis, round the bladder all but the
+figure's smooth muscle, which the anatomogram draws as the bladder's own
+wall, round the cervix all but the figure's vagina, which the cervix draws
+as its own vault, and round the epididymis all but the figure's testis,
+which it draws whole beside it (`_SpecimenOrgan`'s `notAround`); the
+kidney and the adrenal keep the body's flat drawing of the other one beside
+them, the thigh the body's four other
 muscles until its own come up, and the cervix the body's other half of it
 until it comes up. Round the pancreas, the testis, the salivary gland and
 the pituitary they give way to the specimen's own neighbours; the six
 specimens that crossfade come up with none of the figure round them.
 
 **Its anatomy.** The fifty-four curated proteins' paths reach all
-thirty-six of the organs the zoom draws. Twenty-three are drawn from anatomy
+thirty-six of the organs the zoom draws. Twenty-four are drawn from anatomy
 as specimens, each in a section below, in the neutrals but for vessels,
 nerves and the accent; in each the part the zoom's cell lives in is in the
 accent, by the kind of organ and of cell, never by gene: one flat tone cut
@@ -1193,10 +1233,11 @@ or tubules:
 | Urinary bladder (S100P) | opened from the front | its urothelium |
 | Breast (LALBA) | from the front in place, its lower half dissected | its ducts and lobules, its fat, or its nipple and areola |
 | Cervix (SLPI) | opened along its canal, its back half from the front | its ectocervix |
+| Epididymis (NPC2) | cut down its length on its testis, from the side | its duct, or its efferent ductules |
 
 The vessel (GAS6) and the parathyroid gland (CASR) have drawings of their
 own: a length of artery, and a gland on the back of the thyroid. The
-other eleven kinds are the anatomogram's own outline, sculpted with a
+other ten kinds are the anatomogram's own outline, sculpted with a
 surface for its kind:
 
 | Look | Organs (proteins) |
@@ -1205,7 +1246,7 @@ surface for its kind:
 | a wall round a lumen | gallbladder (FGF19), uterus (PAEP), vagina (ALOX12) |
 | fibres | smooth muscle (LOXL2), tongue (CKMT2) |
 | airways from the hilum | lung (SFTPD) |
-| coils | intestine (FABP6), epididymis (NPC2), seminal vesicle (ANGPT1) |
+| coils | intestine (FABP6), seminal vesicle (ANGPT1) |
 
 **The pancreas.** It is drawn as a fresh specimen under the zoom's one lamp,
 with the stomach taken away (`presentation/scenes/organs/pancreas/`, the
@@ -1982,6 +2023,76 @@ cut short (`presentation/scenes/organs/cervix/`, the user's choices of
   stroma's tone; the other half, flat as the body drew it, gives way under
   it as it comes up.
 
+**The epididymis.** It is drawn as a fresh specimen under the same lamp,
+the right epididymis on the back of its testis seen from the lateral side
+with the tunica vaginalis laid open, as Gray's plate shows it, and cut
+down its length to show its ducts; the testis whole beside it
+(`presentation/scenes/organs/epididymis/`, 2026-11-07, every choice mine at
+the user's word: "go automatically with the recommendations"), in the
+neutrals but for the cord's vessels and the accent:
+
+- *Its shape* (`epididymis_anatomy.dart`, in millimetres from the middle of
+  its outline): 53 mm from the head's top to the tail's lowest point, about
+  the card's 5 cm; the head capping the testis's upper pole, 8.4 mm thick
+  (at most 12 on ultrasound), the body 4.7 mm along the testis's back, the
+  tail 6 mm, lying 1.6 mm in over the testis's edge, 2.2 at the head. The
+  testis is an ellipse 47 by 30 mm, its upper pole turned 8° forward, about
+  18 ml with Gray's 2.5 cm breadth.
+- *Where it is sampled.* No GTEx site is the epididymis. The anatomogram
+  draws it as a narrow wavy band along the testis's lateral border, its
+  site a fifth of the way above its middle; the drawing's own site, in the
+  duct just below the head, where the efferent ductules have opened into
+  it, is laid on it, which moves the drawing 6.5 mm (its head bulges
+  forward over the testis, where the band does not). A rule in the tool
+  closes the view on the band and the testis's outline beside it together
+  (`FRAME_WITH`); in the generated figures only the epididymis's centre is
+  added.
+- *The head, cut,* is ten cones of efferent ductules, each from the head's
+  underside, where it lies on the testis and the ductules come up out of
+  it, to its top or its back, narrower at the testis; the head is shared
+  out alike along the two, so the cones tile it, septa between them as
+  crisp lines; in each its ductule coils from side to side out to its base.
+- *The body and the tail, cut,* are the epididymal duct cut across its
+  coils: some ninety profiles, each a wall line round a darker lumen, laid
+  by darts and kept clear of one another, of the edges and of seven thin
+  septa that part the duct into segments, larger toward the tail (0.6 mm
+  across at the body's top, 0.9 at the tail). A line where the head ends,
+  and the tunica's inner face a line in from the outline all round.
+- *In the accent,* by the Atlas's name for the cell: the duct's part of the
+  cut for a principal, clear or basal cell, and any other; the head's cones
+  for an efferent duct cell, ciliated or absorptive; one flat tone, the
+  mark over a neutral, cut by the profiles and septa or by the ductules and
+  septa. The rest of the cut is a warm, quiet tone, the cones a shade
+  deeper and warmer than the duct.
+- *The testis* is whole beside it, its tunica albuginea pale and lit by the
+  ellipsoid's own normal (so its rim is smooth, where a relief on a grid
+  notched it), the epididymis's shadow on it and the sinus a groove along
+  the body's front edge.
+- *Round it,* dimmer: the vas deferens, a pale firm tube, from under the
+  tail, tortuous at first, up behind the body into the cord, fading out
+  above the head; the testicular artery and four veins of the pampiniform
+  plexus coming down behind the head to the testis's back, fading in from
+  above; the tunica vaginalis laid open round them all, a faint film. The
+  figure's own parts stay faint round it, all but its testis, which the
+  epididymis draws whole beside it (`notAround`).
+- *Its names:* the home in the accent, `epididymal duct` at the site or
+  `efferent ductules` at the cone nearest it; the other of the two, `tail`,
+  `vas deferens` and `testis` in the quiet ink, set round it at the
+  canvas's corners. The head and the body are not named apart: in man the
+  head is the efferent ductules and the body the duct. Columns were tried
+  first, the epididymis standing tall, but the testis leaves under 90 pt
+  either side and four of six names fell onto the drawing; the sinus is
+  drawn and not named, its line having crossed the others' on the
+  squattest phones.
+- *Its view* is framed 0.85 (`ZoomDepth.epididymisUpright`): both homes'
+  five names fit every phone's canvas the names test sets at 0.85, and the
+  first iPhone SE's fails at 0.9.
+- *On the step from the body* the band, flat and lit in the mark, draws in
+  to the epididymis's outline, matched at its top, at each side's
+  outermost point down its middle and at its lowest, over the usual 0.45
+  of the detail, and becomes the bed the epididymis and its testis come up
+  over, in the duct's cut tone.
+
 **The glide.** The camera carries the organ from where it lies in the body
 to the middle of the view over the first three fifths of the step. From the
 head or the thigh that is a long way, and `zoom_smoothness_test` plays every
@@ -2566,6 +2677,14 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   view. No cell the Atlas names lives in the cervix, so it has one home,
   the ectocervix, and the zoom goes on to its squamous epithelium whatever
   the gene.
+- **An epididymis from a plate.** One adult's right epididymis, the same
+  for every protein, cut down its length in the plane it is seen in while
+  the testis beside it stays whole, as if the cut ran through the
+  epididymis alone. Ten of its fifteen or so cones are in the cut, shared
+  out alike along the head; its duct's profiles and septa are laid by
+  rule, at sizes no source gives; no appendix, no ductulus aberrans, no
+  paradidymis, no other epididymis. One site, where the efferent ductules
+  have opened into the duct, for a cell of either.
 - **One field a tissue.** Wherever in the organ it is cut, and for every
   gene that goes there with the same kind of cell. "Lymphoid tissue" is a
   lymph node, and skin has no keratin layer of its own.
@@ -2626,9 +2745,9 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   into the band's strip as (`chromosome_tube.dart`); its colours are
   `core/theme/chromosome_colors.dart`.
 - `presentation/scenes/organ_art.dart`: every organ's drawing:
-  `_SpecimenOrgan` for the seventeen specimens that draw in from the body's
+  `_SpecimenOrgan` for the eighteen specimens that draw in from the body's
   outline, a class of its own for each of the six that crossfade,
-  `_DrawnOrgan` for the eleven drawn on the anatomogram's outline, and
+  `_DrawnOrgan` for the ten drawn on the anatomogram's outline, and
   `_VesselOrgan` and `_ParathyroidOrgan`.
 - `presentation/scenes/organs/pancreas/`: the pancreas and its neighbours in
   centimetres (`pancreas_anatomy.dart`), every number its look is tuned by
@@ -2673,6 +2792,14 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   crypts, the cysts, the transformation zone, the vagina's vault, the
   arteries and its names' places (`cervix_form.dart`), and its meshes and
   how it is drawn (`cervix_art.dart`).
+- `presentation/scenes/organs/epididymis/`: the epididymis in millimetres,
+  with every source (`epididymis_anatomy.dart`), every number its look is
+  tuned by (`epididymis_style.dart`), its form posed on the male figure,
+  with its outline, the head's cones and their ductules, the duct's
+  profiles and septa, the testis, the cord's tubes, the sac and its names'
+  places, and where the zoom's cell lives by the Atlas's name for it
+  (`epididymis_form.dart`), and its meshes and how it is drawn
+  (`epididymis_art.dart`).
 - `presentation/scenes/organs/`: the other specimens, each in its folder
   in the same four files, `*_anatomy.dart` (in millimetres, every size with
   its source, the drawing's choices listed as such), `*_style.dart` (every
@@ -2890,6 +3017,30 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   of the scale bar, no line through another's plate or crossing another.
   `zoom_domain_test` holds its site on the vaginal part and its view closed
   on both halves. `zoom_paint_timing_check` times it with SLPI's zoom.
+- `epididymis_form_test` holds the epididymis to its real size on the
+  body's band, moved under 7.5 mm to put its site on the body's; the head
+  7 to 12 mm thick, the body 4 to 5.5 and the tail at most 6.5; the testis
+  47 by 30 mm, its upper pole forward, about 17 ml, the epididymis's front
+  edge over it and its back outside it; the site in the duct, 1 to 4 mm
+  below the head; the cones tiling the head, each apex over the testis,
+  each ductule inside its own cone and turning from side to side; the
+  duct's profiles inside the duct, clear of one another, the edges and the
+  septa, larger toward the tail; the tunica's line just inside the outline;
+  the vas deferens from under the tail rising behind the body and fading
+  above, the cord's vessels going in under the head; the step's marks in
+  the same order on its outline and the body's; the homes by the Atlas's
+  five names; and the same epididymis every time, its names where they say.
+  `epididymis_art_test` holds the mark to the duct or the cones alone and
+  the bed to the duct's cut, the hand-over to the body's band with no
+  layer, mesh or point, the figure's parts round it at its stop but its
+  testis, the meshes the same every time and inside its bounds, its five
+  names for either home, and the steps to it and back to 0.08 a frame and
+  1.5 px. `epididymis_names_test` sets its names in the app's own type for
+  NPC2, and for an efferent duct cell, on seven phone canvases: above the
+  epididymis or below it, clear of it, its testis and the vas deferens, of
+  one another and of the scale bar, no line through another's plate or
+  crossing another. `zoom_domain_test` holds its view closed on it and its
+  testis together. `zoom_paint_timing_check` times it with NPC2's zoom.
 - Each of the other seventeen specimens has a `*_form_test` (its size and
   place on either figure, its site where it is sampled, its parts at their
   measured sizes, its home rule over the Atlas's names, the step's marks
