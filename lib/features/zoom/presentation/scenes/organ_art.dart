@@ -25,6 +25,9 @@ import 'organs/brain/brain_style.dart';
 import 'organs/breast/breast_art.dart';
 import 'organs/breast/breast_form.dart';
 import 'organs/breast/breast_style.dart';
+import 'organs/cervix/cervix_art.dart';
+import 'organs/cervix/cervix_form.dart';
+import 'organs/cervix/cervix_style.dart';
 import 'organs/esophagus/esophagus_art.dart';
 import 'organs/esophagus/esophagus_form.dart';
 import 'organs/esophagus/esophagus_style.dart';
@@ -106,8 +109,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// muscle, the front of the thigh, the kidney and the liver, each cut open
 /// from front to back, the stomach, the esophagus and the bladder, each
 /// opened from the front, the breast, seen from the front in place, its
-/// lower half dissected, the skin, a block of it cut from the leg, the
-/// thyroid, seen
+/// lower half dissected, the cervix, opened along its canal, the skin, a
+/// block of it cut from the leg, the thyroid, seen
 /// from the front in place, one lobe cut open, the adrenal, cut through its
 /// thickness on its kidney's upper pole, the pituitary, cut down its
 /// middle as the brain is, a lymph node, cut through its hilum, the
@@ -129,8 +132,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// muscle cell, the decidua of a placenta for a decidual stromal cell, both
 /// layers of the fat for any cell of it, the fat of a breast for an
 /// adipocyte and its nipple and areola for a smooth muscle cell, else the
-/// ducts and lobules of its gland), by the kind of organ and of cell, never
-/// by gene.
+/// ducts and lobules of its gland, the vaginal part of a cervix, its
+/// ectocervix, for any), by the kind of organ and of cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -289,6 +292,13 @@ abstract class OrganArt {
         view,
         figure: figure,
         cell: cellName,
+        level: level,
+      ),
+      OrganKind.cervix when part != null => _CervixOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
         level: level,
       ),
       _ =>
@@ -455,7 +465,6 @@ _Look _lookOf(OrganKind kind) => switch (kind) {
   OrganKind.smoothMuscle || OrganKind.tongue => _Look.fibres,
   OrganKind.gallbladder ||
   OrganKind.uterus ||
-  OrganKind.cervix ||
   OrganKind.vagina => _Look.hollow,
   _ => _Look.lobules,
 };
@@ -2881,6 +2890,161 @@ final class _BreastOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => BreastArt.bedOf(inks);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The cervix, drawn from general anatomy as a specimen opened along its
+/// canal, as GTEx opens it, and seen from the front (`CervixArt`): its back
+/// half, the cut through its wall either side of the canal, the canal's
+/// back wall with its palmate folds between them, the uterus's lower body
+/// above it and the vagina's vault round its vaginal part below it, each
+/// cut short, and the uterine arteries beside it; reached from the body's
+/// own outline of it (`_SpecimenOrgan`), one of two halves the body draws
+/// it in, which draws in toward the cervix's own canal and wall on that
+/// side, the other half giving way under it as it comes up, the figure
+/// staying round it, faint, all but its vagina, which the cervix draws as
+/// its own vault. Its vaginal part, the ectocervix, is in the mark,
+/// whatever the protein: no cell the Atlas names lives in the cervix, and
+/// the tissue the zoom goes on to is its squamous epithelium. Its parts and
+/// what lies round it are named in the quiet ink (the user's choices of
+/// 2026-11-07).
+final class _CervixOrgan extends _SpecimenOrgan {
+  _CervixOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    super.level,
+  }) : _form = CervixForm.place(part: part, anatomy: anatomy, view: view),
+       super(notAround: _ownVagina);
+
+  /// The figure's vagina, which the cervix draws round its vaginal part as
+  /// its own vault.
+  static const Set<String> _ownVagina = <String>{'UBERON_0000996'};
+
+  final CervixForm _form;
+
+  @override
+  bool get _amongFigure => true;
+
+  @override
+  double _settleOf(double detail) =>
+      SpecimenStep.settle(detail, span: CervixStyle.settling);
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom goes in, in the mark: the ectocervix; and, in the quiet
+  // ink, the vagina, the uterus, a uterine artery, the canal and the
+  // transformation zone (the user's choices of 2026-11-07: six of the ten
+  // first chosen, all that are set clear of one another round it on every
+  // phone; its orifices, cysts and fornices are drawn, unnamed). The
+  // shorter names first, so that each band round it takes them nearest it,
+  // and a longer name further out reaches in past them.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'home', word: 'ectocervix', at: _form.homeName, home: true),
+    (key: 'vagina', word: 'vagina', at: _form.vaginaName, home: false),
+    (key: 'uterus', word: 'uterus', at: _form.uterusName, home: false),
+    (
+      key: 'artery',
+      word: 'uterine artery',
+      at: _form.arteryName,
+      home: false,
+    ),
+    (
+      key: 'canal',
+      word: 'endocervical canal',
+      at: _form.canalName,
+      home: false,
+    ),
+    (
+      key: 'zone',
+      word: 'transformation zone',
+      at: _form.zoneName,
+      home: false,
+    ),
+  ];
+
+  // Set round all of it, out at the canvas's corners, as the bladder's
+  // are: round the cervix, the vagina's vault and the arteries where they
+  // show, with room to either side and past a cut end.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(CervixStyle.nameClear);
+    return <Offset>[
+      for (int i = 0; i < _form.outlinePoints.length; i += 4)
+        _form.outlinePoints[i],
+      for (int i = 0; i < _form.vaginaOutline.length; i += 4)
+        _form.vaginaOutline[i],
+      for (final TubeCourse tube in _form.beside)
+        for (int i = 0; i < tube.length; i++)
+          if ((i % 4 == 0 || i == tube.length - 1) &&
+              tube.shown[i] > CervixStyle.nameShown) ...<Offset>[
+            tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+            tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+            if (i == tube.length - 1)
+              tube.centres[i] +
+                  Offset(tube.across[i].dy, -tube.across[i].dx) *
+                      (tube.radius[i] + clear),
+          ],
+    ];
+  }();
+
+  /// The body's other half of the cervix, beside the one it follows.
+  late final Path _others = () {
+    final Path path = Path();
+    for (final List<Offset> other in _form.others) {
+      path.addPath(OrganArt._closed(other), Offset.zero);
+    }
+    return path;
+  }();
+
+  // It is flat as the body drew it, and gives way under the cervix as it
+  // comes up.
+  @override
+  void _paintBeside(
+    Canvas canvas,
+    ZoomInks inks,
+    double line,
+    double detail,
+  ) {
+    final double shown = 1 - SpecimenStep.come(detail);
+    if (shown > 0.002) {
+      OrganArt._flatOthers(canvas, _others, inks, line, shown: shown);
+    }
+  }
+
+  CervixArt? _art;
+
+  CervixArt _artFor(ZoomInks inks) {
+    final CervixArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = CervixArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) {
+    _artFor(inks);
+    _others;
+  }
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => CervixArt.bedOf(inks);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

@@ -261,6 +261,12 @@ final class ZoomDepth {
   /// and its names need room above it and below it on every phone's canvas.
   static const double breastUpright = 1.0;
 
+  /// How much taller than wide the cervix is framed: opened along its
+  /// canal, the uterus's lower body above it and the vagina's vault below
+  /// it, it stands taller than it is wide, and its names, in a column at
+  /// either edge, need room beside it on every phone's canvas.
+  static const double cervixUpright = 0.75;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -294,8 +300,9 @@ final class ZoomDepth {
   /// along its length, as [tubeUpright], the placenta, a block of it, as
   /// [placentaUpright], the fat, a block of the abdominal wall, as
   /// [adiposeUpright], the bladder, opened from the front, as
-  /// [bladderUpright], and the breast, seen from the front in place, its
-  /// lower half dissected, as [breastUpright].
+  /// [bladderUpright], the breast, seen from the front in place, its lower
+  /// half dissected, as [breastUpright], and the cervix, opened along its
+  /// canal, as [cervixUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -362,6 +369,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.breast) {
       return breastUpright;
+    }
+    if (anatomy.organ == OrganKind.cervix) {
+      return cervixUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)

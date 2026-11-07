@@ -196,8 +196,9 @@ void main() {
     // pituitary on both figures about a cell of each part of each, the
     // lymph node, the fallopian tube and the placenta about a cell of each
     // part of each, the fat about an adipocyte, the bladder on both
-    // figures about its urothelial cell, and the breast on both figures
-    // about a cell of each part of it.
+    // figures about its urothelial cell, the breast on both figures about
+    // a cell of each part of it, and the cervix, the female figure's alone,
+    // about the tissue's own cell, none the Atlas names living there.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -496,6 +497,13 @@ void main() {
             shape,
             cell,
           ),
+      (
+        'cervix-female',
+        tissueAnatomy['cervix']!,
+        AnatomyFigure.female,
+        CellShape.epithelial,
+        null,
+      ),
     ];
     for (final (
           String name,

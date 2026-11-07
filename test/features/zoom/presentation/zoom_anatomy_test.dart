@@ -265,8 +265,11 @@ void main() {
       // it; the
       // thyroid, seen in
       // place, framed wide enough that its names stand in a row above it
-      // and one below it; and the pituitary, cut down its middle among the
-      // brain and the bone round it, framed wider still for the same.
+      // and one below it; the pituitary, cut down its middle among the
+      // brain and the bone round it, framed wider still for the same; and
+      // the cervix, opened along its canal between the uterus and the
+      // vagina, framed wide enough that its names stand in rows above it
+      // and below it.
       final double upright = ZoomDepth.uprightOf(
         subject.track,
         subject.path,
@@ -284,6 +287,7 @@ void main() {
             OrganKind.adipose => ZoomDepth.adiposeUpright,
             OrganKind.thyroid => ZoomDepth.thyroidUpright,
             OrganKind.pituitary => ZoomDepth.pituitaryUpright,
+            OrganKind.cervix => ZoomDepth.cervixUpright,
             _ => 1.0,
           },
           ZoomDepth.phoneAspect,
@@ -323,8 +327,8 @@ void main() {
     // the esophagus since 2026-10-23, the thyroid, the adrenal, the
     // pituitary, the lymph node, the fallopian tube, the placenta and the
     // fat since 2026-10-24, when the last study went, the bladder since
-    // 2026-11-04 and the breast since 2026-11-05): never the organ drawn for
-    // no tissue at all.
+    // 2026-11-04, the breast since 2026-11-05 and the cervix since
+    // 2026-11-07): never the organ drawn for no tissue at all.
     const Set<OrganKind> drawn = <OrganKind>{
       OrganKind.brain,
       OrganKind.lymphNode,
