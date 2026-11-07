@@ -170,23 +170,35 @@ void main() {
 
     Finder scroll() => find.descendant(of: sheet, matching: find.byType(Scrollable));
 
-    // The page opens on Tokenise, which has a page of its own.
-    expect(tester.widget<IconButton>(info).tooltip, 'About Tokenise');
-    await tester.tap(info);
-    await tester.pumpAndSettle();
-    for (final String title in <String>['Tokenise', 'Token ids', 'Special tokens', 'Batch 2D matrix', 'Token counts']) {
-      await tester.scrollUntilVisible(inSheet(title), 120, scrollable: scroll());
-      expect(inSheet(title), findsOneWidget, reason: title);
+    // Each stage with a page of its own, from Tokenise, which the page opens
+    // on: its ⓘ is named for it, and opens its page, every section of it.
+    final Map<String, List<String>> pages = <String, List<String>>{
+      'Tokenise': <String>['Token ids', 'Special tokens', 'Batch 2D matrix', 'Token counts'],
+      'Shift': <String>['Input x', 'Target y'],
+    };
+    for (final MapEntry<String, List<String>> page in pages.entries) {
+      if (page.key != 'Tokenise') {
+        await tapStage(tester, page.key);
+        await tester.pump();
+      }
+      expect(tester.widget<IconButton>(info).tooltip, 'About ${page.key}', reason: page.key);
+      await tester.tap(info);
+      await tester.pumpAndSettle();
+      for (final String title in <String>[page.key, ...page.value]) {
+        await tester.scrollUntilVisible(inSheet(title), 120, scrollable: scroll());
+        expect(inSheet(title), findsOneWidget, reason: title);
+      }
+      expect(find.text('How this model learns'), findsNothing);
+      // Put away, the stage playing on.
+      Navigator.of(tester.element(sheet)).pop();
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      expect(sheet, findsNothing);
     }
-    expect(find.text('How this model learns'), findsNothing);
 
-    // Put away; Shift has none yet, so its ⓘ opens how the whole model
-    // learns, every paragraph of it.
-    Navigator.of(tester.element(sheet)).pop();
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 1));
-    expect(sheet, findsNothing);
-    await tapStage(tester, 'Shift');
+    // Loop has none yet, so its ⓘ opens how the whole model learns, every
+    // paragraph of it.
+    await tapStage(tester, 'Loop');
     await tester.pump();
     expect(tester.widget<IconButton>(info).tooltip, 'How this model learns');
     await tester.tap(info);

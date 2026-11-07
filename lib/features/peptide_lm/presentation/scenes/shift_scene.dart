@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../../shared/format.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
+import '../lm_info_sheet.dart';
 import 'lm_drawing.dart';
 import 'lm_scene.dart';
 import 'tokenise_scene.dart';
@@ -342,6 +343,48 @@ final class ShiftScene extends LmScene {
     return 'Shift. ${caption(view, frame)}. In focus, ${focus.source.label}, '
         '${focus.sequence.length} residues.';
   }
+
+  /// Shift's own page: what it takes and gives, then what x and y each are
+  /// for, in the run's numbers. Its canvas says nothing but its captions, so
+  /// the page carries the stage.
+  @override
+  LmInfo info(LmView view) {
+    final TrainingTrace trace = view.trace;
+    final int peptides = trace.peptides.length;
+    final int asked = unasked(trace);
+    String special(String name) => '$name (${glyph(trace, trace.vocab.indexOf(name))})';
+    final String dimmed = switch (asked) {
+      0 => '',
+      1 => ' Dimmed, the one place whose answer would be padding: there is nothing to ask.',
+      _ => ' Dimmed, the ${grouped(asked)} places whose answer would be padding: there is nothing to ask.',
+    };
+    return LmInfo(
+      title: LmStage.shift.label,
+      lead: "Tokenise's $peptides × ${trace.width + 1} matrix is cut into two of $peptides × ${trace.width}, "
+          'input x and target y, once and the same at every step. Nothing outside the peptides says what is '
+          'right: each is its own answer key, one place on.',
+      sections: <LmInfoSection>[
+        LmInfoSection('Input x', <String>[
+          "Each place of x asks one question: what comes next? The frame's last place has nothing after it, "
+              'so x lets it go. Each place reads the true tokens up to its own, '
+              "never the model's own guesses, so all ${grouped(trace.targetCount)} questions are asked at "
+              'once, in one pass; writing a new peptide, a model would instead feed each guess back, one place '
+              'at a time.',
+        ]),
+        LmInfoSection('Target y', <String>[
+          'y is x moved one place left: under each place, its answer. A peptide of n residues gives n + 1 '
+              'answers, its residues and ${special('<eos>')}; ${special('<bos>')} is never one, so it leaves at '
+              'the left. An answer also stands in x, one place on, so a place must never read past its own: '
+              'the keys Scores strikes through, the cells Attention hatches.$dimmed y never goes in: Predict '
+              'writes it beside each guess, and Loss scores against it.',
+        ]),
+      ],
+    );
+  }
+
+  /// How many of x's places are asked nothing: those whose answer in y would
+  /// be padding, which the stage dims.
+  static int unasked(TrainingTrace trace) => trace.peptides.length * trace.width - trace.targetCount;
 }
 
 /// What Shift's last frame leaves out or fades, for the stage that opens on
