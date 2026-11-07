@@ -2230,7 +2230,13 @@ void main() {
     expect(page, endsWith('first beats it at step $passed.'));
 
     // The stages with a page of their own so far; the rest have none yet.
-    const Set<LmStage> paged = <LmStage>{LmStage.tokenise, LmStage.shift, LmStage.embedding, LmStage.scores};
+    const Set<LmStage> paged = <LmStage>{
+      LmStage.tokenise,
+      LmStage.shift,
+      LmStage.embedding,
+      LmStage.scores,
+      LmStage.attention,
+    };
     for (final LmStage stage in LmStage.values.where((LmStage s) => !paged.contains(s))) {
       expect(sceneOf(stage).info(on(trace, inks, kit)), isNull, reason: stage.name);
     }
@@ -2366,5 +2372,58 @@ void main() {
       contains('three $width × $width and ${grouped(3 * width)} biases, ${grouped(attention - width * width - width)} numbers'),
     );
     expect(page, contains('sums ${trace.headSize} products and is divided by √${trace.headSize}'));
+  });
+
+  testWidgets("Attention's info page says what reading adds to a row, and how training sharpens the maps", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    final LmInfo info = const AttentionScene().info(on(trace, inks, kit));
+    expect(info.title, LmStage.attention.label);
+    expect(info.sections.map((LmInfoSection s) => s.title), <String>['Values', 'Shares']);
+    expect(info.lead, contains("x0 + block 1's attention"));
+    // Head 1's map, as it is drawn, every peptide's: its rows' largest
+    // shares, but the first's, averaged.
+    double mean(int checkpoint) {
+      double sum = 0;
+      int rows = 0;
+      for (int p = 0; p < trace.peptides.length; p++) {
+        final List<List<double>> map =
+            AttentionScene.allShares(view(inks, kit, checkpoint: checkpoint, peptide: p, position: 0), 0);
+        for (int i = 1; i < map.length; i++) {
+          sum += map[i].reduce(math.max);
+          rows++;
+        }
+      }
+      return sum / rows;
+    }
+
+    final int last = trace.checkpoints.length - 1;
+    expect(AttentionScene.largestShare(trace, trace.checkpoints.first), closeTo(mean(0), 1e-9));
+    expect(AttentionScene.largestShare(trace, trace.checkpoints.last), closeTo(mean(last), 1e-9));
+    expect(mean(last), greaterThan(mean(0)));
+    expect(
+      words(info),
+      contains(
+        "in head 1, every place but <bos>'s gives its largest share ${percent(mean(0))} on average at step 1, "
+        'over both peptides, and ${percent(mean(last))} at step ${trace.checkpoints.last.step}.',
+      ),
+    );
+
+    // A run whose last maps are even has sharpened nothing, and says so not.
+    final TrainingTrace even = edited((Map<String, Object?> json) {
+      final List<Object?> blocks = lastKept(json)['blocks']! as List<Object?>;
+      floats((blocks.first! as Map<String, Object?>)['scores'], (Float32List scores) {
+        for (int k = 0; k < scores.length ~/ trace.model.heads; k++) {
+          scores[k] = 0;
+        }
+      });
+    });
+    expect(AttentionScene.largestShare(even, even.checkpoints.last), lessThan(mean(0)));
+    expect(
+      const AttentionScene().info(on(even, inks, kit)).sections.map((LmInfoSection s) => s.title),
+      <String>['Values'],
+    );
   });
 }

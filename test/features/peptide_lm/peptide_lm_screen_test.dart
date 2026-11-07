@@ -177,6 +177,7 @@ void main() {
       'Shift': <String>['Input x', 'Target y'],
       'Embedding': <String>['Token embedding', 'Position embedding', 'x0 = token + position'],
       'Scores': <String>['Query, key and value', 'Head 1 and head 2'],
+      'Attention': <String>['Values', 'Shares'],
     };
     for (final MapEntry<String, List<String>> page in pages.entries) {
       if (page.key != 'Tokenise') {

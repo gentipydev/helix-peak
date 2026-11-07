@@ -6,6 +6,7 @@ import '../../../../shared/format.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
 import '../lm_format.dart';
+import '../lm_info_sheet.dart';
 import '../lm_inks.dart';
 import 'embedding_scene.dart';
 import 'lm_drawing.dart';
@@ -1360,6 +1361,66 @@ final class AttentionScene extends LmScene {
 
   @override
   String describe(LmView view, TrainingFrame frame) => 'Attention, step ${view.step}. ${caption(view, frame)}.';
+
+  /// Attention's own page: what it takes and gives, what reading changes in
+  /// a row, a misreading the canvas invites, and how training sharpens the
+  /// maps, in the run's numbers.
+  @override
+  LmInfo info(LmView view) {
+    final TrainingTrace trace = view.trace;
+    final TraceCheckpoint first = trace.checkpoints.first;
+    final TraceCheckpoint last = trace.checkpoints.last;
+    final double before = largestShare(trace, first);
+    final double after = largestShare(trace, last);
+    final int peptides = trace.peptides.length;
+    final String over = switch (peptides) {
+      1 => 'the one peptide',
+      2 => 'both peptides',
+      _ => 'all ${spelled(peptides)} peptides',
+    };
+    return LmInfo(
+      title: LmStage.attention.label,
+      lead: 'Each place takes in its shares of the values, and what it gathers is added to its row: '
+          "x0 + block 1's attention. As well as its own token and place, a row now holds what the places up "
+          'to its own handed over: that is how a guess comes to depend on what came before.',
+      sections: <LmInfoSection>[
+        const LmInfoSection('Values', <String>[
+          'A key does not turn into its value: both are made side by side from the same evened row, each '
+              "through weights of its own, Scores' second and third plates.",
+        ]),
+        if (last.step > first.step && after > before)
+          LmInfoSection('Shares', <String>[
+            "Training sharpens where each place looks: in head 1, every place but <bos>'s gives its largest "
+                'share ${percent(before)} on average at step ${first.step}, over $over, and '
+                '${percent(after)} at step ${last.step}.',
+          ]),
+      ],
+    );
+  }
+
+  /// The largest share a place gives in block 1's head 1, on average over
+  /// every place of every peptide but each one's first, which reads only
+  /// itself: softmax of the scores kept [at], as the maps draw them.
+  static double largestShare(TrainingTrace trace, TraceCheckpoint at) {
+    double sum = 0;
+    int places = 0;
+    for (int p = 0; p < trace.peptides.length; p++) {
+      for (int i = 1; i < trace.peptides[p].inputs; i++) {
+        double top = double.negativeInfinity;
+        for (int j = 0; j <= i; j++) {
+          top = math.max(top, trace.score(at, block, mapHead, p, i, j));
+        }
+        double total = 0;
+        for (int j = 0; j <= i; j++) {
+          total += math.exp(trace.score(at, block, mapHead, p, i, j) - top);
+        }
+        // The largest share is e to nothing over the sum.
+        sum += 1 / total;
+        places++;
+      }
+    }
+    return places == 0 ? 0 : sum / places;
+  }
 }
 
 /// Attention's canvas, on Embedding's: the rows where Embedding left them,
