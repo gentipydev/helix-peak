@@ -2236,6 +2236,7 @@ void main() {
       LmStage.embedding,
       LmStage.scores,
       LmStage.attention,
+      LmStage.feedForward,
     };
     for (final LmStage stage in LmStage.values.where((LmStage s) => !paged.contains(s))) {
       expect(sceneOf(stage).info(on(trace, inks, kit)), isNull, reason: stage.name);
@@ -2425,5 +2426,30 @@ void main() {
       const AttentionScene().info(on(even, inks, kit)).sections.map((LmInfoSection s) => s.title),
       <String>['Values'],
     );
+  });
+
+  testWidgets("Feed-forward's info page says how much of the model it is, and how its neurons make its outputs", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    final LmInfo info = const FeedForwardScene().info(on(trace, inks, kit));
+    expect(info.title, LmStage.feedForward.label);
+    expect(info.sections.map((LmInfoSection s) => s.title), <String>["What block 1's feed-forward adds"]);
+    // The feed-forwards' weights, as the run counts its groups: one a block.
+    final List<int> blocks = <int>[
+      for (int g = 0; g < trace.groups.length; g++)
+        if (trace.groups[g].endsWith('.feed_forward')) trace.groupSizes[g],
+    ];
+    expect(blocks, hasLength(trace.model.layers));
+    final int parameters = trace.model.parameters;
+    expect(
+      info.lead,
+      endsWith(
+        "Its weights, ${grouped(blocks.first)} a block, with block 2's make "
+        "${percent(blocks.reduce((int a, int b) => a + b) / parameters)} of the model's ${grouped(parameters)} numbers.",
+      ),
+    );
+    expect(words(info), contains('Each neuron adds its own ${trace.model.width} output weights to the row'));
   });
 }

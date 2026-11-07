@@ -178,6 +178,7 @@ void main() {
       'Embedding': <String>['Token embedding', 'Position embedding', 'x0 = token + position'],
       'Scores': <String>['Query, key and value', 'Head 1 and head 2'],
       'Attention': <String>['Values', 'Shares'],
+      'Feed-forward': <String>["What block 1's feed-forward adds"],
     };
     for (final MapEntry<String, List<String>> page in pages.entries) {
       if (page.key != 'Tokenise') {

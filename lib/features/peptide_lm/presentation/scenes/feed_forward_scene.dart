@@ -6,6 +6,7 @@ import '../../../../shared/format.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
 import '../lm_format.dart';
+import '../lm_info_sheet.dart';
 import 'attention_scene.dart';
 import 'embedding_scene.dart';
 import 'lm_drawing.dart';
@@ -837,6 +838,41 @@ final class FeedForwardScene extends LmScene {
 
   @override
   String describe(LmView view, TrainingFrame frame) => 'Feed-forward, step ${view.step}. ${caption(view, frame)}.';
+
+  /// Feed-forward's own page: what it takes and gives, how much of the model
+  /// it is, and how its neurons make its outputs, in the run's numbers.
+  @override
+  LmInfo info(LmView view) {
+    final TrainingTrace trace = view.trace;
+    final int width = trace.model.width;
+    final int neurons = trace.model.feedForward;
+    final int layers = trace.model.layers;
+    final int parameters = trace.model.parameters;
+    // A block's network: its weights in and out, and a bias a neuron and an
+    // output.
+    final int each = 2 * neurons * width + neurons + width;
+    final String share = percent(layers * each / parameters);
+    final String weights = switch (layers) {
+      1 => "Its weights, ${grouped(each)}, are $share of the model's ${grouped(parameters)} numbers.",
+      2 => "Its weights, ${grouped(each)} a block, with block 2's make $share of the model's "
+          '${grouped(parameters)} numbers.',
+      _ => "Its weights, ${grouped(each)} a block, with the other blocks' make $share of the model's "
+          '${grouped(parameters)} numbers.',
+    };
+    return LmInfo(
+      title: LmStage.feedForward.label,
+      lead: "Each place's row, x0 + block 1's attention, goes alone through one small network, and what it "
+          "makes is added: block 1's output. $weights",
+      sections: <LmInfoSection>[
+        LmInfoSection("What block 1's feed-forward adds", <String>[
+          'Each neuron adds its own $width output weights to the row, times what GELU let it pass on, so a '
+              'dark neuron adds next to nothing; the $width outputs are those additions, summed, plus a bias. '
+              'Which pattern a neuron answers to is whatever training made useful: none is set to a residue or '
+              'a property.',
+        ]),
+      ],
+    );
+  }
 }
 
 /// Feed-forward's canvas, on Embedding's: the table where it was, and over
