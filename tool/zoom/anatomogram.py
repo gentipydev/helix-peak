@@ -129,13 +129,20 @@ FOLLOW_OUTERMOST = {"UBERON_0001134"}
 # Portal's sampling site for Esophagus - Mucosa, gtex_v10): three quarters
 # of the way down its outline, 65 to 70 mm above the junction along its
 # course on either figure, the lower third beginning some 85 mm above it.
-SITE_LEVEL = {"UBERON_0001134": 0.6, "UBERON_0001043": 0.75}
+# GTEx takes the cervix's ectocervix, its squamous vaginal part, once it
+# has bivalved the uterus and the cervix along the canal (the GTEx Portal's
+# sampling site for Cervix - Ectocervix, gtex_v10); the cervix is drawn so
+# opened (`cervix_anatomy.dart`): 0.85 of the way down the outline it
+# follows, one of its two halves, lies on that half's vaginal part, beside
+# the canal's lower end.
+SITE_LEVEL = {"UBERON_0001134": 0.6, "UBERON_0001043": 0.75, "UBERON_0000002": 0.85}
 
 # Parts the view closes on whole: written with a `centre`, the middle of the
 # box round all their outlines, where the view closes in place of the middle
 # of the one it follows. The thigh is drawn whole, its vastus lateralis at
-# its lateral edge.
-FRAME_WHOLE = {"UBERON_0001134"}
+# its lateral edge; the cervix whole, its canal at its middle, where its
+# two halves meet.
+FRAME_WHOLE = {"UBERON_0001134", "UBERON_0000002"}
 
 # Parts the view closes on a share of the followed outline's height below
 # the middle of its box, written as a `centre` too: for a part whose scene

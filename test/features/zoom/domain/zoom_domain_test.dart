@@ -770,19 +770,44 @@ void main() {
       }
     });
 
+    test('go into the cervix on its vaginal part, beside the canal\'s lower '
+        'end, where GTEx takes the ectocervix, and close the view on both '
+        'its halves, the canal at their middle', () {
+      final AnatomyPart part =
+          AnatomyFigure.female.parts[tissueAnatomy['cervix']!.uberon]!;
+      expect(AnatomyFigure.male.parts[tissueAnatomy['cervix']!.uberon],
+          isNull);
+      // Two halves, each a wall and the canal between them.
+      expect(part.contours.length, 2);
+      final Rect followed = boxOf(part.followed);
+      final Rect both = boxOf(<Offset>[
+        for (final List<Offset> c in part.contours) ...c,
+      ]);
+      expect(part.centre.dx, closeTo(both.center.dx, 1e-4));
+      expect(part.centre.dy, closeTo(both.center.dy, 1e-4));
+      // 0.85 of the way down the half it follows, as the tool reads the
+      // drawing's own outlines, before they are simplified, and inside it.
+      expect((part.site.dy - followed.top) / followed.height,
+          closeTo(0.85, 0.02));
+      expect(inside(part.followed, part.site), isTrue);
+      expect(part.framed, part.centre);
+    });
+
     test('close the view on every other part at the middle of the outline '
         'it follows', () {
       final String muscle = tissueAnatomy['skeletal muscle']!.uberon;
       final String esophagus = tissueAnatomy['esophagus']!.uberon;
       final String skin = tissueAnatomy['skin']!.uberon;
       final String fat = tissueAnatomy['adipose tissue']!.uberon;
+      final String cervix = tissueAnatomy['cervix']!.uberon;
       for (final AnatomyFigure figure in <AnatomyFigure>[
         AnatomyFigure.female,
         AnatomyFigure.male,
         AnatomyFigure.brain,
       ]) {
         for (final MapEntry<String, AnatomyPart> part in figure.parts.entries) {
-          if (<String>{muscle, esophagus, skin, fat}.contains(part.key)) {
+          if (<String>{muscle, esophagus, skin, fat, cervix}
+              .contains(part.key)) {
             continue;
           }
           expect(part.value.framed, isNull, reason: part.key);
