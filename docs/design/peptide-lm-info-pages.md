@@ -1,8 +1,10 @@
 # Peptide LM: writing a stage's info page
 
-How to write the ⓘ page of a Peptide Language Model stage, so that the
-eleven still to come are built the way Tokenise's was. The stages
-themselves are in `peptide-lm.md`; the code is
+How to write, or revise, the ⓘ page of a Peptide Language Model stage.
+All twelve exist: Tokenise's since 2026-11-06, the other eleven since
+2026-11-07, built from this handbook; each page's record (what each
+sentence does, what was left out and why) is in `peptide-lm.md` under
+"Info pages". The stages themselves are in `peptide-lm.md`; the code is
 `lib/features/peptide_lm/`. Every number below was checked on the live
 run, sha `83cc0cc2…` (schema 9; `runs/curated/trace.json` in the backend is
 the same 5,379,295 bytes), on 2026-11-07.
@@ -18,8 +20,8 @@ the same 5,379,295 bytes), on 2026-11-07.
 7. The tools
 8. The engine, as each page must describe it
 9. The run's facts
-10. A brief for each stage still to come
-11. When all twelve exist
+10. Each stage's brief
+11. The About sheet, retired
 12. Checklist
 
 ## 1. What a page is
@@ -48,34 +50,35 @@ The user turned down two other layouts: four fixed headings (Takes · Gives
 headings, and questions as headings, which ties less directly to the tags.
 
 A page is not a transcript of the stage's captions and notes, not a
-summary of the About sheet, and not a tutorial of the field. It is the
-key to one screen and its place in the flow.
+summary of how the whole model learns, and not a tutorial of the field. It
+is the key to one screen and its place in the flow.
 
 The reference page is Tokenise's: `TokeniseScene.info` in
-`presentation/scenes/tokenise_scene.dart`. Its analysis is in
-`peptide-lm.md` under "Info pages".
+`presentation/scenes/tokenise_scene.dart`; Shift's is the model for a stage
+whose canvas has no notes, Embedding's for one whose notes say most. Their
+analysis is in `peptide-lm.md` under "Info pages".
 
 ## 2. Where the pages stand
 
-| Stage | Beats | Own page | Notes on its canvas |
-| --- | --- | --- | --- |
-| Tokenise | 11 | yes, 2026-11-06 | none (captions only) |
-| Shift | 5 | no | none (captions and two glossed tags) |
-| Embedding | 15 | no | yes, five |
-| Scores | 20 | no | yes, six |
-| Attention | 25 | no | yes, ten (three of them the worked answer's) |
-| Feed-forward | 20 | no | yes, eight |
-| Forward | 12 | no | yes, four |
-| Predict | 14 | no | yes, six |
-| Loss | 17 | no | yes, five (the last a line longer at step 200) |
-| Backward | 44 | no | yes, nineteen |
-| Update | 38 | no | yes, eighteen |
-| Loop | 44 | no | yes, one at each part and hold |
+| Stage | Beats | Own page | Sections | Notes on its canvas |
+| --- | --- | --- | --- | --- |
+| Tokenise | 11 | 2026-11-06 | four | none (captions only) |
+| Shift | 5 | 2026-11-07 | two | none (captions and two glossed tags) |
+| Embedding | 15 | 2026-11-07 | three | yes, five |
+| Scores | 20 | 2026-11-07 | two | yes, six |
+| Attention | 25 | 2026-11-07 | two | yes, ten (three of them the worked answer's) |
+| Feed-forward | 20 | 2026-11-07 | one | yes, eight |
+| Forward | 12 | 2026-11-07 | one | yes, four |
+| Predict | 14 | 2026-11-07 | one | yes, six |
+| Loss | 17 | 2026-11-07 | two | yes, five (the last a line longer at step 200) |
+| Backward | 44 | 2026-11-07 | two | yes, nineteen |
+| Update | 38 | 2026-11-07 | two | yes, eighteen |
+| Loop | 44 | 2026-11-07 | three | yes, one at each part and hold |
 
-A stage with no page of its own opens the About sheet, "How this model
-learns" (`LmAboutSheet`), from its ⓘ, whose tooltip then says so; a stage
-with one opens it, tooltip `About <Stage>`. Nothing has to be wired: the
-screen asks `sceneOf(stage).info(view)`.
+Every stage has one: `LmScene.info` is required of every scene, and the ⓘ,
+tooltip `About <Stage>`, builds the stage's page when it is tapped. Nothing
+has to be wired. The About sheet that a stage without a page used to open
+is gone (section 11).
 
 The column on notes matters. Tokenise and Shift explain nothing on their
 canvas but their captions, so their pages carry the stage's explanation.
@@ -178,8 +181,13 @@ superscript minus, no `ⓘ`. Write words ("mean", "standard deviation",
 Tokenise's page is about 245 words in a lead and four sections. It
 scrolls 73 pt on a 440 × 956 phone (the user's Pro Max), 219 pt on a
 393 × 852 and 416 pt on a 375 × 667. About 200 words fit the Pro Max
-without scrolling. Measure every page with the shots check (section 7);
-say in the preview how far it scrolls.
+without scrolling. The other eleven run from about 70 to 190 words and all
+fit the Pro Max; on a 393 × 852 only Loop's scrolls (10 pt), and on a
+375 × 667 Shift's (154 pt), Embedding's (53), Scores' (7) and Loop's (179).
+An estimate held for each: about 9.5 words a line on the Pro Max, 8.8 on a
+393 and 8.2 on a 375, a line 20 pt, a section's heading and gaps 46 pt.
+Measure every page with the shots check (section 7); say in the preview how
+far it scrolls.
 
 ### 3.8 Shape
 
@@ -188,7 +196,12 @@ say in the preview how far it scrolls.
 - Sections: the canvas's tags, sentence case, in the order they appear.
   Two tags that name one idea share a section (Tokenise's special tokens
   section covers the "special tokens" and "padding" tags; its token ids
-  section covers "vocabulary" and "token ids").
+  section covers "vocabulary" and "token ids"). A tag whose notes already
+  say all a page would is left without one (from Embedding on, most are).
+- Titles: a tag less its size ("token embedding · 23 × 16": Token
+  embedding); a breadcrumb tag by its last part ("block 1 · head 1 ·
+  values": Values); a tag that names the place keeps the place's name
+  ("C11's row, layer to layer"); an axis label as written ("200 steps").
 - A section may have several paragraphs (Tokenise's special tokens: one a
   token, in the canvas's order of ids, `<bos>`, `<eos>`, `<pad>`).
 - Plain sentences: no bullets, no inline styles, no symbols the font
@@ -215,8 +228,8 @@ say in the preview how far it scrolls.
    real run's numbers in it, and how far it will scroll. Tokenise's page
    was approved this way, with its layout.
 6. **Build** it (section 5).
-7. **Test** it (section 6), including the two existing tests that list
-   which stages have pages.
+7. **Test** it (section 6): its own test, and the screen test's map of
+   every page's sections.
 8. **Render** it at 375 × 667, 393 × 852 and 440 × 956 with the shots
    check, read every wrap, and give the user the PNG paths. No device run
    unless asked.
@@ -238,8 +251,8 @@ LmInfo(title: …, lead: …, sections: <LmInfoSection>[
 ]);
 ```
 
-Override `info` in the stage's scene; the screen does the rest (the ⓘ,
-its tooltip, the sheet, the pause while it is up):
+`info` is required of every scene; the screen does the rest (the ⓘ, its
+tooltip, the sheet, built when tapped, the pause while it is up):
 
 ```dart
 /// <Stage>'s own page: what it takes and gives, then each part its canvas
@@ -279,8 +292,8 @@ LmInfo info(LmView view) {
 
 ### A test for the page, in `test/features/peptide_lm/lm_scenes_test.dart`
 
-Model it on "Tokenise's info page says the run's own numbers; no other
-stage has one yet":
+Model it on "Tokenise's info page says the run's own numbers", or on any
+of the eleven after it:
 
 - the title and the section titles, in order;
 - the lead and paragraphs contain the run's numbers, each computed from
@@ -297,18 +310,30 @@ TrainingTrace edited(void Function(Map<String, Object?> json) edit) {
 ```
 
   `TrainingTrace.parse` checks shapes, not meanings, so a peptide's
-  letters or a checkpoint's `why` can be changed without touching the
-  arrays.
+  letters, a checkpoint's `why` or a number of an array can be changed
+  without touching the shapes. `edited`, `floats` (an f4 array's numbers,
+  changed in place) and `lastKept` (the last checkpoint's JSON) are shared
+  at the top of the test's `main`, with `on` (a page's view) and `words`
+  (its lead and paragraphs): Embedding's and Predict's tests nudge
+  `<eos>`'s embedding row, Attention's zeroes head 1's last scores,
+  Update's sets the decay to 0, Loss's drops a `why`;
+- a number the page counts from the model's shape is counted again in the
+  test from the run's groups (Embedding's tables, Scores' 816,
+  Feed-forward's 2,128, Update's 6,512), and a helper that reads the run is
+  held to another path to the same number (`largestShare` to the maps'
+  own shares).
 
-### The two tests to change when a page lands
+### The tests every page is held to
 
-1. `lm_scenes_test.dart`, the Tokenise test's last loop: it checks that
-   every stage but Tokenise has no page. Take the new stage out of it.
+1. `lm_scenes_test.dart`, "every stage has a page of its own, in the
+   sheet's font and the app's voice": at every checkpoint, each stage's
+   page is titled by its stage and has a lead and sections, and no glyph
+   Space Grotesk lacks (section 3.6), no `!`, no "simply" or "just".
 2. `peptide_lm_screen_test.dart`, "the info button opens the stage's own
-   page, and how the model learns where it has none": its second half
-   uses **Shift** as the stage with no page. When Shift gets one, move
-   that half to a stage still without a page (Loop will be last), and add
-   the new page's tooltip and section titles to the first half's checks.
+   page, every stage's": a map of each stage's section titles, opened in
+   turn from the stage bar; change a page's entry when its sections change.
+   Forward's and Backward's name the place the page opens on, as the canvas
+   does.
 
 ### The toy run (`test/features/peptide_lm/support/toy_trace.json`)
 
@@ -347,9 +372,7 @@ path). `TRACE` is the backend's
   plays each stage to its last frame on the real page, taps its ⓘ, and
   writes `<stage>_<size>.png`, `<stage>_<size>_end.png` (scrolled to the
   end) and `<stage>_<size>.txt` (how far it scrolls). `STEP=200` picks a
-  checkpoint through the step menu. It also writes `about_<size>.png`,
-  the About sheet alone: the same bytes before and after a change that
-  must not touch it.
+  checkpoint through the step menu.
 - **The run in Python** (read only; `-I`, from the backend's
   `pipeline/denovo`):
 
@@ -417,6 +440,13 @@ Checked on the live run; `trace` is `view.trace` in the app.
 | Attention sharpening | a row's largest share, on average: 19% at step 1, 44% at 200 (block 1 head 1); rows giving one place half or more: 10 then 59 of 174 (the other heads alike: 33–44% at 200) | `checkpoint.attention`, `AttentionScene.allShares` |
 | Right guesses | insulin A 0 of 22 at step 1, 21 at 200; the batch 12, 71, 139, 175, 175 of 180 at 13, 49, 66, 95, 200; at 21, L tops 80 places | `PredictScene.right`, `LoopScene.right`, `LoopScene.commonestGuess` |
 | The model's mean guess against the counts | correlation −0.12 at step 1, 0.77 at 21, 0.97 at 30, 1.00 at 49 | `trace.steps.probs` |
+| Rows that never move | `<pad>`'s token row (held at zero); `<eos>`'s token row, read only at places nothing scores (in any run of this engine); position rows 40–50, past the longest peptide's 40 places | `EmbeddingScene.rowStill`, `unreadFrom` |
+| The token table's movement | 15% of its size by step 200 (root of squared change over squared start, every row but `<pad>`'s; toy 23%) | `EmbeddingScene.tokenMoved` |
+| The output layer's `<eos>` row | trained (an answer six times), while its embedding row never moves | `PredictScene.ownOutputRow` |
+| Decay | the weight matrices only, 6,512 of 8,167: the never-next tokens' biases never move, decay alone shrinks their weight rows (`<pad>`'s to 0.90 of its size by step 200) | `UpdateScene.decayed`, `trace.outputBias`, `outputWeight` |
+| Head 2's sharpening | its largest share 18% at step 1, 33% at 200 (head 1's 19% and 44%) | scores, as `AttentionScene.largestShare` takes head 1's |
+| Step 200's misses | the five `<bos>` places other than copeptin's, all with A as the top bet | `PredictScene.top` |
+| e to the loss | 25.02 at step 1, 1.07 at 200 (an even guess 21; the floor 1.06) | `exponential(math.exp(trace.loss(step)))` |
 
 The trace's other accessors, for the pages to come: `stream`,
 `pointGrad`, `streamGrad`, `attnInput`, `normScale`, `normShift`,
@@ -429,13 +459,14 @@ The trace's other accessors, for the pages to come: `stream`,
 scale and shift for the blocks' second LayerNorm or for the final one,
 only what they made (`Evening.plain` tells where they are 1 and 0).
 
-## 10. A brief for each stage still to come
+## 10. Each stage's brief
 
-Each brief lists the stage's labels (the sections), what its canvas
-already says (not to repeat), what its page could add (candidates, to be
-filtered and previewed, not decided), the facts and their sources, and
-what the user has settled. The numbers are the live run's, at insulin A's
-C11 where a place is in focus.
+The analysis the eleven pages were built from, kept for revising them:
+each brief lists the stage's labels, what its canvas already says (not to
+repeat), what its page could add (the candidates; which were taken, and
+why the rest were not, is `peptide-lm.md`'s record), the facts and their
+sources, and what the user has settled. The numbers are the live run's, at
+insulin A's C11 where a place is in focus.
 
 ### Shift (`shift_scene.dart`, 5 beats)
 
@@ -798,8 +829,8 @@ C11 where a place is in focus.
   the step menu picks one for every stage. This run learns six peptides
   by heart; a model meant to write new ones is trained on many and
   checked on peptides it never saw (the engine's corpus run, 10,416
-  peptides, is not drawn). If the About sheet is retired, its "This run"
-  paragraph may belong here (ask).
+  peptides, is not drawn). The About sheet's "This run" paragraph ends
+  Loop's page now (section 11).
 - **Facts:** `LoopPace`; `trace.steps.probs`, `loss`, `learningRate`,
   `clip`; `LoopScene.right`, `sure`, `commonestGuess`, `commonestTarget`,
   `clipped`, `why`, `everRose`, `lossAt`.
@@ -808,13 +839,17 @@ C11 where a place is in focus.
   only; numbers written only while the run stands; the curve in honey;
   the run always from step 1.
 
-## 11. When all twelve exist
+## 11. The About sheet, retired
 
-The About sheet is then reached from no stage. Two of its paragraphs have
-no page yet: "This run" (the model's size, seed, device, PyTorch, recorded
-and replayed byte for byte) and the sources of "The data" (the six
-peptides' records). Ask the user where they go: Loop's page, a page of
-their own behind the "Recorded run" line, or the sheet kept behind a link.
+With all twelve pages, the About sheet ("How this model learns",
+`LmAboutSheet`) was reached from no stage. Its stage paragraphs were each
+superseded by that stage's page; its "This run" (the model's size, seed,
+device, PyTorch, dropout, recorded and replayed byte for byte) and the
+sources of "The data" (the six peptides' records) had none. The user put
+them on Loop's page, as its last section, This run (`LoopScene.thisRun`),
+over a page of their own behind the "Recorded run" line and over keeping
+the sheet behind a link (2026-11-07). The sheet was deleted, with its test
+in the shots check; its sentence on √8 is Scores' now.
 
 ## 12. Checklist
 
@@ -827,7 +862,7 @@ their own behind the "Recorded run" line, or the sheet kept behind a link.
 - [ ] Every number computed; every run-dependent claim guarded
 - [ ] Previewed with the user, with its scroll measured
 - [ ] `info` overridden; no other wiring
-- [ ] Page test with its guards both ways; the two listing tests changed
+- [ ] Page test with its guards both ways; the screen test's map of sections
 - [ ] `flutter analyze`; `flutter test test/features/peptide_lm`; the full
       suite (the only known red: `test/features/zoom/_scratch_shots_test.dart`
       without its variable)

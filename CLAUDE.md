@@ -693,17 +693,20 @@ it. A kept step's tick picks it and holds the run there; a row of the map
 puts its place in focus; nothing while Update's frame shows.
 
 Reduced motion shows each stage played through, the loop at its last step. The
-captions, the stages' info pages and the About sheet are built from the run's
-own numbers (R4.1). The ⓘ opens the stage on screen's own page where it has
-one (`LmScene.info`, an `LmInfo` that `LmInfoSheet` draws; Tokenise's since
-2026-11-06), and the About sheet, how the whole model learns, where it has
-none yet. Every page is the screen's key, the user's pick for all twelve: a
-lead saying what the stage takes and gives, then a short section for each
-part its canvas tags, why it is there, a link to a later stage beside what it
-explains. `docs/design/peptide-lm-info-pages.md` is how to write the next:
-the rules for the words, the steps, the code, the two tests that list which
-stages have pages, the tools, the engine and the run's checked facts, and a
-brief for each stage still to come.
+captions and the stages' info pages are built from the run's own numbers
+(R4.1). The ⓘ opens the stage on screen's own page (`LmScene.info`, required
+of every stage, an `LmInfo` that `LmInfoSheet` draws, built when tapped;
+Tokenise's since 2026-11-06, the other eleven since 2026-11-07, each
+previewed with the user). Every page is the screen's key, the user's pick for
+all twelve: a lead saying what the stage takes and gives, then a short
+section for each part of its canvas the page adds to, under its tag, a link
+to a later stage beside what it explains; where the notes already say it
+all, a part has no section. The About sheet, how the whole model learns,
+which the ⓘ opened until then, is deleted: its "This run" and the peptides'
+records end Loop's page (the user's pick). `docs/design/peptide-lm-info-pages.md`
+is how a page is written: the rules for the words, the steps, the code, the
+tests, the tools, the engine and the run's checked facts, and each stage's
+brief; `peptide-lm.md`'s Info pages keep each page's record.
 Its colours are the theme's (`LmInks`, held by `lm_inks_test`): the accent
 for what flows forward, the tracer for what came next, the helix's honey for
 the loss and what flows back, and the helix's denim and clay, from the base
@@ -1075,8 +1078,7 @@ dart run build_runner build    # after editing gene_record_dto.dart
 - `SHOTS=<dir> TRACE=<trace.json> STAGES=tokenise SIZES=440x956,375x667 flutter
   test test/peptide_lm_info_shots_check.dart` plays each stage to its end on the
   real page, taps its ⓘ and writes the sheet as PNGs, scrolled and not, with how
-  far it scrolls (`STEP` picks a checkpoint), and the About sheet alone, for
-  byte-for-byte proofs.
+  far it scrolls (`STEP` picks a checkpoint).
 - `SHOT_DIR=<dir> flutter test test/goldens` writes PNGs (the catalog walk,
   ClinVar, constraint and impact tests do too). Also:
   `TRANSLATION_SHOT_DIR`, `SELECTION_SHOT_DIR`, `HELIX_OUT`, `HELIX_MOTION=1`.
