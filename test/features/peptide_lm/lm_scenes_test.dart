@@ -2240,6 +2240,7 @@ void main() {
       LmStage.forward,
       LmStage.predict,
       LmStage.loss,
+      LmStage.backward,
     };
     for (final LmStage stage in LmStage.values.where((LmStage s) => !paged.contains(s))) {
       expect(sceneOf(stage).info(on(trace, inks, kit)), isNull, reason: stage.name);
@@ -2552,5 +2553,22 @@ void main() {
       words(const LossScene().info(on(never, inks, kit))),
       contains("Loop's curve has to pass; residue counts and residue pairs come after."),
     );
+  });
+
+  testWidgets("Backward's info page says it only measures, what the stream's +s are for, and why its colours fade", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    final LmView at = on(trace, inks, kit);
+    final LmInfo info = const BackwardScene().info(at);
+    expect(info.title, LmStage.backward.label);
+    final List<String> titles = info.sections.map((LmInfoSection s) => s.title).toList();
+    expect(titles, <String>["${StreamTable.placeName(at, at.position)}'s gradient, layer to layer", 'Gradient at x0']);
+    // Each titled as the canvas tags it, less its size.
+    expect(BackwardScene.tag(at), startsWith('${titles.first} · '));
+    expect(BackwardScene.tableTag(at), startsWith('${titles.last.toLowerCase()} · '));
+    expect(info.lead, endsWith('Backward changes nothing: it measures, and Update moves the weights.'));
+    expect(words(info), contains("on the whole batch's scale at that step"));
   });
 }

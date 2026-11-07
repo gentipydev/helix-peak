@@ -6,6 +6,7 @@ import '../../../../shared/format.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
 import '../lm_format.dart';
+import '../lm_info_sheet.dart';
 import 'attention_scene.dart';
 import 'forward_scene.dart';
 import 'lm_drawing.dart';
@@ -1333,6 +1334,27 @@ final class BackwardScene extends LmScene {
 
   @override
   String describe(LmView view, TrainingFrame frame) => 'Backward pass, step ${view.step}. ${caption(view, frame)}.';
+
+  /// Backward's own page: what it takes and gives, what the stream's +s are
+  /// for, and why its colours fade as the run goes on.
+  @override
+  LmInfo info(LmView view) => LmInfo(
+    title: LmStage.backward.label,
+    lead: 'From the loss back to x0, every number of every row gets its gradient: how fast the loss would '
+        'rise as that number rose. Backward changes nothing: it measures, and Update moves the weights.',
+    sections: <LmInfoSection>[
+      // Each titled as its tag, less its size.
+      LmInfoSection("${StreamTable.placeName(view, view.position)}'s gradient, layer to layer", const <String>[
+        'Each + of the stream hands the gradient back whole, whatever the part beside it adds: that is what '
+            'the +s are for. However many blocks are stacked, each still gets the gradient whole, the first as '
+            'the last.',
+      ]),
+      const LmInfoSection('Gradient at x0', <String>[
+        "Its colours, as every gradient's in this stage, are on the whole batch's scale at that step: a place "
+            'with little left to learn is drawn as faint as it is.',
+      ]),
+    ],
+  );
 }
 
 /// What Backward's last frame fades or leaves out, for the stage that opens

@@ -185,6 +185,7 @@ void main() {
       'Forward': <String>["$place's row, layer to layer"],
       'Predict': <String>['Output layer'],
       'Loss': <String>['Even guess', 'Mean'],
+      'Backward': <String>["$place's gradient, layer to layer", 'Gradient at x0'],
     };
     for (final MapEntry<String, List<String>> page in pages.entries) {
       if (page.key != 'Tokenise') {
