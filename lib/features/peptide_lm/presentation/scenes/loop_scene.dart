@@ -7,6 +7,7 @@ import '../../domain/loop_pace.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
 import '../lm_format.dart';
+import '../lm_info_sheet.dart';
 import 'embedding_scene.dart';
 import 'lm_drawing.dart';
 import 'lm_scene.dart';
@@ -856,6 +857,86 @@ final class LoopScene extends LmScene {
 
   @override
   String describe(LmView view, TrainingFrame frame) => 'Training loop. ${caption(view, frame)}.';
+
+  /// Loop's own page: what it takes and gives, what this run learns and a
+  /// model meant to write would not, the steps the run kept whole and the
+  /// Step menu that picks them, and the recording itself, in the run's
+  /// numbers.
+  @override
+  LmInfo info(LmView view) {
+    final TrainingTrace trace = view.trace;
+    final int steps = trace.steps.count;
+    return LmInfo(
+      title: LmStage.loop.label,
+      lead: 'The same step, ${grouped(steps)} times, on the batch made once, from step '
+          "${trace.checkpoints.first.step}'s weights to step ${grouped(steps)}'s. Every other stage shows one "
+          'step; this one shows the run.',
+      sections: <LmInfoSection>[
+        LmInfoSection('Next-token probabilities', <String>[
+          'A model meant to write new peptides trains on many, and is judged on peptides it never saw; this '
+              'one was trained and judged on the same ${spelled(trace.peptides.length)}.',
+        ]),
+        LmInfoSection('${grouped(steps)} steps', <String>[ticks(trace)]),
+        LmInfoSection('This run', <String>[thisRun(trace)]),
+      ],
+    );
+  }
+
+  /// What the ticks under the curve are: the steps the run kept whole, by
+  /// the rule it kept them by, and what the Step menu does with them.
+  static String ticks(TrainingTrace trace) {
+    const Map<String, String> levels = <String, String>{
+      'uniform': 'an even guess',
+      'unigram': 'residue counts',
+      'bigram': 'residue pairs',
+      'one_nat': 'one nat',
+      'tenth_nat': 'a tenth of one',
+    };
+    final Set<String> kept = <String>{for (final TraceCheckpoint at in trace.checkpoints) ...at.why};
+    final List<String> passed = <String>[
+      for (final MapEntry<String, String> level in levels.entries)
+        if (kept.contains(level.key))
+          level.key == 'tenth_nat' && !kept.contains('one_nat') ? 'a tenth of a nat' : level.value,
+    ];
+    final String rule = passed.isEmpty
+        ? 'the first and the last'
+        : 'the first; the first under ${_and(passed)}; and the last';
+    return 'Its ticks are the ${spelled(trace.checkpoints.length)} steps the run kept whole, by rule: $rule. '
+        'Every other stage shows one of them, picked from the Step menu: its tick is the accent one.';
+  }
+
+  /// The recording itself, as the run's own record has it: the model, how
+  /// it was trained, and the curated records its peptides come from. The
+  /// About sheet said it until every stage had a page of its own.
+  static String thisRun(TrainingTrace trace) {
+    final TraceModel model = trace.model;
+    final TraceConfig config = trace.config;
+    final Object? device = trace.provenance['device'];
+    final Object? torch = trace.provenance['torch'];
+    String count(int n, String noun) => n == 1 ? 'one $noun' : '${spelled(n)} ${noun}s';
+    final List<String> records = <String>[];
+    for (final TracePeptide peptide in trace.peptides) {
+      for (final TraceSource source in peptide.sources) {
+        final String record = '${source.slug} (${source.gene})';
+        if (!records.contains(record)) {
+          records.add(record);
+        }
+      }
+    }
+    return 'HelixPeekLM, ${grouped(model.parameters)} parameters: ${count(model.layers, 'block')} of '
+        '${count(model.heads, 'head')}, ${model.width} numbers a place, trained for '
+        '${grouped(trace.steps.count)} steps'
+        '${device is String ? ' on ${device == 'cpu' ? 'a CPU' : device}' : ''}, seed ${config.seed}'
+        '${torch is String ? ', PyTorch $torch' : ''}, with '
+        '${config.dropout == 0 ? 'dropout off, so the pass drawn is the one trained, and ' : ''}every number '
+        'kept as it went.'
+        '${trace.provenance['deterministic'] == true ? ' Recorded again, the run is the same, byte for byte.' : ''} '
+        'The ${spelled(trace.peptides.length)} peptides come from the curated records of ${_and(records)}.';
+  }
+
+  /// [items] as a sentence lists them: `a, b and c`.
+  static String _and(List<String> items) =>
+      items.length < 2 ? items.join() : '${items.sublist(0, items.length - 1).join(', ')} and ${items.last}';
 }
 
 /// Loop's canvas: the note where every stage has it; under it the curve,

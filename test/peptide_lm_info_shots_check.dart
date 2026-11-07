@@ -1,8 +1,7 @@
 // The Peptide Language Model's info pages as a phone shows them, as PNGs, in
 // the app's fonts, from a recorded run (docs/design/peptide-lm-info-pages.md):
 // each stage played through to its last frame, its ⓘ tapped, and the page
-// scrolled to its end where it scrolls; and the About sheet alone, the same
-// bytes before and after a change that must not touch it.
+// scrolled to its end where it scrolls.
 //
 // Opt-in: skipped unless SHOTS is set, so `flutter test` stays offline.
 //
@@ -10,10 +9,10 @@
 //   STAGES=tokenise,shift SIZES=440x956,393x852,375x667 \
 //     flutter test test/peptide_lm_info_shots_check.dart
 //
-// STAGES are LmStage names (default tokenise; a stage with no page of its own
-// shows the About sheet), SIZES phones in points (default 393x852), STEP the
-// checkpoint by its step (default the first). Beside each `<stage>_<size>.png`
-// a `.txt` gives how far the page scrolls: 0 is a page that fits.
+// STAGES are LmStage names (default tokenise), SIZES phones in points (default
+// 393x852), STEP the checkpoint by its step (default the first). Beside each
+// `<stage>_<size>.png` a `.txt` gives how far the page scrolls: 0 is a page
+// that fits.
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -24,7 +23,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/peptide_lm/domain/training_timeline.dart';
 import 'package:helixpeek/features/peptide_lm/domain/training_trace.dart';
-import 'package:helixpeek/features/peptide_lm/presentation/lm_about_sheet.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/peptide_lm_screen.dart';
 
 import 'features/gene_lookup/anatomy/anatomy_fixture.dart';
@@ -67,44 +65,6 @@ void main() {
     final List<String> wh = s.split('x');
     return Size(double.parse(wh[0]), double.parse(wh[1]));
   }
-
-  testWidgets('the About sheet alone', (WidgetTester tester) async {
-    final TrainingTrace trace = run();
-    for (final String s in sizes) {
-      phone(tester, sizeOf(s));
-      final GlobalKey boundary = GlobalKey();
-      await tester.pumpWidget(
-        RepaintBoundary(
-          key: boundary,
-          child: MaterialApp(
-            theme: AppTheme.analysis,
-            debugShowCheckedModeBanner: false,
-            home: Builder(
-              builder: (BuildContext context) => Scaffold(
-                body: Center(
-                  child: TextButton(
-                    // As the page opens its sheets.
-                    onPressed: () => showModalBottomSheet<void>(
-                      context: context,
-                      showDragHandle: true,
-                      isScrollControlled: true,
-                      builder: (BuildContext context) => LmAboutSheet(trace: trace),
-                    ),
-                    child: const Text('open'),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-      await tester.tap(find.text('open'));
-      await tester.pumpAndSettle();
-      await shoot(tester, boundary, 'about_$s');
-      await tester.pumpWidget(const SizedBox.shrink());
-    }
-    tester.view.reset();
-  }, skip: dir == null);
 
   testWidgets("each stage's info page over its last frame", (WidgetTester tester) async {
     final TrainingTrace trace = run();

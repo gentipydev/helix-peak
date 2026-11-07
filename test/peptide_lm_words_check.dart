@@ -117,17 +117,15 @@ void main() {
             '${text.replaceAll('\n', ' / ')}',
           );
         }
-        final LmInfo? info = sceneOf(stage).info(view);
-        if (info != null) {
-          out.writeln('info     ${info.title}');
-          if (info.lead case final String lead) {
-            out.writeln('info       $lead');
-          }
-          for (final LmInfoSection section in info.sections) {
-            out.writeln('info     ${section.title}');
-            for (final String paragraph in section.paragraphs) {
-              out.writeln('info       $paragraph');
-            }
+        final LmInfo info = sceneOf(stage).info(view);
+        out.writeln('info     ${info.title}');
+        if (info.lead case final String lead) {
+          out.writeln('info       $lead');
+        }
+        for (final LmInfoSection section in info.sections) {
+          out.writeln('info     ${section.title}');
+          for (final String paragraph in section.paragraphs) {
+            out.writeln('info       $paragraph');
           }
         }
       }

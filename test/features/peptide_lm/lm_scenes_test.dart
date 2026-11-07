@@ -2179,7 +2179,34 @@ void main() {
     }
   });
 
-  testWidgets("Tokenise's info page says the run's own numbers; stages without a page yet have none", (
+  testWidgets("every stage has a page of its own, in the sheet's font and the app's voice", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    // Greek but Δ and π, the double bar, the superscript minus and ⓘ: what
+    // Space Grotesk, the sheet's face, cannot draw.
+    final RegExp undrawable = RegExp('[\u0370-\u0393\u0395-\u03BF\u03C1-\u03FF\u2016\u207B\u24D8]');
+    for (int c = 0; c < trace.checkpoints.length; c++) {
+      for (final LmStage stage in LmStage.values) {
+        final LmInfo info = sceneOf(stage).info(on(trace, inks, kit, checkpoint: c));
+        final String where = '${stage.name} at step ${trace.checkpoints[c].step}';
+        expect(info.title, stage.label, reason: where);
+        expect(info.lead, isNotEmpty, reason: where);
+        expect(info.sections, isNotEmpty, reason: where);
+        for (final LmInfoSection section in info.sections) {
+          expect(section.title, isNotEmpty, reason: where);
+          expect(section.paragraphs.where((String p) => p.isEmpty), isEmpty, reason: '$where: ${section.title}');
+        }
+        final String page = <String>[info.title, words(info), ...info.sections.map((LmInfoSection s) => s.title)].join('\n');
+        expect(page, isNot(contains(undrawable)), reason: where);
+        expect(page, isNot(contains('!')), reason: where);
+        expect(page, isNot(contains(RegExp(r'\b(simply|just)\b', caseSensitive: false))), reason: where);
+      }
+    }
+  });
+
+  testWidgets("Tokenise's info page says the run's own numbers", (
     WidgetTester tester,
   ) async {
     final (LmInks inks, LmKit kit) = await _drawing(tester);
@@ -2228,24 +2255,6 @@ void main() {
     final int passed = trace.checkpoints.firstWhere((TraceCheckpoint c) => c.why.contains('unigram')).step;
     expect(page, contains('would cost ${nats(trace.unigram)} nats'));
     expect(page, endsWith('first beats it at step $passed.'));
-
-    // The stages with a page of their own so far; the rest have none yet.
-    const Set<LmStage> paged = <LmStage>{
-      LmStage.tokenise,
-      LmStage.shift,
-      LmStage.embedding,
-      LmStage.scores,
-      LmStage.attention,
-      LmStage.feedForward,
-      LmStage.forward,
-      LmStage.predict,
-      LmStage.loss,
-      LmStage.backward,
-      LmStage.update,
-    };
-    for (final LmStage stage in LmStage.values.where((LmStage s) => !paged.contains(s))) {
-      expect(sceneOf(stage).info(on(trace, inks, kit)), isNull, reason: stage.name);
-    }
 
     // A run whose first residues coincide claims no one-in-N guess, and a
     // run never under residue counts no step that beat them.
@@ -2627,5 +2636,44 @@ void main() {
     final LmInfo still = const UpdateScene().info(on(plain, inks, kit));
     expect(still.sections.map((LmInfoSection s) => s.title), <String>['Rate']);
     expect(words(still), contains('like the clip, are settings the run was given'));
+  });
+
+  testWidgets("Loop's info page says what the run learns, which steps it kept, and what made the recording", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    final LmInfo info = const LoopScene().info(on(trace, inks, kit));
+    expect(info.title, LmStage.loop.label);
+    final int steps = trace.steps.count;
+    expect(info.sections.map((LmInfoSection s) => s.title), <String>[
+      'Next-token probabilities',
+      '${grouped(steps)} steps',
+      'This run',
+    ]);
+    expect(info.lead, startsWith('The same step, ${grouped(steps)} times, on the batch made once'));
+    final String page = words(info);
+    expect(page, contains('this one was trained and judged on the same two.'));
+    // The toy kept a step for every level but a tenth of a nat.
+    expect(trace.checkpoints.any((TraceCheckpoint c) => c.why.contains('tenth_nat')), isFalse);
+    expect(
+      page,
+      contains(
+        'Its ticks are the ${spelled(trace.checkpoints.length)} steps the run kept whole, by rule: the first; '
+        'the first under an even guess, residue counts, residue pairs and one nat; and the last.',
+      ),
+    );
+    // The recording, as the run's own record has it.
+    expect(
+      page,
+      contains(
+        'HelixPeekLM, ${grouped(trace.model.parameters)} parameters: two blocks of two heads, '
+        '${trace.model.width} numbers a place, trained for ${grouped(steps)} steps on a CPU, '
+        "seed ${trace.config.seed}, PyTorch ${trace.provenance['torch']}, with dropout off, so the pass drawn is "
+        'the one trained, and every number kept as it went. Recorded again, the run is the same, byte for byte.',
+      ),
+    );
+    final TraceSource source = trace.peptides.first.source;
+    expect(page, endsWith('The two peptides come from the curated records of ${source.slug} (${source.gene}).'));
   });
 }

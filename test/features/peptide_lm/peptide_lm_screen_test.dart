@@ -160,7 +160,7 @@ void main() {
     expect(caption(tester), isNot(startsWith('Two peptides')));
   });
 
-  testWidgets("the info button opens the stage's own page, and how the model learns where it has none", (
+  testWidgets("the info button opens the stage's own page, every stage's", (
     WidgetTester tester,
   ) async {
     await host(tester);
@@ -173,8 +173,8 @@ void main() {
     // The place the page opens on in focus, named as the canvas names it.
     final int middle = trace.peptides.first.inputs ~/ 2;
     final String place = '${trace.peptides.first.sequence[middle - 1]}$middle';
-    // Each stage with a page of its own, from Tokenise, which the page opens
-    // on: its ⓘ is named for it, and opens its page, every section of it.
+    // Every stage, from Tokenise, which the page opens on: its ⓘ is named for
+    // it, and opens its own page, every section of it.
     final Map<String, List<String>> pages = <String, List<String>>{
       'Tokenise': <String>['Token ids', 'Special tokens', 'Batch 2D matrix', 'Token counts'],
       'Shift': <String>['Input x', 'Target y'],
@@ -187,6 +187,7 @@ void main() {
       'Loss': <String>['Even guess', 'Mean'],
       'Backward': <String>["$place's gradient, layer to layer", 'Gradient at x0'],
       'Update': <String>['Rate', 'Step'],
+      'Loop': <String>['Next-token probabilities', '${trace.steps.count} steps', 'This run'],
     };
     for (final MapEntry<String, List<String>> page in pages.entries) {
       if (page.key != 'Tokenise') {
@@ -200,41 +201,11 @@ void main() {
         await tester.scrollUntilVisible(inSheet(title), 120, scrollable: scroll());
         expect(inSheet(title), findsOneWidget, reason: title);
       }
-      expect(find.text('How this model learns'), findsNothing);
       // Put away, the stage playing on.
       Navigator.of(tester.element(sheet)).pop();
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
       expect(sheet, findsNothing);
-    }
-
-    // Loop has none yet, so its ⓘ opens how the whole model learns, every
-    // paragraph of it.
-    await tapStage(tester, 'Loop');
-    await tester.pump();
-    expect(tester.widget<IconButton>(info).tooltip, 'How this model learns');
-    await tester.tap(info);
-    await tester.pumpAndSettle();
-    expect(inSheet('How this model learns'), findsOneWidget);
-    expect(inSheet('Token ids'), findsNothing);
-    for (final String title in <String>[
-      'This run',
-      'The data',
-      'Tokenise',
-      'Shift',
-      'Embedding',
-      'Scores',
-      'Attention',
-      'Feed-forward',
-      'Forward',
-      'Predict',
-      'Loss',
-      'Backward',
-      'Update',
-      'Loop',
-    ]) {
-      await tester.scrollUntilVisible(inSheet(title), 120, scrollable: scroll());
-      expect(inSheet(title), findsOneWidget, reason: title);
     }
   });
 

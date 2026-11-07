@@ -83,9 +83,9 @@ abstract class LmScene {
   String describe(LmView view, TrainingFrame frame) => caption(view, frame);
 
   /// The stage's own info page, which the ⓘ opens: what it takes and gives,
-  /// then each part its canvas names. Null where the stage has none yet, and
-  /// the ⓘ opens how the whole model learns.
-  LmInfo? info(LmView view) => null;
+  /// then the parts of its canvas the page adds to, each a section under its
+  /// tag, in the run's numbers.
+  LmInfo info(LmView view);
 
   LmHit? hit(Size size, LmView view, Offset at) => null;
 
