@@ -106,6 +106,19 @@ void main() {
     return TrainingTrace.parse(Uint8List.fromList(utf8.encode(jsonEncode(json))), name: 'toy');
   }
 
+  /// The float32 array [spec] of the run's JSON, its numbers changed by
+  /// [edit].
+  void floats(Object? spec, void Function(Float32List values) edit) {
+    final Map<String, Object?> array = spec! as Map<String, Object?>;
+    final Float32List values = Float32List.sublistView(base64Decode(array['data']! as String));
+    edit(values);
+    array['data'] = base64Encode(Uint8List.sublistView(values));
+  }
+
+  /// The last checkpoint the run's JSON keeps.
+  Map<String, Object?> lastKept(Map<String, Object?> json) =>
+      (json['checkpoints']! as List<Object?>).last! as Map<String, Object?>;
+
   testWidgets('every stage paints at every frame of a second, at every checkpoint', (
     WidgetTester tester,
   ) async {
@@ -2217,7 +2230,7 @@ void main() {
     expect(page, endsWith('first beats it at step $passed.'));
 
     // The stages with a page of their own so far; the rest have none yet.
-    const Set<LmStage> paged = <LmStage>{LmStage.tokenise, LmStage.shift};
+    const Set<LmStage> paged = <LmStage>{LmStage.tokenise, LmStage.shift, LmStage.embedding};
     for (final LmStage stage in LmStage.values.where((LmStage s) => !paged.contains(s))) {
       expect(sceneOf(stage).info(on(trace, inks, kit)), isNull, reason: stage.name);
     }
@@ -2270,5 +2283,67 @@ void main() {
     expect(ShiftScene.unasked(trace), padded);
     expect(padded, 1);
     expect(page, contains('Dimmed, the one place whose answer would be padding: there is nothing to ask.'));
+  });
+
+  testWidgets("Embedding's info page says what its tables are and which of their rows never learn", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    final LmView at = on(trace, inks, kit);
+    final LmInfo info = const EmbeddingScene().info(at);
+    expect(info.title, LmStage.embedding.label);
+    expect(info.sections.map((LmInfoSection s) => s.title), <String>[
+      'Token embedding',
+      'Position embedding',
+      'x0 = token + position',
+    ]);
+    final int width = trace.model.width;
+    final int context = trace.model.context;
+    // The two tables, as the run counts its groups.
+    final int tables = trace.groupSizes[trace.groups.indexOf('token_embedding')] +
+        trace.groupSizes[trace.groups.indexOf('position_embedding')];
+    expect(info.lead, startsWith("x's ids become x0, $width numbers a place, from two tables."));
+    expect(info.lead, endsWith('the two tables are ${grouped(tables)} of its ${grouped(trace.model.parameters)}.'));
+    final String page = words(info);
+    expect(page, contains("Each row but <pad>'s starts as $width random numbers (seed ${trace.config.seed})"));
+    final double moved = EmbeddingScene.tokenMoved(trace);
+    expect(moved, inExclusiveRange(0, 1));
+    expect(page, contains('by about ${percent(moved)} of their size by step ${trace.checkpoints.last.step}.'));
+    // The note's own count of how much smaller the position rows start.
+    expect(page, contains('${grouped(EmbeddingScene.smaller(at, trace.checkpoints.first))}× at first'));
+    // <eos> is read only at places nothing scores, and no peptide reaches the
+    // position rows past the longest: no update moves either.
+    final int eos = trace.vocab.indexOf('<eos>');
+    expect(EmbeddingScene.rowStill(trace, eos), isTrue);
+    expect(EmbeddingScene.rowStill(trace, trace.vocab.indexOf('<bos>')), isFalse);
+    expect(EmbeddingScene.unreadFrom(trace), trace.width);
+    expect(
+      page,
+      endsWith(
+        'the row of <eos> (${glyph(trace, eos)}), read only where nothing is scored, keeps its random start, '
+        'as do position rows ${trace.width} to ${context - 1}, which no peptide here reaches.',
+      ),
+    );
+
+    // Nudged at the last checkpoint, <eos>'s row, or the first row past the
+    // longest peptide, is a row that moved, and the page claims it no more.
+    final TrainingTrace eosMoved = edited(
+      (Map<String, Object?> json) => floats(lastKept(json)['token_embedding'], (Float32List rows) => rows[eos * width] += 0.5),
+    );
+    final String noEos = words(const EmbeddingScene().info(on(eosMoved, inks, kit)));
+    expect(noEos, isNot(contains('<eos>')));
+    expect(
+      noEos,
+      endsWith(': position rows ${trace.width} to ${context - 1}, which no peptide here reaches, keep their random start.'),
+    );
+    final TrainingTrace rowMoved = edited(
+      (Map<String, Object?> json) =>
+          floats(lastKept(json)['position_embedding'], (Float32List rows) => rows[trace.width * width] += 0.5),
+    );
+    expect(EmbeddingScene.unreadFrom(rowMoved), isNull);
+    final String noRows = words(const EmbeddingScene().info(on(rowMoved, inks, kit)));
+    expect(noRows, isNot(contains('position rows')));
+    expect(noRows, endsWith('read only where nothing is scored, keeps its random start.'));
   });
 }
