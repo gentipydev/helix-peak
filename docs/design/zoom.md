@@ -377,6 +377,35 @@ convention is, where it comes from, and what it decided:
   breast, 1 to 2 cm under the nipple (GTEx Portal). *Consequence:* the
   breast is drawn so, a resting adult's, in place from the front, its lower
   half dissected ("The breast" below).
+- **The cervix.** Anatomy plates show it opened, the uterus's back half and
+  the vagina's upper part seen from the front (Gray 1918, Fig. 1167). The
+  cervix is somewhat conical, slightly wider in the middle than above or
+  below; the vagina's attachment round it divides it into a supravaginal
+  and a vaginal portion, the vaginal one projecting free between the
+  fornices, its external orifice small and somewhat circular between two
+  lips. Its canal is fusiform, broader at its middle, from the internal
+  orifice at the isthmus to the external; down each wall runs a ridge from
+  which the palmate folds slant off "like branches from the stem of a
+  tree"; the mucosa of its upper two-thirds has deep glandular follicles,
+  and little cysts, the ovula Nabothi, lie along it; its columnar
+  epithelium changes to stratified squamous close to the external orifice,
+  and the vaginal surface is squamous. The uterus's muscle is "dense, firm,
+  of a grayish color"; the vagina has a column down its back wall, with
+  transverse rugae; the uterine artery reaches the cervix's margin, ascends
+  tortuously beside the uterus and sends branches down the vagina, and
+  crosses the ureter about 2 cm from the cervix (Gray 1918). Measured: the
+  canal 33.95 mm long in 20 hysterectomy specimens (Vinnikov et al. 2024);
+  the vagina widest just below the cervix, 32.5 mm, on MRI in 28 women
+  (Barnhart et al. 2006); the deepest crypt of a cone 3.38 mm deep on
+  average, in 343 (Anderson and Hartley 1980); the squamous epithelium
+  246 ± 91 µm thick (Wang et al. 2021); Nabothian cysts formed at the
+  squamocolumnar junction (Mikes and Puckett 2025); the ureter 2.3 ± 0.8 cm
+  from the cervix's margin on CT (Hurd et al. 2001), 2.8 cm where the
+  uterine artery crosses it (Magrina et al. 2022). GTEx bivalves the uterus
+  along the endocervical canal, from the external os to the fundus, and
+  samples the ectocervix, squamous, and the endocervix, glandular (GTEx
+  Portal). *Consequence:* the cervix is drawn so, opened along its canal as
+  GTEx opens it, its back half seen from the front ("The cervix" below).
 - **Histology.** Haematoxylin stains nuclei and ribosome-rich cytoplasm;
   eosin stains protein; fat, mucus and lumens take neither. A ×40 objective
   under a standard eyepiece shows a field about half a millimetre across.
@@ -504,6 +533,8 @@ Sources:
 - Alyami AS et al. Normal sonographic measurements for kidney dimensions in
   Saudi adult population: A cross-sectional prospective study. Medicine
   (Baltimore) 2024;103:e38607.
+- Anderson MC, Hartley RB. Cervical crypt involvement by intraepithelial
+  neoplasia. Obstet Gynecol 1980;55:546–550.
 - Annunziata G et al. Association among measurements obtained using portable
   ultrasonography with sex, body mass index, and age in a large sample of
   adult population. J Transl Med 2025;23:236.
@@ -515,6 +546,8 @@ Sources:
 - Ayele T et al. Ultrasonographic Determination of Portal Vein Diameter
   Among Adults with and without Chronic Liver Disease at Selected Referral
   Hospitals in Southern Ethiopia. Int J Gen Med 2022;15:45–52.
+- Barnhart KT et al. Baseline dimensions of the human vagina. Hum Reprod
+  2006;21:1618–1622.
 - Baumgartner M et al. Genes occupy a fixed and symmetrical position on
   sister chromatids. Cell 1991;64:761–766.
 - Beckwith KS et al. Nanoscale DNA tracing reveals the self-organization
@@ -594,7 +627,7 @@ Sources:
   the anterior left ventricle), as `tool/zoom/anatomogram.py` cites it.
 - GTEx Portal. Tissue site details, dataset gtex_v10: each tissue's
   sampling site (<https://gtexportal.org/api/v2/dataset/tissueSiteDetail>,
-  read 2026-11-04; the breast's 2026-11-05).
+  read 2026-11-04; the breast's 2026-11-05, the cervix's 2026-11-07).
 - Gündoğdu E. Relationship of the Presence of the Inferior Right Hepatic
   Vein with the Right Hepatic Vein Diameter and CT Liver Volumetry. Indian J
   Radiol Imaging 2023;33:332–337.
@@ -623,6 +656,8 @@ Sources:
 - Hughson MD et al. Hypertension, glomerular hypertrophy and
   nephrosclerosis: the effect of race. Nephrol Dial Transplant
   2014;29:1399–1409.
+- Hurd WW et al. Location of the ureters in relation to the uterine cervix
+  by computed tomography. Am J Obstet Gynecol 2001;184:336–339.
 - ISCN 2020: An International System for Human Cytogenomic Nomenclature.
   Karger, 2020.
 - Iwanaga J et al. Facial landmark-based localization of the parotid duct: a
@@ -694,6 +729,9 @@ Sources:
   resolution. Nature 1997;389:251–260.
 - Lynch CE et al. Adipose biopsy techniques for studies in human exercise
   physiology. Am J Physiol Regul Integr Comp Physiol 2024;326:R220–R229.
+- Magrina JF et al. Does a Uterine Manipulator Increase the Distance of the
+  Ureter to the Cervix and/or Vagina? An Anatomical Cadaver Study. J Minim
+  Invasive Gynecol 2022;29:879–883.
 - Marcinkevičiūtė K, Šilinskaitė U, Lukšaitė-Lukštė R, Kvietkauskas M.
   Radiology for surgeons: liver anatomy. Front Surg 2026;13:1743615.
 - Margolis R, Spaide RF. A pilot study of enhanced depth imaging optical
@@ -707,6 +745,8 @@ Sources:
   illumination. Genes Dev 2016;30:1598–1610.
 - Middleton WD et al. High-resolution sonography of the normal extrapelvic
   vas deferens. J Ultrasound Med 2009;28:839–846.
+- Mikes BA, Puckett Y. Nabothian Cyst. In: StatPearls. StatPearls
+  Publishing, 2025.
 - Mitchell DG et al. Hematopoietic and fatty bone marrow distribution in
   the normal and ischemic hip: new observations with 1.5-T MR imaging.
   Radiology 1986;161:199–202.
@@ -879,11 +919,18 @@ Sources:
   piriform sinus: An anatomical study. F1000Res 2024;13:115.
 - Vincent JM, Morrison ID, Armstrong P, Reznek RH. The size of normal
   adrenal glands on computed tomography. Clin Radiol 1994;49:453–455.
+- Vinnikov Y, Barzilay E, Barel O, Levy G. A novel technique for the
+  measurement of cervical length in non-pregnant women. Australas J
+  Ultrasound Med 2024;27:141–148.
 - Wako T et al. Human metaphase chromosome consists of randomly arranged
   chromatin fibres with up to 30-nm diameter. Sci Rep 2020;10:8948.
 - Walther N et al. A quantitative map of human Condensins provides new
   insights into mitotic chromosome architecture. J Cell Biol
   2018;217:2309–2328.
+- Wang AC et al. Artificial intelligence aided measurement of cervical
+  squamous epithelial thickness and its correlation with cervical
+  precancerous lesions (in Chinese). Zhonghua Bing Li Xue Za Zhi
+  2021;50:339–343.
 - Wang BS et al. Increased iris thickness and association with primary angle
   closure glaucoma. Br J Ophthalmol 2011;95:46–50.
 - Wang X et al. Regional differences in islet distribution in the human
@@ -1077,10 +1124,13 @@ body drew for it (`OrganArt`), so the step is one shape seen closer. It
 comes up over the body's own drawing of the organ early in the step, and
 `zoom_anatomy_test` holds the two to the same point of the screen while both
 show. On the way in, the body's line art and its unlit organs give way.
-Sixteen of the specimens below then draw in to outlines of their own
+Seventeen of the specimens below then draw in to outlines of their own
 (`_SpecimenOrgan`, `OutlineMorph`), each becoming the bed its specimen comes
 up over (`SpecimenStep`); the breast's is its mound, its outline without the
-axillary tail, which comes up with the rest of it. The brain, the eye, the
+axillary tail, which comes up with the rest of it, and the cervix's is the
+one of the body's two halves of it that the body follows, which draws in to
+the cervix's canal and its wall on that side, the other half giving way
+under the cervix as it comes up. The brain, the eye, the
 skin, the lymph node, the placenta and the fat, which the body draws no
 outline of that shows them, come up over the body's drawing instead, a
 crossfade.
@@ -1098,17 +1148,19 @@ dot of the accent in a thin ring of the bright ink, in a soft glow
 it, fading with their distance from it, so it is seen at a glance where in
 the body it lies (the user's ask of 2026-10-21). They stay round the bone
 marrow, the heart, the thigh, the kidney, the liver, the stomach, the
-esophagus, the thyroid, the adrenal, the fallopian tube, the bladder and the
-breast, round the bladder all but the figure's smooth muscle, which the
-anatomogram draws as the bladder's own wall (`_SpecimenOrgan`'s
-`notAround`); the kidney and the adrenal keep the body's flat drawing of the
-other one beside them, and the thigh the body's four other muscles until its
-own come up. Round the pancreas, the testis, the salivary gland and the
-pituitary they give way to the specimen's own neighbours; the six specimens
-that crossfade come up with none of the figure round them.
+esophagus, the thyroid, the adrenal, the fallopian tube, the bladder, the
+breast and the cervix, round the bladder all but the figure's smooth muscle,
+which the anatomogram draws as the bladder's own wall, and round the cervix
+all but the figure's vagina, which the cervix draws as its own vault
+(`_SpecimenOrgan`'s `notAround`); the kidney and the adrenal keep the body's
+flat drawing of the other one beside them, the thigh the body's four other
+muscles until its own come up, and the cervix the body's other half of it
+until it comes up. Round the pancreas, the testis, the salivary gland and
+the pituitary they give way to the specimen's own neighbours; the six
+specimens that crossfade come up with none of the figure round them.
 
 **Its anatomy.** The fifty-four curated proteins' paths reach all
-thirty-six of the organs the zoom draws. Twenty-two are drawn from anatomy
+thirty-six of the organs the zoom draws. Twenty-three are drawn from anatomy
 as specimens, each in a section below, in the neutrals but for vessels,
 nerves and the accent; in each the part the zoom's cell lives in is in the
 accent, by the kind of organ and of cell, never by gene: one flat tone cut
@@ -1140,16 +1192,17 @@ or tubules:
 | Adipose tissue (LEP) | a block of the abdominal wall | both layers of its fat |
 | Urinary bladder (S100P) | opened from the front | its urothelium |
 | Breast (LALBA) | from the front in place, its lower half dissected | its ducts and lobules, its fat, or its nipple and areola |
+| Cervix (SLPI) | opened along its canal, its back half from the front | its ectocervix |
 
 The vessel (GAS6) and the parathyroid gland (CASR) have drawings of their
 own: a length of artery, and a gland on the back of the thyroid. The
-other twelve kinds are the anatomogram's own outline, sculpted with a
+other eleven kinds are the anatomogram's own outline, sculpted with a
 surface for its kind:
 
 | Look | Organs (proteins) |
 |---|---|
 | lobules | ovary (PADI6), prostate (ACP3) |
-| a wall round a lumen | gallbladder (FGF19), uterus (PAEP), cervix (SLPI), vagina (ALOX12) |
+| a wall round a lumen | gallbladder (FGF19), uterus (PAEP), vagina (ALOX12) |
 | fibres | smooth muscle (LOXL2), tongue (CKMT2) |
 | airways from the hilum | lung (SFTPD) |
 | coils | intestine (FABP6), epididymis (NPC2), seminal vesicle (ANGPT1) |
@@ -1846,6 +1899,89 @@ in the neutrals but for its arteries and the accent:
   breast: drawn in to the whole outline, its 5 cm past the oval jolted the
   step at any settle.
 
+**The cervix.** It is drawn as a fresh specimen under the same lamp, opened
+along its canal as GTEx opens it: bivalved from the external os up into the
+uterus, its front half taken away, its back half seen from the front
+between the uterus's lower body above and the vagina's vault below, each
+cut short (`presentation/scenes/organs/cervix/`, the user's choices of
+2026-11-07), in the neutrals but for its arteries and the accent:
+
+- *Its shape* (`cervix_anatomy.dart`, in millimetres from the canal's
+  middle): 37 mm from the isthmus to the vaginal part's end, about the
+  card's 4 cm, and 28 mm across its middle, a little wider there than at
+  the isthmus, as Gray has it; the uterus 32 mm across where it is cut,
+  11 mm above the internal orifice; the vagina attached round its sides
+  2.5 mm below the canal's middle, the vaginal part rounding in below to
+  the external orifice on its end.
+- *Where it is sampled.* The anatomogram draws the cervix as two mirrored
+  halves, each a wall and the canal, and went into its upper canal. Two
+  rules in the tool move the body's ping onto the vaginal part, below and
+  beside the canal's lower end, where GTEx takes the ectocervix
+  (`SITE_LEVEL`), and close the view on both halves, the canal at their
+  middle (`FRAME_WHOLE`); in the generated figures only the cervix's site
+  and centre change. The drawing is laid so that its own site, on the
+  vaginal part's surface on the body's left, 8.6 mm out from the canal's
+  middle and beyond the transformation zone, lies on it, which moves it
+  about 8 mm.
+- *The cut* through its wall either side of the canal is flat, with a cut
+  sheen: the cervix's stroma, pale and fibrous, giving way within 3 mm of
+  the isthmus to the uterus's muscle above it, grey and a little warm. The
+  crypts run from the canal's sides into the stroma as crisp clefts, 1.2
+  to 3.4 mm, from just below the internal orifice down to the
+  transformation zone; four Nabothian cysts, 1.8 to 3 mm across, lie cut
+  in it, pale, their rims in the shadow ink, three of them in the vaginal
+  part.
+- *The canal's back wall* is seen from in front, 34.5 mm long, 8 mm across
+  at its middle (the anatomogram's own canal at its real size), narrowing
+  to 2.8 mm at the internal orifice and 5 at the external: a deep, warm
+  mucosa, its ridge down the middle and up to eight palmate folds a side
+  slanting up and out from it, finer in its lower half, each a crease with
+  light on its far side, its rim sunk below the cut. Above the internal
+  orifice the uterine cavity widens up to where the uterus is cut, its
+  mucosa paler, a line where it meets the canal's.
+- *In the accent,* by the kind of organ: the ectocervix, the vaginal part
+  below the vagina's attachment, one flat tone, the mark over a neutral as
+  the bladder's urothelium is, cut by its anatomy as crisp lines (its
+  squamous epithelium, 0.25 mm, along its surface, the transformation
+  zone's edges, 5 mm out along the surface from the os and 4 mm deep, its
+  crypts and cysts),
+  for every protein: no cell the Atlas names lives in the cervix (none has
+  it as its home and no tissue cell type pair names it), and the tissue
+  the zoom goes on to is its squamous epithelium.
+- *The vagina's vault* round the vaginal part, cut short 27 mm below the
+  canal's middle: its walls cut either side, about 3.2 mm, a pale line of
+  epithelium over the lamina propria and the muscularis; between them its
+  back wall's mucosa seen from in front, 32.5 mm across just below the
+  cervix, its column and transverse rugae; the lateral fornices, recesses
+  between the vaginal part and the walls; and the vaginal part's shadow
+  on the back wall below it, where the posterior fornix runs back behind
+  it.
+- *Round it,* dimmer than the cervix: both uterine arteries in the blood
+  red, cut short, each coming in to the cervix's margin at the isthmus, its
+  ascending branch tortuous up beside the uterus to where it is cut, its
+  cervicovaginal branch down beside the cervix and on outside the vagina's
+  wall, their small branches running in under the wall. The ureters, 2.3
+  to 2.8 cm out, are beyond the view. The figure's own parts stay faint
+  round it, the endometrium above it, all but its vagina, which the cervix
+  draws as its own vault (`notAround`).
+- *Its names* (the user's choice): `ectocervix` at the site, its line in
+  the accent, and the `vagina`, the `uterus`, a `uterine artery`, the
+  `endocervical canal` and the `transformation zone` in the quiet ink, set
+  round it at the canvas's corners, the shorter first so that each band
+  takes them nearest it. The orifices, the cysts and the fornices are drawn
+  and not named: ten names, then eight and seven, were never set clear of
+  one another on every canvas the names test sets, and six were.
+- *Its view* is framed 0.75 (`ZoomDepth.cervixUpright`): its six names fit
+  every phone's canvas the names test sets at 0.75, and not at 0.8.
+- *On the step from the body* the followed half, flat and lit in the mark,
+  draws in to the cervix's own canal and its wall on the body's left,
+  matched at the middle of its top (nearly level, so its topmost point
+  could change sides), at each side's outermost point and at its lowest,
+  over 0.6 of the detail (`CervixStyle.settling`: at 0.45 its outline
+  jolted 1.53 px), and becomes the bed the cervix comes up over, in the
+  stroma's tone; the other half, flat as the body drew it, gives way under
+  it as it comes up.
+
 **The glide.** The camera carries the organ from where it lies in the body
 to the middle of the view over the first three fifths of the step. From the
 head or the thigh that is a long way, and `zoom_smoothness_test` plays every
@@ -2422,6 +2558,14 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   forks and widths (1.2 mm at rest), the lobes' shapes and the lobules'
   clusters are laid by rule, the lobules far fewer than a section counts.
   Its axillary tail, which the anatomogram does not draw, comes up with it.
+- **A cervix from a plate.** One adult cervix, the same for every protein,
+  its os small and round as Gray words it and its transformation zone round
+  the os on the vaginal part. Its front half is taken away with the
+  anterior lip and fornix; its folds, crypts and four cysts are laid by
+  rule; no vein, nerve or ligament is drawn, and the ureters lie beyond the
+  view. No cell the Atlas names lives in the cervix, so it has one home,
+  the ectocervix, and the zoom goes on to its squamous epithelium whatever
+  the gene.
 - **One field a tissue.** Wherever in the organ it is cut, and for every
   gene that goes there with the same kind of cell. "Lymphoid tissue" is a
   lymph node, and skin has no keratin layer of its own.
@@ -2482,9 +2626,9 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   into the band's strip as (`chromosome_tube.dart`); its colours are
   `core/theme/chromosome_colors.dart`.
 - `presentation/scenes/organ_art.dart`: every organ's drawing:
-  `_SpecimenOrgan` for the sixteen specimens that draw in from the body's
+  `_SpecimenOrgan` for the seventeen specimens that draw in from the body's
   outline, a class of its own for each of the six that crossfade,
-  `_DrawnOrgan` for the twelve drawn on the anatomogram's outline, and
+  `_DrawnOrgan` for the eleven drawn on the anatomogram's outline, and
   `_VesselOrgan` and `_ParathyroidOrgan`.
 - `presentation/scenes/organs/pancreas/`: the pancreas and its neighbours in
   centimetres (`pancreas_anatomy.dart`), every number its look is tuned by
@@ -2522,6 +2666,13 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   pectoralis, the arteries and its names' places, the figure's axillary
   nodes among them (`breast_form.dart`), and its meshes and how it is
   drawn (`breast_art.dart`).
+- `presentation/scenes/organs/cervix/`: the cervix in millimetres, with
+  every source (`cervix_anatomy.dart`), every number its look is tuned by
+  (`cervix_style.dart`), its form posed on the female figure, with its
+  outline and the half the body's draws in to, the canal, its folds and
+  crypts, the cysts, the transformation zone, the vagina's vault, the
+  arteries and its names' places (`cervix_form.dart`), and its meshes and
+  how it is drawn (`cervix_art.dart`).
 - `presentation/scenes/organs/`: the other specimens, each in its folder
   in the same four files, `*_anatomy.dart` (in millimetres, every size with
   its source, the drawing's choices listed as such), `*_style.dart` (every
@@ -2715,6 +2866,30 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   clear of it, of its arteries, of one another and of the scale bar, no
   line through another's plate or crossing another.
   `zoom_paint_timing_check` times it with LALBA's zoom.
+- `cervix_form_test` holds the cervix to its real size on the body's half
+  of it, moved under 9 mm to put its site on the body's; its site on the
+  ectocervix's surface, within its epithelium, beyond the transformation
+  zone and off the canal; the canal 34 mm long, 8 mm across at its middle
+  and narrower at either orifice, inside the cervix, the cavity widening
+  above it; the palmate folds running up and out inside the canal; the
+  crypts from the canal's sides into the stroma, none deeper than 3.4 mm,
+  clear of the cysts, and the cysts in the stroma; the transformation zone
+  round the os, its edges on the surface 5 to 9 mm out; the vagina
+  attached round the vaginal part, its fornices open beside it, 32.5 mm
+  across and its walls 3.2 mm; the arteries outside it, meeting its margin
+  at the isthmus, cut short, their branches running in under the wall; the
+  step's marks in the same order on the cervix's half and the body's; and
+  the same cervix every time. `cervix_art_test` holds the mark to the
+  ectocervix alone and the bed to the stroma, the hand-over to the body's
+  own half with its other half beside it and no layer, mesh or point, the
+  figure's parts round it at its stop but its vagina, the meshes the same
+  every time and inside its bounds, its six names, and the steps to it and
+  back to 0.08 a frame and 1.5 px. `cervix_names_test` sets its names in
+  the app's own type for SLPI on seven phone canvases: above the cervix or
+  below it, clear of it, of its vagina and its arteries, of one another and
+  of the scale bar, no line through another's plate or crossing another.
+  `zoom_domain_test` holds its site on the vaginal part and its view closed
+  on both halves. `zoom_paint_timing_check` times it with SLPI's zoom.
 - Each of the other seventeen specimens has a `*_form_test` (its size and
   place on either figure, its site where it is sampled, its parts at their
   measured sizes, its home rule over the Atlas's names, the step's marks
