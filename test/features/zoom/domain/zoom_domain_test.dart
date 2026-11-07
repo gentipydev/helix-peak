@@ -793,6 +793,32 @@ void main() {
       expect(part.framed, part.centre);
     });
 
+    test('close the view on the epididymis and its testis together, the '
+        'testis beside it, as it is drawn on the testis\'s back', () {
+      final String epididymis = tissueAnatomy['epididymis']!.uberon;
+      final AnatomyPart part = AnatomyFigure.male.parts[epididymis]!;
+      expect(AnatomyFigure.female.parts[epididymis], isNull);
+      final Rect followed = boxOf(part.followed);
+      // The testis's outline nearest the one it follows, which it lies
+      // along.
+      final List<Offset> testis = (AnatomyFigure.male
+              .parts[tissueAnatomy['testis']!.uberon]!
+              .contours
+              .toList()
+            ..sort((List<Offset> a, List<Offset> b) =>
+                (boxOf(a).center - followed.center).distance.compareTo(
+                    (boxOf(b).center - followed.center).distance)))
+          .first;
+      final Rect both = boxOf(<Offset>[...part.followed, ...testis]);
+      expect(part.centre.dx, closeTo(both.center.dx, 1e-4));
+      expect(part.centre.dy, closeTo(both.center.dy, 1e-4));
+      // The testis lies toward the figure's middle, the epididymis along its
+      // lateral border.
+      expect(boxOf(testis).center.dx.abs(), lessThan(followed.center.dx.abs()));
+      expect(part.framed, part.centre);
+      expect(part.following, 0);
+    });
+
     test('close the view on every other part at the middle of the outline '
         'it follows', () {
       final String muscle = tissueAnatomy['skeletal muscle']!.uberon;
@@ -800,13 +826,14 @@ void main() {
       final String skin = tissueAnatomy['skin']!.uberon;
       final String fat = tissueAnatomy['adipose tissue']!.uberon;
       final String cervix = tissueAnatomy['cervix']!.uberon;
+      final String epididymis = tissueAnatomy['epididymis']!.uberon;
       for (final AnatomyFigure figure in <AnatomyFigure>[
         AnatomyFigure.female,
         AnatomyFigure.male,
         AnatomyFigure.brain,
       ]) {
         for (final MapEntry<String, AnatomyPart> part in figure.parts.entries) {
-          if (<String>{muscle, esophagus, skin, fat, cervix}
+          if (<String>{muscle, esophagus, skin, fat, cervix, epididymis}
               .contains(part.key)) {
             continue;
           }

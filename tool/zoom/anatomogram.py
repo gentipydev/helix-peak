@@ -152,6 +152,15 @@ FRAME_WHOLE = {"UBERON_0001134", "UBERON_0000002"}
 # what its scene draws lies 0.03 of its height below its outline's.
 FRAME_DOWN = {"UBERON_0001043": 0.03}
 
+# Parts the view closes on together with another part they lie on: the
+# other part, whose outline nearest the followed one is framed with it,
+# written as a `centre`, the middle of the box round the two. The
+# epididymis is drawn on the back of its testis, the testis whole beside it
+# (`epididymis_anatomy.dart`), as the anatomogram draws it along the
+# testis's lateral border: the middle of what its scene draws lies between
+# the two.
+FRAME_WITH = {"UBERON_0001301": "UBERON_0000473"}
+
 # Parts the zoom goes into in from the side of their outline farthest from
 # the figure's midline: the share of the part's height, from its top, that
 # its site lies at, and how far in from where the outline crosses that
@@ -497,6 +506,18 @@ def convert_body(name: str, path: str, wanted: set[str]) -> dict:
         if uberon in FRAME_DOWN:
             fx0, fy0, fx1, fy1 = svg.bounds([followed])
             parts[uberon]["centre"] = list(place(((fx0 + fx1) / 2, (fy0 + fy1) / 2 + (fy1 - fy0) * FRAME_DOWN[uberon])))
+        if uberon in FRAME_WITH:
+            beside = part_of(shapes_by_id, FRAME_WITH[uberon])
+            if not beside:
+                raise SystemExit(f"{name}: no {FRAME_WITH[uberon]} to frame {uberon} with")
+            fx0, fy0, fx1, fy1 = svg.bounds([followed])
+
+            def apart(c: list[svg.Point]) -> float:
+                cx0, cy0, cx1, cy1 = svg.bounds([c])
+                return math.hypot((cx0 + cx1 - fx0 - fx1) / 2, (cy0 + cy1 - fy0 - fy1) / 2)
+
+            wx0, wy0, wx1, wy1 = svg.bounds([followed, min(beside, key=apart)])
+            parts[uberon]["centre"] = list(place(((wx0 + wx1) / 2, (wy0 + wy1) / 2)))
         if uberon in FRAME_AT_SITE:
             parts[uberon]["centre"] = list(place(site))
     return {
