@@ -2239,6 +2239,7 @@ void main() {
       LmStage.feedForward,
       LmStage.forward,
       LmStage.predict,
+      LmStage.loss,
     };
     for (final LmStage stage in LmStage.values.where((LmStage s) => !paged.contains(s))) {
       expect(sceneOf(stage).info(on(trace, inks, kit)), isNull, reason: stage.name);
@@ -2508,5 +2509,48 @@ void main() {
     );
     expect(PredictScene.ownOutputRow(moved), isFalse);
     expect(words(const PredictScene().info(on(moved, inks, kit))), endsWith("not the token embedding's rows used again."));
+  });
+
+  testWidgets("Loss's info page says what a loss in nats is like, and where the even guess stands in the run", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    final LmInfo info = const LossScene().info(on(trace, inks, kit));
+    expect(info.title, LmStage.loss.label);
+    expect(info.sections.map((LmInfoSection s) => s.title), <String>['Even guess', 'Mean']);
+    expect(info.lead, startsWith("Every place's p(y) becomes one number, the loss"));
+    // The even guess is passed at the step the run kept for it.
+    final int passed = trace.checkpoints.firstWhere((TraceCheckpoint c) => c.why.contains('uniform')).step;
+    expect(LossScene.passedEven(trace), passed);
+    final String page = words(info);
+    expect(page, contains("Loop's curve has to pass, which it does at step $passed;"));
+    // e to the run's own losses: more unsure at first than an even guess.
+    final int count = trace.allowed.length;
+    final double start = math.exp(trace.loss(1));
+    expect(start, greaterThan(count));
+    expect(
+      page,
+      endsWith(
+        "${exponential(start)} at step 1, more than the even guess's $count, and "
+        '${exponential(math.exp(trace.loss(trace.steps.count)))} at step ${trace.steps.count}.',
+      ),
+    );
+
+    // A run never under an even guess names no step for it.
+    final TrainingTrace never = edited((Map<String, Object?> json) {
+      for (final Object? checkpoint in json['checkpoints']! as List<Object?>) {
+        final Map<String, Object?> kept = checkpoint! as Map<String, Object?>;
+        kept['why'] = <Object?>[
+          for (final Object? why in kept['why']! as List<Object?>)
+            if (why != 'uniform') why,
+        ];
+      }
+    });
+    expect(LossScene.passedEven(never), isNull);
+    expect(
+      words(const LossScene().info(on(never, inks, kit))),
+      contains("Loop's curve has to pass; residue counts and residue pairs come after."),
+    );
   });
 }

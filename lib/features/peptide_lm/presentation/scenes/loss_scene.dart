@@ -6,6 +6,7 @@ import '../../../../shared/format.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
 import '../lm_format.dart';
+import '../lm_info_sheet.dart';
 import 'embedding_scene.dart';
 import 'lm_drawing.dart';
 import 'lm_scene.dart';
@@ -832,6 +833,49 @@ final class LossScene extends LmScene {
 
   @override
   String describe(LmView view, TrainingFrame frame) => 'Loss, step ${view.step}. ${caption(view, frame)}.';
+
+  /// Loss's own page: what it takes and gives, the even guess at its source
+  /// as Loop's first level, and what a loss in nats is like, in the run's
+  /// numbers.
+  @override
+  LmInfo info(LmView view) {
+    final TrainingTrace trace = view.trace;
+    final TraceCheckpoint first = trace.checkpoints.first;
+    final TraceCheckpoint last = trace.checkpoints.last;
+    final int count = trace.allowed.length;
+    final int? passed = passedEven(trace);
+    final double start = math.exp(trace.loss(first.step));
+    return LmInfo(
+      title: LmStage.loss.label,
+      lead: "Every place's p(y) becomes one number, the loss: the only thing training lowers. Backward starts "
+          'from it, and Loop follows it through the run.',
+      sections: <LmInfoSection>[
+        LmInfoSection('Even guess', <String>[
+          "The first of the levels Loop's curve has to pass"
+              '${passed == null ? '' : ', which it does at step $passed'}; residue counts and residue pairs '
+              'come after.',
+        ]),
+        LmInfoSection('Mean', <String>[
+          'e to the loss is how many tokens the model is as unsure as, were it picking evenly among them: '
+              '${exponential(start)} at step ${first.step}, ${start > count ? 'more' : 'fewer'} than the even '
+              "guess's $count"
+              '${last.step > first.step ? ', and ${exponential(math.exp(trace.loss(last.step)))} at step '
+                        '${last.step}' : ''}.',
+        ]),
+      ],
+    );
+  }
+
+  /// The step the run kept for first doing better than an even guess, or
+  /// null where it never did.
+  static int? passedEven(TrainingTrace trace) {
+    for (final TraceCheckpoint checkpoint in trace.checkpoints) {
+      if (checkpoint.why.contains('uniform')) {
+        return checkpoint.step;
+      }
+    }
+    return null;
+  }
 }
 
 /// What Loss's last frame fades or leaves out, for the stage that opens on

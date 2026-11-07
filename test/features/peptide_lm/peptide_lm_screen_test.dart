@@ -184,6 +184,7 @@ void main() {
       'Feed-forward': <String>["What block 1's feed-forward adds"],
       'Forward': <String>["$place's row, layer to layer"],
       'Predict': <String>['Output layer'],
+      'Loss': <String>['Even guess', 'Mean'],
     };
     for (final MapEntry<String, List<String>> page in pages.entries) {
       if (page.key != 'Tokenise') {
