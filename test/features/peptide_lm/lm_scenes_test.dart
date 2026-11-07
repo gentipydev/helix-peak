@@ -2230,7 +2230,7 @@ void main() {
     expect(page, endsWith('first beats it at step $passed.'));
 
     // The stages with a page of their own so far; the rest have none yet.
-    const Set<LmStage> paged = <LmStage>{LmStage.tokenise, LmStage.shift, LmStage.embedding};
+    const Set<LmStage> paged = <LmStage>{LmStage.tokenise, LmStage.shift, LmStage.embedding, LmStage.scores};
     for (final LmStage stage in LmStage.values.where((LmStage s) => !paged.contains(s))) {
       expect(sceneOf(stage).info(on(trace, inks, kit)), isNull, reason: stage.name);
     }
@@ -2345,5 +2345,26 @@ void main() {
     final String noRows = words(const EmbeddingScene().info(on(rowMoved, inks, kit)));
     expect(noRows, isNot(contains('position rows')));
     expect(noRows, endsWith('read only where nothing is scored, keeps its random start.'));
+  });
+
+  testWidgets("Scores' info page says where attention stands, what training keeps of it, and why a score is divided", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    final LmInfo info = const ScoresScene().info(on(trace, inks, kit));
+    expect(info.title, LmStage.scores.label);
+    expect(info.sections.map((LmInfoSection s) => s.title), <String>['Query, key and value', 'Head 1 and head 2']);
+    expect(info.lead, contains('the one part of the model where places exchange anything'));
+    final String page = words(info);
+    final int width = trace.model.width;
+    // The weights that make the query, key and value, as the run counts
+    // them: block 1's attention, less its output weights and their biases.
+    final int attention = trace.groupSizes[trace.groups.indexOf('block1.attention')];
+    expect(
+      page,
+      contains('three $width × $width and ${grouped(3 * width)} biases, ${grouped(attention - width * width - width)} numbers'),
+    );
+    expect(page, contains('sums ${trace.headSize} products and is divided by √${trace.headSize}'));
   });
 }

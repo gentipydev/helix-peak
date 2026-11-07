@@ -176,6 +176,7 @@ void main() {
       'Tokenise': <String>['Token ids', 'Special tokens', 'Batch 2D matrix', 'Token counts'],
       'Shift': <String>['Input x', 'Target y'],
       'Embedding': <String>['Token embedding', 'Position embedding', 'x0 = token + position'],
+      'Scores': <String>['Query, key and value', 'Head 1 and head 2'],
     };
     for (final MapEntry<String, List<String>> page in pages.entries) {
       if (page.key != 'Tokenise') {

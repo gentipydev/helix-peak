@@ -7,6 +7,7 @@ import '../../../../shared/format.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
 import '../lm_format.dart';
+import '../lm_info_sheet.dart';
 import 'attention_scene.dart';
 import 'embedding_scene.dart';
 import 'lm_drawing.dart';
@@ -1131,6 +1132,40 @@ final class ScoresScene extends LmScene {
 
   @override
   String describe(LmView view, TrainingFrame frame) => 'Scores, step ${view.step}. ${caption(view, frame)}.';
+
+  /// Scores' own page: what it takes and gives, where attention stands in
+  /// the model, what training keeps of it, and why each score is divided,
+  /// in the run's numbers.
+  @override
+  LmInfo info(LmView view) {
+    final TrainingTrace trace = view.trace;
+    final int width = trace.model.width;
+    final int heads = trace.model.heads;
+    final int size = trace.headSize;
+    return LmInfo(
+      title: LmStage.scores.label,
+      lead: "From x0, block 1 makes a query, a key and a value for every place; the place in focus's query, "
+          'scored against each key up to its own, gives its shares. This begins attention, the one part of '
+          'the model where places exchange anything: every other part works on each place alone.',
+      sections: <LmInfoSection>[
+        LmInfoSection('Query, key and value', <String>[
+          'Their weights, three $width × $width and ${grouped(3 * width)} biases, '
+              '${grouped(3 * width * width + 3 * width)} numbers, are what training keeps and moves, as the '
+              'plates say; the scores and shares are worked out from them afresh, at every place of every '
+              'peptide, every step.',
+        ]),
+        LmInfoSection(switch (heads) {
+          1 => 'Head 1',
+          2 => 'Head 1 and head 2',
+          _ => 'Head 1 to head $heads',
+        }, <String>[
+          "A head's score sums $size products and is divided by √$size, so that scores keep one scale "
+              "whatever a head's size: more products would add up to larger scores, and softmax would hand "
+              'nearly everything to the top one.',
+        ]),
+      ],
+    );
+  }
 }
 
 /// A row evened out by a LayerNorm: its numbers [x], their mean and standard
