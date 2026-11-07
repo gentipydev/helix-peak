@@ -2237,6 +2237,7 @@ void main() {
       LmStage.scores,
       LmStage.attention,
       LmStage.feedForward,
+      LmStage.forward,
     };
     for (final LmStage stage in LmStage.values.where((LmStage s) => !paged.contains(s))) {
       expect(sceneOf(stage).info(on(trace, inks, kit)), isNull, reason: stage.name);
@@ -2451,5 +2452,23 @@ void main() {
       ),
     );
     expect(words(info), contains('Each neuron adds its own ${trace.model.width} output weights to the row'));
+  });
+
+  testWidgets("Forward's info page keys the ladder: its strips' one scale, and two blocks' two hops", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    final LmView at = on(trace, inks, kit);
+    final LmInfo info = const ForwardScene().info(at);
+    expect(info.title, LmStage.forward.label);
+    // A section, titled as the ladder is tagged, less its size.
+    final String title = info.sections.single.title;
+    expect(title, "${StreamTable.placeName(at, at.position)}'s row, layer to layer");
+    expect(ForwardScene.tag(at), startsWith('$title · '));
+    expect(info.lead, contains('both blocks and a last LayerNorm'));
+    final String page = words(info);
+    expect(page, contains('here the ${spelled(2 * trace.model.layers)} can be set against each other'));
+    expect(page, endsWith('so two blocks reach two hops back.'));
   });
 }

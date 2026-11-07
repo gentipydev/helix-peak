@@ -6,6 +6,7 @@ import '../../../../shared/format.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
 import '../lm_format.dart';
+import '../lm_info_sheet.dart';
 import 'attention_scene.dart';
 import 'embedding_scene.dart';
 import 'feed_forward_scene.dart';
@@ -403,6 +404,35 @@ final class ForwardScene extends LmScene {
 
   @override
   String describe(LmView view, TrainingFrame frame) => 'Forward pass, step ${view.step}. ${caption(view, frame)}.';
+
+  /// Forward's own page: what it takes and gives, the ladder's strips, and
+  /// why two blocks reach further than one.
+  @override
+  LmInfo info(LmView view) {
+    final int layers = view.trace.model.layers;
+    final String blocks = switch (layers) {
+      1 => 'its block',
+      2 => 'both blocks',
+      _ => 'all ${spelled(layers)} blocks',
+    };
+    return LmInfo(
+      title: LmStage.forward.label,
+      lead: "One place's row goes through the whole pass, $blocks and a last LayerNorm, from x0 to the last "
+          'row, the one Predict reads. Scores, Attention and Feed-forward took block 1 apart; this puts the '
+          'pass together.',
+      sections: <LmInfoSection>[
+        // The ladder's tag, less its size.
+        LmInfoSection("${StreamTable.placeName(view, view.position)}'s row, layer to layer", <String>[
+          'Its strips, what each part adds, share one scale, unlike the tables of what Attention and '
+              'Feed-forward add, each on its own: here the ${spelled(2 * layers)} can be set against each '
+              'other.'
+              '${layers > 1 ? ' Block 2 reads the rows as block 1 left them: what a place reads now carries '
+                        'what that place had gathered itself, so ${spelled(layers)} blocks reach '
+                        '${spelled(layers)} hops back.' : ''}',
+        ]),
+      ],
+    );
+  }
 }
 
 /// What Forward's last frame fades or leaves out, for the stage that opens on

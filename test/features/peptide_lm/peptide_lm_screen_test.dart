@@ -170,6 +170,9 @@ void main() {
 
     Finder scroll() => find.descendant(of: sheet, matching: find.byType(Scrollable));
 
+    // The place the page opens on in focus, named as the canvas names it.
+    final int middle = trace.peptides.first.inputs ~/ 2;
+    final String place = '${trace.peptides.first.sequence[middle - 1]}$middle';
     // Each stage with a page of its own, from Tokenise, which the page opens
     // on: its ⓘ is named for it, and opens its page, every section of it.
     final Map<String, List<String>> pages = <String, List<String>>{
@@ -179,6 +182,7 @@ void main() {
       'Scores': <String>['Query, key and value', 'Head 1 and head 2'],
       'Attention': <String>['Values', 'Shares'],
       'Feed-forward': <String>["What block 1's feed-forward adds"],
+      'Forward': <String>["$place's row, layer to layer"],
     };
     for (final MapEntry<String, List<String>> page in pages.entries) {
       if (page.key != 'Tokenise') {
