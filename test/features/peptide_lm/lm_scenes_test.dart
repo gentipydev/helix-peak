@@ -2241,6 +2241,7 @@ void main() {
       LmStage.predict,
       LmStage.loss,
       LmStage.backward,
+      LmStage.update,
     };
     for (final LmStage stage in LmStage.values.where((LmStage s) => !paged.contains(s))) {
       expect(sceneOf(stage).info(on(trace, inks, kit)), isNull, reason: stage.name);
@@ -2570,5 +2571,61 @@ void main() {
     expect(BackwardScene.tableTag(at), startsWith('${titles.last.toLowerCase()} · '));
     expect(info.lead, endsWith('Backward changes nothing: it measures, and Update moves the weights.'));
     expect(words(info), contains("on the whole batch's scale at that step"));
+  });
+
+  testWidgets("Update's info page says what the run was given, and which weights decay shrinks", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    final LmInfo info = const UpdateScene().info(on(trace, inks, kit));
+    expect(info.title, LmStage.update.label);
+    expect(info.sections.map((LmInfoSection s) => s.title), <String>['Rate', 'Step']);
+    expect(info.lead, contains('the one stage that changes the model'));
+    // The weight matrices, as the run counts its groups: each less its
+    // biases; the embeddings' and norms' groups none at all.
+    final int width = trace.model.width;
+    int matrices = 0;
+    for (int g = 0; g < trace.groups.length; g++) {
+      final String group = trace.groups[g];
+      final int size = trace.groupSizes[g];
+      if (group.endsWith('.attention')) {
+        matrices += size - 4 * width;
+      } else if (group.endsWith('.feed_forward')) {
+        matrices += size - trace.model.feedForward - width;
+      } else if (group == 'head') {
+        matrices += size - trace.vocab.length;
+      }
+    }
+    expect(UpdateScene.decayed(trace), matrices);
+    final int parameters = trace.model.parameters;
+    final String page = words(info);
+    expect(page, contains("like the clip and the decay, are settings the run was given: only the model's ${grouped(parameters)}"));
+    expect(page, contains('Decay shrinks only the weight matrices, ${grouped(matrices)} of the ${grouped(parameters)} numbers'));
+    // The run bears it out: the tokens that never come next get no gradient,
+    // so their biases never move, while decay alone shrinks their weights.
+    final TraceCheckpoint first = trace.checkpoints.first;
+    final TraceCheckpoint last = trace.checkpoints.last;
+    double size(TraceCheckpoint at, int row) {
+      double sum = 0;
+      for (int d = 0; d < width; d++) {
+        sum += math.pow(trace.outputWeight(at, row, d), 2);
+      }
+      return sum;
+    }
+
+    for (final String name in <String>['<pad>', '<bos>']) {
+      final int row = trace.vocab.indexOf(name);
+      expect(trace.outputBias(last, row), trace.outputBias(first, row), reason: name);
+      expect(size(last, row), lessThan(size(first, row)), reason: name);
+    }
+
+    // A run with no decay says nothing of it.
+    final TrainingTrace plain = edited(
+      (Map<String, Object?> json) => (json['config']! as Map<String, Object?>)['weight_decay'] = 0.0,
+    );
+    final LmInfo still = const UpdateScene().info(on(plain, inks, kit));
+    expect(still.sections.map((LmInfoSection s) => s.title), <String>['Rate']);
+    expect(words(still), contains('like the clip, are settings the run was given'));
   });
 }

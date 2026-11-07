@@ -6,6 +6,7 @@ import '../../../../shared/format.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
 import '../lm_format.dart';
+import '../lm_info_sheet.dart';
 import 'attention_scene.dart';
 import 'backward_scene.dart';
 import 'lm_drawing.dart';
@@ -1725,6 +1726,42 @@ final class UpdateScene extends LmScene {
 
   @override
   String describe(LmView view, TrainingFrame frame) => 'Update, step ${view.step}. ${caption(view, frame)}.';
+
+  /// Update's own page: what it takes and gives, which of its numbers the
+  /// run was given, and which weights its decay shrinks, in the run's
+  /// numbers.
+  @override
+  LmInfo info(LmView view) {
+    final TrainingTrace trace = view.trace;
+    final int parameters = trace.model.parameters;
+    final bool decays = trace.config.weightDecay > 0;
+    return LmInfo(
+      title: LmStage.update.label,
+      lead: 'Every weight gets its gradient and moves a step against it: the one stage that changes the model. '
+          'The stages before it only used the weights; the next step starts from these.',
+      sections: <LmInfoSection>[
+        LmInfoSection('Rate', <String>[
+          'The rate, its warm-up and its cosine, like the clip${decays ? ' and the decay' : ''}, are settings '
+              "the run was given: only the model's ${grouped(parameters)} numbers are trainable.",
+        ]),
+        if (decays)
+          LmInfoSection('Step', <String>[
+            'Decay shrinks only the weight matrices, ${grouped(decayed(trace))} of the ${grouped(parameters)} '
+                'numbers: never the embeddings, the biases or the LayerNorms.',
+          ]),
+      ],
+    );
+  }
+
+  /// How many of the model's numbers AdamW's decay shrinks: the weight
+  /// matrices alone, as the engine's `param_groups` sorts them: in every
+  /// block the query, key and value's, the output's and the feed-forward's
+  /// two, and the output layer's.
+  static int decayed(TrainingTrace trace) {
+    final TraceModel model = trace.model;
+    final int width = model.width;
+    return model.layers * (4 * width * width + 2 * model.feedForward * width) + trace.vocab.length * width;
+  }
 }
 
 /// What the worked token's row of weights is through AdamW: each number's
