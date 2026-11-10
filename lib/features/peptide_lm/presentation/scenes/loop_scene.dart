@@ -293,8 +293,8 @@ final class LoopScene extends LmScene {
     view.kit.draw(
       canvas,
       'nats',
-      inked(view.kit.sans, 8.5, view.inks.quiet, alpha: axes),
-      Offset(plot.left - 4, plot.top - 6),
+      nameStyle(view, axes),
+      Offset(layout.namesRight, plot.top - 6),
       anchor: const Offset(1, 1),
     );
 
@@ -408,8 +408,8 @@ final class LoopScene extends LmScene {
     if (label <= 0) {
       return;
     }
-    // Clear of the axis's numbers at the left, and of the canvas's side at
-    // the right.
+    // Clear of the axis's numbers and its name at the left, and of the
+    // canvas's side at the right.
     final double ax = head.dx < plot.left + 24
         ? 0
         : head.dx > plot.right - 40
@@ -420,11 +420,16 @@ final class LoopScene extends LmScene {
       view,
       nats(loss),
       inked(view.kit.mono, 10, view.inks.error, alpha: label),
-      head + Offset(ax == 0 ? -3 : 0, -9),
+      Offset(ax == 0 ? layout.writtenLeft(head.dx) : head.dx, head.dy - 9),
       Offset(ax, 1),
       label,
     );
   }
+
+  /// A scale's name in the gutter left of the plot, "nats" over the curve's
+  /// and "rate" by the rate's strip: a name in the label face, where the
+  /// numbers beside it are in the mono.
+  static TextStyle nameStyle(LmView view, double alpha) => inked(view.kit.sans, 8.5, view.inks.quiet, alpha: alpha);
 
   /// [text] at [at], [anchor] of its size there, on a backing of the ground,
   /// so a line it sits on never runs through it.
@@ -496,8 +501,8 @@ final class LoopScene extends LmScene {
     view.kit.draw(
       canvas,
       'rate',
-      inked(view.kit.mono, 8.5, view.inks.quiet, alpha: shown),
-      Offset(area.left - 5, area.center.dy),
+      nameStyle(view, shown),
+      Offset(layout.namesRight, area.center.dy),
       anchor: const Offset(1, 0.5),
     );
     final double written = math.min(shown, _written(pace, now));
@@ -1023,6 +1028,14 @@ final class LoopLayout {
   /// How many nats the plot is tall.
   late final double ceiling;
   late final int _count;
+
+  /// Where the scales' names end, in the gutter left of the plot: "nats"
+  /// over its numbers, "rate" by its strip.
+  double get namesRight => plot.left - 4;
+
+  /// Where a loss written by a point at the plot's left edge begins: just
+  /// left of the point, but clear of the name over the scale.
+  double writtenLeft(double headX) => math.max(headX - 3, namesRight + 6);
 
   /// Where [step] lies across the plot.
   double x(double step) => plot.left + plot.width * (_count <= 1 ? 1 : (step - 1) / (_count - 1));
