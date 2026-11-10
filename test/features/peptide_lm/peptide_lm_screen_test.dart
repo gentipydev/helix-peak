@@ -276,6 +276,22 @@ void main() {
     );
   });
 
+  testWidgets('the Step menu shows the step on screen in the accent, named as the pages name it', (
+    WidgetTester tester,
+  ) async {
+    await host(tester);
+    expect(find.byTooltip('Steps kept whole'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey<String>('peptide-lm-checkpoint')));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    Color? ink(TraceCheckpoint c) => tester.widget<Text>(find.textContaining('Step ${c.step} · ')).style?.color;
+    final Color accent = AppTheme.analysis.colorScheme.primary;
+    expect(ink(trace.checkpoints.first), accent);
+    for (final TraceCheckpoint c in trace.checkpoints.skip(1)) {
+      expect(ink(c), isNot(accent), reason: 'step ${c.step}');
+    }
+  });
+
   testWidgets("a caption's first line holds still while its stage plays", (WidgetTester tester) async {
     await host(tester);
     final Finder caption = find.byKey(const ValueKey<String>('peptide-lm-caption'));

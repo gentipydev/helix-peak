@@ -550,8 +550,8 @@ class _StagePlayer extends StatelessWidget {
   }
 }
 
-/// The checkpoint the eight stages show, picked from the steps that kept every
-/// activation, each with its loss.
+/// The step every stage but Loop shows, picked from the steps the run kept
+/// whole, each with its loss; the one on screen in the accent.
 class _CheckpointMenu extends StatelessWidget {
   const _CheckpointMenu({
     required this.trace,
@@ -570,16 +570,23 @@ class _CheckpointMenu extends StatelessWidget {
       color: theme.colorScheme.primary,
     );
     return PopupMenuButton<int>(
-      tooltip: 'Checkpoint',
+      // As Loop's page names them.
+      tooltip: 'Steps kept whole',
       initialValue: selected,
       onSelected: onSelected,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
         for (int i = 0; i < trace.checkpoints.length; i++)
           PopupMenuItem<int>(
             value: i,
-            child: Text(
-              'Step ${trace.checkpoints[i].step} · '
-              '${nats(trace.loss(trace.checkpoints[i].step))} nats',
+            child: Semantics(
+              selected: i == selected,
+              child: Text(
+                'Step ${trace.checkpoints[i].step} · '
+                '${nats(trace.loss(trace.checkpoints[i].step))} nats',
+                // The step on screen in the accent, as the button writes
+                // it and Loop ticks it.
+                style: i == selected ? TextStyle(color: theme.colorScheme.primary) : null,
+              ),
             ),
           ),
       ],
@@ -597,7 +604,6 @@ class _CheckpointMenu extends StatelessWidget {
               'Step ${trace.checkpoints[selected].step}',
               key: const ValueKey<String>('peptide-lm-checkpoint'),
               style: style,
-              semanticsLabel: 'Checkpoint, step ${trace.checkpoints[selected].step}',
             ),
           ),
         ),
