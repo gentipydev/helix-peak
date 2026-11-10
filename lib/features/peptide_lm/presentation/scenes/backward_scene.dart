@@ -620,9 +620,10 @@ final class BackwardScene extends LmScene {
   }
 
   /// The place's last row standing at the bench's left, as Predict stood
-  /// it: its tiles, outlined in the accent, its numbers at its left, its
-  /// name over it.
-  static void drawLastRow(Canvas canvas, LmView view, PredictLayout bench, double alpha) {
+  /// it: its tiles, outlined in the accent, its numbers at its left and its
+  /// name over it, those at [words] where they come or go apart from the
+  /// tiles.
+  static void drawLastRow(Canvas canvas, LmView view, PredictLayout bench, double alpha, {double? words}) {
     final List<double> row = bench.lastRow;
     drawColumn(canvas, bench.inputTile, <Color>[
       for (final double v in row) view.inks.cell(v / bench.lastScale).withValues(alpha: alpha),
@@ -639,7 +640,7 @@ final class BackwardScene extends LmScene {
       view,
       bench.inputTile,
       row,
-      alpha,
+      words ?? alpha,
       textSize: bench.textSize,
       writes: bench.writes,
       left: true,
@@ -648,7 +649,7 @@ final class BackwardScene extends LmScene {
       canvas,
       view,
       StreamTable.placeName(view, view.position),
-      alpha,
+      words ?? alpha,
       x: bench.inputX,
       top: bench.inputColumn.top,
     );

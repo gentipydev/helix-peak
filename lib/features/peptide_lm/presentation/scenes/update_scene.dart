@@ -45,93 +45,105 @@ final class UpdateScene extends LmScene {
   // Every mini-step holds long enough for its caption and its note to be
   // read: a beat is two seconds.
 
-  // A. Back to the output layer: Backward's table goes, and the bench comes
-  // in, the place's last row at the left, its p − y at the right, and the
-  // output layer's strings between them, faint.
-  static const (double, double) _tableOut = (0.1, 0.6);
-  static const (double, double) _benchIn = (0.4, 1.2);
+  // A. Back to the output layer, the way Predict came to it: a wave runs
+  // down Backward's table, each row's gradient dimming as its last row, what
+  // the output layer read, comes in where it was, under the table's new tag;
+  // the place in focus's row puts its numbers away and turns off the table
+  // into the bench's left column, as Predict stood it, while the rest of the
+  // table goes and its p − y comes in at the right with the plate; then the
+  // column's numbers and its name, and the output layer's strings between
+  // them, faint.
+  static const (double, double) _rewrite = (0.15, 1.05);
+  static const double _rowRewrite = 0.2;
+  static const (double, double) _gradientsTagOut = (0.1, 0.35);
+  static const (double, double) _rowsTagIn = (0.5, 0.75);
+  static const (double, double) _rowNumbersOut = (1.15, 1.3);
+  static const (double, double) _stand = (1.3, 2.0);
+  static const (double, double) _tableOut = (1.3, 1.7);
+  static const (double, double) _benchErrorsIn = (1.7, 2.3);
+  static const (double, double) _benchIn = (2.0, 2.6);
 
   // B. One weight: the other strings dim, the worked one lights from its
   // start to its end, its two ends ringed; then its product written on it.
-  static const double _oneFrom = 2.6;
-  static const (double, double) _dim = (2.6, 3.0);
-  static const (double, double) _lit = (2.7, 3.3);
-  static const (double, double) _rings = (3.1, 3.4);
-  static const double _productFrom = 4.8;
-  static const (double, double) _product = (4.8, 5.2);
+  static const double _oneFrom = 3.6;
+  static const (double, double) _dim = (3.6, 4.0);
+  static const (double, double) _lit = (3.7, 4.3);
+  static const (double, double) _rings = (4.1, 4.4);
+  static const double _productFrom = 5.8;
+  static const (double, double) _product = (5.8, 6.2);
 
   // C. The same weight at every place: the bench goes and every place's last
   // row comes onto the table, the worked number's column lit; the table
   // narrows to that column; each place's p − y at the worked token comes
   // beside it, then the pulls, top to bottom; the peptide's sum, then the
   // six peptides' in a box; the mean.
-  static const double _placesFrom = 7.0;
-  static const (double, double) _benchOut = (7.0, 7.4);
-  static const (double, double) _rowsIn = (7.2, 7.8);
-  static const (double, double) _columnLit = (7.8, 8.1);
-  static const double _pullsFrom = 8.8;
-  static const (double, double) _othersOut = (8.8, 9.1);
-  static const (double, double) _narrow = (9.0, 9.4);
-  static const (double, double) _errorsIn = (9.3, 9.7);
-  static const (double, double) _pulls = (9.7, 10.5);
-  static const double _sumsFrom = 10.8;
-  static const (double, double) _peptideSum = (10.8, 11.1);
-  static const (double, double) _boxIn = (11.0, 11.3);
-  static const (double, double) _boxLines = (11.2, 12.2);
-  static const double _meanFrom = 12.6;
-  static const (double, double) _mean = (12.6, 12.9);
+  static const double _placesFrom = 8.0;
+  static const (double, double) _benchOut = (8.0, 8.4);
+  static const (double, double) _rowsIn = (8.2, 8.8);
+  static const (double, double) _columnLit = (8.8, 9.1);
+  static const double _pullsFrom = 9.8;
+  static const (double, double) _othersOut = (9.8, 10.1);
+  static const (double, double) _narrow = (10.0, 10.4);
+  static const (double, double) _errorsIn = (10.3, 10.7);
+  static const (double, double) _pulls = (10.7, 11.5);
+  static const double _sumsFrom = 11.8;
+  static const (double, double) _peptideSum = (11.8, 12.1);
+  static const (double, double) _boxIn = (12.0, 12.3);
+  static const (double, double) _boxLines = (12.2, 13.2);
+  static const double _meanFrom = 13.6;
+  static const (double, double) _mean = (13.6, 13.9);
 
   // D. Every weight: the table goes and the grid comes on the bench's rows
   // as empty slots; the worked mean flies into its cell; the rest fill.
-  static const double _gridFrom = 14.4;
-  static const (double, double) _placesOut = (14.4, 14.8);
-  static const (double, double) _gridIn = (14.6, 15.0);
-  static const (double, double) _fly = (14.8, 15.3);
-  static const (double, double) _cells = (15.3, 16.3);
+  static const double _gridFrom = 15.4;
+  static const (double, double) _placesOut = (15.4, 15.8);
+  static const (double, double) _gridIn = (15.6, 16.0);
+  static const (double, double) _fly = (15.8, 16.3);
+  static const (double, double) _cells = (16.3, 17.3);
 
   // E. Every layer: the grid shrinks into the output layer's row of a chart
   // of the run's groups, and the others come in; then their length all
   // together, against the clip.
-  static const double _layersFrom = 17.4;
-  static const (double, double) _shrink = (17.4, 18.1);
-  static const (double, double) _groupsIn = (17.9, 19.0);
-  static const double _clipFrom = 20.0;
-  static const (double, double) _totalIn = (20.0, 20.8);
-  static const (double, double) _clipLine = (20.4, 20.8);
+  static const double _layersFrom = 18.4;
+  static const (double, double) _shrink = (18.4, 19.1);
+  static const (double, double) _groupsIn = (18.9, 20.0);
+  static const double _clipFrom = 21.0;
+  static const (double, double) _totalIn = (21.0, 21.8);
+  static const (double, double) _clipLine = (21.4, 21.8);
 
   // F. AdamW on the worked token's weights: the chart goes and the grid comes
   // back faint; the token's row of it stands up as a column, the weights
   // beside it, a bar each; the bars move to the running mean, take a mark at
   // the running size, go to their ratio, then flip and scale to the step;
   // they condense into a column, and the weights go through it to after.
-  static const double _adamFrom = 23.0;
-  static const (double, double) _chartOut = (23.0, 23.4);
-  static const (double, double) _gridBack = (23.2, 23.6);
-  static const (double, double) _standUp = (23.6, 24.3);
-  static const (double, double) _gridAway = (24.0, 24.4);
-  static const (double, double) _weightsIn = (24.1, 24.5);
-  static const (double, double) _barsIn = (24.3, 24.8);
-  static const double _runningFrom = 25.0;
-  static const (double, double) _toMean = (25.2, 26.0);
-  static const double _sizeFrom = 27.0;
-  static const (double, double) _marks = (27.2, 27.8);
-  static const double _ratioFrom = 29.0;
-  static const (double, double) _toRatio = (29.2, 30.0);
-  static const double _rateFrom = 31.0;
-  static const (double, double) _toStep = (31.2, 32.0);
-  static const (double, double) _scheduleIn = (31.3, 31.8);
-  static const double _afterFrom = 33.0;
-  static const (double, double) _condense = (33.2, 33.8);
-  static const (double, double) _slide = (33.8, 34.6);
+  static const double _adamFrom = 24.0;
+  static const (double, double) _chartOut = (24.0, 24.4);
+  static const (double, double) _gridBack = (24.2, 24.6);
+  static const (double, double) _standUp = (24.6, 25.3);
+  static const (double, double) _gridAway = (25.0, 25.4);
+  static const (double, double) _weightsIn = (25.1, 25.5);
+  static const (double, double) _barsIn = (25.3, 25.8);
+  static const double _runningFrom = 26.0;
+  static const (double, double) _toMean = (26.2, 27.0);
+  static const double _sizeFrom = 28.0;
+  static const (double, double) _marks = (28.2, 28.8);
+  static const double _ratioFrom = 30.0;
+  static const (double, double) _toRatio = (30.2, 31.0);
+  static const double _rateFrom = 32.0;
+  static const (double, double) _toStep = (32.2, 33.0);
+  static const (double, double) _scheduleIn = (32.3, 32.8);
+  static const double _afterFrom = 34.0;
+  static const (double, double) _condense = (34.2, 34.8);
+  static const (double, double) _slide = (34.8, 35.6);
 
   // G. Every weight: the columns go, the step lies down into its row of the
   // grid, and the grid shows every weight's step; then the weights after.
-  static const double _stepsFrom = 35.0;
-  static const (double, double) _adamOut = (35.0, 35.4);
-  static const (double, double) _lieDown = (35.2, 35.9);
-  static const (double, double) _gridSteps = (35.5, 36.0);
-  static const double _layerFrom = 36.5;
-  static const (double, double) _toAfter = (36.6, 37.2);
+  static const double _stepsFrom = 36.0;
+  static const (double, double) _adamOut = (36.0, 36.4);
+  static const (double, double) _lieDown = (36.2, 36.9);
+  static const (double, double) _gridSteps = (36.5, 37.0);
+  static const double _layerFrom = 37.5;
+  static const (double, double) _toAfter = (37.6, 38.2);
 
   static double _span(double beat, (double, double) span) => through(beat, span.$1, span.$2);
 
@@ -153,16 +165,13 @@ final class UpdateScene extends LmScene {
       return;
     }
     final UpdateLayout layout = UpdateLayout(size, view);
-    final double tableGone = _span(beat, _tableOut);
-    if (tableGone < 1) {
-      const BackwardScene().paintEnd(canvas, size, view, BackwardFade(note: 0, table: 1 - tableGone));
-    }
     layout.table.note(
       canvas,
       <(double, double, String)>[(double.negativeInfinity, 0.25, BackwardScene.notes(view).last.$3), ...notes(view)],
       beat,
       alpha: fade.note,
     );
+    _opening(canvas, view, layout, beat);
     _bench(canvas, view, layout, beat);
     _places(canvas, view, layout, beat);
     _grid(canvas, view, layout, beat, fade);
@@ -499,22 +508,111 @@ final class UpdateScene extends LmScene {
   /// A number as written, its true minus read back.
   static double _parse(String written) => double.parse(written.replaceAll('−', '-').replaceAll('+', ''));
 
+  // ----------------------------------------------------------- the opening
+
+  /// Backward's table, as it ends, turned to what the output layer read: a
+  /// wave down it, each row's gradient dimming as its last row comes in
+  /// where it was, the tag turning with it; then the place in focus's row
+  /// turning off the table into the bench's left column, as Predict stood
+  /// it, while the rest goes.
+  void _opening(Canvas canvas, LmView view, UpdateLayout layout, double beat) {
+    if (beat >= _stand.$2) {
+      return;
+    }
+    final StreamTable table = layout.table;
+    final PredictLayout bench = layout.bench;
+    final int places = table.places;
+    final double rest = 1 - _span(beat, _tableOut);
+    final double numbersOut = _span(beat, _rowNumbersOut);
+    final double gradientScale = BackwardScene.tableScale(view);
+    table.drawTiles(canvas, alpha: rest, dx: -table.gutter);
+    table.tag(canvas, BackwardScene.tableTag(view), 1 - _span(beat, _gradientsTagOut));
+    table.tag(canvas, rowsTag(view), _span(beat, _rowsTagIn) * rest);
+    for (int i = 0; i < places; i++) {
+      final bool focus = i == view.position;
+      if (focus && beat >= _stand.$1) {
+        continue;
+      }
+      final (double gradient, double last) = rewritten(i, places, beat);
+      // The gradient, as Backward wrote it, until the wave dims it.
+      if (gradient > 0 && last <= 0) {
+        table.drawRow(canvas, table.row(i), BackwardScene.gradient(view, 0, i), scale: gradientScale, fill: gradient, text: gradient);
+      }
+      final double filled = last * (focus ? 1 : rest);
+      if (filled <= 0) {
+        continue;
+      }
+      table.drawRow(
+        canvas,
+        table.row(i),
+        lastRow(view, view.peptide, i),
+        scale: bench.lastScale,
+        fill: filled,
+        text: filled * (focus ? 1 - numbersOut : 1),
+      );
+    }
+    if (beat < _stand.$1) {
+      // The place in focus's outline, as the table draws it, drawing in to
+      // the row's own numbers while they go, where the turn takes it up.
+      final Rect row = table.row(view.position);
+      final Rect around = Rect.fromLTRB(
+        table.layout.label(view.position).left - table.gutter - 3,
+        row.top,
+        row.right + 1,
+        row.bottom,
+      );
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(Rect.lerp(around, row.inflate(1), numbersOut)!, const Radius.circular(3)),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.2
+          ..color = view.inks.signal.withValues(alpha: 0.85),
+      );
+      return;
+    }
+    table.strip(
+      canvas,
+      from: table.row(view.position),
+      to: bench.inputColumn,
+      f: _span(beat, _stand),
+      colors: <Color>[for (final double v in bench.lastRow) view.inks.cell(v / bench.lastScale)],
+      outlined: true,
+    );
+  }
+
+  /// Place [i] of [places] as the wave down the table passes it at [beat]:
+  /// how much of its gradient is left, and how far its last row has come,
+  /// the one after the other, so a row never holds both.
+  @visibleForTesting
+  static (double, double) rewritten(int i, int places, double beat) {
+    final double from = _rewrite.$1 + (_rewrite.$2 - _rewrite.$1 - _rowRewrite) * (places <= 1 ? 0 : i / (places - 1));
+    final double turn = from + 0.4 * _rowRewrite;
+    return (1 - through(beat, from, turn), through(beat, turn, from + _rowRewrite));
+  }
+
   // ------------------------------------------------------------- the bench
 
   /// The output layer, as Backward left it before the climb: the place's last
-  /// row at the left, its p − y where the logits were made, the strings
-  /// between them, faint; the worked string lit and worked out.
+  /// row standing at the left, its p − y where the logits were made, the
+  /// strings between them, faint; the worked string lit and worked out.
   void _bench(Canvas canvas, LmView view, UpdateLayout layout, double beat) {
-    final double shown = _span(beat, _benchIn) * (1 - _span(beat, _benchOut));
-    if (shown <= 0) {
+    final double shown = 1 - _span(beat, _benchOut);
+    final double errors = _span(beat, _benchErrorsIn) * shown;
+    if (errors <= 0) {
       return;
     }
     final PredictLayout bench = layout.bench;
-    _strings(canvas, view, layout, beat, shown);
-    BackwardScene.drawLastRow(canvas, view, bench, shown);
-    BackwardScene.drawErrors(canvas, view, bench, dx: 0, tiles: shown, shown: shown, written: (int r) => 1);
-    PredictScene.drawPlate(canvas, view, bench, shown);
-    _ends(canvas, view, layout, beat, shown);
+    // p − y and the plate come in while the place's row is still landing;
+    // the strings, and the row's numbers and name, once it stands.
+    final bool standing = beat >= _stand.$2;
+    final double words = standing ? _span(beat, _benchIn) * shown : 0;
+    _strings(canvas, view, layout, beat, words);
+    if (standing) {
+      BackwardScene.drawLastRow(canvas, view, bench, shown, words: words);
+    }
+    BackwardScene.drawErrors(canvas, view, bench, dx: 0, tiles: errors, shown: errors, written: (int r) => 1);
+    PredictScene.drawPlate(canvas, view, bench, errors);
+    _ends(canvas, view, layout, beat, words);
   }
 
   /// The output layer's strings, a weight each, faint in its weight's colour;
@@ -1422,15 +1520,15 @@ final class UpdateScene extends LmScene {
 
   // ------------------------------------------------------------------- taps
 
-  /// Before the table goes, a row of it puts its place in focus, as at
-  /// Backward's end; on the table of every place's last row, a row puts its
-  /// place in focus; on the bench, the box, the grid, the chart and AdamW's
-  /// columns a tap asks for nothing.
+  /// While the table is up, Backward's and then every place's last row, a
+  /// row of it puts its place in focus; so it does on the table of every
+  /// place's last row later; once the row turns, and on the bench, the box,
+  /// the grid, the chart and AdamW's columns, a tap asks for nothing.
   @override
   LmHit? hitAt(Size size, LmView view, Offset at, TrainingFrame frame) {
     final double beat = frame.local * _beats;
-    if (beat < _tableOut.$2) {
-      return const BackwardScene().hit(size, view, at);
+    if (beat < _stand.$1) {
+      return hit(size, view, at);
     }
     if (beat >= _rowsIn.$2 && beat < _placesOut.$1) {
       if (beat >= _boxIn.$1 && UpdateLayout(size, view).box.inflate(4).contains(at)) {

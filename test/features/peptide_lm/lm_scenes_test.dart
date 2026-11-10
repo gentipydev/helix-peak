@@ -2095,19 +2095,19 @@ void main() {
       String at(double beat) => scene.caption(v, timeline.frameIn(LmStage.update, beat / LmStage.update.beats));
       final (String error, String number, String product) = UpdateScene.workedProduct(v);
       expect(at(1), startsWith('Back to the output layer'));
-      expect(at(3.5), contains('$number to its p − y'));
-      expect(at(3.5), endsWith(error));
+      expect(at(4.5), contains('$number to its p − y'));
+      expect(at(4.5), endsWith(error));
       if (product != '0.00') {
-        expect(at(5.5), endsWith(product));
+        expect(at(6.5), endsWith(product));
       }
-      expect(at(12), contains(UpdateScene.totalWritten(v)));
-      expect(at(13.5), contains(UpdateScene.meanWritten(v)));
-      expect(at(21), UpdateScene.total(v));
-      expect(at(21), contains(nats(trace.steps.gradNorm[v.step - 1])));
+      expect(at(13), contains(UpdateScene.totalWritten(v)));
+      expect(at(14.5), contains(UpdateScene.meanWritten(v)));
+      expect(at(22), UpdateScene.total(v));
+      expect(at(22), contains(nats(trace.steps.gradNorm[v.step - 1])));
       final AdamRow row = UpdateScene.adam(v);
       final int d = UpdateScene.worked(v).$2;
-      expect(at(34), contains(fixed(row.before[d], UpdateScene.stepDigits(v))));
-      expect(at(37.5), startsWith('The output layer after one update'));
+      expect(at(35), contains(fixed(row.before[d], UpdateScene.stepDigits(v))));
+      expect(at(38.5), startsWith('The output layer after one update'));
       // Every caption of the stage is a sentence of the run's, never empty.
       for (double beat = 0; beat <= LmStage.update.beats; beat += 0.25) {
         expect(at(beat), isNotEmpty);
@@ -2116,9 +2116,39 @@ void main() {
     // At step 1 AdamW has no past: the ratio is the sign.
     final LmView first = view(inks, kit);
     String at(double beat) => scene.caption(first, timeline.frameIn(LmStage.update, beat / LmStage.update.beats));
-    expect(at(26), contains('with no past, the gradient itself'));
+    expect(at(27), contains('with no past, the gradient itself'));
     expect(UpdateScene.signsAlone(first), isTrue);
-    expect(at(30), contains('the sign alone'));
+    expect(at(31), contains('the sign alone'));
+  });
+
+  test("Update's opening rewrites Backward's table a row at a time, never leaving it empty", () {
+    final int places = trace.peptides.first.inputs;
+    for (int i = 0; i < places; i++) {
+      // Every row starts as Backward left it, and ends as the output layer
+      // read it, the two never on one row at once.
+      expect(UpdateScene.rewritten(i, places, 0), (1.0, 0.0), reason: 'row $i');
+      expect(UpdateScene.rewritten(i, places, 1.2).$2, 1.0, reason: 'row $i');
+    }
+    double previous = -1;
+    for (double beat = 0; beat <= 1.3; beat += 0.01) {
+      int between = 0;
+      int first = -1;
+      for (int i = 0; i < places; i++) {
+        final (double gradient, double last) = UpdateScene.rewritten(i, places, beat);
+        expect(gradient > 0 && last > 0, isFalse, reason: 'row $i at $beat');
+        if (gradient < 0.5 && last < 0.5) {
+          between += 1;
+        }
+        if (first < 0 && last < 1) {
+          first = i;
+        }
+      }
+      // A few rows at most are between the two as the wave passes, and the
+      // wave only goes down.
+      expect(between, lessThanOrEqualTo(3), reason: 'at $beat');
+      expect(first >= previous || first < 0, isTrue, reason: 'at $beat');
+      previous = first < 0 ? places.toDouble() : first.toDouble();
+    }
   });
 
   testWidgets('a tap on Update asks for a place on the tables, nothing elsewhere', (WidgetTester tester) async {
@@ -2129,19 +2159,24 @@ void main() {
     final LmView v = view(inks, kit);
     TrainingFrame at(double beat) => timeline.frameIn(LmStage.update, beat / LmStage.update.beats);
     final StreamTable table = StreamTable(size, v);
-    // Backward's table, as the stage opens on it.
-    final LmHit? opening = scene.hitAt(size, v, table.row(2).center, at(0));
-    expect(opening, isA<FocusPosition>());
-    expect((opening! as FocusPosition).position, 2);
-    // The bench asks for nothing.
-    expect(scene.hitAt(size, v, table.row(2).center, at(4)), isNull);
+    // Backward's table, as the stage opens on it, and the same table as its
+    // rows turn to every place's last row.
+    for (final double beat in <double>[0, 0.6, 1.2]) {
+      final LmHit? opening = scene.hitAt(size, v, table.row(2).center, at(beat));
+      expect(opening, isA<FocusPosition>(), reason: 'beat $beat');
+      expect((opening! as FocusPosition).position, 2);
+    }
+    // Once the place's row turns, and on the bench, a tap asks for nothing.
+    for (final double beat in <double>[1.6, 5]) {
+      expect(scene.hitAt(size, v, table.row(2).center, at(beat)), isNull, reason: 'beat $beat');
+    }
     // Every place's last row: a row puts its place in focus, the box nothing.
-    final LmHit? row = scene.hitAt(size, v, Offset(table.layout.cellsLeft + 4, table.row(2).center.dy), at(10));
+    final LmHit? row = scene.hitAt(size, v, Offset(table.layout.cellsLeft + 4, table.row(2).center.dy), at(11));
     expect(row, isA<FocusPosition>());
     expect((row! as FocusPosition).position, 2);
-    expect(scene.hitAt(size, v, UpdateLayout(size, v).box.center, at(12)), isNull);
+    expect(scene.hitAt(size, v, UpdateLayout(size, v).box.center, at(13)), isNull);
     // The grid, the chart and AdamW's columns ask for nothing.
-    for (final double beat in <double>[16, 20, 30, 37]) {
+    for (final double beat in <double>[17, 21, 31, 38]) {
       expect(scene.hitAt(size, v, table.row(2).center, at(beat)), isNull, reason: 'beat $beat');
     }
   });

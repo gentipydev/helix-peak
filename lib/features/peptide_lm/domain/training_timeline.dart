@@ -19,7 +19,7 @@ enum LmStage {
   predict('Predict', 14),
   loss('Loss', 17),
   backward('Backward', 44),
-  update('Update', 38),
+  update('Update', 39),
   loop('Loop', 44);
 
   const LmStage(this.label, this.beats);
