@@ -47,19 +47,21 @@ class LmInfoSheet extends StatelessWidget {
               // What the stage takes and gives, the line to read first: in
               // the bright ink, over the sections' quiet paragraphs.
               Text(lead, style: text.bodyMedium?.copyWith(color: theme.colorScheme.onSurface)),
-              const SizedBox(height: 20),
+              if (info.sections.isNotEmpty) const SizedBox(height: 20),
             ],
-            for (final LmInfoSection section in info.sections)
+            for (int s = 0; s < info.sections.length; s++)
               Padding(
-                padding: const EdgeInsets.only(bottom: 20),
+                // Room under each section but the last, which ends on the
+                // list's own padding.
+                padding: EdgeInsets.only(bottom: s < info.sections.length - 1 ? 20 : 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(section.title, style: text.titleSmall),
+                    Text(info.sections[s].title, style: text.titleSmall),
                     const SizedBox(height: 6),
-                    for (int i = 0; i < section.paragraphs.length; i++) ...<Widget>[
+                    for (int i = 0; i < info.sections[s].paragraphs.length; i++) ...<Widget>[
                       if (i > 0) const SizedBox(height: 8),
-                      Text(section.paragraphs[i], style: text.bodyMedium),
+                      Text(info.sections[s].paragraphs[i], style: text.bodyMedium),
                     ],
                   ],
                 ),

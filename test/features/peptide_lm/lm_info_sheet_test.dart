@@ -32,4 +32,26 @@ void main() {
     }
     expect(theme.textTheme.bodyMedium?.color, isNot(theme.colorScheme.onSurface));
   });
+
+  testWidgets('a page ends one padding under its last line, as it starts its sides', (WidgetTester tester) async {
+    double end(String last) =>
+        tester.getRect(find.byKey(const ValueKey<String>('peptide-lm-info-sheet'))).bottom -
+        tester.getRect(find.text(last)).bottom;
+
+    await show(
+      tester,
+      const LmInfo(
+        title: 'Stage',
+        lead: 'What it takes, and what it gives.',
+        sections: <LmInfoSection>[
+          LmInfoSection('A part', <String>['First.']),
+          LmInfoSection('Another part', <String>['Last.']),
+        ],
+      ),
+    );
+    expect(end('Last.'), 24);
+    // A page of a lead alone ends as close under it.
+    await show(tester, const LmInfo(title: 'Stage', lead: 'Only a lead.', sections: <LmInfoSection>[]));
+    expect(end('Only a lead.'), 24);
+  });
 }
