@@ -276,6 +276,22 @@ void main() {
     );
   });
 
+  testWidgets("a caption's first line holds still while its stage plays", (WidgetTester tester) async {
+    await host(tester);
+    final Finder caption = find.byKey(const ValueKey<String>('peptide-lm-caption'));
+    final Set<double> tops = <double>{};
+    final Set<double> heights = <double>{};
+    for (int i = 0; i <= 2 * LmStage.tokenise.beats; i++) {
+      final Rect at = tester.getRect(caption);
+      tops.add(at.top);
+      heights.add(at.height);
+      await tester.pump(TrainingRunView.beat * 0.5);
+    }
+    // Captions of more than one height came and went, each from one top.
+    expect(heights.length, greaterThan(1));
+    expect(tops, hasLength(1));
+  });
+
   testWidgets("the header keeps the page's name whole, and still as the step changes", (
     WidgetTester tester,
   ) async {

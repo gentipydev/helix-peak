@@ -432,12 +432,21 @@ class _TrainingRunViewState extends State<TrainingRunView>
                         child: Row(
                           children: <Widget>[
                             Expanded(
-                              child: Semantics(
-                                liveRegion: true,
-                                child: Text(
-                                  sceneOf(frame.stage).caption(view, frame),
-                                  key: const ValueKey<String>('peptide-lm-caption'),
-                                  style: theme.textTheme.bodyMedium,
+                              // Each caption from the top of the stage's
+                              // tallest, so that its first line holds still
+                              // while the stage plays.
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(minHeight: reserve),
+                                child: Align(
+                                  alignment: AlignmentDirectional.topStart,
+                                  child: Semantics(
+                                    liveRegion: true,
+                                    child: Text(
+                                      sceneOf(frame.stage).caption(view, frame),
+                                      key: const ValueKey<String>('peptide-lm-caption'),
+                                      style: theme.textTheme.bodyMedium,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
