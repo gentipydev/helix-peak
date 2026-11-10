@@ -330,16 +330,15 @@ class _TrainingRunViewState extends State<TrainingRunView>
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const Text(
-              PeptideLmScreen.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            const _Whole(
+              Text(PeptideLmScreen.title, maxLines: 1),
             ),
-            Text(
-              'Recorded run · ${grouped(_trace.model.parameters)} parameters',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.caption,
+            _Whole(
+              Text(
+                'Recorded run · ${grouped(_trace.model.parameters)} parameters',
+                maxLines: 1,
+                style: theme.caption,
+              ),
             ),
           ],
         ),
@@ -488,6 +487,21 @@ class _TrainingRunViewState extends State<TrainingRunView>
   }
 }
 
+/// [child], a line of the header, shrunk just enough where the header is
+/// narrower than it, so the page's name is never cut short.
+class _Whole extends StatelessWidget {
+  const _Whole(this.child);
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => FittedBox(
+    fit: BoxFit.scaleDown,
+    alignment: AlignmentDirectional.centerStart,
+    child: child,
+  );
+}
+
 /// The player of the stage on screen, and of nothing else: it plays the
 /// stage again from its start, and pauses it or plays it on. Off with
 /// reduced motion, where each stage is one still.
@@ -543,6 +557,9 @@ class _CheckpointMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final TextStyle? style = theme.textTheme.labelLarge?.copyWith(
+      color: theme.colorScheme.primary,
+    );
     return PopupMenuButton<int>(
       tooltip: 'Checkpoint',
       initialValue: selected,
@@ -557,27 +574,44 @@ class _CheckpointMenu extends StatelessWidget {
             ),
           ),
       ],
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minWidth: kMinInteractiveDimension,
-          minHeight: kMinInteractiveDimension,
-        ),
-        child: Center(
-          widthFactor: 1,
-          heightFactor: 1,
+      // As wide as the widest step's name, whichever is picked, its own
+      // name at the end, where it always stood: the title beside it keeps
+      // its room as the step changes.
+      child: SizedBox(
+        width: math.max(kMinInteractiveDimension, _widest(context, style) + 16),
+        height: kMinInteractiveDimension,
+        child: Align(
+          alignment: AlignmentDirectional.centerEnd,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsetsDirectional.only(end: 8),
             child: Text(
               'Step ${trace.checkpoints[selected].step}',
               key: const ValueKey<String>('peptide-lm-checkpoint'),
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: theme.colorScheme.primary,
-              ),
+              style: style,
               semanticsLabel: 'Checkpoint, step ${trace.checkpoints[selected].step}',
             ),
           ),
         ),
       ),
     );
+  }
+
+  /// The width of the widest of the steps' names, as the button writes them.
+  double _widest(BuildContext context, TextStyle? style) {
+    final TextPainter painter = TextPainter(
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    );
+    final TextStyle written = DefaultTextStyle.of(context).style.merge(style);
+    double widest = 0;
+    for (final TraceCheckpoint checkpoint in trace.checkpoints) {
+      painter
+        ..text = TextSpan(text: 'Step ${checkpoint.step}', style: written)
+        ..layout();
+      widest = math.max(widest, painter.width);
+    }
+    painter.dispose();
+    return widest.ceilToDouble();
   }
 }

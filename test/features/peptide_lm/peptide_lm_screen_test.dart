@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/network/api_exception.dart';
@@ -273,6 +274,36 @@ void main() {
       tester.widget<Text>(find.byKey(const ValueKey<String>('peptide-lm-checkpoint'))).data,
       'Step 20',
     );
+  });
+
+  testWidgets("the header keeps the page's name whole, and still as the step changes", (
+    WidgetTester tester,
+  ) async {
+    await host(tester);
+    final Finder title = find.text(PeptideLmScreen.title);
+    final Finder subtitle = find.textContaining('Recorded run · ');
+    final Finder menu = find.byType(PopupMenuButton<int>);
+    // In the test's square glyphs the name is wider than its room: shrunk,
+    // never cut, and ending before the step's menu.
+    void whole() {
+      for (final Finder line in <Finder>[title, subtitle]) {
+        expect(tester.renderObject<RenderParagraph>(line).didExceedMaxLines, isFalse);
+        expect(tester.getRect(line).right, lessThanOrEqualTo(tester.getRect(menu).left));
+      }
+    }
+
+    whole();
+    final Rect name = tester.getRect(title);
+    final Size room = tester.getSize(menu);
+    await tester.tap(find.byKey(const ValueKey<String>('peptide-lm-checkpoint')));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(find.textContaining('Step 20 · '));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    whole();
+    expect(tester.getSize(menu), room);
+    expect(tester.getRect(title), name);
   });
 
   testWidgets('with reduced motion each stage is one still, played through', (
