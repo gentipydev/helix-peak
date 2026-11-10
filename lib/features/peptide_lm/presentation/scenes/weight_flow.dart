@@ -248,7 +248,8 @@ void drawColumn(Canvas canvas, Rect Function(int d) tile, List<Color> colors) {
 
 /// A column's [numbers], each beside its tile ([tile]), at its [left] or its
 /// right, in [textSize] where the bench [writes] numbers: to two places, or
-/// as [format] writes them.
+/// as [format] writes them; in the ink, or where [inkOf] names another for a
+/// number, in that.
 void drawColumnNumbers(
   Canvas canvas,
   LmView view,
@@ -260,6 +261,7 @@ void drawColumnNumbers(
   bool left = false,
   double Function(int d)? alphaOf,
   String Function(double value)? format,
+  Color? Function(int d)? inkOf,
 }) {
   if (alpha <= 0 || !writes) {
     return;
@@ -273,7 +275,7 @@ void drawColumnNumbers(
     view.kit.draw(
       canvas,
       format == null ? fixed(numbers[d], 2) : format(numbers[d]),
-      inked(view.kit.mono, textSize, view.inks.ink, alpha: a),
+      inked(view.kit.mono, textSize, inkOf?.call(d) ?? view.inks.ink, alpha: a),
       left ? Offset(at.left - 4, at.center.dy) : Offset(at.right + 4, at.center.dy),
       anchor: Offset(left ? 1 : 0, 0.5),
     );

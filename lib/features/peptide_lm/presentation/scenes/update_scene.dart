@@ -64,13 +64,14 @@ final class UpdateScene extends LmScene {
   static const (double, double) _benchIn = (2.0, 2.6);
 
   // B. One weight: the other strings dim, the worked one lights from its
-  // start to its end, its two ends ringed; then its product written on it.
+  // start to its end, the numbers at its two ends written in its honey;
+  // then its product written on it.
   static const double _oneFrom = 3.6;
   static const (double, double) _dim = (3.6, 4.0);
   static const (double, double) _lit = (3.7, 4.3);
-  static const (double, double) _rings = (4.1, 4.4);
+  static const (double, double) _endsLit = (4.1, 4.4);
   static const double _productFrom = 5.8;
-  static const (double, double) _product = (5.8, 6.2);
+  static const (double, double) _productIn = (5.8, 6.2);
 
   // C. The same weight at every place: the bench goes the way it came, the
   // place's column lying back down into its row and every other place's
@@ -610,13 +611,26 @@ final class UpdateScene extends LmScene {
     // but the row's tiles, which lie back down into the table.
     final bool standing = beat >= _stand.$2;
     final double words = standing ? _span(beat, _benchIn) * shown : 0;
+    // The worked string's two numbers, its start's and its end's, in its
+    // honey once it has lit.
+    final (int r, int d) = worked(view);
+    final Color honey = Color.lerp(view.inks.ink, view.inks.error, _span(beat, _endsLit))!;
     _strings(canvas, view, layout, beat, words);
     if (standing) {
-      BackwardScene.drawLastRow(canvas, view, bench, 1, words: words);
+      BackwardScene.drawLastRow(canvas, view, bench, 1, words: words, inkOf: (int e) => e == d ? honey : null);
     }
-    BackwardScene.drawErrors(canvas, view, bench, dx: 0, tiles: errors, shown: errors, written: (int r) => 1);
+    BackwardScene.drawErrors(
+      canvas,
+      view,
+      bench,
+      dx: 0,
+      tiles: errors,
+      shown: errors,
+      written: (int k) => 1,
+      inkOf: (int k) => k == r ? honey : null,
+    );
     PredictScene.drawPlate(canvas, view, bench, errors);
-    _ends(canvas, view, layout, beat, words);
+    _product(canvas, view, layout, beat, words);
   }
 
   /// The output layer's strings, a weight each, faint in its weight's colour;
@@ -656,18 +670,11 @@ final class UpdateScene extends LmScene {
     }
   }
 
-  /// The worked string's two ends ringed, the number at its start in the
-  /// accent and the error at its end in honey, and its product written on
-  /// it, on a card.
-  void _ends(Canvas canvas, LmView view, UpdateLayout layout, double beat, double alpha) {
+  /// The worked string's product written on it, on a card.
+  void _product(Canvas canvas, LmView view, UpdateLayout layout, double beat, double alpha) {
     final PredictLayout bench = layout.bench;
     final (int r, int d) = worked(view);
-    final double rings = _span(beat, _rings) * alpha;
-    if (rings > 0) {
-      _ring(canvas, bench.inputTile(d), view.inks.signal, rings);
-      layout.backward.ring(canvas, view, bench.logitTile(r, 0), rings);
-    }
-    final double written = _span(beat, _product) * alpha;
+    final double written = _span(beat, _productIn) * alpha;
     if (written <= 0) {
       return;
     }
@@ -686,20 +693,6 @@ final class UpdateScene extends LmScene {
     drawCard(canvas, view, card, written);
     view.kit.draw(canvas, factors, mono, Offset(card.left + 6, card.center.dy), anchor: const Offset(0, 0.5));
     view.kit.draw(canvas, product, honey, Offset(card.left + 6 + first, card.center.dy), anchor: const Offset(0, 0.5));
-  }
-
-  /// A tile ringed in [color].
-  static void _ring(Canvas canvas, Rect tile, Color color, double alpha) {
-    if (alpha <= 0) {
-      return;
-    }
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(tile.inflate(1), const Radius.circular(2.5)),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.3
-        ..color = color.withValues(alpha: color.a * alpha),
-    );
   }
 
   // ------------------------------------------------------------ the places
@@ -806,10 +799,15 @@ final class UpdateScene extends LmScene {
       final double made = _pullMade(i, places, beat) * alpha;
       if (made > 0) {
         final Rect cell = layout.column(2).shift(Offset(0, rowTop - layout.column(2).top));
-        layout.cellAt(canvas, view, cell, view.inks.cell(line[i] / pullMost), writtenPull(view, i), made);
-        if (i == view.position) {
-          layout.backward.ring(canvas, view, cell, made);
-        }
+        layout.cellAt(
+          canvas,
+          view,
+          cell,
+          view.inks.cell(line[i] / pullMost),
+          writtenPull(view, i),
+          made,
+          ink: i == view.position ? view.inks.error : null,
+        );
       }
     }
     // The place in focus's row, outlined from its tile to the columns' end,
@@ -936,14 +934,13 @@ final class UpdateScene extends LmScene {
         Offset(left, y),
         anchor: const Offset(0, 0.5),
       );
-      final Size wide = view.kit.draw(
+      view.kit.draw(
         canvas,
         meanWritten(view),
         inked(view.kit.mono, text, view.inks.error, alpha: mean),
         Offset(right, y),
         anchor: const Offset(1, 0.5),
       );
-      layout.backward.ring(canvas, view, Rect.fromLTWH(right - wide.width - 2, y - wide.height / 2 - 1, wide.width + 4, wide.height + 2), mean);
     }
   }
 
@@ -971,7 +968,6 @@ final class UpdateScene extends LmScene {
         made: (int k, int e) => 1,
         colour: (int k, int e) => Color.lerp(_stepColour(view, k, e), _afterColour(view, k, e), after)!,
         hidden: beat < _lieDown.$2 ? r : null,
-        ringed: shown,
         status: after >= 0.5 ? ScoresScene.weightsStatus(view, after: true) : null,
       );
       return;
@@ -1006,7 +1002,6 @@ final class UpdateScene extends LmScene {
       made: (int k, int e) => _cellMade(k, e, r, d, view.trace.vocab.length, beat),
       colour: (int k, int e) => _gradientColour(view, k, e),
       struck: true,
-      ringed: through(beat, _fly.$2 - 0.05, _fly.$2 + 0.15) * (1 - shrink),
       chrome: _span(beat, _gridIn) * (1 - through(beat, _shrink.$1, _shrink.$1 + 0.3)),
     );
     // The worked mean, flying from the box into its cell.
@@ -1026,8 +1021,7 @@ final class UpdateScene extends LmScene {
   /// The grid in [rect] at [alpha]: each cell [made] of the way from an
   /// empty slot to its [colour]; token [hidden]'s row left out, where it is
   /// drawn standing or lying elsewhere; never-next rows [struck]; the rows'
-  /// tokens, the numbers' names, the worked cell [ringed], and the plate
-  /// with its [status].
+  /// tokens, the numbers' names, and the plate with its [status].
   void _drawGrid(
     Canvas canvas,
     LmView view,
@@ -1038,7 +1032,6 @@ final class UpdateScene extends LmScene {
     required Color Function(int k, int e) colour,
     int? hidden,
     bool struck = false,
-    double ringed = 0,
     String? status,
     double? chrome,
   }) {
@@ -1079,11 +1072,6 @@ final class UpdateScene extends LmScene {
         }
       }
     }
-    if (rect != layout.grid) {
-      return;
-    }
-    final (int r, int d) = worked(view);
-    layout.backward.ring(canvas, view, layout.gridCell(r, d), ringed);
   }
 
   /// Cell ([k], [e])'s colours: the output layer's gradient, the step, the
@@ -1271,7 +1259,18 @@ final class UpdateScene extends LmScene {
         ],
       );
     } else {
-      _column(canvas, view, layout, layout.gradientX, cells(row.gradient, gradientMost), row.gradient, gradientDigits(view), alpha * (1 - gone), title: 'gradient');
+      _column(
+        canvas,
+        view,
+        layout,
+        layout.gradientX,
+        cells(row.gradient, gradientMost),
+        row.gradient,
+        gradientDigits(view),
+        alpha * (1 - gone),
+        title: 'gradient',
+        worked: d,
+      );
     }
 
     // The weights as the step found them, at the left.
@@ -1287,6 +1286,7 @@ final class UpdateScene extends LmScene {
       weights,
       left: true,
       title: "${view.trace.token(row.token)}'s weights",
+      worked: d,
     );
 
     // The chart: a bar a weight, through AdamW's rule.
@@ -1300,7 +1300,7 @@ final class UpdateScene extends LmScene {
     final double lying = _span(beat, _lieDown);
     final List<Color> steps = <Color>[for (final double v in row.step) view.inks.cell(v / stepMost)];
     if (gone > 0 && beat < _lieDown.$1) {
-      _column(canvas, view, layout, layout.stepX, steps, row.step, stepPlaces, gone * alpha, title: 'step', signedNumbers: true);
+      _column(canvas, view, layout, layout.stepX, steps, row.step, stepPlaces, gone * alpha, title: 'step', signedNumbers: true, worked: d);
     } else if (beat >= _lieDown.$1) {
       table.strip(
         canvas,
@@ -1323,21 +1323,7 @@ final class UpdateScene extends LmScene {
         final double x = _lerp(layout.weightsX, layout.afterX, slide);
         drawColumn(canvas, (int e) => layout.adamTile(x, e), <Color>[for (final Color c in moving) c.withValues(alpha: c.a * alpha)]);
       } else {
-        _column(canvas, view, layout, layout.afterX, moving, row.after, stepPlaces, alpha, title: 'after');
-      }
-    }
-
-    // The worked number's row, ringed in every column it stands in.
-    if (weights > 0) {
-      layout.backward.ring(canvas, view, layout.adamTile(layout.weightsX, d), weights);
-      if (stand >= 1 && gone < 1) {
-        layout.backward.ring(canvas, view, layout.adamTile(layout.gradientX, d), weights * (1 - gone));
-      }
-      if (gone > 0 && beat < _lieDown.$1) {
-        layout.backward.ring(canvas, view, layout.adamTile(layout.stepX, d), weights * gone);
-      }
-      if (slide >= 1 && beat < _lieDown.$1) {
-        layout.backward.ring(canvas, view, layout.adamTile(layout.afterX, d), weights);
+        _column(canvas, view, layout, layout.afterX, moving, row.after, stepPlaces, alpha, title: 'after', worked: d);
       }
     }
 
@@ -1345,8 +1331,8 @@ final class UpdateScene extends LmScene {
   }
 
   /// A standing column at [x], a tile a number in [colours], [numbers]
-  /// written to [digits] places at its right, or its [left]; its [title]
-  /// over it.
+  /// written to [digits] places at its right, or its [left], the [worked]
+  /// number's in honey; its [title] over it.
   void _column(
     Canvas canvas,
     LmView view,
@@ -1359,6 +1345,7 @@ final class UpdateScene extends LmScene {
     bool left = false,
     String? title,
     bool signedNumbers = false,
+    int? worked,
   }) {
     if (alpha <= 0) {
       return;
@@ -1374,6 +1361,7 @@ final class UpdateScene extends LmScene {
       writes: layout.adamWrites,
       left: left,
       format: (double v) => signedNumbers && double.parse(v.abs().toStringAsFixed(digits)) != 0 ? signed(v, digits) : fixed(v, digits),
+      inkOf: (int e) => e == worked ? view.inks.error : null,
     );
     if (title != null) {
       drawColumnTitle(canvas, view, title, alpha, x: x, top: layout.bench.benchTop);
@@ -2104,8 +2092,9 @@ final class UpdateLayout {
   }
 
   /// A number on a soft tile, written in the table's face where it fits,
-  /// at [text] where it comes or goes apart from its tile.
-  void cellAt(Canvas canvas, LmView view, Rect cell, Color colour, String number, double alpha, {double? text}) {
+  /// at [text] where it comes or goes apart from its tile, in [ink] where
+  /// it is the worked weight's.
+  void cellAt(Canvas canvas, LmView view, Rect cell, Color colour, String number, double alpha, {double? text, Color? ink}) {
     if (alpha <= 0) {
       return;
     }
@@ -2119,7 +2108,7 @@ final class UpdateLayout {
       view.kit.draw(
         canvas,
         number,
-        style.copyWith(color: style.color!.withValues(alpha: (written * 8).round() / 8)),
+        style.copyWith(color: (ink ?? style.color!).withValues(alpha: (written * 8).round() / 8)),
         cell.center,
         anchor: const Offset(0.5, 0.5),
       );

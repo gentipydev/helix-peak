@@ -468,9 +468,10 @@ final class BackwardScene extends LmScene {
 
   /// The column of errors where the logits were made, [dx] along: each
   /// token's tile, its p − y written beside it (each [written] of the way,
-  /// never at the two that never come next), its chip where [chipShown]
-  /// says; the two that never come next struck. The tiles and the column's
-  /// name at [tiles], the numbers and chips at [shown].
+  /// never at the two that never come next, in the ink or as [inkOf] names
+  /// another), its chip where [chipShown] says; the two that never come next
+  /// struck. The tiles and the column's name at [tiles], the numbers and
+  /// chips at [shown].
   static void drawErrors(
     Canvas canvas,
     LmView view,
@@ -480,6 +481,7 @@ final class BackwardScene extends LmScene {
     required double shown,
     required double Function(int r) written,
     bool Function(int r)? chipShown,
+    Color? Function(int r)? inkOf,
   }) {
     final TrainingTrace trace = view.trace;
     final List<double> error = errors(view, view.position);
@@ -497,6 +499,7 @@ final class BackwardScene extends LmScene {
       writes: bench.writes,
       alphaOf: (int r) => trace.allowedIndex(r) < 0 ? 0 : written(r),
       format: signedNumber,
+      inkOf: inkOf,
     );
     for (int r = 0; r < trace.vocab.length; r++) {
       final Rect tile = bench.logitTile(r, dx);
@@ -620,10 +623,17 @@ final class BackwardScene extends LmScene {
   }
 
   /// The place's last row standing at the bench's left, as Predict stood
-  /// it: its tiles, outlined in the accent, its numbers at its left and its
-  /// name over it, those at [words] where they come or go apart from the
-  /// tiles.
-  static void drawLastRow(Canvas canvas, LmView view, PredictLayout bench, double alpha, {double? words}) {
+  /// it: its tiles, outlined in the accent, its numbers at its left (in the
+  /// ink, or as [inkOf] names another) and its name over it, those at
+  /// [words] where they come or go apart from the tiles.
+  static void drawLastRow(
+    Canvas canvas,
+    LmView view,
+    PredictLayout bench,
+    double alpha, {
+    double? words,
+    Color? Function(int d)? inkOf,
+  }) {
     final List<double> row = bench.lastRow;
     drawColumn(canvas, bench.inputTile, <Color>[
       for (final double v in row) view.inks.cell(v / bench.lastScale).withValues(alpha: alpha),
@@ -644,6 +654,7 @@ final class BackwardScene extends LmScene {
       textSize: bench.textSize,
       writes: bench.writes,
       left: true,
+      inkOf: inkOf,
     );
     drawColumnTitle(
       canvas,
