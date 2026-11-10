@@ -72,15 +72,18 @@ final class UpdateScene extends LmScene {
   static const double _productFrom = 5.8;
   static const (double, double) _product = (5.8, 6.2);
 
-  // C. The same weight at every place: the bench goes and every place's last
-  // row comes onto the table, the worked number's column lit; the table
-  // narrows to that column; each place's p − y at the worked token comes
-  // beside it, then the pulls, top to bottom; the peptide's sum, then the
-  // six peptides' in a box; the mean.
+  // C. The same weight at every place: the bench goes the way it came, the
+  // place's column lying back down into its row and every other place's
+  // last row coming back round it; the other numbers dim, leaving the worked
+  // number's column; the table narrows to that column; each place's p − y
+  // at the worked token comes beside it, then the pulls, top to bottom; the
+  // peptide's sum, then the six peptides' in a box; the mean.
   static const double _placesFrom = 8.0;
-  static const (double, double) _benchOut = (8.0, 8.4);
-  static const (double, double) _rowsIn = (8.2, 8.8);
-  static const (double, double) _columnLit = (8.8, 9.1);
+  static const (double, double) _benchOut = (8.0, 8.3);
+  static const (double, double) _lieBack = (8.3, 8.9);
+  static const (double, double) _outlineWiden = (8.9, 9.1);
+  static const (double, double) _rowsIn = (8.8, 9.3);
+  static const (double, double) _columnPicked = (9.3, 9.6);
   static const double _pullsFrom = 9.8;
   static const (double, double) _othersOut = (9.8, 10.1);
   static const (double, double) _narrow = (10.0, 10.4);
@@ -596,19 +599,20 @@ final class UpdateScene extends LmScene {
   /// row standing at the left, its p − y where the logits were made, the
   /// strings between them, faint; the worked string lit and worked out.
   void _bench(Canvas canvas, LmView view, UpdateLayout layout, double beat) {
-    final double shown = 1 - _span(beat, _benchOut);
-    final double errors = _span(beat, _benchErrorsIn) * shown;
-    if (errors <= 0) {
+    if (beat < _benchErrorsIn.$1 || beat >= _lieBack.$1) {
       return;
     }
     final PredictLayout bench = layout.bench;
+    final double shown = 1 - _span(beat, _benchOut);
+    final double errors = _span(beat, _benchErrorsIn) * shown;
     // p − y and the plate come in while the place's row is still landing;
-    // the strings, and the row's numbers and name, once it stands.
+    // the strings, and the row's numbers and name, once it stands; all go
+    // but the row's tiles, which lie back down into the table.
     final bool standing = beat >= _stand.$2;
     final double words = standing ? _span(beat, _benchIn) * shown : 0;
     _strings(canvas, view, layout, beat, words);
     if (standing) {
-      BackwardScene.drawLastRow(canvas, view, bench, shown, words: words);
+      BackwardScene.drawLastRow(canvas, view, bench, 1, words: words);
     }
     BackwardScene.drawErrors(canvas, view, bench, dx: 0, tiles: errors, shown: errors, written: (int r) => 1);
     PredictScene.drawPlate(canvas, view, bench, errors);
@@ -700,13 +704,14 @@ final class UpdateScene extends LmScene {
 
   // ------------------------------------------------------------ the places
 
-  /// The same weight at every place: every place's last row on the table,
-  /// the worked number's column lit; the table narrowed to that column, each
-  /// place's p − y at the worked token beside it, and each place's pull;
-  /// the peptide's sum under them; the six peptides' sums in a box, and the
-  /// mean.
+  /// The same weight at every place: the place's column lying back down
+  /// into its row of the table, every other place's last row coming back
+  /// round it; the other numbers dimming, leaving the worked number's
+  /// column; the table narrowed to it, each place's p − y at the worked
+  /// token beside it, and each place's pull; the peptide's sum under them;
+  /// the six peptides' sums in a box, and the mean.
   void _places(Canvas canvas, LmView view, UpdateLayout layout, double beat) {
-    if (beat < _rowsIn.$1) {
+    if (beat < _lieBack.$1) {
       return;
     }
     final double alpha = 1 - _span(beat, _placesOut);
@@ -714,17 +719,41 @@ final class UpdateScene extends LmScene {
       return;
     }
     final StreamTable table = layout.table;
+    final PredictLayout bench = layout.bench;
     final int places = table.places;
     final (int r, int d) = worked(view);
+    final double scale = bench.lastScale;
+    final double lie = _span(beat, _lieBack);
+    if (lie < 1) {
+      table.strip(
+        canvas,
+        from: table.row(view.position),
+        to: bench.inputColumn,
+        f: 1 - lie,
+        colors: <Color>[for (final double v in bench.lastRow) view.inks.cell(v / scale)],
+        outlined: true,
+      );
+    }
     final double rows = _span(beat, _rowsIn) * alpha;
+    final double landed = (lie >= 1 ? 1.0 : 0.0) * alpha;
+    double rowShown(int i) => i == view.position ? landed : rows;
     final double others = 1 - _span(beat, _othersOut);
+    final double kept = 1 - 0.65 * _span(beat, _columnPicked);
     final double narrow = _span(beat, _narrow);
     final double errorsShown = _span(beat, _errorsIn) * alpha;
-    final double scale = layout.bench.lastScale;
     final TextStyle? style = table.layout.numberStyle;
+    final double widen = _span(beat, _outlineWiden);
 
     table.tag(canvas, rowsTag(view), rows * others);
-    table.drawTiles(canvas, alpha: rows, dx: -table.gutter);
+    for (int i = 0; i < places; i++) {
+      drawToken(
+        canvas,
+        view,
+        table.layout.label(i).shift(Offset(-table.gutter, 0)),
+        view.trace.inputAt(view.peptide, i),
+        alpha: i == view.position ? widen * alpha : rows,
+      );
+    }
 
     // Where the worked token came next, the row lit softly, as Predict lights
     // what came next.
@@ -739,39 +768,28 @@ final class UpdateScene extends LmScene {
       );
     }
 
-    // The worked column, outlined while the whole rows show, going with the
-    // column as the table narrows.
-    final double lit = _span(beat, _columnLit) * (1 - narrow) * rows;
-    if (lit > 0) {
-      final double dx = (layout.column(0).left - layout.tableCell(0, d).left) * narrow;
-      final Rect first = layout.tableCell(0, d).shift(Offset(dx, 0));
-      final Rect last = layout.tableCell(places - 1, d).shift(Offset(dx, 0));
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(Rect.fromLTRB(first.left - 1, first.top - 1, first.right + 1, last.bottom + 1), const Radius.circular(3)),
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.2
-          ..color = view.inks.signal.withValues(alpha: 0.85 * lit),
-      );
-    }
-
     final List<double> line = pulls(view)[view.peptide];
     final double pullMost = pullScale(view);
     for (int i = 0; i < places; i++) {
       final List<double> h = lastRow(view, view.peptide, i);
       final double rowTop = table.row(i).top;
-      // Every other number of the row, until the table narrows.
+      final double shown = rowShown(i);
+      // The place's own row writes its numbers again once it has landed.
+      final double written = i == view.position ? shown * widen : shown;
+      // Every other number of the row, dimming to leave the worked number's
+      // column, until the table narrows.
       if (others > 0) {
         for (int k = 0; k < h.length; k++) {
           if (k != d) {
-            layout.cellAt(canvas, view, layout.tableCell(i, k), view.inks.cell(h[k] / scale), fixed(h[k], 2), rows * others);
+            final double a = shown * others * kept;
+            layout.cellAt(canvas, view, layout.tableCell(i, k), view.inks.cell(h[k] / scale), fixed(h[k], 2), a, text: math.min(a, written));
           }
         }
       }
       // The worked number, sliding beside the tiles as the table narrows.
       final Rect from = layout.tableCell(i, d);
       final Rect to = layout.column(0).shift(Offset(0, rowTop - layout.column(0).top));
-      layout.cellAt(canvas, view, Rect.lerp(from, to, narrow)!, view.inks.cell(h[d] / scale), fixed(h[d], 2), rows);
+      layout.cellAt(canvas, view, Rect.lerp(from, to, narrow)!, view.inks.cell(h[d] / scale), fixed(h[d], 2), shown, text: written);
       // Its p − y at the worked token.
       if (errorsShown > 0) {
         final double e = BackwardScene.errors(view, i)[r];
@@ -794,14 +812,25 @@ final class UpdateScene extends LmScene {
         }
       }
     }
-    // The place in focus's row, outlined from its tile to the columns' end.
-    table.outline(
-      canvas,
-      view.position,
-      _lerp(table.row(view.position).right, layout.column(2).right, narrow),
-      rows,
-      dx: -table.gutter,
-    );
+    // The place in focus's row, outlined from its tile to the columns' end,
+    // once it has landed: from the row's own numbers, where the turn left
+    // it, out to its tile.
+    if (landed > 0) {
+      final Rect row = table.row(view.position);
+      final Rect around = Rect.fromLTRB(
+        table.layout.label(view.position).left - table.gutter - 3,
+        row.top,
+        _lerp(row.right, layout.column(2).right, narrow) + 1,
+        row.bottom,
+      );
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(Rect.lerp(row.inflate(1), around, widen)!, const Radius.circular(3)),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.2
+          ..color = view.inks.signal.withValues(alpha: 0.85 * landed),
+      );
+    }
 
     // The columns' names, once the table has narrowed, where the tag was.
     final double named = through(beat, _narrow.$2 - 0.1, _narrow.$2 + 0.2) * alpha;
@@ -2074,8 +2103,9 @@ final class UpdateLayout {
     return Rect.fromLTWH(_cellsLeft + k * _columnStep, row.top, _cell, row.height);
   }
 
-  /// A number on a soft tile, written in the table's face where it fits.
-  void cellAt(Canvas canvas, LmView view, Rect cell, Color colour, String text, double alpha) {
+  /// A number on a soft tile, written in the table's face where it fits,
+  /// at [text] where it comes or goes apart from its tile.
+  void cellAt(Canvas canvas, LmView view, Rect cell, Color colour, String number, double alpha, {double? text}) {
     if (alpha <= 0) {
       return;
     }
@@ -2084,11 +2114,12 @@ final class UpdateLayout {
       Paint()..color = Color.lerp(view.inks.ground, colour, alpha)!,
     );
     final TextStyle? style = table.layout.numberStyle;
-    if (style != null) {
+    final double written = text ?? alpha;
+    if (style != null && written > 0) {
       view.kit.draw(
         canvas,
-        text,
-        style.copyWith(color: style.color!.withValues(alpha: (alpha * 8).round() / 8)),
+        number,
+        style.copyWith(color: style.color!.withValues(alpha: (written * 8).round() / 8)),
         cell.center,
         anchor: const Offset(0.5, 0.5),
       );
