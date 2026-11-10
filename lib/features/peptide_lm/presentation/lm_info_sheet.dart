@@ -30,7 +30,8 @@ class LmInfoSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextTheme text = Theme.of(context).textTheme;
+    final ThemeData theme = Theme.of(context);
+    final TextTheme text = theme.textTheme;
     final String? lead = info.lead;
     return SafeArea(
       child: ConstrainedBox(
@@ -43,7 +44,9 @@ class LmInfoSheet extends StatelessWidget {
             Text(info.title, style: text.titleLarge),
             const SizedBox(height: 22),
             if (lead != null) ...<Widget>[
-              Text(lead, style: text.bodyMedium),
+              // What the stage takes and gives, the line to read first: in
+              // the bright ink, over the sections' quiet paragraphs.
+              Text(lead, style: text.bodyMedium?.copyWith(color: theme.colorScheme.onSurface)),
               const SizedBox(height: 20),
             ],
             for (final LmInfoSection section in info.sections)
