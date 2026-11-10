@@ -995,8 +995,9 @@ shows. Tokenise's, part by part:
 Left out: the peptides' names and the commonest count (the canvas and the
 caption say them), the floor and residue counts worked out (Loss's and
 Loop's own notes carry them), text models' word pieces, and why only six
-peptides. The page scrolls by about 73 pt on a 440 × 956 phone and more on
-smaller ones.
+peptides. The page scrolls by 53 pt on a 440 × 956 phone and more on
+smaller ones (73 pt until 2026-11-10, when a page came to end 24 pt under
+its last line).
 
 Shift's carries its stage, whose canvas says nothing but its captions, and
 answers the user's three questions of 2026-10-30 (what x and y are, whether
@@ -1111,10 +1112,65 @@ the About sheet's paragraph and the peptides' records, from the run's own
 record (`LoopScene.thisRun`). Left out: the run's shape (its captions
 narrate every move) and the corpus run's size (not in the run's record).
 
-Every page fits a 440 × 956 without scrolling. On a 393 × 852 only Loop's
-scrolls, 10 pt; on a 375 × 667 Shift's 154 pt, Embedding's 53, Scores' 7
-and Loop's 179. A test holds every page to the sheet's font (no glyph Space
+Every page fits a 440 × 956 without scrolling, and a 393 × 852 too; on a
+375 × 667 Shift's scrolls 134 pt, Embedding's 33 and Loop's 159. These are
+since 2026-11-10, when a page came to end 24 pt under its last line, not
+44: before, Loop's scrolled 10 pt on a 393 × 852 and Scores' 7 on a 375. A test holds every page to the sheet's font (no glyph Space
 Grotesk lacks) and the app's voice.
+
+## The page's frame
+
+What holds the stages: the header, the caption under the canvas beside the
+stage's player, the stage bar, the Step menu and the info sheet. A pass on
+2026-11-10 (the user's ask: small improvements across the whole flow, the
+flow itself untouched) measured each in the app's own fonts, on the real
+run, at 440, 402 and 375 pt, and fixed what it found; the user picked the
+three calls that were a matter of taste.
+
+- **Header.** "Peptide Language Model" is 240 pt wide at the title's 20 pt.
+  Beside the back arrow (56 pt), the title's spacing (16 pt each side), the
+  Step menu (59 to 80 pt as the step's name grew) and the ⓘ (48 pt), it had
+  159 to 245 pt: a 17 Pro read "Peptide Language…" at every step, a Pro Max
+  had it whole at Step 1 only, and the subtitle was cut at 393 pt and under.
+  The title and "Recorded run · N parameters" now each shrink just enough to
+  stay whole (`_Whole`, a `FittedBox` that only scales down), and the Step
+  menu is as wide as its widest step's name, its own name at the end where
+  it stood, so nothing in the header moves when the step changes: title
+  18.6 pt on a Pro Max, 15.4 pt on a 17 Pro, 13.2 pt at 375; subtitle 12,
+  11.2 and 9.6 pt. The user picked this over "Peptide LM" in the header and
+  over leaving it cut. The wait's header, with no actions, shows the title
+  at 20 pt, so it shrinks when the run lands, as the rest of the page
+  changes.
+- **Caption.** Its box is held at the stage's tallest caption
+  (`_captionReserve`), so the canvas never resizes. Each caption starts at
+  the box's top, which the row centres on the player, so a stage's first
+  line never moves (the user's pick). Centred, as it was, a one-line caption
+  among two-line ones dropped 10.5 pt and came back up (Scores, Attention,
+  Feed-forward, Loss, Backward), and at 375 pt and step 200 Feed-forward's
+  three-line box held its captions at three heights. Stages whose captions
+  are all one length look as they did.
+- **Step menu.** The step on screen is written in the accent, as the button
+  writes it and Loop ticks it, and a screen reader hears it as the one
+  selected. Its tooltip is "Steps kept whole", Loop's page's own words; it
+  said "Checkpoint", a word no page uses.
+- **Info sheet.** The lead takes the bright ink the title and headings are
+  in, the sections' paragraphs keep the quiet ink (the user's pick), and a
+  page ends 24 pt under its last line: the last section's 20 pt had stood
+  on the list's own 24.
+- **Loop's scale names.** "nats" over the curve's numbers and "rate" by its
+  strip are names, so both are in the label face and end at one x
+  (`LoopLayout.namesRight`); numbers and levels stay in the mono. "rate" had
+  been in the mono, 22.4 pt wide, 5 pt left of a plot 26 pt in: it began
+  1.4 pt off the canvas at every size. The loss written by the run's first
+  points (3.220 at step 1) touched "nats"; it now starts clear of it
+  (`LoopLayout.writtenLeft`), still over its point. `loop_names_test` holds
+  both in the app's fonts; every other frame of every stage is byte for byte
+  as it was.
+
+Left as they are: the stage bar's hard edge (a fade would cover the end of
+a stage's name that `_reveal` brings just into view), a ▾ beside "Step N"
+(it would cost the title its room), the caption's 20 pt margin against the
+canvas's 4, and the mixed case of the canvas's notes (words, not the frame).
 
 ## Colours
 

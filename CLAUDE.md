@@ -247,7 +247,10 @@ A label's line must land on what it names (`replication_targets_test`).
 The home screen's last row, at `/peptide-lm`, in every build: one training
 run of the backend's de novo model, HelixPeekLM (`pipeline/denovo/` in the
 backend), on the curated proteins' peptides, played stage by stage. It is a
-recorded run and says so ("Recorded run" under its title): the backend's
+recorded run and says so ("Recorded run" under its title; where the header
+is narrower than the title or that line, each shrinks just enough to stay
+whole, never cut, and the Step menu is as wide as its widest step, so the
+header never moves when the step changes: the user's pick of 2026-11-10): the backend's
 `trace.py` drives the engine's own `train_step` and keeps every number, and
 `GET /peptide-lm/runs/curated` names the bytes in storage, which the page
 reads through `TrackClient.readRow` (its own client, folder `peptide_lm`, so a
@@ -268,9 +271,11 @@ plays that stage and nothing else: Replay, and Play/Pause (Play from the
 end plays it again); no stepping between stages and no speeds (the user's
 choices of 2026-10-30, which retired the shared `TransportBar` here). The
 caption's box is held at the stage's tallest caption at its width, so the
-canvas never resizes while a stage plays. Tokenise, Shift, Embedding, Scores, Attention,
-Feed-forward, Forward, Predict, Loss, Backward and Update show one training step at the checkpoint picked ("Step N ▾": the
-steps that kept every activation), and Loop plays all of them, from step 1 (`LoopPace`). Each stage is a painter in
+canvas never resizes while a stage plays, and each caption starts at the
+box's top, so a stage's first line never moves (the user's pick of
+2026-11-10). Tokenise, Shift, Embedding, Scores, Attention,
+Feed-forward, Forward, Predict, Loss, Backward and Update show one training step at the checkpoint picked ("Step N": the
+steps the run kept whole, the one on screen in the accent in its menu, as Loop ticks it), and Loop plays all of them, from step 1 (`LoopPace`). Each stage is a painter in
 `presentation/scenes/`, a pure function of the frame; a tap or a drag on the
 canvas puts a peptide, a position or an attention head in focus. Shift
 opens on Tokenise's last frame, pixel for pixel (`TokeniseScene.paintEnd`,
@@ -698,7 +703,8 @@ captions and the stages' info pages are built from the run's own numbers
 of every stage, an `LmInfo` that `LmInfoSheet` draws, built when tapped;
 Tokenise's since 2026-11-06, the other eleven since 2026-11-07, each
 previewed with the user). Every page is the screen's key, the user's pick for
-all twelve: a lead saying what the stage takes and gives, then a short
+all twelve: a lead saying what the stage takes and gives, in the bright
+ink over the sections' quiet paragraphs (the user's pick of 2026-11-10), then a short
 section for each part of its canvas the page adds to, under its tag, a link
 to a later stage beside what it explains; where the notes already say it
 all, a part has no section. The About sheet, how the whole model learns,

@@ -37,7 +37,9 @@ The template, the user's pick for all twelve, is the **screen key**:
 
 - a **lead**, unheaded, under the title: what the stage takes, what it
   gives, and the one framing fact the stage needs (Tokenise's: it is made
-  once, the same at every step, and learns nothing);
+  once, the same at every step, and learns nothing). `LmInfoSheet` sets it
+  in the bright ink, the sections' paragraphs in the quiet ink (the user's
+  pick of 2026-11-10), so it is the line read first;
 - a **section for each part the canvas tags**, titled with the tag in
   sentence case, in the order the tags appear: what the part is and why it
   is there;
@@ -179,11 +181,13 @@ superscript minus, no `ⓘ`. Write words ("mean", "standard deviation",
 ### 3.7 Length
 
 Tokenise's page is about 245 words in a lead and four sections. It
-scrolls 73 pt on a 440 × 956 phone (the user's Pro Max), 219 pt on a
-393 × 852 and 416 pt on a 375 × 667. About 200 words fit the Pro Max
+scrolls 53 pt on a 440 × 956 phone (the user's Pro Max), 199 pt on a
+393 × 852 and 410 pt on a 375 × 667. About 200 words fit the Pro Max
 without scrolling. The other eleven run from about 70 to 190 words and all
-fit the Pro Max; on a 393 × 852 only Loop's scrolls (10 pt), and on a
-375 × 667 Shift's (154 pt), Embedding's (53), Scores' (7) and Loop's (179).
+fit the Pro Max and a 393 × 852; on a 375 × 667 Shift's scrolls (134 pt),
+Embedding's (33) and Loop's (159). These are since 2026-11-10, when a page
+came to end 24 pt under its last line, not 44 (each 20 pt less; Scores' 7
+and Loop's 10 on a 393 went).
 An estimate held for each: about 9.5 words a line on the Pro Max, 8.8 on a
 393 and 8.2 on a 375, a line 20 pt, a section's heading and gaps 46 pt.
 Measure every page with the shots check (section 7); say in the preview how
@@ -372,7 +376,10 @@ path). `TRACE` is the backend's
   plays each stage to its last frame on the real page, taps its ⓘ, and
   writes `<stage>_<size>.png`, `<stage>_<size>_end.png` (scrolled to the
   end) and `<stage>_<size>.txt` (how far it scrolls). `STEP=200` picks a
-  checkpoint through the step menu.
+  checkpoint through the step menu. The sheet's list is lazy, so for a page
+  that scrolls far its `.txt` is the list's estimate, read before its end is
+  built (Tokenise's at 375 × 667 read 416 pt when it scrolled 430): to
+  measure one, jump to the end until the extent stops changing.
 - **The run in Python** (read only; `-I`, from the backend's
   `pipeline/denovo`):
 
