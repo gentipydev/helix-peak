@@ -125,10 +125,10 @@ abstract final class LungStyle {
 
   /// The grid its rounded form is solved on, how high it stands, and how
   /// finely its mesh is laid.
-  static const double reliefCell = 2.5;
+  static const double reliefCell = 3;
   static const double inflation = 0.8;
-  static const int sweeps = 160;
-  static const double meshCell = 2;
+  static const int sweeps = 110;
+  static const double meshCell = 2.5;
   static const double surfaceSheen = 0.5;
 
   // The lines.

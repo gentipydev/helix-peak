@@ -194,6 +194,13 @@ final class LungForm {
     LungStyle.outlineStep,
   );
 
+  /// The left lung's outline followed more coarsely, what clearances and
+  /// depths are measured by: its chords part from the curve by under a
+  /// twentieth of a millimetre.
+  static final List<Offset> _coarseMm = <Offset>[
+    for (int i = 0; i < _outlineMm.length; i += 3) _outlineMm[i],
+  ];
+
   /// The left lung's oblique fissure, followed closely, in millimetres.
   static final List<Offset> _fissureMm = _smoothLine(
     LungAnatomy.fissure,
@@ -218,8 +225,8 @@ final class LungForm {
   /// its outline, or from the fissure where nearer; below zero outside
   /// the outline.
   static double pleuraDepth(Offset mm) {
-    final double edge = _toLine(_outlineMm, mm, closed: true);
-    if (!_inside(_outlineMm, mm)) {
+    final double edge = _toLine(_coarseMm, mm, closed: true);
+    if (!_inside(_coarseMm, mm)) {
       return -edge;
     }
     return math.min(edge, _toLine(_fissureMm, mm, closed: false));
@@ -251,10 +258,10 @@ final class LungForm {
 
     bool clear(List<Offset> line, double radius, int parent) {
       for (final Offset p in line.skip(2)) {
-        if (!_inside(_outlineMm, p) || !_upperSide(p)) {
+        if (!_inside(_coarseMm, p) || !_upperSide(p)) {
           return false;
         }
-        if (_toLine(_outlineMm, p, closed: true) <
+        if (_toLine(_coarseMm, p, closed: true) <
             radius + LungAnatomy.edgeClear) {
           return false;
         }
@@ -415,7 +422,7 @@ final class LungForm {
   /// each edge with how deep under the pleura its middle lies: every edge
   /// of the lobules whose middles lie inside the outline.
   static final List<(Offset, Offset, double)> _septaMm = _mosaic(
-    _outlineMm,
+    _coarseMm,
     LungAnatomy.lobule,
     LungStyle.seed,
     depth: pleuraDepth,
@@ -423,7 +430,7 @@ final class LungForm {
 
   /// The lobules marked on the right lung's surface, in millimetres.
   static final List<(Offset, Offset, double)> _surfaceSeptaMm = _mosaic(
-    _rightMm,
+    <Offset>[for (int i = 0; i < _rightMm.length; i += 3) _rightMm[i]],
     LungAnatomy.lobule * 1.1,
     LungStyle.seed + 1,
     depth: (Offset _) => 0,
@@ -635,8 +642,8 @@ final class LungForm {
     final List<(Offset, double)> out = <(Offset, double)>[];
     for (final (Offset c, double r) in LungAnatomy.veinsCrossed) {
       bool ok =
-          _inside(_outlineMm, c) &&
-          _toLine(_outlineMm, c, closed: true) > r + 2 &&
+          _inside(_coarseMm, c) &&
+          _toLine(_coarseMm, c, closed: true) > r + 2 &&
           _toLine(_fissureMm, c, closed: false) > r + 1.5 &&
           (c - LungAnatomy.site).distance > r + 6;
       for (int k = 0; k < airways.length && ok; k++) {
