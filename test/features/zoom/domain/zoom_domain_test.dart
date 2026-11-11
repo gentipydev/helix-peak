@@ -601,6 +601,35 @@ void main() {
       }
     });
 
+    test('go into the lung in its left lung, where GTEx samples it, low in '
+        'the lingula, the view closing on both lungs, on either figure', () {
+      final String uberon = tissueAnatomy['lung']!.uberon;
+      for (final AnatomyFigure figure in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ]) {
+        final AnatomyPart part = figure.parts[uberon]!;
+        final Rect box = boxOf(part.followed);
+        // On the body's left, the page's right of the figure's middle.
+        expect(box.center.dx, greaterThan(0), reason: figure.name);
+        for (final List<Offset> other in part.others) {
+          expect(boxOf(other).center.dx, lessThan(0), reason: figure.name);
+        }
+        expect((part.site.dy - box.top) / box.height, closeTo(0.896, 0.01),
+            reason: figure.name);
+        // Near its mediastinal border, on its left.
+        expect(part.site.dx - box.left, lessThan(box.width * 0.3),
+            reason: figure.name);
+        // The view closes on both lungs.
+        Rect whole = box;
+        for (final List<Offset> contour in part.contours) {
+          whole = whole.expandToInclude(boxOf(contour));
+        }
+        expect((part.centre - whole.center).distance, lessThan(1e-3),
+            reason: figure.name);
+      }
+    });
+
     test('go into skeletal muscle in its outermost outline, the vastus '
         'lateralis, 0.6 of the way down and midway across it, the view '
         'closing on the whole thigh', () {
@@ -827,6 +856,7 @@ void main() {
       final String fat = tissueAnatomy['adipose tissue']!.uberon;
       final String cervix = tissueAnatomy['cervix']!.uberon;
       final String epididymis = tissueAnatomy['epididymis']!.uberon;
+      final String lung = tissueAnatomy['lung']!.uberon;
       for (final AnatomyFigure figure in <AnatomyFigure>[
         AnatomyFigure.female,
         AnatomyFigure.male,
@@ -835,6 +865,10 @@ void main() {
         for (final MapEntry<String, AnatomyPart> part in figure.parts.entries) {
           if (<String>{muscle, esophagus, skin, fat, cervix, epididymis}
               .contains(part.key)) {
+            continue;
+          }
+          if (part.key == lung) {
+            // It follows its left lung, and the view closes on both.
             continue;
           }
           expect(part.value.framed, isNull, reason: part.key);

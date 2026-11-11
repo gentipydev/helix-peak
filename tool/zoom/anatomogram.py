@@ -109,6 +109,15 @@ SITE_TOP = {"UBERON_0002371": 0.2}
 # where the heart's form lays the wall through it on either figure.
 SITE_RIGHT = {"UBERON_0000948": (0.56, 0.035)}
 
+# Parts the zoom follows into their largest outline on the body's left, the
+# page's right, where the anatomogram draws one on either side. GTEx takes
+# the lung from the "Inferior segment of left upper lobe, 1 cm below the
+# pleural surface" (the GTEx Portal's sampling site for Lung, gtex_v10),
+# the lingula's lower segment; the anatomogram draws the right lung the
+# larger on the female figure and the left on the male, so the largest
+# outline alone would go into a different lung on each.
+FOLLOW_BODY_LEFT = {"UBERON_0002048"}
+
 # Parts the zoom goes into in from their left edge, the body's right, as
 # `SITE_RIGHT` from the right. The intestine is drawn as the intestines in
 # place from the front (`intestine_anatomy.dart`), the cecum low on the
@@ -118,8 +127,16 @@ SITE_RIGHT = {"UBERON_0000948": (0.56, 0.035)}
 # (Peyer Patches) just proximal to the ileocecal valve" (GTEx Tissue
 # Harvesting Work Instruction, PR-0004-W1, version 03.05, 4.3.6.21): the
 # site lies on the Peyer's patch the drawing lays on the terminal ileum,
-# where it is laid open beside the cecum, on either figure.
-SITE_LEFT = {"UBERON_0002108": (0.78, 0.28)}
+# where it is laid open beside the cecum, on either figure. The lung is
+# drawn as the lungs in place from the front, the left one cut open
+# (`lung_anatomy.dart`), and gone into in its lingula (`FOLLOW_BODY_LEFT`),
+# below the cardiac notch on its mediastinal border, the border on the
+# left of its outline: the site lies nine tenths of the way down, 4% of its
+# width in from that border, where the drawing lays the lingula's lower
+# segment 10 mm in from its pleura, the drawing lying over the outline on
+# either figure (a tenth in, it hung 15 mm past the female figure's costal
+# border, and its step from the body jolted).
+SITE_LEFT = {"UBERON_0002108": (0.78, 0.28), "UBERON_0002048": (0.896, 0.04)}
 
 # Parts the zoom follows into another of their outlines than the largest:
 # the one whose box's middle lies farthest from the figure's midline, written
@@ -153,8 +170,9 @@ SITE_LEVEL = {"UBERON_0001134": 0.6, "UBERON_0001043": 0.75, "UBERON_0000002": 0
 # box round all their outlines, where the view closes in place of the middle
 # of the one it follows. The thigh is drawn whole, its vastus lateralis at
 # its lateral edge; the cervix whole, its canal at its middle, where its
-# two halves meet.
-FRAME_WHOLE = {"UBERON_0001134", "UBERON_0000002"}
+# two halves meet; the lungs both, the trachea between them, the left one
+# cut open (`lung_anatomy.dart`).
+FRAME_WHOLE = {"UBERON_0001134", "UBERON_0000002", "UBERON_0002048"}
 
 # Parts the view closes on a share of the followed outline's height below
 # the middle of its box, written as a `centre` too: for a part whose scene
@@ -488,6 +506,15 @@ def convert_body(name: str, path: str, wanted: set[str]) -> dict:
                 return abs((cx0 + cx1) / 2 - middle)
 
             follow = max(range(len(contours)), key=lambda i: out(contours[i]))
+        if uberon in FOLLOW_BODY_LEFT:
+            def left(c: list[svg.Point]) -> bool:
+                cx0, _, cx1, _ = svg.bounds([c])
+                return (cx0 + cx1) / 2 > middle
+
+            sides = [i for i in range(len(contours)) if left(contours[i])]
+            if not sides:
+                raise SystemExit(f"{name}: no outline of {uberon} on the body's left")
+            follow = sides[0]
         followed = contours[follow]
         if uberon in SITE_RIGHT:
             site = site_right(followed, *SITE_RIGHT[uberon])
