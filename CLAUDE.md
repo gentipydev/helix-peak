@@ -779,7 +779,7 @@ seen:
   CC BY 4.0), the organs the Atlas reads the gene raised in lit;
   `tool/zoom/anatomogram.py` generates `anatomy_figures.g.dart` from it,
   and the body carries its credit, with the Atlas's, in one caption line;
-- the organ: twenty-five are drawn from general anatomy as lit specimens
+- the organ: twenty-seven are drawn from general anatomy as lit specimens
   (`presentation/scenes/organs/<organ>/`, four files each: the anatomy in
   millimetres with its sources, the style, the form, the art), the part
   the zoom's cell lives in in the accent, by the Atlas's name for the cell
@@ -791,13 +791,16 @@ seen:
   place, its lower half dissected; the eye cut through its optic nerve;
   the heart, the kidney and the liver cut open from front to back; the
   stomach, the esophagus and the urinary bladder opened from the front;
+  the gallbladder laid open from the front with its ducts; the
+  intestines in place from the front, a window cut at the ileocecal
+  junction where GTEx samples them;
   the lungs in place from the front, the trachea between them, the left
   one cut open from front to back where GTEx samples it; the front of the
   thigh for skeletal muscle; the adrenal cut on its
   kidney; the pituitary cut down its middle in the brain's own frame; a
   lymph node cut through its hilum; the fallopian tube opened along its
   length, and the cervix along its canal; and blocks of skin, placenta and
-  abdominal fat. Nineteen draw in from the body's own outline of them
+  abdominal fat. Twenty-one draw in from the body's own outline of them
   (the breast to its mound, its axillary tail coming up with it; the
   cervix from the one of its two halves the body follows; the epididymis
   from its band, its testis coming up beside it; the lungs from the body's

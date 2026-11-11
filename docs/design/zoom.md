@@ -434,6 +434,51 @@ convention is, where it comes from, and what it decided:
   vas deferens 1.5 to 2.7 mm thick (Middleton et al. 2009). GTEx samples no
   epididymis. *Consequence:* the epididymis is drawn so, on its testis from
   the side, cut down its length ("The epididymis" below).
+- **The gallbladder.** Anatomy plates show it laid open from the front
+  with its ducts, its front wall cut away (Gray 1918, Fig. 1095, after
+  Spalteholz). It is a conical or pear-shaped musculomembranous sac, 7 to
+  10 cm long and 2.5 cm broad at its widest, holding 30 to 35 c.c.: its
+  fundus down, forward and to the right, its body and neck up and back to
+  the left, the neck curving on itself like an S and constricted where it
+  meets the cystic duct. Its coats are serous, over the fundus whole but
+  under the body and neck alone, fibromuscular and mucous, the mucosa
+  raised into minute rugae and, opposite the neck, into oblique folds, a
+  sort of spiral valve; the cystic duct, about 4 cm long, has five to
+  twelve crescentic folds; the hepatic duct comes down about 4 cm to meet
+  it at an acute angle, and the common bile duct runs on about 7.5 cm; the
+  cystic artery, usually from the right hepatic, runs down along the neck
+  (Gray 1918). On ultrasound it is under 10 by 4 by 4 cm, its wall under 3
+  mm, and Hartmann's pouch is found in 4.7 to 52% (Lucius et al. 2025);
+  its wall has no muscularis mucosae and no submucosa, its perimuscular
+  connective tissue running on into the liver's (Rana et al. 2025); the
+  cystic duct is 4.21 mm across and joins the hepatic duct most often on
+  its right, at its middle level (Plutecki et al. 2026); the cystic artery
+  comes from the right hepatic in 86%, is 21.3 mm long and mostly over 1
+  mm across (Triantafyllou et al. 2025). GTEx samples no gallbladder.
+  *Consequence:* the gallbladder is drawn so, laid open from the front with
+  its ducts ("The gallbladder" below).
+- **The intestines.** Anatomy plates show them in place from the front,
+  the greater omentum taken away, the small intestine's coils framed by
+  the colon, and the cecum opened to show the ileocecal valve (Gray 1918,
+  Fig. 1075). The jejunum, the upper two-fifths past the duodenum, is
+  about 4 cm across, thicker and of a deeper colour than the ileum, 3.75
+  cm, whose folds disappear toward its lower end; the terminal ileum rises
+  out of the pelvis over the right psoas to open into the large
+  intestine's medial side. Peyer's patches, twenty to thirty, 2 to 10 cm
+  long, lie lengthwise, largest and most numerous in the ileum, on its
+  wall away from the mesentery. The colon arches round the coils: the
+  cecum, 6.25 cm long and 7.5 broad, the ascending colon, the transverse
+  colon with its downward curve, the descending colon and the sigmoid loop
+  in the pelvis; three bands about 12 mm wide gather its sacculi, and fat
+  hangs from it in small pouches. The appendix averages 8.3 cm and opens
+  below and behind the ileocecal opening, whose two lips run on as the
+  frenula (Gray 1918). On CT the colon narrows from the cecum, 35.8 mm, to
+  the sigmoid, 17.4 (Haraikawa et al. 2023). GTEx takes the small
+  intestine from its most distal part, the thickened mucosa with Peyer's
+  patches just short of the ileocecal valve (its Tissue Harvesting Work
+  Instruction, 4.3.6.21). *Consequence:* the intestines are drawn so, in
+  place from the front, a window cut at the ileocecal junction ("The
+  intestines" below).
 - **The lungs.** Anatomy plates show them in place from the front, the
   trachea coming down between them (Gray 1918, Fig. 970). The trachea is
   about 11 cm long and 2 to 2.5 cm across, ringed by sixteen to twenty
@@ -677,6 +722,8 @@ Sources:
   Pyramids is Associated with Clinical Characteristics, Kidney Biopsy
   Findings, and CKD Outcomes among Kidney Donors. J Am Soc Nephrol
   2023;34:1752–1763.
+- GTEx Consortium. GTEx Tissue Harvesting Work Instruction, PR-0004-W1,
+  version 03.05: 4.3.6.21 (the small intestine).
 - GTEx Consortium. Tissue procurement standard operating procedure (heart:
   the anterior left ventricle), as `tool/zoom/anatomogram.py` cites it.
 - GTEx Portal. Tissue site details, dataset gtex_v10: each tissue's
@@ -693,6 +740,9 @@ Sources:
   2002;123:1060–1066.
 - Halladjian S et al. ScaleTrotter: illustrative visual travels across
   negative scales. IEEE Trans Vis Comput Graph 2020;26:654–664.
+- Haraikawa M et al. Correlation between Constipation Symptoms and
+  Abdominal CT Imaging: A Cross-Sectional Pilot Study. J Clin Med
+  2023;12:341.
 - Hegedüs L et al. The determination of thyroid volume by ultrasound and its
   relationship to body weight, age, and sex in normal subjects. J Clin
   Endocrinol Metab 1983;56:260–263.
@@ -782,6 +832,9 @@ Sources:
   models of the gravid uterus and cervix. PLoS One 2021;16:e0242118.
 - Love SM, Barsky SH. Anatomy of the nipple and breast ducts revisited.
   Cancer 2004;101:1947–1957.
+- Lucius C et al. Ultrasound of the Gallbladder-An Update on
+  Measurements, Reference Values, Variants and Frequent Pathologies: A
+  Scoping Review. Life (Basel) 2025;15:941.
 - Luger K et al. Crystal structure of the nucleosome core particle at 2.8 Å
   resolution. Nature 1997;389:251–260.
 - Lynch CE et al. Adipose biopsy techniques for studies in human exercise
@@ -868,6 +921,9 @@ Sources:
   cohort and the general population. PLoS One 2018;13:e0191276.
 - Paulson JR, Laemmli UK. The structure of histone-depleted metaphase
   chromosomes. Cell 1977;12:817–828.
+- Plutecki D et al. The complete anatomy of the cystic duct: A
+  meta-analysis with implications for hepatobiliary surgery. Ann Anat
+  2026;266:152857.
 - Polyak SL. The Retina. University of Chicago Press, 1941.
 - Poonperm R et al. Chromosome scaffold is a double-stranded assembly of
   scaffold proteins. Sci Rep 2015;5:11916.
@@ -885,6 +941,9 @@ Sources:
   human breast redefined with ultrasound imaging. J Anat 2005;206:525–534.
 - Rana K et al. Normative measurements of orbital structures by magnetic
   resonance imaging. Int Ophthalmol 2022;42:3869–3875.
+- Rana P, Kalage D, Soundararajan R, Gupta P. Update on the Role of
+  Imaging in the Diagnosis, Staging, and Prognostication of Gallbladder
+  Cancer. Indian J Radiol Imaging 2025;35:218–233.
 - Rapaccini GL et al. Gastric wall thickness in normal and neoplastic
   subjects: a prospective study performed by abdominal ultrasound.
   Gastrointest Radiol 1988;13:197–199.
@@ -973,6 +1032,8 @@ Sources:
   2025;79:267–270.
 - Trask BJ. Fluorescence in situ hybridization: applications in
   cytogenetics and gene mapping. Trends Genet 1991;7:149–154.
+- Triantafyllou G et al. Surgical anatomy of the cystic artery: A
+  systematic review with meta-analysis. Ann Anat 2025;257:152343.
 - Truong QA et al. Reference values for normal pulmonary artery dimensions
   by noncontrast cardiac computed tomography: the Framingham Heart Study.
   Circ Cardiovasc Imaging 2012;5:147–154.
@@ -1195,7 +1256,7 @@ body drew for it (`OrganArt`), so the step is one shape seen closer. It
 comes up over the body's own drawing of the organ early in the step, and
 `zoom_anatomy_test` holds the two to the same point of the screen while both
 show. On the way in, the body's line art and its unlit organs give way.
-Nineteen of the specimens below then draw in to outlines of their own
+Twenty-one of the specimens below then draw in to outlines of their own
 (`_SpecimenOrgan`, `OutlineMorph`), each becoming the bed its specimen comes
 up over (`SpecimenStep`); the breast's is its mound, its outline without the
 axillary tail, which comes up with the rest of it, and the cervix's is the
@@ -1223,7 +1284,8 @@ it, fading with their distance from it, so it is seen at a glance where in
 the body it lies (the user's ask of 2026-10-21). They stay round the bone
 marrow, the heart, the thigh, the kidney, the liver, the stomach, the
 esophagus, the thyroid, the adrenal, the fallopian tube, the bladder, the
-breast, the cervix, the epididymis and the lungs, round the bladder all
+breast, the cervix, the epididymis, the gallbladder, the intestines and
+the lungs, round the bladder all
 but the figure's smooth muscle, which the anatomogram draws as the bladder's own
 wall, round the cervix all but the figure's vagina, which the cervix draws
 as its own vault, and round the epididymis all but the figure's testis,
@@ -1237,7 +1299,7 @@ the pituitary they give way to the specimen's own neighbours; the six
 specimens that crossfade come up with none of the figure round them.
 
 **Its anatomy.** The fifty-four curated proteins' paths reach all
-thirty-six of the organs the zoom draws. Twenty-five are drawn from anatomy
+thirty-six of the organs the zoom draws. Twenty-seven are drawn from anatomy
 as specimens, each in a section below, in the neutrals but for vessels,
 nerves and the accent; in each the part the zoom's cell lives in is in the
 accent, by the kind of organ and of cell, never by gene: one flat tone cut
@@ -1271,19 +1333,21 @@ or tubules:
 | Breast (LALBA) | from the front in place, its lower half dissected | its ducts and lobules, its fat, or its nipple and areola |
 | Cervix (SLPI) | opened along its canal, its back half from the front | its ectocervix |
 | Epididymis (NPC2) | cut down its length on its testis, from the side | its duct, or its efferent ductules |
+| Gallbladder (FGF19) | laid open from the front, with its ducts | its mucosa |
+| Intestines (FABP6) | in place from the front, a window at the ileocecal junction | the colon's lining, the ileum's, both, or their muscle |
 | Lungs (SFTPD) | in place from the front, the left one cut open from front to back | its alveoli, its bronchi's lining, or its pleura |
 
 The vessel (GAS6) and the parathyroid gland (CASR) have drawings of their
 own: a length of artery, and a gland on the back of the thyroid. The
-other nine kinds are the anatomogram's own outline, sculpted with a
+other seven kinds are the anatomogram's own outline, sculpted with a
 surface for its kind:
 
 | Look | Organs (proteins) |
 |---|---|
 | lobules | ovary (PADI6), prostate (ACP3) |
-| a wall round a lumen | gallbladder (FGF19), uterus (PAEP), vagina (ALOX12) |
+| a wall round a lumen | uterus (PAEP), vagina (ALOX12) |
 | fibres | smooth muscle (LOXL2), tongue (CKMT2) |
-| coils | intestine (FABP6), seminal vesicle (ANGPT1) |
+| coils | seminal vesicle (ANGPT1) |
 
 **The pancreas.** It is drawn as a fresh specimen under the zoom's one lamp,
 with the stomach taken away (`presentation/scenes/organs/pancreas/`, the
@@ -2130,6 +2194,100 @@ neutrals but for the cord's vessels and the accent:
   of the detail, and becomes the bed the epididymis and its testis come up
   over, in the duct's cut tone.
 
+**The gallbladder.** It is drawn as a fresh specimen under the same
+lamp, laid open from the front with its ducts as Gray's plate lays it open
+(Fig. 1095, after Spalteholz), the inside of its back half seen through
+its cut-away front wall (`presentation/scenes/organs/gallbladder/`,
+2026-11-11, every choice mine at the user's word), in the neutrals but for
+the bile ducts, the artery and the accent:
+
+- *Its shape* (`gallbladder_anatomy.dart`, in millimetres from about the
+  middle of its box): 90 mm from fundus to neck, the card's 9 cm, and 34
+  mm across at its widest, toward the fundus, between Gray's breadth and
+  the ultrasound's, tilted about a sixth of a right angle; its half-widths
+  eased along its middle line, the fundus rounded, the neck curving like
+  an S into the cystic duct, a 5 mm pouch on its under side; its wall 2 mm
+  through the fundus and body, thinning down the neck.
+- *Where it is sampled.* No GTEx site is the gallbladder; the drawing's
+  own site, on the mucosa in its body toward the fundus, is laid on the
+  anatomogram's, which moves it a few millimetres at most.
+- *Laid open,* its mucosa is a honeycomb of folds about 2 mm across, as
+  Gray's plate draws them, a relaxed Voronoi mosaic (`voronoi.dart`) whose
+  edges are creases in the shadow ink with light on their far side; three
+  oblique folds cross the neck, a spiral valve, and eight crescentic folds
+  the cystic duct, laid open on with it, its lumen running on from the
+  neck's; round it all the cut wall's coats: the serosa a hair thin, the
+  perimuscular tissue, the fibromuscular coat.
+- *In the accent,* whatever the cell: its mucosa, the cholangiocyte being
+  the one cell the Atlas names with the gallbladder among its homes, and
+  no tissue cell type pair reaching it. One flat tone, the mark over a
+  neutral, cut by the honeycomb, the folds and the coats.
+- *Round it:* the hepatic duct coming down from the porta into the common
+  bile duct, a honey tube cut short below, and the cystic artery from the
+  right hepatic, cut short, down along the neck. The figure's own parts
+  stay faint round it, its liver over it.
+- *Its names:* `mucosa` in the accent at the site; `fundus`, `neck`,
+  `cystic duct`, `common bile duct`, `cystic artery` and the figure's
+  `liver` in the quiet ink, set round it at the canvas's corners.
+- *Its view* is framed 1.0 (`ZoomDepth.gallbladderUpright`): framed
+  taller, the common bile duct's name had no room below it on the
+  squattest phones.
+- *On the step from the body* the body's outline, flat and lit in the
+  mark, draws in to the gallbladder's, matched at the middle of its top,
+  at each side's outermost point and at its lowest, over 0.55 of the
+  detail (at 0.45 it jolted 1.5 px), and becomes the bed it comes up over,
+  in the mucosa's tone.
+
+**The intestines.** They are drawn as a fresh specimen under the same
+lamp, in place and seen from the front, the greater omentum taken away:
+the coils of the jejunum and the ileum framed by the colon, and a window
+cut at the ileocecal junction, where GTEx samples the small intestine
+(`presentation/scenes/organs/intestine/`, 2026-11-11, every choice mine),
+in the neutrals but for the accent:
+
+- *Their shape* (`intestine_anatomy.dart`, in millimetres from about the
+  middle of what is drawn): 350 mm from the left colic flexure's top to
+  the lowest coil, the card's 35 cm, and about 300 across. The colon
+  frames them, the cecum low on the body's right, from 75 mm across at the
+  cecum down to the sigmoid's 34, its sacculi 34 mm apart, one free band
+  along its front and fat hanging from it in lit domes; nine coils of the
+  jejunum, 34 mm across, and the ileum, 28, are laid by hand, the
+  jejunum's across the upper left and the ileum's down the lower right and
+  in the pelvis, each coil's ends running back under another into the
+  shade with a rounded cap, each casting its shadow; the sigmoid colon
+  lies in shade behind the pelvic coils.
+- *Where it is sampled.* GTEx takes the small intestine just short of the
+  ileocecal valve, on its Peyer's patches; the site is the middle of a
+  patch 30 by 11 mm on the terminal ileum, laid open from the front 22 to
+  108 mm from its end beside the cecum. A rule in the tool puts the
+  body's site there, 0.78 of the way down the outline and 28% of its
+  width in from its left edge, the body's right (`SITE_LEFT`).
+- *The window:* the front wall of the cecum and of the ascending colon's
+  start cut away to 118 mm along, the inside of their back wall seen
+  through it: the ileocecal valve's two lips round the ileum's opening and
+  the frenula running off them, the appendix's orifice below, a
+  semilunar fold across the colon above; the wall's coats cut round its
+  edge, and the appendix hanging from the cecum.
+- *In the accent,* by the Atlas's name for the cell: the colon's lining in
+  the window for a cell of the colon (FABP6's colon enteroendocrine
+  cell); the terminal ileum's for an enterocyte or a Paneth cell; both,
+  one lining through the valve, for a cell of either; the colon's band and
+  the muscle coats cut round the window for a smooth muscle cell, an
+  interstitial cell of Cajal or an enteric glial cell. One flat tone, the
+  mark over a neutral, cut by the folds and the valve's lips.
+- *Round them* the figure's own parts stay faint.
+- *Their names:* `mucosa` or `muscularis` in the accent at the home;
+  `transverse colon`, `jejunum`, `descending colon`, `ileum` and
+  `appendix` in the quiet ink, set round them at the canvas's corners.
+- *Their view* is framed 1.0 (`ZoomDepth.intestineUpright`): framed
+  taller, the names below them came down on the scale bar on the first
+  iPhone SE's canvas.
+- *On the step from the body* the body's outline of the intestine, flat
+  and lit in the mark, draws in to the outline round all of what is drawn,
+  one union of the colon and the coils, matched at its top, at each side's
+  outermost point, at its right half's lowest point and at its lowest,
+  the appendix's tip, over 0.55 of the detail (at 0.45 it jolted 1.8 px).
+
 **The lungs.** They are drawn as a fresh specimen under the same lamp, in
 place and seen from the front, the trachea coming down between them: the
 right lung whole and the left cut open from front to back where GTEx
@@ -2796,6 +2954,18 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   rule, at sizes no source gives; no appendix, no ductulus aberrans, no
   paradidymis, no other epididymis. One site, where the efferent ductules
   have opened into the duct, for a cell of either.
+- **A gallbladder from a plate.** One adult's gallbladder, the same for
+  every protein, laid open as Gray's plate lays it, its honeycomb's meshes
+  one size everywhere and its folds laid by rule; its serosa drawn all
+  round, though it covers the body and neck only beneath; no stone. One
+  home, its mucosa, for the one cell the Atlas houses there.
+- **Intestines from a plate.** One adult's intestines, the same for every
+  protein, in place as an atlas shows them: nine coils laid by hand, far
+  fewer than the small intestine's length holds, their ends turning under
+  one another into the shade; no mesentery and no vessels; the colon's
+  sacculi and fat laid by rule. One site, the terminal ileum's Peyer's
+  patch, for every cell: the slide is the small intestine's villi
+  whatever the home.
 - **Lungs from a plate.** One adult's lungs, the same for every protein:
   the left lung's cut shows its lobes as seen from the front and its
   hilum's bronchi and vessels together, a composite no single plane cuts;
@@ -2863,9 +3033,9 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   into the band's strip as (`chromosome_tube.dart`); its colours are
   `core/theme/chromosome_colors.dart`.
 - `presentation/scenes/organ_art.dart`: every organ's drawing:
-  `_SpecimenOrgan` for the eighteen specimens that draw in from the body's
-  outline, a class of its own for each of the six that crossfade,
-  `_DrawnOrgan` for the ten drawn on the anatomogram's outline, and
+  `_SpecimenOrgan` for the twenty-one specimens that draw in from the
+  body's outline, a class of its own for each of the six that crossfade,
+  `_DrawnOrgan` for the seven drawn on the anatomogram's outline, and
   `_VesselOrgan` and `_ParathyroidOrgan`.
 - `presentation/scenes/organs/pancreas/`: the pancreas and its neighbours in
   centimetres (`pancreas_anatomy.dart`), every number its look is tuned by
@@ -2918,6 +3088,23 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   places, and where the zoom's cell lives by the Atlas's name for it
   (`epididymis_form.dart`), and its meshes and how it is drawn
   (`epididymis_art.dart`).
+- `presentation/scenes/organs/gallbladder/`: the gallbladder in
+  millimetres, with every source (`gallbladder_anatomy.dart`), every
+  number its look is tuned by (`gallbladder_style.dart`), its form posed
+  on either figure, with its outline, its coats, the honeycomb, the folds,
+  the cystic duct, the bile ducts, the artery and its names' places, the
+  figure's liver among them (`gallbladder_form.dart`), and its meshes and
+  how it is drawn (`gallbladder_art.dart`).
+  `presentation/scenes/voronoi.dart`: the Voronoi cells its honeycomb is
+  laid with, and the slides' and the lungs' septa.
+- `presentation/scenes/organs/intestine/`: the intestines in millimetres,
+  with every source (`intestine_anatomy.dart`), every number their look is
+  tuned by (`intestine_style.dart`), their form posed on either figure,
+  with the colon, its sacculi, band and fat, the coils and their shade, the
+  window and the valve, the terminal ileum and its patch, the outline
+  round all of it and their names' places, and where the zoom's cell
+  lives by the Atlas's name for it (`intestine_form.dart`), and their
+  meshes and how they are drawn (`intestine_art.dart`).
 - `presentation/scenes/organs/lung/`: the lungs in millimetres, with
   every source (`lung_anatomy.dart`), every number their look is tuned by
   (`lung_style.dart`), their form posed on either figure, with the left
@@ -3167,6 +3354,47 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   one another and of the scale bar, no line through another's plate or
   crossing another. `zoom_domain_test` holds its view closed on it and its
   testis together. `zoom_paint_timing_check` times it with NPC2's zoom.
+- `gallbladder_form_test` holds the gallbladder to its real size on the
+  body's outline of it on either figure, moved a few millimetres at most;
+  the site on its mucosa in its body toward the fundus, clear of its wall
+  and its neck; its length and breadth as measured, its wall under 3 mm
+  and thinning down the neck, the cystic duct as wide and its folds as
+  many as measured; the coats nesting; the honeycomb's meshes about 2 mm
+  across, in the mucosa up to the neck's oblique folds, the cystic duct's
+  folds across its lumen; the cystic duct running on from inside the neck,
+  the bile duct and the artery outside it, each cut short; the step's
+  marks in the same order on its outline and the body's; each name on
+  what it names; and the same gallbladder every time.
+  `gallbladder_art_test` holds the mark to its mucosa and the cystic
+  duct's alone, the hand-over to the body's outline with no layer, mesh or
+  point, the figure's parts round it at its stop, its liver among them,
+  the meshes the same every time and inside its bounds, its seven names,
+  and the steps to it and back to 0.08 a frame and 1.5 px.
+  `gallbladder_names_test` sets FGF19's names in the app's own type on
+  seven phone canvases: round it at the corners, clear of it, its cystic
+  duct and what runs on beside it, of one another and of the scale bar, no
+  line through another's plate or crossing another.
+  `zoom_paint_timing_check` times it with FGF19's zoom.
+- `intestine_form_test` holds the intestines to their real size on the
+  body's outline of the intestine on either figure, moved a few
+  millimetres at most; the site on the terminal ileum's Peyer's patch, just
+  short of the valve, inside its lining; the colon, the coils, the appendix
+  and the patch as measured; the homes by the Atlas's names; the coats
+  nesting round the window and the laid-open ileum; the semilunar fold,
+  the valve and the appendix's orifice in the colon's lining, the patch in
+  the ileum's; everything inside the outline, every coil's ends and the
+  sigmoid's in the shade; the step's marks in the same order on their
+  outline and the body's; each name on what it names; and the same
+  intestines every time. `intestine_art_test` holds the mark to the
+  colon's lining, the ileum's, both or the muscle alone, the hand-over to
+  the body's outline with no layer, mesh or point, the figure's parts round
+  them at their stop, the meshes the same every time and inside the
+  bounds, their names, and the steps to them and back to 0.08 a frame and
+  1.5 px. `intestine_names_test` sets FABP6's names in the app's own type
+  on seven phone canvases: round them at the corners, clear of them, of
+  one another and of the scale bar, no line through another's plate or
+  crossing another. `zoom_domain_test` holds their site on the terminal
+  ileum. `zoom_paint_timing_check` times them with FABP6's zoom.
 - `lung_form_test` holds the left lung to its real size, 250 by 118 mm,
   laid on the body's left lung under 10 mm off on either figure, the right
   lung beside it 226 mm tall and broader, the trachea on the middle line
