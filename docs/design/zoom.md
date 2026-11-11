@@ -434,6 +434,32 @@ convention is, where it comes from, and what it decided:
   vas deferens 1.5 to 2.7 mm thick (Middleton et al. 2009). GTEx samples no
   epididymis. *Consequence:* the epididymis is drawn so, on its testis from
   the side, cut down its length ("The epididymis" below).
+- **The lungs.** Anatomy plates show them in place from the front, the
+  trachea coming down between them (Gray 1918, Fig. 970). The trachea is
+  about 11 cm long and 2 to 2.5 cm across, ringed by sixteen to twenty
+  cartilages each about 4 mm deep, and divides at the upper border of the
+  fifth thoracic vertebra; the right bronchus is wider, shorter and more
+  upright, about 2.5 cm, the left nearly 5 cm, passing beneath the aortic
+  arch with the left pulmonary artery above and then in front of it. At
+  the left hilum, a little above the middle of the mediastinal surface,
+  the artery lies above, the bronchus below it, the veins lowest, the
+  upper vein in front. The left lung's anterior border has the cardiac
+  notch, the pericardium bare in it; its fissure crosses the posterior
+  border about 6 cm below the apex and reaches the lower border a little
+  behind its front end, the upper lobe above and in front of it, the lower
+  lobe taking most of the base; the right lung is 2.5 cm shorter and
+  broader, its horizontal fissure at the fourth costal cartilage. The
+  surface is marked into polyhedral lobules, those under the pleura the
+  larger; the larger bronchi carry irregular plates of cartilage (Gray
+  1918). The bronchi are 12.2 mm across at the main bronchi, 8.3 at the
+  lobar, 5.6 at the segmental, then 4.5, 3.5 and 2.8 (Weibel 1963); the
+  main bronchi part at 77 ± 13° on CT (Karabulut 2005); the pulmonary
+  trunk is 25.1 ± 2.8 mm (Truong et al. 2012); a secondary lobule is 1 to
+  2.5 cm across (Webb 2006; Radiopaedia). GTEx samples the lung from the
+  "inferior segment of left upper lobe, 1 cm below the pleural surface"
+  (GTEx Portal), the lingula's lower segment. *Consequence:* the lungs are
+  drawn so, in place from the front, the left one cut open where GTEx
+  samples it ("The lungs" below).
 - **Histology.** Haematoxylin stains nuclei and ribosome-rich cytoplasm;
   eosin stains protein; fat, mucus and lumens take neither. A ×40 objective
   under a standard eyepiece shows a field about half a millimetre across.
@@ -656,7 +682,7 @@ Sources:
 - GTEx Portal. Tissue site details, dataset gtex_v10: each tissue's
   sampling site (<https://gtexportal.org/api/v2/dataset/tissueSiteDetail>,
   read 2026-11-04; the breast's 2026-11-05, the cervix's 2026-11-07; its 54
-  sites, none of them the epididymis, 2026-11-07).
+  sites, none of them the epididymis, 2026-11-07; the lung's 2026-11-11).
 - Gündoğdu E. Relationship of the Presence of the Inferior Right Hepatic
   Vein with the Right Hepatic Vein Diameter and CT Liver Volumetry. Indian J
   Radiol Imaging 2023;33:332–337.
@@ -698,6 +724,8 @@ Sources:
 - Kanz F, Fitzl C, Vlcek A, Frommlet F. Sex estimation using the femur of
   Austrians born in the 19th to the middle of the 20th century. Anthropol
   Anz 2015;72:117–127.
+- Karabulut N. CT assessment of tracheal carinal angle and its
+  determinants. Br J Radiol 2005;78:787–790.
 - Karagiannidis AG et al. Uromodulin biology. Nephrol Dial Transplant
   2024;39:1073–1087.
 - Karlsson M et al. A single-cell type transcriptomics map of human tissues.
@@ -849,7 +877,8 @@ Sources:
   thickness: normal range and causes of thickening shown on film-screen
   mammography. J Can Assoc Radiol 1984;35:365–368.
 - Radiopaedia.org: the long posterior ciliary arteries, as
-  `eye_anatomy.dart` cites it.
+  `eye_anatomy.dart` cites it; the secondary pulmonary lobule, 1 to 2.5 cm,
+  as `lung_anatomy.dart` cites it.
 - Raman JD, Goldstein M. Intraoperative characterization of arterial
   vasculature in spermatic cord. Urology 2004;64:561–564.
 - Ramsay DT, Kent JC, Hartmann RA, Hartmann PE. Anatomy of the lactating
@@ -944,6 +973,9 @@ Sources:
   2025;79:267–270.
 - Trask BJ. Fluorescence in situ hybridization: applications in
   cytogenetics and gene mapping. Trends Genet 1991;7:149–154.
+- Truong QA et al. Reference values for normal pulmonary artery dimensions
+  by noncontrast cardiac computed tomography: the Framingham Heart Study.
+  Circ Cardiovasc Imaging 2012;5:147–154.
 - Tuan HNA et al. Computed Tomography-Based Anatomical and Morphometric
   Analysis of the Left and Right Gastric Arteries in a Vietnamese
   Population. Anat Histol Embryol 2026;55:e70162.
@@ -981,6 +1013,9 @@ Sources:
 - Watcharakorn A, Witayapiboon S, Mingkwansook V. Measurement of normal
   diameter of optic nerve and optic nerve sheath using MRI. Sci Technol Asia
   2021;26:167–173.
+- Webb WR. Thin-section CT of the secondary pulmonary lobule: anatomy and
+  the image. Radiology 2006;239:322–338.
+- Weibel ER. Morphometry of the Human Lung. Springer, 1963.
 - Wetstein SC et al. Deep learning assessment of breast terminal duct
   lobular unit involution: Towards automated prediction of breast cancer
   risk. PLoS One 2020;15:e0231653.
@@ -1160,7 +1195,7 @@ body drew for it (`OrganArt`), so the step is one shape seen closer. It
 comes up over the body's own drawing of the organ early in the step, and
 `zoom_anatomy_test` holds the two to the same point of the screen while both
 show. On the way in, the body's line art and its unlit organs give way.
-Eighteen of the specimens below then draw in to outlines of their own
+Nineteen of the specimens below then draw in to outlines of their own
 (`_SpecimenOrgan`, `OutlineMorph`), each becoming the bed its specimen comes
 up over (`SpecimenStep`); the breast's is its mound, its outline without the
 axillary tail, which comes up with the rest of it, and the cervix's is the
@@ -1168,7 +1203,8 @@ one of the body's two halves of it that the body follows, which draws in to
 the cervix's canal and its wall on that side, the other half giving way
 under the cervix as it comes up; the epididymis's band draws in to the
 epididymis on its testis's back, and the testis comes up beside it where
-the body drew the testis. The brain, the eye, the
+the body drew the testis; the body's left lung draws in to the lungs' cut
+left lung, and their right lung comes up over the body's. The brain, the eye, the
 skin, the lymph node, the placenta and the fat, which the body draws no
 outline of that shows them, come up over the body's drawing instead, a
 crossfade.
@@ -1187,20 +1223,21 @@ it, fading with their distance from it, so it is seen at a glance where in
 the body it lies (the user's ask of 2026-10-21). They stay round the bone
 marrow, the heart, the thigh, the kidney, the liver, the stomach, the
 esophagus, the thyroid, the adrenal, the fallopian tube, the bladder, the
-breast, the cervix and the epididymis, round the bladder all but the
-figure's smooth muscle, which the anatomogram draws as the bladder's own
+breast, the cervix, the epididymis and the lungs, round the bladder all
+but the figure's smooth muscle, which the anatomogram draws as the bladder's own
 wall, round the cervix all but the figure's vagina, which the cervix draws
 as its own vault, and round the epididymis all but the figure's testis,
 which it draws whole beside it (`_SpecimenOrgan`'s `notAround`); the
 kidney and the adrenal keep the body's flat drawing of the other one beside
-them, the thigh the body's four other
+them, the lungs the body's right lung until their own comes up, the thigh
+the body's four other
 muscles until its own come up, and the cervix the body's other half of it
 until it comes up. Round the pancreas, the testis, the salivary gland and
 the pituitary they give way to the specimen's own neighbours; the six
 specimens that crossfade come up with none of the figure round them.
 
 **Its anatomy.** The fifty-four curated proteins' paths reach all
-thirty-six of the organs the zoom draws. Twenty-four are drawn from anatomy
+thirty-six of the organs the zoom draws. Twenty-five are drawn from anatomy
 as specimens, each in a section below, in the neutrals but for vessels,
 nerves and the accent; in each the part the zoom's cell lives in is in the
 accent, by the kind of organ and of cell, never by gene: one flat tone cut
@@ -1234,10 +1271,11 @@ or tubules:
 | Breast (LALBA) | from the front in place, its lower half dissected | its ducts and lobules, its fat, or its nipple and areola |
 | Cervix (SLPI) | opened along its canal, its back half from the front | its ectocervix |
 | Epididymis (NPC2) | cut down its length on its testis, from the side | its duct, or its efferent ductules |
+| Lungs (SFTPD) | in place from the front, the left one cut open from front to back | its alveoli, its bronchi's lining, or its pleura |
 
 The vessel (GAS6) and the parathyroid gland (CASR) have drawings of their
 own: a length of artery, and a gland on the back of the thyroid. The
-other ten kinds are the anatomogram's own outline, sculpted with a
+other nine kinds are the anatomogram's own outline, sculpted with a
 surface for its kind:
 
 | Look | Organs (proteins) |
@@ -1245,7 +1283,6 @@ surface for its kind:
 | lobules | ovary (PADI6), prostate (ACP3) |
 | a wall round a lumen | gallbladder (FGF19), uterus (PAEP), vagina (ALOX12) |
 | fibres | smooth muscle (LOXL2), tongue (CKMT2) |
-| airways from the hilum | lung (SFTPD) |
 | coils | intestine (FABP6), seminal vesicle (ANGPT1) |
 
 **The pancreas.** It is drawn as a fresh specimen under the zoom's one lamp,
@@ -2093,6 +2130,80 @@ neutrals but for the cord's vessels and the accent:
   of the detail, and becomes the bed the epididymis and its testis come up
   over, in the duct's cut tone.
 
+**The lungs.** They are drawn as a fresh specimen under the same lamp, in
+place and seen from the front, the trachea coming down between them: the
+right lung whole and the left cut open from front to back where GTEx
+samples it (`presentation/scenes/organs/lung/`, 2026-11-11, every choice
+mine at the user's word: "go with it"), in the neutrals but for the
+vessels and the accent:
+
+- *Its shape* (`lung_anatomy.dart`, in millimetres from the middle line at
+  the left apex's height): the left lung 250 mm from its apex to its base,
+  the card's 25 cm, and 118 mm across, its apex 3 cm from the middle line,
+  its cardiac notch 2 cm deep and the lingula below it; the right lung 25
+  mm shorter and broader. The trachea is 20 mm across and cut short 14 mm
+  above the apices, 90 mm of Gray's 11 cm, its fifteen cartilages evenly
+  spaced; the main bronchi leave the carina at 25° and 50°.
+- *Where it is sampled.* GTEx samples the left upper lobe's lower segment,
+  the lingula, 1 cm under the pleura; the site is there, 10 mm in from the
+  pleura on the cut face. The anatomogram's largest lung outline is the
+  right on the female figure and the left on the male; rules in the tool
+  follow the body's left lung on both (`FOLLOW_BODY_LEFT`), put the site
+  nine tenths of the way down it, 4% of its width in from its mediastinal
+  border (`SITE_LEFT`), and close the view on both lungs (`FRAME_WHOLE`).
+  At a tenth in, the drawing hung 15 mm past the female figure's costal
+  border and its step from the body jolted.
+- *The left lung's cut* is a composite, as the liver's and the heart's
+  are: the lobes as the lung shows them from the front, the oblique
+  fissure a crease from the costal border to the base, the upper lobe
+  above and in front with the lingula, the lower a wedge behind and below.
+  Its bronchi are laid open: the main bronchus from the hilum, the upper
+  lobe's bronchus, its two divisions, four segmental bronchi and six of
+  their branches laid by hand, the rest branched by rule to the sixth
+  generation, each fork a larger branch turned a little and a smaller one
+  turned more, kept clear of the pleura, the fissure, the site and one
+  another. Each is a pale wall round a lumen in shade, the lumen narrowing
+  by generation (half the width in the main bronchus, under a third by the
+  sixth), cartilage plates in the walls to the fourth generation. An
+  artery runs whole beside each from the lobar bronchus on, toward the
+  apex and the costal border, under the bronchi where it passes them; the
+  left pulmonary artery arches over the bronchus at the hilum, emptied,
+  and turns back behind it; the upper vein is laid open from the hilum and
+  the others are cut across between the segments; the lower lobe's
+  bronchi are cut across, each with its artery. The lobules' septa are a
+  relaxed Voronoi mosaic 17 mm apart, crisp under the pleura and fading
+  over 32 mm toward the hilum.
+- *In the accent,* by the Atlas's name for the cell: the alveoli, the cut
+  face's parenchyma, for an alveolar cell and any cell it does not know
+  (SP-D's); the lining along the bronchi's lumens for a respiratory,
+  club, ciliated, neuroendocrine, tuft, submucosal gland or smooth muscle
+  cell; the visceral pleura round the cut, along the fissure and round the
+  right lung for a mesothelial cell. One flat tone, the mark over a
+  neutral, cut by the septa, the bronchi, the vessels and the fissure;
+  elsewhere the cut face is a deep warm grey turning away under the
+  pleura, as the liver's parenchyma does.
+- *Round it:* the right lung whole, its pleura lit on a relief, its
+  horizontal and oblique fissures creases, its lobules faint on it; the
+  trachea and the main bronchi lit tubes, the right bronchus going under
+  the right lung; the root's artery and two veins lit tubes cut short past
+  the hilum. The figure's own parts stay faint round them, its heart
+  between them, and the body's flat right lung gives way under theirs.
+- *Its names:* `alveoli`, `bronchi` or `pleura` in the accent at the
+  home; `trachea`, `bronchus` (not for an airway cell),
+  `pulmonary artery`, `upper lobe`, `lower lobe` and `right lung` in the
+  quiet ink, set round them at the canvas's corners. The fissures, veins,
+  septa and cartilage are drawn and not named.
+- *Its view* is framed 1.05 (`ZoomDepth.lungUpright`): its seven names fit
+  every phone's canvas the names test sets at 1.05; the first iPhone SE's
+  fails at 1.1 and the SE 3's at 1.15.
+- *On the step from the body* the body's left lung, flat and lit in the
+  mark, draws in to the left lung's outline, matched at its apex, its
+  costal border's outermost point, its base's lateral corner and, at
+  fixed heights, its mediastinal border at the lingula and at the cardiac
+  notch, and its hilum, over the usual 0.45 of the detail. The body's
+  base is nearly level, so its lowest point, the other specimens' mark,
+  lay half way along it and slid 51 mm to meet the lung's.
+
 **The glide.** The camera carries the organ from where it lies in the body
 to the middle of the view over the first three fifths of the step. From the
 head or the thigh that is a long way, and `zoom_smoothness_test` plays every
@@ -2685,6 +2796,13 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   rule, at sizes no source gives; no appendix, no ductulus aberrans, no
   paradidymis, no other epididymis. One site, where the efferent ductules
   have opened into the duct, for a cell of either.
+- **Lungs from a plate.** One adult's lungs, the same for every protein:
+  the left lung's cut shows its lobes as seen from the front and its
+  hilum's bronchi and vessels together, a composite no single plane cuts;
+  its branching past the segments is laid by rule, the lower lobe's
+  bronchi only cut across, the heart and great vessels left to the
+  figure. One site, the lingula's, for every cell: the alveolar slide
+  follows for an airway cell too.
 - **One field a tissue.** Wherever in the organ it is cut, and for every
   gene that goes there with the same kind of cell. "Lymphoid tissue" is a
   lymph node, and skin has no keratin layer of its own.
@@ -2800,6 +2918,14 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   places, and where the zoom's cell lives by the Atlas's name for it
   (`epididymis_form.dart`), and its meshes and how it is drawn
   (`epididymis_art.dart`).
+- `presentation/scenes/organs/lung/`: the lungs in millimetres, with
+  every source (`lung_anatomy.dart`), every number their look is tuned by
+  (`lung_style.dart`), their form posed on either figure, with the left
+  lung's outline, fissure, airways and the rule that branches them, the
+  vessels, the septa, the right lung, the trachea and their names'
+  places, and where the zoom's cell lives by the Atlas's name for it
+  (`lung_form.dart`), and their meshes and how they are drawn
+  (`lung_art.dart`).
 - `presentation/scenes/organs/`: the other specimens, each in its folder
   in the same four files, `*_anatomy.dart` (in millimetres, every size with
   its source, the drawing's choices listed as such), `*_style.dart` (every
@@ -3041,6 +3167,29 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   one another and of the scale bar, no line through another's plate or
   crossing another. `zoom_domain_test` holds its view closed on it and its
   testis together. `zoom_paint_timing_check` times it with NPC2's zoom.
+- `lung_form_test` holds the left lung to its real size, 250 by 118 mm,
+  laid on the body's left lung under 10 mm off on either figure, the right
+  lung beside it 226 mm tall and broader, the trachea on the middle line
+  between them; the site in the lingula, in the upper lobe below the
+  notch, 10 mm in from the pleura; the homes by the Atlas's names; the
+  outline simple and the fissure crossing it; every airway inside the
+  lung, those the rule lays in the upper lobe clear of the pleura, the
+  fissure and the site, narrowing by generation; an artery beside each
+  from the lobar bronchus on, and the veins clear of both; the septa
+  inside it; the step's marks in the same order on its outline and the
+  body's; and each name on what it names. `lung_art_test` holds the mark
+  to the alveoli, the lining or the pleura alone, the bed to the cut
+  face's tone, the hand-over to the body's left lung and right lung, flat,
+  with no layer or mesh, the body's right lung gone at the stop and the
+  figure's parts round them, the meshes the same every time and inside
+  the bounds, the names for each home, and the steps to them and back to
+  0.08 a frame and 1.5 px. `lung_names_test` sets SP-D's seven names in
+  the app's own type on seven phone canvases: above the lungs or below,
+  clear of both lungs and the trachea, of one another and of the scale
+  bar, no line through another's plate or crossing another.
+  `zoom_domain_test` holds the left lung followed on both figures, the
+  site low in it and the view closed on both. `zoom_paint_timing_check`
+  times them with SP-D's zoom.
 - Each of the other seventeen specimens has a `*_form_test` (its size and
   place on either figure, its site where it is sampled, its parts at their
   measured sizes, its home rule over the Atlas's names, the step's marks
