@@ -553,8 +553,11 @@ final class IntestineForm {
   /// The intestines' outline, in millimetres: round the colon, the coils,
   /// the terminal ileum and the appendix together.
   static final List<Offset> _outlineMm = () {
-    Path union = Path()..addPolygon(_colonOutlineMm, true);
+    // Every silhouette wound the same way in one path, so that where they
+    // overlap they add up, and simplified to their union in one step.
+    final Path all = Path();
     for (final List<Offset> shape in <List<Offset>>[
+      _colonOutlineMm,
       for (final TubeCourse t in _coilsMm) _silhouette(t),
       _silhouette(_ileum),
       _silhouette(_appendixMm),
@@ -563,12 +566,9 @@ final class IntestineForm {
       if (shape.length < 3) {
         continue;
       }
-      union = Path.combine(
-        PathOperation.union,
-        union,
-        Path()..addPolygon(shape, true),
-      );
+      all.addPolygon(_area(shape) > 0 ? shape : shape.reversed.toList(), true);
     }
+    final Path union = Path.combine(PathOperation.union, Path(), all);
     List<Offset> best = <Offset>[];
     double most = 0;
     for (final PathMetric metric in union.computeMetrics()) {

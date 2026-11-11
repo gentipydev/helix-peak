@@ -261,7 +261,9 @@ void main() {
         }
       }
     }
-    for (final Offset p in form.colon.centres) {
+    // The colon's middle line, but its first point: the cecum's tip, on
+    // the outline itself.
+    for (final Offset p in form.colon.centres.skip(1)) {
       expect(_inside(outline, p), isTrue);
     }
     for (final TubeCourse t in form.coils) {
