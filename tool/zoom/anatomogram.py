@@ -109,6 +109,18 @@ SITE_TOP = {"UBERON_0002371": 0.2}
 # where the heart's form lays the wall through it on either figure.
 SITE_RIGHT = {"UBERON_0000948": (0.56, 0.035)}
 
+# Parts the zoom goes into in from their left edge, the body's right, as
+# `SITE_RIGHT` from the right. The intestine is drawn as the intestines in
+# place from the front (`intestine_anatomy.dart`), the cecum low on the
+# body's right, a window cut at the ileocecal junction; GTEx takes the small
+# intestine from "the most distal part of the small intestine; thickened
+# mucosa with a punctuate appearance corresponding to lymphoid nodules
+# (Peyer Patches) just proximal to the ileocecal valve" (GTEx Tissue
+# Harvesting Work Instruction, PR-0004-W1, version 03.05, 4.3.6.21): the
+# site lies on the Peyer's patch the drawing lays on the terminal ileum,
+# where it is laid open beside the cecum, on either figure.
+SITE_LEFT = {"UBERON_0002108": (0.78, 0.28)}
+
 # Parts the zoom follows into another of their outlines than the largest:
 # the one whose box's middle lies farthest from the figure's midline, written
 # as its place among them (`followed`), the outlines kept largest first.
@@ -279,21 +291,25 @@ def site_of(contour: list[svg.Point], top: float = 1.0) -> svg.Point:
     return at if at is not None else ((x0 + x1) / 2, (y0 + y1) / 2)
 
 
-def site_right(contour: list[svg.Point], down: float, inset: float) -> svg.Point:
+def site_right(contour: list[svg.Point], down: float, inset: float, side: int = 1) -> svg.Point:
     """A point [down] of the way down [contour]'s box, [inset] of its width
     in from where the contour crosses that height furthest to the right
-    (`SITE_RIGHT`)."""
+    (`SITE_RIGHT`), or, where [side] is -1, furthest to the left
+    (`SITE_LEFT`); inside the contour."""
     x0, y0, x1, y1 = svg.bounds([contour])
     y = y0 + (y1 - y0) * down
-    right = None
+    edge = None
     for i, a in enumerate(contour):
         b = contour[(i + 1) % len(contour)]
         if (a[1] > y) != (b[1] > y):
             x = a[0] + (y - a[1]) * (b[0] - a[0]) / (b[1] - a[1])
-            right = x if right is None else max(right, x)
-    if right is None:
+            edge = x if edge is None else (max(edge, x) if side > 0 else min(edge, x))
+    if edge is None:
         raise SystemExit(f"no outline crosses {down} of the way down")
-    return (right - (x1 - x0) * inset, y)
+    site = (edge - side * (x1 - x0) * inset, y)
+    if not inside(contour, site):
+        raise SystemExit(f"{site} lies outside the outline")
+    return site
 
 
 def site_lateral(contour: list[svg.Point], down: float, inset: float, middle: float) -> svg.Point:
@@ -475,6 +491,8 @@ def convert_body(name: str, path: str, wanted: set[str]) -> dict:
         followed = contours[follow]
         if uberon in SITE_RIGHT:
             site = site_right(followed, *SITE_RIGHT[uberon])
+        elif uberon in SITE_LEFT:
+            site = site_right(followed, *SITE_LEFT[uberon], side=-1)
         elif uberon in SITE_LEVEL:
             site = site_level(followed, SITE_LEVEL[uberon])
         elif uberon in SITE_LATERAL:
