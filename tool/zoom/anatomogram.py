@@ -115,8 +115,13 @@ SITE_RIGHT = {"UBERON_0000948": (0.56, 0.035)}
 # pleural surface" (the GTEx Portal's sampling site for Lung, gtex_v10),
 # the lingula's lower segment; the anatomogram draws the right lung the
 # larger on the female figure and the left on the male, so the largest
-# outline alone would go into a different lung on each.
-FOLLOW_BODY_LEFT = {"UBERON_0002048"}
+# outline alone would go into a different lung on each. GTEx takes the ovary
+# from "Most normal regions of the left ovary (and right if necessary to
+# obtain sufficient aliquots)" (the GTEx Portal's sampling site for Ovary,
+# gtex_v10); the female figure's two ovaries are discs whose areas differ by
+# a twentieth of a percent, the left the larger only by that, so the rule
+# holds the zoom to the left one.
+FOLLOW_BODY_LEFT = {"UBERON_0002048", "UBERON_0000992"}
 
 # Parts the zoom goes into in from their left edge, the body's right, as
 # `SITE_RIGHT` from the right. The intestine is drawn as the intestines in
@@ -163,8 +168,22 @@ FOLLOW_OUTERMOST = {"UBERON_0001134"}
 # sampling site for Cervix - Ectocervix, gtex_v10); the cervix is drawn so
 # opened (`cervix_anatomy.dart`): 0.85 of the way down the outline it
 # follows, one of its two halves, lies on that half's vaginal part, beside
-# the canal's lower end.
-SITE_LEVEL = {"UBERON_0001134": 0.6, "UBERON_0001043": 0.75, "UBERON_0000002": 0.85}
+# the canal's lower end. The ovary is drawn cut through its thickness, seen
+# from the front, its mesovarian border up and its free border down
+# (`ovary_anatomy.dart`), and GTEx takes "most normal regions" of it, aliquots
+# 10 mm by 10 mm and at most 4 mm thick (its Tissue Harvesting Work
+# Instruction, PR-0004-W1, version 03.05, 4.3.6.27.2): 0.73 of the way down
+# the disc the anatomogram draws it as lies 1 mm in from the drawing's free
+# border, in its cortex, clear of every follicle and corpus, the drawing
+# lying over the disc (the slit the disc is drawn with runs from its rim to
+# its middle, between 0.26 and 0.5 of its height, and crosses no level the
+# rule looks at).
+SITE_LEVEL = {
+    "UBERON_0001134": 0.6,
+    "UBERON_0001043": 0.75,
+    "UBERON_0000002": 0.85,
+    "UBERON_0000992": 0.73,
+}
 
 # Parts the view closes on whole: written with a `centre`, the middle of the
 # box round all their outlines, where the view closes in place of the middle

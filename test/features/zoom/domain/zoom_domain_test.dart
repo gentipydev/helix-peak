@@ -630,6 +630,26 @@ void main() {
       }
     });
 
+    test('go into the ovary in its left one, where GTEx samples it, 0.73 of '
+        'the way down its disc and midway across it, in the cortex of its '
+        'free border as the ovary is drawn, the view closing on it', () {
+      final String uberon = tissueAnatomy['ovary']!.uberon;
+      expect(AnatomyFigure.male.parts[uberon], isNull);
+      final AnatomyPart part = AnatomyFigure.female.parts[uberon]!;
+      final Rect box = boxOf(part.followed);
+      // On the body's left, the page's right of the figure's middle.
+      expect(box.center.dx, greaterThan(0));
+      for (final List<Offset> other in part.others) {
+        expect(boxOf(other).center.dx, lessThan(0));
+      }
+      expect((part.site.dy - box.top) / box.height, closeTo(0.73, 0.01));
+      // Midway across the disc at that height: near its middle.
+      expect((part.site.dx - box.center.dx).abs(), lessThan(box.width * 0.05));
+      expect(part.framed, isNull);
+      expect(part.following, 0);
+      expect(part.centre, box.center);
+    });
+
     test('go into skeletal muscle in its outermost outline, the vastus '
         'lateralis, 0.6 of the way down and midway across it, the view '
         'closing on the whole thigh', () {
