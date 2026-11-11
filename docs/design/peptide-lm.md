@@ -871,7 +871,7 @@ out of view is scrolled just far enough to show it whole.
    now one flow, the error carried back row by row to x0. A weight's own
    gradient (error × the number that went in, averaged over the 180) is what
    Update opens on.
-11. **Update** (38 beats, reworked 2026-11-03; the user's picks: the same
+11. **Update** (39 beats, reworked 2026-11-03; the user's picks: the same
    weight at every place on the table, over every place's whole grid added;
    and the run re-recorded as schema 8, AdamW's running averages for the
    output layer kept, so the step is worked out at every checkpoint). It
@@ -894,17 +894,59 @@ out of view is scrolled just far enough to show it whole.
    step 1: no past, the sign alone; at step 49 from −1.18 to +1.41); times
    −rate, the schedule marking the step; the bars condense into a step
    column and the weights go through it to after (−0.0598 + 0.0001 =
-   −0.0597). Last every weight's step on the grid (0.0001 each at step 1,
-   soft tiles; the full ramp read as a loud checkerboard) and the layer
-   after, its plate one update on. The old stage (a grid lerping gradient →
-   update → weights, module bars against their largest, a lone schedule) is
-   gone, and with it `ModuleRail`.
+   −0.0597). Last every weight's step on the grid (0.0001 each at step 1)
+   and the layer after, its plate one update on. The old stage (a grid
+   lerping gradient → update → weights, module bars against their largest,
+   a lone schedule) is gone, and with it `ModuleRail`.
+
+   On 2026-11-10 the user found the stage's way in, two of its looks and
+   its way out wanting (39 beats since; plan
+   `~/.claude/plans/helix-peek-lib-features-peptide-lm-focu-buzzing-brook.md`):
+   - *Its opening* faded Backward's table out and the bench in, through a
+     nearly empty canvas at beat 0.5, where every stage before it moves the
+     last one's frame. Now Update draws Backward's table itself (its first
+     frame still Backward's last, pixel for pixel) and a wave runs down it,
+     each row's gradient dimming as its last row comes in where it was
+     (`UpdateScene.rewritten`: a row never holds both, two rows at most
+     between them), under the tag `last rows · n × 16`; the place's row then
+     turns off the table into the bench's left column, Predict's own
+     stand-up (`StreamTable.strip`), while p − y comes in at the right, and
+     then the strings (+1 beat). The bench leaves the way it came: the
+     column lies back down into its row, its numbers return and its outline
+     widens out to its tile as the other rows come back round it, and the
+     other fifteen numbers dim to leave number 6's column (an outline had
+     crossed the row's own).
+   - *Rings.* The worked weight was ringed wherever it went, honey and
+     green, one honey ring on the pull inside the place's green outline (the
+     user's "double border"). Every ring is gone: the worked weight's own
+     numbers are written in the honey of its string (the user's pick, over a
+     soft band), and the place in focus's green outline is the only line
+     round anything. `drawColumnNumbers`, `drawLastRow` and `drawErrors` take
+     an optional ink, by default the ink.
+   - *The grid.* Its full-ramp tiles, hatched never-next rows, tiles 35 pt
+     off and a step grid at step 1 that was a solid two-colour checkerboard
+     (the soft tiles had not been enough) read as loud. The user picked
+     squares in slots, Predict's map's kind (`gridSquare`, `squareColour`,
+     `gradientValue`/`stepValue`/`afterValue`): a square's area is the
+     weight's size against the state's scale, at most half its slot
+     (`mostArea`), so 368 equal squares are a field, not a wall; its colour
+     the sign's at a table's soft strength; never-next rows empty; square
+     cells, each token's tile right beside its row, the grid centred; the
+     worked token's row lit as Predict lights what came next. The varied
+     gradient squares becoming 368 equal step squares at step 1 is AdamW's
+     point, seen. The chart's output-layer bar now grows back into the faint
+     grid before the worked row stands up (the shrink played back), its
+     squares crossfading into the standing strip and back.
 12. **Loop** (44 beats, reworked 2026-11-03; the user's picks: Predict's map
    at every step, the run re-recorded as schema 9 for it; a hold at each
    kept step; the weights in the opening only). Training is the step the
    stages showed, 200 times on the batch made once; Loop shows what that
    does. It opens on Update's last frame pixel for pixel (every weight moved
-   once), and puts step 1 back together on a canvas of its own: its guesses
+   once); since 2026-11-10 the grid then glides down and widens into the
+   map's frame, its squares going as it goes and its slots giving way to
+   the map's (`UpdateFade.glide`, `gridTo`), where it had faded out to a
+   nearly empty canvas before the map faded in; and it puts step 1 back
+   together on a canvas of its own: its guesses
    as Predict's map, on rows of its own (`share_map.dart`, Predict's map
    promoted, its frames byte-identical), and their cost, 3.220, the first
    point of a curve in the loss's honey, the levels dashed in Loss's words
@@ -929,8 +971,10 @@ out of view is scrolled just far enough to show it whole.
    the weights changed (S's from number 6, which Update worked: −0.0598 to
    0.0938), nothing held out, learned by heart. Squares are the steps' own
    probabilities, lerped between whole steps; every number written is a
-   kept step's, whole, and only while the run stands. The moves carry no
-   note, so the eye is on the map. The run starts at step 1 whatever
+   kept step's, whole, and only while the run stands; the key's y stays
+   named over its tiles while its p(y) comes and goes (until 2026-11-10 both
+   names blinked off at every move). The moves carry no note, so the eye is
+   on the map. The run starts at step 1 whatever
    checkpoint is picked; a tick picks a checkpoint and holds the run there.
    The old stage (residue-coloured tiles lit by p(y), the output layer's
    grid drifting, an `lr` strip, one linear sweep) is gone.

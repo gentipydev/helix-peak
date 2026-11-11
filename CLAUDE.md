@@ -259,7 +259,7 @@ the service is asleep. `TrainingTrace.parse` refuses another run, another
 schema or an array of another shape; the payload's shape is the backend's
 `check_trace.py`.
 
-Twelve stages (`TrainingTimeline`, 265 beats), named on the shared
+Twelve stages (`TrainingTimeline`, 266 beats), named on the shared
 `StageBar`, which scrolls sideways at full size where a phone is too narrow
 for it (a stage played whose name is partly out of view is scrolled just
 far enough to show it whole). A tap on a stage plays it once from its start, at the page's one
@@ -619,48 +619,67 @@ drawn as faint as it is. While the batch shows a line puts its peptide in
 focus; on the line alone a target its place; on the bench and the ladder a
 tap asks for nothing; on the table a row puts its place in focus.
 
-**Update** (`update_scene.dart`, 38 beats, the user's picks of 2026-11-03)
+**Update** (`update_scene.dart`, 39 beats, the user's picks of 2026-11-03)
 gives every weight its gradient, guards their length and takes AdamW's step.
-It opens on Backward's last frame, pixel for pixel (`BackwardScene.paintEnd`,
-`BackwardFade`): the x0 table goes and the output layer's bench comes back as
-Backward stood it before the climb (`BackwardScene.drawLastRow`,
-`drawErrors`, `PredictScene.drawPlate`, promoted): the place's last row at
-the left, its p − y where the logits were made, and between them the 368
-strings, faint, drawn from the row's numbers, each a weight. One string is
-worked, the place's largest error × number (insulin A's C11 at step 1: S's
-from number 6, its ends ringed, `−0.99 × 1.94 = −1.92` written on it from the
-written factors): a weight's gradient is the error at its end times the number
-at its start. Then the same weight at every place (the user's pick over every
-place's whole grid added): every place's last row on the table, the worked
-number's column lit; the table narrows to that column, each place's p − y at
-the worked token beside it (the rows where it came next softly lit) and each
-place's pull, its row's product; the peptide's pulls added under them, then a
-card of the six peptides' sums and all 180 (−4.075), and ÷ 180, as the loss
-is their mean (−0.0226, the gradient the optimiser read). Every weight at
-once: the output layer's gradient as a grid on the bench's token rows, the
-worked mean flying into its cell, `<pad>` and `<bos>` struck (never next, no
-gradient). The grid shrinks into its row of a chart of the run's ten groups,
-each named with its weights and a honey bar of its gradients' length (the
-error reaching each weight's end × the number at its start, every layer the
-same way); then all 8,167 together, their lengths added as squares, against
-the clip's dashed 1.0 (no checkpoint is clipped; nine of the run's steps
-were). Then AdamW on the worked token's 16 weights (the user's pick of a
-re-recorded run, schema 8, so every checkpoint's step is worked, not only step
-1's): the grid's row stands up as its gradients beside the weights, a bar a
-weight on Scores' evening-chart way of drawing a row (bars from a dashed 0);
-the bars move to AdamW's running mean, a tick marks each running size, each
-bar goes over its own size to its ratio (at step 1, with no past, every one
-±1: the sign alone), then flips and scales by the rate, a small schedule
-marking this step, into the step; the bars condense into a step column and
-a copy of the weights goes through it to after (`−0.0598 + 0.0001 = −0.0597`
-at number 6). Last the step lies back into the grid: every weight's step
-(0.0001 each at step 1, whatever its gradient), then the layer after, its
-plate's status one update on (`ScoresScene.weightsStatus(after:)`). Every
-number is the run's and held to it (`lm_scenes_test`, the live check): the
-pulls added and ÷ 180, times the clip, are the kept gradient; AdamW's rule
-from the kept running averages makes every kept update. On the table of
-every place's last rows a row puts its place in focus; elsewhere a tap asks
-for nothing.
+It opens on Backward's last frame, pixel for pixel, and moves it, as every
+stage opens (the user's ask of 2026-11-10: it had faded the table out and
+the bench in, through a nearly empty canvas): Update draws Backward's table
+itself, and a wave runs down it, each row's gradient dimming as its last row,
+what the output layer read, comes in where it was, under the tag
+`last rows · n × 16`; then the place's row turns off the table into the
+bench's left column, as Predict stands it, while p − y comes in where the
+logits were made (`BackwardScene.drawLastRow`, `drawErrors`,
+`PredictScene.drawPlate`, promoted) and then the 368 strings between them,
+faint, drawn from the row's numbers, each a weight. One string is worked, the
+place's largest error × number (insulin A's C11 at step 1: S's from number
+6, `−0.99 × 1.94 = −1.92` written on it from the written factors): a
+weight's gradient is the error at its end times the number at its start.
+Then the same weight at every place (the user's pick over every place's
+whole grid added): the bench goes the way it came, the place's column lying
+back down into its row as every other place's last row comes back round it,
+and the other fifteen numbers dim, leaving the worked number's column; the
+table narrows to that column, each place's p − y at the worked token beside
+it (the rows where it came next softly lit) and each place's pull, its row's
+product; the peptide's pulls added under them, then a card of the six
+peptides' sums and all 180 (−4.075), and ÷ 180, as the loss is their mean
+(−0.0226, the gradient the optimiser read). Every weight at once: the output
+layer's gradient as a grid on the bench's token rows, the worked mean flying
+into its cell. The grid is Predict's map's kind (the user's pick of
+2026-11-10, after its full-colour tiles and hatched rows read as loud): a
+dark slot a weight, and in it a square whose area is the weight's size
+against its scale, at most half its slot, its colour its sign's, as soft as
+a table's tiles; `<pad>` and `<bos>` (never next, no gradient) are empty
+slots; each token's tile sits right beside its row; the worked token's row
+is lit as Predict lights what came next. The grid shrinks into its row of a
+chart of the run's ten groups, each named with its weights and a honey bar
+of its gradients' length (the error reaching each weight's end × the number
+at its start, every layer the same way); then all 8,167 together, their
+lengths added as squares, against the clip's dashed 1.0 (no checkpoint is
+clipped; nine of the run's steps were). Then AdamW on the worked token's 16
+weights (the user's pick of a re-recorded run, schema 8, so every
+checkpoint's step is worked, not only step 1's): the output layer's bar grows
+back into the grid, faint, and the grid's row stands up as its gradients
+beside the weights, a bar a weight on Scores' evening-chart way of drawing a
+row (bars from a dashed 0); the bars move to AdamW's running mean, a tick
+marks each running size, each bar goes over its own size to its ratio (at
+step 1, with no past, every one ±1: the sign alone), then flips and scales
+by the rate, a small schedule marking this step, into the step; the bars
+condense into a step column and a copy of the weights goes through it to
+after (`−0.0598 + 0.0001 = −0.0597` at number 6). Last the step lies back
+into the grid: every weight's step (0.0001 each at step 1, whatever its
+gradient: 368 squares one size), then the layer after, its plate's status
+one update on (`ScoresScene.weightsStatus(after:)`). Nothing in the stage is
+ringed (the user's word of 2026-11-10: the honey rings, one inside the place
+in focus's green outline, read as double borders): the worked weight is
+followed by its own numbers written in the honey of its string, 1.94 and
+−0.99 at the string's ends, the place's pull, the mean, and number 6 in each
+of AdamW's columns, and the place in focus's green outline is the only line
+round anything. Every number is the run's and held to it (`lm_scenes_test`,
+the live check): the pulls added and ÷ 180, times the clip, are the kept
+gradient; AdamW's rule from the kept running averages makes every kept
+update. While the table is up, Backward's and then the last rows', and on
+the table of every place's last rows later, a row puts its place in focus;
+elsewhere a tap asks for nothing.
 
 **Loop** (`loop_scene.dart`, 44 beats, the user's picks of 2026-11-03) is
 that step again and again, 200 times, on the batch made once: what the
@@ -668,7 +687,10 @@ training does, as the stages showed it, seen over the run. Its pace is the
 domain's (`LoopPace`, a pure function of the run: `TrainingFrame` carries no
 step since): it opens on Update's last frame, pixel for pixel
 (`UpdateScene.paintEnd`, `UpdateFade`), every weight moved once; Update's
-grid goes, and step 1 is put back together on a canvas of Loop's own
+grid glides down and widens into the map's frame, its squares going as it
+goes and its slots giving way to the map's (`UpdateFade.glide`, `gridTo`;
+until 2026-11-10 it faded out to a nearly empty canvas first), and step 1 is
+put back together on a canvas of Loop's own
 (`LoopLayout`): its guesses as Predict's map, on rows of its own under the
 note (`share_map.dart`: `ShareMapLayout` and `ShareMap`, Predict's map
 promoted, Predict, Loss and Backward byte-identical), and their cost, the
@@ -688,8 +710,9 @@ squares jump into their lit slots one place after another, gets the time.
 The map is drawn from every step's own probabilities (schema 9, the user's
 pick), lerped between whole steps; every number written (p(y), the head's
 loss, the rate) is a kept step's whole one, and only while the run stands,
-for numbers that change every frame cannot be read. The moves carry no note,
-so the eye is on the map. The end: every row but `<bos>`'s dims, its six
+for numbers that change every frame cannot be read; the key's y stays named
+over its tiles while its p(y) comes and goes (`drawAnswerKey(titleWithTiles:)`).
+The moves carry no note, so the eye is on the map. The end: every row but `<bos>`'s dims, its six
 squares a sixth each, 93% of the loss, the floor; then the run whole and how
 far the weight Update worked travelled (S's from number 6: −0.0598 to
 0.0938; the weights appear in the opening only, the user's pick). The run

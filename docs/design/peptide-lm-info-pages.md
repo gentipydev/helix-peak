@@ -74,7 +74,7 @@ analysis is in `peptide-lm.md` under "Info pages".
 | Predict | 14 | 2026-11-07 | one | yes, six |
 | Loss | 17 | 2026-11-07 | two | yes, five (the last a line longer at step 200) |
 | Backward | 44 | 2026-11-07 | two | yes, nineteen |
-| Update | 38 | 2026-11-07 | two | yes, eighteen |
+| Update | 39 | 2026-11-07 | two | yes, eighteen |
 | Loop | 44 | 2026-11-07 | three | yes, one at each part and hold |
 
 Every stage has one: `LmScene.info` is required of every scene, and the ⓘ,
@@ -776,7 +776,7 @@ insulin A's C11 where a place is in focus.
   gradient, the batch mean) cut and moved to Update; scales the whole
   batch's; numbers × 180.
 
-### Update (`update_scene.dart`, 38 beats)
+### Update (`update_scene.dart`, 39 beats)
 
 - **On screen:** the output layer's strings; one weight worked (S's from
   number 6: −0.99 at its end × 1.94 at its start = −1.92); the same weight
