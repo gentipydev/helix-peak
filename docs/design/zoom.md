@@ -505,6 +505,34 @@ convention is, where it comes from, and what it decided:
   (GTEx Portal), the lingula's lower segment. *Consequence:* the lungs are
   drawn so, in place from the front, the left one cut open where GTEx
   samples it ("The lungs" below).
+- **The ovary.** Anatomy plates show it behind the broad ligament spread
+  out, beside the uterus, its tube arching over it (Gray 1918, Fig. 1161),
+  and cut through to show its follicles (Fig. 1163, after Schrön). Each
+  ovary is about 4 cm long, 2 cm wide and 8 mm thick and weighs 2 to 3.5
+  g; its uterine end, narrower than its tubal, is held to the uterus by
+  the ligament of the ovary, a rounded cord; to its tubal end come the
+  ovarian fimbria and the suspensory ligament with the ovarian vessels;
+  its mesovarian border is straight and its free border convex, and the
+  tube runs up along the one, over the tubal pole and down the other.
+  Under its surface lie the follicles in their earliest condition, the
+  cortical layer; larger ones lie deeper toward the medulla, the vascular
+  stroma about the hilum, which has none; a ripening follicle's granulosa
+  gathers into the discus proligerus about the ovum; a corpus luteum is
+  its lining thrown into folds once the ovum has gone, its yellow cells
+  later merging with the stroma (Gray 1918). The smallest follicles'
+  oocytes have nuclei 14 to 23 µm across (Westergaard et al. 2007); in
+  adults the primordial and primary follicles lie 460 to 500 µm under the
+  surface and the secondary 640 µm (Haino et al. 2018). A dominant
+  follicle is selected in the mid-follicular phase (Baerwald et al. 2012)
+  and is 21.4 mm across at ovulation, from 17.4 to 27.0 (Bakos et al.
+  1994); the last corpus luteum can still be seen through the next
+  follicular phase (Baerwald et al. 2005); an ovary of the reproductive
+  years holds about 7 mL and six antral follicles (Jabbar et al. 2026).
+  GTEx samples "most normal regions of the left ovary" (GTEx Portal), in
+  aliquots 10 by 10 mm and at most 4 mm thick (its Tissue Harvesting Work
+  Instruction, 4.3.6.27.2). *Consequence:* the ovary is drawn so, the left
+  one cut through its thickness, its tube arching over it ("The ovary"
+  below).
 - **Histology.** Haematoxylin stains nuclei and ribosome-rich cytoplasm;
   eosin stains protein; fat, mucus and lumens take neither. A ×40 objective
   under a standard eyepiece shows a field about half a millimetre across.
@@ -645,6 +673,15 @@ Sources:
 - Ayele T et al. Ultrasonographic Determination of Portal Vein Diameter
   Among Adults with and without Chronic Liver Disease at Selected Referral
   Hospitals in Southern Ethiopia. Int J Gen Med 2022;15:45–52.
+- Baerwald AR, Adams GP, Pierson RA. Form and function of the corpus
+  luteum during the human menstrual cycle. Ultrasound Obstet Gynecol
+  2005;25:498–507.
+- Baerwald AR, Adams GP, Pierson RA. Ovarian antral folliculogenesis
+  during the human menstrual cycle: a review. Hum Reprod Update
+  2012;18:73–91.
+- Bakos O, Lundkvist O, Wide L, Bergh T. Ultrasonographical and hormonal
+  description of the normal ovulatory menstrual cycle. Acta Obstet Gynecol
+  Scand 1994;73:790–796.
 - Barnhart KT et al. Baseline dimensions of the human vagina. Hum Reprod
   2006;21:1618–1622.
 - Baumgartner M et al. Genes occupy a fixed and symmetrical position on
@@ -723,13 +760,14 @@ Sources:
   Findings, and CKD Outcomes among Kidney Donors. J Am Soc Nephrol
   2023;34:1752–1763.
 - GTEx Consortium. GTEx Tissue Harvesting Work Instruction, PR-0004-W1,
-  version 03.05: 4.3.6.21 (the small intestine).
+  version 03.05: 4.3.6.21 (the small intestine) and 4.3.6.27.2 (the
+  ovary).
 - GTEx Consortium. Tissue procurement standard operating procedure (heart:
   the anterior left ventricle), as `tool/zoom/anatomogram.py` cites it.
 - GTEx Portal. Tissue site details, dataset gtex_v10: each tissue's
   sampling site (<https://gtexportal.org/api/v2/dataset/tissueSiteDetail>,
   read 2026-11-04; the breast's 2026-11-05, the cervix's 2026-11-07; its 54
-  sites, none of them the epididymis, 2026-11-07; the lung's 2026-11-11).
+  sites, none of them the epididymis, 2026-11-07; the lung's and the ovary's 2026-11-11).
 - Gündoğdu E. Relationship of the Presence of the Inferior Right Hepatic
   Vein with the Right Hepatic Vein Diameter and CT Liver Volumetry. Indian J
   Radiol Imaging 2023;33:332–337.
@@ -738,6 +776,9 @@ Sources:
 - Hager A et al. Diameters of the thoracic aorta throughout life as measured
   with helical computed tomography. J Thorac Cardiovasc Surg
   2002;123:1060–1066.
+- Haino T et al. Determination of Follicular Localization in Human
+  Ovarian Cortex for Vitrification. J Adolesc Young Adult Oncol
+  2018;7:46–53.
 - Halladjian S et al. ScaleTrotter: illustrative visual travels across
   negative scales. IEEE Trans Vis Comput Graph 2020;26:654–664.
 - Haraikawa M et al. Correlation between Constipation Symptoms and
@@ -768,6 +809,10 @@ Sources:
 - Iwanaga J et al. Facial landmark-based localization of the parotid duct: a
   cadaveric study with ultrasonographic feasibility assessment. Sci Rep
   2026;16:11082.
+- Jabbar PK et al. Sonographic normative range of uterine and ovarian
+  dimensions and their correlation with anthropometric and hormonal
+  parameters among Indian women of reproductive age (18-40) years. Front
+  Med (Lausanne) 2026;13:1765600.
 - Kanyilmaz S, Calis FA, Cinar Y. Bladder wall thickness and ultrasound
   estimated bladder weight in healthy adults with portative ultrasound
   device. J Res Med Sci 2013;18:103–106.
@@ -1077,6 +1122,9 @@ Sources:
 - Webb WR. Thin-section CT of the secondary pulmonary lobule: anatomy and
   the image. Radiology 2006;239:322–338.
 - Weibel ER. Morphometry of the Human Lung. Springer, 1963.
+- Westergaard CG, Byskov AG, Andersen CY. Morphometric characteristics of
+  the primordial to primary follicle transition in the human ovary in
+  relation to age. Hum Reprod 2007;22:2225–2231.
 - Wetstein SC et al. Deep learning assessment of breast terminal duct
   lobular unit involution: Towards automated prediction of breast cancer
   risk. PLoS One 2020;15:e0231653.
@@ -1256,7 +1304,7 @@ body drew for it (`OrganArt`), so the step is one shape seen closer. It
 comes up over the body's own drawing of the organ early in the step, and
 `zoom_anatomy_test` holds the two to the same point of the screen while both
 show. On the way in, the body's line art and its unlit organs give way.
-Twenty-one of the specimens below then draw in to outlines of their own
+Twenty-two of the specimens below then draw in to outlines of their own
 (`_SpecimenOrgan`, `OutlineMorph`), each becoming the bed its specimen comes
 up over (`SpecimenStep`); the breast's is its mound, its outline without the
 axillary tail, which comes up with the rest of it, and the cervix's is the
@@ -1265,7 +1313,8 @@ the cervix's canal and its wall on that side, the other half giving way
 under the cervix as it comes up; the epididymis's band draws in to the
 epididymis on its testis's back, and the testis comes up beside it where
 the body drew the testis; the body's left lung draws in to the lungs' cut
-left lung, and their right lung comes up over the body's. The brain, the eye, the
+left lung, and their right lung comes up over the body's; the ovary's is the
+body's disc without the slit it is drawn with. The brain, the eye, the
 skin, the lymph node, the placenta and the fat, which the body draws no
 outline of that shows them, come up over the body's drawing instead, a
 crossfade.
@@ -1284,14 +1333,15 @@ it, fading with their distance from it, so it is seen at a glance where in
 the body it lies (the user's ask of 2026-10-21). They stay round the bone
 marrow, the heart, the thigh, the kidney, the liver, the stomach, the
 esophagus, the thyroid, the adrenal, the fallopian tube, the bladder, the
-breast, the cervix, the epididymis, the gallbladder, the intestines and
-the lungs, round the bladder all
+breast, the cervix, the epididymis, the gallbladder, the intestines, the
+lungs and the ovary, round the bladder all
 but the figure's smooth muscle, which the anatomogram draws as the bladder's own
 wall, round the cervix all but the figure's vagina, which the cervix draws
-as its own vault, and round the epididymis all but the figure's testis,
-which it draws whole beside it (`_SpecimenOrgan`'s `notAround`); the
-kidney and the adrenal keep the body's flat drawing of the other one beside
-them, the lungs the body's right lung until their own comes up, the thigh
+as its own vault, round the epididymis all but the figure's testis,
+which it draws whole beside it, and round the ovary all but the figure's
+fallopian tube, which it draws arching over it (`_SpecimenOrgan`'s
+`notAround`); the kidney, the adrenal and the ovary keep the body's flat
+drawing of the other one beside them, the lungs the body's right lung until their own comes up, the thigh
 the body's four other
 muscles until its own come up, and the cervix the body's other half of it
 until it comes up. Round the pancreas, the testis, the salivary gland and
@@ -1299,7 +1349,7 @@ the pituitary they give way to the specimen's own neighbours; the six
 specimens that crossfade come up with none of the figure round them.
 
 **Its anatomy.** The fifty-four curated proteins' paths reach all
-thirty-six of the organs the zoom draws. Twenty-seven are drawn from anatomy
+thirty-six of the organs the zoom draws. Twenty-eight are drawn from anatomy
 as specimens, each in a section below, in the neutrals but for vessels,
 nerves and the accent; in each the part the zoom's cell lives in is in the
 accent, by the kind of organ and of cell, never by gene: one flat tone cut
@@ -1336,15 +1386,16 @@ or tubules:
 | Gallbladder (FGF19) | laid open from the front, with its ducts | its mucosa |
 | Intestines (FABP6) | in place from the front, a window at the ileocecal junction | the colon's lining, the ileum's, both, or their muscle |
 | Lungs (SFTPD) | in place from the front, the left one cut open from front to back | its alveoli, its bronchi's lining, or its pleura |
+| Ovary (PADI6) | the left one cut through its thickness, its tube arching over it | its follicles, or its stroma |
 
 The vessel (GAS6) and the parathyroid gland (CASR) have drawings of their
 own: a length of artery, and a gland on the back of the thyroid. The
-other seven kinds are the anatomogram's own outline, sculpted with a
+other six kinds are the anatomogram's own outline, sculpted with a
 surface for its kind:
 
 | Look | Organs (proteins) |
 |---|---|
-| lobules | ovary (PADI6), prostate (ACP3) |
+| lobules | prostate (ACP3) |
 | a wall round a lumen | uterus (PAEP), vagina (ALOX12) |
 | fibres | smooth muscle (LOXL2), tongue (CKMT2) |
 | coils | seminal vesicle (ANGPT1) |
@@ -2362,6 +2413,80 @@ vessels and the accent:
   base is nearly level, so its lowest point, the other specimens' mark,
   lay half way along it and slid 51 mm to meet the lung's.
 
+**The ovary.** It is drawn as a fresh specimen under the same lamp: the
+left ovary, where GTEx samples it, seen from the front as the anatomogram
+lays the pelvis out and cut through its thickness down its length and
+through its hilum, its front half taken away, as Schrön's section draws
+it (Gray 1918, Fig. 1163), its tube arching over it
+(`presentation/scenes/organs/ovary/`, 2026-11-11, every choice mine at the
+user's word: "no need for confirmation"), in the neutrals but for the
+vessels, the corpus luteum's yellow and the accent:
+
+- *Its shape* (`ovary_anatomy.dart`, in millimetres along the ovary from
+  its middle, x toward its tubal pole, the body's left, y toward its free
+  border): 40 mm long and 20 across, Gray's length and width, the card's
+  4 cm; its mesovarian border nearly straight, its free border convex and
+  puckered a little, its uterine pole narrower than its tubal; laid 13°
+  from level, its tubal pole the higher.
+- *Where it is sampled.* GTEx samples "most normal regions of the left
+  ovary", in aliquots 10 by 10 mm and at most 4 mm thick; the site is on
+  the free border, 1 mm under the surface, in cortex clear of every
+  follicle and corpus. The anatomogram draws each ovary as a disc, the
+  left the larger by a twentieth of a percent; rules in the tool hold the
+  zoom to the left one (`FOLLOW_BODY_LEFT`) and put the body's site 0.73 of
+  the way down it, midway across (`SITE_LEVEL`), where the drawing lays
+  its own, over the disc.
+- *Its cut* is one moment of the ovary's cycle, as Schrön's section has
+  it. Under the surface lies the dust of the earliest follicles, the
+  primordial nearer it and the growing deeper; five small antral
+  follicles of 2 to 4 mm lie deeper as they grow, and one near ripeness,
+  13 mm, bulges the free border under a thin cortex. Each antrum is
+  emptied, in shade, and rimmed as the kidney's calyces are; its
+  granulosa rings it, the cumulus standing in with the oocyte, and its
+  theca is a warmer line outside. The last cycle's corpus luteum, 10 mm,
+  lies toward the tubal pole, a band of the adrenal cortex's yellow
+  thrown into thirteen folds round a pale core; three corpora albicantia
+  are pale convoluted scars. The medulla, an oval about the hilum 14 mm
+  along the mesovarian border, is deeper and redder than the cortex, its
+  helicine vessels cut across, arteries and veins in turn, along four
+  coiled courses from the hilum; the cortex's edge turns away under its
+  covering.
+- *In the accent,* by the Atlas's name for the cell: every follicle for an
+  oocyte or a granulosa cell (PADI6's oocyte), its granulosa and cumulus
+  and the dust of the earliest in the mark itself, as the kidney's
+  glomeruli are, a pixel wide at the least; the stroma of the cortex and
+  the medulla for an ovarian stromal cell or any other, one flat tone,
+  the mark over a neutral, cut by the follicles, the corpora and the
+  vessels.
+- *Round it:* the tube, from where it is cut short over the ovary's
+  uterine third, along the mesovarian border, over the tubal pole and down
+  beside it to its ostium behind the pole, its calibres and its seven
+  fimbriae the fallopian tube's own (`FallopianAnatomy`), the fimbriae
+  spreading from under the pole past its lateral edge; the ligament of
+  the ovary from the uterine pole, and the ovarian vessels coming up out of
+  the hilum into the suspensory ligament, each cut short. The figure's own
+  parts stay faint round it, all but its tube, which the ovary draws
+  itself (`notAround`), and the body's other ovary stays flat beside it,
+  as the kidney's other kidney does.
+- *Its names:* `follicles` or `stroma` in the accent at the site;
+  `fallopian tube`, `suspensory ligament`, `corpus luteum`, `medulla` (not
+  where the stroma is the home), `corpus albicans` and `ovarian ligament`
+  in the quiet ink, set round it at the canvas's corners, the longer as
+  two lines. The hilum, the theca, the cumulus, the fimbriae and the
+  vessels are drawn and not named; so is the near-ripe follicle where the
+  stroma is the home, its name having found no room beside the
+  ligament's below the ovary on the narrower phones.
+- *Its view* is framed 1.0 (`ZoomDepth.ovaryUpright`), by its width: both
+  homes' names fit every phone's canvas the names test sets.
+- *On the step from the body* the body's disc, flat and lit in the mark,
+  draws in to the ovary's outline, matched at the middle of its top, its
+  two poles and its lowest point, over the usual 0.45 of the detail, and
+  becomes the bed the ovary comes up over, in the cortex's tone. The
+  anatomogram draws each ovary as a pie closed through its middle, a slit
+  of no width from its rim to its middle; the step draws in from the
+  disc's rim, the slit dropped, and the other ovary is drawn so too (the
+  body's own stop still draws the slit).
+
 **The glide.** The camera carries the organ from where it lies in the body
 to the middle of the view over the first three fifths of the step. From the
 head or the thigh that is a long way, and `zoom_smoothness_test` plays every
@@ -2973,6 +3098,15 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   bronchi only cut across, the heart and great vessels left to the
   figure. One site, the lingula's, for every cell: the alveolar slide
   follows for an airway cell too.
+- **An ovary from a plate.** One ovary of the reproductive years, the same
+  for every protein, at one moment of its cycle as Schrön's section draws
+  it: a follicle near ripeness and the last cycle's corpus luteum
+  together, five small antral follicles and three corpora albicantia, the
+  earliest follicles a dust under the surface far sparser than the
+  reserve; no cyst. The tube is the fallopian tube's own drawing, whole
+  here, but cut short over the ovary's uterine third. One site, in the
+  free border's cortex, for every cell: the slide is the ovary's stroma,
+  an oocyte or a granulosa cell laid in it.
 - **One field a tissue.** Wherever in the organ it is cut, and for every
   gene that goes there with the same kind of cell. "Lymphoid tissue" is a
   lymph node, and skin has no keratin layer of its own.
@@ -3033,9 +3167,9 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   into the band's strip as (`chromosome_tube.dart`); its colours are
   `core/theme/chromosome_colors.dart`.
 - `presentation/scenes/organ_art.dart`: every organ's drawing:
-  `_SpecimenOrgan` for the twenty-one specimens that draw in from the
+  `_SpecimenOrgan` for the twenty-two specimens that draw in from the
   body's outline, a class of its own for each of the six that crossfade,
-  `_DrawnOrgan` for the seven drawn on the anatomogram's outline, and
+  `_DrawnOrgan` for the six drawn on the anatomogram's outline, and
   `_VesselOrgan` and `_ParathyroidOrgan`.
 - `presentation/scenes/organs/pancreas/`: the pancreas and its neighbours in
   centimetres (`pancreas_anatomy.dart`), every number its look is tuned by
@@ -3113,6 +3247,14 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   places, and where the zoom's cell lives by the Atlas's name for it
   (`lung_form.dart`), and their meshes and how they are drawn
   (`lung_art.dart`).
+- `presentation/scenes/organs/ovary/`: the ovary in millimetres, with
+  every source (`ovary_anatomy.dart`), every number its look is tuned by
+  (`ovary_style.dart`), its form posed on the female figure, with the
+  disc's rim it draws in from, the cortex, the medulla and its vessels,
+  the follicles and their dust, the corpora, the tube and its fimbriae,
+  the ligament, the vessels and its names' places, and where the zoom's
+  cell lives by the Atlas's name for it (`ovary_form.dart`), and its
+  meshes and how it is drawn (`ovary_art.dart`).
 - `presentation/scenes/organs/`: the other specimens, each in its folder
   in the same four files, `*_anatomy.dart` (in millimetres, every size with
   its source, the drawing's choices listed as such), `*_style.dart` (every
@@ -3418,6 +3560,32 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   `zoom_domain_test` holds the left lung followed on both figures, the
   site low in it and the view closed on both. `zoom_paint_timing_check`
   times them with SP-D's zoom.
+- `ovary_form_test` holds the ovary to its real size, 40 by 20 mm, laid
+  over the body's left ovary under 2 mm off, its tubal pole the higher;
+  the disc's rim drawn in from, its slit dropped, and the other ovary's;
+  the site 0.6 to 1.4 mm under the free border, out of the medulla and
+  clear of every follicle and corpus; the homes by the Atlas's names; the
+  follicles and corpora inside it and apart, the near-ripe one under the
+  free border; the hilum a stretch of the mesovarian border 10 to 18 mm
+  long; the dust under the surface and out of the medulla, the helicine
+  vessels in it; the tube over the mesovarian border and clear of it, its
+  ostium behind the tubal pole, its seven fimbriae; the ligament from the
+  uterine pole and the vessels from the hilum, each cut short; nothing
+  more than 24 mm above the ovary's middle; the step's marks at the top's
+  middle, the poles and the lowest point of either outline; and the same
+  ovary every time. `ovary_art_test` holds the mark to the follicles'
+  granulosa, cumulus and dust or to the stroma alone, the hand-over to the
+  body's disc without its slit and the other ovary flat, with no layer,
+  mesh or point, the other ovary still flat at the stop and the figure's
+  parts round it but its tube, the meshes the same every time and inside
+  its bounds, the names for each home, and the steps to it and back to
+  0.08 a frame and 1.5 px. `ovary_names_test` sets PADI6's seven names in
+  the app's own type, and those for a granulosa and a stromal cell, on
+  seven phone canvases: above the ovary or below it, clear of it and of
+  its tube, fimbriae, ligament and vessels, of one another and of the
+  scale bar, no line through another's plate or crossing another.
+  `zoom_domain_test` holds the left ovary followed and the site 0.73 of
+  the way down it. `zoom_paint_timing_check` times it with PADI6's zoom.
 - Each of the other seventeen specimens has a `*_form_test` (its size and
   place on either figure, its site where it is sampled, its parts at their
   measured sizes, its home rule over the Atlas's names, the step's marks
