@@ -60,6 +60,9 @@ import 'organs/lung/lung_style.dart';
 import 'organs/lymph_node/node_art.dart';
 import 'organs/lymph_node/node_form.dart';
 import 'organs/lymph_node/node_style.dart';
+import 'organs/ovary/ovary_art.dart';
+import 'organs/ovary/ovary_form.dart';
+import 'organs/ovary/ovary_style.dart';
 import 'organs/pancreas/pancreas_anatomy.dart';
 import 'organs/pancreas/pancreas_art.dart';
 import 'organs/pancreas/pancreas_form.dart';
@@ -125,7 +128,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// epididymis, cut down its length on its testis, the gallbladder, laid
 /// open from the front with its ducts, the intestines, in place from the
 /// front, a window cut at the ileocecal junction, the lungs, in place from
-/// the front, the left one cut open from front to back, the skin, a block
+/// the front, the left one cut open from front to back, the ovary, cut
+/// through its thickness, its tube arching over it, the skin, a block
 /// of it cut from the leg, the thyroid, seen
 /// from the front in place, one lobe cut open, the adrenal, cut through its
 /// thickness on its kidney's upper pole, the pituitary, cut down its
@@ -157,7 +161,9 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// bands and the cut muscle coats for a smooth muscle cell, the alveoli of
 /// the left lung's cut face for an alveolar cell, the lining of its
 /// bronchi for a cell of the airways and its pleura for a mesothelial
-/// cell), by the kind of organ and of cell, never by gene.
+/// cell, the follicles of an ovary for an oocyte or a granulosa cell and
+/// its stroma for any other), by the kind of organ and of cell, never by
+/// gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -349,6 +355,14 @@ abstract class OrganArt {
         level: level,
       ),
       OrganKind.lung when part != null => _LungOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        cell: cellName,
+        level: level,
+      ),
+      OrganKind.ovary when part != null => _OvaryOrgan(
         part,
         anatomy,
         view,
@@ -3561,6 +3575,172 @@ final class _LungOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => LungArt.bedOf(inks, _form.home);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The ovary, drawn from general anatomy as a specimen cut through its
+/// thickness (`OvaryArt`): the left ovary, where GTEx samples it, seen from
+/// the front as the anatomogram lays the pelvis out, its front half taken
+/// away, so that its cortex with its follicles, the near-ripe one bulging
+/// its free border, its corpus luteum and its corpora albicantia, and its
+/// medulla with the helicine vessels about the hilum show on the cut, as
+/// Schrön's section draws them; its tube arching over it, the fimbriae by
+/// its tubal pole, the ligament of the ovary and the ovarian vessels in the
+/// suspensory ligament, each cut short; reached from the body's own outline
+/// of the left ovary (`_SpecimenOrgan`), the disc's rim without its slit,
+/// which draws in toward the ovary's own and becomes the bed it lies on,
+/// the body's other ovary kept flat beside it and the figure staying round
+/// it, faint, all but its tube, which the specimen draws itself. Where the
+/// zoom's cell lives is in the mark, by the Atlas's name for the cell: the
+/// follicles, or the stroma; the tube, the two ligaments, the corpus
+/// luteum, a corpus albicans and, outside the stroma, the medulla are
+/// named in the quiet ink.
+final class _OvaryOrgan extends _SpecimenOrgan {
+  _OvaryOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    String? cell,
+    super.level,
+  }) : _form = OvaryForm.place(
+         part: part,
+         anatomy: anatomy,
+         view: view,
+         home: OvaryHome.of(cell),
+       ),
+       super(notAround: _ownTube);
+
+  /// The figure's fallopian tube, which the specimen draws arching over
+  /// the ovary.
+  static const Set<String> _ownTube = <String>{'UBERON_0003889'};
+
+  final OvaryForm _form;
+
+  @override
+  bool get _amongFigure => true;
+
+  @override
+  double _settleOf(double detail) =>
+      SpecimenStep.settle(detail, span: OvaryStyle.settling);
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark, at the place its tissue is
+  // sampled; and the tube, the suspensory ligament, the corpus luteum, the
+  // medulla where the cell does not live in the stroma, a corpus albicans
+  // and the ligament of the ovary, in the quiet ink.
+  //
+  // The ring gives room in this order: the tube and the suspensory
+  // ligament first, which run out to the corner above the tubal pole.
+  // Where the stroma is the home the medulla is not named apart from it,
+  // and the follicles are drawn and unnamed: on the narrower phones there
+  // is no room for their name beside the ligament's below the ovary.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'home', word: _form.home.word, at: _form.homeName, home: true),
+    (key: 'tube', word: 'fallopian\ntube', at: _form.tubeName, home: false),
+    (
+      key: 'suspensory',
+      word: 'suspensory\nligament',
+      at: _form.suspensoryName,
+      home: false,
+    ),
+    (
+      key: 'luteum',
+      word: 'corpus\nluteum',
+      at: _form.luteumName,
+      home: false,
+    ),
+    if (_form.home != OvaryHome.stroma)
+      (key: 'medulla', word: 'medulla', at: _form.medullaName, home: false),
+    (
+      key: 'albicans',
+      word: 'corpus\nalbicans',
+      at: _form.albicansName,
+      home: false,
+    ),
+    (
+      key: 'ligament',
+      word: 'ovarian\nligament',
+      at: _form.ligamentName,
+      home: false,
+    ),
+  ];
+
+  // Set round all of it, out at the canvas's corners, as the gallbladder's
+  // are: round the ovary, its tube, its fimbriae, its ligament and its
+  // vessels where they show, with room to either side and past a cut end.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(OvaryStyle.nameClear);
+    return <Offset>[
+      for (int i = 0; i < _form.outlinePoints.length; i += 4)
+        _form.outlinePoints[i],
+      for (final TubeCourse tube in _form.beside)
+        for (int i = 0; i < tube.length; i++)
+          if ((i % 4 == 0 || i == tube.length - 1) &&
+              tube.shown[i] > OvaryStyle.nameShown) ...<Offset>[
+            tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+            tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+            if (i == tube.length - 1)
+              tube.centres[i] +
+                  Offset(tube.across[i].dy, -tube.across[i].dx) *
+                      (tube.radius[i] + clear),
+          ],
+    ];
+  }();
+
+  /// The body's other ovary, flat as it drew it, in the scene.
+  late final Path _others = () {
+    final Path path = Path();
+    for (final List<Offset> other in _form.others) {
+      path.addPath(OrganArt._closed(other), Offset.zero);
+    }
+    return path;
+  }();
+
+  // It stays flat as the body drew it, beside the ovary drawn here, as the
+  // kidney's other kidney does.
+  @override
+  void _paintBeside(
+    Canvas canvas,
+    ZoomInks inks,
+    double line,
+    double detail,
+  ) => OrganArt._flatOthers(canvas, _others, inks, line);
+
+  OvaryArt? _art;
+
+  OvaryArt _artFor(ZoomInks inks) {
+    final OvaryArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = OvaryArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) {
+    _artFor(inks);
+    _others;
+  }
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => OvaryArt.bedOf(inks, _form.home);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
