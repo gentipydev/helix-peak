@@ -580,6 +580,9 @@ final class LoopScene extends LmScene {
       tiles: lit,
       numbers: given,
       given: (int i) => there == null ? 0 : PredictScene.shares(there, i)[trace.targetAt(view.peptide, i)],
+      // The shares come and go with the stops; y's tiles, and their name,
+      // stay.
+      titleWithTiles: true,
     );
   }
 

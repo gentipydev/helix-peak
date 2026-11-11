@@ -215,7 +215,9 @@ abstract final class ShareMap {
   /// The answer key at the map's right, as Shift's y: each place's next
   /// token on a tile at its row's end, [tiles] strong, and the share its
   /// guess gave it, [given] of the place, written [numbers] strong where the
-  /// rows have room; their names over them with the numbers.
+  /// rows have room; their names over them with the numbers, or, where
+  /// [titleWithTiles], the tiles' name with the tiles and the shares' with
+  /// the shares, for a map whose shares come and go while its tiles stay.
   static void drawAnswerKey(
     Canvas canvas,
     LmView view,
@@ -223,6 +225,7 @@ abstract final class ShareMap {
     required double tiles,
     required double numbers,
     required double Function(int i) given,
+    bool titleWithTiles = false,
   }) {
     final TrainingTrace trace = view.trace;
     final TextStyle? style = layout.givenStyle;
@@ -242,19 +245,24 @@ abstract final class ShareMap {
     }
     // Named as a column is (`drawColumnTitle`), the shares' name flush with
     // their right edge.
-    if (numbers <= 0) {
-      return;
+    final double answers = titleWithTiles ? tiles : numbers;
+    if (answers > 0) {
+      view.kit.draw(
+        canvas,
+        PredictScene.answerTitle,
+        PredictScene.titleStyle(view, alpha: answers),
+        Offset(layout.answerTile(0).center.dx, layout.titleTop),
+        anchor: const Offset(0.5, 1),
+      );
     }
-    final TextStyle named = PredictScene.titleStyle(view, alpha: numbers);
-    view.kit.draw(
-      canvas,
-      PredictScene.answerTitle,
-      named,
-      Offset(layout.answerTile(0).center.dx, layout.titleTop),
-      anchor: const Offset(0.5, 1),
-    );
-    if (written != null) {
-      view.kit.draw(canvas, PredictScene.givenTitle, named, Offset(layout.givenRight, layout.titleTop), anchor: const Offset(1, 1));
+    if (written != null && numbers > 0) {
+      view.kit.draw(
+        canvas,
+        PredictScene.givenTitle,
+        PredictScene.titleStyle(view, alpha: numbers),
+        Offset(layout.givenRight, layout.titleTop),
+        anchor: const Offset(1, 1),
+      );
     }
   }
 }
