@@ -260,47 +260,6 @@ abstract final class Sculpt {
     );
   }
 
-  /// A branching tree from [root], heading [angle], [length] long, each
-  /// generation [shrink] as long as the one before and turned [spread] to
-  /// either side, [depth] generations deep: a duct, a vessel, a bronchus.
-  /// Each generation is a path of its own, the trunk first, so it can be
-  /// stroked thinner as it branches.
-  static List<Path> tree(
-    Offset root,
-    double angle,
-    double length,
-    int depth,
-    math.Random random, {
-    double spread = 0.5,
-    double shrink = 0.72,
-    double bend = 0.25,
-  }) {
-    final List<Path> generations = List<Path>.generate(
-      depth + 1,
-      (_) => Path(),
-    );
-    void grow(Offset from, double heading, double reach, int generation) {
-      final double turn = (random.nextDouble() - 0.5) * bend;
-      final Offset mid =
-          from +
-          Offset(math.cos(heading + turn), math.sin(heading + turn)) *
-              (reach * 0.5);
-      final Offset to =
-          from + Offset(math.cos(heading), math.sin(heading)) * reach;
-      generations[generation]
-        ..moveTo(from.dx, from.dy)
-        ..quadraticBezierTo(mid.dx, mid.dy, to.dx, to.dy);
-      if (generation < depth) {
-        final double split = spread * (0.75 + 0.5 * random.nextDouble());
-        grow(to, heading - split, reach * shrink, generation + 1);
-        grow(to, heading + split, reach * shrink, generation + 1);
-      }
-    }
-
-    grow(root, angle, length, 0);
-    return generations;
-  }
-
   /// Rounded lobules laid over [box] about [step] apart, each nudged a
   /// little from a hexagonal lattice: a gland's lobules, fat's lobes.
   static List<Rect> cobble(Rect box, double step, math.Random random) {

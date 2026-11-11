@@ -54,6 +54,9 @@ import 'organs/kidney/kidney_form.dart';
 import 'organs/liver/liver_art.dart';
 import 'organs/liver/liver_form.dart';
 import 'organs/liver/liver_style.dart';
+import 'organs/lung/lung_art.dart';
+import 'organs/lung/lung_form.dart';
+import 'organs/lung/lung_style.dart';
 import 'organs/lymph_node/node_art.dart';
 import 'organs/lymph_node/node_form.dart';
 import 'organs/lymph_node/node_style.dart';
@@ -121,8 +124,9 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// lower half dissected, the cervix, opened along its canal, the
 /// epididymis, cut down its length on its testis, the gallbladder, laid
 /// open from the front with its ducts, the intestines, in place from the
-/// front, a window cut at the ileocecal junction, the skin, a block of it
-/// cut from the leg, the thyroid, seen
+/// front, a window cut at the ileocecal junction, the lungs, in place from
+/// the front, the left one cut open from front to back, the skin, a block
+/// of it cut from the leg, the thyroid, seen
 /// from the front in place, one lobe cut open, the adrenal, cut through its
 /// thickness on its kidney's upper pole, the pituitary, cut down its
 /// middle as the brain is, a lymph node, cut through its hilum, the
@@ -150,8 +154,10 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// a gallbladder and its cystic duct for any, the colon's lining in the
 /// intestines' window for a cell of the colon, the terminal ileum's for an
 /// enterocyte or a Paneth cell, both for a cell of either, and the colon's
-/// bands and the cut muscle coats for a smooth muscle cell), by the kind
-/// of organ and of cell, never by gene.
+/// bands and the cut muscle coats for a smooth muscle cell, the alveoli of
+/// the left lung's cut face for an alveolar cell, the lining of its
+/// bronchi for a cell of the airways and its pleura for a mesothelial
+/// cell), by the kind of organ and of cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -342,6 +348,14 @@ abstract class OrganArt {
         cell: cellName,
         level: level,
       ),
+      OrganKind.lung when part != null => _LungOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        cell: cellName,
+        level: level,
+      ),
       _ =>
         part == null
             ? _AnyOrgan()
@@ -496,10 +510,9 @@ abstract class OrganArt {
 }
 
 /// The surface an organ's outline is given.
-enum _Look { lobules, hollow, fibres, airways, coils }
+enum _Look { lobules, hollow, fibres, coils }
 
 _Look _lookOf(OrganKind kind) => switch (kind) {
-  OrganKind.lung => _Look.airways,
   OrganKind.seminalVesicle => _Look.coils,
   OrganKind.smoothMuscle || OrganKind.tongue => _Look.fibres,
   OrganKind.uterus || OrganKind.vagina => _Look.hollow,
@@ -616,8 +629,6 @@ final class _DrawnOrgan extends OrganArt {
       );
     }
     _box = _shape.getBounds();
-    // The body's midline, in the scene: an organ's hilum faces it.
-    _midline = placed(Offset(0, part.site.dy)).dx;
     _detail = _surface();
     _around = _Surroundings(part, figure, placed);
   }
@@ -645,7 +656,6 @@ final class _DrawnOrgan extends OrganArt {
   late final Path _others;
   late final _Surroundings _around;
   late final Rect _box;
-  late final double _midline;
 
   /// What is stroked over the organ, and what is filled darker in it.
   late final (Path, Path) _detail;
@@ -703,26 +713,6 @@ final class _DrawnOrgan extends OrganArt {
               ..moveTo(_box.left, pinch)
               ..quadraticBezierTo(middle.dx, y, _box.right, pinch);
           }
-        }
-      case _Look.airways:
-        // The bronchial tree, in from the hilum on the side of the midline.
-        final bool hilumLeft = _midline < _box.center.dx;
-        final Offset hilum = Offset(
-          hilumLeft
-              ? _box.left + _box.width * 0.16
-              : _box.right - _box.width * 0.16,
-          _box.top + _box.height * 0.4,
-        );
-        for (final Path generation in Sculpt.tree(
-          hilum,
-          hilumLeft ? 0.45 : math.pi - 0.45,
-          size * 0.2,
-          5,
-          random,
-          spread: 0.5,
-          shrink: 0.74,
-        )) {
-          lines.addPath(generation, Offset.zero);
         }
       case _Look.coils:
         // Loops lying on one another.
@@ -3430,6 +3420,147 @@ final class _IntestineOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => IntestineArt.bedOf(inks);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The lungs, drawn from general anatomy as a specimen in place, seen from
+/// the front (`LungArt`): the trachea coming down between them, the right
+/// lung whole, its pleura lit, and the left lung cut open from front to
+/// back, its bronchi laid open with their arteries beside them, its veins
+/// cut across between the segments, its lobules' septa under the pleura and
+/// its oblique fissure; reached from the body's own outline of the left
+/// lung (`_SpecimenOrgan`), where GTEx samples the lung, which draws in
+/// toward the left lung's own and becomes the bed it lies on, the body's
+/// right lung giving way under the right lung drawn here and the figure
+/// staying round them, faint. Where the zoom's cell lives is in the mark,
+/// by the Atlas's name for the cell: the alveoli, the bronchi's lining or
+/// the pleura; the trachea, the bronchus, the pulmonary artery, the left
+/// lung's two lobes and the right lung are named in the quiet ink.
+final class _LungOrgan extends _SpecimenOrgan {
+  _LungOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    String? cell,
+    super.level,
+  }) : _form = LungForm.place(
+         part: part,
+         anatomy: anatomy,
+         view: view,
+         home: LungHome.of(cell),
+       );
+
+  final LungForm _form;
+
+  @override
+  bool get _amongFigure => true;
+
+  @override
+  double _settleOf(double detail) =>
+      SpecimenStep.settle(detail, span: LungStyle.settling);
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark; and the trachea, the main
+  // bronchus where the cell does not live in its lining, the pulmonary
+  // artery, the left lung's lobes and the right lung, in the quiet ink.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (
+      key: 'home',
+      word: switch (_form.home) {
+        LungHome.alveoli => 'alveoli',
+        LungHome.airways => 'bronchi',
+        LungHome.pleura => 'pleura',
+      },
+      at: _form.homeName,
+      home: true,
+    ),
+    (key: 'trachea', word: 'trachea', at: _form.tracheaName, home: false),
+    if (_form.home != LungHome.airways)
+      (
+        key: 'bronchus',
+        word: 'bronchus',
+        at: _form.bronchusName,
+        home: false,
+      ),
+    (
+      key: 'artery',
+      word: 'pulmonary\nartery',
+      at: _form.arteryName,
+      home: false,
+    ),
+    (key: 'upper', word: 'upper lobe', at: _form.upperLobeName, home: false),
+    (key: 'lower', word: 'lower lobe', at: _form.lowerLobeName, home: false),
+    (key: 'right', word: 'right lung', at: _form.rightLungName, home: false),
+  ];
+
+  // Set round both lungs and the trachea, out at the canvas's corners, as
+  // the stomach's and the intestines' are.
+  @override
+  late final List<Offset> named = <Offset>[
+    for (int i = 0; i < _form.outlinePoints.length; i += 4)
+      _form.outlinePoints[i],
+    for (int i = 0; i < _form.rightPoints.length; i += 4) _form.rightPoints[i],
+    _form.trachea.centres.last,
+  ];
+
+  /// The body's right lung, flat as it drew it, in the scene.
+  late final Path _others = () {
+    final Path path = Path();
+    for (final List<Offset> other in _form.others) {
+      path.addPath(OrganArt._closed(other), Offset.zero);
+    }
+    return path;
+  }();
+
+  // It is flat as the body drew it, and gives way under the right lung
+  // drawn here as it comes up.
+  @override
+  void _paintBeside(
+    Canvas canvas,
+    ZoomInks inks,
+    double line,
+    double detail,
+  ) {
+    final double shown = 1 - SpecimenStep.come(detail);
+    if (shown > 0.002) {
+      OrganArt._flatOthers(canvas, _others, inks, line, shown: shown);
+    }
+  }
+
+  LungArt? _art;
+
+  LungArt _artFor(ZoomInks inks) {
+    final LungArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = LungArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) {
+    _artFor(inks);
+    _others;
+  }
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => LungArt.bedOf(inks, _form.home);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

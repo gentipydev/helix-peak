@@ -22,6 +22,7 @@ import 'package:helixpeek/features/zoom/presentation/scenes/organs/fallopian_tub
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/intestine/intestine_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/kidney/kidney_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/liver/liver_form.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/lung/lung_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/lymph_node/node_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/pituitary/pituitary_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/placenta/placenta_form.dart';
@@ -203,8 +204,9 @@ void main() {
     // about the tissue's own cell, none the Atlas names living there, and
     // the epididymis, the male figure's alone, about a cell of its duct and
     // one of its efferent ductules, the gallbladder on both figures about
-    // its cholangiocyte, and the intestines on both figures about a cell of
-    // each part of them the Atlas's names light.
+    // its cholangiocyte, the intestines on both figures about a cell of
+    // each part of them the Atlas's names light, and the lungs on both
+    // figures likewise.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -545,6 +547,22 @@ void main() {
           (
             'intestine-${body.name}-${IntestineHome.of(cell).name}',
             tissueAnatomy['intestine']!,
+            body,
+            shape,
+            cell,
+          ),
+      for (final AnatomyFigure body in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ])
+        for (final (String cell, CellShape shape) in <(String, CellShape)>[
+          ('Alveolar cells type 2', CellShape.epithelial),
+          ('Respiratory ciliated cells', CellShape.ciliated),
+          ('Mesothelial cells', CellShape.epithelial),
+        ])
+          (
+            'lung-${body.name}-${LungHome.of(cell).name}',
+            tissueAnatomy['lung']!,
             body,
             shape,
             cell,
