@@ -25,6 +25,12 @@ abstract final class GallbladderStyle {
   static const int morphPoints = 300;
   static const double bed = 0.5;
 
+  /// How far along the step from the body the body's outline is drawn in
+  /// toward the gallbladder's own: more slowly than most specimens', the
+  /// body's comma being much broader than the gallbladder's neck (at 0.45
+  /// its outline jolted 1.52 px at 60 fps).
+  static const double settling = 0.55;
+
   /// How finely the tubes and the folds are followed, and the seed the
   /// honeycomb is laid by.
   static const double edgeStep = 0.4;

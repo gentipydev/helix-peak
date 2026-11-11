@@ -360,14 +360,23 @@ final class GallbladderForm {
   // The honeycomb.
 
   /// The honeycomb's folds, each a straight edge between two meshes, in
-  /// millimetres: every edge the meshes share inside the mucosa, up to the
-  /// neck, where they give way, unevenly, to the oblique folds.
+  /// millimetres: every edge of the meshes whose middles lie in the mucosa,
+  /// or just outside it, where the cut clips them, up to the neck, where
+  /// they give way, unevenly, to the oblique folds. Meshes are laid a
+  /// little outside the mucosa too, so that those along its edge are
+  /// bounded by neighbours and not by how far a mesh may reach.
   static final List<(Offset, Offset)> _meshEdgesMm = () {
     const double pitch = GallbladderAnatomy.mesh;
     final math.Random random = math.Random(GallbladderStyle.seed);
-    final Rect bounds = _bounds(_innerMm).inflate(2 * pitch);
+    final Rect bounds = _bounds(_innerMm).inflate(1.5 * pitch);
     final double rowHeight = pitch * math.sqrt(3) / 2;
     final List<Offset> seeds = <Offset>[];
+    final List<bool> own = <bool>[];
+    // The mucosa's edge followed more coarsely, which choosing the seeds
+    // needs no closer: off it by under a tenth of a millimetre.
+    final List<Offset> edge = <Offset>[
+      for (int i = 0; i < _innerMm.length; i += 3) _innerMm[i],
+    ];
     int row = 0;
     for (double y = bounds.top; y <= bounds.bottom; y += rowHeight, row++) {
       final double shift = row.isOdd ? pitch / 2 : 0;
@@ -376,15 +385,19 @@ final class GallbladderForm {
             Offset(x, y) +
             Offset(random.nextDouble() * 2 - 1, random.nextDouble() * 2 - 1) *
                 (pitch * GallbladderAnatomy.meshJitter);
-        // Seeds a little outside the mucosa too, so the meshes along its
-        // edge are bounded by neighbours, not by the reach.
-        if (_inside(_innerMm, p) ||
-            _toLine(_innerMm, p, closed: true) < 1.5 * pitch) {
+        if (_inside(edge, p)) {
           seeds.add(p);
+          own.add(true);
+          continue;
+        }
+        final double out = _toLine(edge, p, closed: true);
+        if (out < 1.5 * pitch) {
+          seeds.add(p);
+          own.add(out < 0.5 * pitch);
         }
       }
     }
-    const double reach = 1.6 * pitch;
+    const double reach = 1.3 * pitch;
     final List<Offset> even = relaxedSeeds(
       seeds,
       reach,
@@ -393,22 +406,21 @@ final class GallbladderForm {
     final Map<(int, int, int, int), (Offset, Offset)> edges =
         <(int, int, int, int), (Offset, Offset)>{};
     int key(double v) => (v * 1000).round();
-    for (final List<Offset> cell in voronoiCells(even, reach)) {
+    final List<List<Offset>> cells = voronoiCells(even, reach);
+    for (int c = 0; c < cells.length; c++) {
+      if (!own[c]) {
+        continue;
+      }
+      final List<Offset> cell = cells[c];
       for (int i = 0; i < cell.length; i++) {
         final Offset a = cell[i];
         final Offset b = cell[(i + 1) % cell.length];
         if ((b - a).distance < 0.05) {
           continue;
         }
-        final Offset middle = Offset.lerp(a, b, 0.5)!;
-        if (!_inside(_innerMm, middle) &&
-            _toLine(_innerMm, middle, closed: true) > pitch) {
-          continue;
-        }
         // Up to the neck, giving way over about a mesh, edge by edge.
-        final double past = pastNeck(middle);
-        final double give = _hash(middle) * 1.5 * pitch;
-        if (past > -give) {
+        final Offset middle = Offset.lerp(a, b, 0.5)!;
+        if (pastNeck(middle) > -_hash(middle) * 1.5 * pitch) {
           continue;
         }
         final (int, int) ka = (key(a.dx), key(a.dy));

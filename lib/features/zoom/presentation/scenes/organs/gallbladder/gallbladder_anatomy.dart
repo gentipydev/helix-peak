@@ -199,11 +199,12 @@ abstract final class GallbladderAnatomy {
   /// The fundus, in its round end; the neck, in its first bend; the cystic
   /// duct, at its middle; the common bile duct, below the cystic duct's
   /// opening; the cystic artery, past the neck; and the liver, in the
-  /// figure's liver above the gallbladder, which lies in its fossa.
+  /// figure's liver above the gallbladder, which lies in its fossa, where
+  /// no other part of either figure lies over it.
   static const Offset fundusName = Offset(-35, 13);
   static const Offset neckName = Offset(31, -15);
   static const Offset cysticName = Offset(47.5, 15);
   static const Offset bileDuctName = Offset(52, 33);
   static const Offset arteryName = Offset(38, -26.5);
-  static const Offset liverName = Offset(-38, -32);
+  static const Offset liverName = Offset(-8, -36);
 }

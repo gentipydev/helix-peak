@@ -40,6 +40,9 @@ import 'organs/eye/eye_style.dart';
 import 'organs/fallopian_tube/fallopian_art.dart';
 import 'organs/fallopian_tube/fallopian_form.dart';
 import 'organs/fallopian_tube/fallopian_style.dart';
+import 'organs/gallbladder/gallbladder_art.dart';
+import 'organs/gallbladder/gallbladder_form.dart';
+import 'organs/gallbladder/gallbladder_style.dart';
 import 'organs/heart/heart_art.dart';
 import 'organs/heart/heart_form.dart';
 import 'organs/heart/heart_style.dart';
@@ -113,7 +116,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// from front to back, the stomach, the esophagus and the bladder, each
 /// opened from the front, the breast, seen from the front in place, its
 /// lower half dissected, the cervix, opened along its canal, the
-/// epididymis, cut down its length on its testis, the skin, a block of it
+/// epididymis, cut down its length on its testis, the gallbladder, laid
+/// open from the front with its ducts, the skin, a block of it
 /// cut from the leg, the thyroid, seen
 /// from the front in place, one lobe cut open, the adrenal, cut through its
 /// thickness on its kidney's upper pole, the pituitary, cut down its
@@ -138,8 +142,9 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// adipocyte and its nipple and areola for a smooth muscle cell, else the
 /// ducts and lobules of its gland, the vaginal part of a cervix, its
 /// ectocervix, for any, the duct of an epididymis for a cell of its duct
-/// and the efferent ductules in its head for one of theirs), by the kind
-/// of organ and of cell, never by gene.
+/// and the efferent ductules in its head for one of theirs, the mucosa of
+/// a gallbladder and its cystic duct for any), by the kind of organ and of
+/// cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -315,6 +320,13 @@ abstract class OrganArt {
         cell: cellName,
         level: level,
       ),
+      OrganKind.gallbladder when part != null => _GallbladderOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        level: level,
+      ),
       _ =>
         part == null
             ? _AnyOrgan()
@@ -475,9 +487,7 @@ _Look _lookOf(OrganKind kind) => switch (kind) {
   OrganKind.lung => _Look.airways,
   OrganKind.intestine || OrganKind.seminalVesicle => _Look.coils,
   OrganKind.smoothMuscle || OrganKind.tongue => _Look.fibres,
-  OrganKind.gallbladder ||
-  OrganKind.uterus ||
-  OrganKind.vagina => _Look.hollow,
+  OrganKind.uterus || OrganKind.vagina => _Look.hollow,
   _ => _Look.lobules,
 };
 
@@ -3183,6 +3193,124 @@ final class _EpididymisOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => EpididymisArt.bedOf(inks);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The gallbladder, drawn from general anatomy as a specimen laid open from
+/// the front with its ducts (`GallbladderArt`), as Gray's plate lays it
+/// open: the inside of its back half, its mucosa raised into a honeycomb,
+/// the neck curving like an S with its oblique folds, the cystic duct laid
+/// open on with it, its crescentic folds a spiral valve, the cut wall's
+/// coats round it all; the hepatic duct coming down to meet the cystic duct
+/// and running on as the common bile duct, and the cystic artery, each cut
+/// short; reached from the body's own outline of it (`_SpecimenOrgan`),
+/// which draws in toward the gallbladder's own and becomes the bed it lies
+/// on, the figure staying round it, faint, its liver above. Where the
+/// zoom's cell lives is in the mark whatever the cell: its mucosa, the
+/// cholangiocyte being the one cell the Atlas names with the gallbladder
+/// among its homes; its parts, its ducts, its artery and the figure's liver
+/// are named in the quiet ink.
+final class _GallbladderOrgan extends _SpecimenOrgan {
+  _GallbladderOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    super.level,
+  }) : _form = GallbladderForm.place(
+         part: part,
+         anatomy: anatomy,
+         view: view,
+         figure: figure,
+       );
+
+  final GallbladderForm _form;
+
+  @override
+  bool get _amongFigure => true;
+
+  @override
+  double _settleOf(double detail) =>
+      SpecimenStep.settle(detail, span: GallbladderStyle.settling);
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark, at the place its tissue is
+  // sampled; and its fundus, its neck, the cystic duct, the common bile
+  // duct, the cystic artery and the figure's liver above it, in the quiet
+  // ink.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'home', word: 'mucosa', at: _form.site, home: true),
+    (key: 'fundus', word: 'fundus', at: _form.fundusName, home: false),
+    (key: 'neck', word: 'neck', at: _form.neckName, home: false),
+    (key: 'cystic', word: 'cystic duct', at: _form.cysticName, home: false),
+    (
+      key: 'bile',
+      word: 'common bile duct',
+      at: _form.bileDuctName,
+      home: false,
+    ),
+    (key: 'artery', word: 'cystic artery', at: _form.arteryName, home: false),
+    if (_form.liverName case final Offset at)
+      (key: 'liver', word: 'liver', at: at, home: false),
+  ];
+
+  // Set round all of it, out at the canvas's corners, as the stomach's and
+  // the bladder's are: the gallbladder is wider than it is tall. Round the
+  // gallbladder, its cystic duct and what runs on beside it where it shows,
+  // with room to either side and past a cut end. The figure's faint liver,
+  // which a name points into, may lie under a name, as the figure's parts
+  // round any organ may.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(GallbladderStyle.nameClear);
+    return <Offset>[
+      for (int i = 0; i < _form.outlinePoints.length; i += 4)
+        _form.outlinePoints[i],
+      for (int i = 0; i < _form.cysticWall.length; i += 4) _form.cysticWall[i],
+      for (final TubeCourse tube in _form.beside)
+        for (int i = 0; i < tube.length; i++)
+          if ((i % 4 == 0 || i == tube.length - 1) &&
+              tube.shown[i] > GallbladderStyle.nameShown) ...<Offset>[
+            tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+            tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+            if (i == tube.length - 1)
+              tube.centres[i] +
+                  Offset(tube.across[i].dy, -tube.across[i].dx) *
+                      (tube.radius[i] + clear),
+          ],
+    ];
+  }();
+
+  GallbladderArt? _art;
+
+  GallbladderArt _artFor(ZoomInks inks) {
+    final GallbladderArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = GallbladderArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => GallbladderArt.bedOf(inks);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

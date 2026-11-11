@@ -191,9 +191,10 @@ void main() {
       total += (b - a).distance;
       final Offset middle = Offset.lerp(a, b, 0.5)!;
       expect(GallbladderForm.pastNeck(middle), lessThan(0));
+      // In the mucosa, or just outside it, where the cut clips it.
       expect(
         GallbladderForm.clearOfWall(middle),
-        greaterThan(-GallbladderAnatomy.mesh),
+        greaterThan(-2.5 * GallbladderAnatomy.mesh),
       );
     }
     // A packed hexagon's side, for meshes 2 mm apart, is 2 / √3 mm.

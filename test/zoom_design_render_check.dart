@@ -201,7 +201,8 @@ void main() {
     // a cell of each part of it, the cervix, the female figure's alone,
     // about the tissue's own cell, none the Atlas names living there, and
     // the epididymis, the male figure's alone, about a cell of its duct and
-    // one of its efferent ductules.
+    // one of its efferent ductules, and the gallbladder on both figures
+    // about its cholangiocyte.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -517,6 +518,17 @@ void main() {
           AnatomyFigure.male,
           CellShape.epithelial,
           cell,
+        ),
+      for (final AnatomyFigure body in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ])
+        (
+          'gallbladder-${body.name}',
+          tissueAnatomy['gallbladder']!,
+          body,
+          CellShape.epithelial,
+          'Cholangiocytes',
         ),
     ];
     for (final (

@@ -274,6 +274,12 @@ final class ZoomDepth {
   /// rows above it and below it, need room there on every phone's canvas.
   static const double epididymisUpright = 0.85;
 
+  /// How much taller than wide the gallbladder is framed: laid open from
+  /// the front with its ducts, it lies wider than it stands tall, and its
+  /// names, in rows above it and below it, need room there on every
+  /// phone's canvas.
+  static const double gallbladderUpright = 1.0;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -309,8 +315,9 @@ final class ZoomDepth {
   /// [adiposeUpright], the bladder, opened from the front, as
   /// [bladderUpright], the breast, seen from the front in place, its lower
   /// half dissected, as [breastUpright], the cervix, opened along its
-  /// canal, as [cervixUpright], and the epididymis, cut down its length on
-  /// its testis, as [epididymisUpright].
+  /// canal, as [cervixUpright], the epididymis, cut down its length on
+  /// its testis, as [epididymisUpright], and the gallbladder, laid open
+  /// from the front with its ducts, as [gallbladderUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -383,6 +390,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.epididymis) {
       return epididymisUpright;
+    }
+    if (anatomy.organ == OrganKind.gallbladder) {
+      return gallbladderUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)
