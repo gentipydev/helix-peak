@@ -19,6 +19,7 @@ import 'package:helixpeek/features/zoom/presentation/scenes/organs/breast/breast
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/epididymis/epididymis_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/esophagus/esophagus_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/fallopian_tube/fallopian_form.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/intestine/intestine_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/kidney/kidney_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/liver/liver_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/lymph_node/node_form.dart';
@@ -201,8 +202,9 @@ void main() {
     // a cell of each part of it, the cervix, the female figure's alone,
     // about the tissue's own cell, none the Atlas names living there, and
     // the epididymis, the male figure's alone, about a cell of its duct and
-    // one of its efferent ductules, and the gallbladder on both figures
-    // about its cholangiocyte.
+    // one of its efferent ductules, the gallbladder on both figures about
+    // its cholangiocyte, and the intestines on both figures about a cell of
+    // each part of them the Atlas's names light.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -530,6 +532,23 @@ void main() {
           CellShape.epithelial,
           'Cholangiocytes',
         ),
+      for (final AnatomyFigure body in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ])
+        for (final (String cell, CellShape shape) in <(String, CellShape)>[
+          ('Colon enteroendocrine cells', CellShape.endocrine),
+          ('Enterocytes', CellShape.acinar),
+          ('Goblet cells', CellShape.acinar),
+          ('Smooth muscle cells', CellShape.spindle),
+        ])
+          (
+            'intestine-${body.name}-${IntestineHome.of(cell).name}',
+            tissueAnatomy['intestine']!,
+            body,
+            shape,
+            cell,
+          ),
     ];
     for (final (
           String name,

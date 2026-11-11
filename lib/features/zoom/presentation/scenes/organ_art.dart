@@ -46,6 +46,9 @@ import 'organs/gallbladder/gallbladder_style.dart';
 import 'organs/heart/heart_art.dart';
 import 'organs/heart/heart_form.dart';
 import 'organs/heart/heart_style.dart';
+import 'organs/intestine/intestine_art.dart';
+import 'organs/intestine/intestine_form.dart';
+import 'organs/intestine/intestine_style.dart';
 import 'organs/kidney/kidney_art.dart';
 import 'organs/kidney/kidney_form.dart';
 import 'organs/liver/liver_art.dart';
@@ -117,7 +120,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// opened from the front, the breast, seen from the front in place, its
 /// lower half dissected, the cervix, opened along its canal, the
 /// epididymis, cut down its length on its testis, the gallbladder, laid
-/// open from the front with its ducts, the skin, a block of it
+/// open from the front with its ducts, the intestines, in place from the
+/// front, a window cut at the ileocecal junction, the skin, a block of it
 /// cut from the leg, the thyroid, seen
 /// from the front in place, one lobe cut open, the adrenal, cut through its
 /// thickness on its kidney's upper pole, the pituitary, cut down its
@@ -143,8 +147,11 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// ducts and lobules of its gland, the vaginal part of a cervix, its
 /// ectocervix, for any, the duct of an epididymis for a cell of its duct
 /// and the efferent ductules in its head for one of theirs, the mucosa of
-/// a gallbladder and its cystic duct for any), by the kind of organ and of
-/// cell, never by gene.
+/// a gallbladder and its cystic duct for any, the colon's lining in the
+/// intestines' window for a cell of the colon, the terminal ileum's for an
+/// enterocyte or a Paneth cell, both for a cell of either, and the colon's
+/// bands and the cut muscle coats for a smooth muscle cell), by the kind
+/// of organ and of cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -327,6 +334,14 @@ abstract class OrganArt {
         figure: figure,
         level: level,
       ),
+      OrganKind.intestine when part != null => _IntestineOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        cell: cellName,
+        level: level,
+      ),
       _ =>
         part == null
             ? _AnyOrgan()
@@ -485,7 +500,7 @@ enum _Look { lobules, hollow, fibres, airways, coils }
 
 _Look _lookOf(OrganKind kind) => switch (kind) {
   OrganKind.lung => _Look.airways,
-  OrganKind.intestine || OrganKind.seminalVesicle => _Look.coils,
+  OrganKind.seminalVesicle => _Look.coils,
   OrganKind.smoothMuscle || OrganKind.tongue => _Look.fibres,
   OrganKind.uterus || OrganKind.vagina => _Look.hollow,
   _ => _Look.lobules,
@@ -3311,6 +3326,110 @@ final class _GallbladderOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => GallbladderArt.bedOf(inks);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The intestines, drawn from general anatomy as a specimen in place, seen
+/// from the front (`IntestineArt`): the coils of the jejunum and the ileum
+/// framed by the colon, a window cut where the one meets the other, the
+/// cecum opened as Gray's plate opens it, its valve, its semilunar fold and
+/// the appendix's orifice, and the terminal ileum laid open short of the
+/// valve, a Peyer's patch on its lining; reached from the body's own
+/// outline of the intestine (`_SpecimenOrgan`), which draws in toward the
+/// intestines' own and becomes the bed they lie on, the figure staying
+/// round them, faint. Where the zoom's cell lives is in the mark, by the
+/// Atlas's name for the cell: the colon's lining, the ileum's, both, or
+/// their muscle; the colon's parts, the jejunum, the ileum and the appendix
+/// are named in the quiet ink.
+final class _IntestineOrgan extends _SpecimenOrgan {
+  _IntestineOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    String? cell,
+    super.level,
+  }) : _form = IntestineForm.place(
+         part: part,
+         anatomy: anatomy,
+         view: view,
+         home: IntestineHome.of(cell),
+       );
+
+  final IntestineForm _form;
+
+  @override
+  bool get _amongFigure => true;
+
+  @override
+  double _settleOf(double detail) =>
+      SpecimenStep.settle(detail, span: IntestineStyle.settling);
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark; and the colon's parts round
+  // the coils, the jejunum, the ileum and the appendix, in the quiet ink.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (
+      key: 'home',
+      word: _form.home == IntestineHome.muscle ? 'muscularis' : 'mucosa',
+      at: _form.homeName,
+      home: true,
+    ),
+    (
+      key: 'transverse',
+      word: 'transverse\ncolon',
+      at: _form.transverseName,
+      home: false,
+    ),
+    (key: 'jejunum', word: 'jejunum', at: _form.jejunumName, home: false),
+    (
+      key: 'descending',
+      word: 'descending\ncolon',
+      at: _form.descendingName,
+      home: false,
+    ),
+    (key: 'ileum', word: 'ileum', at: _form.ileumName, home: false),
+    (key: 'appendix', word: 'appendix', at: _form.appendixName, home: false),
+  ];
+
+  // Set round all of it, out at the canvas's corners, as the stomach's and
+  // the gallbladder's are.
+  @override
+  late final List<Offset> named = <Offset>[
+    for (int i = 0; i < _form.outlinePoints.length; i += 4)
+      _form.outlinePoints[i],
+  ];
+
+  IntestineArt? _art;
+
+  IntestineArt _artFor(ZoomInks inks) {
+    final IntestineArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = IntestineArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => IntestineArt.bedOf(inks);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

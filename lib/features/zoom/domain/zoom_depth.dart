@@ -280,6 +280,14 @@ final class ZoomDepth {
   /// phone's canvas.
   static const double gallbladderUpright = 1.0;
 
+  /// How much taller than wide the intestines are framed: in place from the
+  /// front, the colon framing the coils, they stand a little taller than
+  /// they are wide, but their names, in rows above them and below them,
+  /// need room there on every phone's canvas, the squattest the first
+  /// iPhone SE's, 320 by 376 under the card: framed by their width, as the
+  /// stomach and the gallbladder are.
+  static const double intestineUpright = 1.0;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -316,8 +324,9 @@ final class ZoomDepth {
   /// [bladderUpright], the breast, seen from the front in place, its lower
   /// half dissected, as [breastUpright], the cervix, opened along its
   /// canal, as [cervixUpright], the epididymis, cut down its length on
-  /// its testis, as [epididymisUpright], and the gallbladder, laid open
-  /// from the front with its ducts, as [gallbladderUpright].
+  /// its testis, as [epididymisUpright], the gallbladder, laid open from
+  /// the front with its ducts, as [gallbladderUpright], and the
+  /// intestines, in place from the front, as [intestineUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -393,6 +402,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.gallbladder) {
       return gallbladderUpright;
+    }
+    if (anatomy.organ == OrganKind.intestine) {
+      return intestineUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)
