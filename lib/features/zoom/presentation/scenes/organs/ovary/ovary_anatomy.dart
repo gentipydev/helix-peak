@@ -54,9 +54,10 @@ typedef OvaryBody = ({Offset centre, double radius});
 /// ovum is imbedded"; a corpus luteum, the lining of a follicle "thrown
 /// into folds" after the ovum is discharged, "consists at first of a radial
 /// arrangement of yellow cells", "and later it merges with the surrounding
-/// stroma". A primordial follicle is about 40 µm across and its oocyte
-/// about 30 (Westergaard et al. 2007, Hum Reprod 22:2225; the NICHD
-/// ovarian nomenclature of 2021); in women in their twenties to forties the
+/// stroma". The smallest follicles' oocytes have nuclei 14 to 23 µm
+/// across, a primordial follicle some thirty granulosa cells round its
+/// oocyte and a primary one about a hundred (Westergaard et al. 2007, Hum
+/// Reprod 22:2225); in women in their twenties to forties the
 /// primordial and primary follicles lie on average 460 to 500 µm under the
 /// surface and the secondary ones 640 µm (Haino et al. 2018, J Adolesc
 /// Young Adult Oncol 7:46). A dominant follicle is selected in the
@@ -78,7 +79,8 @@ typedef OvaryBody = ({Offset centre, double radius});
 /// width, the free border puckered a little; the medulla an oval about the
 /// hilum, 14 mm along the mesovarian border; the
 /// helicine vessels' courses in it; the follicles in the earliest stages
-/// as dust under the surface, set so that they show; the tube's course,
+/// as dust under the surface, set so that they show, a primordial one 40
+/// µm across and a growing one 120; the tube's course,
 /// close over the mesovarian border and round the tubal pole, its calibres
 /// and its fimbriae the fallopian tube's own (`FallopianAnatomy`); the
 /// ligament of the ovary 3 mm across; the ovarian vessels' courses down the
