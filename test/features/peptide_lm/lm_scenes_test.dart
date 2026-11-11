@@ -2151,6 +2151,40 @@ void main() {
     }
   });
 
+  testWidgets("Update's grid draws each weight as a square whose area is its size, never-next rows empty", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    final RRect slot = RRect.fromRectAndRadius(const Rect.fromLTWH(0, 0, 16, 16), const Radius.circular(3));
+    double area(RRect square) => square.width * square.height;
+    // A weight at its scale takes the most a square takes; a quarter of it,
+    // a quarter of that; nothing at zero; the sign changes only the colour.
+    expect(area(UpdateScene.gridSquare(slot, 1)), closeTo(256 * UpdateScene.mostArea, 1e-9));
+    expect(area(UpdateScene.gridSquare(slot, -0.25)), closeTo(256 * UpdateScene.mostArea / 4, 1e-9));
+    expect(area(UpdateScene.gridSquare(slot, 0)), 0);
+    for (int c = 0; c < trace.checkpoints.length; c++) {
+      final LmView v = view(inks, kit, checkpoint: c);
+      expect(UpdateScene.squareColour(v, -0.3), inks.cell(-1));
+      expect(UpdateScene.squareColour(v, 0.3), inks.cell(1));
+      for (int k = 0; k < trace.vocab.length; k++) {
+        for (int e = 0; e < trace.model.width; e++) {
+          for (final double value in <double>[
+            UpdateScene.gradientValue(v, k, e),
+            UpdateScene.stepValue(v, k, e),
+            UpdateScene.afterValue(v, k, e),
+          ]) {
+            expect(value.abs(), lessThanOrEqualTo(1), reason: 'step ${v.step}, token $k, number $e');
+          }
+          // A token that never comes next has no gradient, so no square.
+          if (trace.allowedIndex(k) < 0) {
+            expect(UpdateScene.gradientValue(v, k, e), 0, reason: 'step ${v.step}, token $k, number $e');
+          }
+        }
+      }
+    }
+  });
+
   testWidgets('a tap on Update asks for a place on the tables, nothing elsewhere', (WidgetTester tester) async {
     final (LmInks inks, LmKit kit) = await _drawing(tester);
     addTearDown(kit.dispose);
@@ -2197,10 +2231,12 @@ void main() {
         expect(layout.column(2).left, greaterThan(layout.column(1).right), reason: where);
         expect(layout.box.left, greaterThanOrEqualTo(layout.column(2).right + 10), reason: where);
         expect(layout.box.right, lessThanOrEqualTo(size.width), reason: where);
-        // The grid where the bench's columns were; the chart's bars from its
-        // names to its numbers, the clip on it.
+        // The grid on the bench's rows, each token's tile right beside its
+        // row and on the canvas; the chart's bars from its names to its
+        // numbers, the clip on it.
         expect(layout.grid.left, greaterThanOrEqualTo(0), reason: where);
-        expect(layout.grid.right, lessThanOrEqualTo(layout.bench.chip(0, 0).left), reason: where);
+        expect(layout.gridTile(0).left - layout.grid.right, inInclusiveRange(0, 6), reason: where);
+        expect(layout.gridTile(0).right, lessThanOrEqualTo(size.width), reason: where);
         expect(layout.chartX(trace.config.gradClip), lessThan(layout.chartX(double.infinity)), reason: where);
         // AdamW: the weights, the gradients, the chart and after, in order,
         // on the canvas; the zero in the chart's middle.

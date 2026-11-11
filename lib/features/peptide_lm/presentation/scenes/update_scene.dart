@@ -7,7 +7,6 @@ import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
 import '../lm_format.dart';
 import '../lm_info_sheet.dart';
-import 'attention_scene.dart';
 import 'backward_scene.dart';
 import 'lm_drawing.dart';
 import 'lm_scene.dart';
@@ -115,14 +114,15 @@ final class UpdateScene extends LmScene {
   static const (double, double) _totalIn = (21.0, 21.8);
   static const (double, double) _clipLine = (21.4, 21.8);
 
-  // F. AdamW on the worked token's weights: the chart goes and the grid comes
-  // back faint; the token's row of it stands up as a column, the weights
+  // F. AdamW on the worked token's weights: the chart goes, its output
+  // layer's bar growing back into the grid, faint (E's shrink played back);
+  // the token's row of it stands up as a column, the weights
   // beside it, a bar each; the bars move to the running mean, take a mark at
   // the running size, go to their ratio, then flip and scale to the step;
   // they condense into a column, and the weights go through it to after.
   static const double _adamFrom = 24.0;
   static const (double, double) _chartOut = (24.0, 24.4);
-  static const (double, double) _gridBack = (24.2, 24.6);
+  static const (double, double) _gridBack = (24.0, 24.6);
   static const (double, double) _standUp = (24.6, 25.3);
   static const (double, double) _gridAway = (25.0, 25.4);
   static const (double, double) _weightsIn = (25.1, 25.5);
@@ -949,44 +949,52 @@ final class UpdateScene extends LmScene {
 
   // -------------------------------------------------------------- the grid
 
-  /// The output layer as a grid on the bench's rows, a cell a weight: its
-  /// gradient, the worked mean flying into its cell and the rest filling;
-  /// shrinking into its row of the chart; back, faint, while the worked
-  /// row stands up; then every weight's step, and the weights after.
+  /// The output layer as a grid on the bench's rows, a slot a weight and in
+  /// it a square, as Predict's map draws a share: its gradient, the worked
+  /// mean flying into its cell and the rest growing in; shrinking into its
+  /// row of the chart; grown back out of it, faint, while the worked row
+  /// stands up; then every weight's step, and the weights after. The worked
+  /// token's row is lit from when its mean lands, as Predict lights what
+  /// came next.
   void _grid(Canvas canvas, LmView view, UpdateLayout layout, double beat, UpdateFade fade) {
     final int groups = view.trace.groups.length;
     final (int r, int d) = worked(view);
+    final double lit = through(beat, _fly.$2 - 0.1, _fly.$2 + 0.2);
     if (beat >= _adamOut.$1) {
       final double shown = _span(beat, _gridSteps) * fade.grid;
       final double after = _span(beat, _toAfter);
+      // The worked row comes back as its step lands, lying down into it.
+      final double landed = through(_span(beat, _lieDown), 0.65, 1);
       _drawGrid(
         canvas,
         view,
         layout,
         layout.grid,
         shown,
-        made: (int k, int e) => 1,
-        colour: (int k, int e) => Color.lerp(_stepColour(view, k, e), _afterColour(view, k, e), after)!,
-        hidden: beat < _lieDown.$2 ? r : null,
+        value: (int k, int e) => _lerp(stepValue(view, k, e), afterValue(view, k, e), after),
+        rowShown: (int k) => k == r ? landed : 1,
+        lit: lit,
         status: after >= 0.5 ? ScoresScene.weightsStatus(view, after: true) : null,
       );
       return;
     }
     if (beat >= _gridBack.$1) {
-      final double shown = 0.5 * _span(beat, _gridBack) * (1 - _span(beat, _gridAway));
-      if (shown > 0) {
-        _drawGrid(
-          canvas,
-          view,
-          layout,
-          layout.grid,
-          shown,
-          made: (int k, int e) => 1,
-          colour: (int k, int e) => _gradientColour(view, k, e),
-          hidden: beat >= _standUp.$1 ? r : null,
-          struck: true,
-        );
-      }
+      // The output layer's bar grows back into the grid, faint, D's shrink
+      // played back; the worked row's squares give way to it standing up.
+      final double back = _span(beat, _gridBack);
+      final double shown = 0.5 * back * (1 - _span(beat, _gridAway));
+      final double stand = _span(beat, _standUp);
+      _drawGrid(
+        canvas,
+        view,
+        layout,
+        Rect.lerp(layout.chartBar(groups - 1), layout.grid, back)!,
+        shown,
+        value: (int k, int e) => gradientValue(view, k, e),
+        rowShown: (int k) => k == r ? 1 - through(stand, 0, 0.35) : 1,
+        lit: lit,
+        chrome: shown * through(back, 0.7, 1),
+      );
       return;
     }
     if (beat < _gridIn.$1 || beat >= _shrink.$2) {
@@ -999,9 +1007,9 @@ final class UpdateScene extends LmScene {
       layout,
       Rect.lerp(layout.grid, layout.chartBar(groups - 1), shrink)!,
       _span(beat, _gridIn) * (1 - shrink),
+      value: (int k, int e) => gradientValue(view, k, e),
       made: (int k, int e) => _cellMade(k, e, r, d, view.trace.vocab.length, beat),
-      colour: (int k, int e) => _gradientColour(view, k, e),
-      struck: true,
+      lit: lit,
       chrome: _span(beat, _gridIn) * (1 - through(beat, _shrink.$1, _shrink.$1 + 0.3)),
     );
     // The worked mean, flying from the box into its cell.
@@ -1018,20 +1026,25 @@ final class UpdateScene extends LmScene {
     }
   }
 
-  /// The grid in [rect] at [alpha]: each cell [made] of the way from an
-  /// empty slot to its [colour]; token [hidden]'s row left out, where it is
-  /// drawn standing or lying elsewhere; never-next rows [struck]; the rows'
-  /// tokens, the numbers' names, and the plate with its [status].
+  /// The grid in [rect] at [alpha]: a dark slot a weight, and in it a square
+  /// whose area is the weight's [value] against its scale, −1 to 1, as a
+  /// share's is in Predict's map, in its sign's colour ([squareColour]);
+  /// each square [made] of the way, and every one [grown] of the way, as
+  /// the grid goes into Loop's map; token rows as strong as [rowShown] says,
+  /// where a row is drawn standing or lying elsewhere; the worked token's
+  /// row [lit] of the way; the rows' tokens, the numbers' names, and the
+  /// plate with its [status], at [chrome].
   void _drawGrid(
     Canvas canvas,
     LmView view,
     UpdateLayout layout,
     Rect rect,
     double alpha, {
-    required double Function(int k, int e) made,
-    required Color Function(int k, int e) colour,
-    int? hidden,
-    bool struck = false,
+    required double Function(int k, int e) value,
+    double Function(int k, int e)? made,
+    double Function(int k)? rowShown,
+    double lit = 0,
+    double grown = 1,
     String? status,
     double? chrome,
   }) {
@@ -1043,20 +1056,31 @@ final class UpdateScene extends LmScene {
     final PredictLayout bench = layout.bench;
     final int count = trace.vocab.length;
     final int width = trace.model.width;
-    final GridMesh mesh = GridMesh(rect, width, count, columnGap: rect.width / width * 0.08, rowGap: rect.height / count * 0.12);
-    final Color slot = Color.lerp(view.inks.ground, view.inks.zero, 0.6)!;
+    final int token = worked(view).$1;
+    final double w = rect.width / width;
+    final double h = rect.height / count;
+    final Paint paint = Paint();
     for (int k = 0; k < count; k++) {
+      final double row = alpha * (rowShown == null ? 1 : rowShown(k));
+      if (row <= 0) {
+        continue;
+      }
       for (int e = 0; e < width; e++) {
-        final Color fill = k == hidden ? Colors.transparent : Color.lerp(slot, colour(k, e), made(k, e))!;
-        mesh.cell(e, k, fill.withValues(alpha: fill.a * alpha));
+        final RRect slot = PredictScene.slotOf(Rect.fromLTWH(rect.left + e * w, rect.top + k * h, w, h));
+        PredictScene.drawSlot(canvas, view, slot, shown: row, lit: k == token ? lit : 0);
+        final double v = value(k, e);
+        final RRect square = gridSquare(slot, v, grown: grown * (made == null ? 1 : made(k, e)));
+        if (math.min(square.width, square.height) < _leastSquare) {
+          continue;
+        }
+        canvas.drawRRect(square, paint..color = squareColour(view, v).withValues(alpha: row));
       }
     }
-    mesh.draw(canvas);
     // The rows' tokens, the numbers' names and the plate stay where they
     // are, fading, while the cells move.
     if (around > 0) {
       for (int k = 0; k < count; k++) {
-        drawToken(canvas, view, bench.chip(k, 0), k, alpha: around);
+        drawToken(canvas, view, layout.gridTile(k), k, alpha: around);
       }
       final TextStyle face = inked(view.kit.mono, math.min(8, layout.gridCell(0, 0).width * 0.45), view.inks.quiet, alpha: around);
       for (int e = 0; e < width; e++) {
@@ -1064,27 +1088,39 @@ final class UpdateScene extends LmScene {
       }
       PredictScene.drawPlate(canvas, view, bench, around, status: status);
     }
-    if (struck) {
-      final double h = rect.height / count;
-      for (int k = 0; k < count; k++) {
-        if (trace.allowedIndex(k) < 0 && h >= 2) {
-          AttentionScene.hatch(canvas, view, Rect.fromLTWH(rect.left, rect.top + k * h, rect.width, h).deflate(0.5), alpha);
-        }
-      }
-    }
   }
 
-  /// Cell ([k], [e])'s colours: the output layer's gradient, the step, the
-  /// weight after it.
-  static Color _gradientColour(LmView view, int k, int e) =>
-      view.inks.signed(view.trace.headGrad(view.checkpoint, k, e) / gradientScale(view));
+  /// The least a square is drawn, as Predict's map draws its least.
+  static const double _leastSquare = 0.4;
 
-  static Color _stepColour(LmView view, int k, int e) =>
-      view.inks.cell(view.trace.headUpdate(view.checkpoint, k, e) / math.max(1e-12, stepRange(view).$2));
+  /// A weight's square in [slot]: its area in proportion to [value]'s size,
+  /// −1 to 1, as a share's is in Predict's map, a weight at its scale taking
+  /// [mostArea] of the slot and one at 0 none, so a grid of squares one size
+  /// (Adam's steps at step 1) is still a field of squares, not a wall;
+  /// [grown] of the way from nothing.
+  static RRect gridSquare(RRect slot, double value, {double grown = 1}) =>
+      PredictScene.fillOf(slot, value.abs() * mostArea, grown: grown);
 
-  static Color _afterColour(LmView view, int k, int e) => view.inks.cell(
-    (view.trace.outputWeight(view.checkpoint, k, e) + view.trace.headUpdate(view.checkpoint, k, e)) / headScale(view),
-  );
+  /// The most of its slot a weight's square takes.
+  static const double mostArea = 0.5;
+
+  /// A weight's square's colour: its sign's, the helix's denim below zero and
+  /// its clay above, as soft as a table's tiles, so a grid of squares one
+  /// size, Adam's steps at step 1, stays quiet.
+  static Color squareColour(LmView view, double value) => view.inks.cell(value < 0 ? -1 : 1);
+
+  /// Cell ([k], [e]) of the grid, against its scale, −1 to 1: the output
+  /// layer's gradient; its step; the weight after it.
+  static double gradientValue(LmView view, int k, int e) =>
+      (view.trace.headGrad(view.checkpoint, k, e) / gradientScale(view)).clamp(-1.0, 1.0);
+
+  static double stepValue(LmView view, int k, int e) =>
+      (view.trace.headUpdate(view.checkpoint, k, e) / math.max(1e-12, stepRange(view).$2)).clamp(-1.0, 1.0);
+
+  static double afterValue(LmView view, int k, int e) => ((view.trace.outputWeight(view.checkpoint, k, e) +
+              view.trace.headUpdate(view.checkpoint, k, e)) /
+          headScale(view))
+      .clamp(-1.0, 1.0);
 
   /// How far cell ([k], [e]) has filled at [beat]: the worked cell as its
   /// mean lands, the others a row at a time, top to bottom.
@@ -1115,8 +1151,12 @@ final class UpdateScene extends LmScene {
     final double norm = trace.steps.gradNorm[view.step - 1];
     for (int g = 0; g < groups; g++) {
       final bool output = g == groups - 1;
-      final double come = output ? through(beat, _shrink.$2 - 0.2, _shrink.$2) : _groupShown(g, groups, beat);
-      final double shown = come * alpha;
+      // The output layer's row comes as the grid shrinks into its bar, and
+      // goes as the grid grows back out of it.
+      final double come = output
+          ? through(beat, _shrink.$2 - 0.2, _shrink.$2) * (1 - through(beat, _gridBack.$1, _gridBack.$1 + 0.2))
+          : _groupShown(g, groups, beat);
+      final double shown = come * (output ? 1 : alpha);
       if (shown <= 0) {
         continue;
       }
@@ -1241,8 +1281,8 @@ final class UpdateScene extends LmScene {
     final int stepPlaces = stepDigits(view);
     List<Color> cells(List<double> values, double scale) => <Color>[for (final double v in values) view.inks.cell(v / scale)];
 
-    // The gradients, standing up out of the grid's row; gone as the bars
-    // condense.
+    // The gradients, standing up out of the grid's row, taking over from its
+    // squares as they lift; gone as the bars condense.
     final double stand = _span(beat, _standUp);
     final double gone = _span(beat, _condense);
     if (stand < 1) {
@@ -1251,11 +1291,14 @@ final class UpdateScene extends LmScene {
         from: layout.gridRow(row.token),
         to: layout.adamColumn(layout.gradientX),
         f: stand,
-        // From the faint grid's strength to its own as it lifts.
-        alpha: 0.5 + 0.5 * through(stand, 0, 0.35),
+        alpha: through(stand, 0, 0.35),
         colors: <Color>[
           for (int e = 0; e < width; e++)
-            Color.lerp(_gradientColour(view, row.token, e), view.inks.cell(row.gradient[e] / gradientMost), stand)!,
+            Color.lerp(
+              squareColour(view, gradientValue(view, row.token, e)),
+              view.inks.cell(row.gradient[e] / gradientMost),
+              stand,
+            )!,
         ],
       );
     } else {
@@ -1302,12 +1345,16 @@ final class UpdateScene extends LmScene {
     if (gone > 0 && beat < _lieDown.$1) {
       _column(canvas, view, layout, layout.stepX, steps, row.step, stepPlaces, gone * alpha, title: 'step', signedNumbers: true, worked: d);
     } else if (beat >= _lieDown.$1) {
+      // Lying back down, giving way to the row's squares as it lands.
       table.strip(
         canvas,
         from: layout.gridRow(row.token),
         to: layout.adamColumn(layout.stepX),
         f: 1 - lying,
-        colors: <Color>[for (int e = 0; e < width; e++) Color.lerp(steps[e], _stepColour(view, row.token, e), lying)!],
+        alpha: 1 - through(lying, 0.65, 1),
+        colors: <Color>[
+          for (int e = 0; e < width; e++) Color.lerp(steps[e], squareColour(view, stepValue(view, row.token, e)), lying)!,
+        ],
       );
     }
 
@@ -1962,8 +2009,18 @@ final class UpdateLayout {
       box.top + 5 + boxLine * (trace.peptides.length + 1) + boxLine / 2,
     );
 
-    // The grid, where the bench's columns and strings were.
-    grid = Rect.fromLTRB(predict.inputColumn.left, predict.benchTop, predict.logitTile(0, 0).right, predict.benchBottom);
+    // The grid on the bench's rows, a row a token: square cells as tall as
+    // a row where the width allows, each token's tile right beside its row,
+    // the whole centred on the bench.
+    final int columns = trace.model.width;
+    final double side = math.min(predict.pitch, (predict.right - predict.left - _tileGap - predict.chipSide) / columns);
+    final double block = side * columns + _tileGap + predict.chipSide;
+    grid = Rect.fromLTWH(
+      (predict.left + predict.right) / 2 - block / 2,
+      predict.benchTop,
+      side * columns,
+      predict.benchBottom - predict.benchTop,
+    );
 
     // The chart: a row a group, a gap, and all of them.
     final int groups = trace.groups.length;
@@ -2054,6 +2111,9 @@ final class UpdateLayout {
   /// The output layer as a grid on the bench's rows.
   late final Rect grid;
 
+  /// From the grid's last column to the tiles naming its rows.
+  static const double _tileGap = 4;
+
   late final double _chartPitch;
   late final double _chartTop;
   late final double _barsLeft;
@@ -2126,6 +2186,13 @@ final class UpdateLayout {
   Rect gridRow(int k) {
     final double h = grid.height / _view.trace.vocab.length;
     return Rect.fromLTWH(grid.left, grid.top + k * h, grid.width, h);
+  }
+
+  /// The tile naming token [k]'s row of the grid, right beside it.
+  Rect gridTile(int k) {
+    final Rect row = gridRow(k);
+    final double side = bench.chipSide;
+    return Rect.fromLTWH(grid.right + _tileGap, row.center.dy - side / 2, side, side);
   }
 
   /// The chart's row [g]: a group's, the gap after the last, then all.
