@@ -33,15 +33,16 @@ final class LoopScene extends LmScene {
   const LoopScene();
 
   // Within the opening, from the start of step 1's guesses: Update's grid
-  // goes; the map's tag, tiles and empty slots come; each row's squares grow
-  // in, top to bottom; the slots of what came next light, with the answer
-  // key, and its shares.
-  static const (double, double) _gridOut = (0, 0.4);
-  static const (double, double) _mapIn = (0.3, 0.7);
-  static const (double, double) _rowsGrow = (0.7, 1.7);
+  // glides down into the map's frame, its squares going as it goes; the
+  // map's tag, tiles and empty slots come in where it arrives; each row's
+  // squares grow in, top to bottom; the slots of what came next light, with
+  // the answer key, and its shares.
+  static const (double, double) _glide = (0, 0.7);
+  static const (double, double) _mapIn = (0.35, 0.7);
+  static const (double, double) _rowsGrow = (0.8, 1.8);
   static const double _rowGrow = 0.25;
-  static const (double, double) _keyIn = (1.7, 2.0);
-  static const (double, double) _givenIn = (1.9, 2.2);
+  static const (double, double) _keyIn = (1.8, 2.1);
+  static const (double, double) _givenIn = (2.0, 2.3);
 
   // From the start of step 1's cost: the axes and the levels; the kept
   // steps' ticks; step 1's point.
@@ -69,11 +70,11 @@ final class LoopScene extends LmScene {
       return;
     }
     final double g0 = pace.span(LoopPart.guesses).from;
-    final double gridLeft = 1 - _span(now.beat, g0, _gridOut);
-    if (gridLeft > 0) {
-      const UpdateScene().paintEnd(canvas, size, view, UpdateFade(note: 0, grid: gridLeft));
-    }
     final LoopLayout layout = LoopLayout(size, view);
+    final double glide = _span(now.beat, g0, _glide);
+    if (glide < 1) {
+      const UpdateScene().paintEnd(canvas, size, view, UpdateFade(note: 0, glide: glide, gridTo: layout.mapBox));
+    }
     layout.table.note(
       canvas,
       <(double, double, String)>[(double.negativeInfinity, 0.25, UpdateScene.notes(view).last.$3), ...notes(view)],
@@ -983,6 +984,7 @@ final class LoopLayout {
     );
     ceiling = math.max(trace.loss(1), trace.uniform) * 1.06;
     _count = trace.steps.count;
+    _places = places;
   }
 
   final StreamTable table;
@@ -1024,6 +1026,11 @@ final class LoopLayout {
   /// The map's tag, and the map.
   late final double tagTop;
   late final ShareMapLayout map;
+
+  /// The map's cells, every row of them: the frame Update's grid glides
+  /// into as the stage opens.
+  Rect get mapBox => Rect.fromLTRB(map.mapLeft, map.top, map.mapRight, map.top + map.pitch * _places);
+  late final int _places;
 
   /// How many nats the plot is tall.
   late final double ceiling;

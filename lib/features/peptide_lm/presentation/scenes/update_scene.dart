@@ -961,7 +961,11 @@ final class UpdateScene extends LmScene {
     final (int r, int d) = worked(view);
     final double lit = through(beat, _fly.$2 - 0.1, _fly.$2 + 0.2);
     if (beat >= _adamOut.$1) {
-      final double shown = _span(beat, _gridSteps) * fade.grid;
+      // Gliding into the stage after's frame, the grid's tokens, numbers and
+      // plate go first, then its squares shrink away, and last its slots.
+      final Rect? to = fade.gridTo;
+      final double glide = to == null ? 0 : fade.glide;
+      final double shown = _span(beat, _gridSteps) * fade.grid * (1 - through(glide, 0.8, 1));
       final double after = _span(beat, _toAfter);
       // The worked row comes back as its step lands, lying down into it.
       final double landed = through(_span(beat, _lieDown), 0.65, 1);
@@ -969,12 +973,14 @@ final class UpdateScene extends LmScene {
         canvas,
         view,
         layout,
-        layout.grid,
+        to == null ? layout.grid : Rect.lerp(layout.grid, to, glide)!,
         shown,
         value: (int k, int e) => _lerp(stepValue(view, k, e), afterValue(view, k, e), after),
         rowShown: (int k) => k == r ? landed : 1,
         lit: lit,
+        grown: 1 - through(glide, 0, 0.6),
         status: after >= 0.5 ? ScoresScene.weightsStatus(view, after: true) : null,
+        chrome: shown * (1 - through(glide, 0, 0.35)),
       );
       return;
     }
@@ -1954,14 +1960,16 @@ final class AdamRow {
 }
 
 /// What Update's last frame fades, for the stage that opens on it: the note,
-/// and the grid of the weights after. By default, the frame as Update draws
-/// it.
+/// and the grid of the weights after, which can [glide] into [gridTo], its
+/// squares going as it goes. By default, the frame as Update draws it.
 @immutable
 final class UpdateFade {
-  const UpdateFade({this.note = 1, this.grid = 1});
+  const UpdateFade({this.note = 1, this.grid = 1, this.glide = 0, this.gridTo});
 
   final double note;
   final double grid;
+  final double glide;
+  final Rect? gridTo;
 }
 
 /// Update's canvas, on Backward's, which is on Predict's and the table's:
