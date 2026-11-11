@@ -297,7 +297,8 @@ final class IntestineArt {
   }
 
   /// The colon's point [u] of the way across row [i], and its colour in
-  /// [tone]: lit round it, and tipped along it where a sacculus swells.
+  /// [tone]: lit round it, tipped along it where a sacculus swells, and in
+  /// the shade where it lies behind the coils.
   (Offset, int) _colonVertex(int i, double u, SpecimenTone tone) {
     final IntestineRows c = form.colon;
     final Offset m = c.across[i];
@@ -316,8 +317,11 @@ final class IntestineArt {
       _palette.colour(
         tone,
         _light.light(nx, ny, nz, form: nz0) * IntestineStyle.tubeLight,
-        occlusion: (1 - c.shown[i]) * IntestineStyle.shadeAway,
-        sheen: _light.sheen(nx, ny, nz) * IntestineStyle.tubeLight * c.shown[i],
+        occlusion: c.shade[i],
+        sheen:
+            _light.sheen(nx, ny, nz) *
+            IntestineStyle.tubeLight *
+            (1 - c.shade[i] / IntestineStyle.shadeAway).clamp(0.0, 1.0),
       ),
     );
   }

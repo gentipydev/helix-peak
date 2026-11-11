@@ -61,7 +61,7 @@ enum IntestineHome {
 
 /// A tube's rows laid in the scene: each its middle, the way across it, how
 /// far it reaches to either side, how much it tips toward or away from the
-/// way along it, and how much of it shows.
+/// way along it, how much of it shows, and how deep in the shade it lies.
 typedef IntestineRows = ({
   List<Offset> centres,
   List<Offset> across,
@@ -69,6 +69,7 @@ typedef IntestineRows = ({
   List<double> minus,
   List<double> tilt,
   List<double> shown,
+  List<double> shade,
 });
 
 /// The intestines as the zoom's organ scene draws them, in place from the
@@ -717,11 +718,31 @@ final class IntestineForm {
       for (int i = 0; i < _colon.length; i++) mm(_colonMinusAt(i)),
     ],
     tilt: _colonTilt,
-    shown: <double>[
+    shown: _colonShown,
+    shade: <double>[
       for (int i = 0; i < _colon.length; i++)
-        _smooth((_colonLength - _colon.arc[i]) / IntestineAnatomy.rectumFade),
+        math.max(
+          (1 - _colonShown[i]) * IntestineStyle.shadeAway,
+          IntestineStyle.sigmoidShade *
+              _smooth(
+                (_colon.arc[i] -
+                        _sigmoidArc +
+                        IntestineAnatomy.sigmoidShading) /
+                    IntestineAnatomy.sigmoidShading,
+              ),
+        ),
     ],
   );
+
+  /// How much of the colon shows at each row: all of it but where the
+  /// sigmoid colon runs on behind the coils toward the rectum.
+  static final List<double> _colonShown = <double>[
+    for (int i = 0; i < _colon.length; i++)
+      _smooth((_colonLength - _colon.arc[i]) / IntestineAnatomy.rectumFade),
+  ];
+
+  /// How far along the colon the sigmoid colon starts.
+  static double get _sigmoidArc => _colon.arc[_sigmoidRow];
   int get windowRow => _windowRow;
   int get sigmoidRow => _sigmoidRow;
 

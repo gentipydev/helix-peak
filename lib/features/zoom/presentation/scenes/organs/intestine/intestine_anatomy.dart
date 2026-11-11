@@ -161,6 +161,10 @@ abstract final class IntestineAnatomy {
   /// on behind the coils toward the rectum.
   static const double rectumFade = 20;
 
+  /// Over how long a stretch before the sigmoid colon the colon goes down
+  /// into the shade of the pelvis, behind the coils.
+  static const double sigmoidShading = 40;
+
   /// The sacculi: how far apart their middles lie along the colon, from
   /// how far along it they start, how far they bulge, a share of the
   /// colon's half-width, and how far along it from its end they stop

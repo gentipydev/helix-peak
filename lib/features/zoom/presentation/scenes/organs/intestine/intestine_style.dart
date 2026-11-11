@@ -93,6 +93,10 @@ abstract final class IntestineStyle {
   ];
   static const double shadeAway = 0.55;
 
+  /// How deep in the shade the sigmoid colon lies, behind the coils in the
+  /// pelvis.
+  static const double sigmoidShade = 0.42;
+
   /// How far a coil's end rounds off past its last row, where it turns
   /// away: a share of its width.
   static const double endRound = 0.45;
