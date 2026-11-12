@@ -960,6 +960,71 @@ void main() {
     }
   });
 
+  testWidgets("Shift's peptides have room between them, and only the followed one's ids keep the accent", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    // Room first: the tiles grow only once the peptides are set apart, and
+    // give the room back only past the snug size.
+    for (final Size size in const <Size>[Size(440, 689), Size(402, 607), Size(375, 476), Size(393, 300)]) {
+      final ShiftLayout layout = ShiftLayout(size, view(inks, kit));
+      final double gap = layout.rowPitch - layout.block;
+      expect(
+        gap >= ShiftLayout.airGap - 1e-9 || layout.tileHeight <= ShiftLayout.snug + 1e-9,
+        isTrue,
+        reason: '$size: gap $gap, tile ${layout.tileHeight}',
+      );
+    }
+    // The accent: on the followed peptide's ids, in x and in y, and on no
+    // other peptide's.
+    const Size size = Size(393, 540);
+    const double dpr = 3;
+    final Color accent = inks.signal;
+    for (int p = 0; p < trace.peptides.length; p++) {
+      final LmView scene = view(inks, kit, peptide: p);
+      final ui.PictureRecorder recorder = ui.PictureRecorder();
+      final Canvas canvas = Canvas(recorder)
+        ..scale(dpr)
+        ..drawRect(Offset.zero & size, Paint()..color = inks.ground);
+      LmScenePainter(view: scene, frame: () => timeline.frameIn(LmStage.shift, 1)).paint(canvas, size);
+      final ui.Picture picture = recorder.endRecording();
+      final ByteData data = (await tester.runAsync(() async {
+        final ui.Image image = await picture.toImage((size.width * dpr).round(), (size.height * dpr).round());
+        final ByteData? bytes = await image.toByteData();
+        image.dispose();
+        return bytes!;
+      }))!;
+      picture.dispose();
+      final int width = (size.width * dpr).round();
+      // Pixels of the accent's own colour, all but antialiasing.
+      int accented(Rect rect) {
+        int n = 0;
+        for (int y = (rect.top * dpr).floor(); y < (rect.bottom * dpr).ceil(); y++) {
+          for (int x = (rect.left * dpr).floor(); x < (rect.right * dpr).ceil(); x++) {
+            final int i = 4 * (y * width + x);
+            if ((data.getUint8(i) - (accent.r * 255).round()).abs() <= 12 &&
+                (data.getUint8(i + 1) - (accent.g * 255).round()).abs() <= 12 &&
+                (data.getUint8(i + 2) - (accent.b * 255).round()).abs() <= 12) {
+              n++;
+            }
+          }
+        }
+        return n;
+      }
+
+      final ShiftLayout layout = ShiftLayout(size, scene);
+      for (int q = 0; q < trace.peptides.length; q++) {
+        // Under the name's line, where the ids are.
+        for (final Rect block in <Rect>[layout.card(q), layout.yCard(q)]) {
+          final Rect ids = Rect.fromLTRB(block.left, block.top + 3 + ShiftLayout.label, block.right, block.bottom);
+          final int n = accented(ids);
+          expect(q == p ? n > 0 : n == 0, isTrue, reason: 'peptide $q, $p followed: $n accent pixels');
+        }
+      }
+    }
+  });
+
   testWidgets("Embedding's position rows end on the context's last row, under the last place's, on the canvas", (
     WidgetTester tester,
   ) async {

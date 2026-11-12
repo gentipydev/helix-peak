@@ -92,7 +92,7 @@ final class LmInks {
 
   /// How far the card under the peptide the reader follows goes towards the
   /// accent.
-  static const double follow = 0.12;
+  static const double follow = 0.06;
 
   /// The card under the peptide the reader follows: [card], a little towards
   /// [signal], the ink of what is followed.

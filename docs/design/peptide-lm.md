@@ -145,6 +145,31 @@ out of view is scrolled just far enough to show it whole.
    parts them), each tile as tall as the height allows and its id drawn at
    0.62 of the tile's height (Tokenise's 0.52; `drawIdTile(numberScale:)`):
    on a Pro Max about 17 × 15 pt drawn, 9 pt ids.
+
+   On 2026-11-12 the user found the stage's end "really crowded" and asked
+   for the balance that is easy on the eye. Two things made it a wall: 360
+   ids, every one in the accent, so the accent marked nothing, and twelve
+   blocks 3 pt apart, the name nearer the tiles above it than its own.
+   - **The accent only where followed** (a clear win): every peptide's ids
+     but the followed one's turn to the quiet ink as the matrix opens out
+     (`ShiftScene.calm`, `drawIdTile(number:)`), so the followed peptide's
+     ids, in x and in y, are the only green on the canvas besides its name
+     and mark. Tokenise keeps its ids in the accent (they are its subject),
+     and so the turn is a lerp over the open, the handover pixel for pixel.
+   - **Room between the peptides** (a trade-off): the peptides get 6 pt
+     before the tiles grow (`ShiftLayout.airGap`), the tiles giving room
+     back only down to 14 pt (`ShiftLayout.snug`): on a Pro Max 15.3 pt
+     tiles and 8 pt ids for the 16.5 and 8.5 the user asked for on
+     2026-10-30, so their ask for legible ids still holds. 10 pt was drawn
+     too and set aside: 7 pt ids. A 402-wide phone already had no room
+     past 13 pt tiles and is as it was; 375 is one line a peptide and
+     unchanged.
+   - **A lighter followed card** (`LmInks.follow` 0.12 → 0.06), Tokenise's
+     and Loss's with it: with the ids marking the peptide, a card a shade
+     towards the accent is enough.
+
+   A test holds both: the room (or the snug tile) at four sizes, and accent
+   pixels under the followed peptide's name only, in x and in y.
 3. **Embedding.** The user's ask of 2026-10-30: the lookup Forward used to
    open with, as a stage of its own, the table 16 numbers wide across the
    whole width and every number written out on a soft tile of its colour
@@ -1111,7 +1136,9 @@ and the user, asking for the taps to go, learned they did more than
 highlight. Their picks of 2026-11-12, asked with previews:
 - **Tag and hint**: Tokenise and Shift write the followed peptide's name in
   the accent, on a card a little towards it (`LmInks.followed`, the card
-  lerped 0.12 to the accent), and after the name a small plate in the
+  lerped 0.06 to the accent, 0.12 until the Shift calm-down below), and in
+  Shift its ids are the only ones left in the accent; after the name a small
+  plate in the
   accent, `followed`, then in the quiet ink "tap another to follow it", or
   "tap to change" where that does not fit (`drawFollowed`, `followedPlate`,
   `drawFollowHint` in `lm_drawing.dart`). The mark is a line's height, so it
@@ -1197,7 +1224,8 @@ canvas's 4, and the mixed case of the canvas's notes (words, not the frame).
 
 `LmInks`, every one the theme's (`lm_inks_test`): the accent for what flows
 forward and the reader's focus (the followed peptide's name, and its card a
-little towards it, `followed`); the tracer for what actually came next; the
+little towards it, `followed`; in Shift its ids, every other peptide's in
+the quiet ink); the tracer for what actually came next; the
 helix's honey for the loss and everything that flows back from it; the
 helix's denim below zero and clay above, from the base tile at zero, for
 every signed number (the AVI and ESM-2 page's validated pair); residues in

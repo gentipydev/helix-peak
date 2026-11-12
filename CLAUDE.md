@@ -288,7 +288,9 @@ tapped from Scores on (a drag along the token column in Scores, Attention
 and Feed-forward too) is the place the stage works out. Since 2026-11-12
 the page says so, the user's picks after they learned a tap did more than
 highlight: Tokenise and Shift name the followed peptide in the accent, on a
-card a little towards it (`LmInks.followed`), with a small `followed` plate
+card a little towards it (`LmInks.followed`; in Shift its ids are the only
+ones in the accent, `ShiftScene.calm`, and the peptides keep
+`ShiftLayout.airGap` between them), with a small `followed` plate
 and "tap another to follow it" beside it (`drawFollowed`, shorter where
 narrow), the mark leaving with the other peptides in Embedding's opening;
 Scores names the followed place under the table, from its outline to the

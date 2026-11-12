@@ -114,6 +114,8 @@ final class ShiftScene extends LmScene {
         }
       }
       if (!focus || fade.focusX) {
+        // Tokenise's ids, all in the accent, keep it only where followed.
+        final Color number = focus ? view.inks.signal : Color.lerp(view.inks.signal, calm(view), unfold)!;
         for (int k = 0; k < ids.length; k++) {
           double alpha = shown;
           if (k == ids.length - 1) {
@@ -121,7 +123,7 @@ final class ShiftScene extends LmScene {
           } else if (k >= peptide.inputs) {
             alpha *= 1 - dimmed * dim;
           }
-          _tile(canvas, view, xAt(p, k), ids, k, residues, alpha);
+          _tile(canvas, view, xAt(p, k), ids, k, residues, alpha, number);
         }
       }
     }
@@ -211,11 +213,12 @@ final class ShiftScene extends LmScene {
       inked(view.kit.sans, 10, focus ? view.inks.signal : view.inks.quiet, alpha: shown * (focus ? fade.chrome : 1)),
       Offset(layout.left, layout.yRowTop(p)) + come,
     );
+    final Color number = focus ? view.inks.signal : calm(view);
     final double slide = _span(beat, _slide);
     if (slide >= 1) {
       for (int i = 0; i < ids.length - 1; i++) {
         final double padded = i >= peptide.inputs ? 1 - dimmed * dim : 1;
-        _tile(canvas, view, layout.y(p, i).shift(come), ids, i + 1, residues, shown * padded);
+        _tile(canvas, view, layout.y(p, i).shift(come), ids, i + 1, residues, shown * padded, number);
       }
       return;
     }
@@ -232,11 +235,11 @@ final class ShiftScene extends LmScene {
       // which x let go of, comes back as the copy falls.
       final bool first = k == 0 || k == layout.firstLine;
       final double back = k == ids.length - 1 ? fall : 1;
-      _tile(canvas, view, at, ids, k, residues, shown * back * (first ? 1 - slide : 1));
+      _tile(canvas, view, at, ids, k, residues, shown * back * (first ? 1 - slide : 1), number);
       if (k == layout.firstLine && slide > 0) {
         // And comes in at the end of the line before, as text reflows.
         final Rect end = layout.y(p, k - 1).shift(Offset(layout.step, 0) + left + come);
-        _tile(canvas, view, end, ids, k, residues, shown * slide);
+        _tile(canvas, view, end, ids, k, residues, shown * slide, number);
       }
     }
     canvas.restore();
@@ -258,17 +261,31 @@ final class ShiftScene extends LmScene {
   }
 
   /// Place [k] of a frame as Tokenise draws it: an end or padding as a
-  /// token, a residue as its id.
-  static void _tile(Canvas canvas, LmView view, Rect rect, List<int> ids, int k, int residues, double alpha) {
+  /// token, a residue as its id, in [number].
+  static void _tile(
+    Canvas canvas,
+    LmView view,
+    Rect rect,
+    List<int> ids,
+    int k,
+    int residues,
+    double alpha,
+    Color number,
+  ) {
     if (alpha <= 0) {
       return;
     }
     if (k == 0 || k > residues) {
       drawToken(canvas, view, rect, ids[k], alpha: alpha);
     } else {
-      drawIdTile(canvas, view, rect, ids[k], alpha: alpha, numberScale: numberScale);
+      drawIdTile(canvas, view, rect, ids[k], alpha: alpha, numberScale: numberScale, number: number);
     }
   }
+
+  /// The ink of the ids of every peptide but the followed one, which keeps
+  /// the accent: twelve lines of ids all in the accent would leave it
+  /// nothing to mark.
+  static Color calm(LmView view) => view.inks.quiet;
 
   /// x and y named, each on a tag over its peptides, and what each is for
   /// beside it: the model reads x; y is the answer key its guesses are
@@ -459,8 +476,8 @@ final class ShiftFade {
 /// lines, folded onto two where that leaves its tiles room for their
 /// numbers, else on one; then, set well apart, the next token y tag and the
 /// peptides again, in the same columns. The tiles are as large as the width
-/// and the height both allow, their columns spread across the width, and
-/// the whole is centred.
+/// and the height both allow once the peptides have room between them,
+/// their columns spread across the width, and the whole is centred.
 final class ShiftLayout {
   ShiftLayout(Size size, LmView view) : right = size.width - 16 {
     final TrainingTrace trace = view.trace;
@@ -473,12 +490,13 @@ final class ShiftLayout {
     final double room = math.max(0, size.height - fixed);
     // Folded once, the same place for every peptide, as Tokenise folds it: a
     // place keeps its column in x and in y.
-    final double tallest =
-        (room - blocks * (label + _lineGap) - (blocks - 2) * _leastGap) / (2 * blocks);
-    // A tile as wide as its column and as tall as the height allows, never
-    // taller than wide: next to no room between tiles.
+    double tallest(double gap) => (room - blocks * (label + _lineGap) - (blocks - 2) * gap) / (2 * blocks);
+    // A tile as wide as its column and as tall as the height allows once the
+    // peptides have room between them, never taller than wide; where that
+    // room would shrink a tile under [snug], the tile takes it back: next
+    // to no room between tiles.
     final double column = math.min(22, width / (frame - frame ~/ 2));
-    final double folded = math.min(column, tallest);
+    final double folded = math.min(column, math.max(tallest(airGap), math.min(tallest(_leastGap), snug)));
     if (folded - 2 * _inset(column) >= idNumbered) {
       firstLine = frame ~/ 2;
       tileWidth = math.min(column, folded * 1.6);
@@ -523,10 +541,16 @@ final class ShiftLayout {
   static const double _tagGap = 8;
   static const double _groupGap = 28;
 
-  /// Between a peptide's two lines (the tiles' own inset parts them), and
-  /// the least between two peptides.
+  /// Between a peptide's two lines (the tiles' own inset parts them), the
+  /// least between two peptides, and what they are given before the tiles
+  /// grow: twelve blocks with next to nothing between them read as one
+  /// wall.
   static const double _lineGap = 0;
   static const double _leastGap = 3;
+  static const double airGap = 6;
+
+  /// The least tile height the room between peptides is taken from.
+  static const double snug = 14;
 
   /// A peptide's name.
   static const double label = 13;

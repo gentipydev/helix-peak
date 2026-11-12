@@ -419,8 +419,9 @@ void outlineToken(Canvas canvas, Rect rect, Color color, {double alpha = 1}) {
 const double idNumbered = 11;
 
 /// A token as its id: a plain tile under a stripe of its residue's colour,
-/// the id in the accent; an end of the frame or padding in the quiet ink.
-/// The number is [numberScale] of the tile's height, where its width lets it.
+/// the id in the accent, or in [number] where given; an end of the frame or
+/// padding in the quiet ink. The number is [numberScale] of the tile's
+/// height, where its width lets it.
 void drawIdTile(
   Canvas canvas,
   LmView view,
@@ -428,6 +429,7 @@ void drawIdTile(
   int id, {
   double alpha = 1,
   double numberScale = 0.52,
+  Color? number,
 }) {
   if (alpha <= 0) {
     return;
@@ -471,7 +473,7 @@ void drawIdTile(
       inked(
         view.kit.mono,
         size,
-        residue ? view.inks.signal : view.inks.quiet,
+        residue ? number ?? view.inks.signal : view.inks.quiet,
         alpha: alpha,
       ),
       tile.center + Offset(0, tile.height * 0.06),
