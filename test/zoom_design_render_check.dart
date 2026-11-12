@@ -25,6 +25,7 @@ import 'package:helixpeek/features/zoom/presentation/scenes/organs/liver/liver_f
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/lung/lung_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/lymph_node/node_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/ovary/ovary_form.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/parathyroid/parathyroid_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/pituitary/pituitary_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/placenta/placenta_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/skin/skin_form.dart';
@@ -207,8 +208,9 @@ void main() {
     // one of its efferent ductules, the gallbladder on both figures about
     // its cholangiocyte, the intestines on both figures about a cell of
     // each part of them the Atlas's names light, the lungs on both figures
-    // likewise, and the ovary, the female figure's alone, about an oocyte
-    // and a stromal cell.
+    // likewise, the ovary, the female figure's alone, about an oocyte
+    // and a stromal cell, and the parathyroid about the tissue's own cell
+    // and each other kind of cell that lives in it.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -578,6 +580,14 @@ void main() {
           tissueAnatomy['ovary']!,
           AnatomyFigure.female,
           shape,
+          cell,
+        ),
+      for (final String? cell in <String?>[null, 'Oxyphil cells', 'Adipocytes'])
+        (
+          'parathyroid-${ParathyroidHome.of(cell).name}',
+          tissueAnatomy['parathyroid gland']!,
+          AnatomyFigure.female,
+          CellShape.endocrine,
           cell,
         ),
     ];

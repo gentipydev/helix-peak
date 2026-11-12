@@ -304,6 +304,12 @@ final class ZoomDepth {
   /// card: framed by its width.
   static const double ovaryUpright = 1.0;
 
+  /// How much taller than wide the parathyroid is framed: a gland 6 mm long
+  /// seen on the back of its thyroid lobe, the artery coming to it across
+  /// the lobe and the nerve beside it, its names in rows above it and below
+  /// it on every phone's canvas: framed wider than its margin.
+  static const double parathyroidUpright = 0.45;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -343,8 +349,9 @@ final class ZoomDepth {
   /// its testis, as [epididymisUpright], the gallbladder, laid open from
   /// the front with its ducts, as [gallbladderUpright], the intestines, in
   /// place from the front, as [intestineUpright], the lungs, in place
-  /// from the front, the left one cut open, as [lungUpright], and the
-  /// ovary, cut through its thickness, as [ovaryUpright].
+  /// from the front, the left one cut open, as [lungUpright], the ovary,
+  /// cut through its thickness, as [ovaryUpright], and the parathyroid,
+  /// seen from behind on its thyroid lobe, as [parathyroidUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -353,10 +360,11 @@ final class ZoomDepth {
     if (anatomy.organ == OrganKind.lymphNode) {
       return nodeUpright;
     }
-    if (anatomy.inBrain != null ||
-        anatomy.organ == OrganKind.vessel ||
-        anatomy.organ == OrganKind.parathyroid) {
+    if (anatomy.inBrain != null || anatomy.organ == OrganKind.vessel) {
       return 1;
+    }
+    if (anatomy.organ == OrganKind.parathyroid) {
+      return parathyroidUpright;
     }
     if (anatomy.organ == OrganKind.skin) {
       return skinUpright;

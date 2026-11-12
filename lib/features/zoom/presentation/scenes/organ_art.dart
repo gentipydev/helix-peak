@@ -67,6 +67,9 @@ import 'organs/pancreas/pancreas_anatomy.dart';
 import 'organs/pancreas/pancreas_art.dart';
 import 'organs/pancreas/pancreas_form.dart';
 import 'organs/pancreas/pancreas_style.dart';
+import 'organs/parathyroid/parathyroid_art.dart';
+import 'organs/parathyroid/parathyroid_form.dart';
+import 'organs/parathyroid/parathyroid_style.dart';
 import 'organs/pituitary/pituitary_art.dart';
 import 'organs/pituitary/pituitary_form.dart';
 import 'organs/placenta/placenta_art.dart';
@@ -129,8 +132,9 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// open from the front with its ducts, the intestines, in place from the
 /// front, a window cut at the ileocecal junction, the lungs, in place from
 /// the front, the left one cut open from front to back, the ovary, cut
-/// through its thickness, its tube arching over it, the skin, a block
-/// of it cut from the leg, the thyroid, seen
+/// through its thickness, its tube arching over it, a parathyroid gland,
+/// seen from behind on its thyroid lobe and cut through its thickness,
+/// the skin, a block of it cut from the leg, the thyroid, seen
 /// from the front in place, one lobe cut open, the adrenal, cut through its
 /// thickness on its kidney's upper pole, the pituitary, cut down its
 /// middle as the brain is, a lymph node, cut through its hilum, the
@@ -162,8 +166,9 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// the left lung's cut face for an alveolar cell, the lining of its
 /// bronchi for a cell of the airways and its pleura for a mesothelial
 /// cell, the follicles of an ovary for an oocyte or a granulosa cell and
-/// its stroma for any other), by the kind of organ and of cell, never by
-/// gene.
+/// its stroma for any other, the oxyphil nodules of a parathyroid for an
+/// oxyphil cell, its fat for an adipocyte and its chief cells for any
+/// other), by the kind of organ and of cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -202,7 +207,7 @@ abstract class OrganArt {
       OrganKind.skin => _SkinOrgan(anatomy, view, cell: cellName),
       OrganKind.placenta => _PlacentaOrgan(anatomy, view, cell: cellName),
       OrganKind.adipose => _AdiposeOrgan(anatomy, view),
-      OrganKind.parathyroid => _ParathyroidOrgan(size),
+      OrganKind.parathyroid => _ParathyroidOrgan(view, cell: cellName),
       OrganKind.eye => _EyeOrgan(anatomy, view, part: part, cell: shape),
       OrganKind.pancreas when part != null => _PancreasOrgan(
         part,
@@ -4386,18 +4391,99 @@ final class _AdiposeOrgan extends OrganArt {
   }
 }
 
-/// A parathyroid gland: a small oval lying on the back of the thyroid.
+/// A parathyroid gland, drawn from general anatomy as a specimen seen from
+/// behind on the back of its thyroid lobe and cut through its thickness
+/// (`ParathyroidArt`): its parenchyma, its oxyphil nodules, its fat, its
+/// septa and the vessels branching in them from its hilum, the lobe behind
+/// it fading out round it, the inferior thyroid artery coming in across
+/// the lobe's back with a branch to the gland, the recurrent laryngeal
+/// nerve over it. The body has no parathyroid, so it comes up over the
+/// body's drawing of the thyroid, as the lymph node does over its chain.
+/// Where the zoom's cell lives is in the mark, by the Atlas's name for the
+/// cell: its chief cells, its oxyphil nodules or its fat.
 final class _ParathyroidOrgan extends OrganArt {
-  _ParathyroidOrgan(this.size);
+  _ParathyroidOrgan(double view, {String? cell})
+    : _form = ParathyroidForm(view: view, home: ParathyroidHome.of(cell));
 
-  final double size;
-
-  /// The gland, its tissue sampled at its middle.
-  Rect get _gland =>
-      Rect.fromCenter(center: Offset.zero, width: size, height: size * 0.68);
+  final ParathyroidForm _form;
 
   @override
-  Path get outline => Path()..addOval(_gland);
+  Offset get site => _form.site;
+
+  @override
+  Path get outline => _form.outline;
+
+  // Where the zoom's cell lives, in the mark, at the place its tissue is
+  // sampled or in the part it lives in; and the oxyphil nodules and the
+  // fat, each but the one the home's name stands for, the lobe, the
+  // artery and the nerve, in the quiet ink.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'home', word: _form.home.word, at: _form.homeName, home: true),
+    if (_form.home != ParathyroidHome.oxyphil)
+      (
+        key: 'oxyphil',
+        word: 'oxyphil cells',
+        at: _form.oxyphilName,
+        home: false,
+      ),
+    if (_form.home != ParathyroidHome.fat)
+      (key: 'fat', word: 'fat cells', at: _form.fatName, home: false),
+    (key: 'thyroid', word: 'thyroid', at: _form.thyroidName, home: false),
+    (
+      key: 'artery',
+      word: 'inferior thyroid artery',
+      at: _form.arteryName,
+      home: false,
+    ),
+    (key: 'nerve', word: 'recurrent nerve', at: _form.nerveName, home: false),
+  ];
+
+  // Set round all of it, out at the canvas's corners: round the gland and
+  // the artery and the nerve where they show, with room to either side and
+  // past where each fades. The lobe fades out before the corners.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(ParathyroidStyle.nameClear);
+    return <Offset>[
+      for (int i = 0; i < _form.outlinePoints.length; i += 2)
+        _form.outlinePoints[i],
+      for (final TubeCourse tube in _form.beside)
+        for (final (int first, int last) in <(int, int)>[
+          (
+            tube.shown.indexWhere((double s) => s > ParathyroidStyle.nameShown),
+            tube.shown.lastIndexWhere(
+              (double s) => s > ParathyroidStyle.nameShown,
+            ),
+          ),
+        ])
+          for (int i = first; i >= 0 && i <= last; i++)
+            if (i % 3 == 0 || i == first || i == last) ...<Offset>[
+              tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+              tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+              if (i == first || i == last)
+                tube.centres[i] +
+                    Offset(tube.across[i].dy, -tube.across[i].dx) *
+                        ((i == first ? -1 : 1) * (tube.radius[i] + clear)),
+            ],
+    ];
+  }();
+
+  @override
+  double get namesLeaving => ParathyroidStyle.namesLeaving;
+
+  ParathyroidArt? _art;
+
+  ParathyroidArt _artFor(ZoomInks inks) {
+    final ParathyroidArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = ParathyroidArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
 
   @override
   void paint(
@@ -4409,43 +4495,7 @@ final class _ParathyroidOrgan extends OrganArt {
   }) {
     canvas.save();
     canvas.scale(scale);
-    final double line = pixel / scale;
-    // The thyroid behind it, ten times its size: only its surface shows.
-    final Rect thyroid = Rect.fromCircle(
-      center: Offset(-size * 2.6, size * 0.6),
-      radius: size * 3.1,
-    );
-    canvas.drawOval(thyroid, Paint()..color = inks.shade(0.7));
-    canvas.drawOval(
-      thyroid,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.2 * line
-        ..color = inks.lit(0.3).withValues(alpha: 0.6),
-    );
-    final Rect gland = _gland;
-    // The artery that feeds it.
-    canvas.drawLine(
-      Offset(size * 0.3, size * 0.2),
-      Offset(size * 1.1, size * 0.8),
-      Paint()
-        ..strokeWidth = 3 * line
-        ..strokeCap = StrokeCap.round
-        ..color = Color.lerp(inks.blood, inks.ground, 0.3)!,
-    );
-    final Path oval = Path()..addOval(gland);
-    OrganArt._sculpted(canvas, oval, gland, inks, line, 1);
-    canvas.save();
-    canvas.clipPath(oval);
-    for (final Rect lobule in Sculpt.cobble(
-      gland,
-      size * 0.15,
-      math.Random(5),
-    )) {
-      Sculpt.dome(canvas, lobule, inks, 0.36);
-    }
-    canvas.restore();
-    OrganArt._edged(canvas, oval, gland, inks, line, 1);
+    _artFor(inks).paint(canvas, pixel / scale);
     canvas.restore();
   }
 }

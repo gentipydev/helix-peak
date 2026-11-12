@@ -270,7 +270,9 @@ void main() {
       // cervix, opened along its canal between the uterus and the
       // vagina, framed wide enough that its names stand in rows above it
       // and below it; and the epididymis, cut down its length on its
-      // testis, framed so for the same.
+      // testis, framed so for the same; and the parathyroid, seen on its
+      // thyroid lobe with the artery and the nerve beside it, framed wider
+      // still for the same.
       final double upright = ZoomDepth.uprightOf(
         subject.track,
         subject.path,
@@ -290,6 +292,7 @@ void main() {
             OrganKind.pituitary => ZoomDepth.pituitaryUpright,
             OrganKind.cervix => ZoomDepth.cervixUpright,
             OrganKind.epididymis => ZoomDepth.epididymisUpright,
+            OrganKind.parathyroid => ZoomDepth.parathyroidUpright,
             _ => 1.0,
           },
           ZoomDepth.phoneAspect,
