@@ -533,6 +533,50 @@ convention is, where it comes from, and what it decided:
   Instruction, 4.3.6.27.2). *Consequence:* the ovary is drawn so, the left
   one cut through its thickness, its tube arching over it ("The ovary"
   below).
+- **The parathyroid.** The parathyroids are small brownish-red bodies
+  between the posterior borders of the thyroid's lobes and its capsule,
+  about 6 mm long and 3 to 4 mm broad, flattened oval disks; the superior
+  pair, the more constant, lie at the level of the cricoid's lower
+  border, behind the junction of the pharynx and the esophagus, the
+  inferior on or below the lobes' lower edges; within, columns of cells
+  among numerous capillaries, most of them clear, some larger, with
+  oxyphil granules (Gray 1918, pp. 1271–1273, and Fig. 1177, Halsted and
+  Evans's right parathyroids seen from behind, with the inferior thyroid
+  artery and the recurrent nerve). In 503 autopsies the superior glands
+  lay just above the crossing of the recurrent laryngeal nerve and the
+  inferior thyroid artery, the inferior more ventrally, near the lower
+  thyroid pole (Akerström et al. 1984). A normal gland weighs 25.7 mg at
+  the median, 8.2 to 75 mg in 95% (Dufour and Wilkerson 1983), and its
+  stroma is 17% fat on average, under 10% in nearly a third (Dufour and
+  Wilkerson 1982); 62% of glands have a single artery (Nobori et al.
+  1994); the nerve passes behind the artery more often than in front of it
+  or between its branches (Noussios et al. 2020); oxyphil cells lie in
+  nodules, more with age (Müller-Höcker et al. 1996). GTEx samples no
+  parathyroid. *Consequence:* the right superior gland is drawn so, from
+  behind on its lobe, cut through its thickness ("The parathyroid"
+  below).
+- **The prostate.** It is the size of a chestnut and conical, its base up
+  against the bladder, its apex down, 4 cm across its base, 2 cm deep and
+  3 cm tall, 8 g, of a pale reddish grey; the ejaculatory ducts enter its
+  base through a depression and run down and forward to open into its
+  urethra, and its ducts open into the urethra's floor; that urethra is 3
+  cm long and spindle-shaped, its crest 15 to 17 mm long and 3 mm high,
+  the colliculus on it bearing the utricle's orifice, a cul-de-sac 6 mm
+  deep, and the ducts' slits; the ejaculatory ducts are 2 cm long, and
+  converge and narrow along the utricle; the seminal vesicles are about 7.5
+  cm long, their pointed lower ends converging on the base, the ampullae
+  of the deferent ducts along their medial margins (Gray 1918, pp.
+  1234–1235, 1246–1247 and 1251–1253). In 500 prostates the peripheral
+  zone is over 70% of the glands, its ducts radiating laterally from the
+  urethra beyond the verumontanum, the central zone 25%, its ducts
+  following the ejaculatory ducts up and branching near the base, the two
+  a disc of secretory tissue in a coronal plane; above the verumontanum
+  the urethra bends forward 35° out of it, a small transition zone and a
+  sphincter round it there, where nodular hyperplasia arises (McNeal
+  1981). GTEx samples a "Non-nodular region of representative region"
+  (GTEx Portal). *Consequence:* the prostate is drawn cut in McNeal's
+  coronal plane, in place from the front, and gone into in its peripheral
+  zone ("The prostate" below).
 - **Histology.** Haematoxylin stains nuclei and ribosome-rich cytoplasm;
   eosin stains protein; fat, mucus and lumens take neither. A ×40 objective
   under a standard eyepiece shows a field about half a millimetre across.
@@ -650,6 +694,8 @@ Sources:
 - Ahn D, Yeo CK, Han SY, Kim JK. The accessory parotid gland and facial
   process of the parotid gland on computed tomography. PLoS One
   2017;12:e0184633.
+- Akerström G, Malmaeus J, Bergström R. Surgical anatomy of human
+  parathyroid glands. Surgery 1984;95:14–21.
 - Al-Qattan MM, Aldakhil SS, Al-Hassan TS, Al-Qahtani A. Anthropometric
   Breast Measurement: Analysis of the Average Breast in Young Nulliparous
   Saudi Female Population. Plast Reconstr Surg Glob Open 2019;7:e2326.
@@ -729,6 +775,10 @@ Sources:
 - Dodge JT, Brown BG, Bolson EL, Dodge HT. Lumen diameter of normal human
   coronary arteries. Influence of age, sex, anatomic variation, and left
   ventricular hypertrophy or dilation. Circulation 1992;86:232–246.
+- Dufour DR, Wilkerson SY. The normal parathyroid revisited: percentage of
+  stromal fat. Hum Pathol 1982;13:717–721.
+- Dufour DR, Wilkerson SY. Factors related to parathyroid weight in normal
+  persons. Arch Pathol Lab Med 1983;107:167–172.
 - Duvernoy HM. The Human Brain: Surface, Blood Supply, and Three-Dimensional
   Sectional Anatomy, 2nd edn. Springer, 1999.
 - El-Reshaid W, Abdul-Fattah H. Sonographic assessment of renal size in
@@ -767,7 +817,8 @@ Sources:
 - GTEx Portal. Tissue site details, dataset gtex_v10: each tissue's
   sampling site (<https://gtexportal.org/api/v2/dataset/tissueSiteDetail>,
   read 2026-11-04; the breast's 2026-11-05, the cervix's 2026-11-07; its 54
-  sites, none of them the epididymis, 2026-11-07; the lung's and the ovary's 2026-11-11).
+  sites, none of them the epididymis, 2026-11-07; the lung's and the ovary's 2026-11-11;
+  the prostate's 2026-11-12).
 - Gündoğdu E. Relationship of the Presence of the Inferior Right Hepatic
   Vein with the Right Hepatic Vein Diameter and CT Liver Volumetry. Indian J
   Radiol Imaging 2023;33:332–337.
@@ -896,6 +947,7 @@ Sources:
   lower extremity. Plast Reconstr Surg 1987;80:248–254.
 - Maurice DM. The cornea and sclera. In: Davson H (ed.), The Eye, 2nd edn,
   vol. 1. Academic Press, 1969.
+- McNeal JE. The zonal anatomy of the prostate. Prostate 1981;2:35–49.
 - McStay B. Nucleolar organizer regions: genomic 'dark matter' requiring
   illumination. Genes Dev 2016;30:1598–1610.
 - Middleton WD et al. High-resolution sonography of the normal extrapelvic
@@ -915,6 +967,9 @@ Sources:
 - Moyzis RK et al. A highly conserved repetitive DNA sequence, (TTAGGG)n,
   present at the telomeres of human chromosomes. Proc Natl Acad Sci USA
   1988;85:6622–6626.
+- Müller-Höcker J et al. Defects of the respiratory chain in oxyphil and
+  chief cells of the normal parathyroid and in hyperfunction. Hum Pathol
+  1996;27:532–541.
 - Muraru D et al. Reference ranges of tricuspid annulus geometry in healthy
   adults using a dedicated three-dimensional echocardiography software
   package. Front Cardiovasc Med 2022;9:1011931.
@@ -942,9 +997,14 @@ Sources:
 - Niu J et al. Age-related marrow conversion and developing epiphysis in
   the proximal femur: evaluation with STIR MR imaging. J Huazhong Univ Sci
   Technolog Med Sci 2007;27:617–621.
+- Nobori M et al. Blood supply of the parathyroid gland from the superior
+  thyroid artery. Surgery 1994;115:417–423.
 - Nokovitch L et al. [Anatomical characteristics of the superficial temporal
   venous system and implications in microsurgery]. Ann Chir Plast Esthet
   2021;66:250–256.
+- Noussios G et al. The Anatomical Relationship of Inferior Thyroid Artery
+  and Recurrent Laryngeal Nerve: A Review of the Literature and Its
+  Clinical Importance. J Clin Med Res 2020;12:640–646.
 - Oelke M, Höfner K, Jonas U, et al. Ultrasound measurement of detrusor
   wall thickness in healthy adults. Neurourol Urodyn 2006;25:308–317.
 - Olsen TW, Aaberg SY, Geroski DH, Edelhauser HF. Human sclera: thickness
@@ -1304,7 +1364,7 @@ body drew for it (`OrganArt`), so the step is one shape seen closer. It
 comes up over the body's own drawing of the organ early in the step, and
 `zoom_anatomy_test` holds the two to the same point of the screen while both
 show. On the way in, the body's line art and its unlit organs give way.
-Twenty-two of the specimens below then draw in to outlines of their own
+Twenty-three of the specimens below then draw in to outlines of their own
 (`_SpecimenOrgan`, `OutlineMorph`), each becoming the bed its specimen comes
 up over (`SpecimenStep`); the breast's is its mound, its outline without the
 axillary tail, which comes up with the rest of it, and the cervix's is the
@@ -1314,10 +1374,11 @@ under the cervix as it comes up; the epididymis's band draws in to the
 epididymis on its testis's back, and the testis comes up beside it where
 the body drew the testis; the body's left lung draws in to the lungs' cut
 left lung, and their right lung comes up over the body's; the ovary's is the
-body's disc without the slit it is drawn with. The brain, the eye, the
-skin, the lymph node, the placenta and the fat, which the body draws no
-outline of that shows them, come up over the body's drawing instead, a
-crossfade.
+body's disc without the slit it is drawn with; the prostate's is the body's
+oval. The brain, the eye, the skin, the lymph node, the parathyroid, the
+placenta and the fat, which the body draws no outline of that shows them
+(the parathyroid none at all: the body's thyroid stands in for it), come up
+over the body's drawing instead, a crossfade.
 
 **Its real size.** The anatomogram is a diagram: it draws a stomach 11 cm
 long and a pancreas 9. Each organ therefore knows how many times its drawn
@@ -1334,22 +1395,23 @@ the body it lies (the user's ask of 2026-10-21). They stay round the bone
 marrow, the heart, the thigh, the kidney, the liver, the stomach, the
 esophagus, the thyroid, the adrenal, the fallopian tube, the bladder, the
 breast, the cervix, the epididymis, the gallbladder, the intestines, the
-lungs and the ovary, round the bladder all
+lungs, the ovary and the prostate, round the bladder all
 but the figure's smooth muscle, which the anatomogram draws as the bladder's own
 wall, round the cervix all but the figure's vagina, which the cervix draws
 as its own vault, round the epididymis all but the figure's testis,
-which it draws whole beside it, and round the ovary all but the figure's
-fallopian tube, which it draws arching over it (`_SpecimenOrgan`'s
-`notAround`); the kidney, the adrenal and the ovary keep the body's flat
+which it draws whole beside it, round the ovary all but the figure's
+fallopian tube, which it draws arching over it, and round the prostate
+all but the figure's seminal vesicle, which it draws above its base
+(`_SpecimenOrgan`'s `notAround`); the kidney, the adrenal and the ovary keep the body's flat
 drawing of the other one beside them, the lungs the body's right lung until their own comes up, the thigh
 the body's four other
 muscles until its own come up, and the cervix the body's other half of it
 until it comes up. Round the pancreas, the testis, the salivary gland and
-the pituitary they give way to the specimen's own neighbours; the six
+the pituitary they give way to the specimen's own neighbours; the seven
 specimens that crossfade come up with none of the figure round them.
 
 **Its anatomy.** The fifty-four curated proteins' paths reach all
-thirty-six of the organs the zoom draws. Twenty-eight are drawn from anatomy
+thirty-six of the organs the zoom draws. Thirty are drawn from anatomy
 as specimens, each in a section below, in the neutrals but for vessels,
 nerves and the accent; in each the part the zoom's cell lives in is in the
 accent, by the kind of organ and of cell, never by gene: one flat tone cut
@@ -1387,15 +1449,16 @@ or tubules:
 | Intestines (FABP6) | in place from the front, a window at the ileocecal junction | the colon's lining, the ileum's, both, or their muscle |
 | Lungs (SFTPD) | in place from the front, the left one cut open from front to back | its alveoli, its bronchi's lining, or its pleura |
 | Ovary (PADI6) | the left one cut through its thickness, its tube arching over it | its follicles, or its stroma |
+| Parathyroid (CASR) | the right superior gland from behind on its lobe, cut through its thickness | its chief cells, its oxyphil nodules, or its fat |
+| Prostate (ACP3) | in place from the front, cut through its ejaculatory ducts | its glands, its stroma, or its urethra's lining |
 
-The vessel (GAS6) and the parathyroid gland (CASR) have drawings of their
-own: a length of artery, and a gland on the back of the thyroid. The
-other six kinds are the anatomogram's own outline, sculpted with a
-surface for its kind:
+The vessel (GAS6) has a drawing of its own, a length of artery. The other
+five kinds are the anatomogram's own outline, sculpted with a surface for
+its kind (and any organ the body draws, where its specimen has no figure
+to be posed on, with lobules):
 
 | Look | Organs (proteins) |
 |---|---|
-| lobules | prostate (ACP3) |
 | a wall round a lumen | uterus (PAEP), vagina (ALOX12) |
 | fibres | smooth muscle (LOXL2), tongue (CKMT2) |
 | coils | seminal vesicle (ANGPT1) |
@@ -2487,6 +2550,133 @@ vessels, the corpus luteum's yellow and the accent:
   disc's rim, the slit dropped, and the other ovary is drawn so too (the
   body's own stop still draws the slit).
 
+**The parathyroid.** It is drawn as a fresh specimen under the same lamp:
+the right superior gland, the more constant of the four, seen from behind
+where it lies on the back of its thyroid lobe, as Halsted and Evans drew
+the right parathyroids (Gray 1918, Fig. 1177), and cut through its
+thickness, its back half taken away
+(`presentation/scenes/organs/parathyroid/`, 2026-11-12, every choice mine
+at the user's word), in the neutrals but for the vessels, the nerve and
+the accent:
+
+- *Its shape* (`parathyroid_anatomy.dart`, in millimetres from the view's
+  middle, x toward the body's right, which from behind is the screen's
+  right, y down): Gray's flattened oval disc, 6 mm long and 4 broad, the
+  card's 6 mm, a little uneven, its long axis leaning 12° from upright,
+  its upper pole toward the body's middle along the lobe's posterior
+  border, its hilum notched low on its medial side. A disc so, 1.5 mm
+  thick, holds a normal gland's median 25.7 mg.
+- *Where it is sampled.* GTEx samples no parathyroid; the site is in the
+  parenchyma above the gland's middle, clear of the nodules, the fat and
+  the capsule, for every cell.
+- *Its cut:* the parenchyma, Gray's brownish red, a tan paler and
+  yellower than the lobe it lies on, turning away under its capsule;
+  three oxyphil nodules 0.7 to 1 mm across, deeper and warmer; the stromal
+  fat as cells 70 µm across, about a sixth of the cut face (Dufour and
+  Wilkerson's 17%), most of them in six clusters, pale specks; six septa
+  in from the capsule, fine shadowed lines; and the vessels branching from
+  the hilum along them, the arteries and the veins beside them in the
+  blood red.
+- *In the accent,* by the Atlas's name for the cell: the chief cells, the
+  parenchyma, for any cell but an oxyphil cell or an adipocyte, and for
+  the tissue's own cells where the Atlas names none (CaSR's reading),
+  one flat tone, the mark over a neutral, cut by the nodules, the fat, the
+  septa and the vessels; the oxyphil nodules for an oxyphil cell, in that
+  tone; the fat for an adipocyte, in the mark itself, a pixel wide at the
+  least.
+- *Round it:* the lobe behind it, lit as a cushion in the thyroid
+  specimen's own deep red-brown, its medial border beside the gland,
+  fading out above and below where the names stand and toward the view's
+  side; the inferior thyroid artery, 1.8 mm across, coming in from the
+  side across the lobe's back and on toward the trachea and the
+  esophagus, under the recurrent nerve (which passes behind it more often
+  than not, so from behind over it), 4.5 mm below the gland's middle, its
+  ascending and descending branches, 1 mm, going into the lobe, and the
+  gland's own artery, 0.3 mm, from the ascending branch to its hilum; the
+  nerve, 1.6 mm, a lit cord in the honey, up the groove beside the
+  trachea, fading out at either end. The body's figure is not drawn round
+  it.
+- *Its names:* `chief cells`, `oxyphil cells` or `fat cells` in the
+  accent at the site or at what it names; the other two of those, the
+  `thyroid`, the `inferior thyroid artery` and the `recurrent nerve` in
+  the quiet ink, set round it at the canvas's corners, three above and
+  three below, on two lines where one does not fit ("recurrent laryngeal
+  nerve" did not on the narrower phones). They are gone by 0.27 of the
+  step on to the tissue, as the lymph node's are, the step being short.
+- *Its view* is framed 0.45 (`ZoomDepth.parathyroidUpright`), as the
+  pituitary's is, the gland a little over a quarter of the view's width:
+  every home's names fit every phone's canvas the names test sets.
+- *On the step from the body* it crossfades. The body has no parathyroid:
+  the anatomogram's thyroid stands in for it (`tissueAnatomy`), lit, and
+  the gland's scene comes up over its middle.
+
+**The prostate.** It is drawn as a fresh specimen under the same lamp, in
+place from the front as the body shows it, and cut from front to back
+through its ejaculatory ducts and its urethra below the verumontanum, in
+McNeal's coronal plane, its front taken away, so that its zones show as
+the disc of secretory tissue they form there (McNeal 1981; Gray 1918,
+Fig. 1153) (`presentation/scenes/organs/prostate/`, 2026-11-12, every
+choice mine at the user's word), in the neutrals but for the arteries and
+the accent:
+
+- *Its shape* (`prostate_anatomy.dart`, in millimetres from its box's
+  middle, x toward the body's left, y down): Gray's chestnut, 40 mm across
+  its base, the card's 4 cm, and 32 tall, its base broad and a little
+  dipped where the ejaculatory ducts enter, its apex narrow.
+- *Where it is sampled.* GTEx samples a "Non-nodular region of
+  representative region"; the site is in the peripheral zone on the body's
+  right below the verumontanum's level, 3.5 mm in from the capsule, clear
+  of every duct and pore. A rule in the tool puts the body's site 0.64 of
+  the way down its oval, a seventh of its width in from its edge
+  (`SITE_LEFT`), where the drawing lays its own, over the oval.
+- *Its cut:* the peripheral zone, Gray's pale reddish grey, turning away
+  under the capsule; the central zone a shade deeper, a cone 23 mm across
+  the base round the ejaculatory ducts, its apex at the verumontanum, a
+  crisp line between them; the peripheral zone's ducts radiating from the
+  urethra's sides, nine a side, each with a branch, and the central zone's
+  following the ejaculatory ducts up and branching out near the base,
+  fine shadowed lines; the glands' lumens as ninety pores, denser toward
+  the apex, where Gray finds it looser. The ejaculatory ducts run from the
+  base, 1.6 mm across there, converging and narrowing along the utricle,
+  a blind sac 6 mm deep between them, to their slits on the colliculus,
+  pale walls round their lumens. The urethra is laid open from just above
+  the colliculus to the apex, its lumen emptied in shade and rimmed as the
+  kidney's calyces are, widest by the colliculus and narrowest at the
+  apex, its lining pale; the crest runs down its floor below the
+  colliculus, a pale mound 3 by 4.4 mm with the utricle's orifice and the
+  ducts' slits on it, and the sinuses' duct orifices beside the crest; the
+  smooth muscle round it thickens toward the apex.
+- *In the accent,* by the Atlas's name for the cell: the glands, both
+  zones in one flat tone, the mark over a neutral, cut by their ducts,
+  their pores and the line between them, for a glandular or basal cell
+  and any cell not of the others (ACP3's prostate glandular cells); the
+  stroma, the capsule and the muscle round the urethra, for a smooth
+  muscle cell or a fibroblast; the urethra's lining, the crest and the
+  colliculus, for a urothelial, hillock or club cell.
+- *Round it:* above its base the seminal vesicles, lit coiled sacs of a
+  whitish brown, their pointed lower ends at the base, running up and out
+  and fading as they go on out of the view, the ampullae of the deferent
+  ducts along their medial margins, pale tortuous cords, fading too; the
+  prostatic arteries coming in from the side to the base's corners; below
+  the apex the membranous urethra in its sphincter, cut short. The
+  figure's own parts stay faint round it, the bladder above, all but its
+  seminal vesicle, which the prostate draws itself (`notAround`).
+- *Its names:* `glands`, `stroma` or `urethra` in the accent; the
+  `central zone`, a `seminal vesicle`, the `ejaculatory duct`, the
+  `verumontanum` and, where it is not the home, the `urethra` in the quiet
+  ink, set round it at the canvas's corners, the central zone and the
+  ejaculatory duct on two lines. The ampullae, the sphincter and the
+  arteries are drawn and not named: on the narrower phones a fourth name
+  above the prostate has no room.
+- *Its view* is framed 0.85 (`ZoomDepth.prostateUpright`), a little wider
+  than its margin: every home's names fit every phone's canvas the names
+  test sets.
+- *On the step from the body* the body's oval, flat and lit in the mark,
+  draws in to the prostate's outline, matched at the middle of its top,
+  its sides and its lowest point, over the usual 0.45 of the detail, and
+  becomes the bed the prostate comes up over, in the peripheral zone's
+  tone, or in the mark where the glands are the home.
+
 **The glide.** The camera carries the organ from where it lies in the body
 to the middle of the view over the first three fifths of the step. From the
 head or the thigh that is a long way, and `zoom_smoothness_test` plays every
@@ -3107,6 +3297,23 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   here, but cut short over the ovary's uterine third. One site, in the
   free border's cortex, for every cell: the slide is the ovary's stroma,
   an oocyte or a granulosa cell laid in it.
+- **A parathyroid from behind.** One gland, the right superior, the same
+  for every protein, seen from behind as a surgeon finds it and Halsted and
+  Evans drew it, while the body is seen from the front; the lobe behind it
+  faded round it rather than drawn whole, and the trachea, the esophagus
+  and the carotid left out; the stromal fat as single cells; the gland's
+  own artery from the inferior thyroid artery, as in most glands, though
+  the superior thyroid artery feeds some. One site, in the parenchyma, for
+  every cell: the slide is the endocrine one.
+- **A prostate in McNeal's plane.** One cut, along the ejaculatory ducts
+  and the urethra below the verumontanum, so the urethra above it, the
+  transition zone and the anterior fibromuscular stroma, in front of the
+  plane, are not drawn; no nodules, as GTEx samples none; the urethra's
+  bend at the verumontanum, which lies across the plane, not shown; the
+  seminal vesicles and the ampullae drawn in the plane above the base,
+  though they lie behind the bladder; the glands' lumens as pores far
+  fewer than a section shows. One site, in the peripheral zone, for every
+  cell.
 - **One field a tissue.** Wherever in the organ it is cut, and for every
   gene that goes there with the same kind of cell. "Lymphoid tissue" is a
   lymph node, and skin has no keratin layer of its own.
@@ -3167,10 +3374,10 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   into the band's strip as (`chromosome_tube.dart`); its colours are
   `core/theme/chromosome_colors.dart`.
 - `presentation/scenes/organ_art.dart`: every organ's drawing:
-  `_SpecimenOrgan` for the twenty-two specimens that draw in from the
-  body's outline, a class of its own for each of the six that crossfade,
-  `_DrawnOrgan` for the six drawn on the anatomogram's outline, and
-  `_VesselOrgan` and `_ParathyroidOrgan`.
+  `_SpecimenOrgan` for the twenty-three specimens that draw in from the
+  body's outline, a class of its own for each of the seven that
+  crossfade, `_DrawnOrgan` for the five drawn on the anatomogram's
+  outline, and `_VesselOrgan`.
 - `presentation/scenes/organs/pancreas/`: the pancreas and its neighbours in
   centimetres (`pancreas_anatomy.dart`), every number its look is tuned by
   (`pancreas_style.dart`), its form in the organ's scene, with the relief,
@@ -3255,6 +3462,23 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   the ligament, the vessels and its names' places, and where the zoom's
   cell lives by the Atlas's name for it (`ovary_form.dart`), and its
   meshes and how it is drawn (`ovary_art.dart`).
+- `presentation/scenes/organs/parathyroid/`: the parathyroid in
+  millimetres, with every source (`parathyroid_anatomy.dart`), every
+  number its look is tuned by (`parathyroid_style.dart`), its form: the
+  gland, its hilum, nodules, fat, septa and vessels, the lobe and how far
+  it shows, the artery, its branches and the gland's own, the nerve, its
+  names' places, and where the zoom's cell lives by the Atlas's name for
+  it (`parathyroid_form.dart`), and its meshes and how it is drawn
+  (`parathyroid_art.dart`).
+- `presentation/scenes/organs/prostate/`: the prostate in millimetres,
+  with every source (`prostate_anatomy.dart`), every number its look is
+  tuned by (`prostate_style.dart`), its form posed on the male figure,
+  with the oval it draws in from, its zones, ducts and pores, the
+  ejaculatory ducts and the utricle, the urethra opened and the muscle
+  round it, the colliculus, the crest and the orifices, the vesicles, the
+  ampullae, the arteries and the sphincter, its names' places, and where
+  the zoom's cell lives by the Atlas's name for it (`prostate_form.dart`),
+  and its meshes and how it is drawn (`prostate_art.dart`).
 - `presentation/scenes/organs/`: the other specimens, each in its folder
   in the same four files, `*_anatomy.dart` (in millimetres, every size with
   its source, the drawing's choices listed as such), `*_style.dart` (every
@@ -3586,6 +3810,47 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   scale bar, no line through another's plate or crossing another.
   `zoom_domain_test` holds the left ovary followed and the site 0.73 of
   the way down it. `zoom_paint_timing_check` times it with PADI6's zoom.
+- `parathyroid_form_test` holds the gland to Gray's size, 6 by 4 mm, its
+  weight as a disc within a normal gland's, its upper pole toward the
+  body's middle and its hilum low on its medial side; the whole gland on
+  its lobe, the nerve medial to it and the artery crossing the nerve
+  within a centimetre below it; the gland's own artery from the
+  ascending branch to the hilum; the fat about a sixth of the cut face,
+  in none of the nodules, at the capsule or on the site; the site in the
+  parenchyma; each name on what it names; the lobe whole round the gland
+  and gone above, below and to the side; the homes by the Atlas's names;
+  and the same gland every time. `parathyroid_art_test` holds the mark to
+  the chief cells, the oxyphil nodules or the fat alone, its crossfade
+  with no layer, the meshes the same every time and inside its bounds,
+  and the names for each home. `parathyroid_names_test` sets CaSR's six
+  names in the app's own type, and those for an oxyphil cell and an
+  adipocyte, on seven phone canvases: round the gland, clear of it and of
+  the artery and the nerve, of one another and of the scale bar, no line
+  through another's plate or crossing another. `zoom_paint_timing_check`
+  times it with CaSR's zoom.
+- `prostate_form_test` holds the prostate to Gray's size, 40 by 30 to 34
+  mm, broadest toward its base, laid over the body's oval under 1 mm off;
+  the site in the peripheral zone 3 to 4 mm under the capsule, clear of
+  every duct and pore; the homes by the Atlas's names; the central zone a
+  cone round the ejaculatory ducts 18 to 25 mm across the base, none of it
+  below the verumontanum; the ducts in the zones, out of the urethra and
+  the rim; the pores denser toward the apex for the room they have; the
+  ejaculatory ducts 15 to 20 mm long, converging and narrowing, the
+  utricle 6 mm, the urethra wider by the colliculus than at the apex; the
+  vesicles lateral to the ampullae, both above the base and fading out,
+  the arteries at the base's corners and the sphincter cut short below
+  the apex; the step's marks at the top's middle, the sides and the lowest
+  point of either outline; each name on what it names; and the same
+  prostate every time. `prostate_art_test` holds the mark to the glands,
+  the stroma or the urethra's lining alone, the hand-over to the body's
+  oval with no layer or mesh, the figure's parts round it but its seminal
+  vesicle, its bladder among them, the meshes the same every time and
+  inside its bounds, and the names for each home. `prostate_names_test`
+  sets ACP3's six names in the app's own type, and those for a smooth
+  muscle and a hillock cell, on seven phone canvases. `zoom_domain_test`
+  holds the site 0.64 of the way down the male figure's oval, a seventh of
+  its width in from its edge on the body's right. `zoom_paint_timing_check`
+  times it with ACP3's zoom.
 - Each of the other seventeen specimens has a `*_form_test` (its size and
   place on either figure, its site where it is sampled, its parts at their
   measured sizes, its home rule over the Atlas's names, the step's marks

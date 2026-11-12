@@ -779,7 +779,7 @@ seen:
   CC BY 4.0), the organs the Atlas reads the gene raised in lit;
   `tool/zoom/anatomogram.py` generates `anatomy_figures.g.dart` from it,
   and the body carries its credit, with the Atlas's, in one caption line;
-- the organ: twenty-eight are drawn from general anatomy as lit specimens
+- the organ: thirty are drawn from general anatomy as lit specimens
   (`presentation/scenes/organs/<organ>/`, four files each: the anatomy in
   millimetres with its sources, the style, the form, the art), the part
   the zoom's cell lives in in the accent, by the Atlas's name for the cell
@@ -796,25 +796,34 @@ seen:
   junction where GTEx samples them;
   the lungs in place from the front, the trachea between them, the left
   one cut open from front to back where GTEx samples it; the left ovary
-  cut through its thickness, its tube arching over it; the front of the
-  thigh for skeletal muscle; the adrenal cut on its
+  cut through its thickness, its tube arching over it; the prostate in
+  place from the front, cut through its ejaculatory ducts in McNeal's
+  plane, gone into in its peripheral zone; a parathyroid gland, the right
+  superior, seen from behind on its thyroid lobe and cut through its
+  thickness, the inferior thyroid artery and the recurrent nerve beside
+  it; the front of the thigh for skeletal muscle; the adrenal cut on its
   kidney; the pituitary cut down its middle in the brain's own frame; a
   lymph node cut through its hilum; the fallopian tube opened along its
   length, and the cervix along its canal; and blocks of skin, placenta and
-  abdominal fat. Twenty-two draw in from the body's own outline of them
+  abdominal fat. Twenty-three draw in from the body's own outline of them
   (the breast to its mound, its axillary tail coming up with it; the
   cervix from the one of its two halves the body follows; the epididymis
   from its band, its testis coming up beside it; the lungs from the body's
   left lung, its right lung giving way under their own; the ovary from
-  the body's disc, its slit dropped), most with the figure's
+  the body's disc, its slit dropped; the prostate from its oval), most
+  with the figure's
   parts kept faint round them (round the bladder all but its smooth
   muscle, which the anatomogram draws as the bladder's own wall, round the
   cervix all but the vagina, which it draws as its own vault, round the
-  epididymis all but the testis, which it draws whole beside it, and
-  round the ovary all but its tube, which it draws arching over it); the six the body draws no outline of that shows them crossfade.
+  epididymis all but the testis, which it draws whole beside it, round
+  the ovary all but its tube, which it draws arching over it, and round
+  the prostate all but its seminal vesicle, which it draws above
+  its base); the seven the body draws no outline of that shows them
+  crossfade, the parathyroid over the body's thyroid, which stands in for
+  it.
   The other organs are the anatomogram's outline, grown to its real size
   and sculpted with a surface for its kind, the figure's parts faint round
-  it, and a vessel and a parathyroid gland have drawings of their own;
+  it, and a vessel has a drawing of its own;
 - the tissue as a section under an eyepiece (`TissueSlide`: one engine, a
   recipe a tissue architecture, the zoom's cell laid where it lives);
 - the cell, the protein glowing where the Atlas finds it, and the nucleus

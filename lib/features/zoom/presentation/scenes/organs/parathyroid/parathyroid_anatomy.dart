@@ -48,8 +48,8 @@ import '../../tube_course.dart';
 /// the septa and the vessels branching in them from the hilum; the lobe's
 /// outline, its medial border 4 mm from the gland's middle; the inferior
 /// thyroid artery 1.8 mm across, its branches 1 mm and the gland's own
-/// artery 0.3 mm; the nerve 1.6 mm; the crossing 5 mm below the gland's
-/// middle; the lobe, the artery's branches and the nerve fading out above
+/// artery 0.3 mm; the nerve 1.6 mm; the crossing 4.5 mm below the
+/// gland's middle; the lobe, the artery's branches and the nerve fading out above
 /// and below, where the names stand; the place the body goes in, in the parenchyma above the
 /// gland's middle.
 abstract final class ParathyroidAnatomy {
