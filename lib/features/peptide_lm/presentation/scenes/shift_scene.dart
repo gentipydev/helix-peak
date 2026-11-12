@@ -23,6 +23,10 @@ import 'tokenise_scene.dart';
 final class ShiftScene extends LmScene {
   const ShiftScene();
 
+  /// Cut once, with the batch: the same at every step.
+  @override
+  bool get stepped => false;
+
   // The opening: Tokenise's vocabulary and tags fade where they stand, the
   // matrix's rows open out into the peptides, and x is named, letting go of
   // the frame's last place, which nothing reads.

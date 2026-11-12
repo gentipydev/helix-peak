@@ -12,6 +12,7 @@ import 'package:helixpeek/features/peptide_lm/domain/training_timeline.dart';
 import 'package:helixpeek/features/peptide_lm/domain/training_trace.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/cubit/peptide_lm_cubit.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/peptide_lm_screen.dart';
+import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_scene_painter.dart';
 
 import 'support/toy_trace.dart';
 
@@ -261,6 +262,8 @@ void main() {
     WidgetTester tester,
   ) async {
     await host(tester);
+    await tapStage(tester, 'Embedding');
+    await tester.pump();
     await tester.tap(find.byKey(const ValueKey<String>('peptide-lm-checkpoint')));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
@@ -280,6 +283,8 @@ void main() {
     WidgetTester tester,
   ) async {
     await host(tester);
+    await tapStage(tester, 'Embedding');
+    await tester.pump();
     expect(find.byTooltip('Steps kept whole'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey<String>('peptide-lm-checkpoint')));
     await tester.pump();
@@ -308,6 +313,34 @@ void main() {
     expect(tops, hasLength(1));
   });
 
+  testWidgets('Tokenise and Shift, the same at every step, show no Step menu, and the header holds still', (
+    WidgetTester tester,
+  ) async {
+    await host(tester);
+    final Finder title = find.text(PeptideLmScreen.title);
+    final Finder step = find.byKey(const ValueKey<String>('peptide-lm-checkpoint'));
+    bool shown() => tester.widget<Visibility>(find.ancestor(of: step, matching: find.byType(Visibility)).first).visible;
+    final Rect name = tester.getRect(title);
+    for (final LmStage stage in LmStage.values) {
+      await tapStage(tester, stage.label);
+      await tester.pump();
+      expect(shown(), sceneOf(stage).stepped, reason: stage.label);
+      // Its slot is kept, so the page's name never moves.
+      expect(tester.getRect(title), name, reason: stage.label);
+    }
+    expect(<LmStage>[for (final LmStage s in LmStage.values) if (!sceneOf(s).stepped) s], <LmStage>[
+      LmStage.tokenise,
+      LmStage.shift,
+    ]);
+    // Hidden, a tap on it opens nothing.
+    await tapStage(tester, 'Shift');
+    await tester.pump();
+    await tester.tap(step, warnIfMissed: false);
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.textContaining('Step ${trace.checkpoints.last.step} · '), findsNothing);
+  });
+
   testWidgets("the header keeps the page's name whole, and still as the step changes", (
     WidgetTester tester,
   ) async {
@@ -324,6 +357,8 @@ void main() {
       }
     }
 
+    await tapStage(tester, 'Embedding');
+    await tester.pump();
     whole();
     final Rect name = tester.getRect(title);
     final Size room = tester.getSize(menu);

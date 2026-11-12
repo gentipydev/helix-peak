@@ -20,6 +20,10 @@ import 'lm_scene.dart';
 final class TokeniseScene extends LmScene {
   const TokeniseScene();
 
+  /// Made once, before training: the same at every step.
+  @override
+  bool get stepped => false;
+
   /// [beat] of the stage's beats, as a share of the stage.
   static double _at(double beat) => beat / LmStage.tokenise.beats;
 

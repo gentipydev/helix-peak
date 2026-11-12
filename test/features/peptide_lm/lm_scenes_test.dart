@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
@@ -911,6 +912,58 @@ void main() {
         expect(last.any((int b) => b != last.first), isTrue);
         expect(first, last, reason: '${after.label} opens on ${before.label}');
       }
+    }
+  });
+
+  testWidgets('a stage shows no Step menu exactly where every step draws, says and explains the same', (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    const Size size = Size(393, 540);
+    Future<List<int>> pixels(LmView scene, TrainingFrame frame) async {
+      final ui.PictureRecorder recorder = ui.PictureRecorder();
+      final Canvas canvas = Canvas(recorder)..drawRect(Offset.zero & size, Paint()..color = inks.ground);
+      LmScenePainter(view: scene, frame: () => frame).paint(canvas, size);
+      final ui.Picture picture = recorder.endRecording();
+      final List<int> bytes = (await tester.runAsync(() async {
+        final ui.Image image = await picture.toImage(size.width.round(), size.height.round());
+        final ByteData? data = await image.toByteData();
+        image.dispose();
+        return data!.buffer.asUint8List().toList();
+      }))!;
+      picture.dispose();
+      return bytes;
+    }
+
+    for (final LmStage stage in LmStage.values) {
+      final LmScene scene = sceneOf(stage);
+      // What one checkpoint shows of the stage: frames through it, every
+      // caption, and its page.
+      Future<List<Object>> shown(int c) async {
+        final LmView at = view(inks, kit, checkpoint: c);
+        return <Object>[
+          for (final double local in <double>[0, 0.3, 0.6, 1]) await pixels(at, timeline.frameIn(stage, local)),
+          <String>[for (int i = 0; i <= 48; i++) scene.caption(at, timeline.frameIn(stage, i / 48))],
+          scene.info(at).title,
+          words(scene.info(at)),
+          <String>[for (final LmInfoSection section in scene.info(at).sections) section.title],
+        ];
+      }
+
+      final List<Object> first = await shown(0);
+      bool differs = false;
+      for (int c = 1; c < trace.checkpoints.length && !differs; c++) {
+        final List<Object> other = await shown(c);
+        for (int k = 0; k < first.length; k++) {
+          final Object a = first[k];
+          final Object b = other[k];
+          if (a is List && b is List ? !listEquals(a, b) : a != b) {
+            differs = true;
+          }
+        }
+      }
+      expect(differs, scene.stepped, reason: stage.label);
     }
   });
 

@@ -24,6 +24,7 @@ import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/peptide_lm/domain/training_timeline.dart';
 import 'package:helixpeek/features/peptide_lm/domain/training_trace.dart';
 import 'package:helixpeek/features/peptide_lm/presentation/peptide_lm_screen.dart';
+import 'package:helixpeek/features/peptide_lm/presentation/scenes/lm_scene_painter.dart';
 
 import 'features/gene_lookup/anatomy/anatomy_fixture.dart';
 
@@ -87,13 +88,20 @@ void main() {
           ),
         );
         await tester.pump();
-        if (step != null) {
+        if (stage != LmStage.tokenise) {
+          final Finder name = find.byKey(ValueKey<String>('stage-${stage.label}'));
+          await tester.ensureVisible(name);
+          await tester.pump();
+          await tester.tap(name);
+          await tester.pump();
+        }
+        // Only a stage that changes with the step offers the menu.
+        if (step != null && sceneOf(stage).stepped) {
           await tester.tap(find.byKey(const ValueKey<String>('peptide-lm-checkpoint')));
           await tester.pumpAndSettle();
           await tester.tap(find.textContaining('Step $step ·').last);
           await tester.pumpAndSettle();
-        }
-        if (stage != LmStage.tokenise) {
+          // The menu's settle ran the stage on: play it again from its start.
           final Finder name = find.byKey(ValueKey<String>('stage-${stage.label}'));
           await tester.ensureVisible(name);
           await tester.pump();

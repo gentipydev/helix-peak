@@ -77,6 +77,11 @@ abstract class LmScene {
   /// tag, in the run's numbers.
   LmInfo info(LmView view);
 
+  /// Whether the step picked changes anything here. A stage made once,
+  /// before training, draws, says and explains the same at every
+  /// checkpoint, and the page shows it no Step menu.
+  bool get stepped => true;
+
   LmHit? hit(Size size, LmView view, Offset at) => null;
 
   /// What a tap asks for at [frame]: [hit], for a scene whose layout holds

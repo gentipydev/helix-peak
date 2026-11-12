@@ -339,10 +339,19 @@ class _TrainingRunViewState extends State<TrainingRunView>
           ],
         ),
         actions: <Widget>[
-          _CheckpointMenu(
-            trace: _trace,
-            selected: _checkpoint,
-            onSelected: _pick,
+          // Kept in its slot where the stage is the same at every step, so
+          // the title never moves from stage to stage; there it can be
+          // neither seen nor tapped.
+          Visibility(
+            visible: sceneOf(_stage).stepped,
+            maintainSize: true,
+            maintainAnimation: true,
+            maintainState: true,
+            child: _CheckpointMenu(
+              trace: _trace,
+              selected: _checkpoint,
+              onSelected: _pick,
+            ),
           ),
           IconButton(
             key: const ValueKey<String>('peptide-lm-info'),
@@ -546,8 +555,9 @@ class _StagePlayer extends StatelessWidget {
   }
 }
 
-/// The step every stage but Loop shows, picked from the steps the run kept
-/// whole, each with its loss; the one on screen in the accent.
+/// The step every stage from Embedding to Update shows, and Loop holds,
+/// picked from the steps the run kept whole, each with its loss; the one on
+/// screen in the accent.
 class _CheckpointMenu extends StatelessWidget {
   const _CheckpointMenu({
     required this.trace,
