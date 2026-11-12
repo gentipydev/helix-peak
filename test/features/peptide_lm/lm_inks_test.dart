@@ -66,5 +66,8 @@ void main() {
     expect(inks.cell(0), inks.zero);
     expect(inks.cell(1), Color.lerp(inks.zero, inks.positive, LmInks.soft));
     expect(inks.cell(-1), Color.lerp(inks.zero, inks.negative, LmInks.soft));
+    // The followed peptide's card is the card, a little towards the accent.
+    expect(inks.followed, Color.lerp(inks.card, inks.signal, LmInks.follow));
+    expect(inks.followed, isNot(inks.card));
   });
 }

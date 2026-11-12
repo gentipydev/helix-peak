@@ -448,7 +448,7 @@ final class LossScene extends LmScene {
     if (shown > 0) {
       canvas.drawRRect(
         RRect.fromRectAndRadius(layout.card(focus), const Radius.circular(6)),
-        Paint()..color = view.inks.card.withValues(alpha: view.inks.card.a * shown * fade.card),
+        Paint()..color = view.inks.followed.withValues(alpha: view.inks.followed.a * shown * fade.card),
       );
       for (int p = 0; p < trace.peptides.length; p++) {
         final TracePeptide peptide = trace.peptides[p];
@@ -482,7 +482,8 @@ final class LossScene extends LmScene {
     _legend(canvas, view, layout, _span(beat, _soloRise) * fade.legend, _span(beat, _lossIn) * fade.legend);
   }
 
-  /// Peptide [p]'s name over its line, as Shift names it.
+  /// Peptide [p]'s name over its line, as Shift names it: the followed one's
+  /// in the accent.
   static void _name(Canvas canvas, LmView view, int p, Offset at, double alpha) {
     if (alpha <= 0) {
       return;
@@ -491,7 +492,7 @@ final class LossScene extends LmScene {
     view.kit.draw(
       canvas,
       '${peptide.source.label} · ${peptide.sequence.length} aa',
-      inked(view.kit.sans, 10, p == view.peptide ? view.inks.ink : view.inks.quiet, alpha: alpha),
+      inked(view.kit.sans, 10, p == view.peptide ? view.inks.signal : view.inks.quiet, alpha: alpha),
       at,
     );
   }

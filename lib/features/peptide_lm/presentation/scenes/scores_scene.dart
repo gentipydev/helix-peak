@@ -54,6 +54,10 @@ final class ScoresScene extends LmScene {
   static const (double, double) _squeeze = (1.1, 1.9);
   static const (double, double) _quiet = (1.0, 1.6);
   static const (double, double) _stand = (1.3, 2.1);
+
+  /// The followed place named, with the outline, until the sum comes.
+  static const (double, double) _followedIn = (0.6, 0.9);
+  static const (double, double) _followedOut = (3.6, 3.9);
   static const (double, double) _columnNumbers = (2.0, 2.3);
 
   // Evened out, on a chart beside it: less the mean, over the spread.
@@ -170,11 +174,61 @@ final class ScoresScene extends LmScene {
       _span(beat, _outline),
       dx: attention.slide(squeeze),
     );
+    _followed(canvas, view, layout, beat);
     _evened(canvas, view, layout, beat);
     _network(canvas, view, layout, beat);
     _lieDown(canvas, view, layout, beat);
     _head(canvas, view, layout, beat);
   }
+
+  /// The place the reader follows, named under the table while its row is
+  /// outlined and stood up, as Tokenise names the peptide: its name in the
+  /// accent and the followed mark, and under them how to follow another, all
+  /// of it left of the chart; gone before the sum.
+  void _followed(Canvas canvas, LmView view, ScoresLayout layout, double beat) {
+    final double alpha = _span(beat, _followedIn) * (1 - _span(beat, _followedOut));
+    if (alpha > 0) {
+      followedMark(canvas, view, layout, alpha);
+    }
+  }
+
+  /// The followed place's name, its mark and its hint, at [alpha]: the
+  /// rects they take.
+  static List<Rect> followedMark(Canvas canvas, LmView view, ScoresLayout layout, double alpha) {
+    final StreamTable table = layout.attention.table;
+    final TextStyle style = inked(view.kit.sans, 10, view.inks.signal, alpha: alpha);
+    final String place = StreamTable.placeName(view, view.position);
+    final Offset at = Offset(table.layout.left + 2, table.row(view.focus.inputs - 1).bottom + 10);
+    final TextPainter name = view.kit.layout(place, style);
+    if (alpha > 0) {
+      view.kit.draw(canvas, place, style, at);
+    }
+    final double end = layout.chartLeft - followedClear;
+    final Rect plate = drawFollowed(
+      canvas,
+      view,
+      Offset(at.dx + name.width + followedAfter, at.dy + name.height / 2),
+      end,
+      const <String>[],
+      alpha,
+    );
+    final Rect? hint = drawFollowHint(
+      canvas,
+      view,
+      Offset(at.dx, plate.bottom + 4 + plate.height / 2),
+      end,
+      followHints,
+      alpha,
+    );
+    return <Rect>[at & name.size, plate, ?hint];
+  }
+
+  /// How to follow another place, beside the followed one's mark: the first
+  /// that fits.
+  static const List<String> followHints = <String>['tap a row to follow another place', 'tap a row to change'];
+
+  /// How far the followed mark keeps from the chart.
+  static const double followedClear = 6;
 
   // ---------------------------------------------------------------- stream
 

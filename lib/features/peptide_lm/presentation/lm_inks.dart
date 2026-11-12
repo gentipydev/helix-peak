@@ -90,6 +90,14 @@ final class LmInks {
   /// The tile under a number written out, -1 to 1: [signed], softened.
   Color cell(double value) => Color.lerp(zero, signed(value), soft)!;
 
+  /// How far the card under the peptide the reader follows goes towards the
+  /// accent.
+  static const double follow = 0.12;
+
+  /// The card under the peptide the reader follows: [card], a little towards
+  /// [signal], the ink of what is followed.
+  Color get followed => Color.lerp(card, signal, follow)!;
+
   /// [value], 0 to 1, from the tile to [ink], lifted at the low end so a small
   /// weight still shows: an attention weight, a probability.
   Color share(double value, Color ink) =>

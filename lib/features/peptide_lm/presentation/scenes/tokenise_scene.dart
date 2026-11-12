@@ -24,6 +24,32 @@ final class TokeniseScene extends LmScene {
   @override
   bool get stepped => false;
 
+  /// How to follow another peptide, beside the followed one's mark: the
+  /// first that fits.
+  static const List<String> followHints = <String>['tap another to follow it', 'tap to change'];
+
+  /// Where the followed peptide's mark starts, after its name, while the
+  /// peptides are named.
+  static Offset _followedAt(_Layout layout, LmView view) {
+    final TracePeptide peptide = view.focus;
+    final TextPainter name = view.kit.layout(
+      '${peptide.source.label} · ${peptide.sequence.length} aa',
+      inked(view.kit.sans, 10, view.inks.signal),
+    );
+    return Offset(layout.left + name.width + followedAfter, layout.rowTop(view.peptide) + name.height / 2);
+  }
+
+  /// The followed peptide's mark, its card, and its first line of tiles,
+  /// while the peptides are named on [size].
+  static (Rect, Rect, Rect) followedMark(Size size, LmView view) {
+    final _Layout layout = _Layout(size, view);
+    return (
+      followedPlate(view, _followedAt(layout, view)),
+      layout.cardAt(view.peptide, 0, 0),
+      layout.batchAt(view.peptide, 0),
+    );
+  }
+
   /// [beat] of the stage's beats, as a share of the stage.
   static double _at(double beat) => beat / LmStage.tokenise.beats;
 
@@ -472,16 +498,18 @@ final class TokeniseScene extends LmScene {
     if (focus) {
       canvas.drawRRect(
         RRect.fromRectAndRadius(layout.cardAt(p, table, lift), const Radius.circular(6)),
-        Paint()..color = view.inks.card,
+        Paint()..color = view.inks.followed,
       );
     }
     if (table < 1) {
-      view.kit.draw(
-        canvas,
-        '${peptide.source.label} · $residues aa',
-        inked(view.kit.sans, 10, focus ? view.inks.ink : view.inks.quiet, alpha: 1 - through(table, 0, 0.5)),
-        Offset(layout.left, top),
-      );
+      final double named = 1 - through(table, 0, 0.5);
+      final TextStyle style = inked(view.kit.sans, 10, focus ? view.inks.signal : view.inks.quiet, alpha: named);
+      view.kit.draw(canvas, '${peptide.source.label} · $residues aa', style, Offset(layout.left, top));
+      if (focus) {
+        // The peptide every stage from Embedding on works through, and how
+        // to follow another.
+        drawFollowed(canvas, view, _followedAt(layout, view), layout.right, followHints, named);
+      }
     }
     final double done = scanned(trace, p, u);
     for (int k = 0; k < ids.length; k++) {
@@ -550,8 +578,8 @@ final class TokeniseScene extends LmScene {
   @override
   String describe(LmView view, TrainingFrame frame) {
     final TracePeptide focus = view.focus;
-    return 'Tokenise. ${caption(view, frame)}. In focus, ${focus.source.label}, '
-        '${focus.sequence.length} residues.';
+    return 'Tokenise. ${caption(view, frame)}. Followed: ${focus.source.label}, '
+        '${focus.sequence.length} residues; tap another peptide to follow it.';
   }
 
   /// Tokenise's own page: what it takes and gives, then each part its canvas

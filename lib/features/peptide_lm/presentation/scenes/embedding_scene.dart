@@ -648,16 +648,19 @@ final class EmbeddingScene extends LmScene {
     // Its name goes with the last of its tiles.
     final double named = 1 - through(beat, _gatherFrom + _gatherStagger, _gatherFrom + _gatherStagger + 0.5);
     if (named > 0) {
-      view.kit.draw(
+      final Offset at = Offset.lerp(
+        Offset(layout.shift.left, layout.shift.rowTop(p)),
+        Offset(layout.foot(0).left, layout.footTop - ShiftLayout.label),
+        descend,
+      )!;
+      final Size name = view.kit.draw(
         canvas,
         '${view.focus.source.label} · $residues aa',
-        inked(view.kit.sans, 10, view.inks.ink, alpha: named),
-        Offset.lerp(
-          Offset(layout.shift.left, layout.shift.rowTop(p)),
-          Offset(layout.foot(0).left, layout.footTop - ShiftLayout.label),
-          descend,
-        )!,
+        inked(view.kit.sans, 10, view.inks.signal, alpha: named),
+        at,
       );
+      // Shift's followed mark goes with the other peptides.
+      ShiftScene.drawFollowedAfter(canvas, view, layout.shift, name, at, named * (1 - _span(beat, _away)) * fade.chrome);
     }
     for (int k = 0; k < ids.length - 1; k++) {
       final Rect from = layout.shift.x(p, k);
@@ -738,29 +741,6 @@ final class EmbeddingScene extends LmScene {
     canvas.restore();
   }
 
-  // ------------------------------------------------------------------ taps
-
-  /// Once the row has come down, a tile puts its place in focus; once the
-  /// rows have gathered, a row does.
-  @override
-  LmHit? hitAt(Size size, LmView view, Offset at, TrainingFrame frame) {
-    final double beat = frame.local * LmStage.embedding.beats;
-    if (beat < _descend.$2) {
-      return null;
-    }
-    final EmbeddingLayout layout = EmbeddingLayout(size, view);
-    final int? i = beat < _gatherFrom ? layout.footAt(at) : layout.placeAt(at);
-    return i == null ? null : FocusPosition(i);
-  }
-
-  @override
-  LmHit? hit(Size size, LmView view, Offset at) {
-    final int? i = EmbeddingLayout(size, view).placeAt(at);
-    return i == null ? null : FocusPosition(i);
-  }
-
-  @override
-  int? positionAt(Size size, LmView view, Offset at) => EmbeddingLayout(size, view).placeAt(at);
 
   // -------------------------------------------------------------- caption
 
@@ -1113,15 +1093,6 @@ final class EmbeddingLayout {
 
   /// Place [i]'s tile at the foot.
   Rect foot(int i) => Rect.fromLTWH(footLeft + i * footStep, footTop, footTile.width, footTile.height);
-
-  /// The place whose tile at the foot lies under [at].
-  int? footAt(Offset at, {double slack = 12}) {
-    if (at.dy < footTop - slack || at.dy > footTop + footTile.height + slack) {
-      return null;
-    }
-    final int i = ((at.dx - footLeft) / footStep).floor();
-    return i < 0 || i >= places ? null : i;
-  }
 
   /// The place whose row lies under [at], once the rows have gathered.
   int? placeAt(Offset at) {

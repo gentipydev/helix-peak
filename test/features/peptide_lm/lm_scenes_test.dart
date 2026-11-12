@@ -790,6 +790,18 @@ void main() {
       sceneOf(LmStage.feedForward).hitAt(size, scene, const Offset(30, 300), timeline.frameIn(LmStage.feedForward, 0.4)),
       isNull,
     );
+    // Embedding reads every place in turn and draws none as followed: there
+    // a tap or a drag asks for nothing, so a place is followed only where it
+    // shows.
+    for (final double local in <double>[0, 0.5, 1]) {
+      for (double y = 0; y < size.height; y += 8) {
+        for (double x = 0; x < size.width; x += 24) {
+          final Offset at = Offset(x, y);
+          expect(sceneOf(LmStage.embedding).hitAt(size, scene, at, timeline.frameIn(LmStage.embedding, local)), isNull);
+          expect(sceneOf(LmStage.embedding).positionAt(size, scene, at), isNull);
+        }
+      }
+    }
 
     // Attention's map lies on the table's rows: a tap on a row of it, on a
     // share it reads or on a place it never reads, puts that row's place in
@@ -911,6 +923,52 @@ void main() {
         final List<int> first = await pixels(scene, timeline.frameIn(after, 0));
         expect(last.any((int b) => b != last.first), isTrue);
         expect(first, last, reason: '${after.label} opens on ${before.label}');
+      }
+    }
+  });
+
+  testWidgets('the followed peptide and place are marked where they are named, clear of all else', (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    bool inside(Rect inner, Rect outer) =>
+        inner.left >= outer.left && inner.top >= outer.top && inner.right <= outer.right && inner.bottom <= outer.bottom;
+    for (final Size size in const <Size>[Size(440, 697), Size(375, 491), Size(320, 300)]) {
+      for (final String stage in <String>['Tokenise', 'Shift']) {
+        final (Rect, Rect, Rect) Function(Size, LmView) mark =
+            stage == 'Tokenise' ? TokeniseScene.followedMark : ShiftScene.followedMark;
+        final Set<double> rows = <double>{};
+        for (int p = 0; p < trace.peptides.length; p++) {
+          final (Rect plate, Rect card, Rect tile) = mark(size, view(inks, kit, peptide: p));
+          final String why = '$stage, peptide $p, $size';
+          // On the followed peptide's card, on its name's line, over its
+          // tiles, and on the canvas.
+          expect(inside(plate, card), isTrue, reason: why);
+          expect(plate.bottom, lessThanOrEqualTo(tile.top), reason: why);
+          expect(plate.right, lessThanOrEqualTo(size.width), reason: why);
+          rows.add(plate.top);
+        }
+        // A tap on another peptide takes the mark with it.
+        expect(rows, hasLength(trace.peptides.length), reason: '$stage, $size');
+      }
+    }
+    // Scores names the followed place under the table, all of it left of
+    // the chart and on the canvas.
+    for (final Size size in const <Size>[Size(440, 697), Size(375, 476), Size(393, 540)]) {
+      for (int p = 0; p < trace.peptides.length; p++) {
+        final LmView scene = view(inks, kit, peptide: p, position: trace.peptides[p].inputs ~/ 2);
+        final ScoresLayout layout = ScoresLayout(size, scene);
+        final ui.PictureRecorder recorder = ui.PictureRecorder();
+        final List<Rect> drawn = ScoresScene.followedMark(Canvas(recorder), scene, layout, 0);
+        recorder.endRecording().dispose();
+        final double under = layout.attention.table.row(scene.focus.inputs - 1).bottom;
+        expect(drawn.length, greaterThanOrEqualTo(2), reason: 'peptide $p, $size');
+        for (final Rect rect in drawn) {
+          expect(rect.top, greaterThan(under), reason: 'peptide $p, $size');
+          expect(rect.bottom, lessThanOrEqualTo(size.height), reason: 'peptide $p, $size');
+          expect(rect.right, lessThanOrEqualTo(layout.chartLeft - ScoresScene.followedClear), reason: 'peptide $p, $size');
+        }
       }
     }
   });

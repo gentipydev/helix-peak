@@ -533,6 +533,82 @@ Rect drawTag(
   return plate;
 }
 
+/// The word on the mark of what the reader follows ([drawFollowed]).
+const String followedTag = 'followed';
+
+/// From the name of what is followed to its mark.
+const double followedAfter = 8;
+
+/// The mark of what the reader follows, on a line whose middle is
+/// [centre].dy, from [centre].dx: a small plate in the accent naming it
+/// followed, and beside it, in the quiet ink, the first of [hints] that fits
+/// before [end], none where none does. A line's own size, so it sits on a
+/// name's line and never on what is under it. Returns the plate.
+Rect drawFollowed(
+  Canvas canvas,
+  LmView view,
+  Offset centre,
+  double end,
+  List<String> hints,
+  double alpha, {
+  double size = 9,
+}) {
+  final TextStyle words = inked(view.kit.label, size, view.inks.signal, alpha: alpha);
+  final Rect plate = followedPlate(view, centre, size: size);
+  if (alpha <= 0) {
+    return plate;
+  }
+  canvas.drawRRect(
+    RRect.fromRectAndRadius(plate, const Radius.circular(4)),
+    Paint()..color = view.inks.signal.withValues(alpha: _followedPlate * alpha),
+  );
+  view.kit.draw(canvas, followedTag, words, plate.center, anchor: const Offset(0.5, 0.5));
+  drawFollowHint(canvas, view, Offset(plate.right + _followedGap, plate.center.dy), end, hints, alpha, size: size);
+  return plate;
+}
+
+/// The plate [drawFollowed] draws from [centre].
+Rect followedPlate(LmView view, Offset centre, {double size = 9}) {
+  final TextPainter word = view.kit.layout(followedTag, inked(view.kit.label, size, view.inks.signal));
+  return Rect.fromLTWH(
+    centre.dx,
+    centre.dy - word.height / 2 - _followedPad.dy,
+    word.width + 2 * _followedPad.dx,
+    word.height + 2 * _followedPad.dy,
+  );
+}
+
+/// How to follow another, the first of [hints] that fits between
+/// [start].dx and [end], on a line whose middle is [start].dy, in the quiet
+/// ink; none where none fits. Returns the line drawn, or null.
+Rect? drawFollowHint(
+  Canvas canvas,
+  LmView view,
+  Offset start,
+  double end,
+  List<String> hints,
+  double alpha, {
+  double size = 9,
+}) {
+  final TextStyle hint = inked(view.kit.sans, size, view.inks.quiet, alpha: alpha);
+  for (final String text in hints) {
+    final TextPainter line = view.kit.layout(text, hint);
+    if (start.dx + line.width <= end) {
+      if (alpha > 0) {
+        view.kit.draw(canvas, text, hint, start, anchor: const Offset(0, 0.5));
+      }
+      return Rect.fromLTWH(start.dx, start.dy - line.height / 2, line.width, line.height);
+    }
+  }
+  return null;
+}
+
+/// The followed plate's words from its edges, its strength in the accent,
+/// and the room from it to its hint.
+const Offset _followedPad = Offset(5, 2);
+const double _followedPlate = 0.18;
+const double _followedGap = 6;
+
 /// Where a tag's line leaves its plate: straight down or up where what it
 /// names lies under or over the plate, else from the nearer side.
 Offset _leaderFrom(Rect plate, Offset target) {
