@@ -212,7 +212,15 @@ out of view is scrolled just far enough to show it whole.
      longest peptide: copeptin, the longest, fills 40 places, so rows 40–50
      are never read and never move. The user asked where the table came
      from and why the chain stays the same while its numbers change: hence
-     the place labels and the two captions;
+     the place labels and the two captions. Since 2026-11-12 (the user's
+     ask, for the right mental order: show that the matrix has 51 rows), the
+     rows past the peptide's show too while the position rows are alone: a
+     gap dotted under every column and the labels, a vertical ellipsis,
+     then the context's last row, 50, its own numbers and its place's number
+     (`EmbeddingScene.lastRow`; the user picked the ellipsis in every column
+     over one by the ids alone and over a torn edge). It is drawn in the
+     room the foot left, so nothing moves, and it goes with the tag, before
+     the add, so x0 and every frame after it are as they were;
    - *the sum, x0* (13.4–15), one screen since 2026-10-31 at the user's
      word: it had been the adding, then a still beat that only renamed the
      same numbers, its tag a beat behind them. The position rows are added,
@@ -1011,156 +1019,118 @@ peptides' records end Loop's page (the user's pick, over a page of their own
 behind the "Recorded run" line and over keeping the sheet behind a link on
 every page). Its sentence on √8 is Scores' now.
 
-A sentence stays only where it explains a mark on the canvas, keeps a
-reader from a wrong model, or names at its source what a later stage
-shows. Tokenise's, part by part:
-- the lead: six peptides, 174 residues, become one 6 × 41 matrix of ids,
-  all the model sees of them; made once, the same at every step, nothing
-  learned (so the step menu changes nothing here);
-- token ids: an id is its token's row, a name and not an amount: C, 4, and
-  D, 5, are neighbours only in the alphabet (the first pair whose ids and
-  letters both follow on; the preview's A and C have B between them).
-  Embedding gives every token but `<pad>`, whose row the engine holds at
-  zero, 16 trainable numbers, and Predict ends on the same vocabulary, the
-  21 tokens that can come next;
-- special tokens, a paragraph each, named by the glyph the canvas draws:
-  `<bos>` gives the first residue a place to be predicted from and, alike
-  in all six, leaves it one in six however long the model trains (said only
-  where the first residues all differ); `<eos>` teaches where a peptide
-  ends; `<pad>` squares the batch, never read by a real token (a place
-  reads only up to its own, and pads come last) and never scored;
-- batch 2D matrix: all six at once, the whole dataset every step, none held
-  out, so the run shows a model learning six peptides, not generalising;
-- token counts: guessing by these counts alone costs 2.856 nats, Loss's and
-  Loop's residue counts, first beaten at step 21, the checkpoint the run
-  kept for it (said only where it kept one). The model's mean guess
-  converges on these counts: r = −0.12 at step 1, 0.77 at 21, 1.00 at 49.
+### The rewrite of 2026-11-12
 
-Left out: the peptides' names and the commonest count (the canvas and the
-caption say them), the floor and residue counts worked out (Loss's and
-Loop's own notes carry them), text models' word pieces, and why only six
-peptides. The page scrolls by 53 pt on a 440 × 956 phone and more on
-smaller ones (73 pt until 2026-11-10, when a page came to end 24 pt under
-its last line).
+The user read Tokenise's page on their Pro Max and asked for "the narrative
+fluff" to go, for "input structure" to be kept apart from "training logic",
+and for no over-explaining; then for every page to be as concise as it can be
+while "explaining the most important aspects so the user can create the right
+mental model of the transformations being done". All twelve were rewritten to
+one rule: the lead says what goes in, what is done to it and what comes out;
+then one to four short sections, each a concept the canvas shows and a reader
+needs, titled by its tag. A fact the notes say in passing may be said once
+here, for a note is gone when its beat is. Out went the run's trivia (how far
+the token table moved, the position rows' 43× start, the rows no update
+moves, decay's 6,512 numbers, head 1's sharpening as an average) and the
+narrative across stages (what a model writing a peptide would do).
 
-Shift's carries its stage, whose canvas says nothing but its captions, and
-answers the user's three questions of 2026-10-30 (what x and y are, whether
-both are used, why show them):
-- the lead: the 6 × 41 matrix cut once into x and y, 6 × 40 each; no
-  answer comes from outside, each peptide is its own answer key, one place
-  on;
-- input x: each place asks what comes next; the frame's last place has
-  nothing after it (the mark: x letting its 41st go); every place reads the
-  true tokens, never the model's guesses, so all 180 are asked in one pass,
-  unlike writing, which feeds each guess back;
-- target y: x moved one place left; n + 1 answers, the residues and
-  `<eos>`, never `<bos>` (the mark: `<bos>` leaving at the left); an answer
-  also stands in x one place on, so a place never reads past its own, the
-  cause of Scores' struck keys and Attention's hatch, said here once ("Each
-  answer" in the preview became "An answer": copeptin's last, `<eos>`, has
-  no place in x); the 60 dimmed places have nothing to ask (one on the toy,
-  no sentence where none); y never goes in, Predict writes it, Loss scores
-  against it.
-Left out: teacher forcing by name, and the mask drawn here (left to the
-attention stages, the user's call of 2026-10-30).
+Tokenise's training consequences moved to the stages that train: the
+counts' cost to Loss's Even guess ("by Tokenise's residue counts, 2.856"),
+`<bos>`'s one in six to Loop's new Floor (guarded: said only where every
+first residue differs and the run's floor is `<bos>`'s alone, N ln N over
+the targets), nothing held out to Loop's next-token probabilities. Its page
+gained a Followed section, with the follow cues (see "Following a peptide
+and a place").
 
-Embedding's adds what its five notes leave out:
-- the lead: x0 from two tables, the model's first trainable numbers, 1,184
-  of 8,167, after two fixed stages;
-- token embedding: every row but `<pad>`'s (held at zero; added after the
-  preview) starts as 16 random numbers, none a property, the model using a
-  row whole; training moves the table about 15% of its size by step 200
-  (`EmbeddingScene.tokenMoved`; 23% on the toy);
-- position embedding: their 43× smaller start is the engine's, not learned
-  (`smaller` at the first checkpoint, the note's own number);
-- x0 = token + position: Backward ends here, and a row learns only from
-  the scored places that read it: `<eos>`'s row, read only where nothing is
-  scored, keeps its random start, as do position rows 40 to 50, which no
-  peptide reaches (`rowStill`, `unreadFrom`; each clause only where the
-  run's rows bear it out).
-Left out: similar residues coming to have similar rows (this run moves the
-table too little to show it), and the starts' standard deviations as
-numbers (over the whole tables they make 47×, the note's insulin A 43×).
+The pages, live run, insulin A chain's C11:
+- **Tokenise**: lead (six peptides, 174 residues, one 6 × 41 matrix of token
+  ids, all the model reads of them; fixed, built once before training);
+  Token ids (an id its row in the 23-token vocabulary, a label not an
+  amount, C 4 and D 5); Special tokens (`<bos>`, `<eos>`, `<pad>`, a line
+  each); Batch 2D matrix (a row a peptide, the six as one batch); Followed.
+  Token counts has no section: its caption names the commonest.
+- **Shift**: lead (x all but the last column, y all but the first); Input x
+  (reads up to its own, never past, where its answer sits: Scores' struck
+  keys, Attention's hatch; every place at once, one pass); Target y (the
+  answer key, never fed in; n + 1 answers; the 60 padding places dimmed).
+- **Embedding**: lead (x0, a token row plus a place row; the first trainable
+  weights, 1,184 of 8,167); Token embedding (a lookup; random, `<pad>`'s at
+  zero; no number a property); Position embedding (51 rows, a place each;
+  attention reads a bag, the place row tells two places apart); x0 = token +
+  position (added, 16 wide, what and where; the residual stream).
+- **Scores**: lead (attention's first half; the one part where places
+  exchange anything); Evened row (LayerNorm); Query, key and value (what a
+  place looks for, offers, hands over; weights trained, q/k/v made afresh);
+  Head 1 and head 2 (two slices of 8; 8 products over √8); Shares (softmax,
+  100%).
+- **Attention**: lead (shares of the values, mixed by the output weights,
+  added: x0 + block 1's attention); Values (beside the keys, not turned from
+  them); Output (values × shares summed, 8 numbers; side by side through 16
+  × 16); Shares in % (a row a place, 100%, the hatch above the diagonal, a
+  map a head); x0 + block 1's attention (added, not replaced).
+- **Feed-forward**: lead (each row alone through a small network, added;
+  attention mixed places, this works on each alone); Evened inputs; GELU
+  (64 sums; the bend, without which two layers are one); What block 1's
+  feed-forward adds.
+- **Forward**: lead (the whole pass to the row Predict reads); C11's row,
+  layer to layer (each part adds, nothing replaced; two blocks, two hops).
+- **Predict**: lead (23 logits, softmax over the 21 that can come next);
+  Output layer (a table of its own); Logits (`<pad>` and `<bos>` to −∞;
+  e to each over the sum); Next-token probabilities (the whole row is the
+  guess; Loss scores p(y)).
+- **Loss**: lead (−ln p(y), their mean over 180, the one number training
+  lowers); p(y) (0 for sure and right, without limit, nats); Even guess (ln
+  21 = 3.045; residue counts 2.856; residue pairs 2.043; Loop's curve passes
+  all three, as the run's kept steps bear out); Mean (e to the loss: 25.02
+  at step 1, more than 21; 1.07 at step 200).
+- **Backward**: lead (a gradient for every number; only measures); p − y;
+  Gradient (errors × the weights they came through, summed); C11's
+  gradient, layer to layer (each + passes it whole); Gradient at x0 (the
+  batch's scale).
+- **Update**: lead (the one stage that changes the model); Pull (error ×
+  number, summed over the places, ÷ 180); Clip (1.0); Step (AdamW: running
+  mean over running size × the rate; decay; at step 1 the rate, up or down);
+  Rate (warm-up and cosine, settings).
+- **Loop**: lead (the whole step 200 times); Next-token probabilities (and
+  nothing held out); Floor (0.060, `<bos>`'s); 200 steps (the ticks, which
+  Embedding to Update pick from); This run.
 
-Scores' lead says where attention stands: the one part of the model where
-places exchange anything. Query, key and value: the plates' weights, three
-16 × 16 and 48 biases, 816, are what training keeps, the scores and shares
-worked out afresh every time. Head 1 and head 2: why a score is over √8,
-the About sheet's sentence, flagged in the preview (the √8 slide stays
-removed). Left out: LayerNorm (its chart, sum and note say it all), the
-cut (its note) and the shares' sharpening (Attention's, where every row
-shows).
+Every page fits a 440 × 956 without scrolling. On a 393 × 852 Scores scrolls
+57 pt and Loop 99; on a 375 × 667 Tokenise 137, Embedding 33, Scores 226,
+Attention 121, Predict 12, Backward 58, Update 121 and Loop 289 (the shots
+check's estimates). A test holds every page to the sheet's font and the
+app's voice, and each page's guards both ways.
 
-Attention's lead: from here a row holds, as well as its token and place,
-what the places up to its own handed over, which is how a guess comes to
-depend on what came before (Loop's residue pairs show it). Values: a key
-does not turn into its value, as the canvas's colour turn suggests; both
-come side by side from the evened row. Shares: training sharpens where each
-place looks, head 1's largest share, every place but `<bos>`'s, 19% at
-step 1 and 44% at step 200 over the six (`AttentionScene.largestShare`, held
-to the maps; "in head 1" added after the preview, head 2 going 18% to 33%;
-no section where the last is not sharper). Left out: heads' roles (none
-here: no head mostly reads the place before or the first residue).
+## Following a peptide and a place
 
-Feed-forward's is short, for its eight notes explain the network: the
-lead, its weights 2,128 a block, the two blocks' 52% of 8,167 (not "most of
-the model": on the toy they are 28%, under the attentions); and what block
-1's feed-forward adds, the neuron by neuron view the canvas lacks, each
-neuron adding its own 16 output weights times what GELU lets through, none
-set to a residue or a property.
+A tap on a peptide, in Tokenise, in Shift, or on a line of Loss's or
+Backward's batch, picks the peptide every stage from Embedding on works
+through; a tap on a row from Scores on picks the place the stage works out.
+Nothing said so: the followed peptide's card was one shade off the ground,
+and the user, asking for the taps to go, learned they did more than
+highlight. Their picks of 2026-11-12, asked with previews:
+- **Tag and hint**: Tokenise and Shift write the followed peptide's name in
+  the accent, on a card a little towards it (`LmInks.followed`, the card
+  lerped 0.12 to the accent), and after the name a small plate in the
+  accent, `followed`, then in the quiet ink "tap another to follow it", or
+  "tap to change" where that does not fit (`drawFollowed`, `followedPlate`,
+  `drawFollowHint` in `lm_drawing.dart`). The mark is a line's height, so it
+  sits on the name's line, over the tiles. In Tokenise it goes with the
+  names as the table closes; the matrix keeps the card. Embedding draws it
+  with the name it brings down, and it goes with the other peptides.
+- **The place once, in Scores**: from the outline (0.6) to the sum (3.9),
+  under the table, the place's name in the accent, `followed`, and under
+  them "tap a row to follow another place" ("tap a row to change" where
+  narrow), all left of the chart (`ScoresScene.followedMark`). On the line
+  of the standing row's title, where the preview put it, the chart's `mean`
+  left 130 pt, too little.
+- **Embedding takes no tap or drag**: it reads every place in turn and
+  draws none as followed, so a tap there changed the place with nothing on
+  its screen.
 
-Forward's lead: one place's row through the whole pass, what Scores,
-Attention and Feed-forward took apart. Its one section, titled as the
-ladder is tagged: the strips share one scale, unlike the earlier stages'
-tables of what each part adds, so the four can be set against each other;
-block 2 reads the rows block 1 left, so two blocks reach two hops back, the
-principle of the caption's example. Left out: the early readout, which left
-the screen on 2026-11-01.
-
-Predict's lead: a guess is the whole row of 21 shares, not its top letter;
-writing a peptide would draw from them. Output layer: 368 weights and 23
-biases, a table of its own, not the token embedding's rows used again:
-`<eos>`'s row learns there, an answer six times, while its embedding row
-never moves (`PredictScene.ownOutputRow`). Left out: the right guesses
-(caption and Loop's), −∞ and softmax (the notes').
-
-Loss's lead: the loss is the only thing training lowers, Backward's start
-and Loop's curve. Even guess, drawn first here: the first level Loop's
-curve passes, at step 13 (`LossScene.passedEven`). Mean, the canvas's name
-for the honey line: e to the loss is how many tokens the model is as unsure
-as, 25.02 at step 1, more than an even guess's 21, and 1.07 at step 200.
-Left out: the floor and `<bos>`'s share (Loop's and the note's), and
-perplexity by name.
-
-Backward's lead: it measures and changes nothing; Update moves the weights.
-The ladder's section: what the stream's +s are for, the gradient handed
-back whole to every block, however many are stacked. Gradient at x0: every
-gradient's colours are on the whole batch's scale at that step, so a place
-with little left to learn is faint (why step 200 looks empty). Left out:
-the mechanism, which its nineteen notes carry.
-
-Update's lead: the one stage that changes the model. Rate: the rate, its
-warm-up and cosine, the clip and the decay are settings the run was given,
-only its 8,167 numbers trainable. Step: decay shrinks only the weight
-matrices, 6,512 of 8,167, never the embeddings, biases or LayerNorms, more
-exact than the note's "each weight" (`UpdateScene.decayed`, held to the
-groups; the run bears it out, the never-next tokens' biases never moving
-while decay alone shrinks their weights). Left out: why Adam and the clip's
-steps (the notes').
-
-Loop's lead: the one stage that shows the run. Next-token probabilities: a
-model meant to write is judged on peptides it never saw, this one on the
-same six. 200 steps, the axis's label: the ticks are the seven steps kept
-whole, by rule, which the Step menu picks for every other stage. This run:
-the About sheet's paragraph and the peptides' records, from the run's own
-record (`LoopScene.thisRun`). Left out: the run's shape (its captions
-narrate every move) and the corpus run's size (not in the run's record).
-
-Every page fits a 440 × 956 without scrolling, and a 393 × 852 too; on a
-375 × 667 Shift's scrolls 134 pt, Embedding's 33 and Loop's 159. These are
-since 2026-11-10, when a page came to end 24 pt under its last line, not
-44: before, Loop's scrolled 10 pt on a 393 × 852 and Scores' 7 on a 375. A test holds every page to the sheet's font (no glyph Space
-Grotesk lacks) and the app's voice.
+Loss's line in focus wears the same card and name. Tests hold the marks on
+the followed peptide's card and name line, over its tiles, moving with a
+tap, and Scores' under the table and left of the chart, on the canvas.
 
 ## The page's frame
 
@@ -1197,6 +1167,13 @@ three calls that were a matter of taste.
   writes it and Loop ticks it, and a screen reader hears it as the one
   selected. Its tooltip is "Steps kept whole", Loop's page's own words; it
   said "Checkpoint", a word no page uses.
+  Since 2026-11-12 Tokenise and Shift show no Step menu (the user's ask:
+  where every step draws, says and explains the same, show no step):
+  `LmScene.stepped` is false for them alone, held by a test that renders
+  every stage, its captions and its page at every checkpoint of the toy
+  run. The menu keeps its slot there (`Visibility`, size kept, unseen,
+  untappable and out of semantics), so the title never moves between
+  stages.
 - **Info sheet.** The lead takes the bright ink the title and headings are
   in, the sections' paragraphs keep the quiet ink (the user's pick), and a
   page ends 24 pt under its last line: the last section's 20 pt had stood
@@ -1219,7 +1196,8 @@ canvas's 4, and the mixed case of the canvas's notes (words, not the frame).
 ## Colours
 
 `LmInks`, every one the theme's (`lm_inks_test`): the accent for what flows
-forward and the reader's focus; the tracer for what actually came next; the
+forward and the reader's focus (the followed peptide's name, and its card a
+little towards it, `followed`); the tracer for what actually came next; the
 helix's honey for the loss and everything that flows back from it; the
 helix's denim below zero and clay above, from the base tile at zero, for
 every signed number (the AVI and ESM-2 page's validated pair); residues in

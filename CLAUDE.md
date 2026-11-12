@@ -273,11 +273,29 @@ choices of 2026-10-30, which retired the shared `TransportBar` here). The
 caption's box is held at the stage's tallest caption at its width, so the
 canvas never resizes while a stage plays, and each caption starts at the
 box's top, so a stage's first line never moves (the user's pick of
-2026-11-10). Tokenise, Shift, Embedding, Scores, Attention,
+2026-11-10). Embedding, Scores, Attention,
 Feed-forward, Forward, Predict, Loss, Backward and Update show one training step at the checkpoint picked ("Step N": the
-steps the run kept whole, the one on screen in the accent in its menu, as Loop ticks it), and Loop plays all of them, from step 1 (`LoopPace`). Each stage is a painter in
-`presentation/scenes/`, a pure function of the frame; a tap or a drag on the
-canvas puts a peptide, a position or an attention head in focus. Shift
+steps the run kept whole, the one on screen in the accent in its menu, as Loop ticks it), and Loop plays all of them, from step 1 (`LoopPace`). Tokenise and Shift, made
+once before training, draw, say and explain the same at every step, so they
+show no Step menu (`LmScene.stepped`, false for them alone, held by a test
+that renders every stage at every checkpoint); the menu keeps its slot there,
+unseen and untappable, so the title never moves from stage to stage (the
+user's ask of 2026-11-12). Each stage is a painter in
+`presentation/scenes/`, a pure function of the frame. A tap follows: a
+peptide tapped in Tokenise or Shift, or a line of Loss's or Backward's
+batch, is the one every stage from Embedding on works through, and a row
+tapped from Scores on (a drag along the token column in Scores, Attention
+and Feed-forward too) is the place the stage works out. Since 2026-11-12
+the page says so, the user's picks after they learned a tap did more than
+highlight: Tokenise and Shift name the followed peptide in the accent, on a
+card a little towards it (`LmInks.followed`), with a small `followed` plate
+and "tap another to follow it" beside it (`drawFollowed`, shorter where
+narrow), the mark leaving with the other peptides in Embedding's opening;
+Scores names the followed place under the table, from its outline to the
+sum, `C11 followed` and under it "tap a row to follow another place", all
+left of the chart (`ScoresScene.followedMark`). Loss's line in focus wears
+the same card and name. Embedding, which reads every place in turn and
+draws none as followed, takes no tap or drag. Shift
 opens on Tokenise's last frame, pixel for pixel (`TokeniseScene.paintEnd`,
 `TokeniseEnd`), and draws input x and next token y one place apart
 (`shift_scene.dart`): the batch opened out into its peptides, input x, what
@@ -290,7 +308,10 @@ engine's steps from ids to x0 (`embedding_scene.dart`): the token embedding
 across the whole width, every number written out on a soft tile of its colour
 (`LmInks.cell`) to two places, and only where it fits; each id lighting the
 row it reads, one place at a time; the rows read gathering in place order; each place's position
-row, alone and then added; and their sum, x0, both tables the run's own (each
+row, alone and then added, the rows past the peptide's shown while they are
+alone as a gap dotted under every column and the context's last row, 50,
+under it (`EmbeddingScene.lastRow`, in the room the foot left; the user's
+ask of 2026-11-12, so the rows read as the first of 51); and their sum, x0, both tables the run's own (each
 checkpoint keeps them whole, float32, since the run's schema 2 of
 2026-10-30), and over the table a note of why each part happens. The run is 16 wide
 for it, two blocks of two heads (recorded again on 2026-10-30, 8,167
@@ -725,12 +746,17 @@ captions and the stages' info pages are built from the run's own numbers
 (R4.1). The ⓘ opens the stage on screen's own page (`LmScene.info`, required
 of every stage, an `LmInfo` that `LmInfoSheet` draws, built when tapped;
 Tokenise's since 2026-11-06, the other eleven since 2026-11-07, each
-previewed with the user). Every page is the screen's key, the user's pick for
-all twelve: a lead saying what the stage takes and gives, in the bright
-ink over the sections' quiet paragraphs (the user's pick of 2026-11-10), then a short
-section for each part of its canvas the page adds to, under its tag, a link
-to a later stage beside what it explains; where the notes already say it
-all, a part has no section. The About sheet, how the whole model learns,
+previewed with the user; all twelve rewritten on 2026-11-12 at the user's
+ask, concise, with no narrative and the input stages kept to the input's
+structure). Every page is the screen's key, the user's pick for
+all twelve: a lead saying what goes in, what is done to it and what comes
+out, in the bright ink over the sections' quiet paragraphs (the user's pick
+of 2026-11-10), then one to four short sections, each a concept its canvas
+shows and a reader needs for the right mental model of the transformation,
+titled by its tag; no run trivia, and a training consequence on the stage
+that trains (Tokenise's one in six is Loop's Floor, its counts' cost Loss's
+even guess). Tokenise's page has a Followed section: how to follow another
+peptide or place. The About sheet, how the whole model learns,
 which the ⓘ opened until then, is deleted: its "This run" and the peptides'
 records end Loop's page (the user's pick). `docs/design/peptide-lm-info-pages.md`
 is how a page is written: the rules for the words, the steps, the code, the

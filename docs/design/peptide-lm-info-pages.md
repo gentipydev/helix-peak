@@ -33,19 +33,31 @@ these info pages will be like helpers for the user to better understand
 the context, but make a deep analysis so they contain only necessary
 informations and are concise."
 
+And again (2026-11-12), on Tokenise's page: "Remove the narrative fluff
+here, and separate input structure from training logic, and avoid
+over-explaining … make it as concise as possible but still explaining the
+most important aspects so the user can create the right mental model of the
+transformations being done, without the narrative fluff, but still grasping
+the whole concepts behind." All twelve were rewritten to it the same day.
+
 The template, the user's pick for all twelve, is the **screen key**:
 
-- a **lead**, unheaded, under the title: what the stage takes, what it
-  gives, and the one framing fact the stage needs (Tokenise's: it is made
-  once, the same at every step, and learns nothing). `LmInfoSheet` sets it
-  in the bright ink, the sections' paragraphs in the quiet ink (the user's
-  pick of 2026-11-10), so it is the line read first;
-- a **section for each part the canvas tags**, titled with the tag in
-  sentence case, in the order the tags appear: what the part is and why it
-  is there;
-- a **link to a later stage beside what it explains**, said once, at its
-  cause ("alike in all six, it leaves that guess at one in six" sits with
-  `<bos>`; Loss and Loop show the floor it makes).
+- a **lead**, unheaded, under the title: what goes in, what is done to it
+  and what comes out, with shapes, and the one framing fact the stage
+  needs (Tokenise's: fixed, built once before training). `LmInfoSheet`
+  sets it in the bright ink, the sections' paragraphs in the quiet ink
+  (the user's pick of 2026-11-10), so it is the line read first;
+- **one to four short sections**, each a concept the canvas shows and a
+  reader needs for the right mental model of the transformation, titled
+  with its tag in sentence case (or the concept's name where no tag names
+  it: Scores' Evened row, Loop's Floor), in the order the canvas shows
+  them: a sentence or two each;
+- a **later stage named only where it draws the consequence**, in a clause
+  ("hence Scores' struck keys and Attention's hatched cells").
+
+Input stages keep to the input's structure: what training makes of it is
+said on the stage that trains (Tokenise's one in six is Loop's Floor, its
+counts' cost Loss's even guess, nothing held out Loop's).
 
 The user turned down two other layouts: four fixed headings (Takes · Gives
 · Why · Leads to), which forces filler and splits one idea across two
@@ -56,26 +68,28 @@ summary of how the whole model learns, and not a tutorial of the field. It
 is the key to one screen and its place in the flow.
 
 The reference page is Tokenise's: `TokeniseScene.info` in
-`presentation/scenes/tokenise_scene.dart`; Shift's is the model for a stage
-whose canvas has no notes, Embedding's for one whose notes say most. Their
-analysis is in `peptide-lm.md` under "Info pages".
+`presentation/scenes/tokenise_scene.dart`; Scores' is the model for a stage
+whose transformation takes several concepts. What each page says, and why,
+is in `peptide-lm.md` under "Info pages".
 
 ## 2. Where the pages stand
 
+Every page was rewritten on 2026-11-12 (section 1).
+
 | Stage | Beats | Own page | Sections | Notes on its canvas |
 | --- | --- | --- | --- | --- |
-| Tokenise | 11 | 2026-11-06 | four | none (captions only) |
+| Tokenise | 11 | 2026-11-06 | four | none (captions, and the followed mark) |
 | Shift | 5 | 2026-11-07 | two | none (captions and two glossed tags) |
 | Embedding | 15 | 2026-11-07 | three | yes, five |
-| Scores | 20 | 2026-11-07 | two | yes, six |
-| Attention | 25 | 2026-11-07 | two | yes, ten (three of them the worked answer's) |
-| Feed-forward | 20 | 2026-11-07 | one | yes, eight |
+| Scores | 20 | 2026-11-07 | four | yes, six |
+| Attention | 25 | 2026-11-07 | four | yes, ten (three of them the worked answer's) |
+| Feed-forward | 20 | 2026-11-07 | three | yes, eight |
 | Forward | 12 | 2026-11-07 | one | yes, four |
-| Predict | 14 | 2026-11-07 | one | yes, six |
-| Loss | 17 | 2026-11-07 | two | yes, five (the last a line longer at step 200) |
-| Backward | 44 | 2026-11-07 | two | yes, nineteen |
-| Update | 39 | 2026-11-07 | two | yes, eighteen |
-| Loop | 44 | 2026-11-07 | three | yes, one at each part and hold |
+| Predict | 14 | 2026-11-07 | three | yes, six |
+| Loss | 17 | 2026-11-07 | three | yes, five (the last a line longer at step 200) |
+| Backward | 44 | 2026-11-07 | four | yes, nineteen |
+| Update | 39 | 2026-11-07 | four | yes, eighteen |
+| Loop | 44 | 2026-11-07 | four | yes, one at each part and hold |
 
 Every stage has one: `LmScene.info` is required of every scene, and the ⓘ,
 tooltip `About <Stage>`, builds the stage's page when it is tapped. Nothing
@@ -93,27 +107,27 @@ never the notes' worked numbers again.
 
 ### 3.1 The filter
 
-A sentence stays only if it does one of three things:
+A sentence stays only if a reader needs it to model the stage's
+transformation:
 
-1. explains a mark on the stage's canvas (a tag, a colour, a glyph, a
-   struck or hatched cell);
-2. keeps a reader from a wrong model (Tokenise's: "an id is an amount",
-   "padding distorts training", "this stage learns");
-3. names, at its source, something a later stage shows (Tokenise's: the
-   counts are Loss's and Loop's "residue counts" level; `<bos>` makes the
-   floor).
+1. what goes in, what is done, what comes out (the lead);
+2. a concept the canvas shows, as the mechanism it is (Scores': what a
+   query, a key and a value each are; Feed-forward's: why the bend);
+3. what keeps a reader from a wrong model (Tokenise's: "an id is a label,
+   not an amount"; Attention's: "a key does not turn into its value").
 
-Everything else goes, however true.
+Everything else goes, however true: the run's trivia (how far a table
+moved, a start's size, which rows no update moves), narrative across
+stages, and on an input stage, training's consequences.
 
 ### 3.2 Say each fact once
 
-- Not again what the stage's own captions and notes say: dump them with
+- Not again what the stage's own captions say: dump them with
   `test/peptide_lm_words_check.dart` (section 7) and read them before
-  drafting. Tokenise's page points to the vocabulary's counts but does
-  not repeat the caption's "L the commonest, 23 of 174".
-- Not again what another stage works out: point to it. Tokenise's page
-  says the counts "would cost 2.856 nats, the level Loss and Loop call
-  residue counts"; it does not explain the level, which Loop's hold does.
+  drafting. Tokenise's page has no Token counts section: its caption names
+  the commonest. A concept a note says in passing may be said once on the
+  page (since 2026-11-12): a note is gone when its beat is.
+- Not again what another stage works out: name the stage where it shows.
 - Within a page, each fact in one section.
 
 ### 3.3 Data first
@@ -180,14 +194,12 @@ superscript minus, no `ⓘ`. Write words ("mean", "standard deviation",
 
 ### 3.7 Length
 
-Tokenise's page is about 245 words in a lead and four sections. It
-scrolls 53 pt on a 440 × 956 phone (the user's Pro Max), 199 pt on a
-393 × 852 and 410 pt on a 375 × 667. About 200 words fit the Pro Max
-without scrolling. The other eleven run from about 70 to 190 words and all
-fit the Pro Max and a 393 × 852; on a 375 × 667 Shift's scrolls (134 pt),
-Embedding's (33) and Loop's (159). These are since 2026-11-10, when a page
-came to end 24 pt under its last line, not 44 (each 20 pt less; Scores' 7
-and Loop's 10 on a 393 went).
+Since the rewrite of 2026-11-12 every page fits a 440 × 956 (the user's
+Pro Max) without scrolling. On a 393 × 852 Scores' scrolls 57 pt and Loop's
+99; on a 375 × 667 Tokenise's 137, Embedding's 33, Scores' 226,
+Attention's 121, Predict's 12, Backward's 58, Update's 121 and Loop's 289.
+About 200 words fit the Pro Max without scrolling; Tokenise's is about 150
+now (245 before).
 An estimate held for each: about 9.5 words a line on the Pro Max, 8.8 on a
 393 and 8.2 on a 375, a line 20 pt, a section's heading and gaps 46 pt.
 Measure every page with the shots check (section 7); say in the preview how
@@ -468,7 +480,9 @@ only what they made (`Evening.plain` tells where they are 1 and 0).
 
 ## 10. Each stage's brief
 
-The analysis the eleven pages were built from, kept for revising them:
+The analysis the eleven pages were first built from (2026-11-07), kept for
+revising them; their "could add" lists predate the rewrite of 2026-11-12,
+which kept to the transformation and dropped the run's trivia (section 1):
 each brief lists the stage's labels, what its canvas already says (not to
 repeat), what its page could add (the candidates; which were taken, and
 why the rest were not, is `peptide-lm.md`'s record), the facts and their
