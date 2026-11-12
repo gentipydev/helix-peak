@@ -130,7 +130,88 @@ final class EmbeddingScene extends LmScene {
       _rows(canvas, size, view, layout, beat);
     }
     _focusRow(canvas, view, layout, beat, fade);
+    if (fade.rows) {
+      _lastRow(canvas, view, layout, beat);
+    }
     markTwins(canvas, view, layout, _twinMarked(beat) * fade.twins);
+  }
+
+  /// Where the position embedding goes on past the peptide's places to the
+  /// context's last row: a gap under the last place's row, to be dotted
+  /// under each column and the labels for the rows left out, then that row.
+  /// No gap where the last row is the next; null where the peptide fills
+  /// the context.
+  static (Rect?, Rect)? lastRow(EmbeddingLayout layout, int places, int context) {
+    if (places >= context) {
+      return null;
+    }
+    if (places == context - 1) {
+      return (null, layout.row(places));
+    }
+    final double bottom = layout.row(places - 1).bottom;
+    final double gap = math.max(layout.pitch * _skipShare, _leastSkip);
+    return (
+      Rect.fromLTRB(layout.left, bottom, layout.right, bottom + gap),
+      Rect.fromLTRB(layout.cellsLeft, bottom + gap, layout.right, bottom + gap + layout.pitch),
+    );
+  }
+
+  /// The gap for the rows left out: a share of a row, and at the least.
+  static const double _skipShare = 0.7;
+  static const double _leastSkip = 8;
+
+  /// While the position rows show alone, the table's last row under them,
+  /// past a dotted gap, so the rows shown read as the first of the
+  /// context's: its own numbers and its place's number, going before the
+  /// add, with the tag.
+  void _lastRow(Canvas canvas, LmView view, EmbeddingLayout layout, double beat) {
+    final double shown = _span(beat, _placesIn) * (1 - through(beat, _addCaption - _turn, _addCaption));
+    if (shown <= 0) {
+      return;
+    }
+    final TrainingTrace trace = view.trace;
+    final int context = trace.model.context;
+    final (Rect?, Rect)? at = lastRow(layout, view.focus.inputs, context);
+    if (at == null) {
+      return;
+    }
+    final (Rect? skip, Rect row) = at;
+    final int last = context - 1;
+    final int width = trace.model.width;
+    final double placeScale = _placeScale(view);
+    final List<double> values = <double>[for (int d = 0; d < width; d++) trace.positionEmbedding(view.checkpoint, last, d)];
+    Color faded(Color c) => c.withValues(alpha: c.a * shown);
+    layout.fill(canvas, row, <Color>[for (final double v in values) faded(view.inks.cell(v / placeScale))]);
+    final TextStyle? numbers = layout.numberStyle;
+    final double written = math.min(shown, _span(beat, _placesWritten));
+    if (numbers != null && written > 0) {
+      layout.write(
+        canvas,
+        row,
+        <String>[for (final double v in values) fixed(v, EmbeddingLayout.digits)],
+        numbers.copyWith(color: numbers.color!.withValues(alpha: (written * 8).round() / 8)),
+      );
+    }
+    final double labelX = layout.label(0).center.dx;
+    view.kit.draw(
+      canvas,
+      '$last',
+      inked(view.kit.mono, layout.idSize, view.inks.ink, alpha: shown),
+      Offset(labelX, row.center.dy),
+      anchor: const Offset(0.5, 0.5),
+    );
+    if (skip == null) {
+      return;
+    }
+    // A vertical ellipsis under each column and the labels: three dots.
+    final Paint dot = Paint()..color = view.inks.quiet.withValues(alpha: shown);
+    final double spacing = math.min(skip.height / 4, 3.5);
+    final double radius = (layout.pitch * 0.05).clamp(0.7, 1.1);
+    for (final double x in <double>[labelX, for (int d = 0; d < width; d++) layout.cellsLeft + (d + 0.5) * layout.cell]) {
+      for (final int k in <int>[-1, 0, 1]) {
+        canvas.drawCircle(Offset(x, skip.center.dy + k * spacing), radius, dot);
+      }
+    }
   }
 
   /// The two places of one token, marked as the notes name them, at

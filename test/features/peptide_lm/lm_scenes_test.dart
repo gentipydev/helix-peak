@@ -973,6 +973,35 @@ void main() {
     }
   });
 
+  testWidgets("Embedding's position rows end on the context's last row, under the last place's, on the canvas", (
+    WidgetTester tester,
+  ) async {
+    final (LmInks inks, LmKit kit) = await _drawing(tester);
+    addTearDown(kit.dispose);
+    final int context = trace.model.context;
+    for (final Size size in const <Size>[Size(440, 697), Size(375, 476), Size(320, 300)]) {
+      for (int p = 0; p < trace.peptides.length; p++) {
+        final LmView scene = view(inks, kit, peptide: p);
+        final EmbeddingLayout layout = EmbeddingLayout(size, scene);
+        final int n = scene.focus.inputs;
+        final (Rect?, Rect)? last = EmbeddingScene.lastRow(layout, n, context);
+        final String why = 'peptide $p, $size';
+        if (n >= context) {
+          expect(last, isNull, reason: why);
+          continue;
+        }
+        final (Rect? skip, Rect row) = last!;
+        // A gap for the rows left out only where any are.
+        expect(skip == null, n == context - 1, reason: why);
+        expect(row.top, greaterThanOrEqualTo(layout.row(n - 1).bottom), reason: why);
+        expect(row.height, closeTo(layout.pitch, 1e-9), reason: why);
+        // In the room the foot left: never past it, so nothing else moves.
+        expect(row.bottom, lessThanOrEqualTo(layout.footTop + layout.footTile.height + 0.01), reason: why);
+        expect(row.bottom, lessThanOrEqualTo(size.height), reason: why);
+      }
+    }
+  });
+
   testWidgets('a stage shows no Step menu exactly where every step draws, says and explains the same', (
     WidgetTester tester,
   ) async {
