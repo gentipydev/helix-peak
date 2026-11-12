@@ -679,6 +679,41 @@ void main() {
       expect(part.centre, box.center);
     });
 
+    test('go into the seminal vesicle in the outline the anatomogram draws '
+        'on the bladder’s base, on the body’s left, not the one it hangs '
+        'below the prostate, the view closing on the midline level with '
+        'it', () {
+      final String uberon = tissueAnatomy['seminal vesicle']!.uberon;
+      expect(AnatomyFigure.female.parts[uberon], isNull);
+      final AnatomyFigure figure = AnatomyFigure.male;
+      final AnatomyPart part = figure.parts[uberon]!;
+      final Rect box = boxOf(part.followed);
+      // Not the largest outline: the one whose middle lies in the bladder.
+      expect(part.following, greaterThan(0));
+      final Path bladder = Path()
+        ..addPolygon(
+          figure.parts[tissueAnatomy['urinary bladder']!.uberon]!.followed,
+          true,
+        );
+      expect(bladder.contains(box.center), isTrue);
+      for (final List<Offset> other in part.others) {
+        if (boxOf(other).longestSide > box.longestSide) {
+          expect(bladder.contains(boxOf(other).center), isFalse);
+        }
+      }
+      // On the body's left, the page's right of the figure's middle, and
+      // the site inside it.
+      expect(box.center.dx, greaterThan(0));
+      expect(
+        (Path()..addPolygon(part.followed, true)).contains(part.site),
+        isTrue,
+      );
+      // The view closes on the midline, level with the outline's middle.
+      expect(part.framed, isNotNull);
+      expect(part.centre.dx, closeTo(0, 1e-9));
+      expect(part.centre.dy, closeTo(box.center.dy, 1e-3));
+    });
+
     test('go into skeletal muscle in its outermost outline, the vastus '
         'lateralis, 0.6 of the way down and midway across it, the view '
         'closing on the whole thigh', () {
@@ -906,6 +941,7 @@ void main() {
       final String cervix = tissueAnatomy['cervix']!.uberon;
       final String epididymis = tissueAnatomy['epididymis']!.uberon;
       final String lung = tissueAnatomy['lung']!.uberon;
+      final String vesicle = tissueAnatomy['seminal vesicle']!.uberon;
       for (final AnatomyFigure figure in <AnatomyFigure>[
         AnatomyFigure.female,
         AnatomyFigure.male,
@@ -918,6 +954,11 @@ void main() {
           }
           if (part.key == lung) {
             // It follows its left lung, and the view closes on both.
+            continue;
+          }
+          if (part.key == vesicle) {
+            // It follows the one on the bladder's base, and the view
+            // closes on the midline.
             continue;
           }
           expect(part.value.framed, isNull, reason: part.key);

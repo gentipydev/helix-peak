@@ -90,7 +90,14 @@ The view closes on the middle of the followed outline's box, so that the
 organ's scene has it whole. A part named in `FRAME_WHOLE` is written with a
 `centre`, the middle of the box round all its outlines, and the view closes
 there: the thigh is drawn whole round its vastus lateralis, which lies at
-its lateral edge.
+its lateral edge. A part named in `FOLLOW_WITHIN` is followed into the
+largest of its outlines whose middle lies inside another part's: the male
+figure draws the seminal vesicle twice, a long coiled shape below the
+prostate and a small one on the base of the bladder, where the vesicles lie,
+and the zoom follows the one on the bladder. A part named in
+`FRAME_MIDLINE` is written with a `centre` on the figure's midline, level
+with the followed outline's middle: the seminal vesicle's specimen draws
+both vesicles about the midline.
 
 ## Why generated Dart, not an asset
 

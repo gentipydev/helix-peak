@@ -123,6 +123,17 @@ SITE_RIGHT = {"UBERON_0000948": (0.56, 0.035)}
 # holds the zoom to the left one.
 FOLLOW_BODY_LEFT = {"UBERON_0002048", "UBERON_0000992"}
 
+# Parts the zoom follows into the largest of their outlines that lies within
+# another part's: the one whose box's middle lies inside that part's largest
+# outline. The anatomogram draws the seminal vesicle twice on the male
+# figure: a long coiled shape hanging below the prostate, the larger, and a
+# small coiled one on the base of the bladder, where the vesicles lie
+# (Gray 1918, p. 1246: "between the fundus of the bladder and the rectum",
+# their lower ends converging on the base of the prostate). The zoom follows
+# the one on the bladder, and the specimen draws both vesicles there
+# (`seminal_vesicle_anatomy.dart`).
+FOLLOW_WITHIN = {"UBERON_0000998": "UBERON_0001255"}
+
 # Parts the zoom goes into in from their left edge, the body's right, as
 # `SITE_RIGHT` from the right. The intestine is drawn as the intestines in
 # place from the front (`intestine_anatomy.dart`), the cecum low on the
@@ -222,6 +233,14 @@ FRAME_DOWN = {"UBERON_0001043": 0.03}
 # testis's lateral border: the middle of what its scene draws lies between
 # the two.
 FRAME_WITH = {"UBERON_0001301": "UBERON_0000473"}
+
+# Parts the view closes on at the figure's midline, level with the middle of
+# the outline they follow, written as a `centre`: for a paired part the
+# anatomogram draws on one side alone whose specimen draws both. The seminal
+# vesicle is followed into the one the anatomogram draws on the bladder's
+# base, on the body's left, and the specimen draws the pair about the
+# midline, the prostate's base below them.
+FRAME_MIDLINE = {"UBERON_0000998"}
 
 # Parts the zoom goes into in from the side of their outline farthest from
 # the figure's midline: the share of the part's height, from its top, that
@@ -547,6 +566,19 @@ def convert_body(name: str, path: str, wanted: set[str]) -> dict:
             if not sides:
                 raise SystemExit(f"{name}: no outline of {uberon} on the body's left")
             follow = sides[0]
+        if uberon in FOLLOW_WITHIN:
+            within = sorted(part_of(shapes_by_id, FOLLOW_WITHIN[uberon]), key=lambda c: -abs(svg.area(c)))
+            if not within:
+                raise SystemExit(f"{name}: no {FOLLOW_WITHIN[uberon]} to follow {uberon} within")
+
+            def lies_within(c: list[svg.Point]) -> bool:
+                cx0, cy0, cx1, cy1 = svg.bounds([c])
+                return inside(within[0], ((cx0 + cx1) / 2, (cy0 + cy1) / 2))
+
+            insides = [i for i in range(len(contours)) if lies_within(contours[i])]
+            if not insides:
+                raise SystemExit(f"{name}: no outline of {uberon} lies within its {FOLLOW_WITHIN[uberon]}")
+            follow = insides[0]
         followed = contours[follow]
         if uberon in SITE_RIGHT:
             site = site_right(followed, *SITE_RIGHT[uberon])
@@ -595,6 +627,9 @@ def convert_body(name: str, path: str, wanted: set[str]) -> dict:
 
             wx0, wy0, wx1, wy1 = svg.bounds([followed, min(beside, key=apart)])
             parts[uberon]["centre"] = list(place(((wx0 + wx1) / 2, (wy0 + wy1) / 2)))
+        if uberon in FRAME_MIDLINE:
+            fx0, fy0, fx1, fy1 = svg.bounds([followed])
+            parts[uberon]["centre"] = list(place((middle, (fy0 + fy1) / 2)))
         if uberon in FRAME_AT_SITE:
             parts[uberon]["centre"] = list(place(site))
     return {
