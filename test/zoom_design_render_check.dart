@@ -213,8 +213,9 @@ void main() {
     // and a stromal cell, the parathyroid about the tissue's own cell and
     // each other kind of cell that lives in it, and the prostate, the male
     // figure's alone, about a cell of each part of it the Atlas's names
-    // light, and the seminal vesicles, the male figure's alone, about the
-    // tissue's own cell.
+    // light, the seminal vesicles, the male figure's alone, about the
+    // tissue's own cell, and smooth muscle on both figures about its smooth
+    // muscle cell.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -613,6 +614,17 @@ void main() {
         CellShape.acinar,
         null,
       ),
+      for (final AnatomyFigure body in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ])
+        (
+          'smooth_muscle-${body.name}',
+          tissueAnatomy['smooth muscle']!,
+          body,
+          CellShape.spindle,
+          'Smooth muscle cells',
+        ),
     ];
     for (final (
           String name,

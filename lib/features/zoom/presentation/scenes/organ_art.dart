@@ -89,6 +89,9 @@ import 'organs/skeletal_muscle/thigh_style.dart';
 import 'organs/skin/skin_art.dart';
 import 'organs/skin/skin_form.dart';
 import 'organs/skin/skin_style.dart';
+import 'organs/smooth_muscle/detrusor_art.dart';
+import 'organs/smooth_muscle/detrusor_form.dart';
+import 'organs/smooth_muscle/detrusor_style.dart';
 import 'organs/stomach/stomach_art.dart';
 import 'organs/stomach/stomach_form.dart';
 import 'organs/stomach/stomach_style.dart';
@@ -141,8 +144,9 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// through its thickness, its tube arching over it, a parathyroid gland,
 /// seen from behind on its thyroid lobe and cut through its thickness,
 /// the seminal vesicles, from the front on the prostate's base with the
-/// bladder taken away, the one on the body's left laid open,
-/// the skin, a block of it cut from the leg, the thyroid, seen
+/// bladder taken away, the one on the body's left laid open, smooth
+/// muscle, the bladder's wall whole from the front, its peritoneum taken
+/// away, the skin, a block of it cut from the leg, the thyroid, seen
 /// from the front in place, one lobe cut open, the adrenal, cut through its
 /// thickness on its kidney's upper pole, the pituitary, cut down its
 /// middle as the brain is, a lymph node, cut through its hilum, the
@@ -176,8 +180,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// cell, the follicles of an ovary for an oocyte or a granulosa cell and
 /// its stroma for any other, the oxyphil nodules of a parathyroid for an
 /// oxyphil cell, its fat for an adipocyte and its chief cells for any
-/// other, the mucosa of the opened seminal vesicle for any), by the kind
-/// of organ and of cell, never by gene.
+/// other, the mucosa of the opened seminal vesicle for any, the whole
+/// detrusor for any), by the kind of organ and of cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -399,6 +403,13 @@ abstract class OrganArt {
         figure: figure,
         level: level,
       ),
+      OrganKind.smoothMuscle when part != null => _DetrusorOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        level: level,
+      ),
       _ =>
         part == null
             ? _AnyOrgan()
@@ -556,7 +567,7 @@ abstract class OrganArt {
 enum _Look { lobules, hollow, fibres }
 
 _Look _lookOf(OrganKind kind) => switch (kind) {
-  OrganKind.smoothMuscle || OrganKind.tongue => _Look.fibres,
+  OrganKind.tongue => _Look.fibres,
   OrganKind.uterus || OrganKind.vagina => _Look.hollow,
   _ => _Look.lobules,
 };
@@ -4005,6 +4016,121 @@ final class _SeminalVesicleOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => SeminalVesicleArt.bedOf(inks);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// Smooth muscle, drawn from general anatomy as a specimen: the urinary
+/// bladder's wall, the detrusor, where the anatomogram places smooth
+/// muscle, whole from the front with its peritoneum and fat taken away
+/// (`DetrusorArt`): the outer layer's bundles from the apex down to the
+/// neck, the oblique ones at the sides and the sphincter's rings round the
+/// neck, a patch cut from the outer layer where the circular layer shows,
+/// the urachus from the apex, the ureters and the urethra behind and below
+/// it and the vesical arteries over it, each cut short; reached from the
+/// body's own outline of it (`_SpecimenOrgan`), which draws in toward the
+/// bladder's own and becomes the bed it lies on, the figure staying round
+/// it, faint, all but its bladder, which the anatomogram draws on the
+/// same outline. Where the zoom's cell lives is in the mark whatever the
+/// cell: the whole muscle, the smooth muscle cell being the one cell the
+/// Atlas names with smooth muscle as its home; the circular layer, the
+/// urachus, a ureter and the sphincter are named in the quiet ink.
+final class _DetrusorOrgan extends _SpecimenOrgan {
+  _DetrusorOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    super.level,
+  }) : _form = DetrusorForm.place(part: part, anatomy: anatomy, view: view),
+       super(notAround: _ownBladder);
+
+  /// The figure's bladder, which the anatomogram draws on the smooth
+  /// muscle's own outline.
+  static const Set<String> _ownBladder = <String>{'UBERON_0001255'};
+
+  final DetrusorForm _form;
+
+  @override
+  bool get _amongFigure => true;
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark, at the place its tissue is
+  // sampled; and the circular layer in the patch, the urachus, a ureter
+  // and the sphincter, in the quiet ink. The urethra and the figure's
+  // uterus or prostate below are drawn and not named: level with the row
+  // of names below the bladder, a third name there had no room on the
+  // squattest phones.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'home', word: 'detrusor', at: _form.homeName, home: true),
+    (
+      key: 'circular',
+      word: 'circular layer',
+      at: _form.circularName,
+      home: false,
+    ),
+    (key: 'urachus', word: 'urachus', at: _form.urachusName, home: false),
+    (key: 'ureter', word: 'ureter', at: _form.ureterName, home: false),
+    (
+      key: 'sphincter',
+      word: 'sphincter',
+      at: _form.sphincterName,
+      home: false,
+    ),
+  ];
+
+  // Set round all of it, out at the canvas's corners, as the bladder
+  // specimen's are: round the bladder and what runs on beside it where it
+  // shows, with room to either side and past a cut end.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(DetrusorStyle.nameClear);
+    return <Offset>[
+      for (int i = 0; i < _form.outlinePoints.length; i += 4)
+        _form.outlinePoints[i],
+      for (final TubeCourse tube in _form.beside)
+        for (int i = 0; i < tube.length; i++)
+          if ((i % 4 == 0 || i == tube.length - 1) &&
+              tube.shown[i] > DetrusorStyle.nameShown) ...<Offset>[
+            tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+            tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+            if (i == tube.length - 1 && tube.cutEnd)
+              tube.centres[i] +
+                  Offset(tube.across[i].dy, -tube.across[i].dx) *
+                      (tube.radius[i] + clear),
+          ],
+    ];
+  }();
+
+  DetrusorArt? _art;
+
+  DetrusorArt _artFor(ZoomInks inks) {
+    final DetrusorArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = DetrusorArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => DetrusorArt.bedOf(inks);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

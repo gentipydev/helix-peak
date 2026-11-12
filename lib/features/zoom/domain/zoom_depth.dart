@@ -322,6 +322,14 @@ final class ZoomDepth {
   /// above them and below them, need room on every phone's canvas.
   static const double seminalVesicleUpright = 0.74;
 
+  /// How much taller than wide smooth muscle is framed: the bladder's wall
+  /// drawn whole from the front, the urachus rising above it and the
+  /// ureters and the urethra cut short beside and below it, framed as the
+  /// bladder specimen is, so that their cut ends stay in view and its
+  /// names, in rows above it and below it, have room on every phone's
+  /// canvas.
+  static const double smoothMuscleUpright = 1.25;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -364,9 +372,10 @@ final class ZoomDepth {
   /// from the front, the left one cut open, as [lungUpright], the ovary,
   /// cut through its thickness, as [ovaryUpright], the parathyroid, seen
   /// from behind on its thyroid lobe, as [parathyroidUpright], the
-  /// prostate, cut from front to back in place, as [prostateUpright], and
-  /// the seminal vesicles, from the front on the prostate's base, as
-  /// [seminalVesicleUpright].
+  /// prostate, cut from front to back in place, as [prostateUpright], the
+  /// seminal vesicles, from the front on the prostate's base, as
+  /// [seminalVesicleUpright], and smooth muscle, the bladder's wall whole
+  /// from the front, as [smoothMuscleUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -458,6 +467,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.seminalVesicle) {
       return seminalVesicleUpright;
+    }
+    if (anatomy.organ == OrganKind.smoothMuscle) {
+      return smoothMuscleUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)
