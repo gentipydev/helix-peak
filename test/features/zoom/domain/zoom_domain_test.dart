@@ -679,6 +679,41 @@ void main() {
       expect(part.centre, box.center);
     });
 
+    test('go into the tongue in its intrinsic muscle on the body’s right, '
+        '0.17 of the way down the mouth the female figure draws in its '
+        'place, or the male’s sliver, and 0.22 of its width in from its '
+        'left edge, the view closing on its middle', () {
+      final String uberon = tissueAnatomy['tongue']!.uberon;
+      for (final AnatomyFigure figure in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ]) {
+        final AnatomyPart part = figure.parts[uberon]!;
+        final List<Offset> outline = part.followed;
+        final Rect box = boxOf(outline);
+        expect((part.site.dy - box.top) / box.height, closeTo(0.17, 0.01),
+            reason: figure.name);
+        // On the body's right, the page's left of the outline's middle.
+        expect(part.site.dx, lessThan(box.center.dx), reason: figure.name);
+        double left = double.infinity;
+        for (int i = 0; i < outline.length; i++) {
+          final Offset a = outline[i];
+          final Offset b = outline[(i + 1) % outline.length];
+          if ((a.dy > part.site.dy) != (b.dy > part.site.dy)) {
+            left = math.min(
+              left,
+              a.dx + (part.site.dy - a.dy) * (b.dx - a.dx) / (b.dy - a.dy),
+            );
+          }
+        }
+        expect((part.site.dx - left) / box.width, closeTo(0.22, 0.01),
+            reason: figure.name);
+        expect(part.framed, isNull, reason: figure.name);
+        expect(part.following, 0, reason: figure.name);
+        expect(part.centre, box.center, reason: figure.name);
+      }
+    });
+
     test('go into the seminal vesicle in the outline the anatomogram draws '
         'on the bladder’s base, on the body’s left, not the one it hangs '
         'below the prostate, the view closing on the midline a little '

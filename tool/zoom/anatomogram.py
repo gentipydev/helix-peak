@@ -160,11 +160,20 @@ FOLLOW_WITHIN = {"UBERON_0000998": "UBERON_0001255"}
 # lies in the peripheral zone on the body's right below the verumontanum's
 # level, 0.64 of the way down the oval the anatomogram draws, a seventh of
 # its width in from its edge, where the drawing lays it 3.5 mm in from the
-# capsule, the drawing's box on the oval's.
+# capsule, the drawing's box on the oval's. The tongue is drawn cut across
+# at the lower first molars between the mandible's halves, seen from the
+# front (`tongue_anatomy.dart`), over the mouth the female figure draws in
+# its place and the sliver the male draws; neither GTEx nor the Human
+# Protein Atlas says where its tongue is sampled, so the zoom goes into its
+# intrinsic muscle on the body's right, in the transverse fibres between
+# the superior longitudinal layer and the inferior longitudinal: 0.17 of
+# the way down the outline, 0.22 of its width in from its edge, where the
+# drawing lays them, the soft tissue's box on the female figure's mouth.
 SITE_LEFT = {
     "UBERON_0002108": (0.78, 0.28),
     "UBERON_0002048": (0.896, 0.04),
     "UBERON_0002367": (0.639, 0.145),
+    "UBERON_0001723": (0.17, 0.22),
 }
 
 # Parts the zoom follows into another of their outlines than the largest:
