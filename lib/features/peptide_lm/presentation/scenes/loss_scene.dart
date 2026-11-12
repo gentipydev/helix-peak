@@ -151,7 +151,6 @@ final class LossScene extends LmScene {
           checkpoint: view.checkpoint,
           peptide: peptide,
           position: 0,
-          head: view.head,
           inks: view.inks,
           kit: view.kit,
         );
@@ -181,7 +180,6 @@ final class LossScene extends LmScene {
         checkpoint: at,
         peptide: view.peptide,
         position: view.position,
-        head: view.head,
         inks: view.inks,
         kit: view.kit,
       );

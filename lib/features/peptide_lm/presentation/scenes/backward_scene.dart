@@ -222,7 +222,6 @@ final class BackwardScene extends LmScene {
           checkpoint: view.checkpoint,
           peptide: peptide,
           position: 0,
-          head: view.head,
           inks: view.inks,
           kit: view.kit,
         );

@@ -76,7 +76,6 @@ void main() {
         checkpoint: trace.checkpoints[checkpoint],
         peptide: peptide,
         position: position,
-        head: null,
         inks: inks,
         kit: kit,
       );

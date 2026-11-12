@@ -15,7 +15,6 @@ final class LmView {
     required this.checkpoint,
     required this.peptide,
     required this.position,
-    required this.head,
     required this.inks,
     required this.kit,
   });
@@ -26,9 +25,6 @@ final class LmView {
   /// The peptide in focus, and the position in it whose prediction is shown.
   final int peptide;
   final int position;
-
-  /// One attention head shown alone, or null for all of them.
-  final int? head;
   final LmInks inks;
   final LmKit kit;
 
@@ -55,12 +51,6 @@ final class FocusPosition extends LmHit {
   const FocusPosition(this.position);
 
   final int position;
-}
-
-final class FocusHead extends LmHit {
-  const FocusHead(this.head);
-
-  final int? head;
 }
 
 final class PickCheckpoint extends LmHit {

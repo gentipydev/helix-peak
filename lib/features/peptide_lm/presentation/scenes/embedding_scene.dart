@@ -349,7 +349,6 @@ final class EmbeddingScene extends LmScene {
           checkpoint: at,
           peptide: view.peptide,
           position: view.position,
-          head: view.head,
           inks: view.inks,
           kit: view.kit,
         );

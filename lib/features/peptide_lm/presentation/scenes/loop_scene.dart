@@ -94,7 +94,6 @@ final class LoopScene extends LmScene {
     checkpoint: view.trace.checkpoints[index],
     peptide: peptide ?? view.peptide,
     position: peptide == null || peptide == view.peptide ? view.position : 0,
-    head: view.head,
     inks: view.inks,
     kit: view.kit,
   );

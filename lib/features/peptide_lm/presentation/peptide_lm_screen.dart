@@ -104,7 +104,6 @@ class _TrainingRunViewState extends State<TrainingRunView>
   int _checkpoint = 0;
   int _peptide = 0;
   late int _position = _middle(0);
-  int? _head;
   bool _resumeOnForeground = false;
 
   /// The stage bar, inside its scroll, whose names [_reveal] brings into
@@ -187,7 +186,7 @@ class _TrainingRunViewState extends State<TrainingRunView>
     TextScaler scaler,
     TextDirection direction,
   ) {
-    final Object key = (_stage, width, style, scaler, _checkpoint, _peptide, _position, _head);
+    final Object key = (_stage, width, style, scaler, _checkpoint, _peptide, _position);
     if (key == _reserveFor) return _reserve;
     final LmScene scene = sceneOf(_stage);
     final List<double> moments = _stage == LmStage.loop
@@ -218,8 +217,6 @@ class _TrainingRunViewState extends State<TrainingRunView>
         });
       case FocusPosition(:final int position):
         setState(() => _position = position);
-      case FocusHead(:final int? head):
-        setState(() => _head = head);
       case PickCheckpoint(:final int index):
         _pick(index);
     }
@@ -318,7 +315,6 @@ class _TrainingRunViewState extends State<TrainingRunView>
       checkpoint: _trace.checkpoints[_checkpoint],
       peptide: _peptide,
       position: _position,
-      head: _head,
       inks: inks,
       kit: _kit!,
     );

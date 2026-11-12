@@ -62,13 +62,12 @@ void main() {
   final TrainingTrace trace = toyTrace();
   const TrainingTimeline timeline = TrainingTimeline();
 
-  LmView view(LmInks inks, LmKit kit, {int checkpoint = 0, int peptide = 0, int position = 3, int? head}) =>
+  LmView view(LmInks inks, LmKit kit, {int checkpoint = 0, int peptide = 0, int position = 3}) =>
       LmView(
         trace: trace,
         checkpoint: trace.checkpoints[checkpoint],
         peptide: peptide,
         position: position,
-        head: head,
         inks: inks,
         kit: kit,
       );
@@ -86,7 +85,6 @@ void main() {
     checkpoint: run.checkpoints[checkpoint],
     peptide: 0,
     position: 3,
-    head: null,
     inks: inks,
     kit: kit,
   );
@@ -133,9 +131,9 @@ void main() {
         }
       }
     }
-    // A cramped phone, and a head shown alone.
+    // A cramped phone.
     for (int i = 0; i <= frames; i += 5) {
-      paint(view(inks, kit, head: 1), const Size(320, 300), i / frames);
+      paint(view(inks, kit), const Size(320, 300), i / frames);
     }
   });
 
