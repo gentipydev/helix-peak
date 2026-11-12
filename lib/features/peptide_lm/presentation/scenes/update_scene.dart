@@ -1900,35 +1900,34 @@ final class UpdateScene extends LmScene {
   @override
   LmInfo info(LmView view) {
     final TrainingTrace trace = view.trace;
-    final int parameters = trace.model.parameters;
     final bool decays = trace.config.weightDecay > 0;
+    final String clip = trace.config.gradClip.toStringAsFixed(1);
     return LmInfo(
       title: LmStage.update.label,
-      lead: 'Every weight gets its gradient and moves a step against it: the one stage that changes the model. '
-          'The stages before it only used the weights; the next step starts from these.',
+      lead: 'The one stage that changes the model: every weight gets its gradient and takes a small step '
+          'against it. The next step starts from these weights.',
       sections: <LmInfoSection>[
-        LmInfoSection('Rate', <String>[
-          'The rate, its warm-up and its cosine, like the clip${decays ? ' and the decay' : ''}, are settings '
-              "the run was given: only the model's ${grouped(parameters)} numbers are trainable.",
+        LmInfoSection('Pull', <String>[
+          "A weight's gradient is the error at its end times the number at its start, at every place, summed "
+              'and divided by the ${grouped(trace.targetCount)} targets, as the loss is their mean.',
         ]),
-        if (decays)
-          LmInfoSection('Step', <String>[
-            'Decay shrinks only the weight matrices, ${grouped(decayed(trace))} of the ${grouped(parameters)} '
-                'numbers: never the embeddings, the biases or the LayerNorms.',
-          ]),
+        LmInfoSection('Clip', <String>[
+          'If all ${grouped(trace.model.parameters)} gradients together are longer than $clip, they are scaled '
+              'down to $clip, so no step is too large.',
+        ]),
+        LmInfoSection('Step', <String>[
+          "${trace.optimizer.name} takes each weight's running mean of gradients over its running size, times "
+              'the rate, against the gradient${decays ? '; decay also shrinks the weight matrices a little' : ''}. '
+              'At step 1, with no past, every step is the rate, up or down.',
+        ]),
+        LmInfoSection('Rate', <String>[
+          'The rate warms up, then falls on a cosine: a setting of the run, like the clip'
+              "${decays ? ' and the decay' : ''}, not trained.",
+        ]),
       ],
     );
   }
 
-  /// How many of the model's numbers AdamW's decay shrinks: the weight
-  /// matrices alone, as the engine's `param_groups` sorts them: in every
-  /// block the query, key and value's, the output's and the feed-forward's
-  /// two, and the output layer's.
-  static int decayed(TrainingTrace trace) {
-    final TraceModel model = trace.model;
-    final int width = model.width;
-    return model.layers * (4 * width * width + 2 * model.feedForward * width) + trace.vocab.length * width;
-  }
 }
 
 /// What the worked token's row of weights is through AdamW: each number's

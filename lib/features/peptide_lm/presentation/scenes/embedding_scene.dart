@@ -879,107 +879,32 @@ final class EmbeddingScene extends LmScene {
     final TrainingTrace trace = view.trace;
     final int width = trace.model.width;
     final int context = trace.model.context;
-    final TraceCheckpoint first = trace.checkpoints.first;
-    final TraceCheckpoint last = trace.checkpoints.last;
-    final int tables = (trace.vocab.length + context) * width;
-    final int start = smaller(view, first);
-    final int eos = trace.vocab.indexOf('<eos>');
-    final bool eosStill = eos >= 0 && rowStill(trace, eos);
-    final int? unread = unreadFrom(trace);
-    final bool one = unread == context - 1;
-    final String rows = one ? 'position row $unread' : 'position rows $unread to ${context - 1}';
-    final String eosRow = eos < 0 ? '' : 'the row of <eos> (${glyph(trace, eos)}), read only where nothing is scored,';
-    final String still = switch ((eosStill, unread != null)) {
-      (true, true) => ': $eosRow keeps its random start, as do $rows, which no peptide here reaches.',
-      (true, false) => ': $eosRow keeps its random start.',
-      (false, true) => ': $rows, which no peptide here reaches, ${one ? 'keeps its' : 'keep their'} random start.',
-      (false, false) => '.',
-    };
+    final int vocab = trace.vocab.length;
+    final int bos = trace.vocab.indexOf('<bos>');
     return LmInfo(
       title: LmStage.embedding.label,
-      lead: "x's ids become x0, $width numbers a place, from two tables. Tokenise and Shift were fixed; here "
-          "the model's trainable numbers begin: the two tables are ${grouped(tables)} of its "
+      lead: "Each id of x becomes x0, a row of $width numbers: its token's row plus its place's row. The two "
+          "tables are the model's first trainable weights, ${grouped((vocab + context) * width)} of its "
           '${grouped(trace.model.parameters)}.',
       sections: <LmInfoSection>[
         LmInfoSection('Token embedding', <String>[
-          "${_padStill(trace) ? "Each row but <pad>'s" : 'Each row'} starts as $width random numbers "
-              '(seed ${trace.config.seed}), and none of them stands for a property: the model only ever uses a '
-              'row whole.'
-              '${last.step > first.step ? ' Training moves them, here by about ${percent(tokenMoved(trace))} of '
-                        'their size by step ${last.step}.' : ''}',
+          'A $vocab × $width table, a row a token: the id picks its row, a lookup with no arithmetic. The rows '
+              "start random${_padStill(trace) ? " (<pad>'s at zero)" : ''} and training moves them; no single "
+              'number stands for a property, the row works whole.',
         ]),
-        if (start > 1)
-          LmInfoSection('Position embedding', <String>[
-            'The engine starts these rows far smaller than the token rows, ${grouped(start)}× at first: its '
-                'choice, not anything learned.',
-          ]),
+        LmInfoSection('Position embedding', <String>[
+          'A $context × $width table, a row a place, one for each place the model can hold: '
+              '${bos < 0 ? '' : '<bos> (${glyph(trace, bos)}) and '}up to ${context - 1} residues. Attention '
+              "reads rows as a bag: a place's row is what tells the same token at two places apart.",
+        ]),
         LmInfoSection('x0 = token + position', <String>[
-          'Backward ends here, and a row learns only from the scored places that read it$still',
+          'Added number by number, so x0 stays $width wide and carries both what and where. Every block adds '
+              'to it: the residual stream.',
         ]),
       ],
     );
   }
 
-  /// Whether token [id]'s row of the embedding is the same at every
-  /// checkpoint the run kept: a row no update moved.
-  static bool rowStill(TrainingTrace trace, int id) {
-    final TraceCheckpoint first = trace.checkpoints.first;
-    for (final TraceCheckpoint at in trace.checkpoints) {
-      for (int d = 0; d < trace.model.width; d++) {
-        if (trace.tokenEmbedding(at, id, d) != trace.tokenEmbedding(first, id, d)) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-
-  /// How far training moved the token embedding, from the run's first
-  /// checkpoint to its last, against its size: the root of its numbers'
-  /// squared changes over their squares at the start, every row but
-  /// `<pad>`'s.
-  static double tokenMoved(TrainingTrace trace) {
-    final int pad = trace.vocab.indexOf('<pad>');
-    final TraceCheckpoint first = trace.checkpoints.first;
-    final TraceCheckpoint last = trace.checkpoints.last;
-    double moved = 0;
-    double size = 0;
-    for (int id = 0; id < trace.vocab.length; id++) {
-      if (id == pad) {
-        continue;
-      }
-      for (int d = 0; d < trace.model.width; d++) {
-        final double was = trace.tokenEmbedding(first, id, d);
-        final double change = trace.tokenEmbedding(last, id, d) - was;
-        moved += change * change;
-        size += was * was;
-      }
-    }
-    return size <= 0 ? 0 : math.sqrt(moved / size);
-  }
-
-  /// The first row of the position embedding no peptide's place reaches,
-  /// where it and every row after it are the same at every checkpoint the
-  /// run kept: rows no update moved. Null where the longest peptide fills the
-  /// context, or a row past it moved.
-  static int? unreadFrom(TrainingTrace trace) {
-    final int from = trace.width;
-    final int context = trace.model.context;
-    if (from >= context) {
-      return null;
-    }
-    final TraceCheckpoint first = trace.checkpoints.first;
-    for (final TraceCheckpoint at in trace.checkpoints) {
-      for (int place = from; place < context; place++) {
-        for (int d = 0; d < trace.model.width; d++) {
-          if (trace.positionEmbedding(at, place, d) != trace.positionEmbedding(first, place, d)) {
-            return null;
-          }
-        }
-      }
-    }
-    return from;
-  }
 }
 
 /// What Embedding's last frame leaves out or fades, for the stage that opens

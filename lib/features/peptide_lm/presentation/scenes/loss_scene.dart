@@ -842,39 +842,42 @@ final class LossScene extends LmScene {
     final TraceCheckpoint first = trace.checkpoints.first;
     final TraceCheckpoint last = trace.checkpoints.last;
     final int count = trace.allowed.length;
-    final int? passed = passedEven(trace);
     final double start = math.exp(trace.loss(first.step));
+    final Set<String> kept = <String>{for (final TraceCheckpoint at in trace.checkpoints) ...at.why};
+    final List<String> passed = <String>[
+      if (kept.contains('uniform')) 'the even guess',
+      if (kept.contains('unigram')) 'residue counts',
+      if (kept.contains('bigram')) 'residue pairs',
+    ];
+    final String loop = switch (passed.length) {
+      0 => '',
+      3 => " ${LmStage.loop.label}'s curve passes all three.",
+      1 => " ${LmStage.loop.label}'s curve passes ${passed.single}.",
+      _ => " ${LmStage.loop.label}'s curve passes ${passed.first} and ${passed.last}.",
+    };
     return LmInfo(
       title: LmStage.loss.label,
-      lead: "Every place's p(y) becomes one number, the loss: the only thing training lowers. Backward starts "
-          'from it, and Loop follows it through the run.',
+      lead: 'Each guess costs −ln p(y); their mean over the ${grouped(trace.targetCount)} targets is the '
+          "step's loss, the one number training lowers.",
       sections: <LmInfoSection>[
+        const LmInfoSection('p(y)', <String>[
+          'A sure, right guess costs 0; the smaller p(y), the more it costs, without limit. Costs are in nats.',
+        ]),
         LmInfoSection('Even guess', <String>[
-          "The first of the levels Loop's curve has to pass"
-              '${passed == null ? '' : ', which it does at step $passed'}; residue counts and residue pairs '
-              'come after.',
+          'Guessing all $count tokens evenly costs ln $count = ${nats(trace.uniform)} nats; by '
+              "${LmStage.tokenise.label}'s residue counts, ${nats(trace.unigram)}; by the residue before, "
+              '${nats(trace.bigram)}.$loop',
         ]),
         LmInfoSection('Mean', <String>[
-          'e to the loss is how many tokens the model is as unsure as, were it picking evenly among them: '
-              '${exponential(start)} at step ${first.step}, ${start > count ? 'more' : 'fewer'} than the even '
-              "guess's $count"
-              '${last.step > first.step ? ', and ${exponential(math.exp(trace.loss(last.step)))} at step '
+          'e to the loss is how many tokens the model is as unsure as: ${exponential(start)} at step '
+              '${first.step}, ${start > count ? 'more' : 'fewer'} than $count'
+              '${last.step > first.step ? '; ${exponential(math.exp(trace.loss(last.step)))} at step '
                         '${last.step}' : ''}.',
         ]),
       ],
     );
   }
 
-  /// The step the run kept for first doing better than an even guess, or
-  /// null where it never did.
-  static int? passedEven(TrainingTrace trace) {
-    for (final TraceCheckpoint checkpoint in trace.checkpoints) {
-      if (checkpoint.why.contains('uniform')) {
-        return checkpoint.step;
-      }
-    }
-    return null;
-  }
 }
 
 /// What Loss's last frame fades or leaves out, for the stage that opens on

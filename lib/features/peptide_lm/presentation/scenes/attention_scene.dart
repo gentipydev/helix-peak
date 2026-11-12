@@ -1368,59 +1368,36 @@ final class AttentionScene extends LmScene {
   @override
   LmInfo info(LmView view) {
     final TrainingTrace trace = view.trace;
-    final TraceCheckpoint first = trace.checkpoints.first;
-    final TraceCheckpoint last = trace.checkpoints.last;
-    final double before = largestShare(trace, first);
-    final double after = largestShare(trace, last);
-    final int peptides = trace.peptides.length;
-    final String over = switch (peptides) {
-      1 => 'the one peptide',
-      2 => 'both peptides',
-      _ => 'all ${spelled(peptides)} peptides',
-    };
+    final int width = trace.model.width;
+    final int heads = trace.model.heads;
+    // The sum's tag, less its size.
+    final String sum = sumTag(view).split(' · ').first;
     return LmInfo(
       title: LmStage.attention.label,
-      lead: 'Each place takes in its shares of the values, and what it gathers is added to its row: '
-          "x0 + block 1's attention. As well as its own token and place, a row now holds what the places up "
-          'to its own handed over: that is how a guess comes to depend on what came before.',
+      lead: 'Each place takes its shares of the values up to its own; the output weights mix what '
+          '${heads == 1 ? 'the head gathered' : 'the ${spelled(heads)} heads gathered'} into $width numbers, '
+          'added to its row: $sum. A row now carries what came before it, not only its own token and place.',
       sections: <LmInfoSection>[
         const LmInfoSection('Values', <String>[
-          'A key does not turn into its value: both are made side by side from the same evened row, each '
-              "through weights of its own, Scores' second and third plates.",
+          'Made beside the keys, from the same evened row, through weights of their own: a key does not turn '
+              'into its value.',
         ]),
-        if (last.step > first.step && after > before)
-          LmInfoSection('Shares', <String>[
-            "Training sharpens where each place looks: in head 1, every place but <bos>'s gives its largest "
-                'share ${percent(before)} on average at step ${first.step}, over $over, and '
-                '${percent(after)} at step ${last.step}.',
-          ]),
+        LmInfoSection('Output', <String>[
+          "Each head's answer is its values times its shares, summed: ${trace.headSize} numbers. "
+              '${heads == 1 ? 'The answer goes' : 'The ${spelled(heads)} answers, side by side, go'} through a '
+              '$width × $width table of output weights.',
+        ]),
+        LmInfoSection('Shares in %', <String>[
+          "A map row is one place's shares, adding up to 100%; above the diagonal, hatched, are the places it "
+              'may not read.${heads > 1 ? ' Each head has its own map.' : ''}',
+        ]),
+        LmInfoSection(sum, const <String>[
+          'Added, not replaced: the row keeps what it had and gains what it gathered.',
+        ]),
       ],
     );
   }
 
-  /// The largest share a place gives in block 1's head 1, on average over
-  /// every place of every peptide but each one's first, which reads only
-  /// itself: softmax of the scores kept [at], as the maps draw them.
-  static double largestShare(TrainingTrace trace, TraceCheckpoint at) {
-    double sum = 0;
-    int places = 0;
-    for (int p = 0; p < trace.peptides.length; p++) {
-      for (int i = 1; i < trace.peptides[p].inputs; i++) {
-        double top = double.negativeInfinity;
-        for (int j = 0; j <= i; j++) {
-          top = math.max(top, trace.score(at, block, mapHead, p, i, j));
-        }
-        double total = 0;
-        for (int j = 0; j <= i; j++) {
-          total += math.exp(trace.score(at, block, mapHead, p, i, j) - top);
-        }
-        // The largest share is e to nothing over the sum.
-        sum += 1 / total;
-        places++;
-      }
-    }
-    return places == 0 ? 0 : sum / places;
-  }
 }
 
 /// Attention's canvas, on Embedding's: the rows where Embedding left them,

@@ -1349,23 +1349,32 @@ final class BackwardScene extends LmScene {
   /// Backward's own page: what it takes and gives, what the stream's +s are
   /// for, and why its colours fade as the run goes on.
   @override
-  LmInfo info(LmView view) => LmInfo(
-    title: LmStage.backward.label,
-    lead: 'From the loss back to x0, every number of every row gets its gradient: how fast the loss would '
-        'rise as that number rose. Backward changes nothing: it measures, and Update moves the weights.',
-    sections: <LmInfoSection>[
-      // Each titled as its tag, less its size.
-      LmInfoSection("${StreamTable.placeName(view, view.position)}'s gradient, layer to layer", const <String>[
-        'Each + of the stream hands the gradient back whole, whatever the part beside it adds: that is what '
-            'the +s are for. However many blocks are stacked, each still gets the gradient whole, the first as '
-            'the last.',
-      ]),
-      const LmInfoSection('Gradient at x0', <String>[
-        "Its colours, as every gradient's in this stage, are on the whole batch's scale at that step: a place "
-            'with little left to learn is drawn as faint as it is.',
-      ]),
-    ],
-  );
+  LmInfo info(LmView view) {
+    final int layers = view.trace.model.layers;
+    return LmInfo(
+      title: LmStage.backward.label,
+      lead: 'From the loss back to x0, every number of every row gets its gradient: how the loss would change '
+          'if that number rose. Backward only measures; ${LmStage.update.label} moves the weights.',
+      sections: <LmInfoSection>[
+        // Each titled as its tag, less its size.
+        const LmInfoSection('p − y', <String>[
+          'Where the gradient starts: each share less 1 at the true next token. Negative there, raise it; '
+              'positive elsewhere, lower each; together they sum to 0.',
+        ]),
+        const LmInfoSection('Gradient', <String>[
+          "A number's gradient is the errors it fed, each times the weight it fed them through, summed: the "
+              'forward strings run backwards.',
+        ]),
+        LmInfoSection("${StreamTable.placeName(view, view.position)}'s gradient, layer to layer", <String>[
+          'Each + passes the gradient back whole, and each part adds its own; '
+              '${layers > 1 ? 'so the first block learns as well as the last.' : 'so every part learns from the loss.'}',
+        ]),
+        const LmInfoSection('Gradient at x0', <String>[
+          "Every place's, on the whole batch's scale: a place with little left to learn is faint.",
+        ]),
+      ],
+    );
+  }
 }
 
 /// What Backward's last frame fades or leaves out, for the stage that opens

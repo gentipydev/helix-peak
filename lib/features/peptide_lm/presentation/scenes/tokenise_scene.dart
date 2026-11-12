@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../../../../shared/format.dart';
 import '../../domain/training_timeline.dart';
 import '../../domain/training_trace.dart';
-import '../lm_format.dart';
 import '../lm_info_sheet.dart';
 import 'lm_drawing.dart';
 import 'lm_scene.dart';
@@ -591,52 +590,36 @@ final class TokeniseScene extends LmScene {
     final int peptides = trace.peptides.length;
     final String count = spelled(peptides);
     final String noun = peptides == 1 ? 'peptide' : 'peptides';
-    final String every = switch (peptides) {
-      1 => 'the one',
-      2 => 'both',
-      _ => 'all $count',
-    };
     final int frame = trace.width + 1;
     final (int, int)? pair = neighbours(trace);
     final String example = pair == null
         ? '.'
         : ': ${trace.token(pair.$1)}, ${pair.$1}, and ${trace.token(pair.$2)}, ${pair.$2}, '
               'are neighbours only in the alphabet.';
-    final bool firstsDiffer =
-        peptides > 1 && trace.peptides.map((TracePeptide p) => p.sequence[0]).toSet().length == peptides;
-    final int? counted = passedCounts(trace);
     String special(String name) => '$name (${glyph(trace, trace.vocab.indexOf(name))})';
     return LmInfo(
       title: LmStage.tokenise.label,
       lead: '${spelledLeading(peptides)} $noun, ${grouped(trace.residues)} residues, become one '
-          '$peptides × $frame matrix of ids: from here on the model sees ids, never letters. '
-          'Made once, before training, it is the same at every step: nothing here is learned.',
+          '$peptides × $frame matrix of token ids, all the model ever reads of them. Fixed: built once, '
+          'before training.',
       sections: <LmInfoSection>[
         LmInfoSection('Token ids', <String>[
-          'Each residue is one token, and its id is its row in the vocabulary. An id is a name, '
-              'not an amount$example Embedding gives each token but <pad> ${trace.model.width} '
-              'trainable numbers of its own; Predict ends on the same vocabulary, a probability for '
-              'each of the ${trace.allowed.length} tokens that can come next.',
+          'One residue, one token; its id is its row in the ${trace.vocab.length}-token vocabulary. An id is '
+              'a label, not an amount$example',
         ]),
         LmInfoSection('Special tokens', <String>[
-          '${special('<bos>')} opens every peptide, so its first residue has a place to be '
-              'predicted from.'
-              '${firstsDiffer ? ' Alike in $every, it leaves that guess at one in $count, however '
-                        'long the model trains.' : ''}',
-          '${special('<eos>')} closes each one, so the model learns where a peptide ends.',
-          '${special('<pad>')} fills each to the longest, $frame places, so the $count stack into '
-              'one matrix. A place reads only the places up to its own, and pads come last: no real '
-              'token reads one, and none is scored.',
+          '${special('<bos>')} opens each peptide, so its first residue has a place to be predicted from.',
+          '${special('<eos>')} closes it, so its end is predicted too.',
+          '${special('<pad>')} fills each to the longest, $frame places'
+              '${peptides > 1 ? ', so the $count stack' : ''}. No real token reads it, and it is never scored.',
         ]),
         LmInfoSection('Batch 2D matrix', <String>[
-          'A row a peptide, $every read at once. With so few, the batch is the whole dataset, every '
-              'step; none is held out, so the run shows a model learning $count $noun, not '
-              'generalising.',
+          'A row a peptide, a column a place: ${peptides > 1 ? 'the $count go' : 'it goes'} through the model '
+              'together, as one batch.',
         ]),
-        LmInfoSection('Token counts', <String>[
-          'Guessing each next token by these counts alone would cost ${nats(trace.unigram)} nats, '
-              'the level Loss and Loop call residue counts'
-              '${counted == null ? '' : '; the model first beats it at step $counted'}.',
+        LmInfoSection('Followed', <String>[
+          'From ${LmStage.embedding.label} on, every stage works through one peptide, the followed one: tap '
+              'another to follow it. From ${LmStage.scores.label} on, a tap on a row follows another of its places.',
         ]),
       ],
     );
@@ -655,16 +638,6 @@ final class TokeniseScene extends LmScene {
     return null;
   }
 
-  /// The step the run kept for first doing better than guessing by residue
-  /// counts, or null where it never did.
-  static int? passedCounts(TrainingTrace trace) {
-    for (final TraceCheckpoint checkpoint in trace.checkpoints) {
-      if (checkpoint.why.contains('unigram')) {
-        return checkpoint.step;
-      }
-    }
-    return null;
-  }
 }
 
 /// What Tokenise's last frame leaves out or fades, for the stage that opens

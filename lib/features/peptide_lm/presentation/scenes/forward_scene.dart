@@ -410,25 +410,22 @@ final class ForwardScene extends LmScene {
   @override
   LmInfo info(LmView view) {
     final int layers = view.trace.model.layers;
-    final String blocks = switch (layers) {
-      1 => 'its block',
-      2 => 'both blocks',
-      _ => 'all ${spelled(layers)} blocks',
+    final String place = StreamTable.placeName(view, view.position);
+    final String parts = switch (layers) {
+      1 => "the block's attention and feed-forward",
+      2 => "block 1's attention and feed-forward, block 2's",
+      _ => "each block's attention and feed-forward",
     };
     return LmInfo(
       title: LmStage.forward.label,
-      lead: "One place's row goes through the whole pass, $blocks and a last LayerNorm, from x0 to the last "
-          'row, the one Predict reads. Scores, Attention and Feed-forward took block 1 apart; this puts the '
-          'pass together.',
+      lead: "$place's row through the whole pass: x0, $parts, then a last LayerNorm. The last row is what "
+          '${LmStage.predict.label} reads.',
       sections: <LmInfoSection>[
         // The ladder's tag, less its size.
-        LmInfoSection("${StreamTable.placeName(view, view.position)}'s row, layer to layer", <String>[
-          'Its strips, what each part adds, share one scale, unlike the tables of what Attention and '
-              'Feed-forward add, each on its own: here the ${spelled(2 * layers)} can be set against each '
-              'other.'
-              '${layers > 1 ? ' Block 2 reads the rows as block 1 left them: what a place reads now carries '
-                        'what that place had gathered itself, so ${spelled(layers)} blocks reach '
-                        '${spelled(layers)} hops back.' : ''}',
+        LmInfoSection("$place's row, layer to layer", <String>[
+          'Each part adds to the row and replaces nothing: the residual stream.'
+              '${layers > 1 ? ' Block 2 reads the rows block 1 left, so a place can take in what another had '
+                        'gathered: ${spelled(layers)} blocks reach ${spelled(layers)} hops back.' : ''}',
         ]),
       ],
     );

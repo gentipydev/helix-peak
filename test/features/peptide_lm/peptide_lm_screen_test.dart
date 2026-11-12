@@ -178,18 +178,18 @@ void main() {
     // Every stage, from Tokenise, which the page opens on: its ⓘ is named for
     // it, and opens its own page, every section of it.
     final Map<String, List<String>> pages = <String, List<String>>{
-      'Tokenise': <String>['Token ids', 'Special tokens', 'Batch 2D matrix', 'Token counts'],
+      'Tokenise': <String>['Token ids', 'Special tokens', 'Batch 2D matrix', 'Followed'],
       'Shift': <String>['Input x', 'Target y'],
       'Embedding': <String>['Token embedding', 'Position embedding', 'x0 = token + position'],
-      'Scores': <String>['Query, key and value', 'Head 1 and head 2'],
-      'Attention': <String>['Values', 'Shares'],
-      'Feed-forward': <String>["What block 1's feed-forward adds"],
+      'Scores': <String>['Evened row', 'Query, key and value', 'Head 1 and head 2', 'Shares'],
+      'Attention': <String>['Values', 'Output', 'Shares in %', "x0 + block 1's attention"],
+      'Feed-forward': <String>['Evened inputs', 'GELU', "What block 1's feed-forward adds"],
       'Forward': <String>["$place's row, layer to layer"],
-      'Predict': <String>['Output layer'],
-      'Loss': <String>['Even guess', 'Mean'],
-      'Backward': <String>["$place's gradient, layer to layer", 'Gradient at x0'],
-      'Update': <String>['Rate', 'Step'],
-      'Loop': <String>['Next-token probabilities', '${trace.steps.count} steps', 'This run'],
+      'Predict': <String>['Output layer', 'Logits', 'Next-token probabilities'],
+      'Loss': <String>['p(y)', 'Even guess', 'Mean'],
+      'Backward': <String>['p − y', 'Gradient', "$place's gradient, layer to layer", 'Gradient at x0'],
+      'Update': <String>['Pull', 'Clip', 'Step', 'Rate'],
+      'Loop': <String>['Next-token probabilities', 'Floor', '${trace.steps.count} steps', 'This run'],
     };
     for (final MapEntry<String, List<String>> page in pages.entries) {
       if (page.key != 'Tokenise') {

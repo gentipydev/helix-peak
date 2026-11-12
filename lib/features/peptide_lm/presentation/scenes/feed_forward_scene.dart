@@ -846,29 +846,22 @@ final class FeedForwardScene extends LmScene {
     final TrainingTrace trace = view.trace;
     final int width = trace.model.width;
     final int neurons = trace.model.feedForward;
-    final int layers = trace.model.layers;
-    final int parameters = trace.model.parameters;
-    // A block's network: its weights in and out, and a bias a neuron and an
-    // output.
-    final int each = 2 * neurons * width + neurons + width;
-    final String share = percent(layers * each / parameters);
-    final String weights = switch (layers) {
-      1 => "Its weights, ${grouped(each)}, are $share of the model's ${grouped(parameters)} numbers.",
-      2 => "Its weights, ${grouped(each)} a block, with block 2's make $share of the model's "
-          '${grouped(parameters)} numbers.',
-      _ => "Its weights, ${grouped(each)} a block, with the other blocks' make $share of the model's "
-          '${grouped(parameters)} numbers.',
-    };
+    const String adds = "What block ${AttentionScene.block + 1}'s feed-forward adds";
     return LmInfo(
       title: LmStage.feedForward.label,
-      lead: "Each place's row, x0 + block 1's attention, goes alone through one small network, and what it "
-          "makes is added: block 1's output. $weights",
+      lead: "Each place's row goes alone through one small network, and what it makes is added: block "
+          "${AttentionScene.block + 1}'s output. Attention mixed places; this works on each place by itself.",
       sections: <LmInfoSection>[
-        LmInfoSection("What block 1's feed-forward adds", <String>[
-          'Each neuron adds its own $width output weights to the row, times what GELU let it pass on, so a '
-              'dark neuron adds next to nothing; the $width outputs are those additions, summed, plus a bias. '
-              'Which pattern a neuron answers to is whatever training made useful: none is set to a residue or '
-              'a property.',
+        const LmInfoSection('Evened inputs', <String>[
+          "First evened again, by the block's second LayerNorm, as before attention.",
+        ]),
+        LmInfoSection('GELU', <String>[
+          'Each of $neurons neurons sums the $width inputs times its weights, plus a bias; GELU passes a '
+              'positive sum nearly whole and holds a negative one near zero. Without that bend, the two layers '
+              'would be one weighted sum.',
+        ]),
+        LmInfoSection(adds, <String>[
+          'Each neuron adds its $width output weights times what GELU passed: $width numbers, added to the row.',
         ]),
       ],
     );

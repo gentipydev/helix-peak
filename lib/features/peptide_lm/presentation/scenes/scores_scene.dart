@@ -1196,26 +1196,33 @@ final class ScoresScene extends LmScene {
     final int width = trace.model.width;
     final int heads = trace.model.heads;
     final int size = trace.headSize;
+    final String place = StreamTable.placeName(view, view.position);
     return LmInfo(
       title: LmStage.scores.label,
-      lead: "From x0, block 1 makes a query, a key and a value for every place; the place in focus's query, "
-          'scored against each key up to its own, gives its shares. This begins attention, the one part of '
-          'the model where places exchange anything: every other part works on each place alone.',
+      lead: "Attention's first half, in block ${AttentionScene.block + 1}: from x0, every place makes a query, a "
+          "key and a value, and $place's query, scored against every key up to its own, becomes its shares. "
+          'Attention is the one part of the model where places exchange anything.',
       sections: <LmInfoSection>[
+        const LmInfoSection('Evened row', <String>[
+          'First a copy of the row is evened (LayerNorm): less its mean, over its standard deviation, times a '
+              'trainable scale, plus a shift. Attention reads the copy; the row itself is kept.',
+        ]),
         LmInfoSection('Query, key and value', <String>[
-          'Their weights, three $width × $width and ${grouped(3 * width)} biases, '
-              '${grouped(3 * width * width + 3 * width)} numbers, are what training keeps and moves, as the '
-              'plates say; the scores and shares are worked out from them afresh, at every place of every '
-              'peptide, every step.',
+          'Three $width × $width weight tables make three rows of $width from the evened row: the query, what a '
+              'place looks for; the key, what it offers; the value, what it hands over when read. The weights '
+              'are trained; queries, keys and values are made afresh every pass.',
         ]),
         LmInfoSection(switch (heads) {
           1 => 'Head 1',
           2 => 'Head 1 and head 2',
           _ => 'Head 1 to head $heads',
         }, <String>[
-          "A head's score sums $size products and is divided by √$size, so that scores keep one scale "
-              "whatever a head's size: more products would add up to larger scores, and softmax would hand "
-              'nearly everything to the top one.',
+          '${heads == 1 ? 'The row is one head: one read.' : 'Each row is cut into ${spelled(heads)} slices of $size, a head each: ${spelled(heads)} reads side by side.'} '
+              'A score is a query slice times a key slice, $size products summed, over √$size, which keeps '
+              "scores on one scale whatever a head's size.",
+        ]),
+        const LmInfoSection('Shares', <String>[
+          "Softmax turns a place's scores into shares that add up to 100%: how much of each value it will take.",
         ]),
       ],
     );

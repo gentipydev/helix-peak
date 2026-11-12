@@ -391,29 +391,24 @@ final class ShiftScene extends LmScene {
     final int asked = unasked(trace);
     String special(String name) => '$name (${glyph(trace, trace.vocab.indexOf(name))})';
     final String dimmed = switch (asked) {
-      0 => '',
-      1 => ' Dimmed, the one place whose answer would be padding: there is nothing to ask.',
-      _ => ' Dimmed, the ${grouped(asked)} places whose answer would be padding: there is nothing to ask.',
+      0 => '.',
+      1 => '; the one place whose answer would be padding is dimmed, with nothing to score.',
+      _ => '; the ${grouped(asked)} places whose answer would be padding are dimmed, with nothing to score.',
     };
     return LmInfo(
       title: LmStage.shift.label,
-      lead: "Tokenise's $peptides × ${trace.width + 1} matrix is cut into two of $peptides × ${trace.width}, "
-          'input x and target y, once and the same at every step. Nothing outside the peptides says what is '
-          'right: each is its own answer key, one place on.',
+      lead: 'The $peptides × ${trace.width + 1} matrix becomes two of $peptides × ${trace.width}: input x, all but '
+          'its last column, and target y, all but its first. Under each place of x, y holds the token that comes '
+          'next.',
       sections: <LmInfoSection>[
         LmInfoSection('Input x', <String>[
-          "Each place of x asks one question: what comes next? The frame's last place has nothing after it, "
-              'so x lets it go. Each place reads the true tokens up to its own, '
-              "never the model's own guesses, so all ${grouped(trace.targetCount)} questions are asked at "
-              'once, in one pass; writing a new peptide, a model would instead feed each guess back, one place '
-              'at a time.',
+          'What the model reads. A place reads the true tokens up to its own and never past it, where its '
+              "answer sits: hence ${LmStage.scores.label}' struck keys and ${LmStage.attention.label}'s hatched "
+              'cells. So every place is predicted at once, in one pass.',
         ]),
         LmInfoSection('Target y', <String>[
-          'y is x moved one place left: under each place, its answer. A peptide of n residues gives n + 1 '
-              'answers, its residues and ${special('<eos>')}; ${special('<bos>')} is never one, so it leaves at '
-              'the left. An answer also stands in x, one place on, so a place must never read past its own: '
-              'the keys Scores strikes through, the cells Attention hatches.$dimmed y never goes in: Predict '
-              'writes it beside each guess, and Loss scores against it.',
+          'The answer key, never fed in: ${LmStage.loss.label} scores each guess against it. A peptide of n '
+              'residues gives n + 1 answers, its residues and ${special('<eos>')}$dimmed',
         ]),
       ],
     );

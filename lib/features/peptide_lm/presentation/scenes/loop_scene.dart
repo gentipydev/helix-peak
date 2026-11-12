@@ -874,20 +874,39 @@ final class LoopScene extends LmScene {
   LmInfo info(LmView view) {
     final TrainingTrace trace = view.trace;
     final int steps = trace.steps.count;
+    final int peptides = trace.peptides.length;
     return LmInfo(
       title: LmStage.loop.label,
-      lead: 'The same step, ${grouped(steps)} times, on the batch made once, from step '
-          "${trace.checkpoints.first.step}'s weights to step ${grouped(steps)}'s. Every other stage shows one "
-          'step; this one shows the run.',
+      lead: 'The whole step, ${grouped(steps)} times, on the same batch: forward, loss, backward, update. Every '
+          'other stage shows one step; this one shows the run.',
       sections: <LmInfoSection>[
         LmInfoSection('Next-token probabilities', <String>[
-          'A model meant to write new peptides trains on many, and is judged on peptides it never saw; this '
-              'one was trained and judged on the same ${spelled(trace.peptides.length)}.',
+          'The map at each step: squares grow into their lit slots as the guesses come right. No peptide was '
+              'held out: the run shows a model learning these ${spelled(peptides)}, not generalising.',
         ]),
+        LmInfoSection('Floor', <String>[floorWhy(trace)]),
         LmInfoSection('${grouped(steps)} steps', <String>[ticks(trace)]),
         LmInfoSection('This run', <String>[thisRun(trace)]),
       ],
     );
+  }
+
+  /// The loss no model can pass here, and why where the run bears out that
+  /// it is all `<bos>`'s: from `<bos>` alone a peptide's first residue could
+  /// be any of theirs, one in as many at best, where they all differ.
+  static String floorWhy(TrainingTrace trace) {
+    final int peptides = trace.peptides.length;
+    final int bos = trace.vocab.indexOf('<bos>');
+    final bool firstsDiffer =
+        peptides > 1 && trace.peptides.map((TracePeptide p) => p.sequence[0]).toSet().length == peptides;
+    final double bosAlone = peptides * math.log(peptides) / trace.targetCount;
+    final String floor = nats(trace.floor);
+    if (bos >= 0 && firstsDiffer && (trace.floor - bosAlone).abs() < 1e-6) {
+      final String count = spelled(peptides);
+      return "From <bos> (${glyph(trace, bos)}) alone, a peptide's first residue could be any of the $count: one "
+          'in $count at best. That floor, $floor, is a loss no model can pass here.';
+    }
+    return 'The floor, $floor, is a loss no model can pass here.';
   }
 
   /// What the ticks under the curve are: the steps the run kept whole, by
@@ -910,7 +929,8 @@ final class LoopScene extends LmScene {
         ? 'the first and the last'
         : 'the first; the first under ${_and(passed)}; and the last';
     return 'Its ticks are the ${spelled(trace.checkpoints.length)} steps the run kept whole, by rule: $rule. '
-        'Every other stage shows one of them, picked from the Step menu: its tick is the accent one.';
+        '${LmStage.embedding.label} to ${LmStage.update.label} show one of them, picked from the Step menu: its '
+        'tick is the accent one.';
   }
 
   /// The recording itself, as the run's own record has it: the model, how

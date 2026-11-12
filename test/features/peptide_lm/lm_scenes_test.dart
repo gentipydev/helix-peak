@@ -105,19 +105,6 @@ void main() {
     return TrainingTrace.parse(Uint8List.fromList(utf8.encode(jsonEncode(json))), name: 'toy');
   }
 
-  /// The float32 array [spec] of the run's JSON, its numbers changed by
-  /// [edit].
-  void floats(Object? spec, void Function(Float32List values) edit) {
-    final Map<String, Object?> array = spec! as Map<String, Object?>;
-    final Float32List values = Float32List.sublistView(base64Decode(array['data']! as String));
-    edit(values);
-    array['data'] = base64Encode(Uint8List.sublistView(values));
-  }
-
-  /// The last checkpoint the run's JSON keeps.
-  Map<String, Object?> lastKept(Map<String, Object?> json) =>
-      (json['checkpoints']! as List<Object?>).last! as Map<String, Object?>;
-
   testWidgets('every stage paints at every frame of a second, at every checkpoint', (
     WidgetTester tester,
   ) async {
@@ -2415,7 +2402,7 @@ void main() {
     }
   });
 
-  testWidgets("Tokenise's info page says the run's own numbers", (
+  testWidgets("Tokenise's info page keys the input's structure, and leaves training to the stages that train", (
     WidgetTester tester,
   ) async {
     final (LmInks inks, LmKit kit) = await _drawing(tester);
@@ -2428,22 +2415,20 @@ void main() {
       'Token ids',
       'Special tokens',
       'Batch 2D matrix',
-      'Token counts',
+      'Followed',
     ]);
     // What it takes and what it gives.
     final int peptides = trace.peptides.length;
     final int frame = trace.width + 1;
     expect(
       info.lead,
-      startsWith(
-        '${spelledLeading(peptides)} peptides, ${grouped(trace.residues)} residues, '
-        'become one $peptides × $frame matrix of ids',
-      ),
+      '${spelledLeading(peptides)} peptides, ${grouped(trace.residues)} residues, become one $peptides × $frame '
+      'matrix of token ids, all the model ever reads of them. Fixed: built once, before training.',
     );
     final String page = words(info);
-    expect(page, contains('${trace.model.width} trainable numbers'));
-    expect(page, contains('each of the ${trace.allowed.length} tokens that can come next'));
-    expect(page, contains('to the longest, $frame places'));
+    expect(page, contains('its row in the ${trace.vocab.length}-token vocabulary'));
+    expect(page, contains('to the longest, $frame places, so the two stack'));
+    expect(page, contains('the two go through the model together'));
     for (final String name in <String>['<bos>', '<eos>', '<pad>']) {
       expect(page, contains('$name (${glyph(trace, trace.vocab.indexOf(name))})'));
     }
@@ -2454,38 +2439,21 @@ void main() {
     expect(
       page,
       contains(
-        '${trace.token(pair.$1)}, ${pair.$1}, and ${trace.token(pair.$2)}, ${pair.$2}, '
-        'are neighbours only in the alphabet',
+        'a label, not an amount: ${trace.token(pair.$1)}, ${pair.$1}, and ${trace.token(pair.$2)}, ${pair.$2}, '
+        'are neighbours only in the alphabet.',
       ),
     );
-    // The toy's first residues differ, so <bos> leaves one in two.
-    expect(page, contains('one in ${spelled(peptides)}'));
-    // The counts' level, and the step the run kept for first passing it.
-    final int passed = trace.checkpoints.firstWhere((TraceCheckpoint c) => c.why.contains('unigram')).step;
-    expect(page, contains('would cost ${nats(trace.unigram)} nats'));
-    expect(page, endsWith('first beats it at step $passed.'));
-
-    // A run whose first residues coincide claims no one-in-N guess, and a
-    // run never under residue counts no step that beat them.
-    final TrainingTrace alike = edited((Map<String, Object?> json) {
-      final List<Object?> runs = json['peptides']! as List<Object?>;
-      final Map<String, Object?> second = runs[1]! as Map<String, Object?>;
-      final String first = (runs[0]! as Map<String, Object?>)['sequence']! as String;
-      second['sequence'] = '${first[0]}${(second['sequence']! as String).substring(1)}';
-    });
-    expect(words(const TokeniseScene().info(on(alike, inks, kit))), isNot(contains('one in')));
-    final TrainingTrace never = edited((Map<String, Object?> json) {
-      for (final Object? checkpoint in json['checkpoints']! as List<Object?>) {
-        final Map<String, Object?> kept = checkpoint! as Map<String, Object?>;
-        kept['why'] = <Object?>[
-          for (final Object? why in kept['why']! as List<Object?>)
-            if (why != 'unigram') why,
-        ];
-      }
-    });
-    final String unbeaten = words(const TokeniseScene().info(on(never, inks, kit)));
-    expect(unbeaten, isNot(contains('first beats it')));
-    expect(unbeaten, endsWith('call residue counts.'));
+    // How to follow another peptide, and from where a place.
+    expect(
+      info.sections.last.paragraphs.single,
+      'From ${LmStage.embedding.label} on, every stage works through one peptide, the followed one: tap another '
+      'to follow it. From ${LmStage.scores.label} on, a tap on a row follows another of its places.',
+    );
+    // Training's consequences are the training stages' to say: no floor,
+    // no level, no step, nothing held out.
+    for (final String said in <String>['one in', 'nats', 'step', 'held out', 'generalis', 'trainable']) {
+      expect(page, isNot(contains(said)), reason: said);
+    }
   });
 
   testWidgets("Shift's info page says what x and y are, in the run's own numbers", (WidgetTester tester) async {
@@ -2499,23 +2467,21 @@ void main() {
     final int peptides = trace.peptides.length;
     expect(
       info.lead,
-      startsWith("Tokenise's $peptides × ${trace.width + 1} matrix is cut into two of $peptides × ${trace.width}"),
+      startsWith('The $peptides × ${trace.width + 1} matrix becomes two of $peptides × ${trace.width}: input x'),
     );
     final String page = words(info);
-    expect(page, contains('all ${grouped(trace.targetCount)} questions are asked at once'));
-    for (final String name in <String>['<bos>', '<eos>']) {
-      expect(page, contains('$name (${glyph(trace, trace.vocab.indexOf(name))})'));
-    }
+    expect(page, contains("hence Scores' struck keys and Attention's hatched cells"));
+    expect(page, contains('its residues and <eos> (${glyph(trace, trace.vocab.indexOf('<eos>'))})'));
     // The places asked nothing are those whose answer in y is padding: one,
     // on the toy, whose peptides differ by a place.
     final int pad = trace.vocab.indexOf('<pad>');
     final int padded = trace.targets.fold<int>(0, (int n, List<int> row) => n + row.where((int id) => id == pad).length);
     expect(ShiftScene.unasked(trace), padded);
     expect(padded, 1);
-    expect(page, contains('Dimmed, the one place whose answer would be padding: there is nothing to ask.'));
+    expect(page, endsWith('; the one place whose answer would be padding is dimmed, with nothing to score.'));
   });
 
-  testWidgets("Embedding's info page says what its tables are and which of their rows never learn", (
+  testWidgets("Embedding's info page says what its two tables are and what their sum carries", (
     WidgetTester tester,
   ) async {
     final (LmInks inks, LmKit kit) = await _drawing(tester);
@@ -2533,150 +2499,83 @@ void main() {
     // The two tables, as the run counts its groups.
     final int tables = trace.groupSizes[trace.groups.indexOf('token_embedding')] +
         trace.groupSizes[trace.groups.indexOf('position_embedding')];
-    expect(info.lead, startsWith("x's ids become x0, $width numbers a place, from two tables."));
-    expect(info.lead, endsWith('the two tables are ${grouped(tables)} of its ${grouped(trace.model.parameters)}.'));
+    expect(info.lead, startsWith('Each id of x becomes x0, a row of $width numbers'));
+    expect(info.lead, endsWith('first trainable weights, ${grouped(tables)} of its ${grouped(trace.model.parameters)}.'));
     final String page = words(info);
-    expect(page, contains("Each row but <pad>'s starts as $width random numbers (seed ${trace.config.seed})"));
-    final double moved = EmbeddingScene.tokenMoved(trace);
-    expect(moved, inExclusiveRange(0, 1));
-    expect(page, contains('by about ${percent(moved)} of their size by step ${trace.checkpoints.last.step}.'));
-    // The note's own count of how much smaller the position rows start.
-    expect(page, contains('${grouped(EmbeddingScene.smaller(at, trace.checkpoints.first))}× at first'));
-    // <eos> is read only at places nothing scores, and no peptide reaches the
-    // position rows past the longest: no update moves either.
-    final int eos = trace.vocab.indexOf('<eos>');
-    expect(EmbeddingScene.rowStill(trace, eos), isTrue);
-    expect(EmbeddingScene.rowStill(trace, trace.vocab.indexOf('<bos>')), isFalse);
-    expect(EmbeddingScene.unreadFrom(trace), trace.width);
-    expect(
-      page,
-      endsWith(
-        'the row of <eos> (${glyph(trace, eos)}), read only where nothing is scored, keeps its random start, '
-        'as do position rows ${trace.width} to ${context - 1}, which no peptide here reaches.',
-      ),
-    );
-
-    // Nudged at the last checkpoint, <eos>'s row, or the first row past the
-    // longest peptide, is a row that moved, and the page claims it no more.
-    final TrainingTrace eosMoved = edited(
-      (Map<String, Object?> json) => floats(lastKept(json)['token_embedding'], (Float32List rows) => rows[eos * width] += 0.5),
-    );
-    final String noEos = words(const EmbeddingScene().info(on(eosMoved, inks, kit)));
-    expect(noEos, isNot(contains('<eos>')));
-    expect(
-      noEos,
-      endsWith(': position rows ${trace.width} to ${context - 1}, which no peptide here reaches, keep their random start.'),
-    );
-    final TrainingTrace rowMoved = edited(
-      (Map<String, Object?> json) =>
-          floats(lastKept(json)['position_embedding'], (Float32List rows) => rows[trace.width * width] += 0.5),
-    );
-    expect(EmbeddingScene.unreadFrom(rowMoved), isNull);
-    final String noRows = words(const EmbeddingScene().info(on(rowMoved, inks, kit)));
-    expect(noRows, isNot(contains('position rows')));
-    expect(noRows, endsWith('read only where nothing is scored, keeps its random start.'));
+    expect(page, contains('A ${trace.vocab.length} × $width table, a row a token'));
+    // <pad>'s row is zero at every checkpoint the run kept.
+    expect(page, contains("The rows start random (<pad>'s at zero)"));
+    expect(page, contains('A $context × $width table, a row a place'));
+    expect(page, contains('<bos> (${glyph(trace, trace.vocab.indexOf('<bos>'))}) and up to ${context - 1} residues'));
+    expect(page, contains('so x0 stays $width wide'));
   });
 
-  testWidgets("Scores' info page says where attention stands, what training keeps of it, and why a score is divided", (
+  testWidgets("Scores' info page says what attention's first half makes, and why a score is divided", (
     WidgetTester tester,
   ) async {
     final (LmInks inks, LmKit kit) = await _drawing(tester);
     addTearDown(kit.dispose);
-    final LmInfo info = const ScoresScene().info(on(trace, inks, kit));
+    final LmView at = on(trace, inks, kit);
+    final LmInfo info = const ScoresScene().info(at);
     expect(info.title, LmStage.scores.label);
-    expect(info.sections.map((LmInfoSection s) => s.title), <String>['Query, key and value', 'Head 1 and head 2']);
-    expect(info.lead, contains('the one part of the model where places exchange anything'));
+    expect(info.sections.map((LmInfoSection s) => s.title), <String>[
+      'Evened row',
+      'Query, key and value',
+      'Head 1 and head 2',
+      'Shares',
+    ]);
+    expect(info.lead, contains("${StreamTable.placeName(at, at.position)}'s query"));
+    expect(info.lead, endsWith('the one part of the model where places exchange anything.'));
     final String page = words(info);
     final int width = trace.model.width;
-    // The weights that make the query, key and value, as the run counts
-    // them: block 1's attention, less its output weights and their biases.
-    final int attention = trace.groupSizes[trace.groups.indexOf('block1.attention')];
-    expect(
-      page,
-      contains('three $width × $width and ${grouped(3 * width)} biases, ${grouped(attention - width * width - width)} numbers'),
-    );
-    expect(page, contains('sums ${trace.headSize} products and is divided by √${trace.headSize}'));
+    expect(page, contains('Three $width × $width weight tables make three rows of $width'));
+    final int size = trace.headSize;
+    expect(page, contains('cut into two slices of $size, a head each'));
+    expect(page, contains('$size products summed, over √$size'));
   });
 
-  testWidgets("Attention's info page says what reading adds to a row, and how training sharpens the maps", (
+  testWidgets("Attention's info page says how a place gathers, and what is added to its row", (
     WidgetTester tester,
   ) async {
     final (LmInks inks, LmKit kit) = await _drawing(tester);
     addTearDown(kit.dispose);
-    final LmInfo info = const AttentionScene().info(on(trace, inks, kit));
+    final LmView at = on(trace, inks, kit);
+    final LmInfo info = const AttentionScene().info(at);
     expect(info.title, LmStage.attention.label);
-    expect(info.sections.map((LmInfoSection s) => s.title), <String>['Values', 'Shares']);
-    expect(info.lead, contains("x0 + block 1's attention"));
-    // Head 1's map, as it is drawn, every peptide's: its rows' largest
-    // shares, but the first's, averaged.
-    double mean(int checkpoint) {
-      double sum = 0;
-      int rows = 0;
-      for (int p = 0; p < trace.peptides.length; p++) {
-        final List<List<double>> map =
-            AttentionScene.allShares(view(inks, kit, checkpoint: checkpoint, peptide: p, position: 0), 0);
-        for (int i = 1; i < map.length; i++) {
-          sum += map[i].reduce(math.max);
-          rows++;
-        }
-      }
-      return sum / rows;
-    }
-
-    final int last = trace.checkpoints.length - 1;
-    expect(AttentionScene.largestShare(trace, trace.checkpoints.first), closeTo(mean(0), 1e-9));
-    expect(AttentionScene.largestShare(trace, trace.checkpoints.last), closeTo(mean(last), 1e-9));
-    expect(mean(last), greaterThan(mean(0)));
-    expect(
-      words(info),
-      contains(
-        "in head 1, every place but <bos>'s gives its largest share ${percent(mean(0))} on average at step 1, "
-        'over both peptides, and ${percent(mean(last))} at step ${trace.checkpoints.last.step}.',
-      ),
-    );
-
-    // A run whose last maps are even has sharpened nothing, and says so not.
-    final TrainingTrace even = edited((Map<String, Object?> json) {
-      final List<Object?> blocks = lastKept(json)['blocks']! as List<Object?>;
-      floats((blocks.first! as Map<String, Object?>)['scores'], (Float32List scores) {
-        for (int k = 0; k < scores.length ~/ trace.model.heads; k++) {
-          scores[k] = 0;
-        }
-      });
-    });
-    expect(AttentionScene.largestShare(even, even.checkpoints.last), lessThan(mean(0)));
-    expect(
-      const AttentionScene().info(on(even, inks, kit)).sections.map((LmInfoSection s) => s.title),
-      <String>['Values'],
-    );
+    // The last titled as its tag, less its size.
+    final String sum = AttentionScene.sumTag(at);
+    expect(info.sections.map((LmInfoSection s) => s.title), <String>[
+      'Values',
+      'Output',
+      'Shares in %',
+      sum.substring(0, sum.indexOf(' · ')),
+    ]);
+    expect(info.lead, contains("added to its row: x0 + block 1's attention."));
+    final String page = words(info);
+    expect(page, contains('summed: ${trace.headSize} numbers'));
+    expect(page, contains('a ${trace.model.width} × ${trace.model.width} table of output weights'));
+    expect(page, contains('Each head has its own map.'));
   });
 
-  testWidgets("Feed-forward's info page says how much of the model it is, and how its neurons make its outputs", (
+  testWidgets("Feed-forward's info page says how its network turns a row into what it adds", (
     WidgetTester tester,
   ) async {
     final (LmInks inks, LmKit kit) = await _drawing(tester);
     addTearDown(kit.dispose);
     final LmInfo info = const FeedForwardScene().info(on(trace, inks, kit));
     expect(info.title, LmStage.feedForward.label);
-    expect(info.sections.map((LmInfoSection s) => s.title), <String>["What block 1's feed-forward adds"]);
-    // The feed-forwards' weights, as the run counts its groups: one a block.
-    final List<int> blocks = <int>[
-      for (int g = 0; g < trace.groups.length; g++)
-        if (trace.groups[g].endsWith('.feed_forward')) trace.groupSizes[g],
-    ];
-    expect(blocks, hasLength(trace.model.layers));
-    final int parameters = trace.model.parameters;
-    expect(
-      info.lead,
-      endsWith(
-        "Its weights, ${grouped(blocks.first)} a block, with block 2's make "
-        "${percent(blocks.reduce((int a, int b) => a + b) / parameters)} of the model's ${grouped(parameters)} numbers.",
-      ),
-    );
-    expect(words(info), contains('Each neuron adds its own ${trace.model.width} output weights to the row'));
+    expect(info.sections.map((LmInfoSection s) => s.title), <String>[
+      'Evened inputs',
+      'GELU',
+      "What block 1's feed-forward adds",
+    ]);
+    expect(info.lead, contains("block 1's output"));
+    final String page = words(info);
+    expect(page, contains('Each of ${trace.model.feedForward} neurons sums the ${trace.model.width} inputs'));
+    expect(page, contains('Each neuron adds its ${trace.model.width} output weights'));
   });
 
-  testWidgets("Forward's info page keys the ladder: its strips' one scale, and two blocks' two hops", (
+  testWidgets("Forward's info page keys the ladder: the residual stream, and two blocks' two hops", (
     WidgetTester tester,
   ) async {
     final (LmInks inks, LmKit kit) = await _drawing(tester);
@@ -2688,76 +2587,66 @@ void main() {
     final String title = info.sections.single.title;
     expect(title, "${StreamTable.placeName(at, at.position)}'s row, layer to layer");
     expect(ForwardScene.tag(at), startsWith('$title · '));
-    expect(info.lead, contains('both blocks and a last LayerNorm'));
-    final String page = words(info);
-    expect(page, contains('here the ${spelled(2 * trace.model.layers)} can be set against each other'));
-    expect(page, endsWith('so two blocks reach two hops back.'));
+    expect(info.lead, contains("x0, block 1's attention and feed-forward, block 2's, then a last LayerNorm"));
+    final String ladder = info.sections.single.paragraphs.single;
+    expect(ladder, startsWith('Each part adds to the row and replaces nothing: the residual stream.'));
+    expect(ladder, endsWith('so a place can take in what another had gathered: two blocks reach two hops back.'));
   });
 
-  testWidgets("Predict's info page says a guess is its whole row, from an output layer of its own", (
+  testWidgets("Predict's info page says how a row becomes a guess over the tokens that can come next", (
     WidgetTester tester,
   ) async {
     final (LmInks inks, LmKit kit) = await _drawing(tester);
     addTearDown(kit.dispose);
     final LmInfo info = const PredictScene().info(on(trace, inks, kit));
     expect(info.title, LmStage.predict.label);
-    expect(info.sections.map((LmInfoSection s) => s.title), <String>['Output layer']);
-    expect(info.lead, contains('a probability for each of the ${trace.allowed.length} tokens that can come next'));
-    // The output layer, as the run counts it: its weights and a bias a token.
-    final int head = trace.groupSizes[trace.groups.indexOf('head')];
+    expect(info.sections.map((LmInfoSection s) => s.title), <String>[
+      'Output layer',
+      'Logits',
+      'Next-token probabilities',
+    ]);
     final int vocab = trace.vocab.length;
+    expect(info.lead, contains('into $vocab logits, one a token'));
+    expect(info.lead, endsWith('probabilities over the ${trace.allowed.length} tokens that can come next.'));
     final String page = words(info);
-    expect(page, contains('Its ${grouped(head - vocab)} weights and $vocab biases are a table of their own'));
-    // <eos> ends each of the toy's two peptides: an answer twice, its output
-    // row trained while its embedding row never moves.
-    final int eos = trace.vocab.indexOf('<eos>');
-    expect(PredictScene.ownOutputRow(trace), isTrue);
-    expect(
-      page,
-      endsWith(
-        'the row for <eos> (${glyph(trace, eos)}) learns here, where <eos> is an answer twice, while its row in '
-        'the token embedding never moves.',
-      ),
-    );
-
-    // Its embedding row nudged, <eos> no longer shows two tables apart.
-    final TrainingTrace moved = edited(
-      (Map<String, Object?> json) => floats(
-        lastKept(json)['token_embedding'],
-        (Float32List rows) => rows[eos * trace.model.width] += 0.5,
-      ),
-    );
-    expect(PredictScene.ownOutputRow(moved), isFalse);
-    expect(words(const PredictScene().info(on(moved, inks, kit))), endsWith("not the token embedding's rows used again."));
+    expect(page, contains('A $vocab × ${trace.model.width} table of weights and a bias a token'));
+    // The tokens that never come next, as the run lists those that can.
+    expect(trace.allowed, isNot(contains(trace.vocab.indexOf('<pad>'))));
+    expect(trace.allowed, isNot(contains(trace.vocab.indexOf('<bos>'))));
+    expect(page, contains('<pad> and <bos> never come next: struck to −∞, a share of 0.'));
   });
 
-  testWidgets("Loss's info page says what a loss in nats is like, and where the even guess stands in the run", (
+  testWidgets("Loss's info page says what a guess costs, the levels to beat, and what the mean means", (
     WidgetTester tester,
   ) async {
     final (LmInks inks, LmKit kit) = await _drawing(tester);
     addTearDown(kit.dispose);
     final LmInfo info = const LossScene().info(on(trace, inks, kit));
     expect(info.title, LmStage.loss.label);
-    expect(info.sections.map((LmInfoSection s) => s.title), <String>['Even guess', 'Mean']);
-    expect(info.lead, startsWith("Every place's p(y) becomes one number, the loss"));
-    // The even guess is passed at the step the run kept for it.
-    final int passed = trace.checkpoints.firstWhere((TraceCheckpoint c) => c.why.contains('uniform')).step;
-    expect(LossScene.passedEven(trace), passed);
-    final String page = words(info);
-    expect(page, contains("Loop's curve has to pass, which it does at step $passed;"));
-    // e to the run's own losses: more unsure at first than an even guess.
+    expect(info.sections.map((LmInfoSection s) => s.title), <String>['p(y)', 'Even guess', 'Mean']);
+    expect(info.lead, contains('their mean over the ${grouped(trace.targetCount)} targets'));
     final int count = trace.allowed.length;
+    final String page = words(info);
+    // The run's own levels, each of which it kept a step for passing.
+    expect(
+      page,
+      contains(
+        'Guessing all $count tokens evenly costs ln $count = ${nats(trace.uniform)} nats; by Tokenise\'s residue '
+        "counts, ${nats(trace.unigram)}; by the residue before, ${nats(trace.bigram)}. Loop's curve passes all three.",
+      ),
+    );
+    // e to the run's own losses: more unsure at first than an even guess.
     final double start = math.exp(trace.loss(1));
     expect(start, greaterThan(count));
     expect(
       page,
       endsWith(
-        "${exponential(start)} at step 1, more than the even guess's $count, and "
+        '${exponential(start)} at step 1, more than $count; '
         '${exponential(math.exp(trace.loss(trace.steps.count)))} at step ${trace.steps.count}.',
       ),
     );
 
-    // A run never under an even guess names no step for it.
+    // A run never under an even guess says its curve passes the rest only.
     final TrainingTrace never = edited((Map<String, Object?> json) {
       for (final Object? checkpoint in json['checkpoints']! as List<Object?>) {
         final Map<String, Object?> kept = checkpoint! as Map<String, Object?>;
@@ -2767,14 +2656,13 @@ void main() {
         ];
       }
     });
-    expect(LossScene.passedEven(never), isNull);
     expect(
       words(const LossScene().info(on(never, inks, kit))),
-      contains("Loop's curve has to pass; residue counts and residue pairs come after."),
+      contains("Loop's curve passes residue counts and residue pairs."),
     );
   });
 
-  testWidgets("Backward's info page says it only measures, what the stream's +s are for, and why its colours fade", (
+  testWidgets("Backward's info page says where the gradient starts, how it flows back, and why its colours fade", (
     WidgetTester tester,
   ) async {
     final (LmInks inks, LmKit kit) = await _drawing(tester);
@@ -2783,45 +2671,41 @@ void main() {
     final LmInfo info = const BackwardScene().info(at);
     expect(info.title, LmStage.backward.label);
     final List<String> titles = info.sections.map((LmInfoSection s) => s.title).toList();
-    expect(titles, <String>["${StreamTable.placeName(at, at.position)}'s gradient, layer to layer", 'Gradient at x0']);
-    // Each titled as the canvas tags it, less its size.
-    expect(BackwardScene.tag(at), startsWith('${titles.first} · '));
-    expect(BackwardScene.tableTag(at), startsWith('${titles.last.toLowerCase()} · '));
-    expect(info.lead, endsWith('Backward changes nothing: it measures, and Update moves the weights.'));
-    expect(words(info), contains("on the whole batch's scale at that step"));
+    expect(titles, <String>[
+      'p − y',
+      'Gradient',
+      "${StreamTable.placeName(at, at.position)}'s gradient, layer to layer",
+      'Gradient at x0',
+    ]);
+    // Titled as the canvas tags them, less their size.
+    expect(BackwardScene.tag(at), startsWith('${titles[2]} · '));
+    expect(BackwardScene.tableTag(at), startsWith('${titles[3].toLowerCase()} · '));
+    expect(info.lead, endsWith('Backward only measures; Update moves the weights.'));
+    final String page = words(info);
+    expect(page, contains('so the first block learns as well as the last.'));
+    expect(page, endsWith("on the whole batch's scale: a place with little left to learn is faint."));
   });
 
-  testWidgets("Update's info page says what the run was given, and which weights decay shrinks", (
+  testWidgets("Update's info page says how a weight's gradient is made, guarded and stepped", (
     WidgetTester tester,
   ) async {
     final (LmInks inks, LmKit kit) = await _drawing(tester);
     addTearDown(kit.dispose);
     final LmInfo info = const UpdateScene().info(on(trace, inks, kit));
     expect(info.title, LmStage.update.label);
-    expect(info.sections.map((LmInfoSection s) => s.title), <String>['Rate', 'Step']);
-    expect(info.lead, contains('the one stage that changes the model'));
-    // The weight matrices, as the run counts its groups: each less its
-    // biases; the embeddings' and norms' groups none at all.
-    final int width = trace.model.width;
-    int matrices = 0;
-    for (int g = 0; g < trace.groups.length; g++) {
-      final String group = trace.groups[g];
-      final int size = trace.groupSizes[g];
-      if (group.endsWith('.attention')) {
-        matrices += size - 4 * width;
-      } else if (group.endsWith('.feed_forward')) {
-        matrices += size - trace.model.feedForward - width;
-      } else if (group == 'head') {
-        matrices += size - trace.vocab.length;
-      }
-    }
-    expect(UpdateScene.decayed(trace), matrices);
-    final int parameters = trace.model.parameters;
+    expect(info.sections.map((LmInfoSection s) => s.title), <String>['Pull', 'Clip', 'Step', 'Rate']);
+    expect(info.lead, startsWith('The one stage that changes the model'));
     final String page = words(info);
-    expect(page, contains("like the clip and the decay, are settings the run was given: only the model's ${grouped(parameters)}"));
-    expect(page, contains('Decay shrinks only the weight matrices, ${grouped(matrices)} of the ${grouped(parameters)} numbers'));
-    // The run bears it out: the tokens that never come next get no gradient,
-    // so their biases never move, while decay alone shrinks their weights.
+    expect(page, contains('divided by the ${grouped(trace.targetCount)} targets'));
+    final String clip = trace.config.gradClip.toStringAsFixed(1);
+    expect(page, contains('all ${grouped(trace.model.parameters)} gradients together are longer than $clip'));
+    expect(page, contains("${trace.optimizer.name} takes each weight's running mean"));
+    expect(page, contains('decay also shrinks the weight matrices a little'));
+    expect(page, contains('like the clip and the decay, not trained.'));
+    // The run bears out that decay shrinks the matrices alone: the tokens
+    // that never come next get no gradient, so their biases never move,
+    // while decay alone shrinks their weights.
+    final int width = trace.model.width;
     final TraceCheckpoint first = trace.checkpoints.first;
     final TraceCheckpoint last = trace.checkpoints.last;
     double size(TraceCheckpoint at, int row) {
@@ -2842,12 +2726,12 @@ void main() {
     final TrainingTrace plain = edited(
       (Map<String, Object?> json) => (json['config']! as Map<String, Object?>)['weight_decay'] = 0.0,
     );
-    final LmInfo still = const UpdateScene().info(on(plain, inks, kit));
-    expect(still.sections.map((LmInfoSection s) => s.title), <String>['Rate']);
-    expect(words(still), contains('like the clip, are settings the run was given'));
+    final String still = words(const UpdateScene().info(on(plain, inks, kit)));
+    expect(still, isNot(contains('decay')));
+    expect(still, contains('like the clip, not trained.'));
   });
 
-  testWidgets("Loop's info page says what the run learns, which steps it kept, and what made the recording", (
+  testWidgets("Loop's info page says what the run learns, where it must stop, which steps it kept, and what made it", (
     WidgetTester tester,
   ) async {
     final (LmInks inks, LmKit kit) = await _drawing(tester);
@@ -2857,19 +2741,40 @@ void main() {
     final int steps = trace.steps.count;
     expect(info.sections.map((LmInfoSection s) => s.title), <String>[
       'Next-token probabilities',
+      'Floor',
       '${grouped(steps)} steps',
       'This run',
     ]);
-    expect(info.lead, startsWith('The same step, ${grouped(steps)} times, on the batch made once'));
+    expect(info.lead, startsWith('The whole step, ${grouped(steps)} times, on the same batch'));
     final String page = words(info);
-    expect(page, contains('this one was trained and judged on the same two.'));
+    expect(page, contains('the run shows a model learning these two, not generalising.'));
+    // The toy's floor is <bos>'s alone: its two first residues differ.
+    final int peptides = trace.peptides.length;
+    expect(trace.floor, closeTo(peptides * math.log(peptides) / trace.targetCount, 1e-6));
+    expect(
+      info.sections[1].paragraphs.single,
+      "From <bos> (${glyph(trace, trace.vocab.indexOf('<bos>'))}) alone, a peptide's first residue could be any of "
+      'the two: one in two at best. That floor, ${nats(trace.floor)}, is a loss no model can pass here.',
+    );
+    // A run whose first residues coincide claims no one-in-N guess.
+    final TrainingTrace alike = edited((Map<String, Object?> json) {
+      final List<Object?> runs = json['peptides']! as List<Object?>;
+      final Map<String, Object?> second = runs[1]! as Map<String, Object?>;
+      final String first = (runs[0]! as Map<String, Object?>)['sequence']! as String;
+      second['sequence'] = '${first[0]}${(second['sequence']! as String).substring(1)}';
+    });
+    expect(
+      LoopScene.floorWhy(alike),
+      'The floor, ${nats(alike.floor)}, is a loss no model can pass here.',
+    );
     // The toy kept a step for every level but a tenth of a nat.
     expect(trace.checkpoints.any((TraceCheckpoint c) => c.why.contains('tenth_nat')), isFalse);
     expect(
       page,
       contains(
         'Its ticks are the ${spelled(trace.checkpoints.length)} steps the run kept whole, by rule: the first; '
-        'the first under an even guess, residue counts, residue pairs and one nat; and the last.',
+        'the first under an even guess, residue counts, residue pairs and one nat; and the last. '
+        'Embedding to Update show one of them, picked from the Step menu',
       ),
     );
     // The recording, as the run's own record has it.
