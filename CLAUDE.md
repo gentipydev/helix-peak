@@ -807,7 +807,7 @@ seen:
   CC BY 4.0), the organs the Atlas reads the gene raised in lit;
   `tool/zoom/anatomogram.py` generates `anatomy_figures.g.dart` from it,
   and the body carries its credit, with the Atlas's, in one caption line;
-- the organ: thirty-two are drawn from general anatomy as lit specimens
+- the organ: thirty-three are drawn from general anatomy as lit specimens
   (`presentation/scenes/organs/<organ>/`, four files each: the anatomy in
   millimetres with its sources, the style, the form, the art), the part
   the zoom's cell lives in in the accent, by the Atlas's name for the cell
@@ -832,11 +832,13 @@ seen:
   it; the seminal vesicles from the front on the prostate's base, the
   bladder taken away, the body's left one laid open; smooth muscle as
   the bladder's wall whole from the front, a patch of its outer layer
-  taken away; the front of the thigh for skeletal muscle; the adrenal cut on its
+  taken away; the tongue cut across at the first molars between its
+  mandible's halves, seen from the front, its intrinsic muscle in the
+  accent; the front of the thigh for skeletal muscle; the adrenal cut on its
   kidney; the pituitary cut down its middle in the brain's own frame; a
   lymph node cut through its hilum; the fallopian tube opened along its
   length, and the cervix along its canal; and blocks of skin, placenta and
-  abdominal fat. Twenty-five draw in from the body's own outline of them
+  abdominal fat. Twenty-six draw in from the body's own outline of them
   (the breast to its mound, its axillary tail coming up with it; the
   cervix from the one of its two halves the body follows; the epididymis
   from its band, its testis coming up beside it; the lungs from the body's
@@ -844,7 +846,8 @@ seen:
   the body's disc, its slit dropped; the prostate from its oval; the
   seminal vesicle from the small outline the body draws on the bladder's
   base, not the one it hangs below the prostate; smooth muscle from the
-  body's outline of the bladder's wall), most
+  body's outline of the bladder's wall; the tongue from the mouth the
+  female figure draws in its place, at a person's size), most
   with the figure's
   parts kept faint round them (round the bladder all but its smooth
   muscle, which the anatomogram draws as the bladder's own wall, round the

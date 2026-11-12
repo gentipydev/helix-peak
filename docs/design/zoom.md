@@ -618,6 +618,28 @@ convention is, where it comes from, and what it decided:
   *Consequence:* smooth muscle is drawn as that wall, the detrusor, whole
   from the front, the whole muscle where the cell lives ("Smooth muscle"
   below).
+- **The tongue.** Its muscle is its own: under the mucous membrane of its
+  back the superior longitudinal fibres run its length; the transverse
+  fibres run from the median septum out to the margins, where they insert
+  into the mucous membrane; the vertical fibres run from the back toward
+  the underside, and the genioglossus's rise from below either side of the
+  septum and fan up through the transverse fibres to the back; the
+  inferior longitudinal lies on the underside between the genioglossus and
+  the hyoglossus, the styloglossus outside the hyoglossus at the margin,
+  and the lingual artery between the genioglossus and the inferior
+  longitudinal (Gray 1918, Fig. 1020, a coronal section altered from
+  Krause). Thick coronal sections show the muscles interweaving in three
+  directions (Sanders and Mu 2013). At the molars the inferior alveolar
+  nerve's canal lies most often in the lingual third of the mandible's
+  body and in its lower half (Balel et al. 2025, on CBCT). GTEx samples no
+  tongue, and the Human Protein Atlas's page for it describes the tissue
+  ("interlacing skeletal muscle, pockets of adipose and connective tissue
+  covered in oral mucosa") but not where it is cut. The female figure
+  draws no tongue, its mouth standing in for it, and the one cell the
+  Atlas names with the tongue as its home is the myonucleus.
+  *Consequence:* the tongue is drawn as Gray's section widened to the jaw,
+  cut across at the first molars between the mandible's halves, its
+  intrinsic muscle where the cell lives ("The tongue" below).
 - **Histology.** Haematoxylin stains nuclei and ribosome-rich cytoplasm;
   eosin stains protein; fat, mucus and lumens take neither. A ×40 objective
   under a standard eyepiece shows a field about half a millimetre across.
@@ -769,6 +791,9 @@ Sources:
 - Bakos O, Lundkvist O, Wide L, Bergh T. Ultrasonographical and hormonal
   description of the normal ovulatory menstrual cycle. Acta Obstet Gynecol
   Scand 1994;73:790–796.
+- Balel Y, Coşkun B, Kaplan Ç. Three-dimensional analysis of the inferior
+  alveolar nerve in relation to mandibular morphology. BMC Oral Health
+  2025;25:1813.
 - Barnhart KT et al. Baseline dimensions of the human vagina. Hum Reprod
   2006;21:1618–1622.
 - Baumgartner M et al. Genes occupy a fixed and symmetrical position on
@@ -1126,6 +1151,8 @@ Sources:
 - Sandby-Møller J, Poulsen T, Wulf HC. Epidermal thickness at different body
   sites: relationship to age, gender, pigmentation, blood content, skin type
   and smoking habits. Acta Derm Venereol 2003;83:410–413.
+- Sanders I, Mu L. A three-dimensional atlas of human tongue muscles. Anat
+  Rec 2013;296:1102–1114.
 - Sandhar S, Nedopil AJ, Hull ML. Cartilage thickness at the apex of
   femoral resections in kinematically aligned total knee arthroplasty is
   close to 2.5 millimeters. J Exp Orthop 2026;13:e70641.
@@ -1409,7 +1436,7 @@ body drew for it (`OrganArt`), so the step is one shape seen closer. It
 comes up over the body's own drawing of the organ early in the step, and
 `zoom_anatomy_test` holds the two to the same point of the screen while both
 show. On the way in, the body's line art and its unlit organs give way.
-Twenty-five of the specimens below then draw in to outlines of their own
+Twenty-six of the specimens below then draw in to outlines of their own
 (`_SpecimenOrgan`, `OutlineMorph`), each becoming the bed its specimen comes
 up over (`SpecimenStep`); the breast's is its mound, its outline without the
 axillary tail, which comes up with the rest of it, and the cervix's is the
@@ -1424,7 +1451,9 @@ oval; the seminal vesicle's is the small coiled outline the body draws on
 the bladder's base (a rule in the tool follows it, `FOLLOW_WITHIN`, not
 the larger one the body hangs below the prostate), which draws in to the
 opened vesicle; smooth muscle's is the body's outline of the bladder's
-wall. The brain, the eye, the skin, the lymph node, the parathyroid, the
+wall; the tongue's is the mouth the female figure draws in its place, or
+the male's sliver, which draws in to the soft tissue between the
+mandible's halves at a person's size, as the figure is drawn. The brain, the eye, the skin, the lymph node, the parathyroid, the
 placenta and the fat, which the body draws no outline of that shows them
 (the parathyroid none at all: the body's thyroid stands in for it), come up
 over the body's drawing instead, a crossfade.
@@ -1444,7 +1473,8 @@ the body it lies (the user's ask of 2026-10-21). They stay round the bone
 marrow, the heart, the thigh, the kidney, the liver, the stomach, the
 esophagus, the thyroid, the adrenal, the fallopian tube, the bladder, the
 breast, the cervix, the epididymis, the gallbladder, the intestines, the
-lungs, the ovary, the prostate and smooth muscle, round the bladder all
+lungs, the ovary, the prostate, smooth muscle and the tongue, round the
+bladder all
 but the figure's smooth muscle, which the anatomogram draws as the bladder's own
 wall, round the cervix all but the figure's vagina, which the cervix draws
 as its own vault, round the epididymis all but the figure's testis,
@@ -1464,7 +1494,7 @@ figure's parts would lie nowhere true; the seven specimens that crossfade
 come up with none of the figure round them.
 
 **Its anatomy.** The fifty-four curated proteins' paths reach all
-thirty-six of the organs the zoom draws. Thirty-two are drawn from anatomy
+thirty-six of the organs the zoom draws. Thirty-three are drawn from anatomy
 as specimens, each in a section below, in the neutrals but for vessels,
 nerves and the accent; in each the part the zoom's cell lives in is in the
 accent, by the kind of organ and of cell, never by gene: one flat tone cut
@@ -1506,16 +1536,16 @@ or tubules:
 | Prostate (ACP3) | in place from the front, cut through its ejaculatory ducts | its glands, its stroma, or its urethra's lining |
 | Seminal vesicles (ANGPT1) | from the front on the prostate's base, the bladder taken away, the left one laid open | its mucosa |
 | Smooth muscle (LOXL2) | the bladder's wall whole from the front, a patch of its outer layer taken away | the whole detrusor |
+| Tongue (CKMT2) | cut across at the first molars between its mandible's halves, from the front | its intrinsic muscle |
 
 The vessel (GAS6) has a drawing of its own, a length of artery. The other
-three kinds are the anatomogram's own outline, sculpted with a surface for
+two kinds are the anatomogram's own outline, sculpted with a surface for
 its kind (and any organ the body draws, where its specimen has no figure
 to be posed on, with lobules):
 
 | Look | Organs (proteins) |
 |---|---|
 | a wall round a lumen | uterus (PAEP), vagina (ALOX12) |
-| fibres | tongue (CKMT2) |
 
 **The pancreas.** It is drawn as a fresh specimen under the zoom's one lamp,
 with the stomach taken away (`presentation/scenes/organs/pancreas/`, the
@@ -2848,6 +2878,71 @@ accent:
   detail, matched at the dome's middle, the sides and the neck, and
   becomes the bed the muscle comes up over, in its own tone.
 
+**The tongue.** It is drawn as a fresh section under the same lamp, cut
+across at the lower first molars and seen from the front in place between
+the two halves of its mandible, the upper jaw taken away and what lies
+below the mylohyoid with it, as Gray draws the tongue's muscles cut across
+(Fig. 1020) widened to the jaw (`presentation/scenes/organs/tongue/`,
+2026-11-12, every choice mine at the user's word), in the neutrals but for
+the vessels, the nerves and the accent:
+
+- *Its shape* (`tongue_anatomy.dart`, millimetres, x from the midline
+  toward the body's left, y down from the middle of its back): the tongue
+  43 mm across at rest, its back a low dome, the median sulcus a shallow
+  dip, its margins resting on the molars' lingual cusps; the floor of the
+  mouth under it down to the mylohyoid; the mandible's body either side,
+  28 mm from its crest to its lower border and 13.6 mm thick, a first
+  molar on it, its crown 10.7 mm across and 7.5 mm high, its mesial root
+  13.5 mm. The figure is drawn at a person's size, and so is the tongue
+  (`TongueForm.real` 1): the mouth the female figure draws is about a
+  tongue's width, and the faint figure stays true round it.
+- *Where it is sampled.* In the intrinsic muscle on the body's right, in
+  its transverse fibres between the superior longitudinal layer and the
+  inferior longitudinal, for every cell: the myonucleus is the one cell
+  the Atlas names with the tongue as its home, and neither GTEx nor the
+  Atlas says where its tongue is cut. A rule in the tool puts the body's
+  site there (`SITE_LEFT`, 0.17 of the way down, 0.22 of the width in).
+- *Its surface:* the intrinsic muscle flat in the mark, as the thigh's
+  vastus lateralis is, under the mucous membrane (1.1 mm over the back,
+  0.7 at the sides) and the pale lingual aponeurosis, cut by its fibres as
+  crisp creases: nine transverse sheets from the septum out to the
+  margins, the upper following the back's curve, the lower sweeping up to
+  their insertion; the vertical fibres between them, bowing out with the
+  margin; the genioglossus's fibres rising through them either side of the
+  septum to the back. The superior longitudinal layer (2.6 mm at the
+  middle, thinning out to the margins) and the inferior longitudinal
+  bundles are cut across, a fine cobble; the septum a pale line down the
+  middle. The filiform papillae stand over the back as a comb, a fungiform
+  papilla on either side.
+- *Round it:* the genioglossus where it enters the tongue, the hyoglossus
+  and the styloglossus along its underside at the margins, the geniohyoids
+  cut across and the mylohyoid's sling, all in the thigh's warmed muscle
+  tone with their fibres faint grooves; the sublingual glands in lobules
+  on the mylohyoid against the bone; the sulcus either side a narrow cleft
+  in shade, lined with the alveolar mucosa; the deep lingual artery and
+  vein, the submandibular duct, the lingual and hypoglossal nerves cut
+  across among loose tissue a little toward the honey; the mandible's
+  cortex a mid ivory over its spongy bone, irregular trabeculae round
+  marrow in shade, its canal low and lingual with its nerve and vessels;
+  the molar's enamel pale over its dentine, the pulp and the two canals of
+  its mesial root in a muted blood red, the lamina dura and the ligament
+  round the root. The body's figure stays faint round it: its salivary
+  glands, its lymph nodes, its thyroid below.
+- *Its names:* `intrinsic muscles` in the accent at the site; the
+  `hyoglossus` on the body's right and the `mandible` high in its left
+  half's buccal cortex above it, the `mylohyoid`, the `genioglossus` and
+  the `sublingual gland` (on two lines) below it, in the quiet ink, set
+  round it at the canvas's corners. The septum, the papillae, the molars,
+  the vessels, the nerves and the duct are drawn and not named.
+- *Its view* is framed 1.7 (`ZoomDepth.tongueUpright`): the tongue is less
+  than half its card's ten centimetres, its length, across; at 1.8 a line
+  ran through a name on a first iPhone SE's canvas.
+- *On the step from the body* the body's mouth, or the male's sliver, flat
+  and lit in the mark, draws in to the soft tissue's outline over 0.55 of
+  the detail, matched at the top's middle, the margins and the foot, and
+  becomes the bed the section comes up over, in the muscle's tone; the
+  mandible's halves and the molars come up with it in its layer.
+
 **The glide.** The camera carries the organ from where it lies in the body
 to the middle of the view over the first three fifths of the step. From the
 head or the thigh that is a long way, and `zoom_smoothness_test` plays every
@@ -3499,6 +3594,14 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   own, its interlacing kept to the sides; the circular layer shown in one
   patch, the inner longitudinal layer not at all. One site, on the front
   wall, for every cell: the whole muscle is the home whatever the gene.
+- **A tongue from a plate.** Gray's section of the tongue widened to the
+  jaw, at one plane, the first molars, with the upper jaw and what lies
+  below the mylohyoid taken away; one tongue at rest, its sizes and the
+  layout of its muscles drawing choices beside Gray's figure, its fibres
+  far fewer than its fascicles; a molar's mesial root alone; no glands in
+  the tongue, no fat among its fibres. The home is its intrinsic muscle,
+  though the genioglossus's fibres in it are extrinsic, and one site, in
+  its transverse fibres, for every cell.
 - **One field a tissue.** Wherever in the organ it is cut, and for every
   gene that goes there with the same kind of cell. "Lymphoid tissue" is a
   lymph node, and skin has no keratin layer of its own.
@@ -3559,9 +3662,9 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   into the band's strip as (`chromosome_tube.dart`); its colours are
   `core/theme/chromosome_colors.dart`.
 - `presentation/scenes/organ_art.dart`: every organ's drawing:
-  `_SpecimenOrgan` for the twenty-five specimens that draw in from the
+  `_SpecimenOrgan` for the twenty-six specimens that draw in from the
   body's outline, a class of its own for each of the seven that
-  crossfade, `_DrawnOrgan` for the three drawn on the anatomogram's
+  crossfade, `_DrawnOrgan` for the two drawn on the anatomogram's
   outline, and `_VesselOrgan`.
 - `presentation/scenes/organs/pancreas/`: the pancreas and its neighbours in
   centimetres (`pancreas_anatomy.dart`), every number its look is tuned by
@@ -3682,6 +3785,14 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   arteries, their branches and the step's marks are the bladder form's,
   `BladderForm.knotsMm`, `arteriesMm`, `branchesInto`, `marks`,
   `topMiddle`), and its meshes and how it is drawn (`detrusor_art.dart`).
+- `presentation/scenes/organs/tongue/`: the tongue cut across between its
+  mandible's halves, with every source (`tongue_anatomy.dart`), every
+  number its look is tuned by (`tongue_style.dart`), its form posed on
+  either figure at a person's size, with the soft tissue's outline the
+  step draws in to, the intrinsic muscle and its layers, fibres and cobbles,
+  the extrinsic and floor muscles, the glands, the sulci, the mandible's
+  halves, the molars, the papillae and the names' places
+  (`tongue_form.dart`), and how it is drawn (`tongue_art.dart`).
 - `presentation/scenes/organs/`: the other specimens, each in its folder
   in the same four files, `*_anatomy.dart` (in millimetres, every size with
   its source, the drawing's choices listed as such), `*_style.dart` (every
@@ -4092,6 +4203,24 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   its bounds, and the names. `detrusor_names_test` sets LOXL2's five names
   in the app's own type on nine phone canvases. `zoom_paint_timing_check`
   times it with LOXL2's zoom.
+- `tongue_form_test` holds the tongue to a person's size, laid over the
+  female figure's mouth and on the male's sliver; its site in the
+  intrinsic muscle on the body's right, in the transverse fibres; the
+  muscle under the mucosa and the aponeurosis, its transverse sheets from
+  the septum, its vertical fibres in it, the genioglossus's rising into
+  it, the septum on the midline; the mandible's halves mirrored, each
+  molar's root in its bone and the canal low and lingual; the floor's
+  glands, vessels and nerves inside the soft tissue and out of the muscle;
+  the papillae on the back; the step's marks the same on either outline;
+  each name on what it names; and the same tongue every time.
+  `tongue_art_test` holds the mark to the intrinsic muscle alone, the
+  hand-over to the body's outline with no layer or mesh, the figure's
+  salivary glands round it at the stop, the meshes the same every time and
+  inside its bounds, and the names. `tongue_names_test` sets CKMT2's six
+  names in the app's own type on nine phone canvases. `zoom_domain_test`
+  holds its site rule on both figures, and `zoom_anatomy_test` names it as
+  framed closer than a phone's proportions. `zoom_paint_timing_check` times
+  it with CKMT2's zoom.
 - Each of the other seventeen specimens has a `*_form_test` (its size and
   place on either figure, its site where it is sampled, its parts at their
   measured sizes, its home rule over the Atlas's names, the step's marks
