@@ -794,18 +794,9 @@ final class EmbeddingScene extends LmScene {
     }
   }
 
-  /// A place of Shift's x, as it draws it: an end or padding as a token, a
-  /// residue as its id.
-  static void _tile(Canvas canvas, LmView view, Rect rect, List<int> ids, int k, int residues, double alpha) {
-    if (alpha <= 0) {
-      return;
-    }
-    if (k == 0 || k > residues) {
-      drawToken(canvas, view, rect, ids[k], alpha: alpha);
-    } else {
-      drawIdTile(canvas, view, rect, ids[k], alpha: alpha, numberScale: ShiftScene.numberScale);
-    }
-  }
+  /// A place of Shift's x, as it draws it.
+  static void _tile(Canvas canvas, LmView view, Rect rect, List<int> ids, int k, int residues, double alpha) =>
+      ShiftScene.drawPlace(canvas, view, rect, ids, k, residues, alpha);
 
   /// [draw], at [alpha] as a whole.
   static void _faded(Canvas canvas, Size size, LmView view, double alpha, VoidCallback draw) {

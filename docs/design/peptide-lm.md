@@ -168,8 +168,19 @@ out of view is scrolled just far enough to show it whole.
      and Loss's with it: with the ids marking the peptide, a card a shade
      towards the accent is enough.
 
-   A test holds both: the room (or the snug tile) at four sizes, and accent
-   pixels under the followed peptide's name only, in x and in y.
+   - **Fainter padding** (the user's word, after the above): a quarter of
+     the batch's places hold nothing, and each was an outline with a dot.
+     As the matrix opens out, padding goes to its outline alone at half
+     its strength (`ShiftScene.padding` 0.5), the dot fading out
+     (`drawToken(mark:)`), and the end's dim takes it lower still, so the
+     two batches keep their shape with no texture. Tokenise keeps its
+     padding as it is, the `padding` tag pointing at it, and so the change
+     is a fade over the open; Embedding draws the followed row's padding
+     through the same `ShiftScene.drawPlace` as it comes down.
+
+   A test holds all three: the room (or the snug tile) at four sizes,
+   accent pixels under the followed peptide's name only, in x and in y, and
+   padding fainter than Tokenise's outline yet drawn.
 3. **Embedding.** The user's ask of 2026-10-30: the lookup Forward used to
    open with, as a stage of its own, the table 16 numbers wide across the
    whole width and every number written out on a soft tile of its colour

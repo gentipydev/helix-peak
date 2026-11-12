@@ -960,7 +960,7 @@ void main() {
     }
   });
 
-  testWidgets("Shift's peptides have room between them, and only the followed one's ids keep the accent", (
+  testWidgets("Shift's peptides have room between them, only the followed one's ids keep the accent, padding faint", (
     WidgetTester tester,
   ) async {
     final (LmInks inks, LmKit kit) = await _drawing(tester);
@@ -981,22 +981,45 @@ void main() {
     const Size size = Size(393, 540);
     const double dpr = 3;
     final Color accent = inks.signal;
-    for (int p = 0; p < trace.peptides.length; p++) {
-      final LmView scene = view(inks, kit, peptide: p);
+    final int width = (size.width * dpr).round();
+    Future<ByteData> render(void Function(Canvas canvas) draw) async {
       final ui.PictureRecorder recorder = ui.PictureRecorder();
       final Canvas canvas = Canvas(recorder)
         ..scale(dpr)
         ..drawRect(Offset.zero & size, Paint()..color = inks.ground);
-      LmScenePainter(view: scene, frame: () => timeline.frameIn(LmStage.shift, 1)).paint(canvas, size);
+      draw(canvas);
       final ui.Picture picture = recorder.endRecording();
       final ByteData data = (await tester.runAsync(() async {
-        final ui.Image image = await picture.toImage((size.width * dpr).round(), (size.height * dpr).round());
+        final ui.Image image = await picture.toImage(width, (size.height * dpr).round());
         final ByteData? bytes = await image.toByteData();
         image.dispose();
         return bytes!;
       }))!;
       picture.dispose();
-      final int width = (size.width * dpr).round();
+      return data;
+    }
+
+    // How far the strongest pixel in [rect] stands off the ground.
+    int strongest(ByteData data, Rect rect) {
+      int most = 0;
+      for (int y = (rect.top * dpr).floor(); y < (rect.bottom * dpr).ceil(); y++) {
+        for (int x = (rect.left * dpr).floor(); x < (rect.right * dpr).ceil(); x++) {
+          final int i = 4 * (y * width + x);
+          for (final (int c, double g) in <(int, double)>[(0, inks.ground.r), (1, inks.ground.g), (2, inks.ground.b)]) {
+            most = math.max(most, (data.getUint8(i + c) - (g * 255).round()).abs());
+          }
+        }
+      }
+      return most;
+    }
+
+    int pads = 0;
+    for (int p = 0; p < trace.peptides.length; p++) {
+      final LmView scene = view(inks, kit, peptide: p);
+      final ByteData data = await render(
+        (Canvas canvas) =>
+            LmScenePainter(view: scene, frame: () => timeline.frameIn(LmStage.shift, 1)).paint(canvas, size),
+      );
       // Pixels of the accent's own colour, all but antialiasing.
       int accented(Rect rect) {
         int n = 0;
@@ -1021,8 +1044,26 @@ void main() {
           final int n = accented(ids);
           expect(q == p ? n > 0 : n == 0, isTrue, reason: 'peptide $q, $p followed: $n accent pixels');
         }
+        // Padding in y, an outline fainter than Tokenise's own, dimmed as
+        // much, and no dot, yet still there: the batch keeps its shape.
+        final List<int> frame = TokeniseScene.frameOf(trace, q);
+        for (int i = trace.peptides[q].inputs; i < frame.length - 1 && q != p; i++) {
+          if (trace.token(frame[i + 1]) != '<pad>') {
+            continue;
+          }
+          final Rect place = layout.y(q, i);
+          final ByteData was = await render(
+            (Canvas canvas) => drawToken(canvas, scene, place, frame[i + 1], alpha: 1 - ShiftScene.dimmed, mark: 0),
+          );
+          final int now = strongest(data, place);
+          expect(now, greaterThan(0), reason: 'peptide $q, place $i');
+          expect(now, lessThan(strongest(was, place)), reason: 'peptide $q, place $i');
+          pads++;
+          break;
+        }
       }
     }
+    expect(pads, greaterThan(0));
   });
 
   testWidgets("Embedding's position rows end on the context's last row, under the last place's, on the canvas", (

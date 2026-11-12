@@ -349,7 +349,8 @@ String glyph(TrainingTrace trace, int id) {
 }
 
 /// One token's tile: a residue in its colour with its letter knocked out, an
-/// end of the frame on the tile in the quiet ink, padding as an outline.
+/// end of the frame on the tile in the quiet ink, padding as an outline. Its
+/// letter or mark at [mark] of [alpha].
 void drawToken(
   Canvas canvas,
   LmView view,
@@ -357,6 +358,7 @@ void drawToken(
   int id, {
   double alpha = 1,
   Color? outline,
+  double mark = 1,
 }) {
   if (alpha <= 0) {
     return;
@@ -381,7 +383,7 @@ void drawToken(
   if (outline != null) {
     outlineToken(canvas, rect, outline, alpha: alpha);
   }
-  if (tile.height >= 8.5) {
+  if (tile.height >= 8.5 && mark > 0) {
     view.kit.draw(
       canvas,
       glyph(trace, id),
@@ -389,7 +391,7 @@ void drawToken(
         view.kit.mono,
         (tile.height * 0.68).clamp(6.0, 14.0),
         residue ? view.inks.ground : view.inks.quiet,
-        alpha: alpha,
+        alpha: alpha * mark,
       ),
       tile.center,
       anchor: const Offset(0.5, 0.5),

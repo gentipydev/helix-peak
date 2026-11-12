@@ -123,7 +123,7 @@ final class ShiftScene extends LmScene {
           } else if (k >= peptide.inputs) {
             alpha *= 1 - dimmed * dim;
           }
-          _tile(canvas, view, xAt(p, k), ids, k, residues, alpha, number);
+          drawPlace(canvas, view, xAt(p, k), ids, k, residues, alpha, number: number, settled: unfold);
         }
       }
     }
@@ -218,7 +218,7 @@ final class ShiftScene extends LmScene {
     if (slide >= 1) {
       for (int i = 0; i < ids.length - 1; i++) {
         final double padded = i >= peptide.inputs ? 1 - dimmed * dim : 1;
-        _tile(canvas, view, layout.y(p, i).shift(come), ids, i + 1, residues, shown * padded, number);
+        drawPlace(canvas, view, layout.y(p, i).shift(come), ids, i + 1, residues, shown * padded, number: number);
       }
       return;
     }
@@ -235,11 +235,11 @@ final class ShiftScene extends LmScene {
       // which x let go of, comes back as the copy falls.
       final bool first = k == 0 || k == layout.firstLine;
       final double back = k == ids.length - 1 ? fall : 1;
-      _tile(canvas, view, at, ids, k, residues, shown * back * (first ? 1 - slide : 1), number);
+      drawPlace(canvas, view, at, ids, k, residues, shown * back * (first ? 1 - slide : 1), number: number);
       if (k == layout.firstLine && slide > 0) {
         // And comes in at the end of the line before, as text reflows.
         final Rect end = layout.y(p, k - 1).shift(Offset(layout.step, 0) + left + come);
-        _tile(canvas, view, end, ids, k, residues, shown * slide, number);
+        drawPlace(canvas, view, end, ids, k, residues, shown * slide, number: number);
       }
     }
     canvas.restore();
@@ -260,27 +260,42 @@ final class ShiftScene extends LmScene {
     canvas.restore();
   }
 
-  /// Place [k] of a frame as Tokenise draws it: an end or padding as a
-  /// token, a residue as its id, in [number].
-  static void _tile(
+  /// Place [k] of a frame as Shift draws it: an end as a token, a residue
+  /// as its id, in [number] (the accent where not given). Padding, a token
+  /// as Tokenise draws it, [settled] of the way to its outline alone, faint:
+  /// a quarter of the batch's places, holding nothing.
+  static void drawPlace(
     Canvas canvas,
     LmView view,
     Rect rect,
     List<int> ids,
     int k,
     int residues,
-    double alpha,
-    Color number,
-  ) {
+    double alpha, {
+    Color? number,
+    double settled = 1,
+  }) {
     if (alpha <= 0) {
       return;
     }
     if (k == 0 || k > residues) {
-      drawToken(canvas, view, rect, ids[k], alpha: alpha);
+      final bool pad = view.trace.token(ids[k]) == '<pad>';
+      drawToken(
+        canvas,
+        view,
+        rect,
+        ids[k],
+        alpha: pad ? alpha * (1 - (1 - padding) * settled) : alpha,
+        mark: pad ? 1 - settled : 1,
+      );
     } else {
       drawIdTile(canvas, view, rect, ids[k], alpha: alpha, numberScale: numberScale, number: number);
     }
   }
+
+  /// How strong padding is drawn once the peptides have opened out, of
+  /// Tokenise's outline.
+  static const double padding = 0.5;
 
   /// The ink of the ids of every peptide but the followed one, which keeps
   /// the accent: twelve lines of ids all in the accent would leave it
