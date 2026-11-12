@@ -74,6 +74,9 @@ import 'organs/pituitary/pituitary_art.dart';
 import 'organs/pituitary/pituitary_form.dart';
 import 'organs/placenta/placenta_art.dart';
 import 'organs/placenta/placenta_form.dart';
+import 'organs/prostate/prostate_art.dart';
+import 'organs/prostate/prostate_form.dart';
+import 'organs/prostate/prostate_style.dart';
 import 'organs/salivary_gland/salivary_art.dart';
 import 'organs/salivary_gland/salivary_form.dart';
 import 'organs/salivary_gland/salivary_style.dart';
@@ -368,6 +371,14 @@ abstract class OrganArt {
         level: level,
       ),
       OrganKind.ovary when part != null => _OvaryOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        cell: cellName,
+        level: level,
+      ),
+      OrganKind.prostate when part != null => _ProstateOrgan(
         part,
         anatomy,
         view,
@@ -3746,6 +3757,131 @@ final class _OvaryOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => OvaryArt.bedOf(inks, _form.home);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The prostate, drawn from general anatomy as a specimen in place from the
+/// front, cut from front to back through its ejaculatory ducts
+/// (`ProstateArt`): its central zone round the ducts, its peripheral zone
+/// round that and down to the apex, its urethra laid open below the
+/// verumontanum, the seminal vesicles and the ampullae above its base, the
+/// sphincter below its apex; reached from the body's own outline of it
+/// (`_SpecimenOrgan`), which draws in toward the prostate's own and becomes
+/// the bed it lies on, the figure staying round it, faint, all but its
+/// seminal vesicle, which the specimen draws itself. Where the zoom's cell
+/// lives is in the mark, by the Atlas's name for the cell: its glands, its
+/// stroma or its urethra's lining; the central zone, a seminal vesicle, the
+/// ejaculatory duct, the verumontanum and the urethra where it is not the
+/// home are named in the quiet ink.
+final class _ProstateOrgan extends _SpecimenOrgan {
+  _ProstateOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    String? cell,
+    super.level,
+  }) : _form = ProstateForm.place(
+         part: part,
+         anatomy: anatomy,
+         view: view,
+         home: ProstateHome.of(cell),
+       ),
+       super(notAround: _ownVesicle);
+
+  /// The figure's seminal vesicle, which the specimen draws above the
+  /// prostate's base.
+  static const Set<String> _ownVesicle = <String>{'UBERON_0000998'};
+
+  final ProstateForm _form;
+
+  @override
+  bool get _amongFigure => true;
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark, at the place its tissue is
+  // sampled; and the central zone, a seminal vesicle, the ejaculatory duct,
+  // the verumontanum and the urethra where it is not the home, in the quiet
+  // ink. The ampullae are drawn and not named: on the narrower phones a
+  // fourth name has no room above the prostate.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'home', word: _form.home.word, at: _form.homeName, home: true),
+    (key: 'central', word: 'central\nzone', at: _form.centralName, home: false),
+    (
+      key: 'vesicle',
+      word: 'seminal vesicle',
+      at: _form.vesicleName,
+      home: false,
+    ),
+    (key: 'duct', word: 'ejaculatory\nduct', at: _form.ductName, home: false),
+    (
+      key: 'verumontanum',
+      word: 'verumontanum',
+      at: _form.verumontanumName,
+      home: false,
+    ),
+    if (_form.home != ProstateHome.urethra)
+      (key: 'urethra', word: 'urethra', at: _form.urethraName, home: false),
+  ];
+
+  // Set round all of it, out at the canvas's corners: round the prostate,
+  // its vesicles and ampullae above it, its arteries and the sphincter
+  // below it where they show, with room to either side and past the
+  // sphincter's cut end as it is drawn; a vesicle's or an ampulla's end
+  // fading out above is set clear of only as far as it still shows.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(ProstateStyle.nameClear);
+    return <Offset>[
+      for (int i = 0; i < _form.outlinePoints.length; i += 4)
+        _form.outlinePoints[i],
+      for (final TubeCourse tube in _form.beside)
+        for (final int last in <int>[
+          tube.shown.lastIndexWhere((double s) => s > ProstateStyle.nameShown),
+        ])
+          for (int i = 0; i <= last; i++)
+            if (tube.shown[i] > ProstateStyle.nameShown &&
+                (i % 4 == 0 || i == last)) ...<Offset>[
+              tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+              tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+              if (i == last && tube.cutEnd)
+                tube.centres[i] +
+                    Offset(tube.across[i].dy, -tube.across[i].dx) *
+                        (tube.radius[i] * ProstateStyle.endLength + clear),
+            ],
+    ];
+  }();
+
+  ProstateArt? _art;
+
+  ProstateArt _artFor(ZoomInks inks) {
+    final ProstateArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = ProstateArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => ProstateArt.bedOf(inks, _form.home);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

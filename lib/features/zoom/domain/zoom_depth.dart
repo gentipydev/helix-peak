@@ -310,6 +310,12 @@ final class ZoomDepth {
   /// it on every phone's canvas: framed wider than its margin.
   static const double parathyroidUpright = 0.45;
 
+  /// How much taller than wide the prostate is framed: cut in place from
+  /// the front, its seminal vesicles rising above its base and its
+  /// sphincter below its apex, its names in rows above it and below it on
+  /// every phone's canvas.
+  static const double prostateUpright = 0.85;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -350,8 +356,9 @@ final class ZoomDepth {
   /// the front with its ducts, as [gallbladderUpright], the intestines, in
   /// place from the front, as [intestineUpright], the lungs, in place
   /// from the front, the left one cut open, as [lungUpright], the ovary,
-  /// cut through its thickness, as [ovaryUpright], and the parathyroid,
-  /// seen from behind on its thyroid lobe, as [parathyroidUpright].
+  /// cut through its thickness, as [ovaryUpright], the parathyroid, seen
+  /// from behind on its thyroid lobe, as [parathyroidUpright], and the
+  /// prostate, cut from front to back in place, as [prostateUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -437,6 +444,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.ovary) {
       return ovaryUpright;
+    }
+    if (anatomy.organ == OrganKind.prostate) {
+      return prostateUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)

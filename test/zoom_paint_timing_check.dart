@@ -86,6 +86,7 @@ void main() {
       TestCatalog.bySlug('surfactantd')!,
       TestCatalog.bySlug('padi6')!,
       TestCatalog.bySlug('casr')!,
+      TestCatalog.bySlug('acp3')!,
     ]) {
       final ZoomStage stage = ZoomStage(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),
