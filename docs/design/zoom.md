@@ -577,6 +577,47 @@ convention is, where it comes from, and what it decided:
   (GTEx Portal). *Consequence:* the prostate is drawn cut in McNeal's
   coronal plane, in place from the front, and gone into in its peripheral
   zone ("The prostate" below).
+- **The seminal vesicles.** They are two lobulated membranous pouches
+  between the fundus of the bladder and the rectum, each somewhat
+  pyramidal, its broad end backward, upward and lateralward, usually about
+  7.5 cm long but varying, even between a man's two sides; their upper
+  ends diverge, their pointed lower ends converge on the base of the
+  prostate, where each joins the ductus deferens to form the ejaculatory
+  duct, and along the medial margin of each runs the ampulla of the
+  ductus; each is a single tube coiled on itself, 10 to 15 cm uncoiled,
+  with irregular cecal diverticula, its mucous coat pale, of a whitish
+  brown, with a delicate reticular structure, its muscular coat thinner
+  than the duct's; its arteries come from the middle and inferior vesical
+  and the middle hemorrhoidal. The ductus deferens crosses in front of the
+  ureter, runs medialward between the bladder's fundus and the vesicle's
+  upper end, then down in contact with its medial side, enlarged and
+  tortuous as the ampulla, and narrows at the base to join the vesicle's
+  duct (Gray 1918, pp. 1245–1247, and Fig. 1153, the vesicles and the
+  ampullae from the front, the left ones and the prostatic urethra cut
+  open). On transrectal ultrasound in 188 healthy fertile men the
+  vesicles' anterior-posterior diameter after ejaculation lies between 6
+  and 16 mm (Lotti et al. 2022). The anatomogram draws the male figure's
+  seminal vesicle twice, a long coiled shape below the prostate and a
+  small one on the bladder's base; GTEx samples no seminal vesicle.
+  *Consequence:* the zoom follows the one on the bladder, and the vesicles
+  are drawn from the front with the bladder taken away, the body's left
+  one laid open ("The seminal vesicles" below).
+- **Smooth muscle.** The bladder's muscular coat has three layers: an
+  external one of mostly longitudinal fibres, which pass up the inferior
+  surface, over the vertex and down the fundus, and at the sides run
+  obliquely and intersect one another, the Detrusor urinae; a middle one
+  of circular fibres, very thinly and irregularly scattered on the body,
+  mostly oblique, and thick round the internal urethral orifice as the
+  Sphincter vesicae; and an internal, thin, reticular longitudinal one
+  (Gray 1918, p. 1233); the urachus, the middle umbilical ligament, runs
+  from the apex to the umbilicus (p. 1228). The detrusor is 1.2 mm thick in
+  women and 1.4 in men from 250 mL on (Oelke et al. 2006), the whole wall
+  2.0 ± 0.4 mm at 338 ± 82 mL (Kanyilmaz et al. 2013). The anatomogram
+  places smooth muscle on the bladder's wall, and the Atlas's one single
+  cell type with smooth muscle as its home is the smooth muscle cell.
+  *Consequence:* smooth muscle is drawn as that wall, the detrusor, whole
+  from the front, the whole muscle where the cell lives ("Smooth muscle"
+  below).
 - **Histology.** Haematoxylin stains nuclei and ribosome-rich cytoplasm;
   eosin stains protein; fat, mucus and lumens take neither. A ×40 objective
   under a standard eyepiece shows a field about half a millimetre across.
@@ -924,6 +965,10 @@ Sources:
   on healthy, fertile men: scrotal ultrasound reference ranges and
   associations with clinical, seminal, and biochemical characteristics.
   Andrology 2021;9:559–576.
+- Lotti F et al. The European Academy of Andrology (EAA) ultrasound study
+  on healthy, fertile men: prostate-vesicular transrectal ultrasound
+  reference ranges and associations with clinical, seminal and
+  biochemical characteristics. Andrology 2022;10:1150–1171.
 - Louwagie EM et al. Longitudinal ultrasonic dimensions and parametric solid
   models of the gravid uterus and cervix. PLoS One 2021;16:e0242118.
 - Love SM, Barsky SH. Anatomy of the nipple and breast ducts revisited.
@@ -1364,7 +1409,7 @@ body drew for it (`OrganArt`), so the step is one shape seen closer. It
 comes up over the body's own drawing of the organ early in the step, and
 `zoom_anatomy_test` holds the two to the same point of the screen while both
 show. On the way in, the body's line art and its unlit organs give way.
-Twenty-three of the specimens below then draw in to outlines of their own
+Twenty-five of the specimens below then draw in to outlines of their own
 (`_SpecimenOrgan`, `OutlineMorph`), each becoming the bed its specimen comes
 up over (`SpecimenStep`); the breast's is its mound, its outline without the
 axillary tail, which comes up with the rest of it, and the cervix's is the
@@ -1375,7 +1420,11 @@ epididymis on its testis's back, and the testis comes up beside it where
 the body drew the testis; the body's left lung draws in to the lungs' cut
 left lung, and their right lung comes up over the body's; the ovary's is the
 body's disc without the slit it is drawn with; the prostate's is the body's
-oval. The brain, the eye, the skin, the lymph node, the parathyroid, the
+oval; the seminal vesicle's is the small coiled outline the body draws on
+the bladder's base (a rule in the tool follows it, `FOLLOW_WITHIN`, not
+the larger one the body hangs below the prostate), which draws in to the
+opened vesicle; smooth muscle's is the body's outline of the bladder's
+wall. The brain, the eye, the skin, the lymph node, the parathyroid, the
 placenta and the fat, which the body draws no outline of that shows them
 (the parathyroid none at all: the body's thyroid stands in for it), come up
 over the body's drawing instead, a crossfade.
@@ -1395,23 +1444,27 @@ the body it lies (the user's ask of 2026-10-21). They stay round the bone
 marrow, the heart, the thigh, the kidney, the liver, the stomach, the
 esophagus, the thyroid, the adrenal, the fallopian tube, the bladder, the
 breast, the cervix, the epididymis, the gallbladder, the intestines, the
-lungs, the ovary and the prostate, round the bladder all
+lungs, the ovary, the prostate and smooth muscle, round the bladder all
 but the figure's smooth muscle, which the anatomogram draws as the bladder's own
 wall, round the cervix all but the figure's vagina, which the cervix draws
 as its own vault, round the epididymis all but the figure's testis,
 which it draws whole beside it, round the ovary all but the figure's
 fallopian tube, which it draws arching over it, and round the prostate
-all but the figure's seminal vesicle, which it draws above its base
+all but the figure's seminal vesicle, which it draws above its base, and
+round smooth muscle all but the figure's bladder, which the anatomogram
+draws on the same outline
 (`_SpecimenOrgan`'s `notAround`); the kidney, the adrenal and the ovary keep the body's flat
 drawing of the other one beside them, the lungs the body's right lung until their own comes up, the thigh
 the body's four other
 muscles until its own come up, and the cervix the body's other half of it
 until it comes up. Round the pancreas, the testis, the salivary gland and
-the pituitary they give way to the specimen's own neighbours; the seven
-specimens that crossfade come up with none of the figure round them.
+the pituitary they give way to the specimen's own neighbours, and round
+the seminal vesicles to its own alone: grown to the vesicle's size, the
+figure's parts would lie nowhere true; the seven specimens that crossfade
+come up with none of the figure round them.
 
 **Its anatomy.** The fifty-four curated proteins' paths reach all
-thirty-six of the organs the zoom draws. Thirty are drawn from anatomy
+thirty-six of the organs the zoom draws. Thirty-two are drawn from anatomy
 as specimens, each in a section below, in the neutrals but for vessels,
 nerves and the accent; in each the part the zoom's cell lives in is in the
 accent, by the kind of organ and of cell, never by gene: one flat tone cut
@@ -1451,17 +1504,18 @@ or tubules:
 | Ovary (PADI6) | the left one cut through its thickness, its tube arching over it | its follicles, or its stroma |
 | Parathyroid (CASR) | the right superior gland from behind on its lobe, cut through its thickness | its chief cells, its oxyphil nodules, or its fat |
 | Prostate (ACP3) | in place from the front, cut through its ejaculatory ducts | its glands, its stroma, or its urethra's lining |
+| Seminal vesicles (ANGPT1) | from the front on the prostate's base, the bladder taken away, the left one laid open | its mucosa |
+| Smooth muscle (LOXL2) | the bladder's wall whole from the front, a patch of its outer layer taken away | the whole detrusor |
 
 The vessel (GAS6) has a drawing of its own, a length of artery. The other
-five kinds are the anatomogram's own outline, sculpted with a surface for
+three kinds are the anatomogram's own outline, sculpted with a surface for
 its kind (and any organ the body draws, where its specimen has no figure
 to be posed on, with lobules):
 
 | Look | Organs (proteins) |
 |---|---|
 | a wall round a lumen | uterus (PAEP), vagina (ALOX12) |
-| fibres | smooth muscle (LOXL2), tongue (CKMT2) |
-| coils | seminal vesicle (ANGPT1) |
+| fibres | tongue (CKMT2) |
 
 **The pancreas.** It is drawn as a fresh specimen under the zoom's one lamp,
 with the stomach taken away (`presentation/scenes/organs/pancreas/`, the
@@ -2677,6 +2731,123 @@ the accent:
   becomes the bed the prostate comes up over, in the peripheral zone's
   tone, or in the mark where the glands are the home.
 
+**The seminal vesicles.** They are drawn as a fresh specimen under the
+same lamp, seen from the front in place as the body shows them, with the
+bladder taken away, as Gray's plate shows them (1918, Fig. 1153)
+(`presentation/scenes/organs/seminal_vesicle/`, 2026-11-12, every choice
+mine at the user's word), in the neutrals but for the arteries and the
+accent:
+
+- *Its shape* (`vesicle_anatomy.dart`, in millimetres from the midline at
+  the top of the prostate's base, x toward the body's left, y down): each
+  vesicle a sac on a spine leaning some 33° from upright, the card's 50 mm
+  along its course from its narrow duct at the base to its broad upper
+  end (shorter than Gray's 7.5 cm, within the variation he notes), 16 mm
+  across at its broadest (Lotti's upper limit), rounded off at the top;
+  its half-width eased from knot to knot and swollen by its coils every 6
+  mm; the right the left's mirror.
+- *Where it is sampled.* GTEx samples no seminal vesicle; the site is in
+  the opened vesicle's mucosa, on its spine in its upper third, clear of
+  the septa and the pits. Its distance from the midline is the body's
+  site's at the vesicle's real size, so that the anatomy's midline lands
+  on the view's middle: the tool closes the view on the midline, 0.13 of
+  the body's outline's height below its middle (`FRAME_MIDLINE`), the
+  prostate's base lying below the vesicles.
+- *The opened vesicle* (the body's left): its sac's front wall taken away
+  past its duct, the cut wall a warm band 1 mm wide round the lumen, as
+  the prostate's sleeve is; inside, the mucosa with its honeycomb, the
+  gallbladder's Voronoi at 1.3 mm meshes (Gray's "delicate reticular
+  structure"), six septa between its coils from either side in turn,
+  each three fifths of the way across and slanting back toward the duct,
+  and three diverticula as dark pits in the lateral wall; its duct a lit
+  tube.
+- *The whole vesicle* (the body's right): a lit coiled sac of Gray's
+  whitish brown, as the prostate specimen draws the vesicles above its
+  base, the creases between its coils across it.
+- *In the accent,* the mucosa, one flat tone, the mark over a neutral,
+  cut by the honeycomb, the septa and the pits, whatever the cell: no cell
+  the Atlas names has the seminal vesicle as its home (ANGPT1's reading
+  names none).
+- *Round it:* the deferent ducts, 3 mm across, coming in from above and
+  to the side, fading in, past the vesicles' upper ends and down their
+  medial margins as the ampullae, up to 7 mm across, gently sinuous and
+  swollen fold by fold, the body's left one laid open over 24 mm, its
+  lining pale with cross folds; the ejaculatory ducts from where each
+  ampulla meets its vesicle's duct, going into the base and fading into
+  it; an artery to each vesicle from the side, from the inferior vesical,
+  under it; the prostate's base below, the prostate specimen's own
+  outline lit as a cushion in its peripheral zone's tone, its top at the
+  origin, whole for 8 mm and fading out by 20, its edge fading with it.
+  The body's figure gives way round it: grown to the vesicle's size (2.4
+  times the body's drawing), its parts would lie nowhere true.
+- *Its names:* `mucosa` in the accent at the site; the `vas deferens`,
+  the `seminal vesicle` and the `ampulla` on the body's right, the
+  `ejaculatory duct` on its left and the `prostate` below in the quiet
+  ink, three in a row above and three below, set round it at the canvas's
+  corners; the deferent duct staged before the vesicle, so that the
+  vesicle's name, set further in, has no line through it; the ampulla
+  named low, where it is still wide, so that its name goes below.
+- *Its view* is framed 0.74 (`ZoomDepth.seminalVesicleUpright`): the
+  squattest phones' canvases need a row of three names below the prostate
+  as well as above the ducts.
+- *On the step from the body* the body's coiled outline, flat and lit in
+  the mark, draws in to the opened vesicle's outline over 0.55 of the
+  detail, matched at the top's nearest point, the sides and the lowest
+  point, and becomes the bed the specimen comes up over, in the mucosa's
+  tone.
+
+**Smooth muscle.** It is drawn as a fresh specimen under the same lamp,
+the urinary bladder's wall, the detrusor, where the anatomogram places
+smooth muscle, whole from the front in place as the body shows it, its
+peritoneum and fat taken away so that its muscle shows
+(`presentation/scenes/organs/smooth_muscle/`, 2026-11-12, every choice
+mine at the user's word), in the neutrals but for the arteries and the
+accent:
+
+- *Its shape* (`detrusor_anatomy.dart`, in the bladder specimen's frame,
+  `bladder_anatomy.dart`, millimetres of a bladder 100 mm across, x toward
+  the body's left, y down): the bladder specimen's own outline, ureters
+  and arteries, drawn at 0.8 of its size, the card's 8 cm, a bladder less
+  full, its urethra cut 10 mm below the neck.
+- *Where it is sampled.* On the front wall at the bladder specimen's
+  site, between two bundles, for every cell: the smooth muscle cell is the
+  one cell the Atlas names with smooth muscle as its home.
+- *Its surface:* the whole muscle flat in the mark, as the thigh's vastus
+  lateralis is, cut by its bundles as crisp creases: the outer layer's
+  thirty-one, laid as the meridians of the bladder's form are seen from
+  the front, so about 5 mm apart over the front and bunching toward the
+  sides (one down the middle, the site between it and the next), each
+  wandering a little, none drawn where two would lie under 2 mm apart
+  toward the apex and the neck; eight oblique bundles a side, fainter,
+  running in and down and in and up from the silhouette, where Gray has
+  the fibres intersect; and three rings round the neck for the sphincter
+  vesicae. A patch of the outer layer is taken away low on the body's
+  right, between two bundles and across between them, 18 mm tall, rimmed
+  as an opening is (shadow toward the lamp, light away from it) with the
+  cut edge a crisp line, and in it the circular layer's bundles, seven,
+  2 to 3 mm apart, each rising a little toward the body's side, as Gray
+  has the middle layer's fibres mostly oblique.
+- *Round it:* the urachus from the apex, 3 mm across, a pale cord fading
+  out above; the ureters coming down behind it and the urethra leaving it
+  below, lit tubes, pale, each cut short; the superior and inferior
+  vesical arteries over it, their small branches running 9 mm over the
+  wall and fading into it. The body's figure stays faint round it, its
+  uterus or prostate below, all but its bladder, which the anatomogram
+  draws on the same outline.
+- *Its names:* `detrusor` in the accent at the site; the `circular layer`
+  in the patch, the `urachus`, the `ureter` on the body's right and the
+  `sphincter` on its rings in the quiet ink, three above and two below,
+  set round it at the canvas's corners. The urethra and the figure's
+  uterus or prostate are drawn and not named: level with the row of names
+  below the bladder, a third name there had no room on the squattest
+  phones, its line running through the others' plates.
+- *Its view* is framed 1.25 (`ZoomDepth.smoothMuscleUpright`), as the
+  bladder specimen is.
+- *On the step from the body* the body's outline of the wall, flat and lit
+  in the mark, draws in to the bladder's own over the usual 0.45 of the
+  detail, matched at the dome's middle, the sides and the neck, and
+  becomes the bed the muscle comes up over, in its own tone.
+
 **The glide.** The camera carries the organ from where it lies in the body
 to the middle of the view over the first three fifths of the step. From the
 head or the thigh that is a long way, and `zoom_smoothness_test` plays every
@@ -3314,6 +3485,20 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   though they lie behind the bladder; the glands' lumens as pores far
   fewer than a section shows. One site, in the peripheral zone, for every
   cell.
+- **The seminal vesicles from a plate.** The bladder taken away, as Gray's
+  front view has it, so the vesicles show in place against nothing; both
+  vesicles alike, the right the left's mirror, where Gray finds them
+  differing on the two sides; the coils as six swellings and, laid open,
+  six septa, the diverticula three pits; the honeycomb's meshes at one
+  size; the prostate's base alone, fading out below; no ureters, no
+  rectum. One site, in the opened mucosa, for every cell.
+- **Smooth muscle as the bladder's wall.** Where the anatomogram places
+  it, though smooth muscle is the wall of every hollow organ; the bladder
+  specimen's bladder at the card's 8 cm, less full; the outer layer's
+  bundles as meridians, far fewer and further apart than the detrusor's
+  own, its interlacing kept to the sides; the circular layer shown in one
+  patch, the inner longitudinal layer not at all. One site, on the front
+  wall, for every cell: the whole muscle is the home whatever the gene.
 - **One field a tissue.** Wherever in the organ it is cut, and for every
   gene that goes there with the same kind of cell. "Lymphoid tissue" is a
   lymph node, and skin has no keratin layer of its own.
@@ -3374,9 +3559,9 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   into the band's strip as (`chromosome_tube.dart`); its colours are
   `core/theme/chromosome_colors.dart`.
 - `presentation/scenes/organ_art.dart`: every organ's drawing:
-  `_SpecimenOrgan` for the twenty-three specimens that draw in from the
+  `_SpecimenOrgan` for the twenty-five specimens that draw in from the
   body's outline, a class of its own for each of the seven that
-  crossfade, `_DrawnOrgan` for the five drawn on the anatomogram's
+  crossfade, `_DrawnOrgan` for the three drawn on the anatomogram's
   outline, and `_VesselOrgan`.
 - `presentation/scenes/organs/pancreas/`: the pancreas and its neighbours in
   centimetres (`pancreas_anatomy.dart`), every number its look is tuned by
@@ -3479,6 +3664,24 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   ampullae, the arteries and the sphincter, its names' places, and where
   the zoom's cell lives by the Atlas's name for it (`prostate_form.dart`),
   and its meshes and how it is drawn (`prostate_art.dart`).
+- `presentation/scenes/organs/seminal_vesicle/`: the seminal vesicles in
+  millimetres, with every source (`vesicle_anatomy.dart`), every number
+  their look is tuned by (`vesicle_style.dart`), their form posed on the
+  male figure, with the outline it draws in from, the two sacs, the opened
+  one's lumen, septa, pits and honeycomb, the deferent ducts and the
+  opened ampulla, the ejaculatory ducts, the arteries, the prostate's base
+  and how far it shows, and their names' places (`vesicle_form.dart`), and
+  their meshes and how they are drawn (`vesicle_art.dart`).
+- `presentation/scenes/organs/smooth_muscle/`: smooth muscle as the
+  bladder's wall, in the bladder specimen's frame, with every source
+  (`detrusor_anatomy.dart`), every number its look is tuned by
+  (`detrusor_style.dart`), its form posed on either figure, with the
+  bundles, the oblique bundles, the rings, the patch and its circular
+  bundles, the urachus, the ureters, the urethra, the arteries and their
+  branches, and its names' places (`detrusor_form.dart`; the outline, the
+  arteries, their branches and the step's marks are the bladder form's,
+  `BladderForm.knotsMm`, `arteriesMm`, `branchesInto`, `marks`,
+  `topMiddle`), and its meshes and how it is drawn (`detrusor_art.dart`).
 - `presentation/scenes/organs/`: the other specimens, each in its folder
   in the same four files, `*_anatomy.dart` (in millimetres, every size with
   its source, the drawing's choices listed as such), `*_style.dart` (every
@@ -3851,6 +4054,44 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   holds the site 0.64 of the way down the male figure's oval, a seventh of
   its width in from its edge on the body's right. `zoom_paint_timing_check`
   times it with ACP3's zoom.
+- `vesicle_form_test` holds each vesicle to the card's 5 cm along its
+  course and 16 mm across, broadest in its upper half, the right the
+  left's mirror; the site in the opened mucosa clear of the septa and the
+  pits, as far from the midline as the body's site at the vesicle's real
+  size (the anatomy's midline at the view's middle); the lumen inside the
+  wall, six septa from either side in turn, the pits in the lateral wall,
+  the honeycomb's edges in or just outside the lumen; the deferent duct
+  fading in above the vesicle's upper end, 3 mm across, its ampulla up to
+  7, laid open along the ampulla, meeting the vesicle's duct at the base;
+  the ejaculatory duct into the prostate, fading; the artery from the
+  side under the sac; the prostate's base at the origin, whole for 8 mm
+  and gone by 20, the ducts starting in it; the step's marks at the tops,
+  the sides and the lowest points of either outline; each name on what it
+  names; and the same specimen every time. `vesicle_art_test` holds the
+  mark to the mucosa alone, the hand-over to the body's outline with no
+  layer or mesh, the figure giving way by the stop, the meshes the same
+  every time and inside its bounds, and the names. `vesicle_names_test`
+  sets ANGPT1's six names in the app's own type on nine phone canvases.
+  `zoom_domain_test` holds the outline followed to the one on the
+  bladder's base and the view closed on the midline 0.13 of its height
+  below it. `zoom_paint_timing_check` times it with ANGPT1's zoom.
+- `detrusor_form_test` holds the muscle to the bladder specimen's outline
+  at the card's 8 cm, laid over the body's wall on either figure; the
+  bundles from near the apex to near the neck, none under 2 mm apart at
+  any height but by what two may wander, none through the patch, the
+  site between two, bunching toward the sides; the oblique bundles in the
+  lateral halves and the three rings round the neck; the patch low on the
+  body's right with the circular bundles in it, each rising toward the
+  side; the ureters behind and above, the urethra below, the urachus from
+  the apex fading out, the arteries' branches over the wall fading into
+  it; the step's marks at the dome's middle, the sides and the neck; each
+  name on what it names; and the same muscle every time.
+  `detrusor_art_test` holds the mark to the whole bladder alone, the
+  hand-over to the body's outline with no layer or mesh, the figure's
+  uterus round it at the stop, the meshes the same every time and inside
+  its bounds, and the names. `detrusor_names_test` sets LOXL2's five names
+  in the app's own type on nine phone canvases. `zoom_paint_timing_check`
+  times it with LOXL2's zoom.
 - Each of the other seventeen specimens has a `*_form_test` (its size and
   place on either figure, its site where it is sampled, its parts at their
   measured sizes, its home rule over the Atlas's names, the step's marks
