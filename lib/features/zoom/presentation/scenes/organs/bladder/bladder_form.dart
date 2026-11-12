@@ -58,8 +58,8 @@ final class BladderForm {
       diagramPath: Contour(diagram).toPath(),
       count: BladderStyle.morphPoints,
       bed: mm(BladderStyle.bed),
-      marks: _marks,
-      start: _topMiddle,
+      marks: marks,
+      start: topMiddle,
     );
   }
 
@@ -162,6 +162,7 @@ final class BladderForm {
   /// The outline's own points, its right half and then its left, mirrored,
   /// from the middle of the dome round by the neck; and how thick the wall
   /// is at each.
+  static List<Offset> get knotsMm => _knotsMm;
   static final List<Offset> _knotsMm = <Offset>[
     ...BladderAnatomy.half,
     for (int i = BladderAnatomy.half.length - 2; i >= 1; i--)
@@ -541,7 +542,9 @@ final class BladderForm {
     cutEnd: tube.cutEnd,
   );
 
-  static final List<AnatomyTube> _arteriesMm = <AnatomyTube>[
+  /// The superior and inferior vesical arteries, left and right, in
+  /// millimetres.
+  static final List<AnatomyTube> arteriesMm = <AnatomyTube>[
     _mirrored(BladderAnatomy.rightSuperior),
     BladderAnatomy.rightSuperior,
     _mirrored(BladderAnatomy.rightInferior),
@@ -556,7 +559,7 @@ final class BladderForm {
   ];
   late final TubeCourse urethra = _tube(BladderAnatomy.urethra);
   late final List<TubeCourse> arteries = <TubeCourse>[
-    for (final AnatomyTube t in _arteriesMm) _tube(t),
+    for (final AnatomyTube t in arteriesMm) _tube(t),
   ];
 
   /// The arteries' small branches into the wall, each running in under it.
@@ -564,10 +567,17 @@ final class BladderForm {
     for (final AnatomyTube t in _branchesMm) _tube(t),
   ];
 
-  static final List<AnatomyTube> _branchesMm = () {
+  static final List<AnatomyTube> _branchesMm = branchesInto(_outlineMm);
+
+  /// The arteries' small branches into a wall whose outline is [outline],
+  /// each running [under] it, in millimetres.
+  static List<AnatomyTube> branchesInto(
+    List<Offset> outline, {
+    double under = BladderAnatomy.branchUnder,
+  }) {
     final List<AnatomyTube> out = <AnatomyTube>[];
     final math.Random random = math.Random(BladderStyle.seed);
-    for (final AnatomyTube artery in _arteriesMm) {
+    for (final AnatomyTube artery in arteriesMm) {
       final TubeCourse course = TubeCourse(
         artery,
         (Offset p) => p,
@@ -586,8 +596,8 @@ final class BladderForm {
         final Offset aim =
             c +
             way * (BladderAnatomy.branchLean * (2 * random.nextDouble() - 1));
-        Offset edge = _outlineMm.first;
-        for (final Offset q in _outlineMm) {
+        Offset edge = outline.first;
+        for (final Offset q in outline) {
           if ((q - aim).distanceSquared < (edge - aim).distanceSquared) {
             edge = q;
           }
@@ -603,14 +613,14 @@ final class BladderForm {
             BladderAnatomy.branchJitter * (2 * random.nextDouble() - 1);
         out.add(
           AnatomyTube(
-            <Offset>[c, edge + to / reach * BladderAnatomy.branchUnder],
+            <Offset>[c, edge + to / reach * under],
             const <double>[BladderAnatomy.branch, BladderAnatomy.branch],
           ),
         );
       }
     }
     return out;
-  }();
+  }
 
   /// What runs on beside the bladder.
   late final List<TubeCourse> beside = <TubeCourse>[
@@ -654,8 +664,26 @@ final class BladderForm {
     if (shape == null) {
       return null;
     }
+    return neighbourNameIn(
+      shape,
+      outline: outlinePoints,
+      urethra: urethra,
+      step: mm(BladderStyle.neighbourStep),
+    );
+  }();
+
+  /// Where a neighbour of the bladder's whose outline is [shape] is named,
+  /// below a bladder whose outline is [outline] and whose [urethra] leaves
+  /// it: the point of the shape furthest out from the bladder's outline
+  /// and off the urethra that lies well inside the shape, on the side of
+  /// the urethra away from the ureter named, looked for every [step].
+  static Offset? neighbourNameIn(
+    List<Offset> shape, {
+    required List<Offset> outline,
+    required TubeCourse urethra,
+    required double step,
+  }) {
     final Rect bounds = _bounds(shape);
-    final double step = mm(BladderStyle.neighbourStep);
     final Offset top = urethra.centres.first;
     final Offset bottom = urethra.centres.last;
     final double urethraRadius = urethra.radius.first;
@@ -664,12 +692,12 @@ final class BladderForm {
     for (double y = bounds.top; y <= bounds.bottom; y += step) {
       for (double x = bounds.left; x <= bounds.right; x += step) {
         final Offset p = Offset(x, y);
-        if (p.dx < top.dx || !_inside(shape, p) || _inside(outlinePoints, p)) {
+        if (p.dx < top.dx || !_inside(shape, p) || _inside(outline, p)) {
           continue;
         }
         final double room = <double>[
           _toLine(shape, p, closed: true) * BladderStyle.neighbourInside,
-          _toLine(outlinePoints, p, closed: true),
+          _toLine(outline, p, closed: true),
           _toSegment(p, top, bottom) - urethraRadius,
         ].reduce(math.min);
         if (room > most) {
@@ -679,7 +707,7 @@ final class BladderForm {
       }
     }
     return best;
-  }();
+  }
 
   static Offset _nearest(List<List<Offset>> lines, Offset p) {
     Offset best = lines.first.first;
@@ -698,7 +726,7 @@ final class BladderForm {
   /// topmost point, which a hair's difference could move from one side of
   /// it to the other; each side's outermost point, and the neck's lowest,
   /// each picked out of either outline alike.
-  static int _topMiddle(List<Offset> points) {
+  static int topMiddle(List<Offset> points) {
     final Rect box = _bounds(points);
     int best = -1;
     for (int i = 0; i < points.length; i++) {
@@ -715,7 +743,7 @@ final class BladderForm {
     return best;
   }
 
-  static final List<int Function(List<Offset>)> _marks =
+  static final List<int Function(List<Offset>)> marks =
       <int Function(List<Offset>)>[
         (List<Offset> p) => OutlineMarks.outermost(p, 1, 0.2, 0.8),
         _lowest,
@@ -736,8 +764,8 @@ final class BladderForm {
   /// meets the body's, for tests: the dome's middle, then the rest in the
   /// order round it from there.
   List<Offset> marksOf(List<Offset> points) => <Offset>[
-    points[_topMiddle(points)],
-    for (final int Function(List<Offset>) mark in _marks) points[mark(points)],
+    points[topMiddle(points)],
+    for (final int Function(List<Offset>) mark in marks) points[mark(points)],
   ];
 }
 
