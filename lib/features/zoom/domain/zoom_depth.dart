@@ -330,6 +330,15 @@ final class ZoomDepth {
   /// canvas.
   static const double smoothMuscleUpright = 1.25;
 
+  /// How much taller than wide the tongue is framed: cut across at the
+  /// first molars between the mandible's halves, it is 43 mm across, less
+  /// than half the card's ten centimetres, its length, and with its
+  /// mandible it lies wider than it is tall, so it is framed close, as
+  /// close as leaves its names, in a row above it and one below, room on
+  /// every phone's canvas (at 1.8 a line ran through a name on a first
+  /// iPhone SE's).
+  static const double tongueUpright = 1.7;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -374,8 +383,9 @@ final class ZoomDepth {
   /// from behind on its thyroid lobe, as [parathyroidUpright], the
   /// prostate, cut from front to back in place, as [prostateUpright], the
   /// seminal vesicles, from the front on the prostate's base, as
-  /// [seminalVesicleUpright], and smooth muscle, the bladder's wall whole
-  /// from the front, as [smoothMuscleUpright].
+  /// [seminalVesicleUpright], smooth muscle, the bladder's wall whole
+  /// from the front, as [smoothMuscleUpright], and the tongue, cut across
+  /// between the mandible's halves, as [tongueUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -470,6 +480,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.smoothMuscle) {
       return smoothMuscleUpright;
+    }
+    if (anatomy.organ == OrganKind.tongue) {
+      return tongueUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)

@@ -625,6 +625,17 @@ void main() {
           CellShape.spindle,
           'Smooth muscle cells',
         ),
+      for (final AnatomyFigure body in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ])
+        (
+          'tongue-${body.name}',
+          tissueAnatomy['tongue']!,
+          body,
+          CellShape.myofibre,
+          'Myonuclei',
+        ),
     ];
     for (final (
           String name,

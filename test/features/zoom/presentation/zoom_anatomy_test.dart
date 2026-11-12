@@ -275,7 +275,10 @@ void main() {
       // still for the same; and the prostate, cut in place, its seminal
       // vesicles above it and its sphincter below, framed a little wider
       // for the same; and the seminal vesicles, both from the front on the
-      // prostate's base, framed wider still for the same.
+      // prostate's base, framed wider still for the same. The tongue, cut
+      // across between its mandible's halves, is less than its card's
+      // length across, the length it is, and is framed closer, its names in
+      // a row above it and one below it.
       final double upright = ZoomDepth.uprightOf(
         subject.track,
         subject.path,
@@ -298,9 +301,12 @@ void main() {
             OrganKind.parathyroid => ZoomDepth.parathyroidUpright,
             OrganKind.prostate => ZoomDepth.prostateUpright,
             OrganKind.seminalVesicle => ZoomDepth.seminalVesicleUpright,
+            OrganKind.tongue => ZoomDepth.tongueUpright,
             _ => 1.0,
           },
-          ZoomDepth.phoneAspect,
+          subject.anatomy!.organ == OrganKind.tongue
+              ? ZoomDepth.tongueUpright
+              : ZoomDepth.phoneAspect,
         ),
         reason: t.slug,
       );

@@ -102,6 +102,9 @@ import 'organs/testis/testis_style.dart';
 import 'organs/thyroid/thyroid_art.dart';
 import 'organs/thyroid/thyroid_form.dart';
 import 'organs/thyroid/thyroid_style.dart';
+import 'organs/tongue/tongue_art.dart';
+import 'organs/tongue/tongue_form.dart';
+import 'organs/tongue/tongue_style.dart';
 import 'sculpt.dart';
 import 'specimen_step.dart';
 import 'tube_course.dart';
@@ -146,7 +149,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// the seminal vesicles, from the front on the prostate's base with the
 /// bladder taken away, the one on the body's left laid open, smooth
 /// muscle, the bladder's wall whole from the front, its peritoneum taken
-/// away, the skin, a block of it cut from the leg, the thyroid, seen
+/// away, the tongue, cut across between its mandible's halves, the skin, a
+/// block of it cut from the leg, the thyroid, seen
 /// from the front in place, one lobe cut open, the adrenal, cut through its
 /// thickness on its kidney's upper pole, the pituitary, cut down its
 /// middle as the brain is, a lymph node, cut through its hilum, the
@@ -181,7 +185,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// its stroma for any other, the oxyphil nodules of a parathyroid for an
 /// oxyphil cell, its fat for an adipocyte and its chief cells for any
 /// other, the mucosa of the opened seminal vesicle for any, the whole
-/// detrusor for any), by the kind of organ and of cell, never by gene.
+/// detrusor for any, the tongue's intrinsic muscle for any), by the kind of
+/// organ and of cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -410,6 +415,13 @@ abstract class OrganArt {
         figure: figure,
         level: level,
       ),
+      OrganKind.tongue when part != null => _TongueOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        level: level,
+      ),
       _ =>
         part == null
             ? _AnyOrgan()
@@ -564,10 +576,9 @@ abstract class OrganArt {
 }
 
 /// The surface an organ's outline is given.
-enum _Look { lobules, hollow, fibres }
+enum _Look { lobules, hollow }
 
 _Look _lookOf(OrganKind kind) => switch (kind) {
-  OrganKind.tongue => _Look.fibres,
   OrganKind.uterus || OrganKind.vagina => _Look.hollow,
   _ => _Look.lobules,
 };
@@ -739,7 +750,6 @@ final class _DrawnOrgan extends OrganArt {
     final Path lines = Path();
     final Path dark = Path();
     final double size = _box.longestSide;
-    final Offset middle = _middle;
     switch (_look) {
       case _Look.lobules:
         // Lobules: a cobble of rounded shapes.
@@ -749,24 +759,6 @@ final class _DrawnOrgan extends OrganArt {
       case _Look.hollow:
         // A wall round a lumen: drawn in [paint], along the outline.
         break;
-      case _Look.fibres:
-        // Fibres running the organ's length, gathered at its ends.
-        final bool tall = _box.height >= _box.width;
-        for (double t = 0.04; t < 1; t += 0.045) {
-          if (tall) {
-            final double x = _box.left + _box.width * t;
-            final double pinch = middle.dx + (x - middle.dx) * 0.5;
-            lines
-              ..moveTo(pinch, _box.top)
-              ..quadraticBezierTo(x, middle.dy, pinch, _box.bottom);
-          } else {
-            final double y = _box.top + _box.height * t;
-            final double pinch = middle.dy + (y - middle.dy) * 0.5;
-            lines
-              ..moveTo(_box.left, pinch)
-              ..quadraticBezierTo(middle.dx, y, _box.right, pinch);
-          }
-        }
     }
     return (lines, dark);
   }
@@ -4131,6 +4123,125 @@ final class _DetrusorOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => DetrusorArt.bedOf(inks);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The tongue, drawn from general anatomy as a section cut across it at
+/// the lower first molars and seen from the front, in place between the
+/// two halves of its mandible, the upper jaw taken away and what lies below
+/// the mylohyoid with it (`TongueArt`): the intrinsic muscle with its
+/// transverse and vertical fibres and its longitudinal layers cut across,
+/// the genioglossus rising into it either side of the septum, the
+/// hyoglossus and the styloglossus at its margins, the mucous membrane and
+/// its papillae over it; the floor of the mouth under it, the geniohyoids,
+/// the mylohyoid, the sublingual glands and what runs between them; the
+/// mandible's halves with their canals, a first molar on each. It is
+/// reached from the body's own outline of it, the mouth the female figure
+/// draws in its place or the sliver the male draws (`_SpecimenOrgan`),
+/// which draws in toward the outline of the soft tissue between the
+/// mandible's halves and becomes the bed it lies on, the figure staying
+/// round it, faint, at a person's size, as the tongue is drawn. Where the
+/// zoom's cell lives is in the mark whatever the cell: the intrinsic
+/// muscle, the myonucleus being the one cell the Atlas names with the
+/// tongue as its home; the genioglossus, the hyoglossus, the sublingual
+/// gland, the mylohyoid and the mandible are named in the quiet ink.
+final class _TongueOrgan extends _SpecimenOrgan {
+  _TongueOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    super.level,
+  }) : _form = TongueForm.place(part: part, view: view),
+       super(real: TongueForm.real);
+
+  final TongueForm _form;
+
+  @override
+  bool get _amongFigure => true;
+
+  @override
+  double _settleOf(double detail) =>
+      SpecimenStep.settle(detail, span: TongueStyle.settling);
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark, at the place its tissue is
+  // sampled; and the genioglossus, the hyoglossus, the sublingual gland,
+  // the mylohyoid and the mandible, in the quiet ink.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (
+      key: 'home',
+      word: 'intrinsic muscles',
+      at: _form.homeName,
+      home: true,
+    ),
+    (
+      key: 'genioglossus',
+      word: 'genioglossus',
+      at: _form.genioglossusName,
+      home: false,
+    ),
+    (
+      key: 'hyoglossus',
+      word: 'hyoglossus',
+      at: _form.hyoglossusName,
+      home: false,
+    ),
+    (
+      key: 'gland',
+      word: 'sublingual\ngland',
+      at: _form.glandName,
+      home: false,
+    ),
+    (
+      key: 'mylohyoid',
+      word: 'mylohyoid',
+      at: _form.mylohyoidName,
+      home: false,
+    ),
+    (
+      key: 'mandible',
+      word: 'mandible',
+      at: _form.mandibleName,
+      home: false,
+    ),
+  ];
+
+  // Set round all of it, out at the canvas's corners: round the section's
+  // outline and the papillae on its back.
+  @override
+  late final List<Offset> named = _form.namedPoints;
+
+  TongueArt? _art;
+
+  TongueArt _artFor(ZoomInks inks) {
+    final TongueArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = TongueArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => TongueArt.bedOf(inks);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
