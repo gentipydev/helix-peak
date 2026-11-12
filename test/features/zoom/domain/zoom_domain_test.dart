@@ -681,8 +681,8 @@ void main() {
 
     test('go into the seminal vesicle in the outline the anatomogram draws '
         'on the bladder’s base, on the body’s left, not the one it hangs '
-        'below the prostate, the view closing on the midline level with '
-        'it', () {
+        'below the prostate, the view closing on the midline a little '
+        'below it', () {
       final String uberon = tissueAnatomy['seminal vesicle']!.uberon;
       expect(AnatomyFigure.female.parts[uberon], isNull);
       final AnatomyFigure figure = AnatomyFigure.male;
@@ -708,10 +708,15 @@ void main() {
         (Path()..addPolygon(part.followed, true)).contains(part.site),
         isTrue,
       );
-      // The view closes on the midline, level with the outline's middle.
+      // The view closes on the midline, 0.13 of the outline's height below
+      // its middle: the specimen draws the prostate's base below the
+      // vesicles.
       expect(part.framed, isNotNull);
       expect(part.centre.dx, closeTo(0, 1e-9));
-      expect(part.centre.dy, closeTo(box.center.dy, 1e-3));
+      expect(
+        part.centre.dy,
+        closeTo(box.center.dy + 0.13 * box.height, 1.5e-4),
+      );
     });
 
     test('go into skeletal muscle in its outermost outline, the vastus '

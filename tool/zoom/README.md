@@ -95,9 +95,10 @@ largest of its outlines whose middle lies inside another part's: the male
 figure draws the seminal vesicle twice, a long coiled shape below the
 prostate and a small one on the base of the bladder, where the vesicles lie,
 and the zoom follows the one on the bladder. A part named in
-`FRAME_MIDLINE` is written with a `centre` on the figure's midline, level
-with the followed outline's middle: the seminal vesicle's specimen draws
-both vesicles about the midline.
+`FRAME_MIDLINE` is written with a `centre` on the figure's midline, a share
+of the followed outline's height below its middle: the seminal vesicle's
+specimen draws both vesicles about the midline, the prostate's base below
+them.
 
 ## Why generated Dart, not an asset
 

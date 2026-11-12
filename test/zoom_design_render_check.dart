@@ -213,7 +213,8 @@ void main() {
     // and a stromal cell, the parathyroid about the tissue's own cell and
     // each other kind of cell that lives in it, and the prostate, the male
     // figure's alone, about a cell of each part of it the Atlas's names
-    // light.
+    // light, and the seminal vesicles, the male figure's alone, about the
+    // tissue's own cell.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -605,6 +606,13 @@ void main() {
           shape,
           cell,
         ),
+      (
+        'seminal_vesicle-male',
+        tissueAnatomy['seminal vesicle']!,
+        AnatomyFigure.male,
+        CellShape.acinar,
+        null,
+      ),
     ];
     for (final (
           String name,

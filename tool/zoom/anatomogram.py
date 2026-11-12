@@ -234,13 +234,15 @@ FRAME_DOWN = {"UBERON_0001043": 0.03}
 # the two.
 FRAME_WITH = {"UBERON_0001301": "UBERON_0000473"}
 
-# Parts the view closes on at the figure's midline, level with the middle of
-# the outline they follow, written as a `centre`: for a paired part the
-# anatomogram draws on one side alone whose specimen draws both. The seminal
-# vesicle is followed into the one the anatomogram draws on the bladder's
-# base, on the body's left, and the specimen draws the pair about the
-# midline, the prostate's base below them.
-FRAME_MIDLINE = {"UBERON_0000998"}
+# Parts the view closes on at the figure's midline, a share of the followed
+# outline's height below the middle of its box, written as a `centre`: for a
+# paired part the anatomogram draws on one side alone whose specimen draws
+# both, and more below them than above. The seminal vesicle is followed into
+# the one the anatomogram draws on the bladder's base, on the body's left,
+# and the specimen draws the pair about the midline with the prostate's base
+# below them (`vesicle_anatomy.dart`): the middle of what it draws lies 0.13
+# of the outline's height below the outline's.
+FRAME_MIDLINE = {"UBERON_0000998": 0.13}
 
 # Parts the zoom goes into in from the side of their outline farthest from
 # the figure's midline: the share of the part's height, from its top, that
@@ -629,7 +631,7 @@ def convert_body(name: str, path: str, wanted: set[str]) -> dict:
             parts[uberon]["centre"] = list(place(((wx0 + wx1) / 2, (wy0 + wy1) / 2)))
         if uberon in FRAME_MIDLINE:
             fx0, fy0, fx1, fy1 = svg.bounds([followed])
-            parts[uberon]["centre"] = list(place((middle, (fy0 + fy1) / 2)))
+            parts[uberon]["centre"] = list(place((middle, (fy0 + fy1) / 2 + (fy1 - fy0) * FRAME_MIDLINE[uberon])))
         if uberon in FRAME_AT_SITE:
             parts[uberon]["centre"] = list(place(site))
     return {

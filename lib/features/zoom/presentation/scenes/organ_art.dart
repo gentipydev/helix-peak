@@ -80,6 +80,9 @@ import 'organs/prostate/prostate_style.dart';
 import 'organs/salivary_gland/salivary_art.dart';
 import 'organs/salivary_gland/salivary_form.dart';
 import 'organs/salivary_gland/salivary_style.dart';
+import 'organs/seminal_vesicle/vesicle_art.dart';
+import 'organs/seminal_vesicle/vesicle_form.dart';
+import 'organs/seminal_vesicle/vesicle_style.dart';
 import 'organs/skeletal_muscle/thigh_art.dart';
 import 'organs/skeletal_muscle/thigh_form.dart';
 import 'organs/skeletal_muscle/thigh_style.dart';
@@ -137,6 +140,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// the front, the left one cut open from front to back, the ovary, cut
 /// through its thickness, its tube arching over it, a parathyroid gland,
 /// seen from behind on its thyroid lobe and cut through its thickness,
+/// the seminal vesicles, from the front on the prostate's base with the
+/// bladder taken away, the one on the body's left laid open,
 /// the skin, a block of it cut from the leg, the thyroid, seen
 /// from the front in place, one lobe cut open, the adrenal, cut through its
 /// thickness on its kidney's upper pole, the pituitary, cut down its
@@ -171,7 +176,8 @@ typedef OrganColumn = ({double side, Offset left, Offset right});
 /// cell, the follicles of an ovary for an oocyte or a granulosa cell and
 /// its stroma for any other, the oxyphil nodules of a parathyroid for an
 /// oxyphil cell, its fat for an adipocyte and its chief cells for any
-/// other), by the kind of organ and of cell, never by gene.
+/// other, the mucosa of the opened seminal vesicle for any), by the kind
+/// of organ and of cell, never by gene.
 abstract class OrganArt {
   OrganArt();
 
@@ -386,6 +392,13 @@ abstract class OrganArt {
         cell: cellName,
         level: level,
       ),
+      OrganKind.seminalVesicle when part != null => _SeminalVesicleOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        level: level,
+      ),
       _ =>
         part == null
             ? _AnyOrgan()
@@ -540,10 +553,9 @@ abstract class OrganArt {
 }
 
 /// The surface an organ's outline is given.
-enum _Look { lobules, hollow, fibres, coils }
+enum _Look { lobules, hollow, fibres }
 
 _Look _lookOf(OrganKind kind) => switch (kind) {
-  OrganKind.seminalVesicle => _Look.coils,
   OrganKind.smoothMuscle || OrganKind.tongue => _Look.fibres,
   OrganKind.uterus || OrganKind.vagina => _Look.hollow,
   _ => _Look.lobules,
@@ -743,20 +755,6 @@ final class _DrawnOrgan extends OrganArt {
               ..moveTo(_box.left, pinch)
               ..quadraticBezierTo(middle.dx, y, _box.right, pinch);
           }
-        }
-      case _Look.coils:
-        // Loops lying on one another.
-        final double step = size * 0.085;
-        int row = 0;
-        for (double y = _box.top + step / 2; y < _box.bottom; y += step) {
-          lines.moveTo(_box.left, y);
-          for (double x = _box.left; x <= _box.right; x += size * 0.02) {
-            lines.lineTo(
-              x,
-              y + math.sin(x / (size * 0.027) + row * 1.7) * step * 0.3,
-            );
-          }
-          row++;
         }
     }
     return (lines, dark);
@@ -3882,6 +3880,131 @@ final class _ProstateOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => ProstateArt.bedOf(inks, _form.home);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The seminal vesicles, drawn from general anatomy as a specimen seen
+/// from the front with the bladder taken away, as Gray's plate shows them
+/// (`SeminalVesicleArt`): the two sacs diverging up and out from the base
+/// of the prostate, the deferent ducts coming in over their upper ends and
+/// down their medial margins as the ampullae, the vesicle on the body's
+/// left and its ampulla laid open, the ejaculatory ducts going into the
+/// base, the arteries to the vesicles, the prostate's base below, fading
+/// out; reached from the body's own outline of the vesicle on its left,
+/// the one the anatomogram draws on the bladder's base (`_SpecimenOrgan`),
+/// which draws in toward the opened vesicle's own and becomes the bed it
+/// lies on, the figure giving way round it: its parts, grown to the
+/// vesicle's size, would lie nowhere true. Where the zoom's cell lives is
+/// in the mark whatever the cell: the opened vesicle's mucosa, no cell the
+/// Atlas names having the seminal vesicle as its home; the whole vesicle,
+/// its ampulla and its deferent duct, the ejaculatory duct and the
+/// prostate are named in the quiet ink.
+final class _SeminalVesicleOrgan extends _SpecimenOrgan {
+  _SeminalVesicleOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    super.level,
+  }) : _form = SeminalVesicleForm.place(
+         part: part,
+         anatomy: anatomy,
+         view: view,
+       );
+
+  final SeminalVesicleForm _form;
+
+  @override
+  double _settleOf(double detail) =>
+      SpecimenStep.settle(detail, span: SeminalVesicleStyle.settling);
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark, at the place its tissue is
+  // sampled; and the deferent duct, the whole vesicle and its ampulla on
+  // the body's right, the ejaculatory duct on its left and the prostate
+  // below, in the quiet ink. The ring gives room in this order: the
+  // deferent duct first, which runs out to the corner above the whole
+  // vesicle, so that the vesicle's name, set further in, has no line
+  // through it.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'home', word: 'mucosa', at: _form.homeName, home: true),
+    (
+      key: 'deferens',
+      word: 'vas deferens',
+      at: _form.deferensName,
+      home: false,
+    ),
+    (
+      key: 'vesicle',
+      word: 'seminal vesicle',
+      at: _form.vesicleName,
+      home: false,
+    ),
+    (key: 'ampulla', word: 'ampulla', at: _form.ampullaName, home: false),
+    (
+      key: 'ejaculatory',
+      word: 'ejaculatory duct',
+      at: _form.ejaculatoryName,
+      home: false,
+    ),
+    (key: 'prostate', word: 'prostate', at: _form.prostateName, home: false),
+  ];
+
+  // Set round all of it, out at the canvas's corners, as the prostate's
+  // are: round the opened vesicle, the whole one, the deferent ducts, the
+  // ejaculatory ducts and the arteries where they show, with room to
+  // either side, and the prostate's base where it still shows whole; a
+  // duct's end fading out is set clear of only as far as it still shows.
+  @override
+  late final List<Offset> named = () {
+    final double clear = _form.mm(SeminalVesicleStyle.nameClear);
+    return <Offset>[
+      for (int i = 0; i < _form.outlinePoints.length; i += 4)
+        _form.outlinePoints[i],
+      for (int i = 0; i < _form.prostate.length; i += 4)
+        if (_form.prostateShown(_form.prostate[i]) >
+            SeminalVesicleStyle.prostateNamed)
+          _form.prostate[i],
+      for (final TubeCourse tube in _form.beside)
+        for (int i = 0; i < tube.length; i++)
+          if ((i % 4 == 0 || i == tube.length - 1) &&
+              tube.shown[i] > SeminalVesicleStyle.nameShown) ...<Offset>[
+            tube.centres[i] + tube.across[i] * (tube.plus[i] + clear),
+            tube.centres[i] - tube.across[i] * (tube.minus[i] + clear),
+          ],
+    ];
+  }();
+
+  SeminalVesicleArt? _art;
+
+  SeminalVesicleArt _artFor(ZoomInks inks) {
+    final SeminalVesicleArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = SeminalVesicleArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => SeminalVesicleArt.bedOf(inks);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

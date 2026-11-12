@@ -316,6 +316,12 @@ final class ZoomDepth {
   /// every phone's canvas.
   static const double prostateUpright = 0.85;
 
+  /// How much taller than wide the seminal vesicles are framed: both drawn
+  /// from the front on the prostate's base, the deferent ducts rising above
+  /// them, they lie wider than they are tall, and their names, in rows
+  /// above them and below them, need room on every phone's canvas.
+  static const double seminalVesicleUpright = 0.74;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -357,8 +363,10 @@ final class ZoomDepth {
   /// place from the front, as [intestineUpright], the lungs, in place
   /// from the front, the left one cut open, as [lungUpright], the ovary,
   /// cut through its thickness, as [ovaryUpright], the parathyroid, seen
-  /// from behind on its thyroid lobe, as [parathyroidUpright], and the
-  /// prostate, cut from front to back in place, as [prostateUpright].
+  /// from behind on its thyroid lobe, as [parathyroidUpright], the
+  /// prostate, cut from front to back in place, as [prostateUpright], and
+  /// the seminal vesicles, from the front on the prostate's base, as
+  /// [seminalVesicleUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -447,6 +455,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.prostate) {
       return prostateUpright;
+    }
+    if (anatomy.organ == OrganKind.seminalVesicle) {
+      return seminalVesicleUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)

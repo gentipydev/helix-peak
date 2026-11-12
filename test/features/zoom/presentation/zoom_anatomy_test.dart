@@ -274,7 +274,8 @@ void main() {
       // thyroid lobe with the artery and the nerve beside it, framed wider
       // still for the same; and the prostate, cut in place, its seminal
       // vesicles above it and its sphincter below, framed a little wider
-      // for the same.
+      // for the same; and the seminal vesicles, both from the front on the
+      // prostate's base, framed wider still for the same.
       final double upright = ZoomDepth.uprightOf(
         subject.track,
         subject.path,
@@ -296,6 +297,7 @@ void main() {
             OrganKind.epididymis => ZoomDepth.epididymisUpright,
             OrganKind.parathyroid => ZoomDepth.parathyroidUpright,
             OrganKind.prostate => ZoomDepth.prostateUpright,
+            OrganKind.seminalVesicle => ZoomDepth.seminalVesicleUpright,
             _ => 1.0,
           },
           ZoomDepth.phoneAspect,
