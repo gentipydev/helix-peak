@@ -140,8 +140,21 @@ FOLLOW_BODY_LEFT = {"UBERON_0002048", "UBERON_0000992"}
 # width in from that border, where the drawing lays the lingula's lower
 # segment 10 mm in from its pleura, the drawing lying over the outline on
 # either figure (a tenth in, it hung 15 mm past the female figure's costal
-# border, and its step from the body jolted).
-SITE_LEFT = {"UBERON_0002108": (0.78, 0.28), "UBERON_0002048": (0.896, 0.04)}
+# border, and its step from the body jolted). The prostate is drawn cut
+# from front to back through its ejaculatory ducts (`prostate_anatomy.dart`),
+# and GTEx takes it from a "Non-nodular region of representative region"
+# (the GTEx Portal's sampling site for Prostate, gtex_v10): the peripheral
+# zone, over 70% of its glands (McNeal 1981, Prostate 2:35), nodules arising
+# in front of that plane round the urethra above the verumontanum. The site
+# lies in the peripheral zone on the body's right below the verumontanum's
+# level, 0.64 of the way down the oval the anatomogram draws, a seventh of
+# its width in from its edge, where the drawing lays it 3.5 mm in from the
+# capsule, the drawing's box on the oval's.
+SITE_LEFT = {
+    "UBERON_0002108": (0.78, 0.28),
+    "UBERON_0002048": (0.896, 0.04),
+    "UBERON_0002367": (0.639, 0.145),
+}
 
 # Parts the zoom follows into another of their outlines than the largest:
 # the one whose box's middle lies farthest from the figure's midline, written

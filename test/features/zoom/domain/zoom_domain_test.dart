@@ -650,6 +650,35 @@ void main() {
       expect(part.centre, box.center);
     });
 
+    test('go into the prostate in its peripheral zone on the body’s right, '
+        'where GTEx samples a representative region, 0.64 of the way down '
+        'its oval and a seventh of its width in from its left edge, the '
+        'view closing on its middle', () {
+      final String uberon = tissueAnatomy['prostate']!.uberon;
+      expect(AnatomyFigure.female.parts[uberon], isNull);
+      final AnatomyPart part = AnatomyFigure.male.parts[uberon]!;
+      final List<Offset> outline = part.followed;
+      final Rect box = boxOf(outline);
+      expect((part.site.dy - box.top) / box.height, closeTo(0.639, 0.01));
+      // On the body's right, the page's left of the oval's middle.
+      expect(part.site.dx, lessThan(box.center.dx));
+      double left = double.infinity;
+      for (int i = 0; i < outline.length; i++) {
+        final Offset a = outline[i];
+        final Offset b = outline[(i + 1) % outline.length];
+        if ((a.dy > part.site.dy) != (b.dy > part.site.dy)) {
+          left = math.min(
+            left,
+            a.dx + (part.site.dy - a.dy) * (b.dx - a.dx) / (b.dy - a.dy),
+          );
+        }
+      }
+      expect((part.site.dx - left) / box.width, closeTo(0.145, 0.01));
+      expect(part.framed, isNull);
+      expect(part.following, 0);
+      expect(part.centre, box.center);
+    });
+
     test('go into skeletal muscle in its outermost outline, the vastus '
         'lateralis, 0.6 of the way down and midway across it, the view '
         'closing on the whole thigh', () {
