@@ -176,13 +176,22 @@ FOLLOW_WITHIN = {"UBERON_0000998": "UBERON_0001255"}
 # card's 8 cm, so the zoom goes into the band's left leg near its inner
 # edge, 0.38 of the way down and 0.085 of its width in from its left
 # edge, where the drawing lays the functional layer on the body's right
-# beside the cavity, the drawing lying over the band's middle.
+# beside the cavity, the drawing lying over the band's middle. The vagina is
+# drawn opened down its front wall and pinned flat (`vagina_anatomy.dart`),
+# its front wall's halves out either side of its back wall, and GTEx takes
+# its "Anterior" wall (the GTEx Portal's sampling site for Vagina,
+# gtex_v10); the anatomogram draws it closed, a cup half as wide as it lies
+# opened, so the zoom goes in just inside the cup's left edge, 0.537 of the
+# way down and 0.03 of its width in, where the drawing lays the front
+# wall's half on the body's right in its middle third, the drawing lying
+# over the cup's middle.
 SITE_LEFT = {
     "UBERON_0002108": (0.78, 0.28),
     "UBERON_0002048": (0.896, 0.04),
     "UBERON_0002367": (0.639, 0.145),
     "UBERON_0001723": (0.17, 0.22),
     "UBERON_0001295": (0.382, 0.085),
+    "UBERON_0000996": (0.537, 0.03),
 }
 
 # Parts the zoom follows into another of their outlines than the largest:

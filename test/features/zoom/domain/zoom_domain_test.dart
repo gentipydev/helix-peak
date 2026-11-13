@@ -747,6 +747,35 @@ void main() {
       expect(part.centre, box.center);
     });
 
+    test('go into the vagina on its front wall, where GTEx samples it, just '
+        'inside the left edge of the cup the anatomogram draws it as, 0.537 '
+        'of the way down and 0.03 of its width in, the view closing on its '
+        'middle', () {
+      final String uberon = tissueAnatomy['vagina']!.uberon;
+      expect(AnatomyFigure.male.parts[uberon], isNull);
+      final AnatomyPart part = AnatomyFigure.female.parts[uberon]!;
+      final List<Offset> outline = part.followed;
+      final Rect box = boxOf(outline);
+      expect((part.site.dy - box.top) / box.height, closeTo(0.537, 0.01));
+      expect(part.site.dx, lessThan(box.center.dx));
+      expect(inside(outline, part.site), isTrue);
+      double left = double.infinity;
+      for (int i = 0; i < outline.length; i++) {
+        final Offset a = outline[i];
+        final Offset b = outline[(i + 1) % outline.length];
+        if ((a.dy > part.site.dy) != (b.dy > part.site.dy)) {
+          left = math.min(
+            left,
+            a.dx + (part.site.dy - a.dy) * (b.dx - a.dx) / (b.dy - a.dy),
+          );
+        }
+      }
+      expect((part.site.dx - left) / box.width, closeTo(0.03, 0.015));
+      expect(part.framed, isNull);
+      expect(part.following, 0);
+      expect(part.centre, box.center);
+    });
+
     test('go into the seminal vesicle in the outline the anatomogram draws '
         'on the bladder’s base, on the body’s left, not the one it hangs '
         'below the prostate, the view closing on the midline a little '
