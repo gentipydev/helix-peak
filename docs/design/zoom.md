@@ -640,6 +640,50 @@ convention is, where it comes from, and what it decided:
   *Consequence:* the tongue is drawn as Gray's section widened to the jaw,
   cut across at the first molars between the mandible's halves, its
   intrinsic muscle where the cell lives ("The tongue" below).
+- **The uterus.** It is pear-shaped, about 7.5 cm long, 5 cm broad above
+  and 2.5 cm thick; its cavity is a slit, triangular in the coronal plane,
+  its base between the tubes' openings and its apex at the internal
+  orifice; its muscle is dense and grey, its middle layer holding the
+  larger vessels, and its mucosa soft and pale red, its tubular glands
+  convoluted at their deep ends and reaching down to the muscle; the
+  uterine artery climbs tortuous beside it to the tube (Gray 1918, pp.
+  1259-1264). The endometrium is 8.6 mm thick, both layers, in 849
+  premenopausal women, 5.4 mm after menstruation and 11.1 mm by day 18
+  (Tsuda et al. 2018). GTEx takes the uterus's corpus once it has
+  bivalved it along the canal to the fundus. The anatomogram draws the
+  endometrium as a band round the cavity, half as wide again as the
+  uterus is at the card's 8 cm, and the Atlas's endometrial cells are its
+  glandular, secretory, luminal, ciliated and stromal cells.
+  *Consequence:* the uterus is drawn as GTEx opens it, its back half from
+  the front, the endometrium in the accent, named by the cell ("The uterus"
+  below).
+- **The vagina.** Its walls lie in contact, the front about 7.5 cm long and
+  the back about 9; the cervix stands in its upper end, the posterior
+  fornix the deepest recess round it; each wall has a median column with
+  transverse rugae running from it, the front's lower part raised by the
+  urethra as the urethral carina; the hymen's caruncles remain round the
+  orifice (Gray 1918, pp. 1264-1265). It is widest just below the cervix,
+  32.5 mm (Barnhart et al. 2006). GTEx takes its anterior wall, and no cell
+  the Atlas names has the vagina as its home. *Consequence:* the vagina is
+  drawn opened down its front wall and pinned flat, the front wall's
+  halves laid out either side in the accent ("The vagina" below).
+- **The blood vessel.** An artery's wall has three coats, the intima, the
+  media of circular smooth muscle and elastic lamellae, and the adventitia
+  with its vasa vasorum; the descending thoracic aorta begins on the left
+  of the column at the fourth thoracic vertebra and nears the middle line
+  as it descends, the azygos climbing on the right of the bodies with the
+  thoracic duct between it and the aorta, the hemiazygos crossing behind
+  the aorta, and the aortic intercostals leaving its back (Gray 1918, pp.
+  568-570 and 601-602). The descending aorta is 2.33 cm across where it
+  begins and 2.14 cm lower down (Euathrongchit et al. 2009); the thoracic
+  aorta's wall is 2.23 mm thick on average (Malayeri et al. 2008). GTEx
+  takes the aorta from the ascending aorta or other thoracic regions, and
+  the coronary and the tibial arteries, the Atlas's blood vessel; its
+  cells there are the vascular endothelial, the vascular smooth muscle
+  cells and the pericytes. *Consequence:* the blood vessel is drawn as a
+  length of the descending thoracic aorta on its vertebrae, a window cut in
+  steps through its coats, the coat the cell lives in in the accent ("The
+  blood vessel" below).
 - **Histology.** Haematoxylin stains nuclei and ribosome-rich cytoplasm;
   eosin stains protein; fat, mucus and lumens take neither. A ×40 objective
   under a standard eyepiece shows a field about half a millimetre across.
@@ -857,6 +901,8 @@ Sources:
   (<https://www.ebi.ac.uk/gxa/licence.html>), which asks to be cited as
   "Expression Atlas in 2026: enabling FAIR and open expression data through
   community collaboration and integration", Nucleic Acids Research, 2025.
+- Euathrongchit J et al. Normal thoracic aortic diameter in Thai people by
+  multidetector computed tomography. J Med Assoc Thai 2009;92:236–242.
 - EyeWiki, American Academy of Ophthalmology. Ora serrata.
 - Fang KM et al. Ultrasonographic and elastographic biometry in adult major
   salivary glands: a preliminary case-control report. Sci Rep 2019;9:8885.
@@ -1024,6 +1070,9 @@ Sources:
   vas deferens. J Ultrasound Med 2009;28:839–846.
 - Mikes BA, Puckett Y. Nabothian Cyst. In: StatPearls. StatPearls
   Publishing, 2025.
+- Malayeri AA et al. Relation of aortic wall thickness and distensibility
+  to cardiovascular risk factors (from the Multi-Ethnic Study of
+  Atherosclerosis [MESA]). Am J Cardiol 2008;102:491–496.
 - Mitchell DG et al. Hematopoietic and fatty bone marrow distribution in
   the normal and ischemic hip: new observations with 1.5-T MR imaging.
   Radiology 1986;161:199–202.
@@ -1202,6 +1251,8 @@ Sources:
 - Thiesen DM et al. A comparison between Asians and Caucasians in the
   dimensions of the femoral isthmus based on a 3D-CT analysis of 1189 adult
   femurs. Eur J Trauma Emerg Surg 2022;48:2379–2386.
+- Tsuda H et al. Measurement of endometrial thickness in premenopausal
+  women in office gynecology. Reprod Med Biol 2018;17:29–35.
 - Thul PJ et al. A subcellular map of the human proteome. Science
   2017;356:eaal3321.
 - Thuy TTH et al. The Main Blood Supply for The Nipple-Areola Complex of
@@ -1436,7 +1487,7 @@ body drew for it (`OrganArt`), so the step is one shape seen closer. It
 comes up over the body's own drawing of the organ early in the step, and
 `zoom_anatomy_test` holds the two to the same point of the screen while both
 show. On the way in, the body's line art and its unlit organs give way.
-Twenty-six of the specimens below then draw in to outlines of their own
+Twenty-eight of the specimens below then draw in to outlines of their own
 (`_SpecimenOrgan`, `OutlineMorph`), each becoming the bed its specimen comes
 up over (`SpecimenStep`); the breast's is its mound, its outline without the
 axillary tail, which comes up with the rest of it, and the cervix's is the
@@ -1453,9 +1504,14 @@ the larger one the body hangs below the prostate), which draws in to the
 opened vesicle; smooth muscle's is the body's outline of the bladder's
 wall; the tongue's is the mouth the female figure draws in its place, or
 the male's sliver, which draws in to the soft tissue between the
-mandible's halves at a person's size, as the figure is drawn. The brain, the eye, the skin, the lymph node, the parathyroid, the
-placenta and the fat, which the body draws no outline of that shows them
-(the parathyroid none at all: the body's thyroid stands in for it), come up
+mandible's halves at a person's size, as the figure is drawn; the
+uterus's is the band the body draws the endometrium as, its cavity filled
+(`UterusForm.silhouetteOf`), which draws in to the bivalved uterus; the
+vagina's is the closed cup the body draws, which draws in to the vagina
+pinned flat. The brain, the eye, the skin, the lymph node, the
+parathyroid, the placenta, the fat and the blood vessel, which the body
+draws no outline of that shows them (the parathyroid none at all: the
+body's thyroid stands in for it; the vessels one tree of them), come up
 over the body's drawing instead, a crossfade.
 
 **Its real size.** The anatomogram is a diagram: it draws a stomach 11 cm
@@ -1473,8 +1529,8 @@ the body it lies (the user's ask of 2026-10-21). They stay round the bone
 marrow, the heart, the thigh, the kidney, the liver, the stomach, the
 esophagus, the thyroid, the adrenal, the fallopian tube, the bladder, the
 breast, the cervix, the epididymis, the gallbladder, the intestines, the
-lungs, the ovary, the prostate, smooth muscle and the tongue, round the
-bladder all
+lungs, the ovary, the prostate, smooth muscle, the tongue and the uterus,
+round the bladder all
 but the figure's smooth muscle, which the anatomogram draws as the bladder's own
 wall, round the cervix all but the figure's vagina, which the cervix draws
 as its own vault, round the epididymis all but the figure's testis,
@@ -1482,20 +1538,22 @@ which it draws whole beside it, round the ovary all but the figure's
 fallopian tube, which it draws arching over it, and round the prostate
 all but the figure's seminal vesicle, which it draws above its base, and
 round smooth muscle all but the figure's bladder, which the anatomogram
-draws on the same outline
+draws on the same outline, and round the uterus all but the figure's
+cervix and tubes, which it draws as its own
 (`_SpecimenOrgan`'s `notAround`); the kidney, the adrenal and the ovary keep the body's flat
 drawing of the other one beside them, the lungs the body's right lung until their own comes up, the thigh
 the body's four other
 muscles until its own come up, and the cervix the body's other half of it
 until it comes up. Round the pancreas, the testis, the salivary gland and
 the pituitary they give way to the specimen's own neighbours, and round
-the seminal vesicles to its own alone: grown to the vesicle's size, the
-figure's parts would lie nowhere true; the seven specimens that crossfade
-come up with none of the figure round them.
+the seminal vesicles and the vagina to their own alone: grown to the
+vesicle's size, or the vagina's laid open, the figure's parts would lie
+nowhere true; the eight specimens that crossfade come up with none of the
+figure round them.
 
 **Its anatomy.** The fifty-four curated proteins' paths reach all
-thirty-six of the organs the zoom draws. Thirty-three are drawn from anatomy
-as specimens, each in a section below, in the neutrals but for vessels,
+thirty-six of the organs the zoom draws, and all thirty-six are drawn from
+anatomy as specimens, each in a section below, in the neutrals but for vessels,
 nerves and the accent; in each the part the zoom's cell lives in is in the
 accent, by the kind of organ and of cell, never by gene: one flat tone cut
 by its anatomy (the user's choice of 2026-10-19), but in the pancreas, the
@@ -1537,15 +1595,13 @@ or tubules:
 | Seminal vesicles (ANGPT1) | from the front on the prostate's base, the bladder taken away, the left one laid open | its mucosa |
 | Smooth muscle (LOXL2) | the bladder's wall whole from the front, a patch of its outer layer taken away | the whole detrusor |
 | Tongue (CKMT2) | cut across at the first molars between its mandible's halves, from the front | its intrinsic muscle |
+| Uterus (PAEP) | bivalved along its canal to the fundus, its back half from the front | its endometrium, named its glands, its surface or its stroma |
+| Vagina (ALOX12) | opened down its front wall and pinned flat | its front wall |
+| Blood vessel (GAS6) | a length of the descending thoracic aorta on its vertebrae, a window cut in steps | its media, its intima, or its adventitia |
 
-The vessel (GAS6) has a drawing of its own, a length of artery. The other
-two kinds are the anatomogram's own outline, sculpted with a surface for
-its kind (and any organ the body draws, where its specimen has no figure
-to be posed on, with lobules):
-
-| Look | Organs (proteins) |
-|---|---|
-| a wall round a lumen | uterus (PAEP), vagina (ALOX12) |
+No kind is left on the anatomogram's own outline: `_DrawnOrgan` stays only
+for an organ the body draws where its specimen has no figure to be posed
+on, sculpted with lobules.
 
 **The pancreas.** It is drawn as a fresh specimen under the zoom's one lamp,
 with the stomach taken away (`presentation/scenes/organs/pancreas/`, the
@@ -2943,6 +2999,134 @@ the vessels, the nerves and the accent:
   becomes the bed the section comes up over, in the muscle's tone; the
   mandible's halves and the molars come up with it in its layer.
 
+**The uterus.** It is drawn as a fresh specimen under the same lamp,
+bivalved along its canal to the fundus as GTEx opens it, its back half
+seen from the front (`presentation/scenes/organs/uterus/`, 2026-11-13,
+every choice mine at the user's word), in the cervix specimen's frame,
+its cervix the cervix specimen's own below the isthmus:
+
+- *Its shape* (`uterus_anatomy.dart`, millimetres from the middle of the
+  canal, x toward the body's left, y down): 79 mm from the fundus to the
+  external os, 50 across the cornua; the cavity a triangle 31 mm across
+  between its angles and 30 from its fundal border to the internal
+  orifice, its sides bowed in a little; the endometrium, one layer of
+  Tsuda's median, 5 mm in the body and 1.2 at the isthmus, its basal layer
+  1 mm.
+- *Where it is sampled.* In the endometrium's functional layer on the
+  body's right, where the cut crosses it beside the cavity, for every cell.
+  A rule in the tool puts the body's site in the band's left leg near its
+  inner edge (`SITE_LEFT`, 0.382 of the way down, 0.085 of the width in),
+  so the uterus lies within 5.2 mm of the body's band.
+- *Its surface:* the endometrium flat in the mark, the cut band round the
+  cavity and the cavity's back wall alike: its glands coiling out through
+  the functional layer as crisp creases, the line its basal layer meets
+  the functional at, the line it meets the muscle at, and on the back
+  wall the openings of its glands as fine pits 1.3 mm apart, the cavity's
+  rim sunk below the cut. The muscle round it is cut, grey and a little
+  warm, the vessels of its middle layer cut across as dark ovals; the
+  tubes' intramural parts run through the cornua from the cavity's
+  angles. Below the isthmus the muscle gives way to the cervix's pale
+  stroma, its canal, palmate folds, crypts and cysts the cervix
+  specimen's.
+- *Round it:* each tube's isthmus and each ovarian ligament running out
+  from the cornua and fading; the uterine arteries coming in at the
+  isthmus, climbing tortuous beside the body with their branches into the
+  wall, their tubal and ovarian branches fading out and their
+  cervicovaginal branches cut short. The body's figure stays faint round
+  it but its cervix and tubes.
+- *Its names:* by the Atlas's name for the cell, `endometrial glands`
+  (glycodelin's glandular cells, and any other), `surface epithelium` (a
+  luminal or ciliated cell) or `endometrial stroma`, in the accent; the
+  `myometrium` over the fundus, the `fallopian tube`, the `cervical canal`
+  and the `uterine artery` in the quiet ink, set round it. The ovarian
+  ligaments are drawn and not named: a name at the ligament's end ran its
+  line through the names above the uterus on every phone.
+- *Its view* is framed 1.3 (`ZoomDepth.uterusUpright`).
+- *On the step from the body* the band, its cavity filled, flat and lit in
+  the mark, draws in to the uterus's outline over 0.7 of the detail (at
+  0.6 it jolted 1.71 px at 60 fps), matched at the top's middle, the
+  cornua and the foot, and becomes the bed the uterus comes up over, in
+  the muscle's tone.
+
+**The vagina.** It is drawn as a fresh specimen under the same lamp,
+opened down the middle of its front wall from the introitus to the
+anterior fornix and pinned flat, its inside facing the eye, as a
+pathologist lays a hollow organ open (`presentation/scenes/organs/vagina/`,
+2026-11-13, every choice mine at the user's word):
+
+- *Its shape* (`vagina_anatomy.dart`, millimetres from the external os): the
+  back wall in the middle, 32 mm wide below the cervix and 28 at the
+  introitus, 103 mm from the posterior fornix to the fourchette; the front
+  wall's halves out either side, 15 mm each and shorter, their cut edges
+  outermost; the lateral sulci between the walls as a line; the cervix's
+  vaginal part 24 mm across standing in the vault, its os a slit.
+- *Where it is sampled.* On the front wall's half on the body's right, in
+  its middle third, a little out from the sulcus, for every cell: no cell
+  the Atlas names has the vagina as its home, and GTEx takes the anterior
+  wall. A rule in the tool puts the body's site just inside the cup's left
+  edge (`SITE_LEFT`, 0.537 down, 0.03 in), so the vagina lies within 3.1 mm
+  of the body's cup.
+- *Its surface:* the front wall's halves flat in the mark, cut by their
+  rugae and the anterior column's halves along their cut edges, the
+  urethral carina below; the back wall a deep warm mucosa, its posterior
+  column and its rugae alike; the vaginal part lit as it rounds out of the
+  vault, its shadow on the back wall below it; the hymen's caruncles pale
+  along the introitus.
+- *Round it:* nothing: laid open at 3.4 times the body's drawing of it,
+  the figure's parts would lie nowhere true, and they give way, as round
+  the seminal vesicles.
+- *Its names:* `anterior wall` in the accent at the site; the `cervix`,
+  the `posterior fornix`, the `rugae` and the `hymen` in the quiet ink,
+  set round it. The urethral carina is drawn and not named: its name,
+  beside the hymen's below the vagina, ran the hymen's line through its
+  plate.
+- *Its view* is framed 1.3 (`ZoomDepth.vaginaUpright`), its names clean on
+  every phone's canvas there.
+- *On the step from the body* the cup, flat and lit in the mark, draws in
+  to the pinned outline over 0.6 of the detail, matched at the top's
+  middle, the upper corners and the foot, and becomes the bed the vagina
+  comes up over, in the back wall's tone.
+
+**The blood vessel.** It is drawn as a fresh specimen under the same lamp:
+a 12 cm length of the descending thoracic aorta, from the sixth thoracic
+vertebra to the tenth, seen from the front in place on the column, what
+lies in front of it taken away (`presentation/scenes/organs/vessel/`,
+2026-11-13, every choice mine at the user's word):
+
+- *Its shape* (`aorta_anatomy.dart`, millimetres from the middle of the
+  eighth thoracic body): the aorta 22.6 mm across above and 21.4 below,
+  on the left of the column and nearing the middle line as it descends,
+  cut short at both ends; the vertebral bodies 34 mm wide and 21 high, the
+  discs 6 mm, fading out above and below.
+- *Where it is sampled.* In the media bared in the window, just outside the
+  inner window on the body's right, for every cell. The body draws the
+  vessels as one tree, the aorta a straight tube down the trunk from behind
+  the heart: a rule in the tool puts the body's site on that tube in the
+  chest a tenth of the way down it (`SITE_LEVEL`) and closes the view there
+  (`FRAME_AT_SITE`), so the step is a crossfade onto the aorta where GTEx
+  takes it.
+- *Its surface:* a window cut in its front wall in steps, as a plate of an
+  artery's coats is: the adventitia, lit as the aorta rounds with its vasa
+  vasorum fine and red on it, turned back over a long oval; the media bared
+  inside it, its lamellae running round the aorta; inside that a smaller
+  window through the media and the intima, the back wall's intima seen
+  through it, pale and sunk below the cut, with the openings of a pair of
+  intercostal arteries. The coat the cell lives in is flat in the mark.
+- *Round it:* the vertebral bodies lit behind it, the posterior intercostal
+  arteries leaving its back in pairs, the right ones across the column, the
+  left soon turning out of sight; the azygos climbing on the right of the
+  bodies, the thoracic duct between it and the aorta, the hemiazygos
+  crossing behind the aorta to the azygos.
+- *Its names:* by the Atlas's name for the cell, the `media` (GAS6, which
+  names none, and a vascular smooth muscle cell), the `intima` (an
+  endothelial cell) or the `adventitia` (a pericyte) in the accent; the
+  other two coats, an `intercostal artery` and the `azygos vein` in the
+  quiet ink, in a column at either edge of the canvas, level with each.
+  The thoracic duct and the vertebral bodies are drawn and not named: their
+  names had no room in a column on the narrowest phones.
+- *Its view* is framed 1.4 (`ZoomDepth.vesselUpright`), the drawing's
+  origin laid near the aorta's middle so the right column has room.
+
 **The glide.** The camera carries the organ from where it lies in the body
 to the middle of the view over the first three fifths of the step. From the
 head or the thigh that is a long way, and `zoom_smoothness_test` plays every
@@ -3602,6 +3786,20 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   the tongue, no fat among its fibres. The home is its intrinsic muscle,
   though the genioglossus's fibres in it are extrinsic, and one site, in
   its transverse fibres, for every cell.
+- **One uterus, mid-cycle.** A nulliparous uterus in its secretory phase,
+  the endometrium one thickness from the fundus to the isthmus; its glands
+  drawn hundreds of times coarser than they are, its pits far fewer; one
+  site for every cell, the name alone telling glands, surface and stroma
+  apart.
+- **A vagina laid flat.** Opened down its front wall and pinned flat, so
+  the front wall GTEx samples faces the eye; one site on it for every cell;
+  the rugae even and the vaginal part whole; no vessels, which lie outside
+  the wall.
+- **The aorta for every vessel.** The Atlas's blood vessel is three
+  arteries, the aorta, the coronaries and the tibial; the zoom draws the
+  aorta in the chest alone. Its window's steps are an illustrator's, not a
+  dissection's; its lamellae far fewer than its 50 or so; its home one coat
+  in one tone, the coat the cell lives in.
 - **One field a tissue.** Wherever in the organ it is cut, and for every
   gene that goes there with the same kind of cell. "Lymphoid tissue" is a
   lymph node, and skin has no keratin layer of its own.
@@ -3793,6 +3991,27 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   the extrinsic and floor muscles, the glands, the sulci, the mandible's
   halves, the molars, the papillae and the names' places
   (`tongue_form.dart`), and how it is drawn (`tongue_art.dart`).
+- `presentation/scenes/organs/uterus/`: the uterus bivalved to its fundus,
+  with every source (`uterus_anatomy.dart`), every number its look is
+  tuned by (`uterus_style.dart`), its form posed on the female figure, with
+  the band's silhouette the step draws in from, the cavity, the
+  endometrium and its glands, pits and layers, the muscle's vessels, the
+  tubes, the ligaments, the arteries and their branches, its home rule and
+  its names' places (`uterus_form.dart`; its cervix is the cervix form's,
+  `CervixForm.outlineMm`, `canalMm`, `foldsMm`, `cryptsMm`, `surfaceMm`,
+  `grooveAt`), and how it is drawn (`uterus_art.dart`).
+- `presentation/scenes/organs/vagina/`: the vagina pinned flat, with every
+  source (`vagina_anatomy.dart`), every number its look is tuned by
+  (`vagina_style.dart`), its form posed on the female figure, with the
+  walls, the sulci, the vaginal part, the columns, the rugae, the
+  caruncles and its names' places (`vagina_form.dart`), and how it is
+  drawn (`vagina_art.dart`).
+- `presentation/scenes/organs/vessel/`: the aorta on its vertebrae, with
+  every source (`aorta_anatomy.dart`), every number its look is tuned by
+  (`aorta_style.dart`), its form, with the windows, the lamellae, the
+  ostia, the vasa vasorum, the column, the vessels round it, its home rule
+  and its names' places and columns (`aorta_form.dart`), and how it is
+  drawn (`aorta_art.dart`).
 - `presentation/scenes/organs/`: the other specimens, each in its folder
   in the same four files, `*_anatomy.dart` (in millimetres, every size with
   its source, the drawing's choices listed as such), `*_style.dart` (every
@@ -4221,6 +4440,36 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   holds its site rule on both figures, and `zoom_anatomy_test` names it as
   framed closer than a phone's proportions. `zoom_paint_timing_check` times
   it with CKMT2's zoom.
+- `uterus_form_test` holds the uterus to Gray's size, its cervix the
+  cervix specimen's, laid within 6 mm of the body's band; its site in the
+  functional layer on the body's right; the cavity's triangle, the
+  endometrium round it thinning to the isthmus, the glands inside it and
+  the pits on the back wall; the vessels in the muscle; the tubes from the
+  angles and the arteries mirrored beside it; the step's marks the same on
+  the band's silhouette and the uterus; its home rule over the Atlas's
+  names; and the same uterus every time. `uterus_art_test` holds the mark
+  to the endometrium alone, the hand-over to the band with no layer or
+  mesh, the figure's cervix and tubes left out round it and its vagina
+  kept, the meshes the same every time and inside its bounds, the names,
+  and the steps to it and back. `uterus_names_test` sets glycodelin's five
+  names in the app's own type on seven phone canvases.
+- `vagina_form_test` holds the vagina to its size laid flat, within 4 mm
+  of the body's cup; its site on the front wall's half on the body's right
+  in its middle third; the walls, the vaginal part in the vault, the rugae
+  off it and the caruncles along the introitus; the step's marks; its
+  names; and the same vagina every time. `vagina_art_test` holds the mark
+  to the front wall alone, the hand-over to the cup, the figure gone at
+  the stop, the meshes and bounds, the names, and the steps.
+  `vagina_names_test` sets ALOX12's five names on seven phone canvases.
+- `aorta_form_test` holds the aorta to its size and course, its windows on
+  its front, the inner inside the outer, the ostia in the inner; its site
+  in the media; the column fading, the intercostals in pairs, the azygos
+  and the duct beside it; its home rule; and the same aorta every time.
+  `aorta_art_test` holds the mark to the home coat alone for each of the
+  three, the crossfade with no layer, the meshes and bounds, and the names
+  and their columns. `aorta_names_test` sets GAS6's five names in a column
+  at either edge on nine phone canvases. `zoom_domain_test` holds the three
+  site rules, and `zoom_paint_timing_check` times the three zooms.
 - Each of the other seventeen specimens has a `*_form_test` (its size and
   place on either figure, its site where it is sampled, its parts at their
   measured sizes, its home rule over the Atlas's names, the step's marks

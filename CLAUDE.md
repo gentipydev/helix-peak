@@ -807,7 +807,7 @@ seen:
   CC BY 4.0), the organs the Atlas reads the gene raised in lit;
   `tool/zoom/anatomogram.py` generates `anatomy_figures.g.dart` from it,
   and the body carries its credit, with the Atlas's, in one caption line;
-- the organ: thirty-three are drawn from general anatomy as lit specimens
+- the organ: all thirty-six are drawn from general anatomy as lit specimens
   (`presentation/scenes/organs/<organ>/`, four files each: the anatomy in
   millimetres with its sources, the style, the form, the art), the part
   the zoom's cell lives in in the accent, by the Atlas's name for the cell
@@ -834,11 +834,17 @@ seen:
   the bladder's wall whole from the front, a patch of its outer layer
   taken away; the tongue cut across at the first molars between its
   mandible's halves, seen from the front, its intrinsic muscle in the
-  accent; the front of the thigh for skeletal muscle; the adrenal cut on its
+  accent; the uterus bivalved along its canal to the fundus as GTEx opens
+  it, its endometrium in the accent, named its glands, its surface or its
+  stroma by the cell; the vagina opened down its front wall and pinned
+  flat, the front wall GTEx samples in the accent; a blood vessel as a
+  length of the descending thoracic aorta on its vertebrae, a window cut
+  through its coats in steps, the coat the cell lives in in the accent;
+  the front of the thigh for skeletal muscle; the adrenal cut on its
   kidney; the pituitary cut down its middle in the brain's own frame; a
   lymph node cut through its hilum; the fallopian tube opened along its
   length, and the cervix along its canal; and blocks of skin, placenta and
-  abdominal fat. Twenty-six draw in from the body's own outline of them
+  abdominal fat. Twenty-eight draw in from the body's own outline of them
   (the breast to its mound, its axillary tail coming up with it; the
   cervix from the one of its two halves the body follows; the epididymis
   from its band, its testis coming up beside it; the lungs from the body's
@@ -847,7 +853,9 @@ seen:
   seminal vesicle from the small outline the body draws on the bladder's
   base, not the one it hangs below the prostate; smooth muscle from the
   body's outline of the bladder's wall; the tongue from the mouth the
-  female figure draws in its place, at a person's size), most
+  female figure draws in its place, at a person's size; the uterus from
+  the band the body draws the endometrium as, its cavity filled; the
+  vagina from the closed cup the body draws), most
   with the figure's
   parts kept faint round them (round the bladder all but its smooth
   muscle, which the anatomogram draws as the bladder's own wall, round the
@@ -855,14 +863,13 @@ seen:
   epididymis all but the testis, which it draws whole beside it, round
   the ovary all but its tube, which it draws arching over it, round
   the prostate all but its seminal vesicle, which it draws above
-  its base, and round smooth muscle all but its bladder, drawn on the
-  same outline; the figure gives way round the seminal vesicles, whose
-  size would put its parts nowhere true); the seven the body draws no outline of that shows them
-  crossfade, the parathyroid over the body's thyroid, which stands in for
-  it.
-  The other organs are the anatomogram's outline, grown to its real size
-  and sculpted with a surface for its kind, the figure's parts faint round
-  it, and a vessel has a drawing of its own;
+  its base, round smooth muscle all but its bladder, drawn on the
+  same outline, and round the uterus all but its cervix and tubes, which
+  it draws as its own; the figure gives way round the seminal vesicles and
+  the vagina, whose size would put its parts nowhere true); the eight the
+  body draws no outline of that shows them crossfade, the parathyroid over
+  the body's thyroid, which stands in for it, and the blood vessel onto the
+  aorta in the chest, where GTEx takes it;
 - the tissue as a section under an eyepiece (`TissueSlide`: one engine, a
   recipe a tissue architecture, the zoom's cell laid where it lives);
 - the cell, the protein glowing where the Atlas finds it, and the nucleus
