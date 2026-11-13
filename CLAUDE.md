@@ -92,12 +92,6 @@ Git: commit the session's own changes locally. Never push, in any form.
   (`HelixModel`), promoted out of `lib/features/home/` for the lab's
   replication flow, and its painter (`DnaHelixPainter`), promoted for the
   zoom's DNA stop. The home screen's widget stays in home.
-- `lib/shared/ribosome/`: translation on the ribosome (`TranslationTimeline`,
-  `TranslationDirector`, `CaptionGenerator`, `TranslationPainter`), its
-  player (`TranslationPlayer`) and the chain's flight into the protein page
-  (`TranslationFlightPainter`): the walk's ribosome. The lab had it first and
-  no longer has one. The NMD threshold it shares with mutate is
-  `lib/core/biology/nmd.dart`.
 - `lib/shared/folding/`: a chain folding, promoted out of the lab for the
   walk's fold page, which the lab no longer has. `FoldTimeline` tells it in
   four steps (hydrophobic collapse, helices coil, strands pair, bridges snap
@@ -121,14 +115,10 @@ Git: commit the session's own changes locally. Never push, in any form.
   fold cannot be bound to, opens on the model.
 - `lib/features/gene_lookup/`: **the walk**. It has `data/`, `domain/` and
   `presentation/` (`anatomy/`, `clinvar/`, `constraint/`, `inspector/`,
-  `structure/`, `cubit/`, `screens/`). The mRNA page, untouched, offers
-  "Ribosome ›" in its header: the translation plays over the page on the
-  shared player, under the walk's header, and at the stop codon the chain
-  flies into the protein page, which the walk turns to under it
-  (`anatomy/walk_ribosome.dart`). While it is up, the stage bar stands down, its band given to the player's controls: no swipe turns a page
-  until the chain has landed, and Back puts it away onto the transcript.
-  Without it the swipe plays the walk's own translation, as it always has.
-  The gene page, with nothing picked, offers "Zoom ›" in the same place for
+  `structure/`, `cubit/`, `screens/`). The ribosome that once played over
+  the mRNA page ("Ribosome ›") and its clip export were removed at the
+  user's word on 2026-11-13; the swipe plays the walk's own translation.
+  The gene page, with nothing picked, offers "Zoom ›" in its header for
   a protein whose `locus` track is ready, and never in a ClinVar landing:
   it opens the zoom over the walk (see "Zoom" below), which comes back to
   this page. A protein with no ready locus is drawn as it always was.
@@ -147,7 +137,7 @@ Git: commit the session's own changes locally. Never push, in any form.
 
 There was a lab (`lib/features/lab/`, behind `LAB_ENABLED`) where flows were
 tried before they earned a place; replication, the zoom, the fold animation
-and the walk's ribosome came out of it. It was deleted on 2026-10-09 with
+and the walk's ribosome (removed 2026-11-13) came out of it. It was deleted on 2026-10-09 with
 every flow still in it. Links from then (`/lab/replication`, `/lab/zoom`)
 still redirect; `/lab` itself is not a page.
 

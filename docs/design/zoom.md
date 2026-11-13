@@ -9,8 +9,7 @@ protein's gene, through nine stops: body, organ, tissue, cell, nucleus,
 chromosome, band, gene and DNA. It is one continuous depth.
 
 - **Getting there.** The walk's gene page offers "Zoom ›" beside its line,
-  where the transcript offers "Ribosome ›", for a protein whose `locus`
-  track is ready: the twenty curated ones today. It began as a Lab flow, and
+  for a protein whose `locus` track is ready: the twenty curated ones today. It began as a Lab flow, and
   its links from then (`/lab/zoom/<slug>`) still open it.
 - **Moving through it.**
   - The card's ‹ and › fly to the stop either side, and a double tap goes

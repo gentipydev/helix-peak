@@ -36,8 +36,6 @@ import '../../../../shared/clinvar/evidence_row.dart';
 import '../../../../shared/clinvar/evidence_sections.dart';
 import '../../../../shared/format.dart';
 import '../../../../shared/inspector/inspector_sheet.dart';
-import '../../../../shared/ribosome/translation_player.dart';
-import '../../../../shared/ribosome/translation_timeline.dart';
 import '../../../../shared/structure/structure_view.dart';
 import '../clinvar/clinvar_block.dart';
 import '../clinvar/variants_overview.dart';
@@ -52,7 +50,6 @@ import 'anatomy_canvas.dart';
 import 'anatomy_fasta.dart';
 import 'anatomy_selection_canvas.dart';
 import 'record_sheet.dart';
-import 'walk_ribosome.dart';
 
 /// One grid of squares, drawn as whatever the stage is actually about.
 ///
@@ -177,14 +174,6 @@ class _AnatomyScreenState extends State<AnatomyScreen>
 
   int _stage = 0;
   Tracer? _tracer;
-
-  /// The ribosome, while it plays translation over the transcript page or its
-  /// chain flies into the protein page; null otherwise.
-  WalkRibosome? _ribosome;
-  LocalHistoryEntry? _ribosomeHistory;
-
-  /// Whether the record makes a protein the ribosome can play.
-  bool? _translatableMemo;
 
   AnatomySelection? _selection;
   LocalHistoryEntry? _selectionHistory;
@@ -367,9 +356,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   String? get _selectionHint {
     final AnatomySelection? selection = _selection;
     if (selection == null) {
-      if (_tracer != null ||
-          _maskedIndex != null ||
-          (_ribosome != null && !_ribosome!.flying)) {
+      if (_tracer != null || _maskedIndex != null) {
         return null;
       }
       final AnatomyStage? stage = _stage < _model.stages.length
@@ -1470,8 +1457,6 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     _selectionProgress.dispose();
     _reveal?.cancel();
     _removeSheetHistory();
-    _removeRibosomeHistory();
-    _ribosome?.dispose();
     _sheet.removeListener(_sheetSizeChanged);
     _sheet.dispose();
     _sheetReveal.dispose();
@@ -1493,8 +1478,6 @@ class _AnatomyScreenState extends State<AnatomyScreen>
       _geneRunsMemo = null;
       _onLanded = null;
       _clearSelection();
-      _releaseRibosome();
-      _translatableMemo = null;
       _model = AnatomyModel.derive(widget.record, chain: widget.target.chain);
       _stage = 0;
       _tracer = null;
@@ -1516,11 +1499,6 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   }
 
   void _finishSwipe(DragEndDetails details) {
-    // The ribosome turns no page until its chain has landed: a swipe mid-play
-    // cut straight to the chain's flight. Back is the way out of it.
-    if (_ribosome != null) {
-      return;
-    }
     if (!_verticalSwipe &&
         _swipeTravel.dx.abs() >= 48 &&
         _swipeTravel.dx.abs() > _swipeTravel.dy.abs() * 1.5) {
@@ -1531,21 +1509,6 @@ class _AnatomyScreenState extends State<AnatomyScreen>
   void _step(int delta) {
     // A page the reader turns to is theirs: a jump still on its way is let go.
     _onLanded = null;
-    // The ribosome stands over the transcript page until its chain has landed.
-    // Back puts it away, onto the transcript; forward is the stop codon, and
-    // the chain's flight into the protein page.
-    if (_ribosome case final WalkRibosome ribosome) {
-      if (!ribosome.flying) {
-        if (delta > 0) {
-          ribosome.controller.seek(1);
-        } else {
-          setState(_releaseRibosome);
-        }
-        return;
-      }
-      // A turn during the flight lands the chain first.
-      setState(_releaseRibosome);
-    }
     if (_selectionActive) {
       // Leave the inspection through its visible return action, a back gesture,
       // or a right swipe. A sideways slip while scrolling cannot skip mRNA.
@@ -1582,9 +1545,6 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     });
   }
 
-  int get _proteinPage =>
-      _model.stages.indexWhere((AnatomyStage s) => s.kind == StageKind.protein);
-
   /// Whether the strip offers the zoom: on the gene page with nothing
   /// picked, as its hint is, for a protein whose `locus` track is ready. Not
   /// in a landing, whose header already names its way back.
@@ -1603,124 +1563,6 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     unawaited(
       context.push(RoutePaths.zoomFor(widget.target, overWalk: true)),
     );
-  }
-
-  /// Whether the strip offers the ribosome: on the transcript page with
-  /// nothing picked, as its hint is, for a record that makes a protein.
-  bool get _offersRibosome =>
-      _ribosome == null &&
-      _stage < _model.stages.length &&
-      _model.stages[_stage].kind == StageKind.mrna &&
-      _selection == null &&
-      _tracer == null &&
-      _maskedIndex == null &&
-      (_translatableMemo ??= TranslationTimeline.translatable(_model));
-
-  /// Plays the record's translation over the transcript page, from the cap to
-  /// the stop codon, and then lands its chain on the protein page.
-  void _openRibosome() {
-    if (_ribosome != null) {
-      return;
-    }
-    final WalkRibosome ribosome;
-    try {
-      ribosome = WalkRibosome(vsync: this, model: _model);
-    } on ArgumentError {
-      return;
-    }
-    // Put away, the ribosome leaves the transcript at its top, where a page
-    // turned to always starts.
-    if (_scroll.hasClients && _scroll.offset != 0) {
-      _scroll.jumpTo(0);
-    }
-    ribosome.controller.addListener(_ribosomeMoved);
-    setState(() {
-      _clearSelection();
-      _clearMask();
-      _ribosome = ribosome;
-    });
-    _addRibosomeHistory();
-    ribosome.controller.play();
-  }
-
-  void _ribosomeMoved() {
-    final WalkRibosome? ribosome = _ribosome;
-    if (ribosome == null || ribosome.flying || ribosome.controller.t < 1) {
-      return;
-    }
-    // After the frame that draws the chain where translation left it, so it
-    // sets off from there.
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => _landRibosome(ribosome),
-    );
-    WidgetsBinding.instance.ensureVisualUpdate();
-  }
-
-  /// The stop codon read: the walk turns to the protein page, and the chain
-  /// flies into its cells from where the player drew it last.
-  void _landRibosome(WalkRibosome ribosome) {
-    if (!mounted || !identical(_ribosome, ribosome) || ribosome.flying) {
-      return;
-    }
-    final int protein = _proteinPage;
-    if (protein < 0) {
-      setState(_releaseRibosome);
-      return;
-    }
-    // The player stands where the canvas does, less the hair above the canvas.
-    ribosome.setOff(const Offset(0, -_canvasInset));
-    unawaited(HapticFeedback.selectionClick());
-    setState(() => _stage = protein);
-    if (MediaQuery.disableAnimationsOf(context)) {
-      setState(_releaseRibosome);
-      return;
-    }
-    ribosome.flight.forward().whenCompleteOrCancel(() {
-      if (mounted && identical(_ribosome, ribosome)) {
-        setState(_releaseRibosome);
-      }
-    });
-  }
-
-  /// Lets go of the ribosome. The page under it is drawn again, at rest, by a
-  /// canvas mounted fresh on it.
-  void _releaseRibosome() {
-    final WalkRibosome? ribosome = _ribosome;
-    if (ribosome == null) {
-      return;
-    }
-    _ribosome = null;
-    _removeRibosomeHistory();
-    ribosome.controller
-      ..removeListener(_ribosomeMoved)
-      ..pause();
-    ribosome.flight.stop();
-    // Its player listens until the frame that takes it away.
-    WidgetsBinding.instance.addPostFrameCallback((_) => ribosome.dispose());
-  }
-
-  /// Back puts the ribosome away before it leaves the walk, as it does a sheet.
-  void _addRibosomeHistory() {
-    late final LocalHistoryEntry entry;
-    entry = LocalHistoryEntry(
-      impliesAppBarDismissal: false,
-      onRemove: () {
-        if (identical(_ribosomeHistory, entry)) {
-          _ribosomeHistory = null;
-          if (mounted) {
-            setState(_releaseRibosome);
-          }
-        }
-      },
-    );
-    _ribosomeHistory = entry;
-    ModalRoute.of(context)?.addLocalHistoryEntry(entry);
-  }
-
-  void _removeRibosomeHistory() {
-    final LocalHistoryEntry? entry = _ribosomeHistory;
-    _ribosomeHistory = null;
-    entry?.remove();
   }
 
   /// The stage whose cells are on screen: an open region's DNA, or the page.
@@ -2352,8 +2194,6 @@ class _AnatomyScreenState extends State<AnatomyScreen>
     final AnatomyStage? stage = structure ? null : _model.stages[_stage];
     final bool constraintEnabled = _supportsConstraint(stage);
     final Color ground = Theme.of(context).colorScheme.surface;
-    // The ribosome's player is up, over the transcript, until the stop codon.
-    final bool playing = _ribosome != null && !_ribosome!.flying;
     // Nothing is traced on the fold: there are no squares there to have tapped.
     final Tracer? tracer = structure ? null : _tracer;
     final TracerStatus? status = _withImpact(
@@ -2412,7 +2252,6 @@ class _AnatomyScreenState extends State<AnatomyScreen>
             onOpenDna: _selection != null && !_selectionActive && _stage == 0
                 ? _openSelection
                 : null,
-            onRibosome: _offersRibosome ? _openRibosome : null,
             onZoom: _offersZoom ? _openZoom : null,
             textScale: MediaQuery.textScalerOf(context)
                 .scale(1)
@@ -2500,49 +2339,6 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                                   ),
                                 );
                                 _canvasViewport = viewport;
-                                if (_ribosome
-                                    case final WalkRibosome ribosome) {
-                                  // Playing, the ribosome takes the page down
-                                  // to the foot: the stage bar stands down
-                                  // until its chain has landed, and the
-                                  // player's controls take its place, ending
-                                  // AppSpacing.lg off the foot as the bar
-                                  // does (the player keeps AppSpacing.sm
-                                  // under them itself). Landing, its chain
-                                  // flies into the page's own box, where the
-                                  // canvas takes over.
-                                  if (!ribosome.flying) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(
-                                        bottom: AppSpacing.lg - AppSpacing.sm,
-                                      ),
-                                      child: TranslationPlayer(
-                                        translation: ribosome.timeline,
-                                        controller: ribosome.controller,
-                                        canvasKey: ribosome.canvasKey,
-                                      ),
-                                    );
-                                  }
-                                  if (stage != null) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(
-                                        top: _canvasInset,
-                                      ),
-                                      child: Align(
-                                        alignment: Alignment.topLeft,
-                                        child: SizedBox.fromSize(
-                                          size: viewport,
-                                          child: ClipRect(
-                                            child: ribosome.flightInto(
-                                              stage,
-                                              viewport,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                }
                                 if (structure) {
                                   return Padding(
                                     padding: const EdgeInsets.only(
@@ -2648,7 +2444,7 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                                 );
                               },
                         ),
-                        if (_ribosome == null && _scrubs(page))
+                        if (_scrubs(page))
                           Positioned(
                             right: 0,
                             top: _canvasInset,
@@ -2694,38 +2490,34 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                         // Where the page does pass under it, it is solid from the
                         // stage bar's top edge down. Solid only at 0.65 of the way,
                         // it left the letters behind the stage names a third visible.
-                        //
-                        // Under the ribosome's player there is no bar to sit on, and
-                        // the player's own controls fill the band it would veil.
-                        if (!playing)
-                          Positioned(
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            height: _fadeBand,
-                            child: IgnorePointer(
-                              child: DecoratedBox(
-                                key: const ValueKey<String>('stage-bar-fade'),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: <Color>[
-                                      ground.withValues(alpha: 0),
-                                      ground,
-                                    ],
-                                    stops: scrolls
-                                        ? const <double>[
-                                            0,
-                                            (_fadeBand - _stageBarTop) /
-                                                _fadeBand,
-                                          ]
-                                        : const <double>[0, 0.65],
-                                  ),
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          height: _fadeBand,
+                          child: IgnorePointer(
+                            child: DecoratedBox(
+                              key: const ValueKey<String>('stage-bar-fade'),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: <Color>[
+                                    ground.withValues(alpha: 0),
+                                    ground,
+                                  ],
+                                  stops: scrolls
+                                      ? const <double>[
+                                          0,
+                                          (_fadeBand - _stageBarTop) /
+                                              _fadeBand,
+                                        ]
+                                      : const <double>[0, 0.65],
                                 ),
                               ),
                             ),
                           ),
+                        ),
                         if (_inspector(sheetSpace) case final Widget panel)
                           Positioned(
                             left: 0,
@@ -2752,42 +2544,38 @@ class _AnatomyScreenState extends State<AnatomyScreen>
                               ),
                             ),
                           ),
-                        // The stage bar, and the page turns it offers a screen
-                        // reader, stand down while the ribosome is up: no page
-                        // turns under it until its chain has landed.
-                        if (_ribosome == null)
-                          Positioned(
-                            left: 0,
-                            right: 0,
-                            bottom: AppSpacing.lg,
-                            child: SizedBox(
-                              height: StageBar.height,
-                              child: Center(
-                                child: Semantics(
-                                  container: true,
-                                  label: _selectionActive
-                                      ? 'DNA detail on page 1 of $_pageCount. '
-                                            'Return to the whole gene to continue.'
-                                      : 'Page ${_stage + 1} of $_pageCount',
-                                  onIncrease:
-                                      !_selectionActive && _stage < _pageCount - 1
-                                      ? () => _step(1)
-                                      : null,
-                                  onDecrease: _stage > 0 ? () => _step(-1) : null,
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: StageBar(
-                                      labels: StageBar.labelsFor(_model),
-                                      index: _stage,
-                                      locked: _selectionActive,
-                                      onSelect: (int page) =>
-                                          _step(page - _stage),
-                                    ),
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: AppSpacing.lg,
+                          child: SizedBox(
+                            height: StageBar.height,
+                            child: Center(
+                              child: Semantics(
+                                container: true,
+                                label: _selectionActive
+                                    ? 'DNA detail on page 1 of $_pageCount. '
+                                          'Return to the whole gene to continue.'
+                                    : 'Page ${_stage + 1} of $_pageCount',
+                                onIncrease:
+                                    !_selectionActive && _stage < _pageCount - 1
+                                    ? () => _step(1)
+                                    : null,
+                                onDecrease: _stage > 0 ? () => _step(-1) : null,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: StageBar(
+                                    labels: StageBar.labelsFor(_model),
+                                    index: _stage,
+                                    locked: _selectionActive,
+                                    onSelect: (int page) =>
+                                        _step(page - _stage),
                                   ),
                                 ),
                               ),
                             ),
                           ),
+                        ),
                       ],
                     ),
                   ),
@@ -2952,7 +2740,6 @@ class _Header extends StatelessWidget implements PreferredSizeWidget {
     this.onAbout,
     this.hint,
     this.onOpenDna,
-    this.onRibosome,
     this.onZoom,
     this.onWholeGene,
     this.onReturn,
@@ -2972,7 +2759,6 @@ class _Header extends StatelessWidget implements PreferredSizeWidget {
   final TracerStatus? status;
   final String? hint;
   final VoidCallback? onOpenDna;
-  final VoidCallback? onRibosome;
   final VoidCallback? onZoom;
   final VoidCallback? onWholeGene;
 
@@ -3106,7 +2892,6 @@ class _Header extends StatelessWidget implements PreferredSizeWidget {
           // under its name — until a base is lifted, which has one.
           showNote: onWholeGene == null || liftedBase,
           onOpenDna: onOpenDna,
-          onRibosome: onRibosome,
           onZoom: onZoom,
           textScale: textScale,
         ),
@@ -3173,7 +2958,6 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
     this.hint,
     this.showNote = true,
     this.onOpenDna,
-    this.onRibosome,
     this.onZoom,
     this.textScale = 1,
   });
@@ -3189,11 +2973,6 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
   /// Opens the selected region into its DNA, or null where nothing is waiting
   /// to be opened.
   final VoidCallback? onOpenDna;
-
-  /// Plays the transcript's translation on the ribosome, or null where there
-  /// is nothing to play. Never offered beside [onOpenDna]: that is the gene
-  /// page's, and this the transcript's.
-  final VoidCallback? onRibosome;
 
   /// Opens the zoom from a body down to this gene, or null where the gene
   /// page is not at rest or the protein has no locus. Never offered beside
@@ -3245,19 +3024,11 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
     final String? below = hint ?? (showNote ? tracer?.note : null);
     final Color accent = theme.colorScheme.primary;
     // The one thing the strip offers to be pressed, where it offers one.
-    final (VoidCallback, String)? action =
-        switch ((onOpenDna, onRibosome, onZoom)) {
-          (final VoidCallback open, _, _) => (open, _StripAction.openDna),
-          (null, final VoidCallback play, _) => (
-            play,
-            _StripAction.playRibosome,
-          ),
-          (null, null, final VoidCallback zoom) => (
-            zoom,
-            _StripAction.openZoom,
-          ),
-          (null, null, null) => null,
-        };
+    final (VoidCallback, String)? action = switch ((onOpenDna, onZoom)) {
+      (final VoidCallback open, _) => (open, _StripAction.openDna),
+      (null, final VoidCallback zoom) => (zoom, _StripAction.openZoom),
+      (null, null) => null,
+    };
 
     return Semantics(
       liveRegion: true,
@@ -3291,11 +3062,7 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
                 width: _openDnaReach,
                 child: GestureDetector(
                   key: ValueKey<String>(
-                    onOpenDna != null
-                        ? 'open-dna-reach'
-                        : onRibosome != null
-                        ? 'open-ribosome-reach'
-                        : 'open-zoom-reach',
+                    onOpenDna != null ? 'open-dna-reach' : 'open-zoom-reach',
                   ),
                   behavior: HitTestBehavior.opaque,
                   excludeFromSemantics: true,
@@ -3348,14 +3115,6 @@ class _ContextStrip extends StatelessWidget implements PreferredSizeWidget {
                             spoken: _StripAction.openDna,
                             accent: accent,
                             onTap: onOpenDna!,
-                          )
-                        else if (onRibosome != null)
-                          _StripAction(
-                            key: const ValueKey<String>('open-ribosome'),
-                            label: 'Ribosome \u203a',
-                            spoken: _StripAction.playRibosome,
-                            accent: accent,
-                            onTap: onRibosome!,
                           )
                         else if (onZoom != null)
                           _StripAction(
@@ -3448,7 +3207,6 @@ class _StripAction extends StatefulWidget {
   static const double _tint = 0.12;
 
   static const String openDna = 'Open the selected region as DNA';
-  static const String playRibosome = 'Play the translation on the ribosome';
   static const String openZoom = 'Zoom from a body down to this gene';
 
   @override
