@@ -216,8 +216,9 @@ void main() {
     // figure's alone, about a cell of each part of it the Atlas's names
     // light, the seminal vesicles, the male figure's alone, about the
     // tissue's own cell, smooth muscle on both figures about its smooth
-    // muscle cell, and the uterus, the female figure's alone, about a cell of
-    // its glands, of its surface and of its stroma.
+    // muscle cell, the uterus, the female figure's alone, about a cell of
+    // its glands, of its surface and of its stroma, and the vagina, the
+    // female figure's alone, about the tissue's own cell.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -650,6 +651,13 @@ void main() {
           shape,
           cell,
         ),
+      (
+        'vagina-female',
+        tissueAnatomy['vagina']!,
+        AnatomyFigure.female,
+        CellShape.epithelial,
+        null,
+      ),
     ];
     for (final (
           String name,

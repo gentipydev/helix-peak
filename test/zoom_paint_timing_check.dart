@@ -91,6 +91,7 @@ void main() {
       TestCatalog.bySlug('loxl2')!,
       TestCatalog.bySlug('ckmt2')!,
       TestCatalog.bySlug('glycodelin')!,
+      TestCatalog.bySlug('alox12')!,
     ]) {
       final ZoomStage stage = ZoomStage(
         ZoomSubject(track: locusOf(t), record: recordOf(t)),

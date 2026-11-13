@@ -108,6 +108,9 @@ import 'organs/tongue/tongue_style.dart';
 import 'organs/uterus/uterus_art.dart';
 import 'organs/uterus/uterus_form.dart';
 import 'organs/uterus/uterus_style.dart';
+import 'organs/vagina/vagina_art.dart';
+import 'organs/vagina/vagina_form.dart';
+import 'organs/vagina/vagina_style.dart';
 import 'sculpt.dart';
 import 'specimen_step.dart';
 import 'tube_course.dart';
@@ -433,6 +436,13 @@ abstract class OrganArt {
         cell: cellName,
         level: level,
       ),
+      OrganKind.vagina when part != null => _VaginaOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        level: level,
+      ),
       _ =>
         part == null
             ? _AnyOrgan()
@@ -587,12 +597,9 @@ abstract class OrganArt {
 }
 
 /// The surface an organ's outline is given.
-enum _Look { lobules, hollow }
+enum _Look { lobules }
 
-_Look _lookOf(OrganKind kind) => switch (kind) {
-  OrganKind.vagina => _Look.hollow,
-  _ => _Look.lobules,
-};
+_Look _lookOf(OrganKind kind) => _Look.lobules;
 
 /// Parts of the figure never drawn round an organ: the skin is the figure
 /// itself, and fat lies over everything.
@@ -735,27 +742,6 @@ final class _DrawnOrgan extends OrganArt {
   /// What is stroked over the organ, and what is filled darker in it.
   late final (Path, Path) _detail;
 
-  Offset get _middle {
-    Offset sum = Offset.zero;
-    for (final Offset p in _points) {
-      sum += p;
-    }
-    return sum / _points.length.toDouble();
-  }
-
-  Path _inset(double share, {Offset? about, double across = 1}) {
-    final Offset c = about ?? _middle;
-    final bool tall = _box.height >= _box.width;
-    return OrganArt._closed(<Offset>[
-      for (final Offset p in _points)
-        c +
-            Offset(
-              (p.dx - c.dx) * share * (tall ? across : 1),
-              (p.dy - c.dy) * share * (tall ? 1 : across),
-            ),
-    ]);
-  }
-
   (Path, Path) _surface() {
     final math.Random random = math.Random(_look.index + 11);
     final Path lines = Path();
@@ -767,9 +753,6 @@ final class _DrawnOrgan extends OrganArt {
         for (final Rect lobule in Sculpt.cobble(_box, size * 0.15, random)) {
           lines.addOval(lobule);
         }
-      case _Look.hollow:
-        // A wall round a lumen: drawn in [paint], along the outline.
-        break;
     }
     return (lines, dark);
   }
@@ -787,7 +770,6 @@ final class _DrawnOrgan extends OrganArt {
     final double line = pixel / scale;
     _around.paint(canvas, inks, line, _box, detail);
     OrganArt._flatOthers(canvas, _others, inks, line);
-    final bool hollow = _look == _Look.hollow;
     OrganArt._sculpted(canvas, _shape, _box, inks, line, detail);
     // The mark the body handed it over in, giving way as it becomes the
     // organ and the gene's place in it comes up.
@@ -797,13 +779,6 @@ final class _DrawnOrgan extends OrganArt {
     }
     canvas.save();
     canvas.clipPath(_shape);
-    if (hollow && detail > 0) {
-      // The lumen in shade, and the wall as a lit band inside the outline.
-      canvas.drawPath(
-        _inset(0.72, across: 0.55),
-        Paint()..color = inks.shade(0.45).withValues(alpha: detail),
-      );
-    }
     if (detail > 0) {
       canvas.drawPath(
         _detail.$2,
@@ -4352,6 +4327,92 @@ final class _UterusOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => UterusArt.bedOf(inks);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The vagina, drawn from general anatomy as a specimen opened down the
+/// middle of its front wall and pinned flat, its inside facing the eye
+/// (`VaginaArt`): its back wall in the middle with its posterior column and
+/// rugae, the two halves of its front wall laid out either side with the
+/// anterior column's halves and the urethral carina along their cut
+/// edges, the vaginal part of the cervix standing out of the vault, its os
+/// on its face, the hymen's caruncles along the introitus. It is reached
+/// from the body's own outline of it (`_SpecimenOrgan`), the closed tube
+/// the anatomogram draws as a cup, which draws in toward the pinned
+/// specimen's outline and becomes the bed it lies on; the figure gives way
+/// round it, as round the seminal vesicles: laid open, the vagina is half
+/// as wide again as the body's drawing of it, and at its size the figure's
+/// parts lie nowhere true. Where the zoom goes in is in the mark whatever
+/// the protein, its front wall, where GTEx samples it; the cervix, the
+/// posterior fornix, the rugae and the hymen are named in the quiet ink.
+final class _VaginaOrgan extends _SpecimenOrgan {
+  _VaginaOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    super.level,
+  }) : _form = VaginaForm.place(part: part, anatomy: anatomy, view: view);
+
+  final VaginaForm _form;
+
+  @override
+  double _settleOf(double detail) =>
+      SpecimenStep.settle(detail, span: VaginaStyle.settling);
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom goes in, in the mark; and the cervix, the posterior
+  // fornix, the rugae and the hymen, in the quiet ink. The urethral carina
+  // is drawn and not named: its name, in the row below the vagina beside
+  // the hymen's, ran the hymen's line through its plate.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'home', word: 'anterior wall', at: _form.homeName, home: true),
+    (key: 'cervix', word: 'cervix', at: _form.cervixName, home: false),
+    (
+      key: 'fornix',
+      word: 'posterior fornix',
+      at: _form.fornixName,
+      home: false,
+    ),
+    (key: 'rugae', word: 'rugae', at: _form.rugaeName, home: false),
+    (key: 'hymen', word: 'hymen', at: _form.hymenName, home: false),
+  ];
+
+  // Set round all of it, out at the canvas's corners: round the pinned
+  // specimen and its caruncles.
+  @override
+  late final List<Offset> named = _form.namedPoints;
+
+  VaginaArt? _art;
+
+  VaginaArt _artFor(ZoomInks inks) {
+    final VaginaArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = VaginaArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => VaginaArt.bedOf(inks);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

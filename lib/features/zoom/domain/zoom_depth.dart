@@ -347,6 +347,13 @@ final class ZoomDepth {
   /// phone's canvas.
   static const double uterusUpright = 1.3;
 
+  /// How much taller than wide the vagina is framed: opened and pinned
+  /// flat, it is as tall as its card's 9 cm and the cervix's end, and its
+  /// walls laid out make it two thirds as wide, so it is framed by its
+  /// specimen, wider than the anatomogram's closed cup, so that its names,
+  /// in rows above it and below it, have room on every phone's canvas.
+  static const double vaginaUpright = 1.3;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -393,8 +400,9 @@ final class ZoomDepth {
   /// seminal vesicles, from the front on the prostate's base, as
   /// [seminalVesicleUpright], smooth muscle, the bladder's wall whole
   /// from the front, as [smoothMuscleUpright], the tongue, cut across
-  /// between the mandible's halves, as [tongueUpright], and the uterus,
-  /// bivalved to its fundus, as [uterusUpright].
+  /// between the mandible's halves, as [tongueUpright], the uterus,
+  /// bivalved to its fundus, as [uterusUpright], and the vagina, opened
+  /// and pinned flat, as [vaginaUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -495,6 +503,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.uterus) {
       return uterusUpright;
+    }
+    if (anatomy.organ == OrganKind.vagina) {
+      return vaginaUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)
