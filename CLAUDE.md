@@ -90,8 +90,8 @@ Git: commit the session's own changes locally. Never push, in any form.
   `presentation/<area>/<file>.dart` becomes `lib/shared/<area>/<file>.dart`.
 - `lib/shared/helix/`: the home screen's double helix as geometry
   (`HelixModel`), promoted out of `lib/features/home/` for the lab's
-  replication flow, and its painter (`DnaHelixPainter`), promoted for the
-  zoom's DNA stop. The home screen's widget stays in home.
+  replication flow (removed 2026-11-13), and its painter (`DnaHelixPainter`),
+  promoted for the zoom's DNA stop. The home screen's widget stays in home.
 - `lib/shared/folding/`: a chain folding, promoted out of the lab for the
   walk's fold page, which the lab no longer has. `FoldTimeline` tells it in
   four steps (hydrophobic collapse, helices coil, strands pair, bridges snap
@@ -130,16 +130,17 @@ Git: commit the session's own changes locally. Never push, in any form.
   install's builds (`BuiltProteinsCubit`); typing hides them, and a search
   covers everything whichever was chosen. Search is not the walk; it reaches
   the walk only by opening `/gene/<slug>`.
-- `lib/features/replication/` and `lib/features/zoom/`: the replication tour
-  and the zoom (see "Replication" and "Zoom" below).
+- `lib/features/zoom/`: the zoom (see "Zoom" below).
 - `lib/features/peptide_lm/`: the peptide language model's recorded training
   run, stage by stage (see "Peptide Language Model" below).
 
 There was a lab (`lib/features/lab/`, behind `LAB_ENABLED`) where flows were
 tried before they earned a place; replication, the zoom, the fold animation
-and the walk's ribosome (removed 2026-11-13) came out of it. It was deleted on 2026-10-09 with
+and the walk's ribosome came out of it. It was deleted on 2026-10-09 with
 every flow still in it. Links from then (`/lab/replication`, `/lab/zoom`)
-still redirect; `/lab` itself is not a page.
+still redirect; `/lab` itself is not a page. Replication and the ribosome
+were removed on 2026-11-13 at the user's word; links to replication
+(`/replication`, `/lab/replication`) open home (`lib/app.dart`).
 
 `test/architecture_test.dart` holds that layering to the import lines:
 `core/` and `shared/` import no feature, and no feature imports another's
@@ -163,33 +164,6 @@ convention at full strength, is the reference both are measured from.
 walk's tests still set the walk inside it. Small print is
 `theme.caption` (`core/theme/app_typography.dart`), never a bare `bodySmall`,
 which is Material's in the bright ink.
-
-## Replication (`lib/features/replication/`)
-
-A story of its own subject at `/replication`, in every build: no record and
-no track. Home offers it as its DNA Replication row only where `.env` sets
-`SHOW_DNA_REPLICATION=true` (`Env.showDnaReplication`, off by default, the
-user's choice of 2026-11-04); the route is there either way. It began in the lab
-and left it; links from then (`/lab/replication`, `/lab/replication/<slug>`)
-redirect. `replication_routes.dart` wraps it in `AppTheme.analysis`, which the
-lab's shell used to give it. A 212 s guided tour (`ReplicationTimeline`,
-chapters in `replication_tour.dart`) on an illustrative sequence
-(`GenomeReplication`): an A/T-rich origin licensed
-by ORC, Cdc6 and Cdt1 with an MCM2–7 double hexamer, fired into two CMGs and
-a bubble, then the upper fork through two Okazaki fragments, topoisomerase
-II, primer replacement and ligation, ending on the whole bubble. The lower
-fork is the upper one turned 180° about the origin: the model mirrors its
-pieces onto the other template (`ReplicationFrame.pieces`), and the painter
-draws a turned pass. Everything on screen is a continuous function of time:
-exact strand ends (`DaughterPiece`), staged as keyed values
-(`ReplicationStaging`), and `replication_smoothness_test` walks the tour at
-60 fps and fails on any jump, pop or kink. One colour per strand, from theme
-tokens (`ReplicationInks`): grey parental, teal new DNA, amber RNA. The DNA
-and the rings (`replication_rings.dart`: PCNA, MCM2–7, RFC, ORC) are drawn
-flat, the rings in two halves round the DNA; the other proteins are lit,
-folded envelopes, and topoisomerase II has its own (`replication_topo.dart`).
-A label's line must land on what it names (`replication_targets_test`).
-`docs/design/replication-fork.md` has the design and its sources.
 
 ## Peptide Language Model (`lib/features/peptide_lm/`)
 

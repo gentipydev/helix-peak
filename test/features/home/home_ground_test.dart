@@ -23,7 +23,7 @@ void main() {
     expect(
       worn.scaffoldBackgroundColor,
       AppTheme.analysis.scaffoldBackgroundColor,
-      reason: 'search, the walk, replication and the zoom are on this one',
+      reason: 'search, the walk and the zoom are on this one',
     );
   });
 

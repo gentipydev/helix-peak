@@ -31,19 +31,16 @@ abstract final class RoutePaths {
 
   /// Where the lab was. Nothing is there now: only links saved while
   /// replication and the zoom were lab flows still use it, and those routes
-  /// redirect to where each is now.
+  /// redirect: the zoom's to where it is now, replication's (removed
+  /// 2026-11-13) home.
   static const String lab = '/lab';
 
-  /// The replication tour, in every build. Its routes are handed to
-  /// [buildAppRouter] by the app.
-  static const String replication = '/replication';
-
-  /// The zoom from a body down to one protein's DNA, in every build. Like
-  /// replication's, its routes are handed to [buildAppRouter] by the app.
+  /// The zoom from a body down to one protein's DNA, in every build. Its
+  /// routes are handed to [buildAppRouter] by the app.
   static const String zoom = '/zoom';
 
   /// The peptide language model's recorded training run, stage by stage.
-  /// Like replication's, its routes are handed to [buildAppRouter] by the app.
+  /// Like the zoom's, its routes are handed to [buildAppRouter] by the app.
   static const String peptideLm = '/peptide-lm';
 
   /// The walk for one protein. `/gene` with nothing after it is still the
@@ -538,10 +535,10 @@ class _WalkLoaderState extends State<_WalkLoader> {
 
 /// The app's routes, with [extra] spread in after the walk's own.
 ///
-/// [extra] is how replication's and the zoom's routes arrive: `lib/app.dart`
-/// hands them over, so that core names no feature it did not already name
-/// (the architecture test's `layers` rule). Empty, this is [appRouter]
-/// exactly.
+/// [extra] is how the zoom's and the peptide model's routes arrive:
+/// `lib/app.dart` hands them over, so that core names no feature it did not
+/// already name (the architecture test's `layers` rule). Empty, this is
+/// [appRouter] exactly.
 GoRouter buildAppRouter({List<RouteBase> extra = const <RouteBase>[]}) =>
     GoRouter(
       initialLocation: RoutePaths.home,

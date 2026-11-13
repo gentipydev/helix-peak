@@ -31,8 +31,6 @@ screen opens it once its ESM-2 track has landed.
 
 Copy `.env.example` to `.env`, then run `flutter run`. `API_BASE_URL` selects
 our deployed backend or a local service. Release builds use the same path.
-`SHOW_DNA_REPLICATION=true` puts DNA Replication on the home screen; it is off
-by default.
 
 The app ships no protein data. Its catalog comes from `/catalog`; records,
 ESM-2, AVI, ClinVar, folds and contribution details come from Supabase Storage.

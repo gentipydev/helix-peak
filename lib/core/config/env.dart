@@ -19,11 +19,6 @@ abstract final class Env {
     return Duration(milliseconds: parsed);
   }
 
-  /// Whether home offers DNA Replication. Off unless `.env` says `true`; the
-  /// route itself stays, so a deep link still opens it.
-  static bool get showDnaReplication =>
-      _read('SHOW_DNA_REPLICATION')?.toLowerCase() == 'true';
-
   static String? _read(String key) {
     // `dotenv.env` throws NotInitializedError before `load()` has run, and
     // `load(isOptional: true)` can leave the map empty rather than absent. Both

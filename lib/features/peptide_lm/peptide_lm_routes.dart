@@ -12,7 +12,7 @@ import 'presentation/peptide_lm_screen.dart';
 
 /// The peptide language model's routes, in every build, from the home
 /// screen's row. `lib/app.dart` spreads these into the app's router, as it
-/// does replication's and the zoom's.
+/// does the zoom's.
 List<RouteBase> get peptideLmRoutes => <RouteBase>[
   GoRoute(
     path: RoutePaths.peptideLm,

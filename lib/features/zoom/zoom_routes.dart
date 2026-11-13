@@ -6,8 +6,8 @@ import '../../core/theme/app_theme.dart';
 import 'presentation/zoom_screen.dart';
 
 /// The zoom's routes, in every build: it left the lab for the walk's gene
-/// page. `lib/app.dart` spreads these into the app's router, as it does
-/// replication's.
+/// page. `lib/app.dart` spreads these into the app's router, as it does the
+/// peptide language model's.
 List<RouteBase> get zoomRoutes => <RouteBase>[
   GoRoute(
     path: '${RoutePaths.zoom}/:slug',

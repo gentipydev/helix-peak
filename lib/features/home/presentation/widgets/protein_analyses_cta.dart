@@ -7,8 +7,8 @@ import '../../../../core/theme/app_spacing.dart';
 /// Deliberately unfilled. The screen offers almost nothing else to do, so the
 /// row does not need a solid slab to announce itself — a line of accent type
 /// and a chevron are enough, and they leave the wordmark as the loudest thing
-/// here. Replication's entry sits below it, and a build with the lab switched
-/// on shows the lab's below that, each carrying its own [label].
+/// here. The peptide language model's entry sits below it, carrying its own
+/// [label].
 class ProteinAnalysesCta extends StatelessWidget {
   const ProteinAnalysesCta({
     required this.onPressed,
