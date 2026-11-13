@@ -80,7 +80,7 @@ final class NucleusScene extends ZoomScene {
     }
     final double depth = (territoryRadius[kindOf(name, copy)] ?? 0.6) * 0.92;
     double a = index * 2.39996 + copy * (math.pi * 0.9);
-    if (copy == 0 && name == subject.track.chromosome) {
+    if ((name, copy) == followedKey) {
       a = _clearOfNucleolus(name, a, depth);
     }
     return shape.place(Offset(math.cos(a), math.sin(a)) * depth, radius);
@@ -118,9 +118,17 @@ final class NucleusScene extends ZoomScene {
   /// The territory that is spot [spot] of the scene's own: the followed one.
   double get spot => spotOf(subject.track.chromosome);
 
+  /// The territory the gene's chromosome is, as the scene keys its 46: its
+  /// first copy; a gene on the Y, the male cell's second sex chromosome
+  /// ([kindOf]), whose body is always the male's (`AnatomyFigure.bodyFor`).
+  (String, int) get followedKey => subject.track.chromosome == 'Y'
+      ? ('X', 1)
+      : (subject.track.chromosome, 0);
+
   /// Whether the gene's chromosome has a second copy in this body: every
-  /// autosome does, and the X in the female figure's cells.
+  /// autosome does, and the X in the female figure's cells; the Y never.
   bool get paired =>
+      subject.track.chromosome != 'Y' &&
       kindOf(subject.track.chromosome, 1) == subject.track.chromosome;
 
   /// How far territory [copy] of [name] has drifted out from the followed
@@ -129,7 +137,7 @@ final class NucleusScene extends ZoomScene {
       (territory(name, copy) - portal) * (0.35 * away);
 
   @override
-  Offset get portal => territory(subject.track.chromosome, 0);
+  Offset get portal => territory(followedKey.$1, followedKey.$2);
 
   // The territory is not named here: the card names it. The nucleolus is,
   // round the nucleus, so its name hides no territory.
@@ -236,7 +244,7 @@ final class NucleusScene extends ZoomScene {
     if (frame.isChild) {
       return;
     }
-    final Rect box = _territories[(subject.track.chromosome, 0)]!.getBounds();
+    final Rect box = _territories[followedKey]!.getBounds();
     canvas.save();
     frame.enter(canvas);
     Sculpt.ping(
@@ -283,7 +291,7 @@ final class NucleusScene extends ZoomScene {
     final double painted = _painted(frame);
     canvas.save();
     canvas.clipPath(outline);
-    final String followed = subject.track.chromosome;
+    final String followed = followedKey.$1;
     // As the gene's territory condenses into its chromosome, the others
     // drift out from it and fade.
     final double away = _away(frame);
@@ -296,7 +304,7 @@ final class NucleusScene extends ZoomScene {
         ..color = inks.shade(0.55).withValues(alpha: 0.9 * shown);
       for (final String name in chromosomeNames) {
         for (int copy = 0; copy < 2; copy++) {
-          if (name == followed && (copy == 0 || paired)) {
+          if ((name, copy) == followedKey || (name == followed && paired)) {
             continue;
           }
           final Path territory = _territories[(name, copy)]!;
@@ -380,7 +388,7 @@ final class NucleusScene extends ZoomScene {
     // The gene's chromosome, in the mark, until the chromosome's scene takes
     // it over.
     if (frame.isChild || frame.progress <= 0) {
-      final Path own = _territories[(followed, 0)]!;
+      final Path own = _territories[followedKey]!;
       paintFollowedTerritory(
         canvas,
         own,

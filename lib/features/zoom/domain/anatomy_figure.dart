@@ -178,8 +178,17 @@ final class AnatomyFigure {
   /// sex has is found on that figure. Any other is found on both, and the
   /// figure is then the one that has the most of the [others] the gene is
   /// read in as well, the female where they tie: so a gene of the liver and
-  /// the testis is shown a body that has both.
-  static AnatomyFigure bodyFor(String? tissue, Iterable<String> others) {
+  /// the testis is shown a body that has both. A gene [onY], the Y
+  /// chromosome, is shown the male figure, whatever it is read in: only the
+  /// male's cells carry a Y.
+  static AnatomyFigure bodyFor(
+    String? tissue,
+    Iterable<String> others, {
+    bool onY = false,
+  }) {
+    if (onY) {
+      return male;
+    }
     final BodySex own = tissueAnatomy[tissue]?.sex ?? BodySex.either;
     if (own != BodySex.either) {
       return own == BodySex.male ? male : female;

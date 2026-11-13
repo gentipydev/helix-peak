@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:helixpeek/core/biology/gene_record.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/features/zoom/domain/anatomy_figure.dart';
 import 'package:helixpeek/features/zoom/domain/anatomy_tables.dart';
 import 'package:helixpeek/features/zoom/domain/cell_archetypes.dart';
+import 'package:helixpeek/features/zoom/domain/locus_track.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_path.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/contour.dart';
@@ -41,6 +43,8 @@ import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_screen.dart';
 
 import 'features/gene_lookup/anatomy/anatomy_fixture.dart';
+import 'features/zoom/catalogue_fixtures.dart';
+import 'features/zoom/coverage_fixtures.dart';
 import 'features/zoom/record_fixtures.dart';
 import 'features/zoom/zoom_fixtures.dart';
 import 'support/test_catalog.dart';
@@ -49,7 +53,9 @@ import 'support/test_catalog.dart';
 ///
 /// ZOOM_DESIGN_SHOTS=/tmp/zoom flutter test test/zoom_design_render_check.dart
 ///
-/// ZOOM_GENES=hemoglobin,p53 narrows the proteins; ZOOM_BETWEEN=0 leaves out
+/// ZOOM_GENES=hemoglobin,p53 narrows the proteins (a coverage protein's
+/// slug too, and with ZOOM_CATALOGUE=<a census> any protein the census
+/// baked, drawn from its record); ZOOM_BETWEEN=0 leaves out
 /// the moments between stops. ZOOM_MOMENTS=nucleus+2,nucleus+10,chromosome
 /// draws those moments and no others: a stop, or the share of the step that
 /// leaves it, in percent. Without ZOOM_DESIGN_SHOTS it draws each frame and
@@ -85,28 +91,34 @@ void main() {
     for (final String name in (Platform.environment['ZOOM_MOMENTS'] ?? '').split(','))
       if (name.trim().isNotEmpty) name.trim(),
   ];
-  final List<ProteinTarget> targets = genes.isEmpty
-      ? <ProteinTarget>[
-          TestCatalog.hemoglobin,
-          TestCatalog.insulin,
-          TestCatalog.dystrophin,
-          TestCatalog.p53,
-          TestCatalog.prion,
-        ]
-      : <ProteinTarget>[
-          for (final String slug in genes.split(','))
-            TestCatalog.bySlug(slug.trim())!,
-        ];
+  // ZOOM_CATALOGUE names the backend's census (`pipeline/locus/survey.py
+  // --gff`): a slug neither curated nor in the coverage set is drawn from it.
+  final String catalogue = Platform.environment['ZOOM_CATALOGUE'] ?? '';
+  (ProteinTarget, LocusTrack, GeneRecord) zoomOf(String slug) {
+    if (catalogue.isNotEmpty &&
+        TestCatalog.bySlug(slug) == null &&
+        !Coverage.holds(slug)) {
+      return catalogued(catalogue, slug)!;
+    }
+    final ProteinTarget target = zoomTarget(slug);
+    return (target, locusOf(target), recordOf(target));
+  }
+
+  final List<String> slugs = genes.isEmpty
+      ? <String>['hemoglobin', 'insulin', 'dystrophin', 'p53', 'prion']
+      : <String>[for (final String slug in genes.split(',')) slug.trim()];
   for (final double width in <double>[390, 320]) {
-    for (final ProteinTarget target in targets) {
-      testWidgets('the zoom of ${target.slug} at ${width.toInt()}px', (
+    for (final String slug in slugs) {
+      testWidgets('the zoom of $slug at ${width.toInt()}px', (
         WidgetTester tester,
       ) async {
+        final (ProteinTarget target, LocusTrack track, GeneRecord record) =
+            zoomOf(slug);
         await tester.binding.setSurfaceSize(Size(width, 844));
         addTearDown(() => tester.binding.setSurfaceSize(null));
         final ZoomDepth depth = ZoomDepth(
-          locusOf(target),
-          path: ZoomPath.of(locusOf(target)),
+          track,
+          path: ZoomPath.of(track),
         );
         final Map<String, double> moments = asked.isNotEmpty
             ? <String, double>{
@@ -140,8 +152,8 @@ void main() {
                   child: ZoomScreen(
                     key: ValueKey<String>('${target.slug}-${moment.key}'),
                     target: target,
-                    track: locusOf(target),
-                    record: recordOf(target),
+                    track: track,
+                    record: record,
                     initialDepth: moment.value,
                   ),
                 ),

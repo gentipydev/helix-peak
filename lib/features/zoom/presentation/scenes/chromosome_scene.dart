@@ -133,9 +133,8 @@ final class ChromosomeScene extends ZoomScene {
     final NucleusScene nucleus = NucleusScene(subject);
     final double ratio = subject.depth.ratioOf(ZoomStop.nucleus.index);
     final Offset portal = nucleus.portal;
-    final Contour shape = nucleus
-        .territoryShape(_track.chromosome, 0)
-        .resampled(128);
+    final (String name, int copy) = nucleus.followedKey;
+    final Contour shape = nucleus.territoryShape(name, copy).resampled(128);
     return Contour(<Offset>[
       for (final Offset p in shape.points) (p - portal) / ratio,
     ]);

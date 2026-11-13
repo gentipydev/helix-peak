@@ -99,6 +99,55 @@ final class ZoomStage {
     return staging;
   }
 
+  /// The names on screen at depth [d] left out for want of room: a quiet
+  /// one (a neighbour's or a landmark's, never the mark's) that found no
+  /// place at rest at the stop that shows it, clear of every other name and
+  /// of the scale bar, on a canvas a long card has left short. Held, as
+  /// every place is, for the whole of the steps either side.
+  Set<String> crowdedAt(
+    double d,
+    Size size,
+    ZoomInks inks,
+    TextStyle labels,
+  ) {
+    final (ZoomView parent, ZoomView child) = camera.at(d, size);
+    return <String>{
+      for (final ZoomStop stop in <ZoomStop>{parent.stop, child.stop})
+        ...(_crowded[(stop, size, labels)] ??= _crowdedAt(
+          stop,
+          size,
+          inks,
+          labels,
+        )),
+    };
+  }
+
+  Set<String> _crowdedAt(
+    ZoomStop stop,
+    Size size,
+    ZoomInks inks,
+    TextStyle labels,
+  ) {
+    final List<ZoomCallout> callouts = stage(
+      depth.depthOf(stop),
+      size,
+      inks,
+    ).callouts;
+    final Map<String, int> resting = _resting[(stop, size, labels)] ??=
+        _restingAt(stop, size, inks, labels);
+    final Map<String, RingHold> holds = _ringHolds[(stop, size, labels)] ??=
+        ringHolds(callouts, labels, inks, size);
+    return <String>{
+      for (final ZoomCallout c in callouts)
+        if (c.quiet &&
+            (resting[c.key] == unplaced || (holds[c.key]?.forced ?? false)))
+          c.key,
+    };
+  }
+
+  final Map<(ZoomStop, Size, TextStyle), Set<String>> _crowded =
+      <(ZoomStop, Size, TextStyle), Set<String>>{};
+
   /// Whether anything on screen at depth [d] moves on its own, [dwell]
   /// seconds after the depth came to rest.
   bool wantsClock(double d, Size size, ZoomInks inks, {required double dwell}) {
@@ -157,6 +206,10 @@ final class ZoomStage {
       for (final RingPlate r
           in ringPlates(callouts, labels, inks, size).values)
         r.plate,
+      // The scale bar's plate: a name set at rest is kept off it too, as on
+      // a short canvas, under a long card, a column of names reaches down
+      // to it (the esophagus's stomach, the parotid's submandibular gland).
+      scaleBarPlate(depth, depth.depthOf(stop), size, inks, labels),
     ];
     for (final ZoomCallout c in callouts) {
       if (c.row != null || c.ring != null) {
@@ -390,7 +443,11 @@ class ZoomOverlayPainter extends CustomPainter {
       ...rows.values,
       for (final RingPlate r in rings.values) r.plate,
     ];
+    final Set<String> crowded = stage.crowdedAt(d, size, inks, labels);
     for (final ZoomCallout callout in staging.callouts) {
+      if (crowded.contains(callout.key)) {
+        continue;
+      }
       final RingPlate? ring = rings[callout.key];
       final Rect plate = _callout(
         canvas,
@@ -552,6 +609,31 @@ const double scaleBarLeft = 16;
   return (pixels, depth.labelAt(d, pixels / size.width * depth.widthAt(d)));
 }
 
+/// The plate the scale bar takes at depth [d] on a canvas of [size], its
+/// label in [labels] as the painter sets it ([ZoomOverlayPainter]).
+Rect scaleBarPlate(
+  ZoomDepth depth,
+  double d,
+  Size size,
+  ZoomInks inks,
+  TextStyle labels,
+) {
+  final (double pixels, String label) = scaleBarAt(depth, d, size);
+  final TextPainter measure = TextPainter(
+    text: TextSpan(
+      text: label,
+      style: labels.copyWith(
+        color: inks.label,
+        fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+      ),
+    ),
+    textDirection: TextDirection.ltr,
+  )..layout();
+  final Rect box = scaleBarBox(pixels, measure.size, size);
+  measure.dispose();
+  return box;
+}
+
 /// The box the scale bar's plate takes on a canvas of [size]: a bar
 /// [pixels] long under a label of [label] size.
 Rect scaleBarBox(double pixels, Size label, Size size) {
@@ -661,10 +743,11 @@ List<double> spreadRow(
 /// A callout's words, laid out as the painter sets them: a name round a
 /// shape on one line, or on two where it is [wrapped]: broken at the space
 /// nearest its middle ([twoLines]) where both halves fit across the canvas
-/// ([ringTextWidth]), and otherwise run on at that width, a third line cut
-/// short with an ellipsis ([calloutElided]) rather than run off the canvas
-/// (the user's decision of 2026-11-13); any other on as many as two, at most
-/// 55% of the canvas wide.
+/// ([ringTextWidth]), and otherwise run on at that width, untracked where it
+/// is too long even so, and only then a third line cut short with an
+/// ellipsis ([calloutElided]) rather than run off the canvas (the user's
+/// decision of 2026-11-13); any other on as many as two, at most 55% of the
+/// canvas wide.
 TextPainter calloutText(
   ZoomCallout callout,
   TextStyle labels,
@@ -672,18 +755,23 @@ TextPainter calloutText(
   Size size, {
   bool wrapped = false,
 }) {
-  TextPainter laid(String text, double width, {String? ellipsis}) =>
-      TextPainter(
-        text: TextSpan(
-          text: text,
-          style: labels.copyWith(
-            color: inks.text.withValues(alpha: callout.opacity),
-          ),
-        ),
-        textDirection: TextDirection.ltr,
-        maxLines: 2,
-        ellipsis: ellipsis,
-      )..layout(maxWidth: width);
+  TextPainter laid(
+    String text,
+    double width, {
+    String? ellipsis,
+    bool tight = false,
+  }) => TextPainter(
+    text: TextSpan(
+      text: text,
+      style: labels.copyWith(
+        color: inks.text.withValues(alpha: callout.opacity),
+        letterSpacing: tight ? 0 : null,
+      ),
+    ),
+    textDirection: TextDirection.ltr,
+    maxLines: 2,
+    ellipsis: ellipsis,
+  )..layout(maxWidth: width);
 
   if (callout.ring == null) {
     return laid(callout.text, size.width * 0.55);
@@ -697,7 +785,16 @@ TextPainter calloutText(
     return halves;
   }
   halves.dispose();
-  return laid(callout.text, most, ellipsis: '…');
+  final TextPainter run = laid(callout.text, most, ellipsis: '…');
+  if (!run.didExceedMaxLines) {
+    return run;
+  }
+  // Too long for two lines even run on: set untracked before any of it is
+  // cut (TEKT4's six places of a sperm's tail, 93 letters, on the 375-point
+  // phone's canvas), a third line cut short only where even that is not
+  // enough.
+  run.dispose();
+  return laid(callout.text, most, ellipsis: '…', tight: true);
 }
 
 /// How wide the words of a name set round a shape may run, on two lines, on
@@ -759,10 +856,14 @@ final class RingHold {
     this.offset,
     this.width, {
     this.row = 0,
+    this.forced = false,
   });
 
   final RingSide side;
   final int row;
+
+  /// Whether no row had room for it, and the nearer took it all the same.
+  final bool forced;
   final bool wrapped;
   final Offset offset;
   final double width;
@@ -1013,6 +1114,7 @@ Map<String, RingHold> _holdRing(
   final List<Offset> outline = names.first.ring!.outline;
   final Rect box = _boundsOf(outline);
   bool wraps(ZoomCallout c) => c.text.contains(' ');
+  final Set<String> forced = <String>{};
   final Map<RingSide, List<List<_Placed>>> bands =
       <RingSide, List<List<_Placed>>>{
         for (final RingSide side in RingSide.values)
@@ -1056,6 +1158,7 @@ Map<String, RingHold> _holdRing(
     // Where no row has room, the nearer row takes it all the same: on one
     // line, but on two where one would run wider than the canvas.
     if (!placed) {
+      forced.add(c.key);
       final bool wide =
           wraps(c) &&
           _ringPlate(c, labels, inks, size, false).width >
@@ -1122,6 +1225,7 @@ Map<String, RingHold> _holdRing(
           plate.center - p.callout.target,
           box.width,
           row: row,
+          forced: forced.contains(p.callout.key),
         );
       }
     }
@@ -1276,9 +1380,11 @@ Rect calloutPlate(
     );
   }
   // Where none of its anchors had room at rest, it keeps the place by its
-  // target it took there instead.
+  // target it took there instead, the first where none had room.
   if (resting != null) {
-    return _choices(callout.target, text, size)[-1 - resting];
+    return _choices(callout.target, text, size)[resting == unplaced
+        ? 0
+        : -1 - resting];
   }
   return placePlate(
     callout.target,
@@ -1380,7 +1486,7 @@ Rect placePlate(
 
 /// [placePlate]'s plate, and which of the [anchors] it is set at; where
 /// none had room, -1 less the index of the place of its own it took
-/// ([_choices]).
+/// ([_choices]); where none of those had room either, [unplaced].
 (Rect, int) placePlateAt(
   Offset target,
   Size text,
@@ -1414,8 +1520,13 @@ Rect placePlate(
       return (choices[i], -1 - i);
     }
   }
-  return (choices.first, -1);
+  return (choices.first, unplaced);
 }
+
+/// What [placePlateAt] says of a plate that found no place clear of the
+/// others: it is set at the first of its own places all the same, unless it
+/// is quiet ([ZoomStage.crowdedAt]).
+const int unplaced = -1000;
 
 /// The places a plate for words of [text] size naming [target] is tried in
 /// where it has no anchor with room, in order: up and to the right, then

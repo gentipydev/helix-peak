@@ -32,10 +32,14 @@ final class ZoomSubject {
 
   /// The standing figure the body is drawn as: one that has the path's
   /// tissue, and as many of the others the gene is raised in as either has.
-  late final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
-    for (final (String name, double _) in track.tissue.specific)
-      ZoomPath.tissueName(name),
-  ]);
+  late final AnatomyFigure body = AnatomyFigure.bodyFor(
+    path.tissue,
+    <String>[
+      for (final (String name, double _) in track.tissue.specific)
+        ZoomPath.tissueName(name),
+    ],
+    onY: track.chromosome == 'Y',
+  );
 
   /// The part of [body] the zoom goes into, or null where the path names
   /// no tissue.

@@ -115,9 +115,18 @@ void main() {
       final NucleusScene nucleus =
           stage.scenes[ZoomStop.nucleus.index] as NucleusScene;
       final bool male = stage.subject.body.name == 'male';
-      final bool paired = locusOf(t).chromosome != 'X' || !male;
+      // An autosome is paired in every body, the X in the female's alone;
+      // the Y never, and a gene on it is always drawn in the male's, its
+      // territory the male cell's second sex chromosome.
+      final String chromosome = locusOf(t).chromosome;
+      final bool paired = chromosome != 'Y' && (chromosome != 'X' || !male);
       expect(nucleus.paired, paired, reason: t.slug);
       expect(homologue(stage), paired ? 1 : 0, reason: t.slug);
+      if (chromosome == 'Y') {
+        expect(male, isTrue, reason: t.slug);
+        expect(nucleus.followedKey, ('X', 1), reason: t.slug);
+        expect(nucleus.kindOf('X', 1), 'Y', reason: t.slug);
+      }
     }
     // A gene on the X in a male figure's cell: its second sex chromosome is
     // a Y, which is not the gene's.

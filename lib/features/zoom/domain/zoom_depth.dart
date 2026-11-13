@@ -518,10 +518,14 @@ final class ZoomDepth {
     if (anatomy.organ == OrganKind.vagina) {
       return vaginaUpright;
     }
-    final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
-      for (final (String name, double _) in track.tissue.specific)
-        ZoomPath.tissueName(name),
-    ]);
+    final AnatomyFigure body = AnatomyFigure.bodyFor(
+      path.tissue,
+      <String>[
+        for (final (String name, double _) in track.tissue.specific)
+          ZoomPath.tissueName(name),
+      ],
+      onY: track.chromosome == 'Y',
+    );
     final AnatomyPart? part = body.parts[anatomy.uberon];
     if (part == null) {
       return 1;
