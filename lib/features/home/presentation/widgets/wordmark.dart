@@ -32,7 +32,7 @@ class Wordmark extends StatelessWidget {
                 ),
                 TextSpan(
                   text: ' AI',
-                  style: AppTypography.wordmark(theme.colorScheme.onSurface),
+                  style: AppTypography.wordmark(theme.colorScheme.primary),
                 ),
               ],
             ),
