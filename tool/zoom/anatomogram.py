@@ -229,11 +229,20 @@ FOLLOW_OUTERMOST = {"UBERON_0001134"}
 # lying over the disc (the slit the disc is drawn with runs from its rim to
 # its middle, between 0.26 and 0.5 of its height, and crosses no level the
 # rule looks at).
+# GTEx takes the aorta from the "Ascending aorta or other thoracic regions
+# (nonatherosclerotic)" (the GTEx Portal's sampling site for Artery -
+# Aorta, gtex_v10), and the blood vessel is drawn as a length of the
+# descending thoracic aorta on its vertebrae (`aorta_anatomy.dart`): the
+# anatomogram draws its vessels as one tree, the aorta a straight tube down
+# the middle of the trunk from behind the heart, and a tenth of the way
+# down it lies on that tube in the chest, above the diaphragm, on either
+# figure.
 SITE_LEVEL = {
     "UBERON_0001134": 0.6,
     "UBERON_0001043": 0.75,
     "UBERON_0000002": 0.85,
     "UBERON_0000992": 0.73,
+    "UBERON_0001981": 0.1,
 }
 
 # Parts the view closes on whole: written with a `centre`, the middle of the
@@ -317,8 +326,10 @@ SITE_BESIDE = {"UBERON_0001013": 0.05}
 # Parts the view closes on where the zoom goes into them, written as a
 # `centre`: for a part whose scene draws a piece of it about that place, not
 # its outline. The skin's outline is the whole figure's, and the fat's the
-# trunk's and the limbs'; the scene of each draws a block of it.
-FRAME_AT_SITE = {"UBERON_0000014", "UBERON_0001013"}
+# trunk's and the limbs'; the scene of each draws a block of it. The blood
+# vessel's outline is the tree of the body's vessels, and its scene draws a
+# length of the aorta.
+FRAME_AT_SITE = {"UBERON_0000014", "UBERON_0001013", "UBERON_0001981"}
 
 
 def fetch(directory: str | None) -> dict[str, str]:

@@ -776,6 +776,40 @@ void main() {
       expect(part.centre, box.center);
     });
 
+    test('go into the blood vessels on the aorta in the chest, where GTEx '
+        'takes the thoracic aorta, a tenth of the way down the tree the '
+        'anatomogram draws them as and midway across its tube, and close the '
+        'view there', () {
+      final String uberon = tissueAnatomy['blood vessel']!.uberon;
+      for (final AnatomyFigure figure in <AnatomyFigure>[
+        AnatomyFigure.female,
+        AnatomyFigure.male,
+      ]) {
+        final AnatomyPart part = figure.parts[uberon]!;
+        final List<Offset> outline = part.followed;
+        final Rect box = boxOf(outline);
+        expect((part.site.dy - box.top) / box.height, closeTo(0.1, 0.01),
+            reason: figure.name);
+        // On the aorta's tube, midway across it, near the figure's middle.
+        final List<double> xs = <double>[];
+        for (int i = 0; i < outline.length; i++) {
+          final Offset a = outline[i];
+          final Offset b = outline[(i + 1) % outline.length];
+          if ((a.dy > part.site.dy) != (b.dy > part.site.dy)) {
+            xs.add(a.dx + (part.site.dy - a.dy) * (b.dx - a.dx) / (b.dy - a.dy));
+          }
+        }
+        xs.sort();
+        expect(xs, hasLength(2), reason: figure.name);
+        expect(part.site.dx, closeTo((xs.first + xs.last) / 2, 2e-3),
+            reason: figure.name);
+        expect(xs.last - xs.first, lessThan(0.03), reason: figure.name);
+        expect(part.site.dx.abs(), lessThan(0.02), reason: figure.name);
+        expect(inside(outline, part.site), isTrue, reason: figure.name);
+        expect(part.framed, part.site, reason: figure.name);
+      }
+    });
+
     test('go into the seminal vesicle in the outline the anatomogram draws '
         'on the bladder’s base, on the body’s left, not the one it hangs '
         'below the prostate, the view closing on the midline a little '
@@ -1044,13 +1078,14 @@ void main() {
       final String epididymis = tissueAnatomy['epididymis']!.uberon;
       final String lung = tissueAnatomy['lung']!.uberon;
       final String vesicle = tissueAnatomy['seminal vesicle']!.uberon;
+      final String vessel = tissueAnatomy['blood vessel']!.uberon;
       for (final AnatomyFigure figure in <AnatomyFigure>[
         AnatomyFigure.female,
         AnatomyFigure.male,
         AnatomyFigure.brain,
       ]) {
         for (final MapEntry<String, AnatomyPart> part in figure.parts.entries) {
-          if (<String>{muscle, esophagus, skin, fat, cervix, epididymis}
+          if (<String>{muscle, esophagus, skin, fat, cervix, epididymis, vessel}
               .contains(part.key)) {
             continue;
           }
