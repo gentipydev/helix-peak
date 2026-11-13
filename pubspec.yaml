@@ -24,7 +24,6 @@ dependencies:
   lottie: ^3.5.1
   url_launcher: ^6.3.2
   path_provider: ^2.1.6
-  share_plus: ^13.3.0
 
 dev_dependencies:
   flutter_test:
@@ -46,10 +45,6 @@ flutter:
     # Catalog records, tracks and ClinVar snapshots, named by directory.
     #
     - assets/animations/process.json
-
-  # A clip frame to NV12 on the GPU (`Nv12Packer`).
-  shaders:
-    - shaders/nv12_pack.frag
 
   fonts:
     - family: SpaceGrotesk

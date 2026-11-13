@@ -124,7 +124,7 @@ final class ProteinBuild {
 }
 
 /// The proteins this run of the app has asked to be built, and how far each
-/// has got: one job of the whole app, like a clip, so a build outlives the
+/// has got: one job of the whole app, so a build outlives the
 /// search that asked for it and the reader can walk something else while
 /// ESM-2 scores it.
 ///

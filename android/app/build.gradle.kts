@@ -43,8 +43,3 @@ kotlin {
 flutter {
     source = "../.."
 }
-
-dependencies {
-    // NotificationCompat and ServiceCompat, for ClipExportService.
-    implementation("androidx.core:core-ktx:1.17.0")
-}

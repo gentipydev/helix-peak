@@ -6,31 +6,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/biology/gene_record.dart';
 import 'package:helixpeek/core/catalog/gene_query.dart';
-import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/router/app_router.dart';
 import 'package:helixpeek/features/gene_lookup/data/repositories/protein_catalog_repository.dart';
 import 'package:helixpeek/features/gene_lookup/domain/repositories/gene_repository.dart';
 import 'package:helixpeek/features/gene_lookup/domain/usecases/fetch_gene.dart';
 import 'package:helixpeek/features/gene_lookup/presentation/screens/gene_screen.dart';
-import 'package:helixpeek/shared/share/gene_link.dart';
-import 'package:helixpeek/shared/share/share_action.dart';
 
 import '../../support/catalog_api.dart';
-import '../../support/test_catalog.dart';
 
+/// `helixpeek://open/gene/<slug>`, registered in `AndroidManifest.xml` and
+/// `Info.plist`: the link that clips shared before 2026-11-13 carry. The
+/// scheme opens the app and Flutter hands the router the path, which is the
+/// walk's own.
 void main() {
-  final ProteinTarget insulin = TestCatalog.insulin;
-
-  test('the link is the app\'s scheme and the walk\'s own path', () {
-    expect(geneLink(insulin).toString(), 'helixpeek://open/gene/insulin');
-    expect(geneLink(insulin).path, '/gene/insulin');
-    expect(
-      posterText(insulin),
-      'Insulin in Helix Peek: $geneLinkScheme://open/gene/insulin',
-    );
-  });
-
-  testWidgets('the link opens the walk when the platform delivers it', (
+  testWidgets('the app\'s link opens the walk when the platform delivers it', (
     WidgetTester tester,
   ) async {
     final ProteinCatalogRepository catalog = ProteinCatalogRepository(
@@ -53,8 +42,8 @@ void main() {
     await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
       'flutter/navigation',
       const JSONMethodCodec().encodeMethodCall(
-        MethodCall('pushRouteInformation', <String, Object?>{
-          'location': geneLink(insulin).toString(),
+        const MethodCall('pushRouteInformation', <String, Object?>{
+          'location': 'helixpeek://open/gene/insulin',
           'state': null,
         }),
       ),

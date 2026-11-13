@@ -13,8 +13,7 @@ import '../../../../core/router/app_router.dart';
 /// its card says it, so nothing more is.
 ///
 /// It sits under the app's root `ScaffoldMessenger` (`MaterialApp.builder`)
-/// beside the clip's, and reads the app's [ProteinBuilds]; without them it
-/// says nothing.
+/// and reads the app's [ProteinBuilds]; without them it says nothing.
 class BuildReadyListener extends StatefulWidget {
   const BuildReadyListener({
     required this.router,

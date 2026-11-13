@@ -119,54 +119,13 @@ Git: commit the session's own changes locally. Never push, in any form.
   scene holds the model with z negated, and so does the fold
   (`docs/folding-renderer.md`). Reduced motion, no ready track, or a model the
   fold cannot be bound to, opens on the model.
-- `lib/shared/share/`: sharing, promoted out of the lab for the walk.
-  - It draws a flow's frames offscreen, one at a time (`FrameRenderer`).
-    Each frame carries the protein's link, `helixpeek://open/gene/<slug>`
-    (`geneLink`), the scheme `AndroidManifest.xml` and `Info.plist`
-    register. Flutter hands the path to the router.
-  - Clips (`VideoEncoder`) are made on Android and iOS, on channel
-    `helixpeak/share/video_encoder`, one frame per call: MediaCodec and
-    MediaMuxer in `android/.../VideoEncoderChannel.kt`, and AVAssetWriter in
-    `ios/Runner/VideoEncoderChannel.swift` (`docs/video-encoding-spike.md`).
-    Other platforms share nothing. The next frame is drawn while the
-    platform encodes the last, never more than one sent. On Android a clip
-    goes on while the app is away: `ClipKeepAlive` (channel
-    `helixpeak/share/clip_keepalive`) starts `ClipExportService.kt`, a
-    foreground service (`mediaProcessing` from Android 15, `shortService` on
-    14) with a wake lock and the clip's progress in a notification, which
-    can stop it. Swiping the app out of Recents ends it, with its engine.
-    On iOS nothing may draw in the background (Flutter parks `toImage`, and
-    no iPhone offers background GPU), so a clip pauses with the app: as the
-    app leaves, `VideoEncoderChannel.swift` finishes the part it is writing,
-    the next frame starts another, and `finish` joins the parts without
-    encoding again. Frames of a part that could not be finished are drawn
-    again (`FrameRenderer.frames(from:)`). Where nothing keeps it going or
-    pauses it, an export is cancelled, its file deleted, if the app is
-    paused.
-  - On Android a frame crosses as NV12, packed on the GPU (`Nv12Packer`,
-    `shaders/nv12_pack.frag`) with the Kotlin loop's own integer BT.709
-    coefficients, so Kotlin only copies rows. Each launch packs a small
-    frame and compares it with `nv12Reference` first; where they differ, and
-    on iOS, frames cross as RGBA. `--dart-define=CLIP_TIMING=true` builds
-    report each clip's time per step (the clip's sheet, and the log), and
-    `CLIP_NV12=false` forces RGBA to time the two against each other.
-  - A clip is a job of the whole app (`ClipExporter`, provided in
-    `core/di/dependencies.dart`), one at a time, so it outlives the page that
-    asked for it. `ShareClipButton` starts it and shows it in a sheet
-    (`showClipSheet`) that can be put away while it goes on; the button then
-    wears its progress as a ring. A made clip waits for Share. One that ends
-    while no sheet shows it is said in a snackbar on any screen
-    (`ClipReadyListener`, in `MaterialApp.builder`). Between frames the job
-    gives way to the app's own (`ClipExporter.giveWayToFrames`).
 - `lib/features/gene_lookup/`: **the walk**. It has `data/`, `domain/` and
   `presentation/` (`anatomy/`, `clinvar/`, `constraint/`, `inspector/`,
   `structure/`, `cubit/`, `screens/`). The mRNA page, untouched, offers
   "Ribosome ›" in its header: the translation plays over the page on the
   shared player, under the walk's header, and at the stop codon the chain
   flies into the protein page, which the walk turns to under it
-  (`anatomy/walk_ribosome.dart`). While it is up, the header shares it as a
-  clip (`lib/shared/share/`), and the stage bar
-  stands down, its band given to the player's controls: no swipe turns a page
+  (`anatomy/walk_ribosome.dart`). While it is up, the stage bar stands down, its band given to the player's controls: no swipe turns a page
   until the chain has landed, and Back puts it away onto the transcript.
   Without it the swipe plays the walk's own translation, as it always has.
   The gene page, with nothing picked, offers "Zoom ›" in the same place for
