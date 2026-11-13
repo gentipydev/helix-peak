@@ -354,6 +354,13 @@ final class ZoomDepth {
   /// in rows above it and below it, have room on every phone's canvas.
   static const double vaginaUpright = 1.3;
 
+  /// How much taller than wide a blood vessel is framed: a length of the
+  /// descending aorta on its vertebrae, standing as tall as the card's 12
+  /// cm and a third as wide, it is framed by its height, as a tall organ
+  /// is, a little wider than a phone's own proportions, so that its names,
+  /// in a column at either edge of the canvas, have room on every phone.
+  static const double vesselUpright = 1.4;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -401,8 +408,9 @@ final class ZoomDepth {
   /// [seminalVesicleUpright], smooth muscle, the bladder's wall whole
   /// from the front, as [smoothMuscleUpright], the tongue, cut across
   /// between the mandible's halves, as [tongueUpright], the uterus,
-  /// bivalved to its fundus, as [uterusUpright], and the vagina, opened
-  /// and pinned flat, as [vaginaUpright].
+  /// bivalved to its fundus, as [uterusUpright], the vagina, opened and
+  /// pinned flat, as [vaginaUpright], and a blood vessel, a length of the
+  /// aorta, as [vesselUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -411,8 +419,11 @@ final class ZoomDepth {
     if (anatomy.organ == OrganKind.lymphNode) {
       return nodeUpright;
     }
-    if (anatomy.inBrain != null || anatomy.organ == OrganKind.vessel) {
+    if (anatomy.inBrain != null) {
       return 1;
+    }
+    if (anatomy.organ == OrganKind.vessel) {
+      return vesselUpright;
     }
     if (anatomy.organ == OrganKind.parathyroid) {
       return parathyroidUpright;

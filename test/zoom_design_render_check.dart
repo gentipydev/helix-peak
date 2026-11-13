@@ -33,6 +33,7 @@ import 'package:helixpeek/features/zoom/presentation/scenes/organs/skin/skin_for
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/stomach/stomach_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/thyroid/thyroid_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/uterus/uterus_form.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/vessel/aorta_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/sculpt.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/tissue/tissue_slide.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/tissue_scene.dart';
@@ -217,8 +218,9 @@ void main() {
     // light, the seminal vesicles, the male figure's alone, about the
     // tissue's own cell, smooth muscle on both figures about its smooth
     // muscle cell, the uterus, the female figure's alone, about a cell of
-    // its glands, of its surface and of its stroma, and the vagina, the
-    // female figure's alone, about the tissue's own cell.
+    // its glands, of its surface and of its stroma, the vagina, the female
+    // figure's alone, about the tissue's own cell, and the blood vessel, the
+    // aorta, about the tissue's own cell and each other that lives in it.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -658,6 +660,18 @@ void main() {
         CellShape.epithelial,
         null,
       ),
+      for (final String? cell in <String?>[
+        null,
+        'Vascular endothelial cells',
+        'Pericytes',
+      ])
+        (
+          'vessel-${AortaHome.of(cell).name}',
+          tissueAnatomy['blood vessel']!,
+          AnatomyFigure.female,
+          CellShape.spindle,
+          cell,
+        ),
     ];
     for (final (
           String name,

@@ -111,6 +111,8 @@ import 'organs/uterus/uterus_style.dart';
 import 'organs/vagina/vagina_art.dart';
 import 'organs/vagina/vagina_form.dart';
 import 'organs/vagina/vagina_style.dart';
+import 'organs/vessel/aorta_art.dart';
+import 'organs/vessel/aorta_form.dart';
 import 'sculpt.dart';
 import 'specimen_step.dart';
 import 'tube_course.dart';
@@ -223,11 +225,10 @@ abstract class OrganArt {
     if (anatomy == null) {
       return _AnyOrgan();
     }
-    final double size = anatomy.metres / view;
     return switch (anatomy.organ) {
       OrganKind.brain => _BrainOrgan(anatomy, view),
       OrganKind.lymphNode => _NodeOrgan(anatomy, view, cell: cellName),
-      OrganKind.vessel => _VesselOrgan(size),
+      OrganKind.vessel => _VesselOrgan(anatomy, view, cell: cellName),
       OrganKind.skin => _SkinOrgan(anatomy, view, cell: cellName),
       OrganKind.placenta => _PlacentaOrgan(anatomy, view, cell: cellName),
       OrganKind.adipose => _AdiposeOrgan(anatomy, view),
@@ -4656,42 +4657,95 @@ final class _NodeOrgan extends OrganArt {
   }
 }
 
-/// A length of artery with a branch: its wall, and the blood in its lumen.
-/// The tissue is sampled in the wall.
+/// A blood vessel, drawn from general anatomy as a length of the
+/// descending thoracic aorta on its vertebrae, seen from the front in place
+/// (`AortaArt`): a window cut in its front wall in steps, the adventitia
+/// turned back, the media bared, the intima seen through a smaller window
+/// with the openings of a pair of intercostal arteries; its cut ends; the
+/// vertebral bodies behind it, the intercostal arteries leaving it in
+/// pairs, the azygos, the hemiazygos and the thoracic duct. The body draws
+/// its vessels as one tree, so the step from it is a crossfade, as the
+/// lymph node's is, onto the place the body goes in, in the aorta's
+/// thoracic part, where GTEx takes it. Where the zoom's cell lives is in
+/// the mark, by the Atlas's name for the cell: the intima, the media or the
+/// adventitia; the other coats, an intercostal artery and the azygos are
+/// named in a column at either edge of the canvas, level with each.
 final class _VesselOrgan extends OrganArt {
-  _VesselOrgan(this.size);
+  _VesselOrgan(TissueAnatomy anatomy, double view, {String? cell})
+    : _form = AortaForm(
+        length: anatomy.metres / view,
+        view: view,
+        home: AortaHome.of(cell),
+      );
 
-  final double size;
+  final AortaForm _form;
 
-  /// How thick the trunk's wall is drawn.
-  double get _wall => size * 0.115;
+  @override
+  Offset get site => _form.site;
 
-  /// The trunk's course, left to right, its upper edge passing just above
-  /// the origin, where its tissue is sampled.
-  List<Offset> get _trunk => <Offset>[
-    for (int i = 0; i <= 40; i++)
-      Offset(
-        size * (-1 + 2 * i / 40),
-        _wall * 0.72 + size * 0.05 * math.sin(i / 40 * math.pi * 1.2 + 0.6),
-      ),
+  @override
+  Path get outline => _form.outline;
+
+  // Where the zoom's cell lives, in the mark; the other two coats, an
+  // intercostal artery and the azygos, in the quiet ink. The thoracic duct
+  // and the vertebral bodies are drawn and not named: beside the aorta's
+  // own names, theirs had no room in a column on the narrowest phones.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'home', word: _form.home.word, at: _form.homeName, home: true),
+    for (final AortaHome coat in AortaHome.values)
+      if (coat != _form.home)
+        (
+          key: coat.name,
+          word: coat.word,
+          at: switch (coat) {
+            AortaHome.intima => _form.intimaName,
+            AortaHome.media => _form.mediaName,
+            AortaHome.adventitia => _form.adventitiaName,
+          },
+          home: false,
+        ),
+    (
+      key: 'intercostal',
+      word: 'intercostal\nartery',
+      at: _form.intercostalName,
+      home: false,
+    ),
+    (key: 'azygos', word: 'azygos\nvein', at: _form.azygosName, home: false),
   ];
 
-  /// The trunk's outer wall: the vessel the site is sampled in.
   @override
-  Path get outline => _tube(_trunk, _wall);
+  List<Offset> get named => _form.namedPoints;
 
-  Path _tube(List<Offset> spine, double half) {
-    final List<Offset> left = <Offset>[];
-    final List<Offset> right = <Offset>[];
-    for (int i = 0; i < spine.length; i++) {
-      final Offset run =
-          spine[math.min(i + 1, spine.length - 1)] - spine[math.max(i - 1, 0)];
-      final Offset side = Offset(-run.dy, run.dx) / run.distance * half;
-      left.add(spine[i] + side);
-      right.add(spine[i] - side);
+  // The azygos and the media, on the body's right of the window, in the
+  // left column; the intima, the adventitia and an intercostal artery in
+  // the right.
+  @override
+  late final Map<String, OrganColumn> columns = <String, OrganColumn>{
+    for (final OrganName name in names)
+      name.key: () {
+        final bool left =
+            name.key == 'azygos' ||
+            (name.key == 'home'
+                ? _form.home == AortaHome.media
+                : name.key == AortaHome.media.name);
+        final (Offset l, Offset r) = _form.edgesAt(name.at);
+        return (side: left ? -1.0 : 1.0, left: l, right: r);
+      }(),
+  };
+
+  AortaArt? _art;
+
+  AortaArt _artFor(ZoomInks inks) {
+    final AortaArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
     }
-    return OrganArt._closed(<Offset>[...left, ...right.reversed]);
+    return _art = AortaArt(_form, inks)..prepare();
   }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
 
   @override
   void paint(
@@ -4703,30 +4757,7 @@ final class _VesselOrgan extends OrganArt {
   }) {
     canvas.save();
     canvas.scale(scale);
-    final double line = pixel / scale;
-    final double wall = _wall;
-    final List<Offset> trunk = _trunk;
-    final Offset fork = trunk[26];
-    final List<Offset> branch = <Offset>[
-      for (int i = 0; i <= 20; i++)
-        fork +
-            Offset(
-              size * 0.9 * i / 20,
-              size * (0.03 * i / 20 + 0.5 * math.pow(i / 20, 1.5)),
-            ),
-    ];
-    final Paint blood = Paint()
-      ..color = Color.lerp(inks.blood, inks.ground, 0.35)!;
-    for (final (List<Offset> spine, double half) in <(List<Offset>, double)>[
-      (branch, wall * 0.62),
-      (trunk, wall),
-    ]) {
-      final Path tube = _tube(spine, half);
-      OrganArt._sculpted(canvas, tube, tube.getBounds(), inks, line, 1);
-      OrganArt._edged(canvas, tube, tube.getBounds(), inks, line, 1);
-    }
-    canvas.drawPath(_tube(branch, wall * 0.36), blood);
-    canvas.drawPath(_tube(trunk, wall * 0.62), blood);
+    _artFor(inks).paint(canvas, pixel / scale);
     canvas.restore();
   }
 }
