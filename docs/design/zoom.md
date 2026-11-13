@@ -1423,6 +1423,57 @@ microglia, myoglobin's skeletal muscle into thymic myoid cells. The bake's
 README tabulates all twenty paths. A schema 1 payload still reads, with the
 old rule.
 
+Schema 3 (2026-11-13) is every protein built on demand's: the resolver bakes
+its locus as it builds it, from one pinned snapshot of the Atlas 25.1. Its
+rule v3 keeps the first two ways and reads the last two by level:
+- a gene with tissue cell type pairs only goes to the pair in the tissue its
+  RNA is highest in (v2 took the Atlas's alphabetically first);
+- a gene with no reading at all goes to the tissue its RNA is highest in
+  (`TissueFrom.tissueLevel`), into the cell type living there it is highest
+  in (`CellFrom.singleCellLevel`), else the tissue's own cells.
+
+The body's card says the Atlas's category for these, as for the other
+branches that are not a tissue's own reading (`reading.specificity`, "Low
+tissue specificity"); nothing is added to say how the organ was chosen. The
+curated stay schema 2, and v3 gives every one of them the path it has. Seven
+proteins the Atlas cannot place have their locus `refused`, so their gene
+page offers no zoom.
+
+## Built on demand
+
+Every protein the search offers to build opens the zoom from its gene page,
+as a curated one does, once its locus is in (the resolver writes it with the
+record). The zoom reads it through the same `TrackSource`, so nothing
+branches on how a protein was made. What the census of all 7,304 found the
+zoom needed, each a rule for every protein (the user's decisions of
+2026-11-13):
+- **The cell has only its own places.** `cellHas` (`cell_archetypes.dart`)
+  is one rule: the sperm's places (the acrosome and its parts, the tail's
+  pieces) only in a spermatid, the path's or the one it lands in; the
+  mitotic ones (the spindle, the kinetochore, the midbody, the cleavage
+  furrow) only in a dividing cell. The plate, the
+  glow, the parts named and the card's story read the Atlas's words through
+  it (`readingInCell`). A cell left with no word says "The Atlas has not
+  placed the protein in the cell." This changed three curated cell stops:
+  recoverin, S100B and ubiquitin.
+- **Names round a shape wrap.** A name round a shape breaks at its middle
+  space where both halves fit the canvas (`ringTextWidth`). Otherwise it runs
+  on at that width on two lines; set untracked where even that is too long
+  (TEKT4's six places of a sperm's tail at 375 pt); and only then is a third
+  line cut with an ellipsis (`calloutElided`). The census cuts none.
+- **The gene stop is at least 1,000 bp wide** (`ZoomDepth.leastGeneView`),
+  so a gene shorter than its own DNA's dive (MIURF, 213 bp) is drawn whole.
+  No curated gene is that short.
+- **A gene on the Y** is drawn in the male figure, whatever it is read in.
+  Its territory is the male cell's second sex chromosome
+  (`NucleusScene.followedKey`), with no homologue.
+- **A short canvas.** Under a long card a column of names can reach the
+  scale bar, which a name at rest is now kept off (`scaleBarPlate`). A quiet
+  name, a landmark's and never the mark's, that has no room clear of the
+  others at rest is left out (`ZoomStage.crowdedAt`). The census leaves out
+  five, all at 375×667: a cervix's "transformation zone", the "stomach" beside
+  three esophagi, a parotid's "submandibular gland".
+
 ## The camera
 
 Each stop is a scene drawn in its own units: the width of the view at its
@@ -3834,6 +3885,16 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
 - **Caps for telomeres.** A telomere is a run of repeats far too short to
   see at this scale: each cap says where one is, as the accent says where
   the gene is, not how long it is.
+- **A pseudoautosomal gene on the X.** A gene of the pseudoautosomal regions
+  (P2RY8, CRLF2 and seven more the search offers) is drawn on the X, its band
+  the X's. A male cell's Y carries it too, and nothing marks it there.
+- **A patch gene where its scaffold lies.** A gene MANE puts on a GRCh38
+  patch or alternate locus scaffold (POLR2A, KIR2DS4 and ten more) is drawn
+  on its chromosome where NCBI places that scaffold, carried across in
+  proportion, its band that place's.
+- **A Y gene's body.** A gene on the Y is shown the male figure even where
+  the Atlas reads it in a tissue both sexes have; the cell it is shown in is
+  then a male's.
 
 ## Implementation and checks
 
@@ -4042,6 +4103,34 @@ frame, lighting it as the organs are lit wherever it narrows (0.5 to
   to the home screen's, and whose `transcription` the zoom leaves null, for
   a helix nothing reads; `helix_vertices_test` pins every call the home
   screen's helix makes.
+- Built proteins in the tests:
+  - `test/features/zoom/fixtures/coverage/` holds twelve built proteins:
+    - B2M (chromosome 15) and MC4R (18);
+    - SRY (Y);
+    - MIURF and H4C12, the shortest;
+    - CNTNAP2 (two bands) and CACNB2 (three);
+    - POLR2A (placed from a patch) and P2RY8 (pseudoautosomal);
+    - BBS9 and TEKT4 (long plates), and XPO1 (`tissue_level`).
+
+    Each has its record and row from the backend's `scripts/dry_resolve.py
+    --out` and its schema 3 locus from the census. Never the walk's
+    `test/fixtures/`.
+  - `coverage_fixtures.dart` lists them. `zoomProteins` (curated and
+    coverage) drives the smoothness, names, anatomy, chromosome, gene, DNA
+    and cell tests.
+  - `zoom_built_test` holds the new path values and the cell's places, and
+    `ring_plate_lines_test` the plates' two lines.
+- Census check: the backend's `pipeline/locus/survey.py --live --out DIR
+  --gff <MANE GFF>` bakes every protein the search offers. Then
+  `ZOOM_CATALOGUE=DIR flutter test test/zoom_catalogue_check.dart` stages and
+  paints every stop of every one, at 390×844 and 375×667, into a picture
+  never rasterised, and holds every name's plate whole on the canvas, clear
+  of the others and of the scale bar, uncut. It also holds the organ's
+  anatomy, the cell's shape, the chromosome's territory, the gene's mark on
+  the strip and its exons whole. It writes `app_check.json`. On 2026-11-13:
+  7,299 proteins, 0 failures, 0 plates cut (18 minutes).
+  `zoom_design_render_check.dart` renders a census protein too
+  (`ZOOM_CATALOGUE`, `catalogue_fixtures.dart`).
 - Render check:
   `ZOOM_DESIGN_SHOTS=/tmp/zoom flutter test test/zoom_design_render_check.dart`
   writes every stop and two moments in each segment, at 390 and 320 pixels.

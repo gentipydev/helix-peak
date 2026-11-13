@@ -708,9 +708,11 @@ to give it, and it reads through the app's own `TrackSource`, the walk's: a
 `locus` payload is a few kilobytes, and its record is the one the walk holds.
 
 It is reached from the walk's gene page, which offers "Zoom ›" on its strip
-for a protein whose `locus` track is `ready`: every curated one today,
-by their rows and by no list, so a protein built on demand gets it the day it
-gets a locus. The walk opens it by route (`RoutePaths.zoomFor(target,
+for a protein whose `locus` track is `ready`, by its rows and by no list:
+every curated one, and since 2026-11-13 every protein built on demand. The
+backend's resolver makes a built protein's locus as it builds it, and the
+seven the Atlas cannot place have theirs refused, so they offer no zoom. The
+walk opens it by route (`RoutePaths.zoomFor(target,
 overWalk: true)`, `?over=walk`), never by import. At the DNA, "Walk ›" unzips
 the helix and goes back to the gene page it left; opened any other way, with
 no walk under it, it opens the walk at `/gene/<slug>`. `ZoomRoute` resolves
@@ -838,9 +840,16 @@ seen:
   inside it to turn, so nothing turns.
 
 The organ and the cell are one path the bake chose, a cell that lives in
-the organ (`path` in the `locus` track's schema 2, `pipeline/locus` in the
-backend). Where that cell has no nucleus (red cells, platelets), the zoom
-lands in the precursor that has one. The band is marked and named, never
+the organ (`path` in the `locus` track, `pipeline/locus` in the backend).
+The curated carry schema 2; a protein built on demand carries schema 3,
+whose rule v3 reads the Atlas's levels where v2 had no tissue or took the
+alphabetically first pair (`TissueFrom.tissueLevel`,
+`CellFrom.singleCellLevel`). Where that cell has no nucleus (red cells,
+platelets), the zoom lands in the precursor that has one. The cell shows
+only the places it has (`cellHas`: a sperm's only in a spermatid, a
+dividing cell's only in one that divides; the user's decision of
+2026-11-13). A name round a shape takes at most two lines. A gene on the Y
+is shown the male body. The band is marked and named, never
 the gene. The card says the place and one line of data, nothing that
 explains: there is no About sheet, no source tag and no player. Its
 colours are the app's own (`ZoomInks`): one ground at every stop, the
@@ -1094,6 +1103,11 @@ dart run build_runner build    # after editing gene_record_dto.dart
   (`LIVE_EXPECT=refused` for one whose ESM-2 track was refused, `absent` for one
   whose scoring was stopped; `LIVE_EVIDENCE` likewise for its AVI and ClinVar,
   `ready` by default).
+- `ZOOM_CATALOGUE=<dir> flutter test test/zoom_catalogue_check.dart` stages
+  and paints every stop of every protein the search offers, from the
+  backend's census (`pipeline/locus/survey.py --gff`), on two phones. It
+  holds every name whole on the canvas, clear of the others and of the
+  scale bar, and uncut, and writes `app_check.json`. It takes 18 minutes.
 - `FOLD_BUNDLE=<dir> flutter test test/fold_bundle_check.dart` holds a fold the
   backend has baked for a protein built on demand (its row, `.glb`, scene and
   `folding` track) to the fold page's rules: the scene is the model, every
