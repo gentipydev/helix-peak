@@ -1,0 +1,65 @@
+{
+ "slug": "cacnb2",
+ "display": "Voltage-dependent L-type calcium channel subunit beta-2",
+ "gene": "CACNB2",
+ "uniprot": "Q08289",
+ "accession": "NG_016195.1",
+ "summary": "Made by CACNB2 on chromosome 10. Built on demand from UniProt Q08289 and MANE Select NM_201596.3, not curated by hand.",
+ "facts": {
+  "residues": 660,
+  "exons": 14,
+  "chains": 1,
+  "bridges": 0
+ },
+ "catalog_order": null,
+ "chain": "Voltage-dependent L-type calcium channel subunit beta-2",
+ "chains": [],
+ "structure": null,
+ "tracks": {},
+ "mature_peptides": false,
+ "transcript_id": "NM_201596.3",
+ "protein_id": "NP_963890.2",
+ "regions": [
+  {
+   "label": "Voltage-dependent L-type calcium channel subunit beta-2",
+   "short": "",
+   "start": 1,
+   "end": 660,
+   "origin": 1,
+   "kept": true
+  }
+ ],
+ "disulfides": [],
+ "provenance": {
+  "source": "pipeline/resolver",
+  "prose": "templated",
+  "resolver_version": 1,
+  "uniprot": {
+   "accession": "Q08289",
+   "release": "2026_04",
+   "release_date": "2026-11-04",
+   "retrieved": "2026-11-13"
+  },
+  "mane": {
+   "release": "v1.5",
+   "transcript": "NM_201596.3",
+   "protein": "NP_963890.2"
+  },
+  "regions_rule": "processing",
+  "regions_from": [
+   {
+    "label": "Voltage-dependent L-type calcium channel subunit beta-2",
+    "short": "",
+    "start": 1,
+    "end": 660,
+    "kept": true
+   }
+  ],
+  "chain_label": "Voltage-dependent L-type calcium channel subunit beta-2",
+  "cleaved": false,
+  "uniprot_variants": [],
+  "skipped_features": [],
+  "disulfides_dropped": []
+ },
+ "resolver_version": 1
+}

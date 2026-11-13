@@ -1,0 +1,65 @@
+{
+ "slug": "polr2a",
+ "display": "DNA-directed RNA polymerase II subunit RPB1",
+ "gene": "POLR2A",
+ "uniprot": "P24928",
+ "accession": "NG_027747.2",
+ "summary": "Made by POLR2A. Built on demand from UniProt P24928 and MANE Select NM_000937.5, not curated by hand.",
+ "facts": {
+  "residues": 1970,
+  "exons": 29,
+  "chains": 1,
+  "bridges": 0
+ },
+ "catalog_order": null,
+ "chain": "DNA-directed RNA polymerase II subunit RPB1",
+ "chains": [],
+ "structure": null,
+ "tracks": {},
+ "mature_peptides": false,
+ "transcript_id": "NM_000937.5",
+ "protein_id": "NP_000928.1",
+ "regions": [
+  {
+   "label": "DNA-directed RNA polymerase II subunit RPB1",
+   "short": "",
+   "start": 1,
+   "end": 1970,
+   "origin": 1,
+   "kept": true
+  }
+ ],
+ "disulfides": [],
+ "provenance": {
+  "source": "pipeline/resolver",
+  "prose": "templated",
+  "resolver_version": 1,
+  "uniprot": {
+   "accession": "P24928",
+   "release": "2026_04",
+   "release_date": "2026-11-04",
+   "retrieved": "2026-11-13"
+  },
+  "mane": {
+   "release": "v1.5",
+   "transcript": "NM_000937.5",
+   "protein": "NP_000928.1"
+  },
+  "regions_rule": "processing",
+  "regions_from": [
+   {
+    "label": "DNA-directed RNA polymerase II subunit RPB1",
+    "short": "",
+    "start": 1,
+    "end": 1970,
+    "kept": true
+   }
+  ],
+  "chain_label": "DNA-directed RNA polymerase II subunit RPB1",
+  "cleaved": false,
+  "uniprot_variants": [],
+  "skipped_features": [],
+  "disulfides_dropped": []
+ },
+ "resolver_version": 1
+}

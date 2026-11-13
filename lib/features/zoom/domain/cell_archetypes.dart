@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 
 import 'anatomy_tables.dart';
+import 'locus_track.dart';
 import 'zoom_path.dart';
 
 /// The shapes a cell is drawn in at the cell level, by what the cell is:
@@ -368,6 +369,41 @@ enum Compartment {
   sperm,
   division,
 }
+
+/// Whether the cell the zoom draws for [path] has [compartment]: every cell
+/// has every compartment but two. A sperm's (its tail and acrosome) is a
+/// spermatid's and a sperm's alone: the path's cell, or the cell it lands
+/// in, named a spermatid; a spermatocyte or a spermatogonium has none yet.
+/// Division's (a mitotic spindle, a cytokinetic bridge) is a dividing cell's
+/// alone (`CellShape.dividing`). The Atlas reads a protein's place in the
+/// cells it stains, in whichever tissue (recoverin in the sperm tail as well
+/// as the rod), and the zoom names and lights only what the cell it draws
+/// has (the user's decision of 2026-11-13).
+bool cellHas(Compartment compartment, ZoomPath path) => switch (compartment) {
+  Compartment.sperm =>
+    _spermatid(path.cellType) || _spermatid(path.landsIn?.cell),
+  Compartment.division => archetypeOf(path).shape == CellShape.dividing,
+  _ => true,
+};
+
+bool _spermatid(String? name) =>
+    name != null && name.toLowerCase().contains('spermatid');
+
+/// The Atlas's [words] for where it finds a protein, less those whose
+/// compartment the cell [path] draws does not have ([cellHas]).
+List<String> wordsInCell(List<String> words, ZoomPath path) => <String>[
+  for (final String word in words)
+    if (cellHas(compartmentOf[word] ?? Compartment.cytosol, path)) word,
+];
+
+/// [reading] in the cell [path] draws: its main and additional words that
+/// the cell has. What the cell's plate names, its glow lights and the card
+/// says are read through this.
+SubcellularReading readingInCell(SubcellularReading reading, ZoomPath path) =>
+    SubcellularReading(
+      main: wordsInCell(reading.main, path),
+      additional: wordsInCell(reading.additional, path),
+    );
 
 /// The compartment each of the Atlas's subcellular words is drawn in. Every
 /// one of its 49 words has one.

@@ -9,11 +9,14 @@ import 'package:helixpeek/features/zoom/domain/cell_archetypes.dart';
 import 'package:helixpeek/features/zoom/domain/locus_track.dart';
 
 import '../../support/test_catalog.dart';
+import 'coverage_fixtures.dart';
 
-/// The curated rows' `locus` payloads `pipeline/locus/` baked, kept beside
-/// these tests rather than in `test/fixtures/`, which belongs to the walk.
-String locusAsset(ProteinTarget target) =>
-    'test/features/zoom/fixtures/${target.slug}_locus.json';
+/// The curated rows' `locus` payloads `pipeline/locus/` baked, and the
+/// coverage set's (`Coverage`), kept beside these tests rather than in
+/// `test/fixtures/`, which belongs to the walk.
+String locusAsset(ProteinTarget target) => Coverage.holds(target.slug)
+    ? Coverage.locusAsset(target.slug)
+    : 'test/features/zoom/fixtures/${target.slug}_locus.json';
 
 Map<String, dynamic> locusJson(ProteinTarget target) =>
     jsonDecode(File(locusAsset(target)).readAsStringSync())
@@ -60,6 +63,9 @@ ProteinTarget withLocus(
 final class ZoomTrackSource implements TrackSource {
   @override
   Future<Uint8List> read(String slug, TrackKind kind) {
+    if (Coverage.holds(slug)) {
+      return Coverage.file(slug, kind).readAsBytes();
+    }
     final ProteinTarget target = TestCatalog.bySlug(slug)!;
     return switch (kind) {
       TrackKind.locus => File(locusAsset(target)).readAsBytes(),

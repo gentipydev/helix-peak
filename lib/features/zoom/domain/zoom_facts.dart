@@ -241,7 +241,9 @@ final class ZoomFacts {
 
   /// What the cell's drawing shows, in a few sentences, from the track
   /// alone (the user's ask, 2026-10-19): the protein glowing where the
-  /// Atlas finds it, and, where the Atlas finds it secreted, the vesicles
+  /// Atlas finds it, in what the drawn cell has ([readingInCell]: a place
+  /// it has not, a sperm tail's in a rod, is said nowhere), and, where the
+  /// Atlas finds it secreted, the vesicles
   /// carrying it from the Golgi to the granules that store it, or else to
   /// the membrane, as the cell's scene draws them. What any reader in the
   /// field knows goes unsaid: that its gene is transcribed in the nucleus
@@ -261,7 +263,7 @@ final class ZoomFacts {
     } else if (precursor != null) {
       said.add('${capital(cell)} have no nucleus.');
     }
-    final SubcellularReading where = track.subcellular;
+    final SubcellularReading where = readingInCell(track.subcellular, path);
     if (where.main.isNotEmpty) {
       said.add(
         where.additional.isEmpty

@@ -1,0 +1,361 @@
+{
+  "slug": "polr2a",
+  "gene": "POLR2A",
+  "uniprot": "P24928",
+  "assembly": "GRCh38",
+  "genome": "hg38",
+  "chromosome": "17",
+  "sequence": "NC_000017.11",
+  "length": 83257441,
+  "span": {
+    "start": 7484367,
+    "end": 7514616,
+    "strand": 1
+  },
+  "transcript": {
+    "refseq": "NM_000937.5",
+    "ensembl": "ENST00000643490.2"
+  },
+  "placed_from": {
+    "sequence": "NW_016107299.1",
+    "ucsc": "chr17_KV575245v1_fix",
+    "scaffold": "HG2046_PATCH",
+    "span": {
+      "start": 104823,
+      "end": 135071,
+      "strand": 1
+    },
+    "placement": {
+      "assembly": "GRCh38.p14",
+      "orientation": "+",
+      "scaffold": {
+        "start": 1,
+        "end": 154723
+      },
+      "chromosome": {
+        "start": 7379544,
+        "end": 7534268
+      }
+    },
+    "method": "proportional"
+  },
+  "band": {
+    "names": [
+      "p13.1"
+    ],
+    "start": 6500001,
+    "end": 10800000
+  },
+  "locus": "17p13.1",
+  "bands": [
+    {
+      "name": "p13.3",
+      "start": 1,
+      "end": 3400000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p13.2",
+      "start": 3400001,
+      "end": 6500000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "p13.1",
+      "start": 6500001,
+      "end": 10800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p12",
+      "start": 10800001,
+      "end": 16100000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p11.2",
+      "start": 16100001,
+      "end": 22700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p11.1",
+      "start": 22700001,
+      "end": 25100000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.1",
+      "start": 25100001,
+      "end": 27400000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.2",
+      "start": 27400001,
+      "end": 33500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q12",
+      "start": 33500001,
+      "end": 39800000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q21.1",
+      "start": 39800001,
+      "end": 40200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.2",
+      "start": 40200001,
+      "end": 42800000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q21.31",
+      "start": 42800001,
+      "end": 46800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.32",
+      "start": 46800001,
+      "end": 49300000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q21.33",
+      "start": 49300001,
+      "end": 52100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q22",
+      "start": 52100001,
+      "end": 59500000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q23.1",
+      "start": 59500001,
+      "end": 60200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q23.2",
+      "start": 60200001,
+      "end": 63100000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q23.3",
+      "start": 63100001,
+      "end": 64600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q24.1",
+      "start": 64600001,
+      "end": 66200000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q24.2",
+      "start": 66200001,
+      "end": 69100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q24.3",
+      "start": 69100001,
+      "end": 72900000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q25.1",
+      "start": 72900001,
+      "end": 76800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q25.2",
+      "start": 76800001,
+      "end": 77200000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q25.3",
+      "start": 77200001,
+      "end": 83257441,
+      "stain": "gneg"
+    }
+  ],
+  "expression": {
+    "ensembl_gene": "ENSG00000181222",
+    "tissue": {
+      "specificity": "Tissue enhanced",
+      "distribution": "Detected in single",
+      "specific": [
+        {
+          "name": "lymphoid tissue",
+          "ntpm": 1.5
+        }
+      ]
+    },
+    "cell_type": {
+      "specificity": "Cell type enhanced",
+      "distribution": "Detected in many",
+      "specific": [
+        {
+          "name": "Renal collecting duct intercalated cells",
+          "ncpm": 91.5
+        },
+        {
+          "name": "Renal collecting duct principal cells",
+          "ncpm": 80.2
+        },
+        {
+          "name": "Choroid plexus epithelial cells",
+          "ncpm": 74.5
+        },
+        {
+          "name": "Loop of henle epithelial cells",
+          "ncpm": 71.4
+        },
+        {
+          "name": "Podocytes",
+          "ncpm": 65.6
+        },
+        {
+          "name": "Papillary tip epithelial cells",
+          "ncpm": 62.0
+        },
+        {
+          "name": "Distal convoluted tubule cells",
+          "ncpm": 56.5
+        },
+        {
+          "name": "Renal connecting tubule cells",
+          "ncpm": 53.3
+        },
+        {
+          "name": "Proximal tubule cells",
+          "ncpm": 48.6
+        }
+      ]
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Colon",
+        "cell_type": "Macrophages"
+      },
+      {
+        "tissue": "Testis",
+        "cell_type": "Spermatocytes"
+      },
+      {
+        "tissue": "Testis",
+        "cell_type": "Spermatogonia"
+      }
+    ],
+    "subcellular": {
+      "main": [
+        "Nucleoplasm"
+      ],
+      "additional": [
+        "Cytosol"
+      ]
+    },
+    "secretome": null,
+    "atlas_match": "hgnc",
+    "atlas_gene": "POLR2A",
+    "tissue_levels": {
+      "adipose tissue": 0.1,
+      "adrenal gland": 0.7,
+      "blood vessel": 0,
+      "bone marrow": 0.2,
+      "brain": 0.6,
+      "breast": 0.1,
+      "cervix": 0,
+      "choroid plexus": 0.1,
+      "endometrium": 0.1,
+      "epididymis": 0,
+      "esophagus": 0,
+      "fallopian tube": 0.2,
+      "gallbladder": 0.1,
+      "heart muscle": 0.1,
+      "intestine": 0.5,
+      "kidney": 0.1,
+      "liver": 0,
+      "lung": 0.2,
+      "lymphoid tissue": 1.5,
+      "ovary": 0.1,
+      "pancreas": 0,
+      "parathyroid gland": 0.1,
+      "pituitary gland": 0,
+      "placenta": 0.2,
+      "prostate": 0.2,
+      "retina": 0.2,
+      "salivary gland": 0,
+      "seminal vesicle": 0,
+      "skeletal muscle": 0.4,
+      "skin": 0.1,
+      "smooth muscle": 0,
+      "stomach": 0,
+      "testis": 0.6,
+      "thyroid gland": 0,
+      "tongue": 0.1,
+      "urinary bladder": 0,
+      "vagina": 0
+    }
+  },
+  "path": {
+    "tissue": "lymphoid tissue",
+    "tissue_from": "tissue",
+    "cell_type": null,
+    "cell_class": null,
+    "cell_from": null,
+    "lands_in": null
+  },
+  "sources": {
+    "cytoband": {
+      "table": "cytoBand",
+      "genome": "hg38",
+      "updated": "2022-10-28T15:06:46",
+      "rows": 1549,
+      "sha256": "50366db9b20881ddcd5679fefa6f8ee5eeb920ce61a7889e0ee0c52853b034c7",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=cytoBand"
+    },
+    "chrom_alias": {
+      "table": "chromAlias",
+      "genome": "hg38",
+      "updated": "2023-01-24T12:46:47",
+      "rows": 2129,
+      "sha256": "df04264a4bcb6dc6b5a6334b42d09270abc894ac2ebbd8ca68a51a12b7076f02",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=chromAlias"
+    },
+    "mane": {
+      "release": "v1.5"
+    },
+    "uniprot": {
+      "release": "2026_04"
+    },
+    "hpa": {
+      "version": "25.1",
+      "release_date": "2026-05-25",
+      "ensembl": "109",
+      "licence": "CC BY 4.0",
+      "url": "https://v25.proteinatlas.org/ENSG00000181222.json"
+    },
+    "locus_inputs": {
+      "sha256": "bb475d41dcf93379c8c1af63026bef9af35495abbb658e4416d7c7d05c9ed4b9",
+      "created": "2026-11-13"
+    }
+  },
+  "retrieved": "2026-11-13",
+  "schema_version": 3,
+  "built_by": "pipeline/locus/bake_locus.py"
+}

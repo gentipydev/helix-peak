@@ -1,0 +1,74 @@
+{
+ "slug": "mc4r",
+ "display": "Melanocortin receptor 4",
+ "gene": "MC4R",
+ "uniprot": "P32245",
+ "accession": "NG_016441.1",
+ "summary": "Made by MC4R on chromosome 18. Built on demand from UniProt P32245 and MANE Select NM_005912.3, not curated by hand.",
+ "facts": {
+  "residues": 332,
+  "exons": 1,
+  "chains": 1,
+  "bridges": 2
+ },
+ "catalog_order": null,
+ "chain": "Melanocortin receptor 4",
+ "chains": [],
+ "structure": null,
+ "tracks": {},
+ "mature_peptides": false,
+ "transcript_id": "NM_005912.3",
+ "protein_id": "NP_005903.2",
+ "regions": [
+  {
+   "label": "Melanocortin receptor 4",
+   "short": "",
+   "start": 1,
+   "end": 332,
+   "origin": 1,
+   "kept": true
+  }
+ ],
+ "disulfides": [
+  [
+   40,
+   279
+  ],
+  [
+   271,
+   277
+  ]
+ ],
+ "provenance": {
+  "source": "pipeline/resolver",
+  "prose": "templated",
+  "resolver_version": 1,
+  "uniprot": {
+   "accession": "P32245",
+   "release": "2026_04",
+   "release_date": "2026-11-04",
+   "retrieved": "2026-11-13"
+  },
+  "mane": {
+   "release": "v1.5",
+   "transcript": "NM_005912.3",
+   "protein": "NP_005903.2"
+  },
+  "regions_rule": "processing",
+  "regions_from": [
+   {
+    "label": "Melanocortin receptor 4",
+    "short": "",
+    "start": 1,
+    "end": 332,
+    "kept": true
+   }
+  ],
+  "chain_label": "Melanocortin receptor 4",
+  "cleaved": false,
+  "uniprot_variants": [],
+  "skipped_features": [],
+  "disulfides_dropped": []
+ },
+ "resolver_version": 1
+}

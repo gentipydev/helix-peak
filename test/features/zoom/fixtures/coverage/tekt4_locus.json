@@ -1,0 +1,565 @@
+{
+  "slug": "tekt4",
+  "gene": "TEKT4",
+  "uniprot": "Q8WW24",
+  "assembly": "GRCh38",
+  "genome": "hg38",
+  "chromosome": "2",
+  "sequence": "NC_000002.12",
+  "length": 242193529,
+  "span": {
+    "start": 94871430,
+    "end": 94876823,
+    "strand": 1
+  },
+  "transcript": {
+    "refseq": "NM_144705.4",
+    "ensembl": "ENST00000295201.5"
+  },
+  "band": {
+    "names": [
+      "q11.1"
+    ],
+    "start": 93900001,
+    "end": 96000000
+  },
+  "locus": "2q11.1",
+  "bands": [
+    {
+      "name": "p25.3",
+      "start": 1,
+      "end": 4400000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p25.2",
+      "start": 4400001,
+      "end": 6900000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "p25.1",
+      "start": 6900001,
+      "end": 12000000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p24.3",
+      "start": 12000001,
+      "end": 16500000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p24.2",
+      "start": 16500001,
+      "end": 19000000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p24.1",
+      "start": 19000001,
+      "end": 23800000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p23.3",
+      "start": 23800001,
+      "end": 27700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p23.2",
+      "start": 27700001,
+      "end": 29800000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "p23.1",
+      "start": 29800001,
+      "end": 31800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p22.3",
+      "start": 31800001,
+      "end": 36300000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p22.2",
+      "start": 36300001,
+      "end": 38300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p22.1",
+      "start": 38300001,
+      "end": 41500000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "p21",
+      "start": 41500001,
+      "end": 47500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p16.3",
+      "start": 47500001,
+      "end": 52600000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "p16.2",
+      "start": 52600001,
+      "end": 54700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p16.1",
+      "start": 54700001,
+      "end": 61000000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "p15",
+      "start": 61000001,
+      "end": 63900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p14",
+      "start": 63900001,
+      "end": 68400000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "p13.3",
+      "start": 68400001,
+      "end": 71300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p13.2",
+      "start": 71300001,
+      "end": 73300000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "p13.1",
+      "start": 73300001,
+      "end": 74800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p12",
+      "start": 74800001,
+      "end": 83100000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "p11.2",
+      "start": 83100001,
+      "end": 91800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p11.1",
+      "start": 91800001,
+      "end": 93900000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.1",
+      "start": 93900001,
+      "end": 96000000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.2",
+      "start": 96000001,
+      "end": 102100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q12.1",
+      "start": 102100001,
+      "end": 105300000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q12.2",
+      "start": 105300001,
+      "end": 106700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q12.3",
+      "start": 106700001,
+      "end": 108700000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q13",
+      "start": 108700001,
+      "end": 112200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q14.1",
+      "start": 112200001,
+      "end": 118100000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q14.2",
+      "start": 118100001,
+      "end": 121600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q14.3",
+      "start": 121600001,
+      "end": 129100000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q21.1",
+      "start": 129100001,
+      "end": 131700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.2",
+      "start": 131700001,
+      "end": 134300000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q21.3",
+      "start": 134300001,
+      "end": 136100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q22.1",
+      "start": 136100001,
+      "end": 141500000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q22.2",
+      "start": 141500001,
+      "end": 143400000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q22.3",
+      "start": 143400001,
+      "end": 147900000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q23.1",
+      "start": 147900001,
+      "end": 149000000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q23.2",
+      "start": 149000001,
+      "end": 149600000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q23.3",
+      "start": 149600001,
+      "end": 154000000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q24.1",
+      "start": 154000001,
+      "end": 158900000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q24.2",
+      "start": 158900001,
+      "end": 162900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q24.3",
+      "start": 162900001,
+      "end": 168900000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q31.1",
+      "start": 168900001,
+      "end": 177100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q31.2",
+      "start": 177100001,
+      "end": 179700000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q31.3",
+      "start": 179700001,
+      "end": 182100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q32.1",
+      "start": 182100001,
+      "end": 188500000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q32.2",
+      "start": 188500001,
+      "end": 191100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q32.3",
+      "start": 191100001,
+      "end": 196600000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q33.1",
+      "start": 196600001,
+      "end": 202500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q33.2",
+      "start": 202500001,
+      "end": 204100000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q33.3",
+      "start": 204100001,
+      "end": 208200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q34",
+      "start": 208200001,
+      "end": 214500000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q35",
+      "start": 214500001,
+      "end": 220700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q36.1",
+      "start": 220700001,
+      "end": 224300000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q36.2",
+      "start": 224300001,
+      "end": 225200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q36.3",
+      "start": 225200001,
+      "end": 230100000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q37.1",
+      "start": 230100001,
+      "end": 234700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q37.2",
+      "start": 234700001,
+      "end": 236400000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q37.3",
+      "start": 236400001,
+      "end": 242193529,
+      "stain": "gneg"
+    }
+  ],
+  "expression": {
+    "ensembl_gene": "ENSG00000163060",
+    "tissue": {
+      "specificity": "Tissue enriched",
+      "distribution": "Detected in some",
+      "specific": [
+        {
+          "name": "testis",
+          "ntpm": 12.8
+        }
+      ]
+    },
+    "cell_type": {
+      "specificity": "Group enriched",
+      "distribution": "Detected in some",
+      "specific": [
+        {
+          "name": "Late spermatids",
+          "ncpm": 172.3
+        },
+        {
+          "name": "Early spermatids",
+          "ncpm": 132.0
+        },
+        {
+          "name": "Late primary spermatocytes",
+          "ncpm": 98.5
+        },
+        {
+          "name": "Respiratory ciliated cells",
+          "ncpm": 87.4
+        },
+        {
+          "name": "Fallopian tube ciliated cells",
+          "ncpm": 71.6
+        },
+        {
+          "name": "Epididymal efferent duct ciliated cells",
+          "ncpm": 57.1
+        },
+        {
+          "name": "Endometrial ciliated cells",
+          "ncpm": 49.0
+        },
+        {
+          "name": "Ependymal cells",
+          "ncpm": 45.4
+        }
+      ]
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Lung",
+        "cell_type": "Respiratory ciliated cells"
+      },
+      {
+        "tissue": "Testis",
+        "cell_type": "Early spermatids"
+      },
+      {
+        "tissue": "Testis",
+        "cell_type": "Late spermatids"
+      }
+    ],
+    "subcellular": {
+      "main": [
+        "Perinuclear theca",
+        "Connecting piece",
+        "Flagellar centriole",
+        "Principal piece",
+        "End piece",
+        "Annulus"
+      ],
+      "additional": []
+    },
+    "secretome": null,
+    "atlas_match": "mane",
+    "atlas_gene": "TEKT4",
+    "tissue_levels": {
+      "adipose tissue": 0,
+      "adrenal gland": 0,
+      "blood vessel": 0,
+      "bone marrow": 0,
+      "brain": 0.6,
+      "breast": 0,
+      "cervix": 0.2,
+      "choroid plexus": 0.2,
+      "endometrium": 0,
+      "epididymis": 0,
+      "esophagus": 0,
+      "fallopian tube": 2.3,
+      "gallbladder": 0,
+      "heart muscle": 0.1,
+      "intestine": 0,
+      "kidney": 0,
+      "liver": 0,
+      "lung": 0.4,
+      "lymphoid tissue": 0,
+      "ovary": 0,
+      "pancreas": 0,
+      "parathyroid gland": 0,
+      "pituitary gland": 0,
+      "placenta": 0,
+      "prostate": 0,
+      "retina": 0,
+      "salivary gland": 0,
+      "seminal vesicle": 0,
+      "skeletal muscle": 0,
+      "skin": 0,
+      "smooth muscle": 0,
+      "stomach": 0,
+      "testis": 12.8,
+      "thyroid gland": 0,
+      "tongue": 0,
+      "urinary bladder": 0,
+      "vagina": 0
+    }
+  },
+  "path": {
+    "tissue": "testis",
+    "tissue_from": "tissue",
+    "cell_type": "Early spermatids",
+    "cell_class": "Germ cells",
+    "cell_from": "tissue_cell_type",
+    "lands_in": null
+  },
+  "sources": {
+    "cytoband": {
+      "table": "cytoBand",
+      "genome": "hg38",
+      "updated": "2022-10-28T15:06:46",
+      "rows": 1549,
+      "sha256": "50366db9b20881ddcd5679fefa6f8ee5eeb920ce61a7889e0ee0c52853b034c7",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=cytoBand"
+    },
+    "chrom_alias": {
+      "table": "chromAlias",
+      "genome": "hg38",
+      "updated": "2023-01-24T12:46:47",
+      "rows": 2129,
+      "sha256": "df04264a4bcb6dc6b5a6334b42d09270abc894ac2ebbd8ca68a51a12b7076f02",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=chromAlias"
+    },
+    "mane": {
+      "release": "v1.5"
+    },
+    "uniprot": {
+      "release": "2026_04"
+    },
+    "hpa": {
+      "version": "25.1",
+      "release_date": "2026-05-25",
+      "ensembl": "109",
+      "licence": "CC BY 4.0",
+      "url": "https://v25.proteinatlas.org/ENSG00000163060.json"
+    },
+    "locus_inputs": {
+      "sha256": "bb475d41dcf93379c8c1af63026bef9af35495abbb658e4416d7c7d05c9ed4b9",
+      "created": "2026-11-13"
+    }
+  },
+  "retrieved": "2026-11-13",
+  "schema_version": 3,
+  "built_by": "pipeline/locus/bake_locus.py"
+}

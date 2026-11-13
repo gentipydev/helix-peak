@@ -1,0 +1,446 @@
+{
+  "slug": "bbs9",
+  "gene": "BBS9",
+  "uniprot": "Q3SYG4",
+  "assembly": "GRCh38",
+  "genome": "hg38",
+  "chromosome": "7",
+  "sequence": "NC_000007.14",
+  "length": 159345973,
+  "span": {
+    "start": 33129564,
+    "end": 33606069,
+    "strand": 1
+  },
+  "transcript": {
+    "refseq": "NM_198428.3",
+    "ensembl": "ENST00000242067.11"
+  },
+  "band": {
+    "names": [
+      "p14.3"
+    ],
+    "start": 28800001,
+    "end": 34900000
+  },
+  "locus": "7p14.3",
+  "bands": [
+    {
+      "name": "p22.3",
+      "start": 1,
+      "end": 2800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p22.2",
+      "start": 2800001,
+      "end": 4500000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "p22.1",
+      "start": 4500001,
+      "end": 7200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p21.3",
+      "start": 7200001,
+      "end": 13700000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "p21.2",
+      "start": 13700001,
+      "end": 16500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p21.1",
+      "start": 16500001,
+      "end": 20900000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "p15.3",
+      "start": 20900001,
+      "end": 25500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p15.2",
+      "start": 25500001,
+      "end": 27900000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "p15.1",
+      "start": 27900001,
+      "end": 28800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p14.3",
+      "start": 28800001,
+      "end": 34900000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p14.2",
+      "start": 34900001,
+      "end": 37100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p14.1",
+      "start": 37100001,
+      "end": 43300000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p13",
+      "start": 43300001,
+      "end": 45400000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p12.3",
+      "start": 45400001,
+      "end": 49000000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p12.2",
+      "start": 49000001,
+      "end": 50500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p12.1",
+      "start": 50500001,
+      "end": 53900000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "p11.2",
+      "start": 53900001,
+      "end": 58100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p11.1",
+      "start": 58100001,
+      "end": 60100000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.1",
+      "start": 60100001,
+      "end": 62100000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.21",
+      "start": 62100001,
+      "end": 67500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q11.22",
+      "start": 67500001,
+      "end": 72700000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q11.23",
+      "start": 72700001,
+      "end": 77900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.11",
+      "start": 77900001,
+      "end": 86700000,
+      "stain": "gpos100"
+    },
+    {
+      "name": "q21.12",
+      "start": 86700001,
+      "end": 88500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.13",
+      "start": 88500001,
+      "end": 91500000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q21.2",
+      "start": 91500001,
+      "end": 93300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q21.3",
+      "start": 93300001,
+      "end": 98400000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q22.1",
+      "start": 98400001,
+      "end": 104200000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q22.2",
+      "start": 104200001,
+      "end": 104900000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q22.3",
+      "start": 104900001,
+      "end": 107800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q31.1",
+      "start": 107800001,
+      "end": 115000000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q31.2",
+      "start": 115000001,
+      "end": 117700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q31.31",
+      "start": 117700001,
+      "end": 121400000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q31.32",
+      "start": 121400001,
+      "end": 124100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q31.33",
+      "start": 124100001,
+      "end": 127500000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q32.1",
+      "start": 127500001,
+      "end": 129600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q32.2",
+      "start": 129600001,
+      "end": 130800000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q32.3",
+      "start": 130800001,
+      "end": 132900000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q33",
+      "start": 132900001,
+      "end": 138500000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q34",
+      "start": 138500001,
+      "end": 143400000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q35",
+      "start": 143400001,
+      "end": 148200000,
+      "stain": "gpos75"
+    },
+    {
+      "name": "q36.1",
+      "start": 148200001,
+      "end": 152800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q36.2",
+      "start": 152800001,
+      "end": 155200000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q36.3",
+      "start": 155200001,
+      "end": 159345973,
+      "stain": "gneg"
+    }
+  ],
+  "expression": {
+    "ensembl_gene": "ENSG00000122507",
+    "tissue": {
+      "specificity": "Low tissue specificity",
+      "distribution": "Detected in all",
+      "specific": []
+    },
+    "cell_type": {
+      "specificity": "Cell type enhanced",
+      "distribution": "Detected in all",
+      "specific": [
+        {
+          "name": "Lactotrophs",
+          "ncpm": 1852.4
+        },
+        {
+          "name": "Rod photoreceptor cells",
+          "ncpm": 1440.7
+        },
+        {
+          "name": "Thyrotrophs",
+          "ncpm": 1421.0
+        },
+        {
+          "name": "Somatotrophs",
+          "ncpm": 1336.9
+        },
+        {
+          "name": "Ependymal cells",
+          "ncpm": 962.2
+        },
+        {
+          "name": "Choroid plexus epithelial cells",
+          "ncpm": 908.0
+        },
+        {
+          "name": "Respiratory ciliated cells",
+          "ncpm": 858.3
+        }
+      ]
+    },
+    "tissue_cell_type": [
+      {
+        "tissue": "Testis",
+        "cell_type": "Early spermatids"
+      }
+    ],
+    "subcellular": {
+      "main": [
+        "Primary cilium",
+        "Primary cilium tip",
+        "Primary cilium transition zone",
+        "Flagellar centriole",
+        "Mid piece",
+        "Principal piece"
+      ],
+      "additional": [
+        "Nucleoplasm",
+        "Vesicles",
+        "Cytosol",
+        "Acrosome",
+        "Equatorial segment"
+      ]
+    },
+    "secretome": null,
+    "atlas_match": "mane",
+    "atlas_gene": "BBS9",
+    "tissue_levels": {
+      "adipose tissue": 4.8,
+      "adrenal gland": 5.8,
+      "blood vessel": 4.4,
+      "bone marrow": 1.8,
+      "brain": 5.2,
+      "breast": 4.8,
+      "cervix": 6.8,
+      "choroid plexus": 13.1,
+      "endometrium": 4.8,
+      "epididymis": 3.9,
+      "esophagus": 3.5,
+      "fallopian tube": 6.3,
+      "gallbladder": 3.6,
+      "heart muscle": 4.7,
+      "intestine": 4.3,
+      "kidney": 5.1,
+      "liver": 3.7,
+      "lung": 4.2,
+      "lymphoid tissue": 5.1,
+      "ovary": 6.9,
+      "pancreas": 3.1,
+      "parathyroid gland": 9.7,
+      "pituitary gland": 8.7,
+      "placenta": 4.2,
+      "prostate": 5,
+      "retina": 20.3,
+      "salivary gland": 4.9,
+      "seminal vesicle": 5.4,
+      "skeletal muscle": 2.5,
+      "skin": 3.8,
+      "smooth muscle": 4.1,
+      "stomach": 3.2,
+      "testis": 8.7,
+      "thyroid gland": 8.2,
+      "tongue": 3.4,
+      "urinary bladder": 5,
+      "vagina": 6.1
+    }
+  },
+  "path": {
+    "tissue": "pituitary gland",
+    "tissue_from": "cell_type",
+    "cell_type": "Lactotrophs",
+    "cell_class": "Endocrine cells",
+    "cell_from": "single_cell_type",
+    "lands_in": null
+  },
+  "sources": {
+    "cytoband": {
+      "table": "cytoBand",
+      "genome": "hg38",
+      "updated": "2022-10-28T15:06:46",
+      "rows": 1549,
+      "sha256": "50366db9b20881ddcd5679fefa6f8ee5eeb920ce61a7889e0ee0c52853b034c7",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=cytoBand"
+    },
+    "chrom_alias": {
+      "table": "chromAlias",
+      "genome": "hg38",
+      "updated": "2023-01-24T12:46:47",
+      "rows": 2129,
+      "sha256": "df04264a4bcb6dc6b5a6334b42d09270abc894ac2ebbd8ca68a51a12b7076f02",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=chromAlias"
+    },
+    "mane": {
+      "release": "v1.5"
+    },
+    "uniprot": {
+      "release": "2026_04"
+    },
+    "hpa": {
+      "version": "25.1",
+      "release_date": "2026-05-25",
+      "ensembl": "109",
+      "licence": "CC BY 4.0",
+      "url": "https://v25.proteinatlas.org/ENSG00000122507.json"
+    },
+    "locus_inputs": {
+      "sha256": "bb475d41dcf93379c8c1af63026bef9af35495abbb658e4416d7c7d05c9ed4b9",
+      "created": "2026-11-13"
+    }
+  },
+  "retrieved": "2026-11-13",
+  "schema_version": 3,
+  "built_by": "pipeline/locus/bake_locus.py"
+}

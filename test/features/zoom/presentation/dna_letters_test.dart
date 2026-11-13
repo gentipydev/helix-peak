@@ -11,7 +11,7 @@ import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_painter.dart';
 
-import '../../../support/test_catalog.dart';
+import '../coverage_fixtures.dart';
 import '../record_fixtures.dart';
 import '../zoom_fixtures.dart';
 
@@ -131,7 +131,7 @@ void main() {
     WidgetTester tester,
   ) async {
     final ZoomInks inks = await _inks(tester);
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       final double d = stage.depth.depthOf(ZoomStop.dna);
       for (final (ZoomScene scene, ZoomFrame frame) in stage.frames(
@@ -167,7 +167,7 @@ void main() {
     WidgetTester tester,
   ) async {
     final ZoomInks inks = await _inks(tester);
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       // Wide enough that the helix is up but none of its bases are.
       final double d = _depthWhere(stage.depth, 260);

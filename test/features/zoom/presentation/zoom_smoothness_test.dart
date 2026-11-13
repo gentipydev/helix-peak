@@ -8,9 +8,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:helixpeek/core/catalog/protein_target.dart';
 import 'package:helixpeek/core/theme/app_theme.dart';
 import 'package:helixpeek/core/theme/app_typography.dart';
+import 'package:helixpeek/features/zoom/domain/cell_archetypes.dart';
 import 'package:helixpeek/features/zoom/domain/cell_parts.dart';
+import 'package:helixpeek/features/zoom/domain/locus_track.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_depth.dart';
 import 'package:helixpeek/features/zoom/domain/zoom_motion.dart';
+import 'package:helixpeek/features/zoom/domain/zoom_path.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/band_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/dna_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/gene_scene.dart';
@@ -22,11 +25,16 @@ import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_painter.dart';
 
 import '../../../support/test_catalog.dart';
+import '../coverage_fixtures.dart';
 import '../record_fixtures.dart';
 import '../zoom_fixtures.dart';
 
 /// The zoom's canvas on a phone, under the app bar and above the card.
 const Size _canvas = Size(390, 560);
+
+/// Where the Atlas finds [t]'s protein, in what the cell the zoom draws has.
+SubcellularReading _inCell(ProteinTarget t) =>
+    readingInCell(locusOf(t).subcellular, ZoomPath.of(locusOf(t)));
 
 ZoomStage _stage(ProteinTarget t) =>
     ZoomStage(ZoomSubject(track: locusOf(t), record: recordOf(t)));
@@ -255,7 +263,7 @@ void main() {
   testWidgets('every protein’s dive moves without a pop, a blink or a jump, '
       'at fine steps of depth', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       final ZoomDepth depth = stage.depth;
       const int steps = 6000;
@@ -276,7 +284,7 @@ void main() {
       )
         flight.at(Duration(microseconds: (f * 1e6 / 60).round())),
     ];
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       final ZoomDepth depth = stage.depth;
       for (int k = 0; k + 1 < ZoomStop.values.length; k++) {
@@ -301,7 +309,7 @@ void main() {
   test('the scale bar reads a round length at every stop, and glides from '
       'one to the next without springing back', () {
     for (final Size size in <Size>[_canvas, const Size(320, 420)]) {
-      for (final ProteinTarget t in TestCatalog.all) {
+      for (final ProteinTarget t in zoomProteins) {
         final ZoomDepth depth = _stage(t).depth;
         for (final ZoomStop stop in ZoomStop.values) {
           final (double _, double round, String label) = scaleBar(
@@ -426,7 +434,7 @@ void main() {
       ZoomStop.dna,
     ]);
     expect(stage.prepared, isTrue);
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage each = _stage(t);
       for (final ZoomStop stop in ZoomStop.values) {
         each.prepare(stop, inks);
@@ -440,7 +448,7 @@ void main() {
     final ZoomInks inks = await _inks(tester);
     final TextStyle labels = AppTheme.analysis.textTheme.labelSmall!;
     for (final Size size in <Size>[_canvas, const Size(320, 420)]) {
-      for (final ProteinTarget t in TestCatalog.all) {
+      for (final ProteinTarget t in zoomProteins) {
         final ZoomStage stage = _stage(t);
         final ZoomDepth depth = stage.depth;
         final double band = depth.depthOf(ZoomStop.band);
@@ -484,7 +492,7 @@ void main() {
     WidgetTester tester,
   ) async {
     final ZoomInks inks = await _inks(tester);
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       final ZoomDepth depth = stage.depth;
       final double band = depth.depthOf(ZoomStop.band);
@@ -536,7 +544,7 @@ void main() {
     WidgetTester tester,
   ) async {
     final ZoomInks inks = await _inks(tester);
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       final ZoomDepth depth = stage.depth;
       (DnaScene, ZoomFrame)? dna(double d) {
@@ -582,7 +590,7 @@ void main() {
   testWidgets('the DNA starts where the gene does: across the step from the '
       'gene, their 5′ ends are one', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       final ZoomDepth depth = stage.depth;
       final double at = depth.depthOf(ZoomStop.gene);
@@ -622,7 +630,7 @@ void main() {
     WidgetTester tester,
   ) async {
     final ZoomInks inks = await _inks(tester);
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       final ZoomDepth depth = stage.depth;
       // Each part's showing, the scene's own times the part's.
@@ -738,7 +746,7 @@ void main() {
     final ZoomInks inks = await _inks(tester);
     final TextStyle labels = AppTheme.analysis.textTheme.labelSmall!;
     for (final Size size in <Size>[_canvas, const Size(320, 420)]) {
-      for (final ProteinTarget t in TestCatalog.all) {
+      for (final ProteinTarget t in zoomProteins) {
         final ZoomStage stage = _stage(t);
         for (final ZoomStop stop in ZoomStop.values) {
           final ZoomStaging staging = stage.stage(
@@ -800,7 +808,7 @@ void main() {
           final bool named = switch (stop) {
             ZoomStop.body || ZoomStop.nucleus => false,
             ZoomStop.organ => organ.any((OrganName n) => n.home),
-            ZoomStop.cell => locusOf(t).subcellular.main.isNotEmpty,
+            ZoomStop.cell => _inCell(t).main.isNotEmpty,
             _ => true,
           };
           expect(
@@ -819,7 +827,7 @@ void main() {
             ZoomStop.organ => organ.any((OrganName n) => !n.home),
             ZoomStop.cell => partsToName(
               recipeOf(stage.depth.archetype.shape),
-              locusOf(t).subcellular.main,
+              _inCell(t).main,
             ).isNotEmpty,
             ZoomStop.nucleus || ZoomStop.chromosome || ZoomStop.gene => true,
             _ => false,

@@ -1,0 +1,85 @@
+{
+ "slug": "b2m",
+ "display": "Beta-2-microglobulin",
+ "gene": "B2M",
+ "uniprot": "P61769",
+ "accession": "NG_012920.2",
+ "summary": "Made by B2M on chromosome 15. Built on demand from UniProt P61769 and MANE Select NM_004048.4, not curated by hand.",
+ "facts": {
+  "residues": 119,
+  "exons": 4,
+  "chains": 1,
+  "bridges": 1
+ },
+ "catalog_order": null,
+ "chain": null,
+ "chains": [],
+ "structure": null,
+ "tracks": {},
+ "mature_peptides": false,
+ "transcript_id": "NM_004048.4",
+ "protein_id": "NP_004039.1",
+ "regions": [
+  {
+   "label": "Signal peptide",
+   "short": "S",
+   "start": 1,
+   "end": 20,
+   "origin": 1,
+   "kept": false
+  },
+  {
+   "label": "Beta-2-microglobulin",
+   "short": "",
+   "start": 21,
+   "end": 119,
+   "origin": 21,
+   "kept": true
+  }
+ ],
+ "disulfides": [
+  [
+   45,
+   100
+  ]
+ ],
+ "provenance": {
+  "source": "pipeline/resolver",
+  "prose": "templated",
+  "resolver_version": 1,
+  "uniprot": {
+   "accession": "P61769",
+   "release": "2026_04",
+   "release_date": "2026-11-04",
+   "retrieved": "2026-11-13"
+  },
+  "mane": {
+   "release": "v1.5",
+   "transcript": "NM_004048.4",
+   "protein": "NP_004039.1"
+  },
+  "regions_rule": "leader and one chain: UniProt's processing features overlap",
+  "regions_from": [
+   {
+    "label": "Signal peptide",
+    "short": "S",
+    "start": 1,
+    "end": 20,
+    "kept": false
+   },
+   {
+    "label": "Beta-2-microglobulin",
+    "short": "",
+    "start": 21,
+    "end": 119,
+    "kept": true
+   }
+  ],
+  "chain_label": "Beta-2-microglobulin",
+  "cleaved": true,
+  "uniprot_variants": [],
+  "skipped_features": [],
+  "disulfides_dropped": []
+ },
+ "resolver_version": 1
+}

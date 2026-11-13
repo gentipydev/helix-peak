@@ -22,6 +22,7 @@ import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_painter.dart';
 
 import '../../../support/test_catalog.dart';
+import '../coverage_fixtures.dart';
 import '../record_fixtures.dart';
 import '../zoom_fixtures.dart';
 
@@ -95,7 +96,7 @@ void main() {
       'drawn by the gene’s scene on the way in, is drawn the same by the '
       'DNA’s from the stop on', (WidgetTester tester) async {
     final (ZoomInks inks, TextStyle labels) = await _inks(tester);
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       final double at = stage.depth.depthOf(ZoomStop.gene);
       // The gene's scene as the child of the step from the band, and the
@@ -132,7 +133,7 @@ void main() {
   testWidgets('the gene’s 3′ end is the DNA’s across the step between them, '
       'as its 5′ end is', (WidgetTester tester) async {
     final (ZoomInks inks, TextStyle _) = await _inks(tester);
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       final ZoomDepth depth = stage.depth;
       final double at = depth.depthOf(ZoomStop.gene);
@@ -177,7 +178,7 @@ void main() {
     WidgetTester tester,
   ) async {
     final (ZoomInks inks, TextStyle _) = await _inks(tester);
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       final ZoomDepth depth = stage.depth;
       final double band = depth.depthOf(ZoomStop.band);
@@ -212,7 +213,7 @@ void main() {
 
   test('each stage of the dive has its time on every gene’s real step, '
       'either way, at 60 fps', () {
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomDepth depth = _stage(t).depth;
       final double gene = depth.widthOf(ZoomStop.gene);
       final double winds = DnaDive.windsFrom(gene);
@@ -277,7 +278,7 @@ void main() {
     WidgetTester tester,
   ) async {
     final (ZoomInks inks, TextStyle labels) = await _inks(tester);
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       final double at = stage.depth.depthOf(ZoomStop.gene);
       for (final double dwell in <double>[0, 0.5, 60]) {
@@ -317,7 +318,7 @@ void main() {
       'its start always', (WidgetTester tester) async {
     const ChromatinLayout chromatin = ChromatinLayout();
     for (final Size size in <Size>[_canvas, const Size(320, 420)]) {
-      for (final ProteinTarget t in TestCatalog.all) {
+      for (final ProteinTarget t in zoomProteins) {
         final ZoomStage stage = _stage(t);
         final double gene = stage.depth.widthOf(ZoomStop.gene);
         final double perBase = size.width / gene;
@@ -393,7 +394,7 @@ void main() {
     WidgetTester tester,
   ) async {
     final (ZoomInks inks, TextStyle _) = await _inks(tester);
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       final ZoomDepth depth = stage.depth;
       final double gene = depth.widthOf(ZoomStop.gene);
@@ -491,7 +492,7 @@ void main() {
       'shows, and its start', (WidgetTester tester) async {
     final (ZoomInks inks, TextStyle _) = await _inks(tester);
     for (final Size size in <Size>[_canvas, const Size(320, 420)]) {
-      for (final ProteinTarget t in TestCatalog.all) {
+      for (final ProteinTarget t in zoomProteins) {
         final ZoomStage stage = _stage(t);
         final ZoomSubject subject = stage.subject;
         final double at = stage.depth.depthOf(ZoomStop.gene);
@@ -564,25 +565,37 @@ void main() {
         final List<int> beads = ChromatinBeads.within(-gene, 2 * gene, depth);
         double beadX(int index) =>
             x(ChromatinBeads.placeOf(index) / scale);
-        final ZoomCallout intron = named['gene:intron']!;
-        expect(intron.target.dy, closeTo(mid, 1e-9));
+        // An intron where the gene has one: an intronless gene (a histone's,
+        // MC4R's) names none.
+        final ZoomCallout? intron = named['gene:intron'];
         expect(
-          pieces.any(
-            (GenePiece p) =>
-                p.kind == GenePieceKind.intron && on(p, intron.target.dx),
-          ),
-          isTrue,
+          intron != null,
+          pieces.any((GenePiece p) => p.kind == GenePieceKind.intron),
           reason: '$what: intron',
         );
-        // Clear of every bead: its DNA leaves the line no nearer than this.
-        final double glyph =
-            ChromatinLayout.reach * ChromatinFibre.magnified(perBase) * perBase;
-        for (final int index in beads) {
+        if (intron != null) {
+          expect(intron.target.dy, closeTo(mid, 1e-9));
           expect(
-            (beadX(index) - intron.target.dx).abs(),
-            greaterThanOrEqualTo(glyph),
-            reason: '$what: intron by bead $index',
+            pieces.any(
+              (GenePiece p) =>
+                  p.kind == GenePieceKind.intron && on(p, intron.target.dx),
+            ),
+            isTrue,
+            reason: '$what: intron',
           );
+          // Clear of every bead: its DNA leaves the line no nearer than
+          // this.
+          final double glyph =
+              ChromatinLayout.reach *
+              ChromatinFibre.magnified(perBase) *
+              perBase;
+          for (final int index in beads) {
+            expect(
+              (beadX(index) - intron.target.dx).abs(),
+              greaterThanOrEqualTo(glyph),
+              reason: '$what: intron by bead $index',
+            );
+          }
         }
 
         final ZoomCallout bead = named['gene:nucleosome']!;

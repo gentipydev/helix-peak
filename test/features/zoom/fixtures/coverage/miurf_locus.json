@@ -1,0 +1,236 @@
+{
+  "slug": "miurf",
+  "gene": "MIURF",
+  "uniprot": "L0R8F8",
+  "assembly": "GRCh38",
+  "genome": "hg38",
+  "chromosome": "22",
+  "sequence": "NC_000022.11",
+  "length": 50818468,
+  "span": {
+    "start": 39504231,
+    "end": 39504443,
+    "strand": 1
+  },
+  "transcript": {
+    "refseq": "NM_001414695.1",
+    "ensembl": "ENST00000637854.1"
+  },
+  "band": {
+    "names": [
+      "q13.1"
+    ],
+    "start": 37200001,
+    "end": 40600000
+  },
+  "locus": "22q13.1",
+  "bands": [
+    {
+      "name": "p13",
+      "start": 1,
+      "end": 4300000,
+      "stain": "gvar"
+    },
+    {
+      "name": "p12",
+      "start": 4300001,
+      "end": 9400000,
+      "stain": "stalk"
+    },
+    {
+      "name": "p11.2",
+      "start": 9400001,
+      "end": 13700000,
+      "stain": "gvar"
+    },
+    {
+      "name": "p11.1",
+      "start": 13700001,
+      "end": 15000000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.1",
+      "start": 15000001,
+      "end": 17400000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.21",
+      "start": 17400001,
+      "end": 21700000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q11.22",
+      "start": 21700001,
+      "end": 23100000,
+      "stain": "gpos25"
+    },
+    {
+      "name": "q11.23",
+      "start": 23100001,
+      "end": 25500000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q12.1",
+      "start": 25500001,
+      "end": 29200000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q12.2",
+      "start": 29200001,
+      "end": 31800000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q12.3",
+      "start": 31800001,
+      "end": 37200000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q13.1",
+      "start": 37200001,
+      "end": 40600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q13.2",
+      "start": 40600001,
+      "end": 43800000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q13.31",
+      "start": 43800001,
+      "end": 48100000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q13.32",
+      "start": 48100001,
+      "end": 49100000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q13.33",
+      "start": 49100001,
+      "end": 50818468,
+      "stain": "gneg"
+    }
+  ],
+  "expression": {
+    "ensembl_gene": "ENSG00000285025",
+    "tissue": {
+      "specificity": "Tissue enriched",
+      "distribution": "Detected in single",
+      "specific": [
+        {
+          "name": "skeletal muscle",
+          "ntpm": 4.5
+        }
+      ]
+    },
+    "cell_type": {
+      "specificity": "Not detected",
+      "distribution": "Not detected",
+      "specific": []
+    },
+    "tissue_cell_type": [],
+    "subcellular": {
+      "main": [],
+      "additional": []
+    },
+    "secretome": null,
+    "atlas_match": "mane",
+    "atlas_gene": "ENSG00000285025",
+    "tissue_levels": {
+      "adipose tissue": 0,
+      "adrenal gland": 0,
+      "blood vessel": 0.4,
+      "bone marrow": 0,
+      "brain": 0.1,
+      "breast": 0,
+      "cervix": 0,
+      "choroid plexus": 0,
+      "endometrium": 0.4,
+      "epididymis": 0,
+      "esophagus": 0,
+      "fallopian tube": 0.3,
+      "gallbladder": 0,
+      "heart muscle": 0.1,
+      "intestine": 0,
+      "kidney": 0,
+      "liver": 0,
+      "lung": 0.1,
+      "lymphoid tissue": 0,
+      "ovary": 0,
+      "pancreas": 0,
+      "parathyroid gland": 0,
+      "pituitary gland": 0,
+      "placenta": 0,
+      "prostate": 0,
+      "retina": 0,
+      "salivary gland": 0,
+      "seminal vesicle": 0,
+      "skeletal muscle": 4.5,
+      "skin": 0.1,
+      "smooth muscle": 0,
+      "stomach": 0,
+      "testis": 0.1,
+      "thyroid gland": 0.1,
+      "tongue": 0,
+      "urinary bladder": 0,
+      "vagina": 0
+    }
+  },
+  "path": {
+    "tissue": "skeletal muscle",
+    "tissue_from": "tissue",
+    "cell_type": null,
+    "cell_class": null,
+    "cell_from": null,
+    "lands_in": null
+  },
+  "sources": {
+    "cytoband": {
+      "table": "cytoBand",
+      "genome": "hg38",
+      "updated": "2022-10-28T15:06:46",
+      "rows": 1549,
+      "sha256": "50366db9b20881ddcd5679fefa6f8ee5eeb920ce61a7889e0ee0c52853b034c7",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=cytoBand"
+    },
+    "chrom_alias": {
+      "table": "chromAlias",
+      "genome": "hg38",
+      "updated": "2023-01-24T12:46:47",
+      "rows": 2129,
+      "sha256": "df04264a4bcb6dc6b5a6334b42d09270abc894ac2ebbd8ca68a51a12b7076f02",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=chromAlias"
+    },
+    "mane": {
+      "release": "v1.5"
+    },
+    "uniprot": {
+      "release": "2026_04"
+    },
+    "hpa": {
+      "version": "25.1",
+      "release_date": "2026-05-25",
+      "ensembl": "109",
+      "licence": "CC BY 4.0",
+      "url": "https://v25.proteinatlas.org/ENSG00000285025.json"
+    },
+    "locus_inputs": {
+      "sha256": "bb475d41dcf93379c8c1af63026bef9af35495abbb658e4416d7c7d05c9ed4b9",
+      "created": "2026-11-13"
+    }
+  },
+  "retrieved": "2026-11-13",
+  "schema_version": 3,
+  "built_by": "pipeline/locus/bake_locus.py"
+}

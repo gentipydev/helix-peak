@@ -6,7 +6,7 @@ import 'package:helixpeek/features/zoom/domain/locus_track.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/chromosome_scene.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 
-import '../../../support/test_catalog.dart';
+import '../coverage_fixtures.dart';
 import '../record_fixtures.dart';
 import '../zoom_fixtures.dart';
 
@@ -31,7 +31,7 @@ void main() {
   test(
     'a chromatid narrows and widens with no step, at a stalk or anywhere',
     () {
-      for (final ProteinTarget target in TestCatalog.all) {
+      for (final ProteinTarget target in zoomProteins) {
         final ChromosomeScene scene = _scene(target);
         const int steps = 20000;
         final double top = scene.yOf(1);
@@ -54,7 +54,7 @@ void main() {
   test('a chromatid narrows toward its centromere and its rounded ends and '
       'nowhere else, a stalk as thick as its arm', () {
     int stalks = 0;
-    for (final ProteinTarget target in TestCatalog.all) {
+    for (final ProteinTarget target in zoomProteins) {
       final LocusTrack track = locusOf(target);
       final ChromosomeScene scene = _scene(target);
       // Clear of each end's rounding, each arm narrows only as it nears the

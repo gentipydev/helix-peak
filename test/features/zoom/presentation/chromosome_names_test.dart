@@ -9,8 +9,8 @@ import 'package:helixpeek/features/zoom/presentation/scenes/zoom_subject.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_painter.dart';
 
-import '../../../support/test_catalog.dart';
 import '../../gene_lookup/anatomy/anatomy_fixture.dart';
+import '../coverage_fixtures.dart';
 import '../record_fixtures.dart';
 import '../zoom_fixtures.dart';
 
@@ -62,7 +62,7 @@ void main() {
     final ZoomInks inks = await _inks(tester);
     final TextStyle labels = AppTheme.analysis.textTheme.labelSmall!;
     for (final Size size in _canvases) {
-      for (final ProteinTarget t in TestCatalog.all) {
+      for (final ProteinTarget t in zoomProteins) {
         final ZoomStage stage = _stage(t);
         final double d = stage.depth.depthOf(ZoomStop.chromosome);
         final ChromosomeScene scene =

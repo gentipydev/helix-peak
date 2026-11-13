@@ -16,6 +16,7 @@ import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_painter.dart';
 
 import '../../../support/test_catalog.dart';
+import '../coverage_fixtures.dart';
 import '../record_fixtures.dart';
 import '../zoom_fixtures.dart';
 
@@ -55,7 +56,7 @@ class _Circles implements Canvas {
 
 void main() {
   test('every protein’s organ is found on a figure that has it', () {
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomSubject subject = _stage(t).subject;
       expect(subject.anatomy, isNotNull, reason: t.slug);
       expect(subject.bodyPart, isNotNull, reason: t.slug);
@@ -71,7 +72,7 @@ void main() {
   });
 
   test('a nucleus holds the sex chromosomes of the body it is drawn in', () {
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       final NucleusScene nucleus =
           stage.scenes[ZoomStop.nucleus.index] as NucleusScene;
@@ -91,7 +92,7 @@ void main() {
     // At least one of the twenty is shown on each figure.
     expect(
       <String>{
-        for (final ProteinTarget t in TestCatalog.all)
+        for (final ProteinTarget t in zoomProteins)
           _stage(t).subject.body.name,
       },
       <String>{'female', 'male'},
@@ -109,7 +110,7 @@ void main() {
             .items['territory:homologue']
             ?.$2 ??
         0;
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       final NucleusScene nucleus =
           stage.scenes[ZoomStop.nucleus.index] as NucleusScene;
@@ -137,7 +138,7 @@ void main() {
 
   test('the body lights the tissues the Atlas reads the gene raised in, '
       'each by its level against the highest', () {
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       final ZoomSubject subject = stage.subject;
       final Map<String, double> lit = (stage.scenes.first as BodyScene).lit;
@@ -177,7 +178,7 @@ void main() {
       'drew: they coincide while both show', (WidgetTester tester) async {
     final ZoomInks inks = await _inks(tester);
     int followed = 0;
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       if (!(stage.scenes[1] as OrganScene).followsBody) {
         continue;
@@ -210,7 +211,7 @@ void main() {
     WidgetTester tester,
   ) async {
     final ZoomInks inks = await _inks(tester);
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       final BodyScene body = stage.scenes.first as BodyScene;
       final Offset site = BodyScene.place(stage.subject.bodyPart!.site);
@@ -249,7 +250,7 @@ void main() {
     WidgetTester tester,
   ) async {
     final ZoomInks inks = await _inks(tester);
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       final ZoomSubject subject = stage.subject;
       final ZoomDepth depth = stage.depth;
@@ -356,7 +357,7 @@ void main() {
       OrganKind.parathyroid,
       OrganKind.eye,
     };
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomSubject subject = _stage(t).subject;
       final OrganKind kind = subject.anatomy!.organ;
       final OrganArt art = OrganArt.of(subject);

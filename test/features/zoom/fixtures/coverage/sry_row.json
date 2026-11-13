@@ -1,0 +1,65 @@
+{
+ "slug": "sry",
+ "display": "Sex-determining region Y protein",
+ "gene": "SRY",
+ "uniprot": "Q05066",
+ "accession": "NG_011751.1",
+ "summary": "Made by SRY on chromosome Y. Built on demand from UniProt Q05066 and MANE Select NM_003140.3, not curated by hand.",
+ "facts": {
+  "residues": 204,
+  "exons": 1,
+  "chains": 1,
+  "bridges": 0
+ },
+ "catalog_order": null,
+ "chain": "Sex-determining region Y protein",
+ "chains": [],
+ "structure": null,
+ "tracks": {},
+ "mature_peptides": false,
+ "transcript_id": "NM_003140.3",
+ "protein_id": "NP_003131.1",
+ "regions": [
+  {
+   "label": "Sex-determining region Y protein",
+   "short": "",
+   "start": 1,
+   "end": 204,
+   "origin": 1,
+   "kept": true
+  }
+ ],
+ "disulfides": [],
+ "provenance": {
+  "source": "pipeline/resolver",
+  "prose": "templated",
+  "resolver_version": 1,
+  "uniprot": {
+   "accession": "Q05066",
+   "release": "2026_04",
+   "release_date": "2026-11-04",
+   "retrieved": "2026-11-13"
+  },
+  "mane": {
+   "release": "v1.5",
+   "transcript": "NM_003140.3",
+   "protein": "NP_003131.1"
+  },
+  "regions_rule": "processing",
+  "regions_from": [
+   {
+    "label": "Sex-determining region Y protein",
+    "short": "",
+    "start": 1,
+    "end": 204,
+    "kept": true
+   }
+  ],
+  "chain_label": "Sex-determining region Y protein",
+  "cleaved": false,
+  "uniprot_variants": [],
+  "skipped_features": [],
+  "disulfides_dropped": []
+ },
+ "resolver_version": 1
+}

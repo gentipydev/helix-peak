@@ -1,0 +1,219 @@
+{
+  "slug": "sry",
+  "gene": "SRY",
+  "uniprot": "Q05066",
+  "assembly": "GRCh38",
+  "genome": "hg38",
+  "chromosome": "Y",
+  "sequence": "NC_000024.10",
+  "length": 57227415,
+  "span": {
+    "start": 2786855,
+    "end": 2787682,
+    "strand": -1
+  },
+  "transcript": {
+    "refseq": "NM_003140.3",
+    "ensembl": "ENST00000383070.2"
+  },
+  "band": {
+    "names": [
+      "p11.2"
+    ],
+    "start": 600001,
+    "end": 10300000
+  },
+  "locus": "Yp11.2",
+  "bands": [
+    {
+      "name": "p11.32",
+      "start": 1,
+      "end": 300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p11.31",
+      "start": 300001,
+      "end": 600000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "p11.2",
+      "start": 600001,
+      "end": 10300000,
+      "stain": "gneg"
+    },
+    {
+      "name": "p11.1",
+      "start": 10300001,
+      "end": 10400000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.1",
+      "start": 10400001,
+      "end": 10600000,
+      "stain": "acen"
+    },
+    {
+      "name": "q11.21",
+      "start": 10600001,
+      "end": 12400000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q11.221",
+      "start": 12400001,
+      "end": 17100000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q11.222",
+      "start": 17100001,
+      "end": 19600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q11.223",
+      "start": 19600001,
+      "end": 23800000,
+      "stain": "gpos50"
+    },
+    {
+      "name": "q11.23",
+      "start": 23800001,
+      "end": 26600000,
+      "stain": "gneg"
+    },
+    {
+      "name": "q12",
+      "start": 26600001,
+      "end": 57227415,
+      "stain": "gvar"
+    }
+  ],
+  "expression": {
+    "ensembl_gene": "ENSG00000184895",
+    "tissue": {
+      "specificity": "Tissue enhanced",
+      "distribution": "Detected in some",
+      "specific": [
+        {
+          "name": "testis",
+          "ntpm": 2.3
+        },
+        {
+          "name": "skin 1",
+          "ntpm": 1.6
+        }
+      ]
+    },
+    "cell_type": {
+      "specificity": "Group enriched",
+      "distribution": "Detected in some",
+      "specific": [
+        {
+          "name": "Sertoli cells",
+          "ncpm": 10.9
+        },
+        {
+          "name": "Ependymal cells",
+          "ncpm": 6.0
+        }
+      ]
+    },
+    "tissue_cell_type": [],
+    "subcellular": {
+      "main": [],
+      "additional": []
+    },
+    "secretome": null,
+    "atlas_match": "mane",
+    "atlas_gene": "SRY",
+    "tissue_levels": {
+      "adipose tissue": 0.1,
+      "adrenal gland": 0.3,
+      "blood vessel": 0,
+      "bone marrow": 0,
+      "brain": 0.2,
+      "breast": 0,
+      "cervix": 0,
+      "choroid plexus": 0,
+      "endometrium": 0,
+      "epididymis": 0.2,
+      "esophagus": 0.6,
+      "fallopian tube": 0,
+      "gallbladder": 0,
+      "heart muscle": 0,
+      "intestine": 0,
+      "kidney": 0,
+      "liver": 0,
+      "lung": 0.1,
+      "lymphoid tissue": 0,
+      "ovary": 0,
+      "pancreas": 0,
+      "parathyroid gland": 0,
+      "pituitary gland": 0.1,
+      "placenta": 0,
+      "prostate": 0,
+      "retina": 0,
+      "salivary gland": 0.1,
+      "seminal vesicle": 0,
+      "skeletal muscle": 0,
+      "skin": 1.6,
+      "smooth muscle": 0,
+      "stomach": 0,
+      "testis": 2.3,
+      "thyroid gland": 0,
+      "tongue": 0,
+      "urinary bladder": 0,
+      "vagina": 0
+    }
+  },
+  "path": {
+    "tissue": "testis",
+    "tissue_from": "tissue",
+    "cell_type": "Sertoli cells",
+    "cell_class": "Specialized epithelial cells",
+    "cell_from": "single_cell_type",
+    "lands_in": null
+  },
+  "sources": {
+    "cytoband": {
+      "table": "cytoBand",
+      "genome": "hg38",
+      "updated": "2022-10-28T15:06:46",
+      "rows": 1549,
+      "sha256": "50366db9b20881ddcd5679fefa6f8ee5eeb920ce61a7889e0ee0c52853b034c7",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=cytoBand"
+    },
+    "chrom_alias": {
+      "table": "chromAlias",
+      "genome": "hg38",
+      "updated": "2023-01-24T12:46:47",
+      "rows": 2129,
+      "sha256": "df04264a4bcb6dc6b5a6334b42d09270abc894ac2ebbd8ca68a51a12b7076f02",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=chromAlias"
+    },
+    "mane": {
+      "release": "v1.5"
+    },
+    "uniprot": {
+      "release": "2026_04"
+    },
+    "hpa": {
+      "version": "25.1",
+      "release_date": "2026-05-25",
+      "ensembl": "109",
+      "licence": "CC BY 4.0",
+      "url": "https://v25.proteinatlas.org/ENSG00000184895.json"
+    },
+    "locus_inputs": {
+      "sha256": "bb475d41dcf93379c8c1af63026bef9af35495abbb658e4416d7c7d05c9ed4b9",
+      "created": "2026-11-13"
+    }
+  },
+  "retrieved": "2026-11-13",
+  "schema_version": 3,
+  "built_by": "pipeline/locus/bake_locus.py"
+}

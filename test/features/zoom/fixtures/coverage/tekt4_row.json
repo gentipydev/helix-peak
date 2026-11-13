@@ -1,0 +1,65 @@
+{
+ "slug": "tekt4",
+ "display": "Tektin-4",
+ "gene": "TEKT4",
+ "uniprot": "Q8WW24",
+ "accession": "NC_000002.12",
+ "summary": "Made by TEKT4 on chromosome 2. Built on demand from UniProt Q8WW24 and MANE Select NM_144705.4, not curated by hand.",
+ "facts": {
+  "residues": 435,
+  "exons": 6,
+  "chains": 1,
+  "bridges": 0
+ },
+ "catalog_order": null,
+ "chain": "Tektin-4",
+ "chains": [],
+ "structure": null,
+ "tracks": {},
+ "mature_peptides": false,
+ "transcript_id": "NM_144705.4",
+ "protein_id": "NP_653306.1",
+ "regions": [
+  {
+   "label": "Tektin-4",
+   "short": "",
+   "start": 1,
+   "end": 435,
+   "origin": 1,
+   "kept": true
+  }
+ ],
+ "disulfides": [],
+ "provenance": {
+  "source": "pipeline/resolver",
+  "prose": "templated",
+  "resolver_version": 1,
+  "uniprot": {
+   "accession": "Q8WW24",
+   "release": "2026_04",
+   "release_date": "2026-11-04",
+   "retrieved": "2026-11-13"
+  },
+  "mane": {
+   "release": "v1.5",
+   "transcript": "NM_144705.4",
+   "protein": "NP_653306.1"
+  },
+  "regions_rule": "processing",
+  "regions_from": [
+   {
+    "label": "Tektin-4",
+    "short": "",
+    "start": 1,
+    "end": 435,
+    "kept": true
+   }
+  ],
+  "chain_label": "Tektin-4",
+  "cleaved": false,
+  "uniprot_variants": [],
+  "skipped_features": [],
+  "disulfides_dropped": []
+ },
+ "resolver_version": 1
+}

@@ -1,0 +1,125 @@
+{
+ "slug": "cntnap2",
+ "display": "Contactin-associated protein-like 2",
+ "gene": "CNTNAP2",
+ "uniprot": "Q9UHC6",
+ "accession": "NG_007092.3",
+ "summary": "Made by CNTNAP2 on chromosome 7. Built on demand from UniProt Q9UHC6 and MANE Select NM_014141.6, not curated by hand.",
+ "facts": {
+  "residues": 1331,
+  "exons": 24,
+  "chains": 1,
+  "bridges": 11
+ },
+ "catalog_order": null,
+ "chain": null,
+ "chains": [],
+ "structure": null,
+ "tracks": {},
+ "mature_peptides": false,
+ "transcript_id": "NM_014141.6",
+ "protein_id": "NP_054860.1",
+ "regions": [
+  {
+   "label": "Signal peptide",
+   "short": "S",
+   "start": 1,
+   "end": 27,
+   "origin": 1,
+   "kept": false
+  },
+  {
+   "label": "Contactin-associated protein-like 2",
+   "short": "",
+   "start": 28,
+   "end": 1331,
+   "origin": 28,
+   "kept": true
+  }
+ ],
+ "disulfides": [
+  [
+   35,
+   181
+  ],
+  [
+   336,
+   368
+  ],
+  [
+   520,
+   552
+  ],
+  [
+   558,
+   569
+  ],
+  [
+   563,
+   578
+  ],
+  [
+   580,
+   590
+  ],
+  [
+   936,
+   963
+  ],
+  [
+   967,
+   980
+  ],
+  [
+   974,
+   989
+  ],
+  [
+   991,
+   1001
+  ],
+  [
+   1178,
+   1214
+  ]
+ ],
+ "provenance": {
+  "source": "pipeline/resolver",
+  "prose": "templated",
+  "resolver_version": 1,
+  "uniprot": {
+   "accession": "Q9UHC6",
+   "release": "2026_04",
+   "release_date": "2026-11-04",
+   "retrieved": "2026-11-13"
+  },
+  "mane": {
+   "release": "v1.5",
+   "transcript": "NM_014141.6",
+   "protein": "NP_054860.1"
+  },
+  "regions_rule": "processing",
+  "regions_from": [
+   {
+    "label": "Signal peptide",
+    "short": "S",
+    "start": 1,
+    "end": 27,
+    "kept": false
+   },
+   {
+    "label": "Contactin-associated protein-like 2",
+    "short": "",
+    "start": 28,
+    "end": 1331,
+    "kept": true
+   }
+  ],
+  "chain_label": "Contactin-associated protein-like 2",
+  "cleaved": true,
+  "uniprot_variants": [],
+  "skipped_features": [],
+  "disulfides_dropped": []
+ },
+ "resolver_version": 1
+}

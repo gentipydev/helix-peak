@@ -1,0 +1,80 @@
+{
+ "slug": "h4c12",
+ "display": "Histone H4",
+ "gene": "H4C12",
+ "uniprot": "P62805",
+ "accession": "NC_000006.12",
+ "summary": "Made by H4C12 on chromosome 6. Built on demand from UniProt P62805 and MANE Select NM_003541.3, not curated by hand.",
+ "facts": {
+  "residues": 103,
+  "exons": 1,
+  "chains": 1,
+  "bridges": 0
+ },
+ "catalog_order": null,
+ "chain": "Histone H4",
+ "chains": [],
+ "structure": null,
+ "tracks": {},
+ "mature_peptides": false,
+ "transcript_id": "NM_003541.3",
+ "protein_id": "NP_003532.1",
+ "regions": [
+  {
+   "label": "Initiator methionine",
+   "short": "Met",
+   "start": 1,
+   "end": 1,
+   "origin": 1,
+   "kept": false
+  },
+  {
+   "label": "Histone H4",
+   "short": "",
+   "start": 2,
+   "end": 103,
+   "origin": 2,
+   "kept": true
+  }
+ ],
+ "disulfides": [],
+ "provenance": {
+  "source": "pipeline/resolver",
+  "prose": "templated",
+  "resolver_version": 1,
+  "uniprot": {
+   "accession": "P62805",
+   "release": "2026_04",
+   "release_date": "2026-11-04",
+   "retrieved": "2026-11-13"
+  },
+  "mane": {
+   "release": "v1.5",
+   "transcript": "NM_003541.3",
+   "protein": "NP_003532.1"
+  },
+  "regions_rule": "processing",
+  "regions_from": [
+   {
+    "label": "Initiator methionine",
+    "short": "Met",
+    "start": 1,
+    "end": 1,
+    "kept": false
+   },
+   {
+    "label": "Histone H4",
+    "short": "",
+    "start": 2,
+    "end": 103,
+    "kept": true
+   }
+  ],
+  "chain_label": "Histone H4",
+  "cleaved": false,
+  "uniprot_variants": [],
+  "skipped_features": [],
+  "disulfides_dropped": []
+ },
+ "resolver_version": 1
+}

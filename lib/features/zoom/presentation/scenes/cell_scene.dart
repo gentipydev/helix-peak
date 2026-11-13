@@ -70,7 +70,12 @@ final class CellScene extends ZoomScene {
   static double _detail(ZoomFrame frame) =>
       frame.isChild ? smoothstep((frame.progress - 0.45) / 0.45) : 1;
 
-  SubcellularReading get _reading => subject.track.subcellular;
+  /// Where the Atlas finds the protein, in what this cell has
+  /// ([readingInCell]): what its plate names and its glow lights.
+  late final SubcellularReading _reading = readingInCell(
+    subject.track.subcellular,
+    subject.path,
+  );
 
   bool get _secreted => subject.track.secreted;
 

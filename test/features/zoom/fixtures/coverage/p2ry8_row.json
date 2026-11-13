@@ -1,0 +1,65 @@
+{
+ "slug": "p2ry8",
+ "display": "S-geranylgeranyl-glutathione receptor P2RY8",
+ "gene": "P2RY8",
+ "uniprot": "Q86VZ1",
+ "accession": "NG_013252.1",
+ "summary": "Made by P2RY8 on chromosome X. Built on demand from UniProt Q86VZ1 and MANE Select NM_178129.5, not curated by hand.",
+ "facts": {
+  "residues": 359,
+  "exons": 2,
+  "chains": 1,
+  "bridges": 0
+ },
+ "catalog_order": null,
+ "chain": "S-geranylgeranyl-glutathione receptor P2RY8",
+ "chains": [],
+ "structure": null,
+ "tracks": {},
+ "mature_peptides": false,
+ "transcript_id": "NM_178129.5",
+ "protein_id": "NP_835230.1",
+ "regions": [
+  {
+   "label": "S-geranylgeranyl-glutathione receptor P2RY8",
+   "short": "",
+   "start": 1,
+   "end": 359,
+   "origin": 1,
+   "kept": true
+  }
+ ],
+ "disulfides": [],
+ "provenance": {
+  "source": "pipeline/resolver",
+  "prose": "templated",
+  "resolver_version": 1,
+  "uniprot": {
+   "accession": "Q86VZ1",
+   "release": "2026_04",
+   "release_date": "2026-11-04",
+   "retrieved": "2026-11-13"
+  },
+  "mane": {
+   "release": "v1.5",
+   "transcript": "NM_178129.5",
+   "protein": "NP_835230.1"
+  },
+  "regions_rule": "processing",
+  "regions_from": [
+   {
+    "label": "S-geranylgeranyl-glutathione receptor P2RY8",
+    "short": "",
+    "start": 1,
+    "end": 359,
+    "kept": true
+   }
+  ],
+  "chain_label": "S-geranylgeranyl-glutathione receptor P2RY8",
+  "cleaved": false,
+  "uniprot_variants": [],
+  "skipped_features": [],
+  "disulfides_dropped": []
+ },
+ "resolver_version": 1
+}

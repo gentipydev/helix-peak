@@ -56,8 +56,13 @@ enum TissueFrom {
   /// No tissue stands out: the home of the cell type it is highest in.
   cellHome,
 
-  /// Neither stands out: the Atlas's first tissue cell type pair.
+  /// Neither stands out, but the Atlas pairs the gene with a cell type in
+  /// some tissue: the pair in the tissue its RNA is highest in (schema 3;
+  /// schema 2 took the Atlas's first, by its alphabet).
   pair,
+
+  /// Nothing stands out: the tissue its RNA is highest in (schema 3).
+  tissueLevel,
 }
 
 /// How the path's cell was chosen.
@@ -67,12 +72,16 @@ enum CellFrom {
 
   /// The single cell type it is highest in among those of the organ.
   singleCell,
+
+  /// The same, where the organ was chosen by level (schema 3).
+  singleCellLevel,
 }
 
 /// Where the zoom goes for one protein on its way down to the gene: an organ
 /// and a kind of cell that lives in it, and whether that kind has a nucleus
 /// to land in. All of it is the Atlas's reading as the bake chose it into
-/// the locus track (schema 2), and none of it is written per protein.
+/// the locus track (schema 2, and schema 3 for a protein built on demand),
+/// and none of it is written per protein.
 ///
 /// A schema 1 track has no path: the zoom then takes the Atlas's top tissue
 /// and its top cell type each on its own, as it did before schema 2.
@@ -105,11 +114,13 @@ final class ZoomPath {
           'tissue' => TissueFrom.reading,
           'cell_type' => TissueFrom.cellHome,
           'tissue_cell_type' => TissueFrom.pair,
+          'tissue_level' => TissueFrom.tissueLevel,
           _ => null,
         },
         cellFrom: switch (path.cellFrom) {
           'tissue_cell_type' => CellFrom.pair,
           'single_cell_type' => CellFrom.singleCell,
+          'single_cell_level' => CellFrom.singleCellLevel,
           _ => null,
         },
         baked: true,
@@ -146,7 +157,8 @@ final class ZoomPath {
   final TissueFrom? tissueFrom;
   final CellFrom? cellFrom;
 
-  /// Whether the bake chose this path (schema 2), so organ and cell agree.
+  /// Whether the bake chose this path (schema 2 or 3), so organ and cell
+  /// agree.
   final bool baked;
 
   static final RegExp _sample = RegExp(r'\s+\d+$');

@@ -1,0 +1,65 @@
+{
+ "slug": "miurf",
+ "display": "Mitochondrial ribosome and complex I assembly factor AltMIEF1",
+ "gene": "MIURF",
+ "uniprot": "L0R8F8",
+ "accession": "NC_000022.11",
+ "summary": "Made by MIURF on chromosome 22. Built on demand from UniProt L0R8F8 and MANE Select NM_001414695.1, not curated by hand.",
+ "facts": {
+  "residues": 70,
+  "exons": 1,
+  "chains": 1,
+  "bridges": 0
+ },
+ "catalog_order": null,
+ "chain": "Mitochondrial ribosome and complex I assembly factor AltMIEF1",
+ "chains": [],
+ "structure": null,
+ "tracks": {},
+ "mature_peptides": false,
+ "transcript_id": "NM_001414695.1",
+ "protein_id": "NP_001401624.1",
+ "regions": [
+  {
+   "label": "Mitochondrial ribosome and complex I assembly factor AltMIEF1",
+   "short": "",
+   "start": 1,
+   "end": 70,
+   "origin": 1,
+   "kept": true
+  }
+ ],
+ "disulfides": [],
+ "provenance": {
+  "source": "pipeline/resolver",
+  "prose": "templated",
+  "resolver_version": 1,
+  "uniprot": {
+   "accession": "L0R8F8",
+   "release": "2026_04",
+   "release_date": "2026-11-04",
+   "retrieved": "2026-11-13"
+  },
+  "mane": {
+   "release": "v1.5",
+   "transcript": "NM_001414695.1",
+   "protein": "NP_001401624.1"
+  },
+  "regions_rule": "processing",
+  "regions_from": [
+   {
+    "label": "Mitochondrial ribosome and complex I assembly factor AltMIEF1",
+    "short": "",
+    "start": 1,
+    "end": 70,
+    "kept": true
+   }
+  ],
+  "chain_label": "Mitochondrial ribosome and complex I assembly factor AltMIEF1",
+  "cleaved": false,
+  "uniprot_variants": [],
+  "skipped_features": [],
+  "disulfides_dropped": []
+ },
+ "resolver_version": 1
+}

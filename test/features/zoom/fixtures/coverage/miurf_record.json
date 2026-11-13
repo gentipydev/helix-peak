@@ -1,0 +1,37 @@
+{
+    "gene": "MIURF",
+    "location": {
+        "start": 1,
+        "end": 213,
+        "strand": 1
+    },
+    "sequence": "ATGGCCCCGTGGAGCCGAGAGGCGGTGCTGAGTCTCTATCGGGCTCTGTTGCGCCAGGGCCGACAGCTTCGCTACACTGATCGAGACTTCTACTTTGCCTCCATCCGCCGTGAATTCCGAAAAAATCAGAAGCTAGAGGACGCTGAGGCCCGGGAGAGGCAGCTGGAGAAGGGCCTGGTCTTTCTCAACGGCAAATTGGGGAGGATCATTTAG",
+    "transcript": {
+        "segments": [
+            {
+                "start": 1,
+                "end": 213
+            }
+        ]
+    },
+    "protein": {
+        "product": "mitochondrial ribosome and complex I assembly factor AltMIEF1",
+        "translation": "MAPWSREAVLSLYRALLRQGRQLRYTDRDFYFASIRREFRKNQKLEDAEARERQLEKGLVFLNGKLGRII",
+        "segments": [
+            {
+                "start": 1,
+                "end": 213
+            }
+        ]
+    },
+    "exons": [
+        {
+            "number": 1,
+            "start": 1,
+            "end": 213
+        }
+    ],
+    "signal_peptide": null,
+    "proprotein": null,
+    "peptides": []
+}

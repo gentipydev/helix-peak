@@ -25,6 +25,7 @@ import 'package:helixpeek/features/zoom/presentation/zoom_inks.dart';
 import 'package:helixpeek/features/zoom/presentation/zoom_painter.dart';
 
 import '../../../support/test_catalog.dart';
+import '../coverage_fixtures.dart';
 import '../record_fixtures.dart';
 import '../zoom_fixtures.dart';
 
@@ -77,7 +78,7 @@ List<Offset> _along(Path path, {int each = 6}) => <Offset>[
 
 /// The proteins whose cells are drawn part by part.
 List<ProteinTarget> _drawn() => <ProteinTarget>[
-  for (final ProteinTarget t in TestCatalog.all)
+  for (final ProteinTarget t in zoomProteins)
     if (_cellOf(_stage(t)).parts != null) t,
 ];
 
@@ -117,7 +118,7 @@ class _Clips implements Canvas {
 
 /// The proteins whose cells the Atlas finds them secreted from.
 List<ProteinTarget> _secreting() => <ProteinTarget>[
-  for (final ProteinTarget t in TestCatalog.all)
+  for (final ProteinTarget t in zoomProteins)
     if ((locusOf(t).secretome ?? '').startsWith('Secreted')) t,
 ];
 
@@ -138,14 +139,20 @@ double _distanceTo(List<Offset> points, Offset p) {
 
 void main() {
   test(
-    'the endocrine cells and the neurons of the catalog are drawn part by part',
+    'the endocrine cells and the neurons of the catalog, and of the proteins '
+    'built on demand it covers, are drawn part by part',
     () {
       expect(
         <String>[for (final ProteinTarget t in _drawn()) t.slug]..sort(),
         <String>[
+          // Built on demand (`Coverage`): a lactotroph of the pituitary,
+          // drawn as the endocrine cell it is.
+          'bbs9',
           // The parathyroid gland's own cell, the Atlas naming none of its
           // own for it, drawn as the endocrine cell the gland is made of.
           'casr',
+          // Built on demand: an inhibitory neuron of the brain.
+          'cntnap2',
           // A cell of the adrenal cortex, drawn as the endocrine cell it is.
           'cyp17a1',
           // An excitatory neuron of the brain, drawn as the neuron it is.
@@ -155,6 +162,8 @@ void main() {
           'fabp6',
           'glucagon',
           'insulin',
+          // Built on demand: a bipolar cell of the retina, a neuron.
+          'mc4r',
           'oxytocin',
           // A rod photoreceptor of the retina, drawn as the neuron it is.
           'recoverin',
@@ -214,7 +223,7 @@ void main() {
     final ZoomInks inks = await _inks(tester);
     final TextStyle labels = AppTheme.analysis.textTheme.labelSmall!;
     for (final Size size in _canvases) {
-      for (final ProteinTarget t in TestCatalog.all) {
+      for (final ProteinTarget t in zoomProteins) {
         final ZoomStage stage = _stage(t);
         final CellScene cell = _cellOf(stage);
         final double d = stage.depth.depthOf(ZoomStop.cell);
@@ -420,7 +429,7 @@ void main() {
       'tenths of the view, or as far up or down as a squat canvas leaves '
       'it, or as near as its nucleus\'s own view lets it', () {
     const double fill = CellArchetype.fill;
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final ZoomStage stage = _stage(t);
       final CellScene cell = _cellOf(stage);
       final CellReach reach = cell.archetype.reach;
@@ -519,7 +528,7 @@ void main() {
 
   test('the card says what the cell draws: vesicles where it secretes, into '
       'its granules where it has them, or else to its membrane', () {
-    for (final ProteinTarget t in TestCatalog.all) {
+    for (final ProteinTarget t in zoomProteins) {
       final CellScene cell = _cellOf(_stage(t));
       final String story = ZoomFacts(
         track: cell.subject.track,

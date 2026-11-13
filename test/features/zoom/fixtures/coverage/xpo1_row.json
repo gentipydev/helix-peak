@@ -1,0 +1,65 @@
+{
+ "slug": "xpo1",
+ "display": "Exportin-1",
+ "gene": "XPO1",
+ "uniprot": "O14980",
+ "accession": "NC_000002.12",
+ "summary": "Made by XPO1 on chromosome 2. Built on demand from UniProt O14980 and MANE Select NM_003400.4, not curated by hand.",
+ "facts": {
+  "residues": 1071,
+  "exons": 25,
+  "chains": 1,
+  "bridges": 0
+ },
+ "catalog_order": null,
+ "chain": "Exportin-1",
+ "chains": [],
+ "structure": null,
+ "tracks": {},
+ "mature_peptides": false,
+ "transcript_id": "NM_003400.4",
+ "protein_id": "NP_003391.1",
+ "regions": [
+  {
+   "label": "Exportin-1",
+   "short": "",
+   "start": 1,
+   "end": 1071,
+   "origin": 1,
+   "kept": true
+  }
+ ],
+ "disulfides": [],
+ "provenance": {
+  "source": "pipeline/resolver",
+  "prose": "templated",
+  "resolver_version": 1,
+  "uniprot": {
+   "accession": "O14980",
+   "release": "2026_04",
+   "release_date": "2026-11-04",
+   "retrieved": "2026-11-13"
+  },
+  "mane": {
+   "release": "v1.5",
+   "transcript": "NM_003400.4",
+   "protein": "NP_003391.1"
+  },
+  "regions_rule": "processing",
+  "regions_from": [
+   {
+    "label": "Exportin-1",
+    "short": "",
+    "start": 1,
+    "end": 1071,
+    "kept": true
+   }
+  ],
+  "chain_label": "Exportin-1",
+  "cleaved": false,
+  "uniprot_variants": [],
+  "skipped_features": [],
+  "disulfides_dropped": []
+ },
+ "resolver_version": 1
+}

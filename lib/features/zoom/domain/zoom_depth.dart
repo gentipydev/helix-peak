@@ -541,9 +541,18 @@ final class ZoomDepth {
     ZoomStop.nucleus => nucleusMetres,
     ZoomStop.chromosome => chromosomeView * condensedLength,
     ZoomStop.band => 1.5 * track.bandLengthBp,
-    ZoomStop.gene => 1.3 * track.geneLengthBp,
+    ZoomStop.gene => math.max(1.3 * track.geneLengthBp, leastGeneView),
     ZoomStop.dna => dnaBasePairs,
   };
+
+  /// The least the view at the gene is wide, in base pairs: a gene shorter
+  /// than this (213 bases at the least among those the search offers) is
+  /// drawn whole in a window this wide, not filling it. Narrower, the gene's
+  /// stop would lie in its own DNA's dive: the exons fading into it, the
+  /// first nucleosome named (from 900 bases) and the helix coming up (from
+  /// 800), so the stop would show neither the gene nor its DNA. Every
+  /// curated gene's own view is wider (oxytocin's, the shortest, 1,167).
+  static const double leastGeneView = 1000;
 
   /// How much of the view at [stop] its scale bar may span: a fifth and a
   /// little more, but at the cell, which fills the view more tightly than it

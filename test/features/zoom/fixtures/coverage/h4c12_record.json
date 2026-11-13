@@ -1,0 +1,37 @@
+{
+    "gene": "H4C12",
+    "location": {
+        "start": 1,
+        "end": 387,
+        "strand": -1
+    },
+    "sequence": "ACAAAGCGTTGGGTGAGACTCCTCTTGCTCGTCATGTCTGGCCGCGGCAAAGGCGGGAAGGGTCTTGGCAAAGGCGGCGCTAAGCGCCACCGTAAAGTACTGCGCGACAATATCCAGGGCATCACCAAGCCGGCCATCCGGCGCCTTGCTCGCCGCGGCGGCGTGAAGCGCATCTCCGGCCTCATCTACGAGGAGACTCGCGGGGTGCTGAAGGTGTTCCTGGAGAACGTGATCCGGGACGCCGTGACCTATACAGAGCACGCCAAGCGCAAGACGGTCACCGCCATGGATGTGGTCTACGCGCTCAAGCGCCAGGGCCGCACCCTCTACGGTTTCGGTGGTTGAGCGTCCCTTTCTATCAACAAAAGGCCCTTTTTAGGGCCCCCA",
+    "transcript": {
+        "segments": [
+            {
+                "start": 1,
+                "end": 387
+            }
+        ]
+    },
+    "protein": {
+        "product": "histone H4",
+        "translation": "MSGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRGVLKVFLENVIRDAVTYTEHAKRKTVTAMDVVYALKRQGRTLYGFGG",
+        "segments": [
+            {
+                "start": 43,
+                "end": 354
+            }
+        ]
+    },
+    "exons": [
+        {
+            "number": 1,
+            "start": 1,
+            "end": 387
+        }
+    ],
+    "signal_peptide": null,
+    "proprotein": null,
+    "peptides": []
+}

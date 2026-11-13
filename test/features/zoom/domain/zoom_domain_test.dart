@@ -1775,6 +1775,12 @@ void main() {
         'what a reader in the field knows', () {
       for (final ProteinTarget t in TestCatalog.all) {
         final LocusTrack track = locusOf(t);
+        // Where the Atlas finds the protein, in what the cell drawn has: a
+        // rod has no sperm tail, so recoverin glows nowhere in it.
+        final SubcellularReading where = readingInCell(
+          track.subcellular,
+          _path(t),
+        );
         final String story = _facts(t).cellStory;
         final String why = '${t.slug}: $story';
         // Where a gene is transcribed goes unsaid; a cell with no nucleus
@@ -1785,14 +1791,10 @@ void main() {
           _path(t).landsIn != null,
           reason: why,
         );
-        expect(
-          story.contains('glows'),
-          !track.subcellular.isEmpty,
-          reason: why,
-        );
+        expect(story.contains('glows'), !where.isEmpty, reason: why);
         expect(
           story.contains('has not placed the protein'),
-          track.subcellular.isEmpty && !track.secreted,
+          where.isEmpty && !track.secreted,
           reason: why,
         );
         expect(story.contains('Vesicles carry'), track.secreted, reason: why);

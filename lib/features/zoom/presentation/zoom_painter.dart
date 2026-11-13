@@ -659,24 +659,73 @@ List<double> spreadRow(
 }
 
 /// A callout's words, laid out as the painter sets them: a name round a
-/// shape on one line, or on two where it is [wrapped] ([twoLines]); any
-/// other on as many as two, at most 55% of the canvas wide.
+/// shape on one line, or on two where it is [wrapped]: broken at the space
+/// nearest its middle ([twoLines]) where both halves fit across the canvas
+/// ([ringTextWidth]), and otherwise run on at that width, a third line cut
+/// short with an ellipsis ([calloutElided]) rather than run off the canvas
+/// (the user's decision of 2026-11-13); any other on as many as two, at most
+/// 55% of the canvas wide.
 TextPainter calloutText(
   ZoomCallout callout,
   TextStyle labels,
   ZoomInks inks,
   Size size, {
   bool wrapped = false,
-}) => TextPainter(
-  text: TextSpan(
-    text: wrapped ? twoLines(callout.text) : callout.text,
-    style: labels.copyWith(color: inks.text.withValues(alpha: callout.opacity)),
-  ),
-  textDirection: TextDirection.ltr,
-  maxLines: 2,
-)..layout(
-    maxWidth: callout.ring == null ? size.width * 0.55 : double.infinity,
+}) {
+  TextPainter laid(String text, double width, {String? ellipsis}) =>
+      TextPainter(
+        text: TextSpan(
+          text: text,
+          style: labels.copyWith(
+            color: inks.text.withValues(alpha: callout.opacity),
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+        maxLines: 2,
+        ellipsis: ellipsis,
+      )..layout(maxWidth: width);
+
+  if (callout.ring == null) {
+    return laid(callout.text, size.width * 0.55);
+  }
+  if (!wrapped) {
+    return laid(callout.text, double.infinity);
+  }
+  final TextPainter halves = laid(twoLines(callout.text), double.infinity);
+  final double most = ringTextWidth(size);
+  if (halves.width <= most) {
+    return halves;
+  }
+  halves.dispose();
+  return laid(callout.text, most, ellipsis: '…');
+}
+
+/// How wide the words of a name set round a shape may run, on two lines, on
+/// a canvas of [size]: its plate across the canvas within its margins.
+double ringTextWidth(Size size) =>
+    size.width - 2 * ZoomOverlayPainter.margin - 2 * plateTextPadding;
+
+/// Whether [callout]'s words, laid out as the painter sets them, lost a
+/// third line to the ellipsis: a name too long for two lines across the
+/// canvas. None should (the census's check counts them).
+bool calloutElided(
+  ZoomCallout callout,
+  TextStyle labels,
+  ZoomInks inks,
+  Size size, {
+  bool wrapped = false,
+}) {
+  final TextPainter text = calloutText(
+    callout,
+    labels,
+    inks,
+    size,
+    wrapped: wrapped,
   );
+  final bool elided = text.didExceedMaxLines;
+  text.dispose();
+  return elided;
+}
 
 /// [text] broken onto two lines at the space nearest its middle; as it is
 /// where it has no space.
@@ -1004,12 +1053,17 @@ Map<String, RingHold> _holdRing(
         break;
       }
     }
-    // Where no row has room, the nearer row takes it all the same.
+    // Where no row has room, the nearer row takes it all the same: on one
+    // line, but on two where one would run wider than the canvas.
     if (!placed) {
+      final bool wide =
+          wraps(c) &&
+          _ringPlate(c, labels, inks, size, false).width >
+              size.width - 2 * ZoomOverlayPainter.margin;
       bands[near]![0].add((
         callout: c,
-        wrapped: false,
-        plate: _ringPlate(c, labels, inks, size, false),
+        wrapped: wide,
+        plate: _ringPlate(c, labels, inks, size, wide),
       ));
     }
   }
