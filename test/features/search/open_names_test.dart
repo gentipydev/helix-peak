@@ -37,8 +37,6 @@ Map<String, dynamic> _suggestion(
   'building': false, 'stopped': false,
 };
 
-final Map<String, dynamic> _ttr = _suggestion(
-  'P02766', 'TTR', 'Transthyretin', 147, 'ready', slug: 'ttr', display: 'Transthyretin');
 final Map<String, dynamic> _b2m = _suggestion(
   'P61769', 'B2M', 'Beta-2-microglobulin', 119, 'ready', slug: 'b2m');
 final Map<String, dynamic> _brca1 = _suggestion(
@@ -109,6 +107,14 @@ Future<(GoRouter, ProteinBuilds)> _pump(WidgetTester tester, ResolverApi api) as
   return (router, builds);
 }
 
+/// Choose Build on demand and let its page come in.
+Future<void> _onBuild(WidgetTester tester) async {
+  await tester.tap(find.text('Build on demand'));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 400));
+  await tester.pump();
+}
+
 Future<void> _type(WidgetTester tester, String text) async {
   await tester.enterText(find.byType(TextField), text);
   await tester.pump();
@@ -123,35 +129,11 @@ Future<Map<String, dynamic>> Function(String) _finding(List<Map<String, dynamic>
     (String q) async => <String, dynamic>{'q': q, 'release': null, 'suggestions': found};
 
 void main() {
-  testWidgets('a protein on the built tab is opened with its symbol and its name', (
-    WidgetTester tester,
-  ) async {
-    await _pump(
-      tester,
-      ResolverApi(
-        built: (int limit) async => <String, dynamic>{
-          'proteins': <Map<String, dynamic>>[_ttr],
-          'next': null,
-        },
-      ),
-    );
-    await tester.tap(find.text('Built on demand'));
-    await tester.pump();
-    await tester.pump();
-    await tester.tap(_tile('Transthyretin'));
-    await tester.pumpAndSettle();
-    expect(find.text('walk ttr'), findsOneWidget);
-    expect(_opened.single.$1, 'ttr');
-    expect(
-      _opened.single.$2,
-      RoutePaths.walkNames(gene: 'TTR', display: 'Transthyretin'),
-    );
-  });
-
   testWidgets('a built protein a search finds is opened by the name its row shows', (
     WidgetTester tester,
   ) async {
     await _pump(tester, ResolverApi(suggest: _finding(<Map<String, dynamic>>[_b2m])));
+    await _onBuild(tester);
     await _type(tester, 'b2m');
     await tester.tap(_tile('Beta-2-microglobulin'));
     await tester.pumpAndSettle();
@@ -176,6 +158,7 @@ void main() {
       gene: 'BRCA1',
       display: 'Breast cancer type 1 susceptibility protein',
     );
+    await _onBuild(tester);
     await _type(tester, 'brca1');
     await tester.tap(
       find.descendant(

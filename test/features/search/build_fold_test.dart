@@ -90,6 +90,8 @@ Future<void> _build(WidgetTester tester, List<Map<String, dynamic>> answers) asy
     ),
   );
   await tester.pumpAndSettle();
+  await tester.tap(find.text('Build on demand'));
+  await tester.pumpAndSettle();
   await tester.enterText(find.byType(TextField), 'brca1');
   await tester.pump();
   await tester.pump(_pause);

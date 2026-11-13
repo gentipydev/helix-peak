@@ -123,13 +123,15 @@ Git: commit the session's own changes locally. Never push, in any form.
   it opens the zoom over the walk (see "Zoom" below), which comes back to
   this page. A protein with no ready locus is drawn as it always was.
 - `lib/features/home/` and `lib/features/search/`: the home screen and the
-  search: the curated list, and below it every reviewed human protein, which
-  can be built on demand (its own `ProteinSuggestionsCubit`; the builds are
-  the app's, see "How data arrives" 4). With nothing typed, two tabs sit
-  under the field: Curated, which it opens on, and Built on demand, every
-  install's builds (`BuiltProteinsCubit`); typing hides them, and a search
-  covers everything whichever was chosen. Search is not the walk; it reaches
-  the walk only by opening `/gene/<slug>`.
+  search: two tabs, swiped between or chosen by name, each a page with its
+  own field and query (the user's design of 2026-11-13). Curated, which it
+  opens on, searches the curated list. Build on demand searches every
+  reviewed human protein (its own `ProteinSuggestionsCubit`), each one found
+  saying what can be done with it: open it, build it, or the service's
+  sentence why it cannot be built; with nothing typed it is its line alone.
+  The builds are the app's (see "How data arrives" 4), each pinned at the
+  top of both tabs while it runs. Search is not the walk; it reaches the
+  walk only by opening `/gene/<slug>`.
 - `lib/features/zoom/`: the zoom (see "Zoom" below).
 - `lib/features/peptide_lm/`: the peptide language model's recorded training
   run, stage by stage (see "Peptide Language Model" below).
@@ -927,13 +929,10 @@ Tests use `test/support/fixture_track_source.dart` over `test/fixtures/`.
    `structure` step, read as every step behind it and `BuildReport.holding`,
    and it opens once the fold is made or the service stops waiting (20
    minutes at most). `BuildStep` keeps its six values: a walk test pins them.
-   `GET /proteins/built` lists every install's builds, newest first, as the
-   same suggestions: one under way is left out until it is done, one stopped
-   is kept and opens unscored there, with no Build (scoring it again is
-   search's, not a tap on a list of everyone's builds; the user's choice of
-   2026-10-09). A build of this phone's that ends with a protein to open asks for
-   the list again; pinned, it is its card there and not a row as well.
-   It opens the walk only once its AVI and ClinVar are in and ESM-2 has
+   The app lists no builds (the user's word of 2026-11-13: the Build on
+   demand tab is its search alone); the service's `GET /proteins/built`
+   stays for installs older than that.
+   A build opens the walk only once its AVI and ClinVar are in and ESM-2 has
    scored it or declined to (the backend's ESM-2 bake waits for the first
    two). `TrackClient` and `ProteinCatalogRepository` each remember a protein
    once read, and a catalog protein opens on what they remember, at once, as

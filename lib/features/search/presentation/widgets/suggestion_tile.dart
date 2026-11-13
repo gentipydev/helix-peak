@@ -7,8 +7,9 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/format.dart';
 import 'protein_card.dart';
 
-/// One protein from every reviewed human protein, below the curated list:
-/// what it is called, its gene, its length, and what the app can do with it.
+/// One protein from every reviewed human protein, on search's Build on demand
+/// tab: what it is called, its gene, its length, and what the app can do with
+/// it.
 ///
 /// A protein that opens (curated, or built earlier) is tapped like a card. One
 /// that can be built offers to be; asked, its build goes to the top of search
@@ -20,7 +21,6 @@ class SuggestionTile extends StatelessWidget {
     required this.onOpen,
     required this.onBuild,
     this.built,
-    this.heading,
     super.key,
   });
 
@@ -33,15 +33,8 @@ class SuggestionTile extends StatelessWidget {
   final ValueChanged<String> onOpen;
 
   /// Asks for it to be built, or a stopped one scored again. Null offers
-  /// neither: a list of what is built opens each one, and asking again is
-  /// search's.
+  /// neither.
   final ValueChanged<ProteinSuggestion>? onBuild;
-
-  /// The name of the list it is in, where that says what it is: a status line
-  /// that would only repeat it is left out ("Built on demand" under the tab of
-  /// that name), and one that says something else stays. Null, the default,
-  /// shows every status line.
-  final String? heading;
 
   /// `P38398 · 1,863 aa`.
   static String specOf(ProteinSuggestion suggestion) =>
@@ -131,15 +124,13 @@ class SuggestionTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AppTypography.spec(colors.onSurfaceVariant),
               ),
-              if (status != heading) ...<Widget>[
-                const SizedBox(height: 2),
-                Text(
-                  status,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.cardBody,
-                ),
-              ],
+              const SizedBox(height: 2),
+              Text(
+                status,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.cardBody,
+              ),
             ],
           ),
         ),

@@ -104,6 +104,14 @@ Future<ProteinCatalogRepository> _catalog({bool asked = true}) async {
   return catalog;
 }
 
+/// Choose Build on demand and let its page come in.
+Future<void> _onBuild(WidgetTester tester) async {
+  await tester.tap(find.text('Build on demand'));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 400));
+  await tester.pump();
+}
+
 Future<void> _type(WidgetTester tester, String text) async {
   await tester.enterText(find.byType(TextField), text);
   await tester.pump();
@@ -129,9 +137,11 @@ void main() {
     final BoxDecoration surface = ProteinCard.surface(colors);
     expect(surface.color, colors.surfaceContainerLow);
 
-    // A curated card, and the two kinds of row under it: one that opens and
-    // one that can be built. They were filled and outlined, on one list.
+    // A curated card, and on the other tab the two kinds of row: one that
+    // opens and one that can be built. They were filled and outlined.
     expect(_surfaceOf(tester, find.byType(ProteinCard).first), surface);
+    await _onBuild(tester);
+    await _type(tester, 'ins');
     expect(find.byType(SuggestionTile), findsNWidgets(2));
     for (final Element tile in find.byType(SuggestionTile).evaluate()) {
       expect(_surfaceOf(tester, find.byWidget(tile.widget)), surface);
@@ -151,21 +161,13 @@ void main() {
     await _pump(tester, await _catalog());
     final ThemeData theme = AppTheme.analysis;
 
-    // The line under the tabs. Its style was one the theme did not name,
+    // The line under the field. Its style was one the theme did not name,
     // which Material set in the platform's face and the bright ink.
     final TextStyle shelf = tester
         .widget<Text>(find.textContaining('checked by hand'))
         .style!;
     expect(shelf.fontFamily, AppTypography.sansFamily);
     expect(shelf.color, theme.colorScheme.onSurfaceVariant);
-
-    // A section's line, once something is typed.
-    await _type(tester, 'ins');
-    final TextStyle section = tester
-        .widget<Text>(find.textContaining('Built on demand from its UniProt'))
-        .style!;
-    expect(section.fontFamily, AppTypography.sansFamily);
-    expect(section.color, theme.colorScheme.onSurfaceVariant);
 
     // A card's lines: its figures in the sequence face, its prose in body
     // type a step down, each one style wherever it is set.
@@ -176,6 +178,15 @@ void main() {
         )
         .style!;
     expect(figures, AppTypography.spec(theme.colorScheme.onSurfaceVariant));
+
+    // Build on demand's line, the same small print, over what a search finds.
+    await _onBuild(tester);
+    await _type(tester, 'ins');
+    final TextStyle line = tester
+        .widget<Text>(find.textContaining('Built from UniProt and MANE'))
+        .style!;
+    expect(line.fontFamily, AppTypography.sansFamily);
+    expect(line.color, theme.colorScheme.onSurfaceVariant);
     final TextStyle status = tester
         .widget<Text>(find.text('Not built yet'))
         .style!;
@@ -242,6 +253,7 @@ void main() {
 
   testWidgets('Stop is told from Keep building', (WidgetTester tester) async {
     await _pump(tester, await _catalog());
+    await _onBuild(tester);
     await _type(tester, 'ins');
     await tester.tap(find.text('Build'));
     await tester.pump();
