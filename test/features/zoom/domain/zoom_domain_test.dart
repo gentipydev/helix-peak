@@ -714,6 +714,39 @@ void main() {
       }
     });
 
+    test('go into the endometrium in its band’s left leg near its inner '
+        'edge, where the uterus is drawn bivalved with the functional layer '
+        'on the body’s right, 0.38 of the way down and 0.085 of its width '
+        'in from its left edge, the view closing on its middle', () {
+      final String uberon = tissueAnatomy['endometrium']!.uberon;
+      expect(AnatomyFigure.male.parts[uberon], isNull);
+      final AnatomyPart part = AnatomyFigure.female.parts[uberon]!;
+      final List<Offset> outline = part.followed;
+      final Rect box = boxOf(outline);
+      // As the tool reads the drawing's own outline, before it is
+      // simplified.
+      expect((part.site.dy - box.top) / box.height, closeTo(0.382, 0.01));
+      // On the body's right, the page's left of the band's middle, and in
+      // the band, not in the cavity it draws round.
+      expect(part.site.dx, lessThan(box.center.dx));
+      expect(inside(outline, part.site), isTrue);
+      double left = double.infinity;
+      for (int i = 0; i < outline.length; i++) {
+        final Offset a = outline[i];
+        final Offset b = outline[(i + 1) % outline.length];
+        if ((a.dy > part.site.dy) != (b.dy > part.site.dy)) {
+          left = math.min(
+            left,
+            a.dx + (part.site.dy - a.dy) * (b.dx - a.dx) / (b.dy - a.dy),
+          );
+        }
+      }
+      expect((part.site.dx - left) / box.width, closeTo(0.085, 0.015));
+      expect(part.framed, isNull);
+      expect(part.following, 0);
+      expect(part.centre, box.center);
+    });
+
     test('go into the seminal vesicle in the outline the anatomogram draws '
         'on the bladder’s base, on the body’s left, not the one it hangs '
         'below the prostate, the view closing on the midline a little '

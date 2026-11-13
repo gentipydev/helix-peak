@@ -169,11 +169,20 @@ FOLLOW_WITHIN = {"UBERON_0000998": "UBERON_0001255"}
 # the superior longitudinal layer and the inferior longitudinal: 0.17 of
 # the way down the outline, 0.22 of its width in from its edge, where the
 # drawing lays them, the soft tissue's box on the female figure's mouth.
+# The endometrium is drawn as the uterus bivalved along its canal to the
+# fundus (`uterus_anatomy.dart`), as GTEx opens it to take its "Corpus" (the
+# GTEx Portal's sampling site for Uterus, gtex_v10); the anatomogram draws
+# it as a band round the cavity half as wide again as the uterus is at the
+# card's 8 cm, so the zoom goes into the band's left leg near its inner
+# edge, 0.38 of the way down and 0.085 of its width in from its left
+# edge, where the drawing lays the functional layer on the body's right
+# beside the cavity, the drawing lying over the band's middle.
 SITE_LEFT = {
     "UBERON_0002108": (0.78, 0.28),
     "UBERON_0002048": (0.896, 0.04),
     "UBERON_0002367": (0.639, 0.145),
     "UBERON_0001723": (0.17, 0.22),
+    "UBERON_0001295": (0.382, 0.085),
 }
 
 # Parts the zoom follows into another of their outlines than the largest:
