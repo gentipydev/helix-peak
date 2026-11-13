@@ -7,6 +7,11 @@ on:
   pull_request:
   workflow_dispatch:
 
+# It reads the code and keeps a failed run's diffs, and needs nothing more. A
+# pull request from a fork runs it with this token alone and no secrets.
+permissions:
+  contents: read
+
 jobs:
   test:
     # x86-64 Linux, the architecture the goldens were made on. The container
@@ -14,14 +19,16 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      # Each action pinned to the commit its release names, so a moved tag
+      # cannot change what runs here.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: flutter test in the golden container
         run: bash tool/goldens/goldens.sh --reporter expanded
 
       - name: keep the diff of every golden that failed
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: golden-failures
           path: test/goldens/failures/

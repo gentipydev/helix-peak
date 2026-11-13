@@ -1,5 +1,18 @@
 # Environment — `.env` holds real local values; `.env.example` is the template.
 .env
+# Any other environment file, and any signing key or store credential: the
+# Android keystore and key.properties (android/.gitignore too), an App Store
+# Connect API key (.p8), certificates and provisioning profiles.
+.env.*
+!.env.example
+*.jks
+*.keystore
+key.properties
+*.p8
+*.p12
+*.pem
+*.mobileprovision
+secrets.json
 
 # Miscellaneous
 *.class
