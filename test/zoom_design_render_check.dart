@@ -32,6 +32,7 @@ import 'package:helixpeek/features/zoom/presentation/scenes/organs/prostate/pros
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/skin/skin_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/stomach/stomach_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/organs/thyroid/thyroid_form.dart';
+import 'package:helixpeek/features/zoom/presentation/scenes/organs/uterus/uterus_form.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/sculpt.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/tissue/tissue_slide.dart';
 import 'package:helixpeek/features/zoom/presentation/scenes/tissue_scene.dart';
@@ -214,8 +215,9 @@ void main() {
     // each other kind of cell that lives in it, and the prostate, the male
     // figure's alone, about a cell of each part of it the Atlas's names
     // light, the seminal vesicles, the male figure's alone, about the
-    // tissue's own cell, and smooth muscle on both figures about its smooth
-    // muscle cell.
+    // tissue's own cell, smooth muscle on both figures about its smooth
+    // muscle cell, and the uterus, the female figure's alone, about a cell of
+    // its glands, of its surface and of its stroma.
     final TissueAnatomy pancreas = tissueAnatomy['pancreas']!;
     final TissueAnatomy testis = tissueAnatomy['testis']!;
     final TissueAnatomy salivary = tissueAnatomy['salivary gland']!;
@@ -635,6 +637,18 @@ void main() {
           body,
           CellShape.myofibre,
           'Myonuclei',
+        ),
+      for (final (String cell, CellShape shape) in <(String, CellShape)>[
+        ('Endometrial glandular cells', CellShape.epithelial),
+        ('Endometrial luminal cells', CellShape.epithelial),
+        ('Endometrial stromal cells', CellShape.spindle),
+      ])
+        (
+          'uterus-female-${UterusHome.of(cell).name}',
+          tissueAnatomy['endometrium']!,
+          AnatomyFigure.female,
+          shape,
+          cell,
         ),
     ];
     for (final (

@@ -149,7 +149,8 @@ final class CervixForm {
       Offset(-CervixAnatomy.half[i].dx, CervixAnatomy.half[i].dy),
   ]).sampled(CervixStyle.outlineSpan).points;
 
-  /// The outline in millimetres. For tests.
+  /// The outline in millimetres: for tests, and the uterus, which draws
+  /// the cervix as its own below its isthmus.
   static List<Offset> get outlineMm => _outlineMm;
 
   /// How far the canal, or the uterine cavity above it, reaches to either
@@ -195,7 +196,7 @@ final class CervixForm {
       mm.dy <= CervixAnatomy.externalOs &&
       mm.dx.abs() < grooveAt(mm.dy);
 
-  /// The canal in millimetres. For tests.
+  /// The canal in millimetres: for tests, and the uterus.
   static List<Offset> get canalMm => _canalMm;
 
   // The vaginal part.
@@ -265,7 +266,7 @@ final class CervixForm {
     ];
   }();
 
-  /// The ectocervix's surface in millimetres. For tests.
+  /// The ectocervix's surface in millimetres: for tests, and the uterus.
   static List<Offset> get surfaceMm => _surfaceMm;
 
   /// The transformation zone: its outer edges, each where the original
@@ -455,10 +456,11 @@ final class CervixForm {
     return out;
   }();
 
-  /// The crypts in millimetres. For tests.
+  /// The crypts in millimetres: for tests, and the uterus.
   static List<List<Offset>> get cryptsMm => _cryptsMm;
 
-  /// The palmate folds in millimetres, upper and lower. For tests.
+  /// The palmate folds in millimetres, upper and lower: for tests, and the
+  /// uterus.
   static List<List<Offset>> get foldsMm => <List<Offset>>[
     ..._foldsMm.$1,
     ..._foldsMm.$2,

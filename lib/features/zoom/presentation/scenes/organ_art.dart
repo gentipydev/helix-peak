@@ -105,6 +105,9 @@ import 'organs/thyroid/thyroid_style.dart';
 import 'organs/tongue/tongue_art.dart';
 import 'organs/tongue/tongue_form.dart';
 import 'organs/tongue/tongue_style.dart';
+import 'organs/uterus/uterus_art.dart';
+import 'organs/uterus/uterus_form.dart';
+import 'organs/uterus/uterus_style.dart';
 import 'sculpt.dart';
 import 'specimen_step.dart';
 import 'tube_course.dart';
@@ -422,6 +425,14 @@ abstract class OrganArt {
         figure: figure,
         level: level,
       ),
+      OrganKind.uterus when part != null => _UterusOrgan(
+        part,
+        anatomy,
+        view,
+        figure: figure,
+        cell: cellName,
+        level: level,
+      ),
       _ =>
         part == null
             ? _AnyOrgan()
@@ -579,7 +590,7 @@ abstract class OrganArt {
 enum _Look { lobules, hollow }
 
 _Look _lookOf(OrganKind kind) => switch (kind) {
-  OrganKind.uterus || OrganKind.vagina => _Look.hollow,
+  OrganKind.vagina => _Look.hollow,
   _ => _Look.lobules,
 };
 
@@ -4242,6 +4253,105 @@ final class _TongueOrgan extends _SpecimenOrgan {
 
   @override
   Color _bedOf(ZoomInks inks) => TongueArt.bedOf(inks);
+
+  @override
+  Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;
+
+  @override
+  void _paintSpecimen(Canvas canvas, ZoomInks inks, double line) =>
+      _artFor(inks).paint(canvas, line);
+}
+
+/// The uterus, drawn from general anatomy as a specimen bivalved along its
+/// canal to the fundus, as GTEx opens it, and seen from the front, its
+/// front half taken away (`UterusArt`): the endometrium round the cavity and
+/// on its back wall, its glands running out through it, the muscle cut
+/// round it with the vessels of its middle layer, the tubes' intramural
+/// parts through its cornua; below the isthmus the cervix as the cervix
+/// specimen draws it, its canal and its folds; the tubes and the ovarian
+/// ligaments running out from the cornua, and the uterine arteries
+/// climbing beside it, cut short or fading out. It is reached from the
+/// body's own outline of the endometrium (`_SpecimenOrgan`), a band round
+/// the cavity, its cavity filled, which draws in toward the uterus's
+/// outline and becomes the bed it lies on, the figure staying round it,
+/// faint, all but its cervix and its tubes, which the specimen draws as
+/// its own. Where the zoom's cell lives is in the mark, the endometrium,
+/// and named by the Atlas's name for the cell: its glands, its surface or
+/// its stroma; the muscle, a tube, the canal and an artery are named in the
+/// quiet ink.
+final class _UterusOrgan extends _SpecimenOrgan {
+  _UterusOrgan(
+    super.part,
+    super.anatomy,
+    super.view, {
+    super.figure,
+    String? cell,
+    super.level,
+  }) : _form = UterusForm.place(
+         part: part,
+         anatomy: anatomy,
+         view: view,
+         home: UterusHome.of(cell),
+       ),
+       super(notAround: _ownCervixAndTubes);
+
+  /// The figure's cervix and its tubes, which the uterus draws as its own.
+  static const Set<String> _ownCervixAndTubes = <String>{
+    'UBERON_0000002',
+    'UBERON_0003889',
+  };
+
+  final UterusForm _form;
+
+  @override
+  bool get _amongFigure => true;
+
+  @override
+  double _settleOf(double detail) =>
+      SpecimenStep.settle(detail, span: UterusStyle.settling);
+
+  @override
+  Path get outline => _form.outline;
+
+  @override
+  Offset get site => _form.site;
+
+  // Where the zoom's cell lives, in the mark; and the muscle, a tube, the
+  // canal and an artery, in the quiet ink. The ovarian ligaments are drawn
+  // and not named: a name out at the ligament's end ran its line through
+  // the plates of the names above the uterus on every phone.
+  @override
+  late final List<OrganName> names = <OrganName>[
+    (key: 'home', word: _form.home.word, at: _form.homeName, home: true),
+    (key: 'muscle', word: 'myometrium', at: _form.muscleName, home: false),
+    (key: 'tube', word: 'fallopian tube', at: _form.tubeName, home: false),
+    (key: 'canal', word: 'cervical canal', at: _form.canalName, home: false),
+    (key: 'artery', word: 'uterine artery', at: _form.arteryName, home: false),
+  ];
+
+  // Set round all of it, out at the canvas's corners: round the uterus and
+  // what runs beside it where it shows.
+  @override
+  late final List<Offset> named = _form.namedPoints;
+
+  UterusArt? _art;
+
+  UterusArt _artFor(ZoomInks inks) {
+    final UterusArt? art = _art;
+    if (art != null && art.inks == inks) {
+      return art;
+    }
+    return _art = UterusArt(_form, inks)..prepare();
+  }
+
+  @override
+  void prepare(ZoomInks inks) => _artFor(inks);
+
+  @override
+  Path _flatAt(double settle, double bed) => _form.pathAt(settle, bed: bed);
+
+  @override
+  Color _bedOf(ZoomInks inks) => UterusArt.bedOf(inks);
 
   @override
   Rect _specimenBounds(ZoomInks inks) => _artFor(inks).bounds;

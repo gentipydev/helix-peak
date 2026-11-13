@@ -339,6 +339,14 @@ final class ZoomDepth {
   /// iPhone SE's).
   static const double tongueUpright = 1.7;
 
+  /// How much taller than wide the uterus is framed: bivalved to the
+  /// fundus, its cervix below it and its tubes running out from its
+  /// cornua, it is framed by its specimen, closer than the anatomogram's
+  /// endometrium, a band half as wide again as the uterus, as close as
+  /// leaves its names, in rows above it and below it, room on every
+  /// phone's canvas.
+  static const double uterusUpright = 1.3;
+
   static double _organOf(LocusTrack track, ZoomPath path) {
     final String? tissue = path.tissue;
     final TissueAnatomy? anatomy = tissue == null
@@ -384,8 +392,9 @@ final class ZoomDepth {
   /// prostate, cut from front to back in place, as [prostateUpright], the
   /// seminal vesicles, from the front on the prostate's base, as
   /// [seminalVesicleUpright], smooth muscle, the bladder's wall whole
-  /// from the front, as [smoothMuscleUpright], and the tongue, cut across
-  /// between the mandible's halves, as [tongueUpright].
+  /// from the front, as [smoothMuscleUpright], the tongue, cut across
+  /// between the mandible's halves, as [tongueUpright], and the uterus,
+  /// bivalved to its fundus, as [uterusUpright].
   static double uprightOf(
     LocusTrack track,
     ZoomPath path,
@@ -483,6 +492,9 @@ final class ZoomDepth {
     }
     if (anatomy.organ == OrganKind.tongue) {
       return tongueUpright;
+    }
+    if (anatomy.organ == OrganKind.uterus) {
+      return uterusUpright;
     }
     final AnatomyFigure body = AnatomyFigure.bodyFor(path.tissue, <String>[
       for (final (String name, double _) in track.tissue.specific)
