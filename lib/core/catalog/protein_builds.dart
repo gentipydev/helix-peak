@@ -30,7 +30,8 @@ enum BuildStage {
 
   /// Stopped by this phone. Stopped while ESM-2 scored, it opens without its
   /// scores ([ProteinBuild.slug] says where); either way asking again builds
-  /// what is missing.
+  /// what is missing. The phone that stopped it then resumes, keeps or
+  /// discards it ([ProteinBuilds.keep], [ProteinBuilds.discard]).
   stopped;
 
   bool get underway => this == asking || this == building;
@@ -50,6 +51,8 @@ final class ProteinBuild {
     this.pinned = true,
     this.mine = false,
     this.stopping = false,
+    this.keeping = false,
+    this.discarding = false,
   });
 
   /// The protein as search named it: what its card is headed with.
@@ -84,6 +87,20 @@ final class ProteinBuild {
   /// Whether a stop is on its way to the service.
   final bool stopping;
 
+  /// Whether a keep, or a discard, is on its way to the service.
+  final bool keeping;
+  final bool discarding;
+
+  /// Whether Keep is offered: stopped, with something built to keep, and
+  /// nothing already on its way.
+  bool get keepable =>
+      stage == BuildStage.stopped && opens && !keeping && !discarding;
+
+  /// Whether Discard is offered: stopped by this phone, and nothing already on
+  /// its way.
+  bool get discardable =>
+      stage == BuildStage.stopped && mine && !keeping && !discarding;
+
   /// Whether Stop is offered now: this phone's, under way, and at a step a
   /// stop can end (not while its record is written, nor in the moments of
   /// the check).
@@ -109,6 +126,8 @@ final class ProteinBuild {
     bool? pinned,
     bool? mine,
     bool? stopping,
+    bool? keeping,
+    bool? discarding,
   }) => ProteinBuild(
     protein: protein,
     stage: stage ?? this.stage,
@@ -120,6 +139,8 @@ final class ProteinBuild {
     pinned: pinned ?? this.pinned,
     mine: mine ?? this.mine,
     stopping: stopping ?? this.stopping,
+    keeping: keeping ?? this.keeping,
+    discarding: discarding ?? this.discarding,
   );
 }
 
@@ -140,6 +161,12 @@ final class ProteinBuild {
 /// new. The reader who asked may stop it ([stop]): there are no accounts, so
 /// an ask carries this install's own id ([asker]), and only it may stop what
 /// the ask started.
+///
+/// A stopped build is then the reader's to decide: asked again ([build]) it
+/// resumes, [keep] keeps it as it is without its ESM-2 scores, and [discard]
+/// deletes everything built for it. Either of the last two takes its card
+/// away. Until one is made the service remembers it, and [restore] pins it
+/// again when the app starts.
 class ProteinBuilds {
   ProteinBuilds(
     this._resolver, {
@@ -172,6 +199,8 @@ class ProteinBuilds {
   final StreamController<ProteinBuild> _ended =
       StreamController<ProteinBuild>.broadcast();
 
+  final StreamController<String> _decided = StreamController<String>.broadcast();
+
   /// Per gene: the report's position when it last moved, and the service's
   /// seconds then; and the polls in a row that went unanswered.
   final Map<String, (Object?, Duration)> _moved = <String, (Object?, Duration)>{};
@@ -186,6 +215,10 @@ class ProteinBuilds {
 
   /// Each build as it ends: built, declined or broken.
   Stream<ProteinBuild> get ended => _ended.stream;
+
+  /// Each gene whose stopped build was kept or discarded, as the service
+  /// takes the decision.
+  Stream<String> get decided => _decided.stream;
 
   ProteinBuild? of(String gene) => _builds.value[gene];
 
@@ -277,6 +310,103 @@ class ProteinBuilds {
     }
     _schedule();
     return said;
+  }
+
+  /// Keep [gene]'s stopped build as it is, without its ESM-2 scores: its card
+  /// goes, and it opens unscored from the list. Null once kept; otherwise why
+  /// it was not, in the service's words.
+  Future<String?> keep(String gene) async {
+    final ProteinBuild? build = of(gene);
+    final String? id = await _id();
+    if (build == null || !build.keepable || id == null) {
+      return null;
+    }
+    return _decide(
+      build._with(keeping: true),
+      () => _resolver.keep(gene, id),
+    );
+  }
+
+  /// Delete everything built for [gene]'s stopped build, which this phone
+  /// asked for: its card goes, and the gene reads as never asked for. Null
+  /// once discarded; otherwise why it was not, in the service's words.
+  Future<String?> discard(String gene) async {
+    final ProteinBuild? build = of(gene);
+    final String? id = await _id();
+    if (build == null || !build.discardable || id == null) {
+      return null;
+    }
+    return _decide(
+      build._with(discarding: true),
+      () => _resolver.discard(gene, id),
+    );
+  }
+
+  /// [asking] on screen while [ask] goes to the service: the build leaves once
+  /// it is taken, and is put back as it was where it is not.
+  Future<String?> _decide(
+    ProteinBuild asking,
+    Future<ResolveStatus> Function() ask,
+  ) async {
+    final String gene = asking.gene;
+    _put(asking);
+    String? said;
+    try {
+      await ask();
+    } on ApiException catch (error) {
+      said = error.userMessage;
+    } on Object {
+      said = const UnknownApiException().userMessage;
+    }
+    if (said == null) {
+      _drop(gene);
+      if (!_closed) {
+        _decided.add(gene);
+      }
+    } else if (of(gene) != null) {
+      _put(of(gene)!._with(keeping: false, discarding: false));
+    }
+    return said;
+  }
+
+  /// Pin again the builds this phone stopped and has not decided on, as the
+  /// service remembers them: asked once, when the app starts. Each is read
+  /// as any build is, and one already known to this run is left as it is.
+  Future<void> restore() async {
+    final String? id = await _id();
+    if (id == null || _closed) {
+      return;
+    }
+    final List<ProteinSuggestion> stopped;
+    try {
+      stopped = (await _resolver.stopped(id)).proteins;
+    } on Object {
+      // An older service, or none reachable: nothing comes back this run.
+      return;
+    }
+    for (final ProteinSuggestion protein in stopped) {
+      final String? gene = protein.gene;
+      if (gene == null || of(gene) != null || _closed) {
+        continue;
+      }
+      _put(ProteinBuild(
+        protein: protein,
+        stage: BuildStage.stopped,
+        slug: protein.slug,
+        mine: true,
+      ));
+      try {
+        final ResolveStatus status = await _resolver.status(gene);
+        final ProteinBuild? now = of(gene);
+        if (now != null && now.stage == BuildStage.stopped) {
+          _put(await _settled(now, status));
+        }
+      } on Object {
+        // Its card stays as the list said it, without its steps.
+      }
+    }
+    // One resumed elsewhere meanwhile reads as building, and is watched.
+    _schedule();
   }
 
   Future<String?> _id() async {
@@ -440,10 +570,20 @@ class ProteinBuilds {
     }
   }
 
+  void _drop(String gene) {
+    if (!_closed && _builds.value.containsKey(gene)) {
+      _builds.value = <String, ProteinBuild>{
+        for (final MapEntry<String, ProteinBuild> entry in _builds.value.entries)
+          if (entry.key != gene) entry.key: entry.value,
+      };
+    }
+  }
+
   void dispose() {
     _closed = true;
     _next?.cancel();
     unawaited(_ended.close());
+    unawaited(_decided.close());
     _builds.dispose();
   }
 }

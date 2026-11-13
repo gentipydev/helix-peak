@@ -24,13 +24,16 @@ import 'suggestion_tile.dart';
 /// never past the line it prints next. Built, the steps have done their work
 /// and the card says how long it took; declined or stopped, the step it ended
 /// at says why. The phone that asked may stop it while it is queued or
-/// scoring.
+/// scoring, and once stopped resume it, keep it as it is, or discard
+/// everything built for it.
 class BuildCard extends StatefulWidget {
   const BuildCard({
     required this.job,
     required this.onOpen,
     required this.onBuild,
     required this.onStop,
+    this.onKeep,
+    this.onDiscard,
     super.key,
   });
 
@@ -44,6 +47,14 @@ class BuildCard extends StatefulWidget {
 
   /// Stops it, once the reader has said so.
   final ValueChanged<ProteinBuild> onStop;
+
+  /// Keeps a stopped build as it is, without its ESM-2 scores. Null offers no
+  /// Keep.
+  final ValueChanged<ProteinBuild>? onKeep;
+
+  /// Discards everything built for a stopped build, once the reader has said
+  /// so. Null offers no Discard.
+  final ValueChanged<ProteinBuild>? onDiscard;
 
   /// `01:37`, `1:04:52`.
   static String clock(Duration span) {
@@ -230,6 +241,67 @@ class _BuildCardState extends State<BuildCard>
     }
   }
 
+  Future<void> _confirmDiscard() async {
+    final ProteinBuild job = _job;
+    final String lost = job.opens
+        ? 'Everything built for it so far is deleted from the service. '
+              'Building it again starts from the beginning.'
+        : 'Nothing of it was built. Its request is withdrawn.';
+    final bool? discard = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text('Discard ${job.gene}?'),
+        content: Text(lost),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          // The one of the two that loses work, and so the one marked.
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Discard'),
+          ),
+        ],
+      ),
+    );
+    if ((discard ?? false) && mounted) {
+      widget.onDiscard?.call(_job);
+    }
+  }
+
+  /// What a stopped build's reader may do with it: discard it (this phone's
+  /// alone), keep it as it is (where something was built), or resume it.
+  Widget _decisions() {
+    final ProteinBuild job = _job;
+    final ValueChanged<ProteinBuild>? keep = widget.onKeep;
+    final bool asking = job.keeping || job.discarding;
+    // Each stays where it is while a decision is on its way, unpressable, so
+    // the row never shifts under a finger.
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        if (widget.onDiscard != null && job.mine)
+          TextButton(
+            onPressed: asking ? null : _confirmDiscard,
+            child: Text(job.discarding ? 'Discarding' : 'Discard'),
+          ),
+        if (keep != null && job.opens)
+          TextButton(
+            onPressed: asking ? null : () => keep(job),
+            child: Text(job.keeping ? 'Keeping' : 'Keep'),
+          ),
+        TextButton(
+          onPressed: asking ? null : () => widget.onBuild(job.protein),
+          child: const Text('Resume'),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
@@ -278,15 +350,16 @@ class _BuildCardState extends State<BuildCard>
 
     final bool built = job.stage == BuildStage.ready && report?.reason == null;
     final List<Widget> body = <Widget>[
-      if (report == null || built)
+      if (report == null || built) ...<Widget>[
         Padding(
           padding: const EdgeInsets.only(top: 2),
           child: Text(
             _line(report),
             style: theme.cardBody,
           ),
-        )
-      else ...<Widget>[
+        ),
+        if (job.stage == BuildStage.stopped) _decisions(),
+      ] else ...<Widget>[
         const SizedBox(height: AppSpacing.md),
         _Steps(
           job: job,
@@ -341,23 +414,16 @@ class _BuildCardState extends State<BuildCard>
 
   /// Under the steps: the time since it was asked for, running, while it is
   /// under way; how long it took once built; how long it ran once stopped,
-  /// with what can be done next.
+  /// with what can be done next (`_decisions`).
   Widget _footer(ThemeData theme, BuildReport report) {
     final ProteinBuild job = _job;
     final TextStyle? style = theme.caption;
     if (job.stage == BuildStage.stopped) {
-      final String? slug = job.opens ? job.slug : null;
-      return Row(
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Expanded(
-            child: Text('Stopped after ${BuildCard.span(report.elapsed)}', style: style),
-          ),
-          if (slug != null)
-            TextButton(onPressed: () => widget.onOpen(slug), child: const Text('Open')),
-          TextButton(
-            onPressed: () => widget.onBuild(job.protein),
-            child: const Text('Build'),
-          ),
+          Text('Stopped after ${BuildCard.span(report.elapsed)}', style: style),
+          _decisions(),
         ],
       );
     }

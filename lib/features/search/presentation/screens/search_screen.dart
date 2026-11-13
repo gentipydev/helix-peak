@@ -15,6 +15,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/format.dart';
 import '../../../../shared/widgets/error_view.dart';
 import '../../../gene_lookup/data/repositories/protein_catalog_repository.dart';
+import '../cubit/built_proteins_cubit.dart';
 import '../cubit/protein_suggestions_cubit.dart';
 import '../widgets/build_card.dart';
 import '../widgets/list_wait.dart';
@@ -49,7 +50,17 @@ class SearchScreen extends StatelessWidget {
     }
     final Widget view = BlocProvider<ProteinSuggestionsCubit>(
       create: (BuildContext context) => ProteinSuggestionsCubit(resolver),
-      child: const _SearchView(everyProtein: true),
+      child: BlocProvider<BuiltProteinsCubit>(
+        create: (BuildContext context) {
+          final ProteinBuilds builds = context.read<ProteinBuilds>();
+          return BuiltProteinsCubit(
+            resolver,
+            ended: builds.ended,
+            decided: builds.decided,
+          );
+        },
+        child: const _SearchView(everyProtein: true),
+      ),
     );
     if (context.read<ProteinBuilds?>() != null) {
       return view;
@@ -340,6 +351,14 @@ class _BuildPageState extends State<_BuildPage>
   @override
   bool get wantKeepAlive => true;
 
+  /// What is built is asked for as the tab is first shown; the list asks again
+  /// itself as a build ends, is kept or is discarded (`BuiltProteinsCubit`).
+  @override
+  void initState() {
+    super.initState();
+    context.read<BuiltProteinsCubit>().load();
+  }
+
   @override
   void dispose() {
     _field.dispose();
@@ -500,9 +519,57 @@ class _BuildPageState extends State<_BuildPage>
             ),
             const SizedBox(height: AppSpacing.sm),
           ],
+          if (query.isEmpty)
+            BlocBuilder<BuiltProteinsCubit, BuiltState>(
+              builder: (BuildContext context, BuiltState built) => Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: _built(context, built, builds),
+              ),
+            ),
         ],
       ],
     );
+  }
+
+  /// With nothing typed: every protein built on demand, every install's,
+  /// newest first, each opening its walk. One pinned at the top is its card
+  /// there, and not a row here as well. A protein built whole says nothing
+  /// the tab's name does not; one whose scoring was stopped says "No ESM-2".
+  List<Widget> _built(
+    BuildContext context,
+    BuiltState built,
+    Map<String, ProteinBuild> builds,
+  ) {
+    final BuiltPage? page = switch (built) {
+      BuiltShown(:final BuiltPage page) => page,
+      BuiltLoading(:final BuiltPage? previous) => previous,
+      _ => null,
+    };
+    return <Widget>[
+      if (built is BuiltLoading && page == null)
+        const Padding(
+          padding: EdgeInsets.only(bottom: AppSpacing.sm),
+          child: LinearProgressIndicator(minHeight: 2),
+        ),
+      if (built case BuiltFailed(:final String message))
+        _Unreachable(
+          message: message,
+          onRetry: context.read<BuiltProteinsCubit>().load,
+        ),
+      for (final ProteinSuggestion suggestion
+          in page?.proteins ?? const <ProteinSuggestion>[])
+        if (!(builds[suggestion.gene]?.pinned ?? false)) ...<Widget>[
+          SuggestionTile(
+            suggestion: suggestion,
+            built: builds[suggestion.gene],
+            heading: 'Built on demand',
+            onOpen: (String slug) => _openSlug(context, slug, suggestion),
+            // Opened from here, as it is; asking again is search's.
+            onBuild: null,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+        ],
+    ];
   }
 }
 
@@ -531,6 +598,10 @@ List<Widget> _pinnedCards(
         },
         onBuild: (ProteinSuggestion protein) => unawaited(builds.build(protein)),
         onStop: (ProteinBuild build) => unawaited(_stop(context, builds, build)),
+        onKeep: (ProteinBuild build) =>
+            unawaited(_said(context, builds.keep(build.gene))),
+        onDiscard: (ProteinBuild build) =>
+            unawaited(_said(context, builds.discard(build.gene))),
       ),
       const SizedBox(height: AppSpacing.sm),
     ],
@@ -543,8 +614,12 @@ Future<void> _stop(
   BuildContext context,
   ProteinBuilds builds,
   ProteinBuild build,
-) async {
-  final String? said = await builds.stop(build.gene);
+) => _said(context, builds.stop(build.gene));
+
+/// What the service said where it would not do what a card asked, in a
+/// snackbar; nothing where it did.
+Future<void> _said(BuildContext context, Future<String?> asked) async {
+  final String? said = await asked;
   if (said != null && context.mounted) {
     ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(said)));
   }

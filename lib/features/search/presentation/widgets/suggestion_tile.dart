@@ -14,13 +14,15 @@ import 'protein_card.dart';
 /// A protein that opens (curated, or built earlier) is tapped like a card. One
 /// that can be built offers to be; asked, its build goes to the top of search
 /// (`BuildCard`) until it is opened, and comes back here as what it became.
-/// One that cannot be built says why, in the service's words.
+/// One that cannot be built says why, in the service's words. The same tile
+/// lists what is built on demand, on the tab's page with nothing typed.
 class SuggestionTile extends StatelessWidget {
   const SuggestionTile({
     required this.suggestion,
     required this.onOpen,
     required this.onBuild,
     this.built,
+    this.heading,
     super.key,
   });
 
@@ -33,12 +35,23 @@ class SuggestionTile extends StatelessWidget {
   final ValueChanged<String> onOpen;
 
   /// Asks for it to be built, or a stopped one scored again. Null offers
-  /// neither.
+  /// neither: a list of what is built opens each one, and asking again is
+  /// search's.
   final ValueChanged<ProteinSuggestion>? onBuild;
+
+  /// The name of the list it is in, where that says what it is: a status line
+  /// that would only repeat it is left out ("Built on demand" in the list of
+  /// what is built), and one that says something else ("No ESM-2") stays.
+  /// Null, the default, shows every status line.
+  final String? heading;
 
   /// `P38398 · 1,863 aa`.
   static String specOf(ProteinSuggestion suggestion) =>
       '${suggestion.uniprot} · ${grouped(suggestion.length)} aa';
+
+  /// A protein built on demand whose ESM-2 scoring was stopped, and that
+  /// opens without its scores.
+  static const String noScores = 'No ESM-2';
 
   /// The line under the name: where it stands, in words.
   static String statusOf(ProteinSuggestion suggestion, ProteinBuild? built) {
@@ -51,7 +64,7 @@ class SuggestionTile extends StatelessWidget {
         BuildStage.failed => built.message ?? 'The build failed.',
         BuildStage.capped => built.message ?? "Today's builds are taken.",
         BuildStage.stopped => built.opens
-            ? 'Stopped before ESM-2 finished'
+            ? noScores
             : 'Stopped before it was built',
       };
     }
@@ -59,7 +72,7 @@ class SuggestionTile extends StatelessWidget {
       return 'Building';
     }
     if (suggestion.stopped) {
-      return 'Stopped before ESM-2 finished';
+      return noScores;
     }
     return switch (suggestion.status) {
       SuggestionStatus.listed => 'Curated walk',
@@ -124,13 +137,15 @@ class SuggestionTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AppTypography.spec(colors.onSurfaceVariant),
               ),
-              const SizedBox(height: 2),
-              Text(
-                status,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.cardBody,
-              ),
+              if (status != heading) ...<Widget>[
+                const SizedBox(height: 2),
+                Text(
+                  status,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.cardBody,
+                ),
+              ],
             ],
           ),
         ),

@@ -23,6 +23,47 @@ final class ProteinResolver {
         ),
       );
 
+  /// The proteins built on demand, every install's, newest first.
+  ///
+  /// One page of up to [limit]. Its `next` is not followed: that waits until
+  /// there are nearly that many builds.
+  Future<BuiltPage> built({int limit = 200}) async => BuiltPage.fromJson(
+    await _api.getJson(
+      '/proteins/built',
+      query: <String, dynamic>{'limit': limit},
+    ),
+  );
+
+  /// The builds [asker] stopped and has not resumed, kept or discarded since:
+  /// what this phone pins again when the app starts. Asked by POST, so the
+  /// install's id is never in a URL.
+  Future<BuiltPage> stopped(String asker) async => BuiltPage.fromJson(
+    await _api.postJson(
+      '/proteins/stopped',
+      body: <String, dynamic>{'asker': asker},
+    ),
+  );
+
+  /// Keep [gene]'s stopped build as it is, without its ESM-2 scores, for
+  /// [asker], which stopped it.
+  Future<ResolveStatus> keep(String gene, String asker) async =>
+      ResolveStatus.fromJson(
+        await _api.postJson(
+          '/proteins/resolve/${Uri.encodeComponent(gene)}/keep',
+          body: <String, dynamic>{'asker': asker},
+        ),
+      );
+
+  /// Delete everything built for [gene]'s stopped build, for [asker], which
+  /// stopped it: the gene then reads as never asked for.
+  Future<ResolveStatus> discard(String gene, String asker) async =>
+      ResolveStatus.fromJson(
+        await _api.postJson(
+          '/proteins/resolve/${Uri.encodeComponent(gene)}/discard',
+          body: <String, dynamic>{'asker': asker},
+        ),
+      );
+
   /// Ask for the protein [gene] makes, built where it is not one yet, or
   /// scored afresh where its scoring was stopped. [asker] is this install's
   /// own id: only it may stop what the ask starts.

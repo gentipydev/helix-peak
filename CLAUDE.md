@@ -128,7 +128,10 @@ Git: commit the session's own changes locally. Never push, in any form.
   opens on, searches the curated list. Build on demand searches every
   reviewed human protein (its own `ProteinSuggestionsCubit`), each one found
   saying what can be done with it: open it, build it, or the service's
-  sentence why it cannot be built; with nothing typed it is its line alone.
+  sentence why it cannot be built; with nothing typed it is its line and
+  every protein built on demand, every install's, newest first, each opening
+  its walk ("No ESM-2" on one whose scoring was stopped; the user's word of
+  2026-11-13, which brought the list back the same day it was removed).
   The builds are the app's (see "How data arrives" 4), each pinned at the
   top of both tabs while it runs. Search is not the walk; it reaches the
   walk only by opening `/gene/<slug>`.
@@ -916,8 +919,15 @@ Tests use `test/support/fixture_track_source.dart` over `test/fixtures/`.
    The phone that asked may stop a build while it is queued or scoring, after
    a dialog: each ask carries this install's own random id (`InstallId`, no
    accounts), and only it may stop (`POST /proteins/resolve/{gene}/stop`).
-   Stopped while scoring, it opens unscored and Build scores it again; a
-   suggestion marks such a protein `stopped`. A build that ends while search
+   Once stopped, the card asks the reader to decide, and comes back after the
+   app restarts until they have (`ProteinBuilds.restore`, from
+   `POST /proteins/stopped`; the user's design of 2026-11-13): Discard (this
+   phone's alone, after a dialog: the service deletes everything built for it,
+   and the gene reads as never asked for), Keep (where something was built: it
+   stays built without its ESM-2 scores) and Resume (asks again, which scores
+   what is missing). Keep or Discard takes the card away; Open is no longer
+   on a stopped card. A suggestion marks such a protein `stopped`, which a
+   tile reads as "No ESM-2". A build that ends while search
    is not on top is said in a snackbar on any screen (`BuildReadyListener`,
    in `MaterialApp.builder`). Nothing is given up on by the app: a report
    that stands still for ten minutes says so. From a service without the
@@ -929,9 +939,10 @@ Tests use `test/support/fixture_track_source.dart` over `test/fixtures/`.
    `structure` step, read as every step behind it and `BuildReport.holding`,
    and it opens once the fold is made or the service stops waiting (20
    minutes at most). `BuildStep` keeps its six values: a walk test pins them.
-   The app lists no builds (the user's word of 2026-11-13: the Build on
-   demand tab is its search alone); the service's `GET /proteins/built`
-   stays for installs older than that.
+   With nothing typed, the Build on demand tab lists every protein built
+   (`GET /proteins/built`, `BuiltProteinsCubit`), asked for as the tab is
+   first shown and again when a build ends with a protein to open, or a
+   stopped one is kept or discarded.
    A build opens the walk only once its AVI and ClinVar are in and ESM-2 has
    scored it or declined to (the backend's ESM-2 bake waits for the first
    two). `TrackClient` and `ProteinCatalogRepository` each remember a protein

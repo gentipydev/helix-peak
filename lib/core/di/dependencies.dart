@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -27,12 +29,17 @@ List<RepositoryProvider<Object>> buildAppProviders({
     ),
     // One list of builds for the whole app, so that a build outlives the
     // search that asked for it. Each ask names this install, so that only
-    // this phone may stop what it started.
+    // this phone may stop what it started; the builds it stopped and has not
+    // decided on are pinned again as the list is made.
     RepositoryProvider<ProteinBuilds>(
-      create: (BuildContext context) => ProteinBuilds(
-        context.read<ProteinResolver>(),
-        asker: InstallId().read,
-      ),
+      create: (BuildContext context) {
+        final ProteinBuilds builds = ProteinBuilds(
+          context.read<ProteinResolver>(),
+          asker: InstallId().read,
+        );
+        unawaited(builds.restore());
+        return builds;
+      },
       dispose: (ProteinBuilds builds) => builds.dispose(),
     ),
     RepositoryProvider<TrackSource>(
