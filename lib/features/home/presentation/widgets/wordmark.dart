@@ -30,6 +30,10 @@ class Wordmark extends StatelessWidget {
                   text: 'PEEK',
                   style: AppTypography.wordmark(theme.colorScheme.primary),
                 ),
+                TextSpan(
+                  text: ' AI',
+                  style: AppTypography.wordmark(theme.colorScheme.onSurface),
+                ),
               ],
             ),
             textAlign: TextAlign.center,
