@@ -45,6 +45,9 @@ final class TrackClient implements TrackSource {
   /// catalog that grows past that loses the oldest rather than the device.
   static const int _defaultBudget = 200 * 1024 * 1024;
 
+  /// What a digest must be to name a cached file (`_cacheFile`).
+  static final RegExp _fileName = RegExp(r'^[A-Za-z0-9]{1,128}$');
+
   static BaseOptions get _options => BaseOptions(
     // Connecting is held to the patience a JSON call gets. Receiving is not:
     // dystrophin's snapshot is the one payload most worth waiting for, and a
@@ -379,7 +382,10 @@ final class TrackClient implements TrackSource {
   /// directory under `flutter test`, and a cache is a head start rather than a
   /// dependency. A track loads without one; it just loads again next time.
   Future<File?> _cacheFile(String? digest) async {
-    if (digest == null || digest.isEmpty) {
+    // The service's digest becomes a file name only where it can be nothing
+    // else: letters and digits (a sha256 is 64 hex). One that could name a
+    // path, `../` and all, is read as no digest: fetched, and not kept.
+    if (digest == null || !_fileName.hasMatch(digest)) {
       return null;
     }
     final Directory? directory = await (_cacheDirectory ??= _open());
